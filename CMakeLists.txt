@@ -17,6 +17,8 @@ set(SOURCE_FILES
     src/rwe/math/Vector2f.h
     src/rwe/math/Vector3f.cpp
     src/rwe/math/Vector3f.h
+    src/rwe/math/Matrix4f.cpp
+    src/rwe/math/Matrix4f.h
     src/rwe/math/rwe_math.cpp
     src/rwe/math/rwe_math.h
 )
@@ -32,6 +34,7 @@ set(TEST_FILES
     test/rwe/geometry/Plane3f_test.cpp
     test/rwe/geometry/Ray3f_test.cpp
     test/rwe/geometry/Triangle3f_test.cpp
+    test/rwe/math/Matrix4f_test.cpp
     test/rwe/math/Vector3f_test.cpp
 )
 
