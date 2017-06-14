@@ -1,0 +1,21 @@
+AccessModifierOffset: -4
+AlignAfterOpenBracket: false
+AlignConsecutiveDeclarations: false
+AlignConsecutiveAssignments: false
+AlignOperands: false
+#BinPackArguments: false
+#BinPackParameters: false
+BreakBeforeBinaryOperators: true
+BreakBeforeBraces: Allman  # always break
+ColumnLimit: 0
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+DerivePointerAlignment: false
+IndentCaseLabels: true
+IndentWidth: 4
+MaxEmptyLinesToKeep: 2
+NamespaceIndentation: All
+PointerAlignment: Left
+SortIncludes: false
+Standard: Cpp11
+TabWidth: 4
+UseTab: Never
