@@ -4,6 +4,8 @@ enable_testing()
 
 set(CMAKE_CXX_STANDARD 17)
 
+find_package(Boost 1.54.0 REQUIRED)
+
 set(SOURCE_FILES
     src/rwe/geometry/BoundingBox3f.cpp
     src/rwe/geometry/BoundingBox3f.h
@@ -26,6 +28,8 @@ set(SOURCE_FILES
 add_library(librwe STATIC ${SOURCE_FILES})
 set_target_properties(librwe PROPERTIES PREFIX "")
 target_include_directories(librwe PUBLIC "src")
+target_include_directories(librwe PUBLIC ${Boost_INCLUDE_DIRS})
+
 add_executable(rwe src/main.cpp)
 target_link_libraries(rwe librwe)
 
