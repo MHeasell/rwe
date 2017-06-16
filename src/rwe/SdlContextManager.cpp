@@ -22,6 +22,11 @@ namespace rwe
         return &sdlContext;
     }
 
+    SdlContext* SdlContextManager::getSdlContext()
+    {
+        return &sdlContext;
+    }
+
     const SdlNetContext* SdlContextManager::getSdlNetContext() const
     {
         return &sdlNetContext;

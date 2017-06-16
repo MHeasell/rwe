@@ -8,6 +8,9 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(Boost 1.54.0 REQUIRED)
 
+find_package(OpenGL REQUIRED)
+find_package(GLEW REQUIRED)
+
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 find_package(SDL2_mixer REQUIRED)
@@ -32,12 +35,23 @@ set(SOURCE_FILES
     src/rwe/math/Vector3f.h
     src/rwe/math/rwe_math.cpp
     src/rwe/math/rwe_math.h
+    src/rwe/SceneManager.cpp
+    src/rwe/SceneManager.h
+    src/rwe/GraphicsContext.cpp
+    src/rwe/GraphicsContext.h
+    src/rwe/TriangleScene.cpp
+    src/rwe/TriangleScene.h
 )
 
 add_library(librwe STATIC ${SOURCE_FILES})
 set_target_properties(librwe PROPERTIES PREFIX "")
 target_include_directories(librwe PUBLIC "src")
 target_include_directories(librwe PUBLIC ${Boost_INCLUDE_DIRS})
+
+target_link_libraries(librwe ${OPENGL_LIBRARIES})
+
+target_include_directories(librwe PUBLIC ${GLEW_INCLUDE_DIRS})
+target_link_libraries(librwe ${GLEW_LIBRARIES})
 
 target_link_libraries(librwe ${SDL2_LIBRARY})
 target_link_libraries(librwe ${SDL2_IMAGE_LIBRARIES})
