@@ -1,12 +1,11 @@
-#ifndef RWE_TRIANGLESCENE_H
-#define RWE_TRIANGLESCENE_H
+#ifndef RWE_QUADSCENE_H
+#define RWE_QUADSCENE_H
 
 #include <rwe/SceneManager.h>
-#include <rwe/GraphicsContext.h>
 
 namespace rwe
 {
-    class TriangleScene final : public SceneManager::Scene
+    class OtherTriangleScene final : public SceneManager::Scene
     {
     public:
         void onKeyDown(SceneManager& sceneManager, const SDL_Keysym& key) final;

@@ -41,6 +41,8 @@ set(SOURCE_FILES
     src/rwe/GraphicsContext.h
     src/rwe/TriangleScene.cpp
     src/rwe/TriangleScene.h
+    src/rwe/OtherTriangleScene.cpp
+    src/rwe/OtherTriangleScene.h
 )
 
 add_library(librwe STATIC ${SOURCE_FILES})

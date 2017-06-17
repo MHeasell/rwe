@@ -19,6 +19,8 @@ namespace rwe
 
             virtual void render(GraphicsContext& graphics) {}
 
+            virtual void onKeyDown(SceneManager& sceneManager, const SDL_Keysym& key) {}
+
             virtual ~Scene() = default;
         };
 

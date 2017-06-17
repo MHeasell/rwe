@@ -48,7 +48,16 @@ namespace rwe
             SDL_Event event;
             while (sdl->pollEvent(&event))
             {
-                if (event.type == SDL_QUIT)
+                switch (event.type)
+                {
+                    case SDL_QUIT:
+                        return;
+                    case SDL_KEYDOWN:
+                        sceneStack.top()->onKeyDown(*this, event.key.keysym);
+                        break;
+                }
+
+                if (sceneStack.empty())
                 {
                     return;
                 }
