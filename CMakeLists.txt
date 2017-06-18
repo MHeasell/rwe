@@ -19,6 +19,8 @@ find_package(SDL2_net REQUIRED)
 set(SOURCE_FILES
     src/rwe/GraphicsContext.cpp
     src/rwe/GraphicsContext.h
+    src/rwe/Hpi.cpp
+    src/rwe/Hpi.h
     src/rwe/OtherTriangleScene.cpp
     src/rwe/OtherTriangleScene.h
     src/rwe/SceneManager.cpp
@@ -67,6 +69,10 @@ target_include_directories(librwe PUBLIC ${SDL2_NET_INCLUDE_DIRS})
 
 add_executable(rwe src/main.cpp)
 target_link_libraries(rwe librwe)
+
+add_executable(hpi_test src/hpi_test.cpp)
+target_link_libraries(hpi_test librwe)
+target_link_libraries(hpi_test -static)
 
 set(TEST_FILES
     test/rwe/geometry/BoundingBox3f_test.cpp
