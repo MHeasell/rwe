@@ -17,8 +17,16 @@ find_package(SDL2_mixer REQUIRED)
 find_package(SDL2_net REQUIRED)
 
 set(SOURCE_FILES
+    src/rwe/GraphicsContext.cpp
+    src/rwe/GraphicsContext.h
+    src/rwe/OtherTriangleScene.cpp
+    src/rwe/OtherTriangleScene.h
+    src/rwe/SceneManager.cpp
+    src/rwe/SceneManager.h
     src/rwe/SdlContextManager.cpp
     src/rwe/SdlContextManager.h
+    src/rwe/TriangleScene.cpp
+    src/rwe/TriangleScene.h
     src/rwe/geometry/BoundingBox3f.cpp
     src/rwe/geometry/BoundingBox3f.h
     src/rwe/geometry/Plane3f.cpp
@@ -35,14 +43,6 @@ set(SOURCE_FILES
     src/rwe/math/Vector3f.h
     src/rwe/math/rwe_math.cpp
     src/rwe/math/rwe_math.h
-    src/rwe/SceneManager.cpp
-    src/rwe/SceneManager.h
-    src/rwe/GraphicsContext.cpp
-    src/rwe/GraphicsContext.h
-    src/rwe/TriangleScene.cpp
-    src/rwe/TriangleScene.h
-    src/rwe/OtherTriangleScene.cpp
-    src/rwe/OtherTriangleScene.h
 )
 
 add_library(librwe STATIC ${SOURCE_FILES})
