@@ -87,18 +87,39 @@ namespace rwe
     class HpiArchive
     {
     public:
-        explicit HpiArchive(std::istream* stream);
-
-        const HpiDirectoryEntry* begin() const;
-        const HpiDirectoryEntry* end() const;
-
-        const char* getData() const { return data.get(); }
+        struct DirectoryEntry;
+        struct File
+        {
+            enum class CompressionScheme { None = 0, LZ77, ZLib };
+            CompressionScheme compressionScheme;
+            std::size_t offset;
+            std::size_t size;
+        };
+        struct Directory
+        {
+            std::vector<DirectoryEntry> entries;
+        };
+        struct DirectoryEntry
+        {
+            std::string name;
+            boost::variant<File, Directory> data;
+        };
 
     private:
+
         std::istream* stream;
         unsigned char decryptionKey;
-        std::unique_ptr<char[]> data;
-        std::size_t start;
+        Directory _root;
+
+    public:
+        explicit HpiArchive(std::istream* stream);
+
+        const Directory root() const;
+
+    private:
+        HpiArchive::File convertFile(const HpiFileData& file, const char* buffer, std::size_t size);
+        HpiArchive::DirectoryEntry convertDirectoryEntry(const HpiDirectoryEntry& entry, const char* buffer, std::size_t size);
+        HpiArchive::Directory convertDirectory(const HpiDirectoryData& directory, const char buffer[], std::size_t size);
     };
 
     unsigned char transformKey(unsigned char key);
