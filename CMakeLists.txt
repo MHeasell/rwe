@@ -45,10 +45,11 @@ set(SOURCE_FILES
     src/rwe/math/Vector3f.h
     src/rwe/math/rwe_math.cpp
     src/rwe/math/rwe_math.h
-)
+    src/rwe/rwe_string.cpp src/rwe/rwe_string.h)
 
 add_library(librwe STATIC ${SOURCE_FILES})
 set_target_properties(librwe PROPERTIES PREFIX "")
+target_compile_options(librwe PUBLIC "-Wall" "-Wextra")
 target_include_directories(librwe PUBLIC "src")
 target_include_directories(librwe PUBLIC ${Boost_INCLUDE_DIRS})
 
@@ -83,7 +84,7 @@ set(TEST_FILES
     test/rwe/geometry/Triangle3f_test.cpp
     test/rwe/math/Matrix4f_test.cpp
     test/rwe/math/Vector3f_test.cpp
-)
+    test/rwe/rwe_string_test.cpp)
 
 add_executable(rwe_test test/main.cpp ${TEST_FILES})
 target_include_directories(rwe_test PRIVATE "libs/catch")
