@@ -65,20 +65,28 @@ namespace rwe
         auto nameSize = stringSize(buffer + entry.nameOffset, buffer + size);
         if (!nameSize)
         {
-            throw std::runtime_error("Invalid HPI file, runaway directory entry name");
+            throw HpiException("Runaway directory entry name");
         }
 
         std::string name(buffer + entry.nameOffset, *nameSize);
         if (entry.isDirectory != 0)
         {
-            assert(entry.dataOffset + sizeof(HpiDirectoryData) <= size);
+            if (entry.dataOffset + sizeof(HpiDirectoryData) > size)
+            {
+                throw HpiException("Runaway directory data offset");
+            }
+
             auto d = reinterpret_cast<const HpiDirectoryData*>(buffer + entry.dataOffset);
             auto data = convertDirectory(*d, buffer, size);
             return DirectoryEntry { name, data };
         }
         else
         {
-            assert(entry.dataOffset + sizeof(HpiFileData) <= size);
+            if (entry.dataOffset + sizeof(HpiFileData) > size)
+            {
+                throw HpiException("Runaway file data offset");
+            }
+
             auto f = reinterpret_cast<const HpiFileData*>(buffer + entry.dataOffset);
             auto data = convertFile(*f, buffer, size);
             return DirectoryEntry { name, data };
@@ -93,9 +101,12 @@ namespace rwe
 
     HpiArchive::Directory HpiArchive::convertDirectory(const HpiDirectoryData& directory, const char* buffer, std::size_t size)
     {
+        if (directory.entryListOffset + (directory.numberOfEntries * sizeof(HpiDirectoryEntry)) > size)
+        {
+            throw HpiException("Runaway directory entry list");
+        }
+
         std::vector<DirectoryEntry> v;
-        auto end = directory.entryListOffset + (directory.numberOfEntries * sizeof(HpiDirectoryEntry));
-        assert(end <= size);
         auto p = reinterpret_cast<const HpiDirectoryEntry*>(buffer + directory.entryListOffset);
         for (std::size_t i = 0; i < directory.numberOfEntries; ++i)
         {
@@ -126,7 +137,11 @@ namespace rwe
         auto data = std::make_unique<char[]>(h.directorySize);
         readAndDecrypt(*stream, decryptionKey, data.get() + h.start, h.directorySize - h.start);
 
-        assert(h.directorySize - h.start >= sizeof(HpiDirectoryData));
+        if (h.start + sizeof(HpiDirectoryData) > h.directorySize)
+        {
+            throw HpiException("Runaway root directory");
+        }
+
         auto directory = reinterpret_cast<HpiDirectoryData*>(data.get() + h.start);
         _root = convertDirectory(*directory, data.get(), h.directorySize);
     }
