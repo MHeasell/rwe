@@ -52,6 +52,8 @@ set_target_properties(librwe PROPERTIES PREFIX "")
 target_include_directories(librwe PUBLIC "src")
 target_include_directories(librwe PUBLIC ${Boost_INCLUDE_DIRS})
 
+target_include_directories(librwe PUBLIC "libs/utfcpp/source")
+
 target_link_libraries(librwe ${OPENGL_LIBRARIES})
 
 target_include_directories(librwe PUBLIC ${GLEW_INCLUDE_DIRS})
