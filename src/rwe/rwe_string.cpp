@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <utf8.h>
+#include <cctype>
 
 namespace rwe
 {
@@ -52,5 +53,12 @@ namespace rwe
     {
         std::vector<char> v {codePoint};
         return split(str, v);
+    }
+
+    std::string toUpper(const std::string& str)
+    {
+        std::string copy(str);
+        std::transform(copy.begin(), copy.end(), copy.begin(), [](unsigned char c) { return std::toupper(c); });
+        return copy;
     }
 }

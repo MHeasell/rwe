@@ -69,4 +69,12 @@ namespace rwe
             REQUIRE(actual == expected);
         }
     }
+
+    TEST_CASE("toUpper")
+    {
+        SECTION("converts a string to uppercase")
+        {
+            REQUIRE(toUpper(std::string("Foo bAr baZ")) == std::string("FOO BAR BAZ"));
+        }
+    }
 }

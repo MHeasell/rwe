@@ -11,6 +11,8 @@ namespace rwe
 
     std::vector<std::string> split(const std::string& str, const std::vector<char>& codePoints);
     std::vector<std::string> split(const std::string& str, char codePoint);
+
+    std::string toUpper(const std::string& str);
 }
 
 #endif
