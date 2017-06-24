@@ -60,7 +60,8 @@ namespace rwe
         return boost::none;
     }
 
-    HpiArchive::DirectoryEntry HpiArchive::convertDirectoryEntry(const HpiDirectoryEntry& entry, const char* buffer, std::size_t size)
+    HpiArchive::DirectoryEntry
+    HpiArchive::convertDirectoryEntry(const HpiDirectoryEntry& entry, const char* buffer, std::size_t size)
     {
         auto nameSize = stringSize(buffer + entry.nameOffset, buffer + size);
         if (!nameSize)
@@ -78,7 +79,7 @@ namespace rwe
 
             auto d = reinterpret_cast<const HpiDirectoryData*>(buffer + entry.dataOffset);
             auto data = convertDirectory(*d, buffer, size);
-            return DirectoryEntry { name, data };
+            return DirectoryEntry{name, data};
         }
         else
         {
@@ -89,17 +90,18 @@ namespace rwe
 
             auto f = reinterpret_cast<const HpiFileData*>(buffer + entry.dataOffset);
             auto data = convertFile(*f, buffer, size);
-            return DirectoryEntry { name, data };
+            return DirectoryEntry{name, data};
         }
     }
 
     HpiArchive::File HpiArchive::convertFile(const HpiFileData& file, const char* buffer, std::size_t size)
     {
-        File f { static_cast<File::CompressionScheme>(file.compressionScheme), file.dataOffset, file.fileSize};
+        File f{static_cast<File::CompressionScheme>(file.compressionScheme), file.dataOffset, file.fileSize};
         return f;
     }
 
-    HpiArchive::Directory HpiArchive::convertDirectory(const HpiDirectoryData& directory, const char* buffer, std::size_t size)
+    HpiArchive::Directory
+    HpiArchive::convertDirectory(const HpiDirectoryData& directory, const char* buffer, std::size_t size)
     {
         if (directory.entryListOffset + (directory.numberOfEntries * sizeof(HpiDirectoryEntry)) > size)
         {
@@ -113,7 +115,7 @@ namespace rwe
             v.push_back(convertDirectoryEntry(p[i], buffer, size));
         }
 
-        return Directory { v };
+        return Directory{v};
     }
 
     HpiArchive::HpiArchive(std::istream* stream) : stream(stream)
