@@ -5,12 +5,10 @@
 
 namespace rwe
 {
-    std::vector<std::string> utf8Split(const std::string& str, const std::vector<unsigned int>& codePoints)
+    template <typename It, typename C>
+    std::vector<std::string> splitInternal(It begin, It end, const std::vector<C>& codePoints)
     {
         std::vector<std::string> v;
-
-        utf8::iterator<std::string::const_iterator> begin(str.begin(), str.begin(), str.end());
-        utf8::iterator<std::string::const_iterator> end(str.end(), str.begin(), str.end());
 
         while (true)
         {
@@ -25,11 +23,34 @@ namespace rwe
         }
 
         return v;
+    };
+
+    std::vector<std::string> utf8Split(const std::string& str, const std::vector<unsigned int>& codePoints)
+    {
+        utf8::iterator<std::string::const_iterator> begin(str.begin(), str.begin(), str.end());
+        utf8::iterator<std::string::const_iterator> end(str.end(), str.begin(), str.end());
+
+        return splitInternal(begin, end, codePoints);
     }
 
     std::vector<std::string> utf8Split(const std::string& str, unsigned int codePoint)
     {
         std::vector<unsigned int> v {codePoint};
         return utf8Split(str, v);
+    }
+
+    std::vector<std::string> split(const std::string& str, const std::vector<char>& codePoints)
+    {
+
+        auto begin = str.begin();
+        auto end = str.end();
+
+        return splitInternal(begin, end, codePoints);
+    }
+
+    std::vector<std::string> split(const std::string& str, char codePoint)
+    {
+        std::vector<char> v {codePoint};
+        return split(str, v);
     }
 }
