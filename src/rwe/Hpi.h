@@ -5,6 +5,7 @@
 #include <istream>
 #include <vector>
 #include <boost/variant.hpp>
+#include <boost/optional.hpp>
 
 namespace rwe
 {
@@ -16,6 +17,9 @@ namespace rwe
 
     /** The version number indicating a saved game ("BANK"). */
     static const unsigned int HpiBankMagicNumber = 0x4B4E4142;
+
+    /** The magic number at the start of HPI chunks ("SQSH"). */
+    static const unsigned int HpiChunkMagicNumber = 0x48535153;
 
     class HpiException : public std::runtime_error
     {
@@ -82,6 +86,17 @@ namespace rwe
         uint8_t isDirectory;
     };
 
+    struct HpiChunk
+    {
+        uint32_t marker;
+        uint8_t version;
+        uint8_t compressionScheme;
+        uint8_t encrypted;
+        uint32_t compressedSize;
+        uint32_t decompressedSize;
+        uint32_t checksum;
+    };
+
 #pragma pack()
 
     class HpiArchive
@@ -114,7 +129,11 @@ namespace rwe
     public:
         explicit HpiArchive(std::istream* stream);
 
-        const Directory root() const;
+        const Directory& root() const;
+
+        boost::optional<const File&> findFile(const std::string& path) const;
+
+        void extract(const File& file, char* buffer) const;
 
     private:
         HpiArchive::File convertFile(const HpiFileData& file, const char* buffer, std::size_t size);
