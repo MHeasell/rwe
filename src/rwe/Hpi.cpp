@@ -17,6 +17,11 @@ namespace rwe
      */
     void decrypt(unsigned char key, unsigned char seed, char buf[], std::streamsize size)
     {
+        if (key == 0)
+        {
+            return;
+        }
+
         for (std::streamsize i = 0; i < size; ++i)
         {
             auto pos = seed + static_cast<unsigned char>(i);
