@@ -22,7 +22,7 @@ std::string schemeName(rwe::HpiArchive::File::CompressionScheme scheme)
         case rwe::HpiArchive::File::CompressionScheme::LZ77:
             return "LZ77";
         case rwe::HpiArchive::File::CompressionScheme::ZLib:
-            return "ZlLib";
+            return "ZLib";
         default:
             throw std::runtime_error("Invalid compression scheme");
     }
