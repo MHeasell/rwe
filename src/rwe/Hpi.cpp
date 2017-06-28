@@ -3,6 +3,8 @@
 #include <boost/optional.hpp>
 #include <rwe/rwe_string.h>
 
+#include <zlib.h>
+
 namespace rwe
 {
     HpiException::HpiException(const char* message) : runtime_error(message) {}
@@ -155,6 +157,35 @@ namespace rwe
                 tag >>= 1;
             }
         }
+    }
+
+    void decompressZLib(const char* in, std::size_t len, char* out, std::size_t maxBytes)
+    {
+        z_stream stream;
+
+        stream.zalloc = Z_NULL;
+        stream.zfree = Z_NULL;
+        stream.opaque = Z_NULL;
+        stream.avail_in = 0;
+        stream.next_in = Z_NULL;
+
+        if(inflateInit(&stream) != Z_OK)
+        {
+            throw HpiException("ZLib decompress initialization failed");
+        }
+
+        stream.avail_in = static_cast<uInt>(len);
+        stream.next_in = reinterpret_cast<unsigned char*>(const_cast<char*>(in));
+        stream.avail_out = static_cast<uInt>(maxBytes);
+        stream.next_out = reinterpret_cast<unsigned char*>(out);
+
+        if (inflate(&stream, Z_NO_FLUSH) != Z_STREAM_END)
+        {
+            inflateEnd(&stream);
+            throw HpiException("ZLib decompress failed");
+        }
+
+        inflateEnd(&stream);
     }
 
     boost::optional<std::size_t> stringSize(const char* begin, const char* end)
@@ -321,8 +352,9 @@ namespace rwe
                     break;
 
                 case 2: // ZLib compression
-                    throw HpiException("Zlib decompression not implemented");
-
+                    decompressZLib(chunkBuffer.get(), chunkHeader.compressedSize, buffer + bufferOffset, chunkHeader.decompressedSize);
+                    bufferOffset += chunkHeader.decompressedSize;
+                    break;
             }
         }
     }
