@@ -355,6 +355,8 @@ namespace rwe
                     decompressZLib(chunkBuffer.get(), chunkHeader.compressedSize, buffer + bufferOffset, chunkHeader.decompressedSize);
                     bufferOffset += chunkHeader.decompressedSize;
                     break;
+                default:
+                    throw HpiException("Invalid compression scheme");
             }
         }
     }
@@ -366,7 +368,7 @@ namespace rwe
             return f;
         }
 
-        boost::optional<const HpiArchive::File&> operator()(const HpiArchive::Directory&) const
+        boost::optional<const HpiArchive::File&> operator()(const HpiArchive::Directory& /*d*/) const
         {
             return boost::none;
         }
@@ -391,7 +393,7 @@ namespace rwe
 
     struct DirToOptionalVisitor : public boost::static_visitor<boost::optional<const HpiArchive::Directory&>>
     {
-        boost::optional<const HpiArchive::Directory&> operator()(const HpiArchive::File&) const
+        boost::optional<const HpiArchive::Directory&> operator()(const HpiArchive::File& /*f*/) const
         {
             return boost::none;
         }
