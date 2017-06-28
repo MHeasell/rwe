@@ -105,7 +105,12 @@ namespace rwe
         struct DirectoryEntry;
         struct File
         {
-            enum class CompressionScheme { None = 0, LZ77, ZLib };
+            enum class CompressionScheme
+            {
+                None = 0,
+                LZ77,
+                ZLib
+            };
             CompressionScheme compressionScheme;
             std::size_t offset;
             std::size_t size;
@@ -121,7 +126,6 @@ namespace rwe
         };
 
     private:
-
         std::istream* stream;
         unsigned char decryptionKey;
         Directory _root;

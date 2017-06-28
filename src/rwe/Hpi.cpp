@@ -169,7 +169,7 @@ namespace rwe
         stream.avail_in = 0;
         stream.next_in = Z_NULL;
 
-        if(inflateInit(&stream) != Z_OK)
+        if (inflateInit(&stream) != Z_OK)
         {
             throw HpiException("ZLib decompress initialization failed");
         }

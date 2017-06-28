@@ -36,7 +36,7 @@ namespace rwe
 
     std::vector<std::string> utf8Split(const std::string& str, unsigned int codePoint)
     {
-        std::vector<unsigned int> v {codePoint};
+        std::vector<unsigned int> v{codePoint};
         return utf8Split(str, v);
     }
 
@@ -51,7 +51,7 @@ namespace rwe
 
     std::vector<std::string> split(const std::string& str, char codePoint)
     {
-        std::vector<char> v {codePoint};
+        std::vector<char> v{codePoint};
         return split(str, v);
     }
 
