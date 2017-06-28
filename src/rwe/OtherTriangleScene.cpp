@@ -12,7 +12,7 @@ namespace rwe
         graphics.drawTriangle(a, b, c);
     }
 
-    void OtherTriangleScene::onKeyDown(SceneManager& sceneManager, const SDL_Keysym& key)
+    void OtherTriangleScene::onKeyDown(SceneManager& sceneManager, const SDL_Keysym& /*key*/)
     {
         sceneManager.replaceScene(std::make_unique<TriangleScene>());
     }

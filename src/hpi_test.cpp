@@ -8,8 +8,8 @@ namespace rwe
     class NameVisitor : public boost::static_visitor<std::string>
     {
     public:
-        std::string operator()(const HpiArchive::File& i) const { return "file"; }
-        std::string operator()(const HpiArchive::Directory& i) const { return "directory"; }
+        std::string operator()(const HpiArchive::File& /*file*/) const { return "file"; }
+        std::string operator()(const HpiArchive::Directory& /*directory*/) const { return "directory"; }
     };
 }
 

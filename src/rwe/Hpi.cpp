@@ -89,9 +89,9 @@ namespace rwe
     {
         char window[4096];
 
-        int inPos = 0;
-        int outPos = 0;
-        int windowPos = 1;
+        std::size_t inPos = 0;
+        std::size_t outPos = 0;
+        unsigned int windowPos = 1;
 
         while (true)
         {
@@ -145,7 +145,7 @@ namespace rwe
                         throw HpiException("LZ77 decompress ran over max output bytes");
                     }
 
-                    for (int x = 0; x < count; x++)
+                    for (unsigned int x = 0; x < count; ++x)
                     {
                         out[outPos++] = window[offset];
                         window[windowPos] = window[offset];
@@ -234,12 +234,12 @@ namespace rwe
             }
 
             auto f = reinterpret_cast<const HpiFileData*>(buffer + entry.dataOffset);
-            auto data = convertFile(*f, buffer, size);
+            auto data = convertFile(*f);
             return DirectoryEntry{name, data};
         }
     }
 
-    HpiArchive::File HpiArchive::convertFile(const HpiFileData& file, const char* buffer, std::size_t size)
+    HpiArchive::File HpiArchive::convertFile(const HpiFileData& file)
     {
         File f{static_cast<File::CompressionScheme>(file.compressionScheme), file.dataOffset, file.fileSize};
         return f;

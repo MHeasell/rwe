@@ -136,7 +136,7 @@ namespace rwe
         void extract(const File& file, char* buffer) const;
 
     private:
-        HpiArchive::File convertFile(const HpiFileData& file, const char* buffer, std::size_t size);
+        HpiArchive::File convertFile(const HpiFileData& file);
         HpiArchive::DirectoryEntry convertDirectoryEntry(const HpiDirectoryEntry& entry, const char* buffer, std::size_t size);
         HpiArchive::Directory convertDirectory(const HpiDirectoryData& directory, const char buffer[], std::size_t size);
     };
