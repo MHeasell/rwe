@@ -3,16 +3,6 @@
 #include <fstream>
 #include <iostream>
 
-namespace rwe
-{
-    class NameVisitor : public boost::static_visitor<std::string>
-    {
-    public:
-        std::string operator()(const HpiArchive::File& /*file*/) const { return "file"; }
-        std::string operator()(const HpiArchive::Directory& /*directory*/) const { return "directory"; }
-    };
-}
-
 std::string schemeName(rwe::HpiArchive::File::CompressionScheme scheme)
 {
     switch (scheme)
