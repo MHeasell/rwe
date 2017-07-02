@@ -19,7 +19,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
 set(CMAKE_CXX_STANDARD 17)
 
-find_package(Boost 1.54.0 REQUIRED)
+set(Boost_USE_STATIC_LIBS ON)
+find_package(Boost 1.54.0 REQUIRED COMPONENTS filesystem)
 
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
@@ -60,13 +61,23 @@ set(SOURCE_FILES
     src/rwe/math/Vector3f.h
     src/rwe/math/rwe_math.cpp
     src/rwe/math/rwe_math.h
-    src/rwe/rwe_string.cpp src/rwe/rwe_string.h)
+    src/rwe/rwe_string.cpp src/rwe/rwe_string.h
+    src/rwe/vfs/AbstractVirtualFileSystem.h
+    src/rwe/vfs/CompositeVirtualFileSystem.cpp
+    src/rwe/vfs/CompositeVirtualFileSystem.h
+    src/rwe/vfs/DirectoryFileSystem.cpp
+    src/rwe/vfs/DirectoryFileSystem.h
+    src/rwe/vfs/HpiFileSystem.cpp
+    src/rwe/vfs/HpiFileSystem.h
+    )
 
 add_library(librwe STATIC ${SOURCE_FILES})
 set_target_properties(librwe PROPERTIES PREFIX "")
 target_compile_options(librwe PUBLIC "-Wall" "-Wextra")
 target_include_directories(librwe PUBLIC "src")
+
 target_include_directories(librwe PUBLIC ${Boost_INCLUDE_DIRS})
+target_link_libraries(librwe ${Boost_LIBRARIES})
 
 target_include_directories(librwe PUBLIC "libs/utfcpp/source")
 
@@ -95,6 +106,10 @@ target_link_libraries(rwe librwe)
 add_executable(hpi_test src/hpi_test.cpp)
 target_link_libraries(hpi_test librwe)
 target_link_libraries(hpi_test -static)
+
+add_executable(vfs_test src/vfs_test.cpp)
+target_link_libraries(vfs_test librwe)
+target_link_libraries(vfs_test -static)
 
 set(TEST_FILES
     test/rwe/geometry/BoundingBox3f_test.cpp
