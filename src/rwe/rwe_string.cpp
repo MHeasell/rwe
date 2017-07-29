@@ -61,4 +61,14 @@ namespace rwe
         std::transform(copy.begin(), copy.end(), copy.begin(), [](unsigned char c) { return std::toupper(c); });
         return copy;
     }
+
+    utf8::iterator<std::string::const_iterator> utf8Begin(const std::string& str)
+    {
+        return utf8::iterator<std::string::const_iterator>(str.begin(), str.begin(), str.end());
+    }
+
+    utf8::iterator<std::string::const_iterator> utf8End(const std::string& str)
+    {
+        return utf8::iterator<std::string::const_iterator>(str.end(), str.begin(), str.end());
+    }
 }

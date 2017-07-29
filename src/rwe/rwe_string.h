@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include <utf8.h>
+
 namespace rwe
 {
     std::vector<std::string> utf8Split(const std::string& str, const std::vector<unsigned int>& codePoints);
@@ -13,6 +15,10 @@ namespace rwe
     std::vector<std::string> split(const std::string& str, char codePoint);
 
     std::string toUpper(const std::string& str);
+
+    utf8::iterator<std::string::const_iterator> utf8Begin(const std::string& str);
+    utf8::iterator<std::string::const_iterator> utf8End(const std::string& str);
+
 }
 
 #endif
