@@ -62,13 +62,60 @@ namespace rwe
         return copy;
     }
 
-    utf8ConstIterator utf8Begin(const std::string& str)
+    ConstUtf8Iterator utf8Begin(const std::string& str)
     {
         return utf8::iterator<std::string::const_iterator>(str.begin(), str.begin(), str.end());
     }
 
-    utf8ConstIterator utf8End(const std::string& str)
+    ConstUtf8Iterator utf8End(const std::string& str)
     {
         return utf8::iterator<std::string::const_iterator>(str.end(), str.begin(), str.end());
+    }
+
+    ConstUtf8Iterator cUtf8Begin(const std::string& str)
+    {
+        return utf8Begin(str);
+    }
+
+    ConstUtf8Iterator cUtf8End(const std::string& str)
+    {
+        return utf8End(str);
+    }
+
+    Utf8Iterator utf8Begin(std::string& str)
+    {
+        return utf8::iterator<std::string::iterator>(str.begin(), str.begin(), str.end());
+    }
+
+    Utf8Iterator utf8End(std::string& str)
+    {
+        return utf8::iterator<std::string::iterator>(str.end(), str.begin(), str.end());
+    }
+
+    void utf8TrimLeft(std::string& str)
+    {
+        auto firstNonSpace = std::find_if(utf8Begin(str), utf8End(str), [](unsigned int cp) { return std::isspace(cp) == 0; });
+        str.erase(str.begin(), firstNonSpace.base());
+    }
+
+    void utf8TrimRight(std::string& str)
+    {
+        auto it = utf8End(str);
+        auto begin = utf8Begin(str);
+        while (it != begin)
+        {
+            if (std::isspace(*--it) == 0)
+            {
+                ++it;
+                str.erase(it.base(), str.end());
+                return;
+            }
+        }
+    }
+
+    void utf8Trim(std::string& str)
+    {
+        utf8TrimRight(str);
+        utf8TrimLeft(str);
     }
 }

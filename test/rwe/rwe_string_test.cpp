@@ -77,4 +77,14 @@ namespace rwe
             REQUIRE(toUpper(std::string("Foo bAr baZ")) == std::string("FOO BAR BAZ"));
         }
     }
+
+    TEST_CASE("utf8Trim")
+    {
+        SECTION("trims leading and trailing spaces")
+        {
+            std::string s("    foo  ");
+            utf8Trim(s);
+            REQUIRE(s == "foo");
+        }
+    }
 }

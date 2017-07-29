@@ -196,6 +196,7 @@ namespace rwe
             auto name = expectPropertyName();
             acceptWhitespace();
             expect('=');
+            acceptWhitespace();
             auto value = expectPropertyValue();
             acceptWhitespace();
             expect(';');
@@ -220,6 +221,8 @@ namespace rwe
                 utf8::append(*cp, inserter);
             }
 
+            utf8Trim(value);
+
             return value;
         }
 
@@ -239,6 +242,8 @@ namespace rwe
             {
                 utf8::append(*cp, inserter);
             }
+
+            utf8Trim(value);
 
             return value;
         }
