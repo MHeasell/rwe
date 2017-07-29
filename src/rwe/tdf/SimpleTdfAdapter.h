@@ -2,7 +2,7 @@
 #define RWE_SIMPLETDFADAPTER_H
 
 #include <boost/variant.hpp>
-#include <rwe/TdfParser.h>
+#include <rwe/tdf/TdfParser.h>
 #include <stack>
 #include <string>
 #include <vector>

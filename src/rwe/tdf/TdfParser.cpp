@@ -1,5 +1,5 @@
 #include "TdfParser.h"
-#include "rwe_string.h"
+#include <rwe/rwe_string.h>
 
 #include <utf8.h>
 

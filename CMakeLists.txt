@@ -43,10 +43,6 @@ set(SOURCE_FILES
     src/rwe/SceneManager.h
     src/rwe/SdlContextManager.cpp
     src/rwe/SdlContextManager.h
-    src/rwe/SimpleTdfAdapter.cpp
-    src/rwe/SimpleTdfAdapter.h
-    src/rwe/TdfParser.cpp
-    src/rwe/TdfParser.h
     src/rwe/TriangleScene.cpp
     src/rwe/TriangleScene.h
     src/rwe/geometry/BoundingBox3f.cpp
@@ -67,6 +63,10 @@ set(SOURCE_FILES
     src/rwe/math/rwe_math.h
     src/rwe/rwe_string.cpp
     src/rwe/rwe_string.h
+    src/rwe/tdf/SimpleTdfAdapter.cpp
+    src/rwe/tdf/SimpleTdfAdapter.h
+    src/rwe/tdf/TdfParser.cpp
+    src/rwe/tdf/TdfParser.h
     src/rwe/vfs/AbstractVirtualFileSystem.h
     src/rwe/vfs/CompositeVirtualFileSystem.cpp
     src/rwe/vfs/CompositeVirtualFileSystem.h
