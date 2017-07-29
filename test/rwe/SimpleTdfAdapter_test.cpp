@@ -11,8 +11,7 @@ namespace rwe
 {
     TEST_CASE("SimpleTdfAdapter")
     {
-        SimpleTdfAdapter adapter;
-        TdfParser<ConstUtf8Iterator> parser;
+        TdfParser<ConstUtf8Iterator, std::vector<TdfBlockEntry>> parser(new SimpleTdfAdapter);
 
         SECTION("works for simple TDFs")
         {
@@ -25,17 +24,17 @@ namespace rwe
 }
 )TDF";
 
-            std::vector<SimpleTdfAdapter::BlockEntry> expected{
-                SimpleTdfAdapter::BlockEntry("Foo", std::vector<SimpleTdfAdapter::BlockEntry> {
-                    SimpleTdfAdapter::BlockEntry("Bar", "1"),
-                    SimpleTdfAdapter::BlockEntry("Baz", "2"),
-                    SimpleTdfAdapter::BlockEntry("Alice", "Bob")
+            std::vector<TdfBlockEntry> expected{
+                TdfBlockEntry("Foo", std::vector<TdfBlockEntry> {
+                    TdfBlockEntry("Bar", "1"),
+                    TdfBlockEntry("Baz", "2"),
+                    TdfBlockEntry("Alice", "Bob")
                 })
             };
 
-            parser.parse(cUtf8Begin(input), cUtf8End(input), adapter);
+            auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
 
-            REQUIRE(adapter.getRoot() == expected);
+            REQUIRE(result == expected);
         }
 
         SECTION("supports spaces around equals signs")
@@ -49,17 +48,17 @@ namespace rwe
 }
 )TDF";
 
-            std::vector<SimpleTdfAdapter::BlockEntry> expected{
-                SimpleTdfAdapter::BlockEntry("Foo", std::vector<SimpleTdfAdapter::BlockEntry> {
-                    SimpleTdfAdapter::BlockEntry("Bar", "1"),
-                    SimpleTdfAdapter::BlockEntry("Baz", "2"),
-                    SimpleTdfAdapter::BlockEntry("Alice", "Bob")
+            std::vector<TdfBlockEntry> expected{
+                TdfBlockEntry("Foo", std::vector<TdfBlockEntry> {
+                    TdfBlockEntry("Bar", "1"),
+                    TdfBlockEntry("Baz", "2"),
+                    TdfBlockEntry("Alice", "Bob")
                 })
             };
 
-            parser.parse(cUtf8Begin(input), cUtf8End(input), adapter);
+            auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
 
-            REQUIRE(adapter.getRoot() == expected);
+            REQUIRE(result == expected);
         }
 
         SECTION("supports line comments")
@@ -75,17 +74,17 @@ namespace rwe
 }
 )TDF";
 
-            std::vector<SimpleTdfAdapter::BlockEntry> expected{
-                SimpleTdfAdapter::BlockEntry("Foo", std::vector<SimpleTdfAdapter::BlockEntry> {
-                    SimpleTdfAdapter::BlockEntry("Bar", "1"),
-                    SimpleTdfAdapter::BlockEntry("Baz", "2"),
-                    SimpleTdfAdapter::BlockEntry("Alice", "Bob")
+            std::vector<TdfBlockEntry> expected{
+                TdfBlockEntry("Foo", std::vector<TdfBlockEntry> {
+                    TdfBlockEntry("Bar", "1"),
+                    TdfBlockEntry("Baz", "2"),
+                    TdfBlockEntry("Alice", "Bob")
                 })
             };
 
-            parser.parse(cUtf8Begin(input), cUtf8End(input), adapter);
+            auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
 
-            REQUIRE(adapter.getRoot() == expected);
+            REQUIRE(result == expected);
         }
 
         SECTION("supports block comments")
@@ -105,17 +104,17 @@ namespace rwe
     }
     )TDF";
 
-            std::vector<SimpleTdfAdapter::BlockEntry> expected{
-                SimpleTdfAdapter::BlockEntry("Foo", std::vector<SimpleTdfAdapter::BlockEntry> {
-                    SimpleTdfAdapter::BlockEntry("Bar", "1"),
-                    SimpleTdfAdapter::BlockEntry("Baz", "2"),
-                    SimpleTdfAdapter::BlockEntry("Alice", "Bob")
+            std::vector<TdfBlockEntry> expected{
+                TdfBlockEntry("Foo", std::vector<TdfBlockEntry> {
+                    TdfBlockEntry("Bar", "1"),
+                    TdfBlockEntry("Baz", "2"),
+                    TdfBlockEntry("Alice", "Bob")
                 })
             };
 
-            parser.parse(cUtf8Begin(input), cUtf8End(input), adapter);
+            auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
 
-            REQUIRE(adapter.getRoot() == expected);
+            REQUIRE(result == expected);
         }
 
         SECTION("supports block comments inside things")
@@ -129,17 +128,17 @@ namespace rwe
     }
     )TDF";
 
-            std::vector<SimpleTdfAdapter::BlockEntry> expected{
-                SimpleTdfAdapter::BlockEntry("Foo", std::vector<SimpleTdfAdapter::BlockEntry> {
-                    SimpleTdfAdapter::BlockEntry("Bar", "1"),
-                    SimpleTdfAdapter::BlockEntry("Baz", "2"),
-                    SimpleTdfAdapter::BlockEntry("Alice", "Bob")
+            std::vector<TdfBlockEntry> expected{
+                TdfBlockEntry("Foo", std::vector<TdfBlockEntry> {
+                    TdfBlockEntry("Bar", "1"),
+                    TdfBlockEntry("Baz", "2"),
+                    TdfBlockEntry("Alice", "Bob")
                 })
             };
 
-            parser.parse(cUtf8Begin(input), cUtf8End(input), adapter);
+            auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
 
-            REQUIRE(adapter.getRoot() == expected);
+            REQUIRE(result == expected);
         }
 
         SECTION("supports items with spaces in them")
@@ -153,17 +152,17 @@ namespace rwe
     }
     )TDF";
 
-            std::vector<SimpleTdfAdapter::BlockEntry> expected{
-                SimpleTdfAdapter::BlockEntry("Foo Bar Baz", std::vector<SimpleTdfAdapter::BlockEntry> {
-                    SimpleTdfAdapter::BlockEntry("Item One", "The First Item"),
-                    SimpleTdfAdapter::BlockEntry("Item Two", "123  456"),
-                    SimpleTdfAdapter::BlockEntry("Item The Third", "Three ee eeee")
+            std::vector<TdfBlockEntry> expected{
+                TdfBlockEntry("Foo Bar Baz", std::vector<TdfBlockEntry> {
+                    TdfBlockEntry("Item One", "The First Item"),
+                    TdfBlockEntry("Item Two", "123  456"),
+                    TdfBlockEntry("Item The Third", "Three ee eeee")
                 })
             };
 
-            parser.parse(cUtf8Begin(input), cUtf8End(input), adapter);
+            auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
 
-            REQUIRE(adapter.getRoot() == expected);
+            REQUIRE(result == expected);
         }
     }
 }

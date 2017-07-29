@@ -2,6 +2,7 @@
 #define RWE_TDFPARSER_H
 
 #include <boost/optional.hpp>
+#include <memory>
 #include <rwe/rwe_string.h>
 #include <stdexcept>
 #include <string>
@@ -94,35 +95,37 @@ namespace rwe
         explicit TdfParserException(std::size_t line, std::size_t column, const std::string& message);
     };
 
+    template <typename T>
     class TdfAdapter
     {
     public:
+        using Result = T;
         virtual void onStart() = 0;
         virtual void onProperty(const std::string& name, const std::string& value) = 0;
         virtual void onStartBlock(const std::string& name) = 0;
         virtual void onEndBlock() = 0;
-        virtual void onDone() = 0;
+        virtual Result onDone() = 0;
     };
 
-    template <typename It>
+    template <typename It, typename Result>
     class TdfParser
     {
     private:
         LineNormalizingIterator<It> _it;
 
-        TdfAdapter* adapter;
+        std::unique_ptr<TdfAdapter<Result>> adapter;
 
     public:
-        void parse(const It& begin, const It& end, TdfAdapter& adapter)
+        explicit TdfParser(TdfAdapter<Result>* adapter): adapter(adapter) {}
+
+        Result parse(const It& begin, const It& end)
         {
             _it = LineNormalizingIterator<It>(begin, end);
-            this->adapter = &adapter;
-
-            parseInternal();
+            return parseInternal();
         }
 
     private:
-        void parseInternal()
+        Result parseInternal()
         {
             adapter->onStart();
 
@@ -134,7 +137,7 @@ namespace rwe
                 consumeWhitespaceAndComments();
             }
 
-            adapter->onDone();
+            return adapter->onDone();
         }
         void block()
         {

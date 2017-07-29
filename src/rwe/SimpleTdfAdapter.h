@@ -10,46 +10,43 @@
 
 namespace rwe
 {
+    struct TdfBlockEntry;
+    using TdfPropertyValue = boost::variant<std::vector<TdfBlockEntry>, std::string>;
+    struct TdfBlockEntry
+    {
+        std::string name;
+        std::unique_ptr<TdfPropertyValue> value;
 
-    class SimpleTdfAdapter : public TdfAdapter
+        TdfBlockEntry(std::string name, const std::string& value) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(value)) {}
+        TdfBlockEntry(std::string name, std::vector<TdfBlockEntry> entries) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(std::move(entries))) {}
+        explicit TdfBlockEntry(std::string name) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(std::vector<TdfBlockEntry>())) {}
+
+        TdfBlockEntry(const TdfBlockEntry& other) : name(other.name), value(std::make_unique<TdfPropertyValue>(*other.value))
+        {
+        }
+
+        bool operator==(const TdfBlockEntry& rhs) const
+        {
+            if (name != rhs.name)
+            {
+                return false;
+            }
+
+            if (*value != *rhs.value)
+            {
+                return false;
+            }
+
+            return true;
+        }
+    };
+
+    class SimpleTdfAdapter : public TdfAdapter<std::vector<TdfBlockEntry>>
     {
     private:
-    public:
-        struct BlockEntry;
-        using PropertyValue = boost::variant<std::vector<BlockEntry>, std::string>;
-        struct BlockEntry
-        {
-            std::string name;
-            std::unique_ptr<PropertyValue> value;
+        std::vector<TdfBlockEntry> root;
 
-            BlockEntry(std::string name, const std::string& value) : name(std::move(name)), value(std::make_unique<PropertyValue>(value)) {}
-            BlockEntry(std::string name, std::vector<BlockEntry> entries) : name(std::move(name)), value(std::make_unique<PropertyValue>(std::move(entries))) {}
-            explicit BlockEntry(std::string name) : name(std::move(name)), value(std::make_unique<PropertyValue>(std::vector<BlockEntry>())) {}
-
-            BlockEntry(const BlockEntry& other) : name(other.name), value(std::make_unique<PropertyValue>(*other.value))
-            {
-            }
-
-            bool operator==(const BlockEntry& rhs) const
-            {
-                if (name != rhs.name)
-                {
-                    return false;
-                }
-
-                if (*value != *rhs.value)
-                {
-                    return false;
-                }
-
-                return true;
-            }
-        };
-
-    private:
-        std::vector<BlockEntry> root;
-
-        std::stack<std::vector<BlockEntry>*> blockStack;
+        std::vector<std::vector<TdfBlockEntry>*> blockStack;
 
     public:
         void onStart() override;
@@ -60,12 +57,10 @@ namespace rwe
 
         void onEndBlock() override;
 
-        void onDone() override;
-
-        const std::vector<BlockEntry>& getRoot() const;
+        Result onDone() override;
     };
 
-    std::ostream& operator<<(std::ostream& os, const SimpleTdfAdapter::BlockEntry& entry);
+    std::ostream& operator<<(std::ostream& os, const TdfBlockEntry& entry);
 }
 
 #endif

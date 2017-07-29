@@ -5,36 +5,34 @@ namespace rwe
 
     void SimpleTdfAdapter::onStart()
     {
-        blockStack.push(&root);
+        root.clear();
+        blockStack.clear();
+        blockStack.push_back(&root);
     }
 
     void SimpleTdfAdapter::onProperty(const std::string& name, const std::string& value)
     {
-        blockStack.top()->emplace_back(name, value);
+        blockStack.back()->emplace_back(name, value);
     }
 
     void SimpleTdfAdapter::onStartBlock(const std::string& name)
     {
-        auto top = blockStack.top();
+        auto top = blockStack.back();
         top->emplace_back(name);
-        blockStack.push(&boost::get<std::vector<BlockEntry>>(*top->back().value));
+        blockStack.push_back(&boost::get<std::vector<TdfBlockEntry>>(*top->back().value));
     }
 
     void SimpleTdfAdapter::onEndBlock()
     {
-        blockStack.pop();
+        blockStack.pop_back();
     }
 
-    const std::vector<SimpleTdfAdapter::BlockEntry>& SimpleTdfAdapter::getRoot() const
+    SimpleTdfAdapter::Result SimpleTdfAdapter::onDone()
     {
-        return root;
+        return std::move(root);
     }
 
-    void SimpleTdfAdapter::onDone()
-    {
-    }
-
-    std::ostream& operator<<(std::ostream& os, const SimpleTdfAdapter::BlockEntry& entry)
+    std::ostream& operator<<(std::ostream& os, const TdfBlockEntry& entry)
     {
         auto leaf = boost::get<std::string>(&*entry.value);
         if (leaf != nullptr)
@@ -43,7 +41,7 @@ namespace rwe
         }
         else
         {
-            auto block = boost::get<std::vector<SimpleTdfAdapter::BlockEntry>>(&*entry.value);
+            auto block = boost::get<std::vector<TdfBlockEntry>>(&*entry.value);
             if (block != nullptr)
             {
                 os << "[" << entry.name << "]{ ";
