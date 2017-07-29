@@ -90,6 +90,7 @@ namespace rwe
     private:
         std::size_t line;
         std::size_t column;
+
     public:
         explicit TdfParserException(std::size_t line, std::size_t column, const char* message);
         explicit TdfParserException(std::size_t line, std::size_t column, const std::string& message);
@@ -116,7 +117,7 @@ namespace rwe
         std::unique_ptr<TdfAdapter<Result>> adapter;
 
     public:
-        explicit TdfParser(TdfAdapter<Result>* adapter): adapter(adapter) {}
+        explicit TdfParser(TdfAdapter<Result>* adapter) : adapter(adapter) {}
 
         Result parse(const It& begin, const It& end)
         {
@@ -315,7 +316,7 @@ namespace rwe
                 return false;
             }
 
-            while (acceptNotAny(std::vector<TdfCodePoint> {'\n', TdfEndOfFile}))
+            while (acceptNotAny(std::vector<TdfCodePoint>{'\n', TdfEndOfFile}))
             {
                 // do nothing
             }
