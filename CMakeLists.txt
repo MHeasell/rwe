@@ -65,7 +65,8 @@ set(SOURCE_FILES
     src/rwe/math/Vector3f.h
     src/rwe/math/rwe_math.cpp
     src/rwe/math/rwe_math.h
-    src/rwe/rwe_string.cpp src/rwe/rwe_string.h
+    src/rwe/rwe_string.cpp
+    src/rwe/rwe_string.h
     src/rwe/vfs/AbstractVirtualFileSystem.h
     src/rwe/vfs/CompositeVirtualFileSystem.cpp
     src/rwe/vfs/CompositeVirtualFileSystem.h
