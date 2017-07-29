@@ -126,12 +126,12 @@ namespace rwe
         {
             adapter->onStart();
 
-            acceptWhitespace();
+            consumeWhitespaceAndComments();
 
             while (!isEndOfFile())
             {
                 block();
-                acceptWhitespace();
+                consumeWhitespaceAndComments();
             }
 
             adapter->onDone();
@@ -142,7 +142,7 @@ namespace rwe
 
             adapter->onStartBlock(title);
 
-            acceptWhitespace();
+            consumeWhitespaceAndComments();
             blockBody();
 
             adapter->onEndBlock();
@@ -151,9 +151,9 @@ namespace rwe
         std::string blockHead()
         {
             expect('[');
-            acceptWhitespace();
+            consumeWhitespaceAndComments();
             auto name = blockName();
-            acceptWhitespace();
+            consumeWhitespaceAndComments();
             expect(']');
 
             return name;
@@ -164,9 +164,11 @@ namespace rwe
             std::string name;
             auto inserter = std::back_inserter(name);
 
+            consumeComments();
             while (auto cp = acceptNotAny(std::vector<TdfCodePoint>{']', TdfEndOfFile}))
             {
                 utf8::append(*cp, inserter);
+                consumeComments();
             }
 
             return name;
@@ -175,7 +177,7 @@ namespace rwe
         void blockBody()
         {
             expect('{');
-            acceptWhitespace();
+            consumeWhitespaceAndComments();
             while (!accept('}'))
             {
                 if (peek() == '[')
@@ -187,18 +189,18 @@ namespace rwe
                     property();
                 }
 
-                acceptWhitespace();
+                consumeWhitespaceAndComments();
             }
         }
 
         void property()
         {
             auto name = expectPropertyName();
-            acceptWhitespace();
+            consumeWhitespaceAndComments();
             expect('=');
-            acceptWhitespace();
+            consumeWhitespaceAndComments();
             auto value = expectPropertyValue();
-            acceptWhitespace();
+            consumeWhitespaceAndComments();
             expect(';');
 
             adapter->onProperty(name, value);
@@ -216,9 +218,11 @@ namespace rwe
             }
             utf8::append(*firstCodePoint, inserter);
 
+            consumeComments();
             while (auto cp = acceptNotAny(std::vector<TdfCodePoint>{'=', '\n', ';', TdfEndOfFile}))
             {
                 utf8::append(*cp, inserter);
+                consumeComments();
             }
 
             utf8Trim(value);
@@ -238,9 +242,11 @@ namespace rwe
             }
             utf8::append(*firstCodePoint, inserter);
 
+            consumeComments();
             while (auto cp = acceptNotAny(std::vector<TdfCodePoint>{';', TdfEndOfFile}))
             {
                 utf8::append(*cp, inserter);
+                consumeComments();
             }
 
             utf8Trim(value);
@@ -248,9 +254,22 @@ namespace rwe
             return value;
         }
 
-        void acceptWhitespace()
+        bool acceptWhitespace()
         {
-            while (accept(' ') || accept('\t') || accept('\n'))
+            return accept(' ') || accept('\t') || accept('\n');
+        }
+
+        void consumeWhitespaceAndComments()
+        {
+            while (acceptWhitespace() || acceptComment())
+            {
+                // do nothing
+            }
+        }
+
+        void consumeComments()
+        {
+            while (acceptComment())
             {
                 // do nothing
             }
@@ -291,20 +310,12 @@ namespace rwe
                 return false;
             }
 
-            while (true)
+            while (acceptNotAny(std::vector<TdfCodePoint> {'\n', TdfEndOfFile}))
             {
-                if (isEndOfFile())
-                {
-                    return true;
-                }
-
-                if (accept('\n'))
-                {
-                    return true;
-                }
-
-                next();
+                // do nothing
             }
+
+            return true;
         }
 
         bool acceptNotEndOfFile()
