@@ -11,6 +11,9 @@ namespace rwe
 {
     TEST_CASE("SimpleTdfAdapter")
     {
+        SimpleTdfAdapter adapter;
+        TdfParser<ConstUtf8Iterator> parser;
+
         SECTION("works for simple TDFs")
         {
             std::string input = R"TDF(
@@ -30,11 +33,8 @@ namespace rwe
                 })
             };
 
-            SimpleTdfAdapter adapter;
-            TdfParser<ConstUtf8Iterator> parser;
             parser.parse(cUtf8Begin(input), cUtf8End(input), adapter);
 
-            CAPTURE(adapter.getRoot());
             REQUIRE(adapter.getRoot() == expected);
         }
 
@@ -57,11 +57,8 @@ namespace rwe
                 })
             };
 
-            SimpleTdfAdapter adapter;
-            TdfParser<ConstUtf8Iterator> parser;
             parser.parse(cUtf8Begin(input), cUtf8End(input), adapter);
 
-            CAPTURE(adapter.getRoot());
             REQUIRE(adapter.getRoot() == expected);
         }
 
@@ -86,11 +83,8 @@ namespace rwe
                 })
             };
 
-            SimpleTdfAdapter adapter;
-            TdfParser<ConstUtf8Iterator> parser;
             parser.parse(cUtf8Begin(input), cUtf8End(input), adapter);
 
-            CAPTURE(adapter.getRoot());
             REQUIRE(adapter.getRoot() == expected);
         }
 
@@ -119,11 +113,8 @@ namespace rwe
                 })
             };
 
-            SimpleTdfAdapter adapter;
-            TdfParser<ConstUtf8Iterator> parser;
             parser.parse(cUtf8Begin(input), cUtf8End(input), adapter);
 
-            CAPTURE(adapter.getRoot());
             REQUIRE(adapter.getRoot() == expected);
         }
 
@@ -146,11 +137,8 @@ namespace rwe
                 })
             };
 
-            SimpleTdfAdapter adapter;
-            TdfParser<ConstUtf8Iterator> parser;
             parser.parse(cUtf8Begin(input), cUtf8End(input), adapter);
 
-            CAPTURE(adapter.getRoot());
             REQUIRE(adapter.getRoot() == expected);
         }
 
@@ -173,11 +161,8 @@ namespace rwe
                 })
             };
 
-            SimpleTdfAdapter adapter;
-            TdfParser<ConstUtf8Iterator> parser;
             parser.parse(cUtf8Begin(input), cUtf8End(input), adapter);
 
-            CAPTURE(adapter.getRoot());
             REQUIRE(adapter.getRoot() == expected);
         }
     }
