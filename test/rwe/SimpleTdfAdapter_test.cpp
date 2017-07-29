@@ -153,5 +153,32 @@ namespace rwe
             CAPTURE(adapter.getRoot());
             REQUIRE(adapter.getRoot() == expected);
         }
+
+        SECTION("supports items with spaces in them")
+        {
+            std::string input = R"TDF(
+    [   Foo Bar Baz   ]
+    {
+        Item One = The First Item;
+        Item Two =     123  456  ;
+        Item The Third=Three ee eeee  ;
+    }
+    )TDF";
+
+            std::vector<SimpleTdfAdapter::BlockEntry> expected{
+                SimpleTdfAdapter::BlockEntry("Foo Bar Baz", std::vector<SimpleTdfAdapter::BlockEntry> {
+                    SimpleTdfAdapter::BlockEntry("Item One", "The First Item"),
+                    SimpleTdfAdapter::BlockEntry("Item Two", "123  456"),
+                    SimpleTdfAdapter::BlockEntry("Item The Third", "Three ee eeee")
+                })
+            };
+
+            SimpleTdfAdapter adapter;
+            TdfParser<ConstUtf8Iterator> parser;
+            parser.parse(cUtf8Begin(input), cUtf8End(input), adapter);
+
+            CAPTURE(adapter.getRoot());
+            REQUIRE(adapter.getRoot() == expected);
+        }
     }
 }

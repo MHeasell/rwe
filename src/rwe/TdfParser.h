@@ -171,6 +171,8 @@ namespace rwe
                 consumeComments();
             }
 
+            utf8Trim(name);
+
             return name;
         }
 
