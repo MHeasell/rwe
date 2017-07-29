@@ -43,6 +43,10 @@ set(SOURCE_FILES
     src/rwe/SceneManager.h
     src/rwe/SdlContextManager.cpp
     src/rwe/SdlContextManager.h
+    src/rwe/SimpleTdfAdapter.cpp
+    src/rwe/SimpleTdfAdapter.h
+    src/rwe/TdfParser.cpp
+    src/rwe/TdfParser.h
     src/rwe/TriangleScene.cpp
     src/rwe/TriangleScene.h
     src/rwe/geometry/BoundingBox3f.cpp
@@ -112,6 +116,7 @@ target_link_libraries(vfs_test librwe)
 target_link_libraries(vfs_test -static)
 
 set(TEST_FILES
+    test/rwe/SimpleTdfAdapter_test.cpp
     test/rwe/geometry/BoundingBox3f_test.cpp
     test/rwe/geometry/Plane3f_test.cpp
     test/rwe/geometry/Ray3f_test.cpp
