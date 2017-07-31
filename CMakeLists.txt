@@ -33,6 +33,7 @@ find_package(SDL2_net REQUIRED)
 find_package(ZLIB REQUIRED)
 
 set(SOURCE_FILES
+    src/rwe/Gaf.cpp src/rwe/Gaf.h
     src/rwe/GraphicsContext.cpp
     src/rwe/GraphicsContext.h
     src/rwe/Hpi.cpp
@@ -115,6 +116,10 @@ target_link_libraries(hpi_test -static)
 add_executable(vfs_test src/vfs_test.cpp)
 target_link_libraries(vfs_test librwe)
 target_link_libraries(vfs_test -static)
+
+add_executable(gaf_test src/gaf_test.cpp)
+target_link_libraries(gaf_test librwe)
+target_link_libraries(gaf_test -static)
 
 set(TEST_FILES
     test/rwe/SimpleTdfAdapter_test.cpp
