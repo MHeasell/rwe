@@ -85,6 +85,17 @@ namespace rwe
 
 #pragma pack()
 
+    class GafReaderAdapter
+    {
+    public:
+        /**
+         * Returns a buffer that the frame will be read into.
+         * The buffer must be at least width * height bytes long.
+         */
+        virtual char* beginFrame(std::size_t width, std::size_t height) = 0;
+        virtual void endFrame() = 0;
+    };
+
     class GafArchive
     {
     public:
@@ -96,6 +107,7 @@ namespace rwe
 
     private:
         std::vector<Entry> _entries;
+        std::istream* _stream;
 
     public:
 
@@ -105,7 +117,7 @@ namespace rwe
 
         boost::optional<const Entry&> findEntry(const std::string& name) const;
 
-        void extract(const std::string& name) const;
+        void extract(const Entry& entry, GafReaderAdapter& adapter);
 
     private:
         Entry readEntry(std::istream& stream) const;

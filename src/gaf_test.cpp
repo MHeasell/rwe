@@ -2,6 +2,10 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <memory>
+
+#include <boost/filesystem.hpp>
+namespace fs = boost::filesystem;
 
 int listCommand(const std::string& filename)
 {
@@ -27,6 +31,34 @@ int listCommand(const std::string& filename)
     return 0;
 }
 
+class GafAdapter : public rwe::GafReaderAdapter
+{
+private:
+    std::size_t frameCount;
+    std::unique_ptr<char[]> currentFrame;
+    std::size_t currentFrameLength;
+    fs::path destPath;
+public:
+    explicit GafAdapter(const std::string& destPath) : frameCount(0), currentFrame(), destPath(destPath) {}
+    char* beginFrame(std::size_t width, std::size_t height) override
+    {
+        std::cout << "Beginning frame " << frameCount << std::endl;
+        currentFrameLength = width * height;
+        currentFrame = std::make_unique<char[]>(currentFrameLength);
+        std::fill_n(currentFrame.get(), currentFrameLength, 0);
+        return currentFrame.get();
+    }
+
+    void endFrame() override
+    {
+        fs::path fullPath = destPath / std::to_string(frameCount);
+        std::ofstream out(fullPath.string(), std::ios::binary);
+        out.write(currentFrame.get(), currentFrameLength);
+        std::cout << "Finished frame " << frameCount << std::endl;
+        ++frameCount;
+    }
+};
+
 int extractCommand(const std::string& gafPath, const std::string& entryName, const std::string& destinationPath)
 {
     std::cout << "GAF archive: " << gafPath << std::endl;
@@ -51,7 +83,10 @@ int extractCommand(const std::string& gafPath, const std::string& entryName, con
 
     std::cout << "Extracting..." << std::endl;
 
-    throw std::logic_error("Not implemented.");
+    GafAdapter adapter(destinationPath);
+    archive.extract(*entry, adapter);
+
+    return 0;
 }
 
 int main(int argc, char* argv[])
