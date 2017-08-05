@@ -5,7 +5,24 @@
 #include <memory>
 
 #include <boost/filesystem.hpp>
+
+#include <png++/png.hpp>
+
 namespace fs = boost::filesystem;
+
+void loadPalette(const std::string& filename, png::rgb_pixel* buffer)
+{
+    std::ifstream in(filename, std::ios::binary);
+
+    for (unsigned int i = 0; i < 256; ++i)
+    {
+        in.read(reinterpret_cast<char*>(&(buffer[i].red)), 1);
+        in.read(reinterpret_cast<char*>(&(buffer[i].green)), 1);
+        in.read(reinterpret_cast<char*>(&(buffer[i].blue)), 1);
+        in.seekg(1, std::ios::cur); // skip alpha
+    }
+}
+
 
 int listCommand(const std::string& filename)
 {
@@ -34,17 +51,19 @@ int listCommand(const std::string& filename)
 class GafAdapter : public rwe::GafReaderAdapter
 {
 private:
+    png::rgb_pixel* palette;
     std::size_t frameCount;
     std::unique_ptr<char[]> currentFrame;
     rwe::GafFrameData currentFrameHeader;
     fs::path destPath;
 public:
-    explicit GafAdapter(const std::string& destPath) : frameCount(0), currentFrame(), destPath(destPath) {}
+    explicit GafAdapter(png::rgb_pixel* palette, const std::string& destPath) : palette(palette), frameCount(0), currentFrame(), destPath(destPath) {}
     void beginFrame(const rwe::GafFrameData& header) override
     {
         std::cout << "Beginning frame " << frameCount << std::endl;
         currentFrameHeader = header;
         currentFrame = std::make_unique<char[]>(header.width * header.height);
+        std::fill_n(currentFrame.get(), header.width * header.height, header.transparencyIndex);
     }
 
     void frameLayer(const LayerData& data) override
@@ -62,23 +81,46 @@ public:
                 assert(outPosY >= 0);
                 assert(outPosY < currentFrameHeader.height);
 
-                currentFrame[(outPosY * currentFrameHeader.width) + outPosX] = data.data[(y * data.width) + x];
+                auto colorIndex = data.data[(y * data.width) + x];
+                if (colorIndex == currentFrameHeader.transparencyIndex)
+                {
+                    continue;
+                }
+
+                currentFrame[(outPosY * currentFrameHeader.width) + outPosX] = colorIndex;
             }
         }
     }
 
     void endFrame() override
     {
-        fs::path fullPath = destPath / std::to_string(frameCount);
-        std::ofstream out(fullPath.string(), std::ios::binary);
-        out.write(currentFrame.get(), currentFrameHeader.width * currentFrameHeader.height);
+        png::image<png::rgb_pixel> image(currentFrameHeader.width, currentFrameHeader.height);
+        for (png::uint_32 y = 0; y < image.get_height(); ++y)
+        {
+            for (png::uint_32 x = 0; x < image.get_width(); ++x)
+            {
+                auto b = static_cast<unsigned char>(currentFrame[(y * currentFrameHeader.width) + x]);
+                assert(b >= 0 && b < 256);
+                auto px = palette[b];
+                image[y][x] = px;
+            }
+        }
+
+        fs::path fullPath = destPath / std::to_string(frameCount).append(".png");
+
+        image.write(fullPath.string());
         std::cout << "Finished frame " << frameCount << std::endl;
         ++frameCount;
     }
 };
 
-int extractCommand(const std::string& gafPath, const std::string& entryName, const std::string& destinationPath)
+int extractCommand(const std::string& palettePath, const std::string& gafPath, const std::string& entryName, const std::string& destinationPath)
 {
+    std::cout << "Palette file: " << palettePath << std::endl;
+
+    png::rgb_pixel palette[256];
+    loadPalette(palettePath, palette);
+
     std::cout << "GAF archive: " << gafPath << std::endl;
     std::ifstream file(gafPath, std::ios::binary);
 
@@ -101,7 +143,7 @@ int extractCommand(const std::string& gafPath, const std::string& entryName, con
 
     std::cout << "Extracting..." << std::endl;
 
-    GafAdapter adapter(destinationPath);
+    GafAdapter adapter(palette, destinationPath);
     archive.extract(*entry, adapter);
 
     return 0;
@@ -136,7 +178,7 @@ int main(int argc, char* argv[])
             return 1;
         }
 
-        return extractCommand(argv[2], argv[3], argv[4]);
+        return extractCommand(argv[2], argv[3], argv[4], argv[5]);
     }
 
     std::cerr << "Unrecognised command: " << command << std::endl;

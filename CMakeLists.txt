@@ -24,6 +24,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost 1.54.0 REQUIRED COMPONENTS filesystem)
 
+find_package(PNG REQUIRED)
+
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 
@@ -122,8 +124,13 @@ target_link_libraries(vfs_test librwe)
 target_link_libraries(vfs_test -static)
 
 add_executable(gaf_test src/gaf_test.cpp)
+target_copy_dll(gaf_test "libpng16-16.dll")
+target_link_libraries(gaf_test ${PNG_LIBRARIES})
 target_link_libraries(gaf_test librwe)
 target_link_libraries(gaf_test -static)
+target_include_directories(gaf_test PUBLIC ${PNG_INCLUDE_DIRS})
+target_include_directories(gaf_test PUBLIC libs/png++-0.2.9)
+target_compile_definitions(gaf_test PRIVATE __STDC_LIB_EXT1__=1)
 
 set(TEST_FILES
     test/rwe/SimpleTdfAdapter_test.cpp
