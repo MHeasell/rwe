@@ -1,6 +1,6 @@
 #include "Gaf.h"
 
-#include <algorithm>
+#include <memory>
 
 namespace rwe
 {
@@ -126,7 +126,7 @@ namespace rwe
             frames.emplace_back(frameEntry.frameDataOffset);
         }
 
-        return Entry { std::move(name), std::move(frames) };
+        return Entry{std::move(name), std::move(frames)};
     }
 
     boost::optional<const GafArchive::Entry&> GafArchive::findEntry(const std::string& name) const
@@ -147,19 +147,31 @@ namespace rwe
         {
             _stream->seekg(offset);
             auto frameHeader = readRaw<GafFrameData>(*_stream);
-            auto buffer = adapter.beginFrame(frameHeader.width, frameHeader.height);
+            adapter.beginFrame(frameHeader);
 
             _stream->seekg(frameHeader.frameDataOffset);
             if (frameHeader.subframesCount == 0)
             {
+                auto buffer = std::make_unique<char[]>(frameHeader.width * frameHeader.height);
                 if (frameHeader.compressed == 0)
                 {
-                    _stream->read(buffer, frameHeader.width * frameHeader.height);
+                    _stream->read(buffer.get(), frameHeader.width * frameHeader.height);
                 }
                 else
                 {
-                    decompressFrame(*_stream, buffer, frameHeader.width, frameHeader.height);
+                    decompressFrame(*_stream, buffer.get(), frameHeader.width, frameHeader.height);
                 }
+
+                GafReaderAdapter::LayerData layer{
+                    0,
+                    0,
+                    frameHeader.width,
+                    frameHeader.height,
+                    frameHeader.transparencyIndex,
+                    buffer.get(),
+                };
+
+                adapter.frameLayer(layer);
             }
             else
             {
@@ -169,9 +181,28 @@ namespace rwe
                     auto pos = _stream->tellg();
                     _stream->seekg(subframeOffset);
                     auto subframeHeader = readRaw<GafFrameData>(*_stream);
+                    auto buffer = std::make_unique<char[]>(subframeHeader.width * subframeHeader.height);
 
-                    // TODO: support subframes
-                    throw std::logic_error("subframes not implemented");
+                    _stream->seekg(subframeHeader.frameDataOffset);
+                    if (subframeHeader.compressed == 0)
+                    {
+                        _stream->read(buffer.get(), subframeHeader.width * subframeHeader.height);
+                    }
+                    else
+                    {
+                        decompressFrame(*_stream, buffer.get(), subframeHeader.width, subframeHeader.height);
+                    }
+
+                    GafReaderAdapter::LayerData layer{
+                        subframeHeader.posX,
+                        subframeHeader.posY,
+                        subframeHeader.width,
+                        subframeHeader.height,
+                        subframeHeader.transparencyIndex,
+                        buffer.get(),
+                    };
+
+                    adapter.frameLayer(layer);
 
                     _stream->seekg(pos);
                 }

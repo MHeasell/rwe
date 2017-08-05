@@ -36,24 +36,42 @@ class GafAdapter : public rwe::GafReaderAdapter
 private:
     std::size_t frameCount;
     std::unique_ptr<char[]> currentFrame;
-    std::size_t currentFrameLength;
+    rwe::GafFrameData currentFrameHeader;
     fs::path destPath;
 public:
     explicit GafAdapter(const std::string& destPath) : frameCount(0), currentFrame(), destPath(destPath) {}
-    char* beginFrame(std::size_t width, std::size_t height) override
+    void beginFrame(const rwe::GafFrameData& header) override
     {
         std::cout << "Beginning frame " << frameCount << std::endl;
-        currentFrameLength = width * height;
-        currentFrame = std::make_unique<char[]>(currentFrameLength);
-        std::fill_n(currentFrame.get(), currentFrameLength, 0);
-        return currentFrame.get();
+        currentFrameHeader = header;
+        currentFrame = std::make_unique<char[]>(header.width * header.height);
+    }
+
+    void frameLayer(const LayerData& data) override
+    {
+        // copy the layer onto the frame
+        for (std::size_t y = 0; y < data.height; ++y)
+        {
+            for (std::size_t x = 0; x < data.width; ++x)
+            {
+                auto outPosX = static_cast<int>(x) - (data.x - currentFrameHeader.posX);
+                auto outPosY = static_cast<int>(y) - (data.y - currentFrameHeader.posY);
+
+                assert(outPosX >= 0);
+                assert(outPosX < currentFrameHeader.width);
+                assert(outPosY >= 0);
+                assert(outPosY < currentFrameHeader.height);
+
+                currentFrame[(outPosY * currentFrameHeader.width) + outPosX] = data.data[(y * data.width) + x];
+            }
+        }
     }
 
     void endFrame() override
     {
         fs::path fullPath = destPath / std::to_string(frameCount);
         std::ofstream out(fullPath.string(), std::ios::binary);
-        out.write(currentFrame.get(), currentFrameLength);
+        out.write(currentFrame.get(), currentFrameHeader.width * currentFrameHeader.height);
         std::cout << "Finished frame " << frameCount << std::endl;
         ++frameCount;
     }

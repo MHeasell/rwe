@@ -88,11 +88,18 @@ namespace rwe
     class GafReaderAdapter
     {
     public:
-        /**
-         * Returns a buffer that the frame will be read into.
-         * The buffer must be at least width * height bytes long.
-         */
-        virtual char* beginFrame(std::size_t width, std::size_t height) = 0;
+        struct LayerData
+        {
+            int x;
+            int y;
+            unsigned int width;
+            unsigned int height;
+            unsigned char transparencyKey;
+            char* data;
+        };
+    public:
+        virtual void beginFrame(const GafFrameData& header) = 0;
+        virtual void frameLayer(const LayerData& data) = 0;
         virtual void endFrame() = 0;
     };
 
