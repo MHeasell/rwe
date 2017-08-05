@@ -1,0 +1,29 @@
+2009-06-21  Alex Shulgin
+
+	* config.hpp: Added support for FreeBSD (detect endianness).
+	Patch by <c.petrik.sosa@gmail.com>.
+
+png++-0.2.3	19 Oct 2008
+
+	Fixed numerous `already defined' errors due to require_color_space
+	implementation.  Added `config.hpp'.  Fixed `strerror' usage.
+	Minor docs fixes.
+	
+png++-0.2.1	08 Dec 2007
+
+	Added support for tRNS chunk.  Added non-std IO streams support.
+	Fixed 16-bit endianness problems.  Improved test script.
+
+png++-0.2.0	08 Jul 2007
+
+	Major internal code refactoring.  Added support for non-8-bit
+	data, row-by-row IO, added docs, test suite and more.  Fixed some
+	bugs including interlace handling.
+
+png++-0.1.1	07 Apr 2007
+
+	Added appropriate copyright notices.
+
+png++-0.1.0	04 Feb 2007
+
+	Initial release.

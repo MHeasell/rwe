@@ -1,0 +1,20 @@
+? add output transformations
++ support for non-8bit data
++ stream exceptions: badbit only
++ adjust png::image for non-memory back end buffer + row-by-row io
++ use doxygen
+- add optional and unknown chunks handling
++ change bit_depth to size_t
++ move tests sources to test/, examples to examples/
++ extract common code from generator/consumer
++ update pixel traits to detect channels count
++ unify template parameters naming
++ make sure all headers compile on their own
++ add compilation dependency detection
++ add pixel_buffer/image::operator[]
++ improve docs and README
+? endianness in expand_8_to_16()
+- unify error messages (capitalization, etc.)
++ move stream template parameter from class to function level in
+  generator and consumer
++ make all tests run even if any of them fails

@@ -1,0 +1,13 @@
+This file lists known bugs and limitations in png++:
+
+- Lacks support for output transformations
+
+- Lacks support for optional/unknown chunks in PNG data stream
+
+- Documentation sucks
+
+
+To report bugs, please use Savannah bug tracker:
+http://savannah.nongnu.org/bugs/?group=pngpp&func=additem
+
+Do not forget to check if the bug was already filed. :-)

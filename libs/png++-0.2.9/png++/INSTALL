@@ -1,0 +1,81 @@
+General
+=======
+
+PNG++ comes as a set of header files and does not require compilation
+to be installed.  For the same reason there are no binary packages for
+png++.
+
+
+Prerequisites
+=============
+
+- png++ is known to work with libpng-1.2.x (probably, the 1.4.x
+  flavour will work too)
+
+- png++ compiles with g++-4.1.  Other version should work well too,
+  but I have not tested.
+
+- png++ relies on GNU make for compiling tests and examples; in
+  particular it uses "remaking makefiles" feature.
+
+- Documentation is produced using doxygen (http://www.doxygen.org/).
+
+
+Installation
+============
+
+Follow these instructions in order to install png++:
+
+- Unpack source package:
+
+	$ tar -zxf png++-0.2.x.tar.gz -C ~/src
+
+- Go to your brand new png++ sources directory:
+
+	$ cd ~/src/png++-0.2.x
+
+- Issue  make to test how it's doing:
+
+	$ make
+
+This will compile examples in the example/ directory.
+
+As always, CFLAGS and LDFLAGS could be used to adjust compilation.  In
+addition, you might want to specify custom libpng-config.  Use
+LIBPNG_CONFIG variable for that purpose, like this:
+
+	$ make LIBPNG_CONFIG=~/bin/libpng-config
+
+If everything goes well, try:
+
+	$ make test
+
+(or "make check" which is the same as above).  This will run the test
+suite.  If tests do not produce error messages then probably all is
+OK.
+
+- Now you can create documentation (optional).  Use
+
+	$ make docs
+
+to run doxygen in the sources directory.
+
+- Now it is time to become root and install png++ into your system:
+
+	# make install
+
+It's OK to issue "make install" under ordinary user permissions if you
+want to install png++ into your home directory.  Run the following
+command:
+
+	$ make install PREFIX=$HOME
+
+This will copy png++ header files to ~/include/png++ and documentation
+files to ~/share/doc/png++-0.2.x (if the docs were built).
+
+Without a PREFIX png++ installs to /usr/local
+
+
+Happy hacking!
+--
+Alex Shulgin  <alex.shulgin@gmail.com>
