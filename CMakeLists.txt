@@ -4,14 +4,16 @@ enable_testing()
 
 function(target_copy_dll target dll)
     if(WIN32)
-        find_program(TARGET_DLL ${dll})
+        find_program("${dll}_DLL" ${dll})
 
-        if(TARGET_DLL STREQUAL "TARGET_DLL-NOTFOUND")
+        if("${dll}_DLL" STREQUAL "${dll}_DLL-NOTFOUND")
             message(FATAL_ERROR "${dll} not found")
         endif()
 
+        message("Found ${dll}: ${${dll}_DLL}")
+
         add_custom_command(TARGET ${target} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy ${TARGET_DLL} ${PROJECT_BINARY_DIR})
+            COMMAND ${CMAKE_COMMAND} -E copy ${${dll}_DLL} ${PROJECT_BINARY_DIR})
     endif()
 endfunction()
 
