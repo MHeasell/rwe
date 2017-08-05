@@ -76,10 +76,10 @@ public:
                 auto outPosX = static_cast<int>(x) - (data.x - currentFrameHeader.posX);
                 auto outPosY = static_cast<int>(y) - (data.y - currentFrameHeader.posY);
 
-                assert(outPosX >= 0);
-                assert(outPosX < currentFrameHeader.width);
-                assert(outPosY >= 0);
-                assert(outPosY < currentFrameHeader.height);
+                if (outPosX < 0 || outPosX >= currentFrameHeader.width || outPosY < 0 || outPosY >= currentFrameHeader.height)
+                {
+                    throw std::runtime_error("frame coordinate out of bounds");
+                }
 
                 auto colorIndex = data.data[(y * data.width) + x];
                 if (colorIndex == currentFrameHeader.transparencyIndex)
