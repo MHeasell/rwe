@@ -12,7 +12,7 @@ namespace rwe
         return val;
     }
 
-    void decompressRow(std::istream& stream, char* buffer, std::size_t rowLength)
+    void decompressRow(std::istream& stream, char* buffer, std::size_t rowLength, char transparencyIndex)
     {
         auto compressedRowLength = readRaw<uint16_t>(stream);
 
@@ -32,6 +32,7 @@ namespace rwe
                 {
                     throw GafException("malformed row");
                 }
+                std::fill_n(buffer + writePos, count, transparencyIndex);
                 writePos += count;
             }
             else if ((mask & 2) == 2)
@@ -71,13 +72,15 @@ namespace rwe
                 writePos += count;
             }
         }
+
+        std::fill_n(buffer, rowLength - writePos, transparencyIndex);
     }
 
-    void decompressFrame(std::istream& stream, char* buffer, std::size_t width, std::size_t height)
+    void decompressFrame(std::istream& stream, char* buffer, std::size_t width, std::size_t height, char transparencyIndex)
     {
         for (std::size_t i = 0; i < height; ++i)
         {
-            decompressRow(stream, buffer + (i * width), width);
+            decompressRow(stream, buffer + (i * width), width, transparencyIndex);
         }
     }
 
@@ -159,7 +162,7 @@ namespace rwe
                 }
                 else
                 {
-                    decompressFrame(*_stream, buffer.get(), frameHeader.width, frameHeader.height);
+                    decompressFrame(*_stream, buffer.get(), frameHeader.width, frameHeader.height, frameHeader.transparencyIndex);
                 }
 
                 GafReaderAdapter::LayerData layer{
@@ -190,7 +193,7 @@ namespace rwe
                     }
                     else
                     {
-                        decompressFrame(*_stream, buffer.get(), subframeHeader.width, subframeHeader.height);
+                        decompressFrame(*_stream, buffer.get(), subframeHeader.width, subframeHeader.height, subframeHeader.transparencyIndex);
                     }
 
                     GafReaderAdapter::LayerData layer{
