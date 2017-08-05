@@ -166,8 +166,8 @@ namespace rwe
                 }
 
                 GafReaderAdapter::LayerData layer{
-                    0,
-                    0,
+                    frameHeader.posX,
+                    frameHeader.posY,
                     frameHeader.width,
                     frameHeader.height,
                     frameHeader.transparencyIndex,
