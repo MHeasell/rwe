@@ -15,6 +15,6 @@ namespace rwe
 
     void TriangleScene::onKeyDown(SceneManager& sceneManager, const SDL_Keysym& /*key*/)
     {
-        sceneManager.replaceScene(std::make_unique<OtherTriangleScene>());
+        sceneManager.setNextScene(std::make_unique<OtherTriangleScene>());
     }
 }

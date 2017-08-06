@@ -26,7 +26,7 @@ namespace rwe
         GraphicsContext graphics;
 
         SceneManager sceneManager(sdlContext, window.get(), &graphics);
-        sceneManager.pushScene(std::make_unique<TriangleScene>());
+        sceneManager.setNextScene(std::make_unique<TriangleScene>());
         sceneManager.execute();
     }
 }

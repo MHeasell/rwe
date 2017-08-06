@@ -25,20 +25,19 @@ namespace rwe
         };
 
     private:
-        std::stack<std::unique_ptr<Scene>> sceneStack;
+        std::unique_ptr<Scene> currentScene;
+        std::unique_ptr<Scene> nextScene;
         SdlContext* sdl;
         SDL_Window* window;
         GraphicsContext* graphics;
+        bool requestedExit;
 
     public:
         // Number of milliseconds between each game tick.
         static const unsigned int TickInterval = 1000 / 60;
 
         explicit SceneManager(SdlContext* sdl, SDL_Window* window, GraphicsContext* graphics);
-        void pushScene(std::unique_ptr<Scene>&& scene);
-        void popScene();
-        void replaceScene(std::unique_ptr<Scene>&& scene);
-        void replaceAllScenes(std::unique_ptr<Scene>&& scene);
+        void setNextScene(std::unique_ptr<Scene>&& scene);
 
         void execute();
 
