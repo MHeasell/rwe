@@ -24,6 +24,13 @@ namespace rwe
             virtual ~Scene() = default;
         };
 
+    private:
+        std::stack<std::unique_ptr<Scene>> sceneStack;
+        SdlContext* sdl;
+        SDL_Window* window;
+        GraphicsContext* graphics;
+
+    public:
         // Number of milliseconds between each game tick.
         static const unsigned int TickInterval = 1000 / 60;
 
@@ -35,11 +42,6 @@ namespace rwe
 
         void execute();
 
-    private:
-        std::stack<std::unique_ptr<Scene>> sceneStack;
-        SdlContext* sdl;
-        SDL_Window* window;
-        GraphicsContext* graphics;
     };
 }
 
