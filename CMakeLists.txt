@@ -50,6 +50,10 @@ set(SOURCE_FILES
     src/rwe/SceneManager.h
     src/rwe/SdlContextManager.cpp
     src/rwe/SdlContextManager.h
+    src/rwe/SharedTextureHandle.cpp
+    src/rwe/SharedTextureHandle.h
+    src/rwe/TextureHandle.cpp
+    src/rwe/TextureHandle.h
     src/rwe/TriangleScene.cpp
     src/rwe/TriangleScene.h
     src/rwe/geometry/BoundingBox3f.cpp
