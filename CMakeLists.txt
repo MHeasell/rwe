@@ -54,8 +54,12 @@ set(SOURCE_FILES
     src/rwe/SharedTextureHandle.h
     src/rwe/TextureHandle.cpp
     src/rwe/TextureHandle.h
+    src/rwe/TextureService.cpp
+    src/rwe/TextureService.h
     src/rwe/TriangleScene.cpp
     src/rwe/TriangleScene.h
+    src/rwe/UiPanelScene.cpp
+    src/rwe/UiPanelScene.h
     src/rwe/geometry/BoundingBox3f.cpp
     src/rwe/geometry/BoundingBox3f.h
     src/rwe/geometry/Plane3f.cpp
@@ -64,6 +68,8 @@ set(SOURCE_FILES
     src/rwe/geometry/Ray3f.h
     src/rwe/geometry/Triangle3f.cpp
     src/rwe/geometry/Triangle3f.h
+    src/rwe/gui.cpp
+    src/rwe/gui.h
     src/rwe/math/Matrix4f.cpp
     src/rwe/math/Matrix4f.h
     src/rwe/math/Vector2f.cpp
@@ -76,10 +82,18 @@ set(SOURCE_FILES
     src/rwe/pcx.h
     src/rwe/rwe_string.cpp
     src/rwe/rwe_string.h
+    src/rwe/tdf.cpp
+    src/rwe/tdf.h
     src/rwe/tdf/SimpleTdfAdapter.cpp
     src/rwe/tdf/SimpleTdfAdapter.h
     src/rwe/tdf/TdfParser.cpp
     src/rwe/tdf/TdfParser.h
+    src/rwe/ui/UiButton.cpp
+    src/rwe/ui/UiButton.h
+    src/rwe/ui/UiComponent.cpp
+    src/rwe/ui/UiComponent.h
+    src/rwe/ui/UiPanel.cpp
+    src/rwe/ui/UiPanel.h
     src/rwe/vfs/AbstractVirtualFileSystem.h
     src/rwe/vfs/CompositeVirtualFileSystem.cpp
     src/rwe/vfs/CompositeVirtualFileSystem.h

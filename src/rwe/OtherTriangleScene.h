@@ -7,9 +7,13 @@ namespace rwe
 {
     class OtherTriangleScene final : public SceneManager::Scene
     {
+    private:
+        SceneManager* sceneManager;
     public:
-        void onKeyDown(SceneManager& sceneManager, const SDL_Keysym& key) final;
-        void render(GraphicsContext& graphics) final;
+        OtherTriangleScene(SceneManager* sceneManager);
+
+        void onKeyDown(const SDL_Keysym& key) override;
+        void render(GraphicsContext& graphics) override;
     };
 }
 

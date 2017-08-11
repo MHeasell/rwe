@@ -15,11 +15,11 @@ namespace rwe
         class Scene
         {
         public:
-            virtual void update(SceneManager& /*sceneManager*/) {}
+            virtual void update() {}
 
             virtual void render(GraphicsContext& /*graphics*/) {}
 
-            virtual void onKeyDown(SceneManager& /*sceneManager*/, const SDL_Keysym& /*key*/) {}
+            virtual void onKeyDown(const SDL_Keysym& /*key*/) {}
 
             virtual ~Scene() = default;
         };

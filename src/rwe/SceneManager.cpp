@@ -33,14 +33,14 @@ namespace rwe
                     case SDL_QUIT:
                         return;
                     case SDL_KEYDOWN:
-                        currentScene->onKeyDown(*this, event.key.keysym);
+                        currentScene->onKeyDown(event.key.keysym);
                         break;
                 }
             }
 
             while (currentSimulationTime < currentRealTime)
             {
-                currentScene->update(*this);
+                currentScene->update();
                 currentSimulationTime += TickInterval;
             }
 
