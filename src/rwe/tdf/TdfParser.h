@@ -241,14 +241,6 @@ namespace rwe
             std::string value;
             auto inserter = std::back_inserter(value);
 
-            auto firstCodePoint = acceptNotAny(std::vector<TdfCodePoint>{';', TdfEndOfFile});
-            if (!firstCodePoint)
-            {
-                throw TdfParserException(_it.getLine(), _it.getColumn(), "Expected property value");
-            }
-            utf8::append(*firstCodePoint, inserter);
-
-            consumeComments();
             while (auto cp = acceptNotAny(std::vector<TdfCodePoint>{';', TdfEndOfFile}))
             {
                 utf8::append(*cp, inserter);

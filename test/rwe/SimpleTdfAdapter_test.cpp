@@ -164,5 +164,25 @@ namespace rwe
 
             REQUIRE(result == expected);
         }
+
+        SECTION("supports properties with empty values")
+        {
+
+            std::string input = R"TDF(
+    [Foo]
+    {
+        help=;
+    }
+    )TDF";
+
+            std::vector<TdfBlockEntry> expected{
+                TdfBlockEntry("Foo", std::vector<TdfBlockEntry>{
+                    TdfBlockEntry("help", "")
+                })
+            };
+
+            auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
+            REQUIRE(result == expected);
+        }
     }
 }
