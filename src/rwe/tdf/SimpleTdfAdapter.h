@@ -11,7 +11,8 @@
 namespace rwe
 {
     struct TdfBlockEntry;
-    using TdfPropertyValue = boost::variant<std::vector<TdfBlockEntry>, std::string>;
+    using TdfBlock = std::vector<TdfBlockEntry>;
+    using TdfPropertyValue = boost::variant<TdfBlock, std::string>;
     struct TdfBlockEntry
     {
         std::string name;
@@ -19,7 +20,7 @@ namespace rwe
 
         TdfBlockEntry(std::string name, const std::string& value) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(value)) {}
         TdfBlockEntry(std::string name, std::vector<TdfBlockEntry> entries) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(std::move(entries))) {}
-        explicit TdfBlockEntry(std::string name) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(std::vector<TdfBlockEntry>())) {}
+        explicit TdfBlockEntry(std::string name) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(TdfBlock())) {}
 
         TdfBlockEntry(const TdfBlockEntry& other) : name(other.name), value(std::make_unique<TdfPropertyValue>(*other.value))
         {

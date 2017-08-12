@@ -167,9 +167,11 @@ set(TEST_FILES
     test/rwe/geometry/Plane3f_test.cpp
     test/rwe/geometry/Ray3f_test.cpp
     test/rwe/geometry/Triangle3f_test.cpp
+    test/rwe/gui_test.cpp
     test/rwe/math/Matrix4f_test.cpp
     test/rwe/math/Vector3f_test.cpp
-    test/rwe/rwe_string_test.cpp)
+    test/rwe/rwe_string_test.cpp
+    )
 
 add_executable(rwe_test test/main.cpp ${TEST_FILES})
 target_include_directories(rwe_test PRIVATE "libs/catch")
