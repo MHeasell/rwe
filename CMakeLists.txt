@@ -66,6 +66,8 @@ set(SOURCE_FILES
     src/rwe/geometry/Plane3f.h
     src/rwe/geometry/Ray3f.cpp
     src/rwe/geometry/Ray3f.h
+    src/rwe/geometry/Rectangle2f.cpp
+    src/rwe/geometry/Rectangle2f.h
     src/rwe/geometry/Triangle3f.cpp
     src/rwe/geometry/Triangle3f.h
     src/rwe/gui.cpp
@@ -166,6 +168,7 @@ set(TEST_FILES
     test/rwe/geometry/BoundingBox3f_test.cpp
     test/rwe/geometry/Plane3f_test.cpp
     test/rwe/geometry/Ray3f_test.cpp
+    test/rwe/geometry/Rectangle2f_test.cpp
     test/rwe/geometry/Triangle3f_test.cpp
     test/rwe/gui_test.cpp
     test/rwe/math/Matrix4f_test.cpp
