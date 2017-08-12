@@ -52,6 +52,10 @@ set(SOURCE_FILES
     src/rwe/SdlContextManager.h
     src/rwe/SharedTextureHandle.cpp
     src/rwe/SharedTextureHandle.h
+    src/rwe/Sprite.cpp
+    src/rwe/Sprite.h
+    src/rwe/SpriteSeries.cpp
+    src/rwe/SpriteSeries.h
     src/rwe/TextureHandle.cpp
     src/rwe/TextureHandle.h
     src/rwe/TextureService.cpp
@@ -90,10 +94,14 @@ set(SOURCE_FILES
     src/rwe/tdf/SimpleTdfAdapter.h
     src/rwe/tdf/TdfParser.cpp
     src/rwe/tdf/TdfParser.h
+    src/rwe/ui.cpp
+    src/rwe/ui.h
     src/rwe/ui/UiButton.cpp
     src/rwe/ui/UiButton.h
     src/rwe/ui/UiComponent.cpp
     src/rwe/ui/UiComponent.h
+    src/rwe/ui/UiFactory.cpp
+    src/rwe/ui/UiFactory.h
     src/rwe/ui/UiPanel.cpp
     src/rwe/ui/UiPanel.h
     src/rwe/vfs/AbstractVirtualFileSystem.h

@@ -1,17 +1,18 @@
 #ifndef RWE_UIBUTTON_H
 #define RWE_UIBUTTON_H
 
+#include <functional>
+#include <rwe/SpriteSeries.h>
 #include <rwe/ui/UiComponent.h>
 #include <vector>
-#include <functional>
 
 namespace rwe
 {
     class UiButton : public UiComponent
     {
     private:
-        GLuint normalTexture;
-        GLuint pressedTexture;
+        std::shared_ptr<SpriteSeries> spriteSeries;
+        std::string label;
 
         /** True if the button is currently pressed down. */
         bool pressed{false};
@@ -26,15 +27,16 @@ namespace rwe
         std::vector<std::function<bool(UiMouseButtonEvent)>> clickObservers;
 
     public:
-        UiButton(int posX, int posY, unsigned int sizeX, unsigned int sizeY, GLuint normalTexture, GLuint pressedTexture)
-            : UiComponent(posX, posY, sizeX, sizeY), normalTexture(normalTexture), pressedTexture(pressedTexture)
+        UiButton(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<SpriteSeries> spriteSeries)
+            : UiComponent(posX, posY, sizeX, sizeY), spriteSeries(std::move(spriteSeries))
         {
+            assert(spriteSeries->sprites.size() >= 2);
         }
 
         void render(GraphicsContext& graphics) const override
         {
-            GLuint texture = pressed ? pressedTexture : normalTexture;
-            graphics.drawTexture(posX, posY, sizeX, sizeY, texture);
+            const Sprite& sprite = pressed ? spriteSeries.sprites[0] : spriteSeries.sprites[1];
+            graphics.drawSprite(posX, posY, sprite);
         }
 
         bool mouseDown(UiMouseButtonEvent /*event*/) override

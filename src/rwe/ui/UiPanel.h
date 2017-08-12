@@ -12,14 +12,14 @@ namespace rwe
     class UiPanel : public UiComponent
     {
     private:
-        GLuint background;
+        SharedTextureHandle background;
         std::vector<std::unique_ptr<UiComponent>> children;
         boost::optional<std::size_t> focusedChild{boost::none};
 
     public:
-        UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, GLuint background)
+        UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, SharedTextureHandle background)
             : UiComponent(posX, posY, sizeX, sizeY),
-              background(background)
+              background(std::move(background))
         {
         }
 
@@ -28,7 +28,7 @@ namespace rwe
 
         UiPanel(UiPanel&& panel) noexcept
             : UiComponent(panel.posX, panel.posY, panel.sizeX, panel.sizeY),
-              background(panel.background),
+              background(std::move(panel.background)),
               children(std::move(panel.children)),
               focusedChild(std::move(panel.focusedChild))
         {
@@ -46,6 +46,8 @@ namespace rwe
 
             return *this;
         }
+
+        ~UiPanel() override = default;
 
         void render(GraphicsContext& graphics) const override
         {
@@ -126,7 +128,7 @@ namespace rwe
         }
 
     private:
-        void setFocus(boost::optional<std::size_t> controlIndex)
+        void setFocus(std::size_t controlIndex)
         {
             assert(controlIndex < children.size());
 
@@ -136,11 +138,17 @@ namespace rwe
             }
 
             focusedChild = controlIndex;
+            children[*focusedChild]->focus();
+        }
 
+        void clearFocus()
+        {
             if (focusedChild)
             {
-                children[*focusedChild]->focus();
+                children[*focusedChild]->unfocus();
             }
+
+            focusedChild = boost::none;
         }
     };
 }
