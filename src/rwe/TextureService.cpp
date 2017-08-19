@@ -8,6 +8,7 @@ namespace rwe
     class BufferGafAdapter : public GafReaderAdapter
     {
     private:
+        GraphicsContext* graphics;
         const ColorPalette* palette;
         std::vector<Color> buffer;
         GafFrameData currentFrameHeader;
@@ -15,7 +16,7 @@ namespace rwe
         SpriteSeries spriteSeries;
 
     public:
-        explicit BufferGafAdapter(const ColorPalette* palette) : palette(palette), currentFrameHeader() {}
+        explicit BufferGafAdapter(GraphicsContext* graphics, const ColorPalette* palette) : graphics(graphics), palette(palette), currentFrameHeader() {}
 
         void beginFrame(const GafFrameData& header) override
         {
@@ -52,21 +53,7 @@ namespace rwe
 
         void endFrame() override
         {
-            unsigned int texture;
-            glGenTextures(1, &texture);
-            SharedTextureHandle handle(texture);
-
-            glBindTexture(GL_TEXTURE_2D, texture);
-            glTexImage2D(
-                GL_TEXTURE_2D,
-                0,
-                GL_RGBA,
-                currentFrameHeader.width,
-                currentFrameHeader.height,
-                0,
-                GL_RGBA,
-                GL_UNSIGNED_BYTE,
-                buffer.data());
+            auto handle = graphics->createTexture(currentFrameHeader.width, currentFrameHeader.height, buffer);
 
             Sprite sprite(
                 Rectangle2f(
@@ -88,23 +75,7 @@ namespace rwe
     TextureService::TextureService(GraphicsContext* graphics, AbstractVirtualFileSystem* fileSystem, const ColorPalette* palette)
         : graphics(graphics), fileSystem(fileSystem), palette(palette)
     {
-        unsigned int texture;
-        glGenTextures(1, &texture);
-        SharedTextureHandle handle(texture);
-
-        Color c(255, 0, 255);
-
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            GL_RGBA,
-            1,
-            1,
-            0,
-            GL_RGBA,
-            GL_UNSIGNED_BYTE,
-            &c);
+        auto handle = graphics->createColorTexture(Color(255, 0, 255));
 
         auto series = std::make_shared<SpriteSeries>();
         series->sprites.emplace_back(Rectangle2f(0.5f, 0.5f, 0.5f, 0.5f), handle);
@@ -128,7 +99,7 @@ namespace rwe
             return boost::none;
         }
 
-        BufferGafAdapter adapter(palette);
+        BufferGafAdapter adapter(graphics, palette);
         gafArchive.extract(*gafEntry, adapter);
         return std::make_shared<SpriteSeries>(adapter.extractSpriteSeries());
     }
@@ -184,23 +155,7 @@ namespace rwe
             buffer[i] = palette[paletteIndex].toColor();
         }
 
-        unsigned int texture;
-        glGenTextures(1, &texture);
-        SharedTextureHandle handle(texture);
-
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            GL_RGBA,
-            width,
-            height,
-            0,
-            GL_RGBA,
-            GL_UNSIGNED_BYTE,
-            buffer.data());
-
-        return handle;
+        return graphics->createTexture(width, height, buffer);
     }
 
     std::shared_ptr<SpriteSeries> TextureService::getDefaultSpriteSeries()

@@ -76,4 +76,49 @@ namespace rwe
     {
         glMultMatrixf(m.data);
     }
+
+    SharedTextureHandle
+    GraphicsContext::createTexture(unsigned int width, unsigned int height, const std::vector<Color>& image)
+    {
+        assert(image.size() == width * height);
+
+        unsigned int texture;
+        glGenTextures(1, &texture);
+        SharedTextureHandle handle(texture);
+
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RGBA,
+            width,
+            height,
+            0,
+            GL_RGBA,
+            GL_UNSIGNED_BYTE,
+            image.data());
+
+        return handle;
+    }
+
+    SharedTextureHandle GraphicsContext::createColorTexture(Color c)
+    {
+        unsigned int texture;
+        glGenTextures(1, &texture);
+        SharedTextureHandle handle(texture);
+
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RGBA,
+            1,
+            1,
+            0,
+            GL_RGBA,
+            GL_UNSIGNED_BYTE,
+            &c);
+
+        return handle;
+    }
 }

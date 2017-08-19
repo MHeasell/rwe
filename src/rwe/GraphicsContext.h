@@ -9,6 +9,7 @@
 #include <rwe/TextureHandle.h>
 #include <rwe/math/Vector3f.h>
 #include <rwe/camera/AbstractCamera.h>
+#include <rwe/ColorPalette.h>
 
 namespace rwe
 {
@@ -21,7 +22,9 @@ namespace rwe
 
         void clear();
 
-        TextureHandle createTexture(const SDL_Surface& surface);
+        SharedTextureHandle createTexture(unsigned int width, unsigned int height, const std::vector<Color>& image);
+
+        SharedTextureHandle createColorTexture(Color c);
 
         void drawTexture(float x, float y, float width, float height, GLuint texture);
 
