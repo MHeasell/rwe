@@ -45,6 +45,13 @@ namespace rwe
 
         virtual ~UiComponent() = default;
 
+        unsigned int getWidth() { return sizeX; }
+
+        unsigned int getHeight() { return sizeY; }
+
+        int getX() { return posX; }
+        int getY() { return posY; }
+
         virtual bool mouseDown(UiMouseButtonEvent /*event*/) { return false; }
 
         virtual bool mouseUp(UiMouseButtonEvent /*event*/) { return false; }
