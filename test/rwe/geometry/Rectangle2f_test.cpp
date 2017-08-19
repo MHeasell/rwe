@@ -35,10 +35,31 @@ namespace rwe
             SECTION("constructs a rectangle from points")
             {
                 auto r = Rectangle2f::fromTLBR(1.0f, 3.0f, 4.0f, 7.0f);
-                REQUIRE(r.position.x == 2.5f);
-                REQUIRE(r.position.y == 5.0f);
-                REQUIRE(r.extents.x == 3.0f);
-                REQUIRE(r.extents.y == 4.0f);
+                REQUIRE(r.position.x == 5.0f);
+                REQUIRE(r.position.y == 2.5f);
+                REQUIRE(r.extents.x == 2.0f);
+                REQUIRE(r.extents.y == 1.5f);
+            }
+        }
+
+        SECTION("getters")
+        {
+            SECTION("get various properties")
+            {
+                auto r = Rectangle2f::fromTLBR(1.0f, 3.0f, 4.0f, 7.0f);
+
+                REQUIRE(r.width() == 4.0f);
+                REQUIRE(r.height() == 3.0f);
+
+                REQUIRE(r.top() == 1.0f);
+                REQUIRE(r.bottom() == 4.0f);
+                REQUIRE(r.left() == 3.0f);
+                REQUIRE(r.right() == 7.0f);
+
+                REQUIRE(r.topLeft() == Vector2f(3.0f, 1.0f));
+                REQUIRE(r.topRight() == Vector2f(7.0f, 1.0f));
+                REQUIRE(r.bottomLeft() == Vector2f(3.0f, 4.0f));
+                REQUIRE(r.bottomRight() == Vector2f(7.0f, 4.0f));
             }
         }
     }

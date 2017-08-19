@@ -15,9 +15,22 @@ namespace rwe
 
         static Rectangle2f fromTLBR(float top, float left, float bottom, float right);
 
-        bool contains(Vector2f point);
+        bool contains(Vector2f point) const;
 
-        bool contains(float x, float y);
+        bool contains(float x, float y) const;
+
+        float left() const;
+        float right() const;
+        float top() const;
+        float bottom() const;
+
+        Vector2f topLeft() const;
+        Vector2f topRight() const;
+        Vector2f bottomLeft() const;
+        Vector2f bottomRight() const;
+
+        float width() const;
+        float height() const;
     };
 }
 
