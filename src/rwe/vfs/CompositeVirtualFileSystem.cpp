@@ -29,7 +29,7 @@ namespace rwe
         for (const fs::directory_entry& e : fs::directory_iterator(searchPath))
         {
             auto ext = e.path().extension().string();
-            if (rwe::toUpper(ext) == rwe::toUpper(extension))
+            if (toUpper(ext) == toUpper(extension))
             {
                 vfs.emplaceFileSystem<rwe::HpiFileSystem>(e.path().string());
             }
