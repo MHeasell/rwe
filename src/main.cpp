@@ -26,7 +26,7 @@ namespace rwe
 
         auto sdlContext = sdlManager.getSdlContext();
 
-        auto window = sdlContext->createWindow("RWE", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1024, 720, SDL_WINDOW_OPENGL);
+        auto window = sdlContext->createWindow("RWE", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_OPENGL);
         assert(window != nullptr);
         auto glContext = sdlContext->glCreateContext(window.get());
         assert(glContext != nullptr);
