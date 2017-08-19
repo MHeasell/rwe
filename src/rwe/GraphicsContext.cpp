@@ -4,6 +4,23 @@
 
 namespace rwe
 {
+    void requireNoOpenGlError()
+    {
+        auto error = glGetError();
+        if (error != GL_NO_ERROR)
+        {
+            throw OpenGlException(error);
+        }
+    }
+
+    GraphicsException::GraphicsException(const std::string& __arg) : runtime_error(__arg) {}
+
+    GraphicsException::GraphicsException(const char* string) : runtime_error(string) {}
+
+    OpenGlException::OpenGlException(GLenum error) : GraphicsException(std::string("OpenGL error: ") + std::to_string(error))
+    {
+    }
+
     void GraphicsContext::drawTriangle(const Vector3f& a, const Vector3f& b, const Vector3f& c)
     {
         glBegin(GL_TRIANGLES);
@@ -118,7 +135,9 @@ namespace rwe
             GL_RGBA,
             GL_UNSIGNED_BYTE,
             &c);
+        requireNoOpenGlError();
 
         return handle;
     }
+
 }

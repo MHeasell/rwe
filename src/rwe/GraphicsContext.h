@@ -13,6 +13,20 @@
 
 namespace rwe
 {
+    class GraphicsException : public std::runtime_error
+    {
+    public:
+        explicit GraphicsException(const std::string& __arg);
+
+        explicit GraphicsException(const char* string);
+    };
+
+    class OpenGlException : public GraphicsException
+    {
+    public:
+        explicit OpenGlException(GLenum error);
+    };
+
     class GraphicsContext
     {
     public:
