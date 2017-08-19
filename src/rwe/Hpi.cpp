@@ -380,7 +380,7 @@ namespace rwe
             dir.entries.begin(),
             dir.entries.end(),
             [name](const HpiArchive::DirectoryEntry& e) {
-                return rwe::toUpper(e.name) == rwe::toUpper(name);
+                return toUpper(e.name) == toUpper(name);
             });
 
         if (it == dir.entries.end())

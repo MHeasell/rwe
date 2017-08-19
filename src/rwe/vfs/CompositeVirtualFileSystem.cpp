@@ -24,14 +24,14 @@ namespace rwe
         return boost::none;
     }
 
-    void addHpisWithExtension(rwe::CompositeVirtualFileSystem& vfs, const fs::path& searchPath, const std::string& extension)
+    void addHpisWithExtension(CompositeVirtualFileSystem& vfs, const fs::path& searchPath, const std::string& extension)
     {
         for (const fs::directory_entry& e : fs::directory_iterator(searchPath))
         {
             auto ext = e.path().extension().string();
             if (toUpper(ext) == toUpper(extension))
             {
-                vfs.emplaceFileSystem<rwe::HpiFileSystem>(e.path().string());
+                vfs.emplaceFileSystem<HpiFileSystem>(e.path().string());
             }
         }
     }
@@ -41,7 +41,7 @@ namespace rwe
         std::vector<std::string> hpiExtensions{".hpi", ".ufo", ".ccx", ".gpf", ".gp3"};
 
         auto vfs = CompositeVirtualFileSystem();
-        vfs.emplaceFileSystem<rwe::DirectoryFileSystem>(searchPath);
+        vfs.emplaceFileSystem<DirectoryFileSystem>(searchPath);
 
         // scan for HPIs to add
         fs::path searchPathP(searchPath);
