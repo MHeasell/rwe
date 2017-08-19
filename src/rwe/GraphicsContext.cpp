@@ -43,21 +43,25 @@ namespace rwe
 
     void GraphicsContext::drawTexture(float x, float y, float width, float height, GLuint texture)
     {
-        glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, texture);
+        glEnable(GL_TEXTURE_2D);
+
+        // disable mipmapping
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
         glBegin(GL_QUADS);
 
-        glTexCoord2f(0.0f, 1.0f);
+        glTexCoord2f(0.0f, 0.0f);
         glVertex2f(x, y);
 
-        glTexCoord2f(0.0f, 0.0f);
+        glTexCoord2f(0.0f, 1.0f);
         glVertex2f(x, y + height);
 
-        glTexCoord2f(1.0f, 0.0f);
+        glTexCoord2f(1.0f, 1.0f);
         glVertex2f(x + width, y + height);
 
-        glTexCoord2f(1.0f, 1.0f);
+        glTexCoord2f(1.0f, 0.0f);
         glVertex2f(x + width, y);
 
         glEnd();
@@ -107,7 +111,7 @@ namespace rwe
         glTexImage2D(
             GL_TEXTURE_2D,
             0,
-            GL_RGBA,
+            GL_RGBA8,
             width,
             height,
             0,
