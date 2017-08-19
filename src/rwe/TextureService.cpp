@@ -1,6 +1,210 @@
 #include "TextureService.h"
+#include <rwe/pcx.h>
+#include <rwe/Gaf.h>
+#include <boost/interprocess/streams/bufferstream.hpp>
 
 namespace rwe
 {
+    class BufferGafAdapter : public GafReaderAdapter
+    {
+    private:
+        const ColorPalette* palette;
+        std::vector<Color> buffer;
+        GafFrameData currentFrameHeader;
 
+        SpriteSeries spriteSeries;
+
+    public:
+        explicit BufferGafAdapter(const ColorPalette* palette) : palette(palette), currentFrameHeader() {}
+
+        void beginFrame(const GafFrameData& header) override
+        {
+            buffer.clear();
+            buffer.resize(header.width * header.height);
+            std::fill(buffer.begin(), buffer.end(), Color::Black);
+            currentFrameHeader = header;
+        }
+
+        void frameLayer(const LayerData& data) override
+        {
+            for (std::size_t y = 0; y < data.height; ++y)
+            {
+                for (std::size_t x = 0; x < data.width; ++x)
+                {
+                    auto outPosX = static_cast<int>(x) - (data.x - currentFrameHeader.posX);
+                    auto outPosY = static_cast<int>(y) - (data.y - currentFrameHeader.posY);
+
+                    if (outPosX < 0 || outPosX >= currentFrameHeader.width || outPosY < 0 || outPosY >= currentFrameHeader.height)
+                    {
+                        throw std::runtime_error("frame coordinate out of bounds");
+                    }
+
+                    auto colorIndex = static_cast<unsigned char>(data.data[(y * data.width) + x]);
+                    if (colorIndex == currentFrameHeader.transparencyIndex)
+                    {
+                        continue;
+                    }
+
+                    buffer[(outPosY * currentFrameHeader.width) + outPosX] = (*palette)[colorIndex];
+                }
+            }
+        }
+
+        void endFrame() override
+        {
+            unsigned int texture;
+            glGenTextures(1, &texture);
+            SharedTextureHandle handle(texture);
+
+            glBindTexture(GL_TEXTURE_2D, texture);
+            glTexImage2D(
+                GL_TEXTURE_2D,
+                0,
+                GL_RGBA,
+                currentFrameHeader.width,
+                currentFrameHeader.height,
+                0,
+                GL_RGBA,
+                GL_UNSIGNED_BYTE,
+                buffer.data());
+
+            Sprite sprite(
+                Rectangle2f(
+                    -currentFrameHeader.posX,
+                    -currentFrameHeader.posY,
+                    currentFrameHeader.width,
+                    currentFrameHeader.height),
+                handle);
+
+            spriteSeries.sprites.push_back(std::move(sprite));
+        }
+
+        SpriteSeries extractSpriteSeries()
+        {
+            return std::move(spriteSeries);
+        }
+    };
+
+    TextureService::TextureService(GraphicsContext* graphics, AbstractVirtualFileSystem* fileSystem, const ColorPalette* palette)
+        : graphics(graphics), fileSystem(fileSystem), palette(palette)
+    {
+        unsigned int texture;
+        glGenTextures(1, &texture);
+        SharedTextureHandle handle(texture);
+
+        Color c(255, 0, 255);
+
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RGBA,
+            1,
+            1,
+            0,
+            GL_RGBA,
+            GL_UNSIGNED_BYTE,
+            &c);
+
+        auto series = std::make_shared<SpriteSeries>();
+        series->sprites.emplace_back(Rectangle2f(0.5f, 0.5f, 0.5f, 0.5f), handle);
+        defaultSpriteSeries = std::move(series);
+    }
+
+    boost::optional<std::shared_ptr<SpriteSeries>> TextureService::getGafEntryInternal(const std::string& gafName, const std::string& entryName)
+    {
+        auto gafBytes = fileSystem->readFile(gafName);
+        if (!gafBytes)
+        {
+            return boost::none;
+        }
+
+        boost::interprocess::bufferstream gafStream(gafBytes->data(), gafBytes->size());
+        GafArchive gafArchive(&gafStream);
+
+        auto gafEntry = gafArchive.findEntry(entryName);
+        if (!gafEntry)
+        {
+            return boost::none;
+        }
+
+        BufferGafAdapter adapter(palette);
+        gafArchive.extract(*gafEntry, adapter);
+        return std::make_shared<SpriteSeries>(adapter.extractSpriteSeries());
+    }
+
+    std::shared_ptr<SpriteSeries> TextureService::getGafEntry(const std::string& gafName, const std::string& entryName)
+    {
+        auto entry = getGafEntryInternal(gafName, entryName);
+        if (!entry)
+        {
+            throw std::runtime_error("Failed to load GAF entry");
+        }
+
+        return *entry;
+    }
+
+    std::shared_ptr<SpriteSeries>
+    TextureService::getGuiTexture(const std::string& guiName, const std::string& graphicName)
+    {
+        auto entry = getGafEntryInternal("anims/" + guiName + ".gaf", graphicName);
+        if (!entry)
+        {
+            entry = getGafEntryInternal("anims/commongui.gaf", graphicName);
+            if (!entry)
+            {
+                throw std::runtime_error("Neither GUI GAF file nor commongui.gaf was found");
+            }
+        }
+
+        return *entry;
+    }
+
+    SharedTextureHandle TextureService::getBitmap(const std::string& bitmapName)
+    {
+        auto entry = fileSystem->readFile("bitmaps/" + bitmapName + ".pcx");
+        if (!entry)
+        {
+            throw std::runtime_error("bitmap not found");
+        }
+
+        PcxDecoder decoder(entry->begin().base(), entry->end().base());
+
+        auto decodedData = decoder.decodeImage();
+        auto palette = decoder.decodePalette();
+
+        auto width = decoder.getWidth();
+        auto height = decoder.getHeight();
+
+        std::vector<Color> buffer(decodedData.size());
+        for (std::size_t i = 0; i < decodedData.size(); ++i)
+        {
+            auto paletteIndex = static_cast<unsigned char>(decodedData[i]);
+            assert(paletteIndex < palette.size());
+            buffer[i] = palette[paletteIndex].toColor();
+        }
+
+        unsigned int texture;
+        glGenTextures(1, &texture);
+        SharedTextureHandle handle(texture);
+
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RGBA,
+            width,
+            height,
+            0,
+            GL_RGBA,
+            GL_UNSIGNED_BYTE,
+            buffer.data());
+
+        return handle;
+    }
+
+    std::shared_ptr<SpriteSeries> TextureService::getDefaultSpriteSeries()
+    {
+        return defaultSpriteSeries;
+    }
 }

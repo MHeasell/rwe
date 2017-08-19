@@ -10,6 +10,8 @@ namespace rwe
     {
         Rectangle2f bounds;
         SharedTextureHandle texture;
+
+        explicit Sprite(const Rectangle2f& bounds, const SharedTextureHandle& texture);
     };
 }
 

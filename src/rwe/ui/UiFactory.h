@@ -16,10 +16,14 @@ namespace rwe
         TextureService* textureService;
 
     public:
+        explicit UiFactory(TextureService* textureService);
+
         UiPanel panelFromGuiFile(const std::string& name, const std::vector<GuiEntry>& entries);
 
     private:
         UiButton buttonFromGuiFile(const GuiEntry& entry);
+
+        std::shared_ptr<SpriteSeries> getDefaultButtonGraphics(int width, int height);
     };
 }
 

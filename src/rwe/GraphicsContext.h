@@ -22,11 +22,11 @@ namespace rwe
 
         TextureHandle createTexture(const SDL_Surface& surface);
 
-        void drawTexture(int x, int y, unsigned int width, unsigned int height, GLuint texture);
+        void drawTexture(float x, float y, float width, float height, GLuint texture);
 
-        void drawTexture(int x, int y, unsigned int width, unsigned int height, const SharedTextureHandle& texture);
+        void drawTexture(float x, float y, float width, float height, const SharedTextureHandle& texture);
 
-        void drawSprite(int x, int y, const Sprite& sprite);
+        void drawSprite(float x, float y, const Sprite& sprite);
     };
 }
 

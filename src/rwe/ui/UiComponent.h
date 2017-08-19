@@ -38,10 +38,10 @@ namespace rwe
         {
         }
 
-        UiComponent(const UiComponent& c) = delete;
-        UiComponent& operator=(const UiComponent& c) = delete;
-        UiComponent(const UiComponent&& c) = delete;
-        UiComponent& operator=(UiComponent&& c) = delete;
+        UiComponent(const UiComponent& c) = default;
+        UiComponent& operator=(const UiComponent& c) = default;
+        UiComponent(UiComponent&& c) = default;
+        UiComponent& operator=(UiComponent&& c) = default;
 
         virtual ~UiComponent() = default;
 

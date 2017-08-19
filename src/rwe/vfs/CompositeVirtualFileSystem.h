@@ -22,7 +22,7 @@ namespace rwe
     };
 
 
-    CompositeVirtualFileSystem* constructVfs(const std::string& searchPath);
+    CompositeVirtualFileSystem constructVfs(const std::string& searchPath);
 }
 
 #endif

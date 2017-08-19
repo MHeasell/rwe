@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <stdexcept>
 #include <vector>
+#include <rwe/ColorPalette.h>
 
 namespace rwe
 {
@@ -50,6 +51,8 @@ namespace rwe
         uint8_t red;
         uint8_t green;
         uint8_t blue;
+
+        Color toColor() const { return Color(red, green, blue); }
     };
 
 #pragma pack()

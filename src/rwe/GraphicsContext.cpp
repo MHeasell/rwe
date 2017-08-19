@@ -23,4 +23,41 @@ namespace rwe
     {
         glClear(GL_COLOR_BUFFER_BIT);
     }
+
+    void GraphicsContext::drawTexture(float x, float y, float width, float height, GLuint texture)
+    {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, texture);
+
+        glBegin(GL_QUADS);
+
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex2f(x, y);
+
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex2f(x, y + height);
+
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex2f(x + width, y + height);
+
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex2f(x + width, y);
+
+        glEnd();
+    }
+
+    void GraphicsContext::drawTexture(float x, float y, float width, float height, const SharedTextureHandle& texture)
+    {
+        drawTexture(x, y, width, height, texture.get());
+    }
+
+    void GraphicsContext::drawSprite(float x, float y, const Sprite& sprite)
+    {
+        drawTexture(
+            x + sprite.bounds.left(),
+            y + sprite.bounds.top(),
+            sprite.bounds.width(),
+            sprite.bounds.height(),
+            sprite.texture);
+    }
 }

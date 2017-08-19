@@ -36,18 +36,18 @@ namespace rwe
         }
     }
 
-    CompositeVirtualFileSystem* constructVfs(const std::string& searchPath)
+    CompositeVirtualFileSystem constructVfs(const std::string& searchPath)
     {
         std::vector<std::string> hpiExtensions{".hpi", ".ufo", ".ccx", ".gpf", ".gp3"};
 
-        auto vfs = new rwe::CompositeVirtualFileSystem();
-        vfs->emplaceFileSystem<rwe::DirectoryFileSystem>(searchPath);
+        auto vfs = CompositeVirtualFileSystem();
+        vfs.emplaceFileSystem<rwe::DirectoryFileSystem>(searchPath);
 
         // scan for HPIs to add
         fs::path searchPathP(searchPath);
-        for (auto it = --hpiExtensions.end(); it != hpiExtensions.begin(); --it)
+        for (auto it = hpiExtensions.rbegin(); it != hpiExtensions.rend(); ++it)
         {
-            addHpisWithExtension(*vfs, searchPathP, *it);
+            addHpisWithExtension(vfs, searchPathP, *it);
         }
 
         return vfs;
