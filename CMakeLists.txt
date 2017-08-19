@@ -64,6 +64,10 @@ set(SOURCE_FILES
     src/rwe/TriangleScene.h
     src/rwe/UiPanelScene.cpp
     src/rwe/UiPanelScene.h
+    src/rwe/camera/AbstractCamera.cpp
+    src/rwe/camera/AbstractCamera.h
+    src/rwe/camera/UiCamera.cpp
+    src/rwe/camera/UiCamera.h
     src/rwe/geometry/BoundingBox3f.cpp
     src/rwe/geometry/BoundingBox3f.h
     src/rwe/geometry/Plane3f.cpp

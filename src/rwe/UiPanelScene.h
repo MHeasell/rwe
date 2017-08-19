@@ -4,6 +4,7 @@
 #include <rwe/SceneManager.h>
 #include <rwe/ui/UiPanel.h>
 #include <rwe/TextureService.h>
+#include <rwe/camera/UiCamera.h>
 
 namespace rwe
 {
@@ -11,6 +12,7 @@ namespace rwe
     {
     private:
         UiPanel panel;
+        UiCamera camera;
 
     public:
         explicit UiPanelScene(UiPanel&& panel);

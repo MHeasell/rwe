@@ -60,4 +60,20 @@ namespace rwe
             sprite.bounds.height(),
             sprite.texture);
     }
+
+    void GraphicsContext::applyCamera(const AbstractCamera& camera)
+    {
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        multiplyMatrix(camera.getProjectionMatrix());
+
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        multiplyMatrix(camera.getViewMatrix());
+    }
+
+    void GraphicsContext::multiplyMatrix(const Matrix4f& m)
+    {
+        glMultMatrixf(m.data);
+    }
 }
