@@ -18,6 +18,8 @@ namespace rwe
         Vector2f& operator*=(float v);
         Vector2f& operator/=(float v);
 
+        bool operator==(const Vector2f& rhs);
+
         float lengthSquared() const;
         float length() const;
 
