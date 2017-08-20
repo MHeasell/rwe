@@ -27,8 +27,8 @@ namespace rwe
 
     void requireVersionsEqual(const GuiVersion& a, const GuiVersion& b)
     {
-        REQUIRE(a.major == b.major);
-        REQUIRE(a.minor == b.minor);
+        REQUIRE(a.majorVersion == b.majorVersion);
+        REQUIRE(a.minorVersion == b.minorVersion);
         REQUIRE(a.revision == b.revision);
     }
 

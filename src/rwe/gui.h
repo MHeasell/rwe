@@ -31,17 +31,17 @@ namespace rwe
 
     struct GuiVersion
     {
-        int major;
-        int minor;
+        int majorVersion;
+        int minorVersion;
         int revision;
 
         GuiVersion() = default;
-        GuiVersion(int major, int minor, int revision) : major(major), minor(minor), revision(revision) {}
+        GuiVersion(int major, int minor, int revision) : majorVersion(major), minorVersion(minor), revision(revision) {}
 
         bool operator==(const GuiVersion& rhs) const
         {
-            return major == rhs.major
-                && minor == rhs.minor
+            return majorVersion == rhs.majorVersion
+                && minorVersion == rhs.minorVersion
                 && revision == rhs.revision;
         }
 
