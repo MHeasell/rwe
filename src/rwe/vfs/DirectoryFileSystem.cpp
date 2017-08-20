@@ -1,5 +1,6 @@
 #include "DirectoryFileSystem.h"
 
+#include <fstream>
 #include <sstream>
 
 namespace fs = boost::filesystem;
