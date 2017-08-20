@@ -2,6 +2,34 @@
 
 namespace rwe
 {
+    class EqualityVisitor : public boost::static_visitor<bool>
+    {
+    private:
+        const TdfPropertyValue* other;
+    public:
+        explicit EqualityVisitor(const TdfPropertyValue* other): other(other) {}
+        bool operator()(const std::string& s) const
+        {
+            auto rhs = boost::get<std::string>(other);
+            if (!rhs)
+            {
+                return false;
+            }
+
+            return s == *rhs;
+        }
+
+        bool operator()(const TdfBlock& b) const
+        {
+            auto rhs = boost::get<TdfBlock>(other);
+            if (!rhs)
+            {
+                return false;
+            }
+
+            return b == *rhs;
+        }
+    };
 
     void SimpleTdfAdapter::onStart()
     {
@@ -48,12 +76,7 @@ namespace rwe
             return false;
         }
 
-        if (*value != *rhs.value)
-        {
-            return false;
-        }
-
-        return true;
+        return boost::apply_visitor(EqualityVisitor(rhs.value.get()), *value);
     }
 
     bool TdfBlockEntry::operator!=(const TdfBlockEntry &rhs) const {
