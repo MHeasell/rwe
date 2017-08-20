@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 
     auto vfs = rwe::constructVfs(searchPath);
 
-    auto buffer = vfs->readFile(file);
+    auto buffer = vfs.readFile(file);
     if (!buffer)
     {
         std::cerr << "File not found" << std::endl;
