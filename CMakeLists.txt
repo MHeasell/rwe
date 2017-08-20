@@ -230,6 +230,7 @@ add_test(NAME rwe_test COMMAND rwe_test)
 install(TARGETS rwe
     RUNTIME DESTINATION bin
     )
+install(FILES LICENSE README.md DESTINATION .)
 
 set(CPACK_GENERATOR "ZIP")
 
