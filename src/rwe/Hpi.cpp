@@ -1,6 +1,7 @@
 #include "Hpi.h"
 
 #include <boost/optional.hpp>
+#include <memory>
 #include <rwe/rwe_string.h>
 
 #include <zlib.h>
