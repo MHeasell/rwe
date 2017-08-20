@@ -26,8 +26,12 @@ namespace rwe
 
     void addHpisWithExtension(CompositeVirtualFileSystem& vfs, const fs::path& searchPath, const std::string& extension)
     {
-        for (const fs::directory_entry& e : fs::directory_iterator(searchPath))
+        fs::directory_iterator it(searchPath);
+        fs::directory_iterator end;
+
+        for (; it != end; ++it)
         {
+            const auto& e = *it;
             auto ext = e.path().extension().string();
             if (toUpper(ext) == toUpper(extension))
             {
