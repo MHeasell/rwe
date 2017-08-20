@@ -2,6 +2,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <memory>
 
 std::string schemeName(rwe::HpiArchive::File::CompressionScheme scheme)
 {
