@@ -1,5 +1,21 @@
 cmake_minimum_required(VERSION 3.8)
-project(rwe)
+
+execute_process(
+    COMMAND "git" "describe" "--dirty=-d"
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+    OUTPUT_VARIABLE RWE_GIT_DESCRIPTION
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+if(NOT RWE_GIT_DESCRIPTION)
+    message(FATAL_ERROR "Failed to get the Git description")
+endif()
+
+if(NOT RWE_GIT_DESCRIPTION MATCHES "^v([0-9]+\\.[0-9]+\\.[0-9]+)")
+    message(FATAL_ERROR "Failed to parse version from Git")
+endif()
+
+project(rwe VERSION ${CMAKE_MATCH_1})
 enable_testing()
 
 function(target_copy_dll target dll)
@@ -14,6 +30,8 @@ function(target_copy_dll target dll)
 
         add_custom_command(TARGET ${target} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy ${${dll}_DLL} ${PROJECT_BINARY_DIR})
+
+        install(FILES ${PROJECT_BINARY_DIR}/${dll} DESTINATION "bin")
     endif()
 endfunction()
 
@@ -208,3 +226,19 @@ add_executable(rwe_test test/main.cpp ${TEST_FILES})
 target_include_directories(rwe_test PRIVATE "libs/catch")
 target_link_libraries(rwe_test librwe)
 add_test(NAME rwe_test COMMAND rwe_test)
+
+install(TARGETS rwe
+    RUNTIME DESTINATION bin
+    )
+
+set(CPACK_GENERATOR "ZIP")
+
+set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+
+set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${RWE_GIT_DESCRIPTION}-${CMAKE_SYSTEM_NAME}")
+
+set(CPACK_OUTPUT_FILE_PREFIX "dist")
+
+include(CPack)
