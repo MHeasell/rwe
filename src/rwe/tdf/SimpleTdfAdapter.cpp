@@ -32,6 +32,34 @@ namespace rwe
         return std::move(root);
     }
 
+    TdfBlockEntry::TdfBlockEntry(std::string name, const std::string &value) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(value)) {}
+
+    TdfBlockEntry::TdfBlockEntry(std::string name, std::vector<TdfBlockEntry> entries) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(std::move(entries))) {}
+
+    TdfBlockEntry::TdfBlockEntry(std::string name) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(TdfBlock())) {}
+
+    TdfBlockEntry::TdfBlockEntry(const TdfBlockEntry &other) : name(other.name), value(std::make_unique<TdfPropertyValue>(*other.value))
+    {
+    }
+
+    bool TdfBlockEntry::operator==(const TdfBlockEntry &rhs) const {
+        if (name != rhs.name)
+        {
+            return false;
+        }
+
+        if (*value != *rhs.value)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    bool TdfBlockEntry::operator!=(const TdfBlockEntry &rhs) const {
+        return !(rhs == *this);
+    }
+
     std::ostream& operator<<(std::ostream& os, const TdfBlockEntry& entry)
     {
         auto leaf = boost::get<std::string>(&*entry.value);

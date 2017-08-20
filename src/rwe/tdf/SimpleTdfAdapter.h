@@ -18,33 +18,15 @@ namespace rwe
         std::string name;
         std::unique_ptr<TdfPropertyValue> value;
 
-        TdfBlockEntry(std::string name, const std::string& value) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(value)) {}
-        TdfBlockEntry(std::string name, std::vector<TdfBlockEntry> entries) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(std::move(entries))) {}
-        explicit TdfBlockEntry(std::string name) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(TdfBlock())) {}
+        TdfBlockEntry(std::string name, const std::string& value);
+        TdfBlockEntry(std::string name, std::vector<TdfBlockEntry> entries);
+        explicit TdfBlockEntry(std::string name);
 
-        TdfBlockEntry(const TdfBlockEntry& other) : name(other.name), value(std::make_unique<TdfPropertyValue>(*other.value))
-        {
-        }
+        TdfBlockEntry(const TdfBlockEntry& other);
 
-        bool operator==(const TdfBlockEntry& rhs) const
-        {
-            if (name != rhs.name)
-            {
-                return false;
-            }
+        bool operator==(const TdfBlockEntry& rhs) const;
 
-            if (*value != *rhs.value)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        bool operator!=(const TdfBlockEntry& rhs) const
-        {
-            return !(rhs == *this);
-        }
+        bool operator!=(const TdfBlockEntry& rhs) const;
 
     };
 
