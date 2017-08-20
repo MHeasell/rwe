@@ -206,7 +206,9 @@ if(WIN32)
 endif()
 target_include_directories(gaf_test PUBLIC ${PNG_INCLUDE_DIRS})
 target_include_directories(gaf_test PUBLIC libs/png++-0.2.9)
-target_compile_definitions(gaf_test PRIVATE __STDC_LIB_EXT1__=1)
+if(WIN32)
+    target_compile_definitions(gaf_test PRIVATE __STDC_LIB_EXT1__=1)
+endif()
 
 add_executable(pcx_test src/pcx_test.cpp)
 target_copy_dll(pcx_test "libpng16-16.dll")
@@ -217,7 +219,9 @@ if(WIN32)
 endif()
 target_include_directories(pcx_test PUBLIC ${PNG_INCLUDE_DIRS})
 target_include_directories(pcx_test PUBLIC libs/png++-0.2.9)
-target_compile_definitions(pcx_test PRIVATE __STDC_LIB_EXT1__=1)
+if(WIN32)
+    target_compile_definitions(pcx_test PRIVATE __STDC_LIB_EXT1__=1)
+endif()
 
 set(TEST_FILES
     test/rwe/SimpleTdfAdapter_test.cpp
