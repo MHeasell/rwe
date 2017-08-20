@@ -40,6 +40,12 @@ namespace rwe
 
             return true;
         }
+
+        bool operator!=(const TdfBlockEntry& rhs) const
+        {
+            return !(rhs == *this);
+        }
+
     };
 
     class SimpleTdfAdapter : public TdfAdapter<std::vector<TdfBlockEntry>>
