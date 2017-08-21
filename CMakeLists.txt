@@ -116,8 +116,6 @@ set(SOURCE_FILES
     src/rwe/tdf/SimpleTdfAdapter.h
     src/rwe/tdf/TdfParser.cpp
     src/rwe/tdf/TdfParser.h
-    src/rwe/ui.cpp
-    src/rwe/ui.h
     src/rwe/ui/UiButton.cpp
     src/rwe/ui/UiButton.h
     src/rwe/ui/UiComponent.cpp
