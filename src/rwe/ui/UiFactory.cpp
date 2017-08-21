@@ -11,7 +11,7 @@ namespace rwe
         assert(entries.size() > 0);
         auto panelEntry = entries[0];
 
-        auto texture = textureService->getBitmap("TITLSCRN");
+        auto texture = textureService->getBitmap("FrontendX");
         UiPanel panel(
             panelEntry.common.xpos,
             panelEntry.common.ypos,
