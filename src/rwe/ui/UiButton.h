@@ -27,8 +27,8 @@ namespace rwe
         std::vector<std::function<bool(UiMouseButtonEvent)>> clickObservers;
 
     public:
-        UiButton(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<SpriteSeries> spriteSeries, std::string label)
-            : UiComponent(posX, posY, sizeX, sizeY), spriteSeries(std::move(spriteSeries)), label(std::move(label))
+        UiButton(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<SpriteSeries> _spriteSeries, std::string _label)
+            : UiComponent(posX, posY, sizeX, sizeY), spriteSeries(std::move(_spriteSeries)), label(std::move(_label))
         {
             assert(spriteSeries->sprites.size() >= 2);
         }
