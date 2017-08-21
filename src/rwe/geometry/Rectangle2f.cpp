@@ -12,6 +12,13 @@ namespace rwe
         return Rectangle2f(x, y, halfWidth, halfHeight);
     }
 
+    Rectangle2f Rectangle2f::fromTopLeft(float x, float y, float width, float height)
+    {
+        float halfHeight = height / 2.0f;
+        float halfWidth = width / 2.0f;
+        return Rectangle2f(x + halfWidth, y + halfHeight, halfWidth, halfHeight);
+    }
+
     bool Rectangle2f::contains(Vector2f point) const
     {
         auto localPoint = point - position;

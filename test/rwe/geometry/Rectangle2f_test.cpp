@@ -42,6 +42,17 @@ namespace rwe
             }
         }
 
+        SECTION("::fromTopLeft")
+        {
+            SECTION("constructs a rectangle from points")
+            {
+                auto r = Rectangle2f::fromTopLeft(1.0f, 3.0f, 4.0f, 7.0f);
+                REQUIRE(r.position.x == 3.0f);
+                REQUIRE(r.position.y == 6.5f);
+                REQUIRE(r.extents.x == 2.0f);
+                REQUIRE(r.extents.y == 3.5f);
+            }
+        }
         SECTION("getters")
         {
             SECTION("get various properties")
