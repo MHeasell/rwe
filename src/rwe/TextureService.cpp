@@ -56,7 +56,7 @@ namespace rwe
             auto handle = graphics->createTexture(currentFrameHeader.width, currentFrameHeader.height, buffer);
 
             Sprite sprite(
-                Rectangle2f(
+                Rectangle2f::fromTopLeft(
                     -currentFrameHeader.posX,
                     -currentFrameHeader.posY,
                     currentFrameHeader.width,
@@ -115,20 +115,22 @@ namespace rwe
         return *entry;
     }
 
-    std::shared_ptr<SpriteSeries>
+    boost::optional<std::shared_ptr<SpriteSeries>>
     TextureService::getGuiTexture(const std::string& guiName, const std::string& graphicName)
     {
         auto entry = getGafEntryInternal("anims/" + guiName + ".gaf", graphicName);
-        if (!entry)
+        if (entry)
         {
-            entry = getGafEntryInternal("anims/commongui.gaf", graphicName);
-            if (!entry)
-            {
-                throw std::runtime_error("Neither GUI GAF file nor commongui.gaf was found");
-            }
+            return entry;
         }
 
-        return *entry;
+        entry = getGafEntryInternal("anims/commongui.gaf", graphicName);
+        if (entry)
+        {
+            return entry;
+        }
+
+        return boost::none;
     }
 
     SharedTextureHandle TextureService::getBitmap(const std::string& bitmapName)

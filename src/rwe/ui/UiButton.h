@@ -36,7 +36,7 @@ namespace rwe
         void render(GraphicsContext& graphics) const override
         {
             const Sprite& sprite = pressed ? spriteSeries->sprites[0] : spriteSeries->sprites[1];
-            graphics.drawSprite(posX, posY, sprite);
+            graphics.drawTexture(posX, posY, sprite.bounds.width(), sprite.bounds.height(), sprite.texture);
         }
 
         bool mouseDown(UiMouseButtonEvent /*event*/) override

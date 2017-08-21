@@ -1,6 +1,7 @@
 #ifndef RWE_TEXTURESERVICE_H
 #define RWE_TEXTURESERVICE_H
 
+#include <boost/optional.hpp>
 #include <memory>
 #include <rwe/GraphicsContext.h>
 #include <rwe/SharedTextureHandle.h>
@@ -23,7 +24,7 @@ namespace rwe
         TextureService(GraphicsContext* graphics, AbstractVirtualFileSystem* filesystem, const ColorPalette* palette);
 
         std::shared_ptr<SpriteSeries> getGafEntry(const std::string& gafName, const std::string& entryName);
-        std::shared_ptr<SpriteSeries> getGuiTexture(const std::string& guiName, const std::string& graphicName);
+        boost::optional<std::shared_ptr<SpriteSeries>> getGuiTexture(const std::string& guiName, const std::string& graphicName);
         SharedTextureHandle getBitmap(const std::string& bitmapName);
         SharedTextureHandle getDefaultTexture();
         std::shared_ptr<SpriteSeries> getDefaultSpriteSeries();

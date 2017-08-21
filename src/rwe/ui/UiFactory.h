@@ -21,7 +21,7 @@ namespace rwe
         UiPanel panelFromGuiFile(const std::string& name, const std::vector<GuiEntry>& entries);
 
     private:
-        UiButton buttonFromGuiFile(const GuiEntry& entry);
+        UiButton buttonFromGuiFile(const std::string& guiName, const GuiEntry& entry);
 
         std::shared_ptr<SpriteSeries> getDefaultButtonGraphics(int width, int height);
     };

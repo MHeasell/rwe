@@ -27,7 +27,7 @@ namespace rwe
             switch (entry.common.id)
             {
                 case GuiElementType::Button:
-                    std::unique_ptr<UiComponent> btn(new UiButton(buttonFromGuiFile(entry)));
+                    std::unique_ptr<UiComponent> btn(new UiButton(buttonFromGuiFile(name, entry)));
                     panel.appendChild(std::move(btn));
                     break;
             }
@@ -36,10 +36,14 @@ namespace rwe
         return panel;
     }
 
-    UiButton UiFactory::buttonFromGuiFile(const GuiEntry& entry)
+    UiButton UiFactory::buttonFromGuiFile(const std::string& guiName, const GuiEntry& entry)
     {
 
-        auto graphics = getDefaultButtonGraphics(entry.common.width, entry.common.height);
+        auto graphics = textureService->getGuiTexture(guiName, entry.common.name);
+        if (!graphics)
+        {
+            graphics = getDefaultButtonGraphics(entry.common.width, entry.common.height);
+        }
 
         auto text = entry.text ? *(entry.text) : std::string("");
 
@@ -48,7 +52,7 @@ namespace rwe
             entry.common.ypos,
             entry.common.width,
             entry.common.height,
-            graphics,
+            *graphics,
             text
         );
 
