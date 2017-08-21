@@ -1,5 +1,8 @@
 #include "UiFactory.h"
 
+#include <memory>
+#include <rwe/ui/UiComponent.h>
+
 namespace rwe
 {
     UiPanel UiFactory::panelFromGuiFile(const std::string& name, const std::vector<GuiEntry>& entries)
@@ -23,6 +26,10 @@ namespace rwe
 
             switch (entry.common.id)
             {
+                case GuiElementType::Button:
+                    std::unique_ptr<UiComponent> btn(new UiButton(buttonFromGuiFile(entry)));
+                    panel.appendChild(std::move(btn));
+                    break;
             }
         }
 
@@ -53,6 +60,11 @@ namespace rwe
 
     std::shared_ptr<SpriteSeries> UiFactory::getDefaultButtonGraphics(int width, int height)
     {
-        return textureService->getDefaultSpriteSeries();
+        auto texture = textureService->getDefaultTexture();
+        Sprite sprite(Rectangle2f::fromTopLeft(0.0f, 0.0f, width, height), texture);
+        auto series = std::make_shared<SpriteSeries>();
+        series->sprites.push_back(sprite);
+        series->sprites.push_back(sprite);
+        return series;
     }
 }

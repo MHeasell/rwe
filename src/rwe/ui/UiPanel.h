@@ -120,11 +120,9 @@ namespace rwe
             }
         }
 
-        template <typename T, typename... Args>
-        void emplaceChild(Args&&... args)
+        void appendChild(std::unique_ptr<UiComponent>&& c)
         {
-            //auto ptr = std::make_unique<T>(std::forward<Args>(args)...);
-            //children.push_back(std::move(ptr));
+            children.push_back(std::move(c));
         }
 
     private:

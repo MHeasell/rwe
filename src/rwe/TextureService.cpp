@@ -162,4 +162,9 @@ namespace rwe
     {
         return defaultSpriteSeries;
     }
+
+    SharedTextureHandle TextureService::getDefaultTexture()
+    {
+        return defaultSpriteSeries->sprites[0].texture;
+    }
 }
