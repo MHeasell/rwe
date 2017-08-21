@@ -21,15 +21,15 @@ namespace rwe
 
     boost::optional <ColorPalette> readPalette(std::vector<char>& vector)
     {
-        assert(vector.size() >= (3 * 256));
+        assert(vector.size() >= (4 * 256));
 
         std::vector<Color> colors(256);
 
         for (unsigned int i = 0; i < 256; ++i)
         {
-            colors[i].r = static_cast<unsigned char>(vector[(3 * i)]);
-            colors[i].g = static_cast<unsigned char>(vector[(3 * i) + 1]);
-            colors[i].b = static_cast<unsigned char>(vector[(3 * i) + 2]);
+            colors[i].r = static_cast<unsigned char>(vector[(4 * i)]);
+            colors[i].g = static_cast<unsigned char>(vector[(4 * i) + 1]);
+            colors[i].b = static_cast<unsigned char>(vector[(4 * i) + 2]);
             colors[i].a = 255;
         }
 
