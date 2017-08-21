@@ -172,9 +172,9 @@ int main(int argc, char* argv[])
 
     if (command == "extract")
     {
-        if (argc < 5)
+        if (argc < 6)
         {
-            std::cerr << "Specify GAF file, file to extract and destination" << std::endl;
+            std::cerr << "Specify palette file, GAF file, file to extract and destination" << std::endl;
             return 1;
         }
 
