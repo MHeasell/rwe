@@ -86,6 +86,8 @@ set(SOURCE_FILES
     src/rwe/camera/AbstractCamera.h
     src/rwe/camera/UiCamera.cpp
     src/rwe/camera/UiCamera.h
+    src/rwe/events.cpp
+    src/rwe/events.h
     src/rwe/geometry/BoundingBox3f.cpp
     src/rwe/geometry/BoundingBox3f.h
     src/rwe/geometry/Plane3f.cpp

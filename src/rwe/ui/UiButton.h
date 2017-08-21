@@ -24,7 +24,7 @@ namespace rwe
          */
         bool armed{false};
 
-        std::vector<std::function<bool(UiMouseButtonEvent)>> clickObservers;
+        std::vector<std::function<bool(MouseButtonEvent)>> clickObservers;
 
     public:
         UiButton(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<SpriteSeries> _spriteSeries, std::string _label)
@@ -35,29 +35,28 @@ namespace rwe
 
         void render(GraphicsContext& graphics) const override
         {
-            const Sprite& sprite = pressed ? spriteSeries->sprites[0] : spriteSeries->sprites[1];
+            const Sprite& sprite = pressed ? spriteSeries->sprites[1] : spriteSeries->sprites[0];
             graphics.drawTexture(posX, posY, sprite.bounds.width(), sprite.bounds.height(), sprite.texture);
         }
 
-        bool mouseDown(UiMouseButtonEvent /*event*/) override
+        bool mouseDown(MouseButtonEvent /*event*/) override
         {
             armed = true;
             pressed = true;
             return true;
         }
 
-        bool mouseUp(UiMouseButtonEvent /*event*/) override
+        bool mouseUp(MouseButtonEvent /*event*/) override
         {
             if (armed && pressed)
             {
                 // TODO: call an event handler or something here
-                return true;
             }
 
             armed = false;
             pressed = false;
 
-            return false;
+            return true;
         }
 
         void mouseEnter() override

@@ -13,4 +13,14 @@ namespace rwe
         context.applyCamera(camera);
         panel.render(context);
     }
+
+    void UiPanelScene::onMouseDown(MouseButtonEvent event)
+    {
+        panel.mouseDown(event);
+    }
+
+    void UiPanelScene::onMouseUp(MouseButtonEvent event)
+    {
+        panel.mouseUp(event);
+    }
 }

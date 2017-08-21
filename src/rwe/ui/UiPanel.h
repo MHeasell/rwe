@@ -58,7 +58,7 @@ namespace rwe
             }
         }
 
-        bool mouseDown(UiMouseButtonEvent event) override
+        bool mouseDown(MouseButtonEvent event) override
         {
             auto size = children.size();
             for (std::size_t i = 0; i < size; ++i)
@@ -74,7 +74,7 @@ namespace rwe
             return false;
         }
 
-        bool mouseUp(UiMouseButtonEvent event) override
+        bool mouseUp(MouseButtonEvent event) override
         {
             if (!focusedChild)
             {
@@ -84,7 +84,7 @@ namespace rwe
             return children[*focusedChild]->mouseUp(event);
         }
 
-        bool keyDown(UiKeyEvent event) override
+        bool keyDown(KeyEvent event) override
         {
             if (!focusedChild)
             {
@@ -94,7 +94,7 @@ namespace rwe
             return children[*focusedChild]->keyDown(event);
         }
 
-        bool keyUp(UiKeyEvent event) override
+        bool keyUp(KeyEvent event) override
         {
             if (!focusedChild)
             {

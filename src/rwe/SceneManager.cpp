@@ -2,6 +2,20 @@
 
 namespace rwe
 {
+    boost::optional<MouseButtonEvent::MouseButton> convertSdlMouseButton(Uint8 button)
+    {
+        switch (button)
+        {
+            case SDL_BUTTON_LEFT:
+                return MouseButtonEvent::MouseButton::Left;
+            case SDL_BUTTON_MIDDLE:
+                return MouseButtonEvent::MouseButton::Middle;
+            case SDL_BUTTON_RIGHT:
+                return MouseButtonEvent::MouseButton::Right;
+            default:
+                return boost::none;
+        }
+    }
     SceneManager::SceneManager(SdlContext* sdl, SDL_Window* window, GraphicsContext* graphics) :
         currentScene(), nextScene(), sdl(sdl), window(window), graphics(graphics), requestedExit(false)
     {
@@ -35,6 +49,30 @@ namespace rwe
                     case SDL_KEYDOWN:
                         currentScene->onKeyDown(event.key.keysym);
                         break;
+                    case SDL_MOUSEBUTTONDOWN:
+                    {
+                        auto button = convertSdlMouseButton(event.button.button);
+                        if (!button)
+                        {
+                            break;
+                        }
+
+                        MouseButtonEvent e(event.button.x, event.button.y, *button);
+                        currentScene->onMouseDown(e);
+                        break;
+                    }
+                    case SDL_MOUSEBUTTONUP:
+                    {
+                        auto button = convertSdlMouseButton(event.button.button);
+                        if (!button)
+                        {
+                            break;
+                        }
+
+                        MouseButtonEvent e(event.button.x, event.button.y, *button);
+                        currentScene->onMouseUp(e);
+                        break;
+                    }
                 }
             }
 

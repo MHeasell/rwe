@@ -18,6 +18,10 @@ namespace rwe
         explicit UiPanelScene(UiPanel&& panel);
 
         void render(GraphicsContext& context) override;
+
+        void onMouseDown(MouseButtonEvent event) override;
+
+        void onMouseUp(MouseButtonEvent event) override;
     };
 }
 

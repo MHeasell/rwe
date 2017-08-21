@@ -4,6 +4,7 @@
 #include <memory>
 #include <rwe/GraphicsContext.h>
 #include <rwe/SdlContextManager.h>
+#include <rwe/events.h>
 
 #include <stack>
 
@@ -20,6 +21,12 @@ namespace rwe
             virtual void render(GraphicsContext& /*graphics*/) {}
 
             virtual void onKeyDown(const SDL_Keysym& /*key*/) {}
+
+            virtual void onMouseDown(MouseButtonEvent /*event*/) {}
+
+            virtual void onMouseUp(MouseButtonEvent /*event*/) {}
+
+            virtual void onMouseMouse(int /*x*/, int /*y*/) {}
 
             virtual ~Scene() = default;
         };

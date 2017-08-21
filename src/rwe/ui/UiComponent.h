@@ -2,27 +2,10 @@
 #define RWE_UICOMPONENT_H
 
 #include <rwe/GraphicsContext.h>
+#include <rwe/events.h>
 
 namespace rwe
 {
-    struct UiMouseButtonEvent
-    {
-        enum class MouseButton
-        {
-            Left,
-            Middle,
-            Right
-        };
-        int x;
-        int y;
-        MouseButton button;
-    };
-
-    struct UiKeyEvent
-    {
-        int keyCode;
-    };
-
     class UiComponent
     {
     protected:
@@ -52,17 +35,17 @@ namespace rwe
         int getX() { return posX; }
         int getY() { return posY; }
 
-        virtual bool mouseDown(UiMouseButtonEvent /*event*/) { return false; }
+        virtual bool mouseDown(MouseButtonEvent /*event*/) { return false; }
 
-        virtual bool mouseUp(UiMouseButtonEvent /*event*/) { return false; }
+        virtual bool mouseUp(MouseButtonEvent /*event*/) { return false; }
 
         virtual void mouseEnter() {}
 
         virtual void mouseLeave() {}
 
-        virtual bool keyDown(UiKeyEvent /*event*/) { return false; }
+        virtual bool keyDown(KeyEvent /*event*/) { return false; }
 
-        virtual bool keyUp(UiKeyEvent /*event*/) { return false; }
+        virtual bool keyUp(KeyEvent /*event*/) { return false; }
 
         virtual void focus() {}
 
