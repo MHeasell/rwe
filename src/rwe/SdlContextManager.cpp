@@ -32,7 +32,7 @@ namespace rwe
         return &sdlNetContext;
     }
 
-    const SdlMixerContext* SdlContextManager::getSdlMixerContext() const
+    SdlMixerContext* SdlContextManager::getSdlMixerContext()
     {
         return &sdlMixerContext;
     }
@@ -75,10 +75,16 @@ namespace rwe
         {
             throw SDLMixerException(Mix_GetError());
         }
+
+        if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) != 0)
+        {
+            throw SDLMixerException(Mix_GetError());
+        }
     }
 
     SdlMixerContext::~SdlMixerContext()
     {
+        Mix_CloseAudio();
         Mix_Quit();
     }
 

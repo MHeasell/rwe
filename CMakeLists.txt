@@ -55,6 +55,8 @@ find_package(SDL2_net REQUIRED)
 find_package(ZLIB REQUIRED)
 
 set(SOURCE_FILES
+    src/rwe/AudioService.cpp
+    src/rwe/AudioService.h
     src/rwe/ColorPalette.cpp
     src/rwe/ColorPalette.h
     src/rwe/Gaf.cpp src/rwe/Gaf.h

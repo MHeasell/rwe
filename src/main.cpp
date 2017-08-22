@@ -15,6 +15,7 @@
 #include <rwe/UiPanelScene.h>
 #include <rwe/ColorPalette.h>
 #include <boost/filesystem.hpp>
+#include <rwe/AudioService.h>
 
 namespace fs = boost::filesystem;
 
@@ -54,6 +55,8 @@ namespace rwe
 
         TextureService textureService(&graphics, &vfs, &*palette);
 
+        AudioService audioService(sdlContext, sdlManager.getSdlMixerContext(), &vfs);
+
         SceneManager sceneManager(sdlContext, window.get(), &graphics);
 
         UiFactory uiFactory(&textureService);
@@ -78,6 +81,9 @@ namespace rwe
         auto scene = std::make_unique<UiPanelScene>(std::move(panel));
 
         sceneManager.setNextScene(std::move(scene));
+
+        audioService.loopSound("DRONE2");
+
         sceneManager.execute();
 
         return 0;

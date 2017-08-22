@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <memory>
 #include <SDL.h>
+#include <SDL_mixer.h>
 
 namespace rwe
 {
@@ -44,6 +45,11 @@ namespace rwe
             void operator()(SDL_GLContext context) { SDL_GL_DeleteContext(context); }
         };
 
+        struct RWopsDeleter
+        {
+            void operator()(SDL_RWops* rw) { SDL_RWclose(rw); }
+        };
+
     private:
         SdlContext();
         SdlContext(const SdlContext&) = delete;
@@ -59,6 +65,11 @@ namespace rwe
         {
             return std::unique_ptr<void, GlContextDeleter>(SDL_GL_CreateContext(window));
         }
+
+        std::unique_ptr<SDL_RWops, RWopsDeleter> rwFromConstMem(const void* mem, int size)
+        {
+            return std::unique_ptr<SDL_RWops, RWopsDeleter>(SDL_RWFromConstMem(mem, size));
+        };
 
         Uint32 getTicks()
         {
@@ -102,6 +113,27 @@ namespace rwe
         ~SdlMixerContext();
 
         friend class SdlContextManager;
+
+    public:
+        struct MixChunkDeleter
+        {
+            void operator()(Mix_Chunk* chunk) { Mix_FreeChunk(chunk); }
+        };
+
+        std::unique_ptr<Mix_Chunk, MixChunkDeleter> loadWavRw(SDL_RWops* src)
+        {
+            return std::unique_ptr<Mix_Chunk, MixChunkDeleter>(Mix_LoadWAV_RW(src, 0));
+        };
+
+        void allocateChannels(int numChans)
+        {
+            Mix_AllocateChannels(numChans);
+        }
+
+        int playChannel(int channel, Mix_Chunk* chunk, int loops)
+        {
+            return Mix_PlayChannel(channel, chunk, loops);
+        }
     };
 
     class SdlImageContext
@@ -130,7 +162,7 @@ namespace rwe
         const SdlContext* getSdlContext() const;
         SdlContext* getSdlContext();
         const SdlNetContext* getSdlNetContext() const;
-        const SdlMixerContext* getSdlMixerContext() const;
+        SdlMixerContext* getSdlMixerContext();
         const SdlImageContext* getSdlImageContext() const;
 
     private:
