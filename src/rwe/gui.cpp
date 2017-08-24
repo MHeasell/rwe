@@ -16,8 +16,8 @@ namespace rwe
     boost::optional<const std::string&> extractString(const TdfBlock& block, const std::string& key)
     {
         // find the key in the block
-        auto pos = std::find_if(block.begin(), block.end(), [key](const TdfBlockEntry& e) { return e.name == key; });
-        if (pos == block.end())
+        auto pos = std::find_if(block.entries.begin(), block.entries.end(), [key](const TdfBlockEntry& e) { return e.name == key; });
+        if (pos == block.entries.end())
         {
             return boost::none;
         }
@@ -30,8 +30,8 @@ namespace rwe
     boost::optional<const TdfBlock&> extractBlock(const TdfBlock& block, const std::string& key)
     {
         // find the key in the block
-        auto pos = std::find_if(block.begin(), block.end(), [key](const TdfBlockEntry& e) { return e.name == key; });
-        if (pos == block.end())
+        auto pos = std::find_if(block.entries.begin(), block.entries.end(), [key](const TdfBlockEntry& e) { return e.name == key; });
+        if (pos == block.entries.end())
         {
             return boost::none;
         }
@@ -211,7 +211,7 @@ namespace rwe
     {
         std::vector<GuiEntry> entries;
 
-        for (auto& entry : tdf)
+        for (auto& entry : tdf.entries)
         {
             auto block = boost::get<TdfBlock&>(*(entry.value));
             auto guiEntry = parseGuiEntry(block);

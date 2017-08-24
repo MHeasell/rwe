@@ -11,7 +11,17 @@
 namespace rwe
 {
     struct TdfBlockEntry;
-    using TdfBlock = std::vector<TdfBlockEntry>;
+    struct TdfBlock
+    {
+        std::vector<TdfBlockEntry> entries;
+
+        boost::optional<const TdfBlock&> findBlock(const std::string& name) const;
+        boost::optional<const std::string&> findValue(const std::string& name) const;
+
+        bool operator==(const TdfBlock& rhs) const;
+
+        bool operator!=(const TdfBlock& rhs) const;
+    };
     using TdfPropertyValue = boost::variant<TdfBlock, std::string>;
     struct TdfBlockEntry
     {
@@ -19,7 +29,7 @@ namespace rwe
         std::unique_ptr<TdfPropertyValue> value;
 
         TdfBlockEntry(std::string name, const std::string& value);
-        TdfBlockEntry(std::string name, std::vector<TdfBlockEntry> entries);
+        TdfBlockEntry(std::string name, TdfBlock block);
         explicit TdfBlockEntry(std::string name);
 
         TdfBlockEntry(const TdfBlockEntry& other);
@@ -30,12 +40,12 @@ namespace rwe
 
     };
 
-    class SimpleTdfAdapter : public TdfAdapter<std::vector<TdfBlockEntry>>
+    class SimpleTdfAdapter : public TdfAdapter<TdfBlock>
     {
     private:
-        std::vector<TdfBlockEntry> root;
+        TdfBlock root;
 
-        std::vector<std::vector<TdfBlockEntry>*> blockStack;
+        std::vector<TdfBlock*> blockStack;
 
     public:
         void onStart() override;

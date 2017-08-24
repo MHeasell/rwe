@@ -33,21 +33,21 @@ namespace rwe
 
     void SimpleTdfAdapter::onStart()
     {
-        root.clear();
+        root.entries.clear();
         blockStack.clear();
         blockStack.push_back(&root);
     }
 
     void SimpleTdfAdapter::onProperty(const std::string& name, const std::string& value)
     {
-        blockStack.back()->emplace_back(name, value);
+        blockStack.back()->entries.emplace_back(name, value);
     }
 
     void SimpleTdfAdapter::onStartBlock(const std::string& name)
     {
         auto top = blockStack.back();
-        top->emplace_back(name);
-        blockStack.push_back(&boost::get<std::vector<TdfBlockEntry>>(*top->back().value));
+        top->entries.emplace_back(name);
+        blockStack.push_back(&boost::get<TdfBlock>(*(top->entries.back().value)));
     }
 
     void SimpleTdfAdapter::onEndBlock()
@@ -62,7 +62,7 @@ namespace rwe
 
     TdfBlockEntry::TdfBlockEntry(std::string name, const std::string &value) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(value)) {}
 
-    TdfBlockEntry::TdfBlockEntry(std::string name, std::vector<TdfBlockEntry> entries) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(std::move(entries))) {}
+    TdfBlockEntry::TdfBlockEntry(std::string name, TdfBlock block) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(std::move(block))) {}
 
     TdfBlockEntry::TdfBlockEntry(std::string name) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(TdfBlock())) {}
 
@@ -92,11 +92,11 @@ namespace rwe
         }
         else
         {
-            auto block = boost::get<std::vector<TdfBlockEntry>>(&*entry.value);
+            auto block = boost::get<TdfBlock>(&*entry.value);
             if (block != nullptr)
             {
                 os << "[" << entry.name << "]{ ";
-                for (auto elem : *block)
+                for (auto elem : block->entries)
                 {
                     os << elem << " ";
                 }
@@ -109,5 +109,43 @@ namespace rwe
         }
 
         return os;
+    }
+
+    bool TdfBlock::operator==(const TdfBlock& rhs) const
+    {
+        return entries == rhs.entries;
+    }
+
+    bool TdfBlock::operator!=(const TdfBlock& rhs) const
+    {
+        return !(rhs == *this);
+    }
+
+    boost::optional<const TdfBlock&> TdfBlock::findBlock(const std::string& name) const
+    {
+        // find the key in the block
+        auto pos = std::find_if(entries.begin(), entries.end(), [name](const TdfBlockEntry& e) { return e.name == name; });
+        if (pos == entries.end())
+        {
+            return boost::none;
+        }
+
+        // make sure the key contains a block and extract it
+        auto& valuePointer = pos->value;
+        return boost::get<TdfBlock>(*valuePointer);
+    }
+
+    boost::optional<const std::string&> TdfBlock::findValue(const std::string& name) const
+    {
+        // find the key in the block
+        auto pos = std::find_if(entries.begin(), entries.end(), [name](const TdfBlockEntry& e) { return e.name == name; });
+        if (pos == entries.end())
+        {
+            return boost::none;
+        }
+
+        // make sure the key contains a primitive (not a block) and extract it
+        auto& valuePointer = pos->value;
+        return boost::get<std::string>(*valuePointer);
     }
 }

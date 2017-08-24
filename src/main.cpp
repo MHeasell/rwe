@@ -61,6 +61,16 @@ namespace rwe
 
         UiFactory uiFactory(&textureService);
 
+        // load sound definitions
+        auto allSoundBytes = vfs.readFile("gamedata/ALLSOUND.TDF");
+        if (!allSoundBytes)
+        {
+            std::cerr << "Couldn't read ALLSOUND.TDF" << std::endl;
+            return 1;
+        }
+
+        std::string allSoundString(allSoundBytes->data(), allSoundBytes->size());
+        auto allSoundTdf = parseTdfFromString(allSoundString);
 
         auto mainMenuGuiRaw = vfs.readFile("guis/MAINMENU.GUI");
         if (!mainMenuGuiRaw)
@@ -82,7 +92,16 @@ namespace rwe
 
         sceneManager.setNextScene(std::move(scene));
 
-        audioService.loopSound("DRONE2");
+        // start the BGM
+        auto allSoundBgm = allSoundTdf.findBlock("BGM");
+        if (allSoundBgm)
+        {
+            auto sound = allSoundBgm->findValue("sound");
+            if (sound)
+            {
+                audioService.loopSound(*sound);
+            }
+        }
 
         sceneManager.execute();
 
