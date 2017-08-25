@@ -15,6 +15,10 @@ namespace rwe
     {
         std::vector<TdfBlockEntry> entries;
 
+        TdfBlock() = default;
+
+        explicit TdfBlock(std::vector<TdfBlockEntry>&& entries);
+
         boost::optional<const TdfBlock&> findBlock(const std::string& name) const;
         boost::optional<const std::string&> findValue(const std::string& name) const;
 
@@ -30,6 +34,7 @@ namespace rwe
 
         TdfBlockEntry(std::string name, const std::string& value);
         TdfBlockEntry(std::string name, TdfBlock block);
+        TdfBlockEntry(std::string name, std::vector<TdfBlockEntry> entries);
         explicit TdfBlockEntry(std::string name);
 
         TdfBlockEntry(const TdfBlockEntry& other);

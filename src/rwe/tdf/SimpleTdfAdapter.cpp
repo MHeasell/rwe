@@ -83,6 +83,10 @@ namespace rwe
         return !(rhs == *this);
     }
 
+    TdfBlockEntry::TdfBlockEntry(std::string name, std::vector<TdfBlockEntry> entries) : TdfBlockEntry(std::move(name), TdfBlock(std::move(entries)))
+    {
+    }
+
     std::ostream& operator<<(std::ostream& os, const TdfBlockEntry& entry)
     {
         auto leaf = boost::get<std::string>(&*entry.value);
@@ -147,5 +151,9 @@ namespace rwe
         // make sure the key contains a primitive (not a block) and extract it
         auto& valuePointer = pos->value;
         return boost::get<std::string>(*valuePointer);
+    }
+
+    TdfBlock::TdfBlock(std::vector<TdfBlockEntry>&& entries) : entries(std::move(entries))
+    {
     }
 }

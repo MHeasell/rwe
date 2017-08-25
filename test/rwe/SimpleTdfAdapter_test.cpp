@@ -11,7 +11,7 @@ namespace rwe
 {
     TEST_CASE("SimpleTdfAdapter")
     {
-        TdfParser<ConstUtf8Iterator, std::vector<TdfBlockEntry>> parser(new SimpleTdfAdapter);
+        TdfParser<ConstUtf8Iterator, TdfBlock> parser(new SimpleTdfAdapter);
 
         SECTION("works for simple TDFs")
         {
@@ -24,13 +24,13 @@ namespace rwe
 }
 )TDF";
 
-            std::vector<TdfBlockEntry> expected{
+            TdfBlock expected({
                 TdfBlockEntry("Foo", std::vector<TdfBlockEntry> {
                     TdfBlockEntry("Bar", "1"),
                     TdfBlockEntry("Baz", "2"),
                     TdfBlockEntry("Alice", "Bob")
                 })
-            };
+            });
 
             auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
 
@@ -48,13 +48,13 @@ namespace rwe
 }
 )TDF";
 
-            std::vector<TdfBlockEntry> expected{
+            TdfBlock expected({
                 TdfBlockEntry("Foo", std::vector<TdfBlockEntry> {
                     TdfBlockEntry("Bar", "1"),
                     TdfBlockEntry("Baz", "2"),
                     TdfBlockEntry("Alice", "Bob")
                 })
-            };
+            });
 
             auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
 
@@ -74,13 +74,13 @@ namespace rwe
 }
 )TDF";
 
-            std::vector<TdfBlockEntry> expected{
+            TdfBlock expected({
                 TdfBlockEntry("Foo", std::vector<TdfBlockEntry> {
                     TdfBlockEntry("Bar", "1"),
                     TdfBlockEntry("Baz", "2"),
                     TdfBlockEntry("Alice", "Bob")
                 })
-            };
+            });
 
             auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
 
@@ -104,13 +104,13 @@ namespace rwe
     }
     )TDF";
 
-            std::vector<TdfBlockEntry> expected{
+            TdfBlock expected({
                 TdfBlockEntry("Foo", std::vector<TdfBlockEntry> {
                     TdfBlockEntry("Bar", "1"),
                     TdfBlockEntry("Baz", "2"),
                     TdfBlockEntry("Alice", "Bob")
                 })
-            };
+            });
 
             auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
 
@@ -128,13 +128,13 @@ namespace rwe
     }
     )TDF";
 
-            std::vector<TdfBlockEntry> expected{
+            TdfBlock expected({
                 TdfBlockEntry("Foo", std::vector<TdfBlockEntry> {
                     TdfBlockEntry("Bar", "1"),
                     TdfBlockEntry("Baz", "2"),
                     TdfBlockEntry("Alice", "Bob")
                 })
-            };
+            });
 
             auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
 
@@ -152,13 +152,13 @@ namespace rwe
     }
     )TDF";
 
-            std::vector<TdfBlockEntry> expected{
+            TdfBlock expected({
                 TdfBlockEntry("Foo Bar Baz", std::vector<TdfBlockEntry> {
                     TdfBlockEntry("Item One", "The First Item"),
                     TdfBlockEntry("Item Two", "123  456"),
                     TdfBlockEntry("Item The Third", "Three ee eeee")
                 })
-            };
+            });
 
             auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
 
@@ -175,11 +175,11 @@ namespace rwe
     }
     )TDF";
 
-            std::vector<TdfBlockEntry> expected{
+            TdfBlock expected({
                 TdfBlockEntry("Foo", std::vector<TdfBlockEntry>{
                     TdfBlockEntry("help", "")
                 })
-            };
+            });
 
             auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
             REQUIRE(result == expected);
