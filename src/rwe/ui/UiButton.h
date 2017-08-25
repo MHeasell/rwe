@@ -27,56 +27,19 @@ namespace rwe
         std::vector<std::function<bool(MouseButtonEvent)>> clickObservers;
 
     public:
-        UiButton(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<SpriteSeries> _spriteSeries, std::string _label)
-            : UiComponent(posX, posY, sizeX, sizeY), spriteSeries(std::move(_spriteSeries)), label(std::move(_label))
-        {
-            assert(spriteSeries->sprites.size() >= 2);
-        }
+        UiButton(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<SpriteSeries> _spriteSeries, std::string _label);
 
-        void render(GraphicsContext& graphics) const override
-        {
-            const Sprite& sprite = pressed ? spriteSeries->sprites[1] : spriteSeries->sprites[0];
-            graphics.drawTexture(posX, posY, sprite.bounds.width(), sprite.bounds.height(), sprite.texture);
-        }
+        void render(GraphicsContext& graphics) const override;
 
-        bool mouseDown(MouseButtonEvent /*event*/) override
-        {
-            armed = true;
-            pressed = true;
-            return true;
-        }
+        bool mouseDown(MouseButtonEvent /*event*/) override;
 
-        bool mouseUp(MouseButtonEvent /*event*/) override
-        {
-            if (armed && pressed)
-            {
-                // TODO: call an event handler or something here
-            }
+        bool mouseUp(MouseButtonEvent /*event*/) override;
 
-            armed = false;
-            pressed = false;
+        void mouseEnter() override;
 
-            return true;
-        }
+        void mouseLeave() override;
 
-        void mouseEnter() override
-        {
-            if (armed)
-            {
-                pressed = true;
-            }
-        }
-
-        void mouseLeave() override
-        {
-            pressed = false;
-        }
-
-        void unfocus() override
-        {
-            armed = false;
-            pressed = false;
-        }
+        void unfocus() override;
     };
 }
 
