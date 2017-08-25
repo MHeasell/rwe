@@ -56,10 +56,25 @@ namespace rwe
             text
         );
 
+        auto soundBlock = soundLookup->findBlock("BIGBUTTON");
+        if (soundBlock)
+        {
+            auto soundName = soundBlock->findValue("sound");
+            if (soundName)
+            {
+                auto unwrappedName = *soundName;
+                auto tmpAudioService = audioService;
+                button.onClick([tmpAudioService, unwrappedName](MouseButtonEvent event){
+                    tmpAudioService->playSound(unwrappedName);
+                });
+            }
+        }
+
         return button;
     }
 
-    UiFactory::UiFactory(TextureService* textureService) : textureService(textureService)
+    UiFactory::UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup)
+        : textureService(textureService), audioService(audioService), soundLookup(soundLookup)
     {}
 
     std::shared_ptr<SpriteSeries> UiFactory::getDefaultButtonGraphics(int width, int height)

@@ -24,7 +24,7 @@ namespace rwe
          */
         bool armed{false};
 
-        std::vector<std::function<bool(MouseButtonEvent)>> clickObservers;
+        std::vector<std::function<void(MouseButtonEvent)>> clickObservers;
 
     public:
         UiButton(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<SpriteSeries> _spriteSeries, std::string _label);
@@ -33,13 +33,15 @@ namespace rwe
 
         bool mouseDown(MouseButtonEvent /*event*/) override;
 
-        bool mouseUp(MouseButtonEvent /*event*/) override;
+        bool mouseUp(MouseButtonEvent event) override;
 
         void mouseEnter() override;
 
         void mouseLeave() override;
 
         void unfocus() override;
+
+        void onClick(const std::function<void(MouseButtonEvent)>& callback);
     };
 }
 

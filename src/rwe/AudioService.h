@@ -20,6 +20,12 @@ namespace rwe
         AudioService(SdlContext* sdlContext, SdlMixerContext* sdlMixerContext, AbstractVirtualFileSystem* fileSystem);
 
         void loopSound(const std::string& soundName);
+
+        void playSound(const std::string& soundName);
+
+    private:
+        boost::optional<Mix_Chunk*> loadSound(const std::string& soundName);
+
     };
 }
 

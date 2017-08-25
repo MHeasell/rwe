@@ -59,8 +59,6 @@ namespace rwe
 
         SceneManager sceneManager(sdlContext, window.get(), &graphics);
 
-        UiFactory uiFactory(&textureService);
-
         // load sound definitions
         auto allSoundBytes = vfs.readFile("gamedata/ALLSOUND.TDF");
         if (!allSoundBytes)
@@ -71,6 +69,8 @@ namespace rwe
 
         std::string allSoundString(allSoundBytes->data(), allSoundBytes->size());
         auto allSoundTdf = parseTdfFromString(allSoundString);
+
+        UiFactory uiFactory(&textureService, &audioService, &allSoundTdf);
 
         auto mainMenuGuiRaw = vfs.readFile("guis/MAINMENU.GUI");
         if (!mainMenuGuiRaw)

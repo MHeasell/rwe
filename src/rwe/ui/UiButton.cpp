@@ -22,11 +22,14 @@ namespace rwe
         return true;
     }
 
-    bool UiButton::mouseUp(MouseButtonEvent)
+    bool UiButton::mouseUp(MouseButtonEvent event)
     {
         if (armed && pressed)
         {
-            // TODO: call an event handler or something here
+            for (const auto& e : clickObservers)
+            {
+                e(event);
+            }
         }
 
         armed = false;
@@ -52,5 +55,10 @@ namespace rwe
     {
         armed = false;
         pressed = false;
+    }
+
+    void UiButton::onClick(const std::function<void(MouseButtonEvent)>& callback)
+    {
+        clickObservers.push_back(callback);
     }
 }

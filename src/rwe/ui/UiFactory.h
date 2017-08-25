@@ -1,12 +1,13 @@
 #ifndef RWE_UIFACTORY_H
 #define RWE_UIFACTORY_H
 
+#include <rwe/AudioService.h>
 #include <rwe/TextureService.h>
 #include <rwe/gui.h>
-#include <rwe/ui/UiPanel.h>
 #include <rwe/ui/UiButton.h>
-#include <vector>
+#include <rwe/ui/UiPanel.h>
 #include <string>
+#include <vector>
 
 namespace rwe
 {
@@ -14,9 +15,11 @@ namespace rwe
     {
     private:
         TextureService* textureService;
+        AudioService* audioService;
+        TdfBlock* soundLookup;
 
     public:
-        explicit UiFactory(TextureService* textureService);
+        UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup);
 
         UiPanel panelFromGuiFile(const std::string& name, const std::vector<GuiEntry>& entries);
 
