@@ -13,37 +13,9 @@ namespace rwe
     {
     }
 
-    boost::optional<const std::string&> extractString(const TdfBlock& block, const std::string& key)
-    {
-        // find the key in the block
-        auto pos = std::find_if(block.entries.begin(), block.entries.end(), [key](const TdfBlockEntry& e) { return e.name == key; });
-        if (pos == block.entries.end())
-        {
-            return boost::none;
-        }
-
-        // make sure the key contains a primitive (not a block) and extract it
-        auto& valuePointer = pos->value;
-        return boost::get<std::string>(*valuePointer);
-    }
-
-    boost::optional<const TdfBlock&> extractBlock(const TdfBlock& block, const std::string& key)
-    {
-        // find the key in the block
-        auto pos = std::find_if(block.entries.begin(), block.entries.end(), [key](const TdfBlockEntry& e) { return e.name == key; });
-        if (pos == block.entries.end())
-        {
-            return boost::none;
-        }
-
-        // make sure the key contains a block and extract it
-        auto& valuePointer = pos->value;
-        return boost::get<TdfBlock>(*valuePointer);
-    }
-
     const std::string& expectString(const TdfBlock& block, const std::string& key)
     {
-        auto v = extractString(block, key);
+        auto v = block.findValue(key);
         if (!v)
         {
             throw GuiParseException("Failed to read string from key: " + key);
@@ -54,7 +26,7 @@ namespace rwe
 
     boost::optional<int> extractInt(const TdfBlock& block, const std::string& key)
     {
-        auto value = extractString(block, key);
+        auto value = block.findValue(key);
         if (!value)
         {
             return boost::none;
@@ -84,7 +56,7 @@ namespace rwe
 
     boost::optional<bool> extractBool(const TdfBlock& block, const std::string& key)
     {
-        auto value = extractString(block, key);
+        auto value = block.findValue(key);
         if (!value)
         {
             return boost::none;
@@ -160,7 +132,7 @@ namespace rwe
     {
         GuiEntry g;
 
-        auto common = extractBlock(e, "COMMON");
+        auto common = e.findBlock("COMMON");
         if (!common)
         {
             throw GuiParseException("Block is missing common section");
@@ -182,14 +154,14 @@ namespace rwe
         g.common.commonAttribs = expectInt(*common, "commonattribs");
         g.common.help = expectString(*common, "help");
 
-        g.panel = extractString(e, "panel");
-        g.crDefault = extractString(e, "crdefault");
-        g.escdefault = extractString(e, "escdefault");
-        g.defaultFocus = extractString(e, "defaultfocus");
+        g.panel = e.findValue("panel");
+        g.crDefault = e.findValue("crdefault");
+        g.escdefault = e.findValue("escdefault");
+        g.defaultFocus = e.findValue("defaultfocus");
 
         g.totalGadgets = extractInt(e, "totalgadgets");
 
-        auto version = extractBlock(e, "VERSION");
+        auto version = e.findBlock("VERSION");
         if (version)
         {
             auto major = expectInt(*version, "major");
@@ -199,7 +171,7 @@ namespace rwe
         }
 
         g.status = extractInt(e, "status");
-        g.text = extractString(e, "text");
+        g.text = e.findValue("text");
         g.quickKey = extractInt(e, "quickkey");
         g.grayedOut = extractBool(e, "grayedout");
         g.stages = extractInt(e, "stages");
