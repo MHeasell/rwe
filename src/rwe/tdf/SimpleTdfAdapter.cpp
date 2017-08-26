@@ -136,7 +136,13 @@ namespace rwe
 
         // make sure the key contains a block and extract it
         auto& valuePointer = pos->value;
-        return boost::get<TdfBlock>(*valuePointer);
+        auto ptr = boost::get<TdfBlock>(&*valuePointer);
+        if (ptr == nullptr)
+        {
+            return boost::none;
+        }
+
+        return *ptr;
     }
 
     boost::optional<const std::string&> TdfBlock::findValue(const std::string& name) const
@@ -150,7 +156,13 @@ namespace rwe
 
         // make sure the key contains a primitive (not a block) and extract it
         auto& valuePointer = pos->value;
-        return boost::get<std::string>(*valuePointer);
+        auto ptr = boost::get<std::string>(&*valuePointer);
+        if (ptr == nullptr)
+        {
+            return boost::none;
+        }
+
+        return *ptr;
     }
 
     TdfBlock::TdfBlock(std::vector<TdfBlockEntry>&& entries) : entries(std::move(entries))
