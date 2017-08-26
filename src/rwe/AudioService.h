@@ -10,22 +10,43 @@ namespace rwe
 {
     class AudioService
     {
+    public:
+        using Sound = Mix_Chunk;
+        using SoundHandle = std::shared_ptr<Sound>;
+
+        class LoopToken
+        {
+        private:
+            AudioService* audioService;
+            int channel;
+            SoundHandle sound;
+        public:
+            LoopToken();
+            LoopToken(AudioService* audioService, int channel, const SoundHandle& sound);
+            ~LoopToken();
+            LoopToken(const LoopToken&) = delete;
+            LoopToken& operator=(const LoopToken&) = delete;
+            LoopToken(LoopToken&& other) noexcept;
+            LoopToken& operator=(LoopToken&& other) noexcept;
+        };
+
     private:
         SdlContext* sdlContext;
         SdlMixerContext* sdlMixerContext;
         AbstractVirtualFileSystem* fileSystem;
-        std::unordered_map<std::string, std::unique_ptr<Mix_Chunk, SdlMixerContext::MixChunkDeleter>> soundBank;
+        std::unordered_map<std::string, std::weak_ptr<Sound>> soundBank;
 
     public:
         AudioService(SdlContext* sdlContext, SdlMixerContext* sdlMixerContext, AbstractVirtualFileSystem* fileSystem);
 
-        void loopSound(const std::string& soundName);
+        LoopToken loopSound(const SoundHandle& sound);
 
-        void playSound(const std::string& soundName);
+        void playSound(const SoundHandle& sound);
+
+        boost::optional<SoundHandle> loadSound(const std::string& soundName);
 
     private:
-        boost::optional<Mix_Chunk*> loadSound(const std::string& soundName);
-
+        void haltChannel(int channel);
     };
 }
 

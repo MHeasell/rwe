@@ -62,11 +62,13 @@ namespace rwe
             auto soundName = soundBlock->findValue("sound");
             if (soundName)
             {
-                auto unwrappedName = *soundName;
-                auto tmpAudioService = audioService;
-                button.onClick([tmpAudioService, unwrappedName](MouseButtonEvent event){
-                    tmpAudioService->playSound(unwrappedName);
-                });
+                auto sound = audioService->loadSound(*soundName);
+                if (sound)
+                {
+                    button.onClick([as = audioService, s = std::move(*sound)](MouseButtonEvent event){
+                        as->playSound(s);
+                    });
+                }
             }
         }
 

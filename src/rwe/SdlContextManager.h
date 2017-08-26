@@ -134,6 +134,11 @@ namespace rwe
         {
             return Mix_PlayChannel(channel, chunk, loops);
         }
+
+        void haltChannel(int channel)
+        {
+            Mix_HaltChannel(channel);
+        }
     };
 
     class SdlImageContext

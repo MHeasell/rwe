@@ -92,14 +92,20 @@ namespace rwe
 
         sceneManager.setNextScene(std::move(scene));
 
+        AudioService::LoopToken bgmHandle;
+
         // start the BGM
         auto allSoundBgm = allSoundTdf.findBlock("BGM");
         if (allSoundBgm)
         {
-            auto sound = allSoundBgm->findValue("sound");
-            if (sound)
+            auto soundName = allSoundBgm->findValue("sound");
+            if (soundName)
             {
-                audioService.loopSound(*sound);
+                auto sound = audioService.loadSound(*soundName);
+                if (sound)
+                {
+                    bgmHandle = audioService.loopSound(*sound);
+                }
             }
         }
 
