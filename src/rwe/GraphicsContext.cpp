@@ -41,7 +41,16 @@ namespace rwe
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
-    void GraphicsContext::drawTexture(float x, float y, float width, float height, GLuint texture)
+    void GraphicsContext::drawTextureRegion(
+        float x,
+        float y,
+        float width,
+        float height,
+        GLuint texture,
+        float u,
+        float v,
+        float uw,
+        float vh)
     {
         glBindTexture(GL_TEXTURE_2D, texture);
         glEnable(GL_TEXTURE_2D);
@@ -52,19 +61,38 @@ namespace rwe
 
         glBegin(GL_QUADS);
 
-        glTexCoord2f(0.0f, 0.0f);
+        glTexCoord2f(u, v);
         glVertex2f(x, y);
 
-        glTexCoord2f(0.0f, 1.0f);
+        glTexCoord2f(u, v + vh);
         glVertex2f(x, y + height);
 
-        glTexCoord2f(1.0f, 1.0f);
+        glTexCoord2f(u + uw, v + vh);
         glVertex2f(x + width, y + height);
 
-        glTexCoord2f(1.0f, 0.0f);
+        glTexCoord2f(u + uw, v);
         glVertex2f(x + width, y);
 
         glEnd();
+    }
+
+    void GraphicsContext::drawTextureRegion(
+        float x,
+        float y,
+        float width,
+        float height,
+        const SharedTextureHandle& texture,
+        float u,
+        float v,
+        float uw,
+        float vh)
+    {
+        drawTextureRegion(x, y, width, height, texture.get(), u, v, uw, vh);
+    }
+
+    void GraphicsContext::drawTexture(float x, float y, float width, float height, GLuint texture)
+    {
+        drawTextureRegion(x, y, width, height, texture, 0.0f, 0.0f, 1.0f, 1.0f);
     }
 
     void GraphicsContext::drawTexture(float x, float y, float width, float height, const SharedTextureHandle& texture)
@@ -74,12 +102,17 @@ namespace rwe
 
     void GraphicsContext::drawSprite(float x, float y, const Sprite& sprite)
     {
-        drawTexture(
+        drawTextureRegion(
             x + sprite.bounds.left(),
             y + sprite.bounds.top(),
             sprite.bounds.width(),
             sprite.bounds.height(),
-            sprite.texture);
+            sprite.texture,
+            sprite.textureRegion.left(),
+            sprite.textureRegion.top(),
+            sprite.textureRegion.width(),
+            sprite.textureRegion.height()
+        );
     }
 
     void GraphicsContext::applyCamera(const AbstractCamera& camera)
@@ -143,5 +176,4 @@ namespace rwe
 
         return handle;
     }
-
 }

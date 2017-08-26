@@ -12,7 +12,17 @@ namespace rwe
     void UiButton::render(GraphicsContext& graphics) const
     {
         const Sprite& sprite = pressed ? spriteSeries->sprites[1] : spriteSeries->sprites[0];
-        graphics.drawTexture(posX, posY, sprite.bounds.width(), sprite.bounds.height(), sprite.texture);
+        graphics.drawTextureRegion(
+            posX,
+            posY,
+            sprite.bounds.width(),
+            sprite.bounds.height(),
+            sprite.texture,
+            sprite.textureRegion.left(),
+            sprite.textureRegion.top(),
+            sprite.textureRegion.width(),
+            sprite.textureRegion.height()
+        );
     }
 
     bool UiButton::mouseDown(MouseButtonEvent)

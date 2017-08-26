@@ -81,11 +81,32 @@ namespace rwe
 
     std::shared_ptr<SpriteSeries> UiFactory::getDefaultButtonGraphics(int width, int height)
     {
-        auto texture = textureService->getDefaultTexture();
-        Sprite sprite(Rectangle2f::fromTopLeft(0.0f, 0.0f, width, height), texture);
-        auto series = std::make_shared<SpriteSeries>();
-        series->sprites.push_back(sprite);
-        series->sprites.push_back(sprite);
-        return series;
+        if (width == 96 && height == 20)
+        {
+            auto texture = textureService->getBitmap("BUTTONS2");
+            Sprite normal(
+                Rectangle2f::fromTopLeft(0.0f, 0.0f, 96.0f, 20.0f),
+                texture,
+                Rectangle2f::fromTopLeft(9.0f / 640.0f, 221.0f / 480.0f, 96.0f / 640.0f, 20.0f / 480.0f)
+            );
+            Sprite pressed(
+                Rectangle2f::fromTopLeft(0.0f, 0.0f, 96.0f, 20.0f),
+                texture,
+                Rectangle2f::fromTopLeft(9.0f / 640.0f, 251.0f / 480.0f, 96.0f / 640.0f, 20.0f / 480.0f)
+            );
+            auto series = std::make_shared<SpriteSeries>();
+            series->sprites.push_back(normal);
+            series->sprites.push_back(pressed);
+            return series;
+        }
+        else
+        {
+            auto texture = textureService->getDefaultTexture();
+            Sprite sprite(Rectangle2f::fromTopLeft(0.0f, 0.0f, width, height), texture);
+            auto series = std::make_shared<SpriteSeries>();
+            series->sprites.push_back(sprite);
+            series->sprites.push_back(sprite);
+            return series;
+        }
     }
 }
