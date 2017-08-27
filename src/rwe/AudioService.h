@@ -28,6 +28,7 @@ namespace rwe
             LoopToken& operator=(const LoopToken&) = delete;
             LoopToken(LoopToken&& other) noexcept;
             LoopToken& operator=(LoopToken&& other) noexcept;
+            boost::optional<const SoundHandle&> getSound();
         };
 
     private:

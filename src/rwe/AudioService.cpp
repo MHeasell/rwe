@@ -85,4 +85,14 @@ namespace rwe
     }
 
     AudioService::LoopToken::LoopToken() : audioService(nullptr), channel(-1), sound(nullptr) {}
+
+    boost::optional<const AudioService::SoundHandle&> AudioService::LoopToken::getSound()
+    {
+        if (channel == -1)
+        {
+            return boost::none;
+        }
+
+        return sound;
+    }
 }

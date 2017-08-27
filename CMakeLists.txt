@@ -59,6 +59,8 @@ set(SOURCE_FILES
     src/rwe/AudioService.h
     src/rwe/ColorPalette.cpp
     src/rwe/ColorPalette.h
+    src/rwe/Controller.cpp
+    src/rwe/Controller.h
     src/rwe/Gaf.cpp src/rwe/Gaf.h
     src/rwe/GraphicsContext.cpp
     src/rwe/GraphicsContext.h

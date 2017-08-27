@@ -16,6 +16,7 @@
 #include <rwe/ColorPalette.h>
 #include <boost/filesystem.hpp>
 #include <rwe/AudioService.h>
+#include <rwe/Controller.h>
 
 namespace fs = boost::filesystem;
 
@@ -72,44 +73,9 @@ namespace rwe
 
         UiFactory uiFactory(&textureService, &audioService, &allSoundTdf);
 
-        auto mainMenuGuiRaw = vfs.readFile("guis/MAINMENU.GUI");
-        if (!mainMenuGuiRaw)
-        {
-            std::cerr << "Couldn't read main menu GUI" << std::endl;
-            return 1;
-        }
+        Controller controller(&vfs, &sceneManager, &uiFactory, &allSoundTdf, &audioService);
 
-        std::string gui(mainMenuGuiRaw->data(), mainMenuGuiRaw->size());
-        auto parsedGui = parseGui(parseTdfFromString(gui));
-        if (!parsedGui)
-        {
-            std::cerr << "Failed to parse GUI file" << std::endl;
-            return 1;
-        }
-
-        auto panel = uiFactory.panelFromGuiFile("MAINMENU", *parsedGui);
-        auto scene = std::make_unique<UiPanelScene>(std::move(panel));
-
-        sceneManager.setNextScene(std::move(scene));
-
-        AudioService::LoopToken bgmHandle;
-
-        // start the BGM
-        auto allSoundBgm = allSoundTdf.findBlock("BGM");
-        if (allSoundBgm)
-        {
-            auto soundName = allSoundBgm->findValue("sound");
-            if (soundName)
-            {
-                auto sound = audioService.loadSound(*soundName);
-                if (sound)
-                {
-                    bgmHandle = audioService.loopSound(*sound);
-                }
-            }
-        }
-
-        sceneManager.execute();
+        controller.start();
 
         return 0;
     }
