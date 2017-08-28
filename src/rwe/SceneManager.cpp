@@ -94,4 +94,9 @@ namespace rwe
             }
         }
     }
+
+    void SceneManager::requestExit()
+    {
+        requestedExit = true;
+    }
 }

@@ -48,6 +48,8 @@ namespace rwe
 
         void execute();
 
+        void requestExit();
+
     };
 }
 
