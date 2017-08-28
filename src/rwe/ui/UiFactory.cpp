@@ -57,20 +57,17 @@ namespace rwe
             text
         );
 
-        auto soundBlock = soundLookup->findBlock("BIGBUTTON");
-        if (soundBlock)
+        auto sound = getButtonSound(entry.common.name);
+        if (!sound && entry.common.width == 96 && entry.common.height == 20)
         {
-            auto soundName = soundBlock->findValue("sound");
-            if (soundName)
-            {
-                auto sound = audioService->loadSound(*soundName);
-                if (sound)
-                {
-                    button.onClick([as = audioService, s = std::move(*sound)](MouseButtonEvent /*event*/){
-                        as->playSound(s);
-                    });
-                }
-            }
+            sound = getButtonSound("BIGBUTTON");
+        }
+
+        if (sound)
+        {
+            button.onClick([as = audioService, s = std::move(*sound)](MouseButtonEvent /*event*/){
+                as->playSound(s);
+            });
         }
 
         button.onClick([c = controller, guiName, name = entry.common.name](MouseButtonEvent /*event*/){
@@ -113,5 +110,22 @@ namespace rwe
             series->sprites.push_back(sprite);
             return series;
         }
+    }
+
+    boost::optional<AudioService::SoundHandle> UiFactory::getButtonSound(const std::string& buttonName)
+    {
+        auto soundBlock = soundLookup->findBlock(buttonName);
+        if (!soundBlock)
+        {
+            return boost::none;
+        }
+
+        auto soundName = soundBlock->findValue("sound");
+        if (!soundName)
+        {
+            return boost::none;
+        }
+
+        return audioService->loadSound(*soundName);
     }
 }
