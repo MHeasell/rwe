@@ -86,9 +86,37 @@ namespace rwe
 
     void Controller::message(const std::string& topic, const std::string& message)
     {
-        if (topic == "MAINMENU" && message == "EXIT")
+        if (topic == "MAINMENU")
         {
-            exit();
+            if (message == "EXIT")
+            {
+                exit();
+            }
+            else if (message == "SINGLE")
+            {
+                goToSingleMenu();
+            }
         }
+    }
+
+    void Controller::goToSingleMenu()
+    {
+        auto mainMenuGuiRaw = vfs->readFile("guis/SINGLE.GUI");
+        if (!mainMenuGuiRaw)
+        {
+            throw std::runtime_error("Couldn't read main menu GUI");
+        }
+
+        std::string gui(mainMenuGuiRaw->data(), mainMenuGuiRaw->size());
+        auto parsedGui = parseGui(parseTdfFromString(gui));
+        if (!parsedGui)
+        {
+            throw std::runtime_error("Failed to parse GUI file");
+        }
+
+        auto panel = uiFactory.panelFromGuiFile("MAINMENU", *parsedGui);
+        auto scene = std::make_unique<UiPanelScene>(std::move(panel));
+
+        sceneManager->setNextScene(std::move(scene));
     }
 }

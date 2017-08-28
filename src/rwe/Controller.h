@@ -30,6 +30,8 @@ namespace rwe
 
         void goToMainMenu();
 
+        void goToSingleMenu();
+
         void startBGM();
 
         void start();
