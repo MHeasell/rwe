@@ -152,7 +152,7 @@ namespace rwe
         g.common.fontNumber = expectInt(*common, "fontnumber");
         g.common.active = expectBool(*common, "active");
         g.common.commonAttribs = expectInt(*common, "commonattribs");
-        g.common.help = expectString(*common, "help");
+        g.common.help = common->findValue("help");
 
         g.panel = e.findValue("panel");
         g.crDefault = e.findValue("crdefault");

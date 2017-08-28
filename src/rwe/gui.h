@@ -76,7 +76,7 @@ namespace rwe
         int fontNumber;
         bool active;
         int commonAttribs;
-        std::string help;
+        boost::optional<std::string> help;
 
         bool operator==(const GuiCommon& rhs) const
         {
