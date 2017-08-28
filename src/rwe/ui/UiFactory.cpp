@@ -101,15 +101,14 @@ namespace rwe
             series->sprites.push_back(pressed);
             return series;
         }
-        else
-        {
-            auto texture = textureService->getDefaultTexture();
-            Sprite sprite(Rectangle2f::fromTopLeft(0.0f, 0.0f, width, height), texture);
-            auto series = std::make_shared<SpriteSeries>();
-            series->sprites.push_back(sprite);
-            series->sprites.push_back(sprite);
-            return series;
-        }
+
+        // default behaviour
+        auto texture = textureService->getDefaultTexture();
+        Sprite sprite(Rectangle2f::fromTopLeft(0.0f, 0.0f, width, height), texture);
+        auto series = std::make_shared<SpriteSeries>();
+        series->sprites.push_back(sprite);
+        series->sprites.push_back(sprite);
+        return series;
     }
 
     boost::optional<AudioService::SoundHandle> UiFactory::getButtonSound(const std::string& buttonName)
