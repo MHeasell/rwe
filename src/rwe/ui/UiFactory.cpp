@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <rwe/ui/UiComponent.h>
+#include <rwe/Controller.h>
 
 namespace rwe
 {
@@ -72,11 +73,15 @@ namespace rwe
             }
         }
 
+        button.onClick([c = controller, guiName, name = entry.common.name](MouseButtonEvent /*event*/){
+            c->message(guiName, name);
+        });
+
         return button;
     }
 
-    UiFactory::UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup)
-        : textureService(textureService), audioService(audioService), soundLookup(soundLookup)
+    UiFactory::UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, Controller* controller)
+        : textureService(textureService), audioService(audioService), soundLookup(soundLookup), controller(controller)
     {}
 
     std::shared_ptr<SpriteSeries> UiFactory::getDefaultButtonGraphics(int width, int height)

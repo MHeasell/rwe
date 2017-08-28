@@ -22,7 +22,7 @@ namespace rwe
             throw std::runtime_error("Failed to parse GUI file");
         }
 
-        auto panel = uiFactory->panelFromGuiFile("MAINMENU", *parsedGui);
+        auto panel = uiFactory.panelFromGuiFile("MAINMENU", *parsedGui);
         auto scene = std::make_unique<UiPanelScene>(std::move(panel));
 
         sceneManager->setNextScene(std::move(scene));
@@ -66,14 +66,29 @@ namespace rwe
     }
 
     Controller::Controller(
-        AbstractVirtualFileSystem *vfs,
-        SceneManager *sceneManager,
-        UiFactory *uiFactory,
-        TdfBlock *allSoundTdf,
-        AudioService *audioService)
+        AbstractVirtualFileSystem* vfs,
+        SceneManager* sceneManager,
+        TdfBlock* allSoundTdf,
+        AudioService* audioService,
+        TextureService* textureService)
             : vfs(vfs),
               sceneManager(sceneManager),
-              uiFactory(uiFactory),
               allSoundTdf(allSoundTdf),
-              audioService(audioService) {}
+              audioService(audioService),
+              textureService(textureService),
+              uiFactory(textureService, audioService, allSoundTdf, this)
+        {}
+
+    void Controller::exit()
+    {
+        sceneManager->requestExit();
+    }
+
+    void Controller::message(const std::string& topic, const std::string& message)
+    {
+        if (topic == "MAINMENU" && message == "EXIT")
+        {
+            exit();
+        }
+    }
 }

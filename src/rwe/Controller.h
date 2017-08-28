@@ -16,21 +16,27 @@ namespace rwe
     private:
         AbstractVirtualFileSystem* vfs;
         SceneManager* sceneManager;
-        UiFactory* uiFactory;
         TdfBlock* allSoundTdf;
         AudioService* audioService;
+        TextureService* textureService;
+
+        UiFactory uiFactory;
 
         AudioService::LoopToken bgmHandle;
     public:
 
-        Controller(AbstractVirtualFileSystem *vfs, SceneManager *sceneManager, UiFactory *uiFactory,
-                   TdfBlock *allSoundTdf, AudioService *audioService);
+        Controller(AbstractVirtualFileSystem *vfs, SceneManager *sceneManager,
+                   TdfBlock *allSoundTdf, AudioService *audioService, TextureService* textureService);
 
         void goToMainMenu();
 
         void startBGM();
 
         void start();
+
+        void exit();
+
+        void message(const std::string& topic, const std::string& message);
     };
 }
 

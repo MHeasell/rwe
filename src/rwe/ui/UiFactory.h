@@ -11,15 +11,18 @@
 
 namespace rwe
 {
+    class Controller;
+
     class UiFactory
     {
     private:
         TextureService* textureService;
         AudioService* audioService;
         TdfBlock* soundLookup;
+        Controller* controller;
 
     public:
-        UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup);
+        UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, Controller* controller);
 
         UiPanel panelFromGuiFile(const std::string& name, const std::vector<GuiEntry>& entries);
 

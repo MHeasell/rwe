@@ -71,9 +71,7 @@ namespace rwe
         std::string allSoundString(allSoundBytes->data(), allSoundBytes->size());
         auto allSoundTdf = parseTdfFromString(allSoundString);
 
-        UiFactory uiFactory(&textureService, &audioService, &allSoundTdf);
-
-        Controller controller(&vfs, &sceneManager, &uiFactory, &allSoundTdf, &audioService);
+        Controller controller(&vfs, &sceneManager, &allSoundTdf, &audioService, &textureService);
 
         controller.start();
 
