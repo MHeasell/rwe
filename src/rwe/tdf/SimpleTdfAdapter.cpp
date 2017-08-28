@@ -128,7 +128,7 @@ namespace rwe
     boost::optional<const TdfBlock&> TdfBlock::findBlock(const std::string& name) const
     {
         // find the key in the block
-        auto pos = std::find_if(entries.begin(), entries.end(), [name](const TdfBlockEntry& e) { return e.name == name; });
+        auto pos = std::find_if(entries.begin(), entries.end(), [name](const TdfBlockEntry& e) { return toUpper(e.name) == toUpper(name); });
         if (pos == entries.end())
         {
             return boost::none;
@@ -148,7 +148,7 @@ namespace rwe
     boost::optional<const std::string&> TdfBlock::findValue(const std::string& name) const
     {
         // find the key in the block
-        auto pos = std::find_if(entries.begin(), entries.end(), [name](const TdfBlockEntry& e) { return e.name == name; });
+        auto pos = std::find_if(entries.begin(), entries.end(), [name](const TdfBlockEntry& e) { return toUpper(e.name) == toUpper(name); });
         if (pos == entries.end())
         {
             return boost::none;

@@ -27,6 +27,12 @@ namespace rwe
                 REQUIRE(value);
                 REQUIRE(*value == "bob");
             }
+            SECTION("ignores case")
+            {
+                auto value = b.findValue("AlIcE");
+                REQUIRE(value);
+                REQUIRE(*value == "bob");
+            }
             SECTION("returns none if the key does not exist")
             {
                 auto value = b.findValue("fob");
@@ -44,6 +50,11 @@ namespace rwe
             SECTION("returns the block matching the key")
             {
                 auto block = b.findBlock("whiskey");
+                REQUIRE(*block == inner);
+            }
+            SECTION("returns the block matching the key")
+            {
+                auto block = b.findBlock("wHIskEY");
                 REQUIRE(*block == inner);
             }
             SECTION("returns none if the key does not exist")
