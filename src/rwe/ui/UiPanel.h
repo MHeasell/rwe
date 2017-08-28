@@ -58,7 +58,7 @@ namespace rwe
             }
         }
 
-        bool mouseDown(MouseButtonEvent event) override
+        void mouseDown(MouseButtonEvent event) override
         {
             auto size = children.size();
             for (std::size_t i = 0; i < size; ++i)
@@ -67,41 +67,40 @@ namespace rwe
                 if (c->contains(event.x, event.y))
                 {
                     setFocus(i);
-                    return c->mouseDown(event);
+                    c->mouseDown(event);
+                    return;
                 }
             }
-
-            return false;
         }
 
-        bool mouseUp(MouseButtonEvent event) override
+        void mouseUp(MouseButtonEvent event) override
         {
             if (!focusedChild)
             {
-                return false;
+                return;
             }
 
-            return children[*focusedChild]->mouseUp(event);
+            children[*focusedChild]->mouseUp(event);
         }
 
-        bool keyDown(KeyEvent event) override
+        void keyDown(KeyEvent event) override
         {
             if (!focusedChild)
             {
-                return false;
+                return;
             }
 
-            return children[*focusedChild]->keyDown(event);
+            children[*focusedChild]->keyDown(event);
         }
 
-        bool keyUp(KeyEvent event) override
+        void keyUp(KeyEvent event) override
         {
             if (!focusedChild)
             {
-                return false;
+                return;
             }
 
-            return children[*focusedChild]->keyUp(event);
+            children[*focusedChild]->keyUp(event);
         }
 
         void focus() override

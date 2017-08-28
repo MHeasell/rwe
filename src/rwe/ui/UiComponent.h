@@ -35,17 +35,17 @@ namespace rwe
         int getX() { return posX; }
         int getY() { return posY; }
 
-        virtual bool mouseDown(MouseButtonEvent /*event*/) { return false; }
+        virtual void mouseDown(MouseButtonEvent /*event*/) {}
 
-        virtual bool mouseUp(MouseButtonEvent /*event*/) { return false; }
+        virtual void mouseUp(MouseButtonEvent /*event*/) {}
 
         virtual void mouseEnter() {}
 
         virtual void mouseLeave() {}
 
-        virtual bool keyDown(KeyEvent /*event*/) { return false; }
+        virtual void keyDown(KeyEvent /*event*/) {}
 
-        virtual bool keyUp(KeyEvent /*event*/) { return false; }
+        virtual void keyUp(KeyEvent /*event*/) {}
 
         virtual void focus() {}
 

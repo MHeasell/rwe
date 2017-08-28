@@ -31,9 +31,9 @@ namespace rwe
 
         void render(GraphicsContext& graphics) const override;
 
-        bool mouseDown(MouseButtonEvent /*event*/) override;
+        void mouseDown(MouseButtonEvent /*event*/) override;
 
-        bool mouseUp(MouseButtonEvent event) override;
+        void mouseUp(MouseButtonEvent event) override;
 
         void mouseEnter() override;
 

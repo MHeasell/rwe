@@ -25,14 +25,13 @@ namespace rwe
         );
     }
 
-    bool UiButton::mouseDown(MouseButtonEvent)
+    void UiButton::mouseDown(MouseButtonEvent /*event*/)
     {
         armed = true;
         pressed = true;
-        return true;
     }
 
-    bool UiButton::mouseUp(MouseButtonEvent event)
+    void UiButton::mouseUp(MouseButtonEvent event)
     {
         if (armed && pressed)
         {
@@ -44,8 +43,6 @@ namespace rwe
 
         armed = false;
         pressed = false;
-
-        return true;
     }
 
     void UiButton::mouseEnter()
