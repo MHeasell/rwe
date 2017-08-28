@@ -24,7 +24,7 @@ namespace rwe
     public:
         UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, Controller* controller);
 
-        UiPanel panelFromGuiFile(const std::string& name, const std::vector<GuiEntry>& entries);
+        UiPanel panelFromGuiFile(const std::string& name, const std::string& background, const std::vector<GuiEntry>& entries);
 
     private:
         UiButton buttonFromGuiFile(const std::string& guiName, const GuiEntry& entry);

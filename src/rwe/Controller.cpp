@@ -22,7 +22,7 @@ namespace rwe
             throw std::runtime_error("Failed to parse GUI file");
         }
 
-        auto panel = uiFactory.panelFromGuiFile("MAINMENU", *parsedGui);
+        auto panel = uiFactory.panelFromGuiFile("MAINMENU", "FrontendX", *parsedGui);
         auto scene = std::make_unique<UiPanelScene>(std::move(panel));
 
         sceneManager->setNextScene(std::move(scene));
@@ -114,7 +114,7 @@ namespace rwe
             throw std::runtime_error("Failed to parse GUI file");
         }
 
-        auto panel = uiFactory.panelFromGuiFile("MAINMENU", *parsedGui);
+        auto panel = uiFactory.panelFromGuiFile("SINGLE", "SINGLEBG", *parsedGui);
         auto scene = std::make_unique<UiPanelScene>(std::move(panel));
 
         sceneManager->setNextScene(std::move(scene));

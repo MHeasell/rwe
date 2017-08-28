@@ -6,13 +6,13 @@
 
 namespace rwe
 {
-    UiPanel UiFactory::panelFromGuiFile(const std::string& name, const std::vector<GuiEntry>& entries)
+    UiPanel UiFactory::panelFromGuiFile(const std::string& name, const std::string& background, const std::vector<GuiEntry>& entries)
     {
         // first entry sets up the panel
         assert(entries.size() > 0);
         auto panelEntry = entries[0];
 
-        auto texture = textureService->getBitmap("FrontendX");
+        auto texture = textureService->getBitmap(background);
         UiPanel panel(
             panelEntry.common.xpos,
             panelEntry.common.ypos,
