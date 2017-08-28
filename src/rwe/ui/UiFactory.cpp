@@ -65,7 +65,7 @@ namespace rwe
                 auto sound = audioService->loadSound(*soundName);
                 if (sound)
                 {
-                    button.onClick([as = audioService, s = std::move(*sound)](MouseButtonEvent event){
+                    button.onClick([as = audioService, s = std::move(*sound)](MouseButtonEvent /*event*/){
                         as->playSound(s);
                     });
                 }
