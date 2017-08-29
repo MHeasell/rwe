@@ -23,7 +23,9 @@ namespace rwe
             sprite.textureRegion.width(),
             sprite.textureRegion.height()
         );
-        graphics.drawTextCentered(posX + (sizeX / 2.0f), posY + (sizeY / 2.0f), label, *labelFont);
+        float textX = posX + (sizeX / 2.0f);
+        float textY = posY + (sizeY / 2.0f);
+        graphics.drawTextCentered(textX, pressed ? textY + 1.0f : textY, label, *labelFont);
     }
 
     void UiButton::mouseDown(MouseButtonEvent /*event*/)
