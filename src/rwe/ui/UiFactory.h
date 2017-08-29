@@ -8,6 +8,7 @@
 #include <rwe/ui/UiPanel.h>
 #include <string>
 #include <vector>
+#include <rwe/ui/UiLabel.h>
 
 namespace rwe
 {
@@ -28,6 +29,8 @@ namespace rwe
 
     private:
         UiButton buttonFromGuiFile(const std::string& guiName, const GuiEntry& entry);
+
+        UiLabel labelFromGuiFile(const std::string& guiName, const GuiEntry& entry);
 
         std::shared_ptr<SpriteSeries> getDefaultButtonGraphics(int width, int height);
 

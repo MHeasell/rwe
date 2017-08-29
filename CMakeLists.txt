@@ -128,6 +128,8 @@ set(SOURCE_FILES
     src/rwe/ui/UiComponent.h
     src/rwe/ui/UiFactory.cpp
     src/rwe/ui/UiFactory.h
+    src/rwe/ui/UiLabel.cpp
+    src/rwe/ui/UiLabel.h
     src/rwe/ui/UiPanel.cpp
     src/rwe/ui/UiPanel.h
     src/rwe/vfs/AbstractVirtualFileSystem.h

@@ -28,9 +28,17 @@ namespace rwe
             switch (entry.common.id)
             {
                 case GuiElementType::Button:
-                    std::unique_ptr<UiComponent> btn(new UiButton(buttonFromGuiFile(name, entry)));
+                {
+                    std::unique_ptr <UiComponent> btn(new UiButton(buttonFromGuiFile(name, entry)));
                     panel.appendChild(std::move(btn));
                     break;
+                }
+                case GuiElementType::Label:
+                {
+                    std::unique_ptr <UiComponent> lbl(new UiLabel(labelFromGuiFile(name, entry)));
+                    panel.appendChild(std::move(lbl));
+                    break;
+                }
             }
         }
 
@@ -133,5 +141,19 @@ namespace rwe
         }
 
         return audioService->loadSound(*soundName);
+    }
+
+    UiLabel UiFactory::labelFromGuiFile(const std::string& guiName, const GuiEntry& entry)
+    {
+        auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
+
+        return UiLabel(
+                entry.common.xpos,
+                entry.common.ypos,
+                entry.common.width,
+                entry.common.height,
+                entry.text.value_or(""),
+                font
+        );
     }
 }
