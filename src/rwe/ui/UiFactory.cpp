@@ -58,6 +58,10 @@ namespace rwe
         );
 
         auto sound = getButtonSound(entry.common.name);
+        if (!sound && entry.common.name == "PrevMenu")
+        {
+            sound = getButtonSound("PREVIOUS");
+        }
         if (!sound && entry.common.width == 96 && entry.common.height == 20)
         {
             sound = getButtonSound("BIGBUTTON");

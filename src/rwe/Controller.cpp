@@ -97,6 +97,13 @@ namespace rwe
                 goToSingleMenu();
             }
         }
+        else if (topic == "SINGLE")
+        {
+            if (message == "PrevMenu")
+            {
+                goToMainMenu();
+            }
+        }
     }
 
     void Controller::goToSingleMenu()
