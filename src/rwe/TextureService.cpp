@@ -22,7 +22,7 @@ namespace rwe
         {
             buffer.clear();
             buffer.resize(header.width * header.height);
-            std::fill(buffer.begin(), buffer.end(), Color::Black);
+            std::fill(buffer.begin(), buffer.end(), Color::Transparent);
             currentFrameHeader = header;
         }
 
@@ -41,7 +41,7 @@ namespace rwe
                     }
 
                     auto colorIndex = static_cast<unsigned char>(data.data[(y * data.width) + x]);
-                    if (colorIndex == currentFrameHeader.transparencyIndex)
+                    if (colorIndex == data.transparencyKey)
                     {
                         continue;
                     }
