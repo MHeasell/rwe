@@ -232,6 +232,6 @@ namespace rwe
         float halfWidth = width / 2.0f;
         float halfHeight = 5.0f;
 
-        drawText(x - halfWidth, y + halfHeight, text, font);
+        drawText(std::round(x - halfWidth), std::round(y + halfHeight), text, font);
     }
 }
