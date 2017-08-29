@@ -197,4 +197,34 @@ namespace rwe
             x += sprite.bounds.right();
         }
     }
+
+    float GraphicsContext::getTextWidth(const std::string& text, const SpriteSeries& font)
+    {
+        float width = 0;
+        auto it = utf8Begin(text);
+        auto end = utf8End(text);
+        for (; it != end; ++it)
+        {
+            auto ch = *it;
+            if (ch > font.sprites.size())
+            {
+                ch = 0;
+            }
+
+            const auto& sprite = font.sprites[ch];
+
+            width += sprite.bounds.right();
+        }
+
+        return width;
+    }
+
+    void GraphicsContext::drawTextCentered(float x, float y, const std::string& text, const SpriteSeries& font)
+    {
+        float width = getTextWidth(text, font);
+        float halfWidth = width / 2.0f;
+        float halfHeight = 5.0f;
+
+        drawText(x - halfWidth, y + halfHeight, text, font);
+    }
 }
