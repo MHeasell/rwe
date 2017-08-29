@@ -29,11 +29,7 @@ namespace rwe
         auto soundIter = soundBank.find(soundName);
         if (soundIter != soundBank.end())
         {
-            auto ptr = soundIter->second.lock();
-            if (ptr)
-            {
-                return ptr;
-            }
+            return soundIter->second;
         }
 
 
@@ -45,7 +41,7 @@ namespace rwe
 
         auto rwOps = sdlContext->rwFromConstMem(bytes->data(), bytes->size());
         std::shared_ptr sound(sdlMixerContext->loadWavRw(rwOps.get()));
-        soundBank[soundName] = std::weak_ptr(sound);
+        soundBank[soundName] = sound;
 
         return sound;
     }

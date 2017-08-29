@@ -35,7 +35,7 @@ namespace rwe
         SdlContext* sdlContext;
         SdlMixerContext* sdlMixerContext;
         AbstractVirtualFileSystem* fileSystem;
-        std::unordered_map<std::string, std::weak_ptr<Sound>> soundBank;
+        std::unordered_map<std::string, std::shared_ptr<Sound>> soundBank;
 
     public:
         AudioService(SdlContext* sdlContext, SdlMixerContext* sdlMixerContext, AbstractVirtualFileSystem* fileSystem);
