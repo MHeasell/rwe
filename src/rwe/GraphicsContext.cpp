@@ -192,7 +192,10 @@ namespace rwe
 
             const auto& sprite = font.sprites[ch];
 
-            drawSprite(x, y, sprite);
+            if (ch != ' ')
+            {
+                drawSprite(x, y, sprite);
+            }
 
             x += sprite.bounds.right();
         }
