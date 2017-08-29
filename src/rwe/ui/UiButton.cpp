@@ -3,8 +3,8 @@
 namespace rwe
 {
     UiButton::UiButton(int posX, int posY, unsigned int sizeX, unsigned int sizeY,
-                       std::shared_ptr<SpriteSeries> _spriteSeries, std::string _label)
-        : UiComponent(posX, posY, sizeX, sizeY), spriteSeries(std::move(_spriteSeries)), label(std::move(_label))
+                       std::shared_ptr<SpriteSeries> _spriteSeries, std::string _label, std::shared_ptr<SpriteSeries> labelFont)
+        : UiComponent(posX, posY, sizeX, sizeY), spriteSeries(std::move(_spriteSeries)), label(std::move(_label)), labelFont(std::move(labelFont))
     {
         assert(spriteSeries->sprites.size() >= 2);
     }
@@ -23,6 +23,7 @@ namespace rwe
             sprite.textureRegion.width(),
             sprite.textureRegion.height()
         );
+        graphics.drawText(posX, posY, label, *labelFont);
     }
 
     void UiButton::mouseDown(MouseButtonEvent /*event*/)

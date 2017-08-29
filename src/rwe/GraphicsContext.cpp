@@ -1,4 +1,5 @@
 #include "GraphicsContext.h"
+#include "rwe_string.h"
 
 #include <GL/glew.h>
 
@@ -175,5 +176,25 @@ namespace rwe
         requireNoOpenGlError();
 
         return handle;
+    }
+
+    void GraphicsContext::drawText(float x, float y, const std::string& text, const SpriteSeries& font)
+    {
+        auto it = utf8Begin(text);
+        auto end = utf8End(text);
+        for (; it != end; ++it)
+        {
+            auto ch = *it;
+            if (ch > font.sprites.size())
+            {
+                ch = 0;
+            }
+
+            const auto& sprite = font.sprites[ch];
+
+            drawSprite(x, y, sprite);
+
+            x += sprite.bounds.right();
+        }
     }
 }

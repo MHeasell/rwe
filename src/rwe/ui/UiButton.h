@@ -13,6 +13,7 @@ namespace rwe
     private:
         std::shared_ptr<SpriteSeries> spriteSeries;
         std::string label;
+        std::shared_ptr<SpriteSeries> labelFont;
 
         /** True if the button is currently pressed down. */
         bool pressed{false};
@@ -27,7 +28,7 @@ namespace rwe
         std::vector<std::function<void(MouseButtonEvent)>> clickObservers;
 
     public:
-        UiButton(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<SpriteSeries> _spriteSeries, std::string _label);
+        UiButton(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<SpriteSeries> _spriteSeries, std::string _label, std::shared_ptr<SpriteSeries> labelFont);
 
         void render(GraphicsContext& graphics) const override;
 

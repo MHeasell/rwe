@@ -10,6 +10,7 @@
 #include <rwe/math/Vector3f.h>
 #include <rwe/camera/AbstractCamera.h>
 #include <rwe/ColorPalette.h>
+#include <rwe/SpriteSeries.h>
 
 namespace rwe
 {
@@ -49,6 +50,8 @@ namespace rwe
         void drawTexture(float x, float y, float width, float height, const SharedTextureHandle& texture);
 
         void drawSprite(float x, float y, const Sprite& sprite);
+
+        void drawText(float x, float y, const std::string& text, const SpriteSeries& font);
 
         void applyCamera(const AbstractCamera& camera);
 

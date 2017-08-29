@@ -48,13 +48,16 @@ namespace rwe
 
         auto text = entry.text ? *(entry.text) : std::string("");
 
+        auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
+
         UiButton button(
             entry.common.xpos,
             entry.common.ypos,
             entry.common.width,
             entry.common.height,
             *graphics,
-            text
+            text,
+            font
         );
 
         auto sound = getButtonSound(entry.common.name);
