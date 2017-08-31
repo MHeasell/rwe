@@ -51,7 +51,7 @@ namespace rwe
         auto graphics = textureService->getGuiTexture(guiName, entry.common.name);
         if (!graphics)
         {
-            graphics = getDefaultButtonGraphics(entry.common.width, entry.common.height);
+            graphics = getDefaultButtonGraphics(guiName, entry.common.width, entry.common.height);
         }
 
         auto text = entry.text ? *(entry.text) : std::string("");
@@ -96,25 +96,27 @@ namespace rwe
         : textureService(textureService), audioService(audioService), soundLookup(soundLookup), controller(controller)
     {}
 
-    std::shared_ptr<SpriteSeries> UiFactory::getDefaultButtonGraphics(int width, int height)
+    std::shared_ptr<SpriteSeries> UiFactory::getDefaultButtonGraphics(const std::string& guiName, int width, int height)
     {
-        if (width == 96 && height == 20)
+        auto sprites = textureService->getGuiTexture(guiName, "BUTTONS0");
+        if (sprites)
         {
-            auto texture = textureService->getBitmap("BUTTONS2");
-            Sprite normal(
-                Rectangle2f::fromTopLeft(0.0f, 0.0f, 96.0f, 20.0f),
-                texture,
-                Rectangle2f::fromTopLeft(9.0f / 640.0f, 221.0f / 480.0f, 96.0f / 640.0f, 20.0f / 480.0f)
+            auto it = std::find_if(
+                (*sprites)->sprites.begin(),
+                (*sprites)->sprites.end(),
+                [width, height](const Sprite& s) {
+                    return s.bounds.width() == width && s.bounds.height() == height;
+                }
             );
-            Sprite pressed(
-                Rectangle2f::fromTopLeft(0.0f, 0.0f, 96.0f, 20.0f),
-                texture,
-                Rectangle2f::fromTopLeft(9.0f / 640.0f, 251.0f / 480.0f, 96.0f / 640.0f, 20.0f / 480.0f)
-            );
-            auto series = std::make_shared<SpriteSeries>();
-            series->sprites.push_back(normal);
-            series->sprites.push_back(pressed);
-            return series;
+
+            if (it != (*sprites)->sprites.end())
+            {
+                auto spritesView = std::make_shared<SpriteSeries>();
+                spritesView->sprites.push_back(*(it++));
+                assert(it != (*sprites)->sprites.end());
+                spritesView->sprites.push_back(*(it++));
+                return spritesView;
+            }
         }
 
         // default behaviour

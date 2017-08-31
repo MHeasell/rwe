@@ -32,7 +32,7 @@ namespace rwe
 
         UiLabel labelFromGuiFile(const std::string& guiName, const GuiEntry& entry);
 
-        std::shared_ptr<SpriteSeries> getDefaultButtonGraphics(int width, int height);
+        std::shared_ptr<SpriteSeries> getDefaultButtonGraphics(const std::string& guiName, int width, int height);
 
         boost::optional<AudioService::SoundHandle> getButtonSound(const std::string& buttonName);
     };
