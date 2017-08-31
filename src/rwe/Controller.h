@@ -32,6 +32,8 @@ namespace rwe
 
         void goToSingleMenu();
 
+        void goToSkirmishMenu();
+
         void startBGM();
 
         void start();

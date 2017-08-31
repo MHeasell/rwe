@@ -103,6 +103,10 @@ namespace rwe
             {
                 goToMainMenu();
             }
+            else if (message == "Skirmish")
+            {
+                goToSkirmishMenu();
+            }
         }
     }
 
@@ -122,6 +126,27 @@ namespace rwe
         }
 
         auto panel = uiFactory.panelFromGuiFile("SINGLE", "SINGLEBG", *parsedGui);
+        auto scene = std::make_unique<UiPanelScene>(std::move(panel));
+
+        sceneManager->setNextScene(std::move(scene));
+    }
+
+    void Controller::goToSkirmishMenu()
+    {
+        auto mainMenuGuiRaw = vfs->readFile("guis/SKIRMISH.GUI");
+        if (!mainMenuGuiRaw)
+        {
+            throw std::runtime_error("Couldn't read SKIRMISH.GUI");
+        }
+
+        std::string gui(mainMenuGuiRaw->data(), mainMenuGuiRaw->size());
+        auto parsedGui = parseGui(parseTdfFromString(gui));
+        if (!parsedGui)
+        {
+            throw std::runtime_error("Failed to parse GUI file");
+        }
+
+        auto panel = uiFactory.panelFromGuiFile("SKIRMISH", "Skirmsetup4x", *parsedGui);
         auto scene = std::make_unique<UiPanelScene>(std::move(panel));
 
         sceneManager->setNextScene(std::move(scene));
