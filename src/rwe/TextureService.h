@@ -8,6 +8,7 @@
 #include <rwe/SpriteSeries.h>
 #include <rwe/vfs/AbstractVirtualFileSystem.h>
 #include <rwe/ColorPalette.h>
+#include <unordered_map>
 
 namespace rwe
 {
@@ -19,6 +20,9 @@ namespace rwe
         const ColorPalette* palette;
 
         std::shared_ptr<SpriteSeries> defaultSpriteSeries;
+
+        std::unordered_map<std::string, std::shared_ptr<SpriteSeries>> animCache;
+        std::unordered_map<std::string, SharedTextureHandle> bitmapCache;
 
     public:
         TextureService(GraphicsContext* graphics, AbstractVirtualFileSystem* filesystem, const ColorPalette* palette);

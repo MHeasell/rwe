@@ -84,6 +84,13 @@ namespace rwe
 
     boost::optional<std::shared_ptr<SpriteSeries>> TextureService::getGafEntryInternal(const std::string& gafName, const std::string& entryName)
     {
+        auto key = gafName + "/" + entryName;
+        auto it = animCache.find(key);
+        if (it != animCache.end())
+        {
+            return it->second;
+        }
+
         auto gafBytes = fileSystem->readFile(gafName);
         if (!gafBytes)
         {
@@ -101,7 +108,9 @@ namespace rwe
 
         BufferGafAdapter adapter(graphics, palette);
         gafArchive.extract(*gafEntry, adapter);
-        return std::make_shared<SpriteSeries>(adapter.extractSpriteSeries());
+        auto ptr = std::make_shared<SpriteSeries>(adapter.extractSpriteSeries());
+        animCache[key] = ptr;
+        return ptr;
     }
 
     std::shared_ptr<SpriteSeries> TextureService::getGafEntry(const std::string& gafName, const std::string& entryName)
@@ -135,6 +144,12 @@ namespace rwe
 
     SharedTextureHandle TextureService::getBitmap(const std::string& bitmapName)
     {
+        auto it = bitmapCache.find(bitmapName);
+        if (it != bitmapCache.end())
+        {
+            return it->second;
+        }
+
         auto entry = fileSystem->readFile("bitmaps/" + bitmapName + ".pcx");
         if (!entry)
         {
@@ -157,7 +172,9 @@ namespace rwe
             buffer[i] = palette[paletteIndex].toColor();
         }
 
-        return graphics->createTexture(width, height, buffer);
+        auto handle = graphics->createTexture(width, height, buffer);
+        bitmapCache[bitmapName] = handle;
+        return handle;
     }
 
     std::shared_ptr<SpriteSeries> TextureService::getDefaultSpriteSeries()

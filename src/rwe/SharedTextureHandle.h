@@ -13,6 +13,8 @@ namespace rwe
 
     public:
 
+        SharedTextureHandle();
+
         explicit SharedTextureHandle(GLuint handle);
         ~SharedTextureHandle();
 

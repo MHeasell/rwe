@@ -111,4 +111,6 @@ namespace rwe
 
         return *referenceCount;
     }
+
+    SharedTextureHandle::SharedTextureHandle() : handle(0), referenceCount(nullptr) {}
 }
