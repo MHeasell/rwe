@@ -108,6 +108,13 @@ namespace rwe
                 goToSkirmishMenu();
             }
         }
+        else if (topic == "SKIRMISH")
+        {
+            if (message == "PrevMenu")
+            {
+                goToSingleMenu();
+            }
+        }
     }
 
     void Controller::goToSingleMenu()
