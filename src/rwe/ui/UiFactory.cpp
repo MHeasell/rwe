@@ -98,6 +98,13 @@ namespace rwe
 
     std::shared_ptr<SpriteSeries> UiFactory::getDefaultButtonGraphics(const std::string& guiName, int width, int height)
     {
+        // hack for SINGLE.GUI buttons
+        if (width == 118 && height == 18)
+        {
+            width = 120;
+            height = 20;
+        }
+
         auto sprites = textureService->getGuiTexture(guiName, "BUTTONS0");
         if (sprites)
         {
