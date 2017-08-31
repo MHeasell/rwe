@@ -5,7 +5,7 @@ namespace rwe
 
     void UiLabel::render(GraphicsContext& context) const
     {
-        context.drawTextCentered(posX, posY, text, *font);
+        context.drawText(posX, posY + 12.0f, text, *font);
     }
 
     UiLabel::UiLabel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, const std::string& text,
