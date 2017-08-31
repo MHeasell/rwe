@@ -12,7 +12,7 @@ namespace rwe
         auto mainMenuGuiRaw = vfs->readFile("guis/MAINMENU.GUI");
         if (!mainMenuGuiRaw)
         {
-            throw std::runtime_error("Couldn't read main menu GUI");
+            throw std::runtime_error("Couldn't read MAINMENU.GUI");
         }
 
         std::string gui(mainMenuGuiRaw->data(), mainMenuGuiRaw->size());
@@ -111,7 +111,7 @@ namespace rwe
         auto mainMenuGuiRaw = vfs->readFile("guis/SINGLE.GUI");
         if (!mainMenuGuiRaw)
         {
-            throw std::runtime_error("Couldn't read main menu GUI");
+            throw std::runtime_error("Couldn't read SINGLE.GUI");
         }
 
         std::string gui(mainMenuGuiRaw->data(), mainMenuGuiRaw->size());
