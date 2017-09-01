@@ -103,6 +103,15 @@ namespace rwe
             children[*focusedChild]->keyUp(event);
         }
 
+        void mouseMove(MouseMoveEvent event) override
+        {
+            UiComponent::mouseMove(event);
+            for (auto& e : children)
+            {
+                e->mouseMove(event);
+            }
+        }
+
         void focus() override
         {
             if (!focusedChild)

@@ -15,6 +15,10 @@ namespace rwe
         unsigned int sizeX;
         unsigned int sizeY;
 
+    private:
+        int lastMouseX{0};
+        int lastMouseY{0};
+
     public:
         UiComponent(int posX, int posY, unsigned int sizeX, unsigned int sizeY)
             : posX(posX), posY(posY), sizeX(sizeX), sizeY(sizeY)
@@ -52,6 +56,8 @@ namespace rwe
         virtual void unfocus() {}
 
         virtual void render(GraphicsContext& /*graphics*/) const {}
+
+        virtual void mouseMove(MouseMoveEvent event);
 
         bool contains(int x, int y)
         {

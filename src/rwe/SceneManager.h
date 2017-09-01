@@ -26,7 +26,7 @@ namespace rwe
 
             virtual void onMouseUp(MouseButtonEvent /*event*/) {}
 
-            virtual void onMouseMouse(int /*x*/, int /*y*/) {}
+            virtual void onMouseMove(MouseMoveEvent /*event*/) {}
 
             virtual ~Scene() = default;
         };

@@ -73,6 +73,12 @@ namespace rwe
                         currentScene->onMouseUp(e);
                         break;
                     }
+                    case SDL_MOUSEMOTION:
+                    {
+                        MouseMoveEvent e(event.motion.x, event.motion.y);
+                        currentScene->onMouseMove(e);
+                        break;
+                    }
                 }
             }
 

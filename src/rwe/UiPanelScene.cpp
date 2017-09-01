@@ -23,4 +23,9 @@ namespace rwe
     {
         panel.mouseUp(event);
     }
+
+    void UiPanelScene::onMouseMove(MouseMoveEvent event)
+    {
+        panel.mouseMove(event);
+    }
 }

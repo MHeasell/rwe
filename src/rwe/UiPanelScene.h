@@ -22,6 +22,8 @@ namespace rwe
         void onMouseDown(MouseButtonEvent event) override;
 
         void onMouseUp(MouseButtonEvent event) override;
+
+        void onMouseMove(MouseMoveEvent event) override;
     };
 }
 
