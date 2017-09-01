@@ -79,6 +79,10 @@ namespace rwe
                         currentScene->onMouseMove(e);
                         break;
                     }
+
+                    default:
+                        // skip unrecognised events
+                        break;
                 }
             }
 
