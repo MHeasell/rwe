@@ -132,6 +132,8 @@ set(SOURCE_FILES
     src/rwe/ui/UiLabel.h
     src/rwe/ui/UiPanel.cpp
     src/rwe/ui/UiPanel.h
+    src/rwe/ui/UiStagedButton.cpp
+    src/rwe/ui/UiStagedButton.h
     src/rwe/vfs/AbstractVirtualFileSystem.h
     src/rwe/vfs/CompositeVirtualFileSystem.cpp
     src/rwe/vfs/CompositeVirtualFileSystem.h

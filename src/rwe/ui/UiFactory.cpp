@@ -29,7 +29,17 @@ namespace rwe
             {
                 case GuiElementType::Button:
                 {
-                    std::unique_ptr <UiComponent> btn(new UiButton(buttonFromGuiFile(name, entry)));
+                    auto stages = entry.stages.value_or(0);
+                    std::unique_ptr<UiComponent> btn;
+                    if (stages > 1)
+                    {
+                        btn = std::unique_ptr<UiComponent>(new UiStagedButton(stagedButtonFromGuiFile(name, entry)));
+                    }
+                    else
+                    {
+                        btn = std::unique_ptr<UiComponent>(new UiButton(buttonFromGuiFile(name, entry)));
+                    }
+
                     panel.appendChild(std::move(btn));
                     break;
                 }
@@ -164,5 +174,72 @@ namespace rwe
                 entry.text.value_or(""),
                 font
         );
+    }
+
+    UiStagedButton UiFactory::stagedButtonFromGuiFile(const std::string& guiName, const GuiEntry& entry)
+    {
+        auto graphics = textureService->getGuiTexture(guiName, entry.common.name);
+        if (!graphics)
+        {
+            graphics = getDefaultStagedButtonGraphics(guiName, entry.stages.get());
+        }
+
+        auto labels = entry.text ? utf8Split(entry.text.get(), '|') : std::vector<std::string>();
+
+        auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
+
+        UiStagedButton button(
+                entry.common.xpos,
+                entry.common.ypos,
+                entry.common.width,
+                entry.common.height,
+                *graphics,
+                labels,
+                font
+        );
+
+        auto sound = getButtonSound(entry.common.name);
+        if (!sound && entry.common.name == "PrevMenu")
+        {
+            sound = getButtonSound("PREVIOUS");
+        }
+        if (!sound && entry.common.width == 96 && entry.common.height == 20)
+        {
+            sound = getButtonSound("BIGBUTTON");
+        }
+
+//        if (sound)
+//        {
+//            button.onClick([as = audioService, s = std::move(*sound)](MouseButtonEvent /*event*/){
+//                as->playSound(s);
+//            });
+//        }
+//
+//        button.onClick([c = controller, guiName, name = entry.common.name](MouseButtonEvent /*event*/){
+//            c->message(guiName, name);
+//        });
+
+        return button;
+    }
+
+    std::shared_ptr<SpriteSeries> UiFactory::getDefaultStagedButtonGraphics(const std::string& guiName, int stages)
+    {
+        assert(stages >= 2 && stages <= 4);
+        std::string entryName("stagebuttn");
+        entryName.append(std::to_string(stages));
+
+        auto sprites = textureService->getGuiTexture(guiName, entryName);
+        if (sprites)
+        {
+            return *sprites;
+        }
+
+        // default behaviour
+        auto texture = textureService->getDefaultTexture();
+        Sprite sprite(Rectangle2f::fromTopLeft(0.0f, 0.0f, 120.0f, 20.0f), texture);
+        auto series = std::make_shared<SpriteSeries>();
+        series->sprites.push_back(sprite);
+        series->sprites.push_back(sprite);
+        return series;
     }
 }

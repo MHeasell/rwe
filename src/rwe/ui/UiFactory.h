@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <rwe/ui/UiLabel.h>
+#include <rwe/ui/UiStagedButton.h>
 
 namespace rwe
 {
@@ -30,11 +31,15 @@ namespace rwe
     private:
         UiButton buttonFromGuiFile(const std::string& guiName, const GuiEntry& entry);
 
+        UiStagedButton stagedButtonFromGuiFile(const std::string& guiName, const GuiEntry& entry);
+
         UiLabel labelFromGuiFile(const std::string& guiName, const GuiEntry& entry);
 
         std::shared_ptr<SpriteSeries> getDefaultButtonGraphics(const std::string& guiName, int width, int height);
 
         boost::optional<AudioService::SoundHandle> getButtonSound(const std::string& buttonName);
+
+        std::shared_ptr<SpriteSeries> getDefaultStagedButtonGraphics(const std::string& guiName, int stages);
     };
 }
 
