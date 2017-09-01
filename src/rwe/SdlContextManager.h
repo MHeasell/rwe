@@ -139,6 +139,11 @@ namespace rwe
         {
             Mix_HaltChannel(channel);
         }
+
+        int volumeChunk(Mix_Chunk* chunk, int volume)
+        {
+            return Mix_VolumeChunk(chunk, volume);
+        }
     };
 
     class SdlImageContext
