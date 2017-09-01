@@ -203,9 +203,9 @@ namespace rwe
         {
             sound = getButtonSound("PREVIOUS");
         }
-        if (!sound && entry.common.width == 96 && entry.common.height == 20)
+        if (!sound)
         {
-            sound = getButtonSound("BIGBUTTON");
+            sound = getButtonSound("SKIRMISH");
         }
 
         if (sound)
