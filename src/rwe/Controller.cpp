@@ -23,45 +23,13 @@ namespace rwe
         }
 
         auto panel = uiFactory.panelFromGuiFile("MAINMENU", "FrontendX", *parsedGui);
-        auto scene = std::make_unique<UiPanelScene>(std::move(panel));
-
-        sceneManager->setNextScene(std::move(scene));
-    }
-
-    void Controller::startBGM()
-    {
-        auto allSoundBgm = allSoundTdf->findBlock("BGM");
-        if (!allSoundBgm)
-        {
-            return;
-        }
-
-        auto soundName = allSoundBgm->findValue("sound");
-        if (!soundName)
-        {
-            return;
-        }
-
-
-        auto sound = audioService->loadSound(*soundName);
-        if (!sound)
-        {
-            return;
-        }
-
-        auto playingSound = bgmHandle.getSound();
-        if (playingSound && *playingSound == *sound)
-        {
-            return;
-        }
-
-        bgmHandle = audioService->loopSound(*sound);
+        scene->goToMenu(std::move(panel));
     }
 
     void Controller::start()
     {
         goToMainMenu();
-        startBGM();
+        sceneManager->setNextScene(scene);
         sceneManager->execute();
     }
 
@@ -76,7 +44,8 @@ namespace rwe
               allSoundTdf(allSoundTdf),
               audioService(audioService),
               textureService(textureService),
-              uiFactory(textureService, audioService, allSoundTdf, this)
+              uiFactory(textureService, audioService, allSoundTdf, this),
+              scene(std::make_shared<UiPanelScene>(audioService, allSoundTdf, 640, 480))
         {}
 
     void Controller::exit()
@@ -86,7 +55,11 @@ namespace rwe
 
     void Controller::message(const std::string& topic, const std::string& message)
     {
-        if (topic == "MAINMENU")
+        if (message == "PrevMenu")
+        {
+            goToPreviousMenu();
+        }
+        else if (topic == "MAINMENU")
         {
             if (message == "EXIT")
             {
@@ -99,20 +72,9 @@ namespace rwe
         }
         else if (topic == "SINGLE")
         {
-            if (message == "PrevMenu")
-            {
-                goToMainMenu();
-            }
-            else if (message == "Skirmish")
+            if (message == "Skirmish")
             {
                 goToSkirmishMenu();
-            }
-        }
-        else if (topic == "SKIRMISH")
-        {
-            if (message == "PrevMenu")
-            {
-                goToSingleMenu();
             }
         }
     }
@@ -133,9 +95,7 @@ namespace rwe
         }
 
         auto panel = uiFactory.panelFromGuiFile("SINGLE", "SINGLEBG", *parsedGui);
-        auto scene = std::make_unique<UiPanelScene>(std::move(panel));
-
-        sceneManager->setNextScene(std::move(scene));
+        scene->goToMenu(std::move(panel));
     }
 
     void Controller::goToSkirmishMenu()
@@ -154,8 +114,17 @@ namespace rwe
         }
 
         auto panel = uiFactory.panelFromGuiFile("SKIRMISH", "Skirmsetup4x", *parsedGui);
-        auto scene = std::make_unique<UiPanelScene>(std::move(panel));
+        scene->goToMenu(std::move(panel));
+    }
 
-        sceneManager->setNextScene(std::move(scene));
+    void Controller::goToPreviousMenu()
+    {
+        if (!scene->hasPreviousMenu())
+        {
+            sceneManager->requestExit();
+            return;
+        }
+
+        scene->goToPreviousMenu();
     }
 }

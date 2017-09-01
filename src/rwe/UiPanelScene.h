@@ -5,17 +5,26 @@
 #include <rwe/ui/UiPanel.h>
 #include <rwe/TextureService.h>
 #include <rwe/camera/UiCamera.h>
+#include <rwe/AudioService.h>
+#include <rwe/tdf/SimpleTdfAdapter.h>
 
 namespace rwe
 {
     class UiPanelScene : public SceneManager::Scene
     {
     private:
-        UiPanel panel;
+        AudioService* audioService;
+        TdfBlock* soundLookup;
+
+        std::vector<UiPanel> panelStack;
         UiCamera camera;
 
+        AudioService::LoopToken bgm;
+
     public:
-        explicit UiPanelScene(UiPanel&& panel);
+        UiPanelScene(AudioService* audioService, TdfBlock* soundLookup, float width, float height);
+
+        void init() override;
 
         void render(GraphicsContext& context) override;
 
@@ -24,6 +33,15 @@ namespace rwe
         void onMouseUp(MouseButtonEvent event) override;
 
         void onMouseMove(MouseMoveEvent event) override;
+
+        void goToPreviousMenu();
+
+        bool hasPreviousMenu() const;
+
+        void goToMenu(UiPanel&& panel);
+
+    private:
+        AudioService::LoopToken startBgm();
     };
 }
 

@@ -21,7 +21,7 @@ namespace rwe
     {
     }
 
-    void SceneManager::setNextScene(std::unique_ptr<Scene>&& scene)
+    void SceneManager::setNextScene(std::shared_ptr<Scene> scene)
     {
         nextScene = std::move(scene);
     }
@@ -37,6 +37,7 @@ namespace rwe
             if (nextScene)
             {
                 currentScene = std::move(nextScene);
+                currentScene->init();
             }
 
             SDL_Event event;

@@ -18,6 +18,8 @@ namespace rwe
         public:
             virtual void update() {}
 
+            virtual void init() {}
+
             virtual void render(GraphicsContext& /*graphics*/) {}
 
             virtual void onKeyDown(const SDL_Keysym& /*key*/) {}
@@ -32,8 +34,8 @@ namespace rwe
         };
 
     private:
-        std::unique_ptr<Scene> currentScene;
-        std::unique_ptr<Scene> nextScene;
+        std::shared_ptr<Scene> currentScene;
+        std::shared_ptr<Scene> nextScene;
         SdlContext* sdl;
         SDL_Window* window;
         GraphicsContext* graphics;
@@ -44,7 +46,7 @@ namespace rwe
         static const unsigned int TickInterval = 1000 / 60;
 
         explicit SceneManager(SdlContext* sdl, SDL_Window* window, GraphicsContext* graphics);
-        void setNextScene(std::unique_ptr<Scene>&& scene);
+        void setNextScene(std::shared_ptr<Scene> scene);
 
         void execute();
 
