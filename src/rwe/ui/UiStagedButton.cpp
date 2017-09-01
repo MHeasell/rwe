@@ -27,9 +27,9 @@ namespace rwe
                 sprite.textureRegion.height()
         );
 
-        float textX = posX + (sizeX / 2.0f);
-        float textY = posY + (sizeY / 2.0f);
-        graphics.drawTextCentered(textX, pressed ? textY + 1.0f : textY, labels[currentStage], *labelFont);
+        float textX = posX + 6.0f;
+        float textY = posY + (sizeY / 2.0f) + 6.0f;
+        graphics.drawText(textX, pressed ? textY + 1.0f : textY, labels[currentStage], *labelFont);
     }
 
     UiStagedButton::UiStagedButton(
