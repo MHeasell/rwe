@@ -208,16 +208,16 @@ namespace rwe
             sound = getButtonSound("BIGBUTTON");
         }
 
-//        if (sound)
-//        {
-//            button.onClick([as = audioService, s = std::move(*sound)](MouseButtonEvent /*event*/){
-//                as->playSound(s);
-//            });
-//        }
-//
-//        button.onClick([c = controller, guiName, name = entry.common.name](MouseButtonEvent /*event*/){
-//            c->message(guiName, name);
-//        });
+        if (sound)
+        {
+            button.onClick([as = audioService, s = std::move(*sound)](MouseButtonEvent /*event*/){
+                as->playSound(s);
+            });
+        }
+
+        button.onClick([c = controller, guiName, name = entry.common.name](MouseButtonEvent /*event*/){
+            c->message(guiName, name);
+        });
 
         return button;
     }

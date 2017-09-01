@@ -2,7 +2,6 @@
 #define RWE_UISTAGEDBUTTON_H
 
 #include <rwe/ui/UiComponent.h>
-
 #include <vector>
 
 namespace rwe
@@ -40,17 +39,17 @@ namespace rwe
 
         void render(GraphicsContext& graphics) const override;
 
-//        void mouseDown(MouseButtonEvent /*event*/) override;
-//
-//        void mouseUp(MouseButtonEvent event) override;
-//
-//        void mouseEnter() override;
-//
-//        void mouseLeave() override;
-//
-//        void unfocus() override;
-//
-//        void onClick(const std::function<void(MouseButtonEvent)>& callback);
+        void mouseDown(MouseButtonEvent /*event*/) override;
+
+        void mouseUp(MouseButtonEvent event) override;
+
+        void mouseEnter() override;
+
+        void mouseLeave() override;
+
+        void unfocus() override;
+
+        void onClick(const std::function<void(MouseButtonEvent)>& callback);
     };
 }
 
