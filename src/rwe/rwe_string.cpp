@@ -118,4 +118,27 @@ namespace rwe
         utf8TrimRight(str);
         utf8TrimLeft(str);
     }
+
+    bool endsWith(const std::string& str, const std::string& end)
+    {
+        if (str.size() < end.size())
+        {
+            return false;
+        }
+
+        auto it = end.rbegin();
+        auto endIt = end.rend();
+
+        auto sIt = str.rbegin();
+
+        while (it != endIt)
+        {
+            if (*(it++) != *(sIt++))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

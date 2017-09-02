@@ -33,6 +33,8 @@ namespace rwe
     void utf8TrimLeft(std::string& str);
     void utf8TrimRight(std::string& str);
     void utf8Trim(std::string& str);
+
+    bool endsWith(const std::string& str, const std::string& end);
 }
 
 #endif

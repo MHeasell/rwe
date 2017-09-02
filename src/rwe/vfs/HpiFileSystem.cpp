@@ -1,3 +1,4 @@
+#include <rwe/rwe_string.h>
 #include "HpiFileSystem.h"
 
 namespace rwe
@@ -24,5 +25,32 @@ namespace rwe
         {
             throw std::runtime_error("Could not open file");
         }
+    }
+
+    std::vector<std::string> HpiFileSystem::getFileNames(const std::string& directory, const std::string& extension)
+    {
+        auto dir = hpi.findDirectory(directory);
+        if (!dir)
+        {
+            // no such directory, so no files inside it
+            return std::vector<std::string>();
+        }
+
+        auto it = dir->entries.begin();
+        auto end = dir->entries.end();
+
+        std::vector<std::string> v;
+
+        for (; it != end; ++it)
+        {
+            const auto& e = *it;
+
+            if (endsWith(e.name, extension))
+            {
+                v.push_back(e.name);
+            }
+        }
+
+        return v;
     }
 }

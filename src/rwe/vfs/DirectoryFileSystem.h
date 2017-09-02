@@ -14,6 +14,8 @@ namespace rwe
 
         boost::optional<std::vector<char>> readFile(const std::string& filename) const override;
 
+        std::vector<std::string> getFileNames(const std::string& directory, const std::string& filter) override;
+
     private:
         boost::filesystem::path path;
     };

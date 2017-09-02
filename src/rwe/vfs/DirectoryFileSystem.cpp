@@ -33,4 +33,36 @@ namespace rwe
         : path(path)
     {
     }
+
+    std::vector<std::string> DirectoryFileSystem::getFileNames(const std::string& directory, const std::string& extension)
+    {
+        fs::path fullPath;
+        fullPath /= path;
+        fullPath /= directory;
+
+        std::vector<std::string> v;
+
+        // FIXME: TOCTOU error here
+        if (!fs::exists(fullPath))
+        {
+            return std::vector<std::string>();
+        }
+
+        fs::directory_iterator it(fullPath);
+        fs::directory_iterator end;
+
+        for (; it != end; ++it)
+        {
+            const auto& e = *it;
+
+            if (e.path().extension().string() == extension)
+            {
+                auto filename = e.path().filename();
+                filename.replace_extension();
+                v.push_back(filename.string());
+            }
+        }
+
+        return v;
+    }
 }

@@ -114,8 +114,8 @@ namespace rwe
         return button;
     }
 
-    UiFactory::UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, Controller* controller)
-        : textureService(textureService), audioService(audioService), soundLookup(soundLookup), controller(controller)
+    UiFactory::UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs, Controller* controller)
+        : textureService(textureService), audioService(audioService), soundLookup(soundLookup), vfs(vfs), controller(controller)
     {}
 
     std::shared_ptr<SpriteSeries> UiFactory::getDefaultButtonGraphics(const std::string& guiName, int width, int height)
@@ -267,11 +267,15 @@ namespace rwe
             font
         );
 
-        for (int i = 0; i < 50; ++i)
+        if (entry.common.name == "MAPNAMES")
         {
-            listBox.appendItem("foo");
-            listBox.appendItem("bar");
-            listBox.appendItem("baz");
+            auto mapNames = vfs->getFileNames("maps", ".ota");
+
+            for (const auto& e : mapNames)
+            {
+                // chop off the extension while adding
+                listBox.appendItem(e.substr(0, e.size() - 4));
+            }
         }
 
         return listBox;

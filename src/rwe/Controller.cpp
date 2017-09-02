@@ -44,7 +44,7 @@ namespace rwe
               allSoundTdf(allSoundTdf),
               audioService(audioService),
               textureService(textureService),
-              uiFactory(textureService, audioService, allSoundTdf, this),
+              uiFactory(textureService, audioService, allSoundTdf, vfs, this),
               scene(std::make_shared<UiPanelScene>(audioService, allSoundTdf, 640, 480))
         {}
 

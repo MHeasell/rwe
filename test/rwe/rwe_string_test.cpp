@@ -87,4 +87,28 @@ namespace rwe
             REQUIRE(s == "foo");
         }
     }
+
+    TEST_CASE("endsWith")
+    {
+        SECTION("returns true if the string ends with the substring")
+        {
+            std::string s("foo.txt");
+            std::string e(".txt");
+            REQUIRE(endsWith(s, e));
+        }
+
+        SECTION("returns false otherwise")
+        {
+            std::string s("foottxt");
+            std::string e(".txt");
+            REQUIRE(!endsWith(s, e));
+        }
+
+        SECTION("returns false when the string is shorter")
+        {
+            std::string s("txt");
+            std::string e(".txt");
+            REQUIRE(!endsWith(s, e));
+        }
+    }
 }

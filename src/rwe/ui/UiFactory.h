@@ -22,10 +22,11 @@ namespace rwe
         TextureService* textureService;
         AudioService* audioService;
         TdfBlock* soundLookup;
+        AbstractVirtualFileSystem* vfs;
         Controller* controller;
 
     public:
-        UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, Controller* controller);
+        UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs, Controller* controller);
 
         UiPanel panelFromGuiFile(const std::string& name, const std::string& background, const std::vector<GuiEntry>& entries);
 

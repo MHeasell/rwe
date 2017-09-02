@@ -11,6 +11,8 @@ namespace rwe
     public:
         boost::optional<std::vector<char>> readFile(const std::string& filename) const override;
 
+        std::vector<std::string> getFileNames(const std::string& directory, const std::string& extension) override;
+
         template <typename T, typename... Args>
         void emplaceFileSystem(Args&&... args)
         {

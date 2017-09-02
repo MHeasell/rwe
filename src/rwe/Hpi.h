@@ -137,6 +137,8 @@ namespace rwe
 
         boost::optional<const File&> findFile(const std::string& path) const;
 
+        boost::optional<const Directory&> findDirectory(const std::string& path) const;
+
         void extract(const File& file, char* buffer) const;
 
     private:

@@ -5,6 +5,7 @@
 #include <rwe/vfs/HpiFileSystem.h>
 
 #include <rwe/rwe_string.h>
+#include <set>
 
 namespace fs = boost::filesystem;
 
@@ -22,6 +23,21 @@ namespace rwe
         }
 
         return boost::none;
+    }
+
+    std::vector<std::string>
+    CompositeVirtualFileSystem::getFileNames(const std::string& directory, const std::string& extension)
+    {
+        std::set<std::string> entries;
+
+        for (const auto& fs : filesystems)
+        {
+            auto v = fs->getFileNames(directory, extension);
+            entries.insert(v.begin(), v.end());
+        }
+
+        std::vector<std::string> v(entries.begin(), entries.end());
+        return v;
     }
 
     void addHpisWithExtension(CompositeVirtualFileSystem& vfs, const fs::path& searchPath, const std::string& extension)
