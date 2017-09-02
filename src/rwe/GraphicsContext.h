@@ -69,6 +69,10 @@ namespace rwe
          * and the existing tranformation will be done on the result of that.
          */
         void multiplyMatrix(const Matrix4f& m);
+
+        void pushMatrix();
+
+        void popMatrix();
     };
 }
 

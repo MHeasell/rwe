@@ -234,4 +234,14 @@ namespace rwe
 
         drawText(std::round(x - halfWidth), std::round(y + halfHeight), text, font);
     }
+
+    void GraphicsContext::pushMatrix()
+    {
+        glPushMatrix();
+    }
+
+    void GraphicsContext::popMatrix()
+    {
+        glPopMatrix();
+    }
 }

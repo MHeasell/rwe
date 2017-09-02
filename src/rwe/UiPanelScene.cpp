@@ -24,7 +24,7 @@ namespace rwe
     void UiPanelScene::render(GraphicsContext& context)
     {
         context.applyCamera(camera);
-        topPanel().render(context);
+        panelStack.back().render(context);
 
         for (auto& e : dialogStack)
         {

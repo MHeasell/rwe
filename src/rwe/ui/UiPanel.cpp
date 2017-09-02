@@ -32,15 +32,24 @@ namespace rwe
 
     void UiPanel::render(GraphicsContext& graphics) const
     {
-        graphics.drawTexture(0, 0, sizeX, sizeY, background);
+        graphics.drawTexture(posX, posY, sizeX, sizeY, background);
+
+        graphics.pushMatrix();
+        graphics.multiplyMatrix(Matrix4f::translation(Vector3f(posX, posY, 0.0f)));
+
         for (const auto& i : children)
         {
             i->render(graphics);
         }
+
+        graphics.popMatrix();
     }
 
     void UiPanel::mouseDown(MouseButtonEvent event)
     {
+        event.x -= posX;
+        event.y -= posY;
+
         auto size = children.size();
         for (std::size_t i = 0; i < size; ++i)
         {
@@ -60,6 +69,9 @@ namespace rwe
         {
             return;
         }
+
+        event.x -= posX;
+        event.y -= posY;
 
         children[*focusedChild]->mouseUp(event);
     }
@@ -87,6 +99,10 @@ namespace rwe
     void UiPanel::mouseMove(MouseMoveEvent event)
     {
         UiComponent::mouseMove(event);
+
+        event.x -= posX;
+        event.y -= posY;
+
         for (auto& e : children)
         {
             e->mouseMove(event);
