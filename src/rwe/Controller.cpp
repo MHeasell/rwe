@@ -1,6 +1,7 @@
 #include "Controller.h"
 
 #include <rwe/gui.h>
+#include <rwe/tdf.h>
 #include <rwe/UiPanelScene.h>
 
 #include <stdexcept>

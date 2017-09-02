@@ -2,8 +2,8 @@
 #define RWE_GUI_H
 
 #include <boost/optional.hpp>
+#include <rwe/tdf/SimpleTdfAdapter.h>
 #include <string>
-#include <rwe/tdf.h>
 
 namespace rwe
 {

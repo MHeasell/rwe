@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <stdexcept>
+#include <rwe/tdf.h>
 
 namespace rwe
 {
@@ -11,80 +12,6 @@ namespace rwe
 
     GuiParseException::GuiParseException(const char* message) : runtime_error(message)
     {
-    }
-
-    const std::string& expectString(const TdfBlock& block, const std::string& key)
-    {
-        auto v = block.findValue(key);
-        if (!v)
-        {
-            throw GuiParseException("Failed to read string from key: " + key);
-        }
-
-        return *v;
-    }
-
-    boost::optional<int> extractInt(const TdfBlock& block, const std::string& key)
-    {
-        auto value = block.findValue(key);
-        if (!value)
-        {
-            return boost::none;
-        }
-
-        // convert the value to an integer
-        try
-        {
-            return std::stoi(*value);
-        }
-        catch (const std::invalid_argument& e)
-        {
-            return boost::none;
-        }
-    }
-
-    int expectInt(const TdfBlock& block, const std::string& key)
-    {
-        auto v = extractInt(block, key);
-        if (!v)
-        {
-            throw GuiParseException("Failed to read int from key: " + key);
-        }
-
-        return *v;
-    }
-
-    boost::optional<bool> extractBool(const TdfBlock& block, const std::string& key)
-    {
-        auto value = block.findValue(key);
-        if (!value)
-        {
-            return boost::none;
-        }
-
-        // convert the value to an integer
-        int i;
-        try
-        {
-            i = std::stoi(*value);
-        }
-        catch (const std::invalid_argument& e)
-        {
-            return boost::none;
-        }
-
-        return i != 0;
-    }
-
-    bool expectBool(const TdfBlock& block, const std::string& key)
-    {
-        auto v = extractBool(block, key);
-        if (!v)
-        {
-            throw GuiParseException("Failed to read bool from key: " + key);
-        }
-
-        return *v;
     }
 
     boost::optional<GuiElementType> toGuiElementType(int value)
