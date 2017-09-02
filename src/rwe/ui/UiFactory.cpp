@@ -90,23 +90,7 @@ namespace rwe
             font
         );
 
-        auto sound = getButtonSound(entry.common.name);
-        if (!sound && (entry.common.name == "PrevMenu" || entry.common.name == "PREVMENU"))
-        {
-            sound = getButtonSound("PREVIOUS");
-        }
-        if (!sound)
-        {
-            sound = getButtonSound(guiName);
-        }
-        if (!sound && guiName == "SELMAP")
-        {
-            sound = getButtonSound("SMALLBUTTON");
-        }
-        if (!sound && entry.common.width == 96 && entry.common.height == 20)
-        {
-            sound = getButtonSound("BIGBUTTON");
-        }
+        auto sound = deduceButtonSound(guiName, entry);
 
         if (sound)
         {
@@ -218,15 +202,7 @@ namespace rwe
                 font
         );
 
-        auto sound = getButtonSound(entry.common.name);
-        if (!sound && (entry.common.name == "PrevMenu" || entry.common.name == "PREVMENU"))
-        {
-            sound = getButtonSound("PREVIOUS");
-        }
-        if (!sound)
-        {
-            sound = getButtonSound("SKIRMISH");
-        }
+        auto sound = deduceButtonSound(guiName, entry);
 
         if (sound)
         {
@@ -287,5 +263,28 @@ namespace rwe
         }
 
         return listBox;
+    }
+
+    boost::optional<AudioService::SoundHandle> UiFactory::deduceButtonSound(const std::string& guiName, const GuiEntry& entry)
+    {
+        auto sound = getButtonSound(entry.common.name);
+        if (!sound && (entry.common.name == "PrevMenu" || entry.common.name == "PREVMENU"))
+        {
+            sound = getButtonSound("PREVIOUS");
+        }
+        if (!sound)
+        {
+            sound = getButtonSound(guiName);
+        }
+        if (!sound && guiName == "SELMAP")
+        {
+            sound = getButtonSound("SMALLBUTTON");
+        }
+        if (!sound && entry.common.width == 96 && entry.common.height == 20)
+        {
+            sound = getButtonSound("BIGBUTTON");
+        }
+
+        return sound;
     }
 }

@@ -43,6 +43,8 @@ namespace rwe
 
         boost::optional<AudioService::SoundHandle> getButtonSound(const std::string& buttonName);
 
+        boost::optional<AudioService::SoundHandle> deduceButtonSound(const std::string& guiName, const GuiEntry& entry);
+
         std::shared_ptr<SpriteSeries> getDefaultStagedButtonGraphics(const std::string& guiName, int stages);
     };
 }
