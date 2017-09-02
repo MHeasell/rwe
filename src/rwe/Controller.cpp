@@ -55,7 +55,7 @@ namespace rwe
 
     void Controller::message(const std::string& topic, const std::string& message)
     {
-        if (message == "PrevMenu")
+        if (message == "PrevMenu" || message == "PREVMENU")
         {
             goToPreviousMenu();
         }
