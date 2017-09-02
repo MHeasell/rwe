@@ -112,6 +112,8 @@ set(SOURCE_FILES
     src/rwe/math/Vector3f.h
     src/rwe/math/rwe_math.cpp
     src/rwe/math/rwe_math.h
+    src/rwe/ota.cpp
+    src/rwe/ota.h
     src/rwe/pcx.cpp
     src/rwe/pcx.h
     src/rwe/rwe_string.cpp
@@ -244,6 +246,7 @@ set(TEST_FILES
     test/rwe/gui_test.cpp
     test/rwe/math/Matrix4f_test.cpp
     test/rwe/math/Vector3f_test.cpp
+    test/rwe/ota_test.cpp
     test/rwe/rwe_string_test.cpp
     )
 
