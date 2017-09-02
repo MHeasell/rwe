@@ -66,6 +66,8 @@ namespace rwe
 
         glBegin(GL_QUADS);
 
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
         glTexCoord2f(u, v);
         glVertex2f(x, y);
 
@@ -243,5 +245,26 @@ namespace rwe
     void GraphicsContext::popMatrix()
     {
         glPopMatrix();
+    }
+
+    void GraphicsContext::fillColor(float x, float y, float width, float height, Color color)
+    {
+        glDisable(GL_TEXTURE_2D);
+
+        // enable blending
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        glBegin(GL_QUADS);
+
+        glColor4ub(color.r, color.g, color.b, color.a);
+        //glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
+
+        glVertex2f(x, y);
+        glVertex2f(x, y + height);
+        glVertex2f(x + width, y + height);
+        glVertex2f(x + width, y);
+
+        glEnd();
     }
 }

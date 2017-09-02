@@ -28,6 +28,7 @@ namespace rwe
 
         for (auto& e : dialogStack)
         {
+            context.fillColor(0.0f, 0.0f, camera.getWidth(), camera.getHeight(), Color(0, 0, 0, 63));
             e.render(context);
         }
     }

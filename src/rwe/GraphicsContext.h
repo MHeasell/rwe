@@ -73,6 +73,8 @@ namespace rwe
         void pushMatrix();
 
         void popMatrix();
+
+        void fillColor(float x, float y, float width, float height, Color color);
     };
 }
 

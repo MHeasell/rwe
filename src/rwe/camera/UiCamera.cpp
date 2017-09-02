@@ -11,4 +11,14 @@ namespace rwe
     {
         return Matrix4f::orthographicProjection(0.0f, width, height, 0.0f, 100.0f, -100.0f);
     }
+
+    float UiCamera::getWidth()
+    {
+        return width;
+    }
+
+    float UiCamera::getHeight()
+    {
+        return height;
+    }
 }

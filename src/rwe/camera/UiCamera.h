@@ -17,6 +17,10 @@ namespace rwe
         Matrix4f getViewMatrix() const override;
 
         Matrix4f getProjectionMatrix() const override;
+
+        float getWidth();
+
+        float getHeight();
     };
 }
 
