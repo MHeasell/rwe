@@ -5,6 +5,7 @@
 #include <rwe/TextureService.h>
 #include <rwe/gui.h>
 #include <rwe/ui/UiButton.h>
+#include <rwe/ui/UiListBox.h>
 #include <rwe/ui/UiPanel.h>
 #include <string>
 #include <vector>
@@ -34,6 +35,8 @@ namespace rwe
         UiStagedButton stagedButtonFromGuiFile(const std::string& guiName, const GuiEntry& entry);
 
         UiLabel labelFromGuiFile(const std::string& guiName, const GuiEntry& entry);
+
+        UiListBox listBoxFromGuiFile(const std::string& guiName, const GuiEntry& entry);
 
         std::shared_ptr<SpriteSeries> getDefaultButtonGraphics(const std::string& guiName, int width, int height);
 

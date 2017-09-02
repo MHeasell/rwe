@@ -130,6 +130,8 @@ set(SOURCE_FILES
     src/rwe/ui/UiFactory.h
     src/rwe/ui/UiLabel.cpp
     src/rwe/ui/UiLabel.h
+    src/rwe/ui/UiListBox.cpp
+    src/rwe/ui/UiListBox.h
     src/rwe/ui/UiPanel.cpp
     src/rwe/ui/UiPanel.h
     src/rwe/ui/UiStagedButton.cpp

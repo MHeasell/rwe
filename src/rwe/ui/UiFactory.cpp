@@ -49,6 +49,12 @@ namespace rwe
                     panel.appendChild(std::move(btn));
                     break;
                 }
+                case GuiElementType::ListBox:
+                {
+                    std::unique_ptr<UiComponent> elem(new UiListBox(listBoxFromGuiFile(name, entry)));
+                    panel.appendChild(std::move(elem));
+                    break;
+                }
                 case GuiElementType::Label:
                 {
                     std::unique_ptr <UiComponent> lbl(new UiLabel(labelFromGuiFile(name, entry)));
@@ -247,5 +253,27 @@ namespace rwe
         series->sprites.push_back(sprite);
         series->sprites.push_back(sprite);
         return series;
+    }
+
+    UiListBox UiFactory::listBoxFromGuiFile(const std::string& guiName, const GuiEntry& entry)
+    {
+        auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
+
+        UiListBox listBox(
+            entry.common.xpos,
+            entry.common.ypos,
+            entry.common.width,
+            entry.common.height,
+            font
+        );
+
+        for (int i = 0; i < 50; ++i)
+        {
+            listBox.appendItem("foo");
+            listBox.appendItem("bar");
+            listBox.appendItem("baz");
+        }
+
+        return listBox;
     }
 }
