@@ -24,22 +24,27 @@ namespace rwe
     void UiPanelScene::render(GraphicsContext& context)
     {
         context.applyCamera(camera);
-        panelStack.back().render(context);
+        topPanel().render(context);
+
+        for (auto& e : dialogStack)
+        {
+            e.render(context);
+        }
     }
 
     void UiPanelScene::onMouseDown(MouseButtonEvent event)
     {
-        panelStack.back().mouseDown(event);
+        topPanel().mouseDown(event);
     }
 
     void UiPanelScene::onMouseUp(MouseButtonEvent event)
     {
-        panelStack.back().mouseUp(event);
+        topPanel().mouseUp(event);
     }
 
     void UiPanelScene::onMouseMove(MouseMoveEvent event)
     {
-        panelStack.back().mouseMove(event);
+        topPanel().mouseMove(event);
     }
 
     AudioService::LoopToken UiPanelScene::startBgm()
@@ -67,6 +72,11 @@ namespace rwe
 
     void UiPanelScene::goToPreviousMenu()
     {
+        if (!dialogStack.empty())
+        {
+            dialogStack.pop_back();
+        }
+
         panelStack.pop_back();
     }
 
@@ -75,8 +85,28 @@ namespace rwe
         panelStack.push_back(std::move(panel));
     }
 
+    void UiPanelScene::openDialog(UiPanel&& panel)
+    {
+        dialogStack.push_back(std::move(panel));
+    }
+
     bool UiPanelScene::hasPreviousMenu() const
     {
+        if (!dialogStack.empty())
+        {
+            return true;
+        }
+
         return panelStack.size() > 1;
+    }
+
+    UiPanel& UiPanelScene::topPanel()
+    {
+        if (!dialogStack.empty())
+        {
+            return dialogStack.back();
+        }
+
+        return panelStack.back();
     }
 }

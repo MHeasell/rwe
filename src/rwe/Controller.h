@@ -38,6 +38,8 @@ namespace rwe
 
         void goToPreviousMenu();
 
+        void openMapSelectionDialog();
+
         void start();
 
         void exit();

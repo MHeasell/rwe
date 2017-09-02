@@ -77,6 +77,13 @@ namespace rwe
                 goToSkirmishMenu();
             }
         }
+        else if (topic == "SKIRMISH")
+        {
+            if (message == "SelectMap")
+            {
+                openMapSelectionDialog();
+            }
+        }
     }
 
     void Controller::goToSingleMenu()
@@ -126,5 +133,24 @@ namespace rwe
         }
 
         scene->goToPreviousMenu();
+    }
+
+    void Controller::openMapSelectionDialog()
+    {
+        auto guiRaw = vfs->readFile("guis/SELMAP.GUI");
+        if (!guiRaw)
+        {
+            throw std::runtime_error("Couldn't read SELMAP.GUI");
+        }
+
+        std::string gui(guiRaw->data(), guiRaw->size());
+        auto parsedGui = parseGui(parseTdfFromString(gui));
+        if (!parsedGui)
+        {
+            throw std::runtime_error("Failed to parse GUI file");
+        }
+
+        auto panel = uiFactory.panelFromGuiFile("SELMAP", "DSelectmap2", *parsedGui);
+        scene->openDialog(std::move(panel));
     }
 }

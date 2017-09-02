@@ -17,6 +17,7 @@ namespace rwe
         TdfBlock* soundLookup;
 
         std::vector<UiPanel> panelStack;
+        std::vector<UiPanel> dialogStack;
         UiCamera camera;
 
         AudioService::LoopToken bgm;
@@ -40,8 +41,12 @@ namespace rwe
 
         void goToMenu(UiPanel&& panel);
 
+        void openDialog(UiPanel&& panel);
+
     private:
         AudioService::LoopToken startBgm();
+
+        UiPanel& topPanel();
     };
 }
 
