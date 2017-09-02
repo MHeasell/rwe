@@ -75,6 +75,7 @@ namespace rwe
         if (!dialogStack.empty())
         {
             dialogStack.pop_back();
+            return;
         }
 
         panelStack.pop_back();
