@@ -144,6 +144,35 @@ namespace rwe
 
     SharedTextureHandle TextureService::getBitmap(const std::string& bitmapName)
     {
+        auto info = getBitmapInternal(bitmapName);
+        return info.handle;
+    }
+
+    std::shared_ptr<SpriteSeries> TextureService::getDefaultSpriteSeries()
+    {
+        return defaultSpriteSeries;
+    }
+
+    SharedTextureHandle TextureService::getDefaultTexture()
+    {
+        return defaultSpriteSeries->sprites[0].texture;
+    }
+
+    Sprite TextureService::getBitmapRegion(const std::string& bitmapName, int x, int y, int width, int height)
+    {
+        auto bitmap = getBitmapInternal(bitmapName);
+        auto region = Rectangle2f::fromTopLeft(
+                static_cast<float>(x) / static_cast<float>(bitmap.width),
+                static_cast<float>(y) / static_cast<float>(bitmap.height),
+                static_cast<float>(width) / static_cast<float>(bitmap.width),
+                static_cast<float>(height) / static_cast<float>(bitmap.height)
+        );
+        Sprite s(Rectangle2f::fromTopLeft(x, y, width, height), bitmap.handle, region);
+        return s;
+    }
+
+    TextureService::TextureInfo TextureService::getBitmapInternal(const std::string& bitmapName)
+    {
         auto it = bitmapCache.find(bitmapName);
         if (it != bitmapCache.end())
         {
@@ -173,17 +202,12 @@ namespace rwe
         }
 
         auto handle = graphics->createTexture(width, height, buffer);
-        bitmapCache[bitmapName] = handle;
-        return handle;
+        TextureInfo info(width, height, handle);
+        bitmapCache[bitmapName] = info;
+        return info;
     }
 
-    std::shared_ptr<SpriteSeries> TextureService::getDefaultSpriteSeries()
-    {
-        return defaultSpriteSeries;
-    }
-
-    SharedTextureHandle TextureService::getDefaultTexture()
-    {
-        return defaultSpriteSeries->sprites[0].texture;
-    }
+    TextureService::TextureInfo::TextureInfo(unsigned int width, unsigned int height, const SharedTextureHandle& handle)
+            : width(width), height(height), handle(handle)
+    {}
 }

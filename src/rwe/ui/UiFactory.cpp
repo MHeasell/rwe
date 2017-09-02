@@ -12,7 +12,13 @@ namespace rwe
         assert(entries.size() > 0);
         auto panelEntry = entries[0];
 
-        auto texture = textureService->getBitmap(background);
+        auto texture = textureService->getBitmapRegion(
+                background,
+                0,
+                0,
+                panelEntry.common.width,
+                panelEntry.common.height);
+
         UiPanel panel(
             panelEntry.common.xpos,
             panelEntry.common.ypos,

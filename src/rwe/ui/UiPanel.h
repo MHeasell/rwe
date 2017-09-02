@@ -12,12 +12,12 @@ namespace rwe
     class UiPanel : public UiComponent
     {
     private:
-        SharedTextureHandle background;
+        Sprite background;
         std::vector<std::unique_ptr<UiComponent>> children;
         boost::optional<std::size_t> focusedChild{boost::none};
 
     public:
-        UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, SharedTextureHandle background);
+        UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, Sprite background);
 
         UiPanel(const UiPanel&) = delete;
         UiPanel& operator=(const UiPanel&) = delete;

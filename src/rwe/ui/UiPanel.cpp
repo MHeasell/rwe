@@ -3,7 +3,7 @@
 namespace rwe
 {
 
-    UiPanel::UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, SharedTextureHandle background)
+    UiPanel::UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, Sprite background)
             : UiComponent(posX, posY, sizeX, sizeY),
               background(std::move(background))
     {
@@ -32,7 +32,17 @@ namespace rwe
 
     void UiPanel::render(GraphicsContext& graphics) const
     {
-        graphics.drawTexture(posX, posY, sizeX, sizeY, background);
+        graphics.drawTextureRegion(
+                posX,
+                posY,
+                sizeX,
+                sizeY,
+                background.texture,
+                background.textureRegion.left(),
+                background.textureRegion.top(),
+                background.textureRegion.width(),
+                background.textureRegion.height()
+        );
 
         graphics.pushMatrix();
         graphics.multiplyMatrix(Matrix4f::translation(Vector3f(posX, posY, 0.0f)));
