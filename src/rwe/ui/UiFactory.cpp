@@ -95,6 +95,14 @@ namespace rwe
         {
             sound = getButtonSound("PREVIOUS");
         }
+        if (!sound)
+        {
+            sound = getButtonSound(guiName);
+        }
+        if (!sound && guiName == "SELMAP")
+        {
+            sound = getButtonSound("SMALLBUTTON");
+        }
         if (!sound && entry.common.width == 96 && entry.common.height == 20)
         {
             sound = getButtonSound("BIGBUTTON");
