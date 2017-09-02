@@ -11,6 +11,7 @@ namespace rwe
     void UiListBox::render(GraphicsContext& context) const
     {
         float y = 0.0f;
+        unsigned int i = 0;
         for (const auto& e : items)
         {
             y += 12.0f;
@@ -22,12 +23,28 @@ namespace rwe
                 break;
             }
 
+            if (selectedIndex && i == *selectedIndex)
+            {
+                context.fillColor(posX, posY + y - 11.0f, sizeX, 12.0f, Color(255, 255, 255, 31));
+            }
+
             context.drawText(posX, posY + y, e, *font);
+
+            ++i;
         }
     }
 
     void UiListBox::appendItem(std::string item)
     {
         items.push_back(std::move(item));
+    }
+
+    void UiListBox::mouseDown(MouseButtonEvent event)
+    {
+        auto index = static_cast<unsigned int>((event.y - posY) / 12.0f);
+        if (index < items.size())
+        {
+            selectedIndex = index;
+        }
     }
 }
