@@ -91,7 +91,7 @@ namespace rwe
         );
 
         auto sound = getButtonSound(entry.common.name);
-        if (!sound && entry.common.name == "PrevMenu")
+        if (!sound && (entry.common.name == "PrevMenu" || entry.common.name == "PREVMENU"))
         {
             sound = getButtonSound("PREVIOUS");
         }
@@ -211,7 +211,7 @@ namespace rwe
         );
 
         auto sound = getButtonSound(entry.common.name);
-        if (!sound && entry.common.name == "PrevMenu")
+        if (!sound && (entry.common.name == "PrevMenu" || entry.common.name == "PREVMENU"))
         {
             sound = getButtonSound("PREVIOUS");
         }
