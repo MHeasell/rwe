@@ -41,7 +41,7 @@ namespace rwe
         int computerEnergy;
         std::string meteorWeapon;
         int meteorRadius;
-        int meteorDensity;
+        float meteorDensity;
         int meteorDuration;
         int meteorInterval;
 

@@ -78,7 +78,7 @@ namespace rwe
         s.computerEnergy = expectInt(tdf, "ComputerEnergy");
         s.meteorWeapon = expectString(tdf, "MeteorWeapon");
         s.meteorRadius = expectInt(tdf, "MeteorRadius");
-        s.meteorDensity = expectInt(tdf, "MeteorDensity");
+        s.meteorDensity = expectFloat(tdf, "MeteorDensity");
         s.meteorDuration = expectInt(tdf, "MeteorDuration");
         s.meteorInterval = expectInt(tdf, "MeteorInterval");
 

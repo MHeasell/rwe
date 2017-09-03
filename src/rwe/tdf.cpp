@@ -41,6 +41,25 @@ namespace rwe
         }
     }
 
+    boost::optional<float> extractFloat(const TdfBlock& block, const std::string& key)
+    {
+        auto value = block.findValue(key);
+        if (!value)
+        {
+            return boost::none;
+        }
+
+        // convert the value to an integer
+        try
+        {
+            return std::stof(*value);
+        }
+        catch (const std::invalid_argument& e)
+        {
+            return boost::none;
+        }
+    }
+
     const std::string& expectString(const TdfBlock& block, const std::string& key)
     {
         auto v = block.findValue(key);
@@ -55,6 +74,17 @@ namespace rwe
     int expectInt(const TdfBlock& block, const std::string& key)
     {
         auto v = extractInt(block, key);
+        if (!v)
+        {
+            throw TdfValueException("Failed to read int from key: " + key);
+        }
+
+        return *v;
+    }
+
+    float expectFloat(const TdfBlock& block, const std::string& key)
+    {
+        auto v = extractFloat(block, key);
         if (!v)
         {
             throw TdfValueException("Failed to read int from key: " + key);

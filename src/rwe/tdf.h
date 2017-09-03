@@ -20,11 +20,15 @@ namespace rwe
 
     boost::optional<int> extractInt(const TdfBlock& block, const std::string& key);
 
+    boost::optional<float> extractFloat(const TdfBlock& block, const std::string& key);
+
     int expectInt(const TdfBlock& block, const std::string& key);
 
     boost::optional<bool> extractBool(const TdfBlock& block, const std::string& key);
 
     bool expectBool(const TdfBlock& block, const std::string& key);
+
+    float expectFloat(const TdfBlock& block, const std::string& key);
 }
 
 #endif

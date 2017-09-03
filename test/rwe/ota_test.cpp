@@ -47,7 +47,7 @@ namespace rwe
 		ComputerEnergy=4000;
 		MeteorWeapon=radMETEOR;
 		MeteorRadius=1;
-		MeteorDensity=2;
+		MeteorDensity=.2;
 		MeteorDuration=3;
 		MeteorInterval=4;
 		[specials]
@@ -150,7 +150,7 @@ namespace rwe
             schema0.computerEnergy = 4000;
             schema0.meteorWeapon = "radMETEOR";
             schema0.meteorRadius = 1;
-            schema0.meteorDensity = 2;
+            schema0.meteorDensity = 0.2f;
             schema0.meteorDuration = 3;
             schema0.meteorInterval = 4;
             schema0.specials = std::vector<OtaSpecial>{
