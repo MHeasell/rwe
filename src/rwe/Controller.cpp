@@ -87,6 +87,13 @@ namespace rwe
                 openMapSelectionDialog();
             }
         }
+        else if (topic == "SELMAP")
+        {
+            if (message == "LOAD")
+            {
+                goToPreviousMenu();
+            }
+        }
     }
 
     void Controller::goToSingleMenu()
