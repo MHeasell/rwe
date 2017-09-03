@@ -3,15 +3,17 @@
 
 #include <functional>
 #include <memory>
+#include <rwe/observable/Observable.h>
 #include <rwe/observable/Subscription.h>
 
 namespace rwe
 {
     template <typename T>
-    class Subject
+    class Subject : public Observable<T>
     {
+    public:
+        using SubscriberCallback = typename Observable<T>::SubscriberCallback;
     private:
-        using SubscriberCallback = std::function<void(T)>;
         using SubscriberId = unsigned int;
 
         struct Subscriber
@@ -48,8 +50,8 @@ namespace rwe
     public:
         void next(const T& newValue);
 
-        std::unique_ptr<Subscription> subscribe(const SubscriberCallback& onNext);
-        std::unique_ptr<Subscription> subscribe(SubscriberCallback&& onNext);
+        std::unique_ptr<Subscription> subscribe(const SubscriberCallback& onNext) override;
+        std::unique_ptr<Subscription> subscribe(SubscriberCallback&& onNext) override;
     };
 
     template <typename T>

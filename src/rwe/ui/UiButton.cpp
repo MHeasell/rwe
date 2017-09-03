@@ -64,8 +64,8 @@ namespace rwe
         pressed = false;
     }
 
-    void UiButton::onClick(const std::function<void(MouseButtonEvent)>& callback)
+    Observable<MouseButtonEvent>& UiButton::onClick()
     {
-        clickSubject.subscribe(callback);
+        return clickSubject;
     }
 }

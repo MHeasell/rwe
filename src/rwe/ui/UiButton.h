@@ -43,7 +43,7 @@ namespace rwe
 
         void unfocus() override;
 
-        void onClick(const std::function<void(MouseButtonEvent)>& callback);
+        Observable<MouseButtonEvent>& onClick();
     };
 }
 
