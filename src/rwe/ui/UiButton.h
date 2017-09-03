@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <rwe/SpriteSeries.h>
+#include <rwe/observable/Subject.h>
 #include <rwe/ui/UiComponent.h>
 #include <vector>
 
@@ -25,7 +26,7 @@ namespace rwe
          */
         bool armed{false};
 
-        std::vector<std::function<void(MouseButtonEvent)>> clickObservers;
+        Subject<MouseButtonEvent> clickSubject;
 
     public:
         UiButton(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<SpriteSeries> _spriteSeries, std::string _label, std::shared_ptr<SpriteSeries> labelFont);

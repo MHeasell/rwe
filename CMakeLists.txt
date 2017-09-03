@@ -114,6 +114,10 @@ set(SOURCE_FILES
     src/rwe/math/Vector3f.h
     src/rwe/math/rwe_math.cpp
     src/rwe/math/rwe_math.h
+    src/rwe/observable/Subject.cpp
+    src/rwe/observable/Subject.h
+    src/rwe/observable/Subscription.cpp
+    src/rwe/observable/Subscription.h
     src/rwe/ota.cpp
     src/rwe/ota.h
     src/rwe/pcx.cpp

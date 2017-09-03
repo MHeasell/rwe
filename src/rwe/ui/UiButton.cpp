@@ -38,10 +38,7 @@ namespace rwe
     {
         if (armed && pressed)
         {
-            for (const auto& e : clickObservers)
-            {
-                e(event);
-            }
+            clickSubject.next(event);
         }
 
         armed = false;
@@ -69,6 +66,6 @@ namespace rwe
 
     void UiButton::onClick(const std::function<void(MouseButtonEvent)>& callback)
     {
-        clickObservers.push_back(callback);
+        clickSubject.subscribe(callback);
     }
 }
