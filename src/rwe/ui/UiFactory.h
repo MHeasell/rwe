@@ -11,6 +11,7 @@
 #include <vector>
 #include <rwe/ui/UiLabel.h>
 #include <rwe/ui/UiStagedButton.h>
+#include <rwe/SkirmishMenuModel.h>
 
 namespace rwe
 {
@@ -23,10 +24,11 @@ namespace rwe
         AudioService* audioService;
         TdfBlock* soundLookup;
         AbstractVirtualFileSystem* vfs;
+        SkirmishMenuModel* model;
         Controller* controller;
 
     public:
-        UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs, Controller* controller);
+        UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs, SkirmishMenuModel* model, Controller* controller);
 
         UiPanel panelFromGuiFile(const std::string& name, const std::string& background, const std::vector<GuiEntry>& entries);
 

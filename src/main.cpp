@@ -75,7 +75,9 @@ namespace rwe
 
         sdlContext->showCursor(SDL_DISABLE);
 
-        Controller controller(&vfs, &sceneManager, &allSoundTdf, &audioService, &textureService, &cursor);
+        SkirmishMenuModel model;
+
+        Controller controller(&vfs, &sceneManager, &allSoundTdf, &audioService, &textureService, &cursor, &model);
 
         controller.start();
 

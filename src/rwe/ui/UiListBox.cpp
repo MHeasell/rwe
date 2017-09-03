@@ -23,7 +23,8 @@ namespace rwe
                 break;
             }
 
-            if (selectedIndex && i == *selectedIndex)
+            const auto& selectedIndexValue = selectedIndexSubject.getValue();
+            if (selectedIndexValue && i == *selectedIndexValue)
             {
                 context.fillColor(posX, posY + y - 11.0f, sizeX, 12.0f, Color(255, 255, 255, 31));
             }
@@ -44,7 +45,36 @@ namespace rwe
         auto index = static_cast<unsigned int>((event.y - posY) / 12.0f);
         if (index < items.size())
         {
-            selectedIndex = index;
+            selectedIndexSubject.next(index);
         }
+    }
+
+    void UiListBox::setSelectedItem(const std::string& item)
+    {
+        auto it = std::find(items.begin(), items.end(), item);
+        if (it != items.end())
+        {
+            selectedIndexSubject.next(it - items.begin());
+        }
+    }
+
+    void UiListBox::clearSelectedItem()
+    {
+        selectedIndexSubject.next(boost::none);
+    }
+
+    Observable<boost::optional<unsigned int>>& UiListBox::selectedIndex()
+    {
+        return selectedIndexSubject;
+    }
+
+    const Observable<boost::optional<unsigned int>>& UiListBox::selectedIndex() const
+    {
+        return selectedIndexSubject;
+    }
+
+    const std::vector<std::string>& UiListBox::getItems()
+    {
+        return items;
     }
 }

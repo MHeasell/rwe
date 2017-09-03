@@ -1,8 +1,9 @@
 #include "Controller.h"
 
-#include <rwe/gui.h>
-#include <rwe/tdf.h>
 #include <rwe/UiPanelScene.h>
+#include <rwe/gui.h>
+#include <rwe/ota.h>
+#include <rwe/tdf.h>
 
 #include <stdexcept>
 
@@ -40,14 +41,16 @@ namespace rwe
         TdfBlock* allSoundTdf,
         AudioService* audioService,
         TextureService* textureService,
-        CursorService* cursor)
+        CursorService* cursor,
+        SkirmishMenuModel* model)
             : vfs(vfs),
               sceneManager(sceneManager),
               allSoundTdf(allSoundTdf),
               audioService(audioService),
               textureService(textureService),
               cursor(cursor),
-              uiFactory(textureService, audioService, allSoundTdf, vfs, this),
+              model(model),
+              uiFactory(textureService, audioService, allSoundTdf, vfs, model, this),
               scene(std::make_shared<UiPanelScene>(audioService, allSoundTdf, cursor, 640, 480))
         {}
 
@@ -162,5 +165,30 @@ namespace rwe
 
         auto panel = uiFactory.panelFromGuiFile("SELMAP", "DSelectmap2", *parsedGui);
         scene->openDialog(std::move(panel));
+    }
+
+    void Controller::setSelectedMap(const std::string& mapName)
+    {
+        auto otaRaw = vfs->readFile(std::string("maps/").append(mapName).append(".ota"));
+        if (!otaRaw)
+        {
+            return;
+        }
+
+        std::string otaStr(otaRaw->begin(), otaRaw->end());
+
+        auto ota = parseOta(parseTdfFromString(otaStr));
+
+        SkirmishMenuModel::SelectedMapInfo info;
+        info.name = mapName;
+        info.description = ota.missionDescription;
+        info.size = ota.size;
+
+        model->selectedMap.next(std::move(info));
+    }
+
+    void Controller::clearSelectedMap()
+    {
+        model->selectedMap.next(boost::none);
     }
 }

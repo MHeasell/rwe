@@ -76,6 +76,8 @@ set(SOURCE_FILES
     src/rwe/SdlContextManager.h
     src/rwe/SharedTextureHandle.cpp
     src/rwe/SharedTextureHandle.h
+    src/rwe/SkirmishMenuModel.cpp
+    src/rwe/SkirmishMenuModel.h
     src/rwe/Sprite.cpp
     src/rwe/Sprite.h
     src/rwe/SpriteSeries.cpp
@@ -114,6 +116,8 @@ set(SOURCE_FILES
     src/rwe/math/Vector3f.h
     src/rwe/math/rwe_math.cpp
     src/rwe/math/rwe_math.h
+    src/rwe/observable/BehaviorSubject.cpp
+    src/rwe/observable/BehaviorSubject.h
     src/rwe/observable/Observable.cpp
     src/rwe/observable/Observable.h
     src/rwe/observable/Subject.cpp

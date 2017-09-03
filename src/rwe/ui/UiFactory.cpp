@@ -106,8 +106,8 @@ namespace rwe
         return button;
     }
 
-    UiFactory::UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs, Controller* controller)
-        : textureService(textureService), audioService(audioService), soundLookup(soundLookup), vfs(vfs), controller(controller)
+    UiFactory::UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs, SkirmishMenuModel* model, Controller* controller)
+        : textureService(textureService), audioService(audioService), soundLookup(soundLookup), vfs(vfs), model(model), controller(controller)
     {}
 
     std::shared_ptr<SpriteSeries> UiFactory::getDefaultButtonGraphics(const std::string& guiName, int width, int height)
@@ -260,6 +260,28 @@ namespace rwe
                 // chop off the extension while adding
                 listBox.appendItem(e.substr(0, e.size() - 4));
             }
+
+            model->selectedMap.subscribe([&listBox](const auto& selectedMap) {
+                if (selectedMap)
+                {
+                    listBox.setSelectedItem(selectedMap->name);
+                }
+                else
+                {
+                    listBox.clearSelectedItem();
+                }
+            });
+
+            listBox.selectedIndex().subscribe([&listBox, c = controller](const auto& selectedMap) {
+                if (selectedMap)
+                {
+                    c->setSelectedMap(listBox.getItems()[*selectedMap]);
+                }
+                else
+                {
+                    c->clearSelectedMap();
+                }
+            });
         }
 
         return listBox;
