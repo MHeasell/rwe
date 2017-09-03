@@ -7,6 +7,7 @@
 #include <rwe/tdf/SimpleTdfAdapter.h>
 #include <rwe/ui/UiFactory.h>
 #include <rwe/vfs/AbstractVirtualFileSystem.h>
+#include <rwe/CursorService.h>
 
 #include "SceneManager.h"
 
@@ -20,6 +21,7 @@ namespace rwe
         TdfBlock* allSoundTdf;
         AudioService* audioService;
         TextureService* textureService;
+        CursorService* cursor;
 
         UiFactory uiFactory;
         std::shared_ptr<UiPanelScene> scene;
@@ -27,8 +29,13 @@ namespace rwe
         AudioService::LoopToken bgmHandle;
     public:
 
-        Controller(AbstractVirtualFileSystem *vfs, SceneManager *sceneManager,
-                   TdfBlock *allSoundTdf, AudioService *audioService, TextureService* textureService);
+        Controller(
+            AbstractVirtualFileSystem *vfs,
+            SceneManager *sceneManager,
+            TdfBlock *allSoundTdf,
+            AudioService *audioService,
+            TextureService* textureService,
+            CursorService* cursor);
 
         void goToMainMenu();
 

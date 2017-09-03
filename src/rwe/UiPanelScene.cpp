@@ -7,10 +7,12 @@ namespace rwe
     UiPanelScene::UiPanelScene(
             AudioService* audioService,
             TdfBlock* soundLookup,
+            CursorService* cursor,
             float width,
             float height)
         : audioService(audioService),
           soundLookup(soundLookup),
+          cursor(cursor),
           panelStack(),
           camera(width, height)
     {
@@ -31,6 +33,8 @@ namespace rwe
             context.fillColor(0.0f, 0.0f, camera.getWidth(), camera.getHeight(), Color(0, 0, 0, 63));
             e.render(context);
         }
+
+        cursor->render(context);
     }
 
     void UiPanelScene::onMouseDown(MouseButtonEvent event)

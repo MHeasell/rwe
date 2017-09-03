@@ -91,6 +91,16 @@ namespace rwe
             return SDL_PollEvent(event) == 1;
         }
 
+        Uint32 getMouseState(int* x, int* y)
+        {
+            return SDL_GetMouseState(x, y);
+        }
+
+        int showCursor(int toggle)
+        {
+            return SDL_ShowCursor(toggle);
+        }
+
     private:
         friend class SdlContextManager;
     };

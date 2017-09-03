@@ -39,14 +39,16 @@ namespace rwe
         SceneManager* sceneManager,
         TdfBlock* allSoundTdf,
         AudioService* audioService,
-        TextureService* textureService)
+        TextureService* textureService,
+        CursorService* cursor)
             : vfs(vfs),
               sceneManager(sceneManager),
               allSoundTdf(allSoundTdf),
               audioService(audioService),
               textureService(textureService),
+              cursor(cursor),
               uiFactory(textureService, audioService, allSoundTdf, vfs, this),
-              scene(std::make_shared<UiPanelScene>(audioService, allSoundTdf, 640, 480))
+              scene(std::make_shared<UiPanelScene>(audioService, allSoundTdf, cursor, 640, 480))
         {}
 
     void Controller::exit()

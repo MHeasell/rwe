@@ -71,7 +71,11 @@ namespace rwe
         std::string allSoundString(allSoundBytes->data(), allSoundBytes->size());
         auto allSoundTdf = parseTdfFromString(allSoundString);
 
-        Controller controller(&vfs, &sceneManager, &allSoundTdf, &audioService, &textureService);
+        CursorService cursor(sdlContext, textureService.getGafEntry("anims/CURSORS.GAF", "cursornormal"));
+
+        sdlContext->showCursor(SDL_DISABLE);
+
+        Controller controller(&vfs, &sceneManager, &allSoundTdf, &audioService, &textureService, &cursor);
 
         controller.start();
 

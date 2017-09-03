@@ -7,6 +7,7 @@
 #include <rwe/camera/UiCamera.h>
 #include <rwe/AudioService.h>
 #include <rwe/tdf/SimpleTdfAdapter.h>
+#include "CursorService.h"
 
 namespace rwe
 {
@@ -15,15 +16,17 @@ namespace rwe
     private:
         AudioService* audioService;
         TdfBlock* soundLookup;
+        CursorService* cursor;
 
         std::vector<UiPanel> panelStack;
         std::vector<UiPanel> dialogStack;
         UiCamera camera;
 
+
         AudioService::LoopToken bgm;
 
     public:
-        UiPanelScene(AudioService* audioService, TdfBlock* soundLookup, float width, float height);
+        UiPanelScene(AudioService* audioService, TdfBlock* soundLookup, CursorService* cursor, float width, float height);
 
         void init() override;
 
