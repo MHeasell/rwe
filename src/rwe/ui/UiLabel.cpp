@@ -12,4 +12,9 @@ namespace rwe
                      const std::shared_ptr<SpriteSeries>& font) : UiComponent(posX, posY, sizeX, sizeY), text(text),
                                                                   font(font)
     {}
+
+    void UiLabel::setText(const std::string& newText)
+    {
+        text = newText;
+    }
 }

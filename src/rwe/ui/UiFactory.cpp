@@ -170,7 +170,7 @@ namespace rwe
     {
         auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
 
-        return UiLabel(
+        UiLabel label(
                 entry.common.xpos,
                 entry.common.ypos,
                 entry.common.width,
@@ -178,6 +178,22 @@ namespace rwe
                 entry.text.value_or(""),
                 font
         );
+
+        if (guiName == "SELMAP" && entry.common.name == "DESCRIPTION")
+        {
+            model->selectedMap.subscribe([&label](const auto& selectedMap) {
+                if (selectedMap)
+                {
+                    label.setText(selectedMap->description);
+                }
+                else
+                {
+                    label.setText("");
+                }
+            });
+        }
+
+        return label;
     }
 
     UiStagedButton UiFactory::stagedButtonFromGuiFile(const std::string& guiName, const GuiEntry& entry)

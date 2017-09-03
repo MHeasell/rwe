@@ -16,6 +16,7 @@ namespace rwe
 
         void render(GraphicsContext& context) const override;
 
+        void setText(const std::string& newText);
     };
 }
 
