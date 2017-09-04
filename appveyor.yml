@@ -1,12 +1,12 @@
 before_build:
   - ps: Update-AppveyorBuild -Version "$(git describe --dirty=-d)-$env:APPVEYOR_BUILD_NUMBER"
-  - '%APPVEYOR_BUILD_FOLDER%\appveyor_before_build.bat'
+  - '%APPVEYOR_BUILD_FOLDER%\appveyor\before_build.bat'
 
 build_script:
-  - '%APPVEYOR_BUILD_FOLDER%\appveyor_build.bat'
+  - '%APPVEYOR_BUILD_FOLDER%\appveyor\build.bat'
 
 test_script:
-  - '%APPVEYOR_BUILD_FOLDER%\appveyor_test.bat'
+  - '%APPVEYOR_BUILD_FOLDER%\appveyor\test.bat'
 
 after_test:
   - ps: Get-ChildItem "$env:APPVEYOR_BUILD_FOLDER\build\dist\*" | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
