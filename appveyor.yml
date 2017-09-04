@@ -9,6 +9,6 @@ test_script:
   - '%APPVEYOR_BUILD_FOLDER%\appveyor_test.bat'
 
 artifacts:
-  - path: '%APPVEYOR_BUILD_FOLDER%\build\dist\*'
+  - path: 'build\dist\*'
 
 deploy: off
