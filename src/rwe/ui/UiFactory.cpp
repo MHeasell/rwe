@@ -177,19 +177,53 @@ namespace rwe
             entry.text.value_or(""),
             font);
 
-        if (guiName == "SELMAP" && entry.common.name == "DESCRIPTION")
+        if (guiName == "SELMAP")
         {
-            auto sub = model->selectedMap.subscribe([&label](const auto& selectedMap) {
-                if (selectedMap)
-                {
-                    label.setText(selectedMap->description);
-                }
-                else
-                {
-                    label.setText("");
-                }
-            });
-            label.addSubscription(std::move(sub));
+            if (entry.common.name == "DESCRIPTION")
+            {
+                auto sub = model->selectedMap.subscribe([&label](const auto& selectedMap) {
+                    if (selectedMap)
+                    {
+                        label.setText(selectedMap->description);
+                    }
+                    else
+                    {
+                        label.setText("");
+                    }
+                });
+                label.addSubscription(std::move(sub));
+            }
+            else if (entry.common.name == "SIZE")
+            {
+                auto sub = model->selectedMap.subscribe([&label](const auto& selectedMap) {
+                    if (selectedMap)
+                    {
+                        label.setText(selectedMap->size);
+                    }
+                    else
+                    {
+                        label.setText("");
+                    }
+                });
+                label.addSubscription(std::move(sub));
+            }
+        }
+        else if (guiName == "SKIRMISH")
+        {
+            if (entry.common.name == "MapName")
+            {
+                auto sub = model->selectedMap.subscribe([&label](const auto& selectedMap) {
+                    if (selectedMap)
+                    {
+                        label.setText(selectedMap->name);
+                    }
+                    else
+                    {
+                        label.setText("");
+                    }
+                });
+                label.addSubscription(std::move(sub));
+            }
         }
 
         return label;
