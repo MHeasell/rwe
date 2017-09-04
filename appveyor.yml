@@ -8,7 +8,7 @@ build_script:
 test_script:
   - '%APPVEYOR_BUILD_FOLDER%\appveyor_test.bat'
 
-artifacts:
-  - path: 'build\dist\*'
+after_test:
+  - ps: Get-ChildItem "$env:APPVEYOR_BUILD_FOLDER\build\dist\*" | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
 
 deploy: off
