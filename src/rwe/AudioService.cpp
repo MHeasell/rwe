@@ -41,7 +41,7 @@ namespace rwe
 
         auto rwOps = sdlContext->rwFromConstMem(bytes->data(), bytes->size());
         std::shared_ptr sound(sdlMixerContext->loadWavRw(rwOps.get()));
-        sdlMixerContext->volumeChunk(sound.get(), MIX_MAX_VOLUME / 16);
+        sdlMixerContext->volumeChunk(sound.get(), MIX_MAX_VOLUME / 4);
         soundBank[soundName] = sound;
 
         return sound;
