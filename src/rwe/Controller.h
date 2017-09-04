@@ -56,9 +56,13 @@ namespace rwe
 
         void message(const std::string& topic, const std::string& message);
 
-        void setSelectedMap(const std::string& mapName);
+        void setCandidateSelectedMap(const std::string& mapName);
 
-        void clearSelectedMap();
+        void clearCandidateSelectedMap();
+
+        void commitSelectedMap();
+
+        void resetCandidateSelectedMap();
     };
 }
 

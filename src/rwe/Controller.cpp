@@ -88,6 +88,7 @@ namespace rwe
         {
             if (message == "SelectMap")
             {
+                resetCandidateSelectedMap();
                 openMapSelectionDialog();
             }
         }
@@ -95,6 +96,7 @@ namespace rwe
         {
             if (message == "LOAD")
             {
+                commitSelectedMap();
                 goToPreviousMenu();
             }
         }
@@ -168,7 +170,7 @@ namespace rwe
         scene->openDialog(std::move(panel));
     }
 
-    void Controller::setSelectedMap(const std::string& mapName)
+    void Controller::setCandidateSelectedMap(const std::string& mapName)
     {
         auto otaRaw = vfs->readFile(std::string("maps/").append(mapName).append(".ota"));
         if (!otaRaw)
@@ -185,11 +187,21 @@ namespace rwe
         info.description = ota.missionDescription;
         info.size = ota.size;
 
-        model->selectedMap.next(std::move(info));
+        model->candidateSelectedMap.next(std::move(info));
     }
 
-    void Controller::clearSelectedMap()
+    void Controller::resetCandidateSelectedMap()
     {
-        model->selectedMap.next(boost::none);
+        model->candidateSelectedMap.next(model->selectedMap.getValue());
+    }
+
+    void Controller::commitSelectedMap()
+    {
+        model->selectedMap.next(model->candidateSelectedMap.getValue());
+    }
+
+    void Controller::clearCandidateSelectedMap()
+    {
+        model->candidateSelectedMap.next(boost::none);
     }
 }

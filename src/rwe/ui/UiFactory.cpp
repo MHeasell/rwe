@@ -181,7 +181,7 @@ namespace rwe
         {
             if (entry.common.name == "DESCRIPTION")
             {
-                auto sub = model->selectedMap.subscribe([&label](const auto& selectedMap) {
+                auto sub = model->candidateSelectedMap.subscribe([&label](const auto& selectedMap) {
                     if (selectedMap)
                     {
                         label.setText(selectedMap->description);
@@ -195,7 +195,7 @@ namespace rwe
             }
             else if (entry.common.name == "SIZE")
             {
-                auto sub = model->selectedMap.subscribe([&label](const auto& selectedMap) {
+                auto sub = model->candidateSelectedMap.subscribe([&label](const auto& selectedMap) {
                     if (selectedMap)
                     {
                         label.setText(selectedMap->size);
@@ -323,11 +323,11 @@ namespace rwe
             listBox.selectedIndex().subscribe([&listBox, c = controller ](const auto& selectedMap) {
                 if (selectedMap)
                 {
-                    c->setSelectedMap(listBox.getItems()[*selectedMap]);
+                    c->setCandidateSelectedMap(listBox.getItems()[*selectedMap]);
                 }
                 else
                 {
-                    c->clearSelectedMap();
+                    c->clearCandidateSelectedMap();
                 }
             });
         }
