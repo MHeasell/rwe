@@ -181,7 +181,7 @@ namespace rwe
 
         if (guiName == "SELMAP" && entry.common.name == "DESCRIPTION")
         {
-            model->selectedMap.subscribe([&label](const auto& selectedMap) {
+            auto sub = model->selectedMap.subscribe([&label](const auto& selectedMap) {
                 if (selectedMap)
                 {
                     label.setText(selectedMap->description);
@@ -191,6 +191,7 @@ namespace rwe
                     label.setText("");
                 }
             });
+            label.addSubscription(std::move(sub));
         }
 
         return label;
@@ -277,7 +278,7 @@ namespace rwe
                 listBox.appendItem(e.substr(0, e.size() - 4));
             }
 
-            model->selectedMap.subscribe([&listBox](const auto& selectedMap) {
+            auto sub = model->selectedMap.subscribe([&listBox](const auto& selectedMap) {
                 if (selectedMap)
                 {
                     listBox.setSelectedItem(selectedMap->name);
@@ -287,6 +288,7 @@ namespace rwe
                     listBox.clearSelectedItem();
                 }
             });
+            listBox.addSubscription(std::move(sub));
 
             listBox.selectedIndex().subscribe([&listBox, c = controller](const auto& selectedMap) {
                 if (selectedMap)

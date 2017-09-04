@@ -1,8 +1,11 @@
 #ifndef RWE_UICOMPONENT_H
 #define RWE_UICOMPONENT_H
 
+#include <memory>
 #include <rwe/GraphicsContext.h>
 #include <rwe/events.h>
+#include <rwe/observable/Subscription.h>
+#include <vector>
 
 namespace rwe
 {
@@ -19,6 +22,8 @@ namespace rwe
         int lastMouseX{0};
         int lastMouseY{0};
 
+        std::vector<std::unique_ptr<Subscription>> subscriptions;
+
     public:
         UiComponent(int posX, int posY, unsigned int sizeX, unsigned int sizeY)
             : posX(posX), posY(posY), sizeX(sizeX), sizeY(sizeY)
@@ -30,7 +35,7 @@ namespace rwe
         UiComponent(UiComponent&& c) = default;
         UiComponent& operator=(UiComponent&& c) = default;
 
-        virtual ~UiComponent() = default;
+        virtual ~UiComponent();
 
         unsigned int getWidth() { return sizeX; }
 
@@ -67,6 +72,8 @@ namespace rwe
             auto maxY = posY + static_cast<int>(sizeY) - 1;
             return x >= minX && x <= maxX && y >= minY && y <= maxY;
         }
+
+        void addSubscription(std::unique_ptr<Subscription>&& s);
     };
 }
 

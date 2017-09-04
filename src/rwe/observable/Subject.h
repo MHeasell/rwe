@@ -33,6 +33,9 @@ namespace rwe
                     : observable(observable), id(id)
             {}
 
+            ConcreteSubscription(const ConcreteSubscription&) = delete;
+            ConcreteSubscription& operator=(const ConcreteSubscription&) = delete;
+
         protected:
             void unsubscribe() override
             {

@@ -7,7 +7,6 @@ namespace rwe
     {
     public:
         virtual ~Subscription() = default;
-    protected:
         virtual void unsubscribe() = 0;
     };
 }

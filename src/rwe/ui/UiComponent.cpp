@@ -17,4 +17,17 @@ namespace rwe
         lastMouseX = event.x;
         lastMouseY = event.y;
     }
+
+    void UiComponent::addSubscription(std::unique_ptr<Subscription>&& s)
+    {
+        subscriptions.push_back(std::move(s));
+    }
+
+    UiComponent::~UiComponent()
+    {
+        for (auto& s : subscriptions)
+        {
+            s->unsubscribe();
+        }
+    }
 }
