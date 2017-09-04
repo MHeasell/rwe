@@ -20,6 +20,7 @@ namespace rwe
             AudioService* audioService;
             int channel;
             SoundHandle sound;
+
         public:
             LoopToken();
             LoopToken(AudioService* audioService, int channel, const SoundHandle& sound);

@@ -49,7 +49,6 @@ namespace rwe
         {
             return !(rhs == *this);
         }
-
     };
 
     struct GuiCommon

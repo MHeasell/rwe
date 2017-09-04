@@ -42,7 +42,6 @@ namespace rwe
         bool operator==(const TdfBlockEntry& rhs) const;
 
         bool operator!=(const TdfBlockEntry& rhs) const;
-
     };
 
     class SimpleTdfAdapter : public TdfAdapter<TdfBlock>

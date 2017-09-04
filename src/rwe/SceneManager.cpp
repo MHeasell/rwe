@@ -16,8 +16,7 @@ namespace rwe
                 return boost::none;
         }
     }
-    SceneManager::SceneManager(SdlContext* sdl, SDL_Window* window, GraphicsContext* graphics) :
-        currentScene(), nextScene(), sdl(sdl), window(window), graphics(graphics), requestedExit(false)
+    SceneManager::SceneManager(SdlContext* sdl, SDL_Window* window, GraphicsContext* graphics) : currentScene(), nextScene(), sdl(sdl), window(window), graphics(graphics), requestedExit(false)
     {
     }
 

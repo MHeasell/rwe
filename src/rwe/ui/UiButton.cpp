@@ -3,7 +3,7 @@
 namespace rwe
 {
     UiButton::UiButton(int posX, int posY, unsigned int sizeX, unsigned int sizeY,
-                       std::shared_ptr<SpriteSeries> _spriteSeries, std::string _label, std::shared_ptr<SpriteSeries> labelFont)
+        std::shared_ptr<SpriteSeries> _spriteSeries, std::string _label, std::shared_ptr<SpriteSeries> labelFont)
         : UiComponent(posX, posY, sizeX, sizeY), spriteSeries(std::move(_spriteSeries)), label(std::move(_label)), labelFont(std::move(labelFont))
     {
         assert(spriteSeries->sprites.size() >= 2);
@@ -21,8 +21,7 @@ namespace rwe
             sprite.textureRegion.left(),
             sprite.textureRegion.top(),
             sprite.textureRegion.width(),
-            sprite.textureRegion.height()
-        );
+            sprite.textureRegion.height());
         float textX = posX + (sizeX / 2.0f);
         float textY = posY + (sizeY / 2.0f);
         graphics.drawTextCentered(textX, pressed ? textY + 1.0f : textY, label, *labelFont);

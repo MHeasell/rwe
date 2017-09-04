@@ -13,6 +13,7 @@ namespace rwe
     }
 
     CursorService::CursorService(SdlContext* sdlContext, std::shared_ptr<SpriteSeries> cursor)
-            : sdlContext(sdlContext), cursor(std::move(cursor))
-    {}
+        : sdlContext(sdlContext), cursor(std::move(cursor))
+    {
+    }
 }

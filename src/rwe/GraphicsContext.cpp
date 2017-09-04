@@ -118,8 +118,7 @@ namespace rwe
             sprite.textureRegion.left(),
             sprite.textureRegion.top(),
             sprite.textureRegion.width(),
-            sprite.textureRegion.height()
-        );
+            sprite.textureRegion.height());
     }
 
     void GraphicsContext::applyCamera(const AbstractCamera& camera)

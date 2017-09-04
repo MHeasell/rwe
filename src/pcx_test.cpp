@@ -7,7 +7,7 @@
 class PaletteReadingException : public std::runtime_error
 {
 public:
-    explicit PaletteReadingException(const char* message): runtime_error(message) {}
+    explicit PaletteReadingException(const char* message) : runtime_error(message) {}
 };
 
 int convert(const std::string& inFile, const std::string& outFile)

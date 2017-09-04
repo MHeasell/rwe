@@ -13,6 +13,7 @@ namespace rwe
     {
     public:
         using SubscriberCallback = typename Observable<T>::SubscriberCallback;
+
     private:
         using SubscriberId = unsigned int;
 
@@ -30,8 +31,9 @@ namespace rwe
 
         public:
             ConcreteSubscription(Subject<T>* observable, SubscriberId id)
-                    : observable(observable), id(id)
-            {}
+                : observable(observable), id(id)
+            {
+            }
 
             ConcreteSubscription(const ConcreteSubscription&) = delete;
             ConcreteSubscription& operator=(const ConcreteSubscription&) = delete;
@@ -60,7 +62,7 @@ namespace rwe
     template <typename T>
     void Subject<T>::unsubscribe(SubscriberId id)
     {
-        auto it = std::find_if(subscribers.begin(), subscribers.end(), [id](const Subscriber& s){ return s.id == id; });
+        auto it = std::find_if(subscribers.begin(), subscribers.end(), [id](const Subscriber& s) { return s.id == id; });
         if (it == subscribers.end())
         {
             return;

@@ -4,7 +4,7 @@ namespace rwe
 {
 
     UiListBox::UiListBox(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<SpriteSeries> font)
-            : UiComponent(posX, posY, sizeX, sizeY), font(std::move(font))
+        : UiComponent(posX, posY, sizeX, sizeY), font(std::move(font))
     {
     }
 

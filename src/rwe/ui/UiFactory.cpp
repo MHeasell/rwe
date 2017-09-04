@@ -13,11 +13,11 @@ namespace rwe
         auto panelEntry = entries[0];
 
         auto texture = textureService->getBitmapRegion(
-                background,
-                0,
-                0,
-                panelEntry.common.width,
-                panelEntry.common.height);
+            background,
+            0,
+            0,
+            panelEntry.common.width,
+            panelEntry.common.height);
 
         UiPanel panel(
             panelEntry.common.xpos,
@@ -57,7 +57,7 @@ namespace rwe
                 }
                 case GuiElementType::Label:
                 {
-                    std::unique_ptr <UiComponent> lbl(new UiLabel(labelFromGuiFile(name, entry)));
+                    std::unique_ptr<UiComponent> lbl(new UiLabel(labelFromGuiFile(name, entry)));
                     panel.appendChild(std::move(lbl));
                     break;
                 }
@@ -87,19 +87,18 @@ namespace rwe
             entry.common.height,
             *graphics,
             text,
-            font
-        );
+            font);
 
         auto sound = deduceButtonSound(guiName, entry);
 
         if (sound)
         {
-            button.onClick().subscribe([as = audioService, s = std::move(*sound)](MouseButtonEvent /*event*/){
+            button.onClick().subscribe([ as = audioService, s = std::move(*sound) ](MouseButtonEvent /*event*/) {
                 as->playSound(s);
             });
         }
 
-        button.onClick().subscribe([c = controller, guiName, name = entry.common.name](MouseButtonEvent /*event*/){
+        button.onClick().subscribe([ c = controller, guiName, name = entry.common.name ](MouseButtonEvent /*event*/) {
             c->message(guiName, name);
         });
 
@@ -108,7 +107,8 @@ namespace rwe
 
     UiFactory::UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs, SkirmishMenuModel* model, Controller* controller)
         : textureService(textureService), audioService(audioService), soundLookup(soundLookup), vfs(vfs), model(model), controller(controller)
-    {}
+    {
+    }
 
     std::shared_ptr<SpriteSeries> UiFactory::getDefaultButtonGraphics(const std::string& guiName, int width, int height)
     {
@@ -127,8 +127,7 @@ namespace rwe
                 (*sprites)->sprites.end(),
                 [width, height](const Sprite& s) {
                     return s.bounds.width() == width && s.bounds.height() == height;
-                }
-            );
+                });
 
             if (it != (*sprites)->sprites.end())
             {
@@ -171,13 +170,12 @@ namespace rwe
         auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
 
         UiLabel label(
-                entry.common.xpos,
-                entry.common.ypos,
-                entry.common.width,
-                entry.common.height,
-                entry.text.value_or(""),
-                font
-        );
+            entry.common.xpos,
+            entry.common.ypos,
+            entry.common.width,
+            entry.common.height,
+            entry.text.value_or(""),
+            font);
 
         if (guiName == "SELMAP" && entry.common.name == "DESCRIPTION")
         {
@@ -210,25 +208,24 @@ namespace rwe
         auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
 
         UiStagedButton button(
-                entry.common.xpos,
-                entry.common.ypos,
-                entry.common.width,
-                entry.common.height,
-                *graphics,
-                labels,
-                font
-        );
+            entry.common.xpos,
+            entry.common.ypos,
+            entry.common.width,
+            entry.common.height,
+            *graphics,
+            labels,
+            font);
 
         auto sound = deduceButtonSound(guiName, entry);
 
         if (sound)
         {
-            button.onClick([as = audioService, s = std::move(*sound)](MouseButtonEvent /*event*/){
+            button.onClick([ as = audioService, s = std::move(*sound) ](MouseButtonEvent /*event*/) {
                 as->playSound(s);
             });
         }
 
-        button.onClick([c = controller, guiName, name = entry.common.name](MouseButtonEvent /*event*/){
+        button.onClick([ c = controller, guiName, name = entry.common.name ](MouseButtonEvent /*event*/) {
             c->message(guiName, name);
         });
 
@@ -265,8 +262,7 @@ namespace rwe
             entry.common.ypos,
             entry.common.width,
             entry.common.height,
-            font
-        );
+            font);
 
         if (entry.common.name == "MAPNAMES")
         {
@@ -290,7 +286,7 @@ namespace rwe
             });
             listBox.addSubscription(std::move(sub));
 
-            listBox.selectedIndex().subscribe([&listBox, c = controller](const auto& selectedMap) {
+            listBox.selectedIndex().subscribe([&listBox, c = controller ](const auto& selectedMap) {
                 if (selectedMap)
                 {
                     c->setSelectedMap(listBox.getItems()[*selectedMap]);

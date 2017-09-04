@@ -5,11 +5,11 @@
 namespace rwe
 {
     UiPanelScene::UiPanelScene(
-            AudioService* audioService,
-            TdfBlock* soundLookup,
-            CursorService* cursor,
-            float width,
-            float height)
+        AudioService* audioService,
+        TdfBlock* soundLookup,
+        CursorService* cursor,
+        float width,
+        float height)
         : audioService(audioService),
           soundLookup(soundLookup),
           cursor(cursor),

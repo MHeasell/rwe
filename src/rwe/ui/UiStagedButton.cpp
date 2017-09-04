@@ -16,16 +16,15 @@ namespace rwe
         const Sprite& sprite = spriteSeries->sprites[spriteIndex];
 
         graphics.drawTextureRegion(
-                posX,
-                posY,
-                sprite.bounds.width(),
-                sprite.bounds.height(),
-                sprite.texture,
-                sprite.textureRegion.left(),
-                sprite.textureRegion.top(),
-                sprite.textureRegion.width(),
-                sprite.textureRegion.height()
-        );
+            posX,
+            posY,
+            sprite.bounds.width(),
+            sprite.bounds.height(),
+            sprite.texture,
+            sprite.textureRegion.left(),
+            sprite.textureRegion.top(),
+            sprite.textureRegion.width(),
+            sprite.textureRegion.height());
 
         float textX = posX + 6.0f;
         float textY = posY + (sizeY / 2.0f) + 6.0f;
@@ -40,10 +39,10 @@ namespace rwe
         std::shared_ptr<SpriteSeries> _spriteSeries,
         std::vector<std::string> _labels,
         std::shared_ptr<SpriteSeries> _labelFont)
-    : UiComponent(posX, posY, sizeX, sizeY),
-      spriteSeries(std::move(_spriteSeries)),
-      labels(std::move(_labels)),
-      labelFont(std::move(_labelFont))
+        : UiComponent(posX, posY, sizeX, sizeY),
+          spriteSeries(std::move(_spriteSeries)),
+          labels(std::move(_labels)),
+          labelFont(std::move(_labelFont))
     {
         assert(labels.size() == spriteSeries->sprites.size() - 3);
     }

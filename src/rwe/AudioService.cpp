@@ -54,7 +54,8 @@ namespace rwe
 
     AudioService::LoopToken::LoopToken(AudioService* audioService, int channel, const AudioService::SoundHandle& sound)
         : audioService(audioService), channel(channel), sound(sound)
-    {}
+    {
+    }
 
     AudioService::LoopToken::~LoopToken()
     {

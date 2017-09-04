@@ -29,17 +29,16 @@ namespace rwe
         std::shared_ptr<UiPanelScene> scene;
 
         AudioService::LoopToken bgmHandle;
-    public:
 
+    public:
         Controller(
-            AbstractVirtualFileSystem *vfs,
-            SceneManager *sceneManager,
-            TdfBlock *allSoundTdf,
-            AudioService *audioService,
+            AbstractVirtualFileSystem* vfs,
+            SceneManager* sceneManager,
+            TdfBlock* allSoundTdf,
+            AudioService* audioService,
             TextureService* textureService,
             CursorService* cursor,
-            SkirmishMenuModel* model
-        );
+            SkirmishMenuModel* model);
 
         void goToMainMenu();
 

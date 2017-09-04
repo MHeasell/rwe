@@ -16,6 +16,7 @@ namespace rwe
         std::vector<std::string> items;
         std::shared_ptr<SpriteSeries> font;
         BehaviorSubject<boost::optional<unsigned int>> selectedIndexSubject;
+
     public:
         UiListBox(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<SpriteSeries> font);
         void appendItem(std::string item);

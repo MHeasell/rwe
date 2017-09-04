@@ -454,11 +454,11 @@ namespace rwe
             auto begin = dir->entries.begin();
             auto end = dir->entries.end();
             auto it = std::find_if(
-                    begin,
-                    end,
-                    [c](const DirectoryEntry& e) {
-                        return toUpper(e.name) == toUpper(c);
-                    });
+                begin,
+                end,
+                [c](const DirectoryEntry& e) {
+                    return toUpper(e.name) == toUpper(c);
+                });
             if (it == end)
             {
                 return boost::none;

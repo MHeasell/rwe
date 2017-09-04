@@ -29,13 +29,13 @@ namespace rwe
 
     public:
         UiStagedButton(
-                int posX,
-                int posY,
-                unsigned int sizeX,
-                unsigned int sizeY,
-                std::shared_ptr<SpriteSeries> _spriteSeries,
-                std::vector<std::string> _labels,
-                std::shared_ptr<SpriteSeries> _labelFont);
+            int posX,
+            int posY,
+            unsigned int sizeX,
+            unsigned int sizeY,
+            std::shared_ptr<SpriteSeries> _spriteSeries,
+            std::vector<std::string> _labels,
+            std::shared_ptr<SpriteSeries> _labelFont);
 
         void render(GraphicsContext& graphics) const override;
 

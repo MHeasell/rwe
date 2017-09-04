@@ -4,16 +4,16 @@ namespace rwe
 {
 
     UiPanel::UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, Sprite background)
-            : UiComponent(posX, posY, sizeX, sizeY),
-              background(std::move(background))
+        : UiComponent(posX, posY, sizeX, sizeY),
+          background(std::move(background))
     {
     }
 
     UiPanel::UiPanel(UiPanel&& panel) noexcept
-            : UiComponent(panel.posX, panel.posY, panel.sizeX, panel.sizeY),
-              background(std::move(panel.background)),
-              children(std::move(panel.children)),
-              focusedChild(std::move(panel.focusedChild))
+        : UiComponent(panel.posX, panel.posY, panel.sizeX, panel.sizeY),
+          background(std::move(panel.background)),
+          children(std::move(panel.children)),
+          focusedChild(std::move(panel.focusedChild))
     {
     }
 
@@ -33,16 +33,15 @@ namespace rwe
     void UiPanel::render(GraphicsContext& graphics) const
     {
         graphics.drawTextureRegion(
-                posX,
-                posY,
-                sizeX,
-                sizeY,
-                background.texture,
-                background.textureRegion.left(),
-                background.textureRegion.top(),
-                background.textureRegion.width(),
-                background.textureRegion.height()
-        );
+            posX,
+            posY,
+            sizeX,
+            sizeY,
+            background.texture,
+            background.textureRegion.left(),
+            background.textureRegion.top(),
+            background.textureRegion.width(),
+            background.textureRegion.height());
 
         graphics.pushMatrix();
         graphics.multiplyMatrix(Matrix4f::translation(Vector3f(posX, posY, 0.0f)));

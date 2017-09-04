@@ -12,7 +12,6 @@ namespace rwe
         unsigned int* referenceCount;
 
     public:
-
         SharedTextureHandle();
 
         explicit SharedTextureHandle(GLuint handle);

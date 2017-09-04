@@ -14,7 +14,8 @@ namespace rwe
     }
 
     TriangleScene::TriangleScene(SceneManager* sceneManager) : sceneManager(sceneManager)
-    {}
+    {
+    }
 
     void TriangleScene::onKeyDown(const SDL_Keysym& /*key*/)
     {

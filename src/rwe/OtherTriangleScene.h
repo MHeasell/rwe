@@ -9,6 +9,7 @@ namespace rwe
     {
     private:
         SceneManager* sceneManager;
+
     public:
         OtherTriangleScene(SceneManager* sceneManager);
 

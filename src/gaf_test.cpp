@@ -56,6 +56,7 @@ private:
     std::unique_ptr<char[]> currentFrame;
     rwe::GafFrameData currentFrameHeader;
     fs::path destPath;
+
 public:
     explicit GafAdapter(png::rgb_pixel* palette, const std::string& destPath) : palette(palette), frameCount(0), currentFrame(), destPath(destPath) {}
     void beginFrame(const rwe::GafFrameData& header) override

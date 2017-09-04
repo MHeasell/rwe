@@ -23,7 +23,6 @@ namespace rwe
 
     public:
         BehaviorSubject<boost::optional<SelectedMapInfo>> selectedMap;
-
     };
 }
 

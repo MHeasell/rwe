@@ -43,16 +43,17 @@ namespace rwe
         TextureService* textureService,
         CursorService* cursor,
         SkirmishMenuModel* model)
-            : vfs(vfs),
-              sceneManager(sceneManager),
-              allSoundTdf(allSoundTdf),
-              audioService(audioService),
-              textureService(textureService),
-              cursor(cursor),
-              model(model),
-              uiFactory(textureService, audioService, allSoundTdf, vfs, model, this),
-              scene(std::make_shared<UiPanelScene>(audioService, allSoundTdf, cursor, 640, 480))
-        {}
+        : vfs(vfs),
+          sceneManager(sceneManager),
+          allSoundTdf(allSoundTdf),
+          audioService(audioService),
+          textureService(textureService),
+          cursor(cursor),
+          model(model),
+          uiFactory(textureService, audioService, allSoundTdf, vfs, model, this),
+          scene(std::make_shared<UiPanelScene>(audioService, allSoundTdf, cursor, 640, 480))
+    {
+    }
 
     void Controller::exit()
     {

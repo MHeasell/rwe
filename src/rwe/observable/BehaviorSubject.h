@@ -12,6 +12,7 @@ namespace rwe
     {
     public:
         using SubscriberCallback = typename Subject<T>::SubscriberCallback;
+
     private:
         T value;
         Subject<T> subject;

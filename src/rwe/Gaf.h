@@ -97,6 +97,7 @@ namespace rwe
             unsigned char transparencyKey;
             char* data;
         };
+
     public:
         virtual void beginFrame(const GafFrameData& header) = 0;
         virtual void frameLayer(const LayerData& data) = 0;
@@ -117,7 +118,6 @@ namespace rwe
         std::istream* _stream;
 
     public:
-
         explicit GafArchive(std::istream* stream);
 
         const std::vector<Entry>& entries() const;

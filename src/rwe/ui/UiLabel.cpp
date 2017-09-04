@@ -9,9 +9,9 @@ namespace rwe
     }
 
     UiLabel::UiLabel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, const std::string& text,
-                     const std::shared_ptr<SpriteSeries>& font) : UiComponent(posX, posY, sizeX, sizeY), text(text),
-                                                                  font(font)
-    {}
+        const std::shared_ptr<SpriteSeries>& font) : UiComponent(posX, posY, sizeX, sizeY), text(text), font(font)
+    {
+    }
 
     void UiLabel::setText(const std::string& newText)
     {

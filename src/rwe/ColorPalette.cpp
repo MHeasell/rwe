@@ -19,7 +19,7 @@ namespace rwe
         }
     }
 
-    boost::optional <ColorPalette> readPalette(std::vector<char>& vector)
+    boost::optional<ColorPalette> readPalette(std::vector<char>& vector)
     {
         assert(vector.size() >= (4 * 256));
 

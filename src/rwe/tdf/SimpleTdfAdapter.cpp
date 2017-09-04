@@ -6,8 +6,9 @@ namespace rwe
     {
     private:
         const TdfPropertyValue* other;
+
     public:
-        explicit EqualityVisitor(const TdfPropertyValue* other): other(other) {}
+        explicit EqualityVisitor(const TdfPropertyValue* other) : other(other) {}
         bool operator()(const std::string& s) const
         {
             auto rhs = boost::get<std::string>(other);
@@ -60,17 +61,18 @@ namespace rwe
         return std::move(root);
     }
 
-    TdfBlockEntry::TdfBlockEntry(std::string name, const std::string &value) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(value)) {}
+    TdfBlockEntry::TdfBlockEntry(std::string name, const std::string& value) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(value)) {}
 
     TdfBlockEntry::TdfBlockEntry(std::string name, TdfBlock block) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(std::move(block))) {}
 
     TdfBlockEntry::TdfBlockEntry(std::string name) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(TdfBlock())) {}
 
-    TdfBlockEntry::TdfBlockEntry(const TdfBlockEntry &other) : name(other.name), value(std::make_unique<TdfPropertyValue>(*other.value))
+    TdfBlockEntry::TdfBlockEntry(const TdfBlockEntry& other) : name(other.name), value(std::make_unique<TdfPropertyValue>(*other.value))
     {
     }
 
-    bool TdfBlockEntry::operator==(const TdfBlockEntry &rhs) const {
+    bool TdfBlockEntry::operator==(const TdfBlockEntry& rhs) const
+    {
         if (name != rhs.name)
         {
             return false;
@@ -79,7 +81,8 @@ namespace rwe
         return boost::apply_visitor(EqualityVisitor(rhs.value.get()), *value);
     }
 
-    bool TdfBlockEntry::operator!=(const TdfBlockEntry &rhs) const {
+    bool TdfBlockEntry::operator!=(const TdfBlockEntry& rhs) const
+    {
         return !(rhs == *this);
     }
 
