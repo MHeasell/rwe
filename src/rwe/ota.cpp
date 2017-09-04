@@ -38,7 +38,7 @@ namespace rwe
         r.mapping = expectInt(tdf, "mapping");
         r.tidalStrength = expectInt(tdf, "tidalstrength");
         r.solarStrength = expectInt(tdf, "solarstrength");
-        r.lavaWorld = expectBool(tdf, "lavaworld");
+        r.lavaWorld = extractBool(tdf, "lavaworld").value_or(false);
         r.killMul = expectInt(tdf, "killmul");
         r.timeMul = expectInt(tdf, "timemul");
         r.minWindSpeed = expectInt(tdf, "minwindspeed");
