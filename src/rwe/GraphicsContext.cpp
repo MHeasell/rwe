@@ -266,4 +266,47 @@ namespace rwe
 
         glEnd();
     }
+
+    void GraphicsContext::drawTextWrapped(Rectangle2f area, const std::string& text, const SpriteSeries& font)
+    {
+        float x = 0.0f;
+        float y = 0.0f;
+
+        auto it = utf8Begin(text);
+        auto end = utf8End(text);
+        while (it != end)
+        {
+
+            auto endOfWord = findEndOfWord(it, end);
+            auto width = getTextWidth(it, endOfWord, font);
+
+            if (x + width > area.width())
+            {
+                y += 15.0f;
+                x = 0;
+            }
+
+            for (; it != endOfWord; ++it)
+            {
+                auto ch = *it;
+                if (ch > font.sprites.size())
+                {
+                    ch = 0;
+                }
+
+                const auto& sprite = font.sprites[ch];
+
+                drawSprite(area.left() + x, area.top() + y, sprite);
+
+                x += sprite.bounds.right();
+            }
+
+            if (endOfWord != end)
+            {
+                const auto& spaceSprite = font.sprites[' '];
+                x += spaceSprite.bounds.right();
+                ++it;
+            }
+        }
+    }
 }

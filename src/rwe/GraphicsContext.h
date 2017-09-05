@@ -53,9 +53,17 @@ namespace rwe
 
         void drawText(float x, float y, const std::string& text, const SpriteSeries& font);
 
+        void drawTextWrapped(Rectangle2f area, const std::string& text, const SpriteSeries& font);
+
         void drawTextCentered(float x, float y, const std::string& text, const SpriteSeries& font);
 
         float getTextWidth(const std::string& text, const SpriteSeries& font);
+
+        template <typename It>
+        float getTextWidth(It begin, It end, const SpriteSeries& font);
+
+        template <typename It>
+        It findEndOfWord(It it, It end);
 
         void applyCamera(const AbstractCamera& camera);
 
@@ -76,6 +84,33 @@ namespace rwe
 
         void fillColor(float x, float y, float width, float height, Color color);
     };
+
+    template<typename It>
+    float GraphicsContext::getTextWidth(It it, It end, const SpriteSeries& font)
+    {
+        float width = 0;
+        for (; it != end; ++it)
+        {
+            auto ch = *it;
+
+            if (ch > font.sprites.size())
+            {
+                ch = 0;
+            }
+
+            const auto& sprite = font.sprites[ch];
+
+            width += sprite.bounds.right();
+        }
+
+        return width;
+    }
+
+    template<typename It>
+    It GraphicsContext::findEndOfWord(It it, It end)
+    {
+        return std::find_if(it, end, [](int ch){ return ch == ' '; });
+    }
 }
 
 #endif
