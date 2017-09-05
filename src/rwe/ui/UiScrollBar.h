@@ -9,7 +9,12 @@ namespace rwe
 {
     class UiScrollBar : public UiComponent
     {
+    private:
         std::shared_ptr<SpriteSeries> sprites;
+
+        float scrollBarPercent{0.5f};
+
+        float scrollPercent{0.0f};
 
     public:
         UiScrollBar(
@@ -20,6 +25,11 @@ namespace rwe
             std::shared_ptr<SpriteSeries> sprites);
 
         void render(GraphicsContext& context) const override;
+
+    private:
+        void drawScrollBox(GraphicsContext& context, float x, float y, float height) const;
+
+        void drawScrollBackground(GraphicsContext& graphics, float x, float y, float height) const;
     };
 }
 
