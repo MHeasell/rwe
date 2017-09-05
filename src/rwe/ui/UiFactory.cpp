@@ -35,7 +35,7 @@ namespace rwe
             {
                 case GuiElementType::Button:
                 {
-                    auto stages = entry.stages.value_or(0);
+                    auto stages = entry.stages.get_value_or(0);
                     std::unique_ptr<UiComponent> btn;
                     if (stages > 1)
                     {
@@ -174,7 +174,7 @@ namespace rwe
             entry.common.ypos,
             entry.common.width,
             entry.common.height,
-            entry.text.value_or(""),
+            entry.text.get_value_or(""),
             font);
 
         if (guiName == "SELMAP")
