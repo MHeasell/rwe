@@ -14,7 +14,7 @@ namespace rwe
         Rectangle2f(float x, float y, float halfWidth, float halfHeight) : position(x, y), extents(halfWidth, halfHeight) {}
 
         static Rectangle2f fromTLBR(float top, float left, float bottom, float right);
-        static Rectangle2f fromTopLeft(float top, float left, float width, float height);
+        static Rectangle2f fromTopLeft(float x, float y, float width, float height);
 
         bool contains(Vector2f point) const;
 
