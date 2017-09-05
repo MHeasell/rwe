@@ -185,7 +185,9 @@ namespace rwe
         SkirmishMenuModel::SelectedMapInfo info;
         info.name = mapName;
         info.description = ota.missionDescription;
-        info.size = ota.size;
+
+        // this is what TA shows in its map selection dialog
+        info.size = std::string().append(ota.memory).append("  Players: ").append(ota.numPlayers);
 
         model->candidateSelectedMap.next(std::move(info));
     }
