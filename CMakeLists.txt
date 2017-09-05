@@ -148,6 +148,8 @@ set(SOURCE_FILES
     src/rwe/ui/UiListBox.h
     src/rwe/ui/UiPanel.cpp
     src/rwe/ui/UiPanel.h
+    src/rwe/ui/UiScrollBar.cpp
+    src/rwe/ui/UiScrollBar.h
     src/rwe/ui/UiStagedButton.cpp
     src/rwe/ui/UiStagedButton.h
     src/rwe/vfs/AbstractVirtualFileSystem.h

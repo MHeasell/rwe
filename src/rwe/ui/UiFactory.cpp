@@ -61,6 +61,12 @@ namespace rwe
                     panel.appendChild(std::move(lbl));
                     break;
                 }
+                case GuiElementType::ScrollBar:
+                {
+                    std::unique_ptr<UiComponent> elem(new UiScrollBar(scrollBarFromGuiFile(name, entry)));
+                    panel.appendChild(std::move(elem));
+                    break;
+                }
             }
         }
 
@@ -356,5 +362,21 @@ namespace rwe
         }
 
         return sound;
+    }
+
+    UiScrollBar UiFactory::scrollBarFromGuiFile(const std::string& guiName, const GuiEntry& entry)
+    {
+        auto sprites = textureService->getGuiTexture(guiName, "SLIDERS");
+        if (!sprites)
+        {
+            throw std::runtime_error("Missing SLIDERS gaf entry");
+        }
+
+        return UiScrollBar(
+            entry.common.xpos,
+            entry.common.ypos,
+            entry.common.width,
+            entry.common.height,
+            *sprites);
     }
 }

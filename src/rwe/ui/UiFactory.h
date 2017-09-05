@@ -12,6 +12,7 @@
 #include <rwe/ui/UiLabel.h>
 #include <rwe/ui/UiStagedButton.h>
 #include <rwe/SkirmishMenuModel.h>
+#include <rwe/ui/UiScrollBar.h>
 
 namespace rwe
 {
@@ -38,6 +39,8 @@ namespace rwe
         UiStagedButton stagedButtonFromGuiFile(const std::string& guiName, const GuiEntry& entry);
 
         UiLabel labelFromGuiFile(const std::string& guiName, const GuiEntry& entry);
+
+        UiScrollBar scrollBarFromGuiFile(const std::string& guiName, const GuiEntry& entry);
 
         UiListBox listBoxFromGuiFile(const std::string& guiName, const GuiEntry& entry);
 
