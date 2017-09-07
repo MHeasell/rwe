@@ -126,6 +126,8 @@ namespace rwe
 
     void UiScrollBar::mouseMove(MouseMoveEvent event)
     {
+        UiComponent::mouseMove(event);
+
         if (barGrabbed)
         {
             auto deltaPixels = static_cast<float>(event.y - mouseDownY);
