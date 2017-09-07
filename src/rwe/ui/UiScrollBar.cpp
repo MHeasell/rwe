@@ -20,18 +20,9 @@ namespace rwe
     {
         drawScrollBackground(context, posX, posY, sizeY);
 
-        const Sprite& upArrow = sprites->sprites[6];
-        const Sprite& downArrow = sprites->sprites[8];
+        auto info = getScrollBoxInfo();
 
-        float topMargin = upArrow.bounds.height() + 3.0f;
-        float bottomMargin = downArrow.bounds.height() + 3.0f;
-
-        float boxRange = sizeY - topMargin - bottomMargin;
-        float boxSize = scrollBarPercent * boxRange;
-        float boxTopRange = boxRange - boxSize;
-        float boxY = topMargin + (boxTopRange * scrollPercent);
-
-        drawScrollBox(context, posX + 3.0f, posY + boxY, boxSize);
+        drawScrollBox(context, posX + 3.0f, posY + info.pos, info.size);
     }
 
     UiScrollBar::UiScrollBar(
@@ -51,8 +42,8 @@ namespace rwe
         const Sprite& middleBackground = sprites->sprites[1];
         const Sprite& bottomBackground = sprites->sprites[2];
 
-        const Sprite& upArrow = sprites->sprites[6];
-        const Sprite& downArrow = sprites->sprites[8];
+        const Sprite& upArrow = sprites->sprites[upArrowPressed ? 7 : 6];
+        const Sprite& downArrow = sprites->sprites[downArrowPressed ? 9 : 8];
 
         float bottomMargin = bottomBackground.bounds.height() + downArrow.bounds.height();
 
@@ -99,34 +90,64 @@ namespace rwe
 
     void UiScrollBar::mouseDown(MouseButtonEvent event)
     {
-        pressed = true;
-        mouseDownY = event.y;
-        mouseDownScrollPercent = scrollPercent;
+        const Sprite& upArrow = sprites->sprites[6];
+        if (Rectangle2f::fromTopLeft(posX, posY, upArrow.bounds.width(), upArrow.bounds.height()).contains(event.x, event.y))
+        {
+            upArrowPressed = true;
+            return;
+        }
+
+        const Sprite& downArrow = sprites->sprites[8];
+        if (Rectangle2f::fromTopLeft(posX, posY + sizeY - downArrow.bounds.height(), downArrow.bounds.width(), downArrow.bounds.height()).contains(event.x, event.y))
+        {
+            downArrowPressed = true;
+            return;
+        }
+
+        auto boxInfo = getScrollBoxInfo();
+        if (Rectangle2f::fromTopLeft(posX, posY + boxInfo.pos, sizeX, boxInfo.size).contains(event.x, event.y))
+        {
+            barGrabbed = true;
+            mouseDownY = event.y;
+            mouseDownScrollPercent = scrollPercent;
+            return;
+        }
     }
 
     void UiScrollBar::mouseUp(MouseButtonEvent event)
     {
-        pressed = false;
+        upArrowPressed = false;
+        downArrowPressed = false;
+        barGrabbed = false;
     }
 
     void UiScrollBar::mouseMove(MouseMoveEvent event)
     {
-        if (pressed)
+        if (barGrabbed)
         {
             auto deltaPixels = static_cast<float>(event.y - mouseDownY);
 
-            const Sprite& upArrow = sprites->sprites[6];
-            const Sprite& downArrow = sprites->sprites[8];
+            auto boxInfo = getScrollBoxInfo();
 
-            float topMargin = upArrow.bounds.height() + 3.0f;
-            float bottomMargin = downArrow.bounds.height() + 3.0f;
-
-            float boxRange = sizeY - topMargin - bottomMargin;
-            float boxSize = scrollBarPercent * boxRange;
-            float boxTopRange = boxRange - boxSize;
-
-            float deltaPercent = deltaPixels / boxTopRange;
+            float deltaPercent = deltaPixels / boxInfo.range;
             scrollPercent = std::clamp(mouseDownScrollPercent + deltaPercent, 0.0f, 1.0f);
         }
+    }
+
+    UiScrollBar::ScrollBoxInfo UiScrollBar::getScrollBoxInfo() const
+    {
+        const Sprite& upArrow = sprites->sprites[6];
+        const Sprite& downArrow = sprites->sprites[8];
+
+        float topMargin = upArrow.bounds.height() + 3.0f;
+        float bottomMargin = downArrow.bounds.height() + 3.0f;
+
+        float boxRange = sizeY - topMargin - bottomMargin;
+        float boxSize = scrollBarPercent * boxRange;
+        float boxTopRange = boxRange - boxSize;
+
+        float boxY = topMargin + (boxTopRange * scrollPercent);
+
+        return ScrollBoxInfo{boxY, boxSize, boxTopRange};
     }
 }

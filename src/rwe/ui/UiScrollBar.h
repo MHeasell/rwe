@@ -10,13 +10,24 @@ namespace rwe
     class UiScrollBar : public UiComponent
     {
     private:
+        struct ScrollBoxInfo
+        {
+            float pos;
+            float size;
+            float range;
+        };
+
         std::shared_ptr<SpriteSeries> sprites;
 
         float scrollBarPercent{0.5f};
 
         float scrollPercent{0.0f};
 
-        bool pressed{false};
+        bool barGrabbed{false};
+
+        bool upArrowPressed{false};
+
+        bool downArrowPressed{false};
 
         int mouseDownY;
         float mouseDownScrollPercent;
@@ -41,6 +52,8 @@ namespace rwe
         void drawScrollBox(GraphicsContext& context, float x, float y, float height) const;
 
         void drawScrollBackground(GraphicsContext& graphics, float x, float y, float height) const;
+
+        ScrollBoxInfo getScrollBoxInfo() const;
     };
 }
 
