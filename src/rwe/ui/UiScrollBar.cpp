@@ -96,4 +96,37 @@ namespace rwe
 
         drawSpriteAt(context, x, y + height - bottomMargin, bottomBox);
     }
+
+    void UiScrollBar::mouseDown(MouseButtonEvent event)
+    {
+        pressed = true;
+        mouseDownY = event.y;
+        mouseDownScrollPercent = scrollPercent;
+    }
+
+    void UiScrollBar::mouseUp(MouseButtonEvent event)
+    {
+        pressed = false;
+    }
+
+    void UiScrollBar::mouseMove(MouseMoveEvent event)
+    {
+        if (pressed)
+        {
+            auto deltaPixels = static_cast<float>(event.y - mouseDownY);
+
+            const Sprite& upArrow = sprites->sprites[6];
+            const Sprite& downArrow = sprites->sprites[8];
+
+            float topMargin = upArrow.bounds.height() + 3.0f;
+            float bottomMargin = downArrow.bounds.height() + 3.0f;
+
+            float boxRange = sizeY - topMargin - bottomMargin;
+            float boxSize = scrollBarPercent * boxRange;
+            float boxTopRange = boxRange - boxSize;
+
+            float deltaPercent = deltaPixels / boxTopRange;
+            scrollPercent = std::clamp(mouseDownScrollPercent + deltaPercent, 0.0f, 1.0f);
+        }
+    }
 }

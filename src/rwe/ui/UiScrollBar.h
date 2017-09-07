@@ -16,6 +16,11 @@ namespace rwe
 
         float scrollPercent{0.0f};
 
+        bool pressed{false};
+
+        int mouseDownY;
+        float mouseDownScrollPercent;
+
     public:
         UiScrollBar(
             int posX,
@@ -25,6 +30,12 @@ namespace rwe
             std::shared_ptr<SpriteSeries> sprites);
 
         void render(GraphicsContext& context) const override;
+
+        void mouseDown(MouseButtonEvent event) override;
+
+        void mouseUp(MouseButtonEvent event) override;
+
+        void mouseMove(MouseMoveEvent event) override;
 
     private:
         void drawScrollBox(GraphicsContext& context, float x, float y, float height) const;
