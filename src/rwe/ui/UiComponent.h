@@ -64,6 +64,8 @@ namespace rwe
 
         virtual void mouseMove(MouseMoveEvent event);
 
+        virtual void update(float /*dt*/) {};
+
         bool contains(int x, int y)
         {
             auto minX = posX;

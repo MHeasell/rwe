@@ -38,6 +38,8 @@ namespace rwe
 
         void onMouseMove(MouseMoveEvent event) override;
 
+        void update() override;
+
         void goToPreviousMenu();
 
         bool hasPreviousMenu() const;

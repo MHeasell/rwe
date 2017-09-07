@@ -114,6 +114,7 @@ namespace rwe
         }
 
         backgroundPressed = true;
+        mouseY = event.y;
     }
 
     void UiScrollBar::mouseUp(MouseButtonEvent event)
@@ -136,26 +137,11 @@ namespace rwe
 
             float deltaPercent = deltaPixels / boxInfo.range;
             scrollPercent = std::clamp(mouseDownScrollPercent + deltaPercent, 0.0f, 1.0f);
-
-            return;
         }
 
         if (backgroundPressed)
         {
-            auto cursorPercent = toScrollPercent(event.y - posY);
-
-            auto boxTopPercent = scrollPercent * (1.0f - scrollBarPercent);
-
-            if (cursorPercent < boxTopPercent) // cursor above
-            {
-                scrollPercent = std::clamp(scrollPercent - 0.1f, 0.0f, 1.0f);
-            }
-            else if (cursorPercent > boxTopPercent + scrollBarPercent) // cursor below
-            {
-                scrollPercent = std::clamp(scrollPercent + 0.1f, 0.0f, 1.0f);
-            }
-
-            return;
+            mouseY = event.y;
         }
     }
 
@@ -187,5 +173,29 @@ namespace rwe
         float boxRange = sizeY - topMargin - bottomMargin;
 
         return (pos - topMargin) / boxRange;
+    }
+
+    void UiScrollBar::update(float dt)
+    {
+        // speed in percent/sec
+        float scrollSpeed = 4.0f;
+
+        if (backgroundPressed)
+        {
+            auto cursorPercent = toScrollPercent(mouseY - posY);
+
+            auto boxTopPercent = scrollPercent * (1.0f - scrollBarPercent);
+
+            if (cursorPercent < boxTopPercent) // cursor above
+            {
+                scrollPercent = std::clamp(scrollPercent - (scrollSpeed * dt), 0.0f, 1.0f);
+            }
+            else if (cursorPercent > boxTopPercent + scrollBarPercent) // cursor below
+            {
+                scrollPercent = std::clamp(scrollPercent + (scrollSpeed * dt), 0.0f, 1.0f);
+            }
+
+            return;
+        }
     }
 }

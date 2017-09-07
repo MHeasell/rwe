@@ -31,6 +31,8 @@ namespace rwe
 
         bool backgroundPressed{false};
 
+        int mouseY;
+
         int mouseDownY;
         float mouseDownScrollPercent;
 
@@ -49,6 +51,8 @@ namespace rwe
         void mouseUp(MouseButtonEvent event) override;
 
         void mouseMove(MouseMoveEvent event) override;
+
+        void update(float dt) override;
 
     private:
         void drawScrollBox(GraphicsContext& context, float x, float y, float height) const;

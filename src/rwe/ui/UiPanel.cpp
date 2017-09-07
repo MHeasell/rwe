@@ -161,4 +161,12 @@ namespace rwe
 
         focusedChild = boost::none;
     }
+
+    void UiPanel::update(float dt)
+    {
+        for (auto& c : children)
+        {
+            c->update(dt);
+        }
+    }
 }

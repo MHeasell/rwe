@@ -115,4 +115,9 @@ namespace rwe
 
         return panelStack.back();
     }
+
+    void UiPanelScene::update()
+    {
+        topPanel().update(static_cast<float>(SceneManager::TickInterval) / 1000.0f);
+    }
 }
