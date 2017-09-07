@@ -29,6 +29,8 @@ namespace rwe
 
         bool downArrowPressed{false};
 
+        bool backgroundPressed{false};
+
         int mouseDownY;
         float mouseDownScrollPercent;
 
@@ -54,6 +56,12 @@ namespace rwe
         void drawScrollBackground(GraphicsContext& graphics, float x, float y, float height) const;
 
         ScrollBoxInfo getScrollBoxInfo() const;
+
+        /**
+         * Converts the input control-relative pixel coordinate
+         * to a scroll percentage from 0 to 1.
+         */
+        float toScrollPercent(float pos);
     };
 }
 
