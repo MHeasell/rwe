@@ -7,7 +7,7 @@
 #include <rwe/camera/UiCamera.h>
 #include <rwe/AudioService.h>
 #include <rwe/tdf/SimpleTdfAdapter.h>
-#include "CursorService.h"
+#include <rwe/CursorService.h>
 
 namespace rwe
 {
