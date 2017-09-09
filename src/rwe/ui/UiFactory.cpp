@@ -6,6 +6,11 @@
 
 namespace rwe
 {
+    UiFactory::UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs, SkirmishMenuModel* model, Controller* controller)
+        : textureService(textureService), audioService(audioService), soundLookup(soundLookup), vfs(vfs), model(model), controller(controller)
+    {
+    }
+
     std::unique_ptr<UiPanel> UiFactory::panelFromGuiFile(const std::string& name, const std::string& background, const std::vector<GuiEntry>& entries)
     {
         // first entry sets up the panel
@@ -31,7 +36,7 @@ namespace rwe
         {
             auto& entry = entries[i];
 
-            auto elem = createComponentFromGui(name, entry);
+            auto elem = componentFromGuiEntry(name, entry);
 
             elem->setName(entry.common.name);
             elem->setGroup(entry.common.assoc);
@@ -42,7 +47,34 @@ namespace rwe
         return panel;
     }
 
-    std::unique_ptr<UiButton> UiFactory::buttonFromGuiFile(const std::string& guiName, const GuiEntry& entry)
+    std::unique_ptr<UiComponent> UiFactory::componentFromGuiEntry(const std::string& guiName, const GuiEntry& entry)
+    {
+        switch (entry.common.id)
+        {
+            case GuiElementType::Button:
+            {
+                auto stages = entry.stages.get_value_or(0);
+                if (stages > 1)
+                {
+                    return stagedButtonFromGuiEntry(guiName, entry);
+                }
+                else
+                {
+                    return buttonFromGuiEntry(guiName, entry);
+                }
+            }
+            case GuiElementType::ListBox:
+                return listBoxFromGuiEntry(guiName, entry);
+            case GuiElementType::Label:
+                return labelFromGuiEntry(guiName, entry);
+            case GuiElementType::ScrollBar:
+                return scrollBarFromGuiEntry(guiName, entry);
+            default:
+                return std::make_unique<UiComponent>(0, 0, 1, 1);
+        }
+    }
+
+    std::unique_ptr<UiButton> UiFactory::buttonFromGuiEntry(const std::string& guiName, const GuiEntry& entry)
     {
 
         auto graphics = textureService->getGuiTexture(guiName, entry.common.name);
@@ -80,67 +112,7 @@ namespace rwe
         return button;
     }
 
-    UiFactory::UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs, SkirmishMenuModel* model, Controller* controller)
-        : textureService(textureService), audioService(audioService), soundLookup(soundLookup), vfs(vfs), model(model), controller(controller)
-    {
-    }
-
-    std::shared_ptr<SpriteSeries> UiFactory::getDefaultButtonGraphics(const std::string& guiName, int width, int height)
-    {
-        // hack for SINGLE.GUI buttons
-        if (width == 118 && height == 18)
-        {
-            width = 120;
-            height = 20;
-        }
-
-        auto sprites = textureService->getGuiTexture(guiName, "BUTTONS0");
-        if (sprites)
-        {
-            auto it = std::find_if(
-                (*sprites)->sprites.begin(),
-                (*sprites)->sprites.end(),
-                [width, height](const Sprite& s) {
-                    return s.bounds.width() == width && s.bounds.height() == height;
-                });
-
-            if (it != (*sprites)->sprites.end())
-            {
-                auto spritesView = std::make_shared<SpriteSeries>();
-                spritesView->sprites.push_back(*(it++));
-                assert(it != (*sprites)->sprites.end());
-                spritesView->sprites.push_back(*(it++));
-                return spritesView;
-            }
-        }
-
-        // default behaviour
-        auto texture = textureService->getDefaultTexture();
-        Sprite sprite(Rectangle2f::fromTopLeft(0.0f, 0.0f, width, height), texture);
-        auto series = std::make_shared<SpriteSeries>();
-        series->sprites.push_back(sprite);
-        series->sprites.push_back(sprite);
-        return series;
-    }
-
-    boost::optional<AudioService::SoundHandle> UiFactory::getButtonSound(const std::string& buttonName)
-    {
-        auto soundBlock = soundLookup->findBlock(buttonName);
-        if (!soundBlock)
-        {
-            return boost::none;
-        }
-
-        auto soundName = soundBlock->findValue("sound");
-        if (!soundName)
-        {
-            return boost::none;
-        }
-
-        return audioService->loadSound(*soundName);
-    }
-
-    std::unique_ptr<UiLabel> UiFactory::labelFromGuiFile(const std::string& guiName, const GuiEntry& entry)
+    std::unique_ptr<UiLabel> UiFactory::labelFromGuiEntry(const std::string& guiName, const GuiEntry& entry)
     {
         auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
 
@@ -204,7 +176,8 @@ namespace rwe
         return label;
     }
 
-    std::unique_ptr<UiStagedButton> UiFactory::stagedButtonFromGuiFile(const std::string& guiName, const GuiEntry& entry)
+    std::unique_ptr<UiStagedButton> UiFactory::stagedButtonFromGuiEntry(const std::string& guiName,
+                                                                        const GuiEntry& entry)
     {
         auto graphics = textureService->getGuiTexture(guiName, entry.common.name);
         if (!graphics)
@@ -262,7 +235,7 @@ namespace rwe
         return series;
     }
 
-    std::unique_ptr<UiListBox> UiFactory::listBoxFromGuiFile(const std::string& guiName, const GuiEntry& entry)
+    std::unique_ptr<UiListBox> UiFactory::listBoxFromGuiEntry(const std::string& guiName, const GuiEntry& entry)
     {
         auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
 
@@ -338,7 +311,7 @@ namespace rwe
         return sound;
     }
 
-    std::unique_ptr<UiScrollBar> UiFactory::scrollBarFromGuiFile(const std::string& guiName, const GuiEntry& entry)
+    std::unique_ptr<UiScrollBar> UiFactory::scrollBarFromGuiEntry(const std::string& guiName, const GuiEntry& entry)
     {
         auto sprites = textureService->getGuiTexture(guiName, "SLIDERS");
         if (!sprites)
@@ -369,30 +342,59 @@ namespace rwe
         return scrollBar;
     }
 
-    std::unique_ptr<UiComponent> UiFactory::createComponentFromGui(const std::string& guiName, const GuiEntry& entry)
+    std::shared_ptr<SpriteSeries> UiFactory::getDefaultButtonGraphics(const std::string& guiName, int width, int height)
     {
-        switch (entry.common.id)
+        // hack for SINGLE.GUI buttons
+        if (width == 118 && height == 18)
         {
-            case GuiElementType::Button:
-            {
-                auto stages = entry.stages.get_value_or(0);
-                if (stages > 1)
-                {
-                    return stagedButtonFromGuiFile(guiName, entry);
-                }
-                else
-                {
-                    return buttonFromGuiFile(guiName, entry);
-                }
-            }
-            case GuiElementType::ListBox:
-                return listBoxFromGuiFile(guiName, entry);
-            case GuiElementType::Label:
-                return labelFromGuiFile(guiName, entry);
-            case GuiElementType::ScrollBar:
-                return scrollBarFromGuiFile(guiName, entry);
-            default:
-                return std::make_unique<UiComponent>(0, 0, 1, 1);
+            width = 120;
+            height = 20;
         }
+
+        auto sprites = textureService->getGuiTexture(guiName, "BUTTONS0");
+        if (sprites)
+        {
+            auto it = std::find_if(
+                (*sprites)->sprites.begin(),
+                (*sprites)->sprites.end(),
+                [width, height](const Sprite& s) {
+                    return s.bounds.width() == width && s.bounds.height() == height;
+                });
+
+            if (it != (*sprites)->sprites.end())
+            {
+                auto spritesView = std::make_shared<SpriteSeries>();
+                spritesView->sprites.push_back(*(it++));
+                assert(it != (*sprites)->sprites.end());
+                spritesView->sprites.push_back(*(it++));
+                return spritesView;
+            }
+        }
+
+        // default behaviour
+        auto texture = textureService->getDefaultTexture();
+        Sprite sprite(Rectangle2f::fromTopLeft(0.0f, 0.0f, width, height), texture);
+        auto series = std::make_shared<SpriteSeries>();
+        series->sprites.push_back(sprite);
+        series->sprites.push_back(sprite);
+        return series;
     }
+
+    boost::optional<AudioService::SoundHandle> UiFactory::getButtonSound(const std::string& buttonName)
+    {
+        auto soundBlock = soundLookup->findBlock(buttonName);
+        if (!soundBlock)
+        {
+            return boost::none;
+        }
+
+        auto soundName = soundBlock->findValue("sound");
+        if (!soundName)
+        {
+            return boost::none;
+        }
+
+        return audioService->loadSound(*soundName);
+    }
+
 }
