@@ -85,7 +85,7 @@ namespace rwe
         void fillColor(float x, float y, float width, float height, Color color);
     };
 
-    template<typename It>
+    template <typename It>
     float GraphicsContext::getTextWidth(It it, It end, const SpriteSeries& font)
     {
         float width = 0;
@@ -106,10 +106,10 @@ namespace rwe
         return width;
     }
 
-    template<typename It>
+    template <typename It>
     It GraphicsContext::findEndOfWord(It it, It end)
     {
-        return std::find_if(it, end, [](int ch){ return ch == ' '; });
+        return std::find_if(it, end, [](int ch) { return ch == ' '; });
     }
 }
 

@@ -295,7 +295,7 @@ namespace rwe
             });
             listBox->addSubscription(std::move(sub));
 
-            listBox->selectedIndex().subscribe([l = listBox.get(), c = controller ](const auto& selectedMap) {
+            listBox->selectedIndex().subscribe([ l = listBox.get(), c = controller ](const auto& selectedMap) {
                 if (selectedMap)
                 {
                     c->setCandidateSelectedMap(l->getItems()[*selectedMap]);
@@ -307,7 +307,7 @@ namespace rwe
             });
         }
 
-        auto scrollSub = listBox->scrollPosition().subscribe([l = listBox.get(), c = controller, guiName, group = entry.common.assoc, name = entry.common.name](const auto& /*scrollPos*/) {
+        auto scrollSub = listBox->scrollPosition().subscribe([ l = listBox.get(), c = controller, guiName, group = entry.common.assoc, name = entry.common.name ](const auto& /*scrollPos*/) {
             ScrollPositionMessage m{l->getViewportPercent(), l->getScrollPercent()};
             c->scrollMessage(guiName, group, name, m);
         });

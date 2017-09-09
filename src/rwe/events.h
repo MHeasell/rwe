@@ -59,7 +59,6 @@ namespace rwe
 
         GroupMessage(const std::string& topic, unsigned int group, const std::string& controlName, const ScrollPositionMessage& message);
     };
-
 }
 
 #endif

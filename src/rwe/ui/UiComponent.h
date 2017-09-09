@@ -69,7 +69,7 @@ namespace rwe
 
         virtual void mouseWheel(MouseWheelEvent /*event*/) {}
 
-        virtual void update(float /*dt*/) {};
+        virtual void update(float /*dt*/) {}
 
         virtual void uiMessage(const GroupMessage& /*message*/) {}
 
