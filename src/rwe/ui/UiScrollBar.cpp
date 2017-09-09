@@ -22,7 +22,7 @@ namespace rwe
 
         auto info = getScrollBoxInfo();
 
-        drawScrollBox(context, posX + 3.0f, posY + info.pos, info.size);
+        drawScrollBox(context, posX + 3.0f, posY + std::round(info.pos), std::round(info.size));
     }
 
     UiScrollBar::UiScrollBar(
@@ -74,18 +74,18 @@ namespace rwe
         const Sprite& middleBox = sprites->sprites[4];
         const Sprite& bottomBox = sprites->sprites[5];
 
-        float bottomMargin = bottomBox.bounds.height();
-
         drawSpriteAt(context, x, y, topBox);
 
+        float bottomBoxStart = height - bottomBox.bounds.height();
+
         float yOffset = topBox.bounds.height();
-        while (yOffset < height - bottomMargin)
+        while (yOffset + middleBox.bounds.height() <= bottomBoxStart)
         {
             drawSpriteAt(context, x, y + yOffset, middleBox);
             yOffset += middleBox.bounds.height();
         }
 
-        drawSpriteAt(context, x, y + height - bottomMargin, bottomBox);
+        drawSpriteAt(context, x, y + yOffset, bottomBox);
     }
 
     void UiScrollBar::mouseDown(MouseButtonEvent event)
