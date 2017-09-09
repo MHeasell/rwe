@@ -1,13 +1,13 @@
 #ifndef RWE_MAINMENUSCENE_H
 #define RWE_MAINMENUSCENE_H
 
+#include <rwe/AudioService.h>
+#include <rwe/CursorService.h>
 #include <rwe/SceneManager.h>
-#include <rwe/ui/UiPanel.h>
 #include <rwe/TextureService.h>
 #include <rwe/camera/UiCamera.h>
-#include <rwe/AudioService.h>
 #include <rwe/tdf/SimpleTdfAdapter.h>
-#include <rwe/CursorService.h>
+#include <rwe/ui/UiPanel.h>
 
 namespace rwe
 {
