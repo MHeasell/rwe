@@ -138,7 +138,7 @@ namespace rwe
         auto halfLines = numberOfLines() / 2;
         if (newPosition > halfLines)
         {
-            setScrollPosition(static_cast<unsigned int>(newPosition - halfLines));
+            setScrollPosition(newPosition - halfLines);
         }
         else
         {
