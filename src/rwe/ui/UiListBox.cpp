@@ -210,6 +210,11 @@ namespace rwe
 
     void UiListBox::uiMessage(const GroupMessage& message)
     {
+        if (message.controlName == name)
+        {
+            return;
+        }
+
         if (message.group != group)
         {
             return;

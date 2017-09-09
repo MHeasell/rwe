@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <rwe/SpriteSeries.h>
+#include <rwe/observable/Subject.h>
 #include <rwe/ui/UiComponent.h>
 
 namespace rwe
@@ -36,6 +37,10 @@ namespace rwe
         int mouseDownY;
         float mouseDownScrollPercent;
 
+        Subject<bool> scrollUpSubject;
+        Subject<bool> scrollDownSubject;
+        Subject<float> scrollChangedSubject;
+
     public:
         UiScrollBar(
             int posX,
@@ -55,6 +60,12 @@ namespace rwe
         void update(float dt) override;
 
         void uiMessage(const GroupMessage& message) override;
+
+        Observable<float>& scrollChanged();
+
+        const Observable<float>& scrollChanged() const;
+
+        float getScrollBarPercent() const;
 
     private:
         void drawScrollBox(GraphicsContext& context, float x, float y, float height) const;

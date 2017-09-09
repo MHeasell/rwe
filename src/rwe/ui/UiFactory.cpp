@@ -347,12 +347,19 @@ namespace rwe
             throw std::runtime_error("Missing SLIDERS gaf entry");
         }
 
-        return std::make_unique<UiScrollBar>(
+        auto scrollBar = std::make_unique<UiScrollBar>(
             entry.common.xpos,
             entry.common.ypos,
             entry.common.width,
             entry.common.height,
             *sprites);
+
+        scrollBar->scrollChanged().subscribe([ s = scrollBar.get(), c = controller, topic = guiName, group = entry.common.assoc, name = entry.common.name ](float scrollPercent) {
+            ScrollPositionMessage m{s->getScrollBarPercent(), scrollPercent};
+            c->scrollMessage(topic, group, name, m);
+        });
+
+        return scrollBar;
     }
 
     std::unique_ptr<UiComponent> UiFactory::createComponentFromGui(const std::string& guiName, const GuiEntry& entry)

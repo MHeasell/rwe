@@ -94,6 +94,7 @@ namespace rwe
         if (Rectangle2f::fromTopLeft(posX, posY, upArrow.bounds.width(), upArrow.bounds.height()).contains(event.x, event.y))
         {
             upArrowPressed = true;
+            scrollUpSubject.next(true);
             return;
         }
 
@@ -101,6 +102,7 @@ namespace rwe
         if (Rectangle2f::fromTopLeft(posX, posY + sizeY - downArrow.bounds.height(), downArrow.bounds.width(), downArrow.bounds.height()).contains(event.x, event.y))
         {
             downArrowPressed = true;
+            scrollDownSubject.next(true);
             return;
         }
 
@@ -136,7 +138,7 @@ namespace rwe
             auto boxInfo = getScrollBoxInfo();
 
             float deltaPercent = deltaPixels / boxInfo.range;
-            scrollPercent = std::clamp(mouseDownScrollPercent + deltaPercent, 0.0f, 1.0f);
+            scrollChangedSubject.next(std::clamp(mouseDownScrollPercent + deltaPercent, 0.0f, 1.0f));
         }
 
         if (backgroundPressed)
@@ -188,11 +190,11 @@ namespace rwe
 
             if (cursorPercent < boxTopPercent) // cursor above
             {
-                scrollPercent = std::clamp(scrollPercent - (scrollSpeed * dt), 0.0f, 1.0f);
+                scrollChangedSubject.next(std::clamp(scrollPercent - (scrollSpeed * dt), 0.0f, 1.0f));
             }
             else if (cursorPercent > boxTopPercent + scrollBarPercent) // cursor below
             {
-                scrollPercent = std::clamp(scrollPercent + (scrollSpeed * dt), 0.0f, 1.0f);
+                scrollChangedSubject.next(std::clamp(scrollPercent + (scrollSpeed * dt), 0.0f, 1.0f));
             }
 
             return;
@@ -201,6 +203,11 @@ namespace rwe
 
     void UiScrollBar::uiMessage(const GroupMessage& message)
     {
+        if (message.controlName == name)
+        {
+            return;
+        }
+
         if (message.group != group)
         {
             return;
@@ -214,5 +221,20 @@ namespace rwe
 
         scrollPercent = scrollMessage->scrollPosition;
         scrollBarPercent = scrollMessage->scrollViewportPercent;
+    }
+
+    Observable<float>& UiScrollBar::scrollChanged()
+    {
+        return scrollChangedSubject;
+    }
+
+    const Observable<float>& UiScrollBar::scrollChanged() const
+    {
+        return scrollChangedSubject;
+    }
+
+    float UiScrollBar::getScrollBarPercent() const
+    {
+        return scrollBarPercent;
     }
 }
