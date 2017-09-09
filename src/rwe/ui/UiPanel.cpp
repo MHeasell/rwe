@@ -187,4 +187,9 @@ namespace rwe
             c->uiMessage(message);
         }
     }
+
+    std::vector<std::unique_ptr<UiComponent>>& UiPanel::getChildren()
+    {
+        return children;
+    }
 }

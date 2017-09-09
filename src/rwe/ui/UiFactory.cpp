@@ -44,6 +44,8 @@ namespace rwe
             panel->appendChild(std::move(elem));
         }
 
+        attachDefaultEventHandlers(name, *panel);
+
         return panel;
     }
 
@@ -280,11 +282,6 @@ namespace rwe
             });
         }
 
-        listBox->scrollPosition().subscribe([ l = listBox.get(), c = controller, guiName, group = entry.common.assoc, name = entry.common.name ](const auto& /*scrollPos*/) {
-            ScrollPositionMessage m{l->getViewportPercent(), l->getScrollPercent()};
-            c->scrollMessage(guiName, group, name, m);
-        });
-
         return listBox;
     }
 
@@ -325,19 +322,6 @@ namespace rwe
             entry.common.width,
             entry.common.height,
             *sprites);
-
-        scrollBar->scrollChanged().subscribe([ s = scrollBar.get(), c = controller, topic = guiName, group = entry.common.assoc, name = entry.common.name ](float scrollPercent) {
-            ScrollPositionMessage m{s->getScrollBarPercent(), scrollPercent};
-            c->scrollMessage(topic, group, name, m);
-        });
-
-        scrollBar->scrollUp().subscribe([ s = scrollBar.get(), c = controller, topic = guiName, group = entry.common.assoc, name = entry.common.name ](const auto& /*msg*/) {
-            c->scrollUpMessage(topic, group, name);
-        });
-
-        scrollBar->scrollDown().subscribe([ s = scrollBar.get(), c = controller, topic = guiName, group = entry.common.assoc, name = entry.common.name ](const auto& /*msg*/) {
-            c->scrollDownMessage(topic, group, name);
-        });
 
         return scrollBar;
     }
@@ -397,4 +381,42 @@ namespace rwe
         return audioService->loadSound(*soundName);
     }
 
+    void UiFactory::attachDefaultEventHandlers(const std::string& guiName, UiPanel& panel)
+    {
+        auto messageSub = model->groupMessages.subscribe([&panel](const auto& msg) {
+            panel.uiMessage(msg);
+        });
+        panel.addSubscription(std::move(messageSub));
+
+
+        for (auto& c : panel.getChildren())
+        {
+            auto listBox = dynamic_cast<UiListBox*>(c.get());
+            if (listBox)
+            {
+                listBox->scrollPosition().subscribe([ listBox, c = controller, guiName ](const auto& /*scrollPos*/) {
+                    ScrollPositionMessage m{listBox->getViewportPercent(), listBox->getScrollPercent()};
+                    c->scrollMessage(guiName, listBox->getGroup(), listBox->getName(), m);
+                });
+            }
+
+            auto scrollBar = dynamic_cast<UiScrollBar*>(c.get());
+            if (scrollBar)
+            {
+                scrollBar->scrollChanged().subscribe([ scrollBar, c = controller, guiName ](float scrollPercent) {
+                    ScrollPositionMessage m{scrollBar->getScrollBarPercent(), scrollPercent};
+                    c->scrollMessage(guiName, scrollBar->getGroup(), scrollBar->getName(), m);
+                });
+
+                scrollBar->scrollUp().subscribe([ scrollBar, c = controller, guiName ](const auto& /*msg*/) {
+                    c->scrollUpMessage(guiName, scrollBar->getGroup(), scrollBar->getName());
+                });
+
+                scrollBar->scrollDown().subscribe([ scrollBar, c = controller, guiName ](const auto& /*msg*/) {
+                    c->scrollDownMessage(guiName, scrollBar->getGroup(), scrollBar->getName());
+                });
+            }
+        }
+
+    }
 }
