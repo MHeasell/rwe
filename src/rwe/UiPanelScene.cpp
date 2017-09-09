@@ -26,12 +26,12 @@ namespace rwe
     void UiPanelScene::render(GraphicsContext& context)
     {
         context.applyCamera(camera);
-        panelStack.back().render(context);
+        panelStack.back()->render(context);
 
         for (auto& e : dialogStack)
         {
             context.fillColor(0.0f, 0.0f, camera.getWidth(), camera.getHeight(), Color(0, 0, 0, 63));
-            e.render(context);
+            e->render(context);
         }
 
         cursor->render(context);
@@ -86,12 +86,12 @@ namespace rwe
         panelStack.pop_back();
     }
 
-    void UiPanelScene::goToMenu(UiPanel&& panel)
+    void UiPanelScene::goToMenu(std::unique_ptr<UiPanel>&& panel)
     {
         panelStack.push_back(std::move(panel));
     }
 
-    void UiPanelScene::openDialog(UiPanel&& panel)
+    void UiPanelScene::openDialog(std::unique_ptr<UiPanel>&& panel)
     {
         dialogStack.push_back(std::move(panel));
     }
@@ -110,10 +110,10 @@ namespace rwe
     {
         if (!dialogStack.empty())
         {
-            return dialogStack.back();
+            return *(dialogStack.back());
         }
 
-        return panelStack.back();
+        return *(panelStack.back());
     }
 
     void UiPanelScene::update()

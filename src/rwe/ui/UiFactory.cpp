@@ -6,7 +6,7 @@
 
 namespace rwe
 {
-    UiPanel UiFactory::panelFromGuiFile(const std::string& name, const std::string& background, const std::vector<GuiEntry>& entries)
+    std::unique_ptr<UiPanel> UiFactory::panelFromGuiFile(const std::string& name, const std::string& background, const std::vector<GuiEntry>& entries)
     {
         // first entry sets up the panel
         assert(entries.size() > 0);
@@ -19,7 +19,7 @@ namespace rwe
             panelEntry.common.width,
             panelEntry.common.height);
 
-        UiPanel panel(
+        auto panel = std::make_unique<UiPanel>(
             panelEntry.common.xpos,
             panelEntry.common.ypos,
             panelEntry.common.width,
@@ -32,7 +32,7 @@ namespace rwe
             auto& entry = entries[i];
 
             auto elem = createComponentFromGui(name, entry);
-            panel.appendChild(std::move(elem));
+            panel->appendChild(std::move(elem));
         }
 
         return panel;

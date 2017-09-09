@@ -31,7 +31,7 @@ namespace rwe
     public:
         UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs, SkirmishMenuModel* model, Controller* controller);
 
-        UiPanel panelFromGuiFile(const std::string& name, const std::string& background, const std::vector<GuiEntry>& entries);
+        std::unique_ptr<UiPanel> panelFromGuiFile(const std::string& name, const std::string& background, const std::vector<GuiEntry>& entries);
 
     private:
         std::unique_ptr<UiButton> buttonFromGuiFile(const std::string& guiName, const GuiEntry& entry);

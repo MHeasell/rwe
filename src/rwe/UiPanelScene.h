@@ -1,6 +1,7 @@
 #ifndef RWE_MAINMENUSCENE_H
 #define RWE_MAINMENUSCENE_H
 
+#include <memory>
 #include <rwe/AudioService.h>
 #include <rwe/CursorService.h>
 #include <rwe/SceneManager.h>
@@ -18,8 +19,8 @@ namespace rwe
         TdfBlock* soundLookup;
         CursorService* cursor;
 
-        std::vector<UiPanel> panelStack;
-        std::vector<UiPanel> dialogStack;
+        std::vector<std::unique_ptr<UiPanel>> panelStack;
+        std::vector<std::unique_ptr<UiPanel>> dialogStack;
         UiCamera camera;
 
 
@@ -48,9 +49,9 @@ namespace rwe
 
         bool hasPreviousMenu() const;
 
-        void goToMenu(UiPanel&& panel);
+        void goToMenu(std::unique_ptr<UiPanel>&& panel);
 
-        void openDialog(UiPanel&& panel);
+        void openDialog(std::unique_ptr<UiPanel>&& panel);
 
     private:
         AudioService::LoopToken startBgm();
