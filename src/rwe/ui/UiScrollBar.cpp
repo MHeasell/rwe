@@ -257,4 +257,16 @@ namespace rwe
     {
         return scrollDownSubject;
     }
+
+    void UiScrollBar::mouseWheel(MouseWheelEvent event)
+    {
+        if (event.y > 0)
+        {
+            scrollUpSubject.next(true);
+        }
+        else if (event.y < 0)
+        {
+            scrollDownSubject.next(true);
+        }
+    }
 }
