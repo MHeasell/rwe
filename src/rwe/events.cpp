@@ -17,4 +17,13 @@ namespace rwe
     MouseWheelEvent::MouseWheelEvent(int x, int y) : x(x), y(y)
     {
     }
+
+    GroupMessage::GroupMessage(
+        const std::string& topic,
+        unsigned int group,
+        const std::string& controlName,
+        const ScrollPositionMessage& message)
+        : topic(topic), group(group), controlName(controlName), message(message)
+    {
+    }
 }

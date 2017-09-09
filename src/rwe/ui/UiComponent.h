@@ -18,6 +18,9 @@ namespace rwe
         unsigned int sizeX;
         unsigned int sizeY;
 
+        std::string name;
+        unsigned int group{0};
+
     private:
         int lastMouseX{0};
         int lastMouseY{0};
@@ -68,6 +71,8 @@ namespace rwe
 
         virtual void update(float /*dt*/) {};
 
+        virtual void uiMessage(const GroupMessage& /*message*/) {}
+
         bool contains(int x, int y)
         {
             auto minX = posX;
@@ -78,6 +83,13 @@ namespace rwe
         }
 
         void addSubscription(std::unique_ptr<Subscription>&& s);
+
+        const std::string& getName() const;
+        void setName(const std::string& newName);
+        void setName(std::string&& newName);
+
+        unsigned int getGroup() const;
+        void setGroup(unsigned int newGroup);
     };
 }
 

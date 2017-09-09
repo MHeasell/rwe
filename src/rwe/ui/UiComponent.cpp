@@ -30,4 +30,29 @@ namespace rwe
             s->unsubscribe();
         }
     }
+
+    const std::string& UiComponent::getName() const
+    {
+        return name;
+    }
+
+    void UiComponent::setName(const std::string& newName)
+    {
+        name = newName;
+    }
+
+    void UiComponent::setName(std::string&& newName)
+    {
+        name = std::move(newName);
+    }
+
+    unsigned int UiComponent::getGroup() const
+    {
+        return group;
+    }
+
+    void UiComponent::setGroup(unsigned int newGroup)
+    {
+        group = newGroup;
+    }
 }

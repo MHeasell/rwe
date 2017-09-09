@@ -31,49 +31,14 @@ namespace rwe
         {
             auto& entry = entries[i];
 
-            switch (entry.common.id)
-            {
-                case GuiElementType::Button:
-                {
-                    auto stages = entry.stages.get_value_or(0);
-                    std::unique_ptr<UiComponent> btn;
-                    if (stages > 1)
-                    {
-                        btn = std::unique_ptr<UiComponent>(new UiStagedButton(stagedButtonFromGuiFile(name, entry)));
-                    }
-                    else
-                    {
-                        btn = std::unique_ptr<UiComponent>(new UiButton(buttonFromGuiFile(name, entry)));
-                    }
-
-                    panel.appendChild(std::move(btn));
-                    break;
-                }
-                case GuiElementType::ListBox:
-                {
-                    std::unique_ptr<UiComponent> elem(new UiListBox(listBoxFromGuiFile(name, entry)));
-                    panel.appendChild(std::move(elem));
-                    break;
-                }
-                case GuiElementType::Label:
-                {
-                    std::unique_ptr<UiComponent> lbl(new UiLabel(labelFromGuiFile(name, entry)));
-                    panel.appendChild(std::move(lbl));
-                    break;
-                }
-                case GuiElementType::ScrollBar:
-                {
-                    std::unique_ptr<UiComponent> elem(new UiScrollBar(scrollBarFromGuiFile(name, entry)));
-                    panel.appendChild(std::move(elem));
-                    break;
-                }
-            }
+            auto elem = createComponentFromGui(name, entry);
+            panel.appendChild(std::move(elem));
         }
 
         return panel;
     }
 
-    UiButton UiFactory::buttonFromGuiFile(const std::string& guiName, const GuiEntry& entry)
+    std::unique_ptr<UiButton> UiFactory::buttonFromGuiFile(const std::string& guiName, const GuiEntry& entry)
     {
 
         auto graphics = textureService->getGuiTexture(guiName, entry.common.name);
@@ -86,7 +51,7 @@ namespace rwe
 
         auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
 
-        UiButton button(
+        auto button = std::make_unique<UiButton>(
             entry.common.xpos,
             entry.common.ypos,
             entry.common.width,
@@ -99,12 +64,12 @@ namespace rwe
 
         if (sound)
         {
-            button.onClick().subscribe([ as = audioService, s = std::move(*sound) ](MouseButtonEvent /*event*/) {
+            button->onClick().subscribe([ as = audioService, s = std::move(*sound) ](MouseButtonEvent /*event*/) {
                 as->playSound(s);
             });
         }
 
-        button.onClick().subscribe([ c = controller, guiName, name = entry.common.name ](MouseButtonEvent /*event*/) {
+        button->onClick().subscribe([ c = controller, guiName, name = entry.common.name ](MouseButtonEvent /*event*/) {
             c->message(guiName, name);
         });
 
@@ -171,11 +136,11 @@ namespace rwe
         return audioService->loadSound(*soundName);
     }
 
-    UiLabel UiFactory::labelFromGuiFile(const std::string& guiName, const GuiEntry& entry)
+    std::unique_ptr<UiLabel> UiFactory::labelFromGuiFile(const std::string& guiName, const GuiEntry& entry)
     {
         auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
 
-        UiLabel label(
+        auto label = std::make_unique<UiLabel>(
             entry.common.xpos,
             entry.common.ypos,
             entry.common.width,
@@ -187,55 +152,55 @@ namespace rwe
         {
             if (entry.common.name == "DESCRIPTION")
             {
-                auto sub = model->candidateSelectedMap.subscribe([&label](const auto& selectedMap) {
+                auto sub = model->candidateSelectedMap.subscribe([l = label.get()](const auto& selectedMap) {
                     if (selectedMap)
                     {
-                        label.setText(selectedMap->description);
+                        l->setText(selectedMap->description);
                     }
                     else
                     {
-                        label.setText("");
+                        l->setText("");
                     }
                 });
-                label.addSubscription(std::move(sub));
+                label->addSubscription(std::move(sub));
             }
             else if (entry.common.name == "SIZE")
             {
-                auto sub = model->candidateSelectedMap.subscribe([&label](const auto& selectedMap) {
+                auto sub = model->candidateSelectedMap.subscribe([l = label.get()](const auto& selectedMap) {
                     if (selectedMap)
                     {
-                        label.setText(selectedMap->size);
+                        l->setText(selectedMap->size);
                     }
                     else
                     {
-                        label.setText("");
+                        l->setText("");
                     }
                 });
-                label.addSubscription(std::move(sub));
+                label->addSubscription(std::move(sub));
             }
         }
         else if (guiName == "SKIRMISH")
         {
             if (entry.common.name == "MapName")
             {
-                auto sub = model->selectedMap.subscribe([&label](const auto& selectedMap) {
+                auto sub = model->selectedMap.subscribe([l = label.get()](const auto& selectedMap) {
                     if (selectedMap)
                     {
-                        label.setText(selectedMap->name);
+                        l->setText(selectedMap->name);
                     }
                     else
                     {
-                        label.setText("");
+                        l->setText("");
                     }
                 });
-                label.addSubscription(std::move(sub));
+                label->addSubscription(std::move(sub));
             }
         }
 
         return label;
     }
 
-    UiStagedButton UiFactory::stagedButtonFromGuiFile(const std::string& guiName, const GuiEntry& entry)
+    std::unique_ptr<UiStagedButton> UiFactory::stagedButtonFromGuiFile(const std::string& guiName, const GuiEntry& entry)
     {
         auto graphics = textureService->getGuiTexture(guiName, entry.common.name);
         if (!graphics)
@@ -247,7 +212,7 @@ namespace rwe
 
         auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
 
-        UiStagedButton button(
+        auto button = std::make_unique<UiStagedButton>(
             entry.common.xpos,
             entry.common.ypos,
             entry.common.width,
@@ -260,12 +225,12 @@ namespace rwe
 
         if (sound)
         {
-            button.onClick([ as = audioService, s = std::move(*sound) ](MouseButtonEvent /*event*/) {
+            button->onClick([ as = audioService, s = std::move(*sound) ](MouseButtonEvent /*event*/) {
                 as->playSound(s);
             });
         }
 
-        button.onClick([ c = controller, guiName, name = entry.common.name ](MouseButtonEvent /*event*/) {
+        button->onClick([ c = controller, guiName, name = entry.common.name ](MouseButtonEvent /*event*/) {
             c->message(guiName, name);
         });
 
@@ -293,11 +258,11 @@ namespace rwe
         return series;
     }
 
-    UiListBox UiFactory::listBoxFromGuiFile(const std::string& guiName, const GuiEntry& entry)
+    std::unique_ptr<UiListBox> UiFactory::listBoxFromGuiFile(const std::string& guiName, const GuiEntry& entry)
     {
         auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
 
-        UiListBox listBox(
+        auto listBox = std::make_unique<UiListBox>(
             entry.common.xpos,
             entry.common.ypos,
             entry.common.width,
@@ -311,25 +276,25 @@ namespace rwe
             for (const auto& e : mapNames)
             {
                 // chop off the extension while adding
-                listBox.appendItem(e.substr(0, e.size() - 4));
+                listBox->appendItem(e.substr(0, e.size() - 4));
             }
 
-            auto sub = model->selectedMap.subscribe([&listBox](const auto& selectedMap) {
+            auto sub = model->selectedMap.subscribe([l = listBox.get()](const auto& selectedMap) {
                 if (selectedMap)
                 {
-                    listBox.setSelectedItem(selectedMap->name);
+                    l->setSelectedItem(selectedMap->name);
                 }
                 else
                 {
-                    listBox.clearSelectedItem();
+                    l->clearSelectedItem();
                 }
             });
-            listBox.addSubscription(std::move(sub));
+            listBox->addSubscription(std::move(sub));
 
-            listBox.selectedIndex().subscribe([&listBox, c = controller ](const auto& selectedMap) {
+            listBox->selectedIndex().subscribe([l = listBox.get(), c = controller ](const auto& selectedMap) {
                 if (selectedMap)
                 {
-                    c->setCandidateSelectedMap(listBox.getItems()[*selectedMap]);
+                    c->setCandidateSelectedMap(l->getItems()[*selectedMap]);
                 }
                 else
                 {
@@ -337,6 +302,12 @@ namespace rwe
                 }
             });
         }
+
+        auto scrollSub = listBox->scrollPosition().subscribe([l = listBox.get(), c = controller, guiName, group = entry.common.assoc, name = entry.common.name](const auto& /*scrollPos*/) {
+            ScrollPositionMessage m{l->getViewportPercent(), l->getScrollPercent()};
+            c->scrollMessage(guiName, group, name, m);
+        });
+        listBox->addSubscription(std::move(scrollSub));
 
         return listBox;
     }
@@ -364,7 +335,7 @@ namespace rwe
         return sound;
     }
 
-    UiScrollBar UiFactory::scrollBarFromGuiFile(const std::string& guiName, const GuiEntry& entry)
+    std::unique_ptr<UiScrollBar> UiFactory::scrollBarFromGuiFile(const std::string& guiName, const GuiEntry& entry)
     {
         auto sprites = textureService->getGuiTexture(guiName, "SLIDERS");
         if (!sprites)
@@ -372,11 +343,38 @@ namespace rwe
             throw std::runtime_error("Missing SLIDERS gaf entry");
         }
 
-        return UiScrollBar(
+        return std::make_unique<UiScrollBar>(
             entry.common.xpos,
             entry.common.ypos,
             entry.common.width,
             entry.common.height,
             *sprites);
+    }
+
+    std::unique_ptr<UiComponent> UiFactory::createComponentFromGui(const std::string& guiName, const GuiEntry& entry)
+    {
+        switch (entry.common.id)
+        {
+            case GuiElementType::Button:
+            {
+                auto stages = entry.stages.get_value_or(0);
+                if (stages > 1)
+                {
+                    return stagedButtonFromGuiFile(guiName, entry);
+                }
+                else
+                {
+                    return buttonFromGuiFile(guiName, entry);
+                }
+            }
+            case GuiElementType::ListBox:
+                return listBoxFromGuiFile(guiName, entry);
+            case GuiElementType::Label:
+                return labelFromGuiFile(guiName, entry);
+            case GuiElementType::ScrollBar:
+                return scrollBarFromGuiFile(guiName, entry);
+            default:
+                return std::make_unique<UiComponent>(0, 0, 1, 1);
+        }
     }
 }

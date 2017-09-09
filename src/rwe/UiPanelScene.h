@@ -40,6 +40,8 @@ namespace rwe
 
         void onMouseWheel(MouseWheelEvent event) override;
 
+        void onUiMessage(const GroupMessage& message);
+
         void update() override;
 
         void goToPreviousMenu();

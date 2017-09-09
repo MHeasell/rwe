@@ -15,7 +15,7 @@ namespace rwe
         for (unsigned int i = 0; i < lines; ++i)
         {
             float y = 12.0f + (i * 12.0f);
-            auto itemIndex = scrollPosition + i;
+            auto itemIndex = scrollPositionSubject.getValue() + i;
 
             const auto& selectedIndexValue = selectedIndexSubject.getValue();
             if (selectedIndexValue && itemIndex == *selectedIndexValue)
@@ -42,7 +42,7 @@ namespace rwe
             return;
         }
 
-        auto index = *line + scrollPosition;
+        auto index = *line + scrollPositionSubject.getValue();
         if (index < items.size())
         {
             selectedIndexSubject.next(index);
@@ -85,24 +85,24 @@ namespace rwe
         auto maxScroll = maxScrollPosition();
         if (event.y < 0)
         {
-            if (scrollPosition < maxScroll - 3)
+            if (scrollPositionSubject.getValue() < maxScroll - 3)
             {
-                scrollPosition += 3;
+                scrollPositionSubject.next(scrollPositionSubject.getValue() + 3);
             }
             else
             {
-                scrollPosition = maxScroll;
+                scrollPositionSubject.next(maxScroll);
             }
         }
         else if (event.y > 0)
         {
-            if (scrollPosition > 3)
+            if (scrollPositionSubject.getValue() > 3)
             {
-                scrollPosition -= 3;
+                scrollPositionSubject.next(scrollPositionSubject.getValue() - 3);
             }
             else
             {
-                scrollPosition = 0;
+                scrollPositionSubject.next(0);
             }
         }
     }
@@ -151,11 +151,11 @@ namespace rwe
         auto maxScroll = maxScrollPosition();
         if (newPosition > maxScroll)
         {
-            scrollPosition = maxScroll;
+            scrollPositionSubject.next(maxScroll);
         }
         else
         {
-            scrollPosition = newPosition;
+            scrollPositionSubject.next(newPosition);
         }
     }
 
@@ -171,5 +171,40 @@ namespace rwe
         {
             return 0;
         }
+    }
+
+    Observable<unsigned int>& UiListBox::scrollPosition()
+    {
+        return scrollPositionSubject;
+    }
+
+    const Observable<unsigned int>& UiListBox::scrollPosition() const
+    {
+        return scrollPositionSubject;
+    }
+
+    float UiListBox::getScrollPercent() const
+    {
+        auto scrollIndex = scrollPositionSubject.getValue();
+        auto maxScrollIndex = maxScrollPosition();
+        if (maxScrollIndex == 0)
+        {
+            return 0.0f;
+        }
+
+        return static_cast<float>(scrollIndex) / static_cast<float>(maxScrollIndex);
+    }
+
+    float UiListBox::getViewportPercent() const
+    {
+        auto itemCount = items.size();
+        auto linesCount = numberOfLines();
+
+        if (linesCount >= itemCount)
+        {
+            return 100.0f;
+        }
+
+        return static_cast<float>(linesCount) / static_cast<float>(itemCount);
     }
 }

@@ -1,6 +1,9 @@
 #ifndef RWE_EVENTS_H
 #define RWE_EVENTS_H
 
+#include <boost/variant.hpp>
+#include <string>
+
 namespace rwe
 {
     struct MouseButtonEvent
@@ -40,6 +43,23 @@ namespace rwe
 
         MouseWheelEvent(int x, int y);
     };
+
+    struct ScrollPositionMessage
+    {
+        float scrollViewportPercent;
+        float scrollPosition;
+    };
+
+    struct GroupMessage
+    {
+        std::string topic;
+        unsigned int group;
+        std::string controlName;
+        boost::variant<ScrollPositionMessage> message;
+
+        GroupMessage(const std::string& topic, unsigned int group, const std::string& controlName, const ScrollPositionMessage& message);
+    };
+
 }
 
 #endif

@@ -179,4 +179,12 @@ namespace rwe
 
         children[*focusedChild]->mouseWheel(event);
     }
+
+    void UiPanel::uiMessage(const GroupMessage& message)
+    {
+        for (auto& c : children)
+        {
+            c->uiMessage(message);
+        }
+    }
 }

@@ -34,15 +34,15 @@ namespace rwe
         UiPanel panelFromGuiFile(const std::string& name, const std::string& background, const std::vector<GuiEntry>& entries);
 
     private:
-        UiButton buttonFromGuiFile(const std::string& guiName, const GuiEntry& entry);
+        std::unique_ptr<UiButton> buttonFromGuiFile(const std::string& guiName, const GuiEntry& entry);
 
-        UiStagedButton stagedButtonFromGuiFile(const std::string& guiName, const GuiEntry& entry);
+        std::unique_ptr<UiStagedButton> stagedButtonFromGuiFile(const std::string& guiName, const GuiEntry& entry);
 
-        UiLabel labelFromGuiFile(const std::string& guiName, const GuiEntry& entry);
+        std::unique_ptr<UiLabel> labelFromGuiFile(const std::string& guiName, const GuiEntry& entry);
 
-        UiScrollBar scrollBarFromGuiFile(const std::string& guiName, const GuiEntry& entry);
+        std::unique_ptr<UiScrollBar> scrollBarFromGuiFile(const std::string& guiName, const GuiEntry& entry);
 
-        UiListBox listBoxFromGuiFile(const std::string& guiName, const GuiEntry& entry);
+        std::unique_ptr<UiListBox> listBoxFromGuiFile(const std::string& guiName, const GuiEntry& entry);
 
         std::shared_ptr<SpriteSeries> getDefaultButtonGraphics(const std::string& guiName, int width, int height);
 
@@ -51,6 +51,8 @@ namespace rwe
         boost::optional<AudioService::SoundHandle> deduceButtonSound(const std::string& guiName, const GuiEntry& entry);
 
         std::shared_ptr<SpriteSeries> getDefaultStagedButtonGraphics(const std::string& guiName, int stages);
+
+        std::unique_ptr<UiComponent> createComponentFromGui(const std::string& guiName, const GuiEntry& entry);
     };
 }
 

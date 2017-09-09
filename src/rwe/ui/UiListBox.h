@@ -16,8 +16,7 @@ namespace rwe
         std::vector<std::string> items;
         std::shared_ptr<SpriteSeries> font;
         BehaviorSubject<boost::optional<unsigned int>> selectedIndexSubject;
-
-        unsigned int scrollPosition{0};
+        BehaviorSubject<unsigned int> scrollPositionSubject{0};
 
     public:
         UiListBox(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<SpriteSeries> font);
@@ -37,7 +36,15 @@ namespace rwe
 
         const Observable<boost::optional<unsigned int>>& selectedIndex() const;
 
+        Observable<unsigned int>& scrollPosition();
+
+        const Observable<unsigned int>& scrollPosition() const;
+
         const std::vector<std::string>& getItems();
+
+        float getScrollPercent() const;
+
+        float getViewportPercent() const;
 
     private:
         unsigned int numberOfLines() const;

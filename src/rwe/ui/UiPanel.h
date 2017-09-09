@@ -44,6 +44,8 @@ namespace rwe
 
         void update(float dt) override;
 
+        void uiMessage(const GroupMessage& message) override;
+
         void focus() override;
 
         void unfocus() override;

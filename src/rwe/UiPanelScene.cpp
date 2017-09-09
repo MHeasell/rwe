@@ -125,4 +125,9 @@ namespace rwe
     {
         topPanel().mouseWheel(event);
     }
+
+    void UiPanelScene::onUiMessage(const GroupMessage& message)
+    {
+        topPanel().uiMessage(message);
+    }
 }

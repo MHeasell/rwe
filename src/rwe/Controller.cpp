@@ -206,4 +206,14 @@ namespace rwe
     {
         model->candidateSelectedMap.next(boost::none);
     }
+
+    void Controller::scrollMessage(
+        const std::string& topic,
+        unsigned int group,
+        const std::string& name,
+        const ScrollPositionMessage& message)
+    {
+        GroupMessage gm(topic, group, name, message);
+        model->groupMessages.next(gm);
+    }
 }

@@ -2,6 +2,8 @@
 #define RWE_SKIRMISHMENUMODEL_H
 
 #include <boost/optional.hpp>
+#include <boost/variant.hpp>
+#include <rwe/events.h>
 #include <rwe/observable/BehaviorSubject.h>
 #include <string>
 
@@ -22,6 +24,8 @@ namespace rwe
         };
 
     public:
+        Subject<GroupMessage> groupMessages;
+
         BehaviorSubject<boost::optional<SelectedMapInfo>> selectedMap;
 
         BehaviorSubject<boost::optional<SelectedMapInfo>> candidateSelectedMap;
