@@ -20,7 +20,7 @@ namespace rwe
 
         std::shared_ptr<SpriteSeries> sprites;
 
-        float scrollBarPercent{0.5f};
+        float scrollBarPercent{1.0f};
 
         float scrollPercent{0.0f};
 
