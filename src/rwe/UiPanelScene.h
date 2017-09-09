@@ -38,6 +38,8 @@ namespace rwe
 
         void onMouseMove(MouseMoveEvent event) override;
 
+        void onMouseWheel(MouseWheelEvent event) override;
+
         void update() override;
 
         void goToPreviousMenu();

@@ -120,4 +120,9 @@ namespace rwe
     {
         topPanel().update(static_cast<float>(SceneManager::TickInterval) / 1000.0f);
     }
+
+    void UiPanelScene::onMouseWheel(MouseWheelEvent event)
+    {
+        topPanel().mouseWheel(event);
+    }
 }

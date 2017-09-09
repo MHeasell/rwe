@@ -30,6 +30,8 @@ namespace rwe
 
             virtual void onMouseMove(MouseMoveEvent /*event*/) {}
 
+            virtual void onMouseWheel(MouseWheelEvent /*event*/) {}
+
             virtual ~Scene() = default;
         };
 

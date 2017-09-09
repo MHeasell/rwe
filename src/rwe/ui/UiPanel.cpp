@@ -169,4 +169,14 @@ namespace rwe
             c->update(dt);
         }
     }
+
+    void UiPanel::mouseWheel(MouseWheelEvent event)
+    {
+        if (!focusedChild)
+        {
+            return;
+        }
+
+        children[*focusedChild]->mouseWheel(event);
+    }
 }

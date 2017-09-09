@@ -10,28 +10,22 @@ namespace rwe
 
     void UiListBox::render(GraphicsContext& context) const
     {
-        float y = 0.0f;
-        unsigned int i = 0;
-        for (const auto& e : items)
-        {
-            y += 12.0f;
+        auto lines = numberOfLines();
 
-            // stop one row short of the bottom
-            // because listboxes defined in gui files are normally too long
-            if (y + 12.0f > sizeY)
-            {
-                break;
-            }
+        for (unsigned int i = 0; i < lines; ++i)
+        {
+            float y = 12.0f + (i * 12.0f);
+            auto itemIndex = scrollPosition + i;
 
             const auto& selectedIndexValue = selectedIndexSubject.getValue();
-            if (selectedIndexValue && i == *selectedIndexValue)
+            if (selectedIndexValue && itemIndex == *selectedIndexValue)
             {
                 context.fillColor(posX, posY + y - 11.0f, sizeX, 12.0f, Color(255, 255, 255, 31));
             }
 
-            context.drawText(posX, posY + y, e, *font);
+            const auto& e = items[itemIndex];
 
-            ++i;
+            context.drawText(posX, posY + y, e, *font);
         }
     }
 
@@ -42,7 +36,13 @@ namespace rwe
 
     void UiListBox::mouseDown(MouseButtonEvent event)
     {
-        auto index = static_cast<unsigned int>((event.y - posY) / 12.0f);
+        auto line = pixelToLine(event.y);
+        if (!line)
+        {
+            return;
+        }
+
+        auto index = *line + scrollPosition;
         if (index < items.size())
         {
             selectedIndexSubject.next(index);
@@ -54,7 +54,9 @@ namespace rwe
         auto it = std::find(items.begin(), items.end(), item);
         if (it != items.end())
         {
-            selectedIndexSubject.next(it - items.begin());
+            auto index = static_cast<unsigned int>(it - items.begin());
+            selectedIndexSubject.next(index);
+            setScrollPositionCentered(index);
         }
     }
 
@@ -76,5 +78,89 @@ namespace rwe
     const std::vector<std::string>& UiListBox::getItems()
     {
         return items;
+    }
+
+    void UiListBox::mouseWheel(MouseWheelEvent event)
+    {
+        auto maxScroll = maxScrollPosition();
+        if (event.y < 0)
+        {
+            if (scrollPosition < maxScroll - 3)
+            {
+                scrollPosition += 3;
+            }
+            else
+            {
+                scrollPosition = maxScroll;
+            }
+        }
+        else if (event.y > 0)
+        {
+            if (scrollPosition > 3)
+            {
+                scrollPosition -= 3;
+            }
+            else
+            {
+                scrollPosition = 0;
+            }
+        }
+    }
+
+    unsigned int UiListBox::numberOfLines() const
+    {
+        auto lines = static_cast<unsigned int>((sizeY) / 12.0f);
+
+        // listboxes defined in TA guis tend to be too long,
+        // so shorten our number of lines by 1 to compensate.
+        return lines - 1;
+    }
+
+    boost::optional<unsigned int> UiListBox::pixelToLine(int y) const
+    {
+        auto floatIndex = (y - posY) / 12.0f;
+        if (floatIndex < 0.0f)
+        {
+            return boost::none;
+        }
+
+        auto index = static_cast<unsigned int>(floatIndex);
+        if (index >= numberOfLines())
+        {
+            return boost::none;
+        }
+
+        return index;
+    }
+
+    void UiListBox::setScrollPositionCentered(unsigned int newPosition)
+    {
+        auto halfLines = numberOfLines() / 2;
+        if (newPosition > halfLines)
+        {
+            setScrollPosition(static_cast<unsigned int>(newPosition - halfLines));
+        }
+        else
+        {
+            setScrollPosition(0);
+        }
+    }
+
+    void UiListBox::setScrollPosition(unsigned int newPosition)
+    {
+        auto maxScroll = maxScrollPosition();
+        if (newPosition > maxScroll)
+        {
+            scrollPosition = maxScroll;
+        }
+        else
+        {
+            scrollPosition = newPosition;
+        }
+    }
+
+    unsigned int UiListBox::maxScrollPosition() const
+    {
+        return static_cast<unsigned int>(items.size() - numberOfLines());
     }
 }

@@ -13,4 +13,8 @@ namespace rwe
     MouseMoveEvent::MouseMoveEvent(int x, int y) : x(x), y(y)
     {
     }
+
+    MouseWheelEvent::MouseWheelEvent(int x, int y) : x(x), y(y)
+    {
+    }
 }

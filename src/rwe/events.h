@@ -32,6 +32,14 @@ namespace rwe
 
         explicit MouseMoveEvent(int x, int y);
     };
+
+    struct MouseWheelEvent
+    {
+        int x;
+        int y;
+
+        MouseWheelEvent(int x, int y);
+    };
 }
 
 #endif

@@ -79,6 +79,12 @@ namespace rwe
                         currentScene->onMouseMove(e);
                         break;
                     }
+                    case SDL_MOUSEWHEEL:
+                    {
+                        MouseWheelEvent e(event.wheel.x, event.wheel.y);
+                        currentScene->onMouseWheel(e);
+                        break;
+                    }
 
                     default:
                         // skip unrecognised events

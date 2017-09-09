@@ -40,6 +40,8 @@ namespace rwe
 
         void mouseMove(MouseMoveEvent event) override;
 
+        void mouseWheel(MouseWheelEvent event) override;
+
         void update(float dt) override;
 
         void focus() override;
