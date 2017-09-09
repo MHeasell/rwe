@@ -10,7 +10,7 @@ namespace rwe
 
     void UiListBox::render(GraphicsContext& context) const
     {
-        auto lines = numberOfLines();
+        auto lines = std::min<unsigned int>(numberOfLines(), items.size());
 
         for (unsigned int i = 0; i < lines; ++i)
         {
@@ -161,6 +161,15 @@ namespace rwe
 
     unsigned int UiListBox::maxScrollPosition() const
     {
-        return static_cast<unsigned int>(items.size() - numberOfLines());
+        auto listSize = items.size();
+        auto displayLines = numberOfLines();
+        if (listSize > displayLines)
+        {
+            return static_cast<unsigned int>(listSize - displayLines);
+        }
+        else
+        {
+            return 0;
+        }
     }
 }
