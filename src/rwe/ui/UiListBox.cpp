@@ -207,4 +207,21 @@ namespace rwe
 
         return static_cast<float>(linesCount) / static_cast<float>(itemCount);
     }
+
+    void UiListBox::uiMessage(const GroupMessage& message)
+    {
+        if (message.group != group)
+        {
+            return;
+        }
+
+        auto scrollMessage = boost::get<ScrollPositionMessage>(&(message.message));
+        if (!scrollMessage)
+        {
+            return;
+        }
+
+        auto scrollPos = static_cast<unsigned int>(scrollMessage->scrollPosition * maxScrollPosition());
+        scrollPositionSubject.next(scrollPos);
+    }
 }

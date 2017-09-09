@@ -30,6 +30,11 @@ namespace rwe
 
     void Controller::start()
     {
+        auto sub = model->groupMessages.subscribe([s = scene](const auto& msg) {
+            s->onUiMessage(msg);
+        });
+        subscriptions.push_back(std::move(sub));
+
         goToMainMenu();
         sceneManager->setNextScene(scene);
         sceneManager->execute();
@@ -215,5 +220,13 @@ namespace rwe
     {
         GroupMessage gm(topic, group, name, message);
         model->groupMessages.next(gm);
+    }
+
+    Controller::~Controller()
+    {
+        for (auto& sub : subscriptions)
+        {
+            sub->unsubscribe();
+        }
     }
 }

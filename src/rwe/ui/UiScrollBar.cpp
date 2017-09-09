@@ -198,4 +198,21 @@ namespace rwe
             return;
         }
     }
+
+    void UiScrollBar::uiMessage(const GroupMessage& message)
+    {
+        if (message.group != group)
+        {
+            return;
+        }
+
+        auto scrollMessage = boost::get<ScrollPositionMessage>(&(message.message));
+        if (!scrollMessage)
+        {
+            return;
+        }
+
+        scrollPercent = scrollMessage->scrollPosition;
+        scrollBarPercent = scrollMessage->scrollViewportPercent;
+    }
 }

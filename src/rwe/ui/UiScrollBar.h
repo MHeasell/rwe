@@ -54,6 +54,8 @@ namespace rwe
 
         void update(float dt) override;
 
+        void uiMessage(const GroupMessage& message) override;
+
     private:
         void drawScrollBox(GraphicsContext& context, float x, float y, float height) const;
 

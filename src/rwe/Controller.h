@@ -3,12 +3,13 @@
 
 #include <memory>
 #include <rwe/AudioService.h>
+#include <rwe/CursorService.h>
+#include <rwe/SkirmishMenuModel.h>
 #include <rwe/UiPanelScene.h>
+#include <rwe/observable/Subscription.h>
 #include <rwe/tdf/SimpleTdfAdapter.h>
 #include <rwe/ui/UiFactory.h>
 #include <rwe/vfs/AbstractVirtualFileSystem.h>
-#include <rwe/CursorService.h>
-#include <rwe/SkirmishMenuModel.h>
 
 #include "SceneManager.h"
 
@@ -30,6 +31,8 @@ namespace rwe
 
         AudioService::LoopToken bgmHandle;
 
+        std::vector<std::unique_ptr<Subscription>> subscriptions;
+
     public:
         Controller(
             AbstractVirtualFileSystem* vfs,
@@ -39,6 +42,8 @@ namespace rwe
             TextureService* textureService,
             CursorService* cursor,
             SkirmishMenuModel* model);
+
+        ~Controller();
 
         void goToMainMenu();
 

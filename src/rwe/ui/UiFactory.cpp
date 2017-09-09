@@ -32,6 +32,10 @@ namespace rwe
             auto& entry = entries[i];
 
             auto elem = createComponentFromGui(name, entry);
+
+            elem->setName(entry.common.name);
+            elem->setGroup(entry.common.assoc);
+
             panel->appendChild(std::move(elem));
         }
 

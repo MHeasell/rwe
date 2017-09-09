@@ -32,6 +32,8 @@ namespace rwe
 
         void mouseWheel(MouseWheelEvent event) override;
 
+        void uiMessage(const GroupMessage& message) override;
+
         Observable<boost::optional<unsigned int>>& selectedIndex();
 
         const Observable<boost::optional<unsigned int>>& selectedIndex() const;
