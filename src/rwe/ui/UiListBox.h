@@ -13,6 +13,34 @@ namespace rwe
     class UiListBox : public UiComponent
     {
     private:
+        class ListBoxUiMessageVisitor : public boost::static_visitor<>
+        {
+        private:
+            UiListBox* listBox;
+
+        public:
+            explicit ListBoxUiMessageVisitor(UiListBox* listBox) : listBox(listBox)
+            {}
+
+            void operator()(const ScrollPositionMessage& msg) const
+            {
+                auto scrollPos = static_cast<unsigned int>(msg.scrollPosition * listBox->maxScrollPosition());
+                listBox->scrollPositionSubject.next(scrollPos);
+            }
+
+            void operator()(const ScrollUpMessage& /*msg*/) const
+            {
+                listBox->scrollUp();
+            }
+
+            void operator()(const ScrollDownMessage& /*msg*/) const
+            {
+                listBox->scrollDown();
+            }
+        };
+
+
+    private:
         std::vector<std::string> items;
         std::shared_ptr<SpriteSeries> font;
         BehaviorSubject<boost::optional<unsigned int>> selectedIndexSubject;
@@ -58,6 +86,10 @@ namespace rwe
         void setScrollPositionCentered(unsigned int newPosition);
 
         unsigned int maxScrollPosition() const;
+
+        void scrollUp();
+
+        void scrollDown();
     };
 }
 

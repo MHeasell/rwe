@@ -65,6 +65,14 @@ namespace rwe
 
         const Observable<float>& scrollChanged() const;
 
+        Observable<bool>& scrollUp();
+
+        const Observable<bool>& scrollUp() const;
+
+        Observable<bool>& scrollDown();
+
+        const Observable<bool>& scrollDown() const;
+
         float getScrollBarPercent() const;
 
     private:

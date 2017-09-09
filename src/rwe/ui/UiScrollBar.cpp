@@ -237,4 +237,24 @@ namespace rwe
     {
         return scrollBarPercent;
     }
+
+    Observable<bool>& UiScrollBar::scrollUp()
+    {
+        return scrollUpSubject;
+    }
+
+    const Observable<bool>& UiScrollBar::scrollUp() const
+    {
+        return scrollUpSubject;
+    }
+
+    Observable<bool>& UiScrollBar::scrollDown()
+    {
+        return scrollDownSubject;
+    }
+
+    const Observable<bool>& UiScrollBar::scrollDown() const
+    {
+        return scrollDownSubject;
+    }
 }

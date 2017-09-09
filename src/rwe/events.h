@@ -50,14 +50,26 @@ namespace rwe
         float scrollPosition;
     };
 
+    struct ScrollUpMessage
+    {
+    };
+
+    struct ScrollDownMessage
+    {
+    };
+
     struct GroupMessage
     {
         std::string topic;
         unsigned int group;
         std::string controlName;
-        boost::variant<ScrollPositionMessage> message;
+        boost::variant<ScrollPositionMessage, ScrollUpMessage, ScrollDownMessage> message;
 
         GroupMessage(const std::string& topic, unsigned int group, const std::string& controlName, const ScrollPositionMessage& message);
+
+        GroupMessage(const std::string& topic, unsigned int group, const std::string& controlName, const ScrollUpMessage& message);
+
+        GroupMessage(const std::string& topic, unsigned int group, const std::string& controlName, const ScrollDownMessage& message);
     };
 }
 

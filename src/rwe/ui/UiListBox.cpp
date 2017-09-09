@@ -2,7 +2,6 @@
 
 namespace rwe
 {
-
     UiListBox::UiListBox(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<SpriteSeries> font)
         : UiComponent(posX, posY, sizeX, sizeY), font(std::move(font))
     {
@@ -82,28 +81,13 @@ namespace rwe
 
     void UiListBox::mouseWheel(MouseWheelEvent event)
     {
-        auto maxScroll = maxScrollPosition();
         if (event.y < 0)
         {
-            if (scrollPositionSubject.getValue() < maxScroll - 3)
-            {
-                scrollPositionSubject.next(scrollPositionSubject.getValue() + 3);
-            }
-            else
-            {
-                scrollPositionSubject.next(maxScroll);
-            }
+            scrollDown();
         }
         else if (event.y > 0)
         {
-            if (scrollPositionSubject.getValue() > 3)
-            {
-                scrollPositionSubject.next(scrollPositionSubject.getValue() - 3);
-            }
-            else
-            {
-                scrollPositionSubject.next(0);
-            }
+            scrollUp();
         }
     }
 
@@ -220,13 +204,31 @@ namespace rwe
             return;
         }
 
-        auto scrollMessage = boost::get<ScrollPositionMessage>(&(message.message));
-        if (!scrollMessage)
-        {
-            return;
-        }
+        boost::apply_visitor(ListBoxUiMessageVisitor(this), message.message);
+    }
 
-        auto scrollPos = static_cast<unsigned int>(scrollMessage->scrollPosition * maxScrollPosition());
-        scrollPositionSubject.next(scrollPos);
+    void UiListBox::scrollUp()
+    {
+        if (scrollPositionSubject.getValue() > 3)
+        {
+            scrollPositionSubject.next(scrollPositionSubject.getValue() - 3);
+        }
+        else
+        {
+            scrollPositionSubject.next(0);
+        }
+    }
+
+    void UiListBox::scrollDown()
+    {
+        auto maxScroll = maxScrollPosition();
+        if (scrollPositionSubject.getValue() < maxScroll - 3)
+        {
+            scrollPositionSubject.next(scrollPositionSubject.getValue() + 3);
+        }
+        else
+        {
+            scrollPositionSubject.next(maxScroll);
+        }
     }
 }

@@ -229,4 +229,16 @@ namespace rwe
             sub->unsubscribe();
         }
     }
+
+    void Controller::scrollUpMessage(const std::string& topic, unsigned int group, const std::string& name)
+    {
+        ScrollUpMessage m;
+        model->groupMessages.next(GroupMessage(topic, group, name, m));
+    }
+
+    void Controller::scrollDownMessage(const std::string& topic, unsigned int group, const std::string& name)
+    {
+        ScrollDownMessage m;
+        model->groupMessages.next(GroupMessage(topic, group, name, m));
+    }
 }

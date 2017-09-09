@@ -63,6 +63,10 @@ namespace rwe
 
         void scrollMessage(const std::string& topic, unsigned int group, const std::string& name, const ScrollPositionMessage& m);
 
+        void scrollUpMessage(const std::string& topic, unsigned int group, const std::string& name);
+
+        void scrollDownMessage(const std::string& topic, unsigned int group, const std::string& name);
+
         void setCandidateSelectedMap(const std::string& mapName);
 
         void clearCandidateSelectedMap();

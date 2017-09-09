@@ -307,11 +307,10 @@ namespace rwe
             });
         }
 
-        auto scrollSub = listBox->scrollPosition().subscribe([ l = listBox.get(), c = controller, guiName, group = entry.common.assoc, name = entry.common.name ](const auto& /*scrollPos*/) {
+        listBox->scrollPosition().subscribe([ l = listBox.get(), c = controller, guiName, group = entry.common.assoc, name = entry.common.name ](const auto& /*scrollPos*/) {
             ScrollPositionMessage m{l->getViewportPercent(), l->getScrollPercent()};
             c->scrollMessage(guiName, group, name, m);
         });
-        listBox->addSubscription(std::move(scrollSub));
 
         return listBox;
     }
@@ -357,6 +356,14 @@ namespace rwe
         scrollBar->scrollChanged().subscribe([ s = scrollBar.get(), c = controller, topic = guiName, group = entry.common.assoc, name = entry.common.name ](float scrollPercent) {
             ScrollPositionMessage m{s->getScrollBarPercent(), scrollPercent};
             c->scrollMessage(topic, group, name, m);
+        });
+
+        scrollBar->scrollUp().subscribe([ s = scrollBar.get(), c = controller, topic = guiName, group = entry.common.assoc, name = entry.common.name ](const auto& /*msg*/) {
+            c->scrollUpMessage(topic, group, name);
+        });
+
+        scrollBar->scrollDown().subscribe([ s = scrollBar.get(), c = controller, topic = guiName, group = entry.common.assoc, name = entry.common.name ](const auto& /*msg*/) {
+            c->scrollDownMessage(topic, group, name);
         });
 
         return scrollBar;
