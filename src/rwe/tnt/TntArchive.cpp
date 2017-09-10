@@ -58,4 +58,9 @@ namespace rwe
             featureCallback(str);
         }
     }
+
+    const TntHeader& TntArchive::getHeader() const
+    {
+        return header;
+    }
 }

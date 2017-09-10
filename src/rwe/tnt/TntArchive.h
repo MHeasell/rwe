@@ -17,7 +17,7 @@ namespace rwe
     {
         uint32_t magicNumber;
         uint32_t width;
-        uint32_t heght;
+        uint32_t height;
         uint32_t mapDataOffset;
         uint32_t mapAttributesOffset;
         uint32_t tileGraphicsOffset;
@@ -86,6 +86,8 @@ namespace rwe
         void readMapData(char* outputBuffer);
 
         void readMapAttributes(TntTileAttributes* outputBuffer);
+
+        const TntHeader& getHeader() const;
     };
 }
 
