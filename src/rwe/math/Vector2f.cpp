@@ -81,9 +81,14 @@ namespace rwe
         return (x * rhs.x) + (y * rhs.y);
     }
 
-    bool Vector2f::operator==(const Vector2f& rhs)
+    bool Vector2f::operator==(const Vector2f& rhs) const
     {
         return x == rhs.x && y == rhs.y;
+    }
+
+    bool Vector2f::operator!=(const Vector2f& rhs) const
+    {
+        return !(*this == rhs);
     }
 
     Vector2f operator+(const Vector2f& lhs, const Vector2f& rhs)
