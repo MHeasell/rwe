@@ -46,6 +46,18 @@ namespace rwe
 
         attachDefaultEventHandlers(name, *panel);
 
+        // set the default focused control
+        if (panelEntry.defaultFocus)
+        {
+            const auto& focusName = panelEntry.defaultFocus.get();
+            const auto& children = panel->getChildren();
+            auto it = std::find_if(children.begin(), children.end(), [&focusName](const auto& c) { return c->getName() == focusName; });
+            if (it != children.end())
+            {
+                panel->setFocus(it - children.begin());
+            }
+        }
+
         return panel;
     }
 

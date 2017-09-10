@@ -54,7 +54,6 @@ namespace rwe
 
         std::vector<std::unique_ptr<UiComponent>>& getChildren();
 
-    private:
         void setFocus(std::size_t controlIndex);
 
         void clearFocus();
