@@ -57,9 +57,7 @@ namespace rwe
     {
         if (armed && pressed)
         {
-            auto stageCount = spriteSeries->sprites.size() - 3;
-            currentStage = (currentStage + 1) % stageCount;
-            clickSubject.next(true);
+            activateButton();
         }
 
         armed = false;
@@ -92,9 +90,16 @@ namespace rwe
 
     void UiStagedButton::keyDown(KeyEvent event)
     {
-        if (event.keyCode == SDLK_RETURN)
+        if (event.keyCode == SDLK_SPACE)
         {
-            clickSubject.next(true);
+            activateButton();
         }
+    }
+
+    void UiStagedButton::activateButton()
+    {
+        auto stageCount = spriteSeries->sprites.size() - 3;
+        currentStage = (currentStage + 1) % stageCount;
+        clickSubject.next(true);
     }
 }

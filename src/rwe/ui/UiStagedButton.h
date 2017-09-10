@@ -53,6 +53,9 @@ namespace rwe
         void keyDown(KeyEvent event) override;
 
         Observable<bool>& onClick();
+
+    private:
+        void activateButton();
     };
 }
 
