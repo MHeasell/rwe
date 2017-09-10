@@ -23,6 +23,10 @@ namespace rwe
 
         SharedTextureHandle(SharedTextureHandle&& other) noexcept;
 
+        bool operator==(const SharedTextureHandle& rhs) const;
+
+        bool operator!=(const SharedTextureHandle& rhs) const;
+
         SharedTextureHandle& operator=(SharedTextureHandle&& other) noexcept;
 
         /**

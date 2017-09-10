@@ -14,6 +14,10 @@ namespace rwe
 
         Sprite(const Rectangle2f& bounds, const SharedTextureHandle& texture);
         Sprite(const Rectangle2f& bounds, const SharedTextureHandle& texture, const Rectangle2f& textureRegion);
+
+        bool operator==(const Sprite& rhs) const;
+
+        bool operator!=(const Sprite& rhs) const;
     };
 }
 

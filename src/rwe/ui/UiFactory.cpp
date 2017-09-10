@@ -1,4 +1,5 @@
 #include "UiFactory.h"
+#include "UiSurface.h"
 
 #include <memory>
 #include <rwe/ui/UiComponent.h>
@@ -83,6 +84,8 @@ namespace rwe
                 return labelFromGuiEntry(guiName, entry);
             case GuiElementType::ScrollBar:
                 return scrollBarFromGuiEntry(guiName, entry);
+            case GuiElementType::Surface:
+                return surfaceFromGuiEntry(guiName, entry);
             default:
                 return std::make_unique<UiComponent>(0, 0, 1, 1);
         }
@@ -430,5 +433,31 @@ namespace rwe
                 });
             }
         }
+    }
+
+    std::unique_ptr<UiComponent> UiFactory::surfaceFromGuiEntry(const std::string& guiName, const GuiEntry& entry)
+    {
+        auto surface = std::make_unique<UiSurface>(
+            entry.common.xpos,
+            entry.common.ypos,
+            entry.common.width,
+            entry.common.height);
+
+        if (guiName == "SELMAP")
+        {
+            auto sub = model->candidateSelectedMap.subscribe([s = surface.get()](const auto& info) {
+                if (info)
+                {
+                    s->setBackground(info->minimap);
+                }
+                else
+                {
+                    s->clearBackground();
+                }
+            });
+            surface->addSubscription(std::move(sub));
+        }
+
+        return surface;
     }
 }

@@ -113,4 +113,14 @@ namespace rwe
     }
 
     SharedTextureHandle::SharedTextureHandle() : handle(0), referenceCount(nullptr) {}
+
+    bool SharedTextureHandle::operator==(const SharedTextureHandle& rhs) const
+    {
+        return handle == rhs.handle;
+    }
+
+    bool SharedTextureHandle::operator!=(const SharedTextureHandle& rhs) const
+    {
+        return !(rhs == *this);
+    }
 }

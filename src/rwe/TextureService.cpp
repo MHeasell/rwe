@@ -2,6 +2,7 @@
 #include <rwe/pcx.h>
 #include <rwe/Gaf.h>
 #include <boost/interprocess/streams/bufferstream.hpp>
+#include <rwe/tnt/TntArchive.h>
 
 namespace rwe
 {
@@ -204,6 +205,38 @@ namespace rwe
         TextureInfo info(width, height, handle);
         bitmapCache[bitmapName] = info;
         return info;
+    }
+
+    Sprite TextureService::getMinimap(const std::string& mapName)
+    {
+        auto it = minimapCache.find(mapName);
+        if (it != minimapCache.end())
+        {
+            return it->second;
+        }
+
+        auto tntData = fileSystem->readFile("maps/" + mapName + ".tnt");
+        if (!tntData)
+        {
+            throw std::runtime_error("map tnt not found!");
+        }
+
+        boost::interprocess::bufferstream tntStream(tntData->data(), tntData->size());
+        TntArchive tnt(&tntStream);
+        auto minimap = tnt.readMinimap();
+
+        std::vector<Color> rgbMinimap;
+        std::transform(minimap.data.begin(), minimap.data.end(), std::back_inserter(rgbMinimap), [p = palette](unsigned char pixel) {
+            assert(pixel >= 0 && pixel <= 255);
+            return (*p)[pixel];
+        });
+
+        auto texture = graphics->createTexture(minimap.width, minimap.height, rgbMinimap);
+        Sprite sprite(Rectangle2f::fromTopLeft(0.0f, 0.0f, minimap.width, minimap.height), texture);
+
+        minimapCache.insert({mapName, sprite});
+
+        return sprite;
     }
 
     TextureService::TextureInfo::TextureInfo(unsigned int width, unsigned int height, const SharedTextureHandle& handle)

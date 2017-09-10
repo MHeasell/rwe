@@ -3,6 +3,7 @@
 
 #include <boost/optional.hpp>
 #include <boost/variant.hpp>
+#include <rwe/Sprite.h>
 #include <rwe/events.h>
 #include <rwe/observable/BehaviorSubject.h>
 #include <string>
@@ -17,6 +18,14 @@ namespace rwe
             std::string name;
             std::string description;
             std::string size;
+
+            Sprite minimap;
+
+            SelectedMapInfo(
+                const std::string& name,
+                const std::string& description,
+                const std::string& size,
+                const Sprite& minimap);
 
             bool operator==(const SelectedMapInfo& rhs) const;
 

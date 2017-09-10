@@ -154,6 +154,8 @@ set(SOURCE_FILES
     src/rwe/ui/UiScrollBar.h
     src/rwe/ui/UiStagedButton.cpp
     src/rwe/ui/UiStagedButton.h
+    src/rwe/ui/UiSurface.cpp
+    src/rwe/ui/UiSurface.h
     src/rwe/vfs/AbstractVirtualFileSystem.h
     src/rwe/vfs/CompositeVirtualFileSystem.cpp
     src/rwe/vfs/CompositeVirtualFileSystem.h

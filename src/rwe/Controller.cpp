@@ -182,12 +182,17 @@ namespace rwe
 
         auto ota = parseOta(parseTdfFromString(otaStr));
 
-        SkirmishMenuModel::SelectedMapInfo info;
-        info.name = mapName;
-        info.description = ota.missionDescription;
+        auto minimap = textureService->getMinimap(mapName);
 
         // this is what TA shows in its map selection dialog
-        info.size = std::string().append(ota.memory).append("  Players: ").append(ota.numPlayers);
+        auto sizeInfo = std::string().append(ota.memory).append("  Players: ").append(ota.numPlayers);
+
+        SkirmishMenuModel::SelectedMapInfo info(
+            mapName,
+            ota.missionDescription,
+            sizeInfo,
+            minimap
+        );
 
         model->candidateSelectedMap.next(std::move(info));
     }
