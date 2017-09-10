@@ -1,6 +1,7 @@
 #ifndef RWE_UISTAGEDBUTTON_H
 #define RWE_UISTAGEDBUTTON_H
 
+#include <rwe/observable/Subject.h>
 #include <rwe/ui/UiComponent.h>
 #include <vector>
 
@@ -25,7 +26,7 @@ namespace rwe
 
         unsigned int currentStage{0};
 
-        std::vector<std::function<void(MouseButtonEvent)>> clickObservers;
+        Subject<bool> clickSubject;
 
     public:
         UiStagedButton(
@@ -49,7 +50,9 @@ namespace rwe
 
         void unfocus() override;
 
-        void onClick(const std::function<void(MouseButtonEvent)>& callback);
+        void keyDown(KeyEvent event) override;
+
+        Observable<bool>& onClick();
     };
 }
 

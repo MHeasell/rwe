@@ -102,12 +102,12 @@ namespace rwe
 
         if (sound)
         {
-            button->onClick().subscribe([ as = audioService, s = std::move(*sound) ](MouseButtonEvent /*event*/) {
+            button->onClick().subscribe([ as = audioService, s = std::move(*sound) ](bool /*param*/) {
                 as->playSound(s);
             });
         }
 
-        button->onClick().subscribe([ c = controller, guiName, name = entry.common.name ](MouseButtonEvent /*event*/) {
+        button->onClick().subscribe([ c = controller, guiName, name = entry.common.name ](bool /*param*/) {
             c->message(guiName, name);
         });
 
@@ -204,12 +204,12 @@ namespace rwe
 
         if (sound)
         {
-            button->onClick([ as = audioService, s = std::move(*sound) ](MouseButtonEvent /*event*/) {
+            button->onClick().subscribe([ as = audioService, s = std::move(*sound) ](bool /*param*/) {
                 as->playSound(s);
             });
         }
 
-        button->onClick([ c = controller, guiName, name = entry.common.name ](MouseButtonEvent /*event*/) {
+        button->onClick().subscribe([ c = controller, guiName, name = entry.common.name ](bool /*param*/) {
             c->message(guiName, name);
         });
 

@@ -59,10 +59,7 @@ namespace rwe
         {
             auto stageCount = spriteSeries->sprites.size() - 3;
             currentStage = (currentStage + 1) % stageCount;
-            for (const auto& e : clickObservers)
-            {
-                e(event);
-            }
+            clickSubject.next(true);
         }
 
         armed = false;
@@ -88,8 +85,16 @@ namespace rwe
         pressed = false;
     }
 
-    void UiStagedButton::onClick(const std::function<void(MouseButtonEvent)>& callback)
+    Observable<bool>& UiStagedButton::onClick()
     {
-        clickObservers.push_back(callback);
+        return clickSubject;
+    }
+
+    void UiStagedButton::keyDown(KeyEvent event)
+    {
+        if (event.keyCode == SDLK_RETURN)
+        {
+            clickSubject.next(true);
+        }
     }
 }

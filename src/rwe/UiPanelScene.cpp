@@ -130,4 +130,9 @@ namespace rwe
     {
         topPanel().uiMessage(message);
     }
+
+    void UiPanelScene::onKeyDown(const SDL_Keysym& keysym)
+    {
+        topPanel().keyDown(KeyEvent(keysym.sym));
+    }
 }

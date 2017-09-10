@@ -43,6 +43,8 @@ namespace rwe
 
         void onUiMessage(const GroupMessage& message);
 
+        void onKeyDown(const SDL_Keysym& keysym) override;
+
         void update() override;
 
         void goToPreviousMenu();

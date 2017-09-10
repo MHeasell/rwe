@@ -33,11 +33,11 @@ namespace rwe
         pressed = true;
     }
 
-    void UiButton::mouseUp(MouseButtonEvent event)
+    void UiButton::mouseUp(MouseButtonEvent /*event*/)
     {
         if (armed && pressed)
         {
-            clickSubject.next(event);
+            clickSubject.next(true);
         }
 
         armed = false;
@@ -63,8 +63,16 @@ namespace rwe
         pressed = false;
     }
 
-    Observable<MouseButtonEvent>& UiButton::onClick()
+    Observable<bool>& UiButton::onClick()
     {
         return clickSubject;
+    }
+
+    void UiButton::keyDown(KeyEvent event)
+    {
+        if (event.keyCode == SDLK_RETURN)
+        {
+            clickSubject.next(true);
+        }
     }
 }

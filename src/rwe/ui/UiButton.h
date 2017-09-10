@@ -26,7 +26,7 @@ namespace rwe
          */
         bool armed{false};
 
-        Subject<MouseButtonEvent> clickSubject;
+        Subject<bool> clickSubject;
 
     public:
         UiButton(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<SpriteSeries> _spriteSeries, std::string _label, std::shared_ptr<SpriteSeries> labelFont);
@@ -35,7 +35,7 @@ namespace rwe
 
         void mouseDown(MouseButtonEvent /*event*/) override;
 
-        void mouseUp(MouseButtonEvent event) override;
+        void mouseUp(MouseButtonEvent /*event*/) override;
 
         void mouseEnter() override;
 
@@ -43,7 +43,9 @@ namespace rwe
 
         void unfocus() override;
 
-        Observable<MouseButtonEvent>& onClick();
+        void keyDown(KeyEvent event) override;
+
+        Observable<bool>& onClick();
     };
 }
 
