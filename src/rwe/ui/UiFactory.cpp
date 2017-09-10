@@ -190,8 +190,9 @@ namespace rwe
         return label;
     }
 
-    std::unique_ptr<UiStagedButton> UiFactory::stagedButtonFromGuiEntry(const std::string& guiName,
-                                                                        const GuiEntry& entry)
+    std::unique_ptr<UiStagedButton> UiFactory::stagedButtonFromGuiEntry(
+        const std::string& guiName,
+        const GuiEntry& entry)
     {
         auto graphics = textureService->getGuiTexture(guiName, entry.common.name);
         if (!graphics)
@@ -429,6 +430,5 @@ namespace rwe
                 });
             }
         }
-
     }
 }
