@@ -70,7 +70,7 @@ namespace rwe
 
     void UiButton::keyDown(KeyEvent event)
     {
-        if (event.keyCode == SDLK_RETURN)
+        if (event.keyCode == SDLK_RETURN || event.keyCode == SDLK_SPACE)
         {
             clickSubject.next(true);
         }
