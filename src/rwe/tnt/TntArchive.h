@@ -12,6 +12,8 @@ namespace rwe
 {
     static const unsigned int TntMagicNumber = 0x2000;
 
+    static const uint8_t TntMinimapVoidByte = 0x64;
+
 #pragma pack(1)
     struct TntHeader
     {
@@ -49,7 +51,20 @@ namespace rwe
         uint32_t index;
         uint8_t name[128];
     };
+
+    struct TntMinimapHeader
+    {
+        uint32_t width;
+        uint32_t height;
+    };
 #pragma pack()
+
+    struct TntMinimapInfo
+    {
+        unsigned int width;
+        unsigned int height;
+        std::vector<char> data;
+    };
 
     class TntException : public std::runtime_error
     {
@@ -57,13 +72,6 @@ namespace rwe
         explicit TntException(const std::string& __arg);
 
         explicit TntException(const char* string);
-    };
-
-    struct TntMinimapInfo
-    {
-        unsigned int width;
-        unsigned int height;
-        char* data;
     };
 
     class TntArchive
@@ -83,7 +91,7 @@ namespace rwe
 
         void readFeatures(std::function<void(const std::string&)> featureCallback);
 
-        void readMapData(char* outputBuffer);
+        void readMapData(uint16_t* outputBuffer);
 
         void readMapAttributes(TntTileAttributes* outputBuffer);
 

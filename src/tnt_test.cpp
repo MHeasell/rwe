@@ -101,6 +101,39 @@ int infoCommand(const std::string& tntPath)
     return 0;
 }
 
+int minimapCommand(const std::string& palettePath, const std::string& tntPath, const std::string& outputPath)
+{
+    png::rgb_pixel palette[256];
+    loadPalette(palettePath, palette);
+
+    std::ifstream file(tntPath, std::ios::binary);
+    if (!file.is_open())
+    {
+        std::cerr << "Failed to open file: " << tntPath << std::endl;
+        return 1;
+    }
+
+    rwe::TntArchive tnt(&file);
+    auto minimap = tnt.readMinimap();
+
+    png::image<png::rgb_pixel> image(minimap.width, minimap.height);
+    for (png::uint_32 y = 0; y < image.get_height(); ++y)
+    {
+        for (png::uint_32 x = 0; x < image.get_width(); ++x)
+        {
+            auto b = static_cast<unsigned char>(minimap.data[(y * minimap.width) + x]);
+            assert(b >= 0 && b < 256);
+            auto px = palette[b];
+            image[y][x] = px;
+        }
+    }
+
+    image.write(outputPath);
+
+    return 0;
+}
+
+
 int main(int argc, char* argv[])
 {
     if (argc < 2)
@@ -150,6 +183,21 @@ int main(int argc, char* argv[])
         std::string destPath(argv[4]);
 
         return tilesCommand(paletteFile, tntFile, destPath);
+    }
+
+    if (command == "minimap")
+    {
+        if (argc < 5)
+        {
+            std::cerr << "Specify a palette file, tnt file and output directory" << std::endl;
+            return 1;
+        }
+
+        std::string paletteFile(argv[2]);
+        std::string tntFile(argv[3]);
+        std::string destPath(argv[4]);
+
+        return minimapCommand(paletteFile, tntFile, destPath);
     }
 
     std::cerr << "Unrecognised command: " << command << std::endl;

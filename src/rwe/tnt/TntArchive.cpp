@@ -1,6 +1,7 @@
 #include "TntArchive.h"
 
 #include <array>
+#include <cassert>
 
 namespace rwe
 {
@@ -62,5 +63,73 @@ namespace rwe
     const TntHeader& TntArchive::getHeader() const
     {
         return header;
+    }
+
+    void TntArchive::readMapData(uint16_t* outputBuffer)
+    {
+        stream->seekg(header.mapDataOffset);
+        stream->read(reinterpret_cast<char*>(outputBuffer), (header.width / 2) * (header.height / 2) * sizeof(uint16_t));
+    }
+
+    void TntArchive::readMapAttributes(TntTileAttributes* outputBuffer)
+    {
+        stream->seekg(header.mapAttributesOffset);
+        stream->read(reinterpret_cast<char*>(outputBuffer), header.width * header.height * sizeof(TntTileAttributes));
+    }
+
+    struct MinimapSize
+    {
+        unsigned int width;
+        unsigned int height;
+    };
+
+    MinimapSize getMinimapActualSize(const std::vector<char>& data, unsigned int width, unsigned int height)
+    {
+        unsigned int realWidth = width;
+        unsigned int realHeight = height;
+
+        while (realWidth > 0 && data[realWidth - 1] == TntMinimapVoidByte)
+        {
+            --realWidth;
+        }
+
+        while (realHeight > 0 && data[((realHeight - 1) * width)] == TntMinimapVoidByte)
+        {
+            --realHeight;
+        }
+
+        return MinimapSize{realWidth, realHeight};
+    }
+
+    std::vector<char> trimMinimapBytes(const std::vector<char>& data, unsigned int width, unsigned int height, unsigned int newWidth, unsigned int newHeight)
+    {
+        assert(newWidth <= width);
+        assert(newHeight <= height);
+
+        std::vector<char> newData(newWidth * newHeight);
+        for (unsigned int y = 0; y < newHeight; ++y)
+        {
+            for (unsigned int x = 0; x < newWidth; ++x)
+            {
+                newData[(y * newWidth) + x] = data[(y * width) + x];
+            }
+        }
+
+        return newData;
+    }
+
+    TntMinimapInfo TntArchive::readMinimap()
+    {
+        stream->seekg(header.minimapOffset);
+        auto minimapHeader = readRaw<TntMinimapHeader>(*stream);
+
+        std::vector<char> buffer(minimapHeader.width * minimapHeader.height);
+        stream->read(buffer.data(), minimapHeader.width * minimapHeader.height);
+
+        auto realSize = getMinimapActualSize(buffer, minimapHeader.width, minimapHeader.height);
+
+        auto resizedBuffer = trimMinimapBytes(buffer, minimapHeader.width, minimapHeader.height, realSize.width, realSize.height);
+
+        return TntMinimapInfo{realSize.width, realSize.height, std::move(resizedBuffer)};
     }
 }
