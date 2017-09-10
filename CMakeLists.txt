@@ -136,6 +136,8 @@ set(SOURCE_FILES
     src/rwe/tdf/SimpleTdfAdapter.h
     src/rwe/tdf/TdfParser.cpp
     src/rwe/tdf/TdfParser.h
+    src/rwe/tnt/TntArchive.cpp
+    src/rwe/tnt/TntArchive.h
     src/rwe/ui/UiButton.cpp
     src/rwe/ui/UiButton.h
     src/rwe/ui/UiComponent.cpp
@@ -248,6 +250,19 @@ target_include_directories(pcx_test PUBLIC ${PNG_INCLUDE_DIRS})
 target_include_directories(pcx_test PUBLIC libs/png++-0.2.9)
 if(WIN32)
     target_compile_definitions(pcx_test PRIVATE __STDC_LIB_EXT1__=1)
+endif()
+
+add_executable(tnt_test src/tnt_test.cpp)
+target_copy_dll(tnt_test "libpng16-16.dll")
+target_link_libraries(tnt_test ${PNG_LIBRARIES})
+target_link_libraries(tnt_test librwe)
+if(WIN32)
+    target_link_libraries(tnt_test -static)
+endif()
+target_include_directories(tnt_test PUBLIC ${PNG_INCLUDE_DIRS})
+target_include_directories(tnt_test PUBLIC libs/png++-0.2.9)
+if(WIN32)
+    target_compile_definitions(tnt_test PRIVATE __STDC_LIB_EXT1__=1)
 endif()
 
 set(TEST_FILES
