@@ -16,6 +16,10 @@ namespace rwe
         static Rectangle2f fromTLBR(float top, float left, float bottom, float right);
         static Rectangle2f fromTopLeft(float x, float y, float width, float height);
 
+        bool operator==(const Rectangle2f& rhs) const;
+
+        bool operator!=(const Rectangle2f& rhs) const;
+
         bool contains(Vector2f point) const;
 
         bool contains(float x, float y) const;

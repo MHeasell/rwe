@@ -82,4 +82,14 @@ namespace rwe
     {
         return extents.y * 2;
     }
+
+    bool Rectangle2f::operator==(const Rectangle2f& rhs) const
+    {
+        return position == rhs.position && extents == rhs.extents;
+    }
+
+    bool Rectangle2f::operator!=(const Rectangle2f& rhs) const
+    {
+        return !(rhs == *this);
+    }
 }

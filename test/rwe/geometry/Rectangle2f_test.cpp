@@ -73,5 +73,35 @@ namespace rwe
                 REQUIRE(r.bottomRight() == Vector2f(7.0f, 4.0f));
             }
         }
+
+        SECTION("operator==")
+        {
+            SECTION("tests equality")
+            {
+                auto a = Rectangle2f(1.0f, 3.0f, 4.0f, 7.0f);
+                auto b = Rectangle2f(1.0f, 3.0f, 4.0f, 7.0f);
+
+                // each of these has one element changed
+                auto c = Rectangle2f(2.0f, 3.0f, 4.0f, 7.0f);
+                auto d = Rectangle2f(1.0f, 4.0f, 4.0f, 7.0f);
+                auto e = Rectangle2f(1.0f, 3.0f, 5.0f, 7.0f);
+                auto f = Rectangle2f(1.0f, 3.0f, 4.0f, 8.0f);
+
+                REQUIRE(a == b);
+                REQUIRE(!(a != b));
+
+                REQUIRE(a != c);
+                REQUIRE(!(a == c));
+
+                REQUIRE(a != d);
+                REQUIRE(!(a == d));
+
+                REQUIRE(a != e);
+                REQUIRE(!(a == e));
+
+                REQUIRE(a != f);
+                REQUIRE(!(a == f));
+            }
+        }
     }
 }
