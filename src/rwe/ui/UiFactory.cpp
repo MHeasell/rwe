@@ -45,6 +45,11 @@ namespace rwe
             panel->appendChild(std::move(elem));
         }
 
+        if (name == "SKIRMISH")
+        {
+            attachPlayerSelectionComponents(name, *panel);
+        }
+
         attachDefaultEventHandlers(name, *panel);
 
         // set the default focused control
@@ -93,11 +98,20 @@ namespace rwe
 
     std::unique_ptr<UiButton> UiFactory::buttonFromGuiEntry(const std::string& guiName, const GuiEntry& entry)
     {
+        // hack for SINGLE.GUI buttons
+        int width = entry.common.width;
+        int height = entry.common.height;
+        if (width == 118 && height == 18)
+        {
+            width = 120;
+            height = 20;
+        }
+
 
         auto graphics = textureService->getGuiTexture(guiName, entry.common.name);
         if (!graphics)
         {
-            graphics = getDefaultButtonGraphics(guiName, entry.common.width, entry.common.height);
+            graphics = getDefaultButtonGraphics(guiName, width, height);
         }
 
         auto text = entry.text ? *(entry.text) : std::string("");
@@ -107,8 +121,8 @@ namespace rwe
         auto button = std::make_unique<UiButton>(
             entry.common.xpos,
             entry.common.ypos,
-            entry.common.width,
-            entry.common.height,
+            width,
+            height,
             *graphics,
             text,
             font);
@@ -344,13 +358,6 @@ namespace rwe
 
     std::shared_ptr<SpriteSeries> UiFactory::getDefaultButtonGraphics(const std::string& guiName, int width, int height)
     {
-        // hack for SINGLE.GUI buttons
-        if (width == 118 && height == 18)
-        {
-            width = 120;
-            height = 20;
-        }
-
         auto sprites = textureService->getGuiTexture(guiName, "BUTTONS0");
         if (sprites)
         {
@@ -459,5 +466,118 @@ namespace rwe
         }
 
         return surface;
+    }
+
+    void UiFactory::attachPlayerSelectionComponents(const std::string& guiName, UiPanel& panel)
+    {
+        unsigned int tableStart = 78;
+        unsigned int rowHeight = 20;
+
+        for (int i = 0; i < 10; ++i)
+        {
+            unsigned int rowStart = tableStart + (i * rowHeight);
+
+            {
+                // player name button
+                unsigned int width = 112;
+                unsigned int height = 20;
+
+                auto graphics = textureService->getGuiTexture(guiName, "skirmname");
+                if (!graphics)
+                {
+                    graphics = getDefaultButtonGraphics(guiName, width, height);
+                }
+                auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
+                auto b = std::make_unique<UiButton>(45, rowStart, width, height, *graphics, "Player", font);
+                panel.appendChild(std::move(b));
+            }
+
+            {
+                // side button
+                unsigned int width = 44;
+                unsigned int height = 20;
+
+                auto graphics = textureService->getGuiTexture(guiName, "SIDEx");
+                if (!graphics)
+                {
+                    graphics = getDefaultButtonGraphics(guiName, width, height);
+                }
+                auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
+                auto b = std::make_unique<UiStagedButton>(163, rowStart, width, height, *graphics, std::vector<std::string>(2), font);
+                panel.appendChild(std::move(b));
+            }
+
+            {
+                // color
+                unsigned int width = 19;
+                unsigned int height = 19;
+
+                auto graphics = textureService->getGafEntry("textures/LOGOS.GAF", "32xlogos");
+                auto copiedGraphics = std::make_shared<SpriteSeries>(*graphics);
+                auto defaultSeries = textureService->getDefaultSpriteSeries();
+
+                for (int j = 0; j < 3; ++j)
+                {
+                    copiedGraphics->sprites.push_back(defaultSeries->sprites.front());
+                }
+
+                auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
+                auto b = std::make_unique<UiStagedButton>(214, rowStart, width, height, copiedGraphics, std::vector<std::string>(10), font);
+                panel.appendChild(std::move(b));
+            }
+
+            {
+                // ally
+                unsigned int width = 38;
+                unsigned int height = 20;
+
+                auto graphics = textureService->getGuiTexture(guiName, "ally icons");
+                if (!graphics)
+                {
+                    graphics = getDefaultButtonGraphics(guiName, width, height);
+                }
+
+                auto copiedGraphics = std::make_shared<SpriteSeries>(**graphics);
+                auto defaultSeries = textureService->getDefaultSpriteSeries();
+
+                copiedGraphics->sprites.push_back((*graphics)->sprites.back());
+                copiedGraphics->sprites.push_back(defaultSeries->sprites.front());
+
+                auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
+                auto b = std::make_unique<UiStagedButton>(241, rowStart, width, height, copiedGraphics, std::vector<std::string>(11), font);
+                b->setStage(10);  // blank button
+                panel.appendChild(std::move(b));
+            }
+
+            {
+                // metal
+                unsigned int width = 46;
+                unsigned int height = 20;
+
+                auto graphics = textureService->getGuiTexture(guiName, "skirmmet");
+                if (!graphics)
+                {
+                    graphics = getDefaultButtonGraphics(guiName, width, height);
+                }
+                auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
+                auto b = std::make_unique<UiButton>(286, rowStart, width, height, *graphics, "1000", font);
+                panel.appendChild(std::move(b));
+            }
+
+            {
+                // energy
+                unsigned int width = 46;
+                unsigned int height = 20;
+
+                auto graphics = textureService->getGuiTexture(guiName, "skirmmet");
+                if (!graphics)
+                {
+                    graphics = getDefaultButtonGraphics(guiName, width, height);
+                }
+                auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
+                auto b = std::make_unique<UiButton>(337, rowStart, width, height, *graphics, "1000", font);
+                panel.appendChild(std::move(b));
+            }
+        }
     }
 }

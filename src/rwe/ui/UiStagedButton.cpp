@@ -18,8 +18,8 @@ namespace rwe
         graphics.drawTextureRegion(
             posX,
             posY,
-            sprite.bounds.width(),
-            sprite.bounds.height(),
+            sizeX,
+            sizeY,
             sprite.texture,
             sprite.textureRegion.left(),
             sprite.textureRegion.top(),
@@ -44,7 +44,10 @@ namespace rwe
           labels(std::move(_labels)),
           labelFont(std::move(_labelFont))
     {
-        assert(labels.size() == spriteSeries->sprites.size() - 3);
+        if (labels.size() != spriteSeries->sprites.size() - 3)
+        {
+            throw std::logic_error("Number of labels does not match number of sprites");
+        }
     }
 
     void UiStagedButton::mouseDown(MouseButtonEvent)
@@ -101,5 +104,14 @@ namespace rwe
         auto stageCount = spriteSeries->sprites.size() - 3;
         currentStage = (currentStage + 1) % stageCount;
         clickSubject.next(true);
+    }
+
+    void UiStagedButton::setStage(unsigned int newStage)
+    {
+        if (newStage >= spriteSeries->sprites.size() - 3)
+        {
+            throw std::logic_error("New stage is not in range");
+        }
+        currentStage = newStage;
     }
 }

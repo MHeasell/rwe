@@ -54,6 +54,8 @@ namespace rwe
 
         Observable<bool>& onClick();
 
+        void setStage(unsigned int newStage);
+
     private:
         void activateButton();
     };

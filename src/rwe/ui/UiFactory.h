@@ -57,6 +57,8 @@ namespace rwe
         void attachDefaultEventHandlers(const std::string& guiName, UiPanel& panel);
 
         std::unique_ptr<UiComponent> surfaceFromGuiEntry(const std::string& guiName, const GuiEntry& entry);
+
+        void attachPlayerSelectionComponents(const std::string& guiName, UiPanel& panel);
     };
 }
 

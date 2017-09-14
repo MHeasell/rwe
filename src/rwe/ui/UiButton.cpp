@@ -15,8 +15,8 @@ namespace rwe
         graphics.drawTextureRegion(
             posX,
             posY,
-            sprite.bounds.width(),
-            sprite.bounds.height(),
+            sizeX,
+            sizeY,
             sprite.texture,
             sprite.textureRegion.left(),
             sprite.textureRegion.top(),
