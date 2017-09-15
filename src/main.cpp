@@ -87,16 +87,29 @@ namespace rwe
 
 int main(int argc, char* argv[])
 {
-    auto appData = std::getenv("APPDATA");
-    if (appData == nullptr)
+    try
     {
-        std::cerr << "Failed to detect AppData directory" << std::endl;
+        auto appData = std::getenv("APPDATA");
+        if (appData == nullptr)
+        {
+            std::cerr << "Failed to detect AppData directory" << std::endl;
+            return 1;
+        }
+
+        fs::path searchPath(appData);
+        searchPath /= "RWE";
+        searchPath /= "Data";
+
+        return rwe::run(searchPath.string());
+    }
+    catch (const std::runtime_error& e)
+    {
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Critical Error", e.what(), nullptr);
         return 1;
     }
-
-    fs::path searchPath(appData);
-    searchPath /= "RWE";
-    searchPath /= "Data";
-
-    return rwe::run(searchPath.string());
+    catch (const std::logic_error& e)
+    {
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Critical Error", e.what(), nullptr);
+        return 1;
+    }
 }
