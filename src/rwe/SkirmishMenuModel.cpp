@@ -27,7 +27,7 @@ namespace rwe
     {
     }
 
-    bool SkirmishMenuModel::isTeamShared(int index)
+    bool SkirmishMenuModel::isTeamShared(int index) const
     {
         auto count = std::count_if(players.begin(), players.end(), [index](const auto& p) {
             const auto& val = p.teamIndex.getValue();
@@ -35,5 +35,25 @@ namespace rwe
         });
 
         return count >= 2;
+    }
+
+    bool SkirmishMenuModel::isColorInUse(int colorIndex) const
+    {
+        return std::find_if(players.begin(), players.end(), [colorIndex](const auto& p) {
+            return p.type.getValue() != PlayerSettings::Type::Open && p.colorIndex.getValue() == colorIndex;
+        }) != players.end();
+    }
+
+    boost::optional<int> SkirmishMenuModel::getFirstFreeColor() const
+    {
+        for (int i = 0; i < 10; ++i)
+        {
+            if (!isColorInUse(i))
+            {
+                return i;
+            }
+        }
+
+        return boost::none;
     }
 }

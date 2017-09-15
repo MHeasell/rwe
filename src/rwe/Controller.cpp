@@ -260,6 +260,17 @@ namespace rwe
         {
             case SkirmishMenuModel::PlayerSettings::Type::Open:
             {
+                auto color = player.colorIndex.getValue();
+                if (model->isColorInUse(color))
+                {
+                    auto newColor = model->getFirstFreeColor();
+                    if (!newColor)
+                    {
+                        throw std::logic_error("No free colors for the player");
+                    }
+                    color = *newColor;
+                }
+
                 bool humanAllowed = std::find_if(model->players.begin(), model->players.end(), [](const auto& p)
                 {
                     return p.type.getValue() == SkirmishMenuModel::PlayerSettings::Type::Human;
@@ -272,6 +283,7 @@ namespace rwe
                 {
                     player.type.next(SkirmishMenuModel::PlayerSettings::Type::Computer);
                 }
+                player.colorIndex.next(color);
                 break;
             }
             case SkirmishMenuModel::PlayerSettings::Type::Human:
@@ -310,8 +322,16 @@ namespace rwe
     void Controller::cyclePlayerColor(int playerIndex)
     {
         auto& player = model->players[playerIndex];
-        auto newColor = (player.colorIndex.getValue() + 1) % 10;
-        player.colorIndex.next(newColor);
+        auto currentColor = player.colorIndex.getValue();
+        for (int i = 1; i < 10; ++i)
+        {
+            auto newColor = (currentColor + i) % 10;
+            if (!model->isColorInUse(newColor))
+            {
+                player.colorIndex.next(newColor);
+                return;
+            }
+        }
     }
 
     void Controller::cyclePlayerTeam(int playerIndex)

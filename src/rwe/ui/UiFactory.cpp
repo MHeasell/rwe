@@ -533,6 +533,7 @@ namespace rwe
                 }
                 auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
                 auto b = std::make_unique<UiStagedButton>(163, rowStart, width, height, *graphics, std::vector<std::string>(2), font);
+                b->autoChangeStage = false;
                 if (sound)
                 {
                     b->onClick().subscribe([ as = audioService, s = *sound ](bool /*param*/) {
@@ -576,6 +577,7 @@ namespace rwe
 
                 auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
                 auto b = std::make_unique<UiStagedButton>(214, rowStart, width, height, copiedGraphics, std::vector<std::string>(10), font);
+                b->autoChangeStage = false;
                 if (sound)
                 {
                     b->onClick().subscribe([ as = audioService, s = *sound ](bool /*param*/) {
@@ -614,6 +616,7 @@ namespace rwe
 
                 auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
                 auto b = std::make_unique<UiStagedButton>(241, rowStart, width, height, copiedGraphics, std::vector<std::string>(11), font);
+                b->autoChangeStage = false;
                 b->setStage(10);  // blank button
                 if (sound)
                 {

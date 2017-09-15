@@ -71,7 +71,17 @@ namespace rwe
         /**
          * Returns true when the team contains two or more players.
          */
-        bool isTeamShared(int index);
+        bool isTeamShared(int index) const;
+
+        /**
+         * Returns true if there is a player using the given color index.
+         */
+        bool isColorInUse(int colorIndex) const;
+
+        /**
+         * Returns the first available player color index.
+         */
+        boost::optional<int> getFirstFreeColor() const;
     };
 }
 

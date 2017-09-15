@@ -56,6 +56,8 @@ namespace rwe
 
         void setStage(unsigned int newStage);
 
+        bool autoChangeStage{true};
+
     private:
         void activateButton();
     };

@@ -101,8 +101,12 @@ namespace rwe
 
     void UiStagedButton::activateButton()
     {
-        auto stageCount = spriteSeries->sprites.size() - 3;
-        currentStage = (currentStage + 1) % stageCount;
+        if (autoChangeStage)
+        {
+            auto stageCount = spriteSeries->sprites.size() - 3;
+            currentStage = (currentStage + 1) % stageCount;
+        }
+
         clickSubject.next(true);
     }
 
