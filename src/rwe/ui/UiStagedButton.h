@@ -26,7 +26,7 @@ namespace rwe
 
         unsigned int currentStage{0};
 
-        Subject<bool> clickSubject;
+        Subject<ButtonClickEvent> clickSubject;
 
     public:
         UiStagedButton(
@@ -52,14 +52,14 @@ namespace rwe
 
         void keyDown(KeyEvent event) override;
 
-        Observable<bool>& onClick();
+        Observable<ButtonClickEvent>& onClick();
 
         void setStage(unsigned int newStage);
 
         bool autoChangeStage{true};
 
     private:
-        void activateButton();
+        void activateButton(const ButtonClickEvent& event);
     };
 }
 

@@ -246,9 +246,55 @@ namespace rwe
     {
         auto& player = model->players[playerIndex];
 
-        if (player.metal.getValue() < 10000)
+        if (player.metal.getValue() == 200)
+        {
+            player.metal.next(500);
+        }
+        else if (player.metal.getValue() < 10000)
         {
             player.metal.next(player.metal.getValue() + 500);
+        }
+    }
+
+    void Controller::decrementPlayerMetal(int playerIndex)
+    {
+        auto& player = model->players[playerIndex];
+
+        if (player.metal.getValue() > 500)
+        {
+            player.metal.next(player.metal.getValue() - 500);
+        }
+        else if (player.metal.getValue() == 500)
+        {
+            player.metal.next(200);
+        }
+    }
+
+    void Controller::incrementPlayerEnergy(int playerIndex)
+    {
+        auto& player = model->players[playerIndex];
+
+        if (player.energy.getValue() == 200)
+        {
+            player.energy.next(500);
+        }
+        else if (player.energy.getValue() < 10000)
+        {
+            player.energy.next(player.energy.getValue() + 500);
+        }
+    }
+
+    void Controller::decrementPlayerEnergy(int playerIndex)
+    {
+        auto& player = model->players[playerIndex];
+
+        if (player.energy.getValue() > 500)
+        {
+            player.energy.next(player.energy.getValue() - 500);
+        }
+        else if (player.energy.getValue() == 500)
+        {
+            player.energy.next(200);
         }
     }
 
@@ -295,16 +341,6 @@ namespace rwe
         }
     }
 
-    void Controller::incrementPlayerEnergy(int playerIndex)
-    {
-        auto& player = model->players[playerIndex];
-
-        if (player.energy.getValue() < 10000)
-        {
-            player.energy.next(player.energy.getValue() + 500);
-        }
-    }
-
     void Controller::togglePlayerSide(int playerIndex)
     {
         auto& player = model->players[playerIndex];
@@ -324,6 +360,21 @@ namespace rwe
         auto& player = model->players[playerIndex];
         auto currentColor = player.colorIndex.getValue();
         for (int i = 1; i < 10; ++i)
+        {
+            auto newColor = (currentColor + i) % 10;
+            if (!model->isColorInUse(newColor))
+            {
+                player.colorIndex.next(newColor);
+                return;
+            }
+        }
+    }
+
+    void Controller::reverseCyclePlayerColor(int playerIndex)
+    {
+        auto& player = model->players[playerIndex];
+        auto currentColor = player.colorIndex.getValue();
+        for (int i = 9; i >= 1; --i)
         {
             auto newColor = (currentColor + i) % 10;
             if (!model->isColorInUse(newColor))

@@ -131,12 +131,12 @@ namespace rwe
 
         if (sound)
         {
-            button->onClick().subscribe([ as = audioService, s = std::move(*sound) ](bool /*param*/) {
+            button->onClick().subscribe([ as = audioService, s = std::move(*sound) ](const auto& /*param*/) {
                 as->playSound(s);
             });
         }
 
-        button->onClick().subscribe([ c = controller, guiName, name = entry.common.name ](bool /*param*/) {
+        button->onClick().subscribe([ c = controller, guiName, name = entry.common.name ](const auto& /*param*/) {
             c->message(guiName, name);
         });
 
@@ -234,12 +234,12 @@ namespace rwe
 
         if (sound)
         {
-            button->onClick().subscribe([ as = audioService, s = std::move(*sound) ](bool /*param*/) {
+            button->onClick().subscribe([ as = audioService, s = std::move(*sound) ](const auto& /*param*/) {
                 as->playSound(s);
             });
         }
 
-        button->onClick().subscribe([ c = controller, guiName, name = entry.common.name ](bool /*param*/) {
+        button->onClick().subscribe([ c = controller, guiName, name = entry.common.name ](const auto& /*param*/) {
             c->message(guiName, name);
         });
 
@@ -493,12 +493,12 @@ namespace rwe
                 auto b = std::make_unique<UiButton>(45, rowStart, width, height, *graphics, "Player", font);
                 if (sound)
                 {
-                    b->onClick().subscribe([ as = audioService, s = *sound ](bool /*param*/) {
+                    b->onClick().subscribe([ as = audioService, s = *sound ](const auto& /*param*/) {
                         as->playSound(s);
                     });
                 }
 
-                b->onClick().subscribe([c = controller, i](bool /*param*/) {
+                b->onClick().subscribe([c = controller, i](const auto& /*param*/) {
                     c->togglePlayer(i);
                 });
 
@@ -553,12 +553,12 @@ namespace rwe
             b->autoChangeStage = false;
             if (sound)
             {
-                b->onClick().subscribe([ as = audioService, s = *sound ](bool /*param*/) {
+                b->onClick().subscribe([ as = audioService, s = *sound ](const auto& /*param*/) {
                     as->playSound(s);
                 });
             }
 
-            b->onClick().subscribe([c = controller, i](bool /*param*/) {
+            b->onClick().subscribe([c = controller, i](const auto& /*param*/) {
                 c->togglePlayerSide(i);
             });
 
@@ -598,13 +598,21 @@ namespace rwe
             b->autoChangeStage = false;
             if (sound)
             {
-                b->onClick().subscribe([ as = audioService, s = *sound ](bool /*param*/) {
+                b->onClick().subscribe([ as = audioService, s = *sound ](const auto& /*param*/) {
                     as->playSound(s);
                 });
             }
 
-            b->onClick().subscribe([c = controller, i](bool /*param*/) {
-                c->cyclePlayerColor(i);
+            b->onClick().subscribe([c = controller, i](const auto& event) {
+                switch (event.source)
+                {
+                    case ButtonClickEvent::Source::RightMouseButton:
+                        c->reverseCyclePlayerColor(i);
+                        break;
+                    default:
+                        c->cyclePlayerColor(i);
+                        break;
+                }
             });
 
             auto sub = model->players[i].colorIndex.subscribe([b = b.get()](int index) {
@@ -639,12 +647,12 @@ namespace rwe
             b->setStage(10);  // blank button
             if (sound)
             {
-                b->onClick().subscribe([ as = audioService, s = *sound ](bool /*param*/) {
+                b->onClick().subscribe([ as = audioService, s = *sound ](const auto& /*param*/) {
                     as->playSound(s);
                 });
             }
 
-            b->onClick().subscribe([c = controller, i](bool /*param*/) {
+            b->onClick().subscribe([c = controller, i](const auto& /*param*/) {
                 c->cyclePlayerTeam(i);
             });
 
@@ -699,13 +707,21 @@ namespace rwe
             b->setName("PLAYER" + std::to_string(i) + "_metal");
             if (sound)
             {
-                b->onClick().subscribe([ as = audioService, s = *sound ](bool /*param*/) {
+                b->onClick().subscribe([ as = audioService, s = *sound ](const auto& /*param*/) {
                     as->playSound(s);
                 });
             }
 
-            b->onClick().subscribe([b = b.get(), c = controller, i](bool /*param*/) {
-                c->incrementPlayerMetal(i);
+            b->onClick().subscribe([b = b.get(), c = controller, i](const auto& event) {
+                switch (event.source)
+                {
+                    case ButtonClickEvent::Source::RightMouseButton:
+                        c->decrementPlayerMetal(i);
+                        break;
+                    default:
+                        c->incrementPlayerMetal(i);
+                        break;
+                }
             });
 
             auto sub = model->players[i].metal.subscribe([b = b.get()](int newMetal) {
@@ -731,13 +747,21 @@ namespace rwe
             b->setName("PLAYER" + std::to_string(i) + "_energy");
             if (sound)
             {
-                b->onClick().subscribe([ as = audioService, s = *sound ](bool /*param*/) {
+                b->onClick().subscribe([ as = audioService, s = *sound ](const auto& /*param*/) {
                     as->playSound(s);
                 });
             }
 
-            b->onClick().subscribe([b = b.get(), c = controller, i](bool /*param*/) {
-                c->incrementPlayerEnergy(i);
+            b->onClick().subscribe([b = b.get(), c = controller, i](const auto& event) {
+                switch (event.source)
+                {
+                    case ButtonClickEvent::Source::RightMouseButton:
+                        c->decrementPlayerEnergy(i);
+                        break;
+                    default:
+                        c->incrementPlayerEnergy(i);
+                        break;
+                }
             });
 
             auto sub = model->players[i].energy.subscribe([b = b.get()](int newEnergy) {

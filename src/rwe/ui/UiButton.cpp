@@ -33,11 +33,24 @@ namespace rwe
         pressed = true;
     }
 
-    void UiButton::mouseUp(MouseButtonEvent /*event*/)
+    void UiButton::mouseUp(MouseButtonEvent event)
     {
         if (armed && pressed)
         {
-            clickSubject.next(true);
+            ButtonClickEvent::Source s;
+            switch (event.button)
+            {
+                case MouseButtonEvent::MouseButton::Left:
+                    s = ButtonClickEvent::Source::LeftMouseButton;
+                    break;
+                case MouseButtonEvent::MouseButton::Right:
+                    s = ButtonClickEvent::Source::RightMouseButton;
+                    break;
+                case MouseButtonEvent::MouseButton::Middle:
+                    s = ButtonClickEvent::Source::MiddleMouseButton;
+                    break;
+            }
+            clickSubject.next({s});
         }
 
         armed = false;
@@ -63,7 +76,7 @@ namespace rwe
         pressed = false;
     }
 
-    Observable<bool>& UiButton::onClick()
+    Observable<ButtonClickEvent>& UiButton::onClick()
     {
         return clickSubject;
     }
@@ -72,7 +85,7 @@ namespace rwe
     {
         if (event.keyCode == SDLK_RETURN || event.keyCode == SDLK_SPACE)
         {
-            clickSubject.next(true);
+            clickSubject.next({ButtonClickEvent::Source::Keyboard});
         }
     }
 

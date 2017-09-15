@@ -79,11 +79,17 @@ namespace rwe
 
         void incrementPlayerMetal(int playerIndex);
 
+        void decrementPlayerMetal(int playerIndex);
+
         void incrementPlayerEnergy(int playerIndex);
+
+        void decrementPlayerEnergy(int playerIndex);
 
         void togglePlayerSide(int playerIndex);
 
         void cyclePlayerColor(int playerIndex);
+
+        void reverseCyclePlayerColor(int playerIndex);
 
         void cyclePlayerTeam(int playerIndex);
     };

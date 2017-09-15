@@ -71,6 +71,12 @@ namespace rwe
 
         GroupMessage(const std::string& topic, unsigned int group, const std::string& controlName, const ScrollDownMessage& message);
     };
+
+    struct ButtonClickEvent
+    {
+        enum class Source { LeftMouseButton, MiddleMouseButton, RightMouseButton, Keyboard, Other };
+        Source source;
+    };
 }
 
 #endif

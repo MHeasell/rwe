@@ -60,7 +60,20 @@ namespace rwe
     {
         if (armed && pressed)
         {
-            activateButton();
+            ButtonClickEvent::Source s;
+            switch (event.button)
+            {
+                case MouseButtonEvent::MouseButton::Left:
+                    s = ButtonClickEvent::Source::LeftMouseButton;
+                    break;
+                case MouseButtonEvent::MouseButton::Right:
+                    s = ButtonClickEvent::Source::RightMouseButton;
+                    break;
+                case MouseButtonEvent::MouseButton::Middle:
+                    s = ButtonClickEvent::Source::MiddleMouseButton;
+                    break;
+            }
+            activateButton({s});
         }
 
         armed = false;
@@ -86,7 +99,7 @@ namespace rwe
         pressed = false;
     }
 
-    Observable<bool>& UiStagedButton::onClick()
+    Observable<ButtonClickEvent>& UiStagedButton::onClick()
     {
         return clickSubject;
     }
@@ -95,11 +108,11 @@ namespace rwe
     {
         if (event.keyCode == SDLK_SPACE)
         {
-            activateButton();
+            activateButton({ButtonClickEvent::Source::Keyboard});
         }
     }
 
-    void UiStagedButton::activateButton()
+    void UiStagedButton::activateButton(const ButtonClickEvent& event)
     {
         if (autoChangeStage)
         {
@@ -107,7 +120,7 @@ namespace rwe
             currentStage = (currentStage + 1) % stageCount;
         }
 
-        clickSubject.next(true);
+        clickSubject.next(event);
     }
 
     void UiStagedButton::setStage(unsigned int newStage)
