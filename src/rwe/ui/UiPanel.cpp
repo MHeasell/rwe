@@ -83,7 +83,7 @@ namespace rwe
         event.x -= posX;
         event.y -= posY;
 
-        children[*focusedChild]->mouseUp(event);
+        (*focusedChild)->mouseUp(event);
     }
 
     void UiPanel::keyDown(KeyEvent event)
@@ -93,7 +93,7 @@ namespace rwe
             return;
         }
 
-        children[*focusedChild]->keyDown(event);
+        (*focusedChild)->keyDown(event);
     }
 
     void UiPanel::keyUp(KeyEvent event)
@@ -103,7 +103,7 @@ namespace rwe
             return;
         }
 
-        children[*focusedChild]->keyUp(event);
+        (*focusedChild)->keyUp(event);
     }
 
     void UiPanel::mouseMove(MouseMoveEvent event)
@@ -123,7 +123,7 @@ namespace rwe
     {
         if (!focusedChild)
         {
-            children[*focusedChild]->focus();
+            (*focusedChild)->focus();
         }
     }
 
@@ -131,7 +131,7 @@ namespace rwe
     {
         if (!focusedChild)
         {
-            children[*focusedChild]->unfocus();
+            (*focusedChild)->unfocus();
         }
     }
 
@@ -146,18 +146,18 @@ namespace rwe
 
         if (focusedChild)
         {
-            children[*focusedChild]->unfocus();
+            (*focusedChild)->unfocus();
         }
 
-        focusedChild = controlIndex;
-        children[*focusedChild]->focus();
+        focusedChild = children[controlIndex].get();
+        (*focusedChild)->focus();
     }
 
     void UiPanel::clearFocus()
     {
         if (focusedChild)
         {
-            children[*focusedChild]->unfocus();
+            (*focusedChild)->unfocus();
         }
 
         focusedChild = boost::none;
@@ -178,7 +178,7 @@ namespace rwe
             return;
         }
 
-        children[*focusedChild]->mouseWheel(event);
+        (*focusedChild)->mouseWheel(event);
     }
 
     void UiPanel::uiMessage(const GroupMessage& message)
@@ -196,9 +196,20 @@ namespace rwe
 
     void UiPanel::removeChildrenWithPrefix(const std::string& prefix)
     {
-        auto newEnd = std::remove_if(children.begin(), children.end(), [&prefix](const auto& c) {
-            return startsWith(c->getName(), prefix);
-        });
-        children.erase(newEnd, children.end());
+        auto it = children.rbegin();
+        auto end = children.rend();
+
+        for (; it != end; ++it)
+        {
+            if (startsWith((*it)->getName(), prefix))
+            {
+                if (focusedChild && focusedChild == it->get())
+                {
+                    focusedChild = boost::none;
+                }
+
+                children.erase(--(it.base()));
+            }
+        }
     }
 }

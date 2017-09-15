@@ -14,7 +14,7 @@ namespace rwe
     private:
         Sprite background;
         std::vector<std::unique_ptr<UiComponent>> children;
-        boost::optional<std::size_t> focusedChild{boost::none};
+        boost::optional<UiComponent*> focusedChild{boost::none};
 
     public:
         UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, Sprite background);
