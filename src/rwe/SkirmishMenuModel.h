@@ -56,16 +56,16 @@ namespace rwe
         BehaviorSubject<boost::optional<SelectedMapInfo>> candidateSelectedMap;
 
         std::array<PlayerSettings, 10> players{{
-            {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 0, boost::optional<int>(boost::none), 1000, 1000},
-            {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 1, boost::optional<int>(boost::none), 1000, 1000},
+            {PlayerSettings::Type::Human, PlayerSettings::Side::Arm, 0, boost::optional<int>(boost::none), 1000, 1000},
+            {PlayerSettings::Type::Computer, PlayerSettings::Side::Core, 1, boost::optional<int>(boost::none), 1000, 1000},
             {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 2, boost::optional<int>(boost::none), 1000, 1000},
-            {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 3, boost::optional<int>(boost::none), 1000, 1000},
+            {PlayerSettings::Type::Open, PlayerSettings::Side::Core, 3, boost::optional<int>(boost::none), 1000, 1000},
             {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 4, boost::optional<int>(boost::none), 1000, 1000},
-            {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 5, boost::optional<int>(boost::none), 1000, 1000},
+            {PlayerSettings::Type::Open, PlayerSettings::Side::Core, 5, boost::optional<int>(boost::none), 1000, 1000},
             {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 6, boost::optional<int>(boost::none), 1000, 1000},
-            {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 7, boost::optional<int>(boost::none), 1000, 1000},
+            {PlayerSettings::Type::Open, PlayerSettings::Side::Core, 7, boost::optional<int>(boost::none), 1000, 1000},
             {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 8, boost::optional<int>(boost::none), 1000, 1000},
-            {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 9, boost::optional<int>(boost::none), 1000, 1000},
+            {PlayerSettings::Type::Open, PlayerSettings::Side::Core, 9, boost::optional<int>(boost::none), 1000, 1000},
         }};
 
         /**
