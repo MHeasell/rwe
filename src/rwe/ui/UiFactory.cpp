@@ -502,17 +502,22 @@ namespace rwe
                     c->togglePlayer(i);
                 });
 
-                auto sub = model->players[i].type.subscribe([b = b.get()](SkirmishMenuModel::PlayerSettings::Type type) {
+                auto sub = model->players[i].type.subscribe([b = b.get(), &panel, this, guiName, i](SkirmishMenuModel::PlayerSettings::Type type) {
                     switch (type)
                     {
                         case SkirmishMenuModel::PlayerSettings::Type::Open:
+                            panel.removeChildrenWithPrefix("PLAYER" + std::to_string(i) + "_");
                             b->setLabel("Open");
                             break;
                         case SkirmishMenuModel::PlayerSettings::Type::Human:
                             b->setLabel("Player");
+                            panel.removeChildrenWithPrefix("PLAYER" + std::to_string(i) + "_");
+                            attachDetailedPlayerSelectionComponents(guiName, panel, i);
                             break;
                         case SkirmishMenuModel::PlayerSettings::Type::Computer:
                             b->setLabel("Computer");
+                            panel.removeChildrenWithPrefix("PLAYER" + std::to_string(i) + "_");
+                            attachDetailedPlayerSelectionComponents(guiName, panel, i);
                             break;
                     }
                 });
@@ -520,213 +525,228 @@ namespace rwe
 
                 panel.appendChild(std::move(b));
             }
-
-            {
-                // side button
-                unsigned int width = 44;
-                unsigned int height = 20;
-
-                auto graphics = textureService->getGuiTexture(guiName, "SIDEx");
-                if (!graphics)
-                {
-                    graphics = getDefaultButtonGraphics(guiName, width, height);
-                }
-                auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
-                auto b = std::make_unique<UiStagedButton>(163, rowStart, width, height, *graphics, std::vector<std::string>(2), font);
-                b->autoChangeStage = false;
-                if (sound)
-                {
-                    b->onClick().subscribe([ as = audioService, s = *sound ](bool /*param*/) {
-                        as->playSound(s);
-                    });
-                }
-
-                b->onClick().subscribe([c = controller, i](bool /*param*/) {
-                    c->togglePlayerSide(i);
-                });
-
-                auto sub = model->players[i].side.subscribe([b = b.get()](SkirmishMenuModel::PlayerSettings::Side side) {
-                    switch (side)
-                    {
-                        case SkirmishMenuModel::PlayerSettings::Side::Arm:
-                            b->setStage(0);
-                            break;
-                        case SkirmishMenuModel::PlayerSettings::Side::Core:
-                            b->setStage(1);
-                            break;
-                    }
-                });
-                b->addSubscription(std::move(sub));
-
-                panel.appendChild(std::move(b));
-            }
-
-            {
-                // color
-                unsigned int width = 19;
-                unsigned int height = 19;
-
-                auto graphics = textureService->getGafEntry("textures/LOGOS.GAF", "32xlogos");
-                auto copiedGraphics = std::make_shared<SpriteSeries>(*graphics);
-                auto defaultSeries = textureService->getDefaultSpriteSeries();
-
-                for (int j = 0; j < 3; ++j)
-                {
-                    copiedGraphics->sprites.push_back(defaultSeries->sprites.front());
-                }
-
-                auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
-                auto b = std::make_unique<UiStagedButton>(214, rowStart, width, height, copiedGraphics, std::vector<std::string>(10), font);
-                b->autoChangeStage = false;
-                if (sound)
-                {
-                    b->onClick().subscribe([ as = audioService, s = *sound ](bool /*param*/) {
-                        as->playSound(s);
-                    });
-                }
-
-                b->onClick().subscribe([c = controller, i](bool /*param*/) {
-                    c->cyclePlayerColor(i);
-                });
-
-                auto sub = model->players[i].colorIndex.subscribe([b = b.get()](int index) {
-                    b->setStage(index);
-                });
-                b->addSubscription(std::move(sub));
-
-                panel.appendChild(std::move(b));
-            }
-
-            {
-                // ally
-                unsigned int width = 38;
-                unsigned int height = 20;
-
-                auto graphics = textureService->getGuiTexture(guiName, "ally icons");
-                if (!graphics)
-                {
-                    graphics = getDefaultButtonGraphics(guiName, width, height);
-                }
-
-                auto copiedGraphics = std::make_shared<SpriteSeries>(**graphics);
-                auto defaultSeries = textureService->getDefaultSpriteSeries();
-
-                copiedGraphics->sprites.push_back((*graphics)->sprites.back());
-                copiedGraphics->sprites.push_back(defaultSeries->sprites.front());
-
-                auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
-                auto b = std::make_unique<UiStagedButton>(241, rowStart, width, height, copiedGraphics, std::vector<std::string>(11), font);
-                b->autoChangeStage = false;
-                b->setStage(10);  // blank button
-                if (sound)
-                {
-                    b->onClick().subscribe([ as = audioService, s = *sound ](bool /*param*/) {
-                        as->playSound(s);
-                    });
-                }
-
-                b->onClick().subscribe([c = controller, i](bool /*param*/) {
-                    c->cyclePlayerTeam(i);
-                });
-
-                auto sub = model->players[i].teamIndex.subscribe([b = b.get(), m = model](auto index) {
-                    if (!index)
-                    {
-                        b->setStage(10);
-                        return;
-                    }
-
-                    auto stage = (*index) * 2;
-                    if (!m->isTeamShared(*index))
-                    {
-                        ++stage;
-                    }
-
-                    b->setStage(stage);
-                });
-                b->addSubscription(std::move(sub));
-
-                auto teamSub = model->teamChanges.subscribe([b = b.get(), m = model, i](auto index) {
-                    if (index == m->players[i].teamIndex.getValue())
-                    {
-                        auto stage = index * 2;
-                        if (m->isTeamShared(index))
-                        {
-                            b->setStage(stage);
-                        }
-                        else
-                        {
-                            b->setStage(stage + 1);
-                        }
-                    }
-                });
-                b->addSubscription(std::move(teamSub));
-
-                panel.appendChild(std::move(b));
-            }
-
-            {
-                // metal
-                unsigned int width = 46;
-                unsigned int height = 20;
-
-                auto graphics = textureService->getGuiTexture(guiName, "skirmmet");
-                if (!graphics)
-                {
-                    graphics = getDefaultButtonGraphics(guiName, width, height);
-                }
-                auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
-                auto b = std::make_unique<UiButton>(286, rowStart, width, height, *graphics, "1000", font);
-                if (sound)
-                {
-                    b->onClick().subscribe([ as = audioService, s = *sound ](bool /*param*/) {
-                        as->playSound(s);
-                    });
-                }
-
-                b->onClick().subscribe([b = b.get(), c = controller, i](bool /*param*/) {
-                    c->incrementPlayerMetal(i);
-                });
-
-                auto sub = model->players[i].metal.subscribe([b = b.get()](int newMetal) {
-                    b->setLabel(std::to_string(newMetal));
-                });
-                b->addSubscription(std::move(sub));
-
-                panel.appendChild(std::move(b));
-            }
-
-            {
-                // energy
-                unsigned int width = 46;
-                unsigned int height = 20;
-
-                auto graphics = textureService->getGuiTexture(guiName, "skirmmet");
-                if (!graphics)
-                {
-                    graphics = getDefaultButtonGraphics(guiName, width, height);
-                }
-                auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
-                auto b = std::make_unique<UiButton>(337, rowStart, width, height, *graphics, "1000", font);
-                if (sound)
-                {
-                    b->onClick().subscribe([ as = audioService, s = *sound ](bool /*param*/) {
-                        as->playSound(s);
-                    });
-                }
-
-                b->onClick().subscribe([b = b.get(), c = controller, i](bool /*param*/) {
-                    c->incrementPlayerEnergy(i);
-                });
-
-                auto sub = model->players[i].energy.subscribe([b = b.get()](int newEnergy) {
-                    b->setLabel(std::to_string(newEnergy));
-                });
-                b->addSubscription(std::move(sub));
-
-                panel.appendChild(std::move(b));
-            }
-
         }
+    }
+
+    void UiFactory::attachDetailedPlayerSelectionComponents(const std::string& guiName, UiPanel& panel, int i)
+    {
+        unsigned int tableStart = 78;
+        unsigned int rowHeight = 20;
+
+        auto sound = getButtonSound(guiName);
+
+        unsigned int rowStart = tableStart + (i * rowHeight);
+
+        {
+            // side button
+            unsigned int width = 44;
+            unsigned int height = 20;
+
+            auto graphics = textureService->getGuiTexture(guiName, "SIDEx");
+            if (!graphics)
+            {
+                graphics = getDefaultButtonGraphics(guiName, width, height);
+            }
+            auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
+            auto b = std::make_unique<UiStagedButton>(163, rowStart, width, height, *graphics, std::vector<std::string>(2), font);
+            b->setName("PLAYER" + std::to_string(i) + "_side");
+            b->autoChangeStage = false;
+            if (sound)
+            {
+                b->onClick().subscribe([ as = audioService, s = *sound ](bool /*param*/) {
+                    as->playSound(s);
+                });
+            }
+
+            b->onClick().subscribe([c = controller, i](bool /*param*/) {
+                c->togglePlayerSide(i);
+            });
+
+            auto sub = model->players[i].side.subscribe([b = b.get()](SkirmishMenuModel::PlayerSettings::Side side) {
+                switch (side)
+                {
+                    case SkirmishMenuModel::PlayerSettings::Side::Arm:
+                        b->setStage(0);
+                        break;
+                    case SkirmishMenuModel::PlayerSettings::Side::Core:
+                        b->setStage(1);
+                        break;
+                }
+            });
+            b->addSubscription(std::move(sub));
+
+            panel.appendChild(std::move(b));
+        }
+
+        {
+            // color
+            unsigned int width = 19;
+            unsigned int height = 19;
+
+            auto graphics = textureService->getGafEntry("textures/LOGOS.GAF", "32xlogos");
+            auto copiedGraphics = std::make_shared<SpriteSeries>(*graphics);
+            auto defaultSeries = textureService->getDefaultSpriteSeries();
+
+            for (int j = 0; j < 3; ++j)
+            {
+                copiedGraphics->sprites.push_back(defaultSeries->sprites.front());
+            }
+
+            auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
+            auto b = std::make_unique<UiStagedButton>(214, rowStart, width, height, copiedGraphics, std::vector<std::string>(10), font);
+            b->setName("PLAYER" + std::to_string(i) + "_color");
+            b->autoChangeStage = false;
+            if (sound)
+            {
+                b->onClick().subscribe([ as = audioService, s = *sound ](bool /*param*/) {
+                    as->playSound(s);
+                });
+            }
+
+            b->onClick().subscribe([c = controller, i](bool /*param*/) {
+                c->cyclePlayerColor(i);
+            });
+
+            auto sub = model->players[i].colorIndex.subscribe([b = b.get()](int index) {
+                b->setStage(index);
+            });
+            b->addSubscription(std::move(sub));
+
+            panel.appendChild(std::move(b));
+        }
+
+        {
+            // ally
+            unsigned int width = 38;
+            unsigned int height = 20;
+
+            auto graphics = textureService->getGuiTexture(guiName, "ally icons");
+            if (!graphics)
+            {
+                graphics = getDefaultButtonGraphics(guiName, width, height);
+            }
+
+            auto copiedGraphics = std::make_shared<SpriteSeries>(**graphics);
+            auto defaultSeries = textureService->getDefaultSpriteSeries();
+
+            copiedGraphics->sprites.push_back((*graphics)->sprites.back());
+            copiedGraphics->sprites.push_back(defaultSeries->sprites.front());
+
+            auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
+            auto b = std::make_unique<UiStagedButton>(241, rowStart, width, height, copiedGraphics, std::vector<std::string>(11), font);
+            b->setName("PLAYER" + std::to_string(i) + "_team");
+            b->autoChangeStage = false;
+            b->setStage(10);  // blank button
+            if (sound)
+            {
+                b->onClick().subscribe([ as = audioService, s = *sound ](bool /*param*/) {
+                    as->playSound(s);
+                });
+            }
+
+            b->onClick().subscribe([c = controller, i](bool /*param*/) {
+                c->cyclePlayerTeam(i);
+            });
+
+            auto sub = model->players[i].teamIndex.subscribe([b = b.get(), m = model](auto index) {
+                if (!index)
+                {
+                    b->setStage(10);
+                    return;
+                }
+
+                auto stage = (*index) * 2;
+                if (!m->isTeamShared(*index))
+                {
+                    ++stage;
+                }
+
+                b->setStage(stage);
+            });
+            b->addSubscription(std::move(sub));
+
+            auto teamSub = model->teamChanges.subscribe([b = b.get(), m = model, i](auto index) {
+                if (index == m->players[i].teamIndex.getValue())
+                {
+                    auto stage = index * 2;
+                    if (m->isTeamShared(index))
+                    {
+                        b->setStage(stage);
+                    }
+                    else
+                    {
+                        b->setStage(stage + 1);
+                    }
+                }
+            });
+            b->addSubscription(std::move(teamSub));
+
+            panel.appendChild(std::move(b));
+        }
+
+        {
+            // metal
+            unsigned int width = 46;
+            unsigned int height = 20;
+
+            auto graphics = textureService->getGuiTexture(guiName, "skirmmet");
+            if (!graphics)
+            {
+                graphics = getDefaultButtonGraphics(guiName, width, height);
+            }
+            auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
+            auto b = std::make_unique<UiButton>(286, rowStart, width, height, *graphics, "1000", font);
+            b->setName("PLAYER" + std::to_string(i) + "_metal");
+            if (sound)
+            {
+                b->onClick().subscribe([ as = audioService, s = *sound ](bool /*param*/) {
+                    as->playSound(s);
+                });
+            }
+
+            b->onClick().subscribe([b = b.get(), c = controller, i](bool /*param*/) {
+                c->incrementPlayerMetal(i);
+            });
+
+            auto sub = model->players[i].metal.subscribe([b = b.get()](int newMetal) {
+                b->setLabel(std::to_string(newMetal));
+            });
+            b->addSubscription(std::move(sub));
+
+            panel.appendChild(std::move(b));
+        }
+
+        {
+            // energy
+            unsigned int width = 46;
+            unsigned int height = 20;
+
+            auto graphics = textureService->getGuiTexture(guiName, "skirmmet");
+            if (!graphics)
+            {
+                graphics = getDefaultButtonGraphics(guiName, width, height);
+            }
+            auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
+            auto b = std::make_unique<UiButton>(337, rowStart, width, height, *graphics, "1000", font);
+            b->setName("PLAYER" + std::to_string(i) + "_energy");
+            if (sound)
+            {
+                b->onClick().subscribe([ as = audioService, s = *sound ](bool /*param*/) {
+                    as->playSound(s);
+                });
+            }
+
+            b->onClick().subscribe([b = b.get(), c = controller, i](bool /*param*/) {
+                c->incrementPlayerEnergy(i);
+            });
+
+            auto sub = model->players[i].energy.subscribe([b = b.get()](int newEnergy) {
+                b->setLabel(std::to_string(newEnergy));
+            });
+            b->addSubscription(std::move(sub));
+
+            panel.appendChild(std::move(b));
+        }
+
     }
 }

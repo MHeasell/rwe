@@ -1,3 +1,4 @@
+#include <rwe/rwe_string.h>
 #include "UiPanel.h"
 
 namespace rwe
@@ -191,5 +192,13 @@ namespace rwe
     std::vector<std::unique_ptr<UiComponent>>& UiPanel::getChildren()
     {
         return children;
+    }
+
+    void UiPanel::removeChildrenWithPrefix(const std::string& prefix)
+    {
+        auto newEnd = std::remove_if(children.begin(), children.end(), [&prefix](const auto& c) {
+            return startsWith(c->getName(), prefix);
+        });
+        children.erase(newEnd, children.end());
     }
 }

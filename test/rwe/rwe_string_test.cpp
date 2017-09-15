@@ -111,4 +111,28 @@ namespace rwe
             REQUIRE(!endsWith(s, e));
         }
     }
+
+    TEST_CASE("startsWith")
+    {
+        SECTION("returns true if the string starts with the substring")
+        {
+            std::string s("foo.txt");
+            std::string p("foo");
+            REQUIRE(startsWith(s, p));
+        }
+
+        SECTION("returns false otherwise")
+        {
+            std::string s("fobar.txt");
+            std::string p("foo");
+            REQUIRE(!startsWith(s, p));
+        }
+
+        SECTION("returns false when the string is shorter")
+        {
+            std::string s("foo");
+            std::string p("fooo");
+            REQUIRE(!startsWith(s, p));
+        }
+    }
 }

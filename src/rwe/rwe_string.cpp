@@ -141,4 +141,27 @@ namespace rwe
 
         return true;
     }
+
+    bool startsWith(const std::string& str, const std::string& prefix)
+    {
+        if (str.size() < prefix.size())
+        {
+            return false;
+        }
+
+        auto it = prefix.begin();
+        auto endIt = prefix.end();
+
+        auto sIt = str.begin();
+
+        while (it != endIt)
+        {
+            if (*(it++) != *(sIt++))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

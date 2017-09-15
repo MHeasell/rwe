@@ -52,7 +52,7 @@ namespace rwe
 
         void appendChild(std::unique_ptr<UiComponent>&& c);
 
-        void removeChild(const std::string& name);
+        void removeChildrenWithPrefix(const std::string& prefix);
 
         std::vector<std::unique_ptr<UiComponent>>& getChildren();
 
