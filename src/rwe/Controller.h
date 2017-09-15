@@ -74,6 +74,18 @@ namespace rwe
         void commitSelectedMap();
 
         void resetCandidateSelectedMap();
+
+        void togglePlayer(int playerIndex);
+
+        void incrementPlayerMetal(int playerIndex);
+
+        void incrementPlayerEnergy(int playerIndex);
+
+        void togglePlayerSide(int playerIndex);
+
+        void cyclePlayerColor(int playerIndex);
+
+        void cyclePlayerTeam(int playerIndex);
     };
 }
 

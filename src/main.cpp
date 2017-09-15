@@ -52,6 +52,8 @@ namespace rwe
             return 1;
         }
 
+        SkirmishMenuModel model;
+
         GraphicsContext graphics;
 
         TextureService textureService(&graphics, &vfs, &*palette);
@@ -74,8 +76,6 @@ namespace rwe
         CursorService cursor(sdlContext, textureService.getGafEntry("anims/CURSORS.GAF", "cursornormal"));
 
         sdlContext->showCursor(SDL_DISABLE);
-
-        SkirmishMenuModel model;
 
         Controller controller(&vfs, &sceneManager, &allSoundTdf, &audioService, &textureService, &cursor, &model);
 

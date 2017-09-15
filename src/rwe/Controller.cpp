@@ -241,4 +241,101 @@ namespace rwe
         ScrollDownMessage m;
         model->groupMessages.next(GroupMessage(topic, group, name, m));
     }
+
+    void Controller::incrementPlayerMetal(int playerIndex)
+    {
+        auto& player = model->players[playerIndex];
+
+        if (player.metal.getValue() < 10000)
+        {
+            player.metal.next(player.metal.getValue() + 500);
+        }
+    }
+
+    void Controller::togglePlayer(int playerIndex)
+    {
+        auto& player = model->players[playerIndex];
+
+        switch (player.type.getValue())
+        {
+            case SkirmishMenuModel::PlayerSettings::Type::Open:
+            {
+                bool humanAllowed = std::find_if(model->players.begin(), model->players.end(), [](const auto& p)
+                {
+                    return p.type.getValue() == SkirmishMenuModel::PlayerSettings::Type::Human;
+                }) == model->players.end();
+                if (humanAllowed)
+                {
+                    player.type.next(SkirmishMenuModel::PlayerSettings::Type::Human);
+                }
+                else
+                {
+                    player.type.next(SkirmishMenuModel::PlayerSettings::Type::Computer);
+                }
+                break;
+            }
+            case SkirmishMenuModel::PlayerSettings::Type::Human:
+                player.type.next(SkirmishMenuModel::PlayerSettings::Type::Computer);
+                break;
+            case SkirmishMenuModel::PlayerSettings::Type::Computer:
+                player.type.next(SkirmishMenuModel::PlayerSettings::Type::Open);
+                break;
+        }
+    }
+
+    void Controller::incrementPlayerEnergy(int playerIndex)
+    {
+        auto& player = model->players[playerIndex];
+
+        if (player.energy.getValue() < 10000)
+        {
+            player.energy.next(player.energy.getValue() + 500);
+        }
+    }
+
+    void Controller::togglePlayerSide(int playerIndex)
+    {
+        auto& player = model->players[playerIndex];
+        switch (player.side.getValue())
+        {
+            case SkirmishMenuModel::PlayerSettings::Side::Arm:
+                player.side.next(SkirmishMenuModel::PlayerSettings::Side::Core);
+                break;
+            case SkirmishMenuModel::PlayerSettings::Side::Core:
+                player.side.next(SkirmishMenuModel::PlayerSettings::Side::Arm);
+                break;
+        }
+    }
+
+    void Controller::cyclePlayerColor(int playerIndex)
+    {
+        auto& player = model->players[playerIndex];
+        auto newColor = (player.colorIndex.getValue() + 1) % 10;
+        player.colorIndex.next(newColor);
+    }
+
+    void Controller::cyclePlayerTeam(int playerIndex)
+    {
+        auto& player = model->players[playerIndex];
+        if (!player.teamIndex.getValue())
+        {
+            player.teamIndex.next(0);
+            model->teamChanges.next(0);
+        }
+        else
+        {
+            auto val = *(player.teamIndex.getValue());
+            if (val == 4)
+            {
+                player.teamIndex.next(boost::none);
+                model->teamChanges.next(val);
+            }
+            else
+            {
+                player.teamIndex.next(val + 1);
+                model->teamChanges.next(val);
+                model->teamChanges.next(val + 1);
+            }
+        }
+    }
 }

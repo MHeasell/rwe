@@ -19,8 +19,8 @@ namespace rwe
 
     public:
         BehaviorSubject() = default;
-        explicit BehaviorSubject(const T& value);
-        explicit BehaviorSubject(T&& value);
+        BehaviorSubject(const T& value);
+        BehaviorSubject(T&& value);
 
         void next(const T& newValue);
         void next(T&& newValue);

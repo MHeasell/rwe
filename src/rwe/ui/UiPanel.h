@@ -52,6 +52,8 @@ namespace rwe
 
         void appendChild(std::unique_ptr<UiComponent>&& c);
 
+        void removeChild(const std::string& name);
+
         std::vector<std::unique_ptr<UiComponent>>& getChildren();
 
         void setFocus(std::size_t controlIndex);

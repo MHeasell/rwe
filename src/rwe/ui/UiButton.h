@@ -46,6 +46,12 @@ namespace rwe
         void keyDown(KeyEvent event) override;
 
         Observable<bool>& onClick();
+
+        const std::string& getLabel() const;
+
+        void setLabel(const std::string& newLabel);
+
+        void setLabel(std::string&& newLabel);
     };
 }
 

@@ -26,4 +26,14 @@ namespace rwe
           minimap(minimap)
     {
     }
+
+    bool SkirmishMenuModel::isTeamShared(int index)
+    {
+        auto count = std::count_if(players.begin(), players.end(), [index](const auto& p) {
+            const auto& val = p.teamIndex.getValue();
+            return val && *val == index;
+        });
+
+        return count >= 2;
+    }
 }

@@ -75,4 +75,19 @@ namespace rwe
             clickSubject.next(true);
         }
     }
+
+    const std::string& UiButton::getLabel() const
+    {
+        return label;
+    }
+
+    void UiButton::setLabel(const std::string& newLabel)
+    {
+        label = newLabel;
+    }
+
+    void UiButton::setLabel(std::string&& newLabel)
+    {
+        label = std::move(newLabel);
+    }
 }

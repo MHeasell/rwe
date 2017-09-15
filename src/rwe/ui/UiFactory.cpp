@@ -497,6 +497,27 @@ namespace rwe
                         as->playSound(s);
                     });
                 }
+
+                b->onClick().subscribe([c = controller, i](bool /*param*/) {
+                    c->togglePlayer(i);
+                });
+
+                auto sub = model->players[i].type.subscribe([b = b.get()](SkirmishMenuModel::PlayerSettings::Type type) {
+                    switch (type)
+                    {
+                        case SkirmishMenuModel::PlayerSettings::Type::Open:
+                            b->setLabel("Open");
+                            break;
+                        case SkirmishMenuModel::PlayerSettings::Type::Human:
+                            b->setLabel("Player");
+                            break;
+                        case SkirmishMenuModel::PlayerSettings::Type::Computer:
+                            b->setLabel("Computer");
+                            break;
+                    }
+                });
+                b->addSubscription(std::move(sub));
+
                 panel.appendChild(std::move(b));
             }
 
@@ -518,6 +539,24 @@ namespace rwe
                         as->playSound(s);
                     });
                 }
+
+                b->onClick().subscribe([c = controller, i](bool /*param*/) {
+                    c->togglePlayerSide(i);
+                });
+
+                auto sub = model->players[i].side.subscribe([b = b.get()](SkirmishMenuModel::PlayerSettings::Side side) {
+                    switch (side)
+                    {
+                        case SkirmishMenuModel::PlayerSettings::Side::Arm:
+                            b->setStage(0);
+                            break;
+                        case SkirmishMenuModel::PlayerSettings::Side::Core:
+                            b->setStage(1);
+                            break;
+                    }
+                });
+                b->addSubscription(std::move(sub));
+
                 panel.appendChild(std::move(b));
             }
 
@@ -543,6 +582,16 @@ namespace rwe
                         as->playSound(s);
                     });
                 }
+
+                b->onClick().subscribe([c = controller, i](bool /*param*/) {
+                    c->cyclePlayerColor(i);
+                });
+
+                auto sub = model->players[i].colorIndex.subscribe([b = b.get()](int index) {
+                    b->setStage(index);
+                });
+                b->addSubscription(std::move(sub));
+
                 panel.appendChild(std::move(b));
             }
 
@@ -572,6 +621,44 @@ namespace rwe
                         as->playSound(s);
                     });
                 }
+
+                b->onClick().subscribe([c = controller, i](bool /*param*/) {
+                    c->cyclePlayerTeam(i);
+                });
+
+                auto sub = model->players[i].teamIndex.subscribe([b = b.get(), m = model](auto index) {
+                    if (!index)
+                    {
+                        b->setStage(10);
+                        return;
+                    }
+
+                    auto stage = (*index) * 2;
+                    if (!m->isTeamShared(*index))
+                    {
+                        ++stage;
+                    }
+
+                    b->setStage(stage);
+                });
+                b->addSubscription(std::move(sub));
+
+                auto teamSub = model->teamChanges.subscribe([b = b.get(), m = model, i](auto index) {
+                    if (index == m->players[i].teamIndex.getValue())
+                    {
+                        auto stage = index * 2;
+                        if (m->isTeamShared(index))
+                        {
+                            b->setStage(stage);
+                        }
+                        else
+                        {
+                            b->setStage(stage + 1);
+                        }
+                    }
+                });
+                b->addSubscription(std::move(teamSub));
+
                 panel.appendChild(std::move(b));
             }
 
@@ -593,6 +680,16 @@ namespace rwe
                         as->playSound(s);
                     });
                 }
+
+                b->onClick().subscribe([b = b.get(), c = controller, i](bool /*param*/) {
+                    c->incrementPlayerMetal(i);
+                });
+
+                auto sub = model->players[i].metal.subscribe([b = b.get()](int newMetal) {
+                    b->setLabel(std::to_string(newMetal));
+                });
+                b->addSubscription(std::move(sub));
+
                 panel.appendChild(std::move(b));
             }
 
@@ -614,8 +711,19 @@ namespace rwe
                         as->playSound(s);
                     });
                 }
+
+                b->onClick().subscribe([b = b.get(), c = controller, i](bool /*param*/) {
+                    c->incrementPlayerEnergy(i);
+                });
+
+                auto sub = model->players[i].energy.subscribe([b = b.get()](int newEnergy) {
+                    b->setLabel(std::to_string(newEnergy));
+                });
+                b->addSubscription(std::move(sub));
+
                 panel.appendChild(std::move(b));
             }
+
         }
     }
 }
