@@ -583,7 +583,7 @@ namespace rwe
             unsigned int width = 19;
             unsigned int height = 19;
 
-            auto graphics = textureService->getGafEntry("textures/LOGOS.GAF", "32xlogos");
+            auto graphics = textureService->getGafEntry("anims/LOGOS.GAF", "32xlogos");
             auto copiedGraphics = std::make_shared<SpriteSeries>(*graphics);
             auto defaultSeries = textureService->getDefaultSpriteSeries();
 
