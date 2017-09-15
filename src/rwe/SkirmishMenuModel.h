@@ -35,8 +35,17 @@ namespace rwe
 
         struct PlayerSettings
         {
-            enum class Type { Open, Human, Computer };
-            enum class Side { Arm, Core };
+            enum class Type
+            {
+                Open,
+                Human,
+                Computer
+            };
+            enum class Side
+            {
+                Arm,
+                Core
+            };
 
             BehaviorSubject<Type> type;
             BehaviorSubject<Side> side;

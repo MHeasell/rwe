@@ -82,7 +82,6 @@ namespace rwe
         std::istream* stream;
 
     public:
-
         explicit TntArchive(std::istream* _stream);
 
         TntMinimapInfo readMinimap();

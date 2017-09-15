@@ -8,7 +8,12 @@ namespace rwe
     class UiLabel : public UiComponent
     {
     public:
-        enum class Alignment { Left, Center };
+        enum class Alignment
+        {
+            Left,
+            Center
+        };
+
     private:
         std::string text;
         std::shared_ptr<SpriteSeries> font;

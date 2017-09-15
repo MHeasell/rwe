@@ -74,7 +74,14 @@ namespace rwe
 
     struct ButtonClickEvent
     {
-        enum class Source { LeftMouseButton, MiddleMouseButton, RightMouseButton, Keyboard, Other };
+        enum class Source
+        {
+            LeftMouseButton,
+            MiddleMouseButton,
+            RightMouseButton,
+            Keyboard,
+            Other
+        };
         Source source;
     };
 }

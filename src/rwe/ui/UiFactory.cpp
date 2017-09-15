@@ -507,11 +507,11 @@ namespace rwe
                     });
                 }
 
-                b->onClick().subscribe([c = controller, i](const auto& /*param*/) {
+                b->onClick().subscribe([ c = controller, i ](const auto& /*param*/) {
                     c->togglePlayer(i);
                 });
 
-                auto sub = model->players[i].type.subscribe([b = b.get(), &panel, this, guiName, i](SkirmishMenuModel::PlayerSettings::Type type) {
+                auto sub = model->players[i].type.subscribe([ b = b.get(), &panel, this, guiName, i ](SkirmishMenuModel::PlayerSettings::Type type) {
                     switch (type)
                     {
                         case SkirmishMenuModel::PlayerSettings::Type::Open:
@@ -567,7 +567,7 @@ namespace rwe
                 });
             }
 
-            b->onClick().subscribe([c = controller, i](const auto& /*param*/) {
+            b->onClick().subscribe([ c = controller, i ](const auto& /*param*/) {
                 c->togglePlayerSide(i);
             });
 
@@ -612,7 +612,7 @@ namespace rwe
                 });
             }
 
-            b->onClick().subscribe([c = controller, i](const auto& event) {
+            b->onClick().subscribe([ c = controller, i ](const auto& event) {
                 switch (event.source)
                 {
                     case ButtonClickEvent::Source::RightMouseButton:
@@ -653,7 +653,7 @@ namespace rwe
             auto b = std::make_unique<UiStagedButton>(241, rowStart, width, height, copiedGraphics, std::vector<std::string>(11), font);
             b->setName("PLAYER" + std::to_string(i) + "_team");
             b->autoChangeStage = false;
-            b->setStage(10);  // blank button
+            b->setStage(10); // blank button
             if (sound)
             {
                 b->onClick().subscribe([ as = audioService, s = *sound ](const auto& /*param*/) {
@@ -661,11 +661,11 @@ namespace rwe
                 });
             }
 
-            b->onClick().subscribe([c = controller, i](const auto& /*param*/) {
+            b->onClick().subscribe([ c = controller, i ](const auto& /*param*/) {
                 c->cyclePlayerTeam(i);
             });
 
-            auto sub = model->players[i].teamIndex.subscribe([b = b.get(), m = model](auto index) {
+            auto sub = model->players[i].teamIndex.subscribe([ b = b.get(), m = model ](auto index) {
                 if (!index)
                 {
                     b->setStage(10);
@@ -682,7 +682,7 @@ namespace rwe
             });
             b->addSubscription(std::move(sub));
 
-            auto teamSub = model->teamChanges.subscribe([b = b.get(), m = model, i](auto index) {
+            auto teamSub = model->teamChanges.subscribe([ b = b.get(), m = model, i ](auto index) {
                 if (index == m->players[i].teamIndex.getValue())
                 {
                     auto stage = index * 2;
@@ -721,7 +721,7 @@ namespace rwe
                 });
             }
 
-            b->onClick().subscribe([b = b.get(), c = controller, i](const auto& event) {
+            b->onClick().subscribe([ b = b.get(), c = controller, i ](const auto& event) {
                 switch (event.source)
                 {
                     case ButtonClickEvent::Source::RightMouseButton:
@@ -761,7 +761,7 @@ namespace rwe
                 });
             }
 
-            b->onClick().subscribe([b = b.get(), c = controller, i](const auto& event) {
+            b->onClick().subscribe([ b = b.get(), c = controller, i ](const auto& event) {
                 switch (event.source)
                 {
                     case ButtonClickEvent::Source::RightMouseButton:
@@ -780,6 +780,5 @@ namespace rwe
 
             panel.appendChild(std::move(b));
         }
-
     }
 }

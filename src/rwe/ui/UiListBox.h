@@ -20,7 +20,8 @@ namespace rwe
 
         public:
             explicit ListBoxUiMessageVisitor(UiListBox* listBox) : listBox(listBox)
-            {}
+            {
+            }
 
             void operator()(const ScrollPositionMessage& msg) const
             {

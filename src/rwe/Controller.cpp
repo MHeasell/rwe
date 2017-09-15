@@ -191,8 +191,7 @@ namespace rwe
             mapName,
             ota.missionDescription,
             sizeInfo,
-            minimap
-        );
+            minimap);
 
         model->candidateSelectedMap.next(std::move(info));
     }
@@ -317,8 +316,7 @@ namespace rwe
                     color = *newColor;
                 }
 
-                bool humanAllowed = std::find_if(model->players.begin(), model->players.end(), [](const auto& p)
-                {
+                bool humanAllowed = std::find_if(model->players.begin(), model->players.end(), [](const auto& p) {
                     return p.type.getValue() == SkirmishMenuModel::PlayerSettings::Type::Human;
                 }) == model->players.end();
                 if (humanAllowed)
