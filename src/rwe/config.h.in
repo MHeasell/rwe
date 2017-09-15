@@ -1,0 +1,14 @@
+#ifndef RWE_CONFIG_H
+#define RWE_CONFIG_H
+
+#include <string>
+
+namespace rwe
+{
+    static const std::string GitDescription("@RWE_GIT_DESCRIPTION@");
+    static const std::string ProjectName("@PROJECT_NAME@");
+
+    static const std::string ProjectNameVersion = ProjectName + " " + GitDescription;
+}
+
+#endif

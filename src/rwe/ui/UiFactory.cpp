@@ -2,8 +2,9 @@
 #include "UiSurface.h"
 
 #include <memory>
-#include <rwe/ui/UiComponent.h>
 #include <rwe/Controller.h>
+#include <rwe/config.h>
+#include <rwe/ui/UiComponent.h>
 
 namespace rwe
 {
@@ -155,7 +156,15 @@ namespace rwe
             entry.text.get_value_or(""),
             font);
 
-        if (guiName == "SELMAP")
+        if (guiName == "MAINMENU")
+        {
+            if (entry.common.name == "DebugString")
+            {
+                label->setText(ProjectNameVersion);
+                label->setAlignment(UiLabel::Alignment::Center);
+            }
+        }
+        else if (guiName == "SELMAP")
         {
             if (entry.common.name == "DESCRIPTION")
             {

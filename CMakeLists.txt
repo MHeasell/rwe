@@ -169,6 +169,8 @@ add_library(librwe STATIC ${SOURCE_FILES})
 set_target_properties(librwe PROPERTIES PREFIX "")
 target_compile_options(librwe PUBLIC "-Wall" "-Wextra")
 target_include_directories(librwe PUBLIC "src")
+configure_file("src/rwe/config.h.in" "config/rwe/config.h" @ONLY)
+target_include_directories(librwe PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/config")
 
 target_include_directories(librwe PUBLIC ${Boost_INCLUDE_DIRS})
 target_link_libraries(librwe ${Boost_LIBRARIES})
