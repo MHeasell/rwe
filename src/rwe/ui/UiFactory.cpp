@@ -620,7 +620,7 @@ namespace rwe
             unsigned int width = 38;
             unsigned int height = 20;
 
-            auto graphics = textureService->getGuiTexture(guiName, "ally icons");
+            auto graphics = textureService->getGuiTexture(guiName, "TEAMICONSx");
             if (!graphics)
             {
                 graphics = getDefaultButtonGraphics(guiName, width, height);
