@@ -16,7 +16,6 @@
 #include <rwe/ColorPalette.h>
 #include <boost/filesystem.hpp>
 #include <rwe/AudioService.h>
-#include <rwe/MainMenuController.h>
 
 namespace fs = boost::filesystem;
 
@@ -52,8 +51,6 @@ namespace rwe
             return 1;
         }
 
-        MainMenuModel model;
-
         GraphicsContext graphics;
 
         TextureService textureService(&graphics, &vfs, &*palette);
@@ -77,9 +74,10 @@ namespace rwe
 
         sdlContext->showCursor(SDL_DISABLE);
 
-        MainMenuController controller(&vfs, &sceneManager, &allSoundTdf, &audioService, &textureService, &cursor, &model);
+        auto scene = std::make_unique<MainMenuScene>(&sceneManager, &vfs, &textureService, &audioService, &allSoundTdf, &cursor, 640, 480);
+        sceneManager.setNextScene(std::move(scene));
 
-        controller.start();
+        sceneManager.execute();
 
         return 0;
     }
