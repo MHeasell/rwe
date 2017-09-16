@@ -1,5 +1,5 @@
-#ifndef RWE_SKIRMISHMENUMODEL_H
-#define RWE_SKIRMISHMENUMODEL_H
+#ifndef RWE_MAINMENUMODEL_H
+#define RWE_MAINMENUMODEL_H
 
 #include <array>
 #include <boost/optional.hpp>
@@ -11,7 +11,7 @@
 
 namespace rwe
 {
-    class SkirmishMenuModel
+    class MainMenuModel
     {
     public:
         struct SelectedMapInfo

@@ -2,13 +2,13 @@
 #include "UiSurface.h"
 
 #include <memory>
-#include <rwe/Controller.h>
+#include <rwe/MainMenuController.h>
 #include <rwe/config.h>
 #include <rwe/ui/UiComponent.h>
 
 namespace rwe
 {
-    UiFactory::UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs, SkirmishMenuModel* model, Controller* controller)
+    UiFactory::UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs, MainMenuModel* model, MainMenuController* controller)
         : textureService(textureService), audioService(audioService), soundLookup(soundLookup), vfs(vfs), model(model), controller(controller)
     {
     }
@@ -511,19 +511,19 @@ namespace rwe
                     c->togglePlayer(i);
                 });
 
-                auto sub = model->players[i].type.subscribe([ b = b.get(), &panel, this, guiName, i ](SkirmishMenuModel::PlayerSettings::Type type) {
+                auto sub = model->players[i].type.subscribe([ b = b.get(), &panel, this, guiName, i ](MainMenuModel::PlayerSettings::Type type) {
                     switch (type)
                     {
-                        case SkirmishMenuModel::PlayerSettings::Type::Open:
+                        case MainMenuModel::PlayerSettings::Type::Open:
                             panel.removeChildrenWithPrefix("PLAYER" + std::to_string(i) + "_");
                             b->setLabel("Open");
                             break;
-                        case SkirmishMenuModel::PlayerSettings::Type::Human:
+                        case MainMenuModel::PlayerSettings::Type::Human:
                             b->setLabel("Player");
                             panel.removeChildrenWithPrefix("PLAYER" + std::to_string(i) + "_");
                             attachDetailedPlayerSelectionComponents(guiName, panel, i);
                             break;
-                        case SkirmishMenuModel::PlayerSettings::Type::Computer:
+                        case MainMenuModel::PlayerSettings::Type::Computer:
                             b->setLabel("Computer");
                             panel.removeChildrenWithPrefix("PLAYER" + std::to_string(i) + "_");
                             attachDetailedPlayerSelectionComponents(guiName, panel, i);
@@ -571,13 +571,13 @@ namespace rwe
                 c->togglePlayerSide(i);
             });
 
-            auto sub = model->players[i].side.subscribe([b = b.get()](SkirmishMenuModel::PlayerSettings::Side side) {
+            auto sub = model->players[i].side.subscribe([b = b.get()](MainMenuModel::PlayerSettings::Side side) {
                 switch (side)
                 {
-                    case SkirmishMenuModel::PlayerSettings::Side::Arm:
+                    case MainMenuModel::PlayerSettings::Side::Arm:
                         b->setStage(0);
                         break;
-                    case SkirmishMenuModel::PlayerSettings::Side::Core:
+                    case MainMenuModel::PlayerSettings::Side::Core:
                         b->setStage(1);
                         break;
                 }

@@ -11,12 +11,12 @@
 #include <vector>
 #include <rwe/ui/UiLabel.h>
 #include <rwe/ui/UiStagedButton.h>
-#include <rwe/SkirmishMenuModel.h>
+#include <rwe/MainMenuModel.h>
 #include <rwe/ui/UiScrollBar.h>
 
 namespace rwe
 {
-    class Controller;
+    class MainMenuController;
 
     class UiFactory
     {
@@ -25,11 +25,11 @@ namespace rwe
         AudioService* audioService;
         TdfBlock* soundLookup;
         AbstractVirtualFileSystem* vfs;
-        SkirmishMenuModel* model;
-        Controller* controller;
+        MainMenuModel* model;
+        MainMenuController* controller;
 
     public:
-        UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs, SkirmishMenuModel* model, Controller* controller);
+        UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs, MainMenuModel* model, MainMenuController* controller);
 
         std::unique_ptr<UiPanel> panelFromGuiFile(const std::string& name, const std::string& background, const std::vector<GuiEntry>& entries);
 

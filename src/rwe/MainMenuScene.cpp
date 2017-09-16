@@ -1,10 +1,10 @@
-#include "UiPanelScene.h"
+#include "MainMenuScene.h"
 
 #include <rwe/gui.h>
 
 namespace rwe
 {
-    UiPanelScene::UiPanelScene(
+    MainMenuScene::MainMenuScene(
         AudioService* audioService,
         TdfBlock* soundLookup,
         CursorService* cursor,
@@ -18,12 +18,12 @@ namespace rwe
     {
     }
 
-    void UiPanelScene::init()
+    void MainMenuScene::init()
     {
         bgm = startBgm();
     }
 
-    void UiPanelScene::render(GraphicsContext& context)
+    void MainMenuScene::render(GraphicsContext& context)
     {
         context.applyCamera(camera);
         panelStack.back()->render(context);
@@ -37,22 +37,22 @@ namespace rwe
         cursor->render(context);
     }
 
-    void UiPanelScene::onMouseDown(MouseButtonEvent event)
+    void MainMenuScene::onMouseDown(MouseButtonEvent event)
     {
         topPanel().mouseDown(event);
     }
 
-    void UiPanelScene::onMouseUp(MouseButtonEvent event)
+    void MainMenuScene::onMouseUp(MouseButtonEvent event)
     {
         topPanel().mouseUp(event);
     }
 
-    void UiPanelScene::onMouseMove(MouseMoveEvent event)
+    void MainMenuScene::onMouseMove(MouseMoveEvent event)
     {
         topPanel().mouseMove(event);
     }
 
-    AudioService::LoopToken UiPanelScene::startBgm()
+    AudioService::LoopToken MainMenuScene::startBgm()
     {
         auto bgmBlock = soundLookup->findBlock("BGM");
         if (!bgmBlock)
@@ -75,7 +75,7 @@ namespace rwe
         return audioService->loopSound(*bgm);
     }
 
-    void UiPanelScene::goToPreviousMenu()
+    void MainMenuScene::goToPreviousMenu()
     {
         if (!dialogStack.empty())
         {
@@ -86,17 +86,17 @@ namespace rwe
         panelStack.pop_back();
     }
 
-    void UiPanelScene::goToMenu(std::unique_ptr<UiPanel>&& panel)
+    void MainMenuScene::goToMenu(std::unique_ptr<UiPanel>&& panel)
     {
         panelStack.push_back(std::move(panel));
     }
 
-    void UiPanelScene::openDialog(std::unique_ptr<UiPanel>&& panel)
+    void MainMenuScene::openDialog(std::unique_ptr<UiPanel>&& panel)
     {
         dialogStack.push_back(std::move(panel));
     }
 
-    bool UiPanelScene::hasPreviousMenu() const
+    bool MainMenuScene::hasPreviousMenu() const
     {
         if (!dialogStack.empty())
         {
@@ -106,7 +106,7 @@ namespace rwe
         return panelStack.size() > 1;
     }
 
-    UiPanel& UiPanelScene::topPanel()
+    UiPanel& MainMenuScene::topPanel()
     {
         if (!dialogStack.empty())
         {
@@ -116,22 +116,22 @@ namespace rwe
         return *(panelStack.back());
     }
 
-    void UiPanelScene::update()
+    void MainMenuScene::update()
     {
         topPanel().update(static_cast<float>(SceneManager::TickInterval) / 1000.0f);
     }
 
-    void UiPanelScene::onMouseWheel(MouseWheelEvent event)
+    void MainMenuScene::onMouseWheel(MouseWheelEvent event)
     {
         topPanel().mouseWheel(event);
     }
 
-    void UiPanelScene::onUiMessage(const GroupMessage& message)
+    void MainMenuScene::onUiMessage(const GroupMessage& message)
     {
         topPanel().uiMessage(message);
     }
 
-    void UiPanelScene::onKeyDown(const SDL_Keysym& keysym)
+    void MainMenuScene::onKeyDown(const SDL_Keysym& keysym)
     {
         topPanel().keyDown(KeyEvent(keysym.sym));
     }

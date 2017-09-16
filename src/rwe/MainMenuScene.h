@@ -12,7 +12,7 @@
 
 namespace rwe
 {
-    class UiPanelScene : public SceneManager::Scene
+    class MainMenuScene : public SceneManager::Scene
     {
     private:
         AudioService* audioService;
@@ -27,7 +27,7 @@ namespace rwe
         AudioService::LoopToken bgm;
 
     public:
-        UiPanelScene(AudioService* audioService, TdfBlock* soundLookup, CursorService* cursor, float width, float height);
+        MainMenuScene(AudioService* audioService, TdfBlock* soundLookup, CursorService* cursor, float width, float height);
 
         void init() override;
 

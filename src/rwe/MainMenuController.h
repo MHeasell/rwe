@@ -1,11 +1,11 @@
-#ifndef RWE_MENUCONTEXT_H
-#define RWE_MENUCONTEXT_H
+#ifndef RWE_MAINMENUCONTROLLER_H
+#define RWE_MAINMENUCONTROLLER_H
 
 #include <memory>
 #include <rwe/AudioService.h>
 #include <rwe/CursorService.h>
-#include <rwe/SkirmishMenuModel.h>
-#include <rwe/UiPanelScene.h>
+#include <rwe/MainMenuModel.h>
+#include <rwe/MainMenuScene.h>
 #include <rwe/observable/Subscription.h>
 #include <rwe/tdf/SimpleTdfAdapter.h>
 #include <rwe/ui/UiFactory.h>
@@ -15,7 +15,7 @@
 
 namespace rwe
 {
-    class Controller
+    class MainMenuController
     {
     private:
         AbstractVirtualFileSystem* vfs;
@@ -24,26 +24,26 @@ namespace rwe
         AudioService* audioService;
         TextureService* textureService;
         CursorService* cursor;
-        SkirmishMenuModel* model;
+        MainMenuModel* model;
 
         UiFactory uiFactory;
-        std::shared_ptr<UiPanelScene> scene;
+        std::shared_ptr<MainMenuScene> scene;
 
         AudioService::LoopToken bgmHandle;
 
         std::vector<std::unique_ptr<Subscription>> subscriptions;
 
     public:
-        Controller(
+        MainMenuController(
             AbstractVirtualFileSystem* vfs,
             SceneManager* sceneManager,
             TdfBlock* allSoundTdf,
             AudioService* audioService,
             TextureService* textureService,
             CursorService* cursor,
-            SkirmishMenuModel* model);
+            MainMenuModel* model);
 
-        ~Controller();
+        ~MainMenuController();
 
         void goToMainMenu();
 
@@ -92,6 +92,8 @@ namespace rwe
         void reverseCyclePlayerColor(int playerIndex);
 
         void cyclePlayerTeam(int playerIndex);
+
+        void startGame();
     };
 }
 

@@ -12,11 +12,11 @@
 
 #include <rwe/gui.h>
 #include <iostream>
-#include <rwe/UiPanelScene.h>
+#include <rwe/MainMenuScene.h>
 #include <rwe/ColorPalette.h>
 #include <boost/filesystem.hpp>
 #include <rwe/AudioService.h>
-#include <rwe/Controller.h>
+#include <rwe/MainMenuController.h>
 
 namespace fs = boost::filesystem;
 
@@ -52,7 +52,7 @@ namespace rwe
             return 1;
         }
 
-        SkirmishMenuModel model;
+        MainMenuModel model;
 
         GraphicsContext graphics;
 
@@ -77,7 +77,7 @@ namespace rwe
 
         sdlContext->showCursor(SDL_DISABLE);
 
-        Controller controller(&vfs, &sceneManager, &allSoundTdf, &audioService, &textureService, &cursor, &model);
+        MainMenuController controller(&vfs, &sceneManager, &allSoundTdf, &audioService, &textureService, &cursor, &model);
 
         controller.start();
 

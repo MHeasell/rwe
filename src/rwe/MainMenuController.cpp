@@ -1,6 +1,6 @@
-#include "Controller.h"
+#include "MainMenuController.h"
 
-#include <rwe/UiPanelScene.h>
+#include <rwe/MainMenuScene.h>
 #include <rwe/gui.h>
 #include <rwe/ota.h>
 #include <rwe/tdf.h>
@@ -9,7 +9,7 @@
 
 namespace rwe
 {
-    void Controller::goToMainMenu()
+    void MainMenuController::goToMainMenu()
     {
         auto mainMenuGuiRaw = vfs->readFile("guis/MAINMENU.GUI");
         if (!mainMenuGuiRaw)
@@ -28,21 +28,21 @@ namespace rwe
         scene->goToMenu(std::move(panel));
     }
 
-    void Controller::start()
+    void MainMenuController::start()
     {
         goToMainMenu();
         sceneManager->setNextScene(scene);
         sceneManager->execute();
     }
 
-    Controller::Controller(
+    MainMenuController::MainMenuController(
         AbstractVirtualFileSystem* vfs,
         SceneManager* sceneManager,
         TdfBlock* allSoundTdf,
         AudioService* audioService,
         TextureService* textureService,
         CursorService* cursor,
-        SkirmishMenuModel* model)
+        MainMenuModel* model)
         : vfs(vfs),
           sceneManager(sceneManager),
           allSoundTdf(allSoundTdf),
@@ -51,16 +51,16 @@ namespace rwe
           cursor(cursor),
           model(model),
           uiFactory(textureService, audioService, allSoundTdf, vfs, model, this),
-          scene(std::make_shared<UiPanelScene>(audioService, allSoundTdf, cursor, 640, 480))
+          scene(std::make_shared<MainMenuScene>(audioService, allSoundTdf, cursor, 640, 480))
     {
     }
 
-    void Controller::exit()
+    void MainMenuController::exit()
     {
         sceneManager->requestExit();
     }
 
-    void Controller::message(const std::string& topic, const std::string& message)
+    void MainMenuController::message(const std::string& topic, const std::string& message)
     {
         if (message == "PrevMenu" || message == "PREVMENU")
         {
@@ -91,6 +91,10 @@ namespace rwe
                 resetCandidateSelectedMap();
                 openMapSelectionDialog();
             }
+            else if (message == "Start")
+            {
+                startGame();
+            }
         }
         else if (topic == "SELMAP")
         {
@@ -102,7 +106,7 @@ namespace rwe
         }
     }
 
-    void Controller::goToSingleMenu()
+    void MainMenuController::goToSingleMenu()
     {
         auto mainMenuGuiRaw = vfs->readFile("guis/SINGLE.GUI");
         if (!mainMenuGuiRaw)
@@ -121,7 +125,7 @@ namespace rwe
         scene->goToMenu(std::move(panel));
     }
 
-    void Controller::goToSkirmishMenu()
+    void MainMenuController::goToSkirmishMenu()
     {
         auto mainMenuGuiRaw = vfs->readFile("guis/SKIRMISH.GUI");
         if (!mainMenuGuiRaw)
@@ -140,7 +144,7 @@ namespace rwe
         scene->goToMenu(std::move(panel));
     }
 
-    void Controller::goToPreviousMenu()
+    void MainMenuController::goToPreviousMenu()
     {
         if (!scene->hasPreviousMenu())
         {
@@ -151,7 +155,7 @@ namespace rwe
         scene->goToPreviousMenu();
     }
 
-    void Controller::openMapSelectionDialog()
+    void MainMenuController::openMapSelectionDialog()
     {
         auto guiRaw = vfs->readFile("guis/SELMAP.GUI");
         if (!guiRaw)
@@ -170,7 +174,7 @@ namespace rwe
         scene->openDialog(std::move(panel));
     }
 
-    void Controller::setCandidateSelectedMap(const std::string& mapName)
+    void MainMenuController::setCandidateSelectedMap(const std::string& mapName)
     {
         auto otaRaw = vfs->readFile(std::string("maps/").append(mapName).append(".ota"));
         if (!otaRaw)
@@ -187,7 +191,7 @@ namespace rwe
         // this is what TA shows in its map selection dialog
         auto sizeInfo = std::string().append(ota.memory).append("  Players: ").append(ota.numPlayers);
 
-        SkirmishMenuModel::SelectedMapInfo info(
+        MainMenuModel::SelectedMapInfo info(
             mapName,
             ota.missionDescription,
             sizeInfo,
@@ -196,22 +200,22 @@ namespace rwe
         model->candidateSelectedMap.next(std::move(info));
     }
 
-    void Controller::resetCandidateSelectedMap()
+    void MainMenuController::resetCandidateSelectedMap()
     {
         model->candidateSelectedMap.next(model->selectedMap.getValue());
     }
 
-    void Controller::commitSelectedMap()
+    void MainMenuController::commitSelectedMap()
     {
         model->selectedMap.next(model->candidateSelectedMap.getValue());
     }
 
-    void Controller::clearCandidateSelectedMap()
+    void MainMenuController::clearCandidateSelectedMap()
     {
         model->candidateSelectedMap.next(boost::none);
     }
 
-    void Controller::scrollMessage(
+    void MainMenuController::scrollMessage(
         const std::string& topic,
         unsigned int group,
         const std::string& name,
@@ -221,7 +225,7 @@ namespace rwe
         model->groupMessages.next(gm);
     }
 
-    Controller::~Controller()
+    MainMenuController::~MainMenuController()
     {
         for (auto& sub : subscriptions)
         {
@@ -229,19 +233,19 @@ namespace rwe
         }
     }
 
-    void Controller::scrollUpMessage(const std::string& topic, unsigned int group, const std::string& name)
+    void MainMenuController::scrollUpMessage(const std::string& topic, unsigned int group, const std::string& name)
     {
         ScrollUpMessage m;
         model->groupMessages.next(GroupMessage(topic, group, name, m));
     }
 
-    void Controller::scrollDownMessage(const std::string& topic, unsigned int group, const std::string& name)
+    void MainMenuController::scrollDownMessage(const std::string& topic, unsigned int group, const std::string& name)
     {
         ScrollDownMessage m;
         model->groupMessages.next(GroupMessage(topic, group, name, m));
     }
 
-    void Controller::incrementPlayerMetal(int playerIndex)
+    void MainMenuController::incrementPlayerMetal(int playerIndex)
     {
         auto& player = model->players[playerIndex];
 
@@ -255,7 +259,7 @@ namespace rwe
         }
     }
 
-    void Controller::decrementPlayerMetal(int playerIndex)
+    void MainMenuController::decrementPlayerMetal(int playerIndex)
     {
         auto& player = model->players[playerIndex];
 
@@ -269,7 +273,7 @@ namespace rwe
         }
     }
 
-    void Controller::incrementPlayerEnergy(int playerIndex)
+    void MainMenuController::incrementPlayerEnergy(int playerIndex)
     {
         auto& player = model->players[playerIndex];
 
@@ -283,7 +287,7 @@ namespace rwe
         }
     }
 
-    void Controller::decrementPlayerEnergy(int playerIndex)
+    void MainMenuController::decrementPlayerEnergy(int playerIndex)
     {
         auto& player = model->players[playerIndex];
 
@@ -297,13 +301,13 @@ namespace rwe
         }
     }
 
-    void Controller::togglePlayer(int playerIndex)
+    void MainMenuController::togglePlayer(int playerIndex)
     {
         auto& player = model->players[playerIndex];
 
         switch (player.type.getValue())
         {
-            case SkirmishMenuModel::PlayerSettings::Type::Open:
+            case MainMenuModel::PlayerSettings::Type::Open:
             {
                 auto color = player.colorIndex.getValue();
                 if (model->isColorInUse(color))
@@ -317,43 +321,43 @@ namespace rwe
                 }
 
                 bool humanAllowed = std::find_if(model->players.begin(), model->players.end(), [](const auto& p) {
-                    return p.type.getValue() == SkirmishMenuModel::PlayerSettings::Type::Human;
+                    return p.type.getValue() == MainMenuModel::PlayerSettings::Type::Human;
                 }) == model->players.end();
                 if (humanAllowed)
                 {
-                    player.type.next(SkirmishMenuModel::PlayerSettings::Type::Human);
+                    player.type.next(MainMenuModel::PlayerSettings::Type::Human);
                 }
                 else
                 {
-                    player.type.next(SkirmishMenuModel::PlayerSettings::Type::Computer);
+                    player.type.next(MainMenuModel::PlayerSettings::Type::Computer);
                 }
                 player.colorIndex.next(color);
                 break;
             }
-            case SkirmishMenuModel::PlayerSettings::Type::Human:
-                player.type.next(SkirmishMenuModel::PlayerSettings::Type::Computer);
+            case MainMenuModel::PlayerSettings::Type::Human:
+                player.type.next(MainMenuModel::PlayerSettings::Type::Computer);
                 break;
-            case SkirmishMenuModel::PlayerSettings::Type::Computer:
-                player.type.next(SkirmishMenuModel::PlayerSettings::Type::Open);
+            case MainMenuModel::PlayerSettings::Type::Computer:
+                player.type.next(MainMenuModel::PlayerSettings::Type::Open);
                 break;
         }
     }
 
-    void Controller::togglePlayerSide(int playerIndex)
+    void MainMenuController::togglePlayerSide(int playerIndex)
     {
         auto& player = model->players[playerIndex];
         switch (player.side.getValue())
         {
-            case SkirmishMenuModel::PlayerSettings::Side::Arm:
-                player.side.next(SkirmishMenuModel::PlayerSettings::Side::Core);
+            case MainMenuModel::PlayerSettings::Side::Arm:
+                player.side.next(MainMenuModel::PlayerSettings::Side::Core);
                 break;
-            case SkirmishMenuModel::PlayerSettings::Side::Core:
-                player.side.next(SkirmishMenuModel::PlayerSettings::Side::Arm);
+            case MainMenuModel::PlayerSettings::Side::Core:
+                player.side.next(MainMenuModel::PlayerSettings::Side::Arm);
                 break;
         }
     }
 
-    void Controller::cyclePlayerColor(int playerIndex)
+    void MainMenuController::cyclePlayerColor(int playerIndex)
     {
         auto& player = model->players[playerIndex];
         auto currentColor = player.colorIndex.getValue();
@@ -368,7 +372,7 @@ namespace rwe
         }
     }
 
-    void Controller::reverseCyclePlayerColor(int playerIndex)
+    void MainMenuController::reverseCyclePlayerColor(int playerIndex)
     {
         auto& player = model->players[playerIndex];
         auto currentColor = player.colorIndex.getValue();
@@ -383,7 +387,7 @@ namespace rwe
         }
     }
 
-    void Controller::cyclePlayerTeam(int playerIndex)
+    void MainMenuController::cyclePlayerTeam(int playerIndex)
     {
         auto& player = model->players[playerIndex];
         if (!player.teamIndex.getValue())
@@ -406,5 +410,10 @@ namespace rwe
                 model->teamChanges.next(val + 1);
             }
         }
+    }
+
+    void MainMenuController::startGame()
+    {
+
     }
 }

@@ -59,8 +59,6 @@ set(SOURCE_FILES
     src/rwe/AudioService.h
     src/rwe/ColorPalette.cpp
     src/rwe/ColorPalette.h
-    src/rwe/Controller.cpp
-    src/rwe/Controller.h
     src/rwe/CursorService.cpp
     src/rwe/CursorService.h
     src/rwe/Gaf.cpp src/rwe/Gaf.h
@@ -68,6 +66,12 @@ set(SOURCE_FILES
     src/rwe/GraphicsContext.h
     src/rwe/Hpi.cpp
     src/rwe/Hpi.h
+    src/rwe/MainMenuController.cpp
+    src/rwe/MainMenuController.h
+    src/rwe/MainMenuModel.cpp
+    src/rwe/MainMenuModel.h
+    src/rwe/MainMenuScene.cpp
+    src/rwe/MainMenuScene.h
     src/rwe/OtherTriangleScene.cpp
     src/rwe/OtherTriangleScene.h
     src/rwe/SceneManager.cpp
@@ -76,8 +80,6 @@ set(SOURCE_FILES
     src/rwe/SdlContextManager.h
     src/rwe/SharedTextureHandle.cpp
     src/rwe/SharedTextureHandle.h
-    src/rwe/SkirmishMenuModel.cpp
-    src/rwe/SkirmishMenuModel.h
     src/rwe/Sprite.cpp
     src/rwe/Sprite.h
     src/rwe/SpriteSeries.cpp
@@ -88,8 +90,6 @@ set(SOURCE_FILES
     src/rwe/TextureService.h
     src/rwe/TriangleScene.cpp
     src/rwe/TriangleScene.h
-    src/rwe/UiPanelScene.cpp
-    src/rwe/UiPanelScene.h
     src/rwe/camera/AbstractCamera.cpp
     src/rwe/camera/AbstractCamera.h
     src/rwe/camera/UiCamera.cpp
