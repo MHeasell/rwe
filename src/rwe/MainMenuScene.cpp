@@ -126,11 +126,6 @@ namespace rwe
         topPanel().mouseWheel(event);
     }
 
-    void MainMenuScene::onUiMessage(const GroupMessage& message)
-    {
-        topPanel().uiMessage(message);
-    }
-
     void MainMenuScene::onKeyDown(const SDL_Keysym& keysym)
     {
         topPanel().keyDown(KeyEvent(keysym.sym));
