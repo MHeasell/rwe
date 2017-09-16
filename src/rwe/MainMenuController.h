@@ -29,8 +29,6 @@ namespace rwe
         UiFactory uiFactory;
         std::shared_ptr<MainMenuScene> scene;
 
-        AudioService::LoopToken bgmHandle;
-
     public:
         MainMenuController(
             AbstractVirtualFileSystem* vfs,
