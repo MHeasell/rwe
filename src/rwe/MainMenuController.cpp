@@ -225,14 +225,6 @@ namespace rwe
         model->groupMessages.next(gm);
     }
 
-    MainMenuController::~MainMenuController()
-    {
-        for (auto& sub : subscriptions)
-        {
-            sub->unsubscribe();
-        }
-    }
-
     void MainMenuController::scrollUpMessage(const std::string& topic, unsigned int group, const std::string& name)
     {
         ScrollUpMessage m;

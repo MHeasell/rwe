@@ -31,8 +31,6 @@ namespace rwe
 
         AudioService::LoopToken bgmHandle;
 
-        std::vector<std::unique_ptr<Subscription>> subscriptions;
-
     public:
         MainMenuController(
             AbstractVirtualFileSystem* vfs,
@@ -42,8 +40,6 @@ namespace rwe
             TextureService* textureService,
             CursorService* cursor,
             MainMenuModel* model);
-
-        ~MainMenuController();
 
         void goToMainMenu();
 
