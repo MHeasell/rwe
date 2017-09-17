@@ -501,7 +501,7 @@ namespace rwe
 
     void MainMenuScene::startGame()
     {
-        auto scene = std::make_unique<LoadingScene>(textureService, cursor);
+        auto scene = std::make_unique<LoadingScene>(textureService, cursor, std::move(bgm));
         sceneManager->setNextScene(std::move(scene));
     }
 }

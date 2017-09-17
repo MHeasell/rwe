@@ -50,8 +50,8 @@ namespace rwe
         cursor->render(context);
     }
 
-    LoadingScene::LoadingScene(TextureService* textureService, CursorService* cursor)
-        : textureService(textureService), cursor(cursor)
+    LoadingScene::LoadingScene(TextureService* textureService, CursorService* cursor, AudioService::LoopToken&& bgm)
+        : textureService(textureService), cursor(cursor), bgm(std::move(bgm))
     {
     }
 }

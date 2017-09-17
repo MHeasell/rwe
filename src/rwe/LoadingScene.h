@@ -7,6 +7,7 @@
 #include <rwe/TextureService.h>
 #include <rwe/CursorService.h>
 #include <rwe/ui/UiLightBar.h>
+#include <rwe/AudioService.h>
 
 namespace rwe
 {
@@ -20,8 +21,10 @@ namespace rwe
 
         std::vector<UiLightBar*> bars;
 
+        AudioService::LoopToken bgm;
+
     public:
-        LoadingScene(TextureService* textureService, CursorService* cursor);
+        LoadingScene(TextureService* textureService, CursorService* cursor, AudioService::LoopToken&& bgm);
 
         void init() override;
 
