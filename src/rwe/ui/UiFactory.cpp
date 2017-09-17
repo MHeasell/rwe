@@ -331,6 +331,10 @@ namespace rwe
         {
             sound = getButtonSound("PREVIOUS");
         }
+        if (!sound && entry.common.name == "Start")
+        {
+            sound = getButtonSound("BIGBUTTON");
+        }
         if (!sound)
         {
             sound = getButtonSound(guiName);
