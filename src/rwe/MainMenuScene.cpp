@@ -2,6 +2,7 @@
 #include "tdf.h"
 #include "ota.h"
 #include "MainMenuModel.h"
+#include "LoadingScene.h"
 
 #include <rwe/gui.h>
 
@@ -500,6 +501,7 @@ namespace rwe
 
     void MainMenuScene::startGame()
     {
-
+        auto scene = std::make_unique<LoadingScene>(textureService, cursor);
+        sceneManager->setNextScene(std::move(scene));
     }
 }

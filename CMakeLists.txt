@@ -66,6 +66,8 @@ set(SOURCE_FILES
     src/rwe/GraphicsContext.h
     src/rwe/Hpi.cpp
     src/rwe/Hpi.h
+    src/rwe/LoadingScene.cpp
+    src/rwe/LoadingScene.h
     src/rwe/MainMenuModel.cpp
     src/rwe/MainMenuModel.h
     src/rwe/MainMenuScene.cpp
