@@ -21,16 +21,26 @@ namespace rwe
             "Units",
             "Animation",
             "3D Data",
-            "Explosions"
-        };
+            "Explosions"};
 
         auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
+
+        auto barSpriteSeries = textureService->getGuiTexture("", "LIGHTBAR");
+
+        auto barSprite = barSpriteSeries
+            ? (*barSpriteSeries)->sprites[0]
+            : textureService->getDefaultSpriteSeries()->sprites[0];
 
         for (int i = 0; i < categories.size(); ++i)
         {
             int y = 136 + (i * 42);
             auto label = std::make_unique<UiLabel>(90, y, 100, 12, categories[i], font);
             panel->appendChild(std::move(label));
+
+            auto bar = std::make_unique<UiLightBar>(205, y, 351, 21, barSprite);
+            bar->setPercentComplete(i / 5.0f); // for demo/debugging purposes
+            bars.push_back(bar.get());
+            panel->appendChild(std::move(bar));
         }
     }
 
@@ -42,5 +52,6 @@ namespace rwe
 
     LoadingScene::LoadingScene(TextureService* textureService, CursorService* cursor)
         : textureService(textureService), cursor(cursor)
-    {}
+    {
+    }
 }

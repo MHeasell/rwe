@@ -6,6 +6,7 @@
 #include <rwe/ui/UiPanel.h>
 #include <rwe/TextureService.h>
 #include <rwe/CursorService.h>
+#include <rwe/ui/UiLightBar.h>
 
 namespace rwe
 {
@@ -16,6 +17,8 @@ namespace rwe
 
         TextureService* textureService;
         CursorService* cursor;
+
+        std::vector<UiLightBar*> bars;
 
     public:
         LoadingScene(TextureService* textureService, CursorService* cursor);

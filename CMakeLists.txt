@@ -146,6 +146,8 @@ set(SOURCE_FILES
     src/rwe/ui/UiFactory.h
     src/rwe/ui/UiLabel.cpp
     src/rwe/ui/UiLabel.h
+    src/rwe/ui/UiLightBar.cpp
+    src/rwe/ui/UiLightBar.h
     src/rwe/ui/UiListBox.cpp
     src/rwe/ui/UiListBox.h
     src/rwe/ui/UiPanel.cpp
