@@ -1,8 +1,10 @@
 #ifndef RWE_ABSTRACTCAMERA_H
 #define RWE_ABSTRACTCAMERA_H
 
-#include <rwe/math/Matrix4f.h>
 #include <rwe/geometry/Ray3f.h>
+#include <rwe/math/Matrix4f.h>
+#include <rwe/math/Vector2f.h>
+#include <rwe/math/Vector3f.h>
 
 namespace rwe
 {
