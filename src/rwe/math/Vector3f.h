@@ -13,7 +13,7 @@ namespace rwe
         float z;
 
         Vector3f() = default;
-        Vector3f(float x, float y, float z);
+        Vector3f(float x, float y, float z) noexcept;
 
         Vector3f& operator+=(const Vector3f& rhs);
         Vector3f& operator-=(const Vector3f& rhs);

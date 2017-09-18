@@ -3,7 +3,7 @@
 
 namespace rwe
 {
-    Vector3f::Vector3f(float x, float y, float z) : x(x), y(y), z(z) {}
+    Vector3f::Vector3f(float x, float y, float z) noexcept : x(x), y(y), z(z) {}
 
     Vector3f& Vector3f::operator+=(const Vector3f& rhs)
     {
