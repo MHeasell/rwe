@@ -92,6 +92,8 @@ set(SOURCE_FILES
     src/rwe/TriangleScene.h
     src/rwe/camera/AbstractCamera.cpp
     src/rwe/camera/AbstractCamera.h
+    src/rwe/camera/CabinetCamera.cpp
+    src/rwe/camera/CabinetCamera.h
     src/rwe/camera/UiCamera.cpp
     src/rwe/camera/UiCamera.h
     src/rwe/events.cpp
