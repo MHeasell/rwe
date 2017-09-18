@@ -110,4 +110,14 @@ namespace rwe
             REQUIRE(result->z == 4.0f);
         }
     }
+
+    TEST_CASE("operator-")
+    {
+        SECTION("negates the vector")
+        {
+            Vector3f a(1.0f, 2.0f, 3.0f);
+            Vector3f b = -a;
+            REQUIRE(b == Vector3f(-1.0f, -2.0f, -3.0f));
+        }
+    }
 }

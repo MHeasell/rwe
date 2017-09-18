@@ -20,6 +20,11 @@ namespace rwe
         Vector3f& operator*=(float v);
         Vector3f& operator/=(float v);
 
+        Vector3f operator-() const;
+
+        bool operator==(const Vector3f& rhs) const;
+        bool operator!=(const Vector3f& rhs) const;
+
         float lengthSquared() const;
         float length() const;
 

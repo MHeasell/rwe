@@ -114,6 +114,24 @@ namespace rwe
         return Vector3f(lhs.x / rhs, lhs.y / rhs, lhs.z / rhs);
     }
 
+    Vector3f Vector3f::operator-() const
+    {
+        return Vector3f(-x, -y, -z);
+    }
+
+    bool Vector3f::operator==(const Vector3f& rhs) const
+    {
+        return x == rhs.x &&
+               y == rhs.y &&
+               z == rhs.z;
+    }
+
+    bool Vector3f::operator!=(const Vector3f& rhs) const
+    {
+        return !(rhs == *this);
+    }
+
+
     std::ostream& operator<<(std::ostream& lhs, const Vector3f& rhs)
     {
         lhs << "(" << rhs.x << ", " << rhs.y << ", " << rhs.z << ")";
