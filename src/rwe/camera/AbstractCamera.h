@@ -2,6 +2,7 @@
 #define RWE_ABSTRACTCAMERA_H
 
 #include <rwe/math/Matrix4f.h>
+#include <rwe/geometry/Ray3f.h>
 
 namespace rwe
 {
@@ -19,9 +20,26 @@ namespace rwe
 
         virtual Matrix4f getViewMatrix() const = 0;
 
+        virtual Matrix4f getInverseViewMatrix() const = 0;
+
         virtual Matrix4f getProjectionMatrix() const = 0;
 
+        virtual Matrix4f getInverseProjectionMatrix() const = 0;
+
         Matrix4f getViewProjectionMatrix() const;
+
+        Matrix4f getInverseViewProjectionMatrix() const;
+
+        /**
+         * Returns the 8 points defining the frustum volume.
+         */
+        void getFrustum(std::vector<Vector3f>& list) const;
+
+        /**
+         * Transforms a point on the screen (in normalized device coordinates)
+         * to a ray in world space shooting into the world from that point.
+         */
+        Ray3f screenToWorldRay(const Vector2f& point) const;
     };
 }
 
