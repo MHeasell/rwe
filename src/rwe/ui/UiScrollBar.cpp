@@ -115,7 +115,7 @@ namespace rwe
         mouseY = event.y;
     }
 
-    void UiScrollBar::mouseUp(MouseButtonEvent event)
+    void UiScrollBar::mouseUp(MouseButtonEvent /*event*/)
     {
         upArrowPressed = false;
         downArrowPressed = false;
