@@ -42,6 +42,20 @@ namespace rwe
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
+    void GraphicsContext::drawTextureRegion(float x, float y, float width, float height, const TextureRegion& texture)
+    {
+        drawTextureRegion(
+            x,
+            y,
+            width,
+            height,
+            texture.texture,
+            texture.region.left(),
+            texture.region.top(),
+            texture.region.width(),
+            texture.region.height());
+    }
+
     void GraphicsContext::drawTextureRegion(
         float x,
         float y,
@@ -114,11 +128,7 @@ namespace rwe
             y + sprite.bounds.top(),
             sprite.bounds.width(),
             sprite.bounds.height(),
-            sprite.texture,
-            sprite.textureRegion.left(),
-            sprite.textureRegion.top(),
-            sprite.textureRegion.width(),
-            sprite.textureRegion.height());
+            sprite.texture);
     }
 
     void GraphicsContext::applyCamera(const AbstractCamera& camera)

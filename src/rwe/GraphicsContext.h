@@ -41,6 +41,8 @@ namespace rwe
 
         SharedTextureHandle createColorTexture(Color c);
 
+        void drawTextureRegion(float x, float y, float width, float height, const TextureRegion& texture);
+
         void drawTextureRegion(float x, float y, float width, float height, GLuint texture, float u, float v, float uw, float vh);
 
         void drawTextureRegion(float x, float y, float width, float height, const SharedTextureHandle& texture, float u, float v, float uw, float vh);

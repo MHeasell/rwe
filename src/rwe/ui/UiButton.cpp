@@ -17,11 +17,7 @@ namespace rwe
             posY,
             sizeX,
             sizeY,
-            sprite.texture,
-            sprite.textureRegion.left(),
-            sprite.textureRegion.top(),
-            sprite.textureRegion.width(),
-            sprite.textureRegion.height());
+            sprite.texture);
         float textX = posX + (sizeX / 2.0f);
         float textY = posY + (sizeY / 2.0f);
         graphics.drawTextCentered(textX, pressed ? textY + 1.0f : textY, label, *labelFont);

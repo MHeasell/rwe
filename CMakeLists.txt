@@ -86,6 +86,8 @@ set(SOURCE_FILES
     src/rwe/SpriteSeries.h
     src/rwe/TextureHandle.cpp
     src/rwe/TextureHandle.h
+    src/rwe/TextureRegion.cpp
+    src/rwe/TextureRegion.h
     src/rwe/TextureService.cpp
     src/rwe/TextureService.h
     src/rwe/TriangleScene.cpp

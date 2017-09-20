@@ -17,11 +17,7 @@ namespace rwe
             posY,
             sizeX,
             sizeY,
-            lightMask.texture,
-            lightMask.textureRegion.left(),
-            lightMask.textureRegion.top(),
-            lightMask.textureRegion.width(),
-            lightMask.textureRegion.height());
+            lightMask.texture);
     }
 
     void UiLightBar::setPercentComplete(float percent)

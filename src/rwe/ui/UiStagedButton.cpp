@@ -20,11 +20,7 @@ namespace rwe
             posY,
             sizeX,
             sizeY,
-            sprite.texture,
-            sprite.textureRegion.left(),
-            sprite.textureRegion.top(),
-            sprite.textureRegion.width(),
-            sprite.textureRegion.height());
+            sprite.texture);
 
         float textX = posX + 6.0f;
         float textY = posY + (sizeY / 2.0f) + 6.0f;

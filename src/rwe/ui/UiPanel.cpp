@@ -38,11 +38,7 @@ namespace rwe
             posY,
             sizeX,
             sizeY,
-            background.texture,
-            background.textureRegion.left(),
-            background.textureRegion.top(),
-            background.textureRegion.width(),
-            background.textureRegion.height());
+            background.texture);
 
         graphics.pushMatrix();
         graphics.multiplyMatrix(Matrix4f::translation(Vector3f(posX, posY, 0.0f)));

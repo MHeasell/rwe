@@ -9,11 +9,7 @@ namespace rwe
             y,
             sprite.bounds.width(),
             sprite.bounds.height(),
-            sprite.texture,
-            sprite.textureRegion.left(),
-            sprite.textureRegion.top(),
-            sprite.textureRegion.width(),
-            sprite.textureRegion.height());
+            sprite.texture);
     }
 
     void UiScrollBar::render(GraphicsContext& context) const
