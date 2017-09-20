@@ -79,7 +79,6 @@ namespace rwe
 
         std::vector<char> decodeImage()
         {
-            auto xSize = getWidth();
             auto ySize = getHeight();
 
             auto totalBytesPerRow = header->numberOfPlanes * header->bytesPerLine;
