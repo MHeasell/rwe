@@ -31,7 +31,7 @@ namespace rwe
             ? (*barSpriteSeries)->sprites[0]
             : textureService->getDefaultSpriteSeries()->sprites[0];
 
-        for (int i = 0; i < categories.size(); ++i)
+        for (unsigned int i = 0; i < categories.size(); ++i)
         {
             int y = 136 + (i * 42);
             auto label = std::make_unique<UiLabel>(90, y, 100, 12, categories[i], font);
