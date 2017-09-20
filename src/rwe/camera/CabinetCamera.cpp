@@ -33,8 +33,7 @@ namespace rwe
             -halfHeight,
             halfHeight,
             -1000.0f,
-            1000.0f
-        );
+            1000.0f);
 
         return ortho * cabinet;
     }
@@ -52,8 +51,7 @@ namespace rwe
             -halfHeight,
             halfHeight,
             -1000.0f,
-            1000.0f
-        );
+            1000.0f);
 
         return inverseCabinet * inverseOrtho;
     }

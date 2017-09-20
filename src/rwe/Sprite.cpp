@@ -10,7 +10,8 @@ namespace rwe
 
     Sprite::Sprite(const Rectangle2f& bounds, const TextureRegion& texture)
         : bounds(bounds), texture(texture)
-    {}
+    {
+    }
 
     bool Sprite::operator==(const Sprite& rhs) const
     {

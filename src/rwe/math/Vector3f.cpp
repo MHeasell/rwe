@@ -121,9 +121,7 @@ namespace rwe
 
     bool Vector3f::operator==(const Vector3f& rhs) const
     {
-        return x == rhs.x &&
-               y == rhs.y &&
-               z == rhs.z;
+        return x == rhs.x && y == rhs.y && z == rhs.z;
     }
 
     bool Vector3f::operator!=(const Vector3f& rhs) const

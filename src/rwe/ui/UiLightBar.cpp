@@ -5,7 +5,8 @@ namespace rwe
 
     UiLightBar::UiLightBar(int posX, int posY, unsigned int sizeX, unsigned int sizeY, const Sprite& lightMask)
         : UiComponent(posX, posY, sizeX, sizeY), lightMask(lightMask)
-    {}
+    {
+    }
 
     void UiLightBar::render(GraphicsContext& context) const
     {

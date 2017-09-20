@@ -9,8 +9,7 @@ namespace rwe
 
     bool TextureRegion::operator==(const TextureRegion& rhs) const
     {
-        return texture == rhs.texture &&
-               region == rhs.region;
+        return texture == rhs.texture && region == rhs.region;
     }
 
     bool TextureRegion::operator!=(const TextureRegion& rhs) const

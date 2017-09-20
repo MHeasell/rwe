@@ -20,16 +20,16 @@ namespace rwe
         auto transform = getInverseViewProjectionMatrix();
 
         // near
-        list.push_back(transform * Vector3f(-1.0f, 1.0f, -1.0f)); // top-left
-        list.push_back(transform * Vector3f(1.0f, 1.0f, -1.0f)); // top-right
+        list.push_back(transform * Vector3f(-1.0f, 1.0f, -1.0f));  // top-left
+        list.push_back(transform * Vector3f(1.0f, 1.0f, -1.0f));   // top-right
         list.push_back(transform * Vector3f(-1.0f, -1.0f, -1.0f)); // bottom-left
-        list.push_back(transform * Vector3f(1.0f, -1.0f, -1.0f)); // bottom-right
+        list.push_back(transform * Vector3f(1.0f, -1.0f, -1.0f));  // bottom-right
 
         // far
-        list.push_back(transform * Vector3f(-1.0f, 1.0f, 1.0f)); // top-left
-        list.push_back(transform * Vector3f(1.0f, 1.0f, 1.0f)); // top-right
+        list.push_back(transform * Vector3f(-1.0f, 1.0f, 1.0f));  // top-left
+        list.push_back(transform * Vector3f(1.0f, 1.0f, 1.0f));   // top-right
         list.push_back(transform * Vector3f(-1.0f, -1.0f, 1.0f)); // bottom-left
-        list.push_back(transform * Vector3f(1.0f, -1.0f, 1.0f)); // bottom-right
+        list.push_back(transform * Vector3f(1.0f, -1.0f, 1.0f));  // bottom-right
     }
 
     Ray3f AbstractCamera::screenToWorldRay(const Vector2f& point) const
