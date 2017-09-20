@@ -64,6 +64,8 @@ set(SOURCE_FILES
     src/rwe/Gaf.cpp src/rwe/Gaf.h
     src/rwe/GraphicsContext.cpp
     src/rwe/GraphicsContext.h
+    src/rwe/Grid.cpp
+    src/rwe/Grid.h
     src/rwe/Hpi.cpp
     src/rwe/Hpi.h
     src/rwe/LoadingScene.cpp
@@ -72,8 +74,12 @@ set(SOURCE_FILES
     src/rwe/MainMenuModel.h
     src/rwe/MainMenuScene.cpp
     src/rwe/MainMenuScene.h
+    src/rwe/MapTerrain.cpp
+    src/rwe/MapTerrain.h
     src/rwe/OtherTriangleScene.cpp
     src/rwe/OtherTriangleScene.h
+    src/rwe/Point.cpp
+    src/rwe/Point.h
     src/rwe/SceneManager.cpp
     src/rwe/SceneManager.h
     src/rwe/SdlContextManager.cpp

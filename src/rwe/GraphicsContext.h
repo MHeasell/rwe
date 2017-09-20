@@ -4,13 +4,14 @@
 #include <GL/glew.h>
 #include <SDL.h>
 #include <memory>
+#include <rwe/ColorPalette.h>
+#include <rwe/MapTerrain.h>
 #include <rwe/SharedTextureHandle.h>
 #include <rwe/Sprite.h>
-#include <rwe/TextureHandle.h>
-#include <rwe/math/Vector3f.h>
-#include <rwe/camera/AbstractCamera.h>
-#include <rwe/ColorPalette.h>
 #include <rwe/SpriteSeries.h>
+#include <rwe/TextureHandle.h>
+#include <rwe/camera/AbstractCamera.h>
+#include <rwe/math/Vector3f.h>
 
 namespace rwe
 {
@@ -85,6 +86,8 @@ namespace rwe
         void popMatrix();
 
         void fillColor(float x, float y, float width, float height, Color color);
+
+        void drawMapTerrain(const MapTerrain& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
     };
 
     template <typename It>

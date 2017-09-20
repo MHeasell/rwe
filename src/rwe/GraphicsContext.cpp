@@ -319,4 +319,63 @@ namespace rwe
             }
         }
     }
+
+    void GraphicsContext::drawMapTerrain(const MapTerrain& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
+    {
+        /*
+        // We cheat and assume that the camera is a top-down cabinet projection
+        // to avoid having to do complex tile culling maths.
+        auto cabinetCamera = dynamic_cast<const CabinetCamera&>(camera);
+
+        Vector3f cameraExtents(cabinetCamera.getWidth(), 0.0f, cabinetCamera.getHeight());
+        auto topLeft = worldToTileIndex(cabinetCamera.getPosition() - cameraExtents);
+        auto bottomRight = worldToTileIndex(cabinetCamera.getPosition() + cameraExtents);
+        auto x1 = std::clamp<int>(topLeft.x, 0, widthInTiles - 2);
+        auto y1 = std::clamp<int>(topLeft.y, 0, heightInTiles - 2);
+        auto x2 = std::clamp<int>(bottomRight.x, 0, widthInTiles - 2);
+        auto y2 = std::clamp<int>(bottomRight.y, 0, heightInTiles - 2);
+         */
+
+
+        glEnable(GL_TEXTURE_2D);
+
+        // disable mipmapping
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        // enable blending
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        for (unsigned int dy = 0; dy <= height; ++dy)
+        {
+            for (unsigned int dx = 0; dx <= width; ++dx)
+            {
+                auto tileIndex = terrain.getTiles().get(x, y);
+                auto tilePosition = terrain.tileCoordinateToWorldCorner(x, y);
+
+                const auto& tileTexture = terrain.getTileTexture(tileIndex);
+
+                glBindTexture(GL_TEXTURE_2D, tileTexture.texture.get());
+
+                glBegin(GL_QUADS);
+
+                glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+                glTexCoord2f(tileTexture.region.left(), tileTexture.region.top());
+                glVertex3f(tilePosition.x, 0.0f, tilePosition.z);
+
+                glTexCoord2f(tileTexture.region.left(), tileTexture.region.bottom());
+                glVertex3f(tilePosition.x, 0.0f, tilePosition.z + MapTerrain::TileHeightInWorldUnits);
+
+                glTexCoord2f(tileTexture.region.right(), tileTexture.region.bottom());
+                glVertex3f(tilePosition.x + MapTerrain::TileWidthInWorldUnits, 0.0f, tilePosition.z + MapTerrain::TileHeightInWorldUnits);
+
+                glTexCoord2f(tileTexture.region.right(), tileTexture.region.top());
+                glVertex3f(tilePosition.x + MapTerrain::TileWidthInWorldUnits, 0.0f, tilePosition.z);
+
+                glEnd();
+            }
+        }
+    }
 }
