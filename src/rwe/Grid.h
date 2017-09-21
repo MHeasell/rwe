@@ -48,8 +48,9 @@ namespace rwe
 
     template <typename T>
     Grid<T>::Grid(std::size_t width, std::size_t height, std::vector<T>&& data)
+    : width(width), height(height), data(std::move(data))
     {
-        assert(data.size() == width * height);
+        assert(this->data.size() == width * height);
     }
 
     template <typename T>
