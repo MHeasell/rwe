@@ -15,6 +15,8 @@ namespace rwe
         GameScene(CabinetCamera&& camera, MapTerrain&& terrain);
 
         void render(GraphicsContext& context) override;
+
+        void onKeyDown(const SDL_Keysym& keysym) override;
     };
 }
 

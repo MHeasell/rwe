@@ -34,6 +34,8 @@ namespace rwe
         float getHeight() const;
 
         const Vector3f& getPosition() const;
+
+        void translate(const Vector3f& translation);
     };
 }
 

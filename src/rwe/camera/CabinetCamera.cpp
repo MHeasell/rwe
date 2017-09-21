@@ -74,4 +74,9 @@ namespace rwe
     {
         return position;
     }
+
+    void CabinetCamera::translate(const Vector3f& translation)
+    {
+        position += translation;
+    }
 }
