@@ -18,8 +18,19 @@ namespace rwe
     struct TntHeader
     {
         uint32_t magicNumber;
+
+        /**
+         * The width of the map in 16-pixel units as used for feature/height information.
+         * To get the width in 32-pixel units (the size of a tile), divide by 2.
+         */
         uint32_t width;
+
+        /**
+         * The height of the map in 16-pixel units as used for feature/height information.
+         * To get the height in 32-pixel units (the size of a tile), divide by 2.
+         */
         uint32_t height;
+
         uint32_t mapDataOffset;
         uint32_t mapAttributesOffset;
         uint32_t tileGraphicsOffset;
