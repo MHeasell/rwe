@@ -14,6 +14,8 @@ namespace rwe
         TextureService* textureService,
         AudioService* audioService,
         TdfBlock* audioLookup,
+        GraphicsContext* graphics,
+        const ColorPalette* palette,
         CursorService* cursor,
         float width,
         float height)
@@ -22,6 +24,8 @@ namespace rwe
           textureService(textureService),
           audioService(audioService),
           soundLookup(audioLookup),
+          graphics(graphics),
+          palette(palette),
           cursor(cursor),
           model(),
           uiFactory(textureService, audioService, soundLookup, vfs, &model, this),
@@ -501,7 +505,22 @@ namespace rwe
 
     void MainMenuScene::startGame()
     {
-        auto scene = std::make_unique<LoadingScene>(textureService, cursor, std::move(bgm));
+        if (!model.selectedMap.getValue())
+        {
+            return;
+        }
+
+        GameParameters p{model.selectedMap.getValue()->name};
+        auto scene = std::make_unique<LoadingScene>(
+            vfs,
+            textureService,
+            cursor,
+            graphics,
+            palette,
+            sceneManager,
+            std::move(bgm),
+            p);
+
         sceneManager->setNextScene(std::move(scene));
     }
 }

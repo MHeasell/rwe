@@ -4,15 +4,23 @@
 
 namespace rwe
 {
+    MapTerrain::MapTerrain(
+        std::vector<TextureRegion>&& tileGraphics,
+        Grid<size_t>&& tiles,
+        Grid<unsigned char>&& heights)
+        : tileGraphics(std::move(tileGraphics)), tiles(std::move(tiles)), heights(std::move(heights))
+    {
+    }
+
     void MapTerrain::render(GraphicsContext& graphics, const CabinetCamera& cabinetCamera) const
     {
-        Vector3f cameraExtents(cabinetCamera.getWidth(), 0.0f, cabinetCamera.getHeight());
+        Vector3f cameraExtents(cabinetCamera.getWidth() / 2.0f, 0.0f, cabinetCamera.getHeight() / 2.0f);
         auto topLeft = worldToTileCoordinate(cabinetCamera.getPosition() - cameraExtents);
         auto bottomRight = worldToTileCoordinate(cabinetCamera.getPosition() + cameraExtents);
-        auto x1 = static_cast<unsigned int>(std::clamp<int>(topLeft.x, 0, widthInTiles - 1));
-        auto y1 = static_cast<unsigned int>(std::clamp<int>(topLeft.y, 0, heightInTiles - 1));
-        auto x2 = static_cast<unsigned int>(std::clamp<int>(bottomRight.x, 0, widthInTiles - 1));
-        auto y2 = static_cast<unsigned int>(std::clamp<int>(bottomRight.y, 0, heightInTiles - 1));
+        auto x1 = static_cast<unsigned int>(std::clamp<int>(topLeft.x, 0, tiles.getWidth() - 1));
+        auto y1 = static_cast<unsigned int>(std::clamp<int>(topLeft.y, 0, tiles.getHeight() - 1));
+        auto x2 = static_cast<unsigned int>(std::clamp<int>(bottomRight.x, 0, tiles.getWidth() - 1));
+        auto y2 = static_cast<unsigned int>(std::clamp<int>(bottomRight.y, 0, tiles.getHeight() - 1));
 
         graphics.drawMapTerrain(*this, x1, y1, (x2 + 1) - x1, (y2 + 1) - y1);
     }
@@ -33,7 +41,7 @@ namespace rwe
         auto heightInWorldUnits = tiles.getHeight() * TileHeightInWorldUnits;
 
         auto newX = (position.x + (widthInWorldUnits / 2.0f)) / TileWidthInWorldUnits;
-        auto newY = (position.y + (heightInWorldUnits / 2.0f)) / TileHeightInWorldUnits;
+        auto newY = (position.z + (heightInWorldUnits / 2.0f)) / TileHeightInWorldUnits;
 
         return Point(static_cast<int>(newX), static_cast<int>(newY));
     }

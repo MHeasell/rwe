@@ -21,6 +21,8 @@ namespace rwe
         TextureService* textureService;
         AudioService* audioService;
         TdfBlock* soundLookup;
+        GraphicsContext* graphics;
+        const ColorPalette* palette;
         CursorService* cursor;
 
         MainMenuModel model;
@@ -39,6 +41,8 @@ namespace rwe
             TextureService* textureService,
             AudioService* audioService,
             TdfBlock* audioLookup,
+            GraphicsContext* graphics,
+            const ColorPalette* palette,
             CursorService* cursor,
             float width,
             float height);

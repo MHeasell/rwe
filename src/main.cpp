@@ -74,7 +74,17 @@ namespace rwe
 
         sdlContext->showCursor(SDL_DISABLE);
 
-        auto scene = std::make_unique<MainMenuScene>(&sceneManager, &vfs, &textureService, &audioService, &allSoundTdf, &cursor, 640, 480);
+        auto scene = std::make_unique<MainMenuScene>(
+            &sceneManager,
+            &vfs,
+            &textureService,
+            &audioService,
+            &allSoundTdf,
+            &graphics,
+            &*palette,
+            &cursor,
+            640,
+            480);
         sceneManager.setNextScene(std::move(scene));
 
         sceneManager.execute();

@@ -322,21 +322,6 @@ namespace rwe
 
     void GraphicsContext::drawMapTerrain(const MapTerrain& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
     {
-        /*
-        // We cheat and assume that the camera is a top-down cabinet projection
-        // to avoid having to do complex tile culling maths.
-        auto cabinetCamera = dynamic_cast<const CabinetCamera&>(camera);
-
-        Vector3f cameraExtents(cabinetCamera.getWidth(), 0.0f, cabinetCamera.getHeight());
-        auto topLeft = worldToTileIndex(cabinetCamera.getPosition() - cameraExtents);
-        auto bottomRight = worldToTileIndex(cabinetCamera.getPosition() + cameraExtents);
-        auto x1 = std::clamp<int>(topLeft.x, 0, widthInTiles - 2);
-        auto y1 = std::clamp<int>(topLeft.y, 0, heightInTiles - 2);
-        auto x2 = std::clamp<int>(bottomRight.x, 0, widthInTiles - 2);
-        auto y2 = std::clamp<int>(bottomRight.y, 0, heightInTiles - 2);
-         */
-
-
         glEnable(GL_TEXTURE_2D);
 
         // disable mipmapping
@@ -347,12 +332,12 @@ namespace rwe
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        for (unsigned int dy = 0; dy <= height; ++dy)
+        for (unsigned int dy = 0; dy < height; ++dy)
         {
-            for (unsigned int dx = 0; dx <= width; ++dx)
+            for (unsigned int dx = 0; dx < width; ++dx)
             {
-                auto tileIndex = terrain.getTiles().get(x, y);
-                auto tilePosition = terrain.tileCoordinateToWorldCorner(x, y);
+                auto tileIndex = terrain.getTiles().get(x + dx, y + dy);
+                auto tilePosition = terrain.tileCoordinateToWorldCorner(x + dx, y + dy);
 
                 const auto& tileTexture = terrain.getTileTexture(tileIndex);
 

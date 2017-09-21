@@ -24,10 +24,12 @@ namespace rwe
 
         Grid<unsigned char> heights;
 
-        unsigned int widthInTiles;
-        unsigned int heightInTiles;
-
     public:
+        MapTerrain(
+            std::vector<TextureRegion>&& tileGraphics,
+            Grid<size_t>&& tiles,
+            Grid<unsigned char>&& heights);
+
         void render(GraphicsContext& graphics, const CabinetCamera& cabinetCamera) const;
 
         Point worldToTileCoordinate(const Vector3f& position) const;

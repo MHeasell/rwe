@@ -62,6 +62,8 @@ set(SOURCE_FILES
     src/rwe/CursorService.cpp
     src/rwe/CursorService.h
     src/rwe/Gaf.cpp src/rwe/Gaf.h
+    src/rwe/GameScene.cpp
+    src/rwe/GameScene.h
     src/rwe/GraphicsContext.cpp
     src/rwe/GraphicsContext.h
     src/rwe/Grid.cpp
@@ -282,6 +284,7 @@ if(WIN32)
 endif()
 
 set(TEST_FILES
+    test/rwe/Grid_test.cpp
     test/rwe/SimpleTdfAdapter_test.cpp
     test/rwe/geometry/BoundingBox3f_test.cpp
     test/rwe/geometry/Plane3f_test.cpp
