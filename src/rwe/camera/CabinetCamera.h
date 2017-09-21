@@ -13,12 +13,14 @@ namespace rwe
         static const Vector3f _up;
         static const Vector3f _forward;
 
-        Vector3f position;
-
         float width;
         float height;
 
+        Vector3f position;
+
     public:
+        CabinetCamera(float width, float height);
+
         Matrix4f getViewMatrix() const override;
 
         Matrix4f getInverseViewMatrix() const override;

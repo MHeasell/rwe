@@ -6,6 +6,10 @@ namespace rwe
     const Vector3f CabinetCamera::_up(0.0f, 0.0f, -1.0f);
     const Vector3f CabinetCamera::_side(1.0f, 0.0f, 0.0f);
 
+    CabinetCamera::CabinetCamera(float width, float height) : width(width), height(height), position(0.0f, 0.0f, 0.0f)
+    {
+    }
+
     Matrix4f CabinetCamera::getViewMatrix() const
     {
         auto translation = Matrix4f::translation(-position);
