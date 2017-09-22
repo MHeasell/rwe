@@ -88,11 +88,7 @@ namespace rwe
 
         boost::interprocess::bufferstream tntStream(tntBytes->data(), tntBytes->size());
         TntArchive tnt(&tntStream);
-        std::vector<TextureRegion> tileTextures;
 
-        std::vector<Color> textureBuffer(1024 * 1024);
-
-        std::vector<SharedTextureHandle> textureHandles;
         const unsigned int tileWidth = 32;
         const unsigned int tileHeight = 32;
         const unsigned int textureWidth = 1024;
@@ -100,6 +96,12 @@ namespace rwe
         const auto textureWidthInTiles = textureWidth / tileWidth;
         const auto textureHeightInTiles = textureHeight / tileHeight;
         const auto tilesPerTexture = textureWidthInTiles * textureHeightInTiles;
+
+        std::vector<TextureRegion> tileTextures;
+
+        std::vector<Color> textureBuffer(textureWidth * textureHeight);
+
+        std::vector<SharedTextureHandle> textureHandles;
 
         // read the tile graphics into textures
         {
