@@ -334,20 +334,35 @@ namespace rwe
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+        std::unordered_map<GLuint, std::vector<std::pair<unsigned int, unsigned int>>> batches;
+
         for (unsigned int dy = 0; dy < height; ++dy)
         {
             for (unsigned int dx = 0; dx < width; ++dx)
             {
                 auto tileIndex = terrain.getTiles().get(x + dx, y + dy);
+                const auto& tileTexture = terrain.getTileTexture(tileIndex);
+
+                batches[tileTexture.texture.get()].emplace_back(dx, dy);
+            }
+        }
+
+        for (const auto& batch : batches)
+        {
+            glBindTexture(GL_TEXTURE_2D, batch.first);
+
+            glBegin(GL_QUADS);
+            glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+            for (const auto& p : batch.second)
+            {
+                auto dx = p.first;
+                auto dy = p.second;
+
+                auto tileIndex = terrain.getTiles().get(x + dx, y + dy);
                 auto tilePosition = terrain.tileCoordinateToWorldCorner(x + dx, y + dy);
 
                 const auto& tileTexture = terrain.getTileTexture(tileIndex);
-
-                glBindTexture(GL_TEXTURE_2D, tileTexture.texture.get());
-
-                glBegin(GL_QUADS);
-
-                glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
                 glTexCoord2f(tileTexture.region.left(), tileTexture.region.top());
                 glVertex3f(tilePosition.x, 0.0f, tilePosition.z);
@@ -360,9 +375,9 @@ namespace rwe
 
                 glTexCoord2f(tileTexture.region.right(), tileTexture.region.top());
                 glVertex3f(tilePosition.x + MapTerrain::TileWidthInWorldUnits, 0.0f, tilePosition.z);
-
-                glEnd();
             }
+
+            glEnd();
         }
     }
 }
