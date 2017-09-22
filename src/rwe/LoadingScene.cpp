@@ -139,6 +139,7 @@ namespace rwe
             auto x = i % textureWidthInTiles;
             auto y = i / textureWidthInTiles;
 
+            assert(textureHandles.size() > i / tilesPerTexture);
             tileTextures.emplace_back(
                 textureHandles[i / tilesPerTexture],
                 Rectangle2f::fromTopLeft(x * regionWidth, y * regionHeight, regionWidth, regionHeight));

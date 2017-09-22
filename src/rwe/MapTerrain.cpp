@@ -27,6 +27,7 @@ namespace rwe
 
     const TextureRegion& MapTerrain::getTileTexture(std::size_t index) const
     {
+        assert(index < tileGraphics.size());
         return tileGraphics[index];
     }
 
