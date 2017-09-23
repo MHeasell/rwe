@@ -6,10 +6,13 @@ namespace rwe
     {
         context.applyCamera(camera);
         terrain.render(context, camera);
+
+        context.applyCamera(uiCamera);
+        cursor->render(context);
     }
 
-    GameScene::GameScene(CabinetCamera&& camera, MapTerrain&& terrain)
-        : camera(std::move(camera)), terrain(std::move(terrain))
+    GameScene::GameScene(CursorService* cursor, CabinetCamera&& camera, MapTerrain&& terrain)
+        : cursor(cursor), camera(std::move(camera)), terrain(std::move(terrain)), uiCamera(640, 480)
     {
     }
 

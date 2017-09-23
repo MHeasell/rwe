@@ -1,7 +1,9 @@
 #ifndef RWE_GAMESCENE_H
 #define RWE_GAMESCENE_H
 
+#include <rwe/CursorService.h>
 #include <rwe/SceneManager.h>
+#include <rwe/camera/UiCamera.h>
 
 namespace rwe
 {
@@ -14,8 +16,12 @@ namespace rwe
          */
         static constexpr float CameraPanSpeed = 1000.0f;
 
+        CursorService* cursor;
+
         CabinetCamera camera;
         MapTerrain terrain;
+
+        UiCamera uiCamera;
 
         bool left{false};
         bool right{false};
@@ -23,7 +29,7 @@ namespace rwe
         bool down{false};
 
     public:
-        GameScene(CabinetCamera&& camera, MapTerrain&& terrain);
+        GameScene(CursorService* cursor, CabinetCamera&& camera, MapTerrain&& terrain);
 
         void render(GraphicsContext& context) override;
 

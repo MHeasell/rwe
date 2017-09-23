@@ -75,7 +75,7 @@ namespace rwe
 
     GameScene LoadingScene::createGameScene(const std::string& mapName)
     {
-        return GameScene(rwe::CabinetCamera(640.0f, 480.0f), createMapTerrain(mapName));
+        return GameScene(cursor, rwe::CabinetCamera(640.0f, 480.0f), createMapTerrain(mapName));
     }
 
     MapTerrain LoadingScene::createMapTerrain(const std::string& mapName)
