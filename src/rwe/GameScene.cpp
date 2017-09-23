@@ -15,23 +15,51 @@ namespace rwe
 
     void GameScene::onKeyDown(const SDL_Keysym& keysym)
     {
-        float speed = 32.0f;
         if (keysym.sym == SDLK_UP)
         {
-            camera.translate(Vector3f(0.0f, 0.0f, -speed));
+            up = true;
         }
         else if (keysym.sym == SDLK_DOWN)
         {
-
-            camera.translate(Vector3f(0.0f, 0.0f, speed));
+            down = true;
         }
         else if (keysym.sym == SDLK_LEFT)
         {
-            camera.translate(Vector3f(-speed, 0.0f, 0.0f));
+            left = true;
         }
         else if (keysym.sym == SDLK_RIGHT)
         {
-            camera.translate(Vector3f(speed, 0.0f, 0.0f));
+            right = true;
         }
+    }
+
+    void GameScene::onKeyUp(const SDL_Keysym& keysym)
+    {
+        if (keysym.sym == SDLK_UP)
+        {
+            up = false;
+        }
+        else if (keysym.sym == SDLK_DOWN)
+        {
+            down = false;
+        }
+        else if (keysym.sym == SDLK_LEFT)
+        {
+            left = false;
+        }
+        else if (keysym.sym == SDLK_RIGHT)
+        {
+            right = false;
+        }
+    }
+
+    void GameScene::update()
+    {
+        float secondsElapsed = static_cast<float>(SceneManager::TickInterval) / 1000.0f;
+        const float speed = CameraPanSpeed * secondsElapsed;
+        int horizontalDirection = (right ? 1 : 0) - (left ? 1 : 0);
+        int verticalDirection = (down ? 1 : 0) - (up ? 1 : 0);
+
+        camera.translate(Vector3f(horizontalDirection * speed, 0.0f, verticalDirection * speed));
     }
 }

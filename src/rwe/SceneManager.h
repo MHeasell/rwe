@@ -24,6 +24,8 @@ namespace rwe
 
             virtual void onKeyDown(const SDL_Keysym& /*key*/) {}
 
+            virtual void onKeyUp(const SDL_Keysym& /*key*/) {}
+
             virtual void onMouseDown(MouseButtonEvent /*event*/) {}
 
             virtual void onMouseUp(MouseButtonEvent /*event*/) {}

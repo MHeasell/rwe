@@ -49,6 +49,9 @@ namespace rwe
                     case SDL_KEYDOWN:
                         currentScene->onKeyDown(event.key.keysym);
                         break;
+                    case SDL_KEYUP:
+                        currentScene->onKeyUp(event.key.keysym);
+                        break;
                     case SDL_MOUSEBUTTONDOWN:
                     {
                         auto button = convertSdlMouseButton(event.button.button);

@@ -1,3 +1,4 @@
+#include <cmath>
 #include "CabinetCamera.h"
 
 namespace rwe
@@ -12,14 +13,14 @@ namespace rwe
 
     Matrix4f CabinetCamera::getViewMatrix() const
     {
-        auto translation = Matrix4f::translation(-position);
+        auto translation = Matrix4f::translation(-getPosition());
         auto rotation = Matrix4f::rotationToAxes(_side, _up, _forward);
         return rotation * translation;
     }
 
     Matrix4f CabinetCamera::getInverseViewMatrix() const
     {
-        auto translation = Matrix4f::translation(position);
+        auto translation = Matrix4f::translation(getPosition());
         auto rotation = Matrix4f::rotationToAxes(_side, _up, _forward).transposed();
         return translation * rotation;
     }
@@ -70,9 +71,12 @@ namespace rwe
         return height;
     }
 
-    const Vector3f& CabinetCamera::getPosition() const
+    Vector3f CabinetCamera::getPosition() const
     {
-        return position;
+        return Vector3f(
+            std::round(position.x),
+            std::round(position.y),
+            std::round(position.z));
     }
 
     void CabinetCamera::translate(const Vector3f& translation)
