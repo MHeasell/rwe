@@ -39,6 +39,11 @@ namespace rwe
         const TextureRegion& getTileTexture(std::size_t index) const;
 
         const Grid<std::size_t>& getTiles() const;
+
+        float leftInWorldUnits() const;
+        float rightCutoffInWorldUnits() const;
+        float topInWorldUnits() const;
+        float bottomCutoffInWorldUnits() const;
     };
 }
 

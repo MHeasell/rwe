@@ -57,4 +57,26 @@ namespace rwe
 
         return Vector3f(worldX, 0.0f, worldY);
     }
+
+    float MapTerrain::leftInWorldUnits() const
+    {
+        return -((static_cast<float>(tiles.getWidth()) / 2.0f) * TileWidthInWorldUnits);
+    }
+
+    float MapTerrain::rightCutoffInWorldUnits() const
+    {
+        auto right = (static_cast<float>(tiles.getWidth()) / 2.0f) * TileWidthInWorldUnits;
+        return right - TileWidthInWorldUnits;
+    }
+
+    float MapTerrain::topInWorldUnits() const
+    {
+        return -((static_cast<float>(tiles.getHeight()) / 2.0f) * TileHeightInWorldUnits);
+    }
+
+    float MapTerrain::bottomCutoffInWorldUnits() const
+    {
+        auto bottom = (static_cast<float>(tiles.getHeight()) / 2.0f) * TileHeightInWorldUnits;
+        return bottom - (TileHeightInWorldUnits * 4);
+    }
 }

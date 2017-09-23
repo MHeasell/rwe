@@ -79,6 +79,11 @@ namespace rwe
             std::round(position.z));
     }
 
+    const Vector3f& CabinetCamera::getRawPosition() const
+    {
+        return position;
+    }
+
     void CabinetCamera::translate(const Vector3f& translation)
     {
         position += translation;

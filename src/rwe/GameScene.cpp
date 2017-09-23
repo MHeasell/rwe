@@ -57,9 +57,22 @@ namespace rwe
     {
         float secondsElapsed = static_cast<float>(SceneManager::TickInterval) / 1000.0f;
         const float speed = CameraPanSpeed * secondsElapsed;
-        int horizontalDirection = (right ? 1 : 0) - (left ? 1 : 0);
-        int verticalDirection = (down ? 1 : 0) - (up ? 1 : 0);
+        int directionX = (right ? 1 : 0) - (left ? 1 : 0);
+        int directionZ = (down ? 1 : 0) - (up ? 1 : 0);
 
-        camera.translate(Vector3f(horizontalDirection * speed, 0.0f, verticalDirection * speed));
+        auto left = camera.getRawPosition().x - (camera.getWidth() / 2.0f);
+        auto right = camera.getRawPosition().x + (camera.getWidth() / 2.0f);
+        auto top = camera.getRawPosition().z - (camera.getHeight() / 2.0f);
+        auto bottom = camera.getRawPosition().z + (camera.getHeight() / 2.0f);
+
+        auto mindx = terrain.leftInWorldUnits() - left;
+        auto maxdx = terrain.rightCutoffInWorldUnits() - right;
+        auto mindz = terrain.topInWorldUnits() - top;
+        auto maxdz = terrain.bottomCutoffInWorldUnits() - bottom;
+
+        auto dx = std::clamp(directionX * speed, mindx, maxdx);
+        auto dz = std::clamp(directionZ * speed, mindz, maxdz);
+
+        camera.translate(Vector3f(dx, 0.0f, dz));
     }
 }
