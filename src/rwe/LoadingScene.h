@@ -7,6 +7,7 @@
 #include <rwe/GameScene.h>
 #include <rwe/SceneManager.h>
 #include <rwe/TextureService.h>
+#include <rwe/tnt/TntArchive.h>
 #include <rwe/ui/UiLightBar.h>
 #include <rwe/ui/UiPanel.h>
 
@@ -54,6 +55,10 @@ namespace rwe
         GameScene createGameScene(const std::string& mapName);
 
         MapTerrain createMapTerrain(const std::string& mapName);
+
+        std::vector<TextureRegion> getTileTextures(TntArchive& tnt);
+
+        Grid<std::size_t> getMapData(TntArchive& tnt);
     };
 }
 

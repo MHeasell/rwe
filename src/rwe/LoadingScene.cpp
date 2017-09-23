@@ -89,6 +89,18 @@ namespace rwe
         boost::interprocess::bufferstream tntStream(tntBytes->data(), tntBytes->size());
         TntArchive tnt(&tntStream);
 
+        auto tileTextures = getTileTextures(tnt);
+
+        auto dataGrid = getMapData(tnt);
+
+        return MapTerrain(
+            std::move(tileTextures),
+            std::move(dataGrid),
+            rwe::Grid<unsigned char>());
+    }
+
+    std::vector<TextureRegion> LoadingScene::getTileTextures(TntArchive& tnt)
+    {
         const unsigned int tileWidth = 32;
         const unsigned int tileHeight = 32;
         const unsigned int textureWidth = 1024;
@@ -147,6 +159,11 @@ namespace rwe
                 Rectangle2f::fromTopLeft(x * regionWidth, y * regionHeight, regionWidth, regionHeight));
         }
 
+        return tileTextures;
+    }
+
+    Grid<std::size_t> LoadingScene::getMapData(TntArchive& tnt)
+    {
         auto mapWidthInTiles = tnt.getHeader().width / 2;
         auto mapHeightInTiles = tnt.getHeader().height / 2;
         std::vector<uint16_t> mapData(mapWidthInTiles * mapHeightInTiles);
@@ -155,10 +172,6 @@ namespace rwe
         dataCopy.reserve(mapData.size());
         std::copy(mapData.begin(), mapData.end(), std::back_inserter(dataCopy));
         Grid<std::size_t> dataGrid(mapWidthInTiles, mapHeightInTiles, std::move(dataCopy));
-
-        return MapTerrain(
-            std::move(tileTextures),
-            std::move(dataGrid),
-            rwe::Grid<unsigned char>());
+        return dataGrid;
     }
 }
