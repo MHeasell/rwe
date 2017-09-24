@@ -16,6 +16,8 @@ namespace rwe
 
         std::vector<std::string> getFileNames(const std::string& directory, const std::string& filter) override;
 
+        std::vector<std::string> getFileNamesRecursive(const std::string& directory, const std::string& extension) override;
+
     private:
         boost::filesystem::path path;
     };

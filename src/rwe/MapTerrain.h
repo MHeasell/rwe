@@ -1,11 +1,12 @@
 #ifndef RWE_MAPTERRAIN_H
 #define RWE_MAPTERRAIN_H
 
-#include <vector>
-#include <rwe/TextureRegion.h>
-#include <rwe/Point.h>
 #include <rwe/Grid.h>
+#include <rwe/MapFeature.h>
+#include <rwe/Point.h>
+#include <rwe/TextureRegion.h>
 #include <rwe/camera/CabinetCamera.h>
+#include <vector>
 
 namespace rwe
 {
@@ -17,12 +18,17 @@ namespace rwe
         static constexpr float TileWidthInWorldUnits = 32.0f;
         static constexpr float TileHeightInWorldUnits = 32.0f;
 
+        static constexpr float HeightTileWidthInWorldUnits = 16.0f;
+        static constexpr float HeightTileHeightInWorldUnits = 16.0f;
+
     private:
         std::vector<TextureRegion> tileGraphics;
 
         Grid<std::size_t> tiles;
 
         Grid<unsigned char> heights;
+
+        std::vector<MapFeature> features;
 
     public:
         MapTerrain(
@@ -44,6 +50,9 @@ namespace rwe
         float rightCutoffInWorldUnits() const;
         float topInWorldUnits() const;
         float bottomCutoffInWorldUnits() const;
+
+        const std::vector<MapFeature>& getFeatures() const;
+        std::vector<MapFeature>& getFeatures();
     };
 }
 

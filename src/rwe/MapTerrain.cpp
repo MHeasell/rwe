@@ -79,4 +79,14 @@ namespace rwe
         auto bottom = (static_cast<float>(tiles.getHeight()) / 2.0f) * TileHeightInWorldUnits;
         return bottom - (TileHeightInWorldUnits * 4);
     }
+
+    const std::vector<MapFeature>& MapTerrain::getFeatures() const
+    {
+        return features;
+    }
+
+    std::vector<MapFeature>& MapTerrain::getFeatures()
+    {
+        return features;
+    }
 }

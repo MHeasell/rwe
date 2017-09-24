@@ -93,10 +93,40 @@ namespace rwe
 
         auto dataGrid = getMapData(tnt);
 
-        return MapTerrain(
+        auto featureTemplates = getFeatures(tnt);
+
+        MapTerrain terrain(
             std::move(tileTextures),
             std::move(dataGrid),
             rwe::Grid<unsigned char>());
+
+        Grid<TntTileAttributes> mapAttributes(tnt.getHeader().width, tnt.getHeader().height);
+        tnt.readMapAttributes(mapAttributes.getData());
+
+        for (std::size_t y = 0; y < mapAttributes.getHeight(); ++y)
+        {
+           for (std::size_t x = 0; x < mapAttributes.getWidth(); ++x)
+           {
+               const auto& e = mapAttributes.get(x, y);
+               switch (e.feature)
+               {
+                   case TntTileAttributes::FeatureNone:
+                   case TntTileAttributes::FeatureUnknown:
+                   case TntTileAttributes::FeatureVoid:
+                       break;
+                   default:
+                       const auto& featureTemplate = featureTemplates[e.feature];
+                       Vector3f pos(
+                           MapTerrain::HeightTileWidthInWorldUnits * x,
+                           e.height,
+                           MapTerrain::HeightTileHeightInWorldUnits * y);
+                       auto feature = createFeature(pos, featureTemplate);
+                       terrain.getFeatures().push_back(feature);
+               }
+           }
+        }
+
+        return terrain;
     }
 
     std::vector<TextureRegion> LoadingScene::getTileTextures(TntArchive& tnt)
@@ -173,5 +203,17 @@ namespace rwe
         std::copy(mapData.begin(), mapData.end(), std::back_inserter(dataCopy));
         Grid<std::size_t> dataGrid(mapWidthInTiles, mapHeightInTiles, std::move(dataCopy));
         return dataGrid;
+    }
+
+    std::vector<FeatureDefinition> LoadingScene::getFeatures(TntArchive& tnt)
+    {
+        std::vector<FeatureDefinition> features;
+
+        tnt.readFeatures([this, &features](const auto& featureName) {
+            const auto& feature = featureService->getFeatureDefinition(featureName);
+            features.push_back(feature);
+        });
+
+        return features;
     }
 }

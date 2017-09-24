@@ -379,4 +379,55 @@ namespace rwe
             glEnd();
         }
     }
+
+    void GraphicsContext::drawFeature(const MapFeature& feature)
+    {
+        drawStandingSprite(feature.position, feature.animation->sprites[0]);
+    }
+
+    void GraphicsContext::drawStandingSprite(const Vector3f& position, const Sprite& sprite)
+    {
+        auto u = sprite.texture.region.left();
+        auto v = sprite.texture.region.top();
+        auto uw = sprite.texture.region.width();
+        auto vh = sprite.texture.region.height();
+
+        // We stretch sprite y-dimension values by 2x
+        // to correct for TA camera distortion.
+        auto x = position.x + sprite.bounds.left();
+        auto y = position.y + (sprite.bounds.top() * 2.0f);
+        auto z = position.z;
+
+        auto width = sprite.bounds.width();
+        auto height = sprite.bounds.height() * 2.0f;
+
+        glBindTexture(GL_TEXTURE_2D, sprite.texture.texture.get());
+        glEnable(GL_TEXTURE_2D);
+
+        // disable mipmapping
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        // enable blending
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        glBegin(GL_QUADS);
+
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+        glTexCoord2f(u, v);
+        glVertex3f(x, y, z);
+
+        glTexCoord2f(u, v + vh);
+        glVertex3f(x, y + height, z);
+
+        glTexCoord2f(u + uw, v + vh);
+        glVertex3f(x + width, y + height, z);
+
+        glTexCoord2f(u + uw, v);
+        glVertex3f(x + width, y, z);
+
+        glEnd();
+    }
 }

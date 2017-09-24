@@ -5,6 +5,7 @@
 #include <rwe/AudioService.h>
 #include <rwe/CursorService.h>
 #include <rwe/GameScene.h>
+#include <rwe/MapFeatureService.h>
 #include <rwe/SceneManager.h>
 #include <rwe/TextureService.h>
 #include <rwe/tnt/TntArchive.h>
@@ -27,6 +28,7 @@ namespace rwe
         TextureService* textureService;
         CursorService* cursor;
         GraphicsContext* graphics;
+        MapFeatureService* featureService;
         const ColorPalette* palette;
         SceneManager* sceneManager;
 
@@ -59,6 +61,10 @@ namespace rwe
         std::vector<TextureRegion> getTileTextures(TntArchive& tnt);
 
         Grid<std::size_t> getMapData(TntArchive& tnt);
+
+        std::vector<FeatureDefinition> getFeatures(TntArchive& tnt);
+
+        MapFeature createFeature(const Vector3f& pos, const FeatureDefinition& definition);
     };
 }
 

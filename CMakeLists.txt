@@ -61,6 +61,8 @@ set(SOURCE_FILES
     src/rwe/ColorPalette.h
     src/rwe/CursorService.cpp
     src/rwe/CursorService.h
+    src/rwe/FeatureDefinition.cpp
+    src/rwe/FeatureDefinition.h
     src/rwe/Gaf.cpp src/rwe/Gaf.h
     src/rwe/GameScene.cpp
     src/rwe/GameScene.h
@@ -76,6 +78,10 @@ set(SOURCE_FILES
     src/rwe/MainMenuModel.h
     src/rwe/MainMenuScene.cpp
     src/rwe/MainMenuScene.h
+    src/rwe/MapFeature.cpp
+    src/rwe/MapFeature.h
+    src/rwe/MapFeatureService.cpp
+    src/rwe/MapFeatureService.h
     src/rwe/MapTerrain.cpp
     src/rwe/MapTerrain.h
     src/rwe/OtherTriangleScene.cpp
