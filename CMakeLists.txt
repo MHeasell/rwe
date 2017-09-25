@@ -290,6 +290,7 @@ if(WIN32)
 endif()
 
 set(TEST_FILES
+    test/rwe/FeatureDefinition_test.cpp
     test/rwe/Grid_test.cpp
     test/rwe/SimpleTdfAdapter_test.cpp
     test/rwe/geometry/BoundingBox3f_test.cpp

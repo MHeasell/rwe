@@ -3,56 +3,65 @@
 
 #include <boost/optional.hpp>
 #include <string>
+#include <rwe/tdf/SimpleTdfAdapter.h>
 
 namespace rwe
 {
     struct FeatureDefinition
     {
+        static FeatureDefinition fromTdf(const TdfBlock& tdf);
+
         std::string world;
         std::string description;
-        std::string cetegory;
-        bool animating;
+        std::string category;
+
         unsigned int footprintX;
         unsigned int footprintZ;
         unsigned int height;
+
+        bool animating;
         std::string fileName;
         std::string seqName;
-        boost::optional<std::string> seqNameShad;
-        boost::optional<std::string> seqNameReclamate;
-        boost::optional<std::string> seqNameDie;
-        boost::optional<std::string> seqNameBurn;
-        boost::optional<std::string> seqNameBurnShad;
-        boost::optional<std::string> featureBurnt;
-        boost::optional<std::string> featureReclamate;
-        boost::optional<std::string> featureDead;
+        bool animTrans;
+        std::string seqNameShad;
+        bool shadTrans;
 
-        boost::optional<unsigned int> burnMin;
-        boost::optional<unsigned int> burnMax;
-        boost::optional<unsigned int> sparkTime;
-        boost::optional<unsigned int> spreadChance;
-        boost::optional<std::string> burnWeapon;
-
-        boost::optional<bool> animTrans;
-        boost::optional<bool> shadTrans;
+        std::string object;
 
         bool reclaimable;
+        bool autoreclaimable;
+        std::string seqNameReclamate;
+        std::string featureReclamate;
+        unsigned int metal;
+        unsigned int energy;
+
         bool flamable;
+        std::string seqNameBurn;
+        std::string seqNameBurnShad;
+        std::string featureBurnt;
+        unsigned int burnMin;
+        unsigned int burnMax;
+        unsigned int sparkTime;
+        unsigned int spreadChance;
+        std::string burnWeapon;
+
         bool geothermal;
+
         unsigned int hitDensity;
 
         bool reproduce;
         unsigned int reproduceArea;
 
         bool noDisplayInfo;
+
         bool permanent;
 
-        boost::optional<bool> blocking;
+        bool blocking;
 
-        boost::optional<unsigned int> energy;
-        boost::optional<unsigned int> metal;
-
-        boost::optional<unsigned int> damage;
         bool indestructible;
+        unsigned int damage;
+        std::string seqNameDie;
+        std::string featureDead;
     };
 }
 

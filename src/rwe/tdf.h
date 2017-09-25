@@ -20,6 +20,8 @@ namespace rwe
 
     boost::optional<int> extractInt(const TdfBlock& block, const std::string& key);
 
+    boost::optional<unsigned int> extractUint(const TdfBlock& block, const std::string& key);
+
     boost::optional<float> extractFloat(const TdfBlock& block, const std::string& key);
 
     int expectInt(const TdfBlock& block, const std::string& key);
