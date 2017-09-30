@@ -59,7 +59,7 @@ namespace rwe
 
         for (const auto& e : directory.entries)
         {
-            if (endsWith(e.name, extension))
+            if (endsWith(toUpper(e.name), toUpper(extension)))
             {
                 v.push_back(e.name);
             }
@@ -94,7 +94,7 @@ namespace rwe
 
     std::vector<std::string> HpiFileSystem::HpiRecursiveFilenamesVisitor::operator()(const HpiArchive::File& e) const
     {
-        return endsWith(*name, *extension) ? std::vector<std::string>{*name} : std::vector<std::string>();
+        return endsWith(toUpper(*name), toUpper(*extension)) ? std::vector<std::string>{*name} : std::vector<std::string>();
     }
 
     std::vector<std::string>

@@ -32,7 +32,13 @@ namespace rwe
 
     const FeatureDefinition& MapFeatureService::getFeatureDefinition(const std::string& featureName)
     {
-        return features[featureName];
+        auto it = features.find(featureName);
+        if (it == features.end())
+        {
+            throw std::runtime_error("Failed to find feature definition: " + featureName);
+        }
+
+        return it->second;
     }
 
     MapFeatureService::MapFeatureService(AbstractVirtualFileSystem* vfs) : vfs(vfs)
