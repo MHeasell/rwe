@@ -25,6 +25,14 @@ namespace rwe
         graphics.drawMapTerrain(*this, x1, y1, (x2 + 1) - x1, (y2 + 1) - y1);
     }
 
+    void MapTerrain::renderFeatures(GraphicsContext& graphics, const CabinetCamera& cabinetCamera) const
+    {
+        for (const auto& f : features)
+        {
+            graphics.drawFeature(f);
+        }
+    }
+
     const TextureRegion& MapTerrain::getTileTexture(std::size_t index) const
     {
         assert(index < tileGraphics.size());
@@ -56,6 +64,17 @@ namespace rwe
         auto worldY = (y * TileHeightInWorldUnits) - (heightInWorldUnits / 2.0f);
 
         return Vector3f(worldX, 0.0f, worldY);
+    }
+
+    Vector3f MapTerrain::heightmapIndexToWorldCorner(std::size_t x, std::size_t y) const
+    {
+        auto widthInWorldUnits = heights.getWidth() * HeightTileWidthInWorldUnits;
+        auto heightInWorldUnits = heights.getHeight() * HeightTileHeightInWorldUnits;
+        auto worldX = (x * HeightTileWidthInWorldUnits) - (widthInWorldUnits / 2.0f);
+        auto worldZ = (y * HeightTileHeightInWorldUnits) - (heightInWorldUnits / 2.0f);
+        auto worldY = static_cast<float>(heights.get(x, y));
+
+        return Vector3f(worldX, worldY, worldZ);
     }
 
     float MapTerrain::leftInWorldUnits() const

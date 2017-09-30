@@ -36,6 +36,9 @@ namespace rwe
 
         const T* getData() const;
         T* getData();
+
+        const std::vector<T> getVector() const;
+        std::vector<T> getVector();
     };
 
     template <typename T>
@@ -121,6 +124,18 @@ namespace rwe
     T* Grid<T>::getData()
     {
         return data.data();
+    }
+
+    template <typename T>
+    const std::vector<T> Grid<T>::getVector() const
+    {
+        return data;
+    }
+
+    template <typename T>
+    std::vector<T> Grid<T>::getVector()
+    {
+        return data;
     }
 }
 

@@ -15,6 +15,8 @@ namespace rwe
         std::unordered_map<std::string, FeatureDefinition> features;
 
     public:
+        MapFeatureService(AbstractVirtualFileSystem* vfs);
+
         void loadAllFeatureDefinitions();
 
         const FeatureDefinition& getFeatureDefinition(const std::string& featureName);

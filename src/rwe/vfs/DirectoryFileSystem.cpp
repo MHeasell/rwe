@@ -58,7 +58,6 @@ namespace rwe
             if (e.path().extension().string() == extension)
             {
                 auto filename = e.path().filename();
-                filename.replace_extension();
                 v.push_back(filename.string());
             }
         }
@@ -102,7 +101,6 @@ namespace rwe
             else if (e.path().extension().string() == extension)
             {
                 auto filename = e.path().filename();
-                filename.replace_extension();
                 v.push_back(filename.string());
             }
         }

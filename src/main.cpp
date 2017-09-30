@@ -74,6 +74,8 @@ namespace rwe
 
         sdlContext->showCursor(SDL_DISABLE);
 
+        MapFeatureService featureService(&vfs);
+
         auto scene = std::make_unique<MainMenuScene>(
             &sceneManager,
             &vfs,
@@ -81,6 +83,7 @@ namespace rwe
             &audioService,
             &allSoundTdf,
             &graphics,
+            &featureService,
             &*palette,
             &cursor,
             640,

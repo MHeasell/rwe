@@ -6,6 +6,7 @@ namespace rwe
     {
         context.applyCamera(camera);
         terrain.render(context, camera);
+        terrain.renderFeatures(context, camera);
 
         context.applyCamera(uiCamera);
         cursor->render(context);

@@ -4,12 +4,13 @@
 #include <memory>
 #include <rwe/AudioService.h>
 #include <rwe/CursorService.h>
+#include <rwe/MapFeatureService.h>
 #include <rwe/SceneManager.h>
 #include <rwe/TextureService.h>
 #include <rwe/camera/UiCamera.h>
 #include <rwe/tdf/SimpleTdfAdapter.h>
-#include <rwe/ui/UiPanel.h>
 #include <rwe/ui/UiFactory.h>
+#include <rwe/ui/UiPanel.h>
 
 namespace rwe
 {
@@ -22,6 +23,7 @@ namespace rwe
         AudioService* audioService;
         TdfBlock* soundLookup;
         GraphicsContext* graphics;
+        MapFeatureService* featureService;
         const ColorPalette* palette;
         CursorService* cursor;
 
@@ -42,6 +44,7 @@ namespace rwe
             AudioService* audioService,
             TdfBlock* audioLookup,
             GraphicsContext* graphics,
+            MapFeatureService* featureService,
             const ColorPalette* palette,
             CursorService* cursor,
             float width,

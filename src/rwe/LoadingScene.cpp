@@ -10,6 +10,7 @@ namespace rwe
         TextureService* textureService,
         CursorService* cursor,
         GraphicsContext* graphics,
+        MapFeatureService* featureService,
         const ColorPalette* palette,
         SceneManager* sceneManager,
         AudioService::LoopToken&& bgm,
@@ -18,6 +19,7 @@ namespace rwe
           textureService(textureService),
           cursor(cursor),
           graphics(graphics),
+          featureService(featureService),
           palette(palette),
           sceneManager(sceneManager),
           bgm(std::move(bgm)),
@@ -64,6 +66,7 @@ namespace rwe
             panel->appendChild(std::move(bar));
         }
 
+        featureService->loadAllFeatureDefinitions();
         sceneManager->setNextScene(std::make_shared<GameScene>(createGameScene(gameParameters.mapName)));
     }
 
@@ -93,15 +96,17 @@ namespace rwe
 
         auto dataGrid = getMapData(tnt);
 
-        auto featureTemplates = getFeatures(tnt);
+        Grid<TntTileAttributes> mapAttributes(tnt.getHeader().width, tnt.getHeader().height);
+        tnt.readMapAttributes(mapAttributes.getData());
+
+        auto heightGrid = getHeightGrid(mapAttributes);
 
         MapTerrain terrain(
             std::move(tileTextures),
             std::move(dataGrid),
-            rwe::Grid<unsigned char>());
+            std::move(heightGrid));
 
-        Grid<TntTileAttributes> mapAttributes(tnt.getHeader().width, tnt.getHeader().height);
-        tnt.readMapAttributes(mapAttributes.getData());
+        auto featureTemplates = getFeatures(tnt);
 
         for (std::size_t y = 0; y < mapAttributes.getHeight(); ++y)
         {
@@ -116,10 +121,7 @@ namespace rwe
                        break;
                    default:
                        const auto& featureTemplate = featureTemplates[e.feature];
-                       Vector3f pos(
-                           MapTerrain::HeightTileWidthInWorldUnits * x,
-                           e.height,
-                           MapTerrain::HeightTileHeightInWorldUnits * y);
+                       Vector3f pos = terrain.heightmapIndexToWorldCorner(x, y);
                        auto feature = createFeature(pos, featureTemplate);
                        terrain.getFeatures().push_back(feature);
                }
@@ -215,5 +217,37 @@ namespace rwe
         });
 
         return features;
+    }
+
+    MapFeature LoadingScene::createFeature(const Vector3f& pos, const FeatureDefinition& definition)
+    {
+        MapFeature f;
+        f.footprintX = definition.footprintX;
+        f.footprintZ = definition.footprintZ;
+        f.position = pos;
+        if (!definition.fileName.empty() && !definition.seqName.empty())
+        {
+            f.animation = textureService->getGafEntry("anims/" + definition.fileName + ".GAF", definition.seqName);
+        }
+        if (!f.animation)
+        {
+            f.animation = textureService->getDefaultSpriteSeries();
+        }
+
+        return f;
+    }
+
+    Grid<unsigned char> LoadingScene::getHeightGrid(const Grid<TntTileAttributes>& attrs) const
+    {
+        const auto& sourceData = attrs.getVector();
+
+        std::vector<unsigned char> data;
+        data.reserve(sourceData.size());
+
+        std::transform(sourceData.begin(), sourceData.end(), std::back_inserter(data), [](const TntTileAttributes& e) {
+            return e.height;
+        });
+
+        return Grid<unsigned char>(attrs.getWidth(), attrs.getHeight(), std::move(data));
     }
 }

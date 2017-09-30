@@ -38,9 +38,13 @@ namespace rwe
 
         void render(GraphicsContext& graphics, const CabinetCamera& cabinetCamera) const;
 
+        void renderFeatures(GraphicsContext& graphics, const CabinetCamera& cabinetCamera) const;
+
         Point worldToTileCoordinate(const Vector3f& position) const;
 
         Vector3f tileCoordinateToWorldCorner(int x, int y) const;
+
+        Vector3f heightmapIndexToWorldCorner(std::size_t x, std::size_t y) const;
 
         const TextureRegion& getTileTexture(std::size_t index) const;
 

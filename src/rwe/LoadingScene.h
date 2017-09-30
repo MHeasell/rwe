@@ -44,6 +44,7 @@ namespace rwe
             TextureService* textureService,
             CursorService* cursor,
             GraphicsContext* graphics,
+            MapFeatureService* featureService,
             const ColorPalette* palette,
             SceneManager* sceneManager,
             AudioService::LoopToken&& bgm,
@@ -61,6 +62,8 @@ namespace rwe
         std::vector<TextureRegion> getTileTextures(TntArchive& tnt);
 
         Grid<std::size_t> getMapData(TntArchive& tnt);
+
+        Grid<unsigned char> getHeightGrid(const Grid<TntTileAttributes>& attrs) const;
 
         std::vector<FeatureDefinition> getFeatures(TntArchive& tnt);
 
