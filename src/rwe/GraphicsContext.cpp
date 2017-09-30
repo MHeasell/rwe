@@ -417,16 +417,16 @@ namespace rwe
         glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
         glTexCoord2f(u, v);
-        glVertex3f(x, y, z);
-
-        glTexCoord2f(u, v + vh);
         glVertex3f(x, y + height, z);
 
+        glTexCoord2f(u, v + vh);
+        glVertex3f(x, y, z);
+
         glTexCoord2f(u + uw, v + vh);
-        glVertex3f(x + width, y + height, z);
+        glVertex3f(x + width, y, z);
 
         glTexCoord2f(u + uw, v);
-        glVertex3f(x + width, y, z);
+        glVertex3f(x + width, y + height, z);
 
         glEnd();
     }

@@ -1,4 +1,5 @@
 #include "Gaf.h"
+#include "rwe_string.h"
 
 #include <memory>
 
@@ -134,7 +135,7 @@ namespace rwe
 
     boost::optional<const GafArchive::Entry&> GafArchive::findEntry(const std::string& name) const
     {
-        auto pos = std::find_if(_entries.begin(), _entries.end(), [&name](const Entry& e) { return e.name == name; });
+        auto pos = std::find_if(_entries.begin(), _entries.end(), [&name](const Entry& e) { return toUpper(e.name) == toUpper(name); });
 
         if (pos == _entries.end())
         {
