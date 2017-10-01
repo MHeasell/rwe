@@ -11,12 +11,14 @@
 #include <rwe/tnt/TntArchive.h>
 #include <rwe/ui/UiLightBar.h>
 #include <rwe/ui/UiPanel.h>
+#include "ota.h"
 
 namespace rwe
 {
     struct GameParameters
     {
         std::string mapName;
+        unsigned int schemaIndex;
     };
 
     class LoadingScene : public SceneManager::Scene
@@ -57,9 +59,9 @@ namespace rwe
     private:
         static unsigned int computeMidpointHeight(const Grid<unsigned char>& heightmap, std::size_t x, std::size_t y);
 
-        GameScene createGameScene(const std::string& mapName);
+        GameScene createGameScene(const std::string& mapName, unsigned int schemaIndex);
 
-        MapTerrain createMapTerrain(const std::string& mapName);
+        MapTerrain createMapTerrain(const std::string& mapName, const rwe::OtaRecord& ota, unsigned int schemaIndex);
 
         std::vector<TextureRegion> getTileTextures(TntArchive& tnt);
 

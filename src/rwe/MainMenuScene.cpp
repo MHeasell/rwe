@@ -512,7 +512,7 @@ namespace rwe
             return;
         }
 
-        GameParameters p{model.selectedMap.getValue()->name};
+        GameParameters p{model.selectedMap.getValue()->name, 0};
         auto scene = std::make_unique<LoadingScene>(
             vfs,
             textureService,

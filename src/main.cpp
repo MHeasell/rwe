@@ -79,7 +79,7 @@ namespace rwe
 
         if (mapName)
         {
-            GameParameters params {*mapName};
+            GameParameters params {*mapName, 0};
             auto scene = std::make_unique<LoadingScene>(
                 &vfs,
                 &textureService,

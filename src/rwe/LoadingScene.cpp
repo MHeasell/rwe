@@ -1,6 +1,8 @@
-#include <rwe/ui/UiLabel.h>
-#include <rwe/tnt/TntArchive.h>
 #include <boost/interprocess/streams/bufferstream.hpp>
+#include <rwe/ota.h>
+#include <rwe/tdf.h>
+#include <rwe/tnt/TntArchive.h>
+#include <rwe/ui/UiLabel.h>
 #include "LoadingScene.h"
 
 namespace rwe
@@ -67,7 +69,7 @@ namespace rwe
         }
 
         featureService->loadAllFeatureDefinitions();
-        sceneManager->setNextScene(std::make_shared<GameScene>(createGameScene(gameParameters.mapName)));
+        sceneManager->setNextScene(std::make_shared<GameScene>(createGameScene(gameParameters.mapName, gameParameters.schemaIndex)));
     }
 
     void LoadingScene::render(GraphicsContext& context)
@@ -76,12 +78,23 @@ namespace rwe
         cursor->render(context);
     }
 
-    GameScene LoadingScene::createGameScene(const std::string& mapName)
+    GameScene LoadingScene::createGameScene(const std::string& mapName, unsigned int schemaIndex)
     {
-        return GameScene(cursor, rwe::CabinetCamera(640.0f, 480.0f), createMapTerrain(mapName));
+        auto otaRaw = vfs->readFile(std::string("maps/").append(mapName).append(".ota"));
+        if (!otaRaw)
+        {
+            throw std::runtime_error("Failed to read OTA file");
+        }
+
+        std::string otaStr(otaRaw->begin(), otaRaw->end());
+        auto ota = parseOta(parseTdfFromString(otaStr));
+
+        auto terrain = createMapTerrain(mapName, ota, schemaIndex);
+
+        return GameScene(cursor, std::move(camera), std::move(terrain));
     }
 
-    MapTerrain LoadingScene::createMapTerrain(const std::string& mapName)
+    MapTerrain LoadingScene::createMapTerrain(const std::string& mapName, const OtaRecord& ota, unsigned int schemaIndex)
     {
         auto tntBytes = vfs->readFile("maps/" + mapName + ".tnt");
         if (!tntBytes)
@@ -126,6 +139,17 @@ namespace rwe
                        terrain.getFeatures().push_back(feature);
                }
            }
+        }
+
+        const auto& schema = ota.schemas.at(schemaIndex);
+
+        // add features from the OTA schema
+        for (const auto& f : schema.features)
+        {
+            const auto& featureTemplate = featureService->getFeatureDefinition(f.featureName);
+            Vector3f pos = computeFeaturePosition(terrain, featureTemplate, f.xPos, f.zPos);
+            auto feature = createFeature(pos, featureTemplate);
+            terrain.getFeatures().push_back(feature);
         }
 
         return terrain;
