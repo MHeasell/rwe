@@ -225,6 +225,8 @@ namespace rwe
         f.footprintX = definition.footprintX;
         f.footprintZ = definition.footprintZ;
         f.position = pos;
+        f.transparentAnimation = definition.animTrans;
+        f.transparentShadow = definition.shadTrans;
         if (!definition.fileName.empty() && !definition.seqName.empty())
         {
             f.animation = textureService->getGafEntry("anims/" + definition.fileName + ".GAF", definition.seqName);

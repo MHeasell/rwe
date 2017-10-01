@@ -11,7 +11,9 @@ namespace rwe
     struct MapFeature
     {
         std::shared_ptr<SpriteSeries> animation;
+        bool transparentAnimation;
         boost::optional<std::shared_ptr<SpriteSeries>> shadowAnimation;
+        bool transparentShadow;
         Vector3f position;
         int footprintX;
         int footprintZ;

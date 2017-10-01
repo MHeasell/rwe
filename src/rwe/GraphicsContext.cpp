@@ -384,13 +384,20 @@ namespace rwe
     {
         if (feature.shadowAnimation)
         {
-            drawStandingSprite(feature.position, (*feature.shadowAnimation)->sprites[0]);
+            float alpha = feature.transparentShadow ? 0.5f : 1.0f;
+            drawStandingSprite(feature.position, (*feature.shadowAnimation)->sprites[0], alpha);
         }
 
-        drawStandingSprite(feature.position, feature.animation->sprites[0]);
+        float alpha = feature.transparentAnimation ? 0.5f : 1.0f;
+        drawStandingSprite(feature.position, feature.animation->sprites[0], alpha);
     }
 
     void GraphicsContext::drawStandingSprite(const Vector3f& position, const Sprite& sprite)
+    {
+        drawStandingSprite(position, sprite, 1.0f);
+    }
+
+    void GraphicsContext::drawStandingSprite(const Vector3f& position, const Sprite& sprite, float alpha)
     {
         auto u = sprite.texture.region.left();
         auto v = sprite.texture.region.top();
@@ -419,7 +426,7 @@ namespace rwe
 
         glBegin(GL_QUADS);
 
-        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        glColor4f(1.0f, 1.0f, 1.0f, alpha);
 
         glTexCoord2f(u, v);
         glVertex3f(x, y, z);

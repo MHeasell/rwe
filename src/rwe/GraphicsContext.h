@@ -93,6 +93,8 @@ namespace rwe
         void drawFeature(const MapFeature& feature);
 
         void drawStandingSprite(const Vector3f& position, const Sprite& sprite);
+
+        void drawStandingSprite(const Vector3f& position, const Sprite& sprite, float alpha);
     };
 
     template <typename It>
