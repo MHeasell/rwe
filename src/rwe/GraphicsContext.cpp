@@ -395,7 +395,7 @@ namespace rwe
         // We stretch sprite y-dimension values by 2x
         // to correct for TA camera distortion.
         auto x = position.x + sprite.bounds.left();
-        auto y = position.y + (sprite.bounds.top() * 2.0f);
+        auto y = position.y - (sprite.bounds.top() * 2.0f);
         auto z = position.z;
 
         auto width = sprite.bounds.width();
@@ -417,16 +417,16 @@ namespace rwe
         glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
         glTexCoord2f(u, v);
-        glVertex3f(x, y + height, z);
-
-        glTexCoord2f(u, v + vh);
         glVertex3f(x, y, z);
 
-        glTexCoord2f(u + uw, v + vh);
+        glTexCoord2f(u + uw, v);
         glVertex3f(x + width, y, z);
 
-        glTexCoord2f(u + uw, v);
-        glVertex3f(x + width, y + height, z);
+        glTexCoord2f(u + uw, v + vh);
+        glVertex3f(x + width, y - height, z);
+
+        glTexCoord2f(u, v + vh);
+        glVertex3f(x, y - height, z);
 
         glEnd();
     }
