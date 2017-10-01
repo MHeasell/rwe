@@ -121,7 +121,7 @@ namespace rwe
                        break;
                    default:
                        const auto& featureTemplate = featureTemplates[e.feature];
-                       Vector3f pos = terrain.heightmapIndexToWorldCorner(x, y);
+                       Vector3f pos = computeFeaturePosition(terrain, featureTemplate, x, y);
                        auto feature = createFeature(pos, featureTemplate);
                        terrain.getFeatures().push_back(feature);
                }
@@ -254,5 +254,36 @@ namespace rwe
         });
 
         return Grid<unsigned char>(attrs.getWidth(), attrs.getHeight(), std::move(data));
+    }
+
+    Vector3f LoadingScene::computeFeaturePosition(
+        const MapTerrain& terrain,
+        const FeatureDefinition& featureDefinition,
+        std::size_t x,
+        std::size_t y
+    ) const
+    {
+        const auto& heightmap = terrain.getHeightMap();
+
+        unsigned int height = 0;
+        if (x < heightmap.getWidth() - 1 && y < heightmap.getHeight() - 1)
+        {
+            height = computeMidpointHeight(heightmap, x, y);
+        }
+
+        auto position = terrain.heightmapIndexToWorldCorner(x, y);
+        position.y = height;
+
+        position.x += (featureDefinition.footprintX * MapTerrain::HeightTileWidthInWorldUnits) / 2.0f;
+        position.z += (featureDefinition.footprintZ * MapTerrain::HeightTileHeightInWorldUnits) / 2.0f;
+
+        return position;
+    }
+
+    unsigned int LoadingScene::computeMidpointHeight(const Grid<unsigned char>& heightmap, std::size_t x, std::size_t y)
+    {
+        assert(x < heightmap.getWidth() - 1);
+        assert(y < heightmap.getHeight() - 1);
+        return (heightmap.get(x, y) + heightmap.get(x + 1, y) + heightmap.get(x, y + 1) + heightmap.get(x + 1, y + 1)) / 4u;
     }
 }

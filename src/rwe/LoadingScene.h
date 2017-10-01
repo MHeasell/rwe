@@ -55,6 +55,8 @@ namespace rwe
         void render(GraphicsContext& context) override;
 
     private:
+        static unsigned int computeMidpointHeight(const Grid<unsigned char>& heightmap, std::size_t x, std::size_t y);
+
         GameScene createGameScene(const std::string& mapName);
 
         MapTerrain createMapTerrain(const std::string& mapName);
@@ -68,6 +70,8 @@ namespace rwe
         std::vector<FeatureDefinition> getFeatures(TntArchive& tnt);
 
         MapFeature createFeature(const Vector3f& pos, const FeatureDefinition& definition);
+
+        Vector3f computeFeaturePosition(const MapTerrain& terrain, const FeatureDefinition& featureDefinition, std::size_t x, std::size_t y) const;
     };
 }
 

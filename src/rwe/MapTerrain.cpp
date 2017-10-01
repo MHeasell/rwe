@@ -108,4 +108,9 @@ namespace rwe
     {
         return features;
     }
+
+    const Grid<unsigned char>& MapTerrain::getHeightMap() const
+    {
+        return heights;
+    }
 }

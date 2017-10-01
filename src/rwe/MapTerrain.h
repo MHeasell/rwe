@@ -50,6 +50,8 @@ namespace rwe
 
         const Grid<std::size_t>& getTiles() const;
 
+        const Grid<unsigned char>& getHeightMap() const;
+
         float leftInWorldUnits() const;
         float rightCutoffInWorldUnits() const;
         float topInWorldUnits() const;
