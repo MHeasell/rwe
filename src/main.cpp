@@ -16,12 +16,13 @@
 #include <rwe/ColorPalette.h>
 #include <boost/filesystem.hpp>
 #include <rwe/AudioService.h>
+#include <rwe/LoadingScene.h>
 
 namespace fs = boost::filesystem;
 
 namespace rwe
 {
-    int run(const std::string& searchPath)
+    int run(const std::string& searchPath, const boost::optional<std::string>& mapName)
     {
         SdlContextManager sdlManager;
 
@@ -76,19 +77,37 @@ namespace rwe
 
         MapFeatureService featureService(&vfs);
 
-        auto scene = std::make_unique<MainMenuScene>(
-            &sceneManager,
-            &vfs,
-            &textureService,
-            &audioService,
-            &allSoundTdf,
-            &graphics,
-            &featureService,
-            &*palette,
-            &cursor,
-            640,
-            480);
-        sceneManager.setNextScene(std::move(scene));
+        if (mapName)
+        {
+            GameParameters params {*mapName};
+            auto scene = std::make_unique<LoadingScene>(
+                &vfs,
+                &textureService,
+                &cursor,
+                &graphics,
+                &featureService,
+                &*palette,
+                &sceneManager,
+                AudioService::LoopToken(),
+                params);
+            sceneManager.setNextScene(std::move(scene));
+        }
+        else
+        {
+            auto scene = std::make_unique<MainMenuScene>(
+                    &sceneManager,
+                    &vfs,
+                    &textureService,
+                    &audioService,
+                    &allSoundTdf,
+                    &graphics,
+                    &featureService,
+                    &*palette,
+                    &cursor,
+                    640,
+                    480);
+            sceneManager.setNextScene(std::move(scene));
+        }
 
         sceneManager.execute();
 
@@ -111,7 +130,13 @@ int main(int argc, char* argv[])
         searchPath /= "RWE";
         searchPath /= "Data";
 
-        return rwe::run(searchPath.string());
+        boost::optional<std::string> mapName;
+        if (argc == 2)
+        {
+            mapName = argv[1];
+        }
+
+        return rwe::run(searchPath.string(), mapName);
     }
     catch (const std::runtime_error& e)
     {
