@@ -1,4 +1,5 @@
 #include "TextureService.h"
+#include "rwe_string.h"
 #include <rwe/pcx.h>
 #include <rwe/Gaf.h>
 #include <boost/interprocess/streams/bufferstream.hpp>
@@ -85,7 +86,9 @@ namespace rwe
 
     boost::optional<std::shared_ptr<SpriteSeries>> TextureService::getGafEntryInternal(const std::string& gafName, const std::string& entryName)
     {
-        auto key = gafName + "/" + entryName;
+        auto normEntryName = toUpper(entryName);
+
+        auto key = gafName + "/" + normEntryName;
         auto it = animCache.find(key);
         if (it != animCache.end())
         {
@@ -101,7 +104,7 @@ namespace rwe
         boost::interprocess::bufferstream gafStream(gafBytes->data(), gafBytes->size());
         GafArchive gafArchive(&gafStream);
 
-        auto gafEntry = gafArchive.findEntry(entryName);
+        auto gafEntry = gafArchive.findEntry(normEntryName);
         if (!gafEntry)
         {
             return boost::none;

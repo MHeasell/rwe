@@ -25,6 +25,14 @@ namespace rwe
         graphics.drawMapTerrain(*this, x1, y1, (x2 + 1) - x1, (y2 + 1) - y1);
     }
 
+    void MapTerrain::renderFeatures(GraphicsContext& graphics, const CabinetCamera& cabinetCamera) const
+    {
+        for (const auto& f : features)
+        {
+            graphics.drawFeature(f);
+        }
+    }
+
     const TextureRegion& MapTerrain::getTileTexture(std::size_t index) const
     {
         assert(index < tileGraphics.size());
@@ -38,8 +46,8 @@ namespace rwe
 
     Point MapTerrain::worldToTileCoordinate(const Vector3f& position) const
     {
-        auto widthInWorldUnits = tiles.getWidth() * TileWidthInWorldUnits;
-        auto heightInWorldUnits = tiles.getHeight() * TileHeightInWorldUnits;
+        auto widthInWorldUnits = getWidthInWorldUnits();
+        auto heightInWorldUnits = getHeightInWorldUnits();
 
         auto newX = (position.x + (widthInWorldUnits / 2.0f)) / TileWidthInWorldUnits;
         auto newY = (position.z + (heightInWorldUnits / 2.0f)) / TileHeightInWorldUnits;
@@ -49,13 +57,24 @@ namespace rwe
 
     Vector3f MapTerrain::tileCoordinateToWorldCorner(int x, int y) const
     {
-        auto widthInWorldUnits = tiles.getWidth() * TileWidthInWorldUnits;
-        auto heightInWorldUnits = tiles.getHeight() * TileHeightInWorldUnits;
+        auto widthInWorldUnits = getWidthInWorldUnits();
+        auto heightInWorldUnits = getHeightInWorldUnits();
 
         auto worldX = (x * TileWidthInWorldUnits) - (widthInWorldUnits / 2.0f);
         auto worldY = (y * TileHeightInWorldUnits) - (heightInWorldUnits / 2.0f);
 
         return Vector3f(worldX, 0.0f, worldY);
+    }
+
+    Vector3f MapTerrain::heightmapIndexToWorldCorner(std::size_t x, std::size_t y) const
+    {
+        auto widthInWorldUnits = getWidthInWorldUnits();
+        auto heightInWorldUnits = getHeightInWorldUnits();
+        auto worldX = (x * HeightTileWidthInWorldUnits) - (widthInWorldUnits / 2.0f);
+        auto worldZ = (y * HeightTileHeightInWorldUnits) - (heightInWorldUnits / 2.0f);
+        auto worldY = static_cast<float>(heights.get(x, y));
+
+        return Vector3f(worldX, worldY, worldZ);
     }
 
     float MapTerrain::leftInWorldUnits() const
@@ -78,5 +97,38 @@ namespace rwe
     {
         auto bottom = (static_cast<float>(tiles.getHeight()) / 2.0f) * TileHeightInWorldUnits;
         return bottom - (TileHeightInWorldUnits * 4);
+    }
+
+    const std::vector<MapFeature>& MapTerrain::getFeatures() const
+    {
+        return features;
+    }
+
+    std::vector<MapFeature>& MapTerrain::getFeatures()
+    {
+        return features;
+    }
+
+    const Grid<unsigned char>& MapTerrain::getHeightMap() const
+    {
+        return heights;
+    }
+
+    float MapTerrain::getWidthInWorldUnits() const
+    {
+        return tiles.getWidth() * TileWidthInWorldUnits;
+    }
+
+    float MapTerrain::getHeightInWorldUnits() const
+    {
+        return tiles.getHeight() * TileHeightInWorldUnits;
+    }
+
+    Vector3f MapTerrain::topLeftCoordinateToWorld(const Vector3f& pos) const
+    {
+        return Vector3f(
+            pos.x - (getWidthInWorldUnits() / 2.0f),
+            pos.y,
+            pos.z - (getHeightInWorldUnits() / 2.0f));
     }
 }

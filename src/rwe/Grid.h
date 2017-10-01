@@ -33,6 +33,12 @@ namespace rwe
 
         std::size_t getWidth() const;
         std::size_t getHeight() const;
+
+        const T* getData() const;
+        T* getData();
+
+        const std::vector<T> getVector() const;
+        std::vector<T> getVector();
     };
 
     template <typename T>
@@ -106,6 +112,30 @@ namespace rwe
     std::size_t Grid<T>::getHeight() const
     {
         return height;
+    }
+
+    template <typename T>
+    const T* Grid<T>::getData() const
+    {
+        return data.data();
+    }
+
+    template <typename T>
+    T* Grid<T>::getData()
+    {
+        return data.data();
+    }
+
+    template <typename T>
+    const std::vector<T> Grid<T>::getVector() const
+    {
+        return data;
+    }
+
+    template <typename T>
+    std::vector<T> Grid<T>::getVector()
+    {
+        return data;
     }
 }
 

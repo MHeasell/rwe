@@ -58,7 +58,49 @@ namespace rwe
             if (e.path().extension().string() == extension)
             {
                 auto filename = e.path().filename();
-                filename.replace_extension();
+                v.push_back(filename.string());
+            }
+        }
+
+        return v;
+    }
+
+    std::vector<std::string>
+    DirectoryFileSystem::getFileNamesRecursive(const std::string& directory, const std::string& extension)
+    {
+        fs::path fullPath;
+        fullPath /= path;
+        fullPath /= directory;
+
+        std::vector<std::string> v;
+
+        // FIXME: TOCTOU error here
+        if (!fs::exists(fullPath))
+        {
+            return std::vector<std::string>();
+        }
+
+        fs::directory_iterator it(fullPath);
+        fs::directory_iterator end;
+
+        for (; it != end; ++it)
+        {
+            const auto& e = *it;
+            if (e.status().type() == fs::file_type::directory_file)
+            {
+                // recurse into directory
+                auto innerDirectoryName = e.path().filename();
+                auto innerPath = fs::path(directory) / innerDirectoryName;
+                auto innerEntries = getFileNamesRecursive(innerPath.string(), extension);
+                for (const auto& innerEntry : innerEntries)
+                {
+                    auto path = fs::path(innerDirectoryName) / innerEntry;
+                    innerEntries.push_back(path.string());
+                }
+            }
+            else if (e.path().extension().string() == extension)
+            {
+                auto filename = e.path().filename();
                 v.push_back(filename.string());
             }
         }

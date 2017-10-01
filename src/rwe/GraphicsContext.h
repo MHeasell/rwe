@@ -5,6 +5,7 @@
 #include <SDL.h>
 #include <memory>
 #include <rwe/ColorPalette.h>
+#include <rwe/MapFeature.h>
 #include <rwe/MapTerrain.h>
 #include <rwe/SharedTextureHandle.h>
 #include <rwe/Sprite.h>
@@ -88,6 +89,12 @@ namespace rwe
         void fillColor(float x, float y, float width, float height, Color color);
 
         void drawMapTerrain(const MapTerrain& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
+
+        void drawFeature(const MapFeature& feature);
+
+        void drawStandingSprite(const Vector3f& position, const Sprite& sprite);
+
+        void drawStandingSprite(const Vector3f& position, const Sprite& sprite, float alpha);
     };
 
     template <typename It>

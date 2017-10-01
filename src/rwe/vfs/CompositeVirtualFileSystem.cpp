@@ -40,6 +40,21 @@ namespace rwe
         return v;
     }
 
+    std::vector<std::string>
+    CompositeVirtualFileSystem::getFileNamesRecursive(const std::string& directory, const std::string& extension)
+    {
+        std::set<std::string> entries;
+
+        for (const auto& fs : filesystems)
+        {
+            auto v = fs->getFileNamesRecursive(directory, extension);
+            entries.insert(v.begin(), v.end());
+        }
+
+        std::vector<std::string> v(entries.begin(), entries.end());
+        return v;
+    }
+
     void addHpisWithExtension(CompositeVirtualFileSystem& vfs, const fs::path& searchPath, const std::string& extension)
     {
         fs::directory_iterator it(searchPath);

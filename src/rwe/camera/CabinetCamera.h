@@ -38,6 +38,8 @@ namespace rwe
         const Vector3f& getRawPosition() const;
 
         void translate(const Vector3f& translation);
+
+        void setPosition(const Vector3f& newPosition);
     };
 }
 

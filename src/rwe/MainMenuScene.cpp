@@ -15,6 +15,7 @@ namespace rwe
         AudioService* audioService,
         TdfBlock* audioLookup,
         GraphicsContext* graphics,
+        MapFeatureService* featureService,
         const ColorPalette* palette,
         CursorService* cursor,
         float width,
@@ -25,6 +26,7 @@ namespace rwe
           audioService(audioService),
           soundLookup(audioLookup),
           graphics(graphics),
+          featureService(featureService),
           palette(palette),
           cursor(cursor),
           model(),
@@ -510,12 +512,13 @@ namespace rwe
             return;
         }
 
-        GameParameters p{model.selectedMap.getValue()->name};
+        GameParameters p{model.selectedMap.getValue()->name, 0};
         auto scene = std::make_unique<LoadingScene>(
             vfs,
             textureService,
             cursor,
             graphics,
+            featureService,
             palette,
             sceneManager,
             std::move(bgm),

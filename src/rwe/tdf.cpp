@@ -41,6 +41,26 @@ namespace rwe
         }
     }
 
+
+    boost::optional<unsigned int> extractUint(const TdfBlock& block, const std::string& key)
+    {
+        auto value = block.findValue(key);
+        if (!value)
+        {
+            return boost::none;
+        }
+
+        // convert the value to an integer
+        try
+        {
+            return std::stoul(*value);
+        }
+        catch (const std::invalid_argument& e)
+        {
+            return boost::none;
+        }
+    }
+
     boost::optional<float> extractFloat(const TdfBlock& block, const std::string& key)
     {
         auto value = block.findValue(key);
