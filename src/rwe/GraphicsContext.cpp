@@ -382,6 +382,11 @@ namespace rwe
 
     void GraphicsContext::drawFeature(const MapFeature& feature)
     {
+        if (feature.shadowAnimation)
+        {
+            drawStandingSprite(feature.position, (*feature.shadowAnimation)->sprites[0]);
+        }
+
         drawStandingSprite(feature.position, feature.animation->sprites[0]);
     }
 

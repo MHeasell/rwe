@@ -234,6 +234,11 @@ namespace rwe
             f.animation = textureService->getDefaultSpriteSeries();
         }
 
+        if (!definition.fileName.empty() && !definition.seqNameShad.empty())
+        {
+            f.shadowAnimation = textureService->getGafEntry("anims/" + definition.fileName + ".GAF", definition.seqNameShad);
+        }
+
         return f;
     }
 
