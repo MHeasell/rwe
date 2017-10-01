@@ -91,6 +91,17 @@ namespace rwe
 
         auto terrain = createMapTerrain(mapName, ota, schemaIndex);
 
+        const auto& schema = ota.schemas.at(schemaIndex);
+        auto startPosIt = std::find_if(schema.specials.begin(), schema.specials.end(), [](const OtaSpecial& s) { return s.specialWhat == "StartPos1"; });
+        if (startPosIt == schema.specials.end())
+        {
+            throw std::runtime_error("Missing StartPos1 from schema");
+        }
+        const auto& startPos = *startPosIt;
+
+        CabinetCamera camera(640.0f, 480.0f);
+        camera.setPosition(terrain.topLeftCoordinateToWorld(Vector3f(startPos.xPos, 0.0f, startPos.zPos)));
+
         return GameScene(cursor, std::move(camera), std::move(terrain));
     }
 

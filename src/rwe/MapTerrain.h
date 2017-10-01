@@ -46,6 +46,8 @@ namespace rwe
 
         Vector3f heightmapIndexToWorldCorner(std::size_t x, std::size_t y) const;
 
+        Vector3f topLeftCoordinateToWorld(const Vector3f& position) const;
+
         const TextureRegion& getTileTexture(std::size_t index) const;
 
         const Grid<std::size_t>& getTiles() const;
@@ -59,6 +61,9 @@ namespace rwe
 
         const std::vector<MapFeature>& getFeatures() const;
         std::vector<MapFeature>& getFeatures();
+
+        float getWidthInWorldUnits() const;
+        float getHeightInWorldUnits() const;
     };
 }
 
