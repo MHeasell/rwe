@@ -98,8 +98,8 @@ namespace rwe
     {
         auto widthInWorldUnits = getWidthInWorldUnits();
         auto heightInWorldUnits = getHeightInWorldUnits();
-        auto heightX = (v.x - (widthInWorldUnits / 2.0f)) / HeightTileWidthInWorldUnits;
-        auto heightZ = (v.z - (heightInWorldUnits / 2.0f)) / HeightTileHeightInWorldUnits;
+        auto heightX = (v.x + (widthInWorldUnits / 2.0f)) / HeightTileWidthInWorldUnits;
+        auto heightZ = (v.z + (heightInWorldUnits / 2.0f)) / HeightTileHeightInWorldUnits;
 
         return Vector3f(heightX, v.y, heightZ);
     }
@@ -171,13 +171,12 @@ namespace rwe
 
     float MapTerrain::getHeightAt(float x, float z)
     {
-        auto tileX = x / HeightTileWidthInWorldUnits;
-        auto tileZ = z / HeightTileHeightInWorldUnits;
+        auto tilePos = worldToHeightmapCoordinate(Vector3f(x, 0.0f, z));
         if (
-            tileX < 0.0f
-            || tileX >= heights.getWidth() - 1
-            || tileZ < 0.0f
-            || tileZ >= heights.getHeight() - 1)
+            tilePos.x < 0
+            || tilePos.x >= heights.getWidth() - 1
+            || tilePos.y < 0
+            || tilePos.y >= heights.getHeight() - 1)
         {
             return 0.0f;
         }
