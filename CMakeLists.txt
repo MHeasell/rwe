@@ -84,6 +84,8 @@ set(SOURCE_FILES
     src/rwe/MapFeatureService.h
     src/rwe/MapTerrain.cpp
     src/rwe/MapTerrain.h
+    src/rwe/Mesh.cpp
+    src/rwe/Mesh.h
     src/rwe/OtherTriangleScene.cpp
     src/rwe/OtherTriangleScene.h
     src/rwe/Point.cpp
@@ -106,6 +108,12 @@ set(SOURCE_FILES
     src/rwe/TextureService.h
     src/rwe/TriangleScene.cpp
     src/rwe/TriangleScene.h
+    src/rwe/Unit.cpp
+    src/rwe/Unit.h
+    src/rwe/UnitMesh.cpp
+    src/rwe/UnitMesh.h
+    src/rwe/_3do.cpp
+    src/rwe/_3do.h
     src/rwe/camera/AbstractCamera.cpp
     src/rwe/camera/AbstractCamera.h
     src/rwe/camera/CabinetCamera.cpp
@@ -116,6 +124,8 @@ set(SOURCE_FILES
     src/rwe/events.h
     src/rwe/geometry/BoundingBox3f.cpp
     src/rwe/geometry/BoundingBox3f.h
+    src/rwe/geometry/Line3f.cpp
+    src/rwe/geometry/Line3f.h
     src/rwe/geometry/Plane3f.cpp
     src/rwe/geometry/Plane3f.h
     src/rwe/geometry/Ray3f.cpp

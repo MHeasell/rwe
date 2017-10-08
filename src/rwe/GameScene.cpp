@@ -1,4 +1,5 @@
 #include "GameScene.h"
+#include "Mesh.h"
 
 namespace rwe
 {
@@ -8,12 +9,17 @@ namespace rwe
         terrain.render(context, camera);
         terrain.renderFeatures(context, camera);
 
+        for (const auto& unit : units)
+        {
+            unit.render(context);
+        }
+
         context.applyCamera(uiCamera);
         cursor->render(context);
     }
 
-    GameScene::GameScene(CursorService* cursor, CabinetCamera&& camera, MapTerrain&& terrain)
-        : cursor(cursor), camera(std::move(camera)), terrain(std::move(terrain)), uiCamera(640, 480)
+    GameScene::GameScene(TextureService* textureService, CursorService* cursor, CabinetCamera&& camera, MapTerrain&& terrain)
+        : textureService(textureService), cursor(cursor), camera(std::move(camera)), terrain(std::move(terrain)), uiCamera(640, 480)
     {
     }
 
@@ -78,5 +84,38 @@ namespace rwe
         auto dz = std::clamp(directionZ * speed, mindz, maxdz);
 
         camera.translate(Vector3f(dx, 0.0f, dz));
+    }
+
+    void GameScene::spawnUnit(const std::string& unitType, const Vector3f& position)
+    {
+        units.push_back(createUnit(unitType, position));
+    }
+
+    Unit GameScene::createUnit(const std::string& unitType, const Vector3f& position) const
+    {
+        auto mesh = std::make_shared<Mesh>();
+        mesh->texture = textureService->getDefaultTexture();
+
+        mesh->faces.emplace_back(
+            Mesh::Vertex(Vector3f(-10.0f, 0.0f, -10.0f), Vector2f(0.0f, 0.0f)),
+            Mesh::Vertex(Vector3f(10.0f, 0.0f, -10.0f), Vector2f(1.0f, 0.0f)),
+            Mesh::Vertex(Vector3f(10.0f, 0.0f, 10.0f), Vector2f(1.0f, 1.0f))
+        );
+
+        mesh->faces.emplace_back(
+            Mesh::Vertex(Vector3f(-10.0f, 0.0f, -10.0f), Vector2f(0.0f, 0.0f)),
+            Mesh::Vertex(Vector3f(10.0f, 0.0f, 10.0f), Vector2f(1.0f, 1.0f)),
+            Mesh::Vertex(Vector3f(-10.0f, 0.0f, 10.0f), Vector2f(0.0f, 1.0f))
+        );
+
+        UnitMesh unitMesh;
+        unitMesh.origin = Vector3f(0.0f, 0.0f, 0.0f);
+        unitMesh.mesh = std::move(mesh);
+
+        Unit unit;
+        unit.position = position;
+        unit.mesh = std::move(unitMesh);
+
+        return unit;
     }
 }

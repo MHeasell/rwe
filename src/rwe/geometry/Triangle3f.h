@@ -47,6 +47,8 @@ namespace rwe
          */
         boost::optional<Vector3f> intersectLine(const Vector3f& p, const Vector3f& q) const;
 
+        boost::optional<Vector3f> intersectLine(const Line3f& line) const;
+
         /**
          * Converts the input world-space coordinates
          * which lie on the triangle into barycentric coordinates.

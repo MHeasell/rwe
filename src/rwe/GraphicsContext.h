@@ -7,6 +7,7 @@
 #include <rwe/ColorPalette.h>
 #include <rwe/MapFeature.h>
 #include <rwe/MapTerrain.h>
+#include <rwe/Mesh.h>
 #include <rwe/SharedTextureHandle.h>
 #include <rwe/Sprite.h>
 #include <rwe/SpriteSeries.h>
@@ -95,6 +96,8 @@ namespace rwe
         void drawStandingSprite(const Vector3f& position, const Sprite& sprite);
 
         void drawStandingSprite(const Vector3f& position, const Sprite& sprite, float alpha);
+
+        void drawMesh(const Mesh& mesh);
     };
 
     template <typename It>

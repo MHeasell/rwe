@@ -3,6 +3,8 @@
 
 #include <rwe/CursorService.h>
 #include <rwe/SceneManager.h>
+#include <rwe/TextureService.h>
+#include <rwe/Unit.h>
 #include <rwe/camera/UiCamera.h>
 
 namespace rwe
@@ -16,10 +18,13 @@ namespace rwe
          */
         static constexpr float CameraPanSpeed = 1000.0f;
 
+        TextureService* textureService;
         CursorService* cursor;
 
         CabinetCamera camera;
         MapTerrain terrain;
+
+        std::vector<Unit> units;
 
         UiCamera uiCamera;
 
@@ -29,7 +34,7 @@ namespace rwe
         bool down{false};
 
     public:
-        GameScene(CursorService* cursor, CabinetCamera&& camera, MapTerrain&& terrain);
+        GameScene(TextureService* textureService, CursorService* cursor, CabinetCamera&& camera, MapTerrain&& terrain);
 
         void render(GraphicsContext& context) override;
 
@@ -38,6 +43,11 @@ namespace rwe
         void onKeyUp(const SDL_Keysym& keysym) override;
 
         void update() override;
+
+        void spawnUnit(const std::string& unitType, const Vector3f& position);
+
+    private:
+        Unit createUnit(const std::string& unitType, const Vector3f& position) const;
     };
 }
 

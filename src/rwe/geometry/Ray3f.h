@@ -2,12 +2,20 @@
 #define RWE_GEOMETRY_RAY3F_H
 
 #include <rwe/math/Vector3f.h>
+#include <rwe/geometry/Line3f.h>
 
 namespace rwe
 {
     /** An infinite ray in 3D space. */
     struct Ray3f
     {
+        /**
+         * Constructs a ray from a line segment.
+         * The ray starts at the starting point of the line,
+         * and reaches the end of the line at t=1.
+         */
+        static Ray3f fromLine(const Line3f& line);
+
         /** The starting point at the ray, at t = 0. */
         Vector3f origin;
 

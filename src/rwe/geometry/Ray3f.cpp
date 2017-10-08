@@ -13,4 +13,9 @@ namespace rwe
     {
         return (a - origin).dot(direction) < (b - origin).dot(direction);
     }
+
+    Ray3f Ray3f::fromLine(const Line3f& line)
+    {
+        return Ray3f(line.start, line.end - line.start);
+    }
 }

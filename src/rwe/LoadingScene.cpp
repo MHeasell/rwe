@@ -99,10 +99,17 @@ namespace rwe
         }
         const auto& startPos = *startPosIt;
 
-        CabinetCamera camera(640.0f, 480.0f);
-        camera.setPosition(terrain.topLeftCoordinateToWorld(Vector3f(startPos.xPos, 0.0f, startPos.zPos)));
+        auto worldStartPos = terrain.topLeftCoordinateToWorld(Vector3f(startPos.xPos, 0.0f, startPos.zPos));
+        worldStartPos.y = terrain.getHeightAt(worldStartPos.x, worldStartPos.z);
 
-        return GameScene(cursor, std::move(camera), std::move(terrain));
+        CabinetCamera camera(640.0f, 480.0f);
+        camera.setPosition(Vector3f(worldStartPos.x, 0.0f, worldStartPos.z));
+
+        GameScene gameScene(textureService, cursor, std::move(camera), std::move(terrain));
+
+        gameScene.spawnUnit("ARMCOM", worldStartPos);
+
+        return gameScene;
     }
 
     MapTerrain LoadingScene::createMapTerrain(const std::string& mapName, const OtaRecord& ota, unsigned int schemaIndex)

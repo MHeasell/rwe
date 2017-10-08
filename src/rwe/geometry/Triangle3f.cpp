@@ -78,4 +78,9 @@ namespace rwe
     {
         return (a * p.x) + (b * p.y) + (c * p.z);
     }
+
+    boost::optional<Vector3f> Triangle3f::intersectLine(const Line3f& line) const
+    {
+        return intersectLine(line.start, line.end);
+    }
 }
