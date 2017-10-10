@@ -57,6 +57,8 @@ find_package(ZLIB REQUIRED)
 set(SOURCE_FILES
     src/rwe/AudioService.cpp
     src/rwe/AudioService.h
+    src/rwe/BoxTreeSplit.cpp
+    src/rwe/BoxTreeSplit.h
     src/rwe/ColorPalette.cpp
     src/rwe/ColorPalette.h
     src/rwe/CursorService.cpp
@@ -300,6 +302,7 @@ if(WIN32)
 endif()
 
 set(TEST_FILES
+    test/rwe/BoxTreeSplit_test.cpp
     test/rwe/FeatureDefinition_test.cpp
     test/rwe/Grid_test.cpp
     test/rwe/SimpleTdfAdapter_test.cpp
