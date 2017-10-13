@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <rwe/math/Vector3f.h>
+#include <istream>
 
 namespace rwe
 {
@@ -12,43 +13,70 @@ namespace rwe
 #pragma pack(1)
     struct _3doObject
     {
-        unsigned int magicNumber;
-        unsigned int numberOfVertices;
-        unsigned int numberOfPrimitives;
-        unsigned int selectionPrimitiveOffset;
-        int xFromParent;
-        int yFromParent;
-        int zFromparent;
-        unsigned int unknown1;
-        unsigned int verticesOffset;
-        unsigned int primitivesOffset;
-        unsigned int siblingOffset;
-        unsigned int firstChildOffset;
+        uint32_t magicNumber;
+        uint32_t numberOfVertices;
+        uint32_t numberOfPrimitives;
+        int32_t selectionPrimitiveOffset;
+        int32_t xFromParent;
+        int32_t yFromParent;
+        int32_t zFromparent;
+        uint32_t nameOffset;
+        uint32_t unknown1;
+        uint32_t verticesOffset;
+        uint32_t primitivesOffset;
+        uint32_t siblingOffset;
+        uint32_t firstChildOffset;
     };
 
     struct _3doVertex
     {
-        int x;
-        int y;
-        int z;
+        int32_t x;
+        int32_t y;
+        int32_t z;
     };
 
     struct _3doPrimitive
     {
-        unsigned int colorIndex;
-        unsigned int numberOfVertices;
-        unsigned int unknown1;
-        unsigned int verticesOffset;
-        unsigned int textureNameOffset;
-        unsigned int unknown2;
-        unsigned int unknown3;
-        unsigned int unknown4;
+        uint32_t colorIndex;
+        uint32_t numberOfVertices;
+        uint32_t unknown1;
+        uint32_t verticesOffset;
+        uint32_t textureNameOffset;
+        uint32_t unknown2;
+        uint32_t unknown3;
+        uint32_t unknown4;
     };
 #pragma pack()
-    class _3do
+    struct _3do
     {
+        struct Vertex
+        {
+            int x;
+            int y;
+            int z;
+        };
 
+        struct Primitive
+        {
+            unsigned int colorIndex;
+            std::vector<unsigned int> vertices;
+            std::string textureName;
+        };
+
+        struct Object
+        {
+            int x;
+            int y;
+            int z;
+            std::vector<Vertex> vertices;
+            std::vector<Primitive> primitives;
+            std::vector<Object> children;
+            std::string name;
+            boost::optional<unsigned int> selectionPrimitiveIndex;
+        };
     };
+
+    std::vector<_3do::Object> parse3doObjects(std::istream& stream, std::istream::pos_type offset);
 }
 
 #endif

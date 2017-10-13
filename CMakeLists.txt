@@ -138,6 +138,8 @@ set(SOURCE_FILES
     src/rwe/geometry/Triangle3f.h
     src/rwe/gui.cpp
     src/rwe/gui.h
+    src/rwe/io_utils.cpp
+    src/rwe/io_utils.h
     src/rwe/math/Matrix4f.cpp
     src/rwe/math/Matrix4f.h
     src/rwe/math/Vector2f.cpp
@@ -299,6 +301,12 @@ target_include_directories(tnt_test PUBLIC ${PNG_INCLUDE_DIRS})
 target_include_directories(tnt_test PUBLIC libs/png++-0.2.9)
 if(WIN32)
     target_compile_definitions(tnt_test PRIVATE __STDC_LIB_EXT1__=1)
+endif()
+
+add_executable(3do_test src/3do_test.cpp)
+target_link_libraries(3do_test librwe)
+if(WIN32)
+    target_link_libraries(3do_test -static)
 endif()
 
 set(TEST_FILES
