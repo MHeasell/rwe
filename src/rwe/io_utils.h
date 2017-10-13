@@ -2,6 +2,7 @@
 #define RWE_IO_UTILS_H
 
 #include <istream>
+#include <cassert>
 
 namespace rwe
 {
@@ -10,6 +11,7 @@ namespace rwe
     {
         T val;
         stream.read(reinterpret_cast<char*>(&val), sizeof(T));
+        assert(!stream.fail());
         return val;
     }
 }
