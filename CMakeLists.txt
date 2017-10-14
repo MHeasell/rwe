@@ -57,6 +57,8 @@ find_package(ZLIB REQUIRED)
 set(SOURCE_FILES
     src/rwe/AudioService.cpp
     src/rwe/AudioService.h
+    src/rwe/BoxTreeSplit.cpp
+    src/rwe/BoxTreeSplit.h
     src/rwe/ColorPalette.cpp
     src/rwe/ColorPalette.h
     src/rwe/CursorService.cpp
@@ -86,6 +88,8 @@ set(SOURCE_FILES
     src/rwe/MapTerrain.h
     src/rwe/Mesh.cpp
     src/rwe/Mesh.h
+    src/rwe/MeshService.cpp
+    src/rwe/MeshService.h
     src/rwe/OtherTriangleScene.cpp
     src/rwe/OtherTriangleScene.h
     src/rwe/Point.cpp
@@ -136,6 +140,8 @@ set(SOURCE_FILES
     src/rwe/geometry/Triangle3f.h
     src/rwe/gui.cpp
     src/rwe/gui.h
+    src/rwe/io_utils.cpp
+    src/rwe/io_utils.h
     src/rwe/math/Matrix4f.cpp
     src/rwe/math/Matrix4f.h
     src/rwe/math/Vector2f.cpp
@@ -299,7 +305,14 @@ if(WIN32)
     target_compile_definitions(tnt_test PRIVATE __STDC_LIB_EXT1__=1)
 endif()
 
+add_executable(3do_test src/3do_test.cpp)
+target_link_libraries(3do_test librwe)
+if(WIN32)
+    target_link_libraries(3do_test -static)
+endif()
+
 set(TEST_FILES
+    test/rwe/BoxTreeSplit_test.cpp
     test/rwe/FeatureDefinition_test.cpp
     test/rwe/Grid_test.cpp
     test/rwe/SimpleTdfAdapter_test.cpp

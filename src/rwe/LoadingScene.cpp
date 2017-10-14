@@ -105,7 +105,9 @@ namespace rwe
         CabinetCamera camera(640.0f, 480.0f);
         camera.setPosition(Vector3f(worldStartPos.x, 0.0f, worldStartPos.z));
 
-        GameScene gameScene(textureService, cursor, std::move(camera), std::move(terrain));
+        auto meshService = MeshService::createMeshService(vfs, graphics, palette);
+
+        GameScene gameScene(textureService, cursor, std::move(meshService), std::move(camera), std::move(terrain));
 
         gameScene.spawnUnit("ARMCOM", worldStartPos);
 

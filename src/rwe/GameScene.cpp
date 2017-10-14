@@ -9,17 +9,29 @@ namespace rwe
         terrain.render(context, camera);
         terrain.renderFeatures(context, camera);
 
+        context.enableDepth();
         for (const auto& unit : units)
         {
             unit.render(context);
         }
+        context.disableDepth();
 
         context.applyCamera(uiCamera);
         cursor->render(context);
     }
 
-    GameScene::GameScene(TextureService* textureService, CursorService* cursor, CabinetCamera&& camera, MapTerrain&& terrain)
-        : textureService(textureService), cursor(cursor), camera(std::move(camera)), terrain(std::move(terrain)), uiCamera(640, 480)
+    GameScene::GameScene(
+        TextureService* textureService,
+        CursorService* cursor,
+        MeshService&& meshService,
+        CabinetCamera&& camera,
+        MapTerrain&& terrain)
+        : textureService(textureService),
+          cursor(cursor),
+          meshService(std::move(meshService)),
+          camera(std::move(camera)),
+          terrain(std::move(terrain)),
+          uiCamera(640, 480)
     {
     }
 
@@ -91,30 +103,11 @@ namespace rwe
         units.push_back(createUnit(unitType, position));
     }
 
-    Unit GameScene::createUnit(const std::string& unitType, const Vector3f& position) const
+    Unit GameScene::createUnit(const std::string& unitType, const Vector3f& position)
     {
-        auto mesh = std::make_shared<Mesh>();
-        mesh->texture = textureService->getDefaultTexture();
-
-        mesh->faces.emplace_back(
-            Mesh::Vertex(Vector3f(-10.0f, 0.0f, -10.0f), Vector2f(0.0f, 0.0f)),
-            Mesh::Vertex(Vector3f(10.0f, 0.0f, -10.0f), Vector2f(1.0f, 0.0f)),
-            Mesh::Vertex(Vector3f(10.0f, 0.0f, 10.0f), Vector2f(1.0f, 1.0f))
-        );
-
-        mesh->faces.emplace_back(
-            Mesh::Vertex(Vector3f(-10.0f, 0.0f, -10.0f), Vector2f(0.0f, 0.0f)),
-            Mesh::Vertex(Vector3f(10.0f, 0.0f, 10.0f), Vector2f(1.0f, 1.0f)),
-            Mesh::Vertex(Vector3f(-10.0f, 0.0f, 10.0f), Vector2f(0.0f, 1.0f))
-        );
-
-        UnitMesh unitMesh;
-        unitMesh.origin = Vector3f(0.0f, 0.0f, 0.0f);
-        unitMesh.mesh = std::move(mesh);
-
         Unit unit;
         unit.position = position;
-        unit.mesh = std::move(unitMesh);
+        unit.mesh = meshService.loadUnitMesh("armcom");
 
         return unit;
     }

@@ -53,6 +53,7 @@ namespace rwe
         }
 
         GraphicsContext graphics;
+        graphics.enableCulling();
 
         TextureService textureService(&graphics, &vfs, &*palette);
 

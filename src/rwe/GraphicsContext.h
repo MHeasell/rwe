@@ -40,7 +40,11 @@ namespace rwe
 
         void clear();
 
+        SharedTextureHandle createTexture(const Grid<Color>& image);
+
         SharedTextureHandle createTexture(unsigned int width, unsigned int height, const std::vector<Color>& image);
+
+        SharedTextureHandle createTexture(unsigned int width, unsigned int height, const Color* image);
 
         SharedTextureHandle createColorTexture(Color c);
 
@@ -98,6 +102,12 @@ namespace rwe
         void drawStandingSprite(const Vector3f& position, const Sprite& sprite, float alpha);
 
         void drawMesh(const Mesh& mesh);
+
+        void enableDepth();
+
+        void enableCulling();
+
+        void disableDepth();
     };
 
     template <typename It>

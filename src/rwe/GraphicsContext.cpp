@@ -39,7 +39,7 @@ namespace rwe
 
     void GraphicsContext::clear()
     {
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
     void GraphicsContext::drawTextureRegion(float x, float y, float width, float height, const TextureRegion& texture)
@@ -147,11 +147,20 @@ namespace rwe
         glMultMatrixf(m.data);
     }
 
+    SharedTextureHandle GraphicsContext::createTexture(const Grid<Color>& image)
+    {
+        return createTexture(image.getWidth(), image.getHeight(), image.getData());
+    }
+
     SharedTextureHandle
     GraphicsContext::createTexture(unsigned int width, unsigned int height, const std::vector<Color>& image)
     {
         assert(image.size() == width * height);
+        return createTexture(width, height, image.data());
+    }
 
+    SharedTextureHandle GraphicsContext::createTexture(unsigned int width, unsigned int height, const Color* image)
+    {
         unsigned int texture;
         glGenTextures(1, &texture);
         SharedTextureHandle handle(texture);
@@ -168,7 +177,7 @@ namespace rwe
             0,
             GL_RGBA,
             GL_UNSIGNED_BYTE,
-            image.data());
+            image);
 
         return handle;
     }
@@ -431,14 +440,14 @@ namespace rwe
         glTexCoord2f(u, v);
         glVertex3f(x, y, z);
 
-        glTexCoord2f(u + uw, v);
-        glVertex3f(x + width, y, z);
+        glTexCoord2f(u, v + vh);
+        glVertex3f(x, y - height, z);
 
         glTexCoord2f(u + uw, v + vh);
         glVertex3f(x + width, y - height, z);
 
-        glTexCoord2f(u, v + vh);
-        glVertex3f(x, y - height, z);
+        glTexCoord2f(u + uw, v);
+        glVertex3f(x + width, y, z);
 
         glEnd();
     }
@@ -457,6 +466,8 @@ namespace rwe
 
         glBegin(GL_TRIANGLES);
 
+        glColor4ub(255, 255, 255, 255);
+
         for (const auto& t : mesh.faces)
         {
             glTexCoord2f(t.a.textureCoord.x, t.a.textureCoord.y);
@@ -470,5 +481,34 @@ namespace rwe
         }
 
         glEnd();
+
+        glDisable(GL_TEXTURE_2D);
+
+        glBegin(GL_TRIANGLES);
+
+        for (const auto& t : mesh.colorFaces)
+        {
+            glColor4ub(t.color.r, t.color.g, t.color.b, t.color.a);
+            glVertex3f(t.a.position.x, t.a.position.y, t.a.position.z);
+            glVertex3f(t.b.position.x, t.b.position.y, t.b.position.z);
+            glVertex3f(t.c.position.x, t.c.position.y, t.c.position.z);
+        }
+
+        glEnd();
+    }
+
+    void GraphicsContext::enableDepth()
+    {
+        glEnable(GL_DEPTH_TEST);
+    }
+
+    void GraphicsContext::disableDepth()
+    {
+        glDisable(GL_DEPTH_TEST);
+    }
+
+    void GraphicsContext::enableCulling()
+    {
+        glEnable(GL_CULL_FACE);
     }
 }

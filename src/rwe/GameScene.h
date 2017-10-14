@@ -6,6 +6,7 @@
 #include <rwe/TextureService.h>
 #include <rwe/Unit.h>
 #include <rwe/camera/UiCamera.h>
+#include "MeshService.h"
 
 namespace rwe
 {
@@ -21,6 +22,8 @@ namespace rwe
         TextureService* textureService;
         CursorService* cursor;
 
+        MeshService meshService;
+
         CabinetCamera camera;
         MapTerrain terrain;
 
@@ -34,7 +37,12 @@ namespace rwe
         bool down{false};
 
     public:
-        GameScene(TextureService* textureService, CursorService* cursor, CabinetCamera&& camera, MapTerrain&& terrain);
+        GameScene(
+            TextureService* textureService,
+            CursorService* cursor,
+            MeshService&& meshService,
+            CabinetCamera&& camera,
+            MapTerrain&& terrain);
 
         void render(GraphicsContext& context) override;
 
@@ -47,7 +55,7 @@ namespace rwe
         void spawnUnit(const std::string& unitType, const Vector3f& position);
 
     private:
-        Unit createUnit(const std::string& unitType, const Vector3f& position) const;
+        Unit createUnit(const std::string& unitType, const Vector3f& position);
     };
 }
 

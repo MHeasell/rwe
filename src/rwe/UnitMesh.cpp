@@ -7,7 +7,14 @@ namespace rwe
     {
         context.pushMatrix();
         context.multiplyMatrix(Matrix4f::translation(origin));
+
         context.drawMesh(*mesh);
+
+        for (const auto& c : children)
+        {
+            c.render(context);
+        }
+
         context.popMatrix();
     }
 }

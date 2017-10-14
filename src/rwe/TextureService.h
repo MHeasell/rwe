@@ -46,6 +46,8 @@ namespace rwe
         std::shared_ptr<SpriteSeries> getDefaultSpriteSeries();
         Sprite getMinimap(const std::string& mapName);
 
+        std::unordered_map<std::string, SpriteSeries> loadAllMeshTextures();
+
     private:
         boost::optional<std::shared_ptr<SpriteSeries>> getGafEntryInternal(const std::string& gafName, const std::string& entryName);
         TextureInfo getBitmapInternal(const std::string& bitmapName);

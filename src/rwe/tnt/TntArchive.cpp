@@ -2,17 +2,10 @@
 
 #include <array>
 #include <cassert>
+#include <rwe/io_utils.h>
 
 namespace rwe
 {
-    template <typename T>
-    T readRaw(std::istream& stream)
-    {
-        T val;
-        stream.read(reinterpret_cast<char*>(&val), sizeof(T));
-        return val;
-    }
-
     TntException::TntException(const std::string& __arg) : runtime_error(__arg)
     {
     }
