@@ -144,14 +144,16 @@ namespace rwe
 
         auto atlasTexture = graphics->createTexture(atlas);
 
-        return MeshService(vfs, std::move(atlasTexture), std::move(atlasMap));
+        return MeshService(vfs, palette, std::move(atlasTexture), std::move(atlasMap));
     }
 
     MeshService::MeshService(
         AbstractVirtualFileSystem* vfs,
+        const ColorPalette* palette,
         SharedTextureHandle&& atlas,
         std::unordered_map<FrameId, Rectangle2f>&& atlasMap)
         : vfs(vfs),
+          palette(palette),
           atlas(std::move(atlas)),
           atlasMap(std::move(atlasMap))
     {
@@ -196,8 +198,9 @@ namespace rwe
                     Mesh::Triangle t(
                         Mesh::Vertex(first, Vector2f(0.0f, 0.0f)),
                         Mesh::Vertex(second, Vector2f(0.0f, 0.0f)),
-                        Mesh::Vertex(third, Vector2f(0.0f, 0.0f)));
-                    m.faces.push_back(t);
+                        Mesh::Vertex(third, Vector2f(0.0f, 0.0f)),
+                        (*palette)[p.colorIndex]);
+                    m.colorFaces.push_back(t);
                 }
 
                 continue;

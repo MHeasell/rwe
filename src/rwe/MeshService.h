@@ -31,6 +31,7 @@ namespace rwe
     {
     private:
         AbstractVirtualFileSystem* vfs;
+        const ColorPalette* palette;
         SharedTextureHandle atlas;
         std::unordered_map<FrameId, Rectangle2f> atlasMap;
 
@@ -42,6 +43,7 @@ namespace rwe
 
         MeshService(
             AbstractVirtualFileSystem* vfs,
+            const ColorPalette* palette,
             SharedTextureHandle&& atlas,
             std::unordered_map<FrameId, Rectangle2f>&& atlasMap);
 
