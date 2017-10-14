@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <cassert>
+#include <stdexcept>
+#include <functional>
 
 namespace rwe
 {
@@ -39,6 +41,11 @@ namespace rwe
 
         const std::vector<T> getVector() const;
         std::vector<T> getVector();
+
+        void replaceArea(std::size_t x, std::size_t y, const Grid<T>& replacement);
+
+        template <typename U>
+        void transformAndReplaceArea(std::size_t x, std::size_t y, const Grid<U>& replacement, const std::function<T(const U&)>& transformation);
     };
 
     template <typename T>
@@ -136,6 +143,41 @@ namespace rwe
     std::vector<T> Grid<T>::getVector()
     {
         return data;
+    }
+
+    template <typename T>
+    void Grid<T>::replaceArea(std::size_t x, std::size_t y, const Grid<T>& replacement)
+    {
+        if (replacement.getWidth() > getWidth() - x || replacement.getHeight() > getHeight() - x)
+        {
+            throw std::logic_error("replacement goes out of bounds");
+        }
+
+        for (std::size_t dy = 0; dy < replacement.getHeight(); ++dy)
+        {
+            for (std::size_t dx = 0; dx < replacement.getWidth(); ++dx)
+            {
+                set(x + dx, y + dy, replacement.get(dx, dy));
+            }
+        }
+    }
+
+    template <typename T>
+    template <typename U>
+    void Grid<T>::transformAndReplaceArea(std::size_t x, std::size_t y, const Grid<U>& replacement, const std::function<T(const U&)>& transformation)
+    {
+        if (replacement.getWidth() > getWidth() - x || replacement.getHeight() > getHeight() - x)
+        {
+            throw std::logic_error("replacement goes out of bounds");
+        }
+
+        for (std::size_t dy = 0; dy < replacement.getHeight(); ++dy)
+        {
+            for (std::size_t dx = 0; dx < replacement.getWidth(); ++dx)
+            {
+                set(x + dx, y + dy, transformation(replacement.get(dx, dy)));
+            }
+        }
     }
 }
 

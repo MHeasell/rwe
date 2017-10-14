@@ -71,8 +71,15 @@ namespace rwe
 
                 outP.colorIndex = p.colorIndex;
 
-                stream.seekg(p.textureNameOffset);
-                outP.textureName = readNullTerminatedString(stream);
+                if (p.textureNameOffset != 0)
+                {
+                    stream.seekg(p.textureNameOffset);
+                    outP.textureName = readNullTerminatedString(stream);
+                }
+                else
+                {
+                    outP.textureName = boost::none;
+                }
 
                 stream.seekg(p.verticesOffset);
                 for (unsigned int j = 0; j < p.numberOfVertices; ++j)

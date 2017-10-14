@@ -60,7 +60,7 @@ namespace rwe
         {
             unsigned int colorIndex;
             std::vector<unsigned int> vertices;
-            std::string textureName;
+            boost::optional<std::string> textureName;
         };
 
         struct Object

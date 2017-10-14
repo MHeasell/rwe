@@ -88,6 +88,8 @@ set(SOURCE_FILES
     src/rwe/MapTerrain.h
     src/rwe/Mesh.cpp
     src/rwe/Mesh.h
+    src/rwe/MeshService.cpp
+    src/rwe/MeshService.h
     src/rwe/OtherTriangleScene.cpp
     src/rwe/OtherTriangleScene.h
     src/rwe/Point.cpp

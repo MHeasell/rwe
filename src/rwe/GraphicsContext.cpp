@@ -147,11 +147,20 @@ namespace rwe
         glMultMatrixf(m.data);
     }
 
+    SharedTextureHandle GraphicsContext::createTexture(const Grid<Color>& image)
+    {
+        return createTexture(image.getWidth(), image.getHeight(), image.getData());
+    }
+
     SharedTextureHandle
     GraphicsContext::createTexture(unsigned int width, unsigned int height, const std::vector<Color>& image)
     {
         assert(image.size() == width * height);
+        return createTexture(width, height, image.data());
+    }
 
+    SharedTextureHandle GraphicsContext::createTexture(unsigned int width, unsigned int height, const Color* image)
+    {
         unsigned int texture;
         glGenTextures(1, &texture);
         SharedTextureHandle handle(texture);
@@ -168,7 +177,7 @@ namespace rwe
             0,
             GL_RGBA,
             GL_UNSIGNED_BYTE,
-            image.data());
+            image);
 
         return handle;
     }

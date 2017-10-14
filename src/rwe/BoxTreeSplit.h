@@ -149,7 +149,7 @@ namespace rwe
             {
                 auto newNode = std::make_unique<BoxTreeNode<T>>(itemWidth, root->height);
                 auto newNodePtr = newNode.get();
-                auto newRoot = std::make_unique<BoxTreeNode<T>>(Axis::Horizontal, std::move(root), std::move(newNode));
+                auto newRoot = std::make_unique<BoxTreeNode<T>>(Axis::Vertical, std::move(root), std::move(newNode));
                 root = std::move(newRoot);
                 return newNodePtr;
             }
@@ -297,33 +297,56 @@ namespace rwe
         return vec;
     }
 
-    template <typename T>
-    BoxPackInfo<Grid<T>*> packGrids(std::vector<Grid<T>*>& sprites)
+    struct Size
     {
-        assert(!sprites.empty());
+        std::size_t width;
+        std::size_t height;
 
-        std::sort(sprites.begin(), sprites.end(), [](const Grid<T>* a, const Grid<T>* b) {
-            auto sideA = std::max(a->getWidth(), a->getHeight());
-            auto sideB = std::max(b->getWidth(), b->getHeight());
-            return sideA > sideB;
+        Size() = default;
+        Size(std::size_t width, std::size_t height);
+    };
+
+    template <typename T>
+    BoxPackInfo<T> packGridsGeneric(std::vector<T>& items, const std::function<Size(const T&)>& f)
+    {
+        assert(!items.empty());
+
+        std::sort(items.begin(), items.end(), [&f](const T& a, const T& b) {
+
+            auto sizeA = f(a);
+            auto maxSideA = std::max(sizeA.width, sizeA.height);
+
+            auto sizeB = f(b);
+            auto maxSideB = std::max(sizeB.width, sizeB.height);
+
+            return maxSideA > maxSideB;
         });
 
 
-        auto it = sprites.begin();
-        auto end = sprites.end();
+        auto it = items.begin();
+        auto end = items.end();
 
-        BoxTree<Grid<T>*> tree((*it)->getWidth(), (*it)->getHeight(), *it);
+        auto rootSize = f(*it);
+        BoxTree<T> tree(rootSize.width, rootSize.height, *it);
         ++it;
 
         for (; it != end; ++it)
         {
-            auto width = (*it)->getWidth();
-            auto height = (*it)->getHeight();
+            auto size = f(*it);
+            auto width = size.width;
+            auto height = size.height;
             tree.insert(width, height, *it);
         }
 
         auto entries = tree.root->walk();
-        return BoxPackInfo<Grid<T>*>{tree.root->width, tree.root->height, std::move(entries)};
+        return BoxPackInfo<T>{tree.root->width, tree.root->height, std::move(entries)};
+    }
+
+
+    template <typename T>
+    BoxPackInfo<Grid<T>*> packGrids(std::vector<Grid<T>*>& sprites)
+    {
+        return packGridsGeneric<Grid<T>*>(sprites, [](const auto& s) { return Size(s->getWidth(), s->getHeight()); });
     }
 }
 

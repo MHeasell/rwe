@@ -10,9 +10,10 @@ namespace rwe
 {
     struct UnitMesh
     {
+        std::string name;
         Vector3f origin;
         std::shared_ptr<Mesh> mesh;
-        std::vector<std::pair<std::string, UnitMesh>> children;
+        std::vector<UnitMesh> children;
 
         void render(GraphicsContext& context) const;
     };

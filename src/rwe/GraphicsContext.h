@@ -40,7 +40,11 @@ namespace rwe
 
         void clear();
 
+        SharedTextureHandle createTexture(const Grid<Color>& image);
+
         SharedTextureHandle createTexture(unsigned int width, unsigned int height, const std::vector<Color>& image);
+
+        SharedTextureHandle createTexture(unsigned int width, unsigned int height, const Color* image);
 
         SharedTextureHandle createColorTexture(Color c);
 
