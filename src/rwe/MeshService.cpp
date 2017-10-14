@@ -14,7 +14,7 @@ namespace rwe
     Vector3f vertexToVector(const _3do::Vertex& v)
     {
         return Vector3f(
-            convertFixedPoint(v.x),
+            convertFixedPoint(-v.x), // flip the x axis
             convertFixedPoint(v.y),
             convertFixedPoint(v.z));
     }
@@ -216,7 +216,7 @@ namespace rwe
     {
         UnitMesh m;
         m.origin = Vector3f(
-            convertFixedPoint(o.x),
+            convertFixedPoint(-o.x), // flip the x axis
             convertFixedPoint(o.y),
             convertFixedPoint(o.z));
         m.name = o.name;
