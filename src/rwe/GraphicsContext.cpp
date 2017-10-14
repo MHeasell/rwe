@@ -440,14 +440,14 @@ namespace rwe
         glTexCoord2f(u, v);
         glVertex3f(x, y, z);
 
-        glTexCoord2f(u + uw, v);
-        glVertex3f(x + width, y, z);
+        glTexCoord2f(u, v + vh);
+        glVertex3f(x, y - height, z);
 
         glTexCoord2f(u + uw, v + vh);
         glVertex3f(x + width, y - height, z);
 
-        glTexCoord2f(u, v + vh);
-        glVertex3f(x, y - height, z);
+        glTexCoord2f(u + uw, v);
+        glVertex3f(x + width, y, z);
 
         glEnd();
     }
