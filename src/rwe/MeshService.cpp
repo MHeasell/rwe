@@ -6,13 +6,17 @@
 
 namespace rwe
 {
+    float convertFixedPoint(int p)
+    {
+        return static_cast<float>(p) / 65536.0f;
+    }
+
     Vector3f vertexToVector(const _3do::Vertex& v)
     {
-        float scaleFactor = 65536.0f;
         return Vector3f(
-            static_cast<float>(v.x) / scaleFactor,
-            static_cast<float>(v.y) / scaleFactor,
-            static_cast<float>(v.z) / scaleFactor);
+            convertFixedPoint(v.x),
+            convertFixedPoint(v.y),
+            convertFixedPoint(v.z));
     }
 
     struct FrameInfo
@@ -208,7 +212,10 @@ namespace rwe
     UnitMesh MeshService::unitMeshFrom3do(const _3do::Object& o)
     {
         UnitMesh m;
-        m.origin = Vector3f(0.0f, 0.0f, 0.0f);
+        m.origin = Vector3f(
+            convertFixedPoint(o.x),
+            convertFixedPoint(o.y),
+            convertFixedPoint(o.z));
         m.name = o.name;
         m.mesh = std::make_shared<Mesh>(meshFrom3do(o));
 
