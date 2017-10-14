@@ -9,10 +9,12 @@ namespace rwe
         terrain.render(context, camera);
         terrain.renderFeatures(context, camera);
 
+        context.enableDepth();
         for (const auto& unit : units)
         {
             unit.render(context);
         }
+        context.disableDepth();
 
         context.applyCamera(uiCamera);
         cursor->render(context);

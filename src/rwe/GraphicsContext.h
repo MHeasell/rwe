@@ -102,6 +102,12 @@ namespace rwe
         void drawStandingSprite(const Vector3f& position, const Sprite& sprite, float alpha);
 
         void drawMesh(const Mesh& mesh);
+
+        void enableDepth();
+
+        void enableCulling();
+
+        void disableDepth();
     };
 
     template <typename It>
