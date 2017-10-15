@@ -16,6 +16,7 @@ namespace rwe
             HpiFileSystem* fs;
             const std::string* name;
             const std::string* extension;
+
         public:
             HpiRecursiveFilenamesVisitor(HpiFileSystem* fs, const std::string* name, const std::string* extension);
 
@@ -40,7 +41,6 @@ namespace rwe
     private:
         std::vector<std::string> getFileNamesInternal(const HpiArchive::Directory& directory, const std::string& extension);
         std::vector<std::string> getFileNamesRecursiveInternal(const HpiArchive::Directory& directory, const std::string& extension);
-
     };
 }
 

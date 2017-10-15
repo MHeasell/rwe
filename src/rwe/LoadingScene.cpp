@@ -143,22 +143,22 @@ namespace rwe
 
         for (std::size_t y = 0; y < mapAttributes.getHeight(); ++y)
         {
-           for (std::size_t x = 0; x < mapAttributes.getWidth(); ++x)
-           {
-               const auto& e = mapAttributes.get(x, y);
-               switch (e.feature)
-               {
-                   case TntTileAttributes::FeatureNone:
-                   case TntTileAttributes::FeatureUnknown:
-                   case TntTileAttributes::FeatureVoid:
-                       break;
-                   default:
-                       const auto& featureTemplate = featureTemplates[e.feature];
-                       Vector3f pos = computeFeaturePosition(terrain, featureTemplate, x, y);
-                       auto feature = createFeature(pos, featureTemplate);
-                       terrain.getFeatures().push_back(feature);
-               }
-           }
+            for (std::size_t x = 0; x < mapAttributes.getWidth(); ++x)
+            {
+                const auto& e = mapAttributes.get(x, y);
+                switch (e.feature)
+                {
+                    case TntTileAttributes::FeatureNone:
+                    case TntTileAttributes::FeatureUnknown:
+                    case TntTileAttributes::FeatureVoid:
+                        break;
+                    default:
+                        const auto& featureTemplate = featureTemplates[e.feature];
+                        Vector3f pos = computeFeaturePosition(terrain, featureTemplate, x, y);
+                        auto feature = createFeature(pos, featureTemplate);
+                        terrain.getFeatures().push_back(feature);
+                }
+            }
         }
 
         const auto& schema = ota.schemas.at(schemaIndex);
@@ -306,8 +306,7 @@ namespace rwe
         const MapTerrain& terrain,
         const FeatureDefinition& featureDefinition,
         std::size_t x,
-        std::size_t y
-    ) const
+        std::size_t y) const
     {
         const auto& heightmap = terrain.getHeightMap();
 

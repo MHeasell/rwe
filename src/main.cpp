@@ -80,7 +80,7 @@ namespace rwe
 
         if (mapName)
         {
-            GameParameters params {*mapName, 0};
+            GameParameters params{*mapName, 0};
             auto scene = std::make_unique<LoadingScene>(
                 &vfs,
                 &textureService,
@@ -96,17 +96,17 @@ namespace rwe
         else
         {
             auto scene = std::make_unique<MainMenuScene>(
-                    &sceneManager,
-                    &vfs,
-                    &textureService,
-                    &audioService,
-                    &allSoundTdf,
-                    &graphics,
-                    &featureService,
-                    &*palette,
-                    &cursor,
-                    640,
-                    480);
+                &sceneManager,
+                &vfs,
+                &textureService,
+                &audioService,
+                &allSoundTdf,
+                &graphics,
+                &featureService,
+                &*palette,
+                &cursor,
+                640,
+                480);
             sceneManager.setNextScene(std::move(scene));
         }
 

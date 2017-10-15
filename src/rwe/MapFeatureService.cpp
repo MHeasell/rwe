@@ -42,5 +42,6 @@ namespace rwe
     }
 
     MapFeatureService::MapFeatureService(AbstractVirtualFileSystem* vfs) : vfs(vfs)
-    {}
+    {
+    }
 }

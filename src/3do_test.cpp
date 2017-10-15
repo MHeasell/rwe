@@ -15,7 +15,8 @@ void print3doObject(unsigned int indent, const std::vector<rwe::_3do::Object>& o
     {
         std::string indentString(indent, ' ');
         std::cout << indentString << "name: " << o.name << std::endl;
-        std::cout << indentString << "offset: " << "(" << convertFixedPoint(o.x) << ", " << convertFixedPoint(o.y) << ", " << convertFixedPoint(o.z) << ")" << std::endl;
+        std::cout << indentString << "offset: "
+                  << "(" << convertFixedPoint(o.x) << ", " << convertFixedPoint(o.y) << ", " << convertFixedPoint(o.z) << ")" << std::endl;
         std::cout << indentString << "primitives: " << o.primitives.size() << std::endl;
         std::cout << indentString << "vertices: " << o.vertices.size() << std::endl;
         std::cout << indentString << "selection primitive: " << o.selectionPrimitiveIndex << std::endl;

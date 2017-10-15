@@ -270,7 +270,7 @@ namespace rwe
         // When this is true, the intersectLine intersection test
         // guarantees that a line passing exactly through the edge
         // will intersect at least one of the triangles.
-        if (std::abs(y - x) % 2 == 0)  // checkerboard pattern
+        if (std::abs(y - x) % 2 == 0) // checkerboard pattern
         {
             left = Triangle3f(posTopLeft, posMiddle, posBottomLeft);
             bottom = Triangle3f(posBottomLeft, posBottomRight, posMiddle);
