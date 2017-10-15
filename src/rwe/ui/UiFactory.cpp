@@ -289,12 +289,10 @@ namespace rwe
 
         if (entry.common.name == "MAPNAMES")
         {
-            auto mapNames = vfs->getFileNames("maps", ".ota");
-
+            auto mapNames = getMapNames();
             for (const auto& e : mapNames)
             {
-                // chop off the extension while adding
-                listBox->appendItem(e.substr(0, e.size() - 4));
+                listBox->appendItem(e);
             }
 
             auto sub = model->selectedMap.subscribe([l = listBox.get()](const auto& selectedMap) {
@@ -784,5 +782,18 @@ namespace rwe
 
             panel.appendChild(std::move(b));
         }
+    }
+
+    std::vector<std::string> UiFactory::getMapNames()
+    {
+        auto mapNames = vfs->getFileNames("maps", ".ota");
+
+        for (auto& e : mapNames)
+        {
+            // chop off the extension
+            e.resize(e.size() - 4);
+        }
+
+        return mapNames;
     }
 }
