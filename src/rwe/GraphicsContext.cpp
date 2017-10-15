@@ -278,7 +278,6 @@ namespace rwe
         glBegin(GL_QUADS);
 
         glColor4ub(color.r, color.g, color.b, color.a);
-        //glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
 
         glVertex2f(x, y);
         glVertex2f(x, y + height);
