@@ -454,8 +454,6 @@ namespace rwe
 
     void GraphicsContext::drawMesh(const Mesh& mesh)
     {
-        glFrontFace(GL_CW);
-
         glBindTexture(GL_TEXTURE_2D, mesh.texture.get());
         glEnable(GL_TEXTURE_2D);
 
@@ -497,8 +495,6 @@ namespace rwe
         }
 
         glEnd();
-
-        glFrontFace(GL_CCW);
     }
 
     void GraphicsContext::enableDepth()

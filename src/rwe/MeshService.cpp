@@ -172,14 +172,14 @@ namespace rwe
                 auto textureBounds = getTextureRegion(*(p.textureName), 0);
 
                 Mesh::Triangle t0(
-                    Mesh::Vertex(vertexToVector(o.vertices[p.vertices[0]]), textureBounds.topLeft()),
+                    Mesh::Vertex(vertexToVector(o.vertices[p.vertices[2]]), textureBounds.bottomRight()),
                     Mesh::Vertex(vertexToVector(o.vertices[p.vertices[1]]), textureBounds.topRight()),
-                    Mesh::Vertex(vertexToVector(o.vertices[p.vertices[2]]), textureBounds.bottomRight()));
+                    Mesh::Vertex(vertexToVector(o.vertices[p.vertices[0]]), textureBounds.topLeft()));
 
                 Mesh::Triangle t1(
-                    Mesh::Vertex(vertexToVector(o.vertices[p.vertices[0]]), textureBounds.topLeft()),
+                    Mesh::Vertex(vertexToVector(o.vertices[p.vertices[3]]), textureBounds.bottomLeft()),
                     Mesh::Vertex(vertexToVector(o.vertices[p.vertices[2]]), textureBounds.bottomRight()),
-                    Mesh::Vertex(vertexToVector(o.vertices[p.vertices[3]]), textureBounds.bottomLeft()));
+                    Mesh::Vertex(vertexToVector(o.vertices[p.vertices[0]]), textureBounds.topLeft()));
 
                 m.faces.push_back(t0);
                 m.faces.push_back(t1);
@@ -191,10 +191,10 @@ namespace rwe
             if (p.vertices.size() >= 3)
             {
                 const auto& first = vertexToVector(o.vertices[p.vertices.front()]);
-                for (unsigned int i = 2; i < p.vertices.size(); ++i)
+                for (unsigned int i = p.vertices.size() - 1; i >= 2; --i)
                 {
-                    const auto& second = vertexToVector(o.vertices[p.vertices[i - 1]]);
-                    const auto& third = vertexToVector(o.vertices[p.vertices[i]]);
+                    const auto& second = vertexToVector(o.vertices[p.vertices[i]]);
+                    const auto& third = vertexToVector(o.vertices[p.vertices[i - 1]]);
                     Mesh::Triangle t(
                         Mesh::Vertex(first, Vector2f(0.0f, 0.0f)),
                         Mesh::Vertex(second, Vector2f(0.0f, 0.0f)),
