@@ -6,14 +6,14 @@
 
 namespace rwe
 {
-    template <typename It, typename C>
-    std::vector<std::string> splitInternal(It begin, It end, const std::vector<C>& codePoints)
+    template <typename It, typename CIt>
+    std::vector<std::string> splitInternal(It begin, It end, CIt codePointsBegin, CIt codePointsEnd)
     {
         std::vector<std::string> v;
 
         while (true)
         {
-            auto it = std::find_first_of(begin, end, codePoints.begin(), codePoints.end());
+            auto it = std::find_first_of(begin, end, codePointsBegin, codePointsEnd);
             v.emplace_back(begin, it);
             if (it == end)
             {
@@ -24,6 +24,12 @@ namespace rwe
         }
 
         return v;
+    };
+
+    template <typename It, typename Container>
+    std::vector<std::string> splitInternal(It begin, It end, const Container& codePoints)
+    {
+        return splitInternal(begin, end, codePoints.begin(), codePoints.end());
     };
 
     std::vector<std::string> utf8Split(const std::string& str, const std::vector<unsigned int>& codePoints)
