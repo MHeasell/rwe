@@ -98,6 +98,7 @@ set(SOURCE_FILES
     src/rwe/SceneManager.h
     src/rwe/SdlContextManager.cpp
     src/rwe/SdlContextManager.h
+    src/rwe/SharedHandle.h
     src/rwe/SharedTextureHandle.cpp
     src/rwe/SharedTextureHandle.h
     src/rwe/Sprite.cpp
