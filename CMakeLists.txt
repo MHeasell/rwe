@@ -70,7 +70,6 @@ set(SOURCE_FILES
     src/rwe/GameScene.h
     src/rwe/GraphicsContext.cpp
     src/rwe/GraphicsContext.h
-    src/rwe/Grid.cpp
     src/rwe/Grid.h
     src/rwe/Hpi.cpp
     src/rwe/Hpi.h
@@ -80,7 +79,6 @@ set(SOURCE_FILES
     src/rwe/MainMenuModel.h
     src/rwe/MainMenuScene.cpp
     src/rwe/MainMenuScene.h
-    src/rwe/MapFeature.cpp
     src/rwe/MapFeature.h
     src/rwe/MapFeatureService.cpp
     src/rwe/MapFeatureService.h
@@ -99,7 +97,6 @@ set(SOURCE_FILES
     src/rwe/SdlContextManager.cpp
     src/rwe/SdlContextManager.h
     src/rwe/SharedHandle.h
-    src/rwe/SharedTextureHandle.cpp
     src/rwe/SharedTextureHandle.h
     src/rwe/Sprite.cpp
     src/rwe/Sprite.h
@@ -141,7 +138,6 @@ set(SOURCE_FILES
     src/rwe/geometry/Triangle3f.h
     src/rwe/gui.cpp
     src/rwe/gui.h
-    src/rwe/io_utils.cpp
     src/rwe/io_utils.h
     src/rwe/math/Matrix4f.cpp
     src/rwe/math/Matrix4f.h
@@ -151,13 +147,9 @@ set(SOURCE_FILES
     src/rwe/math/Vector3f.h
     src/rwe/math/rwe_math.cpp
     src/rwe/math/rwe_math.h
-    src/rwe/observable/BehaviorSubject.cpp
     src/rwe/observable/BehaviorSubject.h
-    src/rwe/observable/Observable.cpp
     src/rwe/observable/Observable.h
-    src/rwe/observable/Subject.cpp
     src/rwe/observable/Subject.h
-    src/rwe/observable/Subscription.cpp
     src/rwe/observable/Subscription.h
     src/rwe/ota.cpp
     src/rwe/ota.h
