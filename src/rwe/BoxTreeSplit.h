@@ -252,13 +252,13 @@ namespace rwe
 
         // we must be a split, search both children
         auto split = boost::get<BoxTreeSplit<T>>(&value);
-        auto left = split->leftChild->findNode(width, height);
+        auto left = split->leftChild->findNode(itemWidth, itemHeight);
         if (left)
         {
             return left;
         }
 
-        return split->rightChild->findNode(width, height);
+        return split->rightChild->findNode(itemWidth, itemHeight);
     }
 
     template <typename T>
