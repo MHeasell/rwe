@@ -46,7 +46,7 @@ namespace rwe
 	blocking=1;
 	hitdensity=10;
 	}
-            )TDF";
+)TDF";
 
             auto tdfRoot = parseTdfFromString(input);
             REQUIRE(tdfRoot.entries.size() == 1);
@@ -104,4 +104,3 @@ namespace rwe
         }
     }
 }
-
