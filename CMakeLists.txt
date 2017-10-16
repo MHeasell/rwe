@@ -189,6 +189,8 @@ set(SOURCE_FILES
     src/rwe/ui/UiStagedButton.h
     src/rwe/ui/UiSurface.cpp
     src/rwe/ui/UiSurface.h
+    src/rwe/util.cpp
+    src/rwe/util.h
     src/rwe/vfs/AbstractVirtualFileSystem.h
     src/rwe/vfs/CompositeVirtualFileSystem.cpp
     src/rwe/vfs/CompositeVirtualFileSystem.h
@@ -306,6 +308,19 @@ add_executable(3do_test src/3do_test.cpp)
 target_link_libraries(3do_test librwe)
 if(WIN32)
     target_link_libraries(3do_test -static)
+endif()
+
+add_executable(texture_test src/texture_test.cpp)
+target_copy_dll(texture_test "libpng16-16.dll")
+target_link_libraries(texture_test ${PNG_LIBRARIES})
+target_link_libraries(texture_test librwe)
+if(WIN32)
+    target_link_libraries(texture_test -static)
+endif()
+target_include_directories(texture_test PUBLIC ${PNG_INCLUDE_DIRS})
+target_include_directories(texture_test PUBLIC libs/png++-0.2.9)
+if(WIN32)
+    target_compile_definitions(texture_test PRIVATE __STDC_LIB_EXT1__=1)
 endif()
 
 set(TEST_FILES

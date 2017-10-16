@@ -18,6 +18,8 @@
 #include <rwe/AudioService.h>
 #include <rwe/LoadingScene.h>
 
+#include <rwe/util.h>
+
 namespace fs = boost::filesystem;
 
 namespace rwe
@@ -120,16 +122,12 @@ int main(int argc, char* argv[])
 {
     try
     {
-        auto appData = std::getenv("APPDATA");
-        if (appData == nullptr)
+        auto searchPath = rwe::getSearchPath();
+        if (!searchPath)
         {
-            std::cerr << "Failed to detect AppData directory" << std::endl;
+            std::cerr << "Failed to determine data search path" << std::endl;
             return 1;
         }
-
-        fs::path searchPath(appData);
-        searchPath /= "RWE";
-        searchPath /= "Data";
 
         boost::optional<std::string> mapName;
         if (argc == 2)
@@ -137,7 +135,7 @@ int main(int argc, char* argv[])
             mapName = argv[1];
         }
 
-        return rwe::run(searchPath.string(), mapName);
+        return rwe::run(searchPath->string(), mapName);
     }
     catch (const std::runtime_error& e)
     {
