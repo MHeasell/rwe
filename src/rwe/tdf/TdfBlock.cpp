@@ -111,22 +111,28 @@ namespace rwe
 
     boost::optional<const TdfBlock&> TdfBlock::findBlock(const std::string& name) const
     {
-        // find the key in the block
-        auto pos = std::find_if(entries.begin(), entries.end(), [name](const TdfBlockEntry& e) { return toUpper(e.name) == toUpper(name); });
-        if (pos == entries.end())
+        auto pos = entries.begin();
+        for (;;)
         {
-            return boost::none;
-        }
+            // find the key in the block
+            pos = std::find_if(pos, entries.end(), [name](const TdfBlockEntry& e) { return toUpper(e.name) == toUpper(name); });
+            if (pos == entries.end())
+            {
+                return boost::none;
+            }
 
-        // make sure the key contains a block and extract it
-        auto& valuePointer = pos->value;
-        auto ptr = boost::get<TdfBlock>(&*valuePointer);
-        if (ptr == nullptr)
-        {
-            return boost::none;
-        }
+            // make sure the key contains a block and extract it
+            auto& valuePointer = pos->value;
+            auto ptr = boost::get<TdfBlock>(&*valuePointer);
+            if (ptr == nullptr)
+            {
+                // the key didn't contain a block, keep looking
+                ++pos;
+                continue;
+            }
 
-        return *ptr;
+            return *ptr;
+        }
     }
 
     boost::optional<const std::string&> TdfBlock::findValue(const std::string& name) const
