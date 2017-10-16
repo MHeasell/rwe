@@ -9,6 +9,13 @@
 
 namespace rwe
 {
+    class TdfValueException : public std::runtime_error
+    {
+    public:
+        explicit TdfValueException(const char* message);
+        explicit TdfValueException(const std::string& message);
+    };
+
     struct TdfBlockEntry;
     struct TdfBlock
     {
@@ -24,6 +31,22 @@ namespace rwe
         bool operator==(const TdfBlock& rhs) const;
 
         bool operator!=(const TdfBlock& rhs) const;
+
+        const std::string& expectString(const std::string& key) const;
+
+        boost::optional<int> extractInt(const std::string& key) const;
+
+        boost::optional<unsigned int> extractUint(const std::string& key) const;
+
+        boost::optional<float> extractFloat(const std::string& key) const;
+
+        int expectInt(const std::string& key) const;
+
+        boost::optional<bool> extractBool(const std::string& key) const;
+
+        bool expectBool(const std::string& key) const;
+
+        float expectFloat(const std::string& key) const;
     };
     using TdfPropertyValue = boost::variant<TdfBlock, std::string>;
     struct TdfBlockEntry

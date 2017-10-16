@@ -34,6 +34,14 @@ namespace rwe
         }
     };
 
+    TdfValueException::TdfValueException(const std::string& message) : runtime_error(message)
+    {
+    }
+
+    TdfValueException::TdfValueException(const char* message) : runtime_error(message)
+    {
+    }
+
     TdfBlockEntry::TdfBlockEntry(std::string name, const std::string& value) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(value)) {}
 
     TdfBlockEntry::TdfBlockEntry(std::string name, TdfBlock block) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(std::move(block))) {}
@@ -143,5 +151,129 @@ namespace rwe
 
     TdfBlock::TdfBlock(std::vector<TdfBlockEntry>&& entries) : entries(std::move(entries))
     {
+    }
+
+    boost::optional<int> TdfBlock::extractInt(const std::string& key) const
+    {
+        auto value = findValue(key);
+        if (!value)
+        {
+            return boost::none;
+        }
+
+        // convert the value to an integer
+        try
+        {
+            return std::stoi(*value);
+        }
+        catch (const std::invalid_argument& e)
+        {
+            return boost::none;
+        }
+    }
+
+
+    boost::optional<unsigned int> TdfBlock::extractUint(const std::string& key) const
+    {
+        auto value = findValue(key);
+        if (!value)
+        {
+            return boost::none;
+        }
+
+        // convert the value to an integer
+        try
+        {
+            return std::stoul(*value);
+        }
+        catch (const std::invalid_argument& e)
+        {
+            return boost::none;
+        }
+    }
+
+    boost::optional<float> TdfBlock::extractFloat(const std::string& key) const
+    {
+        auto value = findValue(key);
+        if (!value)
+        {
+            return boost::none;
+        }
+
+        // convert the value to an integer
+        try
+        {
+            return std::stof(*value);
+        }
+        catch (const std::invalid_argument& e)
+        {
+            return boost::none;
+        }
+    }
+
+    const std::string& TdfBlock::expectString(const std::string& key) const
+    {
+        auto v = findValue(key);
+        if (!v)
+        {
+            throw TdfValueException("Failed to read string from key: " + key);
+        }
+
+        return *v;
+    }
+
+    int TdfBlock::expectInt(const std::string& key) const
+    {
+        auto v = extractInt(key);
+        if (!v)
+        {
+            throw TdfValueException("Failed to read int from key: " + key);
+        }
+
+        return *v;
+    }
+
+    float TdfBlock::expectFloat(const std::string& key) const
+    {
+        auto v = extractFloat(key);
+        if (!v)
+        {
+            throw TdfValueException("Failed to read int from key: " + key);
+        }
+
+        return *v;
+    }
+
+    boost::optional<bool> TdfBlock::extractBool(const std::string& key) const
+    {
+        auto value = findValue(key);
+        if (!value)
+        {
+            return boost::none;
+        }
+
+        // convert the value to an integer
+        int i;
+        try
+        {
+            i = std::stoi(*value);
+        }
+        catch (const std::invalid_argument& e)
+        {
+            return boost::none;
+        }
+
+        return i != 0;
+    }
+
+    bool TdfBlock::expectBool(const std::string& key) const
+    {
+        auto v = extractBool(key);
+        if (!v)
+        {
+            throw TdfValueException("Failed to read bool from key: " + key);
+        }
+
+        return *v;
     }
 }

@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <stdexcept>
-#include <rwe/tdf.h>
+#include <rwe/tdf/TdfBlock.h>
 
 namespace rwe
 {
@@ -35,7 +35,7 @@ namespace rwe
 
     boost::optional<GuiElementType> extractGuiElementType(const TdfBlock& block, const std::string& key)
     {
-        auto value = extractInt(block, key);
+        auto value = block.extractInt(key);
         if (!value)
         {
             return boost::none;
@@ -66,19 +66,19 @@ namespace rwe
         }
 
         g.common.id = expectGuiElementType(*common, "id");
-        g.common.assoc = expectInt(*common, "assoc");
-        g.common.name = expectString(*common, "name");
-        g.common.xpos = expectInt(*common, "xpos");
-        g.common.ypos = expectInt(*common, "ypos");
-        g.common.width = expectInt(*common, "width");
-        g.common.height = expectInt(*common, "height");
-        g.common.attribs = expectInt(*common, "attribs");
-        g.common.colorf = expectInt(*common, "colorf");
-        g.common.colorb = expectInt(*common, "colorb");
-        g.common.textureNumber = expectInt(*common, "texturenumber");
-        g.common.fontNumber = expectInt(*common, "fontnumber");
-        g.common.active = expectBool(*common, "active");
-        g.common.commonAttribs = expectInt(*common, "commonattribs");
+        g.common.assoc = common->expectInt("assoc");
+        g.common.name = common->expectString("name");
+        g.common.xpos = common->expectInt("xpos");
+        g.common.ypos = common->expectInt("ypos");
+        g.common.width = common->expectInt("width");
+        g.common.height = common->expectInt("height");
+        g.common.attribs = common->expectInt("attribs");
+        g.common.colorf = common->expectInt("colorf");
+        g.common.colorb = common->expectInt("colorb");
+        g.common.textureNumber = common->expectInt("texturenumber");
+        g.common.fontNumber = common->expectInt("fontnumber");
+        g.common.active = common->expectBool("active");
+        g.common.commonAttribs = common->expectInt("commonattribs");
         g.common.help = common->findValue("help");
 
         g.panel = e.findValue("panel");
@@ -86,22 +86,22 @@ namespace rwe
         g.escdefault = e.findValue("escdefault");
         g.defaultFocus = e.findValue("defaultfocus");
 
-        g.totalGadgets = extractInt(e, "totalgadgets");
+        g.totalGadgets = e.extractInt("totalgadgets");
 
         auto version = e.findBlock("VERSION");
         if (version)
         {
-            auto major = expectInt(*version, "major");
-            auto minor = expectInt(*version, "minor");
-            auto revision = expectInt(*version, "revision");
+            auto major = version->expectInt("major");
+            auto minor = version->expectInt("minor");
+            auto revision = version->expectInt("revision");
             g.version = GuiVersion(major, minor, revision);
         }
 
-        g.status = extractInt(e, "status");
+        g.status = e.extractInt("status");
         g.text = e.findValue("text");
-        g.quickKey = extractInt(e, "quickkey");
-        g.grayedOut = extractBool(e, "grayedout");
-        g.stages = extractInt(e, "stages");
+        g.quickKey = e.extractInt("quickkey");
+        g.grayedOut = e.extractBool("grayedout");
+        g.stages = e.extractInt("stages");
 
         return g;
     }

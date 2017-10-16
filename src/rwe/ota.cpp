@@ -27,28 +27,28 @@ namespace rwe
     {
         OtaRecord r;
 
-        r.missionName = expectString(tdf, "missionname");
-        r.missionDescription = expectString(tdf, "missiondescription");
-        r.planet = expectString(tdf, "planet");
-        r.missionHint = expectString(tdf, "missionhint");
-        r.brief = expectString(tdf, "brief");
-        r.narration = expectString(tdf, "narration");
-        r.glamour = expectString(tdf, "glamour");
-        r.lineOfSight = expectInt(tdf, "lineofsight");
-        r.mapping = expectInt(tdf, "mapping");
-        r.tidalStrength = expectInt(tdf, "tidalstrength");
-        r.solarStrength = expectInt(tdf, "solarstrength");
-        r.lavaWorld = extractBool(tdf, "lavaworld").get_value_or(false);
-        r.killMul = expectInt(tdf, "killmul");
-        r.timeMul = expectInt(tdf, "timemul");
-        r.minWindSpeed = expectInt(tdf, "minwindspeed");
-        r.maxWindSpeed = expectInt(tdf, "maxwindspeed");
-        r.gravity = expectInt(tdf, "gravity");
-        r.numPlayers = expectString(tdf, "numplayers");
-        r.size = expectString(tdf, "size");
-        r.memory = expectString(tdf, "memory");
-        r.useOnlyUnits = expectString(tdf, "useonlyunits");
-        r.schemaCount = expectInt(tdf, "SCHEMACOUNT");
+        r.missionName = tdf.expectString("missionname");
+        r.missionDescription = tdf.expectString("missiondescription");
+        r.planet = tdf.expectString("planet");
+        r.missionHint = tdf.expectString("missionhint");
+        r.brief = tdf.expectString("brief");
+        r.narration = tdf.expectString("narration");
+        r.glamour = tdf.expectString("glamour");
+        r.lineOfSight = tdf.expectInt("lineofsight");
+        r.mapping = tdf.expectInt("mapping");
+        r.tidalStrength = tdf.expectInt("tidalstrength");
+        r.solarStrength = tdf.expectInt("solarstrength");
+        r.lavaWorld = tdf.extractBool("lavaworld").get_value_or(false);
+        r.killMul = tdf.expectInt("killmul");
+        r.timeMul = tdf.expectInt("timemul");
+        r.minWindSpeed = tdf.expectInt("minwindspeed");
+        r.maxWindSpeed = tdf.expectInt("maxwindspeed");
+        r.gravity = tdf.expectInt("gravity");
+        r.numPlayers = tdf.expectString("numplayers");
+        r.size = tdf.expectString("size");
+        r.memory = tdf.expectString("memory");
+        r.useOnlyUnits = tdf.expectString("useonlyunits");
+        r.schemaCount = tdf.expectInt("SCHEMACOUNT");
 
         for (int i = 0; i < r.schemaCount; ++i)
         {
@@ -68,19 +68,19 @@ namespace rwe
     OtaSchema parseOtaSchema(const TdfBlock& tdf)
     {
         OtaSchema s;
-        s.type = expectString(tdf, "Type");
-        s.aiProfile = expectString(tdf, "aiprofile");
-        s.surfaceMetal = expectInt(tdf, "SurfaceMetal");
-        s.mohoMetal = expectInt(tdf, "MohoMetal");
-        s.humanMetal = expectInt(tdf, "HumanMetal");
-        s.computerMetal = expectInt(tdf, "ComputerMetal");
-        s.humanEnergy = expectInt(tdf, "HumanEnergy");
-        s.computerEnergy = expectInt(tdf, "ComputerEnergy");
-        s.meteorWeapon = expectString(tdf, "MeteorWeapon");
-        s.meteorRadius = expectInt(tdf, "MeteorRadius");
-        s.meteorDensity = expectFloat(tdf, "MeteorDensity");
-        s.meteorDuration = expectInt(tdf, "MeteorDuration");
-        s.meteorInterval = expectInt(tdf, "MeteorInterval");
+        s.type = tdf.expectString("Type");
+        s.aiProfile = tdf.expectString("aiprofile");
+        s.surfaceMetal = tdf.expectInt("SurfaceMetal");
+        s.mohoMetal = tdf.expectInt("MohoMetal");
+        s.humanMetal = tdf.expectInt("HumanMetal");
+        s.computerMetal = tdf.expectInt("ComputerMetal");
+        s.humanEnergy = tdf.expectInt("HumanEnergy");
+        s.computerEnergy = tdf.expectInt("ComputerEnergy");
+        s.meteorWeapon = tdf.expectString("MeteorWeapon");
+        s.meteorRadius = tdf.expectInt("MeteorRadius");
+        s.meteorDensity = tdf.expectFloat("MeteorDensity");
+        s.meteorDuration = tdf.expectInt("MeteorDuration");
+        s.meteorInterval = tdf.expectInt("MeteorInterval");
 
         auto featuresBlock = tdf.findBlock("features");
         if (featuresBlock)
@@ -114,18 +114,18 @@ namespace rwe
     OtaFeature parseOtaFeature(const TdfBlock& tdf)
     {
         OtaFeature f;
-        f.featureName = expectString(tdf, "Featurename");
-        f.xPos = expectInt(tdf, "XPos");
-        f.zPos = expectInt(tdf, "ZPos");
+        f.featureName = tdf.expectString("Featurename");
+        f.xPos = tdf.expectInt("XPos");
+        f.zPos = tdf.expectInt("ZPos");
         return f;
     }
 
     OtaSpecial parseOtaSpecial(const TdfBlock& tdf)
     {
         OtaSpecial s;
-        s.specialWhat = expectString(tdf, "specialwhat");
-        s.xPos = expectInt(tdf, "XPos");
-        s.zPos = expectInt(tdf, "ZPos");
+        s.specialWhat = tdf.expectString("specialwhat");
+        s.xPos = tdf.expectInt("XPos");
+        s.zPos = tdf.expectInt("ZPos");
         return s;
     }
 }

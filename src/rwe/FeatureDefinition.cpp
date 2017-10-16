@@ -1,7 +1,5 @@
 #include "FeatureDefinition.h"
 
-#include <rwe/tdf.h>
-
 namespace rwe
 {
     FeatureDefinition FeatureDefinition::fromTdf(const TdfBlock& tdf)
@@ -14,51 +12,51 @@ namespace rwe
         f.description = tdf.findValue("description").get_value_or(emptyString);
         f.category = tdf.findValue("category").get_value_or(emptyString);
 
-        f.footprintX = extractUint(tdf, "footprintx").get_value_or(1);
-        f.footprintZ = extractUint(tdf, "footprintz").get_value_or(1);
-        f.height = extractUint(tdf, "height").get_value_or(0);
+        f.footprintX = tdf.extractUint("footprintx").get_value_or(1);
+        f.footprintZ = tdf.extractUint("footprintz").get_value_or(1);
+        f.height = tdf.extractUint("height").get_value_or(0);
 
-        f.animating = extractBool(tdf, "animating").get_value_or(false);
+        f.animating = tdf.extractBool("animating").get_value_or(false);
         f.fileName = tdf.findValue("filename").get_value_or(emptyString);
         f.seqName = tdf.findValue("seqname").get_value_or(emptyString);
-        f.animTrans = extractBool(tdf, "animtrans").get_value_or(false);
+        f.animTrans = tdf.extractBool("animtrans").get_value_or(false);
         f.seqNameShad = tdf.findValue("seqnameshad").get_value_or(emptyString);
-        f.shadTrans = extractBool(tdf, "shadtrans").get_value_or(false);
+        f.shadTrans = tdf.extractBool("shadtrans").get_value_or(false);
 
         f.object = tdf.findValue("object").get_value_or(emptyString);
 
-        f.reclaimable = extractBool(tdf, "reclaimable").get_value_or(false);
-        f.autoreclaimable = extractBool(tdf, "autoreclaimable").get_value_or(true);
+        f.reclaimable = tdf.extractBool("reclaimable").get_value_or(false);
+        f.autoreclaimable = tdf.extractBool("autoreclaimable").get_value_or(true);
         f.seqNameReclamate = tdf.findValue("seqnamereclamate").get_value_or(emptyString);
         f.featureReclamate = tdf.findValue("featurereclamate").get_value_or(emptyString);
-        f.metal = extractUint(tdf, "metal").get_value_or(0);
-        f.energy = extractUint(tdf, "energy").get_value_or(0);
+        f.metal = tdf.extractUint("metal").get_value_or(0);
+        f.energy = tdf.extractUint("energy").get_value_or(0);
 
-        f.flamable = extractBool(tdf, "flamable").get_value_or(false);
+        f.flamable = tdf.extractBool("flamable").get_value_or(false);
         f.seqNameBurn = tdf.findValue("seqnameburn").get_value_or(emptyString);
         f.seqNameBurnShad = tdf.findValue("seqnameburnshad").get_value_or(emptyString);
         f.featureBurnt = tdf.findValue("featureburnt").get_value_or(emptyString);
-        f.burnMin = extractUint(tdf, "burnmin").get_value_or(0);
-        f.burnMax = extractUint(tdf, "burnmax").get_value_or(0);
-        f.sparkTime = extractUint(tdf, "sparktime").get_value_or(0);
-        f.spreadChance = extractUint(tdf, "spreadchance").get_value_or(0);
+        f.burnMin = tdf.extractUint("burnmin").get_value_or(0);
+        f.burnMax = tdf.extractUint("burnmax").get_value_or(0);
+        f.sparkTime = tdf.extractUint("sparktime").get_value_or(0);
+        f.spreadChance = tdf.extractUint("spreadchance").get_value_or(0);
         f.burnWeapon = tdf.findValue("burnweapon").get_value_or(emptyString);
 
-        f.geothermal = extractBool(tdf, "geothermal").get_value_or(false);
+        f.geothermal = tdf.extractBool("geothermal").get_value_or(false);
 
-        f.hitDensity = extractUint(tdf, "hitdensity").get_value_or(0);
+        f.hitDensity = tdf.extractUint("hitdensity").get_value_or(0);
 
-        f.reproduce = extractBool(tdf, "reproduce").get_value_or(false);
-        f.reproduceArea = extractUint(tdf, "reproducearea").get_value_or(0);
+        f.reproduce = tdf.extractBool("reproduce").get_value_or(false);
+        f.reproduceArea = tdf.extractUint("reproducearea").get_value_or(0);
 
-        f.noDisplayInfo = extractBool(tdf, "nodisplayinfo").get_value_or(false);
+        f.noDisplayInfo = tdf.extractBool("nodisplayinfo").get_value_or(false);
 
-        f.permanent = extractBool(tdf, "permanent").get_value_or(false);
+        f.permanent = tdf.extractBool("permanent").get_value_or(false);
 
-        f.blocking = extractBool(tdf, "blocking").get_value_or(true);
+        f.blocking = tdf.extractBool("blocking").get_value_or(true);
 
-        f.indestructible = extractBool(tdf, "indestructible").get_value_or(false);
-        f.damage = extractUint(tdf, "damage").get_value_or(1);
+        f.indestructible = tdf.extractBool("indestructible").get_value_or(false);
+        f.damage = tdf.extractUint("damage").get_value_or(1);
         f.seqNameDie = tdf.findValue("seqnamedie").get_value_or(emptyString);
         f.featureDead = tdf.findValue("featuredead").get_value_or(emptyString);
 
