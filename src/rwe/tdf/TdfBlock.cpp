@@ -282,4 +282,15 @@ namespace rwe
 
         return *v;
     }
+
+    unsigned int TdfBlock::expectUint(const std::string& key) const
+    {
+        auto v = extractUint(key);
+        if (!v)
+        {
+            throw TdfValueException("Failed to read uint from key: " + key);
+        }
+
+        return *v;
+    }
 }

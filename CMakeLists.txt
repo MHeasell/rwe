@@ -98,6 +98,8 @@ set(SOURCE_FILES
     src/rwe/SdlContextManager.h
     src/rwe/SharedHandle.h
     src/rwe/SharedTextureHandle.h
+    src/rwe/SideData.cpp
+    src/rwe/SideData.h
     src/rwe/Sprite.cpp
     src/rwe/Sprite.h
     src/rwe/SpriteSeries.cpp
@@ -310,6 +312,7 @@ set(TEST_FILES
     test/rwe/BoxTreeSplit_test.cpp
     test/rwe/FeatureDefinition_test.cpp
     test/rwe/Grid_test.cpp
+    test/rwe/SideData_test.cpp
     test/rwe/SimpleTdfAdapter_test.cpp
     test/rwe/TdfBlock_test.cpp
     test/rwe/geometry/BoundingBox3f_test.cpp

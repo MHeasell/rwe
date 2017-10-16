@@ -42,6 +42,8 @@ namespace rwe
 
         int expectInt(const std::string& key) const;
 
+        unsigned int expectUint(const std::string& key) const;
+
         boost::optional<bool> extractBool(const std::string& key) const;
 
         bool expectBool(const std::string& key) const;
