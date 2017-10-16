@@ -3,7 +3,7 @@
 
 #include <boost/optional.hpp>
 #include <string>
-#include <rwe/tdf/SimpleTdfAdapter.h>
+#include <rwe/tdf/TdfBlock.h>
 
 namespace rwe
 {

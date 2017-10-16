@@ -8,7 +8,7 @@
 #include <rwe/SceneManager.h>
 #include <rwe/TextureService.h>
 #include <rwe/camera/UiCamera.h>
-#include <rwe/tdf/SimpleTdfAdapter.h>
+#include <rwe/tdf/TdfBlock.h>
 #include <rwe/ui/UiFactory.h>
 #include <rwe/ui/UiPanel.h>
 

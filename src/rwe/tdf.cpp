@@ -1,5 +1,7 @@
 #include "tdf.h"
 
+#include <rwe/tdf/SimpleTdfAdapter.h>
+
 namespace rwe
 {
     TdfValueException::TdfValueException(const std::string& message) : runtime_error(message)

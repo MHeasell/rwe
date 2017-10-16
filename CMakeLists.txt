@@ -161,6 +161,8 @@ set(SOURCE_FILES
     src/rwe/tdf.h
     src/rwe/tdf/SimpleTdfAdapter.cpp
     src/rwe/tdf/SimpleTdfAdapter.h
+    src/rwe/tdf/TdfBlock.cpp
+    src/rwe/tdf/TdfBlock.h
     src/rwe/tdf/TdfParser.cpp
     src/rwe/tdf/TdfParser.h
     src/rwe/tnt/TntArchive.cpp

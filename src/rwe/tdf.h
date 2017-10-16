@@ -1,7 +1,8 @@
 #ifndef RWE_TDF_H
 #define RWE_TDF_H
 
-#include <rwe/tdf/SimpleTdfAdapter.h>
+#include <rwe/rwe_string.h>
+#include <rwe/tdf/TdfBlock.h>
 
 namespace rwe
 {

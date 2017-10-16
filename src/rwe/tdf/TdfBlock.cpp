@@ -1,0 +1,147 @@
+#include "TdfBlock.h"
+
+#include <rwe/rwe_string.h>
+
+namespace rwe
+{
+    class EqualityVisitor : public boost::static_visitor<bool>
+    {
+    private:
+        const TdfPropertyValue* other;
+
+    public:
+        explicit EqualityVisitor(const TdfPropertyValue* other) : other(other) {}
+        bool operator()(const std::string& s) const
+        {
+            auto rhs = boost::get<std::string>(other);
+            if (!rhs)
+            {
+                return false;
+            }
+
+            return s == *rhs;
+        }
+
+        bool operator()(const TdfBlock& b) const
+        {
+            auto rhs = boost::get<TdfBlock>(other);
+            if (!rhs)
+            {
+                return false;
+            }
+
+            return b == *rhs;
+        }
+    };
+
+    TdfBlockEntry::TdfBlockEntry(std::string name, const std::string& value) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(value)) {}
+
+    TdfBlockEntry::TdfBlockEntry(std::string name, TdfBlock block) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(std::move(block))) {}
+
+    TdfBlockEntry::TdfBlockEntry(std::string name) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(TdfBlock())) {}
+
+    TdfBlockEntry::TdfBlockEntry(const TdfBlockEntry& other) : name(other.name), value(std::make_unique<TdfPropertyValue>(*other.value))
+    {
+    }
+
+    bool TdfBlockEntry::operator==(const TdfBlockEntry& rhs) const
+    {
+        if (name != rhs.name)
+        {
+            return false;
+        }
+
+        return boost::apply_visitor(EqualityVisitor(rhs.value.get()), *value);
+    }
+
+    bool TdfBlockEntry::operator!=(const TdfBlockEntry& rhs) const
+    {
+        return !(rhs == *this);
+    }
+
+    TdfBlockEntry::TdfBlockEntry(std::string name, std::vector<TdfBlockEntry> entries) : TdfBlockEntry(std::move(name), TdfBlock(std::move(entries)))
+    {
+    }
+
+    std::ostream& operator<<(std::ostream& os, const TdfBlockEntry& entry)
+    {
+        auto leaf = boost::get<std::string>(&*entry.value);
+        if (leaf != nullptr)
+        {
+            os << entry.name << " = " << *leaf << ";";
+        }
+        else
+        {
+            auto block = boost::get<TdfBlock>(&*entry.value);
+            if (block != nullptr)
+            {
+                os << "[" << entry.name << "]{ ";
+                for (auto elem : block->entries)
+                {
+                    os << elem << " ";
+                }
+                os << "}";
+            }
+            else
+            {
+                throw std::logic_error("Value was neither primitive nor block");
+            }
+        }
+
+        return os;
+    }
+
+    bool TdfBlock::operator==(const TdfBlock& rhs) const
+    {
+        return entries == rhs.entries;
+    }
+
+    bool TdfBlock::operator!=(const TdfBlock& rhs) const
+    {
+        return !(rhs == *this);
+    }
+
+    boost::optional<const TdfBlock&> TdfBlock::findBlock(const std::string& name) const
+    {
+        // find the key in the block
+        auto pos = std::find_if(entries.begin(), entries.end(), [name](const TdfBlockEntry& e) { return toUpper(e.name) == toUpper(name); });
+        if (pos == entries.end())
+        {
+            return boost::none;
+        }
+
+        // make sure the key contains a block and extract it
+        auto& valuePointer = pos->value;
+        auto ptr = boost::get<TdfBlock>(&*valuePointer);
+        if (ptr == nullptr)
+        {
+            return boost::none;
+        }
+
+        return *ptr;
+    }
+
+    boost::optional<const std::string&> TdfBlock::findValue(const std::string& name) const
+    {
+        // find the key in the block
+        auto pos = std::find_if(entries.begin(), entries.end(), [name](const TdfBlockEntry& e) { return toUpper(e.name) == toUpper(name); });
+        if (pos == entries.end())
+        {
+            return boost::none;
+        }
+
+        // make sure the key contains a primitive (not a block) and extract it
+        auto& valuePointer = pos->value;
+        auto ptr = boost::get<std::string>(&*valuePointer);
+        if (ptr == nullptr)
+        {
+            return boost::none;
+        }
+
+        return *ptr;
+    }
+
+    TdfBlock::TdfBlock(std::vector<TdfBlockEntry>&& entries) : entries(std::move(entries))
+    {
+    }
+}
