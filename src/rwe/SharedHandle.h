@@ -81,8 +81,8 @@ namespace rwe
         }
 
         /**
-		 * Equivalent to isValid()
-		 */
+         * Equivalent to isValid()
+         */
         explicit operator bool() const
         {
             return isValid();
@@ -96,8 +96,8 @@ namespace rwe
         }
 
         /**
-		 * Returns true if the handle contains a valid resource, otherwise false.
-		 */
+         * Returns true if the handle contains a valid resource, otherwise false.
+         */
         bool isValid() const
         {
             return referenceCount != nullptr;

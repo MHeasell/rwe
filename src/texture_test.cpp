@@ -129,8 +129,7 @@ namespace rwe
             frameRefs.push_back(&f);
         }
 
-        auto packInfo = packGridsGeneric<FrameInfo*>(frameRefs, [](const FrameInfo* f)
-        {
+        auto packInfo = packGridsGeneric<FrameInfo*>(frameRefs, [](const FrameInfo* f) {
             return Size(f->data.getWidth(), f->data.getHeight());
         });
 
@@ -150,8 +149,7 @@ namespace rwe
 
             atlasMap.insert({id, bounds});
 
-            atlas.transformAndReplaceArea<char>(e.x, e.y, e.value->data, [palette](char v)
-            {
+            atlas.transformAndReplaceArea<char>(e.x, e.y, e.value->data, [palette](char v) {
                 return (*palette)[static_cast<unsigned char>(v)];
             });
         }

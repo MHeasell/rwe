@@ -167,12 +167,12 @@ namespace rwe
     };
 
     /**
-	 * Manages the lifetime of SDL contexts.
-	 * Contexts accessed via this manager
-	 * are only valid for the lifetime of the manager.
-	 *
-	 * SDL is a global resource so don't instantiate more than one of these.
-	 */
+     * Manages the lifetime of SDL contexts.
+     * Contexts accessed via this manager
+     * are only valid for the lifetime of the manager.
+     *
+     * SDL is a global resource so don't instantiate more than one of these.
+     */
     class SdlContextManager
     {
     public:

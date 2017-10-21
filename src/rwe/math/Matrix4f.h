@@ -17,9 +17,9 @@ namespace rwe
         static Matrix4f rotationToAxes(const Vector3f& side, const Vector3f& up, const Vector3f& forward);
 
         /**
-		 * Elements are stored in column-major order,
-		 * i.e. the array is indexed E[(column * column_length) + row] or E[(x * height) + y].
-		 */
+         * Elements are stored in column-major order,
+         * i.e. the array is indexed E[(column * column_length) + row] or E[(x * height) + y].
+         */
         float data[16];
 
         Matrix4f transposed() const;
