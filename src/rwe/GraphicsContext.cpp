@@ -161,7 +161,7 @@ namespace rwe
 
     SharedTextureHandle GraphicsContext::createTexture(unsigned int width, unsigned int height, const Color* image)
     {
-        unsigned int texture;
+        GLuint texture;
         glGenTextures(1, &texture);
         SharedTextureHandle handle(texture);
 
@@ -184,7 +184,7 @@ namespace rwe
 
     SharedTextureHandle GraphicsContext::createColorTexture(Color c)
     {
-        unsigned int texture;
+        GLuint texture;
         glGenTextures(1, &texture);
         SharedTextureHandle handle(texture);
 
