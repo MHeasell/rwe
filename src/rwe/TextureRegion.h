@@ -1,7 +1,7 @@
 #ifndef RWE_TEXTUREREGION_H
 #define RWE_TEXTUREREGION_H
 
-#include <rwe/SharedTextureHandle.h>
+#include <rwe/TextureHandle.h>
 #include <rwe/geometry/Rectangle2f.h>
 
 namespace rwe

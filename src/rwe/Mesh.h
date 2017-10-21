@@ -3,7 +3,7 @@
 
 
 #include <array>
-#include <rwe/SharedTextureHandle.h>
+#include <rwe/TextureHandle.h>
 #include <rwe/math/Vector2f.h>
 #include <rwe/math/Vector3f.h>
 #include <rwe/ColorPalette.h>

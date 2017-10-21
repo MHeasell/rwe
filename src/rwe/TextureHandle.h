@@ -1,5 +1,5 @@
-#ifndef RWE_SHAREDTEXTUREHANDLE_H
-#define RWE_SHAREDTEXTUREHANDLE_H
+#ifndef RWE_TEXTUREHANDLE_H
+#define RWE_TEXTUREHANDLE_H
 
 #include <functional>
 #include <GL/glew.h>

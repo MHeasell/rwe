@@ -97,7 +97,7 @@ set(SOURCE_FILES
     src/rwe/SdlContextManager.cpp
     src/rwe/SdlContextManager.h
     src/rwe/SharedHandle.h
-    src/rwe/SharedTextureHandle.h
+    src/rwe/TextureHandle.h
     src/rwe/SideData.cpp
     src/rwe/SideData.h
     src/rwe/Sprite.cpp

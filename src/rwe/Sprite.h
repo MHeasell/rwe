@@ -1,7 +1,7 @@
 #ifndef RWE_SPRITE_H
 #define RWE_SPRITE_H
 
-#include <rwe/SharedTextureHandle.h>
+#include <rwe/TextureHandle.h>
 #include <rwe/TextureRegion.h>
 #include <rwe/geometry/Rectangle2f.h>
 

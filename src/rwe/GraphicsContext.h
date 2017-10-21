@@ -8,7 +8,7 @@
 #include <rwe/MapFeature.h>
 #include <rwe/MapTerrain.h>
 #include <rwe/Mesh.h>
-#include <rwe/SharedTextureHandle.h>
+#include <rwe/TextureHandle.h>
 #include <rwe/Sprite.h>
 #include <rwe/SpriteSeries.h>
 #include <rwe/camera/AbstractCamera.h>

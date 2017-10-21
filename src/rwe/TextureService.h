@@ -4,7 +4,7 @@
 #include <boost/optional.hpp>
 #include <memory>
 #include <rwe/GraphicsContext.h>
-#include <rwe/SharedTextureHandle.h>
+#include <rwe/TextureHandle.h>
 #include <rwe/SpriteSeries.h>
 #include <rwe/vfs/AbstractVirtualFileSystem.h>
 #include <rwe/ColorPalette.h>
