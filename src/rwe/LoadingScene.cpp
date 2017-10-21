@@ -220,8 +220,7 @@ namespace rwe
                 tileCount += 1;
             });
         }
-        SharedTextureHandle tempHandle(graphics->createTexture(textureWidth, textureHeight, textureBuffer));
-        textureHandles.push_back(std::move(tempHandle));
+        textureHandles.emplace_back(graphics->createTexture(textureWidth, textureHeight, textureBuffer));
 
         // populate the list of texture regions referencing the textures
         for (unsigned int i = 0; i < tnt.getHeader().numberOfTiles; ++i)
