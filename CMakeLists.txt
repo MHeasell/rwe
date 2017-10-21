@@ -104,14 +104,13 @@ set(SOURCE_FILES
     src/rwe/Sprite.h
     src/rwe/SpriteSeries.cpp
     src/rwe/SpriteSeries.h
-    src/rwe/TextureHandle.cpp
-    src/rwe/TextureHandle.h
     src/rwe/TextureRegion.cpp
     src/rwe/TextureRegion.h
     src/rwe/TextureService.cpp
     src/rwe/TextureService.h
     src/rwe/TriangleScene.cpp
     src/rwe/TriangleScene.h
+    src/rwe/UniqueHandle.h
     src/rwe/Unit.cpp
     src/rwe/Unit.h
     src/rwe/UnitMesh.cpp

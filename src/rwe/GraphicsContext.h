@@ -11,7 +11,6 @@
 #include <rwe/SharedTextureHandle.h>
 #include <rwe/Sprite.h>
 #include <rwe/SpriteSeries.h>
-#include <rwe/TextureHandle.h>
 #include <rwe/camera/AbstractCamera.h>
 #include <rwe/math/Vector3f.h>
 
@@ -40,21 +39,21 @@ namespace rwe
 
         void clear();
 
-        SharedTextureHandle createTexture(const Grid<Color>& image);
+        TextureHandle createTexture(const Grid<Color>& image);
 
-        SharedTextureHandle createTexture(unsigned int width, unsigned int height, const std::vector<Color>& image);
+        TextureHandle createTexture(unsigned int width, unsigned int height, const std::vector<Color>& image);
 
-        SharedTextureHandle createTexture(unsigned int width, unsigned int height, const Color* image);
+        TextureHandle createTexture(unsigned int width, unsigned int height, const Color* image);
 
-        SharedTextureHandle createColorTexture(Color c);
+        TextureHandle createColorTexture(Color c);
 
         void drawTextureRegion(float x, float y, float width, float height, const TextureRegion& texture);
 
-        void drawTextureRegion(float x, float y, float width, float height, GLuint texture, float u, float v, float uw, float vh);
+        void drawTextureRegion(float x, float y, float width, float height, TextureIdentifier texture, float u, float v, float uw, float vh);
 
         void drawTextureRegion(float x, float y, float width, float height, const SharedTextureHandle& texture, float u, float v, float uw, float vh);
 
-        void drawTexture(float x, float y, float width, float height, GLuint texture);
+        void drawTexture(float x, float y, float width, float height, TextureIdentifier texture);
 
         void drawTexture(float x, float y, float width, float height, const SharedTextureHandle& texture);
 

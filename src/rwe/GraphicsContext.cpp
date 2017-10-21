@@ -61,13 +61,13 @@ namespace rwe
         float y,
         float width,
         float height,
-        GLuint texture,
+        TextureIdentifier texture,
         float u,
         float v,
         float uw,
         float vh)
     {
-        glBindTexture(GL_TEXTURE_2D, texture);
+        glBindTexture(GL_TEXTURE_2D, texture.value);
         glEnable(GL_TEXTURE_2D);
 
         // disable mipmapping
@@ -111,7 +111,7 @@ namespace rwe
         drawTextureRegion(x, y, width, height, texture.get(), u, v, uw, vh);
     }
 
-    void GraphicsContext::drawTexture(float x, float y, float width, float height, GLuint texture)
+    void GraphicsContext::drawTexture(float x, float y, float width, float height, TextureIdentifier texture)
     {
         drawTextureRegion(x, y, width, height, texture, 0.0f, 0.0f, 1.0f, 1.0f);
     }
@@ -147,23 +147,24 @@ namespace rwe
         glMultMatrixf(m.data);
     }
 
-    SharedTextureHandle GraphicsContext::createTexture(const Grid<Color>& image)
+    TextureHandle GraphicsContext::createTexture(const Grid<Color>& image)
     {
         return createTexture(image.getWidth(), image.getHeight(), image.getData());
     }
 
-    SharedTextureHandle
+    TextureHandle
     GraphicsContext::createTexture(unsigned int width, unsigned int height, const std::vector<Color>& image)
     {
         assert(image.size() == width * height);
         return createTexture(width, height, image.data());
     }
 
-    SharedTextureHandle GraphicsContext::createTexture(unsigned int width, unsigned int height, const Color* image)
+    TextureHandle GraphicsContext::createTexture(unsigned int width, unsigned int height, const Color* image)
     {
         GLuint texture;
         glGenTextures(1, &texture);
-        SharedTextureHandle handle(texture);
+        TextureIdentifier id(texture);
+        TextureHandle handle(id);
 
         glBindTexture(GL_TEXTURE_2D, texture);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
@@ -182,11 +183,12 @@ namespace rwe
         return handle;
     }
 
-    SharedTextureHandle GraphicsContext::createColorTexture(Color c)
+    TextureHandle GraphicsContext::createColorTexture(Color c)
     {
         GLuint texture;
         glGenTextures(1, &texture);
-        SharedTextureHandle handle(texture);
+        TextureIdentifier id(texture);
+        TextureHandle handle(id);
 
         glBindTexture(GL_TEXTURE_2D, texture);
         glTexImage2D(
@@ -341,7 +343,7 @@ namespace rwe
         // disable blending
         glDisable(GL_BLEND);
 
-        std::unordered_map<GLuint, std::vector<std::pair<unsigned int, unsigned int>>> batches;
+        std::unordered_map<TextureIdentifier, std::vector<std::pair<unsigned int, unsigned int>>> batches;
 
         for (unsigned int dy = 0; dy < height; ++dy)
         {
@@ -356,7 +358,7 @@ namespace rwe
 
         for (const auto& batch : batches)
         {
-            glBindTexture(GL_TEXTURE_2D, batch.first);
+            glBindTexture(GL_TEXTURE_2D, batch.first.value);
 
             glBegin(GL_QUADS);
             glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -421,7 +423,7 @@ namespace rwe
         auto width = sprite.bounds.width();
         auto height = sprite.bounds.height() * 2.0f;
 
-        glBindTexture(GL_TEXTURE_2D, sprite.texture.texture.get());
+        glBindTexture(GL_TEXTURE_2D, sprite.texture.texture.get().value);
         glEnable(GL_TEXTURE_2D);
 
         // disable mipmapping
@@ -453,7 +455,7 @@ namespace rwe
 
     void GraphicsContext::drawMesh(const Mesh& mesh)
     {
-        glBindTexture(GL_TEXTURE_2D, mesh.texture.get());
+        glBindTexture(GL_TEXTURE_2D, mesh.texture.get().value);
         glEnable(GL_TEXTURE_2D);
 
         // disable mipmapping

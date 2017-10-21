@@ -142,7 +142,7 @@ namespace rwe
             });
         }
 
-        auto atlasTexture = graphics->createTexture(atlas);
+        SharedTextureHandle atlasTexture(graphics->createTexture(atlas));
 
         return MeshService(vfs, palette, std::move(atlasTexture), std::move(atlasMap));
     }

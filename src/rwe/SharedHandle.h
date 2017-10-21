@@ -2,6 +2,7 @@
 #define RWE_SHAREDHANDLE_H
 
 #include <cassert>
+#include <rwe/UniqueHandle.h>
 
 namespace rwe
 {
@@ -65,6 +66,10 @@ namespace rwe
             return *this;
         }
 
+        explicit SharedHandle(UniqueHandle<Value, Deleter>&& other) noexcept : SharedHandle(other.release())
+        {
+        }
+
         bool operator==(const Type& rhs) const
         {
             return referenceCount == rhs.referenceCount;
@@ -91,7 +96,7 @@ namespace rwe
         }
 
         /**
-		 * Returns true if the handle contains a valid texture, otherwise false.
+		 * Returns true if the handle contains a valid resource, otherwise false.
 		 */
         bool isValid() const
         {
@@ -108,7 +113,7 @@ namespace rwe
             return *referenceCount;
         }
 
-        /** Replaces the contents of the handle with the given texture. */
+        /** Replaces the contents of the handle with the given value. */
         void reset(Value newValue)
         {
             destroy();
@@ -116,7 +121,7 @@ namespace rwe
             referenceCount = new unsigned int(1);
         }
 
-        /** Resets the handle to the null texture. */
+        /** Resets the handle to the empty state. */
         void reset()
         {
             destroy();

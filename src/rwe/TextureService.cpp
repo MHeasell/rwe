@@ -55,7 +55,7 @@ namespace rwe
 
         void endFrame() override
         {
-            auto handle = graphics->createTexture(currentFrameHeader.width, currentFrameHeader.height, buffer);
+            SharedTextureHandle handle(graphics->createTexture(currentFrameHeader.width, currentFrameHeader.height, buffer));
 
             Sprite sprite(
                 Rectangle2f::fromTopLeft(
@@ -77,7 +77,7 @@ namespace rwe
     TextureService::TextureService(GraphicsContext* graphics, AbstractVirtualFileSystem* fileSystem, const ColorPalette* palette)
         : graphics(graphics), fileSystem(fileSystem), palette(palette)
     {
-        auto handle = graphics->createColorTexture(Color(255, 0, 255));
+        SharedTextureHandle handle(graphics->createColorTexture(Color(255, 0, 255)));
 
         auto series = std::make_shared<SpriteSeries>();
         series->sprites.emplace_back(Rectangle2f(0.5f, 0.5f, 0.5f, 0.5f), handle);
@@ -204,7 +204,7 @@ namespace rwe
             buffer[i] = palette[paletteIndex].toColor();
         }
 
-        auto handle = graphics->createTexture(width, height, buffer);
+        SharedTextureHandle handle(graphics->createTexture(width, height, buffer));
         TextureInfo info(width, height, handle);
         bitmapCache[bitmapName] = info;
         return info;
@@ -234,7 +234,7 @@ namespace rwe
             return (*p)[pixel];
         });
 
-        auto texture = graphics->createTexture(minimap.width, minimap.height, rgbMinimap);
+        SharedTextureHandle texture(graphics->createTexture(minimap.width, minimap.height, rgbMinimap));
         Sprite sprite(Rectangle2f::fromTopLeft(0.0f, 0.0f, minimap.width, minimap.height), texture);
 
         minimapCache.insert({mapName, sprite});

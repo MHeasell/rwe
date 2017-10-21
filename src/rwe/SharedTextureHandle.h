@@ -1,20 +1,70 @@
 #ifndef RWE_SHAREDTEXTUREHANDLE_H
 #define RWE_SHAREDTEXTUREHANDLE_H
 
+#include <functional>
 #include <GL/glew.h>
 #include <rwe/SharedHandle.h>
 
 namespace rwe
 {
-    struct SharedTextureHandleDeleter
+    struct TextureIdentifier
     {
-        void operator()(GLuint handle)
+        GLuint value{0};
+
+        TextureIdentifier() = default;
+        explicit TextureIdentifier(GLuint value) : value(value)
         {
-            glDeleteTextures(1, &handle);
+        }
+
+        bool isValid() const
+        {
+            return value != 0;
+        }
+
+        explicit operator bool() const
+        {
+            return isValid();
+        }
+
+        bool operator==(const TextureIdentifier& rhs) const
+        {
+            return value == rhs.value;
+        }
+
+        bool operator!=(const TextureIdentifier& rhs) const
+        {
+            return !(rhs == *this);
+        }
+    };
+}
+
+namespace std
+{
+    template <>
+    struct hash<rwe::TextureIdentifier>
+    {
+        std::size_t operator()(const rwe::TextureIdentifier& f) const noexcept
+        {
+            return std::hash<GLuint>()(f.value);
+        }
+    };
+}
+
+namespace rwe
+{
+    struct TextureHandleDeleter
+    {
+        void operator()(TextureIdentifier handle)
+        {
+            if (handle.isValid())
+            {
+                glDeleteTextures(1, &(handle.value));
+            }
         }
     };
 
-    using SharedTextureHandle = SharedHandle<GLuint, SharedTextureHandleDeleter>;
+    using TextureHandle = UniqueHandle<TextureIdentifier, TextureHandleDeleter>;
+    using SharedTextureHandle = SharedHandle<TextureIdentifier, TextureHandleDeleter>;
 }
 
 #endif

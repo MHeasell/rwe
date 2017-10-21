@@ -197,7 +197,8 @@ namespace rwe
             tnt.readTiles([this, &tileCount, &textureBuffer, &textureHandles](const char* tile) {
                 if (tileCount == tilesPerTexture)
                 {
-                    textureHandles.push_back(graphics->createTexture(textureWidth, textureHeight, textureBuffer));
+                    SharedTextureHandle handle(graphics->createTexture(textureWidth, textureHeight, textureBuffer));
+                    textureHandles.push_back(std::move(handle));
                     tileCount = 0;
                 }
 
@@ -219,7 +220,8 @@ namespace rwe
                 tileCount += 1;
             });
         }
-        textureHandles.push_back(graphics->createTexture(textureWidth, textureHeight, textureBuffer));
+        SharedTextureHandle tempHandle(graphics->createTexture(textureWidth, textureHeight, textureBuffer));
+        textureHandles.push_back(std::move(tempHandle));
 
         // populate the list of texture regions referencing the textures
         for (unsigned int i = 0; i < tnt.getHeader().numberOfTiles; ++i)
