@@ -9,10 +9,12 @@ namespace rwe
 {
     struct TextureIdentifier
     {
-        GLuint value{0};
+        using ValueType = GLuint;
+
+        ValueType value{0};
 
         TextureIdentifier() = default;
-        explicit TextureIdentifier(GLuint value) : value(value)
+        explicit TextureIdentifier(ValueType value) : value(value)
         {
         }
 
@@ -45,7 +47,7 @@ namespace std
     {
         std::size_t operator()(const rwe::TextureIdentifier& f) const noexcept
         {
-            return std::hash<GLuint>()(f.value);
+            return std::hash<rwe::TextureIdentifier::ValueType>()(f.value);
         }
     };
 }
