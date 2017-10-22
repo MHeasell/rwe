@@ -617,7 +617,7 @@ namespace rwe
 
     ShaderHandle GraphicsContext::compileShader(GLenum shaderType, const std::string& source)
     {
-        const auto data = source.data();
+        auto data = source.data();
         GLint length = source.size();
         ShaderHandle shader(ShaderIdentifier(glCreateShader(shaderType)));
         glShaderSource(shader.get().value, 1, &data, &length);
