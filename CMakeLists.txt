@@ -97,6 +97,8 @@ set(SOURCE_FILES
     src/rwe/SdlContextManager.cpp
     src/rwe/SdlContextManager.h
     src/rwe/ShaderHandle.h
+    src/rwe/ShaderMesh.cpp
+    src/rwe/ShaderMesh.h
     src/rwe/ShaderProgramHandle.h
     src/rwe/SharedHandle.h
     src/rwe/SideData.cpp

@@ -12,7 +12,12 @@ namespace rwe
         UnitMesh mesh;
         Vector3f position;
 
-        void render(GraphicsContext& context) const;
+        void render(
+            GraphicsContext& context,
+            ShaderProgramIdentifier textureShader,
+            ShaderProgramIdentifier colorShader,
+            const Matrix4f& viewMatrix,
+            const Matrix4f& projectionMatrix) const;
     };
 }
 

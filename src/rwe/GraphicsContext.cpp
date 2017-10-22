@@ -14,6 +14,10 @@ namespace rwe
         }
     }
 
+    AttribMapping::AttribMapping(const std::string& name, GLuint location) : name(name), location(location)
+    {
+    }
+
     GraphicsException::GraphicsException(const std::string& __arg) : runtime_error(__arg) {}
 
     GraphicsException::GraphicsException(const char* string) : runtime_error(string) {}
@@ -498,6 +502,63 @@ namespace rwe
         glEnd();
     }
 
+    void GraphicsContext::drawShaderMesh(
+        const ShaderMesh& mesh,
+        ShaderProgramIdentifier textureShader,
+        ShaderProgramIdentifier colorShader,
+        const Matrix4f& modelMatrix,
+        const Matrix4f& viewMatrix,
+        const Matrix4f& projectionMatrix)
+    {
+        glUseProgram(textureShader.value);
+        glBindVertexArray(mesh.texturedVerticesVao.get().value);
+        glBindTexture(GL_TEXTURE_2D, mesh.texture.get().value);
+
+        // disable mipmapping
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        // disable blending (meshes are opaque)
+        glDisable(GL_BLEND);
+
+        {
+            auto textureModelMatrix = glGetUniformLocation(textureShader.value, "modelMatrix");
+            glUniformMatrix4fv(textureModelMatrix, 1, GL_FALSE, modelMatrix.data);
+        }
+        {
+            auto textureViewMatrix = glGetUniformLocation(textureShader.value, "viewMatrix");
+            glUniformMatrix4fv(textureViewMatrix, 1, GL_FALSE, viewMatrix.data);
+        }
+        {
+            auto textureProjectionMatrix = glGetUniformLocation(textureShader.value, "projectionMatrix");
+            glUniformMatrix4fv(textureProjectionMatrix, 1, GL_FALSE, projectionMatrix.data);
+        }
+
+        glDrawArrays(GL_TRIANGLES, 0, mesh.texturedVerticesCount);
+
+        glUseProgram(colorShader.value);
+        glBindVertexArray(mesh.coloredVerticesVao.get().value);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        {
+            auto colorModelMatrix = glGetUniformLocation(colorShader.value, "modelMatrix");
+            glUniformMatrix4fv(colorModelMatrix, 1, GL_FALSE, modelMatrix.data);
+        }
+        {
+            auto colorViewMatrix = glGetUniformLocation(colorShader.value, "viewMatrix");
+            glUniformMatrix4fv(colorViewMatrix, 1, GL_FALSE, viewMatrix.data);
+        }
+        {
+            auto colorProjectionMatrix = glGetUniformLocation(colorShader.value, "projectionMatrix");
+            glUniformMatrix4fv(colorProjectionMatrix, 1, GL_FALSE, projectionMatrix.data);
+        }
+
+        glDrawArrays(GL_TRIANGLES, 0, mesh.coloredVerticesCount);
+
+        glBindVertexArray(0);
+        glUseProgram(0);
+    }
+
     void GraphicsContext::enableDepth()
     {
         glEnable(GL_DEPTH_TEST);
@@ -511,5 +572,165 @@ namespace rwe
     void GraphicsContext::enableCulling()
     {
         glEnable(GL_CULL_FACE);
+    }
+
+    ShaderHandle GraphicsContext::compileVertexShader(const std::string& source)
+    {
+        return compileShader(GL_VERTEX_SHADER, source);
+    }
+
+    ShaderHandle GraphicsContext::compileFragmentShader(const std::string& source)
+    {
+        return compileShader(GL_FRAGMENT_SHADER, source);
+    }
+
+    ShaderProgramHandle GraphicsContext::linkShaderProgram(
+        ShaderIdentifier vertexShader,
+        ShaderIdentifier fragmentShader,
+        const std::vector<AttribMapping>& attribs)
+    {
+        ShaderProgramHandle program{ShaderProgramIdentifier{glCreateProgram()}};
+
+        glAttachShader(program.get().value, vertexShader.value);
+        glAttachShader(program.get().value, fragmentShader.value);
+
+        for (const auto& attrib : attribs)
+        {
+            glBindAttribLocation(program.get().value, attrib.location, attrib.name.c_str());
+        }
+
+        glBindFragDataLocation(program.get().value, 0, "outColor");
+        glLinkProgram(program.get().value);
+
+        glDetachShader(program.get().value, vertexShader.value);
+        glDetachShader(program.get().value, fragmentShader.value);
+
+        GLint linkStatus;
+        glGetProgramiv(program.get().value, GL_LINK_STATUS, &linkStatus);
+        if (linkStatus == GL_FALSE)
+        {
+            throw GraphicsException("shader linking error");
+        }
+
+        return program;
+    }
+
+    ShaderHandle GraphicsContext::compileShader(GLenum shaderType, const std::string& source)
+    {
+        const auto data = source.data();
+        GLint length = source.size();
+        ShaderHandle shader(ShaderIdentifier(glCreateShader(shaderType)));
+        glShaderSource(shader.get().value, 1, &data, &length);
+        glCompileShader(shader.get().value);
+        GLint compileStatus;
+        glGetShaderiv(shader.get().value, GL_COMPILE_STATUS, &compileStatus);
+        if (compileStatus == GL_FALSE)
+        {
+            throw GraphicsException("shader compilation error");
+        }
+
+        return shader;
+    }
+
+    ShaderMesh GraphicsContext::convertMesh(const Mesh& mesh)
+    {
+        GLuint textureFacesVao;
+        glGenVertexArrays(1, &textureFacesVao);
+        glBindVertexArray(textureFacesVao);
+
+        GLuint textureFacesVbo;
+        unsigned int textureVerticesCount;
+        {
+            glGenBuffers(1, &textureFacesVbo);
+            glBindBuffer(GL_ARRAY_BUFFER, textureFacesVbo);
+
+            std::vector<GLfloat> buffer;
+            for (const auto& t : mesh.faces)
+            {
+                buffer.push_back(t.a.position.x);
+                buffer.push_back(t.a.position.y);
+                buffer.push_back(t.a.position.z);
+                buffer.push_back(t.a.textureCoord.x);
+                buffer.push_back(t.a.textureCoord.y);
+
+                buffer.push_back(t.b.position.x);
+                buffer.push_back(t.b.position.y);
+                buffer.push_back(t.b.position.z);
+                buffer.push_back(t.b.textureCoord.x);
+                buffer.push_back(t.b.textureCoord.y);
+
+                buffer.push_back(t.c.position.x);
+                buffer.push_back(t.c.position.y);
+                buffer.push_back(t.c.position.z);
+                buffer.push_back(t.c.textureCoord.x);
+                buffer.push_back(t.c.textureCoord.y);
+            }
+
+            textureVerticesCount = mesh.faces.size() * 3;
+            glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(GLfloat), buffer.data(), GL_STATIC_DRAW);
+        }
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), reinterpret_cast<void*>(0));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), reinterpret_cast<void*>(3 * sizeof(GLfloat)));
+
+        GLuint colorFacesVao;
+        glGenVertexArrays(1, &colorFacesVao);
+        glBindVertexArray(colorFacesVao);
+
+        GLuint colorFacesVbo;
+        unsigned int colorVerticesCount;
+        {
+            glGenBuffers(1, &colorFacesVbo);
+            glBindBuffer(GL_ARRAY_BUFFER, colorFacesVbo);
+
+            std::vector<GLfloat> buffer;
+            for (const auto& t : mesh.colorFaces)
+            {
+                buffer.push_back(t.a.position.x);
+                buffer.push_back(t.a.position.y);
+                buffer.push_back(t.a.position.z);
+                buffer.push_back(t.color.r / 255.0f);
+                buffer.push_back(t.color.g / 255.0f);
+                buffer.push_back(t.color.b / 255.0f);
+
+                buffer.push_back(t.b.position.x);
+                buffer.push_back(t.b.position.y);
+                buffer.push_back(t.b.position.z);
+                buffer.push_back(t.color.r / 255.0f);
+                buffer.push_back(t.color.g / 255.0f);
+                buffer.push_back(t.color.b / 255.0f);
+
+                buffer.push_back(t.c.position.x);
+                buffer.push_back(t.c.position.y);
+                buffer.push_back(t.c.position.z);
+                buffer.push_back(t.color.r / 255.0f);
+                buffer.push_back(t.color.g / 255.0f);
+                buffer.push_back(t.color.b / 255.0f);
+            }
+
+            colorVerticesCount = mesh.colorFaces.size() * 3;
+            glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(GLfloat), buffer.data(), GL_STATIC_DRAW);
+        }
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(0));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(3 * sizeof(GLfloat)));
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+
+        ShaderMesh sMesh(
+            mesh.texture,
+            VboHandle(VboIdentifier(textureFacesVbo)),
+            textureVerticesCount,
+            VaoHandle(VaoIdentifier(textureFacesVao)),
+            VboHandle(VboIdentifier(colorFacesVbo)),
+            colorVerticesCount,
+            VaoHandle(VaoIdentifier(colorFacesVao)));
+
+        return sMesh;
     }
 }

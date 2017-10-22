@@ -220,7 +220,7 @@ namespace rwe
             convertFixedPoint(o.y),
             convertFixedPoint(o.z));
         m.name = o.name;
-        m.mesh = std::make_shared<Mesh>(meshFrom3do(o));
+        m.mesh = std::make_shared<ShaderMesh>(graphics->convertMesh(meshFrom3do(o)));
 
         for (const auto& c : o.children)
         {
