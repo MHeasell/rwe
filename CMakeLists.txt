@@ -96,14 +96,18 @@ set(SOURCE_FILES
     src/rwe/SceneManager.h
     src/rwe/SdlContextManager.cpp
     src/rwe/SdlContextManager.h
+    src/rwe/ShaderHandle.h
+    src/rwe/ShaderMesh.cpp
+    src/rwe/ShaderMesh.h
+    src/rwe/ShaderProgramHandle.h
     src/rwe/SharedHandle.h
-    src/rwe/TextureHandle.h
     src/rwe/SideData.cpp
     src/rwe/SideData.h
     src/rwe/Sprite.cpp
     src/rwe/Sprite.h
     src/rwe/SpriteSeries.cpp
     src/rwe/SpriteSeries.h
+    src/rwe/TextureHandle.h
     src/rwe/TextureRegion.cpp
     src/rwe/TextureRegion.h
     src/rwe/TextureService.cpp
@@ -115,6 +119,8 @@ set(SOURCE_FILES
     src/rwe/Unit.h
     src/rwe/UnitMesh.cpp
     src/rwe/UnitMesh.h
+    src/rwe/VaoHandle.h
+    src/rwe/VboHandle.h
     src/rwe/_3do.cpp
     src/rwe/_3do.h
     src/rwe/camera/AbstractCamera.cpp
@@ -350,6 +356,8 @@ install(TARGETS rwe
     RUNTIME DESTINATION bin
     )
 install(FILES LICENSE README.md DESTINATION .)
+
+install(DIRECTORY shaders DESTINATION .)
 
 set(CPACK_GENERATOR "ZIP;NSIS")
 

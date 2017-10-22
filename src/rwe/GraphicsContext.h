@@ -13,9 +13,20 @@
 #include <rwe/SpriteSeries.h>
 #include <rwe/camera/AbstractCamera.h>
 #include <rwe/math/Vector3f.h>
+#include "ShaderHandle.h"
+#include "ShaderProgramHandle.h"
+#include "ShaderMesh.h"
 
 namespace rwe
 {
+    struct AttribMapping
+    {
+        std::string name;
+        GLuint location;
+
+        AttribMapping(const std::string& name, GLuint location);
+    };
+
     class GraphicsException : public std::runtime_error
     {
     public:
@@ -102,11 +113,30 @@ namespace rwe
 
         void drawMesh(const Mesh& mesh);
 
+        void drawShaderMesh(
+            const ShaderMesh& mesh,
+            ShaderProgramIdentifier textureShader,
+            ShaderProgramIdentifier colorShader,
+            const Matrix4f& modelMatrix,
+            const Matrix4f& viewMatrix,
+            const Matrix4f& projectionMatrix);
+
         void enableDepth();
 
         void enableCulling();
 
         void disableDepth();
+
+        ShaderHandle compileVertexShader(const std::string& source);
+
+        ShaderHandle compileFragmentShader(const std::string& source);
+
+        ShaderProgramHandle linkShaderProgram(ShaderIdentifier vertexShader, ShaderIdentifier fragmentShader, const std::vector<AttribMapping>& attribs);
+
+        ShaderMesh convertMesh(const Mesh& mesh);
+
+    private:
+        ShaderHandle compileShader(GLenum shaderType, const std::string& source);
     };
 
     template <typename It>

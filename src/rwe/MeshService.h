@@ -31,6 +31,7 @@ namespace rwe
     {
     private:
         AbstractVirtualFileSystem* vfs;
+        GraphicsContext* graphics;
         const ColorPalette* palette;
         SharedTextureHandle atlas;
         std::unordered_map<FrameId, Rectangle2f> atlasMap;

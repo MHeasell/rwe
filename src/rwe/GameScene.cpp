@@ -10,9 +10,11 @@ namespace rwe
         terrain.renderFeatures(context, camera);
 
         context.enableDepth();
+        auto viewMatrix = camera.getViewMatrix();
+        auto projectionMatrix = camera.getProjectionMatrix();
         for (const auto& unit : units)
         {
-            unit.render(context);
+            unit.render(context, unitTextureShader.get(), unitColorShader.get(), viewMatrix, projectionMatrix);
         }
         context.disableDepth();
 
@@ -25,13 +27,17 @@ namespace rwe
         CursorService* cursor,
         MeshService&& meshService,
         CabinetCamera&& camera,
-        MapTerrain&& terrain)
+        MapTerrain&& terrain,
+        SharedShaderProgramHandle&& unitTextureShader,
+        SharedShaderProgramHandle&& unitColorShader)
         : textureService(textureService),
           cursor(cursor),
           meshService(std::move(meshService)),
           camera(std::move(camera)),
           terrain(std::move(terrain)),
-          uiCamera(640, 480)
+          uiCamera(640, 480),
+          unitTextureShader(std::move(unitTextureShader)),
+          unitColorShader(std::move(unitColorShader))
     {
     }
 

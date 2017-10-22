@@ -36,13 +36,18 @@ namespace rwe
         bool up{false};
         bool down{false};
 
+        SharedShaderProgramHandle unitTextureShader;
+        SharedShaderProgramHandle unitColorShader;
+
     public:
         GameScene(
             TextureService* textureService,
             CursorService* cursor,
             MeshService&& meshService,
             CabinetCamera&& camera,
-            MapTerrain&& terrain);
+            MapTerrain&& terrain,
+            SharedShaderProgramHandle&& unitTextureShader,
+            SharedShaderProgramHandle&& unitColorShader);
 
         void render(GraphicsContext& context) override;
 

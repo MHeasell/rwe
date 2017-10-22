@@ -74,6 +74,10 @@ namespace rwe
         MapFeature createFeature(const Vector3f& pos, const FeatureDefinition& definition);
 
         Vector3f computeFeaturePosition(const MapTerrain& terrain, const FeatureDefinition& featureDefinition, std::size_t x, std::size_t y) const;
+
+        ShaderProgramHandle loadShader(const std::string& vertexShaderName, const std::string& fragmentShaderName, const std::vector<AttribMapping>& attribs);
+
+        std::string slurpFile(const std::string& filename);
     };
 }
 

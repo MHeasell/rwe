@@ -12,10 +12,16 @@ namespace rwe
     {
         std::string name;
         Vector3f origin;
-        std::shared_ptr<Mesh> mesh;
+        std::shared_ptr<ShaderMesh> mesh;
         std::vector<UnitMesh> children;
 
-        void render(GraphicsContext& context) const;
+        void render(
+            GraphicsContext& context,
+            ShaderProgramIdentifier textureShader,
+            ShaderProgramIdentifier colorShader,
+            const Matrix4f& modelMatrix,
+            const Matrix4f& viewMatrix,
+            const Matrix4f& projectionMatrix) const;
     };
 }
 

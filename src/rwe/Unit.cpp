@@ -2,11 +2,14 @@
 
 namespace rwe
 {
-    void Unit::render(GraphicsContext& context) const
+    void Unit::render(
+        GraphicsContext& context,
+        ShaderProgramIdentifier textureShader,
+        ShaderProgramIdentifier colorShader,
+        const Matrix4f& viewMatrix,
+        const Matrix4f& projectionMatrix) const
     {
-        context.pushMatrix();
-        context.multiplyMatrix(Matrix4f::translation(position));
-        mesh.render(context);
-        context.popMatrix();
+        auto matrix = Matrix4f::translation(position);
+        mesh.render(context, textureShader, colorShader, matrix, viewMatrix, projectionMatrix);
     }
 }
