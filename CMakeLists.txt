@@ -96,6 +96,8 @@ set(SOURCE_FILES
     src/rwe/SceneManager.h
     src/rwe/SdlContextManager.cpp
     src/rwe/SdlContextManager.h
+    src/rwe/ShaderHandle.h
+    src/rwe/ShaderProgramHandle.h
     src/rwe/SharedHandle.h
     src/rwe/TextureHandle.h
     src/rwe/SideData.cpp
@@ -115,6 +117,8 @@ set(SOURCE_FILES
     src/rwe/Unit.h
     src/rwe/UnitMesh.cpp
     src/rwe/UnitMesh.h
+    src/rwe/VaoHandle.h
+    src/rwe/VboHandle.h
     src/rwe/_3do.cpp
     src/rwe/_3do.h
     src/rwe/camera/AbstractCamera.cpp
