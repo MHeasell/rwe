@@ -19,13 +19,13 @@ namespace rwe
         }
 
         UniqueHandle(const Type&) = delete;
-        UniqueHandle& operator=(const Type&) = delete;
+        Type& operator=(const Type&) = delete;
 
         UniqueHandle(Type&& that) noexcept : value(that.release())
         {
         }
 
-        UniqueHandle& operator=(Type&& that) noexcept
+        Type& operator=(Type&& that) noexcept
         {
             destroy();
             value = that.release();
