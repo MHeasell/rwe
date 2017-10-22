@@ -99,13 +99,13 @@ set(SOURCE_FILES
     src/rwe/ShaderHandle.h
     src/rwe/ShaderProgramHandle.h
     src/rwe/SharedHandle.h
-    src/rwe/TextureHandle.h
     src/rwe/SideData.cpp
     src/rwe/SideData.h
     src/rwe/Sprite.cpp
     src/rwe/Sprite.h
     src/rwe/SpriteSeries.cpp
     src/rwe/SpriteSeries.h
+    src/rwe/TextureHandle.h
     src/rwe/TextureRegion.cpp
     src/rwe/TextureRegion.h
     src/rwe/TextureService.cpp
