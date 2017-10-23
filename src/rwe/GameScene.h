@@ -7,6 +7,7 @@
 #include <rwe/Unit.h>
 #include <rwe/camera/UiCamera.h>
 #include "MeshService.h"
+#include "UnitDatabase.h"
 
 namespace rwe
 {
@@ -39,6 +40,8 @@ namespace rwe
         SharedShaderProgramHandle unitTextureShader;
         SharedShaderProgramHandle unitColorShader;
 
+        UnitDatabase unitDatabase;
+
     public:
         GameScene(
             TextureService* textureService,
@@ -47,7 +50,8 @@ namespace rwe
             CabinetCamera&& camera,
             MapTerrain&& terrain,
             SharedShaderProgramHandle&& unitTextureShader,
-            SharedShaderProgramHandle&& unitColorShader);
+            SharedShaderProgramHandle&& unitColorShader,
+            UnitDatabase&& unitDatabase);
 
         void render(GraphicsContext& context) override;
 

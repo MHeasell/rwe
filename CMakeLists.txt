@@ -117,6 +117,10 @@ set(SOURCE_FILES
     src/rwe/UniqueHandle.h
     src/rwe/Unit.cpp
     src/rwe/Unit.h
+    src/rwe/UnitDatabase.cpp
+    src/rwe/UnitDatabase.h
+    src/rwe/UnitFbi.cpp
+    src/rwe/UnitFbi.h
     src/rwe/UnitMesh.cpp
     src/rwe/UnitMesh.h
     src/rwe/VaoHandle.h

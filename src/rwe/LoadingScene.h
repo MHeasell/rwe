@@ -13,6 +13,7 @@
 #include <rwe/ui/UiPanel.h>
 #include "ota.h"
 #include "SideData.h"
+#include "UnitDatabase.h"
 
 namespace rwe
 {
@@ -91,6 +92,8 @@ namespace rwe
         std::string slurpFile(const std::string& filename);
 
         const SideData& getSideData(const std::string& side) const;
+
+        UnitDatabase createUnitDatabase();
     };
 }
 

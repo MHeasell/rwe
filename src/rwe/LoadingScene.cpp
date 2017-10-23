@@ -115,6 +115,8 @@ namespace rwe
         SharedShaderProgramHandle unitTextureShader{loadShader("shaders/unitTexture.vert", "shaders/unitTexture.frag", unitTextureShaderAttribs)};
         SharedShaderProgramHandle unitColorShader{loadShader("shaders/unitColor.vert", "shaders/unitColor.frag", unitColorShaderAttribs)};
 
+        auto unitDatabase = createUnitDatabase();
+
         GameScene gameScene(
             textureService,
             cursor,
@@ -122,7 +124,8 @@ namespace rwe
             std::move(camera),
             std::move(terrain),
             std::move(unitTextureShader),
-            std::move(unitColorShader));
+            std::move(unitColorShader),
+            std::move(unitDatabase));
 
         const auto& schema = ota.schemas.at(schemaIndex);
 
@@ -412,5 +415,28 @@ namespace rwe
         }
 
         return it->second;
+    }
+
+    UnitDatabase LoadingScene::createUnitDatabase()
+    {
+        auto fbis = vfs->getFileNames("units", ".fbi");
+
+        UnitDatabase db;
+
+        for (const auto& fbiName : fbis)
+        {
+            auto bytes = vfs->readFile("units/" + fbiName);
+            if (!bytes)
+            {
+                throw std::runtime_error("File in listing could not be read: " + fbiName);
+            }
+
+            std::string fbiString(bytes->data(), bytes->size());
+            auto fbi = parseUnitFbi(parseTdfFromString(fbiString));
+
+            db.addUnitInfo(fbi.unitName, fbi);
+        }
+
+        return db;
     }
 }

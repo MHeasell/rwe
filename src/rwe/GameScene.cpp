@@ -29,7 +29,8 @@ namespace rwe
         CabinetCamera&& camera,
         MapTerrain&& terrain,
         SharedShaderProgramHandle&& unitTextureShader,
-        SharedShaderProgramHandle&& unitColorShader)
+        SharedShaderProgramHandle&& unitColorShader,
+        UnitDatabase&& unitDatabase)
         : textureService(textureService),
           cursor(cursor),
           meshService(std::move(meshService)),
@@ -37,7 +38,8 @@ namespace rwe
           terrain(std::move(terrain)),
           uiCamera(640, 480),
           unitTextureShader(std::move(unitTextureShader)),
-          unitColorShader(std::move(unitColorShader))
+          unitColorShader(std::move(unitColorShader)),
+          unitDatabase(std::move(unitDatabase))
     {
     }
 
@@ -121,9 +123,11 @@ namespace rwe
 
     Unit GameScene::createUnit(const std::string& unitType, const Vector3f& position)
     {
+        const auto& fbi = unitDatabase.getUnitInfo(unitType);
+
         Unit unit;
         unit.position = position;
-        unit.mesh = meshService.loadUnitMesh("armcom");
+        unit.mesh = meshService.loadUnitMesh(fbi.objectName);
 
         return unit;
     }
