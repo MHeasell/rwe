@@ -18,6 +18,7 @@ namespace rwe
         MapFeatureService* featureService,
         const ColorPalette* palette,
         CursorService* cursor,
+        const std::unordered_map<std::string, SideData>* sideData,
         float width,
         float height)
         : sceneManager(sceneManager),
@@ -29,6 +30,7 @@ namespace rwe
           featureService(featureService),
           palette(palette),
           cursor(cursor),
+          sideData(sideData),
           model(),
           uiFactory(textureService, audioService, soundLookup, vfs, &model, this),
           panelStack(),
@@ -505,6 +507,19 @@ namespace rwe
         }
     }
 
+    std::string getSideName(const MainMenuModel::PlayerSettings::Side side)
+    {
+        switch (side)
+        {
+            case MainMenuModel::PlayerSettings::Side::Arm:
+                return "ARM";
+            case MainMenuModel::PlayerSettings::Side::Core:
+                return "CORE";
+        }
+
+        throw std::logic_error("Invalid side");
+    }
+
     void MainMenuScene::startGame()
     {
         if (!model.selectedMap.getValue())
@@ -512,7 +527,21 @@ namespace rwe
             return;
         }
 
-        GameParameters p{model.selectedMap.getValue()->name, 0};
+        GameParameters params{model.selectedMap.getValue()->name, 0};
+
+        for (unsigned int i = 0; i < model.players.size(); ++i)
+        {
+            const auto& playerSlot = model.players[i];
+            if (playerSlot.type.getValue() == MainMenuModel::PlayerSettings::Type::Open)
+            {
+                params.players[i] = boost::none;
+                continue;
+            }
+
+            PlayerInfo playerInfo{getSideName(playerSlot.side.getValue())};
+            params.players[i] = std::move(playerInfo);
+        }
+
         auto scene = std::make_unique<LoadingScene>(
             vfs,
             textureService,
@@ -521,8 +550,9 @@ namespace rwe
             featureService,
             palette,
             sceneManager,
+            sideData,
             std::move(bgm),
-            p);
+            params);
 
         sceneManager->setNextScene(std::move(scene));
     }

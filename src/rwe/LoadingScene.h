@@ -12,13 +12,22 @@
 #include <rwe/ui/UiLightBar.h>
 #include <rwe/ui/UiPanel.h>
 #include "ota.h"
+#include "SideData.h"
 
 namespace rwe
 {
+    struct PlayerInfo
+    {
+        std::string side;
+    };
+
     struct GameParameters
     {
         std::string mapName;
         unsigned int schemaIndex;
+        std::array<boost::optional<PlayerInfo>, 10> players;
+
+        GameParameters(const std::string& mapName, unsigned int schemaIndex);
     };
 
     class LoadingScene : public SceneManager::Scene
@@ -33,6 +42,7 @@ namespace rwe
         MapFeatureService* featureService;
         const ColorPalette* palette;
         SceneManager* sceneManager;
+        const std::unordered_map<std::string, SideData>* sideData;
 
         AudioService::LoopToken bgm;
 
@@ -49,6 +59,7 @@ namespace rwe
             MapFeatureService* featureService,
             const ColorPalette* palette,
             SceneManager* sceneManager,
+            const std::unordered_map<std::string, SideData>* sideData,
             AudioService::LoopToken&& bgm,
             GameParameters gameParameters);
 
@@ -78,6 +89,8 @@ namespace rwe
         ShaderProgramHandle loadShader(const std::string& vertexShaderName, const std::string& fragmentShaderName, const std::vector<AttribMapping>& attribs);
 
         std::string slurpFile(const std::string& filename);
+
+        const SideData& getSideData(const std::string& side) const;
     };
 }
 

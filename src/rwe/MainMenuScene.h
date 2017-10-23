@@ -11,6 +11,7 @@
 #include <rwe/tdf/TdfBlock.h>
 #include <rwe/ui/UiFactory.h>
 #include <rwe/ui/UiPanel.h>
+#include "SideData.h"
 
 namespace rwe
 {
@@ -26,6 +27,7 @@ namespace rwe
         MapFeatureService* featureService;
         const ColorPalette* palette;
         CursorService* cursor;
+        const std::unordered_map<std::string, SideData>* sideData;
 
         MainMenuModel model;
         UiFactory uiFactory;
@@ -47,6 +49,7 @@ namespace rwe
             MapFeatureService* featureService,
             const ColorPalette* palette,
             CursorService* cursor,
+            const std::unordered_map<std::string, SideData>* sideData,
             float width,
             float height);
 

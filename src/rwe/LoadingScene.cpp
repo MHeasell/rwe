@@ -7,6 +7,12 @@
 
 namespace rwe
 {
+    GameParameters::GameParameters(const std::string& mapName, unsigned int schemaIndex)
+        : mapName(mapName),
+          schemaIndex(schemaIndex)
+    {
+    }
+
     LoadingScene::LoadingScene(
         AbstractVirtualFileSystem* vfs,
         TextureService* textureService,
@@ -15,6 +21,7 @@ namespace rwe
         MapFeatureService* featureService,
         const ColorPalette* palette,
         SceneManager* sceneManager,
+        const std::unordered_map<std::string, SideData>* sideData,
         AudioService::LoopToken&& bgm,
         GameParameters gameParameters)
         : vfs(vfs),
@@ -24,6 +31,7 @@ namespace rwe
           featureService(featureService),
           palette(palette),
           sceneManager(sceneManager),
+          sideData(sideData),
           bgm(std::move(bgm)),
           gameParameters(std::move(gameParameters))
     {
@@ -127,7 +135,17 @@ namespace rwe
             std::move(unitTextureShader),
             std::move(unitColorShader));
 
-        gameScene.spawnUnit("ARMCOM", worldStartPos);
+        for (unsigned int i = 0; i < gameParameters.players.size(); ++i)
+        {
+            const auto& player = gameParameters.players[i];
+            if (!player)
+            {
+                continue;
+            }
+
+            const auto& sideData = getSideData(player->side);
+            gameScene.spawnUnit(sideData.commander, worldStartPos);
+        }
 
         return gameScene;
     }
@@ -369,5 +387,16 @@ namespace rwe
         std::stringstream strStream;
         strStream << inFile.rdbuf();
         return strStream.str();
+    }
+
+    const SideData& LoadingScene::getSideData(const std::string& side) const
+    {
+        auto it = sideData->find(side);
+        if (it == sideData->end())
+        {
+            throw std::runtime_error("Missing side data for " + side);
+        }
+
+        return it->second;
     }
 }

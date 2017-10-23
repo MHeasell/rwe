@@ -69,6 +69,8 @@ namespace rwe
     };
 
     SideData parseSideData(const TdfBlock& tdf);
+
+    std::vector<SideData> parseSidesFromSideData(const TdfBlock& tdf);
 }
 
 #endif

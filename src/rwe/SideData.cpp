@@ -85,4 +85,23 @@ namespace rwe
 
         return s;
     }
+
+    std::vector<SideData> parseSidesFromSideData(const TdfBlock& tdf)
+    {
+        std::vector<SideData> list;
+
+        unsigned int i = 0;
+        for (;;)
+        {
+            auto block = tdf.findBlock("SIDE" + std::to_string(i));
+            if (!block)
+            {
+                return list;
+            }
+
+            list.push_back(parseSideData(*block));
+
+            ++i;
+        }
+    }
 }

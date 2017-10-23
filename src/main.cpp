@@ -78,11 +78,29 @@ namespace rwe
 
         sdlContext->showCursor(SDL_DISABLE);
 
+        auto sideDataBytes = vfs.readFile("gamedata/SIDEDATA.TDF");
+        if (!sideDataBytes)
+        {
+            throw std::runtime_error("Missing side data");
+        }
+        std::string sideDataString(sideDataBytes->data(), sideDataBytes->size());
+        std::unordered_map<std::string, SideData> sideDataMap;
+        {
+            auto sideData = parseSidesFromSideData(parseTdfFromString(sideDataString));
+            for (auto& side : sideData)
+            {
+                std::string name = side.name;
+                sideDataMap.insert({std::move(name), std::move(side)});
+            }
+        }
+
         MapFeatureService featureService(&vfs);
 
         if (mapName)
         {
             GameParameters params{*mapName, 0};
+            params.players[0] = PlayerInfo{"ARM"};
+            params.players[1] = PlayerInfo{"CORE"};
             auto scene = std::make_unique<LoadingScene>(
                 &vfs,
                 &textureService,
@@ -91,6 +109,7 @@ namespace rwe
                 &featureService,
                 &*palette,
                 &sceneManager,
+                &sideDataMap,
                 AudioService::LoopToken(),
                 params);
             sceneManager.setNextScene(std::move(scene));
@@ -107,6 +126,7 @@ namespace rwe
                 &featureService,
                 &*palette,
                 &cursor,
+                &sideDataMap,
                 640,
                 480);
             sceneManager.setNextScene(std::move(scene));
