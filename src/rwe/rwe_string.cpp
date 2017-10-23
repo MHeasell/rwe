@@ -170,4 +170,23 @@ namespace rwe
 
         return true;
     }
+
+    std::string latin1ToUtf8(const std::string& str)
+    {
+        std::string output;
+        for (auto c : str)
+        {
+            auto ch = static_cast<unsigned char>(c);
+            if (ch < 0x80)
+            {
+                output.push_back(ch);
+            }
+            else
+            {
+                output.push_back(static_cast<char>(0xc0 | ch >> 6));
+                output.push_back(static_cast<char>(0x80 | (ch & 0x3f)));
+            }
+        }
+        return output;
+    }
 }
