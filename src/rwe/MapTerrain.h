@@ -85,7 +85,7 @@ namespace rwe
          * Gets the height of the terrain at the given world coordinates.
          * If the input is outside the heightmap grid, returns 0.
          */
-        float getHeightAt(float x, float z);
+        float getHeightAt(float x, float z) const;
 
         boost::optional<Vector3f> intersectLine(const Line3f& line) const;
 

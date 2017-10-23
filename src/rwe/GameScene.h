@@ -59,6 +59,10 @@ namespace rwe
 
         void spawnUnit(const std::string& unitType, const Vector3f& position);
 
+        void setCameraPosition(const Vector3f& newPosition);
+
+        const MapTerrain& getTerrain() const;
+
     private:
         Unit createUnit(const std::string& unitType, const Vector3f& position);
     };

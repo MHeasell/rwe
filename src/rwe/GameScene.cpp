@@ -109,6 +109,16 @@ namespace rwe
         units.push_back(createUnit(unitType, position));
     }
 
+    void GameScene::setCameraPosition(const Vector3f& newPosition)
+    {
+        camera.setPosition(newPosition);
+    }
+
+    const MapTerrain& GameScene::getTerrain() const
+    {
+        return terrain;
+    }
+
     Unit GameScene::createUnit(const std::string& unitType, const Vector3f& position)
     {
         Unit unit;

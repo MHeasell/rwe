@@ -169,7 +169,7 @@ namespace rwe
             pos.z - (getHeightInWorldUnits() / 2.0f));
     }
 
-    float MapTerrain::getHeightAt(float x, float z)
+    float MapTerrain::getHeightAt(float x, float z) const
     {
         auto tilePos = worldToHeightmapCoordinate(Vector3f(x, 0.0f, z));
         if (

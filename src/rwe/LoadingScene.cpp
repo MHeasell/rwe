@@ -99,19 +99,8 @@ namespace rwe
 
         auto terrain = createMapTerrain(mapName, ota, schemaIndex);
 
-        const auto& schema = ota.schemas.at(schemaIndex);
-        auto startPosIt = std::find_if(schema.specials.begin(), schema.specials.end(), [](const OtaSpecial& s) { return s.specialWhat == "StartPos1"; });
-        if (startPosIt == schema.specials.end())
-        {
-            throw std::runtime_error("Missing StartPos1 from schema");
-        }
-        const auto& startPos = *startPosIt;
-
-        auto worldStartPos = terrain.topLeftCoordinateToWorld(Vector3f(startPos.xPos, 0.0f, startPos.zPos));
-        worldStartPos.y = terrain.getHeightAt(worldStartPos.x, worldStartPos.z);
-
         CabinetCamera camera(640.0f, 480.0f);
-        camera.setPosition(Vector3f(worldStartPos.x, 0.0f, worldStartPos.z));
+        camera.setPosition(Vector3f(0.0f, 0.0f, 0.0f));
 
         auto meshService = MeshService::createMeshService(vfs, graphics, palette);
 
@@ -135,6 +124,10 @@ namespace rwe
             std::move(unitTextureShader),
             std::move(unitColorShader));
 
+        const auto& schema = ota.schemas.at(schemaIndex);
+
+        Vector3f humanStartPos;
+
         for (unsigned int i = 0; i < gameParameters.players.size(); ++i)
         {
             const auto& player = gameParameters.players[i];
@@ -143,9 +136,30 @@ namespace rwe
                 continue;
             }
 
+            std::string startPosKey("StartPos");
+            startPosKey.append(std::to_string(i + 1));
+
+            auto startPosIt = std::find_if(schema.specials.begin(), schema.specials.end(), [&startPosKey](const OtaSpecial& s) { return s.specialWhat == startPosKey; });
+            if (startPosIt == schema.specials.end())
+            {
+                throw std::runtime_error("Missing key from schema: " + startPosKey);
+            }
+            const auto& startPos = *startPosIt;
+
+            auto worldStartPos = gameScene.getTerrain().topLeftCoordinateToWorld(Vector3f(startPos.xPos, 0.0f, startPos.zPos));
+            worldStartPos.y = gameScene.getTerrain().getHeightAt(worldStartPos.x, worldStartPos.z);
+
+            // TODO: detect which player is the human
+            if (i == 0)
+            {
+                humanStartPos = worldStartPos;
+            }
+
             const auto& sideData = getSideData(player->side);
             gameScene.spawnUnit(sideData.commander, worldStartPos);
         }
+
+        gameScene.setCameraPosition(Vector3f(humanStartPos.x, 0.0f, humanStartPos.z));
 
         return gameScene;
     }
