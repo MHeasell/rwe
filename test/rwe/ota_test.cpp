@@ -174,16 +174,16 @@ namespace rwe
             schema1.meteorDuration = 0;
             schema1.meteorInterval = 0;
             schema1.features = std::vector<OtaFeature>{
-                    {"DryMetal03", 121, 495},
-                    {"DryMetal01", 482, 455},
-                    {"DryMetal02", 460, 111},
-                    {"DryMetal03", 119, 108},
+                {"DryMetal03", 121, 495},
+                {"DryMetal01", 482, 455},
+                {"DryMetal02", 460, 111},
+                {"DryMetal03", 119, 108},
             };
             schema1.specials = std::vector<OtaSpecial>{
-                    {"StartPos1", 1776, 1536},
-                    {"StartPos2", 7488, 2016},
-                    {"StartPos3", 7632, 7408},
-                    {"StartPos4", 1856, 8096},
+                {"StartPos1", 1776, 1536},
+                {"StartPos2", 7488, 2016},
+                {"StartPos3", 7632, 7408},
+                {"StartPos4", 1856, 8096},
             };
 
             OtaRecord ota;
@@ -207,7 +207,7 @@ namespace rwe
             ota.numPlayers = "2, 3, 4, 6";
             ota.size = "19 x 19";
             ota.memory = "32 mb";
-            ota.useOnlyUnits="Painted Desert.tdf";
+            ota.useOnlyUnits = "Painted Desert.tdf";
             ota.schemaCount = 2;
             ota.schemas.push_back(schema0);
             ota.schemas.push_back(schema1);

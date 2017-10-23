@@ -38,7 +38,7 @@ namespace rwe
         {
             SECTION("constructs grid from existing data")
             {
-                Grid<int> g(3, 2, {1,2,3,4,5,6});
+                Grid<int> g(3, 2, {1, 2, 3, 4, 5, 6});
                 REQUIRE(g.get(0, 0) == 1);
                 REQUIRE(g.get(1, 0) == 2);
                 REQUIRE(g.get(2, 0) == 3);
@@ -52,7 +52,7 @@ namespace rwe
         {
             SECTION("Copies the given grid into this one")
             {
-                Grid<int> g(3, 4, {1,2,3,4,5,6,7,8,9,10,11,12});
+                Grid<int> g(3, 4, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12});
                 Grid<int> g2(2, 3, {60, 61, 62, 63, 64, 65});
 
                 g.replaceArea(1, 0, g2);
@@ -73,7 +73,7 @@ namespace rwe
 
             SECTION("Works with a transformation function")
             {
-                Grid<int> g(3, 4, {1,2,3,4,5,6,7,8,9,10,11,12});
+                Grid<int> g(3, 4, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12});
                 Grid<std::string> g2(2, 3, {"60", "61", "62", "63", "64", "65"});
 
                 g.transformAndReplaceArea<std::string>(1, 0, g2, [](const std::string& x) { return std::stoi(x); });
