@@ -184,5 +184,29 @@ namespace rwe
             auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
             REQUIRE(result == expected);
         }
+
+        // This test is sort of a kludge to help with parsing ARMSCORP.FBI,
+        // which mistakenly has the semicolon at the beginning of the property value
+        // on line 50.
+        SECTION("supports property names with newlines in them")
+        {
+
+            std::string input = R"TDF(
+    [Foo]
+    {
+        The
+        Thing=Great;
+    }
+    )TDF";
+
+            TdfBlock expected({
+                                  TdfBlockEntry("Foo", std::vector<TdfBlockEntry>{
+                                      TdfBlockEntry("The\n        Thing", "Great")
+                                  })
+                              });
+
+            auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
+            REQUIRE(result == expected);
+        }
     }
 }

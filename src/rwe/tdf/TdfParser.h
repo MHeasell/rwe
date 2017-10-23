@@ -225,7 +225,7 @@ namespace rwe
             utf8::append(*firstCodePoint, inserter);
 
             consumeComments();
-            while (auto cp = acceptNotAny(std::vector<TdfCodePoint>{'=', '\n', ';', TdfEndOfFile}))
+            while (auto cp = acceptNotAny(std::vector<TdfCodePoint>{'=', ';', TdfEndOfFile}))
             {
                 utf8::append(*cp, inserter);
                 consumeComments();
