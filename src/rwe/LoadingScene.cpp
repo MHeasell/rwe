@@ -107,15 +107,13 @@ namespace rwe
 
         auto meshService = MeshService::createMeshService(vfs, graphics, palette);
 
-        std::vector<AttribMapping> unitTextureShaderAttribs {
+        std::vector<AttribMapping> unitTextureShaderAttribs{
             AttribMapping{"position", 0},
-            AttribMapping{"texCoord", 1}
-        };
+            AttribMapping{"texCoord", 1}};
 
-        std::vector<AttribMapping> unitColorShaderAttribs {
+        std::vector<AttribMapping> unitColorShaderAttribs{
             AttribMapping{"position", 0},
-            AttribMapping{"color", 1}
-        };
+            AttribMapping{"color", 1}};
 
         SharedShaderProgramHandle unitTextureShader{loadShader("shaders/unitTexture.vert", "shaders/unitTexture.frag", unitTextureShaderAttribs)};
         SharedShaderProgramHandle unitColorShader{loadShader("shaders/unitColor.vert", "shaders/unitColor.frag", unitColorShaderAttribs)};
