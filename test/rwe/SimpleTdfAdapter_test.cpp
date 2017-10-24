@@ -200,10 +200,10 @@ namespace rwe
     )TDF";
 
             TdfBlock expected({
-                                  TdfBlockEntry("Foo", std::vector<TdfBlockEntry>{
-                                      TdfBlockEntry("The\n        Thing", "Great")
-                                  })
-                              });
+                TdfBlockEntry("Foo", std::vector<TdfBlockEntry>{
+                    TdfBlockEntry("The\n        Thing", "Great")
+                })
+            });
 
             auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
             REQUIRE(result == expected);
