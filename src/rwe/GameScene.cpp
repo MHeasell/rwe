@@ -104,11 +104,18 @@ namespace rwe
         auto dz = std::clamp(directionZ * speed, mindz, maxdz);
 
         camera.translate(Vector3f(dx, 0.0f, dz));
+
+        // run unit scripts
+        for (auto& unit : units)
+        {
+            unit.cobEnvironment->executeThreads();
+        }
     }
 
     void GameScene::spawnUnit(const std::string& unitType, const Vector3f& position)
     {
-        units.push_back(createUnit(unitType, position));
+        unsigned int unitId = units.size();
+        units.push_back(createUnit(unitId, unitType, position));
     }
 
     void GameScene::setCameraPosition(const Vector3f& newPosition)
@@ -121,14 +128,36 @@ namespace rwe
         return terrain;
     }
 
-    Unit GameScene::createUnit(const std::string& unitType, const Vector3f& position)
+    Unit GameScene::createUnit(unsigned int unitId, const std::string& unitType, const Vector3f& position)
     {
         const auto& fbi = unitDatabase.getUnitInfo(unitType);
 
-        Unit unit;
+        auto mesh = meshService.loadUnitMesh(fbi.objectName);
+
+        const auto& script = unitDatabase.getUnitScript(fbi.unitName);
+        auto cobEnv = std::make_unique<CobEnvironment>(this, &script, unitId);
+        cobEnv->createThread("Create", std::vector<int>());
+        Unit unit(mesh, std::move(cobEnv));
         unit.position = position;
-        unit.mesh = meshService.loadUnitMesh(fbi.objectName);
 
         return unit;
+    }
+
+    void GameScene::showObject(unsigned int unitId, const std::string& name)
+    {
+        auto mesh = units.at(unitId).mesh.find(name);
+        if (mesh)
+        {
+            mesh->visible = true;
+        }
+    }
+
+    void GameScene::hideObject(unsigned int unitId, const std::string& name)
+    {
+        auto mesh = units.at(unitId).mesh.find(name);
+        if (mesh)
+        {
+            mesh->visible = false;
+        }
     }
 }

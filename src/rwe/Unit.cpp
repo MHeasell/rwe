@@ -2,6 +2,10 @@
 
 namespace rwe
 {
+    Unit::Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment) : mesh(mesh), cobEnvironment(std::move(cobEnvironment))
+    {
+    }
+
     void Unit::render(
         GraphicsContext& context,
         ShaderProgramIdentifier textureShader,

@@ -77,7 +77,7 @@ namespace rwe
         }
 
         featureService->loadAllFeatureDefinitions();
-        sceneManager->setNextScene(std::make_shared<GameScene>(createGameScene(gameParameters.mapName, gameParameters.schemaIndex)));
+        sceneManager->setNextScene(createGameScene(gameParameters.mapName, gameParameters.schemaIndex));
     }
 
     void LoadingScene::render(GraphicsContext& context)
@@ -86,7 +86,7 @@ namespace rwe
         cursor->render(context);
     }
 
-    GameScene LoadingScene::createGameScene(const std::string& mapName, unsigned int schemaIndex)
+    std::unique_ptr<GameScene> LoadingScene::createGameScene(const std::string& mapName, unsigned int schemaIndex)
     {
         auto otaRaw = vfs->readFile(std::string("maps/").append(mapName).append(".ota"));
         if (!otaRaw)
@@ -117,7 +117,7 @@ namespace rwe
 
         auto unitDatabase = createUnitDatabase();
 
-        GameScene gameScene(
+        auto gameScene = std::make_unique<GameScene>(
             textureService,
             cursor,
             std::move(meshService),
@@ -149,8 +149,8 @@ namespace rwe
             }
             const auto& startPos = *startPosIt;
 
-            auto worldStartPos = gameScene.getTerrain().topLeftCoordinateToWorld(Vector3f(startPos.xPos, 0.0f, startPos.zPos));
-            worldStartPos.y = gameScene.getTerrain().getHeightAt(worldStartPos.x, worldStartPos.z);
+            auto worldStartPos = gameScene->getTerrain().topLeftCoordinateToWorld(Vector3f(startPos.xPos, 0.0f, startPos.zPos));
+            worldStartPos.y = gameScene->getTerrain().getHeightAt(worldStartPos.x, worldStartPos.z);
 
             // TODO: detect which player is the human
             if (i == 0)
@@ -159,10 +159,10 @@ namespace rwe
             }
 
             const auto& sideData = getSideData(player->side);
-            gameScene.spawnUnit(sideData.commander, worldStartPos);
+            gameScene->spawnUnit(sideData.commander, worldStartPos);
         }
 
-        gameScene.setCameraPosition(Vector3f(humanStartPos.x, 0.0f, humanStartPos.z));
+        gameScene->setCameraPosition(Vector3f(humanStartPos.x, 0.0f, humanStartPos.z));
 
         return gameScene;
     }
@@ -419,22 +419,46 @@ namespace rwe
 
     UnitDatabase LoadingScene::createUnitDatabase()
     {
-        auto fbis = vfs->getFileNames("units", ".fbi");
-
         UnitDatabase db;
 
-        for (const auto& fbiName : fbis)
+        // read unit FBIs
         {
-            auto bytes = vfs->readFile("units/" + fbiName);
-            if (!bytes)
+            auto fbis = vfs->getFileNames("units", ".fbi");
+
+            for (const auto& fbiName : fbis)
             {
-                throw std::runtime_error("File in listing could not be read: " + fbiName);
+                auto bytes = vfs->readFile("units/" + fbiName);
+                if (!bytes)
+                {
+                    throw std::runtime_error("File in listing could not be read: " + fbiName);
+                }
+
+                std::string fbiString(bytes->data(), bytes->size());
+                auto fbi = parseUnitFbi(parseTdfFromString(fbiString));
+
+                db.addUnitInfo(fbi.unitName, fbi);
             }
+        }
 
-            std::string fbiString(bytes->data(), bytes->size());
-            auto fbi = parseUnitFbi(parseTdfFromString(fbiString));
+        // read unit scripts
+        {
+            auto scripts = vfs->getFileNames("scripts", ".cob");
 
-            db.addUnitInfo(fbi.unitName, fbi);
+            for (const auto& scriptName : scripts)
+            {
+                auto bytes = vfs->readFile("scripts/" + scriptName);
+                if (!bytes)
+                {
+                    throw std::runtime_error("File in listing could not be read: " + scriptName);
+                }
+
+                boost::interprocess::bufferstream s(bytes->data(), bytes->size());
+                auto cob = parseCob(s);
+
+                auto scriptNameWithoutExtension = scriptName.substr(0, scriptName.size() - 4);
+
+                db.addUnitScript(scriptNameWithoutExtension, std::move(cob));
+            }
         }
 
         return db;

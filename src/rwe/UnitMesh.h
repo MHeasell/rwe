@@ -14,6 +14,7 @@ namespace rwe
         Vector3f origin;
         std::shared_ptr<ShaderMesh> mesh;
         std::vector<UnitMesh> children;
+        bool visible{true};
 
         void render(
             GraphicsContext& context,
@@ -22,6 +23,8 @@ namespace rwe
             const Matrix4f& modelMatrix,
             const Matrix4f& viewMatrix,
             const Matrix4f& projectionMatrix) const;
+
+        boost::optional<UnitMesh&> find(const std::string& pieceName);
     };
 }
 

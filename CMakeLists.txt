@@ -59,6 +59,8 @@ set(SOURCE_FILES
     src/rwe/AudioService.h
     src/rwe/BoxTreeSplit.cpp
     src/rwe/BoxTreeSplit.h
+    src/rwe/Cob.cpp
+    src/rwe/Cob.h
     src/rwe/ColorPalette.cpp
     src/rwe/ColorPalette.h
     src/rwe/CursorService.cpp
@@ -133,6 +135,10 @@ set(SOURCE_FILES
     src/rwe/camera/CabinetCamera.h
     src/rwe/camera/UiCamera.cpp
     src/rwe/camera/UiCamera.h
+    src/rwe/cob/CobEnvironment.cpp
+    src/rwe/cob/CobEnvironment.h
+    src/rwe/cob/CobThread.cpp
+    src/rwe/cob/CobThread.h
     src/rwe/events.cpp
     src/rwe/events.h
     src/rwe/geometry/BoundingBox3f.cpp

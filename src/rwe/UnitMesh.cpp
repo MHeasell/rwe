@@ -13,11 +13,33 @@ namespace rwe
     {
         auto matrix = modelMatrix * Matrix4f::translation(origin);
 
-        context.drawShaderMesh(*mesh, textureShader, colorShader, matrix, viewMatrix, projectionMatrix);
+        if (visible)
+        {
+            context.drawShaderMesh(*mesh, textureShader, colorShader, matrix, viewMatrix, projectionMatrix);
+        }
 
         for (const auto& c : children)
         {
             c.render(context, textureShader, colorShader, matrix, viewMatrix, projectionMatrix);
         }
+    }
+
+    boost::optional<UnitMesh&> UnitMesh::find(const std::string& pieceName)
+    {
+        if (pieceName == name)
+        {
+            return *this;
+        }
+
+        for (auto& c : children)
+        {
+            auto piece = c.find(pieceName);
+            if (piece)
+            {
+                return piece;
+            }
+        }
+
+        return boost::none;
     }
 }

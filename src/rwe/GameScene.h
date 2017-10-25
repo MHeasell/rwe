@@ -67,8 +67,12 @@ namespace rwe
 
         const MapTerrain& getTerrain() const;
 
+        void showObject(unsigned int unitId, const std::string& name);
+
+        void hideObject(unsigned int unitId, const std::string& name);
+
     private:
-        Unit createUnit(const std::string& unitType, const Vector3f& position);
+        Unit createUnit(unsigned int unitId, const std::string& unitType, const Vector3f& position);
     };
 }
 

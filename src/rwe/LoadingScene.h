@@ -71,7 +71,7 @@ namespace rwe
     private:
         static unsigned int computeMidpointHeight(const Grid<unsigned char>& heightmap, std::size_t x, std::size_t y);
 
-        GameScene createGameScene(const std::string& mapName, unsigned int schemaIndex);
+        std::unique_ptr<GameScene> createGameScene(const std::string& mapName, unsigned int schemaIndex);
 
         MapTerrain createMapTerrain(const std::string& mapName, const rwe::OtaRecord& ota, unsigned int schemaIndex);
 
