@@ -1,3 +1,4 @@
+#include <cmath>
 #include "Matrix4f.h"
 
 namespace rwe
@@ -237,6 +238,93 @@ namespace rwe
             int row = i % 4;
             m.data[(row * 4) + col] = data[i];
         }
+
+        return m;
+    }
+
+    Matrix4f Matrix4f::rotationX(float angle)
+    {
+        Matrix4f m;
+        float s = std::sin(angle);
+        float c = std::cos(angle);
+
+        m.data[0] = 1.0f;
+        m.data[1] = 0.0f;
+        m.data[2] = 0.0f;
+        m.data[3] = 0.0f;
+
+        m.data[4] = 0.0f;
+        m.data[5] = c;
+        m.data[6] = s;
+        m.data[7] = 0.0f;
+
+        m.data[8] = 0.0f;
+        m.data[9] = -s;
+        m.data[10] = c;
+        m.data[11] = 0.0f;
+
+        m.data[12] = 0.0f;
+        m.data[13] = 0.0f;
+        m.data[14] = 0.0f;
+        m.data[15] = 1.0f;
+
+        return m;
+    }
+
+    Matrix4f Matrix4f::rotationY(float angle)
+    {
+        Matrix4f m;
+        float s = std::sin(angle);
+        float c = std::cos(angle);
+
+        m.data[0] = c;
+        m.data[1] = 0.0f;
+        m.data[2] = -s;
+        m.data[3] = 0.0f;
+
+        m.data[4] = 0.0f;
+        m.data[5] = 1.0f;
+        m.data[6] = 0.0f;
+        m.data[7] = 0.0f;
+
+        m.data[8] = s;
+        m.data[9] = 0.0f;
+        m.data[10] = c;
+        m.data[11] = 0.0f;
+
+        m.data[12] = 0.0f;
+        m.data[13] = 0.0f;
+        m.data[14] = 0.0f;
+        m.data[15] = 1.0f;
+
+        return m;
+    }
+
+    Matrix4f Matrix4f::rotationZ(float angle)
+    {
+        Matrix4f m;
+        float s = std::sin(angle);
+        float c = std::cos(angle);
+
+        m.data[0] = c;
+        m.data[1] = s;
+        m.data[2] = 0.0f;
+        m.data[3] = 0.0f;
+
+        m.data[4] = -s;
+        m.data[5] = c;
+        m.data[6] = 0.0f;
+        m.data[7] = 0.0f;
+
+        m.data[8] = 0.0f;
+        m.data[9] = 0.0f;
+        m.data[10] = 1.0f;
+        m.data[11] = 0.0f;
+
+        m.data[12] = 0.0f;
+        m.data[13] = 0.0f;
+        m.data[14] = 0.0f;
+        m.data[15] = 1.0f;
 
         return m;
     }

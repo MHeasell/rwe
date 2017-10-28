@@ -16,6 +16,13 @@ namespace rwe
         static Matrix4f inverseOrthographicProjection(float left, float right, float bottom, float top, float nearVal, float farVal);
         static Matrix4f rotationToAxes(const Vector3f& side, const Vector3f& up, const Vector3f& forward);
 
+        /** Anti-clockwise rotation about the X axis. */
+        static Matrix4f rotationX(float angle);
+        /** Anti-clockwise rotation about the Y axis. */
+        static Matrix4f rotationY(float angle);
+        /** Anti-clockwise rotation about the Z axis. */
+        static Matrix4f rotationZ(float angle);
+
         /**
          * Elements are stored in column-major order,
          * i.e. the array is indexed E[(column * column_length) + row] or E[(x * height) + y].
