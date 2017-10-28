@@ -23,6 +23,8 @@ namespace rwe
         /** Anti-clockwise rotation about the Z axis. */
         static Matrix4f rotationZ(float angle);
 
+        static Matrix4f rotationXYZ(const Vector3f& angles);
+
         /**
          * Elements are stored in column-major order,
          * i.e. the array is indexed E[(column * column_length) + row] or E[(x * height) + y].
