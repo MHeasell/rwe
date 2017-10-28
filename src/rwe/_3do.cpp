@@ -3,24 +3,6 @@
 
 namespace rwe
 {
-    std::string readNullTerminatedString(std::istream& stream)
-    {
-        char c;
-
-        std::string result;
-
-        for (;;)
-        {
-            stream.read(&c, 1);
-            if (stream.fail() || c == '\0')
-            {
-                return result;
-            }
-
-            result.push_back(c);
-        }
-    }
-
     std::vector<_3do::Object> parse3doObjects(std::istream& stream, std::istream::pos_type offset)
     {
         std::vector<_3do::Object> outputObjects;

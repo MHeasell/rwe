@@ -149,6 +149,7 @@ set(SOURCE_FILES
     src/rwe/geometry/Triangle3f.h
     src/rwe/gui.cpp
     src/rwe/gui.h
+    src/rwe/io_utils.cpp
     src/rwe/io_utils.h
     src/rwe/math/Matrix4f.cpp
     src/rwe/math/Matrix4f.h

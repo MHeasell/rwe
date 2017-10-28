@@ -14,6 +14,9 @@ namespace rwe
         assert(!stream.fail());
         return val;
     }
+
+    std::string readNullTerminatedString(std::istream& stream);
+
 }
 
 #endif
