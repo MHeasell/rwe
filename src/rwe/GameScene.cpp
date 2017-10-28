@@ -160,4 +160,15 @@ namespace rwe
             mesh->visible = false;
         }
     }
+
+    void
+    GameScene::moveObject(unsigned int unitId, const std::string& name, Axis axis, float position, float speed)
+    {
+        units.at(unitId).moveObject(name, axis, position, speed);
+    }
+
+    bool GameScene::isPieceMoving(unsigned int unitId, const std::string& name, Axis axis) const
+    {
+        return units.at(unitId).isMoveInProgress(name, axis);
+    }
 }

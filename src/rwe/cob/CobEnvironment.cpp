@@ -45,6 +45,35 @@ namespace rwe
 
     void CobEnvironment::executeThreads()
     {
+        // check if any blocked threads can be unblocked
+        std::vector<CobThread*> tempQueue;
+        for (const auto& t : blockedQueue)
+        {
+            const auto& status = boost::get<CobThread::BlockedStatus>(t->getStatus());
+
+            {
+                auto moveCondition = boost::get<CobThread::BlockedStatus::Move>(&(status.condition));
+                if (moveCondition != nullptr)
+                {
+                    const auto& pieceName = _script->pieces.at(moveCondition->object);
+                    if (!scene->isPieceMoving(unitId, pieceName, moveCondition->axis))
+                    {
+                        tempQueue.push_back(t);
+                    }
+                }
+            }
+        }
+
+        // move unblocked threads back into the ready queue
+        for (const auto& t : tempQueue)
+        {
+            auto it = std::find(blockedQueue.begin(), blockedQueue.end(), t);
+            blockedQueue.erase(it);
+            readyQueue.push_back(t);
+            t->setReady();
+        }
+
+        // execute ready threads
         while (!readyQueue.empty())
         {
             auto thread = readyQueue.front();
@@ -52,18 +81,7 @@ namespace rwe
 
             thread->execute();
 
-            switch (thread->getStatus())
-            {
-                case CobThread::Status::Ready:
-                    readyQueue.push_back(thread);
-                    break;
-                case CobThread::Status::Blocked:
-                    blockedQueue.push_back(thread);
-                    break;
-                case CobThread::Status::Finished:
-                    deleteThread(thread);
-                    break;
-            }
+            boost::apply_visitor(ThreadRescheduleVisitor(this, thread),  thread->getStatus());
         }
     }
 
@@ -74,5 +92,11 @@ namespace rwe
         {
             threads.erase(it);
         }
+    }
+
+    void CobEnvironment::moveObject(unsigned int objectId, Axis axis, float position, float speed)
+    {
+        const auto& pieceName = _script->pieces.at(objectId);
+        scene->moveObject(unitId, pieceName, axis, position, speed);
     }
 }

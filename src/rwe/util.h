@@ -6,6 +6,13 @@
 
 namespace rwe
 {
+    enum class Axis
+    {
+        X,
+        Y,
+        Z
+    };
+
     boost::optional<boost::filesystem::path> getSearchPath();
 }
 

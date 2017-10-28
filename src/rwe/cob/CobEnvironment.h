@@ -5,6 +5,8 @@
 #include <memory>
 #include <rwe/Cob.h>
 #include <rwe/cob/CobThread.h>
+#include <boost/variant.hpp>
+
 
 namespace rwe
 {
@@ -12,6 +14,33 @@ namespace rwe
 
     class CobEnvironment
     {
+    private:
+        class ThreadRescheduleVisitor : public boost::static_visitor<>
+        {
+        private:
+            CobEnvironment* env;
+            CobThread* thread;
+
+        public:
+            ThreadRescheduleVisitor(CobEnvironment* env, CobThread* thread) : env(env), thread(thread)
+            {
+            }
+
+            void operator()(const CobThread::ReadyStatus&) const
+            {
+                env->readyQueue.push_back(thread);
+            }
+
+            void operator()(const CobThread::BlockedStatus&) const
+            {
+                env->blockedQueue.push_back(thread);
+            }
+            void operator()(const CobThread::FinishedStatus&) const
+            {
+                env->deleteThread(thread);
+            }
+        };
+
     private:
         GameScene* scene;
         const CobScript* _script;
@@ -51,6 +80,8 @@ namespace rwe
         void showObject(unsigned int objectId);
 
         void hideObject(unsigned int objectId);
+
+        void moveObject(unsigned int objectId, Axis axis, float position, float speed);
 
         void createThread(unsigned int functionId, const std::vector<int>& params);
 

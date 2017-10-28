@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <stack>
+#include <rwe/util.h>
+#include <boost/variant.hpp>
 
 namespace rwe
 {
@@ -11,12 +13,57 @@ namespace rwe
     class CobThread
     {
     public:
-        enum class Status
+        struct ReadyStatus
         {
-            Ready,
-            Blocked,
-            Finished
         };
+        struct BlockedStatus
+        {
+            struct Move
+            {
+                unsigned int object;
+                Axis axis;
+
+                Move(unsigned int object, Axis axis) : object(object), axis(axis)
+                {
+                }
+            };
+
+            struct Turn
+            {
+                unsigned int object;
+                Axis axis;
+
+                Turn(unsigned int object, Axis axis) : object(object), axis(axis)
+                {
+                }
+            };
+
+            struct Sleep
+            {
+                float time;
+
+                explicit Sleep(float time) : time(time)
+                {
+                }
+            };
+
+            using Condition = boost::variant<Move, Turn, Sleep>;
+
+            Condition condition;
+
+        public:
+            explicit BlockedStatus(const Condition& condition) : condition(condition) {}
+        };
+        struct FinishedStatus
+        {
+        };
+
+        using Status = boost::variant<ReadyStatus, BlockedStatus, FinishedStatus>;
+
+        static bool isReady(const Status& s)
+        {
+            return boost::get<ReadyStatus>(&s) != nullptr;
+        }
 
     private:
         static const int CobTrue = 1;
@@ -29,7 +76,7 @@ namespace rwe
         std::stack<std::vector<int>> locals;
         unsigned int instructionIndex{0};
 
-        Status status{Status::Ready};
+        Status status{ReadyStatus()};
 
     public:
         explicit CobThread(CobEnvironment* env);
@@ -38,7 +85,9 @@ namespace rwe
 
         void execute();
 
-        Status getStatus() const;
+        const Status& getStatus() const;
+
+        void setReady();
 
     private:
         // utility
@@ -158,9 +207,12 @@ namespace rwe
 
         // non-commands
         int pop();
+        float popPosition();
+        float popSpeed();
         void push(int val);
 
         unsigned int nextInstruction();
+        Axis nextInstructionAsAxis();
 
         void dispatchInstruction(unsigned int instruction);
     };

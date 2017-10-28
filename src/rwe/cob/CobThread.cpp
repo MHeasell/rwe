@@ -1,5 +1,6 @@
 #include "CobThread.h"
 #include <rwe/cob/CobEnvironment.h>
+#include <boost/variant.hpp>
 
 namespace rwe
 {
@@ -73,12 +74,12 @@ namespace rwe
 
     void CobThread::execute()
     {
-        while (instructionIndex < env->script()->instructions.size() && status == Status::Ready)
+        while (instructionIndex < env->script()->instructions.size() && isReady(status))
         {
             dispatchInstruction(nextInstruction());
         }
 
-        status = Status::Finished;
+        status = FinishedStatus();
     }
 
     void CobThread::add()
@@ -397,10 +398,10 @@ namespace rwe
     void CobThread::moveObject()
     {
         auto object = nextInstruction();
-        auto axis = nextInstruction();
-        auto position = pop();
-        auto speed = pop();
-        // TODO: this
+        auto axis = nextInstructionAsAxis();
+        auto position = popPosition();
+        auto speed = popSpeed();
+        env->moveObject(object, axis, position, speed);
     }
 
     void CobThread::moveObjectNow()
@@ -511,27 +512,25 @@ namespace rwe
     void CobThread::waitForMove()
     {
         auto object = nextInstruction();
-        auto axis = nextInstruction();
+        auto axis = nextInstructionAsAxis();
 
-        status = Status::Blocked;
-        // TODO: ask outside world to wake us up later
+        status = BlockedStatus(BlockedStatus::Move(object, axis));
     }
 
     void CobThread::waitForTurn()
     {
         auto object = nextInstruction();
-        auto axis = nextInstruction();
+        auto axis = nextInstructionAsAxis();
 
-        status = Status::Blocked;
-        // TODO: ask outside world to wake us up later
+        status = BlockedStatus(BlockedStatus::Turn(object, axis));
     }
 
     void CobThread::sleep()
     {
         auto duration = pop();
 
-        status = Status::Blocked;
-        // TODO: ask outside world to wake us up later
+        // TODO: set up sleep duration properly
+        status = BlockedStatus(BlockedStatus::Sleep(1000.0f));
     }
 
     void CobThread::startScript()
@@ -622,8 +621,41 @@ namespace rwe
         instructionIndex = functionInfo.address;
     }
 
-    CobThread::Status CobThread::getStatus() const
+    const CobThread::Status& CobThread::getStatus() const
     {
         return status;
+    }
+
+    float CobThread::popPosition()
+    {
+        auto val = pop();
+        return static_cast<float>(val);
+    }
+
+    float CobThread::popSpeed()
+    {
+        auto val = pop();
+        return static_cast<float>(val) / 65536.0f;
+    }
+
+    Axis CobThread::nextInstructionAsAxis()
+    {
+        auto val = nextInstruction();
+        switch (val)
+        {
+            case 0:
+                return Axis::X;
+            case 1:
+                return Axis::Y;
+            case 2:
+                return Axis::Z;
+            default:
+                throw std::runtime_error("Invalid axis: " + std::to_string(val));
+        }
+    }
+
+    void CobThread::setReady()
+    {
+        status = ReadyStatus();
     }
 }

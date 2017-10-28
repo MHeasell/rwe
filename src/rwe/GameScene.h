@@ -71,6 +71,10 @@ namespace rwe
 
         void hideObject(unsigned int unitId, const std::string& name);
 
+        void moveObject(unsigned int unitId, const std::string& name, Axis axis, float position, float speed);
+
+        bool isPieceMoving(unsigned int unitId, const std::string& name, Axis axis) const;
+
     private:
         Unit createUnit(unsigned int unitId, const std::string& unitType, const Vector3f& position);
     };
