@@ -22,7 +22,7 @@ function(target_copy_dll target dll)
     if(WIN32)
         find_program("${dll}_DLL" ${dll})
 
-        if("${dll}_DLL" STREQUAL "${dll}_DLL-NOTFOUND")
+        if("${${dll}_DLL}" STREQUAL "${dll}_DLL-NOTFOUND")
             message(FATAL_ERROR "${dll} not found")
         endif()
 
