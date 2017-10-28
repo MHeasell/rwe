@@ -36,10 +36,10 @@ namespace rwe
     }
 
     CobEnvironment::CobEnvironment(
-            GameScene* scene,
-            const CobScript* script,
-            unsigned int unitId)
-            : scene(scene), _script(script), unitId(unitId), _statics(script->staticVariableCount)
+        GameScene* scene,
+        const CobScript* script,
+        unsigned int unitId)
+        : scene(scene), _script(script), unitId(unitId), _statics(script->staticVariableCount)
     {
     }
 
@@ -69,7 +69,7 @@ namespace rwe
 
     void CobEnvironment::deleteThread(const CobThread* thread)
     {
-        auto it = std::find_if(threads.begin(), threads.end(), [thread](const auto& t){ return t.get() == thread; });
+        auto it = std::find_if(threads.begin(), threads.end(), [thread](const auto& t) { return t.get() == thread; });
         if (it != threads.end())
         {
             threads.erase(it);

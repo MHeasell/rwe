@@ -16,7 +16,6 @@ namespace rwe
     }
 
     std::string readNullTerminatedString(std::istream& stream);
-
 }
 
 #endif

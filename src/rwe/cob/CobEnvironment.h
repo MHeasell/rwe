@@ -33,7 +33,6 @@ namespace rwe
         CobEnvironment& operator=(CobEnvironment&& other) = delete;
 
     public:
-
         int getStatic(unsigned int id)
         {
             return _statics.at(id);

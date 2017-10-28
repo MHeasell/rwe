@@ -608,7 +608,7 @@ namespace rwe
     }
 
     CobThread::CobThread(CobEnvironment* env)
-            : env(env)
+        : env(env)
     {
     }
 

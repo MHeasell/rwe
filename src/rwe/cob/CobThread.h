@@ -17,6 +17,7 @@ namespace rwe
             Blocked,
             Finished
         };
+
     private:
         static const int CobTrue = 1;
         static const int CobFalse = 0;
