@@ -58,5 +58,7 @@ namespace rwe
             case Axis::Z:
                 return !!(piece->zMoveOperation);
         }
+
+        throw std::logic_error("Invalid axis");
     }
 }

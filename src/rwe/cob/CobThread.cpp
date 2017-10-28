@@ -1,6 +1,7 @@
 #include "CobThread.h"
 #include <rwe/cob/CobEnvironment.h>
 #include <boost/variant.hpp>
+#include <rwe/SceneManager.h>
 
 namespace rwe
 {
@@ -529,8 +530,10 @@ namespace rwe
     {
         auto duration = pop();
 
-        // TODO: set up sleep duration properly
-        status = BlockedStatus(BlockedStatus::Sleep(1000.0f));
+        auto ticksToWait = (duration / SceneManager::TickInterval) + (duration % SceneManager::TickInterval == 0 ? 0 : 1);
+        auto currentTime = env->getGameTime();
+
+        status = BlockedStatus(BlockedStatus::Sleep(currentTime + ticksToWait));
     }
 
     void CobThread::startScript()

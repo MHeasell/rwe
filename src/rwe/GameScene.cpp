@@ -85,6 +85,8 @@ namespace rwe
 
     void GameScene::update()
     {
+        gameTime += 1;
+
         float secondsElapsed = static_cast<float>(SceneManager::TickInterval) / 1000.0f;
         const float speed = CameraPanSpeed * secondsElapsed;
         int directionX = (right ? 1 : 0) - (left ? 1 : 0);
@@ -170,5 +172,10 @@ namespace rwe
     bool GameScene::isPieceMoving(unsigned int unitId, const std::string& name, Axis axis) const
     {
         return units.at(unitId).isMoveInProgress(name, axis);
+    }
+
+    unsigned int GameScene::getGameTime() const
+    {
+        return gameTime;
     }
 }

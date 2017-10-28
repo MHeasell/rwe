@@ -41,6 +41,23 @@ namespace rwe
             }
         };
 
+        class BlockCheckVisitor : public boost::static_visitor<bool>
+        {
+        private:
+            CobEnvironment* env;
+
+        public:
+            explicit BlockCheckVisitor(CobEnvironment* env) : env(env)
+            {
+            }
+
+            bool operator()(const CobThread::BlockedStatus::Move& condition) const;
+
+            bool operator()(const CobThread::BlockedStatus::Turn& condition) const;
+
+            bool operator()(const CobThread::BlockedStatus::Sleep& condition) const;
+        };
+
     private:
         GameScene* scene;
         const CobScript* _script;
@@ -86,6 +103,8 @@ namespace rwe
         void createThread(unsigned int functionId, const std::vector<int>& params);
 
         void createThread(const std::string& functionName, const std::vector<int>& params);
+
+        unsigned int getGameTime() const;
 
         void executeThreads();
 

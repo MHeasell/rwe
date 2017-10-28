@@ -40,9 +40,9 @@ namespace rwe
 
             struct Sleep
             {
-                float time;
+                unsigned int wakeUpTime;
 
-                explicit Sleep(float time) : time(time)
+                explicit Sleep(unsigned int wakeUpTime) : wakeUpTime(wakeUpTime)
                 {
                 }
             };

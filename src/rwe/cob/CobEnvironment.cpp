@@ -3,6 +3,23 @@
 
 namespace rwe
 {
+    bool CobEnvironment::BlockCheckVisitor::operator()(const CobThread::BlockedStatus::Move& condition) const
+    {
+        const auto& pieceName = env->_script->pieces.at(condition.object);
+        return !env->scene->isPieceMoving(env->unitId, pieceName, condition.axis);
+    }
+
+    bool CobEnvironment::BlockCheckVisitor::operator()(const CobThread::BlockedStatus::Turn& condition) const
+    {
+        // TODO: implement this
+        return false;
+    }
+
+    bool CobEnvironment::BlockCheckVisitor::operator()(const CobThread::BlockedStatus::Sleep& condition) const
+    {
+        return env->getGameTime() >= condition.wakeUpTime;
+    }
+
     void CobEnvironment::showObject(unsigned int objectId)
     {
         const auto& pieceName = _script->pieces.at(objectId);
@@ -51,16 +68,10 @@ namespace rwe
         {
             const auto& status = boost::get<CobThread::BlockedStatus>(t->getStatus());
 
+            auto isUnblocked = boost::apply_visitor(BlockCheckVisitor(this), status.condition);
+            if (isUnblocked)
             {
-                auto moveCondition = boost::get<CobThread::BlockedStatus::Move>(&(status.condition));
-                if (moveCondition != nullptr)
-                {
-                    const auto& pieceName = _script->pieces.at(moveCondition->object);
-                    if (!scene->isPieceMoving(unitId, pieceName, moveCondition->axis))
-                    {
-                        tempQueue.push_back(t);
-                    }
-                }
+                tempQueue.push_back(t);
             }
         }
 
@@ -98,5 +109,10 @@ namespace rwe
     {
         const auto& pieceName = _script->pieces.at(objectId);
         scene->moveObject(unitId, pieceName, axis, position, speed);
+    }
+
+    unsigned int CobEnvironment::getGameTime() const
+    {
+        return scene->getGameTime();
     }
 }
