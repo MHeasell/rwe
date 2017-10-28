@@ -110,6 +110,7 @@ namespace rwe
         // run unit scripts
         for (auto& unit : units)
         {
+            unit.mesh.update(secondsElapsed);
             unit.cobEnvironment->executeThreads();
         }
     }
