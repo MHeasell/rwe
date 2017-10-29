@@ -3,6 +3,23 @@
 
 namespace rwe
 {
+    bool CobEnvironment::BlockCheckVisitor::operator()(const CobThread::BlockedStatus::Move& condition) const
+    {
+        const auto& pieceName = env->_script->pieces.at(condition.object);
+        return !env->scene->isPieceMoving(env->unitId, pieceName, condition.axis);
+    }
+
+    bool CobEnvironment::BlockCheckVisitor::operator()(const CobThread::BlockedStatus::Turn& condition) const
+    {
+        const auto& pieceName = env->_script->pieces.at(condition.object);
+        return !env->scene->isPieceTurning(env->unitId, pieceName, condition.axis);
+    }
+
+    bool CobEnvironment::BlockCheckVisitor::operator()(const CobThread::BlockedStatus::Sleep& condition) const
+    {
+        return env->getGameTime() >= condition.wakeUpTime;
+    }
+
     void CobEnvironment::showObject(unsigned int objectId)
     {
         const auto& pieceName = _script->pieces.at(objectId);
@@ -45,6 +62,29 @@ namespace rwe
 
     void CobEnvironment::executeThreads()
     {
+        // check if any blocked threads can be unblocked
+        std::vector<CobThread*> tempQueue;
+        for (const auto& t : blockedQueue)
+        {
+            const auto& status = boost::get<CobThread::BlockedStatus>(t->getStatus());
+
+            auto isUnblocked = boost::apply_visitor(BlockCheckVisitor(this), status.condition);
+            if (isUnblocked)
+            {
+                tempQueue.push_back(t);
+            }
+        }
+
+        // move unblocked threads back into the ready queue
+        for (const auto& t : tempQueue)
+        {
+            auto it = std::find(blockedQueue.begin(), blockedQueue.end(), t);
+            blockedQueue.erase(it);
+            readyQueue.push_back(t);
+            t->setReady();
+        }
+
+        // execute ready threads
         while (!readyQueue.empty())
         {
             auto thread = readyQueue.front();
@@ -52,18 +92,7 @@ namespace rwe
 
             thread->execute();
 
-            switch (thread->getStatus())
-            {
-                case CobThread::Status::Ready:
-                    readyQueue.push_back(thread);
-                    break;
-                case CobThread::Status::Blocked:
-                    blockedQueue.push_back(thread);
-                    break;
-                case CobThread::Status::Finished:
-                    deleteThread(thread);
-                    break;
-            }
+            boost::apply_visitor(ThreadRescheduleVisitor(this, thread),  thread->getStatus());
         }
     }
 
@@ -74,5 +103,34 @@ namespace rwe
         {
             threads.erase(it);
         }
+    }
+
+    void CobEnvironment::moveObject(unsigned int objectId, Axis axis, float position, float speed)
+    {
+        const auto& pieceName = _script->pieces.at(objectId);
+        scene->moveObject(unitId, pieceName, axis, position, speed);
+    }
+
+    void CobEnvironment::moveObjectNow(unsigned int objectId, Axis axis, float position)
+    {
+        const auto& pieceName = _script->pieces.at(objectId);
+        scene->moveObjectNow(unitId, pieceName, axis, position);
+    }
+
+    void CobEnvironment::turnObject(unsigned int objectId, Axis axis, float angle, float speed)
+    {
+        const auto& pieceName = _script->pieces.at(objectId);
+        scene->turnObject(unitId, pieceName, axis, angle, speed);
+    }
+
+    void CobEnvironment::turnObjectNow(unsigned int objectId, Axis axis, float angle)
+    {
+        const auto& pieceName = _script->pieces.at(objectId);
+        scene->turnObjectNow(unitId, pieceName, axis, angle);
+    }
+
+    unsigned int CobEnvironment::getGameTime() const
+    {
+        return scene->getGameTime();
     }
 }

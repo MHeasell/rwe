@@ -5,6 +5,7 @@
 #include "GraphicsContext.h"
 #include <memory>
 #include <rwe/cob/CobEnvironment.h>
+#include <boost/optional.hpp>
 
 namespace rwe
 {
@@ -16,6 +17,18 @@ namespace rwe
         std::unique_ptr<CobEnvironment> cobEnvironment;
 
         Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment);
+
+        void moveObject(const std::string& pieceName, Axis axis, float targetPosition, float speed);
+
+        void moveObjectNow(const std::string& pieceName, Axis axis, float targetPosition);
+
+        void turnObject(const std::string& pieceName, Axis axis, float targetAngle, float speed);
+
+        void turnObjectNow(const std::string& pieceName, Axis axis, float targetAngle);
+
+        bool isMoveInProgress(const std::string& pieceName, Axis axis) const;
+
+        bool isTurnInProgress(const std::string& pieceName, Axis axis) const;
 
         void render(
             GraphicsContext& context,

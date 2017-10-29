@@ -42,6 +42,8 @@ namespace rwe
 
         UnitDatabase unitDatabase;
 
+        unsigned int gameTime{0};
+
     public:
         GameScene(
             TextureService* textureService,
@@ -70,6 +72,20 @@ namespace rwe
         void showObject(unsigned int unitId, const std::string& name);
 
         void hideObject(unsigned int unitId, const std::string& name);
+
+        void moveObject(unsigned int unitId, const std::string& name, Axis axis, float position, float speed);
+
+        void moveObjectNow(unsigned int unitId, const std::string& name, Axis axis, float position);
+
+        void turnObject(unsigned int unitId, const std::string& name, Axis axis, float angle, float speed);
+
+        void turnObjectNow(unsigned int unitId, const std::string& name, Axis axis, float angle);
+
+        bool isPieceMoving(unsigned int unitId, const std::string& name, Axis axis) const;
+
+        bool isPieceTurning(unsigned int unitId, const std::string& name, Axis axis) const;
+
+        unsigned int getGameTime() const;
 
     private:
         Unit createUnit(unsigned int unitId, const std::string& unitType, const Vector3f& position);

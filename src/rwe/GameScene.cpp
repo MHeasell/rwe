@@ -85,6 +85,8 @@ namespace rwe
 
     void GameScene::update()
     {
+        gameTime += 1;
+
         float secondsElapsed = static_cast<float>(SceneManager::TickInterval) / 1000.0f;
         const float speed = CameraPanSpeed * secondsElapsed;
         int directionX = (right ? 1 : 0) - (left ? 1 : 0);
@@ -108,6 +110,7 @@ namespace rwe
         // run unit scripts
         for (auto& unit : units)
         {
+            unit.mesh.update(secondsElapsed);
             unit.cobEnvironment->executeThreads();
         }
     }
@@ -159,5 +162,41 @@ namespace rwe
         {
             mesh->visible = false;
         }
+    }
+
+    void
+    GameScene::moveObject(unsigned int unitId, const std::string& name, Axis axis, float position, float speed)
+    {
+        units.at(unitId).moveObject(name, axis, position, speed);
+    }
+
+    void GameScene::moveObjectNow(unsigned int unitId, const std::string& name, Axis axis, float position)
+    {
+        units.at(unitId).moveObjectNow(name, axis, position);
+    }
+
+    void GameScene::turnObject(unsigned int unitId, const std::string& name, Axis axis, float angle, float speed)
+    {
+        units.at(unitId).turnObject(name, axis, angle, speed);
+    }
+
+    void GameScene::turnObjectNow(unsigned int unitId, const std::string& name, Axis axis, float angle)
+    {
+        units.at(unitId).turnObjectNow(name, axis, angle);
+    }
+
+    bool GameScene::isPieceMoving(unsigned int unitId, const std::string& name, Axis axis) const
+    {
+        return units.at(unitId).isMoveInProgress(name, axis);
+    }
+
+    unsigned int GameScene::getGameTime() const
+    {
+        return gameTime;
+    }
+
+    bool GameScene::isPieceTurning(unsigned int unitId, const std::string& name, Axis axis) const
+    {
+        return units.at(unitId).isTurnInProgress(name, axis);
     }
 }
