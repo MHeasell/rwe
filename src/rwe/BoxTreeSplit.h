@@ -27,7 +27,7 @@ namespace rwe
         std::vector<BoxPackInfoEntry<T>> entries;
     };
 
-    enum class Axis
+    enum class SplitAxis
     {
         Horizontal,
         Vertical
@@ -50,7 +50,7 @@ namespace rwe
         Union value;
 
         BoxTreeNode(
-            Axis axis,
+            SplitAxis axis,
             std::unique_ptr<BoxTreeNode>&& left,
             std::unique_ptr<BoxTreeNode>&& right);
 
@@ -68,11 +68,11 @@ namespace rwe
     template <typename T>
     struct BoxTreeSplit
     {
-        Axis axis;
+        SplitAxis axis;
         std::unique_ptr<BoxTreeNode<T>> leftChild;
         std::unique_ptr<BoxTreeNode<T>> rightChild;
 
-        BoxTreeSplit(Axis axis, std::unique_ptr<BoxTreeNode<T>>&& leftChild, std::unique_ptr<BoxTreeNode<T>>&& rightChild)
+        BoxTreeSplit(SplitAxis axis, std::unique_ptr<BoxTreeNode<T>>&& leftChild, std::unique_ptr<BoxTreeNode<T>>&& rightChild)
             : axis(axis), leftChild(std::move(leftChild)), rightChild(std::move(rightChild))
         {
         }
@@ -149,7 +149,7 @@ namespace rwe
             {
                 auto newNode = std::make_unique<BoxTreeNode<T>>(itemWidth, root->height);
                 auto newNodePtr = newNode.get();
-                auto newRoot = std::make_unique<BoxTreeNode<T>>(Axis::Vertical, std::move(root), std::move(newNode));
+                auto newRoot = std::make_unique<BoxTreeNode<T>>(SplitAxis::Vertical, std::move(root), std::move(newNode));
                 root = std::move(newRoot);
                 return newNodePtr;
             }
@@ -157,7 +157,7 @@ namespace rwe
             {
                 auto newNode = std::make_unique<BoxTreeNode<T>>(root->width, itemHeight);
                 auto newNodePtr = newNode.get();
-                auto newRoot = std::make_unique<BoxTreeNode<T>>(Axis::Horizontal, std::move(root), std::move(newNode));
+                auto newRoot = std::make_unique<BoxTreeNode<T>>(SplitAxis::Horizontal, std::move(root), std::move(newNode));
                 root = std::move(newRoot);
                 return newNodePtr;
             }
@@ -182,13 +182,13 @@ namespace rwe
         {
             auto newLeaf = std::make_unique<BoxTreeNode<T>>(itemWidth, itemHeight, item);
             auto freeSpace = std::make_unique<BoxTreeNode<T>>(itemWidth, node->height - itemHeight);
-            *node = BoxTreeNode<T>(Axis::Horizontal, std::move(newLeaf), std::move(freeSpace));
+            *node = BoxTreeNode<T>(SplitAxis::Horizontal, std::move(newLeaf), std::move(freeSpace));
         }
         else if (node->height == itemHeight && node->width > itemWidth)
         {
             auto newLeaf = std::make_unique<BoxTreeNode<T>>(itemWidth, itemHeight, item);
             auto freeSpace = std::make_unique<BoxTreeNode<T>>(node->width - itemWidth, itemHeight);
-            *node = BoxTreeNode<T>(Axis::Vertical, std::move(newLeaf), std::move(freeSpace));
+            *node = BoxTreeNode<T>(SplitAxis::Vertical, std::move(newLeaf), std::move(freeSpace));
         }
         else
         {
@@ -196,18 +196,18 @@ namespace rwe
             auto bottomSpace = std::make_unique<BoxTreeNode<T>>(node->width, node->height - itemHeight);
             auto rightSpace = std::make_unique<BoxTreeNode<T>>(node->width - itemWidth, itemHeight);
 
-            auto vSplit = std::make_unique<BoxTreeNode<T>>(Axis::Vertical, std::move(leftLeaf), std::move(rightSpace));
-            *node = BoxTreeNode<T>(Axis::Horizontal, std::move(vSplit), std::move(bottomSpace));
+            auto vSplit = std::make_unique<BoxTreeNode<T>>(SplitAxis::Vertical, std::move(leftLeaf), std::move(rightSpace));
+            *node = BoxTreeNode<T>(SplitAxis::Horizontal, std::move(vSplit), std::move(bottomSpace));
         }
     }
 
     template <typename T>
     BoxTreeNode<T>::BoxTreeNode(
-        Axis axis,
+        SplitAxis axis,
         std::unique_ptr<BoxTreeNode>&& left,
         std::unique_ptr<BoxTreeNode>&& right)
-        : width(axis == Axis::Vertical ? left->width + right->width : left->width),
-          height(axis == Axis::Horizontal ? left->height + right->height : left->height),
+        : width(axis == SplitAxis::Vertical ? left->width + right->width : left->width),
+          height(axis == SplitAxis::Horizontal ? left->height + right->height : left->height),
           value(BoxTreeSplit(axis, std::move(left), std::move(right)))
     {
     }
@@ -280,13 +280,13 @@ namespace rwe
         auto rightVec = split->rightChild->walk();
         switch (split->axis)
         {
-            case Axis::Horizontal:
+            case SplitAxis::Horizontal:
                 for (const BoxPackInfoEntry<T>& e : rightVec)
                 {
                     vec.push_back(BoxPackInfoEntry<T>{e.x, e.y + split->leftChild->height, e.value});
                 }
                 break;
-            case Axis::Vertical:
+            case SplitAxis::Vertical:
                 for (const BoxPackInfoEntry<T>& e : rightVec)
                 {
                     vec.push_back(BoxPackInfoEntry<T>{e.x + split->leftChild->width, e.y, e.value});
