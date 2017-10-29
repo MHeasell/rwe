@@ -57,7 +57,7 @@ namespace rwe
         const Matrix4f& projectionMatrix) const
     {
         Vector3f testRotation(-rotation.x, rotation.y, rotation.z);
-        auto matrix = modelMatrix * Matrix4f::rotationXYZ(testRotation) * Matrix4f::translation(origin + offset);
+        auto matrix = modelMatrix * Matrix4f::translation(origin) * Matrix4f::rotationXYZ(testRotation) * Matrix4f::translation(offset);
 
         if (visible)
         {
