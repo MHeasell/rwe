@@ -635,7 +635,7 @@ namespace rwe
     float CobThread::popPosition()
     {
         auto val = pop();
-        return static_cast<float>(val) / 65535.0f;
+        return static_cast<float>(val) / 163840.0f;
     }
 
     float CobThread::popSpeed()
@@ -647,13 +647,13 @@ namespace rwe
     float CobThread::popAngle()
     {
         auto val = static_cast<unsigned int>(pop());
-        return static_cast<float>(val) / 182.0f / 2.0f;
+        return static_cast<float>(val) / 182.0f;
     }
 
     float CobThread::popAngularSpeed()
     {
         auto val = static_cast<unsigned int>(pop());
-        return static_cast<float>(val) / 182.0f / 2.0f;
+        return static_cast<float>(val) / 182.0f;
     }
 
     Axis CobThread::nextInstructionAsAxis()
