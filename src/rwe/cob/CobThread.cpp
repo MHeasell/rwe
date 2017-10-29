@@ -80,7 +80,10 @@ namespace rwe
             dispatchInstruction(nextInstruction());
         }
 
-        status = FinishedStatus();
+        if (instructionIndex == env->script()->instructions.size())
+        {
+            status = FinishedStatus();
+        }
     }
 
     void CobThread::add()
