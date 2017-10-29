@@ -20,7 +20,15 @@ namespace rwe
 
         void moveObject(const std::string& pieceName, Axis axis, float targetPosition, float speed);
 
+        void moveObjectNow(const std::string& pieceName, Axis axis, float targetPosition);
+
+        void turnObject(const std::string& pieceName, Axis axis, float targetAngle, float speed);
+
+        void turnObjectNow(const std::string& pieceName, Axis axis, float targetAngle);
+
         bool isMoveInProgress(const std::string& pieceName, Axis axis) const;
+
+        bool isTurnInProgress(const std::string& pieceName, Axis axis) const;
 
         void render(
             GraphicsContext& context,

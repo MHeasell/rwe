@@ -18,10 +18,13 @@ namespace rwe
 
             MoveOperation(float targetPosition, float speed);
         };
+
         struct TurnOperation
         {
-            float angle;
+            float targetAngle;
             float speed;
+
+            TurnOperation(float targetAngle, float speed);
         };
 
         std::string name;
@@ -30,10 +33,15 @@ namespace rwe
         std::vector<UnitMesh> children;
         bool visible{true};
         Vector3f offset{0.0f, 0.0f, 0.0f};
+        Vector3f rotation{0.0f, 0.0f, 0.0f};
 
         boost::optional<MoveOperation> xMoveOperation;
         boost::optional<MoveOperation> yMoveOperation;
         boost::optional<MoveOperation> zMoveOperation;
+
+        boost::optional<TurnOperation> xTurnOperation;
+        boost::optional<TurnOperation> yTurnOperation;
+        boost::optional<TurnOperation> zTurnOperation;
 
         void render(
             GraphicsContext& context,

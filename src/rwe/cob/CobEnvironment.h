@@ -100,6 +100,12 @@ namespace rwe
 
         void moveObject(unsigned int objectId, Axis axis, float position, float speed);
 
+        void moveObjectNow(unsigned int objectId, Axis axis, float position);
+
+        void turnObject(unsigned int objectId, Axis axis, float angle, float speed);
+
+        void turnObjectNow(unsigned int objectId, Axis axis, float angle);
+
         void createThread(unsigned int functionId, const std::vector<int>& params);
 
         void createThread(const std::string& functionName, const std::vector<int>& params);

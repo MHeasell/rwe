@@ -16,4 +16,9 @@ namespace rwe
 
         return searchPath;
     }
+
+    float toRadians(float v)
+    {
+        return v * (3.14159265358979323846f / 180.0f);
+    }
 }

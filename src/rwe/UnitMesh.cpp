@@ -21,6 +21,33 @@ namespace rwe
         }
     }
 
+    void applyTurnOperation(boost::optional<UnitMesh::TurnOperation>& op, float& currentAngle, float dt)
+    {
+        if (op)
+        {
+            float remaining = op->targetAngle - currentAngle;
+            if (remaining > Pif)
+            {
+                remaining -= 2.0f * Pif;
+            }
+            else if (remaining < -Pif)
+            {
+                remaining += 2.0f * Pif;
+            }
+
+            float frameSpeed = op->speed * dt;
+            if (std::abs(remaining) <= frameSpeed)
+            {
+                currentAngle = op->targetAngle;
+                op = boost::none;
+            }
+            else
+            {
+                currentAngle += frameSpeed * (remaining > 0.0f ? 1.0f : -1.0f);
+            }
+        }
+    }
+
     void UnitMesh::render(
         GraphicsContext& context,
         ShaderProgramIdentifier textureShader,
@@ -29,7 +56,8 @@ namespace rwe
         const Matrix4f& viewMatrix,
         const Matrix4f& projectionMatrix) const
     {
-        auto matrix = Matrix4f::translation(origin + offset) * modelMatrix;
+        Vector3f testRotation(-rotation.x, rotation.y, rotation.z);
+        auto matrix = modelMatrix * Matrix4f::rotationXYZ(testRotation) * Matrix4f::translation(origin + offset);
 
         if (visible)
         {
@@ -77,10 +105,19 @@ namespace rwe
         applyMoveOperation(xMoveOperation, offset.x, dt);
         applyMoveOperation(yMoveOperation, offset.y, dt);
         applyMoveOperation(zMoveOperation, offset.z, dt);
+
+        applyTurnOperation(xTurnOperation, rotation.x, dt);
+        applyTurnOperation(yTurnOperation, rotation.y, dt);
+        applyTurnOperation(zTurnOperation, rotation.z, dt);
     }
 
     UnitMesh::MoveOperation::MoveOperation(float targetPosition, float speed)
         : targetPosition(targetPosition), speed(speed)
+    {
+    }
+
+    UnitMesh::TurnOperation::TurnOperation(float targetAngle, float speed)
+        : targetAngle(targetAngle), speed(speed)
     {
     }
 }

@@ -75,7 +75,15 @@ namespace rwe
 
         void moveObject(unsigned int unitId, const std::string& name, Axis axis, float position, float speed);
 
+        void moveObjectNow(unsigned int unitId, const std::string& name, Axis axis, float position);
+
+        void turnObject(unsigned int unitId, const std::string& name, Axis axis, float angle, float speed);
+
+        void turnObjectNow(unsigned int unitId, const std::string& name, Axis axis, float angle);
+
         bool isPieceMoving(unsigned int unitId, const std::string& name, Axis axis) const;
+
+        bool isPieceTurning(unsigned int unitId, const std::string& name, Axis axis) const;
 
         unsigned int getGameTime() const;
 

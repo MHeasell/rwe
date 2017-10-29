@@ -411,26 +411,26 @@ namespace rwe
     void CobThread::moveObjectNow()
     {
         auto object = nextInstruction();
-        auto axis = nextInstruction();
-        auto position = pop();
-        // TODO: this
+        auto axis = nextInstructionAsAxis();
+        auto position = popPosition();
+        env->moveObjectNow(object, axis, position);
     }
 
     void CobThread::turnObject()
     {
         auto object = nextInstruction();
-        auto axis = nextInstruction();
-        auto angle = pop();
-        auto speed = pop();
-        // TODO: this
+        auto axis = nextInstructionAsAxis();
+        auto angle = popAngle();
+        auto speed = popAngularSpeed();
+        env->turnObject(object, axis, angle, speed);
     }
 
     void CobThread::turnObjectNow()
     {
         auto object = nextInstruction();
-        auto axis = nextInstruction();
-        auto angle = pop();
-        // TODO: this
+        auto axis = nextInstructionAsAxis();
+        auto angle = popAngle();
+        env->turnObjectNow(object, axis, angle);
     }
 
     void CobThread::spinObject()
@@ -635,13 +635,25 @@ namespace rwe
     float CobThread::popPosition()
     {
         auto val = pop();
-        return static_cast<float>(val);
+        return static_cast<float>(val) / 65535.0f;
     }
 
     float CobThread::popSpeed()
     {
-        auto val = pop();
-        return static_cast<float>(val) / 65536.0f;
+        auto val = static_cast<unsigned int>(pop());
+        return static_cast<float>(val) / 163840.0f;
+    }
+
+    float CobThread::popAngle()
+    {
+        auto val = static_cast<unsigned int>(pop());
+        return static_cast<float>(val) / 182.0f / 2.0f;
+    }
+
+    float CobThread::popAngularSpeed()
+    {
+        auto val = static_cast<unsigned int>(pop());
+        return static_cast<float>(val) / 182.0f / 2.0f;
     }
 
     Axis CobThread::nextInstructionAsAxis()

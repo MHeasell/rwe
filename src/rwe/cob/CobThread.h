@@ -209,6 +209,8 @@ namespace rwe
         int pop();
         float popPosition();
         float popSpeed();
+        float popAngle();
+        float popAngularSpeed();
         void push(int val);
 
         unsigned int nextInstruction();

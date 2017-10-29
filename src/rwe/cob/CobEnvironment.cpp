@@ -11,8 +11,8 @@ namespace rwe
 
     bool CobEnvironment::BlockCheckVisitor::operator()(const CobThread::BlockedStatus::Turn& condition) const
     {
-        // TODO: implement this
-        return false;
+        const auto& pieceName = env->_script->pieces.at(condition.object);
+        return !env->scene->isPieceTurning(env->unitId, pieceName, condition.axis);
     }
 
     bool CobEnvironment::BlockCheckVisitor::operator()(const CobThread::BlockedStatus::Sleep& condition) const
@@ -109,6 +109,24 @@ namespace rwe
     {
         const auto& pieceName = _script->pieces.at(objectId);
         scene->moveObject(unitId, pieceName, axis, position, speed);
+    }
+
+    void CobEnvironment::moveObjectNow(unsigned int objectId, Axis axis, float position)
+    {
+        const auto& pieceName = _script->pieces.at(objectId);
+        scene->moveObjectNow(unitId, pieceName, axis, position);
+    }
+
+    void CobEnvironment::turnObject(unsigned int objectId, Axis axis, float angle, float speed)
+    {
+        const auto& pieceName = _script->pieces.at(objectId);
+        scene->turnObject(unitId, pieceName, axis, angle, speed);
+    }
+
+    void CobEnvironment::turnObjectNow(unsigned int objectId, Axis axis, float angle)
+    {
+        const auto& pieceName = _script->pieces.at(objectId);
+        scene->turnObjectNow(unitId, pieceName, axis, angle);
     }
 
     unsigned int CobEnvironment::getGameTime() const
