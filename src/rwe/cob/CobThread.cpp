@@ -366,6 +366,7 @@ namespace rwe
     {
         auto returnValue = pop();
         instructionIndex = pop();
+        locals.pop();
         push(returnValue);
     }
 
