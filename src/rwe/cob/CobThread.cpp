@@ -533,7 +533,7 @@ namespace rwe
     {
         auto duration = pop();
 
-        auto ticksToWait = (duration / SceneManager::TickInterval) + (duration % SceneManager::TickInterval == 0 ? 0 : 1);
+        auto ticksToWait = duration / SceneManager::TickInterval;
         auto currentTime = env->getGameTime();
 
         status = BlockedStatus(BlockedStatus::Sleep(currentTime + ticksToWait));
