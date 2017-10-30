@@ -1,4 +1,5 @@
 #include <boost/interprocess/streams/bufferstream.hpp>
+#include <rwe/geometry/CollisionMesh.h>
 #include "MeshService.h"
 #include "_3do.h"
 #include "Gaf.h"
@@ -230,7 +231,7 @@ namespace rwe
         return m;
     }
 
-    UnitMesh MeshService::loadUnitMesh(const std::string& name)
+    MeshService::UnitMeshInfo MeshService::loadUnitMesh(const std::string& name)
     {
         auto bytes = vfs->readFile("objects3d/" + name + ".3do");
         if (!bytes)
@@ -241,7 +242,9 @@ namespace rwe
         boost::interprocess::bufferstream s(bytes->data(), bytes->size());
         auto objects = parse3doObjects(s, s.tellg());
         assert(objects.size() == 1);
-        return unitMeshFrom3do(objects.front());
+        auto selectionMesh = selectionMeshFrom3do(objects.front());
+        auto unitMesh = unitMeshFrom3do(objects.front());
+        return UnitMeshInfo{unitMesh, selectionMesh};
     }
 
     SharedTextureHandle MeshService::getMeshTextureAtlas()
@@ -259,5 +262,22 @@ namespace rwe
         }
 
         return it->second;
+    }
+
+    rwe::CollisionMesh MeshService::selectionMeshFrom3do(const _3do::Object& o)
+    {
+        assert(!!o.selectionPrimitiveIndex);
+        auto index = *o.selectionPrimitiveIndex;
+        auto p = o.primitives.at(index);
+
+        assert(p.vertices.size() == 4);
+        Vector3f offset(convertFixedPoint(o.x), convertFixedPoint(o.y), convertFixedPoint(o.z));
+
+        auto a = offset + vertexToVector(o.vertices[p.vertices[0]]);
+        auto b = offset + vertexToVector(o.vertices[p.vertices[1]]);
+        auto c = offset + vertexToVector(o.vertices[p.vertices[2]]);
+        auto d = offset + vertexToVector(o.vertices[p.vertices[3]]);
+
+        return CollisionMesh::fromQuad(a, b, c, d);
     }
 }

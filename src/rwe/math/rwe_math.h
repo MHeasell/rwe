@@ -1,6 +1,9 @@
 #ifndef RWE_MATH_RWE_MATH_H
 #define RWE_MATH_RWE_MATH_H
 
+#include <rwe/Point.h>
+#include "Vector2f.h"
+
 namespace rwe
 {
     /**
@@ -25,6 +28,8 @@ namespace rwe
      * Returns true if a and b both have the same sign.
      */
     bool sameSign(float a, float b);
+
+    Vector2f convertScreenToClipSpace(unsigned int screenWidth, unsigned int screenHeight, Point p);
 }
 
 #endif

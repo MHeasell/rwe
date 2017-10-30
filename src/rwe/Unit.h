@@ -6,6 +6,8 @@
 #include <memory>
 #include <rwe/cob/CobEnvironment.h>
 #include <boost/optional.hpp>
+#include <rwe/geometry/BoundingBox3f.h>
+#include <rwe/geometry/CollisionMesh.h>
 
 namespace rwe
 {
@@ -15,8 +17,9 @@ namespace rwe
         UnitMesh mesh;
         Vector3f position;
         std::unique_ptr<CobEnvironment> cobEnvironment;
+        CollisionMesh selectionMesh;
 
-        Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment);
+        Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, const CollisionMesh& selcetionMesh);
 
         void moveObject(const std::string& pieceName, Axis axis, float targetPosition, float speed);
 
@@ -30,10 +33,23 @@ namespace rwe
 
         bool isTurnInProgress(const std::string& pieceName, Axis axis) const;
 
+        /**
+         * Returns a value if the given ray intersects this unit
+         * for the purposes of unit selection.
+         * The value returned is the distance along the ray
+         * where the intersection occurred.
+         */
+        boost::optional<float> selectionIntersect(const Ray3f& ray) const;
+
         void render(
             GraphicsContext& context,
             ShaderProgramIdentifier textureShader,
             ShaderProgramIdentifier colorShader,
+            const Matrix4f& viewMatrix,
+            const Matrix4f& projectionMatrix) const;
+
+        void renderSelectionRect(
+            GraphicsContext& context,
             const Matrix4f& viewMatrix,
             const Matrix4f& projectionMatrix) const;
     };

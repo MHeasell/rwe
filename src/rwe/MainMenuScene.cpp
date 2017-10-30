@@ -18,6 +18,7 @@ namespace rwe
         MapFeatureService* featureService,
         const ColorPalette* palette,
         CursorService* cursor,
+        SdlContext* sdl,
         const std::unordered_map<std::string, SideData>* sideData,
         float width,
         float height)
@@ -30,6 +31,7 @@ namespace rwe
           featureService(featureService),
           palette(palette),
           cursor(cursor),
+          sdl(sdl),
           sideData(sideData),
           model(),
           uiFactory(textureService, audioService, soundLookup, vfs, &model, this),
@@ -550,6 +552,7 @@ namespace rwe
             featureService,
             palette,
             sceneManager,
+            sdl,
             sideData,
             std::move(bgm),
             params);

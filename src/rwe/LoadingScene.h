@@ -43,6 +43,7 @@ namespace rwe
         MapFeatureService* featureService;
         const ColorPalette* palette;
         SceneManager* sceneManager;
+        SdlContext* sdl;
         const std::unordered_map<std::string, SideData>* sideData;
 
         AudioService::LoopToken bgm;
@@ -60,6 +61,7 @@ namespace rwe
             MapFeatureService* featureService,
             const ColorPalette* palette,
             SceneManager* sceneManager,
+            SdlContext* sdl,
             const std::unordered_map<std::string, SideData>* sideData,
             AudioService::LoopToken&& bgm,
             GameParameters gameParameters);

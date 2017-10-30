@@ -13,6 +13,7 @@
 #include <rwe/SpriteSeries.h>
 #include <rwe/camera/AbstractCamera.h>
 #include <rwe/math/Vector3f.h>
+#include <rwe/geometry/CollisionMesh.h>
 #include "ShaderHandle.h"
 #include "ShaderProgramHandle.h"
 #include "ShaderMesh.h"
@@ -117,6 +118,12 @@ namespace rwe
             const ShaderMesh& mesh,
             ShaderProgramIdentifier textureShader,
             ShaderProgramIdentifier colorShader,
+            const Matrix4f& modelMatrix,
+            const Matrix4f& viewMatrix,
+            const Matrix4f& projectionMatrix);
+
+        void drawWireframeCollisionMesh(
+            const CollisionMesh& mesh,
             const Matrix4f& modelMatrix,
             const Matrix4f& viewMatrix,
             const Matrix4f& projectionMatrix);

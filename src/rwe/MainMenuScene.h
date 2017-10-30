@@ -27,6 +27,7 @@ namespace rwe
         MapFeatureService* featureService;
         const ColorPalette* palette;
         CursorService* cursor;
+        SdlContext* sdl;
         const std::unordered_map<std::string, SideData>* sideData;
 
         MainMenuModel model;
@@ -49,6 +50,7 @@ namespace rwe
             MapFeatureService* featureService,
             const ColorPalette* palette,
             CursorService* cursor,
+            SdlContext* sdl,
             const std::unordered_map<std::string, SideData>* sideData,
             float width,
             float height);

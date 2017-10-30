@@ -1,5 +1,6 @@
 #include "GameScene.h"
 #include "Mesh.h"
+#include <rwe/math/rwe_math.h>
 
 namespace rwe
 {
@@ -16,6 +17,12 @@ namespace rwe
         {
             unit.render(context, unitTextureShader.get(), unitColorShader.get(), viewMatrix, projectionMatrix);
         }
+
+        if (selectedUnit)
+        {
+            units[*selectedUnit].renderSelectionRect(context, viewMatrix, projectionMatrix);
+        }
+
         context.disableDepth();
 
         context.applyCamera(uiCamera);
@@ -25,6 +32,7 @@ namespace rwe
     GameScene::GameScene(
         TextureService* textureService,
         CursorService* cursor,
+        SdlContext* sdl,
         MeshService&& meshService,
         CabinetCamera&& camera,
         MapTerrain&& terrain,
@@ -33,6 +41,7 @@ namespace rwe
         UnitDatabase&& unitDatabase)
         : textureService(textureService),
           cursor(cursor),
+          sdl(sdl),
           meshService(std::move(meshService)),
           camera(std::move(camera)),
           terrain(std::move(terrain)),
@@ -83,6 +92,11 @@ namespace rwe
         }
     }
 
+    void GameScene::onMouseUp(MouseButtonEvent event)
+    {
+        selectedUnit = hoveredUnit;
+    }
+
     void GameScene::update()
     {
         gameTime += 1;
@@ -106,6 +120,8 @@ namespace rwe
         auto dz = std::clamp(directionZ * speed, mindz, maxdz);
 
         camera.translate(Vector3f(dx, 0.0f, dz));
+
+        hoveredUnit = getUnitUnderCursor();
 
         // run unit scripts
         for (auto& unit : units)
@@ -135,12 +151,12 @@ namespace rwe
     {
         const auto& fbi = unitDatabase.getUnitInfo(unitType);
 
-        auto mesh = meshService.loadUnitMesh(fbi.objectName);
+        auto meshInfo = meshService.loadUnitMesh(fbi.objectName);
 
         const auto& script = unitDatabase.getUnitScript(fbi.unitName);
         auto cobEnv = std::make_unique<CobEnvironment>(this, &script, unitId);
         cobEnv->createThread("Create", std::vector<int>());
-        Unit unit(mesh, std::move(cobEnv));
+        Unit unit(meshInfo.mesh, std::move(cobEnv), meshInfo.selectionMesh);
         unit.position = position;
 
         return unit;
@@ -198,5 +214,43 @@ namespace rwe
     bool GameScene::isPieceTurning(unsigned int unitId, const std::string& name, Axis axis) const
     {
         return units.at(unitId).isTurnInProgress(name, axis);
+    }
+
+    boost::optional<unsigned int> GameScene::getUnitUnderCursor() const
+    {
+        auto ray = camera.screenToWorldRay(screenToClipSpace(getMousePosition()));
+        return getFirstCollidingUnit(ray);
+    }
+
+    Vector2f GameScene::screenToClipSpace(Point p) const
+    {
+        // TODO: replace hard-coded screen size
+        return convertScreenToClipSpace(640, 480, p);
+    }
+
+    boost::optional<unsigned int> GameScene::getFirstCollidingUnit(const Ray3f& ray) const
+    {
+        auto bestDistance = std::numeric_limits<float>::infinity();
+        boost::optional<unsigned int> it;
+
+        for (unsigned int i = 0; i < units.size(); ++i)
+        {
+            auto distance = units[i].selectionIntersect(ray);
+            if (distance && distance < bestDistance)
+            {
+                bestDistance = *distance;
+                it = i;
+            }
+        }
+
+        return it;
+    }
+
+    Point GameScene::getMousePosition() const
+    {
+        int x;
+        int y;
+        sdl->getMouseState(&x, &y);
+        return Point(x, y);
     }
 }

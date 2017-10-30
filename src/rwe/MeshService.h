@@ -48,7 +48,13 @@ namespace rwe
             SharedTextureHandle&& atlas,
             std::unordered_map<FrameId, Rectangle2f>&& atlasMap);
 
-        UnitMesh loadUnitMesh(const std::string& name);
+        struct UnitMeshInfo
+        {
+            UnitMesh mesh;
+            CollisionMesh selectionMesh;
+        };
+
+        UnitMeshInfo loadUnitMesh(const std::string& name);
 
     private:
         SharedTextureHandle getMeshTextureAtlas();
@@ -57,6 +63,8 @@ namespace rwe
         Mesh meshFrom3do(const _3do::Object& o);
 
         UnitMesh unitMeshFrom3do(const _3do::Object& o);
+
+        CollisionMesh selectionMeshFrom3do(const _3do::Object& o);
     };
 }
 

@@ -143,6 +143,8 @@ set(SOURCE_FILES
     src/rwe/events.h
     src/rwe/geometry/BoundingBox3f.cpp
     src/rwe/geometry/BoundingBox3f.h
+    src/rwe/geometry/CollisionMesh.cpp
+    src/rwe/geometry/CollisionMesh.h
     src/rwe/geometry/Line3f.cpp
     src/rwe/geometry/Line3f.h
     src/rwe/geometry/Plane3f.cpp
@@ -348,6 +350,7 @@ set(TEST_FILES
     test/rwe/TdfBlock_test.cpp
     test/rwe/camera/CabinetCamera_test.cpp
     test/rwe/geometry/BoundingBox3f_test.cpp
+    test/rwe/geometry/CollisionMesh_test.cpp
     test/rwe/geometry/Plane3f_test.cpp
     test/rwe/geometry/Ray3f_test.cpp
     test/rwe/geometry/Rectangle2f_test.cpp
@@ -355,6 +358,7 @@ set(TEST_FILES
     test/rwe/gui_test.cpp
     test/rwe/math/Matrix4f_test.cpp
     test/rwe/math/Vector3f_test.cpp
+    test/rwe/math/rwe_math_test.cpp
     test/rwe/ota_test.cpp
     test/rwe/rwe_string_test.cpp
     )

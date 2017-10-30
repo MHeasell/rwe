@@ -733,4 +733,33 @@ namespace rwe
 
         return sMesh;
     }
+
+    void GraphicsContext::drawWireframeCollisionMesh(
+        const CollisionMesh& mesh,
+        const Matrix4f& modelMatrix,
+        const Matrix4f& viewMatrix,
+        const Matrix4f& projectionMatrix)
+    {
+        glDisable(GL_CULL_FACE);
+        glPushMatrix();
+        multiplyMatrix(modelMatrix);
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+        glBegin(GL_TRIANGLES);
+        glColor3ub(83, 223, 79);
+
+        for (const auto& t : mesh.triangles)
+        {
+            glVertex3f(t.a.x, t.a.y, t.a.z);
+            glVertex3f(t.b.x, t.b.y, t.b.z);
+            glVertex3f(t.c.x, t.c.y, t.c.z);
+        }
+
+        glEnd();
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glPopMatrix();
+        glEnable(GL_CULL_FACE);
+    }
 }

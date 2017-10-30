@@ -1,8 +1,10 @@
+#include <rwe/geometry/Plane3f.h>
 #include "Unit.h"
 
 namespace rwe
 {
-    Unit::Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment) : mesh(mesh), cobEnvironment(std::move(cobEnvironment))
+    Unit::Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, const CollisionMesh& selectionMesh)
+        : mesh(mesh), cobEnvironment(std::move(cobEnvironment)), selectionMesh(selectionMesh)
     {
     }
 
@@ -155,5 +157,27 @@ namespace rwe
         }
 
         throw std::logic_error("Invalid axis");
+    }
+
+    boost::optional<float> Unit::selectionIntersect(const Ray3f& ray) const
+    {
+        auto line = ray.toLine();
+        Line3f modelSpaceLine(line.start - position, line.end - position);
+        auto v = selectionMesh.intersectLine(modelSpaceLine);
+        if (!v)
+        {
+            return boost::none;
+        }
+
+        return ray.origin.distance(*v);
+    }
+
+    void Unit::renderSelectionRect(
+        GraphicsContext& context,
+        const Matrix4f& viewMatrix,
+        const Matrix4f& projectionMatrix) const
+    {
+        auto matrix = Matrix4f::translation(position);
+        context.drawWireframeCollisionMesh(selectionMesh, matrix, viewMatrix, projectionMatrix);
     }
 }

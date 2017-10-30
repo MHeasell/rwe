@@ -109,6 +109,7 @@ namespace rwe
                 &featureService,
                 &*palette,
                 &sceneManager,
+                sdlContext,
                 &sideDataMap,
                 AudioService::LoopToken(),
                 params);
@@ -126,6 +127,7 @@ namespace rwe
                 &featureService,
                 &*palette,
                 &cursor,
+                sdlContext,
                 &sideDataMap,
                 640,
                 480);

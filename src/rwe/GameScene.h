@@ -22,6 +22,7 @@ namespace rwe
 
         TextureService* textureService;
         CursorService* cursor;
+        SdlContext* sdl;
 
         MeshService meshService;
 
@@ -44,10 +45,14 @@ namespace rwe
 
         unsigned int gameTime{0};
 
+        boost::optional<unsigned int> hoveredUnit;
+        boost::optional<unsigned int> selectedUnit;
+
     public:
         GameScene(
             TextureService* textureService,
             CursorService* cursor,
+            SdlContext* sdl,
             MeshService&& meshService,
             CabinetCamera&& camera,
             MapTerrain&& terrain,
@@ -60,6 +65,8 @@ namespace rwe
         void onKeyDown(const SDL_Keysym& keysym) override;
 
         void onKeyUp(const SDL_Keysym& keysym) override;
+
+        void onMouseUp(MouseButtonEvent event) override;
 
         void update() override;
 
@@ -89,6 +96,14 @@ namespace rwe
 
     private:
         Unit createUnit(unsigned int unitId, const std::string& unitType, const Vector3f& position);
+
+        boost::optional<unsigned int> getUnitUnderCursor() const;
+
+        Vector2f screenToClipSpace(Point p) const;
+
+        Point getMousePosition() const;
+
+        boost::optional<unsigned int> getFirstCollidingUnit(const Ray3f& ray) const;
     };
 }
 

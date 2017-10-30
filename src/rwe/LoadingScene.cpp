@@ -21,6 +21,7 @@ namespace rwe
         MapFeatureService* featureService,
         const ColorPalette* palette,
         SceneManager* sceneManager,
+        SdlContext* sdl,
         const std::unordered_map<std::string, SideData>* sideData,
         AudioService::LoopToken&& bgm,
         GameParameters gameParameters)
@@ -31,6 +32,7 @@ namespace rwe
           featureService(featureService),
           palette(palette),
           sceneManager(sceneManager),
+          sdl(sdl),
           sideData(sideData),
           bgm(std::move(bgm)),
           gameParameters(std::move(gameParameters))
@@ -120,6 +122,7 @@ namespace rwe
         auto gameScene = std::make_unique<GameScene>(
             textureService,
             cursor,
+            sdl,
             std::move(meshService),
             std::move(camera),
             std::move(terrain),
