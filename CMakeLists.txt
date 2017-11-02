@@ -346,6 +346,7 @@ set(TEST_FILES
     test/rwe/SideData_test.cpp
     test/rwe/SimpleTdfAdapter_test.cpp
     test/rwe/TdfBlock_test.cpp
+    test/rwe/camera/CabinetCamera_test.cpp
     test/rwe/geometry/BoundingBox3f_test.cpp
     test/rwe/geometry/Plane3f_test.cpp
     test/rwe/geometry/Ray3f_test.cpp

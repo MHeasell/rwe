@@ -50,7 +50,7 @@ namespace rwe
 
         auto inverseCabinet = Matrix4f::cabinetProjection(0.0f, -0.5f);
 
-        auto inverseOrtho = Matrix4f::orthographicProjection(
+        auto inverseOrtho = Matrix4f::inverseOrthographicProjection(
             -halfWidth,
             halfWidth,
             -halfHeight,
