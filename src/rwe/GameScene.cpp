@@ -123,6 +123,15 @@ namespace rwe
 
         hoveredUnit = getUnitUnderCursor();
 
+        if (hoveredUnit)
+        {
+            cursor->useSelectCursor();
+        }
+        else
+        {
+            cursor->useNormalCursor();
+        }
+
         // run unit scripts
         for (auto& unit : units)
         {

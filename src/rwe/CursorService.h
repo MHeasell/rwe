@@ -12,10 +12,21 @@ namespace rwe
     {
     private:
         SdlContext* sdlContext;
-        std::shared_ptr<SpriteSeries> cursor;
+
+        std::shared_ptr<SpriteSeries> _normalCursor;
+        std::shared_ptr<SpriteSeries> _selectCursor;
+
+        SpriteSeries* currentCursor;
 
     public:
-        CursorService(SdlContext* sdlContext, std::shared_ptr<SpriteSeries> cursor);
+        CursorService(
+            SdlContext* sdlContext,
+            std::shared_ptr<SpriteSeries> normalCursor,
+            std::shared_ptr<SpriteSeries> selectCursor);
+
+        void useNormalCursor();
+
+        void useSelectCursor();
 
         void render(GraphicsContext& graphics) const;
     };
