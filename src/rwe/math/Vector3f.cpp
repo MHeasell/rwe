@@ -47,12 +47,12 @@ namespace rwe
         return std::sqrt(lengthSquared());
     }
 
-    float Vector3f::distanceSquared(const Vector3f& rhs)
+    float Vector3f::distanceSquared(const Vector3f& rhs) const
     {
         return (rhs - *this).lengthSquared();
     }
 
-    float Vector3f::distance(const Vector3f& rhs)
+    float Vector3f::distance(const Vector3f& rhs) const
     {
         return (rhs - *this).length();
     }

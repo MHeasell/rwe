@@ -28,8 +28,8 @@ namespace rwe
         float lengthSquared() const;
         float length() const;
 
-        float distanceSquared(const Vector3f& rhs);
-        float distance(const Vector3f& rhs);
+        float distanceSquared(const Vector3f& rhs) const;
+        float distance(const Vector3f& rhs) const;
 
         void normalize();
         Vector3f normalized();
