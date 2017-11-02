@@ -18,4 +18,9 @@ namespace rwe
     {
         return Ray3f(line.start, line.end - line.start);
     }
+
+    Line3f Ray3f::toLine() const
+    {
+        return Line3f(origin, pointAt(1.0f));
+    }
 }

@@ -32,6 +32,8 @@ namespace rwe
          * a and b are both assumed to lie on the ray.
          */
         bool isLessFar(const Vector3f& a, const Vector3f& b) const;
+
+        Line3f toLine() const;
     };
 }
 
