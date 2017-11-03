@@ -17,7 +17,8 @@ the latest zip file and/or installer is available at:
 https://ci.appveyor.com/project/MHeasell/rwe/branch/master/artifacts
 
 RWE is currently only available on Windows,
-however Linux support is likely when the project reaches a stable version.
+however the code is also built and tested on Linux.
+Official Linux binaries will be available when the project reaches a stable version.
 
 Source code is hosted on Github:
 
@@ -28,9 +29,9 @@ https://github.com/MHeasell/rwe
 1. Create the folder `%AppData%/RWE/Data` and copy your TA data files to it (.hpi, .ufo, rev31.gp3, etc.)
 2. Run rwe.exe (if you used the installer, RWE will be in your start menu items)
 
-## Roadmap
+## Development Status
 
-With TA data files, the Skirmish menu path (mostly) works,
-but don't expect to be able to start a game.
-The current aim is to finish implementing the Skirmish menu
-and make the "Start" button do something interesting.
+Progress updates are posted to a thread on the TAUniverse forums,
+usually once a week. See:
+
+http://www.tauniverse.com/forum/showthread.php?t=45555
