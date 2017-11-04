@@ -9,7 +9,7 @@ namespace rwe
         : sdlContext(sdlContext),
           _normalCursor(std::move(normalCursor)),
           _selectCursor(std::move(selectCursor)),
-          currentCursor(_selectCursor.get())
+          currentCursor(_normalCursor.get())
     {
     }
 
