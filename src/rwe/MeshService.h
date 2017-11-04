@@ -51,7 +51,7 @@ namespace rwe
         struct UnitMeshInfo
         {
             UnitMesh mesh;
-            CollisionMesh selectionMesh;
+            SelectionMesh selectionMesh;
         };
 
         UnitMeshInfo loadUnitMesh(const std::string& name);
@@ -64,7 +64,7 @@ namespace rwe
 
         UnitMesh unitMeshFrom3do(const _3do::Object& o);
 
-        CollisionMesh selectionMeshFrom3do(const _3do::Object& o);
+        SelectionMesh selectionMeshFrom3do(const _3do::Object& o);
     };
 }
 

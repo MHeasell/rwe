@@ -244,7 +244,7 @@ namespace rwe
         assert(objects.size() == 1);
         auto selectionMesh = selectionMeshFrom3do(objects.front());
         auto unitMesh = unitMeshFrom3do(objects.front());
-        return UnitMeshInfo{unitMesh, selectionMesh};
+        return UnitMeshInfo{std::move(unitMesh), std::move(selectionMesh)};
     }
 
     SharedTextureHandle MeshService::getMeshTextureAtlas()
@@ -264,7 +264,7 @@ namespace rwe
         return it->second;
     }
 
-    rwe::CollisionMesh MeshService::selectionMeshFrom3do(const _3do::Object& o)
+    SelectionMesh MeshService::selectionMeshFrom3do(const _3do::Object& o)
     {
         assert(!!o.selectionPrimitiveIndex);
         auto index = *o.selectionPrimitiveIndex;
@@ -278,6 +278,12 @@ namespace rwe
         auto c = offset + vertexToVector(o.vertices[p.vertices[2]]);
         auto d = offset + vertexToVector(o.vertices[p.vertices[3]]);
 
-        return CollisionMesh::fromQuad(a, b, c, d);
+        auto collisionMesh = CollisionMesh::fromQuad(a, b, c, d);
+        auto selectionMesh = graphics->createSelectionMesh(a, b, c, d);
+
+        SelectionMesh sm;
+        sm.collisionMesh = std::move(collisionMesh);
+        sm.visualMesh = std::move(selectionMesh);
+        return sm;
     }
 }

@@ -114,8 +114,12 @@ namespace rwe
             AttribMapping{"position", 0},
             AttribMapping{"color", 1}};
 
+        std::vector<AttribMapping> selectBoxShaderAttribs{
+            AttribMapping{"position", 0}};
+
         SharedShaderProgramHandle unitTextureShader{loadShader("shaders/unitTexture.vert", "shaders/unitTexture.frag", unitTextureShaderAttribs)};
         SharedShaderProgramHandle unitColorShader{loadShader("shaders/unitColor.vert", "shaders/unitColor.frag", unitColorShaderAttribs)};
+        SharedShaderProgramHandle selectBoxShader{loadShader("shaders/selectBox.vert", "shaders/selectBox.frag", selectBoxShaderAttribs)};
 
         auto unitDatabase = createUnitDatabase();
 
@@ -128,6 +132,7 @@ namespace rwe
             std::move(terrain),
             std::move(unitTextureShader),
             std::move(unitColorShader),
+            std::move(selectBoxShader),
             std::move(unitDatabase));
 
         const auto& schema = ota.schemas.at(schemaIndex);

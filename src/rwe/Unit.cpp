@@ -3,8 +3,8 @@
 
 namespace rwe
 {
-    Unit::Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, const CollisionMesh& selectionMesh)
-        : mesh(mesh), cobEnvironment(std::move(cobEnvironment)), selectionMesh(selectionMesh)
+    Unit::Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, SelectionMesh&& selectionMesh)
+        : mesh(mesh), cobEnvironment(std::move(cobEnvironment)), selectionMesh(std::move(selectionMesh))
     {
     }
 
@@ -163,7 +163,7 @@ namespace rwe
     {
         auto line = ray.toLine();
         Line3f modelSpaceLine(line.start - position, line.end - position);
-        auto v = selectionMesh.intersectLine(modelSpaceLine);
+        auto v = selectionMesh.collisionMesh.intersectLine(modelSpaceLine);
         if (!v)
         {
             return boost::none;
@@ -175,9 +175,10 @@ namespace rwe
     void Unit::renderSelectionRect(
         GraphicsContext& context,
         const Matrix4f& viewMatrix,
-        const Matrix4f& projectionMatrix) const
+        const Matrix4f& projectionMatrix,
+        ShaderProgramIdentifier shader) const
     {
         auto matrix = Matrix4f::translation(position);
-        context.drawWireframeCollisionMesh(selectionMesh, matrix, viewMatrix, projectionMatrix);
+        context.drawWireframeSelectionMesh(selectionMesh.visualMesh, matrix, viewMatrix, projectionMatrix, shader);
     }
 }

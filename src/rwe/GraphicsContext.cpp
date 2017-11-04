@@ -738,32 +738,79 @@ namespace rwe
         return sMesh;
     }
 
-    void GraphicsContext::drawWireframeCollisionMesh(
-        const CollisionMesh& mesh,
+    void GraphicsContext::drawWireframeSelectionMesh(
+        const VisualSelectionMesh& mesh,
         const Matrix4f& modelMatrix,
         const Matrix4f& viewMatrix,
-        const Matrix4f& projectionMatrix)
+        const Matrix4f& projectionMatrix,
+        ShaderProgramIdentifier shader
+    )
     {
-        glDisable(GL_CULL_FACE);
-        glPushMatrix();
-        multiplyMatrix(modelMatrix);
+        glUseProgram(shader.value);
+        glBindVertexArray(mesh.vao.get().value);
 
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-        glBegin(GL_TRIANGLES);
-        glColor3ub(83, 223, 79);
-
-        for (const auto& t : mesh.triangles)
         {
-            glVertex3f(t.a.x, t.a.y, t.a.z);
-            glVertex3f(t.b.x, t.b.y, t.b.z);
-            glVertex3f(t.c.x, t.c.y, t.c.z);
+            auto uniform = glGetUniformLocation(shader.value, "modelMatrix");
+            glUniformMatrix4fv(uniform, 1, GL_FALSE, modelMatrix.data);
+        }
+        {
+            auto uniform = glGetUniformLocation(shader.value, "viewMatrix");
+            glUniformMatrix4fv(uniform, 1, GL_FALSE, viewMatrix.data);
+        }
+        {
+            auto uniform = glGetUniformLocation(shader.value, "projectionMatrix");
+            glUniformMatrix4fv(uniform, 1, GL_FALSE, projectionMatrix.data);
         }
 
-        glEnd();
+        glDrawArrays(GL_LINE_LOOP, 0, mesh.vertexCount);
 
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        glPopMatrix();
-        glEnable(GL_CULL_FACE);
+        glBindVertexArray(0);
+        glUseProgram(0);
+    }
+
+    VisualSelectionMesh
+    GraphicsContext::createSelectionMesh(const Vector3f& a, const Vector3f& b, const Vector3f& c, const Vector3f& d)
+    {
+        GLuint vao;
+        glGenVertexArrays(1, &vao);
+        glBindVertexArray(vao);
+
+        GLuint vbo;
+        glGenBuffers(1, &vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+        std::vector<GLfloat> buffer;
+        buffer.reserve(4 * 3);
+
+        buffer.push_back(a.x);
+        buffer.push_back(a.y);
+        buffer.push_back(a.z);
+
+        buffer.push_back(b.x);
+        buffer.push_back(b.y);
+        buffer.push_back(b.z);
+
+        buffer.push_back(c.x);
+        buffer.push_back(c.y);
+        buffer.push_back(c.z);
+
+        buffer.push_back(d.x);
+        buffer.push_back(d.y);
+        buffer.push_back(d.z);
+
+        glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(GLfloat), buffer.data(), GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<void*>(0));
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+
+        VisualSelectionMesh vsm;
+        vsm.vao = VaoHandle(VaoIdentifier(vao));
+        vsm.vbo = VboHandle(VboIdentifier(vbo));
+        vsm.vertexCount = 4;
+
+        return vsm;
     }
 }

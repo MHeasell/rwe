@@ -98,6 +98,8 @@ set(SOURCE_FILES
     src/rwe/SceneManager.h
     src/rwe/SdlContextManager.cpp
     src/rwe/SdlContextManager.h
+    src/rwe/SelectionMesh.cpp
+    src/rwe/SelectionMesh.h
     src/rwe/ShaderHandle.h
     src/rwe/ShaderMesh.cpp
     src/rwe/ShaderMesh.h

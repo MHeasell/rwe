@@ -41,6 +41,8 @@ namespace rwe
         SharedShaderProgramHandle unitTextureShader;
         SharedShaderProgramHandle unitColorShader;
 
+        SharedShaderProgramHandle selectBoxShader;
+
         UnitDatabase unitDatabase;
 
         unsigned int gameTime{0};
@@ -58,6 +60,7 @@ namespace rwe
             MapTerrain&& terrain,
             SharedShaderProgramHandle&& unitTextureShader,
             SharedShaderProgramHandle&& unitColorShader,
+            SharedShaderProgramHandle&& selectBoxShader,
             UnitDatabase&& unitDatabase);
 
         void render(GraphicsContext& context) override;

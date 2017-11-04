@@ -16,6 +16,7 @@ namespace rwe
 
         std::vector<Triangle3f> triangles;
 
+        CollisionMesh() = default;
         explicit CollisionMesh(std::vector<Triangle3f>&& triangles);
 
         boost::optional<float> intersect(const Ray3f& ray) const;

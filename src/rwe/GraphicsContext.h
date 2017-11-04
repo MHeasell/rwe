@@ -17,6 +17,7 @@
 #include "ShaderHandle.h"
 #include "ShaderProgramHandle.h"
 #include "ShaderMesh.h"
+#include "SelectionMesh.h"
 
 namespace rwe
 {
@@ -122,11 +123,12 @@ namespace rwe
             const Matrix4f& viewMatrix,
             const Matrix4f& projectionMatrix);
 
-        void drawWireframeCollisionMesh(
-            const CollisionMesh& mesh,
+        void drawWireframeSelectionMesh(
+            const VisualSelectionMesh& mesh,
             const Matrix4f& modelMatrix,
             const Matrix4f& viewMatrix,
-            const Matrix4f& projectionMatrix);
+            const Matrix4f& projectionMatrix,
+            ShaderProgramIdentifier shader);
 
         void enableDepth();
 
@@ -141,6 +143,8 @@ namespace rwe
         ShaderProgramHandle linkShaderProgram(ShaderIdentifier vertexShader, ShaderIdentifier fragmentShader, const std::vector<AttribMapping>& attribs);
 
         ShaderMesh convertMesh(const Mesh& mesh);
+
+        VisualSelectionMesh createSelectionMesh(const Vector3f& a, const Vector3f& b, const Vector3f& c, const Vector3f& d);
 
     private:
         ShaderHandle compileShader(GLenum shaderType, const std::string& source);

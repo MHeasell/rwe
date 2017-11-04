@@ -17,9 +17,9 @@ namespace rwe
         UnitMesh mesh;
         Vector3f position;
         std::unique_ptr<CobEnvironment> cobEnvironment;
-        CollisionMesh selectionMesh;
+        SelectionMesh selectionMesh;
 
-        Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, const CollisionMesh& selcetionMesh);
+        Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, SelectionMesh&& selectionMesh);
 
         void moveObject(const std::string& pieceName, Axis axis, float targetPosition, float speed);
 
@@ -51,7 +51,8 @@ namespace rwe
         void renderSelectionRect(
             GraphicsContext& context,
             const Matrix4f& viewMatrix,
-            const Matrix4f& projectionMatrix) const;
+            const Matrix4f& projectionMatrix,
+            ShaderProgramIdentifier shader) const;
     };
 }
 

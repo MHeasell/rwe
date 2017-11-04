@@ -20,7 +20,7 @@ namespace rwe
 
         if (selectedUnit)
         {
-            units[*selectedUnit].renderSelectionRect(context, viewMatrix, projectionMatrix);
+            units[*selectedUnit].renderSelectionRect(context, viewMatrix, projectionMatrix, selectBoxShader.get());
         }
 
         context.disableDepth();
@@ -38,6 +38,7 @@ namespace rwe
         MapTerrain&& terrain,
         SharedShaderProgramHandle&& unitTextureShader,
         SharedShaderProgramHandle&& unitColorShader,
+        SharedShaderProgramHandle&& selectBoxShader,
         UnitDatabase&& unitDatabase)
         : textureService(textureService),
           cursor(cursor),
@@ -48,6 +49,7 @@ namespace rwe
           uiCamera(640, 480),
           unitTextureShader(std::move(unitTextureShader)),
           unitColorShader(std::move(unitColorShader)),
+          selectBoxShader(std::move(selectBoxShader)),
           unitDatabase(std::move(unitDatabase))
     {
     }
@@ -165,7 +167,7 @@ namespace rwe
         const auto& script = unitDatabase.getUnitScript(fbi.unitName);
         auto cobEnv = std::make_unique<CobEnvironment>(this, &script, unitId);
         cobEnv->createThread("Create", std::vector<int>());
-        Unit unit(meshInfo.mesh, std::move(cobEnv), meshInfo.selectionMesh);
+        Unit unit(meshInfo.mesh, std::move(cobEnv), std::move(meshInfo.selectionMesh));
         unit.position = position;
 
         return unit;
