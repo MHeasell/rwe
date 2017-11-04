@@ -47,6 +47,10 @@ namespace rwe
 
         boost::optional<SoundHandle> loadSound(const std::string& soundName);
 
+        void reserveChannels(unsigned int count);
+
+        void playSoundIfFree(const SoundHandle& sound, unsigned int channel);
+
     private:
         void haltChannel(int channel);
     };

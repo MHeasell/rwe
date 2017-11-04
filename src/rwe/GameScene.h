@@ -8,12 +8,17 @@
 #include <rwe/camera/UiCamera.h>
 #include "MeshService.h"
 #include "UnitDatabase.h"
+#include "AudioService.h"
 
 namespace rwe
 {
     class GameScene : public SceneManager::Scene
     {
     private:
+        static const unsigned int UnitSelectChannel = 0;
+
+        static const unsigned int reservedChannelsCount = 1;
+
         /**
          * Speed the camera pans via the arrow keys
          * in world units/second.
@@ -23,6 +28,7 @@ namespace rwe
         TextureService* textureService;
         CursorService* cursor;
         SdlContext* sdl;
+        AudioService* audioService;
 
         MeshService meshService;
 
@@ -55,6 +61,7 @@ namespace rwe
             TextureService* textureService,
             CursorService* cursor,
             SdlContext* sdl,
+            AudioService* audioService,
             MeshService&& meshService,
             CabinetCamera&& camera,
             MapTerrain&& terrain,
@@ -62,6 +69,8 @@ namespace rwe
             SharedShaderProgramHandle&& unitColorShader,
             SharedShaderProgramHandle&& selectBoxShader,
             UnitDatabase&& unitDatabase);
+
+        void init() override;
 
         void render(GraphicsContext& context) override;
 

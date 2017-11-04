@@ -34,4 +34,36 @@ namespace rwe
     {
         cobMap.insert({unitName, std::move(cob)});
     }
+
+    const SoundClass& UnitDatabase::getSoundClass(const std::string& className) const
+    {
+        auto it = soundClassMap.find(className);
+        if (it == soundClassMap.end())
+        {
+            throw std::runtime_error("No sound class found with name " + className);
+        }
+
+        return it->second;
+    }
+
+    void UnitDatabase::addSoundClass(const std::string& className, SoundClass&& soundClass)
+    {
+        soundClassMap.insert({className, std::move(soundClass)});
+    }
+
+    const AudioService::SoundHandle& UnitDatabase::getSoundHandle(const std::string sound) const
+    {
+        auto it = soundMap.find(sound);
+        if (it == soundMap.end())
+        {
+            throw std::runtime_error("No sound class found with name " + sound);
+        }
+
+        return it->second;
+    }
+
+    void UnitDatabase::addSound(const std::string& soundName, const AudioService::SoundHandle& sound)
+    {
+        soundMap.insert({soundName, sound});
+    }
 }

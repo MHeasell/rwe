@@ -10,6 +10,7 @@ namespace rwe
     {
         std::string unitName;
         std::string objectName;
+        std::string soundCategory;
     };
 
     UnitFbi parseUnitInfoBlock(const TdfBlock& tdf);

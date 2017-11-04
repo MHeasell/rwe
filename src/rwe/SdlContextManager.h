@@ -154,6 +154,16 @@ namespace rwe
         {
             return Mix_VolumeChunk(chunk, volume);
         }
+
+        int reserveChannels(int num)
+        {
+            return Mix_ReserveChannels(num);
+        }
+
+        int playing(int channel)
+        {
+            return Mix_Playing(channel);
+        }
     };
 
     class SdlImageContext

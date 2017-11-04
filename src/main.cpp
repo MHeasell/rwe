@@ -107,6 +107,7 @@ namespace rwe
             auto scene = std::make_unique<LoadingScene>(
                 &vfs,
                 &textureService,
+                &audioService,
                 &cursor,
                 &graphics,
                 &featureService,

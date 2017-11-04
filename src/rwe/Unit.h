@@ -8,6 +8,7 @@
 #include <boost/optional.hpp>
 #include <rwe/geometry/BoundingBox3f.h>
 #include <rwe/geometry/CollisionMesh.h>
+#include <rwe/AudioService.h>
 
 namespace rwe
 {
@@ -18,6 +19,7 @@ namespace rwe
         Vector3f position;
         std::unique_ptr<CobEnvironment> cobEnvironment;
         SelectionMesh selectionMesh;
+        boost::optional<AudioService::SoundHandle> selectionSound;
 
         Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, SelectionMesh&& selectionMesh);
 

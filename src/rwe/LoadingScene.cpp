@@ -16,6 +16,7 @@ namespace rwe
     LoadingScene::LoadingScene(
         AbstractVirtualFileSystem* vfs,
         TextureService* textureService,
+        AudioService* audioService,
         CursorService* cursor,
         GraphicsContext* graphics,
         MapFeatureService* featureService,
@@ -27,6 +28,7 @@ namespace rwe
         GameParameters gameParameters)
         : vfs(vfs),
           textureService(textureService),
+          audioService(audioService),
           cursor(cursor),
           graphics(graphics),
           featureService(featureService),
@@ -127,6 +129,7 @@ namespace rwe
             textureService,
             cursor,
             sdl,
+            audioService,
             std::move(meshService),
             std::move(camera),
             std::move(terrain),
@@ -429,6 +432,35 @@ namespace rwe
     {
         UnitDatabase db;
 
+        // read sound categories
+        {
+            auto bytes = vfs->readFile("gamedata/SOUND.TDF");
+            if (!bytes)
+            {
+                throw std::runtime_error("Failed to read gamedata/SOUND.TDF");
+            }
+
+            std::string soundString(bytes->data(), bytes->size());
+            auto sounds = parseSoundTdf(parseTdfFromString(soundString));
+            for (auto& s : sounds)
+            {
+                const auto& c = s.second;
+                preloadSound(db, c.select1);
+                preloadSound(db, c.ok1);
+                preloadSound(db, c.arrived1);
+                preloadSound(db, c.cant1);
+                preloadSound(db, c.underAttack);
+                preloadSound(db, c.count5);
+                preloadSound(db, c.count4);
+                preloadSound(db, c.count3);
+                preloadSound(db, c.count2);
+                preloadSound(db, c.count1);
+                preloadSound(db, c.count0);
+                preloadSound(db, c.cancelDestruct);
+                db.addSoundClass(s.first, std::move(s.second));
+            }
+        }
+
         // read unit FBIs
         {
             auto fbis = vfs->getFileNames("units", ".fbi");
@@ -470,5 +502,26 @@ namespace rwe
         }
 
         return db;
+    }
+
+    void LoadingScene::preloadSound(UnitDatabase& db, const boost::optional<std::string>& soundName)
+    {
+        if (!soundName)
+        {
+            return;
+        }
+
+        preloadSound(db, *soundName);
+    }
+
+    void LoadingScene::preloadSound(UnitDatabase& db, const std::string& soundName)
+    {
+        auto sound = audioService->loadSound(soundName);
+        if (!sound)
+        {
+            return; // sometimes sound categories name invalid sounds
+        }
+
+        db.addSound(soundName, *sound);
     }
 }

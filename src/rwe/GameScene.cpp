@@ -33,6 +33,7 @@ namespace rwe
         TextureService* textureService,
         CursorService* cursor,
         SdlContext* sdl,
+        AudioService* audioService,
         MeshService&& meshService,
         CabinetCamera&& camera,
         MapTerrain&& terrain,
@@ -43,6 +44,7 @@ namespace rwe
         : textureService(textureService),
           cursor(cursor),
           sdl(sdl),
+          audioService(audioService),
           meshService(std::move(meshService)),
           camera(std::move(camera)),
           terrain(std::move(terrain)),
@@ -52,6 +54,11 @@ namespace rwe
           selectBoxShader(std::move(selectBoxShader)),
           unitDatabase(std::move(unitDatabase))
     {
+    }
+
+    void GameScene::init()
+    {
+        audioService->reserveChannels(reservedChannelsCount);
     }
 
     void GameScene::onKeyDown(const SDL_Keysym& keysym)
@@ -96,7 +103,19 @@ namespace rwe
 
     void GameScene::onMouseUp(MouseButtonEvent event)
     {
-        selectedUnit = hoveredUnit;
+        if (hoveredUnit)
+        {
+            selectedUnit = hoveredUnit;
+            const auto& selectionSound = units[*hoveredUnit].selectionSound;
+            if (selectionSound)
+            {
+                audioService->playSoundIfFree(*selectionSound, UnitSelectChannel);
+            }
+        }
+        else
+        {
+            selectedUnit = boost::none;
+        }
     }
 
     void GameScene::update()
@@ -161,6 +180,7 @@ namespace rwe
     Unit GameScene::createUnit(unsigned int unitId, const std::string& unitType, const Vector3f& position)
     {
         const auto& fbi = unitDatabase.getUnitInfo(unitType);
+        const auto& soundClass = unitDatabase.getSoundClass(fbi.soundCategory);
 
         auto meshInfo = meshService.loadUnitMesh(fbi.objectName);
 
@@ -169,6 +189,11 @@ namespace rwe
         cobEnv->createThread("Create", std::vector<int>());
         Unit unit(meshInfo.mesh, std::move(cobEnv), std::move(meshInfo.selectionMesh));
         unit.position = position;
+
+        if (soundClass.select1)
+        {
+            unit.selectionSound = unitDatabase.getSoundHandle(*(soundClass.select1));
+        }
 
         return unit;
     }

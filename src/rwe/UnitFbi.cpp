@@ -19,6 +19,7 @@ namespace rwe
 
         u.unitName = tdf.expectString("UnitName");
         u.objectName = tdf.expectString("Objectname");
+        u.soundCategory = tdf.expectString("SoundCategory");
 
         return u;
     }

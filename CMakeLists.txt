@@ -107,6 +107,8 @@ set(SOURCE_FILES
     src/rwe/SharedHandle.h
     src/rwe/SideData.cpp
     src/rwe/SideData.h
+    src/rwe/SoundClass.cpp
+    src/rwe/SoundClass.h
     src/rwe/Sprite.cpp
     src/rwe/Sprite.h
     src/rwe/SpriteSeries.cpp

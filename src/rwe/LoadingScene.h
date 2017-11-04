@@ -38,6 +38,7 @@ namespace rwe
 
         AbstractVirtualFileSystem* vfs;
         TextureService* textureService;
+        AudioService* audioService;
         CursorService* cursor;
         GraphicsContext* graphics;
         MapFeatureService* featureService;
@@ -56,6 +57,7 @@ namespace rwe
         LoadingScene(
             AbstractVirtualFileSystem* vfs,
             TextureService* textureService,
+            AudioService* audioService,
             CursorService* cursor,
             GraphicsContext* graphics,
             MapFeatureService* featureService,
@@ -96,6 +98,10 @@ namespace rwe
         const SideData& getSideData(const std::string& side) const;
 
         UnitDatabase createUnitDatabase();
+
+        void preloadSound(UnitDatabase& db, const std::string& soundName);
+
+        void preloadSound(UnitDatabase& db, const boost::optional<std::string>& soundName);
     };
 }
 

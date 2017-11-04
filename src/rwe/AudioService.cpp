@@ -47,9 +47,28 @@ namespace rwe
         return sound;
     }
 
+    void AudioService::reserveChannels(unsigned int count)
+    {
+        auto num = sdlMixerContext->reserveChannels(count);
+        if (num < count)
+        {
+            throw std::runtime_error("Failed to reserve audio channels");
+        }
+    }
+
     void AudioService::haltChannel(int channel)
     {
         sdlMixerContext->haltChannel(channel);
+    }
+
+    void AudioService::playSoundIfFree(const AudioService::SoundHandle& sound, unsigned int channel)
+    {
+        if (sdlMixerContext->playing(channel))
+        {
+            return;
+        }
+
+        sdlMixerContext->playChannel(channel, sound.get(), 0);
     }
 
     AudioService::LoopToken::LoopToken(AudioService* audioService, int channel, const AudioService::SoundHandle& sound)
