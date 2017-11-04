@@ -626,7 +626,11 @@ namespace rwe
         glGetShaderiv(shader.get().value, GL_COMPILE_STATUS, &compileStatus);
         if (compileStatus == GL_FALSE)
         {
-            throw GraphicsException("shader compilation error");
+            std::vector<char> errorBuffer(512);
+            GLsizei len;
+            glGetShaderInfoLog(shader.get().value, 512, &len, errorBuffer.data());
+            std::string error(errorBuffer.data(), len);
+            throw GraphicsException("shader compilation error: " + error);
         }
 
         return shader;
