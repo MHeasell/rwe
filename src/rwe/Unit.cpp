@@ -1,4 +1,5 @@
 #include <rwe/geometry/Plane3f.h>
+#include <rwe/math/rwe_math.h>
 #include "Unit.h"
 
 namespace rwe
@@ -178,7 +179,16 @@ namespace rwe
         const Matrix4f& projectionMatrix,
         ShaderProgramIdentifier shader) const
     {
-        auto matrix = Matrix4f::translation(position);
+        // try to ensure that the selection rectangle vertices
+        // are aligned with the middle of pixels,
+        // to prevent discontinuities in the drawn lines.
+        Vector3f snappedPosition(
+            snapToInterval(position.x, 1.0f) + 0.5f,
+            snapToInterval(position.y, 2.0f),
+            snapToInterval(position.z, 1.0f) + 0.5f);
+
+        auto matrix = Matrix4f::translation(snappedPosition);
+
         context.drawWireframeSelectionMesh(selectionMesh.visualMesh, matrix, viewMatrix, projectionMatrix, shader);
     }
 }
