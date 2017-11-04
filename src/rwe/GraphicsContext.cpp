@@ -743,8 +743,7 @@ namespace rwe
         const Matrix4f& modelMatrix,
         const Matrix4f& viewMatrix,
         const Matrix4f& projectionMatrix,
-        ShaderProgramIdentifier shader
-    )
+        ShaderProgramIdentifier shader)
     {
         glUseProgram(shader.value);
         glBindVertexArray(mesh.vao.get().value);

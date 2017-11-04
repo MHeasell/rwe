@@ -92,7 +92,7 @@ namespace rwe
 
             thread->execute();
 
-            boost::apply_visitor(ThreadRescheduleVisitor(this, thread),  thread->getStatus());
+            boost::apply_visitor(ThreadRescheduleVisitor(this, thread), thread->getStatus());
         }
     }
 
