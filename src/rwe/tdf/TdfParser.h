@@ -331,7 +331,7 @@ namespace rwe
         {
             if (!accept(cp))
             {
-                throw TdfParserException(_it.getLine(), _it.getColumn(), "Expected " + cp);
+                throw TdfParserException(_it.getLine(), _it.getColumn(), "Expected " + std::to_string(cp));
             }
         }
 
