@@ -540,7 +540,20 @@ namespace rwe
                 continue;
             }
 
-            PlayerInfo playerInfo{getSideName(playerSlot.side.getValue())};
+            PlayerInfo::Controller controller;
+            switch (playerSlot.type.getValue())
+            {
+                case MainMenuModel::PlayerSettings::Type::Human:
+                    controller = PlayerInfo::Controller::Human;
+                    break;
+                case MainMenuModel::PlayerSettings::Type::Computer:
+                    controller = PlayerInfo::Controller::Computer;
+                    break;
+                default:
+                    throw std::logic_error("Invalid slot type");
+            }
+
+            PlayerInfo playerInfo{controller, getSideName(playerSlot.side.getValue())};
             params.players[i] = std::move(playerInfo);
         }
 

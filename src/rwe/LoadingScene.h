@@ -19,6 +19,13 @@ namespace rwe
 {
     struct PlayerInfo
     {
+        enum class Controller
+        {
+            Human,
+            Computer
+        };
+
+        Controller controller;
         std::string side;
     };
 

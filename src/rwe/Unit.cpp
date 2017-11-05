@@ -191,4 +191,9 @@ namespace rwe
 
         context.drawWireframeSelectionMesh(selectionMesh.visualMesh, matrix, viewMatrix, projectionMatrix, shader);
     }
+
+    bool Unit::isOwnedBy(unsigned int playerId) const
+    {
+        return owner == playerId;
+    }
 }

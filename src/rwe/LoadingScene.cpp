@@ -125,8 +125,16 @@ namespace rwe
 
         auto unitDatabase = createUnitDatabase();
 
-        // TODO: detect which player is the human
-        auto localPlayerId = 0;
+        // detect which player is the local human
+        auto localPlayerIdIt = std::find_if(
+            gameParameters.players.begin(),
+            gameParameters.players.end(),
+            [](const auto& pi) { return pi && pi->controller == PlayerInfo::Controller::Human; });
+        if (localPlayerIdIt == gameParameters.players.end())
+        {
+            throw std::logic_error("No human player in the game");
+        }
+        auto localPlayerId = localPlayerIdIt - gameParameters.players.begin();
 
         auto gameScene = std::make_unique<GameScene>(
             textureService,
