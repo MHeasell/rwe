@@ -29,12 +29,18 @@ namespace rwe
 {
     class MeshService
     {
+    public:
+        struct TextureAttributes
+        {
+            bool isTeamDependent;
+        };
     private:
         AbstractVirtualFileSystem* vfs;
         GraphicsContext* graphics;
         const ColorPalette* palette;
         SharedTextureHandle atlas;
         std::unordered_map<FrameId, Rectangle2f> atlasMap;
+        std::unordered_map<std::string, TextureAttributes> textureAttributesMap;
 
     public:
         static MeshService createMeshService(
@@ -46,7 +52,8 @@ namespace rwe
             AbstractVirtualFileSystem* vfs,
             const ColorPalette* palette,
             SharedTextureHandle&& atlas,
-            std::unordered_map<FrameId, Rectangle2f>&& atlasMap);
+            std::unordered_map<FrameId, Rectangle2f>&& atlasMap,
+            std::unordered_map<std::string, TextureAttributes> textureAttributesMap);
 
         struct UnitMeshInfo
         {
@@ -58,7 +65,7 @@ namespace rwe
 
     private:
         SharedTextureHandle getMeshTextureAtlas();
-        Rectangle2f getTextureRegion(const std::string& name, unsigned int frameNumber);
+        Rectangle2f getTextureRegion(const std::string& name, unsigned int teamColor);
 
         Mesh meshFrom3do(const _3do::Object& o, unsigned int teamColor);
 

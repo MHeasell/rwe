@@ -4,6 +4,7 @@
 #include "_3do.h"
 #include "Gaf.h"
 #include "BoxTreeSplit.h"
+#include <rwe/rwe_string.h>
 
 namespace rwe
 {
@@ -90,6 +91,7 @@ namespace rwe
         auto gafs = vfs->getFileNames("textures", ".gaf");
 
         std::vector<FrameInfo> frames;
+        std::unordered_map<std::string, TextureAttributes> attribs;
 
         // load all the textures into memory
         for (const auto& gafName : gafs)
@@ -103,8 +105,11 @@ namespace rwe
             auto stream = boost::interprocess::bufferstream(bytes->data(), bytes->size());
             GafArchive gaf(&stream);
 
+            bool isTeamDependent = toUpper(gafName) == "LOGOS.GAF";
+
             for (const auto& e : gaf.entries())
             {
+                attribs[e.name] = TextureAttributes{isTeamDependent};
                 FrameListGafAdapter adapter(&frames, &e.name);
                 gaf.extract(e, adapter);
             }
@@ -145,18 +150,20 @@ namespace rwe
 
         SharedTextureHandle atlasTexture(graphics->createTexture(atlas));
 
-        return MeshService(vfs, palette, std::move(atlasTexture), std::move(atlasMap));
+        return MeshService(vfs, palette, std::move(atlasTexture), std::move(atlasMap), std::move(attribs));
     }
 
     MeshService::MeshService(
         AbstractVirtualFileSystem* vfs,
         const ColorPalette* palette,
         SharedTextureHandle&& atlas,
-        std::unordered_map<FrameId, Rectangle2f>&& atlasMap)
+        std::unordered_map<FrameId, Rectangle2f>&& atlasMap,
+        std::unordered_map<std::string, TextureAttributes> textureAttributesMap)
         : vfs(vfs),
           palette(palette),
           atlas(std::move(atlas)),
-          atlasMap(std::move(atlasMap))
+          atlasMap(std::move(atlasMap)),
+          textureAttributesMap(std::move(textureAttributesMap))
     {
     }
 
@@ -252,23 +259,29 @@ namespace rwe
         return atlas;
     }
 
-    Rectangle2f MeshService::getTextureRegion(const std::string& name, unsigned int frameNumber)
+    Rectangle2f MeshService::getTextureRegion(const std::string& name, unsigned int teamColor)
     {
+        auto attrsIt = textureAttributesMap.find(name);
+        if (attrsIt == textureAttributesMap.end())
+        {
+            throw std::runtime_error("Texture attributes not found for texture: " + name);
+        }
+
+        const auto& attrs = attrsIt->second;
+        unsigned int frameNumber = 0;
+        if (attrs.isTeamDependent)
+        {
+            frameNumber = teamColor;
+        }
+
         FrameId frameId(name, frameNumber);
         auto it = atlasMap.find(frameId);
-        if (it != atlasMap.end())
+        if (it == atlasMap.end())
         {
-            return it->second;
+            throw std::runtime_error("Texture not found in atlas: " + name);
         }
 
-        frameId.second = 0;
-        it = atlasMap.find(frameId);
-        if (it != atlasMap.end())
-        {
-            return it->second;
-        }
-
-        throw std::runtime_error("Texture not found in atlas: " + name);
+        return it->second;
     }
 
     SelectionMesh MeshService::selectionMeshFrom3do(const _3do::Object& o)
