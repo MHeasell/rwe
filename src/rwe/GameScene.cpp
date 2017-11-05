@@ -40,7 +40,8 @@ namespace rwe
         SharedShaderProgramHandle&& unitTextureShader,
         SharedShaderProgramHandle&& unitColorShader,
         SharedShaderProgramHandle&& selectBoxShader,
-        UnitDatabase&& unitDatabase)
+        UnitDatabase&& unitDatabase,
+        unsigned int localPlayerId)
         : textureService(textureService),
           cursor(cursor),
           sdl(sdl),
@@ -52,7 +53,8 @@ namespace rwe
           unitTextureShader(std::move(unitTextureShader)),
           unitColorShader(std::move(unitColorShader)),
           selectBoxShader(std::move(selectBoxShader)),
-          unitDatabase(std::move(unitDatabase))
+          unitDatabase(std::move(unitDatabase)),
+          localPlayerId(localPlayerId)
     {
     }
 
@@ -103,7 +105,7 @@ namespace rwe
 
     void GameScene::onMouseUp(MouseButtonEvent event)
     {
-        if (hoveredUnit)
+        if (hoveredUnit && units[*hoveredUnit].isOwnedBy(localPlayerId))
         {
             selectedUnit = hoveredUnit;
             const auto& selectionSound = units[*hoveredUnit].selectionSound;
@@ -144,7 +146,7 @@ namespace rwe
 
         hoveredUnit = getUnitUnderCursor();
 
-        if (hoveredUnit)
+        if (hoveredUnit && units[*hoveredUnit].isOwnedBy(localPlayerId))
         {
             cursor->useSelectCursor();
         }
@@ -161,10 +163,10 @@ namespace rwe
         }
     }
 
-    void GameScene::spawnUnit(const std::string& unitType, const Vector3f& position)
+    void GameScene::spawnUnit(const std::string& unitType, unsigned int owner, const Vector3f& position)
     {
         unsigned int unitId = units.size();
-        units.push_back(createUnit(unitId, unitType, position));
+        units.push_back(createUnit(unitId, unitType, owner, position));
     }
 
     void GameScene::setCameraPosition(const Vector3f& newPosition)
@@ -177,7 +179,7 @@ namespace rwe
         return terrain;
     }
 
-    Unit GameScene::createUnit(unsigned int unitId, const std::string& unitType, const Vector3f& position)
+    Unit GameScene::createUnit(unsigned int unitId, const std::string& unitType, unsigned int owner, const Vector3f& position)
     {
         const auto& fbi = unitDatabase.getUnitInfo(unitType);
         const auto& soundClass = unitDatabase.getSoundClass(fbi.soundCategory);
@@ -188,6 +190,7 @@ namespace rwe
         auto cobEnv = std::make_unique<CobEnvironment>(this, &script, unitId);
         cobEnv->createThread("Create", std::vector<int>());
         Unit unit(meshInfo.mesh, std::move(cobEnv), std::move(meshInfo.selectionMesh));
+        unit.owner = owner;
         unit.position = position;
 
         if (soundClass.select1)

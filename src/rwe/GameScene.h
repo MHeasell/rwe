@@ -53,6 +53,8 @@ namespace rwe
 
         unsigned int gameTime{0};
 
+        unsigned int localPlayerId;
+
         boost::optional<unsigned int> hoveredUnit;
         boost::optional<unsigned int> selectedUnit;
 
@@ -68,7 +70,8 @@ namespace rwe
             SharedShaderProgramHandle&& unitTextureShader,
             SharedShaderProgramHandle&& unitColorShader,
             SharedShaderProgramHandle&& selectBoxShader,
-            UnitDatabase&& unitDatabase);
+            UnitDatabase&& unitDatabase,
+            unsigned int localPlayerId);
 
         void init() override;
 
@@ -82,7 +85,7 @@ namespace rwe
 
         void update() override;
 
-        void spawnUnit(const std::string& unitType, const Vector3f& position);
+        void spawnUnit(const std::string& unitType, unsigned int owner, const Vector3f& position);
 
         void setCameraPosition(const Vector3f& newPosition);
 
@@ -107,7 +110,7 @@ namespace rwe
         unsigned int getGameTime() const;
 
     private:
-        Unit createUnit(unsigned int unitId, const std::string& unitType, const Vector3f& position);
+        Unit createUnit(unsigned int unitId, const std::string& unitType, unsigned int owner, const Vector3f& position);
 
         boost::optional<unsigned int> getUnitUnderCursor() const;
 

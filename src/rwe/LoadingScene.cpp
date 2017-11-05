@@ -125,6 +125,9 @@ namespace rwe
 
         auto unitDatabase = createUnitDatabase();
 
+        // TODO: detect which player is the human
+        auto localPlayerId = 0;
+
         auto gameScene = std::make_unique<GameScene>(
             textureService,
             cursor,
@@ -136,7 +139,8 @@ namespace rwe
             std::move(unitTextureShader),
             std::move(unitColorShader),
             std::move(selectBoxShader),
-            std::move(unitDatabase));
+            std::move(unitDatabase),
+            localPlayerId);
 
         const auto& schema = ota.schemas.at(schemaIndex);
 
@@ -163,14 +167,13 @@ namespace rwe
             auto worldStartPos = gameScene->getTerrain().topLeftCoordinateToWorld(Vector3f(startPos.xPos, 0.0f, startPos.zPos));
             worldStartPos.y = gameScene->getTerrain().getHeightAt(worldStartPos.x, worldStartPos.z);
 
-            // TODO: detect which player is the human
-            if (i == 0)
+            if (i == localPlayerId)
             {
                 humanStartPos = worldStartPos;
             }
 
             const auto& sideData = getSideData(player->side);
-            gameScene->spawnUnit(sideData.commander, worldStartPos);
+            gameScene->spawnUnit(sideData.commander, i, worldStartPos);
         }
 
         gameScene->setCameraPosition(Vector3f(humanStartPos.x, 0.0f, humanStartPos.z));

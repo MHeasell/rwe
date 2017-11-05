@@ -20,6 +20,7 @@ namespace rwe
         std::unique_ptr<CobEnvironment> cobEnvironment;
         SelectionMesh selectionMesh;
         boost::optional<AudioService::SoundHandle> selectionSound;
+        unsigned int owner;
 
         Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, SelectionMesh&& selectionMesh);
 
@@ -55,6 +56,8 @@ namespace rwe
             const Matrix4f& viewMatrix,
             const Matrix4f& projectionMatrix,
             ShaderProgramIdentifier shader) const;
+
+        bool isOwnedBy(unsigned int playerId) const;
     };
 }
 
