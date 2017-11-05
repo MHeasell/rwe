@@ -41,6 +41,7 @@ namespace rwe
         SharedShaderProgramHandle&& unitColorShader,
         SharedShaderProgramHandle&& selectBoxShader,
         UnitDatabase&& unitDatabase,
+        std::array<boost::optional<GamePlayerInfo>, 10>&& players,
         unsigned int localPlayerId)
         : textureService(textureService),
           cursor(cursor),
@@ -54,6 +55,7 @@ namespace rwe
           unitColorShader(std::move(unitColorShader)),
           selectBoxShader(std::move(selectBoxShader)),
           unitDatabase(std::move(unitDatabase)),
+          players(std::move(players)),
           localPlayerId(localPlayerId)
     {
     }
@@ -184,7 +186,7 @@ namespace rwe
         const auto& fbi = unitDatabase.getUnitInfo(unitType);
         const auto& soundClass = unitDatabase.getSoundClass(fbi.soundCategory);
 
-        auto meshInfo = meshService.loadUnitMesh(fbi.objectName, owner);
+        auto meshInfo = meshService.loadUnitMesh(fbi.objectName, players[owner]->color);
 
         const auto& script = unitDatabase.getUnitScript(fbi.unitName);
         auto cobEnv = std::make_unique<CobEnvironment>(this, &script, unitId);

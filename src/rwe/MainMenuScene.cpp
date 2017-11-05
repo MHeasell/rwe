@@ -553,7 +553,7 @@ namespace rwe
                     throw std::logic_error("Invalid slot type");
             }
 
-            PlayerInfo playerInfo{controller, getSideName(playerSlot.side.getValue())};
+            PlayerInfo playerInfo{controller, getSideName(playerSlot.side.getValue()), playerSlot.colorIndex.getValue()};
             params.players[i] = std::move(playerInfo);
         }
 

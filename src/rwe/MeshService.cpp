@@ -160,7 +160,7 @@ namespace rwe
     {
     }
 
-    Mesh MeshService::meshFrom3do(const _3do::Object& o, unsigned int playerId)
+    Mesh MeshService::meshFrom3do(const _3do::Object& o, unsigned int teamColor)
     {
         Mesh m;
         m.texture = getMeshTextureAtlas();
@@ -170,7 +170,7 @@ namespace rwe
             // handle textured quads
             if (p.vertices.size() == 4 && p.textureName)
             {
-                auto textureBounds = getTextureRegion(*(p.textureName), playerId);
+                auto textureBounds = getTextureRegion(*(p.textureName), teamColor);
 
                 Mesh::Triangle t0(
                     Mesh::Vertex(vertexToVector(o.vertices[p.vertices[2]]), textureBounds.bottomRight()),
@@ -213,7 +213,7 @@ namespace rwe
         return m;
     }
 
-    UnitMesh MeshService::unitMeshFrom3do(const _3do::Object& o, unsigned int playerId)
+    UnitMesh MeshService::unitMeshFrom3do(const _3do::Object& o, unsigned int teamColor)
     {
         UnitMesh m;
         m.origin = Vector3f(
@@ -221,17 +221,17 @@ namespace rwe
             convertFixedPoint(o.y),
             convertFixedPoint(o.z));
         m.name = o.name;
-        m.mesh = std::make_shared<ShaderMesh>(graphics->convertMesh(meshFrom3do(o, playerId)));
+        m.mesh = std::make_shared<ShaderMesh>(graphics->convertMesh(meshFrom3do(o, teamColor)));
 
         for (const auto& c : o.children)
         {
-            m.children.push_back(unitMeshFrom3do(c, playerId));
+            m.children.push_back(unitMeshFrom3do(c, teamColor));
         }
 
         return m;
     }
 
-    MeshService::UnitMeshInfo MeshService::loadUnitMesh(const std::string& name, unsigned int playerId)
+    MeshService::UnitMeshInfo MeshService::loadUnitMesh(const std::string& name, unsigned int teamColor)
     {
         auto bytes = vfs->readFile("objects3d/" + name + ".3do");
         if (!bytes)
@@ -243,7 +243,7 @@ namespace rwe
         auto objects = parse3doObjects(s, s.tellg());
         assert(objects.size() == 1);
         auto selectionMesh = selectionMeshFrom3do(objects.front());
-        auto unitMesh = unitMeshFrom3do(objects.front(), playerId);
+        auto unitMesh = unitMeshFrom3do(objects.front(), teamColor);
         return UnitMeshInfo{std::move(unitMesh), std::move(selectionMesh)};
     }
 

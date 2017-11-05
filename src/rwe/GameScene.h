@@ -12,6 +12,11 @@
 
 namespace rwe
 {
+    struct GamePlayerInfo
+    {
+        unsigned int color;
+    };
+
     class GameScene : public SceneManager::Scene
     {
     private:
@@ -53,6 +58,8 @@ namespace rwe
 
         unsigned int gameTime{0};
 
+        std::array<boost::optional<GamePlayerInfo>, 10> players;
+
         unsigned int localPlayerId;
 
         boost::optional<unsigned int> hoveredUnit;
@@ -71,6 +78,7 @@ namespace rwe
             SharedShaderProgramHandle&& unitColorShader,
             SharedShaderProgramHandle&& selectBoxShader,
             UnitDatabase&& unitDatabase,
+            std::array<boost::optional<GamePlayerInfo>, 10>&& players,
             unsigned int localPlayerId);
 
         void init() override;

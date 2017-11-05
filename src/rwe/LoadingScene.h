@@ -27,6 +27,7 @@ namespace rwe
 
         Controller controller;
         std::string side;
+        unsigned int color;
     };
 
     struct GameParameters

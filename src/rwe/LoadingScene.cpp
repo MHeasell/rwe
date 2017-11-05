@@ -136,6 +136,16 @@ namespace rwe
         }
         auto localPlayerId = localPlayerIdIt - gameParameters.players.begin();
 
+        std::array<boost::optional<GamePlayerInfo>, 10> gamePlayers;
+        for (int i = 0; i < 10; ++i)
+        {
+            if (gameParameters.players[i])
+            {
+                GamePlayerInfo gpi{gameParameters.players[i]->color};
+                gamePlayers[i] = gpi;
+            }
+        }
+
         auto gameScene = std::make_unique<GameScene>(
             textureService,
             cursor,
@@ -148,6 +158,7 @@ namespace rwe
             std::move(unitColorShader),
             std::move(selectBoxShader),
             std::move(unitDatabase),
+            std::move(gamePlayers),
             localPlayerId);
 
         const auto& schema = ota.schemas.at(schemaIndex);

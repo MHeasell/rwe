@@ -102,8 +102,8 @@ namespace rwe
         if (mapName)
         {
             GameParameters params{*mapName, 0};
-            params.players[0] = PlayerInfo{PlayerInfo::Controller::Human, "ARM"};
-            params.players[1] = PlayerInfo{PlayerInfo::Controller::Computer, "CORE"};
+            params.players[0] = PlayerInfo{PlayerInfo::Controller::Human, "ARM", 0};
+            params.players[1] = PlayerInfo{PlayerInfo::Controller::Computer, "CORE", 1};
             auto scene = std::make_unique<LoadingScene>(
                 &vfs,
                 &textureService,
