@@ -184,7 +184,7 @@ namespace rwe
         const auto& fbi = unitDatabase.getUnitInfo(unitType);
         const auto& soundClass = unitDatabase.getSoundClass(fbi.soundCategory);
 
-        auto meshInfo = meshService.loadUnitMesh(fbi.objectName);
+        auto meshInfo = meshService.loadUnitMesh(fbi.objectName, owner);
 
         const auto& script = unitDatabase.getUnitScript(fbi.unitName);
         auto cobEnv = std::make_unique<CobEnvironment>(this, &script, unitId);

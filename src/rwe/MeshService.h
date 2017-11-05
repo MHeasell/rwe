@@ -54,15 +54,15 @@ namespace rwe
             SelectionMesh selectionMesh;
         };
 
-        UnitMeshInfo loadUnitMesh(const std::string& name);
+        UnitMeshInfo loadUnitMesh(const std::string& name, unsigned int playerId);
 
     private:
         SharedTextureHandle getMeshTextureAtlas();
         Rectangle2f getTextureRegion(const std::string& name, unsigned int frameNumber);
 
-        Mesh meshFrom3do(const _3do::Object& o);
+        Mesh meshFrom3do(const _3do::Object& o, unsigned int playerId);
 
-        UnitMesh unitMeshFrom3do(const _3do::Object& o);
+        UnitMesh unitMeshFrom3do(const _3do::Object& o, unsigned int playerId);
 
         SelectionMesh selectionMeshFrom3do(const _3do::Object& o);
     };

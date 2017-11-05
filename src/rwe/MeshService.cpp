@@ -160,7 +160,7 @@ namespace rwe
     {
     }
 
-    Mesh MeshService::meshFrom3do(const _3do::Object& o)
+    Mesh MeshService::meshFrom3do(const _3do::Object& o, unsigned int playerId)
     {
         Mesh m;
         m.texture = getMeshTextureAtlas();
@@ -170,7 +170,7 @@ namespace rwe
             // handle textured quads
             if (p.vertices.size() == 4 && p.textureName)
             {
-                auto textureBounds = getTextureRegion(*(p.textureName), 0);
+                auto textureBounds = getTextureRegion(*(p.textureName), playerId);
 
                 Mesh::Triangle t0(
                     Mesh::Vertex(vertexToVector(o.vertices[p.vertices[2]]), textureBounds.bottomRight()),
@@ -213,7 +213,7 @@ namespace rwe
         return m;
     }
 
-    UnitMesh MeshService::unitMeshFrom3do(const _3do::Object& o)
+    UnitMesh MeshService::unitMeshFrom3do(const _3do::Object& o, unsigned int playerId)
     {
         UnitMesh m;
         m.origin = Vector3f(
@@ -221,17 +221,17 @@ namespace rwe
             convertFixedPoint(o.y),
             convertFixedPoint(o.z));
         m.name = o.name;
-        m.mesh = std::make_shared<ShaderMesh>(graphics->convertMesh(meshFrom3do(o)));
+        m.mesh = std::make_shared<ShaderMesh>(graphics->convertMesh(meshFrom3do(o, playerId)));
 
         for (const auto& c : o.children)
         {
-            m.children.push_back(unitMeshFrom3do(c));
+            m.children.push_back(unitMeshFrom3do(c, playerId));
         }
 
         return m;
     }
 
-    MeshService::UnitMeshInfo MeshService::loadUnitMesh(const std::string& name)
+    MeshService::UnitMeshInfo MeshService::loadUnitMesh(const std::string& name, unsigned int playerId)
     {
         auto bytes = vfs->readFile("objects3d/" + name + ".3do");
         if (!bytes)
@@ -243,7 +243,7 @@ namespace rwe
         auto objects = parse3doObjects(s, s.tellg());
         assert(objects.size() == 1);
         auto selectionMesh = selectionMeshFrom3do(objects.front());
-        auto unitMesh = unitMeshFrom3do(objects.front());
+        auto unitMesh = unitMeshFrom3do(objects.front(), playerId);
         return UnitMeshInfo{std::move(unitMesh), std::move(selectionMesh)};
     }
 
@@ -256,12 +256,19 @@ namespace rwe
     {
         FrameId frameId(name, frameNumber);
         auto it = atlasMap.find(frameId);
-        if (it == atlasMap.end())
+        if (it != atlasMap.end())
         {
-            throw std::runtime_error("Texture not found in atlas: " + name);
+            return it->second;
         }
 
-        return it->second;
+        frameId.second = 0;
+        it = atlasMap.find(frameId);
+        if (it != atlasMap.end())
+        {
+            return it->second;
+        }
+
+        throw std::runtime_error("Texture not found in atlas: " + name);
     }
 
     SelectionMesh MeshService::selectionMeshFrom3do(const _3do::Object& o)
