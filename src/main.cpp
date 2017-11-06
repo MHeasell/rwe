@@ -118,6 +118,7 @@ namespace rwe
                 &sceneManager,
                 sdlContext,
                 &sideDataMap,
+                &viewportService,
                 AudioService::LoopToken(),
                 params);
             sceneManager.setNextScene(std::move(scene));

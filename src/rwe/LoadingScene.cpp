@@ -24,6 +24,7 @@ namespace rwe
         SceneManager* sceneManager,
         SdlContext* sdl,
         const std::unordered_map<std::string, SideData>* sideData,
+        ViewportService* viewportService,
         AudioService::LoopToken&& bgm,
         GameParameters gameParameters)
         : vfs(vfs),
@@ -36,6 +37,7 @@ namespace rwe
           sceneManager(sceneManager),
           sdl(sdl),
           sideData(sideData),
+          viewportService(viewportService),
           bgm(std::move(bgm)),
           gameParameters(std::move(gameParameters))
     {
@@ -103,7 +105,7 @@ namespace rwe
 
         auto terrain = createMapTerrain(mapName, ota, schemaIndex);
 
-        CabinetCamera camera(640.0f, 480.0f);
+        CabinetCamera camera(viewportService->width(), viewportService->height());
         camera.setPosition(Vector3f(0.0f, 0.0f, 0.0f));
 
         auto meshService = MeshService::createMeshService(vfs, graphics, palette);
@@ -151,6 +153,7 @@ namespace rwe
             cursor,
             sdl,
             audioService,
+            viewportService,
             std::move(meshService),
             std::move(camera),
             std::move(terrain),

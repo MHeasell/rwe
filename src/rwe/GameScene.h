@@ -9,6 +9,7 @@
 #include "MeshService.h"
 #include "UnitDatabase.h"
 #include "AudioService.h"
+#include <rwe/ViewportService.h>
 
 namespace rwe
 {
@@ -34,6 +35,7 @@ namespace rwe
         CursorService* cursor;
         SdlContext* sdl;
         AudioService* audioService;
+        ViewportService* viewportService;
 
         MeshService meshService;
 
@@ -71,6 +73,7 @@ namespace rwe
             CursorService* cursor,
             SdlContext* sdl,
             AudioService* audioService,
+            ViewportService* viewportService,
             MeshService&& meshService,
             CabinetCamera&& camera,
             MapTerrain&& terrain,

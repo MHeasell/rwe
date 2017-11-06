@@ -34,6 +34,7 @@ namespace rwe
         CursorService* cursor,
         SdlContext* sdl,
         AudioService* audioService,
+        ViewportService* viewportService,
         MeshService&& meshService,
         CabinetCamera&& camera,
         MapTerrain&& terrain,
@@ -47,10 +48,11 @@ namespace rwe
           cursor(cursor),
           sdl(sdl),
           audioService(audioService),
+          viewportService(viewportService),
           meshService(std::move(meshService)),
           camera(std::move(camera)),
           terrain(std::move(terrain)),
-          uiCamera(640, 480),
+          uiCamera(viewportService->width(), viewportService->height()),
           unitTextureShader(std::move(unitTextureShader)),
           unitColorShader(std::move(unitColorShader)),
           selectBoxShader(std::move(selectBoxShader)),
@@ -265,8 +267,7 @@ namespace rwe
 
     Vector2f GameScene::screenToClipSpace(Point p) const
     {
-        // TODO: replace hard-coded screen size
-        return convertScreenToClipSpace(640, 480, p);
+        return viewportService->toClipSpace(p);
     }
 
     boost::optional<unsigned int> GameScene::getFirstCollidingUnit(const Ray3f& ray) const

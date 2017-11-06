@@ -581,6 +581,7 @@ namespace rwe
             sceneManager,
             sdl,
             sideData,
+            viewportService,
             std::move(bgm),
             params);
 

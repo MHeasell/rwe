@@ -14,6 +14,7 @@
 #include "ota.h"
 #include "SideData.h"
 #include "UnitDatabase.h"
+#include <rwe/ViewportService.h>
 
 namespace rwe
 {
@@ -54,6 +55,7 @@ namespace rwe
         SceneManager* sceneManager;
         SdlContext* sdl;
         const std::unordered_map<std::string, SideData>* sideData;
+        ViewportService* viewportService;
 
         AudioService::LoopToken bgm;
 
@@ -73,6 +75,7 @@ namespace rwe
             SceneManager* sceneManager,
             SdlContext* sdl,
             const std::unordered_map<std::string, SideData>* sideData,
+            ViewportService* viewportService,
             AudioService::LoopToken&& bgm,
             GameParameters gameParameters);
 
