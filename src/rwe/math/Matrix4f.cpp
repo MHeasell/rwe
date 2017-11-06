@@ -111,6 +111,33 @@ namespace rwe
         return m;
     }
 
+    Matrix4f Matrix4f::shearXZ(float x, float z)
+    {
+        Matrix4f m;
+
+        m.data[0] = 1.0f;
+        m.data[1] = 0.0f;
+        m.data[2] = 0.0f;
+        m.data[3] = 0.0f;
+
+        m.data[4] = x;
+        m.data[5] = 1.0f;
+        m.data[6] = z;
+        m.data[7] = 0.0f;
+
+        m.data[8] = 0.0f;
+        m.data[9] = 0.0f;
+        m.data[10] = 1.0f;
+        m.data[11] = 0.0f;
+
+        m.data[12] = 0.0f;
+        m.data[13] = 0.0f;
+        m.data[14] = 0.0f;
+        m.data[15] = 1.0f;
+
+        return m;
+    }
+
     Matrix4f Matrix4f::cabinetProjection(float x, float y)
     {
         Matrix4f m;

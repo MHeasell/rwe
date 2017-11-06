@@ -33,6 +33,9 @@ namespace rwe
 
         auto sdlContext = sdlManager.getSdlContext();
 
+        // require a stencil buffer of some kind
+        sdlContext->glSetAttribute(SDL_GL_STENCIL_SIZE, 1);
+
         auto window = sdlContext->createWindow("RWE", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, viewportService.width(), viewportService.height(), SDL_WINDOW_OPENGL);
         assert(window != nullptr);
         auto glContext = sdlContext->glCreateContext(window.get());
@@ -40,6 +43,10 @@ namespace rwe
 
         auto glewResult = glewInit();
         assert(glewResult == GLEW_OK);
+
+        GLint stencilBits;
+        glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
+        assert(stencilBits != 0);
 
         auto vfs = constructVfs(searchPath);
 

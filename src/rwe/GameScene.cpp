@@ -8,11 +8,29 @@ namespace rwe
     {
         context.applyCamera(camera);
         terrain.render(context, camera);
+
+        auto viewMatrix = camera.getViewMatrix();
+        auto projectionMatrix = camera.getProjectionMatrix();
+
+        // draw unit shadows
+        {
+            context.beginUnitShadow();
+            for (const auto& unit : units)
+            {
+                auto groundHeight = terrain.getHeightAt(unit.position.x, unit.position.z);
+                auto shadowProjection =
+                    Matrix4f::translation(Vector3f(0.0f, groundHeight, 0.0f))
+                    * Matrix4f::scale(Vector3f(1.0f, 0.0f, 1.0f))
+                    * Matrix4f::shearXZ(0.25f, -0.25f)
+                    * Matrix4f::translation(Vector3f(0.0f, -groundHeight, 0.0f));
+                unit.render(context, unitTextureShader.get(), unitColorShader.get(), viewMatrix * shadowProjection, projectionMatrix);
+            }
+            context.endUnitShadow();
+        }
+
         terrain.renderFeatures(context, camera);
 
         context.enableDepth();
-        auto viewMatrix = camera.getViewMatrix();
-        auto projectionMatrix = camera.getProjectionMatrix();
         for (const auto& unit : units)
         {
             unit.render(context, unitTextureShader.get(), unitColorShader.get(), viewMatrix, projectionMatrix);

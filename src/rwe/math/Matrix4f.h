@@ -11,6 +11,7 @@ namespace rwe
         static Matrix4f translation(const Vector3f& v);
         static Matrix4f scale(float size);
         static Matrix4f scale(const Vector3f& v);
+        static Matrix4f shearXZ(float x, float z);
         static Matrix4f cabinetProjection(float x, float y);
         static Matrix4f orthographicProjection(float left, float right, float bottom, float top, float nearVal, float farVal);
         static Matrix4f inverseOrthographicProjection(float left, float right, float bottom, float top, float nearVal, float farVal);

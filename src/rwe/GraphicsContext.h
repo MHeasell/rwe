@@ -146,6 +146,10 @@ namespace rwe
 
         VisualSelectionMesh createSelectionMesh(const Vector3f& a, const Vector3f& b, const Vector3f& c, const Vector3f& d);
 
+        void beginUnitShadow();
+
+        void endUnitShadow();
+
     private:
         ShaderHandle compileShader(GLenum shaderType, const std::string& source);
     };

@@ -101,6 +101,11 @@ namespace rwe
             return SDL_ShowCursor(toggle);
         }
 
+        int glSetAttribute(SDL_GLattr attr, int value)
+        {
+            return SDL_GL_SetAttribute(attr, value);
+        }
+
     private:
         friend class SdlContextManager;
     };
