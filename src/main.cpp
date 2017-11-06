@@ -19,6 +19,7 @@
 #include <rwe/LoadingScene.h>
 
 #include <rwe/util.h>
+#include <rwe/ViewportService.h>
 
 namespace fs = boost::filesystem;
 
@@ -26,11 +27,13 @@ namespace rwe
 {
     int run(const std::string& searchPath, const boost::optional<std::string>& mapName)
     {
+        ViewportService viewportService(800, 600);
+
         SdlContextManager sdlManager;
 
         auto sdlContext = sdlManager.getSdlContext();
 
-        auto window = sdlContext->createWindow("RWE", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_OPENGL);
+        auto window = sdlContext->createWindow("RWE", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, viewportService.width(), viewportService.height(), SDL_WINDOW_OPENGL);
         assert(window != nullptr);
         auto glContext = sdlContext->glCreateContext(window.get());
         assert(glContext != nullptr);
@@ -133,8 +136,9 @@ namespace rwe
                 &cursor,
                 sdlContext,
                 &sideDataMap,
-                640,
-                480);
+                &viewportService,
+                viewportService.width(),
+                viewportService.height());
             sceneManager.setNextScene(std::move(scene));
         }
 

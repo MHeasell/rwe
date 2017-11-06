@@ -12,6 +12,7 @@
 #include <rwe/ui/UiFactory.h>
 #include <rwe/ui/UiPanel.h>
 #include "SideData.h"
+#include "ViewportService.h"
 
 namespace rwe
 {
@@ -29,13 +30,15 @@ namespace rwe
         CursorService* cursor;
         SdlContext* sdl;
         const std::unordered_map<std::string, SideData>* sideData;
+        ViewportService* viewportService;
 
         MainMenuModel model;
         UiFactory uiFactory;
 
         std::vector<std::unique_ptr<UiPanel>> panelStack;
         std::vector<std::unique_ptr<UiPanel>> dialogStack;
-        UiCamera camera;
+        UiCamera scaledUiCamera;
+        UiCamera nativeUiCamera;
 
         AudioService::LoopToken bgm;
 
@@ -52,6 +55,7 @@ namespace rwe
             CursorService* cursor,
             SdlContext* sdl,
             const std::unordered_map<std::string, SideData>* sideData,
+            ViewportService* viewportService,
             float width,
             float height);
 
@@ -135,6 +139,8 @@ namespace rwe
         AudioService::LoopToken startBgm();
 
         UiPanel& topPanel();
+
+        Point toScaledCoordinates(int x, int y) const;
     };
 }
 

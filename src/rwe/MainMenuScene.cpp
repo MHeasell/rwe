@@ -20,6 +20,7 @@ namespace rwe
         CursorService* cursor,
         SdlContext* sdl,
         const std::unordered_map<std::string, SideData>* sideData,
+        ViewportService* viewportService,
         float width,
         float height)
         : sceneManager(sceneManager),
@@ -33,11 +34,13 @@ namespace rwe
           cursor(cursor),
           sdl(sdl),
           sideData(sideData),
+          viewportService(viewportService),
           model(),
           uiFactory(textureService, audioService, soundLookup, vfs, &model, this),
           panelStack(),
           dialogStack(),
-          camera(width, height),
+          scaledUiCamera(640, 480),
+          nativeUiCamera(width, height),
           bgm()
     {
     }
@@ -50,30 +53,40 @@ namespace rwe
 
     void MainMenuScene::render(GraphicsContext& context)
     {
-        context.applyCamera(camera);
+        context.applyCamera(scaledUiCamera);
         panelStack.back()->render(context);
 
         for (auto& e : dialogStack)
         {
-            context.fillColor(0.0f, 0.0f, camera.getWidth(), camera.getHeight(), Color(0, 0, 0, 63));
+            context.fillColor(0.0f, 0.0f, scaledUiCamera.getWidth(), scaledUiCamera.getHeight(), Color(0, 0, 0, 63));
             e->render(context);
         }
 
+        context.applyCamera(nativeUiCamera);
         cursor->render(context);
     }
 
     void MainMenuScene::onMouseDown(MouseButtonEvent event)
     {
+        auto p = toScaledCoordinates(event.x, event.y);
+        event.x = p.x;
+        event.y = p.y;
         topPanel().mouseDown(event);
     }
 
     void MainMenuScene::onMouseUp(MouseButtonEvent event)
     {
+        auto p = toScaledCoordinates(event.x, event.y);
+        event.x = p.x;
+        event.y = p.y;
         topPanel().mouseUp(event);
     }
 
     void MainMenuScene::onMouseMove(MouseMoveEvent event)
     {
+        auto p = toScaledCoordinates(event.x, event.y);
+        event.x = p.x;
+        event.y = p.y;
         topPanel().mouseMove(event);
     }
 
@@ -572,5 +585,11 @@ namespace rwe
             params);
 
         sceneManager->setNextScene(std::move(scene));
+    }
+
+    Point MainMenuScene::toScaledCoordinates(int x, int y) const
+    {
+        auto clip = scaledUiCamera.screenToWorldRay(viewportService->toClipSpace(x, y));
+        return Point(static_cast<int>(clip.origin.x), static_cast<int>(clip.origin.y));
     }
 }

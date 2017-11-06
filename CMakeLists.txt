@@ -131,6 +131,8 @@ set(SOURCE_FILES
     src/rwe/UnitMesh.h
     src/rwe/VaoHandle.h
     src/rwe/VboHandle.h
+    src/rwe/ViewportService.cpp
+    src/rwe/ViewportService.h
     src/rwe/_3do.cpp
     src/rwe/_3do.h
     src/rwe/camera/AbstractCamera.cpp
