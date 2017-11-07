@@ -12,6 +12,11 @@ namespace rwe
         auto viewMatrix = camera.getViewMatrix();
         auto projectionMatrix = camera.getProjectionMatrix();
 
+        if (selectedUnit)
+        {
+            units[*selectedUnit].renderSelectionRect(context, viewMatrix, projectionMatrix, selectBoxShader.get());
+        }
+
         // draw unit shadows
         {
             context.beginUnitShadow();
@@ -34,11 +39,6 @@ namespace rwe
         for (const auto& unit : units)
         {
             unit.render(context, unitTextureShader.get(), unitColorShader.get(), viewMatrix, projectionMatrix);
-        }
-
-        if (selectedUnit)
-        {
-            units[*selectedUnit].renderSelectionRect(context, viewMatrix, projectionMatrix, selectBoxShader.get());
         }
 
         context.disableDepth();
