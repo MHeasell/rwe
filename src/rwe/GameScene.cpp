@@ -4,6 +4,44 @@
 
 namespace rwe
 {
+    GameScene::GameScene(
+        TextureService* textureService,
+        CursorService* cursor,
+        SdlContext* sdl,
+        AudioService* audioService,
+        ViewportService* viewportService,
+        MeshService&& meshService,
+        CabinetCamera&& camera,
+        MapTerrain&& terrain,
+        SharedShaderProgramHandle&& unitTextureShader,
+        SharedShaderProgramHandle&& unitColorShader,
+        SharedShaderProgramHandle&& selectBoxShader,
+        UnitDatabase&& unitDatabase,
+        std::array<boost::optional<GamePlayerInfo>, 10>&& players,
+        unsigned int localPlayerId)
+        : textureService(textureService),
+          cursor(cursor),
+          sdl(sdl),
+          audioService(audioService),
+          viewportService(viewportService),
+          meshService(std::move(meshService)),
+          camera(std::move(camera)),
+          terrain(std::move(terrain)),
+          uiCamera(viewportService->width(), viewportService->height()),
+          unitTextureShader(std::move(unitTextureShader)),
+          unitColorShader(std::move(unitColorShader)),
+          selectBoxShader(std::move(selectBoxShader)),
+          unitDatabase(std::move(unitDatabase)),
+          players(std::move(players)),
+          localPlayerId(localPlayerId)
+    {
+    }
+
+    void GameScene::init()
+    {
+        audioService->reserveChannels(reservedChannelsCount);
+    }
+
     void GameScene::render(GraphicsContext& context)
     {
         context.applyCamera(camera);
@@ -45,44 +83,6 @@ namespace rwe
 
         context.applyCamera(uiCamera);
         cursor->render(context);
-    }
-
-    GameScene::GameScene(
-        TextureService* textureService,
-        CursorService* cursor,
-        SdlContext* sdl,
-        AudioService* audioService,
-        ViewportService* viewportService,
-        MeshService&& meshService,
-        CabinetCamera&& camera,
-        MapTerrain&& terrain,
-        SharedShaderProgramHandle&& unitTextureShader,
-        SharedShaderProgramHandle&& unitColorShader,
-        SharedShaderProgramHandle&& selectBoxShader,
-        UnitDatabase&& unitDatabase,
-        std::array<boost::optional<GamePlayerInfo>, 10>&& players,
-        unsigned int localPlayerId)
-        : textureService(textureService),
-          cursor(cursor),
-          sdl(sdl),
-          audioService(audioService),
-          viewportService(viewportService),
-          meshService(std::move(meshService)),
-          camera(std::move(camera)),
-          terrain(std::move(terrain)),
-          uiCamera(viewportService->width(), viewportService->height()),
-          unitTextureShader(std::move(unitTextureShader)),
-          unitColorShader(std::move(unitColorShader)),
-          selectBoxShader(std::move(selectBoxShader)),
-          unitDatabase(std::move(unitDatabase)),
-          players(std::move(players)),
-          localPlayerId(localPlayerId)
-    {
-    }
-
-    void GameScene::init()
-    {
-        audioService->reserveChannels(reservedChannelsCount);
     }
 
     void GameScene::onKeyDown(const SDL_Keysym& keysym)
@@ -201,28 +201,6 @@ namespace rwe
         return terrain;
     }
 
-    Unit GameScene::createUnit(unsigned int unitId, const std::string& unitType, unsigned int owner, const Vector3f& position)
-    {
-        const auto& fbi = unitDatabase.getUnitInfo(unitType);
-        const auto& soundClass = unitDatabase.getSoundClass(fbi.soundCategory);
-
-        auto meshInfo = meshService.loadUnitMesh(fbi.objectName, players[owner]->color);
-
-        const auto& script = unitDatabase.getUnitScript(fbi.unitName);
-        auto cobEnv = std::make_unique<CobEnvironment>(this, &script, unitId);
-        cobEnv->createThread("Create", std::vector<int>());
-        Unit unit(meshInfo.mesh, std::move(cobEnv), std::move(meshInfo.selectionMesh));
-        unit.owner = owner;
-        unit.position = position;
-
-        if (soundClass.select1)
-        {
-            unit.selectionSound = unitDatabase.getSoundHandle(*(soundClass.select1));
-        }
-
-        return unit;
-    }
-
     void GameScene::showObject(unsigned int unitId, const std::string& name)
     {
         auto mesh = units.at(unitId).mesh.find(name);
@@ -267,14 +245,36 @@ namespace rwe
         return units.at(unitId).isMoveInProgress(name, axis);
     }
 
+    bool GameScene::isPieceTurning(unsigned int unitId, const std::string& name, Axis axis) const
+    {
+        return units.at(unitId).isTurnInProgress(name, axis);
+    }
+
     unsigned int GameScene::getGameTime() const
     {
         return gameTime;
     }
 
-    bool GameScene::isPieceTurning(unsigned int unitId, const std::string& name, Axis axis) const
+    Unit GameScene::createUnit(unsigned int unitId, const std::string& unitType, unsigned int owner, const Vector3f& position)
     {
-        return units.at(unitId).isTurnInProgress(name, axis);
+        const auto& fbi = unitDatabase.getUnitInfo(unitType);
+        const auto& soundClass = unitDatabase.getSoundClass(fbi.soundCategory);
+
+        auto meshInfo = meshService.loadUnitMesh(fbi.objectName, players[owner]->color);
+
+        const auto& script = unitDatabase.getUnitScript(fbi.unitName);
+        auto cobEnv = std::make_unique<CobEnvironment>(this, &script, unitId);
+        cobEnv->createThread("Create", std::vector<int>());
+        Unit unit(meshInfo.mesh, std::move(cobEnv), std::move(meshInfo.selectionMesh));
+        unit.owner = owner;
+        unit.position = position;
+
+        if (soundClass.select1)
+        {
+            unit.selectionSound = unitDatabase.getSoundHandle(*(soundClass.select1));
+        }
+
+        return unit;
     }
 
     boost::optional<unsigned int> GameScene::getUnitUnderCursor() const
@@ -286,6 +286,14 @@ namespace rwe
     Vector2f GameScene::screenToClipSpace(Point p) const
     {
         return viewportService->toClipSpace(p);
+    }
+
+    Point GameScene::getMousePosition() const
+    {
+        int x;
+        int y;
+        sdl->getMouseState(&x, &y);
+        return Point(x, y);
     }
 
     boost::optional<unsigned int> GameScene::getFirstCollidingUnit(const Ray3f& ray) const
@@ -304,13 +312,5 @@ namespace rwe
         }
 
         return it;
-    }
-
-    Point GameScene::getMousePosition() const
-    {
-        int x;
-        int y;
-        sdl->getMouseState(&x, &y);
-        return Point(x, y);
     }
 }
