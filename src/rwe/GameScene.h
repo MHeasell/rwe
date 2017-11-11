@@ -51,6 +51,9 @@ namespace rwe
         bool up{false};
         bool down{false};
 
+        bool leftShiftDown{false};
+        bool rightShiftDown{false};
+
         SharedShaderProgramHandle unitTextureShader;
         SharedShaderProgramHandle unitColorShader;
 
@@ -139,7 +142,11 @@ namespace rwe
 
         void issueMoveOrder(unsigned int unitId, Vector3f position);
 
+        void enqueueMoveOrder(unsigned int unitId, Vector3f position);
+
         void stopSelectedUnit();
+
+        bool isShiftDown() const;
     };
 }
 

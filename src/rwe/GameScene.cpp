@@ -108,6 +108,14 @@ namespace rwe
         {
             stopSelectedUnit();
         }
+        else if (keysym.sym == SDLK_LSHIFT)
+        {
+            leftShiftDown = true;
+        }
+        else if (keysym.sym == SDLK_RSHIFT)
+        {
+            rightShiftDown = true;
+        }
     }
 
     void GameScene::onKeyUp(const SDL_Keysym& keysym)
@@ -128,6 +136,14 @@ namespace rwe
         {
             right = false;
         }
+        else if (keysym.sym == SDLK_LSHIFT)
+        {
+            leftShiftDown = false;
+        }
+        else if (keysym.sym == SDLK_RSHIFT)
+        {
+            rightShiftDown = false;
+        }
     }
 
     void GameScene::onMouseDown(MouseButtonEvent event)
@@ -141,7 +157,14 @@ namespace rwe
                     auto coord = getMouseTerrainCoordinate();
                     if (coord)
                     {
-                        issueMoveOrder(*selectedUnit, *coord);
+                        if (isShiftDown())
+                        {
+                            enqueueMoveOrder(*selectedUnit, *coord);
+                        }
+                        else
+                        {
+                            issueMoveOrder(*selectedUnit, *coord);
+                        }
                     }
                 }
             }
@@ -378,6 +401,11 @@ namespace rwe
         }
     }
 
+    void GameScene::enqueueMoveOrder(unsigned int unitId, Vector3f position)
+    {
+        units[unitId].addOrder(createMoveOrder(position));
+    }
+
     void GameScene::stopSelectedUnit()
     {
         if (selectedUnit)
@@ -388,5 +416,10 @@ namespace rwe
                 playSoundOnSelectChannel(*(units[*selectedUnit].okSound));
             }
         }
+    }
+
+    bool GameScene::isShiftDown() const
+    {
+        return leftShiftDown || rightShiftDown;
     }
 }
