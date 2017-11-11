@@ -61,8 +61,7 @@ namespace rwe
             for (const auto& unit : units)
             {
                 auto groundHeight = terrain.getHeightAt(unit.position.x, unit.position.z);
-                auto shadowProjection =
-                    Matrix4f::translation(Vector3f(0.0f, groundHeight, 0.0f))
+                auto shadowProjection = Matrix4f::translation(Vector3f(0.0f, groundHeight, 0.0f))
                     * Matrix4f::scale(Vector3f(1.0f, 0.0f, 1.0f))
                     * Matrix4f::shearXZ(0.25f, -0.25f)
                     * Matrix4f::translation(Vector3f(0.0f, -groundHeight, 0.0f));
