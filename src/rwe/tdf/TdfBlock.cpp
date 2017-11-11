@@ -244,7 +244,7 @@ namespace rwe
         auto v = extractFloat(key);
         if (!v)
         {
-            throw TdfValueException("Failed to read int from key: " + key);
+            throw TdfValueException("Failed to read float from key: " + key);
         }
 
         return *v;
