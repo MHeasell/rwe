@@ -45,7 +45,7 @@ namespace rwe
         /**
          * Rate at which the unit turns in rads/sec.
          */
-        float turnRate{0.1f};
+        float turnRate{0.1f / 2.0f};
 
         /**
          * Rate at which the unit is travelling forwards in game units/second.
@@ -55,17 +55,17 @@ namespace rwe
         /**
          * Maximum speed the unit can travel forwards in game units/second.
          */
-        float maxSpeed{1.2f};
+        float maxSpeed{1.2f / 2.0f};
 
         /**
          * Speed at which the unit accelerates in game units/second.
          */
-        float acceleration{0.15f};
+        float acceleration{0.15f / 2.0f};
 
         /**
          * Speed at which the unit brakes in game units/second.
          */
-        float brakeRate{0.3f};
+        float brakeRate{0.3f / 2.0f};
 
         std::deque<UnitOrder> orders;
 
