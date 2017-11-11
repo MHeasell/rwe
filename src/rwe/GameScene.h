@@ -92,6 +92,8 @@ namespace rwe
 
         void onKeyUp(const SDL_Keysym& keysym) override;
 
+        void onMouseDown(MouseButtonEvent event) override;
+
         void onMouseUp(MouseButtonEvent event) override;
 
         void update() override;
@@ -120,6 +122,8 @@ namespace rwe
 
         unsigned int getGameTime() const;
 
+        void playSoundOnSelectChannel(const AudioService::SoundHandle& sound);
+
     private:
         Unit createUnit(unsigned int unitId, const std::string& unitType, unsigned int owner, const Vector3f& position);
 
@@ -130,6 +134,12 @@ namespace rwe
         Point getMousePosition() const;
 
         boost::optional<unsigned int> getFirstCollidingUnit(const Ray3f& ray) const;
+
+        boost::optional<Vector3f> getMouseTerrainCoordinate() const;
+
+        void issueMoveOrder(unsigned int unitId, Vector3f position);
+
+        void stopSelectedUnit();
     };
 }
 

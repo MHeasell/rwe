@@ -1,9 +1,19 @@
 #include <rwe/geometry/Plane3f.h>
 #include <rwe/math/rwe_math.h>
+#include <rwe/GameScene.h>
 #include "Unit.h"
 
 namespace rwe
 {
+    MoveOrder::MoveOrder(const Vector3f& destination) : destination(destination)
+    {
+    }
+
+    UnitOrder createMoveOrder(const Vector3f& destination)
+    {
+        return MoveOrder(destination);
+    }
+
     Unit::Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, SelectionMesh&& selectionMesh)
         : mesh(mesh), cobEnvironment(std::move(cobEnvironment)), selectionMesh(std::move(selectionMesh))
     {
@@ -16,7 +26,7 @@ namespace rwe
         const Matrix4f& viewMatrix,
         const Matrix4f& projectionMatrix) const
     {
-        auto matrix = Matrix4f::translation(position);
+        auto matrix = Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
         mesh.render(context, textureShader, colorShader, matrix, viewMatrix, projectionMatrix);
     }
 
@@ -187,7 +197,7 @@ namespace rwe
             snapToInterval(position.y, 2.0f),
             snapToInterval(position.z, 1.0f) + 0.5f);
 
-        auto matrix = Matrix4f::translation(snappedPosition);
+        auto matrix = Matrix4f::translation(snappedPosition) * Matrix4f::rotationY(rotation);
 
         context.drawWireframeSelectionMesh(selectionMesh.visualMesh, matrix, viewMatrix, projectionMatrix, shader);
     }
@@ -195,5 +205,98 @@ namespace rwe
     bool Unit::isOwnedBy(unsigned int playerId) const
     {
         return owner == playerId;
+    }
+
+    void Unit::clearOrders()
+    {
+        orders.clear();
+    }
+
+    void Unit::addOrder(const UnitOrder& order)
+    {
+        orders.push_back(order);
+    }
+
+    void Unit::update(GameScene& scene, float dt)
+    {
+        float previousSpeed = currentSpeed;
+
+        // check our orders
+        if (!orders.empty())
+        {
+            const auto& order = orders.front();
+
+            // process move orders
+            auto moveOrder = boost::get<MoveOrder>(&order);
+            if (moveOrder != nullptr)
+            {
+                Vector2f xzPosition(position.x, position.z);
+                const auto& destination = moveOrder->destination;
+                Vector2f xzDestination(destination.x, destination.z);
+                auto distanceSquared = xzPosition.distanceSquared(xzDestination);
+                if (distanceSquared < 1.0f)
+                {
+                    // order complete
+                    orders.pop_front();
+                    if (arrivedSound)
+                    {
+                        scene.playSoundOnSelectChannel(*arrivedSound);
+                    }
+                }
+                    // TODO: if distance <= braking distance, brake
+                else
+                {
+                    // accelerate to max speed
+                    auto accelerationThisFrame = acceleration;
+                    if (maxSpeed - currentSpeed <= accelerationThisFrame)
+                    {
+                        currentSpeed = maxSpeed;
+                    }
+                    else
+                    {
+                        currentSpeed += accelerationThisFrame;
+                    }
+                }
+
+                // steer towards the goal
+                auto xzDirection = xzDestination - xzPosition;
+                auto destAngle = Vector2f(0.0f, -1.0f).angleTo(xzDirection);
+                destAngle = (2.0f * Pif) - destAngle; // convert to anticlockwise in our coordinate system
+                auto angleDelta = wrap(-Pif, Pif, destAngle - rotation);
+
+                auto turnRateThisFrame = turnRate;
+                if (std::abs(angleDelta) <= turnRateThisFrame)
+                {
+                    rotation = destAngle;
+                }
+                else
+                {
+                    rotation = wrap(-Pif, Pif, rotation + (turnRateThisFrame * (angleDelta > 0.0f ? 1.0f : -1.0f)));
+                }
+            }
+        }
+        else
+        {
+            if (currentSpeed < brakeRate)
+            {
+                currentSpeed = 0.0f;
+            }
+            else
+            {
+                currentSpeed -= brakeRate;
+            }
+        }
+
+        if (currentSpeed > 0.0f && previousSpeed == 0.0f)
+        {
+            cobEnvironment->createThread("StartMoving");
+        }
+        else if (currentSpeed == 0.0f && previousSpeed > 0.0f)
+        {
+            cobEnvironment->createThread("StopMoving");
+        }
+
+        auto direction = Matrix4f::rotationY(rotation) * Vector3f(0.0f, 0.0f, -1.0f);
+        position += direction * (currentSpeed);
     }
 }

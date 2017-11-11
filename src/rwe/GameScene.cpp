@@ -61,8 +61,7 @@ namespace rwe
             for (const auto& unit : units)
             {
                 auto groundHeight = terrain.getHeightAt(unit.position.x, unit.position.z);
-                auto shadowProjection =
-                    Matrix4f::translation(Vector3f(0.0f, groundHeight, 0.0f))
+                auto shadowProjection = Matrix4f::translation(Vector3f(0.0f, groundHeight, 0.0f))
                     * Matrix4f::scale(Vector3f(1.0f, 0.0f, 1.0f))
                     * Matrix4f::shearXZ(0.25f, -0.25f)
                     * Matrix4f::translation(Vector3f(0.0f, -groundHeight, 0.0f));
@@ -103,6 +102,10 @@ namespace rwe
         {
             right = true;
         }
+        else if (keysym.sym == SDLK_s)
+        {
+            stopSelectedUnit();
+        }
     }
 
     void GameScene::onKeyUp(const SDL_Keysym& keysym)
@@ -125,20 +128,41 @@ namespace rwe
         }
     }
 
-    void GameScene::onMouseUp(MouseButtonEvent event)
+    void GameScene::onMouseDown(MouseButtonEvent event)
     {
-        if (hoveredUnit && units[*hoveredUnit].isOwnedBy(localPlayerId))
+        if (event.button == MouseButtonEvent::MouseButton::Right)
         {
-            selectedUnit = hoveredUnit;
-            const auto& selectionSound = units[*hoveredUnit].selectionSound;
-            if (selectionSound)
+            if (selectedUnit)
             {
-                audioService->playSoundIfFree(*selectionSound, UnitSelectChannel);
+                if (!hoveredUnit)
+                {
+                    auto coord = getMouseTerrainCoordinate();
+                    if (coord)
+                    {
+                        issueMoveOrder(*selectedUnit, *coord);
+                    }
+                }
             }
         }
-        else
+    }
+
+    void GameScene::onMouseUp(MouseButtonEvent event)
+    {
+        if (event.button == MouseButtonEvent::MouseButton::Left)
         {
-            selectedUnit = boost::none;
+            if (hoveredUnit && units[*hoveredUnit].isOwnedBy(localPlayerId))
+            {
+                selectedUnit = hoveredUnit;
+                const auto& selectionSound = units[*hoveredUnit].selectionSound;
+                if (selectionSound)
+                {
+                    playSoundOnSelectChannel(*selectionSound);
+                }
+            }
+            else
+            {
+                selectedUnit = boost::none;
+            }
         }
     }
 
@@ -180,6 +204,7 @@ namespace rwe
         // run unit scripts
         for (auto& unit : units)
         {
+            unit.update(*this, secondsElapsed);
             unit.mesh.update(secondsElapsed);
             unit.cobEnvironment->executeThreads();
         }
@@ -255,6 +280,11 @@ namespace rwe
         return gameTime;
     }
 
+    void GameScene::playSoundOnSelectChannel(const AudioService::SoundHandle& handle)
+    {
+        audioService->playSoundIfFree(handle, UnitSelectChannel);
+    }
+
     Unit GameScene::createUnit(unsigned int unitId, const std::string& unitType, unsigned int owner, const Vector3f& position)
     {
         const auto& fbi = unitDatabase.getUnitInfo(unitType);
@@ -269,9 +299,25 @@ namespace rwe
         unit.owner = owner;
         unit.position = position;
 
+        // These units are per-tick.
+        // We divide by two here because TA ticks are 1/30 of a second,
+        // where as ours are 1/60 of a second.
+        unit.turnRate = (fbi.turnRate / 2.0f) * (Pif / 32768.0f); // also convert to rads
+        unit.maxSpeed = fbi.maxVelocity / 2.0f;
+        unit.acceleration = fbi.acceleration / 2.0f;
+        unit.brakeRate = fbi.brakeRate / 2.0f;
+
         if (soundClass.select1)
         {
             unit.selectionSound = unitDatabase.getSoundHandle(*(soundClass.select1));
+        }
+        if (soundClass.ok1)
+        {
+            unit.okSound = unitDatabase.getSoundHandle(*(soundClass.ok1));
+        }
+        if(soundClass.arrived1)
+        {
+            unit.arrivedSound = unitDatabase.getSoundHandle(*(soundClass.arrived1));
         }
 
         return unit;
@@ -312,5 +358,33 @@ namespace rwe
         }
 
         return it;
+    }
+
+    boost::optional<Vector3f> GameScene::getMouseTerrainCoordinate() const
+    {
+        auto ray = camera.screenToWorldRay(screenToClipSpace(getMousePosition()));
+        return terrain.intersectLine(ray.toLine());
+    }
+
+    void GameScene::issueMoveOrder(unsigned int unitId, Vector3f position)
+    {
+        units[unitId].clearOrders();
+        units[unitId].addOrder(createMoveOrder(position));
+        if (units[unitId].okSound)
+        {
+            playSoundOnSelectChannel(*(units[unitId].okSound));
+        }
+    }
+
+    void GameScene::stopSelectedUnit()
+    {
+        if (selectedUnit)
+        {
+            units[*selectedUnit].clearOrders();
+            if (units[*selectedUnit].okSound)
+            {
+                playSoundOnSelectChannel(*(units[*selectedUnit].okSound));
+            }
+        }
     }
 }

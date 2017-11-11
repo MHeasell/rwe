@@ -6,12 +6,26 @@
 #include <memory>
 #include <rwe/cob/CobEnvironment.h>
 #include <boost/optional.hpp>
+#include <boost/variant.hpp>
 #include <rwe/geometry/BoundingBox3f.h>
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/AudioService.h>
+#include <deque>
 
 namespace rwe
 {
+    class GameScene;
+
+    struct MoveOrder
+    {
+        Vector3f destination;
+        explicit MoveOrder(const Vector3f& destination);
+    };
+
+    using UnitOrder = boost::variant<MoveOrder>;
+
+    UnitOrder createMoveOrder(const Vector3f& destination);
+
     class Unit
     {
     public:
@@ -20,7 +34,44 @@ namespace rwe
         std::unique_ptr<CobEnvironment> cobEnvironment;
         SelectionMesh selectionMesh;
         boost::optional<AudioService::SoundHandle> selectionSound;
+        boost::optional<AudioService::SoundHandle> okSound;
+        boost::optional<AudioService::SoundHandle> arrivedSound;
         unsigned int owner;
+
+        /**
+         * Anticlockwise rotation of the unit around the Y axis in radians.
+         * The other two axes of rotation are normally determined
+         * by the normal of the terrain the unit is standing on.
+         */
+        float rotation{0.0f};
+
+
+        /**
+         * Rate at which the unit turns in rads/tick.
+         */
+        float turnRate;
+
+        /**
+         * Rate at which the unit is travelling forwards in game units/tick.
+         */
+        float currentSpeed{0.0f};
+
+        /**
+         * Maximum speed the unit can travel forwards in game units/tick.
+         */
+        float maxSpeed;
+
+        /**
+         * Speed at which the unit accelerates in game units/tick.
+         */
+        float acceleration;
+
+        /**
+         * Speed at which the unit brakes in game units/tick.
+         */
+        float brakeRate;
+
+        std::deque<UnitOrder> orders;
 
         Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, SelectionMesh&& selectionMesh);
 
@@ -58,6 +109,12 @@ namespace rwe
             ShaderProgramIdentifier shader) const;
 
         bool isOwnedBy(unsigned int playerId) const;
+
+        void clearOrders();
+
+        void addOrder(const UnitOrder& order);
+
+        void update(GameScene& scene, float dt);
     };
 }
 

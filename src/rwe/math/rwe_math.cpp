@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <stdexcept>
 #include <cmath>
+#include <cassert>
 
 
 namespace rwe
@@ -29,5 +30,15 @@ namespace rwe
         auto x = (static_cast<float>(p.x) / halfScreenWidth) - 1.0f;
         auto y = (static_cast<float>(screenHeight - p.y) / halfScreenHeight) - 1.0f;
         return Vector2f(x, y);
+    }
+
+    float wrap(float min, float max, float value)
+    {
+        assert(min <= max);
+
+        auto range = max - min;
+        auto offsetVal = value - min;
+        auto modVal = std::fmod((std::fmod(offsetVal, range) + range), range);
+        return modVal + min;
     }
 }

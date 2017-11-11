@@ -70,6 +70,7 @@ namespace rwe
         static const int CobFalse = 0;
 
     private:
+        std::string name;
         CobEnvironment* env;
 
         std::stack<int> stack;
@@ -80,6 +81,7 @@ namespace rwe
 
     public:
         explicit CobThread(CobEnvironment* env);
+        CobThread(const std::string& name, CobEnvironment* env);
 
         void setEntryPoint(unsigned int functionId, const std::vector<int>& params);
 

@@ -11,6 +11,11 @@ namespace rwe
         std::string unitName;
         std::string objectName;
         std::string soundCategory;
+
+        float turnRate;
+        float maxVelocity;
+        float acceleration;
+        float brakeRate;
     };
 
     UnitFbi parseUnitInfoBlock(const TdfBlock& tdf);

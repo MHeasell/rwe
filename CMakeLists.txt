@@ -363,6 +363,7 @@ set(TEST_FILES
     test/rwe/geometry/Triangle3f_test.cpp
     test/rwe/gui_test.cpp
     test/rwe/math/Matrix4f_test.cpp
+    test/rwe/math/Vector2f_test.cpp
     test/rwe/math/Vector3f_test.cpp
     test/rwe/math/rwe_math_test.cpp
     test/rwe/ota_test.cpp
