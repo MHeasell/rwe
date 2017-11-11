@@ -372,7 +372,7 @@ namespace rwe
         auto returnValue = pop();
         instructionIndex = pop();
         locals.pop();
-        push(returnValue);
+        // TODO: do something with the return value
     }
 
     void CobThread::callScript()
