@@ -47,6 +47,8 @@ namespace rwe
         GET_UNIT_VALUE = 0x10042000,
         GET = 0x10043000,
 
+        SET_UNIT_VALUE = 0x10082000,
+
         SET_LESS = 0x10051000,
         SET_LESS_OR_EQUAL = 0x10052000,
         SET_GREATER = 0x10053000,
@@ -610,6 +612,13 @@ namespace rwe
         auto valueId = pop();
         // TODO: retrieve actual value
         push(0);
+    }
+
+    void CobThread::setUnitValue()
+    {
+        auto newValue = pop();
+        auto valueId = pop();
+        // TODO: actually set the value
     }
 
     void CobThread::randomNumber()

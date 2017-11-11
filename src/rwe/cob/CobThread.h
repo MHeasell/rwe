@@ -209,6 +209,8 @@ namespace rwe
 
         void getUnitValue();
 
+        void setUnitValue();
+
         // non-commands
         int pop();
         float popPosition();
