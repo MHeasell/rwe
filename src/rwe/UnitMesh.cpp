@@ -1,3 +1,4 @@
+#include <rwe/math/rwe_math.h>
 #include "UnitMesh.h"
 #include "util.h"
 
@@ -25,15 +26,7 @@ namespace rwe
     {
         if (op)
         {
-            float remaining = op->targetAngle - currentAngle;
-            if (remaining > Pif)
-            {
-                remaining -= 2.0f * Pif;
-            }
-            else if (remaining < -Pif)
-            {
-                remaining += 2.0f * Pif;
-            }
+            float remaining = wrap(-Pif, Pif, op->targetAngle - currentAngle);
 
             float frameSpeed = op->speed * dt;
             if (std::abs(remaining) <= frameSpeed)
