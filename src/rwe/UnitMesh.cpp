@@ -109,6 +109,11 @@ namespace rwe
         applyTurnOperation(xTurnOperation, rotation.x, dt);
         applyTurnOperation(yTurnOperation, rotation.y, dt);
         applyTurnOperation(zTurnOperation, rotation.z, dt);
+
+        for (auto& c : children)
+        {
+            c.update(dt);
+        }
     }
 
     UnitMesh::MoveOperation::MoveOperation(float targetPosition, float speed)
