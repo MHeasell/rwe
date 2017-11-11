@@ -294,6 +294,14 @@ namespace rwe
         unit.owner = owner;
         unit.position = position;
 
+        // These units are per-tick.
+        // We divide by two here because TA ticks are 1/30 of a second,
+        // where as ours are 1/60 of a second.
+        unit.turnRate = (fbi.turnRate / 2.0f) * (Pif / 32768.0f); // also convert to rads
+        unit.maxSpeed = fbi.maxVelocity / 2.0f;
+        unit.acceleration = fbi.acceleration / 2.0f;
+        unit.brakeRate = fbi.brakeRate / 2.0f;
+
         if (soundClass.select1)
         {
             unit.selectionSound = unitDatabase.getSoundHandle(*(soundClass.select1));

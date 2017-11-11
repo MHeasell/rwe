@@ -21,6 +21,11 @@ namespace rwe
         u.objectName = tdf.expectString("Objectname");
         u.soundCategory = tdf.expectString("SoundCategory");
 
+        u.turnRate = tdf.extractFloat("TurnRate").get_value_or(0.0f);
+        u.maxVelocity = tdf.extractFloat("MaxVelocity").get_value_or(0.0f);
+        u.acceleration = tdf.extractFloat("Acceleration").get_value_or(0.0f);
+        u.brakeRate = tdf.extractFloat("BrakeRate").get_value_or(0.0f);
+
         return u;
     }
 }
