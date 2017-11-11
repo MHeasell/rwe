@@ -9,8 +9,9 @@ namespace rwe
     MapTerrain::MapTerrain(
         std::vector<TextureRegion>&& tileGraphics,
         Grid<size_t>&& tiles,
-        Grid<unsigned char>&& heights)
-        : tileGraphics(std::move(tileGraphics)), tiles(std::move(tiles)), heights(std::move(heights))
+        Grid<unsigned char>&& heights,
+        float seaLevel)
+        : tileGraphics(std::move(tileGraphics)), tiles(std::move(tiles)), heights(std::move(heights)), seaLevel(seaLevel)
     {
     }
 
@@ -291,5 +292,10 @@ namespace rwe
         result = closestTo(line.start, result, top.intersectLine(line));
 
         return result;
+    }
+
+    float MapTerrain::getSeaLevel() const
+    {
+        return seaLevel;
     }
 }

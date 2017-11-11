@@ -24,10 +24,11 @@ namespace rwe
         ShaderProgramIdentifier textureShader,
         ShaderProgramIdentifier colorShader,
         const Matrix4f& viewMatrix,
-        const Matrix4f& projectionMatrix) const
+        const Matrix4f& projectionMatrix,
+        float seaLevel) const
     {
         auto matrix = Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
-        mesh.render(context, textureShader, colorShader, matrix, viewMatrix, projectionMatrix);
+        mesh.render(context, textureShader, colorShader, matrix, viewMatrix, projectionMatrix, seaLevel);
     }
 
     void Unit::moveObject(const std::string& pieceName, Axis axis, float targetPosition, float speed)

@@ -49,7 +49,8 @@ namespace rwe
             ShaderProgramIdentifier colorShader,
             const Matrix4f& modelMatrix,
             const Matrix4f& viewMatrix,
-            const Matrix4f& projectionMatrix) const;
+            const Matrix4f& projectionMatrix,
+            float seaLevel) const;
 
         boost::optional<const UnitMesh&> find(const std::string& pieceName) const;
 

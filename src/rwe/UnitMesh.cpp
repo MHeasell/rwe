@@ -47,19 +47,20 @@ namespace rwe
         ShaderProgramIdentifier colorShader,
         const Matrix4f& modelMatrix,
         const Matrix4f& viewMatrix,
-        const Matrix4f& projectionMatrix) const
+        const Matrix4f& projectionMatrix,
+        float seaLevel) const
     {
         Vector3f testRotation(-rotation.x, rotation.y, rotation.z);
         auto matrix = modelMatrix * Matrix4f::translation(origin) * Matrix4f::rotationXYZ(testRotation) * Matrix4f::translation(offset);
 
         if (visible)
         {
-            context.drawShaderMesh(*mesh, textureShader, colorShader, matrix, viewMatrix, projectionMatrix);
+            context.drawShaderMesh(*mesh, textureShader, colorShader, matrix, viewMatrix, projectionMatrix, seaLevel);
         }
 
         for (const auto& c : children)
         {
-            c.render(context, textureShader, colorShader, matrix, viewMatrix, projectionMatrix);
+            c.render(context, textureShader, colorShader, matrix, viewMatrix, projectionMatrix, seaLevel);
         }
     }
 

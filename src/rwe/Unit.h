@@ -100,7 +100,8 @@ namespace rwe
             ShaderProgramIdentifier textureShader,
             ShaderProgramIdentifier colorShader,
             const Matrix4f& viewMatrix,
-            const Matrix4f& projectionMatrix) const;
+            const Matrix4f& projectionMatrix,
+            float seaLevel) const;
 
         void renderSelectionRect(
             GraphicsContext& context,

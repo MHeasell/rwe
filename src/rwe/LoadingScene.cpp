@@ -226,7 +226,8 @@ namespace rwe
         MapTerrain terrain(
             std::move(tileTextures),
             std::move(dataGrid),
-            std::move(heightGrid));
+            std::move(heightGrid),
+            tnt.getHeader().seaLevel);
 
         auto featureTemplates = getFeatures(tnt);
 

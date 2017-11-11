@@ -121,7 +121,8 @@ namespace rwe
             ShaderProgramIdentifier colorShader,
             const Matrix4f& modelMatrix,
             const Matrix4f& viewMatrix,
-            const Matrix4f& projectionMatrix);
+            const Matrix4f& projectionMatrix,
+            float seaLevel);
 
         void drawWireframeSelectionMesh(
             const VisualSelectionMesh& mesh,

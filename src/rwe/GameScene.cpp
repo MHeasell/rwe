@@ -44,6 +44,8 @@ namespace rwe
 
     void GameScene::render(GraphicsContext& context)
     {
+        auto seaLevel = terrain.getSeaLevel();
+
         context.applyCamera(camera);
         terrain.render(context, camera);
 
@@ -65,7 +67,7 @@ namespace rwe
                     * Matrix4f::scale(Vector3f(1.0f, 0.0f, 1.0f))
                     * Matrix4f::shearXZ(0.25f, -0.25f)
                     * Matrix4f::translation(Vector3f(0.0f, -groundHeight, 0.0f));
-                unit.render(context, unitTextureShader.get(), unitColorShader.get(), viewMatrix * shadowProjection, projectionMatrix);
+                unit.render(context, unitTextureShader.get(), unitColorShader.get(), viewMatrix * shadowProjection, projectionMatrix, seaLevel);
             }
             context.endUnitShadow();
         }
@@ -75,7 +77,7 @@ namespace rwe
         context.enableDepth();
         for (const auto& unit : units)
         {
-            unit.render(context, unitTextureShader.get(), unitColorShader.get(), viewMatrix, projectionMatrix);
+            unit.render(context, unitTextureShader.get(), unitColorShader.get(), viewMatrix, projectionMatrix, seaLevel);
         }
 
         context.disableDepth();

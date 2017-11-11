@@ -508,7 +508,8 @@ namespace rwe
         ShaderProgramIdentifier colorShader,
         const Matrix4f& modelMatrix,
         const Matrix4f& viewMatrix,
-        const Matrix4f& projectionMatrix)
+        const Matrix4f& projectionMatrix,
+        float seaLevel)
     {
         glUseProgram(textureShader.value);
         glBindVertexArray(mesh.texturedVerticesVao.get().value);
@@ -536,7 +537,7 @@ namespace rwe
 
         {
             auto seaLevelUniform = glGetUniformLocation(textureShader.value, "seaLevel");
-            glUniform1f(seaLevelUniform, 75.0f);
+            glUniform1f(seaLevelUniform, seaLevel);
         }
 
         glDrawArrays(GL_TRIANGLES, 0, mesh.texturedVerticesCount);

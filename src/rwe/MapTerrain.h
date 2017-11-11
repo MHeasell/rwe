@@ -34,11 +34,14 @@ namespace rwe
 
         std::vector<MapFeature> features;
 
+        float seaLevel;
+
     public:
         MapTerrain(
             std::vector<TextureRegion>&& tileGraphics,
             Grid<size_t>&& tiles,
-            Grid<unsigned char>&& heights);
+            Grid<unsigned char>&& heights,
+            float seaLevel);
 
         void render(GraphicsContext& graphics, const CabinetCamera& cabinetCamera) const;
 
@@ -90,6 +93,8 @@ namespace rwe
         boost::optional<Vector3f> intersectLine(const Line3f& line) const;
 
         boost::optional<Vector3f> intersectWithHeightmapCell(const Line3f& line, int x, int y) const;
+
+        float getSeaLevel() const;
     };
 }
 
