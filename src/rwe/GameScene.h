@@ -92,6 +92,8 @@ namespace rwe
 
         void onKeyUp(const SDL_Keysym& keysym) override;
 
+        void onMouseDown(MouseButtonEvent event) override;
+
         void onMouseUp(MouseButtonEvent event) override;
 
         void update() override;
@@ -130,6 +132,10 @@ namespace rwe
         Point getMousePosition() const;
 
         boost::optional<unsigned int> getFirstCollidingUnit(const Ray3f& ray) const;
+
+        boost::optional<Vector3f> getMouseTerrainCoordinate() const;
+
+        void issueMoveOrder(unsigned int unitId, Vector2f xzPosition);
     };
 }
 

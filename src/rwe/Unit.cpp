@@ -4,6 +4,15 @@
 
 namespace rwe
 {
+    MoveOrder::MoveOrder(const Vector2f& destination) : destination(destination)
+    {
+    }
+
+    UnitOrder createMoveOrder(const Vector2f& destination)
+    {
+        return MoveOrder(destination);
+    }
+
     Unit::Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, SelectionMesh&& selectionMesh)
         : mesh(mesh), cobEnvironment(std::move(cobEnvironment)), selectionMesh(std::move(selectionMesh))
     {
@@ -195,5 +204,15 @@ namespace rwe
     bool Unit::isOwnedBy(unsigned int playerId) const
     {
         return owner == playerId;
+    }
+
+    void Unit::clearOrders()
+    {
+        orders.clear();
+    }
+
+    void Unit::addOrder(const UnitOrder& order)
+    {
+        orders.push_back(order);
     }
 }

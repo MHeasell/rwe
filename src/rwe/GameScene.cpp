@@ -125,6 +125,21 @@ namespace rwe
         }
     }
 
+    void GameScene::onMouseDown(MouseButtonEvent event)
+    {
+        if (selectedUnit)
+        {
+            if (!hoveredUnit)
+            {
+                auto coord = getMouseTerrainCoordinate();
+                if (coord)
+                {
+                    issueMoveOrder(*selectedUnit, Vector2f(coord->x, coord->z));
+                }
+            }
+        }
+    }
+
     void GameScene::onMouseUp(MouseButtonEvent event)
     {
         if (hoveredUnit && units[*hoveredUnit].isOwnedBy(localPlayerId))
@@ -312,5 +327,17 @@ namespace rwe
         }
 
         return it;
+    }
+
+    boost::optional<Vector3f> GameScene::getMouseTerrainCoordinate() const
+    {
+        auto ray = camera.screenToWorldRay(screenToClipSpace(getMousePosition()));
+        return terrain.intersectLine(ray.toLine());
+    }
+
+    void GameScene::issueMoveOrder(unsigned int unitId, Vector2f xzPosition)
+    {
+        units[unitId].clearOrders();
+        units[unitId].addOrder(createMoveOrder(xzPosition));
     }
 }

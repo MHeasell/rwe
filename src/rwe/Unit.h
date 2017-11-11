@@ -6,12 +6,24 @@
 #include <memory>
 #include <rwe/cob/CobEnvironment.h>
 #include <boost/optional.hpp>
+#include <boost/variant.hpp>
 #include <rwe/geometry/BoundingBox3f.h>
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/AudioService.h>
+#include <deque>
 
 namespace rwe
 {
+    struct MoveOrder
+    {
+        Vector2f destination;
+        explicit MoveOrder(const Vector2f& destination);
+    };
+
+    using UnitOrder = boost::variant<MoveOrder>;
+
+    UnitOrder createMoveOrder(const Vector2f& destination);
+
     class Unit
     {
     public:
@@ -21,6 +33,8 @@ namespace rwe
         SelectionMesh selectionMesh;
         boost::optional<AudioService::SoundHandle> selectionSound;
         unsigned int owner;
+
+        std::deque<UnitOrder> orders;
 
         Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, SelectionMesh&& selectionMesh);
 
@@ -58,6 +72,10 @@ namespace rwe
             ShaderProgramIdentifier shader) const;
 
         bool isOwnedBy(unsigned int playerId) const;
+
+        void clearOrders();
+
+        void addOrder(const UnitOrder& order);
     };
 }
 
