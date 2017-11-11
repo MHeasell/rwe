@@ -130,14 +130,17 @@ namespace rwe
 
     void GameScene::onMouseDown(MouseButtonEvent event)
     {
-        if (selectedUnit)
+        if (event.button == MouseButtonEvent::MouseButton::Right)
         {
-            if (!hoveredUnit)
+            if (selectedUnit)
             {
-                auto coord = getMouseTerrainCoordinate();
-                if (coord)
+                if (!hoveredUnit)
                 {
-                    issueMoveOrder(*selectedUnit, *coord);
+                    auto coord = getMouseTerrainCoordinate();
+                    if (coord)
+                    {
+                        issueMoveOrder(*selectedUnit, *coord);
+                    }
                 }
             }
         }
