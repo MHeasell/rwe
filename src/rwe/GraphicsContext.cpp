@@ -534,6 +534,11 @@ namespace rwe
             glUniformMatrix4fv(textureProjectionMatrix, 1, GL_FALSE, projectionMatrix.data);
         }
 
+        {
+            auto seaLevelUniform = glGetUniformLocation(textureShader.value, "seaLevel");
+            glUniform1f(seaLevelUniform, 75.0f);
+        }
+
         glDrawArrays(GL_TRIANGLES, 0, mesh.texturedVerticesCount);
 
         glUseProgram(colorShader.value);
@@ -551,6 +556,11 @@ namespace rwe
         {
             auto colorProjectionMatrix = glGetUniformLocation(colorShader.value, "projectionMatrix");
             glUniformMatrix4fv(colorProjectionMatrix, 1, GL_FALSE, projectionMatrix.data);
+        }
+
+        {
+            auto seaLevelUniform = glGetUniformLocation(colorShader.value, "seaLevel");
+            glUniform1f(seaLevelUniform, 75.0f);
         }
 
         glDrawArrays(GL_TRIANGLES, 0, mesh.coloredVerticesCount);

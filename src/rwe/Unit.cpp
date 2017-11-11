@@ -298,5 +298,6 @@ namespace rwe
 
         auto direction = Matrix4f::rotationY(rotation) * Vector3f(0.0f, 0.0f, -1.0f);
         position += direction * (currentSpeed);
+        position.y = scene.getTerrain().getHeightAt(position.x, position.z);
     }
 }
