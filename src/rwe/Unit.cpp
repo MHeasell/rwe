@@ -247,11 +247,17 @@ namespace rwe
                     // TODO: if distance <= braking distance, brake
                 else
                 {
+                    auto effectiveMaxSpeed = maxSpeed;
+                    if (position.y < scene.getTerrain().getSeaLevel())
+                    {
+                        effectiveMaxSpeed /= 2.0f;
+                    }
+
                     // accelerate to max speed
                     auto accelerationThisFrame = acceleration;
-                    if (maxSpeed - currentSpeed <= accelerationThisFrame)
+                    if (effectiveMaxSpeed - currentSpeed <= accelerationThisFrame)
                     {
-                        currentSpeed = maxSpeed;
+                        currentSpeed = effectiveMaxSpeed;
                     }
                     else
                     {
