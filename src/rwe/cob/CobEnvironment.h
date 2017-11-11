@@ -110,6 +110,8 @@ namespace rwe
 
         void createThread(const std::string& functionName, const std::vector<int>& params);
 
+        void createThread(const std::string& functionName);
+
         unsigned int getGameTime() const;
 
         void executeThreads();

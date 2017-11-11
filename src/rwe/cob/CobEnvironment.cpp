@@ -52,6 +52,11 @@ namespace rwe
         createThread(index, params);
     }
 
+    void CobEnvironment::createThread(const std::string& functionName)
+    {
+        createThread(functionName, std::vector<int>());
+    }
+
     CobEnvironment::CobEnvironment(
         GameScene* scene,
         const CobScript* script,

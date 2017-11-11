@@ -218,6 +218,8 @@ namespace rwe
 
     void Unit::update(float dt)
     {
+        float previousSpeed = currentSpeed;
+
         // check our orders
         if (!orders.empty())
         {
@@ -278,6 +280,15 @@ namespace rwe
             {
                 currentSpeed -= brakeRate;
             }
+        }
+
+        if (currentSpeed > 0.0f && previousSpeed == 0.0f)
+        {
+            cobEnvironment->createThread("StartMoving");
+        }
+        else if (currentSpeed == 0.0f && previousSpeed > 0.0f)
+        {
+            cobEnvironment->createThread("StopMoving");
         }
 
         auto direction = Matrix4f::rotationY(rotation) * Vector3f(0.0f, 0.0f, -1.0f);
