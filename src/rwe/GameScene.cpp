@@ -306,6 +306,14 @@ namespace rwe
         {
             unit.selectionSound = unitDatabase.getSoundHandle(*(soundClass.select1));
         }
+        if (soundClass.ok1)
+        {
+            unit.okSound = unitDatabase.getSoundHandle(*(soundClass.ok1));
+        }
+        if(soundClass.arrived1)
+        {
+            unit.arrivedSound = unitDatabase.getSoundHandle(*(soundClass.arrived1));
+        }
 
         return unit;
     }
@@ -357,6 +365,10 @@ namespace rwe
     {
         units[unitId].clearOrders();
         units[unitId].addOrder(createMoveOrder(position));
+        if (units[unitId].okSound)
+        {
+            audioService->playSoundIfFree(*(units[unitId].okSound), UnitSelectChannel);
+        }
     }
 
     void GameScene::stopSelectedUnit()
@@ -364,6 +376,10 @@ namespace rwe
         if (selectedUnit)
         {
             units[*selectedUnit].clearOrders();
+            if (units[*selectedUnit].okSound)
+            {
+                audioService->playSoundIfFree(*(units[*selectedUnit].okSound), UnitSelectChannel);
+            }
         }
     }
 }

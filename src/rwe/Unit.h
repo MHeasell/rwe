@@ -32,6 +32,8 @@ namespace rwe
         std::unique_ptr<CobEnvironment> cobEnvironment;
         SelectionMesh selectionMesh;
         boost::optional<AudioService::SoundHandle> selectionSound;
+        boost::optional<AudioService::SoundHandle> okSound;
+        boost::optional<AudioService::SoundHandle> arrivedSound;
         unsigned int owner;
 
         /**
