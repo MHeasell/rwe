@@ -34,7 +34,8 @@ namespace rwe
 
     void CobEnvironment::createThread(unsigned int functionId, const std::vector<int>& params)
     {
-        auto& thread = threads.emplace_back(std::make_unique<CobThread>(this));
+        const auto& functionInfo = _script->functions.at(functionId);
+        auto& thread = threads.emplace_back(std::make_unique<CobThread>(functionInfo.name, this));
         thread->setEntryPoint(functionId, params);
         readyQueue.push_back(thread.get());
     }

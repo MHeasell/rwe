@@ -614,7 +614,12 @@ namespace rwe
     }
 
     CobThread::CobThread(CobEnvironment* env)
-        : env(env)
+        : name("Unnamed Thread"), env(env)
+    {
+    }
+
+    CobThread::CobThread(const std::string& name, CobEnvironment* env)
+        : name(name), env(env)
     {
     }
 
