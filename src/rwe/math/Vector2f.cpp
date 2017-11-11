@@ -1,5 +1,6 @@
 #include "Vector2f.h"
 #include <cmath>
+#include <rwe/math/Vector3f.h>
 
 namespace rwe
 {
@@ -79,6 +80,17 @@ namespace rwe
     float Vector2f::dot(const Vector2f& rhs) const
     {
         return (x * rhs.x) + (y * rhs.y);
+    }
+
+    float Vector2f::angleTo(const Vector2f& rhs) const
+    {
+        Vector3f a(x, y, 0.0f);
+        Vector3f b(rhs.x, rhs.y, 0.0f);
+        auto c = a.cross(b);
+
+        auto angle = std::acos(dot(rhs) / (length() * rhs.length()));
+
+        return angle * (c.z > 0.0f ? 1.0f : -1.0f);
     }
 
     bool Vector2f::operator==(const Vector2f& rhs) const

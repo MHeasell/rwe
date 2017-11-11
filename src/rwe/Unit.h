@@ -16,13 +16,13 @@ namespace rwe
 {
     struct MoveOrder
     {
-        Vector2f destination;
-        explicit MoveOrder(const Vector2f& destination);
+        Vector3f destination;
+        explicit MoveOrder(const Vector3f& destination);
     };
 
     using UnitOrder = boost::variant<MoveOrder>;
 
-    UnitOrder createMoveOrder(const Vector2f& destination);
+    UnitOrder createMoveOrder(const Vector3f& destination);
 
     class Unit
     {
@@ -33,6 +33,39 @@ namespace rwe
         SelectionMesh selectionMesh;
         boost::optional<AudioService::SoundHandle> selectionSound;
         unsigned int owner;
+
+        /**
+         * Anticlockwise rotation of the unit around the Y axis in radians.
+         * The other two axes of rotation are normally determined
+         * by the normal of the terrain the unit is standing on.
+         */
+        float rotation{0.0f};
+
+
+        /**
+         * Rate at which the unit turns in rads/sec.
+         */
+        float turnRate{0.1f};
+
+        /**
+         * Rate at which the unit is travelling forwards in game units/second.
+         */
+        float currentSpeed{0.0f};
+
+        /**
+         * Maximum speed the unit can travel forwards in game units/second.
+         */
+        float maxSpeed{1.2f};
+
+        /**
+         * Speed at which the unit accelerates in game units/second.
+         */
+        float acceleration{0.15f};
+
+        /**
+         * Speed at which the unit brakes in game units/second.
+         */
+        float brakeRate{0.3f};
 
         std::deque<UnitOrder> orders;
 
@@ -76,6 +109,8 @@ namespace rwe
         void clearOrders();
 
         void addOrder(const UnitOrder& order);
+
+        void update(float dt);
     };
 }
 

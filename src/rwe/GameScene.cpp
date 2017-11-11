@@ -134,7 +134,7 @@ namespace rwe
                 auto coord = getMouseTerrainCoordinate();
                 if (coord)
                 {
-                    issueMoveOrder(*selectedUnit, Vector2f(coord->x, coord->z));
+                    issueMoveOrder(*selectedUnit, *coord);
                 }
             }
         }
@@ -142,18 +142,21 @@ namespace rwe
 
     void GameScene::onMouseUp(MouseButtonEvent event)
     {
-        if (hoveredUnit && units[*hoveredUnit].isOwnedBy(localPlayerId))
+        if (event.button == MouseButtonEvent::MouseButton::Left)
         {
-            selectedUnit = hoveredUnit;
-            const auto& selectionSound = units[*hoveredUnit].selectionSound;
-            if (selectionSound)
+            if (hoveredUnit && units[*hoveredUnit].isOwnedBy(localPlayerId))
             {
-                audioService->playSoundIfFree(*selectionSound, UnitSelectChannel);
+                selectedUnit = hoveredUnit;
+                const auto& selectionSound = units[*hoveredUnit].selectionSound;
+                if (selectionSound)
+                {
+                    audioService->playSoundIfFree(*selectionSound, UnitSelectChannel);
+                }
             }
-        }
-        else
-        {
-            selectedUnit = boost::none;
+            else
+            {
+                selectedUnit = boost::none;
+            }
         }
     }
 
@@ -195,6 +198,7 @@ namespace rwe
         // run unit scripts
         for (auto& unit : units)
         {
+            unit.update(secondsElapsed);
             unit.mesh.update(secondsElapsed);
             unit.cobEnvironment->executeThreads();
         }
@@ -335,9 +339,9 @@ namespace rwe
         return terrain.intersectLine(ray.toLine());
     }
 
-    void GameScene::issueMoveOrder(unsigned int unitId, Vector2f xzPosition)
+    void GameScene::issueMoveOrder(unsigned int unitId, Vector3f position)
     {
         units[unitId].clearOrders();
-        units[unitId].addOrder(createMoveOrder(xzPosition));
+        units[unitId].addOrder(createMoveOrder(position));
     }
 }

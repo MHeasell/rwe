@@ -31,6 +31,13 @@ namespace rwe
         Vector2f normalized();
 
         float dot(const Vector2f& rhs) const;
+
+        /**
+         * Returns the angle that you would need to rotate this vector by anticlockwise
+         * in order to reach the angle of the given vector.
+         * The range of the return value is -PI <= v < PI.
+         */
+        float angleTo(const Vector2f& rhs) const;
     };
 
     Vector2f operator+(const Vector2f& lhs, const Vector2f& rhs);

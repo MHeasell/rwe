@@ -24,6 +24,8 @@ namespace rwe
      */
     float truncateToInterval(float value, float interval);
 
+    float wrap(float min, float max, float value);
+
     /**
      * Returns true if a and b both have the same sign.
      */
