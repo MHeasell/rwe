@@ -459,8 +459,8 @@ namespace rwe
 
     void CobThread::emitSmoke()
     {
+        auto piece = nextInstruction();
         auto smokeType = pop();
-        auto piece = pop();
         // TODO: this
     }
 
