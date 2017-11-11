@@ -268,6 +268,17 @@ namespace rwe
                 }
             }
         }
+        else
+        {
+            if (currentSpeed < brakeRate)
+            {
+                currentSpeed = 0.0f;
+            }
+            else
+            {
+                currentSpeed -= brakeRate;
+            }
+        }
 
         auto direction = Matrix4f::rotationY(rotation) * Vector3f(0.0f, 0.0f, -1.0f);
         position += direction * (currentSpeed);

@@ -136,6 +136,8 @@ namespace rwe
         boost::optional<Vector3f> getMouseTerrainCoordinate() const;
 
         void issueMoveOrder(unsigned int unitId, Vector3f position);
+
+        void stopSelectedUnit();
     };
 }
 

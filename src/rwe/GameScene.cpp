@@ -103,6 +103,10 @@ namespace rwe
         {
             right = true;
         }
+        else if (keysym.sym == SDLK_s)
+        {
+            stopSelectedUnit();
+        }
     }
 
     void GameScene::onKeyUp(const SDL_Keysym& keysym)
@@ -343,5 +347,13 @@ namespace rwe
     {
         units[unitId].clearOrders();
         units[unitId].addOrder(createMoveOrder(position));
+    }
+
+    void GameScene::stopSelectedUnit()
+    {
+        if (selectedUnit)
+        {
+            units[*selectedUnit].clearOrders();
+        }
     }
 }
