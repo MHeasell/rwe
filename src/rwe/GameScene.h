@@ -122,6 +122,8 @@ namespace rwe
 
         unsigned int getGameTime() const;
 
+        void playSoundOnSelectChannel(const AudioService::SoundHandle& sound);
+
     private:
         Unit createUnit(unsigned int unitId, const std::string& unitType, unsigned int owner, const Vector3f& position);
 

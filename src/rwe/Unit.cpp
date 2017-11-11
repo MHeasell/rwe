@@ -1,5 +1,6 @@
 #include <rwe/geometry/Plane3f.h>
 #include <rwe/math/rwe_math.h>
+#include <rwe/GameScene.h>
 #include "Unit.h"
 
 namespace rwe
@@ -216,7 +217,7 @@ namespace rwe
         orders.push_back(order);
     }
 
-    void Unit::update(float dt)
+    void Unit::update(GameScene& scene, float dt)
     {
         float previousSpeed = currentSpeed;
 
@@ -237,6 +238,10 @@ namespace rwe
                 {
                     // order complete
                     orders.pop_front();
+                    if (arrivedSound)
+                    {
+                        scene.playSoundOnSelectChannel(*arrivedSound);
+                    }
                 }
                     // TODO: if distance <= braking distance, brake
                 else

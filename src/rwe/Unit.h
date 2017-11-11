@@ -14,6 +14,8 @@
 
 namespace rwe
 {
+    class GameScene;
+
     struct MoveOrder
     {
         Vector3f destination;
@@ -112,7 +114,7 @@ namespace rwe
 
         void addOrder(const UnitOrder& order);
 
-        void update(float dt);
+        void update(GameScene& scene, float dt);
     };
 }
 

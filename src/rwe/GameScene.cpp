@@ -156,7 +156,7 @@ namespace rwe
                 const auto& selectionSound = units[*hoveredUnit].selectionSound;
                 if (selectionSound)
                 {
-                    audioService->playSoundIfFree(*selectionSound, UnitSelectChannel);
+                    playSoundOnSelectChannel(*selectionSound);
                 }
             }
             else
@@ -204,7 +204,7 @@ namespace rwe
         // run unit scripts
         for (auto& unit : units)
         {
-            unit.update(secondsElapsed);
+            unit.update(*this, secondsElapsed);
             unit.mesh.update(secondsElapsed);
             unit.cobEnvironment->executeThreads();
         }
@@ -278,6 +278,11 @@ namespace rwe
     unsigned int GameScene::getGameTime() const
     {
         return gameTime;
+    }
+
+    void GameScene::playSoundOnSelectChannel(const AudioService::SoundHandle& handle)
+    {
+        audioService->playSoundIfFree(handle, UnitSelectChannel);
     }
 
     Unit GameScene::createUnit(unsigned int unitId, const std::string& unitType, unsigned int owner, const Vector3f& position)
@@ -367,7 +372,7 @@ namespace rwe
         units[unitId].addOrder(createMoveOrder(position));
         if (units[unitId].okSound)
         {
-            audioService->playSoundIfFree(*(units[unitId].okSound), UnitSelectChannel);
+            playSoundOnSelectChannel(*(units[unitId].okSound));
         }
     }
 
@@ -378,7 +383,7 @@ namespace rwe
             units[*selectedUnit].clearOrders();
             if (units[*selectedUnit].okSound)
             {
-                audioService->playSoundIfFree(*(units[*selectedUnit].okSound), UnitSelectChannel);
+                playSoundOnSelectChannel(*(units[*selectedUnit].okSound));
             }
         }
     }
