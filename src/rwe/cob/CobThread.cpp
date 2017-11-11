@@ -362,6 +362,9 @@ namespace rwe
             case OpCode::POP_STACK:
                 return popStackOperation();
 
+            case OpCode::GET_UNIT_VALUE:
+                return getUnitValue();
+
             default:
                 throw std::runtime_error("Unsupported opcode " + std::to_string(instruction));
         }
@@ -600,6 +603,13 @@ namespace rwe
     void CobThread::popStackOperation()
     {
         pop();
+    }
+
+    void CobThread::getUnitValue()
+    {
+        auto valueId = pop();
+        // TODO: retrieve actual value
+        push(0);
     }
 
     void CobThread::randomNumber()
