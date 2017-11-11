@@ -45,7 +45,9 @@ namespace rwe
 
         void render(GraphicsContext& graphics, const CabinetCamera& cabinetCamera) const;
 
-        void renderFeatures(GraphicsContext& graphics, const CabinetCamera& cabinetCamera) const;
+        void renderFlatFeatures(GraphicsContext& graphics, const CabinetCamera& cabinetCamera) const;
+
+        void renderStandingFeatures(GraphicsContext& graphics, const CabinetCamera& cabinetCamera) const;
 
         Point worldToTileCoordinate(const Vector3f& position) const;
 

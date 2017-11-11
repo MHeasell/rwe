@@ -398,8 +398,10 @@ namespace rwe
     {
         if (feature.shadowAnimation)
         {
+            disableDepth();
             float alpha = feature.transparentShadow ? 0.5f : 1.0f;
             drawStandingSprite(feature.position, (*feature.shadowAnimation)->sprites[0], alpha);
+            enableDepth();
         }
 
         float alpha = feature.transparentAnimation ? 0.5f : 1.0f;
@@ -756,6 +758,7 @@ namespace rwe
         const Matrix4f& projectionMatrix,
         ShaderProgramIdentifier shader)
     {
+        glDisable(GL_BLEND);
         glUseProgram(shader.value);
         glBindVertexArray(mesh.vao.get().value);
 
@@ -877,5 +880,15 @@ namespace rwe
         glDepthFunc(GL_LESS);
         glDepthMask(GL_TRUE);
         glDisable(GL_STENCIL_TEST);
+    }
+
+    void GraphicsContext::enableDepthWrites()
+    {
+        glDepthMask(GL_TRUE);
+    }
+
+    void GraphicsContext::disableDepthWrites()
+    {
+        glDepthMask(GL_FALSE);
     }
 }

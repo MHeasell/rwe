@@ -52,6 +52,8 @@ namespace rwe
         auto viewMatrix = camera.getViewMatrix();
         auto projectionMatrix = camera.getProjectionMatrix();
 
+        terrain.renderFlatFeatures(context, camera);
+
         if (selectedUnit)
         {
             units[*selectedUnit].renderSelectionRect(context, viewMatrix, projectionMatrix, selectBoxShader.get());
@@ -72,13 +74,16 @@ namespace rwe
             context.endUnitShadow();
         }
 
-        terrain.renderFeatures(context, camera);
-
         context.enableDepth();
+
         for (const auto& unit : units)
         {
             unit.render(context, unitTextureShader.get(), unitColorShader.get(), viewMatrix, projectionMatrix, seaLevel);
         }
+
+        context.disableDepthWrites();
+        terrain.renderStandingFeatures(context, camera);
+        context.enableDepthWrites();
 
         context.disableDepth();
 

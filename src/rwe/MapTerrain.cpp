@@ -6,6 +6,8 @@
 
 namespace rwe
 {
+    static const float StandingFeatureMinHeight = 5.0f;
+
     MapTerrain::MapTerrain(
         std::vector<TextureRegion>&& tileGraphics,
         Grid<size_t>&& tiles,
@@ -28,11 +30,24 @@ namespace rwe
         graphics.drawMapTerrain(*this, x1, y1, (x2 + 1) - x1, (y2 + 1) - y1);
     }
 
-    void MapTerrain::renderFeatures(GraphicsContext& graphics, const CabinetCamera& cabinetCamera) const
+    void MapTerrain::renderFlatFeatures(GraphicsContext& graphics, const CabinetCamera& cabinetCamera) const
     {
         for (const auto& f : features)
         {
-            graphics.drawFeature(f);
+            if (f.height <= StandingFeatureMinHeight)
+            {
+                graphics.drawFeature(f);
+            }
+        }
+    }
+    void MapTerrain::renderStandingFeatures(GraphicsContext& graphics, const CabinetCamera& cabinetCamera) const
+    {
+        for (const auto& f : features)
+        {
+            if (f.height > StandingFeatureMinHeight)
+            {
+                graphics.drawFeature(f);
+            }
         }
     }
 

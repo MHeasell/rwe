@@ -359,6 +359,7 @@ namespace rwe
         MapFeature f;
         f.footprintX = definition.footprintX;
         f.footprintZ = definition.footprintZ;
+        f.height = definition.height;
         f.position = pos;
         f.transparentAnimation = definition.animTrans;
         f.transparentShadow = definition.shadTrans;

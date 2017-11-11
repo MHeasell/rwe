@@ -17,6 +17,7 @@ namespace rwe
         Vector3f position;
         int footprintX;
         int footprintZ;
+        float height;
     };
 }
 

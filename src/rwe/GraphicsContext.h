@@ -133,6 +133,10 @@ namespace rwe
 
         void enableDepth();
 
+        void enableDepthWrites();
+
+        void disableDepthWrites();
+
         void enableCulling();
 
         void disableDepth();
