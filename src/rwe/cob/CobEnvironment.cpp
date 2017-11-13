@@ -70,24 +70,23 @@ namespace rwe
     {
         // check if any blocked threads can be unblocked
         std::vector<CobThread*> tempQueue;
-        for (const auto& t : blockedQueue)
+        for (const auto& pair : blockedQueue)
         {
-            const auto& status = boost::get<CobThread::BlockedStatus>(t->getStatus());
+            const auto& status = boost::get<CobThread::BlockedStatus>(pair.first);
 
             auto isUnblocked = boost::apply_visitor(BlockCheckVisitor(this), status.condition);
             if (isUnblocked)
             {
-                tempQueue.push_back(t);
+                tempQueue.push_back(pair.second);
             }
         }
 
         // move unblocked threads back into the ready queue
         for (const auto& t : tempQueue)
         {
-            auto it = std::find(blockedQueue.begin(), blockedQueue.end(), t);
+            auto it = std::find_if(blockedQueue.begin(), blockedQueue.end(), [&t](const auto& p) { return p.second == t; });
             blockedQueue.erase(it);
             readyQueue.push_back(t);
-            t->setReady();
         }
 
         // execute ready threads
@@ -96,9 +95,9 @@ namespace rwe
             auto thread = readyQueue.front();
             readyQueue.pop_front();
 
-            thread->execute();
+            auto status = thread->execute();
 
-            boost::apply_visitor(ThreadRescheduleVisitor(this, thread), thread->getStatus());
+            boost::apply_visitor(ThreadRescheduleVisitor(this, thread), status);
         }
     }
 

@@ -75,17 +75,204 @@ namespace rwe
         DROP_UNIT = 0x10084000,
     };
 
-    void CobThread::execute()
+    CobThread::Status CobThread::execute()
     {
-        while (instructionIndex < env->script()->instructions.size() && isReady(status))
+        while (instructionIndex < env->script()->instructions.size())
         {
-            dispatchInstruction(nextInstruction());
+            auto instruction = nextInstruction();
+            switch (static_cast<OpCode>(instruction))
+            {
+                case OpCode::RAND:
+                    randomNumber();
+                    break;
+
+                case OpCode::ADD:
+                    add();
+                    break;
+                case OpCode::SUB:
+                    subtract();
+                    break;
+                case OpCode::MUL:
+                    multiply();
+                    break;
+                case OpCode::DIV:
+                    divide();
+                    break;
+
+                case OpCode::SET_LESS:
+                    compareLessThan();
+                    break;
+                case OpCode::SET_LESS_OR_EQUAL:
+                    compareLessThanOrEqual();
+                    break;
+                case OpCode::SET_EQUAL:
+                    compareEqual();
+                    break;
+                case OpCode::SET_NOT_EQUAL:
+                    compareNotEqual();
+                    break;
+                case OpCode::SET_GREATER:
+                    compareGreaterThan();
+                    break;
+                case OpCode::SET_GREATER_OR_EQUAL:
+                    compareGreaterThanOrEqual();
+                    break;
+
+                case OpCode::JUMP:
+                    jump();
+                    break;
+                case OpCode::JUMP_NOT_EQUAL:
+                    jumpIfZero();
+                    break;
+
+                case OpCode::LOGICAL_AND:
+                    logicalAnd();
+                    break;
+                case OpCode::LOGICAL_OR:
+                    logicalOr();
+                    break;
+                case OpCode::LOGICAL_XOR:
+                    logicalXor();
+                    break;
+                case OpCode::LOGICAL_NOT:
+                    logicalNot();
+                    break;
+
+                case OpCode::BITWISE_AND:
+                    bitwiseAnd();
+                    break;
+                case OpCode::BITWISE_OR:
+                    bitwiseOr();
+                    break;
+                case OpCode::BITWISE_XOR:
+                    bitwiseXor();
+                    break;
+                case OpCode::BITWISE_NOT:
+                    bitwiseNot();
+                    break;
+
+                case OpCode::MOVE:
+                    moveObject();
+                    break;
+                case OpCode::MOVE_NOW:
+                    moveObjectNow();
+                    break;
+                case OpCode::TURN:
+                    turnObject();
+                    break;
+                case OpCode::TURN_NOW:
+                    turnObjectNow();
+                    break;
+                case OpCode::SPIN:
+                    spinObject();
+                    break;
+                case OpCode::STOP_SPIN:
+                    stopSpinObject();
+                    break;
+                case OpCode::EXPLODE:
+                    explode();
+                    break;
+                case OpCode::EMIT_SFX:
+                    emitSmoke();
+                    break;
+                case OpCode::SHOW:
+                    showObject();
+                    break;
+                case OpCode::HIDE:
+                    hideObject();
+                    break;
+                case OpCode::SHADE:
+                    enableShading();
+                    break;
+                case OpCode::DONT_SHADE:
+                    disableShading();
+                    break;
+                case OpCode::CACHE:
+                    enableCaching();
+                    break;
+                case OpCode::DONT_CACHE:
+                    disableCaching();
+                    break;
+                case OpCode::ATTACH_UNIT:
+                    attachUnit();
+                    break;
+                case OpCode::DROP_UNIT:
+                    detachUnit();
+                    break;
+
+                case OpCode::WAIT_FOR_MOVE:
+                {
+                    auto object = nextInstruction();
+                    auto axis = nextInstructionAsAxis();
+
+                    return BlockedStatus(BlockedStatus::Move(object, axis));
+                }
+                case OpCode::WAIT_FOR_TURN:
+                {
+                    auto object = nextInstruction();
+                    auto axis = nextInstructionAsAxis();
+
+                    return BlockedStatus(BlockedStatus::Turn(object, axis));
+                }
+                case OpCode::SLEEP:
+                {
+                    auto duration = pop();
+
+                    auto ticksToWait = duration / SceneManager::TickInterval;
+                    auto currentTime = env->getGameTime();
+
+                    return BlockedStatus(BlockedStatus::Sleep(currentTime + ticksToWait));
+                }
+
+                case OpCode::CALL_SCRIPT:
+                    callScript();
+                    break;
+                case OpCode::RETURN:
+                    returnFromScript();
+                    break;
+                case OpCode::START_SCRIPT:
+                    startScript();
+                    break;
+
+                case OpCode::SIGNAL:
+                    sendSignal();
+                    break;
+                case OpCode::SET_SIGNAL_MASK:
+                    setSignalMask();
+                    break;
+
+                case OpCode::CREATE_LOCAL_VAR:
+                    createLocalVariable();
+                    break;
+                case OpCode::PUSH_CONSTANT:
+                    pushConstant();
+                    break;
+                case OpCode::PUSH_LOCAL_VAR:
+                    pushLocalVariable();
+                    break;
+                case OpCode::POP_LOCAL_VAR:
+                    popLocalVariable();
+                    break;
+                case OpCode::PUSH_STATIC:
+                    pushStaticVariable();
+                    break;
+                case OpCode::POP_STATIC:
+                    popStaticVariable();
+                    break;
+                case OpCode::POP_STACK:
+                    popStackOperation();
+                    break;
+
+                case OpCode::GET_UNIT_VALUE:
+                    getUnitValue();
+                    break;
+
+                default:
+                    throw std::runtime_error("Unsupported opcode " + std::to_string(instruction));
+            }
         }
 
-        if (instructionIndex == env->script()->instructions.size())
-        {
-            status = FinishedStatus();
-        }
+        return FinishedStatus();
     }
 
     void CobThread::add()
@@ -245,133 +432,6 @@ namespace rwe
         stack.push(val);
     }
 
-    void CobThread::dispatchInstruction(unsigned int instruction)
-    {
-        switch (static_cast<OpCode>(instruction))
-        {
-            case OpCode::RAND:
-                return randomNumber();
-
-            case OpCode::ADD:
-                return add();
-            case OpCode::SUB:
-                return subtract();
-            case OpCode::MUL:
-                return multiply();
-            case OpCode::DIV:
-                return divide();
-
-            case OpCode::SET_LESS:
-                return compareLessThan();
-            case OpCode::SET_LESS_OR_EQUAL:
-                return compareLessThanOrEqual();
-            case OpCode::SET_EQUAL:
-                return compareEqual();
-            case OpCode::SET_NOT_EQUAL:
-                return compareNotEqual();
-            case OpCode::SET_GREATER:
-                return compareGreaterThan();
-            case OpCode::SET_GREATER_OR_EQUAL:
-                return compareGreaterThanOrEqual();
-
-            case OpCode::JUMP:
-                return jump();
-            case OpCode::JUMP_NOT_EQUAL:
-                return jumpIfZero();
-
-            case OpCode::LOGICAL_AND:
-                return logicalAnd();
-            case OpCode::LOGICAL_OR:
-                return logicalOr();
-            case OpCode::LOGICAL_XOR:
-                return logicalXor();
-            case OpCode::LOGICAL_NOT:
-                return logicalNot();
-
-            case OpCode::BITWISE_AND:
-                return bitwiseAnd();
-            case OpCode::BITWISE_OR:
-                return bitwiseOr();
-            case OpCode::BITWISE_XOR:
-                return bitwiseXor();
-            case OpCode::BITWISE_NOT:
-                return bitwiseNot();
-
-            case OpCode::MOVE:
-                return moveObject();
-            case OpCode::MOVE_NOW:
-                return moveObjectNow();
-            case OpCode::TURN:
-                return turnObject();
-            case OpCode::TURN_NOW:
-                return turnObjectNow();
-            case OpCode::SPIN:
-                return spinObject();
-            case OpCode::STOP_SPIN:
-                return stopSpinObject();
-            case OpCode::EXPLODE:
-                return explode();
-            case OpCode::EMIT_SFX:
-                return emitSmoke();
-            case OpCode::SHOW:
-                return showObject();
-            case OpCode::HIDE:
-                return hideObject();
-            case OpCode::SHADE:
-                return enableShading();
-            case OpCode::DONT_SHADE:
-                return disableShading();
-            case OpCode::CACHE:
-                return enableCaching();
-            case OpCode::DONT_CACHE:
-                return disableCaching();
-            case OpCode::ATTACH_UNIT:
-                return attachUnit();
-            case OpCode::DROP_UNIT:
-                return detachUnit();
-
-            case OpCode::WAIT_FOR_MOVE:
-                return waitForMove();
-            case OpCode::WAIT_FOR_TURN:
-                return waitForTurn();
-            case OpCode::SLEEP:
-                return sleep();
-
-            case OpCode::CALL_SCRIPT:
-                return callScript();
-            case OpCode::RETURN:
-                return returnFromScript();
-            case OpCode::START_SCRIPT:
-                return startScript();
-
-            case OpCode::SIGNAL:
-                return sendSignal();
-            case OpCode::SET_SIGNAL_MASK:
-                return setSignalMask();
-
-            case OpCode::CREATE_LOCAL_VAR:
-                return createLocalVariable();
-            case OpCode::PUSH_CONSTANT:
-                return pushConstant();
-            case OpCode::PUSH_LOCAL_VAR:
-                return pushLocalVariable();
-            case OpCode::POP_LOCAL_VAR:
-                return popLocalVariable();
-            case OpCode::PUSH_STATIC:
-                return pushStaticVariable();
-            case OpCode::POP_STATIC:
-                return popStaticVariable();
-            case OpCode::POP_STACK:
-                return popStackOperation();
-
-            case OpCode::GET_UNIT_VALUE:
-                return getUnitValue();
-
-            default:
-                throw std::runtime_error("Unsupported opcode " + std::to_string(instruction));
-        }
-    }
-
     void CobThread::returnFromScript()
     {
         auto returnValue = pop();
@@ -518,32 +578,6 @@ namespace rwe
         // TODO: this
     }
 
-    void CobThread::waitForMove()
-    {
-        auto object = nextInstruction();
-        auto axis = nextInstructionAsAxis();
-
-        status = BlockedStatus(BlockedStatus::Move(object, axis));
-    }
-
-    void CobThread::waitForTurn()
-    {
-        auto object = nextInstruction();
-        auto axis = nextInstructionAsAxis();
-
-        status = BlockedStatus(BlockedStatus::Turn(object, axis));
-    }
-
-    void CobThread::sleep()
-    {
-        auto duration = pop();
-
-        auto ticksToWait = duration / SceneManager::TickInterval;
-        auto currentTime = env->getGameTime();
-
-        status = BlockedStatus(BlockedStatus::Sleep(currentTime + ticksToWait));
-    }
-
     void CobThread::startScript()
     {
         auto functionId = nextInstruction();
@@ -651,11 +685,6 @@ namespace rwe
         instructionIndex = functionInfo.address;
     }
 
-    const CobThread::Status& CobThread::getStatus() const
-    {
-        return status;
-    }
-
     float CobThread::popPosition()
     {
         auto val = pop();
@@ -694,10 +723,5 @@ namespace rwe
             default:
                 throw std::runtime_error("Invalid axis: " + std::to_string(val));
         }
-    }
-
-    void CobThread::setReady()
-    {
-        status = ReadyStatus();
     }
 }

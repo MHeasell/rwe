@@ -27,14 +27,9 @@ namespace rwe
             {
             }
 
-            void operator()(const CobThread::ReadyStatus&) const
+            void operator()(const CobThread::BlockedStatus& status) const
             {
-                env->readyQueue.push_back(thread);
-            }
-
-            void operator()(const CobThread::BlockedStatus&) const
-            {
-                env->blockedQueue.push_back(thread);
+                env->blockedQueue.emplace_back(status, thread);
             }
             void operator()(const CobThread::FinishedStatus&) const
             {
@@ -69,7 +64,7 @@ namespace rwe
         std::vector<std::unique_ptr<CobThread>> threads;
 
         std::deque<CobThread*> readyQueue;
-        std::deque<CobThread*> blockedQueue;
+        std::deque<std::pair<CobThread::Status, CobThread*>> blockedQueue;
 
     public:
         CobEnvironment(GameScene* scene, const CobScript* _script, UnitId unitId);

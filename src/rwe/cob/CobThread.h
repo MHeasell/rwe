@@ -13,9 +13,6 @@ namespace rwe
     class CobThread
     {
     public:
-        struct ReadyStatus
-        {
-        };
         struct BlockedStatus
         {
             struct Move
@@ -58,12 +55,7 @@ namespace rwe
         {
         };
 
-        using Status = boost::variant<ReadyStatus, BlockedStatus, FinishedStatus>;
-
-        static bool isReady(const Status& s)
-        {
-            return boost::get<ReadyStatus>(&s) != nullptr;
-        }
+        using Status = boost::variant<BlockedStatus, FinishedStatus>;
 
     private:
         static const int CobTrue = 1;
@@ -77,19 +69,13 @@ namespace rwe
         std::stack<std::vector<int>> locals;
         unsigned int instructionIndex{0};
 
-        Status status{ReadyStatus()};
-
     public:
         explicit CobThread(CobEnvironment* env);
         CobThread(const std::string& name, CobEnvironment* env);
 
         void setEntryPoint(unsigned int functionId, const std::vector<int>& params);
 
-        void execute();
-
-        const Status& getStatus() const;
-
-        void setReady();
+        Status execute();
 
     private:
         // utility
@@ -173,13 +159,6 @@ namespace rwe
 
         void detachUnit();
 
-        // timing
-        void waitForMove();
-
-        void waitForTurn();
-
-        void sleep();
-
         // script dispatch and return
         void returnFromScript();
 
@@ -221,8 +200,6 @@ namespace rwe
 
         unsigned int nextInstruction();
         Axis nextInstructionAsAxis();
-
-        void dispatchInstruction(unsigned int instruction);
     };
 }
 
