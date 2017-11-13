@@ -70,6 +70,7 @@ set(SOURCE_FILES
     src/rwe/Gaf.cpp src/rwe/Gaf.h
     src/rwe/GameScene.cpp
     src/rwe/GameScene.h
+    src/rwe/GlIdentifier.h
     src/rwe/GraphicsContext.cpp
     src/rwe/GraphicsContext.h
     src/rwe/Grid.h
@@ -90,6 +91,7 @@ set(SOURCE_FILES
     src/rwe/Mesh.h
     src/rwe/MeshService.cpp
     src/rwe/MeshService.h
+    src/rwe/OpaqueId.h
     src/rwe/OtherTriangleScene.cpp
     src/rwe/OtherTriangleScene.h
     src/rwe/Point.cpp
@@ -127,7 +129,6 @@ set(SOURCE_FILES
     src/rwe/UnitDatabase.h
     src/rwe/UnitFbi.cpp
     src/rwe/UnitFbi.h
-    src/rwe/UnitId.cpp
     src/rwe/UnitId.h
     src/rwe/UnitMesh.cpp
     src/rwe/UnitMesh.h
