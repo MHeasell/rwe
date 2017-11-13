@@ -6,6 +6,7 @@
 #include <rwe/Cob.h>
 #include <rwe/cob/CobThread.h>
 #include <boost/variant.hpp>
+#include <rwe/UnitId.h>
 
 
 namespace rwe
@@ -62,7 +63,7 @@ namespace rwe
         GameScene* scene;
         const CobScript* _script;
 
-        unsigned int unitId;
+        UnitId unitId;
         std::vector<int> _statics;
 
         std::vector<std::unique_ptr<CobThread>> threads;
@@ -71,7 +72,7 @@ namespace rwe
         std::deque<CobThread*> blockedQueue;
 
     public:
-        CobEnvironment(GameScene* scene, const CobScript* _script, unsigned int unitId);
+        CobEnvironment(GameScene* scene, const CobScript* _script, UnitId unitId);
 
         CobEnvironment(const CobEnvironment& other) = delete;
         CobEnvironment& operator=(const CobEnvironment& other) = delete;

@@ -61,7 +61,7 @@ namespace rwe
     CobEnvironment::CobEnvironment(
         GameScene* scene,
         const CobScript* script,
-        unsigned int unitId)
+        UnitId unitId)
         : scene(scene), _script(script), unitId(unitId), _statics(script->staticVariableCount)
     {
     }

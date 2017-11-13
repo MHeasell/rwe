@@ -127,6 +127,8 @@ set(SOURCE_FILES
     src/rwe/UnitDatabase.h
     src/rwe/UnitFbi.cpp
     src/rwe/UnitFbi.h
+    src/rwe/UnitId.cpp
+    src/rwe/UnitId.h
     src/rwe/UnitMesh.cpp
     src/rwe/UnitMesh.h
     src/rwe/VaoHandle.h

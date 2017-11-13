@@ -56,7 +56,7 @@ namespace rwe
 
         if (selectedUnit)
         {
-            units[*selectedUnit].renderSelectionRect(context, viewMatrix, projectionMatrix, selectBoxShader.get());
+            getUnit(*selectedUnit).renderSelectionRect(context, viewMatrix, projectionMatrix, selectBoxShader.get());
         }
 
         // draw unit shadows
@@ -180,10 +180,10 @@ namespace rwe
     {
         if (event.button == MouseButtonEvent::MouseButton::Left)
         {
-            if (hoveredUnit && units[*hoveredUnit].isOwnedBy(localPlayerId))
+            if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
             {
                 selectedUnit = hoveredUnit;
-                const auto& selectionSound = units[*hoveredUnit].selectionSound;
+                const auto& selectionSound = getUnit(*hoveredUnit).selectionSound;
                 if (selectionSound)
                 {
                     playSoundOnSelectChannel(*selectionSound);
@@ -222,7 +222,7 @@ namespace rwe
 
         hoveredUnit = getUnitUnderCursor();
 
-        if (hoveredUnit && units[*hoveredUnit].isOwnedBy(localPlayerId))
+        if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
         {
             cursor->useSelectCursor();
         }
@@ -242,7 +242,7 @@ namespace rwe
 
     void GameScene::spawnUnit(const std::string& unitType, unsigned int owner, const Vector3f& position)
     {
-        unsigned int unitId = units.size();
+        UnitId unitId(units.size());
         units.push_back(createUnit(unitId, unitType, owner, position));
     }
 
@@ -256,18 +256,18 @@ namespace rwe
         return terrain;
     }
 
-    void GameScene::showObject(unsigned int unitId, const std::string& name)
+    void GameScene::showObject(UnitId unitId, const std::string& name)
     {
-        auto mesh = units.at(unitId).mesh.find(name);
+        auto mesh = getUnit(unitId).mesh.find(name);
         if (mesh)
         {
             mesh->visible = true;
         }
     }
 
-    void GameScene::hideObject(unsigned int unitId, const std::string& name)
+    void GameScene::hideObject(UnitId unitId, const std::string& name)
     {
-        auto mesh = units.at(unitId).mesh.find(name);
+        auto mesh = getUnit(unitId).mesh.find(name);
         if (mesh)
         {
             mesh->visible = false;
@@ -275,34 +275,34 @@ namespace rwe
     }
 
     void
-    GameScene::moveObject(unsigned int unitId, const std::string& name, Axis axis, float position, float speed)
+    GameScene::moveObject(UnitId unitId, const std::string& name, Axis axis, float position, float speed)
     {
-        units.at(unitId).moveObject(name, axis, position, speed);
+        getUnit(unitId).moveObject(name, axis, position, speed);
     }
 
-    void GameScene::moveObjectNow(unsigned int unitId, const std::string& name, Axis axis, float position)
+    void GameScene::moveObjectNow(UnitId unitId, const std::string& name, Axis axis, float position)
     {
-        units.at(unitId).moveObjectNow(name, axis, position);
+        getUnit(unitId).moveObjectNow(name, axis, position);
     }
 
-    void GameScene::turnObject(unsigned int unitId, const std::string& name, Axis axis, float angle, float speed)
+    void GameScene::turnObject(UnitId unitId, const std::string& name, Axis axis, float angle, float speed)
     {
-        units.at(unitId).turnObject(name, axis, angle, speed);
+        getUnit(unitId).turnObject(name, axis, angle, speed);
     }
 
-    void GameScene::turnObjectNow(unsigned int unitId, const std::string& name, Axis axis, float angle)
+    void GameScene::turnObjectNow(UnitId unitId, const std::string& name, Axis axis, float angle)
     {
-        units.at(unitId).turnObjectNow(name, axis, angle);
+        getUnit(unitId).turnObjectNow(name, axis, angle);
     }
 
-    bool GameScene::isPieceMoving(unsigned int unitId, const std::string& name, Axis axis) const
+    bool GameScene::isPieceMoving(UnitId unitId, const std::string& name, Axis axis) const
     {
-        return units.at(unitId).isMoveInProgress(name, axis);
+        return getUnit(unitId).isMoveInProgress(name, axis);
     }
 
-    bool GameScene::isPieceTurning(unsigned int unitId, const std::string& name, Axis axis) const
+    bool GameScene::isPieceTurning(UnitId unitId, const std::string& name, Axis axis) const
     {
-        return units.at(unitId).isTurnInProgress(name, axis);
+        return getUnit(unitId).isTurnInProgress(name, axis);
     }
 
     unsigned int GameScene::getGameTime() const
@@ -315,7 +315,7 @@ namespace rwe
         audioService->playSoundIfFree(handle, UnitSelectChannel);
     }
 
-    Unit GameScene::createUnit(unsigned int unitId, const std::string& unitType, unsigned int owner, const Vector3f& position)
+    Unit GameScene::createUnit(UnitId unitId, const std::string& unitType, unsigned int owner, const Vector3f& position)
     {
         const auto& fbi = unitDatabase.getUnitInfo(unitType);
         const auto& soundClass = unitDatabase.getSoundClass(fbi.soundCategory);
@@ -353,7 +353,7 @@ namespace rwe
         return unit;
     }
 
-    boost::optional<unsigned int> GameScene::getUnitUnderCursor() const
+    boost::optional<UnitId> GameScene::getUnitUnderCursor() const
     {
         auto ray = camera.screenToWorldRay(screenToClipSpace(getMousePosition()));
         return getFirstCollidingUnit(ray);
@@ -372,10 +372,10 @@ namespace rwe
         return Point(x, y);
     }
 
-    boost::optional<unsigned int> GameScene::getFirstCollidingUnit(const Ray3f& ray) const
+    boost::optional<UnitId> GameScene::getFirstCollidingUnit(const Ray3f& ray) const
     {
         auto bestDistance = std::numeric_limits<float>::infinity();
-        boost::optional<unsigned int> it;
+        boost::optional<UnitId> it;
 
         for (unsigned int i = 0; i < units.size(); ++i)
         {
@@ -383,7 +383,7 @@ namespace rwe
             if (distance && distance < bestDistance)
             {
                 bestDistance = *distance;
-                it = i;
+                it = UnitId(i);
             }
         }
 
@@ -396,29 +396,31 @@ namespace rwe
         return terrain.intersectLine(ray.toLine());
     }
 
-    void GameScene::issueMoveOrder(unsigned int unitId, Vector3f position)
+    void GameScene::issueMoveOrder(UnitId unitId, Vector3f position)
     {
-        units[unitId].clearOrders();
-        units[unitId].addOrder(createMoveOrder(position));
-        if (units[unitId].okSound)
+        auto& unit = getUnit(unitId);
+        unit.clearOrders();
+        unit.addOrder(createMoveOrder(position));
+        if (unit.okSound)
         {
-            playSoundOnSelectChannel(*(units[unitId].okSound));
+            playSoundOnSelectChannel(*(unit.okSound));
         }
     }
 
-    void GameScene::enqueueMoveOrder(unsigned int unitId, Vector3f position)
+    void GameScene::enqueueMoveOrder(UnitId unitId, Vector3f position)
     {
-        units[unitId].addOrder(createMoveOrder(position));
+        getUnit(unitId).addOrder(createMoveOrder(position));
     }
 
     void GameScene::stopSelectedUnit()
     {
         if (selectedUnit)
         {
-            units[*selectedUnit].clearOrders();
-            if (units[*selectedUnit].okSound)
+            auto& unit = getUnit(*selectedUnit);
+            unit.clearOrders();
+            if (unit.okSound)
             {
-                playSoundOnSelectChannel(*(units[*selectedUnit].okSound));
+                playSoundOnSelectChannel(*(unit.okSound));
             }
         }
     }
@@ -426,5 +428,15 @@ namespace rwe
     bool GameScene::isShiftDown() const
     {
         return leftShiftDown || rightShiftDown;
+    }
+
+    Unit& GameScene::getUnit(UnitId id)
+    {
+        return units.at(id.value);
+    }
+
+    const Unit& GameScene::getUnit(UnitId id) const
+    {
+        return units.at(id.value);
     }
 }

@@ -9,6 +9,7 @@
 #include "MeshService.h"
 #include "UnitDatabase.h"
 #include "AudioService.h"
+#include "UnitId.h"
 #include <rwe/ViewportService.h>
 
 namespace rwe
@@ -67,8 +68,8 @@ namespace rwe
 
         unsigned int localPlayerId;
 
-        boost::optional<unsigned int> hoveredUnit;
-        boost::optional<unsigned int> selectedUnit;
+        boost::optional<UnitId> hoveredUnit;
+        boost::optional<UnitId> selectedUnit;
 
     public:
         GameScene(
@@ -107,46 +108,50 @@ namespace rwe
 
         const MapTerrain& getTerrain() const;
 
-        void showObject(unsigned int unitId, const std::string& name);
+        void showObject(UnitId unitId, const std::string& name);
 
-        void hideObject(unsigned int unitId, const std::string& name);
+        void hideObject(UnitId unitId, const std::string& name);
 
-        void moveObject(unsigned int unitId, const std::string& name, Axis axis, float position, float speed);
+        void moveObject(UnitId unitId, const std::string& name, Axis axis, float position, float speed);
 
-        void moveObjectNow(unsigned int unitId, const std::string& name, Axis axis, float position);
+        void moveObjectNow(UnitId unitId, const std::string& name, Axis axis, float position);
 
-        void turnObject(unsigned int unitId, const std::string& name, Axis axis, float angle, float speed);
+        void turnObject(UnitId unitId, const std::string& name, Axis axis, float angle, float speed);
 
-        void turnObjectNow(unsigned int unitId, const std::string& name, Axis axis, float angle);
+        void turnObjectNow(UnitId unitId, const std::string& name, Axis axis, float angle);
 
-        bool isPieceMoving(unsigned int unitId, const std::string& name, Axis axis) const;
+        bool isPieceMoving(UnitId unitId, const std::string& name, Axis axis) const;
 
-        bool isPieceTurning(unsigned int unitId, const std::string& name, Axis axis) const;
+        bool isPieceTurning(UnitId unitId, const std::string& name, Axis axis) const;
 
         unsigned int getGameTime() const;
 
         void playSoundOnSelectChannel(const AudioService::SoundHandle& sound);
 
     private:
-        Unit createUnit(unsigned int unitId, const std::string& unitType, unsigned int owner, const Vector3f& position);
+        Unit createUnit(UnitId unitId, const std::string& unitType, unsigned int owner, const Vector3f& position);
 
-        boost::optional<unsigned int> getUnitUnderCursor() const;
+        boost::optional<UnitId> getUnitUnderCursor() const;
 
         Vector2f screenToClipSpace(Point p) const;
 
         Point getMousePosition() const;
 
-        boost::optional<unsigned int> getFirstCollidingUnit(const Ray3f& ray) const;
+        boost::optional<UnitId> getFirstCollidingUnit(const Ray3f& ray) const;
 
         boost::optional<Vector3f> getMouseTerrainCoordinate() const;
 
-        void issueMoveOrder(unsigned int unitId, Vector3f position);
+        void issueMoveOrder(UnitId unitId, Vector3f position);
 
-        void enqueueMoveOrder(unsigned int unitId, Vector3f position);
+        void enqueueMoveOrder(UnitId unitId, Vector3f position);
 
         void stopSelectedUnit();
 
         bool isShiftDown() const;
+
+        Unit& getUnit(UnitId id);
+
+        const Unit& getUnit(UnitId id) const;
     };
 }
 
