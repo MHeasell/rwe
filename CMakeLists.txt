@@ -94,6 +94,7 @@ set(SOURCE_FILES
     src/rwe/OpaqueId.h
     src/rwe/OtherTriangleScene.cpp
     src/rwe/OtherTriangleScene.h
+    src/rwe/PlayerId.h
     src/rwe/Point.cpp
     src/rwe/Point.h
     src/rwe/SceneManager.cpp

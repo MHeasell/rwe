@@ -11,6 +11,7 @@
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/AudioService.h>
 #include <deque>
+#include <rwe/PlayerId.h>
 
 namespace rwe
 {
@@ -36,7 +37,7 @@ namespace rwe
         boost::optional<AudioService::SoundHandle> selectionSound;
         boost::optional<AudioService::SoundHandle> okSound;
         boost::optional<AudioService::SoundHandle> arrivedSound;
-        unsigned int owner;
+        PlayerId owner;
 
         /**
          * Anticlockwise rotation of the unit around the Y axis in radians.
@@ -109,7 +110,7 @@ namespace rwe
             const Matrix4f& projectionMatrix,
             ShaderProgramIdentifier shader) const;
 
-        bool isOwnedBy(unsigned int playerId) const;
+        bool isOwnedBy(PlayerId playerId) const;
 
         void clearOrders();
 

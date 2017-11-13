@@ -18,7 +18,7 @@ namespace rwe
         SharedShaderProgramHandle&& selectBoxShader,
         UnitDatabase&& unitDatabase,
         std::array<boost::optional<GamePlayerInfo>, 10>&& players,
-        unsigned int localPlayerId)
+        PlayerId localPlayerId)
         : textureService(textureService),
           cursor(cursor),
           sdl(sdl),
@@ -240,7 +240,7 @@ namespace rwe
         }
     }
 
-    void GameScene::spawnUnit(const std::string& unitType, unsigned int owner, const Vector3f& position)
+    void GameScene::spawnUnit(const std::string& unitType, PlayerId owner, const Vector3f& position)
     {
         UnitId unitId(units.size());
         units.push_back(createUnit(unitId, unitType, owner, position));
@@ -315,12 +315,12 @@ namespace rwe
         audioService->playSoundIfFree(handle, UnitSelectChannel);
     }
 
-    Unit GameScene::createUnit(UnitId unitId, const std::string& unitType, unsigned int owner, const Vector3f& position)
+    Unit GameScene::createUnit(UnitId unitId, const std::string& unitType, PlayerId owner, const Vector3f& position)
     {
         const auto& fbi = unitDatabase.getUnitInfo(unitType);
         const auto& soundClass = unitDatabase.getSoundClass(fbi.soundCategory);
 
-        auto meshInfo = meshService.loadUnitMesh(fbi.objectName, players[owner]->color);
+        auto meshInfo = meshService.loadUnitMesh(fbi.objectName, getPlayer(owner)->color);
 
         const auto& script = unitDatabase.getUnitScript(fbi.unitName);
         auto cobEnv = std::make_unique<CobEnvironment>(this, &script, unitId);
@@ -438,5 +438,15 @@ namespace rwe
     const Unit& GameScene::getUnit(UnitId id) const
     {
         return units.at(id.value);
+    }
+
+    boost::optional<GamePlayerInfo>& GameScene::getPlayer(PlayerId player)
+    {
+        return players.at(player.value);
+    }
+
+    const boost::optional<GamePlayerInfo>& GameScene::getPlayer(PlayerId player) const
+    {
+        return players.at(player.value);
     }
 }

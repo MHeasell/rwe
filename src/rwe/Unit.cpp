@@ -203,7 +203,7 @@ namespace rwe
         context.drawWireframeSelectionMesh(selectionMesh.visualMesh, matrix, viewMatrix, projectionMatrix, shader);
     }
 
-    bool Unit::isOwnedBy(unsigned int playerId) const
+    bool Unit::isOwnedBy(PlayerId playerId) const
     {
         return owner == playerId;
     }

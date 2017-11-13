@@ -136,7 +136,7 @@ namespace rwe
         {
             throw std::logic_error("No human player in the game");
         }
-        auto localPlayerId = localPlayerIdIt - gameParameters.players.begin();
+        PlayerId localPlayerId(localPlayerIdIt - gameParameters.players.begin());
 
         std::array<boost::optional<GamePlayerInfo>, 10> gamePlayers;
         for (int i = 0; i < 10; ++i)
@@ -189,13 +189,13 @@ namespace rwe
             auto worldStartPos = gameScene->getTerrain().topLeftCoordinateToWorld(Vector3f(startPos.xPos, 0.0f, startPos.zPos));
             worldStartPos.y = gameScene->getTerrain().getHeightAt(worldStartPos.x, worldStartPos.z);
 
-            if (i == localPlayerId)
+            if (i == localPlayerId.value)
             {
                 humanStartPos = worldStartPos;
             }
 
             const auto& sideData = getSideData(player->side);
-            gameScene->spawnUnit(sideData.commander, i, worldStartPos);
+            gameScene->spawnUnit(sideData.commander, PlayerId(i), worldStartPos);
         }
 
         gameScene->setCameraPosition(Vector3f(humanStartPos.x, 0.0f, humanStartPos.z));

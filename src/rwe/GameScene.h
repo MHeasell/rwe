@@ -11,6 +11,7 @@
 #include "AudioService.h"
 #include "UnitId.h"
 #include <rwe/ViewportService.h>
+#include <rwe/PlayerId.h>
 
 namespace rwe
 {
@@ -66,7 +67,7 @@ namespace rwe
 
         std::array<boost::optional<GamePlayerInfo>, 10> players;
 
-        unsigned int localPlayerId;
+        PlayerId localPlayerId;
 
         boost::optional<UnitId> hoveredUnit;
         boost::optional<UnitId> selectedUnit;
@@ -86,7 +87,7 @@ namespace rwe
             SharedShaderProgramHandle&& selectBoxShader,
             UnitDatabase&& unitDatabase,
             std::array<boost::optional<GamePlayerInfo>, 10>&& players,
-            unsigned int localPlayerId);
+            PlayerId localPlayerId);
 
         void init() override;
 
@@ -102,7 +103,7 @@ namespace rwe
 
         void update() override;
 
-        void spawnUnit(const std::string& unitType, unsigned int owner, const Vector3f& position);
+        void spawnUnit(const std::string& unitType, PlayerId owner, const Vector3f& position);
 
         void setCameraPosition(const Vector3f& newPosition);
 
@@ -129,7 +130,7 @@ namespace rwe
         void playSoundOnSelectChannel(const AudioService::SoundHandle& sound);
 
     private:
-        Unit createUnit(UnitId unitId, const std::string& unitType, unsigned int owner, const Vector3f& position);
+        Unit createUnit(UnitId unitId, const std::string& unitType, PlayerId owner, const Vector3f& position);
 
         boost::optional<UnitId> getUnitUnderCursor() const;
 
@@ -152,6 +153,10 @@ namespace rwe
         Unit& getUnit(UnitId id);
 
         const Unit& getUnit(UnitId id) const;
+
+        boost::optional<GamePlayerInfo>& getPlayer(PlayerId player);
+
+        const boost::optional<GamePlayerInfo>& getPlayer(PlayerId player) const;
     };
 }
 
