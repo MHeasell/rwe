@@ -34,6 +34,23 @@ namespace rwe
             }
         }
 
+        SECTION("initial value ctor")
+        {
+            SECTION("fills the grid with the initial value")
+            {
+                Grid<int> g(3, 4, 5);
+                REQUIRE(g.getWidth() == 3);
+                REQUIRE(g.getHeight() == 4);
+                for (int y = 0; y < 4; ++y)
+                {
+                    for (int x = 0; x < 3; ++x)
+                    {
+                        REQUIRE(g.get(x, y) == 5);
+                    }
+                }
+            }
+        }
+
         SECTION("vector ctor")
         {
             SECTION("constructs grid from existing data")
@@ -90,6 +107,29 @@ namespace rwe
                 REQUIRE(g.get(0, 3) == 10);
                 REQUIRE(g.get(1, 3) == 11);
                 REQUIRE(g.get(2, 3) == 12);
+            }
+        }
+
+        SECTION(".setArea")
+        {
+            SECTION("Sets the given area to the given value")
+            {
+                Grid<int> g(3, 4, 5);
+
+                g.setArea(0, 1, 3, 2, 8);
+
+                REQUIRE(g.get(0, 0) == 5);
+                REQUIRE(g.get(1, 0) == 5);
+                REQUIRE(g.get(2, 0) == 5);
+                REQUIRE(g.get(0, 1) == 8);
+                REQUIRE(g.get(1, 1) == 8);
+                REQUIRE(g.get(2, 1) == 8);
+                REQUIRE(g.get(0, 2) == 8);
+                REQUIRE(g.get(1, 2) == 8);
+                REQUIRE(g.get(2, 2) == 8);
+                REQUIRE(g.get(0, 3) == 5);
+                REQUIRE(g.get(1, 3) == 5);
+                REQUIRE(g.get(2, 3) == 5);
             }
         }
     }

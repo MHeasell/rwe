@@ -19,6 +19,7 @@ namespace rwe
     public:
         Grid();
         Grid(std::size_t width, std::size_t height);
+        Grid(std::size_t width, std::size_t height, const T& initialValue);
         Grid(std::size_t width, std::size_t height, std::vector<T>&& data);
 
         T& get(std::size_t x, std::size_t y);
@@ -44,6 +45,8 @@ namespace rwe
 
         void replaceArea(std::size_t x, std::size_t y, const Grid<T>& replacement);
 
+        void setArea(std::size_t x, std::size_t y, std::size_t width, std::size_t height, const T& value);
+
         template <typename U>
         void transformAndReplaceArea(std::size_t x, std::size_t y, const Grid<U>& replacement, const std::function<T(const U&)>& transformation);
     };
@@ -56,6 +59,12 @@ namespace rwe
     template <typename T>
     Grid<T>::Grid(std::size_t width, std::size_t height)
         : width(width), height(height), data(width * height)
+    {
+    }
+
+    template<typename T>
+    Grid<T>::Grid(std::size_t width, std::size_t height, const T& initialValue)
+        : width(width), height(height), data(width * height, initialValue)
     {
     }
 
@@ -176,6 +185,18 @@ namespace rwe
             for (std::size_t dx = 0; dx < replacement.getWidth(); ++dx)
             {
                 set(x + dx, y + dy, transformation(replacement.get(dx, dy)));
+            }
+        }
+    }
+
+    template<typename T>
+    void Grid<T>::setArea(std::size_t x, std::size_t y, std::size_t width, std::size_t height, const T& value)
+    {
+        for (std::size_t dy = 0; dy < height; ++dy)
+        {
+            for (std::size_t dx = 0; dx < width; ++dx)
+            {
+                set(x + dx, y + dy, value);
             }
         }
     }
