@@ -62,7 +62,7 @@ namespace rwe
     {
     }
 
-    template<typename T>
+    template <typename T>
     Grid<T>::Grid(std::size_t width, std::size_t height, const T& initialValue)
         : width(width), height(height), data(width * height, initialValue)
     {
@@ -189,7 +189,7 @@ namespace rwe
         }
     }
 
-    template<typename T>
+    template <typename T>
     void Grid<T>::setArea(std::size_t x, std::size_t y, std::size_t width, std::size_t height, const T& value)
     {
         for (std::size_t dy = 0; dy < height; ++dy)

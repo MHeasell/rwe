@@ -345,7 +345,7 @@ namespace rwe
         {
             unit.okSound = unitDatabase.getSoundHandle(*(soundClass.ok1));
         }
-        if(soundClass.arrived1)
+        if (soundClass.arrived1)
         {
             unit.arrivedSound = unitDatabase.getSoundHandle(*(soundClass.arrived1));
         }

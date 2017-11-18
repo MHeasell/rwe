@@ -244,7 +244,7 @@ namespace rwe
                         scene.playSoundOnSelectChannel(*arrivedSound);
                     }
                 }
-                    // TODO: if distance <= braking distance, brake
+                // TODO: if distance <= braking distance, brake
                 else
                 {
                     auto effectiveMaxSpeed = maxSpeed;
