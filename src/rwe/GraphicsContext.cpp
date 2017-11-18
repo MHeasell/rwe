@@ -891,4 +891,72 @@ namespace rwe
     {
         glDepthMask(GL_FALSE);
     }
+
+    DebugLinesMesh GraphicsContext::createTemporaryLinesMesh(const std::vector<Line3f>& lines)
+    {
+        GLuint vao;
+        glGenVertexArrays(1, &vao);
+        glBindVertexArray(vao);
+
+        GLuint vbo;
+        glGenBuffers(1, &vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+        std::vector<GLfloat> buffer;
+        buffer.reserve(lines.size() * 2 * 3); // 2 verts per line, 3 floats per vert
+
+        for (const auto& l : lines)
+        {
+            buffer.push_back(l.start.x);
+            buffer.push_back(l.start.y);
+            buffer.push_back(l.start.z);
+
+            buffer.push_back(l.end.x);
+            buffer.push_back(l.end.y);
+            buffer.push_back(l.end.z);
+        }
+
+        glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(GLfloat), buffer.data(), GL_STREAM_DRAW);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<void*>(0));
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+
+        DebugLinesMesh m;
+        m.vao = VaoHandle(VaoIdentifier(vao));
+        m.vbo = VboHandle(VboIdentifier(vbo));
+        m.vertexCount = lines.size() * 2;
+        return m;
+    }
+
+    void GraphicsContext::drawLinesMesh(
+        const DebugLinesMesh& mesh,
+        const Matrix4f& modelMatrix,
+        const Matrix4f& viewMatrix,
+        const Matrix4f& projectionMatrix,
+        ShaderProgramIdentifier shader)
+    {
+        glUseProgram(shader.value);
+        glBindVertexArray(mesh.vao.get().value);
+
+        {
+            auto location = glGetUniformLocation(shader.value, "modelMatrix");
+            glUniformMatrix4fv(location, 1, GL_FALSE, modelMatrix.data);
+        }
+        {
+            auto location = glGetUniformLocation(shader.value, "viewMatrix");
+            glUniformMatrix4fv(location, 1, GL_FALSE, viewMatrix.data);
+        }
+        {
+            auto location = glGetUniformLocation(shader.value, "projectionMatrix");
+            glUniformMatrix4fv(location, 1, GL_FALSE, projectionMatrix.data);
+        }
+
+        glDrawArrays(GL_LINES, 0, mesh.vertexCount);
+
+        glBindVertexArray(0);
+        glUseProgram(0);
+    }
 }

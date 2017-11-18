@@ -63,6 +63,8 @@ namespace rwe
 
         SharedShaderProgramHandle selectBoxShader;
 
+        SharedShaderProgramHandle debugColorShader;
+
         UnitDatabase unitDatabase;
 
         unsigned int gameTime{0};
@@ -75,6 +77,8 @@ namespace rwe
         boost::optional<UnitId> selectedUnit;
 
         OccupiedGrid occupiedGrid;
+
+        bool occupiedGridVisible{false};
 
     public:
         GameScene(
@@ -89,6 +93,7 @@ namespace rwe
             SharedShaderProgramHandle&& unitTextureShader,
             SharedShaderProgramHandle&& unitColorShader,
             SharedShaderProgramHandle&& selectBoxShader,
+            SharedShaderProgramHandle&& debugColorShader,
             UnitDatabase&& unitDatabase,
             std::array<boost::optional<GamePlayerInfo>, 10>&& players,
             PlayerId localPlayerId);
@@ -167,6 +172,11 @@ namespace rwe
         boost::optional<GamePlayerInfo>& getPlayer(PlayerId player);
 
         const boost::optional<GamePlayerInfo>& getPlayer(PlayerId player) const;
+
+        void renderOccupiedGrid(
+            GraphicsContext& graphics,
+            const Matrix4f& viewMatrix,
+            const Matrix4f& projectionMatrix);
     };
 }
 

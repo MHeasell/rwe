@@ -18,6 +18,7 @@
 #include "ShaderProgramHandle.h"
 #include "ShaderMesh.h"
 #include "SelectionMesh.h"
+#include "DebugLinesMesh.h"
 
 namespace rwe
 {
@@ -154,6 +155,15 @@ namespace rwe
         void beginUnitShadow();
 
         void endUnitShadow();
+
+        DebugLinesMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines);
+
+        void drawLinesMesh(
+            const DebugLinesMesh& mesh,
+            const Matrix4f& modelMatrix,
+            const Matrix4f& viewMatrix,
+            const Matrix4f& projectionMatrix,
+            ShaderProgramIdentifier shader);
 
     private:
         ShaderHandle compileShader(GLenum shaderType, const std::string& source);

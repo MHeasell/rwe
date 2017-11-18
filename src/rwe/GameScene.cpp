@@ -16,6 +16,7 @@ namespace rwe
         SharedShaderProgramHandle&& unitTextureShader,
         SharedShaderProgramHandle&& unitColorShader,
         SharedShaderProgramHandle&& selectBoxShader,
+        SharedShaderProgramHandle&& debugColorShader,
         UnitDatabase&& unitDatabase,
         std::array<boost::optional<GamePlayerInfo>, 10>&& players,
         PlayerId localPlayerId)
@@ -31,6 +32,7 @@ namespace rwe
           unitTextureShader(std::move(unitTextureShader)),
           unitColorShader(std::move(unitColorShader)),
           selectBoxShader(std::move(selectBoxShader)),
+          debugColorShader(std::move(debugColorShader)),
           unitDatabase(std::move(unitDatabase)),
           players(std::move(players)),
           localPlayerId(localPlayerId),
@@ -64,6 +66,11 @@ namespace rwe
 
         auto viewMatrix = camera.getViewMatrix();
         auto projectionMatrix = camera.getProjectionMatrix();
+
+        if (occupiedGridVisible)
+        {
+            renderOccupiedGrid(context, viewMatrix, projectionMatrix);
+        }
 
         terrain.renderFlatFeatures(context, camera);
 
@@ -133,6 +140,10 @@ namespace rwe
         else if (keysym.sym == SDLK_RSHIFT)
         {
             rightShiftDown = true;
+        }
+        else if (keysym.sym == SDLK_F9)
+        {
+            occupiedGridVisible = !occupiedGridVisible;
         }
     }
 
@@ -542,5 +553,63 @@ namespace rwe
 
         occupiedGrid.grid.setArea(*oldRegion, OccupiedNone());
         occupiedGrid.grid.setArea(*newRegion, OccupiedUnit(unitId));
+    }
+
+    void GameScene::renderOccupiedGrid(GraphicsContext& graphics,
+        const Matrix4f& viewMatrix,
+        const Matrix4f& projectionMatrix)
+    {
+        auto halfWidth = camera.getWidth() / 2.0f;
+        auto halfHeight = camera.getHeight() / 2.0f;
+        auto left = camera.getPosition().x - halfWidth;
+        auto top = camera.getPosition().z - halfHeight;
+        auto right = camera.getPosition().x + halfWidth;
+        auto bottom = camera.getPosition().z + halfHeight;
+
+        assert(left < right);
+        assert(top < bottom);
+
+        assert(terrain.getHeightMap().getWidth() >= 2);
+        assert(terrain.getHeightMap().getHeight() >= 2);
+
+        auto topLeftCell = terrain.worldToHeightmapCoordinate(Vector3f(left, 0.0f, top));
+        topLeftCell.x = std::clamp(topLeftCell.x, 0, static_cast<int>(terrain.getHeightMap().getWidth() - 2));
+        topLeftCell.y = std::clamp(topLeftCell.y, 0, static_cast<int>(terrain.getHeightMap().getHeight() - 2));
+
+        auto bottomRightCell = terrain.worldToHeightmapCoordinate(Vector3f(right, 0.0f, bottom));
+        bottomRightCell.y += 7; // compensate for height
+        bottomRightCell.x = std::clamp(bottomRightCell.x, 0, static_cast<int>(terrain.getHeightMap().getWidth() - 2));
+        bottomRightCell.y = std::clamp(bottomRightCell.y, 0, static_cast<int>(terrain.getHeightMap().getHeight() - 2));
+
+        assert(topLeftCell.x <= bottomRightCell.x);
+        assert(topLeftCell.y <= bottomRightCell.y);
+
+        std::vector<Line3f> lines;
+
+        for (int y = topLeftCell.y; y <= bottomRightCell.y; ++y)
+        {
+            for (int x = topLeftCell.x; x <= bottomRightCell.x; ++x)
+            {
+                auto pos = terrain.heightmapIndexToWorldCorner(x, y);
+                pos.y = terrain.getHeightMap().get(x, y);
+
+                auto rightPos = terrain.heightmapIndexToWorldCorner(x + 1, y);
+                rightPos.y = terrain.getHeightMap().get(x + 1, y);
+
+                auto downPos = terrain.heightmapIndexToWorldCorner(x, y + 1);
+                downPos.y = terrain.getHeightMap().get(x, y + 1);
+
+                lines.emplace_back(pos, rightPos);
+                lines.emplace_back(pos, downPos);
+            }
+        }
+
+        auto mesh = graphics.createTemporaryLinesMesh(lines);
+        graphics.drawLinesMesh(
+            mesh,
+            Matrix4f::identity(),
+            viewMatrix,
+            projectionMatrix,
+            debugColorShader.get());
     }
 }

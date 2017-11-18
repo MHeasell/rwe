@@ -65,6 +65,8 @@ set(SOURCE_FILES
     src/rwe/ColorPalette.h
     src/rwe/CursorService.cpp
     src/rwe/CursorService.h
+    src/rwe/DebugLinesMesh.cpp
+    src/rwe/DebugLinesMesh.h
     src/rwe/DiscreteRect.h
     src/rwe/FeatureDefinition.cpp
     src/rwe/FeatureDefinition.h
