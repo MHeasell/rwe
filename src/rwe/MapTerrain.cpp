@@ -88,6 +88,12 @@ namespace rwe
         return Point(static_cast<int>(heightPos.x), static_cast<int>(heightPos.z));
     }
 
+    Point MapTerrain::worldToHeightmapCoordinateNearest(const Vector3f& position) const
+    {
+        auto heightPos = worldToHeightmapSpace(position);
+        return Point(static_cast<int>(std::round(heightPos.x)), static_cast<int>(std::round(heightPos.z)));
+    }
+
     Vector3f MapTerrain::heightmapIndexToWorldCorner(int x, int y) const
     {
         return heightmapToWorldSpace(Vector3f(x, 0.0f, y));

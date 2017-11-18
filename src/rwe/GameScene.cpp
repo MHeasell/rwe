@@ -511,15 +511,16 @@ namespace rwe
     DiscreteRect
     GameScene::computeFootprintRegion(const Vector3f& position, unsigned int footprintX, unsigned int footprintZ) const
     {
-        auto middleCell = terrain.worldToHeightmapCoordinate(position);
+        auto halfFootprintX = static_cast<float>(footprintX) * MapTerrain::HeightTileWidthInWorldUnits / 2.0f;
+        auto halfFootprintZ = static_cast<float>(footprintZ) * MapTerrain::HeightTileHeightInWorldUnits / 2.0f;
+        Vector3f topLeft(
+            position.x - halfFootprintX,
+            position.y,
+            position.z - halfFootprintZ);
 
-        auto halfFootprintX = footprintX / 2;
-        auto halfFootprintZ = footprintZ / 2;
+        auto cell = terrain.worldToHeightmapCoordinateNearest(topLeft);
 
-        auto left = middleCell.x - static_cast<int>(halfFootprintX);
-        auto top = middleCell.y - static_cast<int>(halfFootprintZ);
-
-        return DiscreteRect(left, top, footprintX, footprintZ);
+        return DiscreteRect(cell.x, cell.y, footprintX, footprintZ);
     }
 
     bool GameScene::isCollisionAt(const DiscreteRect& rect, UnitId self) const
