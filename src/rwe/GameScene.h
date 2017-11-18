@@ -10,6 +10,8 @@
 #include "UnitDatabase.h"
 #include "AudioService.h"
 #include "UnitId.h"
+#include "OccupiedGrid.h"
+#include "DiscreteRect.h"
 #include <rwe/ViewportService.h>
 #include <rwe/PlayerId.h>
 
@@ -61,6 +63,8 @@ namespace rwe
 
         SharedShaderProgramHandle selectBoxShader;
 
+        SharedShaderProgramHandle debugColorShader;
+
         UnitDatabase unitDatabase;
 
         unsigned int gameTime{0};
@@ -71,6 +75,10 @@ namespace rwe
 
         boost::optional<UnitId> hoveredUnit;
         boost::optional<UnitId> selectedUnit;
+
+        OccupiedGrid occupiedGrid;
+
+        bool occupiedGridVisible{false};
 
     public:
         GameScene(
@@ -85,6 +93,7 @@ namespace rwe
             SharedShaderProgramHandle&& unitTextureShader,
             SharedShaderProgramHandle&& unitColorShader,
             SharedShaderProgramHandle&& selectBoxShader,
+            SharedShaderProgramHandle&& debugColorShader,
             UnitDatabase&& unitDatabase,
             std::array<boost::optional<GamePlayerInfo>, 10>&& players,
             PlayerId localPlayerId);
@@ -129,6 +138,12 @@ namespace rwe
 
         void playSoundOnSelectChannel(const AudioService::SoundHandle& sound);
 
+        bool isCollisionAt(const DiscreteRect& rect, UnitId self) const;
+
+        DiscreteRect computeFootprintRegion(const Vector3f& position, unsigned int footprintX, unsigned int footprintZ) const;
+
+        void moveUnitOccupiedArea(const DiscreteRect& oldRect, const DiscreteRect& newRect, UnitId unitId);
+
     private:
         Unit createUnit(UnitId unitId, const std::string& unitType, PlayerId owner, const Vector3f& position);
 
@@ -157,6 +172,11 @@ namespace rwe
         boost::optional<GamePlayerInfo>& getPlayer(PlayerId player);
 
         const boost::optional<GamePlayerInfo>& getPlayer(PlayerId player) const;
+
+        void renderOccupiedGrid(
+            GraphicsContext& graphics,
+            const Matrix4f& viewMatrix,
+            const Matrix4f& projectionMatrix);
     };
 }
 

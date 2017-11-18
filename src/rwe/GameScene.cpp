@@ -16,6 +16,7 @@ namespace rwe
         SharedShaderProgramHandle&& unitTextureShader,
         SharedShaderProgramHandle&& unitColorShader,
         SharedShaderProgramHandle&& selectBoxShader,
+        SharedShaderProgramHandle&& debugColorShader,
         UnitDatabase&& unitDatabase,
         std::array<boost::optional<GamePlayerInfo>, 10>&& players,
         PlayerId localPlayerId)
@@ -31,15 +32,29 @@ namespace rwe
           unitTextureShader(std::move(unitTextureShader)),
           unitColorShader(std::move(unitColorShader)),
           selectBoxShader(std::move(selectBoxShader)),
+          debugColorShader(std::move(debugColorShader)),
           unitDatabase(std::move(unitDatabase)),
           players(std::move(players)),
-          localPlayerId(localPlayerId)
+          localPlayerId(localPlayerId),
+          occupiedGrid(this->terrain.getHeightMap().getWidth(), this->terrain.getHeightMap().getHeight())
     {
     }
 
     void GameScene::init()
     {
         audioService->reserveChannels(reservedChannelsCount);
+
+        // add features to the occupied grid
+        for (const auto& f : terrain.getFeatures())
+        {
+            if (!f.isBlocking())
+            {
+                continue;
+            }
+
+            auto footprintRegion = computeFootprintRegion(f.position, f.footprintX, f.footprintZ);
+            occupiedGrid.grid.setArea(occupiedGrid.grid.clipRegion(footprintRegion), OccupiedFeature());
+        }
     }
 
     void GameScene::render(GraphicsContext& context)
@@ -51,6 +66,11 @@ namespace rwe
 
         auto viewMatrix = camera.getViewMatrix();
         auto projectionMatrix = camera.getProjectionMatrix();
+
+        if (occupiedGridVisible)
+        {
+            renderOccupiedGrid(context, viewMatrix, projectionMatrix);
+        }
 
         terrain.renderFlatFeatures(context, camera);
 
@@ -120,6 +140,10 @@ namespace rwe
         else if (keysym.sym == SDLK_RSHIFT)
         {
             rightShiftDown = true;
+        }
+        else if (keysym.sym == SDLK_F9)
+        {
+            occupiedGridVisible = !occupiedGridVisible;
         }
     }
 
@@ -232,9 +256,12 @@ namespace rwe
         }
 
         // run unit scripts
-        for (auto& unit : units)
+        for (unsigned int i = 0; i < units.size(); ++i)
         {
-            unit.update(*this, secondsElapsed);
+            UnitId unitId(i);
+            auto& unit = units[i];
+
+            unit.update(*this, unitId, secondsElapsed);
             unit.mesh.update(secondsElapsed);
             unit.cobEnvironment->executeThreads();
         }
@@ -243,7 +270,22 @@ namespace rwe
     void GameScene::spawnUnit(const std::string& unitType, PlayerId owner, const Vector3f& position)
     {
         UnitId unitId(units.size());
-        units.push_back(createUnit(unitId, unitType, owner, position));
+        auto unit = createUnit(unitId, unitType, owner, position);
+
+        // set footprint area as occupied by the unit
+        auto footprintRect = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+        if (isCollisionAt(footprintRect, unitId))
+        {
+            // TODO: throw some warning that we didn't really spawn it
+            return;
+        }
+
+        auto footprintRegion = occupiedGrid.grid.tryToRegion(footprintRect);
+        assert(!!footprintRegion);
+
+        occupiedGrid.grid.setArea(*footprintRegion, OccupiedUnit(unitId));
+
+        units.push_back(std::move(unit));
     }
 
     void GameScene::setCameraPosition(const Vector3f& newPosition)
@@ -319,6 +361,11 @@ namespace rwe
     {
         const auto& fbi = unitDatabase.getUnitInfo(unitType);
         const auto& soundClass = unitDatabase.getSoundClass(fbi.soundCategory);
+        boost::optional<const MovementClass&> movementClass;
+        if (!fbi.movementClass.empty())
+        {
+            movementClass = unitDatabase.getMovementClass(fbi.movementClass);
+        }
 
         auto meshInfo = meshService.loadUnitMesh(fbi.objectName, getPlayer(owner)->color);
 
@@ -337,6 +384,17 @@ namespace rwe
         unit.acceleration = fbi.acceleration / 2.0f;
         unit.brakeRate = fbi.brakeRate / 2.0f;
 
+        if (movementClass)
+        {
+            unit.footprintX = movementClass->footprintX;
+            unit.footprintZ = movementClass->footprintZ;
+        }
+        else
+        {
+            unit.footprintX = fbi.footprintX;
+            unit.footprintZ = fbi.footprintZ;
+        }
+
         if (soundClass.select1)
         {
             unit.selectionSound = unitDatabase.getSoundHandle(*(soundClass.select1));
@@ -345,7 +403,7 @@ namespace rwe
         {
             unit.okSound = unitDatabase.getSoundHandle(*(soundClass.ok1));
         }
-        if(soundClass.arrived1)
+        if (soundClass.arrived1)
         {
             unit.arrivedSound = unitDatabase.getSoundHandle(*(soundClass.arrived1));
         }
@@ -448,5 +506,130 @@ namespace rwe
     const boost::optional<GamePlayerInfo>& GameScene::getPlayer(PlayerId player) const
     {
         return players.at(player.value);
+    }
+
+    DiscreteRect
+    GameScene::computeFootprintRegion(const Vector3f& position, unsigned int footprintX, unsigned int footprintZ) const
+    {
+        auto halfFootprintX = static_cast<float>(footprintX) * MapTerrain::HeightTileWidthInWorldUnits / 2.0f;
+        auto halfFootprintZ = static_cast<float>(footprintZ) * MapTerrain::HeightTileHeightInWorldUnits / 2.0f;
+        Vector3f topLeft(
+            position.x - halfFootprintX,
+            position.y,
+            position.z - halfFootprintZ);
+
+        auto cell = terrain.worldToHeightmapCoordinateNearest(topLeft);
+
+        return DiscreteRect(cell.x, cell.y, footprintX, footprintZ);
+    }
+
+    bool GameScene::isCollisionAt(const DiscreteRect& rect, UnitId self) const
+    {
+        auto region = occupiedGrid.grid.tryToRegion(rect);
+        if (!region)
+        {
+            return true;
+        }
+
+        for (unsigned int dy = 0; dy < region->height; ++dy)
+        {
+            for (unsigned int dx = 0; dx < region->width; ++dx)
+            {
+                const auto& cell = occupiedGrid.grid.get(region->x + dx, region->y + dy);
+                if (cell != OccupiedType(OccupiedNone()) && cell != OccupiedType(OccupiedUnit(self)))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    void GameScene::moveUnitOccupiedArea(const DiscreteRect& oldRect, const DiscreteRect& newRect, UnitId unitId)
+    {
+        auto oldRegion = occupiedGrid.grid.tryToRegion(oldRect);
+        assert(!!oldRegion);
+        auto newRegion = occupiedGrid.grid.tryToRegion(newRect);
+        assert(!!newRegion);
+
+        occupiedGrid.grid.setArea(*oldRegion, OccupiedNone());
+        occupiedGrid.grid.setArea(*newRegion, OccupiedUnit(unitId));
+    }
+
+    void GameScene::renderOccupiedGrid(GraphicsContext& graphics,
+        const Matrix4f& viewMatrix,
+        const Matrix4f& projectionMatrix)
+    {
+        auto halfWidth = camera.getWidth() / 2.0f;
+        auto halfHeight = camera.getHeight() / 2.0f;
+        auto left = camera.getPosition().x - halfWidth;
+        auto top = camera.getPosition().z - halfHeight;
+        auto right = camera.getPosition().x + halfWidth;
+        auto bottom = camera.getPosition().z + halfHeight;
+
+        assert(left < right);
+        assert(top < bottom);
+
+        assert(terrain.getHeightMap().getWidth() >= 2);
+        assert(terrain.getHeightMap().getHeight() >= 2);
+
+        auto topLeftCell = terrain.worldToHeightmapCoordinate(Vector3f(left, 0.0f, top));
+        topLeftCell.x = std::clamp(topLeftCell.x, 0, static_cast<int>(terrain.getHeightMap().getWidth() - 2));
+        topLeftCell.y = std::clamp(topLeftCell.y, 0, static_cast<int>(terrain.getHeightMap().getHeight() - 2));
+
+        auto bottomRightCell = terrain.worldToHeightmapCoordinate(Vector3f(right, 0.0f, bottom));
+        bottomRightCell.y += 7; // compensate for height
+        bottomRightCell.x = std::clamp(bottomRightCell.x, 0, static_cast<int>(terrain.getHeightMap().getWidth() - 2));
+        bottomRightCell.y = std::clamp(bottomRightCell.y, 0, static_cast<int>(terrain.getHeightMap().getHeight() - 2));
+
+        assert(topLeftCell.x <= bottomRightCell.x);
+        assert(topLeftCell.y <= bottomRightCell.y);
+
+        std::vector<Line3f> lines;
+
+        std::vector<Triangle3f> tris;
+
+        for (int y = topLeftCell.y; y <= bottomRightCell.y; ++y)
+        {
+            for (int x = topLeftCell.x; x <= bottomRightCell.x; ++x)
+            {
+                auto pos = terrain.heightmapIndexToWorldCorner(x, y);
+                pos.y = terrain.getHeightMap().get(x, y);
+
+                auto rightPos = terrain.heightmapIndexToWorldCorner(x + 1, y);
+                rightPos.y = terrain.getHeightMap().get(x + 1, y);
+
+                auto downPos = terrain.heightmapIndexToWorldCorner(x, y + 1);
+                downPos.y = terrain.getHeightMap().get(x, y + 1);
+
+                lines.emplace_back(pos, rightPos);
+                lines.emplace_back(pos, downPos);
+
+                if (occupiedGrid.grid.get(x, y) != OccupiedType(OccupiedNone()))
+                {
+                    auto downRightPos = terrain.heightmapIndexToWorldCorner(x + 1, y + 1);
+                    downRightPos.y = terrain.getHeightMap().get(x + 1, y + 1);
+
+                    tris.emplace_back(pos, downPos, downRightPos);
+                    tris.emplace_back(pos, downRightPos, rightPos);
+                }
+            }
+        }
+
+        auto mesh = graphics.createTemporaryLinesMesh(lines);
+        graphics.drawLinesMesh(
+            mesh,
+            Matrix4f::identity(),
+            viewMatrix,
+            projectionMatrix,
+            debugColorShader.get());
+
+        auto triMesh = graphics.createTemporaryTriMesh(tris);
+        graphics.drawTrisMesh(
+            triMesh,
+            Matrix4f::identity(),
+            viewMatrix,
+            projectionMatrix,
+            debugColorShader.get());
     }
 }

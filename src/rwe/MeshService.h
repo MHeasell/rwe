@@ -34,6 +34,7 @@ namespace rwe
         {
             bool isTeamDependent;
         };
+
     private:
         AbstractVirtualFileSystem* vfs;
         GraphicsContext* graphics;

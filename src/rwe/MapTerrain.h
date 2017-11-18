@@ -55,6 +55,8 @@ namespace rwe
 
         Point worldToHeightmapCoordinate(const Vector3f& position) const;
 
+        Point worldToHeightmapCoordinateNearest(const Vector3f& position) const;
+
         Vector3f heightmapIndexToWorldCorner(int x, int y) const;
 
         Vector3f heightmapIndexToWorldCorner(Point p) const;

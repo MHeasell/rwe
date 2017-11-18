@@ -5,6 +5,7 @@
 #include "UnitFbi.h"
 #include "SoundClass.h"
 #include "AudioService.h"
+#include "MovementClass.h"
 
 namespace rwe
 {
@@ -16,6 +17,8 @@ namespace rwe
         std::unordered_map<std::string, CobScript> cobMap;
 
         std::unordered_map<std::string, SoundClass> soundClassMap;
+
+        std::unordered_map<std::string, MovementClass> movementClassMap;
 
         std::unordered_map<std::string, AudioService::SoundHandle> soundMap;
 
@@ -31,6 +34,10 @@ namespace rwe
         const SoundClass& getSoundClass(const std::string& className) const;
 
         void addSoundClass(const std::string& className, SoundClass&& soundClass);
+
+        const MovementClass& getMovementClass(const std::string& className) const;
+
+        void addMovementClass(const std::string& className, MovementClass&& movementClass);
 
         const AudioService::SoundHandle& getSoundHandle(const std::string sound) const;
 

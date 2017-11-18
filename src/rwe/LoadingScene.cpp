@@ -121,9 +121,13 @@ namespace rwe
         std::vector<AttribMapping> selectBoxShaderAttribs{
             AttribMapping{"position", 0}};
 
+        std::vector<AttribMapping> debugShaderAttribs{
+            AttribMapping{"position", 0}};
+
         SharedShaderProgramHandle unitTextureShader{loadShader("shaders/unitTexture.vert", "shaders/unitTexture.frag", unitTextureShaderAttribs)};
         SharedShaderProgramHandle unitColorShader{loadShader("shaders/unitColor.vert", "shaders/unitColor.frag", unitColorShaderAttribs)};
         SharedShaderProgramHandle selectBoxShader{loadShader("shaders/selectBox.vert", "shaders/selectBox.frag", selectBoxShaderAttribs)};
+        SharedShaderProgramHandle debugColorShader{loadShader("shaders/debugColor.vert", "shaders/debugColor.frag", debugShaderAttribs)};
 
         auto unitDatabase = createUnitDatabase();
 
@@ -160,6 +164,7 @@ namespace rwe
             std::move(unitTextureShader),
             std::move(unitColorShader),
             std::move(selectBoxShader),
+            std::move(debugColorShader),
             std::move(unitDatabase),
             std::move(gamePlayers),
             localPlayerId);
@@ -485,6 +490,23 @@ namespace rwe
                 preloadSound(db, c.count0);
                 preloadSound(db, c.cancelDestruct);
                 db.addSoundClass(s.first, std::move(s.second));
+            }
+        }
+
+        // read movement classes
+        {
+            auto bytes = vfs->readFile("gamedata/MOVEINFO.TDF");
+            if (!bytes)
+            {
+                throw std::runtime_error("Failed to read gamedata/MOVEINFO.TDF");
+            }
+
+            std::string movementString(bytes->data(), bytes->size());
+            auto classes = parseMovementTdf(parseTdfFromString(movementString));
+            for (auto& c : classes)
+            {
+                auto name = c.second.name;
+                db.addMovementClass(name, std::move(c.second));
             }
         }
 

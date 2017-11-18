@@ -6,8 +6,6 @@
 
 namespace rwe
 {
-    static const float StandingFeatureMinHeight = 5.0f;
-
     MapTerrain::MapTerrain(
         std::vector<TextureRegion>&& tileGraphics,
         Grid<size_t>&& tiles,
@@ -34,7 +32,7 @@ namespace rwe
     {
         for (const auto& f : features)
         {
-            if (f.height <= StandingFeatureMinHeight)
+            if (!f.isBlocking())
             {
                 graphics.drawFeature(f);
             }
@@ -44,7 +42,7 @@ namespace rwe
     {
         for (const auto& f : features)
         {
-            if (f.height > StandingFeatureMinHeight)
+            if (f.isBlocking())
             {
                 graphics.drawFeature(f);
             }
@@ -88,6 +86,12 @@ namespace rwe
     {
         auto heightPos = worldToHeightmapSpace(position);
         return Point(static_cast<int>(heightPos.x), static_cast<int>(heightPos.z));
+    }
+
+    Point MapTerrain::worldToHeightmapCoordinateNearest(const Vector3f& position) const
+    {
+        auto heightPos = worldToHeightmapSpace(position);
+        return Point(static_cast<int>(std::round(heightPos.x)), static_cast<int>(std::round(heightPos.z)));
     }
 
     Vector3f MapTerrain::heightmapIndexToWorldCorner(int x, int y) const

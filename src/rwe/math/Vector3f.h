@@ -41,6 +41,8 @@ namespace rwe
     Vector3f operator+(const Vector3f& lhs, const Vector3f& rhs);
     Vector3f operator-(const Vector3f& lhs, const Vector3f& rhs);
 
+    Vector3f operator*(const Vector3f& lhs, const Vector3f& rhs);
+
     Vector3f operator*(const Vector3f& lhs, float rhs);
     Vector3f operator/(const Vector3f& lhs, float rhs);
 
