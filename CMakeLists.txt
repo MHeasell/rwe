@@ -65,6 +65,7 @@ set(SOURCE_FILES
     src/rwe/ColorPalette.h
     src/rwe/CursorService.cpp
     src/rwe/CursorService.h
+    src/rwe/DiscreteRect.h
     src/rwe/FeatureDefinition.cpp
     src/rwe/FeatureDefinition.h
     src/rwe/Gaf.cpp src/rwe/Gaf.h
@@ -74,6 +75,8 @@ set(SOURCE_FILES
     src/rwe/GraphicsContext.cpp
     src/rwe/GraphicsContext.h
     src/rwe/Grid.h
+    src/rwe/GridRegion.cpp
+    src/rwe/GridRegion.h
     src/rwe/Hpi.cpp
     src/rwe/Hpi.h
     src/rwe/LoadingScene.cpp
@@ -82,6 +85,7 @@ set(SOURCE_FILES
     src/rwe/MainMenuModel.h
     src/rwe/MainMenuScene.cpp
     src/rwe/MainMenuScene.h
+    src/rwe/MapFeature.cpp
     src/rwe/MapFeature.h
     src/rwe/MapFeatureService.cpp
     src/rwe/MapFeatureService.h
@@ -91,6 +95,10 @@ set(SOURCE_FILES
     src/rwe/Mesh.h
     src/rwe/MeshService.cpp
     src/rwe/MeshService.h
+    src/rwe/MovementClass.cpp
+    src/rwe/MovementClass.h
+    src/rwe/OccupiedGrid.cpp
+    src/rwe/OccupiedGrid.h
     src/rwe/OpaqueId.h
     src/rwe/OtherTriangleScene.cpp
     src/rwe/OtherTriangleScene.h

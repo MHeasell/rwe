@@ -33,13 +33,26 @@ namespace rwe
           selectBoxShader(std::move(selectBoxShader)),
           unitDatabase(std::move(unitDatabase)),
           players(std::move(players)),
-          localPlayerId(localPlayerId)
+          localPlayerId(localPlayerId),
+          occupiedGrid(this->terrain.getHeightMap().getWidth(), this->terrain.getHeightMap().getHeight())
     {
     }
 
     void GameScene::init()
     {
         audioService->reserveChannels(reservedChannelsCount);
+
+        // add features to the occupied grid
+        for (const auto& f : terrain.getFeatures())
+        {
+            if (!f.isBlocking())
+            {
+                continue;
+            }
+
+            auto footprintRegion = computeFootprintRegion(f.position, f.footprintX, f.footprintZ);
+            occupiedGrid.grid.setArea(occupiedGrid.grid.clipRegion(footprintRegion), OccupiedFeature());
+        }
     }
 
     void GameScene::render(GraphicsContext& context)
@@ -232,9 +245,12 @@ namespace rwe
         }
 
         // run unit scripts
-        for (auto& unit : units)
+        for (unsigned int i = 0; i < units.size(); ++i)
         {
-            unit.update(*this, secondsElapsed);
+            UnitId unitId(i);
+            auto& unit = units[i];
+
+            unit.update(*this, unitId, secondsElapsed);
             unit.mesh.update(secondsElapsed);
             unit.cobEnvironment->executeThreads();
         }
@@ -243,7 +259,22 @@ namespace rwe
     void GameScene::spawnUnit(const std::string& unitType, PlayerId owner, const Vector3f& position)
     {
         UnitId unitId(units.size());
-        units.push_back(createUnit(unitId, unitType, owner, position));
+        auto unit = createUnit(unitId, unitType, owner, position);
+
+        // set footprint area as occupied by the unit
+        auto footprintRect = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+        if (isCollisionAt(footprintRect, unitId))
+        {
+            // TODO: throw some warning that we didn't really spawn it
+            return;
+        }
+
+        auto footprintRegion = occupiedGrid.grid.tryToRegion(footprintRect);
+        assert(!!footprintRegion);
+
+        occupiedGrid.grid.setArea(*footprintRegion, OccupiedUnit(unitId));
+
+        units.push_back(std::move(unit));
     }
 
     void GameScene::setCameraPosition(const Vector3f& newPosition)
@@ -319,6 +350,11 @@ namespace rwe
     {
         const auto& fbi = unitDatabase.getUnitInfo(unitType);
         const auto& soundClass = unitDatabase.getSoundClass(fbi.soundCategory);
+        boost::optional<const MovementClass&> movementClass;
+        if (!fbi.movementClass.empty())
+        {
+            movementClass = unitDatabase.getMovementClass(fbi.movementClass);
+        }
 
         auto meshInfo = meshService.loadUnitMesh(fbi.objectName, getPlayer(owner)->color);
 
@@ -336,6 +372,17 @@ namespace rwe
         unit.maxSpeed = fbi.maxVelocity / 2.0f;
         unit.acceleration = fbi.acceleration / 2.0f;
         unit.brakeRate = fbi.brakeRate / 2.0f;
+
+        if (movementClass)
+        {
+            unit.footprintX = movementClass->footprintX;
+            unit.footprintZ = movementClass->footprintZ;
+        }
+        else
+        {
+            unit.footprintX = fbi.footprintX;
+            unit.footprintZ = fbi.footprintZ;
+        }
 
         if (soundClass.select1)
         {
@@ -448,5 +495,52 @@ namespace rwe
     const boost::optional<GamePlayerInfo>& GameScene::getPlayer(PlayerId player) const
     {
         return players.at(player.value);
+    }
+
+    DiscreteRect
+    GameScene::computeFootprintRegion(const Vector3f& position, unsigned int footprintX, unsigned int footprintZ) const
+    {
+        auto middleCell = terrain.worldToHeightmapCoordinate(position);
+
+        auto halfFootprintX = footprintX / 2;
+        auto halfFootprintZ = footprintZ / 2;
+
+        auto left = middleCell.x - static_cast<int>(halfFootprintX);
+        auto top = middleCell.y - static_cast<int>(halfFootprintZ);
+
+        return DiscreteRect(left, top, footprintX, footprintZ);
+    }
+
+    bool GameScene::isCollisionAt(const DiscreteRect& rect, UnitId self) const
+    {
+        auto region = occupiedGrid.grid.tryToRegion(rect);
+        if (!region)
+        {
+            return true;
+        }
+
+        for (unsigned int dy = 0; dy < region->height; ++dy)
+        {
+            for (unsigned int dx = 0; dx < region->width; ++dx)
+            {
+                const auto& cell = occupiedGrid.grid.get(region->x + dx, region->y + dy);
+                if (cell != OccupiedType(OccupiedNone()) && cell != OccupiedType(OccupiedUnit(self)))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    void GameScene::moveUnitOccupiedArea(const DiscreteRect& oldRect, const DiscreteRect& newRect, UnitId unitId)
+    {
+        auto oldRegion = occupiedGrid.grid.tryToRegion(oldRect);
+        assert(!!oldRegion);
+        auto newRegion = occupiedGrid.grid.tryToRegion(newRect);
+        assert(!!newRegion);
+
+        occupiedGrid.grid.setArea(*oldRegion, OccupiedNone());
+        occupiedGrid.grid.setArea(*newRegion, OccupiedUnit(unitId));
     }
 }

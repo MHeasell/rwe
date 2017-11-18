@@ -488,6 +488,23 @@ namespace rwe
             }
         }
 
+        // read movement classes
+        {
+            auto bytes = vfs->readFile("gamedata/MOVEINFO.TDF");
+            if (!bytes)
+            {
+                throw std::runtime_error("Failed to read gamedata/MOVEINFO.TDF");
+            }
+
+            std::string movementString(bytes->data(), bytes->size());
+            auto classes = parseMovementTdf(parseTdfFromString(movementString));
+            for (auto& c : classes)
+            {
+                auto name = c.second.name;
+                db.addMovementClass(name, std::move(c.second));
+            }
+        }
+
         // read unit FBIs
         {
             auto fbis = vfs->getFileNames("units", ".fbi");

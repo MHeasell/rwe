@@ -10,6 +10,8 @@
 #include "UnitDatabase.h"
 #include "AudioService.h"
 #include "UnitId.h"
+#include "OccupiedGrid.h"
+#include "DiscreteRect.h"
 #include <rwe/ViewportService.h>
 #include <rwe/PlayerId.h>
 
@@ -72,6 +74,8 @@ namespace rwe
         boost::optional<UnitId> hoveredUnit;
         boost::optional<UnitId> selectedUnit;
 
+        OccupiedGrid occupiedGrid;
+
     public:
         GameScene(
             TextureService* textureService,
@@ -128,6 +132,12 @@ namespace rwe
         unsigned int getGameTime() const;
 
         void playSoundOnSelectChannel(const AudioService::SoundHandle& sound);
+
+        bool isCollisionAt(const DiscreteRect& rect, UnitId self) const;
+
+        DiscreteRect computeFootprintRegion(const Vector3f& position, unsigned int footprintX, unsigned int footprintZ) const;
+
+        void moveUnitOccupiedArea(const DiscreteRect& oldRect, const DiscreteRect& newRect, UnitId unitId);
 
     private:
         Unit createUnit(UnitId unitId, const std::string& unitType, PlayerId owner, const Vector3f& position);

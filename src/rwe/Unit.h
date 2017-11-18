@@ -72,6 +72,9 @@ namespace rwe
          */
         float brakeRate;
 
+        unsigned int footprintX;
+        unsigned int footprintZ;
+
         std::deque<UnitOrder> orders;
 
         Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, SelectionMesh&& selectionMesh);
@@ -116,7 +119,7 @@ namespace rwe
 
         void addOrder(const UnitOrder& order);
 
-        void update(GameScene& scene, float dt);
+        void update(GameScene& scene, UnitId id, float dt);
     };
 }
 

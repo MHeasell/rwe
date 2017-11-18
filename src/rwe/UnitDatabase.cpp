@@ -66,4 +66,20 @@ namespace rwe
     {
         soundMap.insert({soundName, sound});
     }
+
+    const MovementClass& UnitDatabase::getMovementClass(const std::string& className) const
+    {
+        auto it = movementClassMap.find(className);
+        if (it == movementClassMap.end())
+        {
+            throw std::runtime_error("No movement class found with name " + className);
+        }
+
+        return it->second;
+    }
+
+    void UnitDatabase::addMovementClass(const std::string& className, MovementClass&& movementClass)
+    {
+        movementClassMap.insert({className, std::move(movementClass)});
+    }
 }

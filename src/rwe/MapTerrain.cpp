@@ -6,8 +6,6 @@
 
 namespace rwe
 {
-    static const float StandingFeatureMinHeight = 5.0f;
-
     MapTerrain::MapTerrain(
         std::vector<TextureRegion>&& tileGraphics,
         Grid<size_t>&& tiles,
@@ -34,7 +32,7 @@ namespace rwe
     {
         for (const auto& f : features)
         {
-            if (f.height <= StandingFeatureMinHeight)
+            if (!f.isBlocking())
             {
                 graphics.drawFeature(f);
             }
@@ -44,7 +42,7 @@ namespace rwe
     {
         for (const auto& f : features)
         {
-            if (f.height > StandingFeatureMinHeight)
+            if (f.isBlocking())
             {
                 graphics.drawFeature(f);
             }

@@ -218,7 +218,7 @@ namespace rwe
         orders.push_back(order);
     }
 
-    void Unit::update(GameScene& scene, float dt)
+    void Unit::update(GameScene& scene, UnitId id, float dt)
     {
         float previousSpeed = currentSpeed;
 
@@ -304,7 +304,17 @@ namespace rwe
         }
 
         auto direction = Matrix4f::rotationY(rotation) * Vector3f(0.0f, 0.0f, -1.0f);
-        position += direction * (currentSpeed);
-        position.y = scene.getTerrain().getHeightAt(position.x, position.z);
+
+        auto newPosition = position + (direction * currentSpeed);
+        newPosition.y = scene.getTerrain().getHeightAt(position.x, position.z);
+
+        // check for collision at the new position and update accordingly
+        auto newFootprintRegion = scene.computeFootprintRegion(newPosition, footprintX, footprintZ);
+        if (!scene.isCollisionAt(newFootprintRegion, id))
+        {
+            auto footprintRegion = scene.computeFootprintRegion(position, footprintX, footprintZ);
+            scene.moveUnitOccupiedArea(footprintRegion, newFootprintRegion, id);
+            position = newPosition;
+        }
     }
 }
