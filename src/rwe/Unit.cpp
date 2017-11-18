@@ -305,9 +305,43 @@ namespace rwe
 
         auto direction = Matrix4f::rotationY(rotation) * Vector3f(0.0f, 0.0f, -1.0f);
 
-        auto newPosition = position + (direction * currentSpeed);
-        newPosition.y = scene.getTerrain().getHeightAt(position.x, position.z);
+        if (currentSpeed > 0.0f)
+        {
+            auto newPosition = position + (direction * currentSpeed);
+            newPosition.y = scene.getTerrain().getHeightAt(newPosition.x, newPosition.z);
 
+            if (!tryApplyMovementToPosition(scene, id, newPosition))
+            {
+                // if we failed to move, try in each axis separately
+                // to see if we can complete a "partial" movement
+                const Vector3f maskX(0.0f, 1.0f, 1.0f);
+                const Vector3f maskZ(1.0f, 1.0f, 0.0f);
+
+                Vector3f newPos1;
+                Vector3f newPos2;
+                if (direction.x > direction.z)
+                {
+                    newPos1 = position + (direction * maskZ * currentSpeed);
+                    newPos2 = position + (direction * maskX * currentSpeed);
+                }
+                else
+                {
+                    newPos1 = position + (direction * maskX * currentSpeed);
+                    newPos2 = position + (direction * maskZ * currentSpeed);
+                }
+                newPos1.y = scene.getTerrain().getHeightAt(newPos1.x, newPos1.z);
+                newPos2.y = scene.getTerrain().getHeightAt(newPos2.x, newPos2.z);
+
+                if (!tryApplyMovementToPosition(scene, id, newPos1))
+                {
+                    tryApplyMovementToPosition(scene, id, newPos2);
+                }
+            }
+        }
+    }
+
+    bool Unit::tryApplyMovementToPosition(GameScene& scene, UnitId id, const Vector3f& newPosition)
+    {
         // check for collision at the new position and update accordingly
         auto newFootprintRegion = scene.computeFootprintRegion(newPosition, footprintX, footprintZ);
         if (!scene.isCollisionAt(newFootprintRegion, id))
@@ -315,6 +349,9 @@ namespace rwe
             auto footprintRegion = scene.computeFootprintRegion(position, footprintX, footprintZ);
             scene.moveUnitOccupiedArea(footprintRegion, newFootprintRegion, id);
             position = newPosition;
+            return true;
         }
+
+        return false;
     }
 }

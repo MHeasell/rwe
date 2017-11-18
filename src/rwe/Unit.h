@@ -120,6 +120,8 @@ namespace rwe
         void addOrder(const UnitOrder& order);
 
         void update(GameScene& scene, UnitId id, float dt);
+
+        bool tryApplyMovementToPosition(GameScene& scene, UnitId id, const Vector3f& newPosition);
     };
 }
 
