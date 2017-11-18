@@ -158,7 +158,16 @@ namespace rwe
 
         DebugLinesMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines);
 
+        DebugLinesMesh createTemporaryTriMesh(const std::vector<Triangle3f>& tris);
+
         void drawLinesMesh(
+            const DebugLinesMesh& mesh,
+            const Matrix4f& modelMatrix,
+            const Matrix4f& viewMatrix,
+            const Matrix4f& projectionMatrix,
+            ShaderProgramIdentifier shader);
+
+        void drawTrisMesh(
             const DebugLinesMesh& mesh,
             const Matrix4f& modelMatrix,
             const Matrix4f& viewMatrix,

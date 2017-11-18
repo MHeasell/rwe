@@ -931,6 +931,49 @@ namespace rwe
         return m;
     }
 
+    DebugLinesMesh GraphicsContext::createTemporaryTriMesh(const std::vector<Triangle3f>& tris)
+    {
+        GLuint vao;
+        glGenVertexArrays(1, &vao);
+        glBindVertexArray(vao);
+
+        GLuint vbo;
+        glGenBuffers(1, &vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+        std::vector<GLfloat> buffer;
+        buffer.reserve(tris.size() * 3 * 3); // 3 verts per tri, 3 floats per vert
+
+        for (const auto& l : tris)
+        {
+            buffer.push_back(l.a.x);
+            buffer.push_back(l.a.y);
+            buffer.push_back(l.a.z);
+
+            buffer.push_back(l.b.x);
+            buffer.push_back(l.b.y);
+            buffer.push_back(l.b.z);
+
+            buffer.push_back(l.c.x);
+            buffer.push_back(l.c.y);
+            buffer.push_back(l.c.z);
+        }
+
+        glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(GLfloat), buffer.data(), GL_STREAM_DRAW);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<void*>(0));
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+
+        DebugLinesMesh m;
+        m.vao = VaoHandle(VaoIdentifier(vao));
+        m.vbo = VboHandle(VboIdentifier(vbo));
+        m.vertexCount = tris.size() * 3;
+        return m;
+    }
+
     void GraphicsContext::drawLinesMesh(
         const DebugLinesMesh& mesh,
         const Matrix4f& modelMatrix,
@@ -955,6 +998,35 @@ namespace rwe
         }
 
         glDrawArrays(GL_LINES, 0, mesh.vertexCount);
+
+        glBindVertexArray(0);
+        glUseProgram(0);
+    }
+
+    void GraphicsContext::drawTrisMesh(
+        const DebugLinesMesh& mesh,
+        const Matrix4f& modelMatrix,
+        const Matrix4f& viewMatrix,
+        const Matrix4f& projectionMatrix,
+        ShaderProgramIdentifier shader)
+    {
+        glUseProgram(shader.value);
+        glBindVertexArray(mesh.vao.get().value);
+
+        {
+            auto location = glGetUniformLocation(shader.value, "modelMatrix");
+            glUniformMatrix4fv(location, 1, GL_FALSE, modelMatrix.data);
+        }
+        {
+            auto location = glGetUniformLocation(shader.value, "viewMatrix");
+            glUniformMatrix4fv(location, 1, GL_FALSE, viewMatrix.data);
+        }
+        {
+            auto location = glGetUniformLocation(shader.value, "projectionMatrix");
+            glUniformMatrix4fv(location, 1, GL_FALSE, projectionMatrix.data);
+        }
+
+        glDrawArrays(GL_TRIANGLES, 0, mesh.vertexCount);
 
         glBindVertexArray(0);
         glUseProgram(0);

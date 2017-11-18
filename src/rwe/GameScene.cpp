@@ -586,6 +586,8 @@ namespace rwe
 
         std::vector<Line3f> lines;
 
+        std::vector<Triangle3f> tris;
+
         for (int y = topLeftCell.y; y <= bottomRightCell.y; ++y)
         {
             for (int x = topLeftCell.x; x <= bottomRightCell.x; ++x)
@@ -601,12 +603,29 @@ namespace rwe
 
                 lines.emplace_back(pos, rightPos);
                 lines.emplace_back(pos, downPos);
+
+                if (occupiedGrid.grid.get(x, y) != OccupiedType(OccupiedNone()))
+                {
+                    auto downRightPos = terrain.heightmapIndexToWorldCorner(x + 1, y + 1);
+                    downRightPos.y = terrain.getHeightMap().get(x + 1, y + 1);
+
+                    tris.emplace_back(pos, downPos, downRightPos);
+                    tris.emplace_back(pos, downRightPos, rightPos);
+                }
             }
         }
 
         auto mesh = graphics.createTemporaryLinesMesh(lines);
         graphics.drawLinesMesh(
             mesh,
+            Matrix4f::identity(),
+            viewMatrix,
+            projectionMatrix,
+            debugColorShader.get());
+
+        auto triMesh = graphics.createTemporaryTriMesh(tris);
+        graphics.drawTrisMesh(
+            triMesh,
             Matrix4f::identity(),
             viewMatrix,
             projectionMatrix,
