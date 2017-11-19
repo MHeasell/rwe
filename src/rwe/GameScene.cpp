@@ -4,6 +4,30 @@
 
 namespace rwe
 {
+    class IsCollisionVisitor : boost::static_visitor<bool>
+    {
+    private:
+        UnitId unitId;
+
+    public:
+        IsCollisionVisitor(const UnitId& unitId) : unitId(unitId)
+        {
+        }
+
+        bool operator()(const OccupiedUnit& u) const
+        {
+            return u.id != unitId;
+        }
+        bool operator()(const OccupiedNone&) const
+        {
+            return false;
+        }
+        bool operator()(const OccupiedFeature&) const
+        {
+            return true;
+        }
+    };
+
     GameScene::GameScene(
         TextureService* textureService,
         CursorService* cursor,
@@ -536,7 +560,7 @@ namespace rwe
             for (unsigned int dx = 0; dx < region->width; ++dx)
             {
                 const auto& cell = occupiedGrid.grid.get(region->x + dx, region->y + dy);
-                if (cell != OccupiedType(OccupiedNone()) && cell != OccupiedType(OccupiedUnit(self)))
+                if (boost::apply_visitor(IsCollisionVisitor(self), cell))
                 {
                     return true;
                 }
