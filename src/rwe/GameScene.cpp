@@ -10,17 +10,17 @@ namespace rwe
         UnitId unitId;
 
     public:
-        IsCollisionVisitor(const UnitId& unitId) : unitId(unitId)
+        explicit IsCollisionVisitor(const UnitId& unitId) : unitId(unitId)
         {
         }
 
-        bool operator()(const OccupiedUnit& u) const
-        {
-            return u.id != unitId;
-        }
         bool operator()(const OccupiedNone&) const
         {
             return false;
+        }
+        bool operator()(const OccupiedUnit& u) const
+        {
+            return u.id != unitId;
         }
         bool operator()(const OccupiedFeature&) const
         {
@@ -31,13 +31,13 @@ namespace rwe
     class IsOccupiedVisitor : boost::static_visitor<bool>
     {
     public:
-        bool operator()(const OccupiedUnit&) const
-        {
-            return true;
-        }
         bool operator()(const OccupiedNone&) const
         {
             return false;
+        }
+        bool operator()(const OccupiedUnit&) const
+        {
+            return true;
         }
         bool operator()(const OccupiedFeature&) const
         {
