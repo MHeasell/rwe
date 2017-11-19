@@ -4,7 +4,7 @@
 
 namespace rwe
 {
-    class IsCollisionVisitor : boost::static_visitor<bool>
+    class IsCollisionVisitor : public boost::static_visitor<bool>
     {
     private:
         UnitId unitId;
@@ -28,7 +28,7 @@ namespace rwe
         }
     };
 
-    class IsOccupiedVisitor : boost::static_visitor<bool>
+    class IsOccupiedVisitor : public boost::static_visitor<bool>
     {
     public:
         bool operator()(const OccupiedNone&) const
