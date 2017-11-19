@@ -70,7 +70,7 @@ namespace rwe
 
     SdlMixerContext::SdlMixerContext()
     {
-        int flags = MIX_INIT_FLAC | MIX_INIT_MP3 | MIX_INIT_OGG;
+        int flags = 0;
         if ((Mix_Init(flags) & flags) != flags)
         {
             throw SDLMixerException(Mix_GetError());
