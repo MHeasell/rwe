@@ -28,6 +28,23 @@ namespace rwe
         }
     };
 
+    class IsOccupiedVisitor : boost::static_visitor<bool>
+    {
+    public:
+        bool operator()(const OccupiedUnit&) const
+        {
+            return true;
+        }
+        bool operator()(const OccupiedNone&) const
+        {
+            return false;
+        }
+        bool operator()(const OccupiedFeature&) const
+        {
+            return true;
+        }
+    };
+
     GameScene::GameScene(
         TextureService* textureService,
         CursorService* cursor,
@@ -629,7 +646,7 @@ namespace rwe
                 lines.emplace_back(pos, rightPos);
                 lines.emplace_back(pos, downPos);
 
-                if (occupiedGrid.grid.get(x, y) != OccupiedType(OccupiedNone()))
+                if (boost::apply_visitor(IsOccupiedVisitor(), occupiedGrid.grid.get(x, y)))
                 {
                     auto downRightPos = terrain.heightmapIndexToWorldCorner(x + 1, y + 1);
                     downRightPos.y = terrain.getHeightMap().get(x + 1, y + 1);
