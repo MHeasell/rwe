@@ -5,3 +5,10 @@ build_script:
 
 test: off
 deploy: off
+
+configuration:
+  - Debug
+  - Release
+
+matrix:
+  fast_finish: true
