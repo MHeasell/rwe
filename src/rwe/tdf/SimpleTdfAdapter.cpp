@@ -17,8 +17,8 @@ namespace rwe
     void SimpleTdfAdapter::onStartBlock(const std::string& name)
     {
         auto top = blockStack.back();
-        top->entries.emplace_back(name);
-        blockStack.push_back(&boost::get<TdfBlock>(*(top->entries.back().value)));
+        auto& blockEntry = top->entries.emplace_back(name);
+        blockStack.push_back(&boost::get<TdfBlock>(*(blockEntry.value)));
     }
 
     void SimpleTdfAdapter::onEndBlock()
