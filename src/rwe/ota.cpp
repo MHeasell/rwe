@@ -85,26 +85,26 @@ namespace rwe
         auto featuresBlock = tdf.findBlock("features");
         if (featuresBlock)
         {
-            unsigned int i = 0;
-            auto featureBlock = featuresBlock->findBlock("feature" + std::to_string(i));
-            while (featureBlock)
+            for (const auto& e : featuresBlock->entries)
             {
-                s.features.push_back(parseOtaFeature(*featureBlock));
-                ++i;
-                featureBlock = featuresBlock->findBlock("feature" + std::to_string(i));
+                auto block = boost::get<TdfBlock>(e.value.get());
+                if (block != nullptr)
+                {
+                    s.features.push_back(parseOtaFeature(*block));
+                }
             }
         }
 
         auto specialsBlock = tdf.findBlock("specials");
         if (specialsBlock)
         {
-            unsigned int i = 0;
-            auto specialBlock = specialsBlock->findBlock("special" + std::to_string(i));
-            while (specialBlock)
+            for (const auto& e : specialsBlock->entries)
             {
-                s.specials.push_back(parseOtaSpecial(*specialBlock));
-                ++i;
-                specialBlock = specialsBlock->findBlock("special" + std::to_string(i));
+                auto block = boost::get<TdfBlock>(e.value.get());
+                if (block != nullptr)
+                {
+                    s.specials.push_back(parseOtaSpecial(*block));
+                }
             }
         }
 
