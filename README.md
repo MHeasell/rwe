@@ -14,7 +14,9 @@ There is currently no stable release.
 If you would like try out the latest, bleeding edge version,
 the latest zip file and/or installer is available at:
 
-https://ci.appveyor.com/project/MHeasell/rwe/branch/master/artifacts
+https://ci.appveyor.com/project/MHeasell/rwe/branch/master
+
+To find the files, click "Configuration: Release", then "Artifacts".
 
 RWE is currently only available on Windows,
 however the code is also built and tested on Linux.
