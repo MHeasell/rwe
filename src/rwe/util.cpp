@@ -2,7 +2,7 @@
 
 namespace rwe
 {
-    boost::optional<boost::filesystem::path> getSearchPath()
+    boost::optional<boost::filesystem::path> getLocalDataPath()
     {
         auto appData = std::getenv("APPDATA");
         if (appData == nullptr)
@@ -10,11 +10,10 @@ namespace rwe
             return boost::none;
         }
 
-        boost::filesystem::path searchPath(appData);
-        searchPath /= "RWE";
-        searchPath /= "Data";
+        boost::filesystem::path path(appData);
+        path /= "RWE";
 
-        return searchPath;
+        return path;
     }
 
     float toRadians(float v)

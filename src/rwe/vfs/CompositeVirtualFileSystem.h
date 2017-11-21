@@ -3,6 +3,7 @@
 
 #include <rwe/vfs/AbstractVirtualFileSystem.h>
 #include <memory>
+#include <boost/filesystem.hpp>
 
 namespace rwe
 {
@@ -27,7 +28,7 @@ namespace rwe
     };
 
 
-    CompositeVirtualFileSystem constructVfs(const std::string& searchPath);
+    CompositeVirtualFileSystem constructVfs(const boost::filesystem::path& searchPath);
 }
 
 #endif

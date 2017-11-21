@@ -15,7 +15,7 @@ namespace rwe
 
     static const float Pif = 3.14159265358979323846f;
 
-    boost::optional<boost::filesystem::path> getSearchPath();
+    boost::optional<boost::filesystem::path> getLocalDataPath();
 
     float toRadians(float v);
 }

@@ -11,6 +11,7 @@ namespace rwe
     {
     public:
         explicit DirectoryFileSystem(const std::string& path);
+        explicit DirectoryFileSystem(const boost::filesystem::path& path);
 
         boost::optional<std::vector<char>> readFile(const std::string& filename) const override;
 

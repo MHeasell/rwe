@@ -20,36 +20,53 @@
 
 #include <rwe/util.h>
 #include <rwe/ViewportService.h>
+#include <spdlog/spdlog.h>
 
 namespace fs = boost::filesystem;
 
 namespace rwe
 {
-    int run(const std::string& searchPath, const boost::optional<std::string>& mapName)
+    int run(spdlog::logger& logger, const fs::path& localDataPath, const boost::optional<std::string>& mapName)
     {
         ViewportService viewportService(800, 600);
 
+        logger.info("Initializing SDL");
         SdlContextManager sdlManager;
 
         auto sdlContext = sdlManager.getSdlContext();
 
+        logger.info("Initializing OpenGL context");
+
         // require a stencil buffer of some kind
-        sdlContext->glSetAttribute(SDL_GL_STENCIL_SIZE, 1);
+        if (sdlContext->glSetAttribute(SDL_GL_STENCIL_SIZE, 1) != 0)
+        {
+            throw std::runtime_error(SDL_GetError());
+        }
 
         auto window = sdlContext->createWindow("RWE", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, viewportService.width(), viewportService.height(), SDL_WINDOW_OPENGL);
-        assert(window != nullptr);
+        if (window == nullptr)
+        {
+            throw std::runtime_error(SDL_GetError());
+        }
+
         auto glContext = sdlContext->glCreateContext(window.get());
-        assert(glContext != nullptr);
+        if (glContext == nullptr)
+        {
+            throw std::runtime_error(SDL_GetError());
+        }
 
         auto glewResult = glewInit();
-        assert(glewResult == GLEW_OK);
+        if (glewResult != GLEW_OK)
+        {
+            throw std::runtime_error(reinterpret_cast<const char*>(glewGetErrorString(glewResult)));
+        }
 
-        GLint stencilBits;
-        glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
-        assert(stencilBits != 0);
+        logger.info("Initializing virtual file system");
+        fs::path searchPath(localDataPath);
+        searchPath /= "Data";
+        auto vfs = constructVfs(searchPath.string());
 
-        auto vfs = constructVfs(searchPath);
-
+        logger.info("Loading palette");
         auto paletteBytes = vfs.readFile("palettes/PALETTE.PAL");
         if (!paletteBytes)
         {
@@ -64,6 +81,7 @@ namespace rwe
             return 1;
         }
 
+        logger.info("Initializing services");
         GraphicsContext graphics;
         graphics.enableCulling();
 
@@ -74,6 +92,7 @@ namespace rwe
         SceneManager sceneManager(sdlContext, window.get(), &graphics);
 
         // load sound definitions
+        logger.info("Loading global sound definitions");
         auto allSoundBytes = vfs.readFile("gamedata/ALLSOUND.TDF");
         if (!allSoundBytes)
         {
@@ -84,6 +103,7 @@ namespace rwe
         std::string allSoundString(allSoundBytes->data(), allSoundBytes->size());
         auto allSoundTdf = parseTdfFromString(allSoundString);
 
+        logger.info("Loading cursors");
         CursorService cursor(
             sdlContext,
             textureService.getGafEntry("anims/CURSORS.GAF", "cursornormal"),
@@ -91,6 +111,7 @@ namespace rwe
 
         sdlContext->showCursor(SDL_DISABLE);
 
+        logger.info("Loading side data");
         auto sideDataBytes = vfs.readFile("gamedata/SIDEDATA.TDF");
         if (!sideDataBytes)
         {
@@ -111,6 +132,7 @@ namespace rwe
 
         if (mapName)
         {
+            logger.info("Launching into map: {0}", *mapName);
             GameParameters params{*mapName, 0};
             params.players[0] = PlayerInfo{PlayerInfo::Controller::Human, "ARM", 0};
             params.players[1] = PlayerInfo{PlayerInfo::Controller::Computer, "CORE", 1};
@@ -132,6 +154,7 @@ namespace rwe
         }
         else
         {
+            logger.info("Launching into the main menu");
             auto scene = std::make_unique<MainMenuScene>(
                 &sceneManager,
                 &vfs,
@@ -150,6 +173,7 @@ namespace rwe
             sceneManager.setNextScene(std::move(scene));
         }
 
+        logger.info("Entering main loop");
         sceneManager.execute();
 
         return 0;
@@ -158,30 +182,36 @@ namespace rwe
 
 int main(int argc, char* argv[])
 {
+    auto localDataPath = rwe::getLocalDataPath();
+    if (!localDataPath)
+    {
+        std::cerr << "Failed to determine local data path" << std::endl;
+        return 1;
+    }
+
+    fs::path logPath(*localDataPath);
+    logPath /= "rwe.log";
+    auto logger = spdlog::basic_logger_mt("rwe", logPath.string(), true);
+
     try
     {
-        auto searchPath = rwe::getSearchPath();
-        if (!searchPath)
-        {
-            std::cerr << "Failed to determine data search path" << std::endl;
-            return 1;
-        }
-
         boost::optional<std::string> mapName;
         if (argc == 2)
         {
             mapName = argv[1];
         }
 
-        return rwe::run(searchPath->string(), mapName);
+        return rwe::run(*logger, *localDataPath, mapName);
     }
     catch (const std::runtime_error& e)
     {
+        logger->critical(e.what());
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Critical Error", e.what(), nullptr);
         return 1;
     }
     catch (const std::logic_error& e)
     {
+        logger->critical(e.what());
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Critical Error", e.what(), nullptr);
         return 1;
     }

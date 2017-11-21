@@ -34,6 +34,11 @@ namespace rwe
     {
     }
 
+    DirectoryFileSystem::DirectoryFileSystem(const boost::filesystem::path& path)
+        : path(path)
+    {
+    }
+
     std::vector<std::string> DirectoryFileSystem::getFileNames(const std::string& directory, const std::string& extension)
     {
         fs::path fullPath;
