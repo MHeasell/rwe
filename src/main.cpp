@@ -61,6 +61,19 @@ namespace rwe
             throw std::runtime_error(reinterpret_cast<const char*>(glewGetErrorString(glewResult)));
         }
 
+        // log opengl context info
+        logger.info("OpenGL version: {0}", glGetString(GL_VERSION));
+        logger.info("OpenGL vendor: {0}", glGetString(GL_VENDOR));
+        logger.info("OpenGL renderer: {0}", glGetString(GL_RENDERER));
+        logger.info("OpenGL shading language version: {0}", glGetString(GL_SHADING_LANGUAGE_VERSION));
+        logger.debug("OpenGL extensions:");
+        int openGlExtensionCount;
+        glGetIntegerv(GL_NUM_EXTENSIONS, &openGlExtensionCount);
+        for (int i = 0; i < openGlExtensionCount; ++i)
+        {
+            logger.debug("  {0}", glGetStringi(GL_EXTENSIONS, i));
+        }
+
         logger.info("Initializing virtual file system");
         fs::path searchPath(localDataPath);
         searchPath /= "Data";
