@@ -88,6 +88,22 @@ namespace rwe
                 REQUIRE(g.get(2, 3) == 12);
             }
 
+            SECTION("Throws if the new grid goes over max x")
+            {
+                Grid<int> g(3, 4);
+                Grid<int> g2(2, 1);
+                REQUIRE_THROWS(g.replaceArea(2, 0, g2));
+            }
+
+            SECTION("Throws if the new grid goes over max y")
+            {
+                Grid<int> g(3, 4);
+                Grid<int> g2(1, 3);
+                REQUIRE_THROWS(g.replaceArea(0, 2, g2));
+            }
+        }
+        SECTION(".transformAndReplaceArea")
+        {
             SECTION("Works with a transformation function")
             {
                 Grid<int> g(3, 4, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12});
@@ -107,6 +123,20 @@ namespace rwe
                 REQUIRE(g.get(0, 3) == 10);
                 REQUIRE(g.get(1, 3) == 11);
                 REQUIRE(g.get(2, 3) == 12);
+            }
+
+            SECTION("Throws if the new grid goes over max x")
+            {
+                Grid<int> g(3, 4);
+                Grid<int> g2(2, 1);
+                REQUIRE_THROWS(g.transformAndReplaceArea<int>(2, 0, g2, [](int i) { return i; }));
+            }
+
+            SECTION("Throws if the new grid goes over max y")
+            {
+                Grid<int> g(3, 4);
+                Grid<int> g2(1, 3);
+                REQUIRE_THROWS(g.transformAndReplaceArea<int>(0, 2, g2, [](int i) { return i; }));
             }
         }
 

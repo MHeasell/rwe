@@ -182,7 +182,7 @@ namespace rwe
     template <typename T>
     void Grid<T>::replaceArea(std::size_t x, std::size_t y, const Grid<T>& replacement)
     {
-        if (replacement.getWidth() > getWidth() - x || replacement.getHeight() > getHeight() - x)
+        if (x + replacement.getWidth() > getWidth() || y + replacement.getHeight() > getHeight())
         {
             throw std::logic_error("replacement goes out of bounds");
         }
@@ -200,7 +200,7 @@ namespace rwe
     template <typename U>
     void Grid<T>::transformAndReplaceArea(std::size_t x, std::size_t y, const Grid<U>& replacement, const std::function<T(const U&)>& transformation)
     {
-        if (replacement.getWidth() > getWidth() - x || replacement.getHeight() > getHeight() - x)
+        if (x + replacement.getWidth() > getWidth() || y + replacement.getHeight() > getHeight())
         {
             throw std::logic_error("replacement goes out of bounds");
         }
