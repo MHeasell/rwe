@@ -254,6 +254,7 @@ target_include_directories(librwe PUBLIC ${Boost_INCLUDE_DIRS})
 target_link_libraries(librwe ${Boost_LIBRARIES})
 
 target_include_directories(librwe PUBLIC "libs/utfcpp/source")
+target_include_directories(librwe PUBLIC "libs/spdlog/include")
 
 target_link_libraries(librwe ${OPENGL_LIBRARIES})
 
