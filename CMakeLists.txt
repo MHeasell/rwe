@@ -2,8 +2,10 @@ cmake_minimum_required(VERSION 3.8)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Type of build" FORCE)
+    message(STATUS "No build type specified, using default: ${CMAKE_BUILD_TYPE}")
+else()
+    message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 endif()
-message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
 execute_process(
     COMMAND "git" "describe" "--dirty=-d"
