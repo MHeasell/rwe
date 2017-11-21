@@ -184,7 +184,7 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    auto vfs = rwe::constructVfs(searchPath->string());
+    auto vfs = rwe::constructVfs(*searchPath);
 
     auto paletteBytes = vfs.readFile("palettes/PALETTE.PAL");
     if (!paletteBytes)
