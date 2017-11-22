@@ -137,6 +137,7 @@ set(SOURCE_FILES
     src/rwe/RadiansAngle.h
     src/rwe/RenderService.cpp
     src/rwe/RenderService.h
+    src/rwe/Result.h
     src/rwe/SceneManager.cpp
     src/rwe/SceneManager.h
     src/rwe/SdlContextManager.cpp
@@ -450,6 +451,7 @@ set(TEST_FILES
     test/rwe/Grid_test.cpp
     test/rwe/MinHeap_test.cpp
     test/rwe/Point_test.cpp
+    test/rwe/Result_test.cpp
     test/rwe/SideData_test.cpp
     test/rwe/SimpleTdfAdapter_test.cpp
     test/rwe/TdfBlock_test.cpp
