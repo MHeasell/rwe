@@ -21,6 +21,7 @@
 #include <rwe/util.h>
 #include <rwe/ViewportService.h>
 #include <spdlog/spdlog.h>
+#include <rwe/config.h>
 
 namespace fs = boost::filesystem;
 
@@ -28,7 +29,9 @@ namespace rwe
 {
     int run(spdlog::logger& logger, const fs::path& localDataPath, const boost::optional<std::string>& mapName)
     {
-        ViewportService viewportService(800, 600);
+        logger.info(ProjectNameVersion);
+
+        ViewportService viewportService(640, 480);
 
         logger.info("Initializing SDL");
         SdlContextManager sdlManager;
