@@ -282,5 +282,130 @@ namespace rwe
                 }
             }
         }
+
+        SECTION("assumes defaults for missing schema values")
+        {
+
+            std::string input = R"TDF(
+[GlobalHeader]
+	{
+	missionname=Painted Desert;
+	SCHEMACOUNT=1;
+	[Schema 0]
+		{
+		Type=Network 1;
+        }
+	}
+)TDF";
+
+            OtaSchema schema0;
+            schema0.type = "Network 1";
+            schema0.aiProfile = "DEFAULT";
+            schema0.surfaceMetal = 3;
+            schema0.mohoMetal = 30;
+            schema0.humanMetal = 1000;
+            schema0.computerMetal = 1000;
+            schema0.humanEnergy = 1000;
+            schema0.computerEnergy = 1000;
+            schema0.meteorWeapon = "";
+            schema0.meteorRadius = 0;
+            schema0.meteorDensity = 0.0f;
+            schema0.meteorDuration = 0;
+            schema0.meteorInterval = 0;
+
+            OtaRecord ota;
+            ota.missionName = "Painted Desert";
+            ota.missionDescription = "";
+            ota.planet = "";
+            ota.missionHint = "";
+            ota.brief = "";
+            ota.narration = "";
+            ota.glamour = "";
+            ota.lineOfSight = 0;
+            ota.mapping = 0;
+            ota.tidalStrength = 0;
+            ota.solarStrength = 0;
+            ota.lavaWorld = false;
+            ota.killMul = 50;
+            ota.timeMul = 0;
+            ota.minWindSpeed = 0;
+            ota.maxWindSpeed = 0;
+            ota.gravity = 112;
+            ota.numPlayers = "";
+            ota.size = "";
+            ota.memory = "";
+            ota.useOnlyUnits = "";
+            ota.schemaCount = 1;
+            ota.schemas.push_back(schema0);
+
+            auto parsedRecord = parseOta(parseTdfFromString(input));
+
+            REQUIRE(parsedRecord.missionName == ota.missionName);
+            REQUIRE(parsedRecord.missionDescription == ota.missionDescription);
+            REQUIRE(parsedRecord.planet == ota.planet);
+            REQUIRE(parsedRecord.missionHint == ota.missionHint);
+            REQUIRE(parsedRecord.brief == ota.brief);
+            REQUIRE(parsedRecord.narration == ota.narration);
+            REQUIRE(parsedRecord.glamour == ota.glamour);
+            REQUIRE(parsedRecord.lineOfSight == ota.lineOfSight);
+            REQUIRE(parsedRecord.mapping == ota.mapping);
+            REQUIRE(parsedRecord.tidalStrength == ota.tidalStrength);
+            REQUIRE(parsedRecord.solarStrength == ota.solarStrength);
+            REQUIRE(parsedRecord.lavaWorld == ota.lavaWorld);
+            REQUIRE(parsedRecord.killMul == ota.killMul);
+            REQUIRE(parsedRecord.timeMul == ota.timeMul);
+            REQUIRE(parsedRecord.minWindSpeed == ota.minWindSpeed);
+            REQUIRE(parsedRecord.maxWindSpeed == ota.maxWindSpeed);
+            REQUIRE(parsedRecord.gravity == ota.gravity);
+            REQUIRE(parsedRecord.numPlayers == ota.numPlayers);
+            REQUIRE(parsedRecord.size == ota.size);
+            REQUIRE(parsedRecord.memory == ota.memory);
+            REQUIRE(parsedRecord.useOnlyUnits == ota.useOnlyUnits);
+            REQUIRE(parsedRecord.schemaCount == ota.schemaCount);
+
+            REQUIRE(parsedRecord.schemas.size() == ota.schemas.size());
+
+            for (unsigned int i = 0; i < parsedRecord.schemas.size(); ++i)
+            {
+                const auto& a = parsedRecord.schemas[i];
+                const auto& b = ota.schemas[i];
+
+                REQUIRE(a.type == b.type);
+                REQUIRE(a.aiProfile == b.aiProfile);
+                REQUIRE(a.surfaceMetal == b.surfaceMetal);
+                REQUIRE(a.mohoMetal == b.mohoMetal);
+                REQUIRE(a.humanMetal == b.humanMetal);
+                REQUIRE(a.computerMetal == b.computerMetal);
+                REQUIRE(a.humanEnergy == b.humanEnergy);
+                REQUIRE(a.computerEnergy == b.computerEnergy);
+                REQUIRE(a.meteorWeapon == b.meteorWeapon);
+                REQUIRE(a.meteorRadius == b.meteorRadius);
+                REQUIRE(a.meteorDensity == b.meteorDensity);
+                REQUIRE(a.meteorDuration == b.meteorDuration);
+                REQUIRE(a.meteorInterval == b.meteorInterval);
+
+                REQUIRE(a.specials.size() == b.specials.size());
+                for (unsigned int j = 0; j < a.specials.size(); ++j)
+                {
+                    const auto& sa = a.specials[j];
+                    const auto& sb = b.specials[j];
+
+                    REQUIRE(sa.specialWhat == sb.specialWhat);
+                    REQUIRE(sa.xPos == sb.xPos);
+                    REQUIRE(sa.zPos == sb.zPos);
+                }
+
+                REQUIRE(a.features.size() == b.features.size());
+                for (unsigned int j = 0; j < a.features.size(); ++j)
+                {
+                    const auto& fa = a.features[j];
+                    const auto& fb = b.features[j];
+
+                    REQUIRE(fa.featureName == fb.featureName);
+                    REQUIRE(fa.xPos == fb.xPos);
+                    REQUIRE(fa.zPos == fb.zPos);
+                }
+            }
+        }
     }
 }

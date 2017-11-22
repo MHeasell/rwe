@@ -25,29 +25,33 @@ namespace rwe
 
     OtaRecord parseOtaGlobalHeader(const TdfBlock& tdf)
     {
+        std::string emptyString;
+
         OtaRecord r;
 
         r.missionName = tdf.expectString("missionname");
-        r.missionDescription = tdf.expectString("missiondescription");
-        r.planet = tdf.expectString("planet");
-        r.missionHint = tdf.expectString("missionhint");
-        r.brief = tdf.expectString("brief");
-        r.narration = tdf.expectString("narration");
-        r.glamour = tdf.expectString("glamour");
-        r.lineOfSight = tdf.expectInt("lineofsight");
-        r.mapping = tdf.expectInt("mapping");
-        r.tidalStrength = tdf.expectInt("tidalstrength");
-        r.solarStrength = tdf.expectInt("solarstrength");
+
+        r.missionDescription = tdf.findValue("missiondescription").get_value_or(emptyString);
+        r.planet = tdf.findValue("planet").get_value_or(emptyString);
+        r.missionHint = tdf.findValue("missionhint").get_value_or(emptyString);
+        r.brief = tdf.findValue("brief").get_value_or(emptyString);
+        r.narration = tdf.findValue("narration").get_value_or(emptyString);
+        r.glamour = tdf.findValue("glamour").get_value_or(emptyString);
+        r.lineOfSight = tdf.extractInt("lineofsight").get_value_or(0);
+        r.mapping = tdf.extractInt("mapping").get_value_or(0);
+        r.tidalStrength = tdf.extractInt("tidalstrength").get_value_or(0);
+        r.solarStrength = tdf.extractInt("solarstrength").get_value_or(0);
         r.lavaWorld = tdf.extractBool("lavaworld").get_value_or(false);
-        r.killMul = tdf.expectInt("killmul");
-        r.timeMul = tdf.expectInt("timemul");
-        r.minWindSpeed = tdf.expectInt("minwindspeed");
-        r.maxWindSpeed = tdf.expectInt("maxwindspeed");
-        r.gravity = tdf.expectInt("gravity");
-        r.numPlayers = tdf.expectString("numplayers");
-        r.size = tdf.expectString("size");
-        r.memory = tdf.expectString("memory");
-        r.useOnlyUnits = tdf.expectString("useonlyunits");
+        r.killMul = tdf.extractInt("killmul").get_value_or(50);
+        r.timeMul = tdf.extractInt("timemul").get_value_or(0);
+        r.minWindSpeed = tdf.extractInt("minwindspeed").get_value_or(0);
+        r.maxWindSpeed = tdf.extractInt("maxwindspeed").get_value_or(0);
+        r.gravity = tdf.extractInt("gravity").get_value_or(112);
+        r.numPlayers = tdf.findValue("numplayers").get_value_or(emptyString);
+        r.size = tdf.findValue("size").get_value_or(emptyString);
+        r.memory = tdf.findValue("memory").get_value_or(emptyString);
+        r.useOnlyUnits = tdf.findValue("useonlyunits").get_value_or(emptyString);
+
         r.schemaCount = tdf.expectInt("SCHEMACOUNT");
 
         for (int i = 0; i < r.schemaCount; ++i)
@@ -67,20 +71,23 @@ namespace rwe
 
     OtaSchema parseOtaSchema(const TdfBlock& tdf)
     {
+        std::string emptyString;
+        std::string defaultAiProfile("DEFAULT");
+
         OtaSchema s;
         s.type = tdf.expectString("Type");
-        s.aiProfile = tdf.expectString("aiprofile");
-        s.surfaceMetal = tdf.expectInt("SurfaceMetal");
-        s.mohoMetal = tdf.expectInt("MohoMetal");
-        s.humanMetal = tdf.expectInt("HumanMetal");
-        s.computerMetal = tdf.expectInt("ComputerMetal");
-        s.humanEnergy = tdf.expectInt("HumanEnergy");
-        s.computerEnergy = tdf.expectInt("ComputerEnergy");
-        s.meteorWeapon = tdf.expectString("MeteorWeapon");
-        s.meteorRadius = tdf.expectInt("MeteorRadius");
-        s.meteorDensity = tdf.expectFloat("MeteorDensity");
-        s.meteorDuration = tdf.expectInt("MeteorDuration");
-        s.meteorInterval = tdf.expectInt("MeteorInterval");
+        s.aiProfile = tdf.findValue("aiprofile").get_value_or(defaultAiProfile);
+        s.surfaceMetal = tdf.extractInt("SurfaceMetal").get_value_or(3);
+        s.mohoMetal = tdf.extractInt("MohoMetal").get_value_or(30);
+        s.humanMetal = tdf.extractInt("HumanMetal").get_value_or(1000);
+        s.computerMetal = tdf.extractInt("ComputerMetal").get_value_or(1000);
+        s.humanEnergy = tdf.extractInt("HumanEnergy").get_value_or(1000);
+        s.computerEnergy = tdf.extractInt("ComputerEnergy").get_value_or(1000);
+        s.meteorWeapon = tdf.findValue("MeteorWeapon").get_value_or(emptyString);
+        s.meteorRadius = tdf.extractInt("MeteorRadius").get_value_or(0);
+        s.meteorDensity = tdf.extractFloat("MeteorDensity").get_value_or(0.0f);
+        s.meteorDuration = tdf.extractInt("MeteorDuration").get_value_or(0);
+        s.meteorInterval = tdf.extractInt("MeteorInterval").get_value_or(0);
 
         auto featuresBlock = tdf.findBlock("features");
         if (featuresBlock)
