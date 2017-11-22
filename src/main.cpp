@@ -37,6 +37,23 @@ namespace rwe
 
         logger.info("Initializing OpenGL context");
 
+        int requiredOpenGlMajorVersion = 3;
+        int requiredOpenGlMinorVersion = 2;
+
+        logger.info("Requesting OpenGL version {0}.{1}, {2} profile", requiredOpenGlMajorVersion, requiredOpenGlMinorVersion, "compatibility");
+        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, requiredOpenGlMajorVersion) != 0)
+        {
+            throw std::runtime_error(SDL_GetError());
+        }
+        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, requiredOpenGlMinorVersion) != 0)
+        {
+            throw std::runtime_error(SDL_GetError());
+        }
+        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY) != 0)
+        {
+            throw std::runtime_error(SDL_GetError());
+        }
+
         // require a stencil buffer of some kind
         if (sdlContext->glSetAttribute(SDL_GL_STENCIL_SIZE, 1) != 0)
         {
@@ -72,6 +89,16 @@ namespace rwe
         for (int i = 0; i < openGlExtensionCount; ++i)
         {
             logger.debug("  {0}", glGetStringi(GL_EXTENSIONS, i));
+        }
+
+        int obtainedOpenGlMajorVersion;
+        int obtainedOpenGlMinorVersion;
+        glGetIntegerv(GL_MAJOR_VERSION, &obtainedOpenGlMajorVersion);
+        glGetIntegerv(GL_MINOR_VERSION, &obtainedOpenGlMinorVersion);
+        if (obtainedOpenGlMajorVersion < requiredOpenGlMajorVersion
+            || (obtainedOpenGlMajorVersion == requiredOpenGlMajorVersion && obtainedOpenGlMinorVersion < requiredOpenGlMinorVersion))
+        {
+            throw std::runtime_error("OpenGL version did not meet requirements");
         }
 
         logger.info("Initializing virtual file system");
