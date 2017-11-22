@@ -152,7 +152,7 @@ namespace rwe
         float bottomMargin = downArrow.bounds.height() + 3.0f;
 
         float boxRange = sizeY - topMargin - bottomMargin;
-        float boxSize = scrollBarPercent * boxRange;
+        float boxSize = getEffectiveScrollBarPercent() * boxRange;
         float boxTopRange = boxRange - boxSize;
 
         float boxY = topMargin + (boxTopRange * scrollPercent);
@@ -182,13 +182,13 @@ namespace rwe
         {
             auto cursorPercent = toScrollPercent(mouseY - posY);
 
-            auto boxTopPercent = scrollPercent * (1.0f - scrollBarPercent);
+            auto boxTopPercent = scrollPercent * (1.0f - getEffectiveScrollBarPercent());
 
             if (cursorPercent < boxTopPercent) // cursor above
             {
                 scrollChangedSubject.next(std::clamp(scrollPercent - (scrollSpeed * dt), 0.0f, 1.0f));
             }
-            else if (cursorPercent > boxTopPercent + scrollBarPercent) // cursor below
+            else if (cursorPercent > boxTopPercent + getEffectiveScrollBarPercent()) // cursor below
             {
                 scrollChangedSubject.next(std::clamp(scrollPercent + (scrollSpeed * dt), 0.0f, 1.0f));
             }
@@ -264,5 +264,12 @@ namespace rwe
         {
             scrollDownSubject.next(true);
         }
+    }
+
+    float UiScrollBar::getEffectiveScrollBarPercent() const
+    {
+        auto minBarPixels = 14.0f;
+        auto minBarPercent = minBarPixels / static_cast<float>(sizeY);
+        return std::max(scrollBarPercent, minBarPercent);
     }
 }

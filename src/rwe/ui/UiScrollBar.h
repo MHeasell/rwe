@@ -97,6 +97,14 @@ namespace rwe
          * to a scroll percentage from 0 to 1.
          */
         float toScrollPercent(float pos);
+
+        /**
+         * Gets the effective size of the scroll box
+         * as a percentage of the scroll bar.
+         * This is the size that will actually be used for rendering.
+         * This imposes a minimum to ensure that the box is never too small.
+         */
+        float getEffectiveScrollBarPercent() const;
     };
 }
 
