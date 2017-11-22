@@ -38,6 +38,7 @@ namespace rwe
     public:
         TextureService(GraphicsContext* graphics, AbstractVirtualFileSystem* filesystem, const ColorPalette* palette);
 
+        boost::optional<std::shared_ptr<SpriteSeries>> tryGetGafEntry(const std::string& gafName, const std::string& entryName);
         std::shared_ptr<SpriteSeries> getGafEntry(const std::string& gafName, const std::string& entryName);
         boost::optional<std::shared_ptr<SpriteSeries>> getGuiTexture(const std::string& guiName, const std::string& graphicName);
         SharedTextureHandle getBitmap(const std::string& bitmapName);

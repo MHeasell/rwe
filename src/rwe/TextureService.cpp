@@ -117,6 +117,12 @@ namespace rwe
         return ptr;
     }
 
+    boost::optional<std::shared_ptr<SpriteSeries>>
+    TextureService::tryGetGafEntry(const std::string& gafName, const std::string& entryName)
+    {
+        return getGafEntryInternal(gafName, entryName);
+    }
+
     std::shared_ptr<SpriteSeries> TextureService::getGafEntry(const std::string& gafName, const std::string& entryName)
     {
         auto entry = getGafEntryInternal(gafName, entryName);

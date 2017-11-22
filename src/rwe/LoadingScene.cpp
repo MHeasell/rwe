@@ -379,7 +379,9 @@ namespace rwe
 
         if (!definition.fileName.empty() && !definition.seqNameShad.empty())
         {
-            f.shadowAnimation = textureService->getGafEntry("anims/" + definition.fileName + ".GAF", definition.seqNameShad);
+            // Some third-party features have broken shadow anim names (e.g. "empty"),
+            // ignore them if they don't exist.
+            f.shadowAnimation = textureService->tryGetGafEntry("anims/" + definition.fileName + ".GAF", definition.seqNameShad);
         }
 
         return f;
