@@ -20,8 +20,16 @@ namespace rwe
 
         std::shared_ptr<SpriteSeries> sprites;
 
+        /**
+         * The percentage of the scrollbar that is occupied by the scroll box,
+         * from 0.0 to 1.0.
+         */
         float scrollBarPercent{1.0f};
 
+        /**
+         * The percentage through the contents that we have scrolled,
+         * from 0.0 to 1.0.
+         */
         float scrollPercent{0.0f};
 
         bool barGrabbed{false};
