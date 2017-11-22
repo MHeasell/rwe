@@ -110,15 +110,13 @@ namespace rwe
         auto paletteBytes = vfs.readFile("palettes/PALETTE.PAL");
         if (!paletteBytes)
         {
-            std::cerr << "Couldn't find palette" << std::endl;
-            return 1;
+            throw std::runtime_error("Couldn't find palette");
         }
 
         auto palette = readPalette(*paletteBytes);
         if (!palette)
         {
-            std::cerr << "Couldn't read palette" << std::endl;
-            return 1;
+            throw std::runtime_error("Couldn't read palette");
         }
 
         logger.info("Initializing services");
@@ -136,8 +134,7 @@ namespace rwe
         auto allSoundBytes = vfs.readFile("gamedata/ALLSOUND.TDF");
         if (!allSoundBytes)
         {
-            std::cerr << "Couldn't read ALLSOUND.TDF" << std::endl;
-            return 1;
+            throw std::runtime_error("Couldn't read ALLSOUND.TDF");
         }
 
         std::string allSoundString(allSoundBytes->data(), allSoundBytes->size());
@@ -225,7 +222,8 @@ int main(int argc, char* argv[])
     auto localDataPath = rwe::getLocalDataPath();
     if (!localDataPath)
     {
-        std::cerr << "Failed to determine local data path" << std::endl;
+        auto message = "Failed to determine local data path";
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Critical Error", message, nullptr);
         return 1;
     }
 
