@@ -444,51 +444,6 @@ namespace rwe
         glEnd();
     }
 
-    void GraphicsContext::drawMesh(const Mesh& mesh)
-    {
-        glBindTexture(GL_TEXTURE_2D, mesh.texture.get().value);
-        glEnable(GL_TEXTURE_2D);
-
-        // disable mipmapping
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-        // disable blending (meshes are opaque)
-        glDisable(GL_BLEND);
-
-        glBegin(GL_TRIANGLES);
-
-        glColor4ub(255, 255, 255, 255);
-
-        for (const auto& t : mesh.faces)
-        {
-            glTexCoord2f(t.a.textureCoord.x, t.a.textureCoord.y);
-            glVertex3f(t.a.position.x, t.a.position.y, t.a.position.z);
-
-            glTexCoord2f(t.b.textureCoord.x, t.b.textureCoord.y);
-            glVertex3f(t.b.position.x, t.b.position.y, t.b.position.z);
-
-            glTexCoord2f(t.c.textureCoord.x, t.c.textureCoord.y);
-            glVertex3f(t.c.position.x, t.c.position.y, t.c.position.z);
-        }
-
-        glEnd();
-
-        glDisable(GL_TEXTURE_2D);
-
-        glBegin(GL_TRIANGLES);
-
-        for (const auto& t : mesh.colorFaces)
-        {
-            glColor4ub(t.color.r, t.color.g, t.color.b, t.color.a);
-            glVertex3f(t.a.position.x, t.a.position.y, t.a.position.z);
-            glVertex3f(t.b.position.x, t.b.position.y, t.b.position.z);
-            glVertex3f(t.c.position.x, t.c.position.y, t.c.position.z);
-        }
-
-        glEnd();
-    }
-
     void GraphicsContext::drawShaderMesh(
         const ShaderMesh& mesh,
         ShaderProgramIdentifier textureShader,
