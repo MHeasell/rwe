@@ -109,8 +109,6 @@ set(SOURCE_FILES
     src/rwe/OccupiedGrid.cpp
     src/rwe/OccupiedGrid.h
     src/rwe/OpaqueId.h
-    src/rwe/OtherTriangleScene.cpp
-    src/rwe/OtherTriangleScene.h
     src/rwe/PlayerId.h
     src/rwe/Point.cpp
     src/rwe/Point.h
@@ -138,8 +136,6 @@ set(SOURCE_FILES
     src/rwe/TextureRegion.h
     src/rwe/TextureService.cpp
     src/rwe/TextureService.h
-    src/rwe/TriangleScene.cpp
-    src/rwe/TriangleScene.h
     src/rwe/UniqueHandle.h
     src/rwe/Unit.cpp
     src/rwe/Unit.h

@@ -5,7 +5,6 @@
 #include <rwe/SceneManager.h>
 
 #include <memory>
-#include <rwe/TriangleScene.h>
 #include <rwe/ui/UiFactory.h>
 #include <rwe/vfs/CompositeVirtualFileSystem.h>
 #include <rwe/tdf.h>
