@@ -26,12 +26,6 @@ namespace rwe
     {
     }
 
-    void GraphicsContext::setBackgroundColor(float r, float g, float b)
-    {
-        glClearColor(r, g, b, 1.0f);
-        assert(glGetError() == GL_NO_ERROR);
-    }
-
     void GraphicsContext::clear()
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

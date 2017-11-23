@@ -47,8 +47,6 @@ namespace rwe
     class GraphicsContext
     {
     public:
-        void setBackgroundColor(float r, float g, float b);
-
         void clear();
 
         TextureHandle createTexture(const Grid<Color>& image);
