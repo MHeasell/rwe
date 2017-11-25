@@ -57,7 +57,6 @@ namespace rwe
         SharedShaderProgramHandle&& unitTextureShader,
         SharedShaderProgramHandle&& unitColorShader,
         SharedShaderProgramHandle&& selectBoxShader,
-        SharedShaderProgramHandle&& debugColorShader,
         UnitDatabase&& unitDatabase,
         std::array<boost::optional<GamePlayerInfo>, 10>&& players,
         PlayerId localPlayerId)
@@ -72,8 +71,7 @@ namespace rwe
           uiCamera(viewportService->width(), viewportService->height()),
           unitTextureShader(std::move(unitTextureShader)),
           unitColorShader(std::move(unitColorShader)),
-          selectBoxShader(std::move(selectBoxShader)),
-          debugColorShader(std::move(debugColorShader)),
+          basicColorShader(std::move(selectBoxShader)),
           unitDatabase(std::move(unitDatabase)),
           players(std::move(players)),
           localPlayerId(localPlayerId),
@@ -117,7 +115,7 @@ namespace rwe
 
         if (selectedUnit)
         {
-            getUnit(*selectedUnit).renderSelectionRect(context, viewMatrix, projectionMatrix, selectBoxShader.get());
+            getUnit(*selectedUnit).renderSelectionRect(context, viewMatrix, projectionMatrix, basicColorShader.get());
         }
 
         // draw unit shadows
@@ -663,7 +661,7 @@ namespace rwe
             Matrix4f::identity(),
             viewMatrix,
             projectionMatrix,
-            debugColorShader.get());
+            basicColorShader.get());
 
         auto triMesh = graphics.createTemporaryTriMesh(tris);
         graphics.drawTrisMesh(
@@ -671,6 +669,6 @@ namespace rwe
             Matrix4f::identity(),
             viewMatrix,
             projectionMatrix,
-            debugColorShader.get());
+            basicColorShader.get());
     }
 }

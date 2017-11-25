@@ -724,6 +724,10 @@ namespace rwe
     VisualSelectionMesh
     GraphicsContext::createSelectionMesh(const Vector3f& a, const Vector3f& b, const Vector3f& c, const Vector3f& d)
     {
+        const auto colorR = 0.325f;
+        const auto colorG = 0.875f;
+        const auto colorB = 0.310f;
+
         GLuint vao;
         glGenVertexArrays(1, &vao);
         glBindVertexArray(vao);
@@ -733,28 +737,42 @@ namespace rwe
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
         std::vector<GLfloat> buffer;
-        buffer.reserve(4 * 3);
+        buffer.reserve(4 * (3 + 3));
 
         buffer.push_back(a.x);
         buffer.push_back(a.y);
         buffer.push_back(a.z);
+        buffer.push_back(colorR);
+        buffer.push_back(colorG);
+        buffer.push_back(colorB);
 
         buffer.push_back(b.x);
         buffer.push_back(b.y);
         buffer.push_back(b.z);
+        buffer.push_back(colorR);
+        buffer.push_back(colorG);
+        buffer.push_back(colorB);
 
         buffer.push_back(c.x);
         buffer.push_back(c.y);
         buffer.push_back(c.z);
+        buffer.push_back(colorR);
+        buffer.push_back(colorG);
+        buffer.push_back(colorB);
 
         buffer.push_back(d.x);
         buffer.push_back(d.y);
         buffer.push_back(d.z);
+        buffer.push_back(colorR);
+        buffer.push_back(colorG);
+        buffer.push_back(colorB);
 
         glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(GLfloat), buffer.data(), GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<void*>(0));
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(0));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(3 * sizeof(GLfloat)));
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
@@ -850,16 +868,24 @@ namespace rwe
             buffer.push_back(l.start.x);
             buffer.push_back(l.start.y);
             buffer.push_back(l.start.z);
+            buffer.push_back(1.0f);
+            buffer.push_back(1.0f);
+            buffer.push_back(1.0f);
 
             buffer.push_back(l.end.x);
             buffer.push_back(l.end.y);
             buffer.push_back(l.end.z);
+            buffer.push_back(1.0f);
+            buffer.push_back(1.0f);
+            buffer.push_back(1.0f);
         }
 
         glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(GLfloat), buffer.data(), GL_STREAM_DRAW);
 
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<void*>(0));
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(0));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(3 * sizeof(GLfloat)));
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
@@ -889,20 +915,31 @@ namespace rwe
             buffer.push_back(l.a.x);
             buffer.push_back(l.a.y);
             buffer.push_back(l.a.z);
+            buffer.push_back(1.0f);
+            buffer.push_back(1.0f);
+            buffer.push_back(1.0f);
 
             buffer.push_back(l.b.x);
             buffer.push_back(l.b.y);
             buffer.push_back(l.b.z);
+            buffer.push_back(1.0f);
+            buffer.push_back(1.0f);
+            buffer.push_back(1.0f);
 
             buffer.push_back(l.c.x);
             buffer.push_back(l.c.y);
             buffer.push_back(l.c.z);
+            buffer.push_back(1.0f);
+            buffer.push_back(1.0f);
+            buffer.push_back(1.0f);
         }
 
         glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(GLfloat), buffer.data(), GL_STREAM_DRAW);
 
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), reinterpret_cast<void*>(0));
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(0));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(3 * sizeof(GLfloat)));
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);

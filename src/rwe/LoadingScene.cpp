@@ -118,16 +118,13 @@ namespace rwe
             AttribMapping{"position", 0},
             AttribMapping{"color", 1}};
 
-        std::vector<AttribMapping> selectBoxShaderAttribs{
-            AttribMapping{"position", 0}};
-
-        std::vector<AttribMapping> debugShaderAttribs{
-            AttribMapping{"position", 0}};
+        std::vector<AttribMapping> basicColorShaderAttribs{
+            AttribMapping{"position", 0},
+            AttribMapping{"color", 1}};
 
         SharedShaderProgramHandle unitTextureShader{loadShader("shaders/unitTexture.vert", "shaders/unitTexture.frag", unitTextureShaderAttribs)};
         SharedShaderProgramHandle unitColorShader{loadShader("shaders/unitColor.vert", "shaders/unitColor.frag", unitColorShaderAttribs)};
-        SharedShaderProgramHandle selectBoxShader{loadShader("shaders/selectBox.vert", "shaders/selectBox.frag", selectBoxShaderAttribs)};
-        SharedShaderProgramHandle debugColorShader{loadShader("shaders/debugColor.vert", "shaders/debugColor.frag", debugShaderAttribs)};
+        SharedShaderProgramHandle basicColorShader{loadShader("shaders/basicColor.vert", "shaders/basicColor.frag", basicColorShaderAttribs)};
 
         auto unitDatabase = createUnitDatabase();
 
@@ -163,8 +160,7 @@ namespace rwe
             std::move(terrain),
             std::move(unitTextureShader),
             std::move(unitColorShader),
-            std::move(selectBoxShader),
-            std::move(debugColorShader),
+            std::move(basicColorShader),
             std::move(unitDatabase),
             std::move(gamePlayers),
             localPlayerId);

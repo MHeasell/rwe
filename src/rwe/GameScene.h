@@ -61,9 +61,7 @@ namespace rwe
         SharedShaderProgramHandle unitTextureShader;
         SharedShaderProgramHandle unitColorShader;
 
-        SharedShaderProgramHandle selectBoxShader;
-
-        SharedShaderProgramHandle debugColorShader;
+        SharedShaderProgramHandle basicColorShader;
 
         UnitDatabase unitDatabase;
 
@@ -93,7 +91,6 @@ namespace rwe
             SharedShaderProgramHandle&& unitTextureShader,
             SharedShaderProgramHandle&& unitColorShader,
             SharedShaderProgramHandle&& selectBoxShader,
-            SharedShaderProgramHandle&& debugColorShader,
             UnitDatabase&& unitDatabase,
             std::array<boost::optional<GamePlayerInfo>, 10>&& players,
             PlayerId localPlayerId);
