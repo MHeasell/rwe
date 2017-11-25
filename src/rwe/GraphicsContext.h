@@ -22,6 +22,30 @@
 
 namespace rwe
 {
+#pragma pack(1)
+    struct GlTexturedVertex
+    {
+        GLfloat x;
+        GLfloat y;
+        GLfloat z;
+        GLfloat u;
+        GLfloat v;
+    };
+
+    struct GlColoredVertex
+    {
+        GLfloat x;
+        GLfloat y;
+        GLfloat z;
+        GLfloat r;
+        GLfloat g;
+        GLfloat b;
+
+        GlColoredVertex() = default;
+        GlColoredVertex(const Vector3f& pos, const Vector3f& color);
+    };
+#pragma pack()
+
     struct AttribMapping
     {
         std::string name;
@@ -150,6 +174,10 @@ namespace rwe
 
         void endUnitShadow();
 
+        DebugLinesMesh createTexturedMesh(const std::vector<GlTexturedVertex>& vertices, GLenum usage);
+
+        DebugLinesMesh createColoredMesh(const std::vector<GlColoredVertex>& vertices, GLenum usage);
+
         DebugLinesMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines);
 
         DebugLinesMesh createTemporaryTriMesh(const std::vector<Triangle3f>& tris);
@@ -170,6 +198,13 @@ namespace rwe
 
     private:
         ShaderHandle compileShader(GLenum shaderType, const std::string& source);
+
+        VboHandle genBuffer();
+        VaoHandle genVertexArray();
+        void bindBuffer(GLenum type, VboIdentifier id);
+        void unbindBuffer(GLenum type);
+        void bindVertexArray(VaoIdentifier id);
+        void unbindVertexArray();
     };
 
     template <typename It>

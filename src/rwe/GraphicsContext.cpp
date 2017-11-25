@@ -14,6 +14,11 @@ namespace rwe
         }
     }
 
+    GlColoredVertex::GlColoredVertex(const Vector3f& pos, const Vector3f& color)
+        : x(pos.x), y(pos.y), z(pos.z), r(color.x), g(color.y), b(color.z)
+    {
+    }
+
     AttribMapping::AttribMapping(const std::string& name, GLuint location) : name(name), location(location)
     {
     }
@@ -852,102 +857,84 @@ namespace rwe
 
     DebugLinesMesh GraphicsContext::createTemporaryLinesMesh(const std::vector<Line3f>& lines)
     {
-        GLuint vao;
-        glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
+        std::vector<GlColoredVertex> buffer;
+        buffer.reserve(lines.size() * 2); // 2 verts per line
 
-        GLuint vbo;
-        glGenBuffers(1, &vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-        std::vector<GLfloat> buffer;
-        buffer.reserve(lines.size() * 2 * 3); // 2 verts per line, 3 floats per vert
+        Vector3f white(1.0f, 1.0f, 1.0f);
 
         for (const auto& l : lines)
         {
-            buffer.push_back(l.start.x);
-            buffer.push_back(l.start.y);
-            buffer.push_back(l.start.z);
-            buffer.push_back(1.0f);
-            buffer.push_back(1.0f);
-            buffer.push_back(1.0f);
-
-            buffer.push_back(l.end.x);
-            buffer.push_back(l.end.y);
-            buffer.push_back(l.end.z);
-            buffer.push_back(1.0f);
-            buffer.push_back(1.0f);
-            buffer.push_back(1.0f);
+            buffer.emplace_back(l.start, white);
+            buffer.emplace_back(l.end, white);
         }
 
-        glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(GLfloat), buffer.data(), GL_STREAM_DRAW);
-
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(0));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(3 * sizeof(GLfloat)));
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-
-        DebugLinesMesh m;
-        m.vao = VaoHandle(VaoIdentifier(vao));
-        m.vbo = VboHandle(VboIdentifier(vbo));
-        m.vertexCount = lines.size() * 2;
-        return m;
+        return createColoredMesh(buffer, GL_STREAM_DRAW);
     }
 
     DebugLinesMesh GraphicsContext::createTemporaryTriMesh(const std::vector<Triangle3f>& tris)
     {
-        GLuint vao;
-        glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
+        std::vector<GlColoredVertex> buffer;
+        buffer.reserve(tris.size() * 3); // 3 verts per triangle
 
-        GLuint vbo;
-        glGenBuffers(1, &vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-        std::vector<GLfloat> buffer;
-        buffer.reserve(tris.size() * 3 * 3); // 3 verts per tri, 3 floats per vert
+        Vector3f white(1.0f, 1.0f, 1.0f);
 
         for (const auto& l : tris)
         {
-            buffer.push_back(l.a.x);
-            buffer.push_back(l.a.y);
-            buffer.push_back(l.a.z);
-            buffer.push_back(1.0f);
-            buffer.push_back(1.0f);
-            buffer.push_back(1.0f);
-
-            buffer.push_back(l.b.x);
-            buffer.push_back(l.b.y);
-            buffer.push_back(l.b.z);
-            buffer.push_back(1.0f);
-            buffer.push_back(1.0f);
-            buffer.push_back(1.0f);
-
-            buffer.push_back(l.c.x);
-            buffer.push_back(l.c.y);
-            buffer.push_back(l.c.z);
-            buffer.push_back(1.0f);
-            buffer.push_back(1.0f);
-            buffer.push_back(1.0f);
+            buffer.emplace_back(l.a, white);
+            buffer.emplace_back(l.b, white);
+            buffer.emplace_back(l.c, white);
         }
 
-        glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(GLfloat), buffer.data(), GL_STREAM_DRAW);
+        return createColoredMesh(buffer, GL_STREAM_DRAW);
+    }
+
+    DebugLinesMesh GraphicsContext::createTexturedMesh(const std::vector<GlTexturedVertex>& vertices, GLenum usage)
+    {
+        auto vao = genVertexArray();
+        bindVertexArray(vao.get());
+
+        auto vbo = genBuffer();
+        bindBuffer(GL_ARRAY_BUFFER, vbo.get());
+
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GlTexturedVertex), vertices.data(), usage);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), reinterpret_cast<void*>(0));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), reinterpret_cast<void*>(3 * sizeof(GLfloat)));
+
+        unbindBuffer(GL_ARRAY_BUFFER);
+        unbindVertexArray();
+
+        DebugLinesMesh m;
+        m.vao = std::move(vao);
+        m.vbo = std::move(vbo);
+        m.vertexCount = vertices.size();
+        return m;
+    }
+
+    DebugLinesMesh GraphicsContext::createColoredMesh(const std::vector<GlColoredVertex>& vertices, GLenum usage)
+    {
+        auto vao = genVertexArray();
+        bindVertexArray(vao.get());
+
+        auto vbo = genBuffer();
+        bindBuffer(GL_ARRAY_BUFFER, vbo.get());
+
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GlColoredVertex), vertices.data(), usage);
 
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(0));
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(3 * sizeof(GLfloat)));
 
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
+        unbindBuffer(GL_ARRAY_BUFFER);
+        unbindVertexArray();
 
         DebugLinesMesh m;
-        m.vao = VaoHandle(VaoIdentifier(vao));
-        m.vbo = VboHandle(VboIdentifier(vbo));
-        m.vertexCount = tris.size() * 3;
+        m.vao = std::move(vao);
+        m.vbo = std::move(vbo);
+        m.vertexCount = vertices.size();
         return m;
     }
 
@@ -1007,5 +994,39 @@ namespace rwe
 
         glBindVertexArray(0);
         glUseProgram(0);
+    }
+
+    VboHandle GraphicsContext::genBuffer()
+    {
+        GLuint vbo;
+        glGenBuffers(1, &vbo);
+        return VboHandle(VboIdentifier(vbo));
+    }
+
+    VaoHandle GraphicsContext::genVertexArray()
+    {
+        GLuint vao;
+        glGenVertexArrays(1, &vao);
+        return VaoHandle(VaoIdentifier(vao));
+    }
+
+    void GraphicsContext::bindBuffer(GLenum type, VboIdentifier id)
+    {
+        glBindBuffer(type, id.value);
+    }
+
+    void GraphicsContext::bindVertexArray(VaoIdentifier id)
+    {
+        glBindVertexArray(id.value);
+    }
+
+    void GraphicsContext::unbindBuffer(GLenum type)
+    {
+        glBindBuffer(type, 0);
+    }
+
+    void GraphicsContext::unbindVertexArray()
+    {
+        glBindVertexArray(0);
     }
 }
