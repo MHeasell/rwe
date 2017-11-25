@@ -636,27 +636,7 @@ namespace rwe
         ShaderProgramIdentifier shader)
     {
         glDisable(GL_BLEND);
-
-        glUseProgram(shader.value);
-        glBindVertexArray(mesh.vao.get().value);
-
-        {
-            auto uniform = glGetUniformLocation(shader.value, "modelMatrix");
-            glUniformMatrix4fv(uniform, 1, GL_FALSE, modelMatrix.data);
-        }
-        {
-            auto uniform = glGetUniformLocation(shader.value, "viewMatrix");
-            glUniformMatrix4fv(uniform, 1, GL_FALSE, viewMatrix.data);
-        }
-        {
-            auto uniform = glGetUniformLocation(shader.value, "projectionMatrix");
-            glUniformMatrix4fv(uniform, 1, GL_FALSE, projectionMatrix.data);
-        }
-
-        glDrawArrays(GL_LINE_LOOP, 0, mesh.vertexCount);
-
-        glBindVertexArray(0);
-        glUseProgram(0);
+        drawMesh(GL_LINE_LOOP, mesh, modelMatrix, viewMatrix, projectionMatrix, shader);
     }
 
     GlMesh
@@ -820,26 +800,7 @@ namespace rwe
         const Matrix4f& projectionMatrix,
         ShaderProgramIdentifier shader)
     {
-        glUseProgram(shader.value);
-        glBindVertexArray(mesh.vao.get().value);
-
-        {
-            auto location = glGetUniformLocation(shader.value, "modelMatrix");
-            glUniformMatrix4fv(location, 1, GL_FALSE, modelMatrix.data);
-        }
-        {
-            auto location = glGetUniformLocation(shader.value, "viewMatrix");
-            glUniformMatrix4fv(location, 1, GL_FALSE, viewMatrix.data);
-        }
-        {
-            auto location = glGetUniformLocation(shader.value, "projectionMatrix");
-            glUniformMatrix4fv(location, 1, GL_FALSE, projectionMatrix.data);
-        }
-
-        glDrawArrays(GL_LINES, 0, mesh.vertexCount);
-
-        glBindVertexArray(0);
-        glUseProgram(0);
+        drawMesh(GL_LINES, mesh, modelMatrix, viewMatrix, projectionMatrix, shader);
     }
 
     void GraphicsContext::drawTrisMesh(
@@ -849,26 +810,7 @@ namespace rwe
         const Matrix4f& projectionMatrix,
         ShaderProgramIdentifier shader)
     {
-        glUseProgram(shader.value);
-        glBindVertexArray(mesh.vao.get().value);
-
-        {
-            auto location = glGetUniformLocation(shader.value, "modelMatrix");
-            glUniformMatrix4fv(location, 1, GL_FALSE, modelMatrix.data);
-        }
-        {
-            auto location = glGetUniformLocation(shader.value, "viewMatrix");
-            glUniformMatrix4fv(location, 1, GL_FALSE, viewMatrix.data);
-        }
-        {
-            auto location = glGetUniformLocation(shader.value, "projectionMatrix");
-            glUniformMatrix4fv(location, 1, GL_FALSE, projectionMatrix.data);
-        }
-
-        glDrawArrays(GL_TRIANGLES, 0, mesh.vertexCount);
-
-        glBindVertexArray(0);
-        glUseProgram(0);
+        drawMesh(GL_TRIANGLES, mesh, modelMatrix, viewMatrix, projectionMatrix, shader);
     }
 
     VboHandle GraphicsContext::genBuffer()
@@ -903,5 +845,36 @@ namespace rwe
     void GraphicsContext::unbindVertexArray()
     {
         glBindVertexArray(0);
+    }
+
+    void
+    GraphicsContext::drawMesh(
+        GLenum mode,
+        const GlMesh& mesh,
+        const Matrix4f& modelMatrix,
+        const Matrix4f& viewMatrix,
+        const Matrix4f& projectionMatrix,
+        ShaderProgramIdentifier shader)
+    {
+        glUseProgram(shader.value);
+        glBindVertexArray(mesh.vao.get().value);
+
+        {
+            auto location = glGetUniformLocation(shader.value, "modelMatrix");
+            glUniformMatrix4fv(location, 1, GL_FALSE, modelMatrix.data);
+        }
+        {
+            auto location = glGetUniformLocation(shader.value, "viewMatrix");
+            glUniformMatrix4fv(location, 1, GL_FALSE, viewMatrix.data);
+        }
+        {
+            auto location = glGetUniformLocation(shader.value, "projectionMatrix");
+            glUniformMatrix4fv(location, 1, GL_FALSE, projectionMatrix.data);
+        }
+
+        glDrawArrays(mode, 0, mesh.vertexCount);
+
+        glBindVertexArray(0);
+        glUseProgram(0);
     }
 }

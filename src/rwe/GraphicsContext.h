@@ -208,6 +208,13 @@ namespace rwe
         void unbindBuffer(GLenum type);
         void bindVertexArray(VaoIdentifier id);
         void unbindVertexArray();
+        void drawMesh(
+            GLenum mode,
+            const GlMesh& mesh,
+            const Matrix4f& modelMatrix,
+            const Matrix4f& viewMatrix,
+            const Matrix4f& projectionMatrix,
+            ShaderProgramIdentifier shader);
     };
 
     template <typename It>
