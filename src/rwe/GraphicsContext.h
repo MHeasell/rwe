@@ -215,6 +215,13 @@ namespace rwe
             const Matrix4f& viewMatrix,
             const Matrix4f& projectionMatrix,
             ShaderProgramIdentifier shader);
+        void drawUnitMesh(
+            const GlMesh& mesh,
+            const Matrix4f& modelMatrix,
+            const Matrix4f& viewMatrix,
+            const Matrix4f& projectionMatrix,
+            float seaLevel,
+            ShaderProgramIdentifier shader);
     };
 
     template <typename It>

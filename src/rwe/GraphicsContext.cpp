@@ -463,8 +463,6 @@ namespace rwe
         const Matrix4f& projectionMatrix,
         float seaLevel)
     {
-        glUseProgram(textureShader.value);
-        glBindVertexArray(mesh.texturedVertices.vao.get().value);
         glBindTexture(GL_TEXTURE_2D, mesh.texture.get().value);
 
         // disable mipmapping
@@ -474,52 +472,11 @@ namespace rwe
         // disable blending (meshes are opaque)
         glDisable(GL_BLEND);
 
-        {
-            auto textureModelMatrix = glGetUniformLocation(textureShader.value, "modelMatrix");
-            glUniformMatrix4fv(textureModelMatrix, 1, GL_FALSE, modelMatrix.data);
-        }
-        {
-            auto textureViewMatrix = glGetUniformLocation(textureShader.value, "viewMatrix");
-            glUniformMatrix4fv(textureViewMatrix, 1, GL_FALSE, viewMatrix.data);
-        }
-        {
-            auto textureProjectionMatrix = glGetUniformLocation(textureShader.value, "projectionMatrix");
-            glUniformMatrix4fv(textureProjectionMatrix, 1, GL_FALSE, projectionMatrix.data);
-        }
+        drawUnitMesh(mesh.texturedVertices, modelMatrix, viewMatrix, projectionMatrix, seaLevel, textureShader);
 
-        {
-            auto seaLevelUniform = glGetUniformLocation(textureShader.value, "seaLevel");
-            glUniform1f(seaLevelUniform, seaLevel);
-        }
-
-        glDrawArrays(GL_TRIANGLES, 0, mesh.texturedVertices.vertexCount);
-
-        glUseProgram(colorShader.value);
-        glBindVertexArray(mesh.coloredVertices.vao.get().value);
         glBindTexture(GL_TEXTURE_2D, 0);
 
-        {
-            auto colorModelMatrix = glGetUniformLocation(colorShader.value, "modelMatrix");
-            glUniformMatrix4fv(colorModelMatrix, 1, GL_FALSE, modelMatrix.data);
-        }
-        {
-            auto colorViewMatrix = glGetUniformLocation(colorShader.value, "viewMatrix");
-            glUniformMatrix4fv(colorViewMatrix, 1, GL_FALSE, viewMatrix.data);
-        }
-        {
-            auto colorProjectionMatrix = glGetUniformLocation(colorShader.value, "projectionMatrix");
-            glUniformMatrix4fv(colorProjectionMatrix, 1, GL_FALSE, projectionMatrix.data);
-        }
-
-        {
-            auto seaLevelUniform = glGetUniformLocation(colorShader.value, "seaLevel");
-            glUniform1f(seaLevelUniform, 75.0f);
-        }
-
-        glDrawArrays(GL_TRIANGLES, 0, mesh.coloredVertices.vertexCount);
-
-        glBindVertexArray(0);
-        glUseProgram(0);
+        drawUnitMesh(mesh.coloredVertices, modelMatrix, viewMatrix, projectionMatrix, seaLevel, colorShader);
     }
 
     void GraphicsContext::enableDepth()
@@ -872,6 +829,41 @@ namespace rwe
         }
 
         glDrawArrays(mode, 0, mesh.vertexCount);
+
+        glBindVertexArray(0);
+        glUseProgram(0);
+    }
+
+    void GraphicsContext::drawUnitMesh(
+        const GlMesh& mesh,
+        const Matrix4f& modelMatrix,
+        const Matrix4f& viewMatrix,
+        const Matrix4f& projectionMatrix,
+        float seaLevel,
+        ShaderProgramIdentifier shader)
+    {
+        glUseProgram(shader.value);
+        glBindVertexArray(mesh.vao.get().value);
+
+        {
+            auto textureModelMatrix = glGetUniformLocation(shader.value, "modelMatrix");
+            glUniformMatrix4fv(textureModelMatrix, 1, GL_FALSE, modelMatrix.data);
+        }
+        {
+            auto textureViewMatrix = glGetUniformLocation(shader.value, "viewMatrix");
+            glUniformMatrix4fv(textureViewMatrix, 1, GL_FALSE, viewMatrix.data);
+        }
+        {
+            auto textureProjectionMatrix = glGetUniformLocation(shader.value, "projectionMatrix");
+            glUniformMatrix4fv(textureProjectionMatrix, 1, GL_FALSE, projectionMatrix.data);
+        }
+
+        {
+            auto seaLevelUniform = glGetUniformLocation(shader.value, "seaLevel");
+            glUniform1f(seaLevelUniform, seaLevel);
+        }
+
+        glDrawArrays(GL_TRIANGLES, 0, mesh.vertexCount);
 
         glBindVertexArray(0);
         glUseProgram(0);
