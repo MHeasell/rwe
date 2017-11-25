@@ -144,7 +144,7 @@ namespace rwe
             float seaLevel);
 
         void drawWireframeSelectionMesh(
-            const VisualSelectionMesh& mesh,
+            const GlMesh& mesh,
             const Matrix4f& modelMatrix,
             const Matrix4f& viewMatrix,
             const Matrix4f& projectionMatrix,
@@ -168,7 +168,7 @@ namespace rwe
 
         ShaderMesh convertMesh(const Mesh& mesh);
 
-        VisualSelectionMesh createSelectionMesh(const Vector3f& a, const Vector3f& b, const Vector3f& c, const Vector3f& d);
+        GlMesh createSelectionMesh(const Vector3f& a, const Vector3f& b, const Vector3f& c, const Vector3f& d);
 
         void beginUnitShadow();
 

@@ -693,13 +693,14 @@ namespace rwe
     }
 
     void GraphicsContext::drawWireframeSelectionMesh(
-        const VisualSelectionMesh& mesh,
+        const GlMesh& mesh,
         const Matrix4f& modelMatrix,
         const Matrix4f& viewMatrix,
         const Matrix4f& projectionMatrix,
         ShaderProgramIdentifier shader)
     {
         glDisable(GL_BLEND);
+
         glUseProgram(shader.value);
         glBindVertexArray(mesh.vao.get().value);
 
@@ -722,68 +723,18 @@ namespace rwe
         glUseProgram(0);
     }
 
-    VisualSelectionMesh
+    GlMesh
     GraphicsContext::createSelectionMesh(const Vector3f& a, const Vector3f& b, const Vector3f& c, const Vector3f& d)
     {
-        const auto colorR = 0.325f;
-        const auto colorG = 0.875f;
-        const auto colorB = 0.310f;
+        const Vector3f color(0.325f, 0.875f, 0.310f);
 
-        GLuint vao;
-        glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
+        std::vector<GlColoredVertex> buffer{
+            {a, color},
+            {b, color},
+            {c, color},
+            {d, color}};
 
-        GLuint vbo;
-        glGenBuffers(1, &vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-        std::vector<GLfloat> buffer;
-        buffer.reserve(4 * (3 + 3));
-
-        buffer.push_back(a.x);
-        buffer.push_back(a.y);
-        buffer.push_back(a.z);
-        buffer.push_back(colorR);
-        buffer.push_back(colorG);
-        buffer.push_back(colorB);
-
-        buffer.push_back(b.x);
-        buffer.push_back(b.y);
-        buffer.push_back(b.z);
-        buffer.push_back(colorR);
-        buffer.push_back(colorG);
-        buffer.push_back(colorB);
-
-        buffer.push_back(c.x);
-        buffer.push_back(c.y);
-        buffer.push_back(c.z);
-        buffer.push_back(colorR);
-        buffer.push_back(colorG);
-        buffer.push_back(colorB);
-
-        buffer.push_back(d.x);
-        buffer.push_back(d.y);
-        buffer.push_back(d.z);
-        buffer.push_back(colorR);
-        buffer.push_back(colorG);
-        buffer.push_back(colorB);
-
-        glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(GLfloat), buffer.data(), GL_STATIC_DRAW);
-
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(0));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(3 * sizeof(GLfloat)));
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-
-        VisualSelectionMesh vsm;
-        vsm.vao = VaoHandle(VaoIdentifier(vao));
-        vsm.vbo = VboHandle(VboIdentifier(vbo));
-        vsm.vertexCount = 4;
-
-        return vsm;
+        return createColoredMesh(buffer, GL_STATIC_DRAW);
     }
 
     void GraphicsContext::beginUnitShadow()
