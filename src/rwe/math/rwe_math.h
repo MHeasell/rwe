@@ -1,8 +1,8 @@
 #ifndef RWE_MATH_RWE_MATH_H
 #define RWE_MATH_RWE_MATH_H
 
-#include <rwe/Point.h>
 #include "Vector2f.h"
+#include <rwe/Point.h>
 
 namespace rwe
 {

@@ -1,11 +1,11 @@
 #ifndef RWE_HPI_H
 #define RWE_HPI_H
 
+#include <boost/optional.hpp>
+#include <boost/variant.hpp>
 #include <cstdint>
 #include <istream>
 #include <vector>
-#include <boost/variant.hpp>
-#include <boost/optional.hpp>
 
 namespace rwe
 {

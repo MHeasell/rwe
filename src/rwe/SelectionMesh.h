@@ -1,9 +1,9 @@
 #ifndef RWE_SELECTIONMESH_H
 #define RWE_SELECTIONMESH_H
 
-#include <rwe/geometry/CollisionMesh.h>
-#include "VboHandle.h"
 #include "VaoHandle.h"
+#include "VboHandle.h"
+#include <rwe/geometry/CollisionMesh.h>
 
 namespace rwe
 {

@@ -1,20 +1,20 @@
 #ifndef RWE_GAMESCENE_H
 #define RWE_GAMESCENE_H
 
+#include "AudioService.h"
+#include "DiscreteRect.h"
+#include "MeshService.h"
+#include "OccupiedGrid.h"
+#include "RenderService.h"
+#include "UnitDatabase.h"
+#include "UnitId.h"
 #include <rwe/CursorService.h>
+#include <rwe/PlayerId.h>
 #include <rwe/SceneManager.h>
 #include <rwe/TextureService.h>
 #include <rwe/Unit.h>
-#include <rwe/camera/UiCamera.h>
-#include "MeshService.h"
-#include "UnitDatabase.h"
-#include "AudioService.h"
-#include "UnitId.h"
-#include "OccupiedGrid.h"
-#include "DiscreteRect.h"
-#include "RenderService.h"
 #include <rwe/ViewportService.h>
-#include <rwe/PlayerId.h>
+#include <rwe/camera/UiCamera.h>
 
 namespace rwe
 {

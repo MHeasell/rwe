@@ -1,5 +1,5 @@
-#include <cmath>
 #include "CollisionMesh.h"
+#include <cmath>
 
 namespace rwe
 {

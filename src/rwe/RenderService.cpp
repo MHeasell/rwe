@@ -1,5 +1,5 @@
-#include <rwe/math/rwe_math.h>
 #include "RenderService.h"
+#include <rwe/math/rwe_math.h>
 
 namespace rwe
 {

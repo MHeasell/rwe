@@ -2,8 +2,8 @@
 #define RWE_FEATUREDEFINITION_H
 
 #include <boost/optional.hpp>
-#include <string>
 #include <rwe/tdf/TdfBlock.h>
+#include <string>
 
 namespace rwe
 {

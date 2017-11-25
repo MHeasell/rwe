@@ -1,10 +1,10 @@
 #ifndef RWE_UIPANEL_H
 #define RWE_UIPANEL_H
 
-#include <boost/optional.hpp>
 #include <GL/glew.h>
-#include <rwe/TextureHandle.h>
+#include <boost/optional.hpp>
 #include <rwe/GraphicsContext.h>
+#include <rwe/TextureHandle.h>
 #include <rwe/ui/UiComponent.h>
 
 namespace rwe

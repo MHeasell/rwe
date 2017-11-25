@@ -2,17 +2,17 @@
 #define RWE_UIFACTORY_H
 
 #include <rwe/AudioService.h>
+#include <rwe/MainMenuModel.h>
 #include <rwe/TextureService.h>
 #include <rwe/gui.h>
 #include <rwe/ui/UiButton.h>
+#include <rwe/ui/UiLabel.h>
 #include <rwe/ui/UiListBox.h>
 #include <rwe/ui/UiPanel.h>
+#include <rwe/ui/UiScrollBar.h>
+#include <rwe/ui/UiStagedButton.h>
 #include <string>
 #include <vector>
-#include <rwe/ui/UiLabel.h>
-#include <rwe/ui/UiStagedButton.h>
-#include <rwe/MainMenuModel.h>
-#include <rwe/ui/UiScrollBar.h>
 
 namespace rwe
 {

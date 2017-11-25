@@ -1,7 +1,7 @@
 #include <boost/optional/optional_io.hpp>
-#include <rwe/_3do.h>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <rwe/_3do.h>
 #include <vector>
 
 float convertFixedPoint(int p)

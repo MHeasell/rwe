@@ -1,7 +1,7 @@
+#include "Unit.h"
+#include <rwe/GameScene.h>
 #include <rwe/geometry/Plane3f.h>
 #include <rwe/math/rwe_math.h>
-#include <rwe/GameScene.h>
-#include "Unit.h"
 
 namespace rwe
 {

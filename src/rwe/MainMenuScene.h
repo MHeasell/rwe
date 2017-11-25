@@ -1,6 +1,9 @@
 #ifndef RWE_MAINMENUSCENE_H
 #define RWE_MAINMENUSCENE_H
 
+#include "RenderService.h"
+#include "SideData.h"
+#include "ViewportService.h"
 #include <memory>
 #include <rwe/AudioService.h>
 #include <rwe/CursorService.h>
@@ -11,9 +14,6 @@
 #include <rwe/tdf/TdfBlock.h>
 #include <rwe/ui/UiFactory.h>
 #include <rwe/ui/UiPanel.h>
-#include "SideData.h"
-#include "ViewportService.h"
-#include "RenderService.h"
 
 namespace rwe
 {

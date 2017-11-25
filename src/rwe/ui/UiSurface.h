@@ -1,8 +1,8 @@
 #ifndef RWE_UISURFACE_H
 #define RWE_UISURFACE_H
 
-#include <rwe/ui/UiComponent.h>
 #include <boost/optional.hpp>
+#include <rwe/ui/UiComponent.h>
 
 namespace rwe
 {

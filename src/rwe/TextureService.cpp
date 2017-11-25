@@ -1,8 +1,8 @@
 #include "TextureService.h"
 #include "rwe_string.h"
-#include <rwe/pcx.h>
-#include <rwe/Gaf.h>
 #include <boost/interprocess/streams/bufferstream.hpp>
+#include <rwe/Gaf.h>
+#include <rwe/pcx.h>
 #include <rwe/tnt/TntArchive.h>
 
 namespace rwe

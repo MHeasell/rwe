@@ -1,5 +1,5 @@
-#include <cmath>
 #include "CabinetCamera.h"
+#include <cmath>
 
 namespace rwe
 {

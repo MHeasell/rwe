@@ -5,22 +5,22 @@
 #include <rwe/SceneManager.h>
 
 #include <memory>
+#include <rwe/tdf.h>
 #include <rwe/ui/UiFactory.h>
 #include <rwe/vfs/CompositeVirtualFileSystem.h>
-#include <rwe/tdf.h>
 
-#include <rwe/gui.h>
-#include <iostream>
-#include <rwe/MainMenuScene.h>
-#include <rwe/ColorPalette.h>
 #include <boost/filesystem.hpp>
+#include <iostream>
 #include <rwe/AudioService.h>
+#include <rwe/ColorPalette.h>
 #include <rwe/LoadingScene.h>
+#include <rwe/MainMenuScene.h>
+#include <rwe/gui.h>
 
-#include <rwe/util.h>
 #include <rwe/ViewportService.h>
-#include <spdlog/spdlog.h>
 #include <rwe/config.h>
+#include <rwe/util.h>
+#include <spdlog/spdlog.h>
 
 namespace fs = boost::filesystem;
 

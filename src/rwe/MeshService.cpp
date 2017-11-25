@@ -1,9 +1,9 @@
-#include <boost/interprocess/streams/bufferstream.hpp>
-#include <rwe/geometry/CollisionMesh.h>
+#include "BoxTreeSplit.h"
+#include "Gaf.h"
 #include "MeshService.h"
 #include "_3do.h"
-#include "Gaf.h"
-#include "BoxTreeSplit.h"
+#include <boost/interprocess/streams/bufferstream.hpp>
+#include <rwe/geometry/CollisionMesh.h>
 #include <rwe/rwe_string.h>
 
 namespace rwe

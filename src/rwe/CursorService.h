@@ -2,9 +2,9 @@
 #define RWE_CURSORSERVICE_H
 
 #include <memory>
-#include <rwe/SpriteSeries.h>
 #include <rwe/GraphicsContext.h>
 #include <rwe/SdlContextManager.h>
+#include <rwe/SpriteSeries.h>
 
 namespace rwe
 {

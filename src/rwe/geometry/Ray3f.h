@@ -1,8 +1,8 @@
 #ifndef RWE_GEOMETRY_RAY3F_H
 #define RWE_GEOMETRY_RAY3F_H
 
-#include <rwe/math/Vector3f.h>
 #include <rwe/geometry/Line3f.h>
+#include <rwe/math/Vector3f.h>
 
 namespace rwe
 {

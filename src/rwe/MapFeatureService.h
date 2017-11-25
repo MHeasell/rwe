@@ -1,9 +1,9 @@
 #ifndef RWE_MAPFEATURESERVICE_H
 #define RWE_MAPFEATURESERVICE_H
 
-#include <string>
-#include <rwe/vfs/AbstractVirtualFileSystem.h>
 #include <rwe/FeatureDefinition.h>
+#include <rwe/vfs/AbstractVirtualFileSystem.h>
+#include <string>
 
 namespace rwe
 {

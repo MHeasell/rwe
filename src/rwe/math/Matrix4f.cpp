@@ -1,5 +1,5 @@
-#include <cmath>
 #include "Matrix4f.h"
+#include <cmath>
 
 namespace rwe
 {

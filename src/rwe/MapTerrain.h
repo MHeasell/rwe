@@ -6,8 +6,8 @@
 #include <rwe/Point.h>
 #include <rwe/TextureRegion.h>
 #include <rwe/camera/CabinetCamera.h>
-#include <vector>
 #include <rwe/geometry/Line3f.h>
+#include <vector>
 
 namespace rwe
 {

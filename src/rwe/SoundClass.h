@@ -1,9 +1,9 @@
 #ifndef RWE_SOUNDCLASS_H
 #define RWE_SOUNDCLASS_H
 
-#include <string>
-#include <rwe/tdf/TdfBlock.h>
 #include <boost/optional.hpp>
+#include <rwe/tdf/TdfBlock.h>
+#include <string>
 
 namespace rwe
 {

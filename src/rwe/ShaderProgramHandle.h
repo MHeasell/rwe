@@ -2,8 +2,8 @@
 #define RWE_SHADERPROGRAMHANDLE_H
 
 #include <GL/glew.h>
-#include <rwe/SharedHandle.h>
 #include <rwe/GlIdentifier.h>
+#include <rwe/SharedHandle.h>
 
 namespace rwe
 {

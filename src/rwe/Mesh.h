@@ -3,10 +3,10 @@
 
 
 #include <array>
+#include <rwe/ColorPalette.h>
 #include <rwe/TextureHandle.h>
 #include <rwe/math/Vector2f.h>
 #include <rwe/math/Vector3f.h>
-#include <rwe/ColorPalette.h>
 
 namespace rwe
 {

@@ -1,6 +1,11 @@
 #ifndef RWE_GRAPHICSCONTEXT_H
 #define RWE_GRAPHICSCONTEXT_H
 
+#include "DebugLinesMesh.h"
+#include "SelectionMesh.h"
+#include "ShaderHandle.h"
+#include "ShaderMesh.h"
+#include "ShaderProgramHandle.h"
 #include <GL/glew.h>
 #include <SDL.h>
 #include <memory>
@@ -8,17 +13,12 @@
 #include <rwe/MapFeature.h>
 #include <rwe/MapTerrain.h>
 #include <rwe/Mesh.h>
-#include <rwe/TextureHandle.h>
 #include <rwe/Sprite.h>
 #include <rwe/SpriteSeries.h>
+#include <rwe/TextureHandle.h>
 #include <rwe/camera/AbstractCamera.h>
-#include <rwe/math/Vector3f.h>
 #include <rwe/geometry/CollisionMesh.h>
-#include "ShaderHandle.h"
-#include "ShaderProgramHandle.h"
-#include "ShaderMesh.h"
-#include "SelectionMesh.h"
-#include "DebugLinesMesh.h"
+#include <rwe/math/Vector3f.h>
 
 namespace rwe
 {

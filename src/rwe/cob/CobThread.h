@@ -1,10 +1,10 @@
 #ifndef RWE_COBTHREAD_H
 #define RWE_COBTHREAD_H
 
-#include <vector>
-#include <stack>
-#include <rwe/util.h>
 #include <boost/variant.hpp>
+#include <rwe/util.h>
+#include <stack>
+#include <vector>
 
 namespace rwe
 {

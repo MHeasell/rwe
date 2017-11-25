@@ -4,9 +4,9 @@
 #include <boost/optional.hpp>
 #include <memory>
 #include <rwe/SpriteSeries.h>
+#include <rwe/observable/BehaviorSubject.h>
 #include <rwe/ui/UiComponent.h>
 #include <vector>
-#include <rwe/observable/BehaviorSubject.h>
 
 namespace rwe
 {

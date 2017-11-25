@@ -1,6 +1,6 @@
-#include <rwe/math/Vector2f.h>
-#include <rwe/geometry/Ray3f.h>
 #include "AbstractCamera.h"
+#include <rwe/geometry/Ray3f.h>
+#include <rwe/math/Vector2f.h>
 
 namespace rwe
 {

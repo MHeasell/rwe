@@ -1,9 +1,9 @@
 #ifndef RWE_RENDERSERVICE_H
 #define RWE_RENDERSERVICE_H
 
-#include "Unit.h"
-#include "OccupiedGrid.h"
 #include "GraphicsContext.h"
+#include "OccupiedGrid.h"
+#include "Unit.h"
 
 namespace rwe
 {

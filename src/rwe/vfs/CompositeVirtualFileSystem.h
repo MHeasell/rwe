@@ -1,9 +1,9 @@
 #ifndef RWE_COMPOSITEVIRTUALFILESYSTEM_H
 #define RWE_COMPOSITEVIRTUALFILESYSTEM_H
 
-#include <rwe/vfs/AbstractVirtualFileSystem.h>
-#include <memory>
 #include <boost/filesystem.hpp>
+#include <memory>
+#include <rwe/vfs/AbstractVirtualFileSystem.h>
 
 namespace rwe
 {

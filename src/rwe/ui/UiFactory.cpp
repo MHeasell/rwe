@@ -4,8 +4,8 @@
 #include <memory>
 #include <rwe/MainMenuScene.h>
 #include <rwe/config.h>
-#include <rwe/ui/UiComponent.h>
 #include <rwe/rwe_string.h>
+#include <rwe/ui/UiComponent.h>
 
 namespace rwe
 {

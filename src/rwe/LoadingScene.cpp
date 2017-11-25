@@ -1,9 +1,9 @@
+#include "LoadingScene.h"
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include <rwe/ota.h>
 #include <rwe/tdf.h>
 #include <rwe/tnt/TntArchive.h>
 #include <rwe/ui/UiLabel.h>
-#include "LoadingScene.h"
 
 namespace rwe
 {

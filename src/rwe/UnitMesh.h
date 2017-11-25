@@ -1,11 +1,11 @@
 #ifndef RWE_UNITMESH_H
 #define RWE_UNITMESH_H
 
+#include <boost/optional.hpp>
+#include <memory>
+#include <rwe/ShaderMesh.h>
 #include <rwe/math/Vector3f.h>
 #include <string>
-#include <memory>
-#include <boost/optional.hpp>
-#include <rwe/ShaderMesh.h>
 
 
 namespace rwe

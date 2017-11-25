@@ -2,8 +2,8 @@
 #define RWE_SHADERMESH_H
 
 #include "TextureHandle.h"
-#include "VboHandle.h"
 #include "VaoHandle.h"
+#include "VboHandle.h"
 
 namespace rwe
 {

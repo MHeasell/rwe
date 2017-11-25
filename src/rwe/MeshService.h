@@ -1,12 +1,12 @@
 #ifndef RWE_MESHSERVICE_H
 #define RWE_MESHSERVICE_H
 
-#include <memory>
-#include <rwe/TextureService.h>
-#include <rwe/vfs/AbstractVirtualFileSystem.h>
 #include "UnitMesh.h"
 #include "_3do.h"
 #include <boost/functional/hash.hpp>
+#include <memory>
+#include <rwe/TextureService.h>
+#include <rwe/vfs/AbstractVirtualFileSystem.h>
 
 namespace rwe
 {

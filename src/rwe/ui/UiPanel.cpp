@@ -1,5 +1,5 @@
-#include <rwe/rwe_string.h>
 #include "UiPanel.h"
+#include <rwe/rwe_string.h>
 
 namespace rwe
 {

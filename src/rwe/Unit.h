@@ -1,17 +1,17 @@
 #ifndef RWE_UNIT_H
 #define RWE_UNIT_H
 
-#include <rwe/UnitMesh.h>
-#include <memory>
-#include <rwe/cob/CobEnvironment.h>
 #include <boost/optional.hpp>
 #include <boost/variant.hpp>
-#include <rwe/geometry/BoundingBox3f.h>
-#include <rwe/geometry/CollisionMesh.h>
-#include <rwe/AudioService.h>
 #include <deque>
+#include <memory>
+#include <rwe/AudioService.h>
 #include <rwe/PlayerId.h>
 #include <rwe/SelectionMesh.h>
+#include <rwe/UnitMesh.h>
+#include <rwe/cob/CobEnvironment.h>
+#include <rwe/geometry/BoundingBox3f.h>
+#include <rwe/geometry/CollisionMesh.h>
 
 namespace rwe
 {

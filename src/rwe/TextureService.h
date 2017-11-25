@@ -3,11 +3,11 @@
 
 #include <boost/optional.hpp>
 #include <memory>
-#include <rwe/GraphicsContext.h>
-#include <rwe/TextureHandle.h>
-#include <rwe/SpriteSeries.h>
-#include <rwe/vfs/AbstractVirtualFileSystem.h>
 #include <rwe/ColorPalette.h>
+#include <rwe/GraphicsContext.h>
+#include <rwe/SpriteSeries.h>
+#include <rwe/TextureHandle.h>
+#include <rwe/vfs/AbstractVirtualFileSystem.h>
 #include <unordered_map>
 
 namespace rwe

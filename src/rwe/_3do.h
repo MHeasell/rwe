@@ -1,10 +1,10 @@
 #ifndef RWE_3DO_H
 #define RWE_3DO_H
 
+#include <istream>
+#include <rwe/math/Vector3f.h>
 #include <string>
 #include <vector>
-#include <rwe/math/Vector3f.h>
-#include <istream>
 
 namespace rwe
 {

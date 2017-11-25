@@ -1,8 +1,8 @@
 #include "gui.h"
 
 #include <algorithm>
-#include <stdexcept>
 #include <rwe/tdf/TdfBlock.h>
+#include <stdexcept>
 
 namespace rwe
 {

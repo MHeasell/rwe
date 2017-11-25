@@ -1,8 +1,8 @@
 #ifndef RWE_MATH_VECTOR3F_H
 #define RWE_MATH_VECTOR3F_H
 
-#include <ostream>
 #include <boost/optional.hpp>
+#include <ostream>
 
 namespace rwe
 {

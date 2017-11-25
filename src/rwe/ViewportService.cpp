@@ -1,5 +1,5 @@
-#include <rwe/math/rwe_math.h>
 #include "ViewportService.h"
+#include <rwe/math/rwe_math.h>
 
 namespace rwe
 {
