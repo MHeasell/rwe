@@ -661,39 +661,6 @@ namespace rwe
         glDepthMask(GL_FALSE);
     }
 
-    GlMesh GraphicsContext::createTemporaryLinesMesh(const std::vector<Line3f>& lines)
-    {
-        std::vector<GlColoredVertex> buffer;
-        buffer.reserve(lines.size() * 2); // 2 verts per line
-
-        Vector3f white(1.0f, 1.0f, 1.0f);
-
-        for (const auto& l : lines)
-        {
-            buffer.emplace_back(l.start, white);
-            buffer.emplace_back(l.end, white);
-        }
-
-        return createColoredMesh(buffer, GL_STREAM_DRAW);
-    }
-
-    GlMesh GraphicsContext::createTemporaryTriMesh(const std::vector<Triangle3f>& tris)
-    {
-        std::vector<GlColoredVertex> buffer;
-        buffer.reserve(tris.size() * 3); // 3 verts per triangle
-
-        Vector3f white(1.0f, 1.0f, 1.0f);
-
-        for (const auto& l : tris)
-        {
-            buffer.emplace_back(l.a, white);
-            buffer.emplace_back(l.b, white);
-            buffer.emplace_back(l.c, white);
-        }
-
-        return createColoredMesh(buffer, GL_STREAM_DRAW);
-    }
-
     GlMesh GraphicsContext::createTexturedMesh(const std::vector<GlTexturedVertex>& vertices, GLenum usage)
     {
         auto vao = genVertexArray();

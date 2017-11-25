@@ -23,6 +23,10 @@ namespace rwe
         void renderUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, const Matrix4f& viewMatrix, const Matrix4f& projectionMatrix, float seaLevel);
         void renderSelectionRect(const Unit& unit, const Matrix4f& viewMatrix, const Matrix4f& projectionMatrix);
         void renderOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid, const CabinetCamera& camera, const Matrix4f& viewMatrix, const Matrix4f& projectionMatrix);
+
+    private:
+        GlMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines);
+        GlMesh createTemporaryTriMesh(const std::vector<Triangle3f>& tris);
     };
 }
 

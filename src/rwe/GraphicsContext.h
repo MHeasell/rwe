@@ -179,10 +179,6 @@ namespace rwe
 
         GlMesh createColoredMesh(const std::vector<GlColoredVertex>& vertices, GLenum usage);
 
-        GlMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines);
-
-        GlMesh createTemporaryTriMesh(const std::vector<Triangle3f>& tris);
-
         void drawLinesMesh(
             const GlMesh& mesh,
             const Matrix4f& modelMatrix,

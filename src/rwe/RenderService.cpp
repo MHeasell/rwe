@@ -130,7 +130,7 @@ namespace rwe
             }
         }
 
-        auto mesh = graphics->createTemporaryLinesMesh(lines);
+        auto mesh = createTemporaryLinesMesh(lines);
         graphics->drawLinesMesh(
             mesh,
             Matrix4f::identity(),
@@ -138,7 +138,7 @@ namespace rwe
             projectionMatrix,
             basicColorShader.get());
 
-        auto triMesh = graphics->createTemporaryTriMesh(tris);
+        auto triMesh = createTemporaryTriMesh(tris);
         graphics->drawTrisMesh(
             triMesh,
             Matrix4f::identity(),
@@ -146,4 +146,38 @@ namespace rwe
             projectionMatrix,
             basicColorShader.get());
     }
+
+    GlMesh RenderService::createTemporaryLinesMesh(const std::vector<Line3f>& lines)
+    {
+        std::vector<GlColoredVertex> buffer;
+        buffer.reserve(lines.size() * 2); // 2 verts per line
+
+        Vector3f white(1.0f, 1.0f, 1.0f);
+
+        for (const auto& l : lines)
+        {
+            buffer.emplace_back(l.start, white);
+            buffer.emplace_back(l.end, white);
+        }
+
+        return graphics->createColoredMesh(buffer, GL_STREAM_DRAW);
+    }
+
+    GlMesh RenderService::createTemporaryTriMesh(const std::vector<Triangle3f>& tris)
+    {
+        std::vector<GlColoredVertex> buffer;
+        buffer.reserve(tris.size() * 3); // 3 verts per triangle
+
+        Vector3f white(1.0f, 1.0f, 1.0f);
+
+        for (const auto& l : tris)
+        {
+            buffer.emplace_back(l.a, white);
+            buffer.emplace_back(l.b, white);
+            buffer.emplace_back(l.c, white);
+        }
+
+        return graphics->createColoredMesh(buffer, GL_STREAM_DRAW);
+    }
+
 }
