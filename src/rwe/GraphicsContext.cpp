@@ -596,20 +596,6 @@ namespace rwe
         drawMesh(GL_LINE_LOOP, mesh, modelMatrix, viewMatrix, projectionMatrix, shader);
     }
 
-    GlMesh
-    GraphicsContext::createSelectionMesh(const Vector3f& a, const Vector3f& b, const Vector3f& c, const Vector3f& d)
-    {
-        const Vector3f color(0.325f, 0.875f, 0.310f);
-
-        std::vector<GlColoredVertex> buffer{
-            {a, color},
-            {b, color},
-            {c, color},
-            {d, color}};
-
-        return createColoredMesh(buffer, GL_STATIC_DRAW);
-    }
-
     void GraphicsContext::beginUnitShadow()
     {
         glEnable(GL_STENCIL_TEST);

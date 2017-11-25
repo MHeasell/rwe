@@ -299,8 +299,21 @@ namespace rwe
         auto d = offset + vertexToVector(o.vertices[p.vertices[3]]);
 
         auto collisionMesh = CollisionMesh::fromQuad(a, b, c, d);
-        auto selectionMesh = graphics->createSelectionMesh(a, b, c, d);
+        auto selectionMesh = createSelectionMesh(a, b, c, d);
 
         return SelectionMesh{std::move(collisionMesh), std::move(selectionMesh)};
+    }
+
+    GlMesh MeshService::createSelectionMesh(const Vector3f& a, const Vector3f& b, const Vector3f& c, const Vector3f& d)
+    {
+        const Vector3f color(0.325f, 0.875f, 0.310f);
+
+        std::vector<GlColoredVertex> buffer{
+            {a, color},
+            {b, color},
+            {c, color},
+            {d, color}};
+
+        return graphics->createColoredMesh(buffer, GL_STATIC_DRAW);
     }
 }
