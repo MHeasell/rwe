@@ -2,7 +2,6 @@
 #define RWE_UNIT_H
 
 #include <rwe/UnitMesh.h>
-#include "GraphicsContext.h"
 #include <memory>
 #include <rwe/cob/CobEnvironment.h>
 #include <boost/optional.hpp>
@@ -12,6 +11,7 @@
 #include <rwe/AudioService.h>
 #include <deque>
 #include <rwe/PlayerId.h>
+#include <rwe/SelectionMesh.h>
 
 namespace rwe
 {
@@ -98,20 +98,6 @@ namespace rwe
          * where the intersection occurred.
          */
         boost::optional<float> selectionIntersect(const Ray3f& ray) const;
-
-        void render(
-            GraphicsContext& context,
-            ShaderProgramIdentifier textureShader,
-            ShaderProgramIdentifier colorShader,
-            const Matrix4f& viewMatrix,
-            const Matrix4f& projectionMatrix,
-            float seaLevel) const;
-
-        void renderSelectionRect(
-            GraphicsContext& context,
-            const Matrix4f& viewMatrix,
-            const Matrix4f& projectionMatrix,
-            ShaderProgramIdentifier shader) const;
 
         bool isOwnedBy(PlayerId playerId) const;
 

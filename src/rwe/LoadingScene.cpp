@@ -19,6 +19,7 @@ namespace rwe
         AudioService* audioService,
         CursorService* cursor,
         GraphicsContext* graphics,
+        RenderService* renderService,
         MapFeatureService* featureService,
         const ColorPalette* palette,
         SceneManager* sceneManager,
@@ -32,6 +33,7 @@ namespace rwe
           audioService(audioService),
           cursor(cursor),
           graphics(graphics),
+          renderService(renderService),
           featureService(featureService),
           palette(palette),
           sceneManager(sceneManager),
@@ -110,22 +112,6 @@ namespace rwe
 
         auto meshService = MeshService::createMeshService(vfs, graphics, palette);
 
-        std::vector<AttribMapping> unitTextureShaderAttribs{
-            AttribMapping{"position", 0},
-            AttribMapping{"texCoord", 1}};
-
-        std::vector<AttribMapping> unitColorShaderAttribs{
-            AttribMapping{"position", 0},
-            AttribMapping{"color", 1}};
-
-        std::vector<AttribMapping> basicColorShaderAttribs{
-            AttribMapping{"position", 0},
-            AttribMapping{"color", 1}};
-
-        SharedShaderProgramHandle unitTextureShader{loadShader("shaders/unitTexture.vert", "shaders/unitTexture.frag", unitTextureShaderAttribs)};
-        SharedShaderProgramHandle unitColorShader{loadShader("shaders/unitColor.vert", "shaders/unitColor.frag", unitColorShaderAttribs)};
-        SharedShaderProgramHandle basicColorShader{loadShader("shaders/basicColor.vert", "shaders/basicColor.frag", basicColorShaderAttribs)};
-
         auto unitDatabase = createUnitDatabase();
 
         // detect which player is the local human
@@ -155,12 +141,10 @@ namespace rwe
             sdl,
             audioService,
             viewportService,
+            renderService,
             std::move(meshService),
             std::move(camera),
             std::move(terrain),
-            std::move(unitTextureShader),
-            std::move(unitColorShader),
-            std::move(basicColorShader),
             std::move(unitDatabase),
             std::move(gamePlayers),
             localPlayerId);
@@ -425,26 +409,6 @@ namespace rwe
         assert(x < heightmap.getWidth() - 1);
         assert(y < heightmap.getHeight() - 1);
         return (heightmap.get(x, y) + heightmap.get(x + 1, y) + heightmap.get(x, y + 1) + heightmap.get(x + 1, y + 1)) / 4u;
-    }
-
-    ShaderProgramHandle
-    LoadingScene::loadShader(const std::string& vertexShaderName, const std::string& fragmentShaderName, const std::vector<AttribMapping>& attribs)
-    {
-        auto vertexShaderSource = slurpFile(vertexShaderName);
-        auto vertexShader = graphics->compileVertexShader(vertexShaderSource);
-
-        auto fragmentShaderSource = slurpFile(fragmentShaderName);
-        auto fragmentShader = graphics->compileFragmentShader(fragmentShaderSource);
-
-        return graphics->linkShaderProgram(vertexShader.get(), fragmentShader.get(), attribs);
-    }
-
-    std::string LoadingScene::slurpFile(const std::string& filename)
-    {
-        std::ifstream inFile(filename, std::ios::binary);
-        std::stringstream strStream;
-        strStream << inFile.rdbuf();
-        return strStream.str();
     }
 
     const SideData& LoadingScene::getSideData(const std::string& side) const

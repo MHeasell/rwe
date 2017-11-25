@@ -26,6 +26,25 @@ namespace fs = boost::filesystem;
 
 namespace rwe
 {
+    std::string slurpFile(const std::string& filename)
+    {
+        std::ifstream inFile(filename, std::ios::binary);
+        std::stringstream strStream;
+        strStream << inFile.rdbuf();
+        return strStream.str();
+    }
+
+    ShaderProgramHandle loadShader(GraphicsContext* graphics, const std::string& vertexShaderName, const std::string& fragmentShaderName, const std::vector<AttribMapping>& attribs)
+    {
+        auto vertexShaderSource = slurpFile(vertexShaderName);
+        auto vertexShader = graphics->compileVertexShader(vertexShaderSource);
+
+        auto fragmentShaderSource = slurpFile(fragmentShaderName);
+        auto fragmentShader = graphics->compileFragmentShader(fragmentShaderSource);
+
+        return graphics->linkShaderProgram(vertexShader.get(), fragmentShader.get(), attribs);
+    }
+
     int run(spdlog::logger& logger, const fs::path& localDataPath, const boost::optional<std::string>& mapName)
     {
         logger.info(ProjectNameVersion);
@@ -125,6 +144,28 @@ namespace rwe
         GraphicsContext graphics;
         graphics.enableCulling();
 
+        std::vector<AttribMapping> unitTextureShaderAttribs{
+            AttribMapping{"position", 0},
+            AttribMapping{"texCoord", 1}};
+
+        std::vector<AttribMapping> unitColorShaderAttribs{
+            AttribMapping{"position", 0},
+            AttribMapping{"color", 1}};
+
+        std::vector<AttribMapping> basicColorShaderAttribs{
+            AttribMapping{"position", 0},
+            AttribMapping{"color", 1}};
+
+        SharedShaderProgramHandle unitTextureShader{loadShader(&graphics, "shaders/unitTexture.vert", "shaders/unitTexture.frag", unitTextureShaderAttribs)};
+        SharedShaderProgramHandle unitColorShader{loadShader(&graphics, "shaders/unitColor.vert", "shaders/unitColor.frag", unitColorShaderAttribs)};
+        SharedShaderProgramHandle basicColorShader{loadShader(&graphics, "shaders/basicColor.vert", "shaders/basicColor.frag", basicColorShaderAttribs)};
+
+        RenderService renderService(
+            &graphics,
+            unitTextureShader,
+            unitColorShader,
+            basicColorShader);
+
         TextureService textureService(&graphics, &vfs, &*palette);
 
         AudioService audioService(sdlContext, sdlManager.getSdlMixerContext(), &vfs);
@@ -181,6 +222,7 @@ namespace rwe
                 &audioService,
                 &cursor,
                 &graphics,
+                &renderService,
                 &featureService,
                 &*palette,
                 &sceneManager,
@@ -201,6 +243,7 @@ namespace rwe
                 &audioService,
                 &allSoundTdf,
                 &graphics,
+                &renderService,
                 &featureService,
                 &*palette,
                 &cursor,

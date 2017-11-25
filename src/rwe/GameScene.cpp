@@ -28,35 +28,16 @@ namespace rwe
         }
     };
 
-    class IsOccupiedVisitor : public boost::static_visitor<bool>
-    {
-    public:
-        bool operator()(const OccupiedNone&) const
-        {
-            return false;
-        }
-        bool operator()(const OccupiedUnit&) const
-        {
-            return true;
-        }
-        bool operator()(const OccupiedFeature&) const
-        {
-            return true;
-        }
-    };
-
     GameScene::GameScene(
         TextureService* textureService,
         CursorService* cursor,
         SdlContext* sdl,
         AudioService* audioService,
         ViewportService* viewportService,
+        RenderService* renderService,
         MeshService&& meshService,
         CabinetCamera&& camera,
         MapTerrain&& terrain,
-        SharedShaderProgramHandle&& unitTextureShader,
-        SharedShaderProgramHandle&& unitColorShader,
-        SharedShaderProgramHandle&& selectBoxShader,
         UnitDatabase&& unitDatabase,
         std::array<boost::optional<GamePlayerInfo>, 10>&& players,
         PlayerId localPlayerId)
@@ -65,13 +46,11 @@ namespace rwe
           sdl(sdl),
           audioService(audioService),
           viewportService(viewportService),
+          renderService(renderService),
           meshService(std::move(meshService)),
           camera(std::move(camera)),
           terrain(std::move(terrain)),
           uiCamera(viewportService->width(), viewportService->height()),
-          unitTextureShader(std::move(unitTextureShader)),
-          unitColorShader(std::move(unitColorShader)),
-          basicColorShader(std::move(selectBoxShader)),
           unitDatabase(std::move(unitDatabase)),
           players(std::move(players)),
           localPlayerId(localPlayerId),
@@ -108,14 +87,14 @@ namespace rwe
 
         if (occupiedGridVisible)
         {
-            renderOccupiedGrid(context, viewMatrix, projectionMatrix);
+            renderService->renderOccupiedGrid(terrain, occupiedGrid, camera, viewMatrix, projectionMatrix);
         }
 
         terrain.renderFlatFeatures(context, camera);
 
         if (selectedUnit)
         {
-            getUnit(*selectedUnit).renderSelectionRect(context, viewMatrix, projectionMatrix, basicColorShader.get());
+            renderService->renderSelectionRect(getUnit(*selectedUnit), viewMatrix, projectionMatrix);
         }
 
         // draw unit shadows
@@ -128,7 +107,7 @@ namespace rwe
                     * Matrix4f::scale(Vector3f(1.0f, 0.0f, 1.0f))
                     * Matrix4f::shearXZ(0.25f, -0.25f)
                     * Matrix4f::translation(Vector3f(0.0f, -groundHeight, 0.0f));
-                unit.render(context, unitTextureShader.get(), unitColorShader.get(), viewMatrix * shadowProjection, projectionMatrix, seaLevel);
+                renderService->renderUnit(unit, viewMatrix * shadowProjection, projectionMatrix, seaLevel);
             }
             context.endUnitShadow();
         }
@@ -137,7 +116,7 @@ namespace rwe
 
         for (const auto& unit : units)
         {
-            unit.render(context, unitTextureShader.get(), unitColorShader.get(), viewMatrix, projectionMatrix, seaLevel);
+            renderService->renderUnit(unit, viewMatrix, projectionMatrix, seaLevel);
         }
 
         context.disableDepthWrites();
@@ -593,82 +572,5 @@ namespace rwe
 
         occupiedGrid.grid.setArea(*oldRegion, OccupiedNone());
         occupiedGrid.grid.setArea(*newRegion, OccupiedUnit(unitId));
-    }
-
-    void GameScene::renderOccupiedGrid(GraphicsContext& graphics,
-        const Matrix4f& viewMatrix,
-        const Matrix4f& projectionMatrix)
-    {
-        auto halfWidth = camera.getWidth() / 2.0f;
-        auto halfHeight = camera.getHeight() / 2.0f;
-        auto left = camera.getPosition().x - halfWidth;
-        auto top = camera.getPosition().z - halfHeight;
-        auto right = camera.getPosition().x + halfWidth;
-        auto bottom = camera.getPosition().z + halfHeight;
-
-        assert(left < right);
-        assert(top < bottom);
-
-        assert(terrain.getHeightMap().getWidth() >= 2);
-        assert(terrain.getHeightMap().getHeight() >= 2);
-
-        auto topLeftCell = terrain.worldToHeightmapCoordinate(Vector3f(left, 0.0f, top));
-        topLeftCell.x = std::clamp(topLeftCell.x, 0, static_cast<int>(terrain.getHeightMap().getWidth() - 2));
-        topLeftCell.y = std::clamp(topLeftCell.y, 0, static_cast<int>(terrain.getHeightMap().getHeight() - 2));
-
-        auto bottomRightCell = terrain.worldToHeightmapCoordinate(Vector3f(right, 0.0f, bottom));
-        bottomRightCell.y += 7; // compensate for height
-        bottomRightCell.x = std::clamp(bottomRightCell.x, 0, static_cast<int>(terrain.getHeightMap().getWidth() - 2));
-        bottomRightCell.y = std::clamp(bottomRightCell.y, 0, static_cast<int>(terrain.getHeightMap().getHeight() - 2));
-
-        assert(topLeftCell.x <= bottomRightCell.x);
-        assert(topLeftCell.y <= bottomRightCell.y);
-
-        std::vector<Line3f> lines;
-
-        std::vector<Triangle3f> tris;
-
-        for (int y = topLeftCell.y; y <= bottomRightCell.y; ++y)
-        {
-            for (int x = topLeftCell.x; x <= bottomRightCell.x; ++x)
-            {
-                auto pos = terrain.heightmapIndexToWorldCorner(x, y);
-                pos.y = terrain.getHeightMap().get(x, y);
-
-                auto rightPos = terrain.heightmapIndexToWorldCorner(x + 1, y);
-                rightPos.y = terrain.getHeightMap().get(x + 1, y);
-
-                auto downPos = terrain.heightmapIndexToWorldCorner(x, y + 1);
-                downPos.y = terrain.getHeightMap().get(x, y + 1);
-
-                lines.emplace_back(pos, rightPos);
-                lines.emplace_back(pos, downPos);
-
-                if (boost::apply_visitor(IsOccupiedVisitor(), occupiedGrid.grid.get(x, y)))
-                {
-                    auto downRightPos = terrain.heightmapIndexToWorldCorner(x + 1, y + 1);
-                    downRightPos.y = terrain.getHeightMap().get(x + 1, y + 1);
-
-                    tris.emplace_back(pos, downPos, downRightPos);
-                    tris.emplace_back(pos, downRightPos, rightPos);
-                }
-            }
-        }
-
-        auto mesh = graphics.createTemporaryLinesMesh(lines);
-        graphics.drawLinesMesh(
-            mesh,
-            Matrix4f::identity(),
-            viewMatrix,
-            projectionMatrix,
-            basicColorShader.get());
-
-        auto triMesh = graphics.createTemporaryTriMesh(tris);
-        graphics.drawTrisMesh(
-            triMesh,
-            Matrix4f::identity(),
-            viewMatrix,
-            projectionMatrix,
-            basicColorShader.get());
     }
 }

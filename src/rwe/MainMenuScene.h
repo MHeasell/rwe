@@ -13,6 +13,7 @@
 #include <rwe/ui/UiPanel.h>
 #include "SideData.h"
 #include "ViewportService.h"
+#include "RenderService.h"
 
 namespace rwe
 {
@@ -25,6 +26,7 @@ namespace rwe
         AudioService* audioService;
         TdfBlock* soundLookup;
         GraphicsContext* graphics;
+        RenderService* renderService;
         MapFeatureService* featureService;
         const ColorPalette* palette;
         CursorService* cursor;
@@ -50,6 +52,7 @@ namespace rwe
             AudioService* audioService,
             TdfBlock* audioLookup,
             GraphicsContext* graphics,
+            RenderService* renderService,
             MapFeatureService* featureService,
             const ColorPalette* palette,
             CursorService* cursor,

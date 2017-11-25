@@ -50,6 +50,7 @@ namespace rwe
         AudioService* audioService;
         CursorService* cursor;
         GraphicsContext* graphics;
+        RenderService* renderService;
         MapFeatureService* featureService;
         const ColorPalette* palette;
         SceneManager* sceneManager;
@@ -70,6 +71,7 @@ namespace rwe
             AudioService* audioService,
             CursorService* cursor,
             GraphicsContext* graphics,
+            RenderService* renderService,
             MapFeatureService* featureService,
             const ColorPalette* palette,
             SceneManager* sceneManager,

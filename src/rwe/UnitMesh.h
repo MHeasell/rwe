@@ -1,10 +1,11 @@
 #ifndef RWE_UNITMESH_H
 #define RWE_UNITMESH_H
 
-#include <rwe/GraphicsContext.h>
 #include <rwe/math/Vector3f.h>
 #include <string>
+#include <memory>
 #include <boost/optional.hpp>
+#include <rwe/ShaderMesh.h>
 
 
 namespace rwe
@@ -42,15 +43,6 @@ namespace rwe
         boost::optional<TurnOperation> xTurnOperation;
         boost::optional<TurnOperation> yTurnOperation;
         boost::optional<TurnOperation> zTurnOperation;
-
-        void render(
-            GraphicsContext& context,
-            ShaderProgramIdentifier textureShader,
-            ShaderProgramIdentifier colorShader,
-            const Matrix4f& modelMatrix,
-            const Matrix4f& viewMatrix,
-            const Matrix4f& projectionMatrix,
-            float seaLevel) const;
 
         boost::optional<const UnitMesh&> find(const std::string& pieceName) const;
 

@@ -19,18 +19,6 @@ namespace rwe
     {
     }
 
-    void Unit::render(
-        GraphicsContext& context,
-        ShaderProgramIdentifier textureShader,
-        ShaderProgramIdentifier colorShader,
-        const Matrix4f& viewMatrix,
-        const Matrix4f& projectionMatrix,
-        float seaLevel) const
-    {
-        auto matrix = Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
-        mesh.render(context, textureShader, colorShader, matrix, viewMatrix, projectionMatrix, seaLevel);
-    }
-
     void Unit::moveObject(const std::string& pieceName, Axis axis, float targetPosition, float speed)
     {
         auto piece = mesh.find(pieceName);
@@ -182,25 +170,6 @@ namespace rwe
         }
 
         return ray.origin.distance(*v);
-    }
-
-    void Unit::renderSelectionRect(
-        GraphicsContext& context,
-        const Matrix4f& viewMatrix,
-        const Matrix4f& projectionMatrix,
-        ShaderProgramIdentifier shader) const
-    {
-        // try to ensure that the selection rectangle vertices
-        // are aligned with the middle of pixels,
-        // to prevent discontinuities in the drawn lines.
-        Vector3f snappedPosition(
-            snapToInterval(position.x, 1.0f) + 0.5f,
-            snapToInterval(position.y, 2.0f),
-            snapToInterval(position.z, 1.0f) + 0.5f);
-
-        auto matrix = Matrix4f::translation(snappedPosition) * Matrix4f::rotationY(rotation);
-
-        context.drawWireframeSelectionMesh(selectionMesh.visualMesh, matrix, viewMatrix, projectionMatrix, shader);
     }
 
     bool Unit::isOwnedBy(PlayerId playerId) const

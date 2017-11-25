@@ -112,6 +112,8 @@ set(SOURCE_FILES
     src/rwe/PlayerId.h
     src/rwe/Point.cpp
     src/rwe/Point.h
+    src/rwe/RenderService.cpp
+    src/rwe/RenderService.h
     src/rwe/SceneManager.cpp
     src/rwe/SceneManager.h
     src/rwe/SdlContextManager.cpp

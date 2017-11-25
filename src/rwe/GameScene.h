@@ -12,6 +12,7 @@
 #include "UnitId.h"
 #include "OccupiedGrid.h"
 #include "DiscreteRect.h"
+#include "RenderService.h"
 #include <rwe/ViewportService.h>
 #include <rwe/PlayerId.h>
 
@@ -40,6 +41,7 @@ namespace rwe
         SdlContext* sdl;
         AudioService* audioService;
         ViewportService* viewportService;
+        RenderService* renderService;
 
         MeshService meshService;
 
@@ -57,11 +59,6 @@ namespace rwe
 
         bool leftShiftDown{false};
         bool rightShiftDown{false};
-
-        SharedShaderProgramHandle unitTextureShader;
-        SharedShaderProgramHandle unitColorShader;
-
-        SharedShaderProgramHandle basicColorShader;
 
         UnitDatabase unitDatabase;
 
@@ -85,12 +82,10 @@ namespace rwe
             SdlContext* sdl,
             AudioService* audioService,
             ViewportService* viewportService,
+            RenderService* renderService,
             MeshService&& meshService,
             CabinetCamera&& camera,
             MapTerrain&& terrain,
-            SharedShaderProgramHandle&& unitTextureShader,
-            SharedShaderProgramHandle&& unitColorShader,
-            SharedShaderProgramHandle&& selectBoxShader,
             UnitDatabase&& unitDatabase,
             std::array<boost::optional<GamePlayerInfo>, 10>&& players,
             PlayerId localPlayerId);
@@ -169,11 +164,6 @@ namespace rwe
         boost::optional<GamePlayerInfo>& getPlayer(PlayerId player);
 
         const boost::optional<GamePlayerInfo>& getPlayer(PlayerId player) const;
-
-        void renderOccupiedGrid(
-            GraphicsContext& graphics,
-            const Matrix4f& viewMatrix,
-            const Matrix4f& projectionMatrix);
     };
 }
 
