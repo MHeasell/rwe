@@ -14,6 +14,11 @@ namespace rwe
         }
     }
 
+    GlTexturedVertex::GlTexturedVertex(const Vector3f& pos, const Vector2f& texCoord)
+        : x(pos.x), y(pos.y), z(pos.z), u(texCoord.x), v(texCoord.y)
+    {
+    }
+
     GlColoredVertex::GlColoredVertex(const Vector3f& pos, const Vector3f& color)
         : x(pos.x), y(pos.y), z(pos.z), r(color.x), g(color.y), b(color.z)
     {
@@ -596,100 +601,31 @@ namespace rwe
 
     ShaderMesh GraphicsContext::convertMesh(const Mesh& mesh)
     {
-        GLuint textureFacesVao;
-        glGenVertexArrays(1, &textureFacesVao);
-        glBindVertexArray(textureFacesVao);
+        std::vector<GlTexturedVertex> texturedVerticesBuffer;
+        texturedVerticesBuffer.reserve(mesh.faces.size() * 3);
 
-        GLuint textureFacesVbo;
-        unsigned int textureVerticesCount;
+        for (const auto& t : mesh.faces)
         {
-            glGenBuffers(1, &textureFacesVbo);
-            glBindBuffer(GL_ARRAY_BUFFER, textureFacesVbo);
-
-            std::vector<GLfloat> buffer;
-            for (const auto& t : mesh.faces)
-            {
-                buffer.push_back(t.a.position.x);
-                buffer.push_back(t.a.position.y);
-                buffer.push_back(t.a.position.z);
-                buffer.push_back(t.a.textureCoord.x);
-                buffer.push_back(t.a.textureCoord.y);
-
-                buffer.push_back(t.b.position.x);
-                buffer.push_back(t.b.position.y);
-                buffer.push_back(t.b.position.z);
-                buffer.push_back(t.b.textureCoord.x);
-                buffer.push_back(t.b.textureCoord.y);
-
-                buffer.push_back(t.c.position.x);
-                buffer.push_back(t.c.position.y);
-                buffer.push_back(t.c.position.z);
-                buffer.push_back(t.c.textureCoord.x);
-                buffer.push_back(t.c.textureCoord.y);
-            }
-
-            textureVerticesCount = mesh.faces.size() * 3;
-            glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(GLfloat), buffer.data(), GL_STATIC_DRAW);
+            texturedVerticesBuffer.emplace_back(t.a.position, t.a.textureCoord);
+            texturedVerticesBuffer.emplace_back(t.b.position, t.b.textureCoord);
+            texturedVerticesBuffer.emplace_back(t.c.position, t.c.textureCoord);
         }
 
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), reinterpret_cast<void*>(0));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), reinterpret_cast<void*>(3 * sizeof(GLfloat)));
+        auto texturedMesh = createTexturedMesh(texturedVerticesBuffer, GL_STATIC_DRAW);
 
-        GLuint colorFacesVao;
-        glGenVertexArrays(1, &colorFacesVao);
-        glBindVertexArray(colorFacesVao);
-
-        GLuint colorFacesVbo;
-        unsigned int colorVerticesCount;
+        std::vector<GlColoredVertex> coloredVerticesBuffer;
+        for (const auto& t : mesh.colorFaces)
         {
-            glGenBuffers(1, &colorFacesVbo);
-            glBindBuffer(GL_ARRAY_BUFFER, colorFacesVbo);
+            auto color = Vector3f(t.color.r, t.color.g, t.color.b) / 255.0f;
 
-            std::vector<GLfloat> buffer;
-            for (const auto& t : mesh.colorFaces)
-            {
-                buffer.push_back(t.a.position.x);
-                buffer.push_back(t.a.position.y);
-                buffer.push_back(t.a.position.z);
-                buffer.push_back(t.color.r / 255.0f);
-                buffer.push_back(t.color.g / 255.0f);
-                buffer.push_back(t.color.b / 255.0f);
-
-                buffer.push_back(t.b.position.x);
-                buffer.push_back(t.b.position.y);
-                buffer.push_back(t.b.position.z);
-                buffer.push_back(t.color.r / 255.0f);
-                buffer.push_back(t.color.g / 255.0f);
-                buffer.push_back(t.color.b / 255.0f);
-
-                buffer.push_back(t.c.position.x);
-                buffer.push_back(t.c.position.y);
-                buffer.push_back(t.c.position.z);
-                buffer.push_back(t.color.r / 255.0f);
-                buffer.push_back(t.color.g / 255.0f);
-                buffer.push_back(t.color.b / 255.0f);
-            }
-
-            colorVerticesCount = mesh.colorFaces.size() * 3;
-            glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(GLfloat), buffer.data(), GL_STATIC_DRAW);
+            coloredVerticesBuffer.emplace_back(t.a.position, color);
+            coloredVerticesBuffer.emplace_back(t.b.position, color);
+            coloredVerticesBuffer.emplace_back(t.c.position, color);
         }
 
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(0));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(3 * sizeof(GLfloat)));
+        auto coloredMesh = createColoredMesh(coloredVerticesBuffer, GL_STATIC_DRAW);
 
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-
-        GlMesh texturedMesh(VaoHandle(VaoIdentifier(textureFacesVao)), VboHandle(VboIdentifier(textureFacesVbo)), textureVerticesCount);
-        GlMesh coloredMesh(VaoHandle(VaoIdentifier(colorFacesVao)), VboHandle(VboIdentifier(colorFacesVbo)), colorVerticesCount);
-
-        ShaderMesh sMesh(mesh.texture, std::move(texturedMesh), std::move(coloredMesh));
-
-        return sMesh;
+        return ShaderMesh(mesh.texture, std::move(texturedMesh), std::move(coloredMesh));
     }
 
     void GraphicsContext::drawWireframeSelectionMesh(

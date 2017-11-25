@@ -30,6 +30,9 @@ namespace rwe
         GLfloat z;
         GLfloat u;
         GLfloat v;
+
+        GlTexturedVertex() = default;
+        GlTexturedVertex(const Vector3f& pos, const Vector2f& texCoord);
     };
 
     struct GlColoredVertex

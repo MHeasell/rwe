@@ -301,9 +301,6 @@ namespace rwe
         auto collisionMesh = CollisionMesh::fromQuad(a, b, c, d);
         auto selectionMesh = graphics->createSelectionMesh(a, b, c, d);
 
-        SelectionMesh sm;
-        sm.collisionMesh = std::move(collisionMesh);
-        sm.visualMesh = std::move(selectionMesh);
-        return sm;
+        return SelectionMesh{std::move(collisionMesh), std::move(selectionMesh)};
     }
 }
