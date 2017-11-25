@@ -847,8 +847,7 @@ namespace rwe
         glBindVertexArray(0);
     }
 
-    void
-    GraphicsContext::drawMesh(
+    void GraphicsContext::drawMesh(
         GLenum mode,
         const GlMesh& mesh,
         const Matrix4f& modelMatrix,
