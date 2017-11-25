@@ -169,8 +169,6 @@ namespace rwe
 
         ShaderProgramHandle linkShaderProgram(ShaderIdentifier vertexShader, ShaderIdentifier fragmentShader, const std::vector<AttribMapping>& attribs);
 
-        ShaderMesh convertMesh(const Mesh& mesh);
-
         void beginUnitShadow();
 
         void endUnitShadow();

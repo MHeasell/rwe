@@ -75,6 +75,8 @@ namespace rwe
         SelectionMesh selectionMeshFrom3do(const _3do::Object& o);
 
         GlMesh createSelectionMesh(const Vector3f& a, const Vector3f& b, const Vector3f& c, const Vector3f& d);
+
+        ShaderMesh convertMesh(const Mesh& mesh);
     };
 }
 
