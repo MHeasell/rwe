@@ -4,6 +4,7 @@
 #include "TextureHandle.h"
 #include "VaoHandle.h"
 #include "VboHandle.h"
+#include "GlMesh.h"
 
 namespace rwe
 {
@@ -11,21 +12,13 @@ namespace rwe
     {
         SharedTextureHandle texture;
 
-        VboHandle texturedVertices;
-        unsigned int texturedVerticesCount;
-        VaoHandle texturedVerticesVao;
-        VboHandle coloredVertices;
-        unsigned int coloredVerticesCount;
-        VaoHandle coloredVerticesVao;
+        GlMesh texturedVertices;
+        GlMesh coloredVertices;
 
         ShaderMesh(
             const SharedTextureHandle& texture,
-            VboHandle&& texturedVertices,
-            unsigned int texturedVerticesCount,
-            VaoHandle&& texturedVerticesVao,
-            VboHandle&& coloredVertices,
-            unsigned int coloredVerticesCount,
-            VaoHandle&& coloredVerticesVao);
+            GlMesh&& texturedVertices,
+            GlMesh&& coloredVertices);
     };
 }
 

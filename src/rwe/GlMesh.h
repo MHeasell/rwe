@@ -11,6 +11,8 @@ namespace rwe
         VaoHandle vao;
         VboHandle vbo;
         unsigned int vertexCount;
+
+        GlMesh(VaoHandle&& vao, VboHandle&& vbo, unsigned int vertexCount);
     };
 }
 

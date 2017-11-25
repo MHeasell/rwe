@@ -459,7 +459,7 @@ namespace rwe
         float seaLevel)
     {
         glUseProgram(textureShader.value);
-        glBindVertexArray(mesh.texturedVerticesVao.get().value);
+        glBindVertexArray(mesh.texturedVertices.vao.get().value);
         glBindTexture(GL_TEXTURE_2D, mesh.texture.get().value);
 
         // disable mipmapping
@@ -487,10 +487,10 @@ namespace rwe
             glUniform1f(seaLevelUniform, seaLevel);
         }
 
-        glDrawArrays(GL_TRIANGLES, 0, mesh.texturedVerticesCount);
+        glDrawArrays(GL_TRIANGLES, 0, mesh.texturedVertices.vertexCount);
 
         glUseProgram(colorShader.value);
-        glBindVertexArray(mesh.coloredVerticesVao.get().value);
+        glBindVertexArray(mesh.coloredVertices.vao.get().value);
         glBindTexture(GL_TEXTURE_2D, 0);
 
         {
@@ -511,7 +511,7 @@ namespace rwe
             glUniform1f(seaLevelUniform, 75.0f);
         }
 
-        glDrawArrays(GL_TRIANGLES, 0, mesh.coloredVerticesCount);
+        glDrawArrays(GL_TRIANGLES, 0, mesh.coloredVertices.vertexCount);
 
         glBindVertexArray(0);
         glUseProgram(0);
@@ -684,14 +684,10 @@ namespace rwe
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
 
-        ShaderMesh sMesh(
-            mesh.texture,
-            VboHandle(VboIdentifier(textureFacesVbo)),
-            textureVerticesCount,
-            VaoHandle(VaoIdentifier(textureFacesVao)),
-            VboHandle(VboIdentifier(colorFacesVbo)),
-            colorVerticesCount,
-            VaoHandle(VaoIdentifier(colorFacesVao)));
+        GlMesh texturedMesh(VaoHandle(VaoIdentifier(textureFacesVao)), VboHandle(VboIdentifier(textureFacesVbo)), textureVerticesCount);
+        GlMesh coloredMesh(VaoHandle(VaoIdentifier(colorFacesVao)), VboHandle(VboIdentifier(colorFacesVbo)), colorVerticesCount);
+
+        ShaderMesh sMesh(mesh.texture, std::move(texturedMesh), std::move(coloredMesh));
 
         return sMesh;
     }
@@ -906,11 +902,7 @@ namespace rwe
         unbindBuffer(GL_ARRAY_BUFFER);
         unbindVertexArray();
 
-        GlMesh m;
-        m.vao = std::move(vao);
-        m.vbo = std::move(vbo);
-        m.vertexCount = vertices.size();
-        return m;
+        return GlMesh(std::move(vao), std::move(vbo), vertices.size());
     }
 
     GlMesh GraphicsContext::createColoredMesh(const std::vector<GlColoredVertex>& vertices, GLenum usage)
@@ -931,11 +923,7 @@ namespace rwe
         unbindBuffer(GL_ARRAY_BUFFER);
         unbindVertexArray();
 
-        GlMesh m;
-        m.vao = std::move(vao);
-        m.vbo = std::move(vbo);
-        m.vertexCount = vertices.size();
-        return m;
+        return GlMesh(std::move(vao), std::move(vbo), vertices.size());
     }
 
     void GraphicsContext::drawLinesMesh(
