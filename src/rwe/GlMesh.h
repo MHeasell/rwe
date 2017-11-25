@@ -1,12 +1,12 @@
-#ifndef RWE_DEBUGLINESMESH_H
-#define RWE_DEBUGLINESMESH_H
+#ifndef RWE_GLMESH_H
+#define RWE_GLMESH_H
 
 #include "VaoHandle.h"
 #include "VboHandle.h"
 
 namespace rwe
 {
-    struct DebugLinesMesh
+    struct GlMesh
     {
         VaoHandle vao;
         VboHandle vbo;

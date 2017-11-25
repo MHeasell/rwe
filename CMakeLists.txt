@@ -72,8 +72,6 @@ set(SOURCE_FILES
     src/rwe/ColorPalette.h
     src/rwe/CursorService.cpp
     src/rwe/CursorService.h
-    src/rwe/DebugLinesMesh.cpp
-    src/rwe/DebugLinesMesh.h
     src/rwe/DiscreteRect.h
     src/rwe/FeatureDefinition.cpp
     src/rwe/FeatureDefinition.h
@@ -81,6 +79,8 @@ set(SOURCE_FILES
     src/rwe/GameScene.cpp
     src/rwe/GameScene.h
     src/rwe/GlIdentifier.h
+    src/rwe/GlMesh.cpp
+    src/rwe/GlMesh.h
     src/rwe/GraphicsContext.cpp
     src/rwe/GraphicsContext.h
     src/rwe/Grid.h

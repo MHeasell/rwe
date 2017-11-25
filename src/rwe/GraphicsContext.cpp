@@ -855,7 +855,7 @@ namespace rwe
         glDepthMask(GL_FALSE);
     }
 
-    DebugLinesMesh GraphicsContext::createTemporaryLinesMesh(const std::vector<Line3f>& lines)
+    GlMesh GraphicsContext::createTemporaryLinesMesh(const std::vector<Line3f>& lines)
     {
         std::vector<GlColoredVertex> buffer;
         buffer.reserve(lines.size() * 2); // 2 verts per line
@@ -871,7 +871,7 @@ namespace rwe
         return createColoredMesh(buffer, GL_STREAM_DRAW);
     }
 
-    DebugLinesMesh GraphicsContext::createTemporaryTriMesh(const std::vector<Triangle3f>& tris)
+    GlMesh GraphicsContext::createTemporaryTriMesh(const std::vector<Triangle3f>& tris)
     {
         std::vector<GlColoredVertex> buffer;
         buffer.reserve(tris.size() * 3); // 3 verts per triangle
@@ -888,7 +888,7 @@ namespace rwe
         return createColoredMesh(buffer, GL_STREAM_DRAW);
     }
 
-    DebugLinesMesh GraphicsContext::createTexturedMesh(const std::vector<GlTexturedVertex>& vertices, GLenum usage)
+    GlMesh GraphicsContext::createTexturedMesh(const std::vector<GlTexturedVertex>& vertices, GLenum usage)
     {
         auto vao = genVertexArray();
         bindVertexArray(vao.get());
@@ -906,14 +906,14 @@ namespace rwe
         unbindBuffer(GL_ARRAY_BUFFER);
         unbindVertexArray();
 
-        DebugLinesMesh m;
+        GlMesh m;
         m.vao = std::move(vao);
         m.vbo = std::move(vbo);
         m.vertexCount = vertices.size();
         return m;
     }
 
-    DebugLinesMesh GraphicsContext::createColoredMesh(const std::vector<GlColoredVertex>& vertices, GLenum usage)
+    GlMesh GraphicsContext::createColoredMesh(const std::vector<GlColoredVertex>& vertices, GLenum usage)
     {
         auto vao = genVertexArray();
         bindVertexArray(vao.get());
@@ -931,7 +931,7 @@ namespace rwe
         unbindBuffer(GL_ARRAY_BUFFER);
         unbindVertexArray();
 
-        DebugLinesMesh m;
+        GlMesh m;
         m.vao = std::move(vao);
         m.vbo = std::move(vbo);
         m.vertexCount = vertices.size();
@@ -939,7 +939,7 @@ namespace rwe
     }
 
     void GraphicsContext::drawLinesMesh(
-        const DebugLinesMesh& mesh,
+        const GlMesh& mesh,
         const Matrix4f& modelMatrix,
         const Matrix4f& viewMatrix,
         const Matrix4f& projectionMatrix,
@@ -968,7 +968,7 @@ namespace rwe
     }
 
     void GraphicsContext::drawTrisMesh(
-        const DebugLinesMesh& mesh,
+        const GlMesh& mesh,
         const Matrix4f& modelMatrix,
         const Matrix4f& viewMatrix,
         const Matrix4f& projectionMatrix,

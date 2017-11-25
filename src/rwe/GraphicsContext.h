@@ -1,7 +1,7 @@
 #ifndef RWE_GRAPHICSCONTEXT_H
 #define RWE_GRAPHICSCONTEXT_H
 
-#include "DebugLinesMesh.h"
+#include "GlMesh.h"
 #include "SelectionMesh.h"
 #include "ShaderHandle.h"
 #include "ShaderMesh.h"
@@ -174,23 +174,23 @@ namespace rwe
 
         void endUnitShadow();
 
-        DebugLinesMesh createTexturedMesh(const std::vector<GlTexturedVertex>& vertices, GLenum usage);
+        GlMesh createTexturedMesh(const std::vector<GlTexturedVertex>& vertices, GLenum usage);
 
-        DebugLinesMesh createColoredMesh(const std::vector<GlColoredVertex>& vertices, GLenum usage);
+        GlMesh createColoredMesh(const std::vector<GlColoredVertex>& vertices, GLenum usage);
 
-        DebugLinesMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines);
+        GlMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines);
 
-        DebugLinesMesh createTemporaryTriMesh(const std::vector<Triangle3f>& tris);
+        GlMesh createTemporaryTriMesh(const std::vector<Triangle3f>& tris);
 
         void drawLinesMesh(
-            const DebugLinesMesh& mesh,
+            const GlMesh& mesh,
             const Matrix4f& modelMatrix,
             const Matrix4f& viewMatrix,
             const Matrix4f& projectionMatrix,
             ShaderProgramIdentifier shader);
 
         void drawTrisMesh(
-            const DebugLinesMesh& mesh,
+            const GlMesh& mesh,
             const Matrix4f& modelMatrix,
             const Matrix4f& viewMatrix,
             const Matrix4f& projectionMatrix,
