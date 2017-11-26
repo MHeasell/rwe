@@ -124,6 +124,8 @@ set(SOURCE_FILES
     src/rwe/ShaderMesh.cpp
     src/rwe/ShaderMesh.h
     src/rwe/ShaderProgramHandle.h
+    src/rwe/ShaderService.cpp
+    src/rwe/ShaderService.h
     src/rwe/SharedHandle.h
     src/rwe/SideData.cpp
     src/rwe/SideData.h
@@ -138,6 +140,8 @@ set(SOURCE_FILES
     src/rwe/TextureRegion.h
     src/rwe/TextureService.cpp
     src/rwe/TextureService.h
+    src/rwe/UiRenderService.cpp
+    src/rwe/UiRenderService.h
     src/rwe/UniqueHandle.h
     src/rwe/Unit.cpp
     src/rwe/Unit.h
@@ -241,7 +245,7 @@ set(SOURCE_FILES
     src/rwe/vfs/DirectoryFileSystem.h
     src/rwe/vfs/HpiFileSystem.cpp
     src/rwe/vfs/HpiFileSystem.h
-    src/rwe/UiRenderService.cpp src/rwe/UiRenderService.h src/rwe/ShaderService.cpp src/rwe/ShaderService.h)
+    )
 
 add_library(librwe STATIC ${SOURCE_FILES})
 set_target_properties(librwe PROPERTIES PREFIX "")
