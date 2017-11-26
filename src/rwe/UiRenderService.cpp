@@ -66,7 +66,7 @@ namespace rwe
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        graphics->drawTrisMesh(mesh, matrixStack.top(), camera.getViewMatrix(), camera.getProjectionMatrix(), shaders->basicTexture.get());
+        graphics->drawTrisMesh(mesh, camera.getViewProjectionMatrix() * matrixStack.top(), shaders->basicTexture.get());
     }
 
     void UiRenderService::drawTextureRegion(
@@ -221,7 +221,7 @@ namespace rwe
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        graphics->drawTrisMesh(mesh, matrixStack.top(), camera.getViewMatrix(), camera.getProjectionMatrix(), shaders->basicColor.get());
+        graphics->drawTrisMesh(mesh, camera.getViewProjectionMatrix() * matrixStack.top(), shaders->basicColor.get());
     }
 
     void UiRenderService::pushMatrix()

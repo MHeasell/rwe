@@ -7,25 +7,12 @@ namespace rwe
     const Vector3f CabinetCamera::_up(0.0f, 0.0f, -1.0f);
     const Vector3f CabinetCamera::_side(1.0f, 0.0f, 0.0f);
 
-    CabinetCamera::CabinetCamera(float width, float height) : width(width), height(height), position(0.0f, 0.0f, 0.0f)
+    Matrix4f CabinetCamera::computeViewProjection(const Vector3f& position, float width, float height)
     {
+        return computeProjection(width, height) * computeView(position);
     }
 
-    Matrix4f CabinetCamera::getViewMatrix() const
-    {
-        auto translation = Matrix4f::translation(-getPosition());
-        auto rotation = Matrix4f::rotationToAxes(_side, _up, _forward);
-        return rotation * translation;
-    }
-
-    Matrix4f CabinetCamera::getInverseViewMatrix() const
-    {
-        auto translation = Matrix4f::translation(getPosition());
-        auto rotation = Matrix4f::rotationToAxes(_side, _up, _forward).transposed();
-        return translation * rotation;
-    }
-
-    Matrix4f CabinetCamera::getProjectionMatrix() const
+    Matrix4f CabinetCamera::computeProjection(float width, float height)
     {
         float halfWidth = width / 2.0f;
         float halfHeight = height / 2.0f;
@@ -43,7 +30,19 @@ namespace rwe
         return ortho * cabinet;
     }
 
-    Matrix4f CabinetCamera::getInverseProjectionMatrix() const
+    Matrix4f CabinetCamera::computeView(const Vector3f& position)
+    {
+        auto translation = Matrix4f::translation(-position);
+        auto rotation = Matrix4f::rotationToAxes(_side, _up, _forward);
+        return rotation * translation;
+    }
+
+    Matrix4f CabinetCamera::computeInverseViewProjection(const Vector3f& position, float width, float height)
+    {
+        return computeInverseView(position) * computeInverseProjection(width, height);
+    }
+
+    Matrix4f CabinetCamera::computeInverseProjection(float width, float height)
     {
         float halfWidth = width / 2.0f;
         float halfHeight = height / 2.0f;
@@ -59,6 +58,21 @@ namespace rwe
             1000.0f);
 
         return inverseCabinet * inverseOrtho;
+    }
+
+    Matrix4f CabinetCamera::computeInverseView(const Vector3f& position)
+    {
+        auto translation = Matrix4f::translation(position);
+        auto rotation = Matrix4f::rotationToAxes(_side, _up, _forward).transposed();
+        return translation * rotation;
+    }
+
+    CabinetCamera::CabinetCamera(float width, float height)
+        : width(width),
+          height(height),
+          position(0.0f, 0.0f, 0.0f)
+    {
+        updateCachedMatrices();
     }
 
     float CabinetCamera::getWidth() const
@@ -87,10 +101,29 @@ namespace rwe
     void CabinetCamera::translate(const Vector3f& translation)
     {
         position += translation;
+        updateCachedMatrices();
     }
 
     void CabinetCamera::setPosition(const Vector3f& newPosition)
     {
         position = newPosition;
+        updateCachedMatrices();
+    }
+
+    const Matrix4f& CabinetCamera::getViewProjectionMatrix() const
+    {
+        return viewProjection;
+    }
+
+    const Matrix4f& CabinetCamera::getInverseViewProjectionMatrix() const
+    {
+        return inverseViewProjection;
+    }
+
+    void CabinetCamera::updateCachedMatrices()
+    {
+        auto p = getPosition();
+        viewProjection = computeViewProjection(p, width, height);
+        inverseViewProjection = computeInverseViewProjection(p, width, height);
     }
 }

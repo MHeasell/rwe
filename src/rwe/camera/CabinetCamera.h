@@ -13,21 +13,23 @@ namespace rwe
         static const Vector3f _up;
         static const Vector3f _forward;
 
+        static Matrix4f computeViewProjection(const Vector3f& position, float width, float height);
+        static Matrix4f computeProjection(float width, float height);
+        static Matrix4f computeView(const Vector3f& position);
+        static Matrix4f computeInverseViewProjection(const Vector3f& position, float width, float height);
+        static Matrix4f computeInverseProjection(float width, float height);
+        static Matrix4f computeInverseView(const Vector3f& position);
+
         float width;
         float height;
 
         Vector3f position;
 
+        Matrix4f viewProjection;
+        Matrix4f inverseViewProjection;
+
     public:
         CabinetCamera(float width, float height);
-
-        Matrix4f getViewMatrix() const override;
-
-        Matrix4f getInverseViewMatrix() const override;
-
-        Matrix4f getProjectionMatrix() const override;
-
-        Matrix4f getInverseProjectionMatrix() const override;
 
         float getWidth() const;
 
@@ -40,6 +42,13 @@ namespace rwe
         void translate(const Vector3f& translation);
 
         void setPosition(const Vector3f& newPosition);
+
+        const Matrix4f& getViewProjectionMatrix() const override;
+
+        const Matrix4f& getInverseViewProjectionMatrix() const override;
+
+    private:
+        void updateCachedMatrices();
     };
 }
 

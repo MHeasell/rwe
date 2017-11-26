@@ -10,21 +10,19 @@ namespace rwe
     private:
         float width;
         float height;
+        Matrix4f projectionMatrix;
+        Matrix4f inverseProjectionMatrix;
 
     public:
-        UiCamera(float width, float height) : width(width), height(height) {}
-
-        Matrix4f getViewMatrix() const override;
-
-        Matrix4f getInverseViewMatrix() const override;
-
-        Matrix4f getProjectionMatrix() const override;
-
-        Matrix4f getInverseProjectionMatrix() const override;
+        UiCamera(float width, float height);
 
         float getWidth();
 
         float getHeight();
+
+        const Matrix4f& getViewProjectionMatrix() const override;
+
+        const Matrix4f& getInverseViewProjectionMatrix() const override;
     };
 }
 

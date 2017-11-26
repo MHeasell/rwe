@@ -46,10 +46,7 @@ namespace rwe
 
         auto matrix = Matrix4f::translation(snappedPosition) * Matrix4f::rotationY(unit.rotation);
 
-        auto viewMatrix = camera.getViewMatrix();
-        auto projectionMatrix = camera.getProjectionMatrix();
-
-        graphics->drawWireframeSelectionMesh(unit.selectionMesh.visualMesh, matrix, viewMatrix, projectionMatrix, shaders->basicColor.get());
+        graphics->drawWireframeSelectionMesh(unit.selectionMesh.visualMesh, camera.getViewProjectionMatrix() * matrix, shaders->basicColor.get());
     }
 
     void RenderService::renderUnit(const Unit& unit, float seaLevel)
@@ -60,15 +57,13 @@ namespace rwe
 
     void RenderService::renderUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel)
     {
-        auto viewMatrix = camera.getViewMatrix();
-        auto projectionMatrix = camera.getProjectionMatrix();
-
         Vector3f testRotation(-mesh.rotation.x, mesh.rotation.y, mesh.rotation.z);
         auto matrix = modelMatrix * Matrix4f::translation(mesh.origin) * Matrix4f::rotationXYZ(testRotation) * Matrix4f::translation(mesh.offset);
 
         if (mesh.visible)
         {
-            graphics->drawShaderMesh(*(mesh.mesh), shaders->unitTexture.get(), shaders->unitColor.get(), matrix, viewMatrix, projectionMatrix, seaLevel);
+            auto mvpMatrix = camera.getViewProjectionMatrix() * matrix;
+            graphics->drawShaderMesh(*(mesh.mesh), shaders->unitTexture.get(), shaders->unitColor.get(), matrix, mvpMatrix, seaLevel);
         }
 
         for (const auto& c : mesh.children)
@@ -135,24 +130,11 @@ namespace rwe
             }
         }
 
-        auto viewMatrix = camera.getViewMatrix();
-        auto projectionMatrix = camera.getProjectionMatrix();
-
         auto mesh = createTemporaryLinesMesh(lines);
-        graphics->drawLinesMesh(
-            mesh,
-            Matrix4f::identity(),
-            viewMatrix,
-            projectionMatrix,
-            shaders->basicColor.get());
+        graphics->drawLinesMesh(mesh, camera.getViewProjectionMatrix(), shaders->basicColor.get());
 
         auto triMesh = createTemporaryTriMesh(tris);
-        graphics->drawTrisMesh(
-            triMesh,
-            Matrix4f::identity(),
-            viewMatrix,
-            projectionMatrix,
-            shaders->basicColor.get());
+        graphics->drawTrisMesh(triMesh, camera.getViewProjectionMatrix(), shaders->basicColor.get());
     }
 
     GlMesh RenderService::createTemporaryLinesMesh(const std::vector<Line3f>& lines)
@@ -213,8 +195,6 @@ namespace rwe
             }
         }
 
-        auto identityMatrix = Matrix4f::identity();
-
         for (const auto& batch : batches)
         {
             std::vector<GlTexturedVertex> vertices;
@@ -241,7 +221,7 @@ namespace rwe
             auto mesh = graphics->createTexturedMesh(vertices, GL_STREAM_DRAW);
 
             glBindTexture(GL_TEXTURE_2D, batch.first.value);
-            graphics->drawTrisMesh(mesh, identityMatrix, camera.getViewMatrix(), camera.getProjectionMatrix(), shaders->basicTexture.get());
+            graphics->drawTrisMesh(mesh, camera.getViewProjectionMatrix(), shaders->basicTexture.get());
         }
     }
 
@@ -291,8 +271,6 @@ namespace rwe
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        auto identity = Matrix4f::identity();
-
         std::vector<GlTexturedVertex> vertices{
             {{x, y, z}, {u, v}},
             {{x, y - height, z}, {u, v + vh}},
@@ -303,11 +281,8 @@ namespace rwe
             {{x, y, z}, {u, v}},
         };
 
-        auto viewMatrix = camera.getViewMatrix();
-        auto projectionMatrix = camera.getProjectionMatrix();
-
         auto mesh = graphics->createTexturedMesh(vertices, GL_STREAM_DRAW);
-        graphics->drawSprite(mesh, identity, viewMatrix, projectionMatrix, alpha, shaders->sprite.get());
+        graphics->drawSprite(mesh, camera.getViewProjectionMatrix(), alpha, shaders->sprite.get());
     }
 
     void RenderService::renderMapTerrain(const MapTerrain& terrain)

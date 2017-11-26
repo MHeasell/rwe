@@ -104,16 +104,10 @@ namespace rwe
             ShaderProgramIdentifier textureShader,
             ShaderProgramIdentifier colorShader,
             const Matrix4f& modelMatrix,
-            const Matrix4f& viewMatrix,
-            const Matrix4f& projectionMatrix,
+            const Matrix4f& mvpMatrix,
             float seaLevel);
 
-        void drawWireframeSelectionMesh(
-            const GlMesh& mesh,
-            const Matrix4f& modelMatrix,
-            const Matrix4f& viewMatrix,
-            const Matrix4f& projectionMatrix,
-            ShaderProgramIdentifier shader);
+        void drawWireframeSelectionMesh(const GlMesh& mesh, const Matrix4f& mvpMatrix, ShaderProgramIdentifier shader);
 
         void enableDepth();
 
@@ -139,27 +133,11 @@ namespace rwe
 
         GlMesh createColoredMesh(const std::vector<GlColoredVertex>& vertices, GLenum usage);
 
-        void drawLinesMesh(
-            const GlMesh& mesh,
-            const Matrix4f& modelMatrix,
-            const Matrix4f& viewMatrix,
-            const Matrix4f& projectionMatrix,
-            ShaderProgramIdentifier shader);
+        void drawLinesMesh(const GlMesh& mesh, const Matrix4f& mvpMatrix, ShaderProgramIdentifier shader);
 
-        void drawTrisMesh(
-            const GlMesh& mesh,
-            const Matrix4f& modelMatrix,
-            const Matrix4f& viewMatrix,
-            const Matrix4f& projectionMatrix,
-            ShaderProgramIdentifier shader);
+        void drawTrisMesh(const GlMesh& mesh, const Matrix4f& mvpMatrix, ShaderProgramIdentifier shader);
 
-        void drawSprite(
-            const GlMesh& mesh,
-            const Matrix4f& modelMatrix,
-            const Matrix4f& viewMatrix,
-            const Matrix4f& projectionMatrix,
-            float alpha,
-            ShaderProgramIdentifier shader);
+        void drawSprite(const GlMesh& mesh, const Matrix4f& mvpMatrix, float alpha, ShaderProgramIdentifier shader);
 
     private:
         ShaderHandle compileShader(GLenum shaderType, const std::string& source);
@@ -173,15 +151,12 @@ namespace rwe
         void drawMesh(
             GLenum mode,
             const GlMesh& mesh,
-            const Matrix4f& modelMatrix,
-            const Matrix4f& viewMatrix,
-            const Matrix4f& projectionMatrix,
+            const Matrix4f& mvpMatrix,
             ShaderProgramIdentifier shader);
         void drawUnitMesh(
             const GlMesh& mesh,
             const Matrix4f& modelMatrix,
-            const Matrix4f& viewMatrix,
-            const Matrix4f& projectionMatrix,
+            const Matrix4f& mvpMatrix,
             float seaLevel,
             ShaderProgramIdentifier shader);
     };

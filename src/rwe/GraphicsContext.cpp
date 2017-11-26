@@ -120,8 +120,7 @@ namespace rwe
         ShaderProgramIdentifier textureShader,
         ShaderProgramIdentifier colorShader,
         const Matrix4f& modelMatrix,
-        const Matrix4f& viewMatrix,
-        const Matrix4f& projectionMatrix,
+        const Matrix4f& mvpMatrix,
         float seaLevel)
     {
         glBindTexture(GL_TEXTURE_2D, mesh.texture.get().value);
@@ -133,11 +132,11 @@ namespace rwe
         // disable blending (meshes are opaque)
         glDisable(GL_BLEND);
 
-        drawUnitMesh(mesh.texturedVertices, modelMatrix, viewMatrix, projectionMatrix, seaLevel, textureShader);
+        drawUnitMesh(mesh.texturedVertices, modelMatrix, mvpMatrix, seaLevel, textureShader);
 
         glBindTexture(GL_TEXTURE_2D, 0);
 
-        drawUnitMesh(mesh.coloredVertices, modelMatrix, viewMatrix, projectionMatrix, seaLevel, colorShader);
+        drawUnitMesh(mesh.coloredVertices, modelMatrix, mvpMatrix, seaLevel, colorShader);
     }
 
     void GraphicsContext::enableDepth()
@@ -219,13 +218,11 @@ namespace rwe
 
     void GraphicsContext::drawWireframeSelectionMesh(
         const GlMesh& mesh,
-        const Matrix4f& modelMatrix,
-        const Matrix4f& viewMatrix,
-        const Matrix4f& projectionMatrix,
+        const Matrix4f& mvpMatrix,
         ShaderProgramIdentifier shader)
     {
         glDisable(GL_BLEND);
-        drawMesh(GL_LINE_LOOP, mesh, modelMatrix, viewMatrix, projectionMatrix, shader);
+        drawMesh(GL_LINE_LOOP, mesh, mvpMatrix, shader);
     }
 
     void GraphicsContext::beginUnitShadow()
@@ -337,22 +334,18 @@ namespace rwe
 
     void GraphicsContext::drawLinesMesh(
         const GlMesh& mesh,
-        const Matrix4f& modelMatrix,
-        const Matrix4f& viewMatrix,
-        const Matrix4f& projectionMatrix,
+        const Matrix4f& mvpMatrix,
         ShaderProgramIdentifier shader)
     {
-        drawMesh(GL_LINES, mesh, modelMatrix, viewMatrix, projectionMatrix, shader);
+        drawMesh(GL_LINES, mesh, mvpMatrix, shader);
     }
 
     void GraphicsContext::drawTrisMesh(
         const GlMesh& mesh,
-        const Matrix4f& modelMatrix,
-        const Matrix4f& viewMatrix,
-        const Matrix4f& projectionMatrix,
+        const Matrix4f& mvpMatrix,
         ShaderProgramIdentifier shader)
     {
-        drawMesh(GL_TRIANGLES, mesh, modelMatrix, viewMatrix, projectionMatrix, shader);
+        drawMesh(GL_TRIANGLES, mesh, mvpMatrix, shader);
     }
 
     VboHandle GraphicsContext::genBuffer()
@@ -389,28 +382,14 @@ namespace rwe
         glBindVertexArray(0);
     }
 
-    void GraphicsContext::drawMesh(
-        GLenum mode,
-        const GlMesh& mesh,
-        const Matrix4f& modelMatrix,
-        const Matrix4f& viewMatrix,
-        const Matrix4f& projectionMatrix,
-        ShaderProgramIdentifier shader)
+    void GraphicsContext::drawMesh(GLenum mode, const GlMesh& mesh, const Matrix4f& mvpMatrix, ShaderProgramIdentifier shader)
     {
         glUseProgram(shader.value);
         glBindVertexArray(mesh.vao.get().value);
 
         {
-            auto location = glGetUniformLocation(shader.value, "modelMatrix");
-            glUniformMatrix4fv(location, 1, GL_FALSE, modelMatrix.data);
-        }
-        {
-            auto location = glGetUniformLocation(shader.value, "viewMatrix");
-            glUniformMatrix4fv(location, 1, GL_FALSE, viewMatrix.data);
-        }
-        {
-            auto location = glGetUniformLocation(shader.value, "projectionMatrix");
-            glUniformMatrix4fv(location, 1, GL_FALSE, projectionMatrix.data);
+            auto location = glGetUniformLocation(shader.value, "mvpMatrix");
+            glUniformMatrix4fv(location, 1, GL_FALSE, mvpMatrix.data);
         }
 
         glDrawArrays(mode, 0, mesh.vertexCount);
@@ -422,8 +401,7 @@ namespace rwe
     void GraphicsContext::drawUnitMesh(
         const GlMesh& mesh,
         const Matrix4f& modelMatrix,
-        const Matrix4f& viewMatrix,
-        const Matrix4f& projectionMatrix,
+        const Matrix4f& mvpMatrix,
         float seaLevel,
         ShaderProgramIdentifier shader)
     {
@@ -435,12 +413,8 @@ namespace rwe
             glUniformMatrix4fv(textureModelMatrix, 1, GL_FALSE, modelMatrix.data);
         }
         {
-            auto textureViewMatrix = glGetUniformLocation(shader.value, "viewMatrix");
-            glUniformMatrix4fv(textureViewMatrix, 1, GL_FALSE, viewMatrix.data);
-        }
-        {
-            auto textureProjectionMatrix = glGetUniformLocation(shader.value, "projectionMatrix");
-            glUniformMatrix4fv(textureProjectionMatrix, 1, GL_FALSE, projectionMatrix.data);
+            auto textureViewMatrix = glGetUniformLocation(shader.value, "mvpMatrix");
+            glUniformMatrix4fv(textureViewMatrix, 1, GL_FALSE, mvpMatrix.data);
         }
 
         {
@@ -454,30 +428,15 @@ namespace rwe
         glUseProgram(0);
     }
 
-    void GraphicsContext::drawSprite(
-        const GlMesh& mesh,
-        const Matrix4f& modelMatrix,
-        const Matrix4f& viewMatrix,
-        const Matrix4f& projectionMatrix,
-        float alpha,
-        ShaderProgramIdentifier shader)
+    void GraphicsContext::drawSprite(const GlMesh& mesh, const Matrix4f& mvpMatrix, float alpha, ShaderProgramIdentifier shader)
     {
         glUseProgram(shader.value);
         glBindVertexArray(mesh.vao.get().value);
 
         {
-            auto textureModelMatrix = glGetUniformLocation(shader.value, "modelMatrix");
-            glUniformMatrix4fv(textureModelMatrix, 1, GL_FALSE, modelMatrix.data);
+            auto textureModelMatrix = glGetUniformLocation(shader.value, "mvpMatrix");
+            glUniformMatrix4fv(textureModelMatrix, 1, GL_FALSE, mvpMatrix.data);
         }
-        {
-            auto textureViewMatrix = glGetUniformLocation(shader.value, "viewMatrix");
-            glUniformMatrix4fv(textureViewMatrix, 1, GL_FALSE, viewMatrix.data);
-        }
-        {
-            auto textureProjectionMatrix = glGetUniformLocation(shader.value, "projectionMatrix");
-            glUniformMatrix4fv(textureProjectionMatrix, 1, GL_FALSE, projectionMatrix.data);
-        }
-
         {
             auto alphaUniform = glGetUniformLocation(shader.value, "alpha");
             glUniform1f(alphaUniform, alpha);
