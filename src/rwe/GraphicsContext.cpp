@@ -41,11 +41,6 @@ namespace rwe
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
-    void GraphicsContext::multiplyMatrix(const Matrix4f& m)
-    {
-        glMultMatrixf(m.data);
-    }
-
     TextureHandle GraphicsContext::createTexture(const Grid<Color>& image)
     {
         return createTexture(image.getWidth(), image.getHeight(), image.getData());
@@ -103,16 +98,6 @@ namespace rwe
         requireNoOpenGlError();
 
         return handle;
-    }
-
-    void GraphicsContext::pushMatrix()
-    {
-        glPushMatrix();
-    }
-
-    void GraphicsContext::popMatrix()
-    {
-        glPopMatrix();
     }
 
     void GraphicsContext::drawShaderMesh(
