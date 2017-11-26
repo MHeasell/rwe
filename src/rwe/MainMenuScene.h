@@ -26,7 +26,7 @@ namespace rwe
         AudioService* audioService;
         TdfBlock* soundLookup;
         GraphicsContext* graphics;
-        RenderService* renderService;
+        ShaderService* shaders;
         MapFeatureService* featureService;
         const ColorPalette* palette;
         CursorService* cursor;
@@ -34,13 +34,14 @@ namespace rwe
         const std::unordered_map<std::string, SideData>* sideData;
         ViewportService* viewportService;
 
+        UiRenderService scaledUiRenderService;
+        UiRenderService nativeUiRenderService;
+
         MainMenuModel model;
         UiFactory uiFactory;
 
         std::vector<std::unique_ptr<UiPanel>> panelStack;
         std::vector<std::unique_ptr<UiPanel>> dialogStack;
-        UiCamera scaledUiCamera;
-        UiCamera nativeUiCamera;
 
         AudioService::LoopToken bgm;
 
@@ -52,7 +53,7 @@ namespace rwe
             AudioService* audioService,
             TdfBlock* audioLookup,
             GraphicsContext* graphics,
-            RenderService* renderService,
+            ShaderService* shaders,
             MapFeatureService* featureService,
             const ColorPalette* palette,
             CursorService* cursor,

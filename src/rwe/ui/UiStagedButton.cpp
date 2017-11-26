@@ -2,7 +2,7 @@
 
 namespace rwe
 {
-    void UiStagedButton::render(GraphicsContext& graphics) const
+    void UiStagedButton::render(UiRenderService& graphics) const
     {
         auto spriteCount = spriteSeries->sprites.size();
 

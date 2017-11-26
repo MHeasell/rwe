@@ -5,6 +5,7 @@
 #include <rwe/GraphicsContext.h>
 #include <rwe/SdlContextManager.h>
 #include <rwe/SpriteSeries.h>
+#include <rwe/UiRenderService.h>
 
 namespace rwe
 {
@@ -28,7 +29,7 @@ namespace rwe
 
         void useSelectCursor();
 
-        void render(GraphicsContext& graphics) const;
+        void render(UiRenderService& renderer) const;
     };
 }
 

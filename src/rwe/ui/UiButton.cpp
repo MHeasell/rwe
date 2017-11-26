@@ -8,7 +8,7 @@ namespace rwe
         assert(spriteSeries->sprites.size() >= 2);
     }
 
-    void UiButton::render(GraphicsContext& graphics) const
+    void UiButton::render(UiRenderService& graphics) const
     {
         const Sprite& sprite = pressed ? spriteSeries->sprites[1] : spriteSeries->sprites[0];
         graphics.drawTextureRegion(

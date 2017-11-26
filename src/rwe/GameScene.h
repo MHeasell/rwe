@@ -6,6 +6,7 @@
 #include "MeshService.h"
 #include "OccupiedGrid.h"
 #include "RenderService.h"
+#include "UiRenderService.h"
 #include "UnitDatabase.h"
 #include "UnitId.h"
 #include <rwe/CursorService.h>
@@ -41,16 +42,15 @@ namespace rwe
         SdlContext* sdl;
         AudioService* audioService;
         ViewportService* viewportService;
-        RenderService* renderService;
+
+        RenderService renderService;
+        UiRenderService uiRenderService;
 
         MeshService meshService;
 
-        CabinetCamera camera;
         MapTerrain terrain;
 
         std::vector<Unit> units;
-
-        UiCamera uiCamera;
 
         bool left{false};
         bool right{false};
@@ -82,9 +82,9 @@ namespace rwe
             SdlContext* sdl,
             AudioService* audioService,
             ViewportService* viewportService,
-            RenderService* renderService,
+            RenderService&& renderService,
+            UiRenderService&& uiRenderService,
             MeshService&& meshService,
-            CabinetCamera&& camera,
             MapTerrain&& terrain,
             UnitDatabase&& unitDatabase,
             std::array<boost::optional<GamePlayerInfo>, 10>&& players,

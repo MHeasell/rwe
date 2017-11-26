@@ -12,7 +12,7 @@ namespace rwe
     {
     }
 
-    void UiSurface::render(GraphicsContext& context) const
+    void UiSurface::render(UiRenderService& context) const
     {
         if (background)
         {

@@ -31,7 +31,7 @@ namespace rwe
     public:
         UiButton(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<SpriteSeries> _spriteSeries, std::string _label, std::shared_ptr<SpriteSeries> labelFont);
 
-        void render(GraphicsContext& graphics) const override;
+        void render(UiRenderService& graphics) const override;
 
         void mouseDown(MouseButtonEvent /*event*/) override;
 

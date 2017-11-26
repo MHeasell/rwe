@@ -34,9 +34,9 @@ namespace rwe
         SdlContext* sdl,
         AudioService* audioService,
         ViewportService* viewportService,
-        RenderService* renderService,
+        RenderService&& renderService,
+        UiRenderService&& uiRenderService,
         MeshService&& meshService,
-        CabinetCamera&& camera,
         MapTerrain&& terrain,
         UnitDatabase&& unitDatabase,
         std::array<boost::optional<GamePlayerInfo>, 10>&& players,
@@ -46,11 +46,10 @@ namespace rwe
           sdl(sdl),
           audioService(audioService),
           viewportService(viewportService),
-          renderService(renderService),
+          renderService(std::move(renderService)),
+          uiRenderService(std::move(uiRenderService)),
           meshService(std::move(meshService)),
-          camera(std::move(camera)),
           terrain(std::move(terrain)),
-          uiCamera(viewportService->width(), viewportService->height()),
           unitDatabase(std::move(unitDatabase)),
           players(std::move(players)),
           localPlayerId(localPlayerId),
@@ -79,22 +78,18 @@ namespace rwe
     {
         auto seaLevel = terrain.getSeaLevel();
 
-        context.applyCamera(camera);
-        terrain.render(context, camera);
-
-        auto viewMatrix = camera.getViewMatrix();
-        auto projectionMatrix = camera.getProjectionMatrix();
+        renderService.renderMapTerrain(terrain);
 
         if (occupiedGridVisible)
         {
-            renderService->renderOccupiedGrid(terrain, occupiedGrid, camera, viewMatrix, projectionMatrix);
+            renderService.renderOccupiedGrid(terrain, occupiedGrid);
         }
 
-        terrain.renderFlatFeatures(context, camera);
+        renderService.renderFlatFeatures(terrain);
 
         if (selectedUnit)
         {
-            renderService->renderSelectionRect(getUnit(*selectedUnit), viewMatrix, projectionMatrix);
+            renderService.renderSelectionRect(getUnit(*selectedUnit));
         }
 
         // draw unit shadows
@@ -103,11 +98,7 @@ namespace rwe
             for (const auto& unit : units)
             {
                 auto groundHeight = terrain.getHeightAt(unit.position.x, unit.position.z);
-                auto shadowProjection = Matrix4f::translation(Vector3f(0.0f, groundHeight, 0.0f))
-                    * Matrix4f::scale(Vector3f(1.0f, 0.0f, 1.0f))
-                    * Matrix4f::shearXZ(0.25f, -0.25f)
-                    * Matrix4f::translation(Vector3f(0.0f, -groundHeight, 0.0f));
-                renderService->renderUnit(unit, viewMatrix * shadowProjection, projectionMatrix, seaLevel);
+                renderService.renderUnitShadow(unit, groundHeight);
             }
             context.endUnitShadow();
         }
@@ -116,17 +107,16 @@ namespace rwe
 
         for (const auto& unit : units)
         {
-            renderService->renderUnit(unit, viewMatrix, projectionMatrix, seaLevel);
+            renderService.renderUnit(unit, seaLevel);
         }
 
         context.disableDepthWrites();
-        terrain.renderStandingFeatures(context, camera);
+        renderService.renderStandingFeatures(terrain);
         context.enableDepthWrites();
 
         context.disableDepth();
 
-        context.applyCamera(uiCamera);
-        cursor->render(context);
+        cursor->render(uiRenderService);
     }
 
     void GameScene::onKeyDown(const SDL_Keysym& keysym)
@@ -247,6 +237,7 @@ namespace rwe
         int directionX = (right ? 1 : 0) - (left ? 1 : 0);
         int directionZ = (down ? 1 : 0) - (up ? 1 : 0);
 
+        auto& camera = renderService.getCamera();
         auto left = camera.getRawPosition().x - (camera.getWidth() / 2.0f);
         auto right = camera.getRawPosition().x + (camera.getWidth() / 2.0f);
         auto top = camera.getRawPosition().z - (camera.getHeight() / 2.0f);
@@ -308,7 +299,7 @@ namespace rwe
 
     void GameScene::setCameraPosition(const Vector3f& newPosition)
     {
-        camera.setPosition(newPosition);
+        renderService.getCamera().setPosition(newPosition);
     }
 
     const MapTerrain& GameScene::getTerrain() const
@@ -431,7 +422,7 @@ namespace rwe
 
     boost::optional<UnitId> GameScene::getUnitUnderCursor() const
     {
-        auto ray = camera.screenToWorldRay(screenToClipSpace(getMousePosition()));
+        auto ray = renderService.getCamera().screenToWorldRay(screenToClipSpace(getMousePosition()));
         return getFirstCollidingUnit(ray);
     }
 
@@ -468,7 +459,7 @@ namespace rwe
 
     boost::optional<Vector3f> GameScene::getMouseTerrainCoordinate() const
     {
-        auto ray = camera.screenToWorldRay(screenToClipSpace(getMousePosition()));
+        auto ray = renderService.getCamera().screenToWorldRay(screenToClipSpace(getMousePosition()));
         return terrain.intersectLine(ray.toLine());
     }
 

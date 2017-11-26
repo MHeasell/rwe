@@ -50,13 +50,16 @@ namespace rwe
         AudioService* audioService;
         CursorService* cursor;
         GraphicsContext* graphics;
-        RenderService* renderService;
+        ShaderService* shaders;
         MapFeatureService* featureService;
         const ColorPalette* palette;
         SceneManager* sceneManager;
         SdlContext* sdl;
         const std::unordered_map<std::string, SideData>* sideData;
         ViewportService* viewportService;
+
+        UiRenderService scaledUiRenderService;
+        UiRenderService nativeUiRenderService;
 
         AudioService::LoopToken bgm;
 
@@ -71,7 +74,7 @@ namespace rwe
             AudioService* audioService,
             CursorService* cursor,
             GraphicsContext* graphics,
-            RenderService* renderService,
+            ShaderService* shaders,
             MapFeatureService* featureService,
             const ColorPalette* palette,
             SceneManager* sceneManager,
@@ -103,10 +106,6 @@ namespace rwe
         MapFeature createFeature(const Vector3f& pos, const FeatureDefinition& definition);
 
         Vector3f computeFeaturePosition(const MapTerrain& terrain, const FeatureDefinition& featureDefinition, std::size_t x, std::size_t y) const;
-
-        ShaderProgramHandle loadShader(const std::string& vertexShaderName, const std::string& fragmentShaderName, const std::vector<AttribMapping>& attribs);
-
-        std::string slurpFile(const std::string& filename);
 
         const SideData& getSideData(const std::string& side) const;
 

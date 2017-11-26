@@ -241,7 +241,7 @@ set(SOURCE_FILES
     src/rwe/vfs/DirectoryFileSystem.h
     src/rwe/vfs/HpiFileSystem.cpp
     src/rwe/vfs/HpiFileSystem.h
-    )
+    src/rwe/UiRenderService.cpp src/rwe/UiRenderService.h src/rwe/ShaderService.cpp src/rwe/ShaderService.h)
 
 add_library(librwe STATIC ${SOURCE_FILES})
 set_target_properties(librwe PROPERTIES PREFIX "")

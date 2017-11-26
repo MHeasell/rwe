@@ -11,8 +11,6 @@
 
 namespace rwe
 {
-    class GraphicsContext;
-
     class MapTerrain
     {
     public:
@@ -42,12 +40,6 @@ namespace rwe
             Grid<size_t>&& tiles,
             Grid<unsigned char>&& heights,
             float seaLevel);
-
-        void render(GraphicsContext& graphics, const CabinetCamera& cabinetCamera) const;
-
-        void renderFlatFeatures(GraphicsContext& graphics, const CabinetCamera& cabinetCamera) const;
-
-        void renderStandingFeatures(GraphicsContext& graphics, const CabinetCamera& cabinetCamera) const;
 
         Point worldToTileCoordinate(const Vector3f& position) const;
 

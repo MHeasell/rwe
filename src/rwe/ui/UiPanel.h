@@ -28,7 +28,7 @@ namespace rwe
 
         ~UiPanel() override = default;
 
-        void render(GraphicsContext& graphics) const override;
+        void render(UiRenderService& graphics) const override;
 
         void mouseDown(MouseButtonEvent event) override;
 

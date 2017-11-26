@@ -15,7 +15,7 @@ namespace rwe
         UiSurface(int posX, int posY, unsigned int sizeX, unsigned int sizeY);
         UiSurface(int posX, int posY, unsigned int sizeX, unsigned int sizeY, const Sprite& background);
 
-        void render(GraphicsContext& context) const override;
+        void render(UiRenderService& context) const override;
 
         void setBackground(const Sprite& newBackground);
         void clearBackground();

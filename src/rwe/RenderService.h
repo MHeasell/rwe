@@ -3,6 +3,7 @@
 
 #include "GraphicsContext.h"
 #include "OccupiedGrid.h"
+#include "ShaderService.h"
 #include "Unit.h"
 
 namespace rwe
@@ -11,18 +12,36 @@ namespace rwe
     {
     private:
         GraphicsContext* graphics;
+        ShaderService* shaders;
 
-        SharedShaderProgramHandle unitTextureShader;
-        SharedShaderProgramHandle unitColorShader;
-        SharedShaderProgramHandle basicColorShader;
+        CabinetCamera camera;
 
     public:
-        RenderService(GraphicsContext* graphics, const SharedShaderProgramHandle& unitTextureShader, const SharedShaderProgramHandle& unitColorShader, const SharedShaderProgramHandle& basicColorShader);
+        RenderService(
+            GraphicsContext* graphics,
+            ShaderService* shaders,
+            const CabinetCamera& camera);
 
-        void renderUnit(const Unit& unit, const Matrix4f& viewMatrix, const Matrix4f& projectionMatrix, float seaLevel);
-        void renderUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, const Matrix4f& viewMatrix, const Matrix4f& projectionMatrix, float seaLevel);
-        void renderSelectionRect(const Unit& unit, const Matrix4f& viewMatrix, const Matrix4f& projectionMatrix);
-        void renderOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid, const CabinetCamera& camera, const Matrix4f& viewMatrix, const Matrix4f& projectionMatrix);
+        CabinetCamera& getCamera();
+        const CabinetCamera& getCamera() const;
+
+        void renderUnit(const Unit& unit, float seaLevel);
+        void renderUnitShadow(const Unit& unit, float groundHeight);
+        void renderUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel);
+        void renderSelectionRect(const Unit& unit);
+        void renderOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid);
+
+        void renderMapTerrain(const MapTerrain& terrain);
+        void renderFlatFeatures(const MapTerrain& terrain);
+        void renderStandingFeatures(const MapTerrain& terrain);
+
+        void drawFeature(const MapFeature& feature);
+
+        void drawStandingSprite(const Vector3f& position, const Sprite& sprite);
+        void drawStandingSprite(const Vector3f& position, const Sprite& sprite, float alpha);
+
+        void drawMapTerrain(const MapTerrain& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
+
 
     private:
         GlMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines);

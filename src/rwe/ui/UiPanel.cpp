@@ -31,7 +31,7 @@ namespace rwe
         return *this;
     }
 
-    void UiPanel::render(GraphicsContext& graphics) const
+    void UiPanel::render(UiRenderService& graphics) const
     {
         graphics.drawTextureRegion(
             posX,

@@ -19,7 +19,7 @@ namespace rwe
         AudioService* audioService,
         CursorService* cursor,
         GraphicsContext* graphics,
-        RenderService* renderService,
+        ShaderService* shaders,
         MapFeatureService* featureService,
         const ColorPalette* palette,
         SceneManager* sceneManager,
@@ -33,13 +33,15 @@ namespace rwe
           audioService(audioService),
           cursor(cursor),
           graphics(graphics),
-          renderService(renderService),
+          shaders(shaders),
           featureService(featureService),
           palette(palette),
           sceneManager(sceneManager),
           sdl(sdl),
           sideData(sideData),
           viewportService(viewportService),
+          scaledUiRenderService(graphics, shaders, UiCamera(640.0, 480.0f)),
+          nativeUiRenderService(graphics, shaders, UiCamera(viewportService->width(), viewportService->height())),
           bgm(std::move(bgm)),
           gameParameters(std::move(gameParameters))
     {
@@ -90,8 +92,8 @@ namespace rwe
 
     void LoadingScene::render(GraphicsContext& context)
     {
-        panel->render(context);
-        cursor->render(context);
+        panel->render(scaledUiRenderService);
+        cursor->render(nativeUiRenderService);
     }
 
     std::unique_ptr<GameScene> LoadingScene::createGameScene(const std::string& mapName, unsigned int schemaIndex)
@@ -109,6 +111,8 @@ namespace rwe
 
         CabinetCamera camera(viewportService->width(), viewportService->height());
         camera.setPosition(Vector3f(0.0f, 0.0f, 0.0f));
+
+        UiCamera uiCamera(viewportService->width(), viewportService->height());
 
         auto meshService = MeshService::createMeshService(vfs, graphics, palette);
 
@@ -135,15 +139,18 @@ namespace rwe
             }
         }
 
+        RenderService renderService(graphics, shaders, camera);
+        UiRenderService uiRenderService(graphics, shaders, uiCamera);
+
         auto gameScene = std::make_unique<GameScene>(
             textureService,
             cursor,
             sdl,
             audioService,
             viewportService,
-            renderService,
+            std::move(renderService),
+            std::move(uiRenderService),
             std::move(meshService),
-            std::move(camera),
             std::move(terrain),
             std::move(unitDatabase),
             std::move(gamePlayers),

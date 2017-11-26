@@ -55,7 +55,7 @@ namespace rwe
 
         void clearSelectedItem();
 
-        void render(GraphicsContext& context) const override;
+        void render(UiRenderService& context) const override;
 
         void mouseDown(MouseButtonEvent event) override;
 

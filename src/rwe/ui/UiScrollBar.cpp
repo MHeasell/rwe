@@ -2,7 +2,7 @@
 
 namespace rwe
 {
-    void drawSpriteAt(GraphicsContext& graphics, float x, float y, const Sprite& sprite)
+    void drawSpriteAt(UiRenderService& graphics, float x, float y, const Sprite& sprite)
     {
         graphics.drawTextureRegion(
             x,
@@ -12,7 +12,7 @@ namespace rwe
             sprite.texture);
     }
 
-    void UiScrollBar::render(GraphicsContext& context) const
+    void UiScrollBar::render(UiRenderService& context) const
     {
         drawScrollBackground(context, posX, posY, sizeY);
 
@@ -32,7 +32,7 @@ namespace rwe
     {
     }
 
-    void UiScrollBar::drawScrollBackground(GraphicsContext& graphics, float x, float y, float height) const
+    void UiScrollBar::drawScrollBackground(UiRenderService& graphics, float x, float y, float height) const
     {
         const Sprite& topBackground = sprites->sprites[0];
         const Sprite& middleBackground = sprites->sprites[1];
@@ -64,7 +64,7 @@ namespace rwe
         drawSpriteAt(graphics, x, y + height - bottomMargin, downArrow);
     }
 
-    void UiScrollBar::drawScrollBox(GraphicsContext& context, float x, float y, float height) const
+    void UiScrollBar::drawScrollBox(UiRenderService& context, float x, float y, float height) const
     {
         const Sprite& topBox = sprites->sprites[3];
         const Sprite& middleBox = sprites->sprites[4];

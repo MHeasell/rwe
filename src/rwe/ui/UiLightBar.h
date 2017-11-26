@@ -17,7 +17,7 @@ namespace rwe
     public:
         UiLightBar(int posX, int posY, unsigned int sizeX, unsigned int sizeY, const Sprite& lightMask);
 
-        void render(GraphicsContext& context) const override;
+        void render(UiRenderService& context) const override;
 
         void setPercentComplete(float percent);
     };

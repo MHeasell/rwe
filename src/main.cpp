@@ -17,6 +17,7 @@
 #include <rwe/MainMenuScene.h>
 #include <rwe/gui.h>
 
+#include <rwe/ShaderService.h>
 #include <rwe/ViewportService.h>
 #include <rwe/config.h>
 #include <rwe/util.h>
@@ -144,27 +145,7 @@ namespace rwe
         GraphicsContext graphics;
         graphics.enableCulling();
 
-        std::vector<AttribMapping> unitTextureShaderAttribs{
-            AttribMapping{"position", 0},
-            AttribMapping{"texCoord", 1}};
-
-        std::vector<AttribMapping> unitColorShaderAttribs{
-            AttribMapping{"position", 0},
-            AttribMapping{"color", 1}};
-
-        std::vector<AttribMapping> basicColorShaderAttribs{
-            AttribMapping{"position", 0},
-            AttribMapping{"color", 1}};
-
-        SharedShaderProgramHandle unitTextureShader{loadShader(&graphics, "shaders/unitTexture.vert", "shaders/unitTexture.frag", unitTextureShaderAttribs)};
-        SharedShaderProgramHandle unitColorShader{loadShader(&graphics, "shaders/unitColor.vert", "shaders/unitColor.frag", unitColorShaderAttribs)};
-        SharedShaderProgramHandle basicColorShader{loadShader(&graphics, "shaders/basicColor.vert", "shaders/basicColor.frag", basicColorShaderAttribs)};
-
-        RenderService renderService(
-            &graphics,
-            unitTextureShader,
-            unitColorShader,
-            basicColorShader);
+        ShaderService shaders = ShaderService::createShaderService(graphics);
 
         TextureService textureService(&graphics, &vfs, &*palette);
 
@@ -222,7 +203,7 @@ namespace rwe
                 &audioService,
                 &cursor,
                 &graphics,
-                &renderService,
+                &shaders,
                 &featureService,
                 &*palette,
                 &sceneManager,
@@ -243,7 +224,7 @@ namespace rwe
                 &audioService,
                 &allSoundTdf,
                 &graphics,
-                &renderService,
+                &shaders,
                 &featureService,
                 &*palette,
                 &cursor,

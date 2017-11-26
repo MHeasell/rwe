@@ -84,34 +84,6 @@ namespace rwe
 
         TextureHandle createColorTexture(Color c);
 
-        void drawTextureRegion(float x, float y, float width, float height, const TextureRegion& texture);
-
-        void drawTextureRegion(float x, float y, float width, float height, TextureIdentifier texture, float u, float v, float uw, float vh);
-
-        void drawTextureRegion(float x, float y, float width, float height, const SharedTextureHandle& texture, float u, float v, float uw, float vh);
-
-        void drawTexture(float x, float y, float width, float height, TextureIdentifier texture);
-
-        void drawTexture(float x, float y, float width, float height, const SharedTextureHandle& texture);
-
-        void drawSprite(float x, float y, const Sprite& sprite);
-
-        void drawText(float x, float y, const std::string& text, const SpriteSeries& font);
-
-        void drawTextWrapped(Rectangle2f area, const std::string& text, const SpriteSeries& font);
-
-        void drawTextCentered(float x, float y, const std::string& text, const SpriteSeries& font);
-
-        float getTextWidth(const std::string& text, const SpriteSeries& font);
-
-        template <typename It>
-        float getTextWidth(It begin, It end, const SpriteSeries& font);
-
-        template <typename It>
-        It findEndOfWord(It it, It end);
-
-        void applyCamera(const AbstractCamera& camera);
-
         /**
          * Multiplies the current OpenGL matrix with the specified matrix.
          * If the current OpenGL matrix is C and the coordinates to be transformed are v,
@@ -126,16 +98,6 @@ namespace rwe
         void pushMatrix();
 
         void popMatrix();
-
-        void fillColor(float x, float y, float width, float height, Color color);
-
-        void drawMapTerrain(const MapTerrain& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
-
-        void drawFeature(const MapFeature& feature);
-
-        void drawStandingSprite(const Vector3f& position, const Sprite& sprite);
-
-        void drawStandingSprite(const Vector3f& position, const Sprite& sprite, float alpha);
 
         void drawShaderMesh(
             const ShaderMesh& mesh,
@@ -191,6 +153,14 @@ namespace rwe
             const Matrix4f& projectionMatrix,
             ShaderProgramIdentifier shader);
 
+        void drawSprite(
+            const GlMesh& mesh,
+            const Matrix4f& modelMatrix,
+            const Matrix4f& viewMatrix,
+            const Matrix4f& projectionMatrix,
+            float alpha,
+            ShaderProgramIdentifier shader);
+
     private:
         ShaderHandle compileShader(GLenum shaderType, const std::string& source);
 
@@ -215,33 +185,6 @@ namespace rwe
             float seaLevel,
             ShaderProgramIdentifier shader);
     };
-
-    template <typename It>
-    float GraphicsContext::getTextWidth(It it, It end, const SpriteSeries& font)
-    {
-        float width = 0;
-        for (; it != end; ++it)
-        {
-            auto ch = *it;
-
-            if (ch > font.sprites.size())
-            {
-                ch = 0;
-            }
-
-            const auto& sprite = font.sprites[ch];
-
-            width += sprite.bounds.right();
-        }
-
-        return width;
-    }
-
-    template <typename It>
-    It GraphicsContext::findEndOfWord(It it, It end)
-    {
-        return std::find_if(it, end, [](int ch) { return ch == ' '; });
-    }
 }
 
 #endif
