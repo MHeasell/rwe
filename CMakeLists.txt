@@ -142,6 +142,7 @@ set(SOURCE_FILES
     src/rwe/TextureService.h
     src/rwe/UiRenderService.cpp
     src/rwe/UiRenderService.h
+    src/rwe/UniformLocation.h
     src/rwe/UniqueHandle.h
     src/rwe/Unit.cpp
     src/rwe/Unit.h

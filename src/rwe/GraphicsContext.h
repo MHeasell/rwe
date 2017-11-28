@@ -19,6 +19,7 @@
 #include <rwe/camera/AbstractCamera.h>
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/math/Vector3f.h>
+#include <rwe/UniformLocation.h>
 
 namespace rwe
 {
@@ -123,6 +124,26 @@ namespace rwe
         void drawTrisMesh(const GlMesh& mesh, const Matrix4f& mvpMatrix, ShaderProgramIdentifier shader);
 
         void drawSprite(const GlMesh& mesh, const Matrix4f& mvpMatrix, float alpha, ShaderProgramIdentifier shader);
+
+        void bindShader(ShaderProgramIdentifier shader);
+
+        void unbindShader();
+
+        void bindTexture(TextureIdentifier texture);
+
+        void unbindTexture();
+
+        void enableBlending();
+
+        void disableBlending();
+
+        UniformLocation getUniformLocation(ShaderProgramIdentifier shader, const std::string& name);
+
+        void setUniformFloat(UniformLocation location, float value);
+        void setUniformMatrix(UniformLocation location, const Matrix4f& matrix);
+
+        void drawTriangles(const GlMesh& mesh);
+        void drawLines(const GlMesh& mesh);
 
     private:
         ShaderHandle compileShader(GLenum shaderType, const std::string& source);

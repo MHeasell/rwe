@@ -282,7 +282,7 @@ namespace rwe
         };
 
         auto mesh = graphics->createTexturedMesh(vertices, GL_STREAM_DRAW);
-        graphics->drawSprite(mesh, camera.getViewProjectionMatrix(), alpha, shaders->sprite.get());
+        graphics->drawSprite(mesh, camera.getViewProjectionMatrix(), alpha, shaders->basicTexture.get());
     }
 
     void RenderService::renderMapTerrain(const MapTerrain& terrain)

@@ -432,4 +432,64 @@ namespace rwe
         glBindVertexArray(0);
         glUseProgram(0);
     }
+
+    void GraphicsContext::bindShader(ShaderProgramIdentifier shader)
+    {
+        glUseProgram(shader.value);
+    }
+
+    void GraphicsContext::unbindShader()
+    {
+        glUseProgram(0);
+    }
+
+    void GraphicsContext::bindTexture(TextureIdentifier texture)
+    {
+        glBindTexture(GL_TEXTURE_2D, texture.value);
+    }
+
+    void GraphicsContext::unbindTexture()
+    {
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    void GraphicsContext::enableBlending()
+    {
+        glEnable(GL_BLEND);
+    }
+
+    void GraphicsContext::disableBlending()
+    {
+        glDisable(GL_BLEND);
+    }
+
+    UniformLocation GraphicsContext::getUniformLocation(ShaderProgramIdentifier shader, const std::string& name)
+    {
+        auto loc = glGetUniformLocation(shader.value, name.data());
+        return UniformLocation(loc);
+    }
+
+    void GraphicsContext::setUniformFloat(UniformLocation location, float value)
+    {
+        glUniform1f(location.value, value);
+    }
+
+    void GraphicsContext::setUniformMatrix(UniformLocation location, const Matrix4f& matrix)
+    {
+        glUniformMatrix4fv(location.value, 1, GL_FALSE, matrix.data);
+    }
+
+    void GraphicsContext::drawTriangles(const GlMesh& mesh)
+    {
+        glBindVertexArray(mesh.vao.get().value);
+        glDrawArrays(GL_TRIANGLES, 0, mesh.vertexCount);
+        glBindVertexArray(0);
+    }
+
+    void GraphicsContext::drawLines(const GlMesh& mesh)
+    {
+        glBindVertexArray(mesh.vao.get().value);
+        glDrawArrays(GL_LINES, 0, mesh.vertexCount);
+        glBindVertexArray(0);
+    }
 }

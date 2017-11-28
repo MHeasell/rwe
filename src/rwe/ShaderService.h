@@ -6,6 +6,35 @@
 
 namespace rwe
 {
+    struct BasicColorShader
+    {
+        ShaderProgramHandle handle;
+        UniformLocation mvpMatrix;
+    };
+
+    struct BasicTextureShader
+    {
+        ShaderProgramHandle handle;
+        UniformLocation mvpMatrix;
+        UniformLocation alpha;
+    };
+
+    struct UnitTextureShader
+    {
+        ShaderProgramHandle handle;
+        UniformLocation mvpMatrix;
+        UniformLocation modelMatrix;
+        UniformLocation seaLevel;
+    };
+
+    struct UnitColorShader
+    {
+        ShaderProgramHandle handle;
+        UniformLocation mvpMatrix;
+        UniformLocation modelMatrix;
+        UniformLocation seaLevel;
+    };
+
     class ShaderService
     {
     public:
@@ -17,11 +46,10 @@ namespace rwe
         static ShaderProgramHandle loadShader(GraphicsContext& graphics, const std::string& vertexShaderName, const std::string& fragmentShaderName, const std::vector<AttribMapping>& attribs);
 
     public:
-        ShaderProgramHandle basicColor;
-        ShaderProgramHandle basicTexture;
-        ShaderProgramHandle unitColor;
-        ShaderProgramHandle unitTexture;
-        ShaderProgramHandle sprite;
+        BasicColorShader basicColor;
+        BasicTextureShader basicTexture;
+        UnitColorShader unitColor;
+        UnitTextureShader unitTexture;
     };
 }
 

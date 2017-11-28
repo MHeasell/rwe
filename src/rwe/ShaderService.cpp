@@ -16,11 +16,22 @@ namespace rwe
             AttribMapping{"position", 0},
             AttribMapping{"color", 1}};
 
-        s.basicColor = loadShader(graphics, "shaders/basicColor.vert", "shaders/basicColor.frag", coloredVertexAttribs);
-        s.basicTexture = loadShader(graphics, "shaders/basicTexture.vert", "shaders/basicTexture.frag", texturedVertexAttribs);
-        s.unitColor = loadShader(graphics, "shaders/unitColor.vert", "shaders/unitColor.frag", coloredVertexAttribs);
-        s.unitTexture = loadShader(graphics, "shaders/unitTexture.vert", "shaders/unitTexture.frag", texturedVertexAttribs);
-        s.sprite = loadShader(graphics, "shaders/sprite.vert", "shaders/sprite.frag", texturedVertexAttribs);
+        s.basicColor.handle = loadShader(graphics, "shaders/basicColor.vert", "shaders/basicColor.frag", coloredVertexAttribs);
+        s.basicColor.mvpMatrix = graphics.getUniformLocation(s.basicColor.handle.get(), "mvpMatrix");
+
+        s.basicTexture.handle = loadShader(graphics, "shaders/basicTexture.vert", "shaders/basicTexture.frag", texturedVertexAttribs);
+        s.basicTexture.mvpMatrix = graphics.getUniformLocation(s.basicTexture.handle.get(), "mvpMatrix");
+        s.basicTexture.alpha = graphics.getUniformLocation(s.basicTexture.handle.get(), "alpha");
+
+        s.unitColor.handle = loadShader(graphics, "shaders/unitColor.vert", "shaders/unitColor.frag", coloredVertexAttribs);
+        s.unitColor.mvpMatrix = graphics.getUniformLocation(s.unitColor.handle.get(), "mvpMatrix");
+        s.unitColor.modelMatrix = graphics.getUniformLocation(s.unitColor.handle.get(), "modelMatrix");
+        s.unitColor.seaLevel = graphics.getUniformLocation(s.unitColor.handle.get(), "seaLevel");
+
+        s.unitTexture.handle = loadShader(graphics, "shaders/unitTexture.vert", "shaders/unitTexture.frag", texturedVertexAttribs);
+        s.unitTexture.mvpMatrix = graphics.getUniformLocation(s.unitTexture.handle.get(), "mvpMatrix");
+        s.unitTexture.modelMatrix = graphics.getUniformLocation(s.unitTexture.handle.get(), "modelMatrix");
+        s.unitTexture.seaLevel = graphics.getUniformLocation(s.unitTexture.handle.get(), "seaLevel");
 
         return s;
     }
