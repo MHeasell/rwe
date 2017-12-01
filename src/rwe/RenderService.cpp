@@ -79,6 +79,7 @@ namespace rwe
             {
                 const auto& textureShader = shaders->unitTexture;
                 graphics->bindShader(textureShader.handle.get());
+                graphics->bindTexture(mesh.mesh->texture.get());
                 graphics->setUniformMatrix(textureShader.mvpMatrix, mvpMatrix);
                 graphics->setUniformMatrix(textureShader.modelMatrix, matrix);
                 graphics->setUniformFloat(textureShader.seaLevel, seaLevel);
