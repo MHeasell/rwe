@@ -49,6 +49,7 @@ namespace rwe
         const auto& shader = shaders->basicColor;
         graphics->bindShader(shader.handle.get());
         graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * matrix);
+        graphics->setUniformFloat(shader.alpha, 1.0f);
         graphics->drawLineLoop(unit.selectionMesh.visualMesh);
     }
 
@@ -154,6 +155,7 @@ namespace rwe
         const auto& shader = shaders->basicColor;
         graphics->bindShader(shader.handle.get());
         graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix());
+        graphics->setUniformFloat(shader.alpha, 1.0f);
 
         auto mesh = createTemporaryLinesMesh(lines);
         graphics->drawLines(mesh);

@@ -152,6 +152,7 @@ namespace rwe
         const auto& shader = shaders->basicColor;
         graphics->bindShader(shader.handle.get());
         graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * matrixStack.top());
+        graphics->setUniformFloat(shader.alpha, static_cast<float>(color.a) / 255.0f);
         graphics->drawTriangles(mesh);
     }
 

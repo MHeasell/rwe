@@ -18,6 +18,7 @@ namespace rwe
 
         s.basicColor.handle = loadShader(graphics, "shaders/basicColor.vert", "shaders/basicColor.frag", coloredVertexAttribs);
         s.basicColor.mvpMatrix = graphics.getUniformLocation(s.basicColor.handle.get(), "mvpMatrix");
+        s.basicColor.alpha = graphics.getUniformLocation(s.basicColor.handle.get(), "alpha");
 
         s.basicTexture.handle = loadShader(graphics, "shaders/basicTexture.vert", "shaders/basicTexture.frag", texturedVertexAttribs);
         s.basicTexture.mvpMatrix = graphics.getUniformLocation(s.basicTexture.handle.get(), "mvpMatrix");
