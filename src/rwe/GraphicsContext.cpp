@@ -204,6 +204,7 @@ namespace rwe
         glLoadIdentity();
 
         glBindTexture(GL_TEXTURE_2D, 0);
+        glUseProgram(0);
 
         glBegin(GL_TRIANGLES);
 
