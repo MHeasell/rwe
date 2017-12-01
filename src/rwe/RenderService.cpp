@@ -265,15 +265,11 @@ namespace rwe
 
     void RenderService::drawStandingSprite(const Vector3f& position, const Sprite& sprite, float alpha)
     {
-        auto height = sprite.bounds.height();
-
         // Convert to a world-space standing position.
         // We stretch sprite y-dimension values by 2x
         // to correct for TA camera distortion.
-        auto modelMatrix =
-            Matrix4f::translation(position)
-            * Matrix4f::scale(Vector3f(0.0f, -2.0f, 0.0f))
-            * Matrix4f::translation(Vector3f(0.0f, -height, 0.0f));
+        auto modelMatrix = Matrix4f::translation(position)
+            * Matrix4f::scale(Vector3f(1.0f, -2.0f, 1.0f));
 
         const auto& shader = shaders->basicTexture;
         graphics->bindShader(shader.handle.get());
