@@ -149,8 +149,6 @@ namespace rwe
 
         auto mesh = graphics->createColoredMesh(vertices, GL_STREAM_DRAW);
 
-        glDisable(GL_TEXTURE_2D);
-
         const auto& shader = shaders->basicColor;
         graphics->bindShader(shader.handle.get());
         graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * matrixStack.top());
