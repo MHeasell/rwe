@@ -24,17 +24,10 @@ namespace rwe
 
         void fillScreen(const Color& color);
 
-        void drawTextureRegion(float x, float y, float width, float height, const TextureRegion& texture);
-
-        void drawTextureRegion(float x, float y, float width, float height, TextureIdentifier texture, float u, float v, float uw, float vh);
-
-        void drawTextureRegion(float x, float y, float width, float height, const SharedTextureHandle& texture, float u, float v, float uw, float vh);
-
-        void drawTexture(float x, float y, float width, float height, TextureIdentifier texture);
-
-        void drawTexture(float x, float y, float width, float height, const SharedTextureHandle& texture);
-
         void drawSprite(float x, float y, const Sprite& sprite);
+
+        /** Draws the sprite, ignoring its internal x and y offset. */
+        void drawSpriteAbs(float x, float y, const Sprite& sprite);
 
         void drawText(float x, float y, const std::string& text, const SpriteSeries& font);
 
@@ -81,7 +74,7 @@ namespace rwe
                 ch = 0;
             }
 
-            const auto& sprite = font.sprites[ch];
+            const auto& sprite = *font.sprites[ch];
 
             width += sprite.bounds.right();
         }

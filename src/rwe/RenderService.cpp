@@ -46,7 +46,10 @@ namespace rwe
 
         auto matrix = Matrix4f::translation(snappedPosition) * Matrix4f::rotationY(unit.rotation);
 
-        graphics->drawWireframeSelectionMesh(unit.selectionMesh.visualMesh, camera.getViewProjectionMatrix() * matrix, shaders->basicColor.get());
+        const auto& shader = shaders->basicColor;
+        graphics->bindShader(shader.handle.get());
+        graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * matrix);
+        graphics->drawLineLoop(unit.selectionMesh.visualMesh);
     }
 
     void RenderService::renderUnit(const Unit& unit, float seaLevel)
@@ -63,7 +66,24 @@ namespace rwe
         if (mesh.visible)
         {
             auto mvpMatrix = camera.getViewProjectionMatrix() * matrix;
-            graphics->drawShaderMesh(*(mesh.mesh), shaders->unitTexture.get(), shaders->unitColor.get(), matrix, mvpMatrix, seaLevel);
+
+            {
+                const auto& colorShader = shaders->unitColor;
+                graphics->bindShader(colorShader.handle.get());
+                graphics->setUniformMatrix(colorShader.mvpMatrix, mvpMatrix);
+                graphics->setUniformMatrix(colorShader.modelMatrix, matrix);
+                graphics->setUniformFloat(colorShader.seaLevel, seaLevel);
+                graphics->drawTriangles(mesh.mesh->coloredVertices);
+            }
+
+            {
+                const auto& textureShader = shaders->unitTexture;
+                graphics->bindShader(textureShader.handle.get());
+                graphics->setUniformMatrix(textureShader.mvpMatrix, mvpMatrix);
+                graphics->setUniformMatrix(textureShader.modelMatrix, matrix);
+                graphics->setUniformFloat(textureShader.seaLevel, seaLevel);
+                graphics->drawTriangles(mesh.mesh->texturedVertices);
+            }
         }
 
         for (const auto& c : mesh.children)
@@ -130,11 +150,15 @@ namespace rwe
             }
         }
 
+        const auto& shader = shaders->basicColor;
+        graphics->bindShader(shader.handle.get());
+        graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix());
+
         auto mesh = createTemporaryLinesMesh(lines);
-        graphics->drawLinesMesh(mesh, camera.getViewProjectionMatrix(), shaders->basicColor.get());
+        graphics->drawLines(mesh);
 
         auto triMesh = createTemporaryTriMesh(tris);
-        graphics->drawTrisMesh(triMesh, camera.getViewProjectionMatrix(), shaders->basicColor.get());
+        graphics->drawTriangles(triMesh);
     }
 
     GlMesh RenderService::createTemporaryLinesMesh(const std::vector<Line3f>& lines)
@@ -218,10 +242,14 @@ namespace rwe
                 vertices.emplace_back(Vector3f(tilePosition.x, 0.0f, tilePosition.z), tileTexture.region.topLeft());
             }
 
+            const auto& shader = shaders->basicTexture;
+
             auto mesh = graphics->createTexturedMesh(vertices, GL_STREAM_DRAW);
 
-            glBindTexture(GL_TEXTURE_2D, batch.first.value);
-            graphics->drawTrisMesh(mesh, camera.getViewProjectionMatrix(), shaders->basicTexture.get());
+            graphics->bindShader(shader.handle.get());
+            graphics->bindTexture(batch.first);
+            graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix());
+            graphics->drawTriangles(mesh);
         }
     }
 
@@ -231,12 +259,12 @@ namespace rwe
         {
             graphics->disableDepth();
             float alpha = feature.transparentShadow ? 0.5f : 1.0f;
-            drawStandingSprite(feature.position, (*feature.shadowAnimation)->sprites[0], alpha);
+            drawStandingSprite(feature.position, *(*feature.shadowAnimation)->sprites[0], alpha);
             graphics->enableDepth();
         }
 
         float alpha = feature.transparentAnimation ? 0.5f : 1.0f;
-        drawStandingSprite(feature.position, feature.animation->sprites[0], alpha);
+        drawStandingSprite(feature.position, *feature.animation->sprites[0], alpha);
     }
 
     void RenderService::drawStandingSprite(const Vector3f& position, const Sprite& sprite)
@@ -246,43 +274,22 @@ namespace rwe
 
     void RenderService::drawStandingSprite(const Vector3f& position, const Sprite& sprite, float alpha)
     {
-        auto u = sprite.texture.region.left();
-        auto v = sprite.texture.region.top();
-        auto uw = sprite.texture.region.width();
-        auto vh = sprite.texture.region.height();
+        auto height = sprite.bounds.height();
 
+        // Convert to a world-space standing position.
         // We stretch sprite y-dimension values by 2x
         // to correct for TA camera distortion.
-        auto x = position.x + sprite.bounds.left();
-        auto y = position.y - (sprite.bounds.top() * 2.0f);
-        auto z = position.z;
+        auto modelMatrix =
+            Matrix4f::translation(position)
+            * Matrix4f::scale(Vector3f(0.0f, -2.0f, 0.0f))
+            * Matrix4f::translation(Vector3f(0.0f, -height, 0.0f));
 
-        auto width = sprite.bounds.width();
-        auto height = sprite.bounds.height() * 2.0f;
-
-        glBindTexture(GL_TEXTURE_2D, sprite.texture.texture.get().value);
-        glEnable(GL_TEXTURE_2D);
-
-        // disable mipmapping
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-        // enable blending
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        std::vector<GlTexturedVertex> vertices{
-            {{x, y, z}, {u, v}},
-            {{x, y - height, z}, {u, v + vh}},
-            {{x + width, y - height, z}, {u + uw, v + vh}},
-
-            {{x + width, y - height, z}, {u + uw, v + vh}},
-            {{x + width, y, z}, {u + uw, v}},
-            {{x, y, z}, {u, v}},
-        };
-
-        auto mesh = graphics->createTexturedMesh(vertices, GL_STREAM_DRAW);
-        graphics->drawSprite(mesh, camera.getViewProjectionMatrix(), alpha, shaders->basicTexture.get());
+        const auto& shader = shaders->basicTexture;
+        graphics->bindShader(shader.handle.get());
+        graphics->bindTexture(sprite.mesh.texture.get());
+        graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * modelMatrix);
+        graphics->setUniformFloat(shader.alpha, 1.0f);
+        graphics->drawTriangles(sprite.mesh.mesh);
     }
 
     void RenderService::renderMapTerrain(const MapTerrain& terrain)

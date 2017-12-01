@@ -19,88 +19,21 @@ namespace rwe
         fillColor(0.0f, 0.0f, camera.getWidth(), camera.getHeight(), color);
     }
 
-    void UiRenderService::drawTextureRegion(float x, float y, float width, float height, const TextureRegion& texture)
-    {
-        drawTextureRegion(
-            x,
-            y,
-            width,
-            height,
-            texture.texture,
-            texture.region.left(),
-            texture.region.top(),
-            texture.region.width(),
-            texture.region.height());
-    }
-
-    void UiRenderService::drawTextureRegion(
-        float x,
-        float y,
-        float width,
-        float height,
-        TextureIdentifier texture,
-        float u,
-        float v,
-        float uw,
-        float vh)
-    {
-        std::vector<GlTexturedVertex> vertices{
-            {{x, y, 0.0f}, {u, v}},
-            {{x, y + height, 0.0f}, {u, v + vh}},
-            {{x + width, y + height, 0.0f}, {u + uw, v + vh}},
-
-            {{x + width, y + height, 0.0f}, {u + uw, v + vh}},
-            {{x + width, y, 0.0f}, {u + uw, v}},
-            {{x, y, 0.0f}, {u, v}}};
-
-        auto mesh = graphics->createTexturedMesh(vertices, GL_STREAM_DRAW);
-
-        glBindTexture(GL_TEXTURE_2D, texture.value);
-        glEnable(GL_TEXTURE_2D);
-
-        // disable mipmapping
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-        // enable blending
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        graphics->drawTrisMesh(mesh, camera.getViewProjectionMatrix() * matrixStack.top(), shaders->basicTexture.get());
-    }
-
-    void UiRenderService::drawTextureRegion(
-        float x,
-        float y,
-        float width,
-        float height,
-        const SharedTextureHandle& texture,
-        float u,
-        float v,
-        float uw,
-        float vh)
-    {
-        drawTextureRegion(x, y, width, height, texture.get(), u, v, uw, vh);
-    }
-
-    void UiRenderService::drawTexture(float x, float y, float width, float height, TextureIdentifier texture)
-    {
-        drawTextureRegion(x, y, width, height, texture, 0.0f, 0.0f, 1.0f, 1.0f);
-    }
-
-    void UiRenderService::drawTexture(float x, float y, float width, float height, const SharedTextureHandle& texture)
-    {
-        drawTexture(x, y, width, height, texture.get());
-    }
-
     void UiRenderService::drawSprite(float x, float y, const Sprite& sprite)
     {
-        drawTextureRegion(
-            x + sprite.bounds.left(),
-            y + sprite.bounds.top(),
-            sprite.bounds.width(),
-            sprite.bounds.height(),
-            sprite.texture);
+        auto matrix = matrixStack.top() * Matrix4f::translation(Vector3f(x, y, 0.0f));
+
+        const auto& shader = shaders->basicTexture;
+        graphics->bindShader(shader.handle.get());
+        graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * matrix);
+        graphics->bindTexture(sprite.mesh.texture.get());
+
+        graphics->drawTriangles(sprite.mesh.mesh);
+    }
+
+    void UiRenderService::drawSpriteAbs(float x, float y, const Sprite& sprite)
+    {
+        drawSprite(x - sprite.bounds.left(), y - sprite.bounds.top(), sprite);
     }
 
     void UiRenderService::drawText(float x, float y, const std::string& text, const SpriteSeries& font)
@@ -115,7 +48,7 @@ namespace rwe
                 ch = 0;
             }
 
-            const auto& sprite = font.sprites[ch];
+            const auto& sprite = *font.sprites[ch];
 
             if (ch != ' ')
             {
@@ -139,7 +72,7 @@ namespace rwe
                 ch = 0;
             }
 
-            const auto& sprite = font.sprites[ch];
+            const auto& sprite = *font.sprites[ch];
 
             width += sprite.bounds.right();
         }
@@ -183,7 +116,7 @@ namespace rwe
                     ch = 0;
                 }
 
-                const auto& sprite = font.sprites[ch];
+                const auto& sprite = *font.sprites[ch];
 
                 drawSprite(area.left() + x, area.top() + y, sprite);
 
@@ -192,7 +125,7 @@ namespace rwe
 
             if (endOfWord != end)
             {
-                const auto& spaceSprite = font.sprites[' '];
+                const auto& spaceSprite = *font.sprites[' '];
                 x += spaceSprite.bounds.right();
                 ++it;
             }
@@ -221,7 +154,10 @@ namespace rwe
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        graphics->drawTrisMesh(mesh, camera.getViewProjectionMatrix() * matrixStack.top(), shaders->basicColor.get());
+        const auto& shader = shaders->basicColor;
+        graphics->bindShader(shader.handle.get());
+        graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * matrixStack.top());
+        graphics->drawTriangles(mesh);
     }
 
     void UiRenderService::pushMatrix()

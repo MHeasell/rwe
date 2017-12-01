@@ -3,12 +3,13 @@
 
 #include <rwe/Sprite.h>
 #include <vector>
+#include <memory>
 
 namespace rwe
 {
     struct SpriteSeries
     {
-        std::vector<Sprite> sprites;
+        std::vector<std::shared_ptr<Sprite>> sprites;
     };
 }
 

@@ -269,8 +269,7 @@ namespace rwe
         }
 
         // default behaviour
-        auto texture = textureService->getDefaultTexture();
-        Sprite sprite(Rectangle2f::fromTopLeft(0.0f, 0.0f, 120.0f, 20.0f), texture);
+        const auto& sprite = textureService->getDefaultSprite();
         auto series = std::make_shared<SpriteSeries>();
         series->sprites.push_back(sprite);
         series->sprites.push_back(sprite);
@@ -376,8 +375,8 @@ namespace rwe
             auto it = std::find_if(
                 (*sprites)->sprites.begin(),
                 (*sprites)->sprites.end(),
-                [width, height](const Sprite& s) {
-                    return s.bounds.width() == width && s.bounds.height() == height;
+                [width, height](const std::shared_ptr<Sprite>& s) {
+                    return s->bounds.width() == width && s->bounds.height() == height;
                 });
 
             if (it != (*sprites)->sprites.end())
@@ -391,8 +390,7 @@ namespace rwe
         }
 
         // default behaviour
-        auto texture = textureService->getDefaultTexture();
-        Sprite sprite(Rectangle2f::fromTopLeft(0.0f, 0.0f, width, height), texture);
+        const auto& sprite = textureService->getDefaultSprite();
         auto series = std::make_shared<SpriteSeries>();
         series->sprites.push_back(sprite);
         series->sprites.push_back(sprite);

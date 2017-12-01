@@ -33,7 +33,7 @@ namespace rwe
 
         std::unordered_map<std::string, std::shared_ptr<SpriteSeries>> animCache;
         std::unordered_map<std::string, TextureInfo> bitmapCache;
-        std::unordered_map<std::string, Sprite> minimapCache;
+        std::unordered_map<std::string, std::shared_ptr<Sprite>> minimapCache;
 
     public:
         TextureService(GraphicsContext* graphics, AbstractVirtualFileSystem* filesystem, const ColorPalette* palette);
@@ -42,10 +42,11 @@ namespace rwe
         std::shared_ptr<SpriteSeries> getGafEntry(const std::string& gafName, const std::string& entryName);
         boost::optional<std::shared_ptr<SpriteSeries>> getGuiTexture(const std::string& guiName, const std::string& graphicName);
         SharedTextureHandle getBitmap(const std::string& bitmapName);
-        Sprite getBitmapRegion(const std::string& bitmapName, int x, int y, int width, int height);
+        std::shared_ptr<Sprite> getBitmapRegion(const std::string& bitmapName, int x, int y, int width, int height);
         SharedTextureHandle getDefaultTexture();
         std::shared_ptr<SpriteSeries> getDefaultSpriteSeries();
-        Sprite getMinimap(const std::string& mapName);
+        std::shared_ptr<Sprite> getDefaultSprite();
+        std::shared_ptr<Sprite> getMinimap(const std::string& mapName);
 
         std::unordered_map<std::string, SpriteSeries> loadAllMeshTextures();
 

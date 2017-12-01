@@ -13,14 +13,9 @@ namespace rwe
         auto stageSprite = currentStage;
 
         auto spriteIndex = pressed ? pressedSprite : stageSprite;
-        const Sprite& sprite = spriteSeries->sprites[spriteIndex];
+        const auto& sprite = *spriteSeries->sprites[spriteIndex];
 
-        graphics.drawTextureRegion(
-            posX,
-            posY,
-            sizeX,
-            sizeY,
-            sprite.texture);
+        graphics.drawSpriteAbs(posX, posY, sprite);
 
         float textX = posX + 6.0f;
         float textY = posY + (sizeY / 2.0f) + 6.0f;

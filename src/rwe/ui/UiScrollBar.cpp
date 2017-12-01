@@ -4,12 +4,7 @@ namespace rwe
 {
     void drawSpriteAt(UiRenderService& graphics, float x, float y, const Sprite& sprite)
     {
-        graphics.drawTextureRegion(
-            x,
-            y,
-            sprite.bounds.width(),
-            sprite.bounds.height(),
-            sprite.texture);
+        graphics.drawSpriteAbs(x, y, sprite);
     }
 
     void UiScrollBar::render(UiRenderService& context) const
@@ -34,12 +29,12 @@ namespace rwe
 
     void UiScrollBar::drawScrollBackground(UiRenderService& graphics, float x, float y, float height) const
     {
-        const Sprite& topBackground = sprites->sprites[0];
-        const Sprite& middleBackground = sprites->sprites[1];
-        const Sprite& bottomBackground = sprites->sprites[2];
+        const Sprite& topBackground = *sprites->sprites[0];
+        const Sprite& middleBackground = *sprites->sprites[1];
+        const Sprite& bottomBackground = *sprites->sprites[2];
 
-        const Sprite& upArrow = sprites->sprites[upArrowPressed ? 7 : 6];
-        const Sprite& downArrow = sprites->sprites[downArrowPressed ? 9 : 8];
+        const Sprite& upArrow = *sprites->sprites[upArrowPressed ? 7 : 6];
+        const Sprite& downArrow = *sprites->sprites[downArrowPressed ? 9 : 8];
 
         float bottomMargin = bottomBackground.bounds.height() + downArrow.bounds.height();
 
@@ -66,9 +61,9 @@ namespace rwe
 
     void UiScrollBar::drawScrollBox(UiRenderService& context, float x, float y, float height) const
     {
-        const Sprite& topBox = sprites->sprites[3];
-        const Sprite& middleBox = sprites->sprites[4];
-        const Sprite& bottomBox = sprites->sprites[5];
+        const Sprite& topBox = *sprites->sprites[3];
+        const Sprite& middleBox = *sprites->sprites[4];
+        const Sprite& bottomBox = *sprites->sprites[5];
 
         drawSpriteAt(context, x, y, topBox);
 
@@ -86,7 +81,7 @@ namespace rwe
 
     void UiScrollBar::mouseDown(MouseButtonEvent event)
     {
-        const Sprite& upArrow = sprites->sprites[6];
+        const Sprite& upArrow = *sprites->sprites[6];
         if (Rectangle2f::fromTopLeft(posX, posY, upArrow.bounds.width(), upArrow.bounds.height()).contains(event.x, event.y))
         {
             upArrowPressed = true;
@@ -94,7 +89,7 @@ namespace rwe
             return;
         }
 
-        const Sprite& downArrow = sprites->sprites[8];
+        const Sprite& downArrow = *sprites->sprites[8];
         if (Rectangle2f::fromTopLeft(posX, posY + sizeY - downArrow.bounds.height(), downArrow.bounds.width(), downArrow.bounds.height()).contains(event.x, event.y))
         {
             downArrowPressed = true;
@@ -145,8 +140,8 @@ namespace rwe
 
     UiScrollBar::ScrollBoxInfo UiScrollBar::getScrollBoxInfo() const
     {
-        const Sprite& upArrow = sprites->sprites[6];
-        const Sprite& downArrow = sprites->sprites[8];
+        const Sprite& upArrow = *sprites->sprites[6];
+        const Sprite& downArrow = *sprites->sprites[8];
 
         float topMargin = upArrow.bounds.height() + 3.0f;
         float bottomMargin = downArrow.bounds.height() + 3.0f;
@@ -162,8 +157,8 @@ namespace rwe
 
     float UiScrollBar::toScrollPercent(float pos)
     {
-        const Sprite& upArrow = sprites->sprites[6];
-        const Sprite& downArrow = sprites->sprites[8];
+        const Sprite& upArrow = *sprites->sprites[6];
+        const Sprite& downArrow = *sprites->sprites[8];
 
         float topMargin = upArrow.bounds.height() + 3.0f;
         float bottomMargin = downArrow.bounds.height() + 3.0f;

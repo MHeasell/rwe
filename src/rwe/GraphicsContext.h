@@ -144,6 +144,9 @@ namespace rwe
 
         void drawTriangles(const GlMesh& mesh);
         void drawLines(const GlMesh& mesh);
+        void drawLineLoop(const GlMesh& mesh);
+
+        Sprite createSprite(const Rectangle2f& bounds, const Rectangle2f& textureRegion, const SharedTextureHandle& texture);
 
     private:
         ShaderHandle compileShader(GLenum shaderType, const std::string& source);

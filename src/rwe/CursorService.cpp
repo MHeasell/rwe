@@ -30,6 +30,6 @@ namespace rwe
 
         sdlContext->getMouseState(&x, &y);
 
-        renderer.drawSprite(x, y, currentCursor->sprites[0]);
+        renderer.drawSprite(x, y, *(currentCursor->sprites[0]));
     }
 }
