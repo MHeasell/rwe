@@ -283,7 +283,7 @@ namespace rwe
         graphics->bindShader(shader.handle.get());
         graphics->bindTexture(sprite.mesh.texture.get());
         graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * modelMatrix);
-        graphics->setUniformFloat(shader.alpha, 1.0f);
+        graphics->setUniformFloat(shader.alpha, alpha);
         graphics->drawTriangles(sprite.mesh.mesh);
     }
 
