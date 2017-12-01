@@ -144,6 +144,7 @@ namespace rwe
         logger.info("Initializing services");
         GraphicsContext graphics;
         graphics.enableCulling();
+        graphics.enableBlending();
 
         ShaderService shaders = ShaderService::createShaderService(graphics);
 

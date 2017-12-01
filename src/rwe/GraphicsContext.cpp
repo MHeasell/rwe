@@ -114,9 +114,6 @@ namespace rwe
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-        // disable blending (meshes are opaque)
-        glDisable(GL_BLEND);
-
         drawUnitMesh(mesh.texturedVertices, modelMatrix, mvpMatrix, seaLevel, textureShader);
 
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -206,7 +203,6 @@ namespace rwe
         const Matrix4f& mvpMatrix,
         ShaderProgramIdentifier shader)
     {
-        glDisable(GL_BLEND);
         drawMesh(GL_LINE_LOOP, mesh, mvpMatrix, shader);
     }
 
@@ -227,8 +223,6 @@ namespace rwe
         glStencilFunc(GL_EQUAL, 1, 0xFF);
         glStencilMask(0x00);
 
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
         glMatrixMode(GL_PROJECTION);
@@ -259,7 +253,6 @@ namespace rwe
         glMatrixMode(GL_MODELVIEW);
         glPopMatrix();
 
-        glDisable(GL_BLEND);
         glDepthFunc(GL_LESS);
         glDepthMask(GL_TRUE);
         glDisable(GL_STENCIL_TEST);
@@ -456,6 +449,7 @@ namespace rwe
     void GraphicsContext::enableBlending()
     {
         glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
     void GraphicsContext::disableBlending()

@@ -26,6 +26,7 @@ namespace rwe
         const auto& shader = shaders->basicTexture;
         graphics->bindShader(shader.handle.get());
         graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * matrix);
+        graphics->setUniformFloat(shader.alpha, 1.0f);
         graphics->bindTexture(sprite.mesh.texture.get());
 
         graphics->drawTriangles(sprite.mesh.mesh);
@@ -149,10 +150,6 @@ namespace rwe
         auto mesh = graphics->createColoredMesh(vertices, GL_STREAM_DRAW);
 
         glDisable(GL_TEXTURE_2D);
-
-        // enable blending
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         const auto& shader = shaders->basicColor;
         graphics->bindShader(shader.handle.get());
