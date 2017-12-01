@@ -265,10 +265,12 @@ namespace rwe
 
     void RenderService::drawStandingSprite(const Vector3f& position, const Sprite& sprite, float alpha)
     {
+        Vector3f snappedPosition(std::round(position.x), truncateToInterval(position.y, 2.0f), std::round(position.z));
+
         // Convert to a world-space standing position.
         // We stretch sprite y-dimension values by 2x
         // to correct for TA camera distortion.
-        auto modelMatrix = Matrix4f::translation(position)
+        auto modelMatrix = Matrix4f::translation(snappedPosition)
             * Matrix4f::scale(Vector3f(1.0f, -2.0f, 1.0f));
 
         const auto& shader = shaders->basicTexture;
