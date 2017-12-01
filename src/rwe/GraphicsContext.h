@@ -85,16 +85,6 @@ namespace rwe
 
         TextureHandle createColorTexture(Color c);
 
-        void drawShaderMesh(
-            const ShaderMesh& mesh,
-            ShaderProgramIdentifier textureShader,
-            ShaderProgramIdentifier colorShader,
-            const Matrix4f& modelMatrix,
-            const Matrix4f& mvpMatrix,
-            float seaLevel);
-
-        void drawWireframeSelectionMesh(const GlMesh& mesh, const Matrix4f& mvpMatrix, ShaderProgramIdentifier shader);
-
         void enableDepth();
 
         void enableDepthWrites();
@@ -118,12 +108,6 @@ namespace rwe
         GlMesh createTexturedMesh(const std::vector<GlTexturedVertex>& vertices, GLenum usage);
 
         GlMesh createColoredMesh(const std::vector<GlColoredVertex>& vertices, GLenum usage);
-
-        void drawLinesMesh(const GlMesh& mesh, const Matrix4f& mvpMatrix, ShaderProgramIdentifier shader);
-
-        void drawTrisMesh(const GlMesh& mesh, const Matrix4f& mvpMatrix, ShaderProgramIdentifier shader);
-
-        void drawSprite(const GlMesh& mesh, const Matrix4f& mvpMatrix, float alpha, ShaderProgramIdentifier shader);
 
         void bindShader(ShaderProgramIdentifier shader);
 

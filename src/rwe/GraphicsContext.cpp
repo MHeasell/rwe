@@ -100,27 +100,6 @@ namespace rwe
         return handle;
     }
 
-    void GraphicsContext::drawShaderMesh(
-        const ShaderMesh& mesh,
-        ShaderProgramIdentifier textureShader,
-        ShaderProgramIdentifier colorShader,
-        const Matrix4f& modelMatrix,
-        const Matrix4f& mvpMatrix,
-        float seaLevel)
-    {
-        glBindTexture(GL_TEXTURE_2D, mesh.texture.get().value);
-
-        // disable mipmapping
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-        drawUnitMesh(mesh.texturedVertices, modelMatrix, mvpMatrix, seaLevel, textureShader);
-
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-        drawUnitMesh(mesh.coloredVertices, modelMatrix, mvpMatrix, seaLevel, colorShader);
-    }
-
     void GraphicsContext::enableDepth()
     {
         glEnable(GL_DEPTH_TEST);
@@ -196,14 +175,6 @@ namespace rwe
         }
 
         return shader;
-    }
-
-    void GraphicsContext::drawWireframeSelectionMesh(
-        const GlMesh& mesh,
-        const Matrix4f& mvpMatrix,
-        ShaderProgramIdentifier shader)
-    {
-        drawMesh(GL_LINE_LOOP, mesh, mvpMatrix, shader);
     }
 
     void GraphicsContext::beginUnitShadow()
@@ -310,22 +281,6 @@ namespace rwe
         return GlMesh(std::move(vao), std::move(vbo), vertices.size());
     }
 
-    void GraphicsContext::drawLinesMesh(
-        const GlMesh& mesh,
-        const Matrix4f& mvpMatrix,
-        ShaderProgramIdentifier shader)
-    {
-        drawMesh(GL_LINES, mesh, mvpMatrix, shader);
-    }
-
-    void GraphicsContext::drawTrisMesh(
-        const GlMesh& mesh,
-        const Matrix4f& mvpMatrix,
-        ShaderProgramIdentifier shader)
-    {
-        drawMesh(GL_TRIANGLES, mesh, mvpMatrix, shader);
-    }
-
     VboHandle GraphicsContext::genBuffer()
     {
         GLuint vbo;
@@ -398,26 +353,6 @@ namespace rwe
         {
             auto seaLevelUniform = glGetUniformLocation(shader.value, "seaLevel");
             glUniform1f(seaLevelUniform, seaLevel);
-        }
-
-        glDrawArrays(GL_TRIANGLES, 0, mesh.vertexCount);
-
-        glBindVertexArray(0);
-        glUseProgram(0);
-    }
-
-    void GraphicsContext::drawSprite(const GlMesh& mesh, const Matrix4f& mvpMatrix, float alpha, ShaderProgramIdentifier shader)
-    {
-        glUseProgram(shader.value);
-        glBindVertexArray(mesh.vao.get().value);
-
-        {
-            auto textureModelMatrix = glGetUniformLocation(shader.value, "mvpMatrix");
-            glUniformMatrix4fv(textureModelMatrix, 1, GL_FALSE, mvpMatrix.data);
-        }
-        {
-            auto alphaUniform = glGetUniformLocation(shader.value, "alpha");
-            glUniform1f(alphaUniform, alpha);
         }
 
         glDrawArrays(GL_TRIANGLES, 0, mesh.vertexCount);

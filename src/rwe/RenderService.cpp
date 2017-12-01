@@ -262,11 +262,6 @@ namespace rwe
         drawStandingSprite(feature.position, *feature.animation->sprites[0], alpha);
     }
 
-    void RenderService::drawStandingSprite(const Vector3f& position, const Sprite& sprite)
-    {
-        drawStandingSprite(position, sprite, 1.0f);
-    }
-
     void RenderService::drawStandingSprite(const Vector3f& position, const Sprite& sprite, float alpha)
     {
         auto height = sprite.bounds.height();
