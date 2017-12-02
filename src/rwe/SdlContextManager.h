@@ -1,10 +1,10 @@
 #ifndef RWE_SDLCONTEXTMANAGER_H
 #define RWE_SDLCONTEXTMANAGER_H
 
-#include <stdexcept>
-#include <memory>
 #include <SDL.h>
 #include <SDL_mixer.h>
+#include <memory>
+#include <stdexcept>
 
 namespace rwe
 {

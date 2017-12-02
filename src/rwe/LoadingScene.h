@@ -1,6 +1,9 @@
 #ifndef RWE_LOADINGSCENE_H
 #define RWE_LOADINGSCENE_H
 
+#include "SideData.h"
+#include "UnitDatabase.h"
+#include "ota.h"
 #include <memory>
 #include <rwe/AudioService.h>
 #include <rwe/CursorService.h>
@@ -8,13 +11,10 @@
 #include <rwe/MapFeatureService.h>
 #include <rwe/SceneManager.h>
 #include <rwe/TextureService.h>
+#include <rwe/ViewportService.h>
 #include <rwe/tnt/TntArchive.h>
 #include <rwe/ui/UiLightBar.h>
 #include <rwe/ui/UiPanel.h>
-#include "ota.h"
-#include "SideData.h"
-#include "UnitDatabase.h"
-#include <rwe/ViewportService.h>
 
 namespace rwe
 {
@@ -50,12 +50,16 @@ namespace rwe
         AudioService* audioService;
         CursorService* cursor;
         GraphicsContext* graphics;
+        ShaderService* shaders;
         MapFeatureService* featureService;
         const ColorPalette* palette;
         SceneManager* sceneManager;
         SdlContext* sdl;
         const std::unordered_map<std::string, SideData>* sideData;
         ViewportService* viewportService;
+
+        UiRenderService scaledUiRenderService;
+        UiRenderService nativeUiRenderService;
 
         AudioService::LoopToken bgm;
 
@@ -70,6 +74,7 @@ namespace rwe
             AudioService* audioService,
             CursorService* cursor,
             GraphicsContext* graphics,
+            ShaderService* shaders,
             MapFeatureService* featureService,
             const ColorPalette* palette,
             SceneManager* sceneManager,
@@ -101,10 +106,6 @@ namespace rwe
         MapFeature createFeature(const Vector3f& pos, const FeatureDefinition& definition);
 
         Vector3f computeFeaturePosition(const MapTerrain& terrain, const FeatureDefinition& featureDefinition, std::size_t x, std::size_t y) const;
-
-        ShaderProgramHandle loadShader(const std::string& vertexShaderName, const std::string& fragmentShaderName, const std::vector<AttribMapping>& attribs);
-
-        std::string slurpFile(const std::string& filename);
 
         const SideData& getSideData(const std::string& side) const;
 

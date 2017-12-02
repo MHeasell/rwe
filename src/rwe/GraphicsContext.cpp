@@ -14,6 +14,16 @@ namespace rwe
         }
     }
 
+    GlTexturedVertex::GlTexturedVertex(const Vector3f& pos, const Vector2f& texCoord)
+        : x(pos.x), y(pos.y), z(pos.z), u(texCoord.x), v(texCoord.y)
+    {
+    }
+
+    GlColoredVertex::GlColoredVertex(const Vector3f& pos, const Vector3f& color)
+        : x(pos.x), y(pos.y), z(pos.z), r(color.x), g(color.y), b(color.z)
+    {
+    }
+
     AttribMapping::AttribMapping(const std::string& name, GLuint location) : name(name), location(location)
     {
     }
@@ -29,111 +39,6 @@ namespace rwe
     void GraphicsContext::clear()
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    }
-
-    void GraphicsContext::drawTextureRegion(float x, float y, float width, float height, const TextureRegion& texture)
-    {
-        drawTextureRegion(
-            x,
-            y,
-            width,
-            height,
-            texture.texture,
-            texture.region.left(),
-            texture.region.top(),
-            texture.region.width(),
-            texture.region.height());
-    }
-
-    void GraphicsContext::drawTextureRegion(
-        float x,
-        float y,
-        float width,
-        float height,
-        TextureIdentifier texture,
-        float u,
-        float v,
-        float uw,
-        float vh)
-    {
-        glBindTexture(GL_TEXTURE_2D, texture.value);
-        glEnable(GL_TEXTURE_2D);
-
-        // disable mipmapping
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-        // enable blending
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        glBegin(GL_QUADS);
-
-        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
-        glTexCoord2f(u, v);
-        glVertex2f(x, y);
-
-        glTexCoord2f(u, v + vh);
-        glVertex2f(x, y + height);
-
-        glTexCoord2f(u + uw, v + vh);
-        glVertex2f(x + width, y + height);
-
-        glTexCoord2f(u + uw, v);
-        glVertex2f(x + width, y);
-
-        glEnd();
-    }
-
-    void GraphicsContext::drawTextureRegion(
-        float x,
-        float y,
-        float width,
-        float height,
-        const SharedTextureHandle& texture,
-        float u,
-        float v,
-        float uw,
-        float vh)
-    {
-        drawTextureRegion(x, y, width, height, texture.get(), u, v, uw, vh);
-    }
-
-    void GraphicsContext::drawTexture(float x, float y, float width, float height, TextureIdentifier texture)
-    {
-        drawTextureRegion(x, y, width, height, texture, 0.0f, 0.0f, 1.0f, 1.0f);
-    }
-
-    void GraphicsContext::drawTexture(float x, float y, float width, float height, const SharedTextureHandle& texture)
-    {
-        drawTexture(x, y, width, height, texture.get());
-    }
-
-    void GraphicsContext::drawSprite(float x, float y, const Sprite& sprite)
-    {
-        drawTextureRegion(
-            x + sprite.bounds.left(),
-            y + sprite.bounds.top(),
-            sprite.bounds.width(),
-            sprite.bounds.height(),
-            sprite.texture);
-    }
-
-    void GraphicsContext::applyCamera(const AbstractCamera& camera)
-    {
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        multiplyMatrix(camera.getProjectionMatrix());
-
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        multiplyMatrix(camera.getViewMatrix());
-    }
-
-    void GraphicsContext::multiplyMatrix(const Matrix4f& m)
-    {
-        glMultMatrixf(m.data);
     }
 
     TextureHandle GraphicsContext::createTexture(const Grid<Color>& image)
@@ -195,329 +100,12 @@ namespace rwe
         return handle;
     }
 
-    void GraphicsContext::drawText(float x, float y, const std::string& text, const SpriteSeries& font)
-    {
-        auto it = utf8Begin(text);
-        auto end = utf8End(text);
-        for (; it != end; ++it)
-        {
-            auto ch = *it;
-            if (ch > font.sprites.size())
-            {
-                ch = 0;
-            }
-
-            const auto& sprite = font.sprites[ch];
-
-            if (ch != ' ')
-            {
-                drawSprite(x, y, sprite);
-            }
-
-            x += sprite.bounds.right();
-        }
-    }
-
-    float GraphicsContext::getTextWidth(const std::string& text, const SpriteSeries& font)
-    {
-        float width = 0;
-        auto it = utf8Begin(text);
-        auto end = utf8End(text);
-        for (; it != end; ++it)
-        {
-            auto ch = *it;
-            if (ch > font.sprites.size())
-            {
-                ch = 0;
-            }
-
-            const auto& sprite = font.sprites[ch];
-
-            width += sprite.bounds.right();
-        }
-
-        return width;
-    }
-
-    void GraphicsContext::drawTextCentered(float x, float y, const std::string& text, const SpriteSeries& font)
-    {
-        float width = getTextWidth(text, font);
-        float halfWidth = width / 2.0f;
-        float halfHeight = 5.0f;
-
-        drawText(std::round(x - halfWidth), std::round(y + halfHeight), text, font);
-    }
-
-    void GraphicsContext::pushMatrix()
-    {
-        glPushMatrix();
-    }
-
-    void GraphicsContext::popMatrix()
-    {
-        glPopMatrix();
-    }
-
-    void GraphicsContext::fillColor(float x, float y, float width, float height, Color color)
-    {
-        glDisable(GL_TEXTURE_2D);
-
-        // enable blending
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        glBegin(GL_QUADS);
-
-        glColor4ub(color.r, color.g, color.b, color.a);
-
-        glVertex2f(x, y);
-        glVertex2f(x, y + height);
-        glVertex2f(x + width, y + height);
-        glVertex2f(x + width, y);
-
-        glEnd();
-    }
-
-    void GraphicsContext::drawTextWrapped(Rectangle2f area, const std::string& text, const SpriteSeries& font)
-    {
-        float x = 0.0f;
-        float y = 0.0f;
-
-        auto it = utf8Begin(text);
-        auto end = utf8End(text);
-        while (it != end)
-        {
-
-            auto endOfWord = findEndOfWord(it, end);
-            auto width = getTextWidth(it, endOfWord, font);
-
-            if (x + width > area.width())
-            {
-                y += 15.0f;
-                x = 0;
-            }
-
-            for (; it != endOfWord; ++it)
-            {
-                auto ch = *it;
-                if (ch > font.sprites.size())
-                {
-                    ch = 0;
-                }
-
-                const auto& sprite = font.sprites[ch];
-
-                drawSprite(area.left() + x, area.top() + y, sprite);
-
-                x += sprite.bounds.right();
-            }
-
-            if (endOfWord != end)
-            {
-                const auto& spaceSprite = font.sprites[' '];
-                x += spaceSprite.bounds.right();
-                ++it;
-            }
-        }
-    }
-
-    void GraphicsContext::drawMapTerrain(const MapTerrain& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
-    {
-        glEnable(GL_TEXTURE_2D);
-
-        // disable mipmapping
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-        // disable blending
-        glDisable(GL_BLEND);
-
-        std::unordered_map<TextureIdentifier, std::vector<std::pair<unsigned int, unsigned int>>> batches;
-
-        for (unsigned int dy = 0; dy < height; ++dy)
-        {
-            for (unsigned int dx = 0; dx < width; ++dx)
-            {
-                auto tileIndex = terrain.getTiles().get(x + dx, y + dy);
-                const auto& tileTexture = terrain.getTileTexture(tileIndex);
-
-                batches[tileTexture.texture.get()].emplace_back(dx, dy);
-            }
-        }
-
-        for (const auto& batch : batches)
-        {
-            glBindTexture(GL_TEXTURE_2D, batch.first.value);
-
-            glBegin(GL_QUADS);
-            glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
-            for (const auto& p : batch.second)
-            {
-                auto dx = p.first;
-                auto dy = p.second;
-
-                auto tileIndex = terrain.getTiles().get(x + dx, y + dy);
-                auto tilePosition = terrain.tileCoordinateToWorldCorner(x + dx, y + dy);
-
-                const auto& tileTexture = terrain.getTileTexture(tileIndex);
-
-                glTexCoord2f(tileTexture.region.left(), tileTexture.region.top());
-                glVertex3f(tilePosition.x, 0.0f, tilePosition.z);
-
-                glTexCoord2f(tileTexture.region.left(), tileTexture.region.bottom());
-                glVertex3f(tilePosition.x, 0.0f, tilePosition.z + MapTerrain::TileHeightInWorldUnits);
-
-                glTexCoord2f(tileTexture.region.right(), tileTexture.region.bottom());
-                glVertex3f(tilePosition.x + MapTerrain::TileWidthInWorldUnits, 0.0f, tilePosition.z + MapTerrain::TileHeightInWorldUnits);
-
-                glTexCoord2f(tileTexture.region.right(), tileTexture.region.top());
-                glVertex3f(tilePosition.x + MapTerrain::TileWidthInWorldUnits, 0.0f, tilePosition.z);
-            }
-
-            glEnd();
-        }
-    }
-
-    void GraphicsContext::drawFeature(const MapFeature& feature)
-    {
-        if (feature.shadowAnimation)
-        {
-            disableDepth();
-            float alpha = feature.transparentShadow ? 0.5f : 1.0f;
-            drawStandingSprite(feature.position, (*feature.shadowAnimation)->sprites[0], alpha);
-            enableDepth();
-        }
-
-        float alpha = feature.transparentAnimation ? 0.5f : 1.0f;
-        drawStandingSprite(feature.position, feature.animation->sprites[0], alpha);
-    }
-
-    void GraphicsContext::drawStandingSprite(const Vector3f& position, const Sprite& sprite)
-    {
-        drawStandingSprite(position, sprite, 1.0f);
-    }
-
-    void GraphicsContext::drawStandingSprite(const Vector3f& position, const Sprite& sprite, float alpha)
-    {
-        auto u = sprite.texture.region.left();
-        auto v = sprite.texture.region.top();
-        auto uw = sprite.texture.region.width();
-        auto vh = sprite.texture.region.height();
-
-        // We stretch sprite y-dimension values by 2x
-        // to correct for TA camera distortion.
-        auto x = position.x + sprite.bounds.left();
-        auto y = position.y - (sprite.bounds.top() * 2.0f);
-        auto z = position.z;
-
-        auto width = sprite.bounds.width();
-        auto height = sprite.bounds.height() * 2.0f;
-
-        glBindTexture(GL_TEXTURE_2D, sprite.texture.texture.get().value);
-        glEnable(GL_TEXTURE_2D);
-
-        // disable mipmapping
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-        // enable blending
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        glBegin(GL_QUADS);
-
-        glColor4f(1.0f, 1.0f, 1.0f, alpha);
-
-        glTexCoord2f(u, v);
-        glVertex3f(x, y, z);
-
-        glTexCoord2f(u, v + vh);
-        glVertex3f(x, y - height, z);
-
-        glTexCoord2f(u + uw, v + vh);
-        glVertex3f(x + width, y - height, z);
-
-        glTexCoord2f(u + uw, v);
-        glVertex3f(x + width, y, z);
-
-        glEnd();
-    }
-
-    void GraphicsContext::drawShaderMesh(
-        const ShaderMesh& mesh,
-        ShaderProgramIdentifier textureShader,
-        ShaderProgramIdentifier colorShader,
-        const Matrix4f& modelMatrix,
-        const Matrix4f& viewMatrix,
-        const Matrix4f& projectionMatrix,
-        float seaLevel)
-    {
-        glUseProgram(textureShader.value);
-        glBindVertexArray(mesh.texturedVerticesVao.get().value);
-        glBindTexture(GL_TEXTURE_2D, mesh.texture.get().value);
-
-        // disable mipmapping
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-        // disable blending (meshes are opaque)
-        glDisable(GL_BLEND);
-
-        {
-            auto textureModelMatrix = glGetUniformLocation(textureShader.value, "modelMatrix");
-            glUniformMatrix4fv(textureModelMatrix, 1, GL_FALSE, modelMatrix.data);
-        }
-        {
-            auto textureViewMatrix = glGetUniformLocation(textureShader.value, "viewMatrix");
-            glUniformMatrix4fv(textureViewMatrix, 1, GL_FALSE, viewMatrix.data);
-        }
-        {
-            auto textureProjectionMatrix = glGetUniformLocation(textureShader.value, "projectionMatrix");
-            glUniformMatrix4fv(textureProjectionMatrix, 1, GL_FALSE, projectionMatrix.data);
-        }
-
-        {
-            auto seaLevelUniform = glGetUniformLocation(textureShader.value, "seaLevel");
-            glUniform1f(seaLevelUniform, seaLevel);
-        }
-
-        glDrawArrays(GL_TRIANGLES, 0, mesh.texturedVerticesCount);
-
-        glUseProgram(colorShader.value);
-        glBindVertexArray(mesh.coloredVerticesVao.get().value);
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-        {
-            auto colorModelMatrix = glGetUniformLocation(colorShader.value, "modelMatrix");
-            glUniformMatrix4fv(colorModelMatrix, 1, GL_FALSE, modelMatrix.data);
-        }
-        {
-            auto colorViewMatrix = glGetUniformLocation(colorShader.value, "viewMatrix");
-            glUniformMatrix4fv(colorViewMatrix, 1, GL_FALSE, viewMatrix.data);
-        }
-        {
-            auto colorProjectionMatrix = glGetUniformLocation(colorShader.value, "projectionMatrix");
-            glUniformMatrix4fv(colorProjectionMatrix, 1, GL_FALSE, projectionMatrix.data);
-        }
-
-        {
-            auto seaLevelUniform = glGetUniformLocation(colorShader.value, "seaLevel");
-            glUniform1f(seaLevelUniform, 75.0f);
-        }
-
-        glDrawArrays(GL_TRIANGLES, 0, mesh.coloredVerticesCount);
-
-        glBindVertexArray(0);
-        glUseProgram(0);
-    }
-
-    void GraphicsContext::enableDepth()
+    void GraphicsContext::enableDepthBuffer()
     {
         glEnable(GL_DEPTH_TEST);
     }
 
-    void GraphicsContext::disableDepth()
+    void GraphicsContext::disableDepthBuffer()
     {
         glDisable(GL_DEPTH_TEST);
     }
@@ -589,257 +177,6 @@ namespace rwe
         return shader;
     }
 
-    ShaderMesh GraphicsContext::convertMesh(const Mesh& mesh)
-    {
-        GLuint textureFacesVao;
-        glGenVertexArrays(1, &textureFacesVao);
-        glBindVertexArray(textureFacesVao);
-
-        GLuint textureFacesVbo;
-        unsigned int textureVerticesCount;
-        {
-            glGenBuffers(1, &textureFacesVbo);
-            glBindBuffer(GL_ARRAY_BUFFER, textureFacesVbo);
-
-            std::vector<GLfloat> buffer;
-            for (const auto& t : mesh.faces)
-            {
-                buffer.push_back(t.a.position.x);
-                buffer.push_back(t.a.position.y);
-                buffer.push_back(t.a.position.z);
-                buffer.push_back(t.a.textureCoord.x);
-                buffer.push_back(t.a.textureCoord.y);
-
-                buffer.push_back(t.b.position.x);
-                buffer.push_back(t.b.position.y);
-                buffer.push_back(t.b.position.z);
-                buffer.push_back(t.b.textureCoord.x);
-                buffer.push_back(t.b.textureCoord.y);
-
-                buffer.push_back(t.c.position.x);
-                buffer.push_back(t.c.position.y);
-                buffer.push_back(t.c.position.z);
-                buffer.push_back(t.c.textureCoord.x);
-                buffer.push_back(t.c.textureCoord.y);
-            }
-
-            textureVerticesCount = mesh.faces.size() * 3;
-            glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(GLfloat), buffer.data(), GL_STATIC_DRAW);
-        }
-
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), reinterpret_cast<void*>(0));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), reinterpret_cast<void*>(3 * sizeof(GLfloat)));
-
-        GLuint colorFacesVao;
-        glGenVertexArrays(1, &colorFacesVao);
-        glBindVertexArray(colorFacesVao);
-
-        GLuint colorFacesVbo;
-        unsigned int colorVerticesCount;
-        {
-            glGenBuffers(1, &colorFacesVbo);
-            glBindBuffer(GL_ARRAY_BUFFER, colorFacesVbo);
-
-            std::vector<GLfloat> buffer;
-            for (const auto& t : mesh.colorFaces)
-            {
-                buffer.push_back(t.a.position.x);
-                buffer.push_back(t.a.position.y);
-                buffer.push_back(t.a.position.z);
-                buffer.push_back(t.color.r / 255.0f);
-                buffer.push_back(t.color.g / 255.0f);
-                buffer.push_back(t.color.b / 255.0f);
-
-                buffer.push_back(t.b.position.x);
-                buffer.push_back(t.b.position.y);
-                buffer.push_back(t.b.position.z);
-                buffer.push_back(t.color.r / 255.0f);
-                buffer.push_back(t.color.g / 255.0f);
-                buffer.push_back(t.color.b / 255.0f);
-
-                buffer.push_back(t.c.position.x);
-                buffer.push_back(t.c.position.y);
-                buffer.push_back(t.c.position.z);
-                buffer.push_back(t.color.r / 255.0f);
-                buffer.push_back(t.color.g / 255.0f);
-                buffer.push_back(t.color.b / 255.0f);
-            }
-
-            colorVerticesCount = mesh.colorFaces.size() * 3;
-            glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(GLfloat), buffer.data(), GL_STATIC_DRAW);
-        }
-
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(0));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(3 * sizeof(GLfloat)));
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-
-        ShaderMesh sMesh(
-            mesh.texture,
-            VboHandle(VboIdentifier(textureFacesVbo)),
-            textureVerticesCount,
-            VaoHandle(VaoIdentifier(textureFacesVao)),
-            VboHandle(VboIdentifier(colorFacesVbo)),
-            colorVerticesCount,
-            VaoHandle(VaoIdentifier(colorFacesVao)));
-
-        return sMesh;
-    }
-
-    void GraphicsContext::drawWireframeSelectionMesh(
-        const VisualSelectionMesh& mesh,
-        const Matrix4f& modelMatrix,
-        const Matrix4f& viewMatrix,
-        const Matrix4f& projectionMatrix,
-        ShaderProgramIdentifier shader)
-    {
-        glDisable(GL_BLEND);
-        glUseProgram(shader.value);
-        glBindVertexArray(mesh.vao.get().value);
-
-        {
-            auto uniform = glGetUniformLocation(shader.value, "modelMatrix");
-            glUniformMatrix4fv(uniform, 1, GL_FALSE, modelMatrix.data);
-        }
-        {
-            auto uniform = glGetUniformLocation(shader.value, "viewMatrix");
-            glUniformMatrix4fv(uniform, 1, GL_FALSE, viewMatrix.data);
-        }
-        {
-            auto uniform = glGetUniformLocation(shader.value, "projectionMatrix");
-            glUniformMatrix4fv(uniform, 1, GL_FALSE, projectionMatrix.data);
-        }
-
-        glDrawArrays(GL_LINE_LOOP, 0, mesh.vertexCount);
-
-        glBindVertexArray(0);
-        glUseProgram(0);
-    }
-
-    VisualSelectionMesh
-    GraphicsContext::createSelectionMesh(const Vector3f& a, const Vector3f& b, const Vector3f& c, const Vector3f& d)
-    {
-        const auto colorR = 0.325f;
-        const auto colorG = 0.875f;
-        const auto colorB = 0.310f;
-
-        GLuint vao;
-        glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
-
-        GLuint vbo;
-        glGenBuffers(1, &vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-        std::vector<GLfloat> buffer;
-        buffer.reserve(4 * (3 + 3));
-
-        buffer.push_back(a.x);
-        buffer.push_back(a.y);
-        buffer.push_back(a.z);
-        buffer.push_back(colorR);
-        buffer.push_back(colorG);
-        buffer.push_back(colorB);
-
-        buffer.push_back(b.x);
-        buffer.push_back(b.y);
-        buffer.push_back(b.z);
-        buffer.push_back(colorR);
-        buffer.push_back(colorG);
-        buffer.push_back(colorB);
-
-        buffer.push_back(c.x);
-        buffer.push_back(c.y);
-        buffer.push_back(c.z);
-        buffer.push_back(colorR);
-        buffer.push_back(colorG);
-        buffer.push_back(colorB);
-
-        buffer.push_back(d.x);
-        buffer.push_back(d.y);
-        buffer.push_back(d.z);
-        buffer.push_back(colorR);
-        buffer.push_back(colorG);
-        buffer.push_back(colorB);
-
-        glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(GLfloat), buffer.data(), GL_STATIC_DRAW);
-
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(0));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(3 * sizeof(GLfloat)));
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-
-        VisualSelectionMesh vsm;
-        vsm.vao = VaoHandle(VaoIdentifier(vao));
-        vsm.vbo = VboHandle(VboIdentifier(vbo));
-        vsm.vertexCount = 4;
-
-        return vsm;
-    }
-
-    void GraphicsContext::beginUnitShadow()
-    {
-        glEnable(GL_STENCIL_TEST);
-        glStencilFunc(GL_ALWAYS, 1, 0xFF);
-        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-        glStencilMask(0xFF);
-        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-        glDepthMask(GL_FALSE);
-        glDepthFunc(GL_ALWAYS);
-        glClear(GL_STENCIL_BUFFER_BIT);
-    }
-
-    void GraphicsContext::endUnitShadow()
-    {
-        glStencilFunc(GL_EQUAL, 1, 0xFF);
-        glStencilMask(0x00);
-
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
-        glMatrixMode(GL_PROJECTION);
-        glPushMatrix();
-        glLoadIdentity();
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-        glLoadIdentity();
-
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-        glBegin(GL_TRIANGLES);
-
-        glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
-
-        glVertex3f(-1.0f, -1.0f, 0.0f);
-        glVertex3f(1.0f, -1.0f, 0.0f);
-        glVertex3f(1.0f, 1.0f, 0.0f);
-
-        glVertex3f(1.0f, 1.0f, 0.0f);
-        glVertex3f(-1.0f, 1.0f, 0.0f);
-        glVertex3f(-1.0f, -1.0f, 0.0f);
-
-        glEnd();
-
-        glMatrixMode(GL_PROJECTION);
-        glPopMatrix();
-        glMatrixMode(GL_MODELVIEW);
-        glPopMatrix();
-
-        glDisable(GL_BLEND);
-        glDepthFunc(GL_LESS);
-        glDepthMask(GL_TRUE);
-        glDisable(GL_STENCIL_TEST);
-    }
-
     void GraphicsContext::enableDepthWrites()
     {
         glDepthMask(GL_TRUE);
@@ -850,162 +187,261 @@ namespace rwe
         glDepthMask(GL_FALSE);
     }
 
-    DebugLinesMesh GraphicsContext::createTemporaryLinesMesh(const std::vector<Line3f>& lines)
+    void GraphicsContext::enableDepthTest()
     {
-        GLuint vao;
-        glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
+        glDepthFunc(GL_LESS);
+    }
 
-        GLuint vbo;
-        glGenBuffers(1, &vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    void GraphicsContext::disableDepthTest()
+    {
+        glDepthFunc(GL_ALWAYS);
+    }
 
-        std::vector<GLfloat> buffer;
-        buffer.reserve(lines.size() * 2 * 3); // 2 verts per line, 3 floats per vert
+    GlMesh GraphicsContext::createTexturedMesh(const std::vector<GlTexturedVertex>& vertices, GLenum usage)
+    {
+        auto vao = genVertexArray();
+        bindVertexArray(vao.get());
 
-        for (const auto& l : lines)
-        {
-            buffer.push_back(l.start.x);
-            buffer.push_back(l.start.y);
-            buffer.push_back(l.start.z);
-            buffer.push_back(1.0f);
-            buffer.push_back(1.0f);
-            buffer.push_back(1.0f);
+        auto vbo = genBuffer();
+        bindBuffer(GL_ARRAY_BUFFER, vbo.get());
 
-            buffer.push_back(l.end.x);
-            buffer.push_back(l.end.y);
-            buffer.push_back(l.end.z);
-            buffer.push_back(1.0f);
-            buffer.push_back(1.0f);
-            buffer.push_back(1.0f);
-        }
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GlTexturedVertex), vertices.data(), usage);
 
-        glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(GLfloat), buffer.data(), GL_STREAM_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), reinterpret_cast<void*>(0));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), reinterpret_cast<void*>(3 * sizeof(GLfloat)));
+
+        unbindBuffer(GL_ARRAY_BUFFER);
+        unbindVertexArray();
+
+        return GlMesh(std::move(vao), std::move(vbo), vertices.size());
+    }
+
+    GlMesh GraphicsContext::createColoredMesh(const std::vector<GlColoredVertex>& vertices, GLenum usage)
+    {
+        auto vao = genVertexArray();
+        bindVertexArray(vao.get());
+
+        auto vbo = genBuffer();
+        bindBuffer(GL_ARRAY_BUFFER, vbo.get());
+
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GlColoredVertex), vertices.data(), usage);
 
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(0));
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(3 * sizeof(GLfloat)));
 
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
+        unbindBuffer(GL_ARRAY_BUFFER);
+        unbindVertexArray();
 
-        DebugLinesMesh m;
-        m.vao = VaoHandle(VaoIdentifier(vao));
-        m.vbo = VboHandle(VboIdentifier(vbo));
-        m.vertexCount = lines.size() * 2;
-        return m;
+        return GlMesh(std::move(vao), std::move(vbo), vertices.size());
     }
 
-    DebugLinesMesh GraphicsContext::createTemporaryTriMesh(const std::vector<Triangle3f>& tris)
+    VboHandle GraphicsContext::genBuffer()
+    {
+        GLuint vbo;
+        glGenBuffers(1, &vbo);
+        return VboHandle(VboIdentifier(vbo));
+    }
+
+    VaoHandle GraphicsContext::genVertexArray()
     {
         GLuint vao;
         glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
-
-        GLuint vbo;
-        glGenBuffers(1, &vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-        std::vector<GLfloat> buffer;
-        buffer.reserve(tris.size() * 3 * 3); // 3 verts per tri, 3 floats per vert
-
-        for (const auto& l : tris)
-        {
-            buffer.push_back(l.a.x);
-            buffer.push_back(l.a.y);
-            buffer.push_back(l.a.z);
-            buffer.push_back(1.0f);
-            buffer.push_back(1.0f);
-            buffer.push_back(1.0f);
-
-            buffer.push_back(l.b.x);
-            buffer.push_back(l.b.y);
-            buffer.push_back(l.b.z);
-            buffer.push_back(1.0f);
-            buffer.push_back(1.0f);
-            buffer.push_back(1.0f);
-
-            buffer.push_back(l.c.x);
-            buffer.push_back(l.c.y);
-            buffer.push_back(l.c.z);
-            buffer.push_back(1.0f);
-            buffer.push_back(1.0f);
-            buffer.push_back(1.0f);
-        }
-
-        glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(GLfloat), buffer.data(), GL_STREAM_DRAW);
-
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(0));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(3 * sizeof(GLfloat)));
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-
-        DebugLinesMesh m;
-        m.vao = VaoHandle(VaoIdentifier(vao));
-        m.vbo = VboHandle(VboIdentifier(vbo));
-        m.vertexCount = tris.size() * 3;
-        return m;
+        return VaoHandle(VaoIdentifier(vao));
     }
 
-    void GraphicsContext::drawLinesMesh(
-        const DebugLinesMesh& mesh,
-        const Matrix4f& modelMatrix,
-        const Matrix4f& viewMatrix,
-        const Matrix4f& projectionMatrix,
-        ShaderProgramIdentifier shader)
+    void GraphicsContext::bindBuffer(GLenum type, VboIdentifier id)
+    {
+        glBindBuffer(type, id.value);
+    }
+
+    void GraphicsContext::bindVertexArray(VaoIdentifier id)
+    {
+        glBindVertexArray(id.value);
+    }
+
+    void GraphicsContext::unbindBuffer(GLenum type)
+    {
+        glBindBuffer(type, 0);
+    }
+
+    void GraphicsContext::unbindVertexArray()
+    {
+        glBindVertexArray(0);
+    }
+
+    void GraphicsContext::drawMesh(GLenum mode, const GlMesh& mesh, const Matrix4f& mvpMatrix, ShaderProgramIdentifier shader)
     {
         glUseProgram(shader.value);
         glBindVertexArray(mesh.vao.get().value);
 
         {
-            auto location = glGetUniformLocation(shader.value, "modelMatrix");
-            glUniformMatrix4fv(location, 1, GL_FALSE, modelMatrix.data);
-        }
-        {
-            auto location = glGetUniformLocation(shader.value, "viewMatrix");
-            glUniformMatrix4fv(location, 1, GL_FALSE, viewMatrix.data);
-        }
-        {
-            auto location = glGetUniformLocation(shader.value, "projectionMatrix");
-            glUniformMatrix4fv(location, 1, GL_FALSE, projectionMatrix.data);
+            auto location = glGetUniformLocation(shader.value, "mvpMatrix");
+            glUniformMatrix4fv(location, 1, GL_FALSE, mvpMatrix.data);
         }
 
-        glDrawArrays(GL_LINES, 0, mesh.vertexCount);
+        glDrawArrays(mode, 0, mesh.vertexCount);
 
         glBindVertexArray(0);
         glUseProgram(0);
     }
 
-    void GraphicsContext::drawTrisMesh(
-        const DebugLinesMesh& mesh,
+    void GraphicsContext::drawUnitMesh(
+        const GlMesh& mesh,
         const Matrix4f& modelMatrix,
-        const Matrix4f& viewMatrix,
-        const Matrix4f& projectionMatrix,
+        const Matrix4f& mvpMatrix,
+        float seaLevel,
         ShaderProgramIdentifier shader)
     {
         glUseProgram(shader.value);
         glBindVertexArray(mesh.vao.get().value);
 
         {
-            auto location = glGetUniformLocation(shader.value, "modelMatrix");
-            glUniformMatrix4fv(location, 1, GL_FALSE, modelMatrix.data);
+            auto textureModelMatrix = glGetUniformLocation(shader.value, "modelMatrix");
+            glUniformMatrix4fv(textureModelMatrix, 1, GL_FALSE, modelMatrix.data);
         }
         {
-            auto location = glGetUniformLocation(shader.value, "viewMatrix");
-            glUniformMatrix4fv(location, 1, GL_FALSE, viewMatrix.data);
+            auto textureViewMatrix = glGetUniformLocation(shader.value, "mvpMatrix");
+            glUniformMatrix4fv(textureViewMatrix, 1, GL_FALSE, mvpMatrix.data);
         }
+
         {
-            auto location = glGetUniformLocation(shader.value, "projectionMatrix");
-            glUniformMatrix4fv(location, 1, GL_FALSE, projectionMatrix.data);
+            auto seaLevelUniform = glGetUniformLocation(shader.value, "seaLevel");
+            glUniform1f(seaLevelUniform, seaLevel);
         }
 
         glDrawArrays(GL_TRIANGLES, 0, mesh.vertexCount);
 
         glBindVertexArray(0);
         glUseProgram(0);
+    }
+
+    void GraphicsContext::bindShader(ShaderProgramIdentifier shader)
+    {
+        glUseProgram(shader.value);
+    }
+
+    void GraphicsContext::unbindShader()
+    {
+        glUseProgram(0);
+    }
+
+    void GraphicsContext::bindTexture(TextureIdentifier texture)
+    {
+        glBindTexture(GL_TEXTURE_2D, texture.value);
+    }
+
+    void GraphicsContext::unbindTexture()
+    {
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    void GraphicsContext::enableBlending()
+    {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
+
+    void GraphicsContext::disableBlending()
+    {
+        glDisable(GL_BLEND);
+    }
+
+    UniformLocation GraphicsContext::getUniformLocation(ShaderProgramIdentifier shader, const std::string& name)
+    {
+        auto loc = glGetUniformLocation(shader.value, name.data());
+        return UniformLocation(loc);
+    }
+
+    void GraphicsContext::setUniformFloat(UniformLocation location, float value)
+    {
+        glUniform1f(location.value, value);
+    }
+
+    void GraphicsContext::setUniformMatrix(UniformLocation location, const Matrix4f& matrix)
+    {
+        glUniformMatrix4fv(location.value, 1, GL_FALSE, matrix.data);
+    }
+
+    void GraphicsContext::drawTriangles(const GlMesh& mesh)
+    {
+        glBindVertexArray(mesh.vao.get().value);
+        glDrawArrays(GL_TRIANGLES, 0, mesh.vertexCount);
+        glBindVertexArray(0);
+    }
+
+    void GraphicsContext::drawLines(const GlMesh& mesh)
+    {
+        glBindVertexArray(mesh.vao.get().value);
+        glDrawArrays(GL_LINES, 0, mesh.vertexCount);
+        glBindVertexArray(0);
+    }
+
+    void GraphicsContext::drawLineLoop(const GlMesh& mesh)
+    {
+        glBindVertexArray(mesh.vao.get().value);
+        glDrawArrays(GL_LINE_LOOP, 0, mesh.vertexCount);
+        glBindVertexArray(0);
+    }
+
+    Sprite GraphicsContext::createSprite(
+        const Rectangle2f& bounds,
+        const Rectangle2f& textureRegion,
+        const SharedTextureHandle& texture)
+    {
+        std::vector<GlTexturedVertex> vertices{
+            {{bounds.left(), bounds.top(), 0.0f}, {textureRegion.left(), textureRegion.top()}},
+            {{bounds.left(), bounds.bottom(), 0.0f}, {textureRegion.left(), textureRegion.bottom()}},
+            {{bounds.right(), bounds.bottom(), 0.0f}, {textureRegion.right(), textureRegion.bottom()}},
+
+            {{bounds.right(), bounds.bottom(), 0.0f}, {textureRegion.right(), textureRegion.bottom()}},
+            {{bounds.right(), bounds.top(), 0.0f}, {textureRegion.right(), textureRegion.top()}},
+            {{bounds.left(), bounds.top(), 0.0f}, {textureRegion.left(), textureRegion.top()}},
+        };
+
+        auto mesh = createTexturedMesh(vertices, GL_STATIC_DRAW);
+        GlTexturedMesh texturedMesh(texture, std::move(mesh));
+
+        return Sprite(bounds, std::move(texturedMesh));
+    }
+
+    void GraphicsContext::enableStencilBuffer()
+    {
+        glEnable(GL_STENCIL_TEST);
+    }
+
+    void GraphicsContext::enableColorBuffer()
+    {
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    }
+
+    void GraphicsContext::disableColorBuffer()
+    {
+        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    }
+
+    void GraphicsContext::disableStencilBuffer()
+    {
+        glDisable(GL_STENCIL_TEST);
+    }
+
+    void GraphicsContext::useStencilBufferAsMask()
+    {
+        glStencilFunc(GL_EQUAL, 1, 0xFF);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+    }
+
+    void GraphicsContext::clearStencilBuffer()
+    {
+        glClear(GL_STENCIL_BUFFER_BIT);
+    }
+
+    void GraphicsContext::useStencilBufferForWrites()
+    {
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     }
 }

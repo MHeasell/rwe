@@ -15,7 +15,7 @@ IndentWidth: 4
 MaxEmptyLinesToKeep: 2
 NamespaceIndentation: All
 PointerAlignment: Left
-SortIncludes: false
+SortIncludes: true
 Standard: Cpp11
 TabWidth: 4
 UseTab: Never

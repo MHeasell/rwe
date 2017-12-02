@@ -2,9 +2,9 @@
 #define RWE_OTA_H
 
 #include <boost/optional.hpp>
+#include <rwe/tdf/TdfBlock.h>
 #include <string>
 #include <vector>
-#include <rwe/tdf/TdfBlock.h>
 
 namespace rwe
 {

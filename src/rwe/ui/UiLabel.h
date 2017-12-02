@@ -22,7 +22,7 @@ namespace rwe
     public:
         UiLabel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, const std::string& text, const std::shared_ptr<SpriteSeries>& font);
 
-        void render(GraphicsContext& context) const override;
+        void render(UiRenderService& context) const override;
 
         void setText(const std::string& newText);
 

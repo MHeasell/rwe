@@ -57,7 +57,7 @@ namespace rwe
             unsigned int sizeY,
             std::shared_ptr<SpriteSeries> sprites);
 
-        void render(GraphicsContext& context) const override;
+        void render(UiRenderService& context) const override;
 
         void mouseDown(MouseButtonEvent event) override;
 
@@ -86,9 +86,9 @@ namespace rwe
         float getScrollBarPercent() const;
 
     private:
-        void drawScrollBox(GraphicsContext& context, float x, float y, float height) const;
+        void drawScrollBox(UiRenderService& context, float x, float y, float height) const;
 
-        void drawScrollBackground(GraphicsContext& graphics, float x, float y, float height) const;
+        void drawScrollBackground(UiRenderService& graphics, float x, float y, float height) const;
 
         ScrollBoxInfo getScrollBoxInfo() const;
 

@@ -1,8 +1,8 @@
 #include "TextureService.h"
 #include "rwe_string.h"
-#include <rwe/pcx.h>
-#include <rwe/Gaf.h>
 #include <boost/interprocess/streams/bufferstream.hpp>
+#include <rwe/Gaf.h>
+#include <rwe/pcx.h>
 #include <rwe/tnt/TntArchive.h>
 
 namespace rwe
@@ -57,14 +57,15 @@ namespace rwe
         {
             SharedTextureHandle handle(graphics->createTexture(currentFrameHeader.width, currentFrameHeader.height, buffer));
 
-            Sprite sprite(
-                Rectangle2f::fromTopLeft(
-                    -currentFrameHeader.posX,
-                    -currentFrameHeader.posY,
-                    currentFrameHeader.width,
-                    currentFrameHeader.height),
-                handle);
+            auto bounds = Rectangle2f::fromTopLeft(
+                -currentFrameHeader.posX,
+                -currentFrameHeader.posY,
+                currentFrameHeader.width,
+                currentFrameHeader.height);
 
+            auto region = Rectangle2f::fromTopLeft(0.0f, 0.0f, 1.0f, 1.0f);
+
+            auto sprite = std::make_shared<Sprite>(graphics->createSprite(bounds, region, handle));
             spriteSeries.sprites.push_back(std::move(sprite));
         }
 
@@ -78,9 +79,13 @@ namespace rwe
         : graphics(graphics), fileSystem(fileSystem), palette(palette)
     {
         SharedTextureHandle handle(graphics->createColorTexture(Color(255, 0, 255)));
+        auto sprite = graphics->createSprite(
+            Rectangle2f(0.5f, 0.5f, 0.5f, 0.5f),
+            Rectangle2f(0.5f, 0.5f, 0.5f, 0.5f),
+            handle);
 
         auto series = std::make_shared<SpriteSeries>();
-        series->sprites.emplace_back(Rectangle2f(0.5f, 0.5f, 0.5f, 0.5f), handle);
+        series->sprites.push_back(std::make_shared<Sprite>(std::move(sprite)));
         defaultSpriteSeries = std::move(series);
     }
 
@@ -165,10 +170,10 @@ namespace rwe
 
     SharedTextureHandle TextureService::getDefaultTexture()
     {
-        return defaultSpriteSeries->sprites[0].texture.texture;
+        return defaultSpriteSeries->sprites[0]->mesh.texture;
     }
 
-    Sprite TextureService::getBitmapRegion(const std::string& bitmapName, int x, int y, int width, int height)
+    std::shared_ptr<Sprite> TextureService::getBitmapRegion(const std::string& bitmapName, int x, int y, int width, int height)
     {
         auto bitmap = getBitmapInternal(bitmapName);
         auto region = Rectangle2f::fromTopLeft(
@@ -176,8 +181,8 @@ namespace rwe
             static_cast<float>(y) / static_cast<float>(bitmap.height),
             static_cast<float>(width) / static_cast<float>(bitmap.width),
             static_cast<float>(height) / static_cast<float>(bitmap.height));
-        Sprite s(Rectangle2f::fromTopLeft(x, y, width, height), bitmap.handle, region);
-        return s;
+        auto bounds = Rectangle2f::fromTopLeft(x, y, width, height);
+        return std::make_shared<Sprite>(graphics->createSprite(bounds, region, bitmap.handle));
     }
 
     TextureService::TextureInfo TextureService::getBitmapInternal(const std::string& bitmapName)
@@ -216,7 +221,7 @@ namespace rwe
         return info;
     }
 
-    Sprite TextureService::getMinimap(const std::string& mapName)
+    std::shared_ptr<Sprite> TextureService::getMinimap(const std::string& mapName)
     {
         auto it = minimapCache.find(mapName);
         if (it != minimapCache.end())
@@ -241,11 +246,20 @@ namespace rwe
         });
 
         SharedTextureHandle texture(graphics->createTexture(minimap.width, minimap.height, rgbMinimap));
-        Sprite sprite(Rectangle2f::fromTopLeft(0.0f, 0.0f, minimap.width, minimap.height), texture);
+        auto sprite = graphics->createSprite(
+            Rectangle2f::fromTopLeft(0.0f, 0.0f, minimap.width, minimap.height),
+            Rectangle2f::fromTopLeft(0.0f, 0.0f, 1.0f, 1.0f),
+            texture);
+        auto spritePtr = std::make_shared<Sprite>(std::move(sprite));
 
-        minimapCache.insert({mapName, sprite});
+        minimapCache.insert({mapName, spritePtr});
 
-        return sprite;
+        return spritePtr;
+    }
+
+    std::shared_ptr<Sprite> TextureService::getDefaultSprite()
+    {
+        return defaultSpriteSeries->sprites[0];
     }
 
     TextureService::TextureInfo::TextureInfo(unsigned int width, unsigned int height, const SharedTextureHandle& handle)

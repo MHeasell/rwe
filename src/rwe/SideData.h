@@ -1,8 +1,8 @@
 #ifndef RWE_SIDEDATA_H
 #define RWE_SIDEDATA_H
 
-#include <string>
 #include <rwe/tdf/TdfBlock.h>
+#include <string>
 
 namespace rwe
 {

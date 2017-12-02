@@ -8,15 +8,11 @@ namespace rwe
         assert(spriteSeries->sprites.size() >= 2);
     }
 
-    void UiButton::render(GraphicsContext& graphics) const
+    void UiButton::render(UiRenderService& graphics) const
     {
-        const Sprite& sprite = pressed ? spriteSeries->sprites[1] : spriteSeries->sprites[0];
-        graphics.drawTextureRegion(
-            posX,
-            posY,
-            sizeX,
-            sizeY,
-            sprite.texture);
+        const auto& sprite = pressed ? *spriteSeries->sprites[1] : *spriteSeries->sprites[0];
+
+        graphics.drawSpriteAbs(posX, posY, sprite);
         float textX = posX + (sizeX / 2.0f);
         float textY = posY + (sizeY / 2.0f);
         graphics.drawTextCentered(textX, pressed ? textY + 1.0f : textY, label, *labelFont);

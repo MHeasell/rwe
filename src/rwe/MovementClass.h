@@ -1,8 +1,8 @@
 #ifndef RWE_MOVEMENTCLASS_H
 #define RWE_MOVEMENTCLASS_H
 
-#include <string>
 #include <rwe/tdf/TdfBlock.h>
+#include <string>
 
 namespace rwe
 {

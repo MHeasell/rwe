@@ -1,23 +1,24 @@
 #ifndef RWE_UISURFACE_H
 #define RWE_UISURFACE_H
 
-#include <rwe/ui/UiComponent.h>
 #include <boost/optional.hpp>
+#include <memory>
+#include <rwe/ui/UiComponent.h>
 
 namespace rwe
 {
     class UiSurface : public UiComponent
     {
     private:
-        boost::optional<Sprite> background;
+        boost::optional<std::shared_ptr<Sprite>> background;
 
     public:
         UiSurface(int posX, int posY, unsigned int sizeX, unsigned int sizeY);
-        UiSurface(int posX, int posY, unsigned int sizeX, unsigned int sizeY, const Sprite& background);
+        UiSurface(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<Sprite> background);
 
-        void render(GraphicsContext& context) const override;
+        void render(UiRenderService& context) const override;
 
-        void setBackground(const Sprite& newBackground);
+        void setBackground(std::shared_ptr<Sprite> newBackground);
         void clearBackground();
     };
 }

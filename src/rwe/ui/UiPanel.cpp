@@ -1,10 +1,10 @@
-#include <rwe/rwe_string.h>
 #include "UiPanel.h"
+#include <rwe/rwe_string.h>
 
 namespace rwe
 {
 
-    UiPanel::UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, Sprite background)
+    UiPanel::UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<Sprite> background)
         : UiComponent(posX, posY, sizeX, sizeY),
           background(std::move(background))
     {
@@ -31,14 +31,9 @@ namespace rwe
         return *this;
     }
 
-    void UiPanel::render(GraphicsContext& graphics) const
+    void UiPanel::render(UiRenderService& graphics) const
     {
-        graphics.drawTextureRegion(
-            posX,
-            posY,
-            sizeX,
-            sizeY,
-            background.texture);
+        graphics.drawSpriteAbs(posX, posY, *background);
 
         graphics.pushMatrix();
         graphics.multiplyMatrix(Matrix4f::translation(Vector3f(posX, posY, 0.0f)));

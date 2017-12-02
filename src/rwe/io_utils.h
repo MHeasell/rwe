@@ -1,8 +1,8 @@
 #ifndef RWE_IO_UTILS_H
 #define RWE_IO_UTILS_H
 
-#include <istream>
 #include <cassert>
+#include <istream>
 
 namespace rwe
 {

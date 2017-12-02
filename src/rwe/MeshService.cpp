@@ -1,9 +1,9 @@
-#include <boost/interprocess/streams/bufferstream.hpp>
-#include <rwe/geometry/CollisionMesh.h>
+#include "BoxTreeSplit.h"
+#include "Gaf.h"
 #include "MeshService.h"
 #include "_3do.h"
-#include "Gaf.h"
-#include "BoxTreeSplit.h"
+#include <boost/interprocess/streams/bufferstream.hpp>
+#include <rwe/geometry/CollisionMesh.h>
 #include <rwe/rwe_string.h>
 
 namespace rwe
@@ -228,7 +228,7 @@ namespace rwe
             convertFixedPoint(o.y),
             convertFixedPoint(o.z));
         m.name = o.name;
-        m.mesh = std::make_shared<ShaderMesh>(graphics->convertMesh(meshFrom3do(o, teamColor)));
+        m.mesh = std::make_shared<ShaderMesh>(convertMesh(meshFrom3do(o, teamColor)));
 
         for (const auto& c : o.children)
         {
@@ -299,11 +299,50 @@ namespace rwe
         auto d = offset + vertexToVector(o.vertices[p.vertices[3]]);
 
         auto collisionMesh = CollisionMesh::fromQuad(a, b, c, d);
-        auto selectionMesh = graphics->createSelectionMesh(a, b, c, d);
+        auto selectionMesh = createSelectionMesh(a, b, c, d);
 
-        SelectionMesh sm;
-        sm.collisionMesh = std::move(collisionMesh);
-        sm.visualMesh = std::move(selectionMesh);
-        return sm;
+        return SelectionMesh{std::move(collisionMesh), std::move(selectionMesh)};
+    }
+
+    GlMesh MeshService::createSelectionMesh(const Vector3f& a, const Vector3f& b, const Vector3f& c, const Vector3f& d)
+    {
+        const Vector3f color(0.325f, 0.875f, 0.310f);
+
+        std::vector<GlColoredVertex> buffer{
+            {a, color},
+            {b, color},
+            {c, color},
+            {d, color}};
+
+        return graphics->createColoredMesh(buffer, GL_STATIC_DRAW);
+    }
+
+    ShaderMesh MeshService::convertMesh(const Mesh& mesh)
+    {
+        std::vector<GlTexturedVertex> texturedVerticesBuffer;
+        texturedVerticesBuffer.reserve(mesh.faces.size() * 3);
+
+        for (const auto& t : mesh.faces)
+        {
+            texturedVerticesBuffer.emplace_back(t.a.position, t.a.textureCoord);
+            texturedVerticesBuffer.emplace_back(t.b.position, t.b.textureCoord);
+            texturedVerticesBuffer.emplace_back(t.c.position, t.c.textureCoord);
+        }
+
+        auto texturedMesh = graphics->createTexturedMesh(texturedVerticesBuffer, GL_STATIC_DRAW);
+
+        std::vector<GlColoredVertex> coloredVerticesBuffer;
+        for (const auto& t : mesh.colorFaces)
+        {
+            auto color = Vector3f(t.color.r, t.color.g, t.color.b) / 255.0f;
+
+            coloredVerticesBuffer.emplace_back(t.a.position, color);
+            coloredVerticesBuffer.emplace_back(t.b.position, color);
+            coloredVerticesBuffer.emplace_back(t.c.position, color);
+        }
+
+        auto coloredMesh = graphics->createColoredMesh(coloredVerticesBuffer, GL_STATIC_DRAW);
+
+        return ShaderMesh(mesh.texture, std::move(texturedMesh), std::move(coloredMesh));
     }
 }

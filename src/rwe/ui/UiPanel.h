@@ -1,10 +1,10 @@
 #ifndef RWE_UIPANEL_H
 #define RWE_UIPANEL_H
 
-#include <boost/optional.hpp>
 #include <GL/glew.h>
-#include <rwe/TextureHandle.h>
+#include <boost/optional.hpp>
 #include <rwe/GraphicsContext.h>
+#include <rwe/TextureHandle.h>
 #include <rwe/ui/UiComponent.h>
 
 namespace rwe
@@ -12,12 +12,12 @@ namespace rwe
     class UiPanel : public UiComponent
     {
     private:
-        Sprite background;
+        std::shared_ptr<Sprite> background;
         std::vector<std::unique_ptr<UiComponent>> children;
         boost::optional<UiComponent*> focusedChild{boost::none};
 
     public:
-        UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, Sprite background);
+        UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<Sprite> background);
 
         UiPanel(const UiPanel&) = delete;
         UiPanel& operator=(const UiPanel&) = delete;
@@ -28,7 +28,7 @@ namespace rwe
 
         ~UiPanel() override = default;
 
-        void render(GraphicsContext& graphics) const override;
+        void render(UiRenderService& graphics) const override;
 
         void mouseDown(MouseButtonEvent event) override;
 

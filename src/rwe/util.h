@@ -1,8 +1,8 @@
 #ifndef RWE_UTIL_H
 #define RWE_UTIL_H
 
-#include <boost/optional.hpp>
 #include <boost/filesystem/path.hpp>
+#include <boost/optional.hpp>
 
 namespace rwe
 {

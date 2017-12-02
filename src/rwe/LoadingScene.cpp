@@ -1,9 +1,9 @@
+#include "LoadingScene.h"
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include <rwe/ota.h>
 #include <rwe/tdf.h>
 #include <rwe/tnt/TntArchive.h>
 #include <rwe/ui/UiLabel.h>
-#include "LoadingScene.h"
 
 namespace rwe
 {
@@ -19,6 +19,7 @@ namespace rwe
         AudioService* audioService,
         CursorService* cursor,
         GraphicsContext* graphics,
+        ShaderService* shaders,
         MapFeatureService* featureService,
         const ColorPalette* palette,
         SceneManager* sceneManager,
@@ -32,12 +33,15 @@ namespace rwe
           audioService(audioService),
           cursor(cursor),
           graphics(graphics),
+          shaders(shaders),
           featureService(featureService),
           palette(palette),
           sceneManager(sceneManager),
           sdl(sdl),
           sideData(sideData),
           viewportService(viewportService),
+          scaledUiRenderService(graphics, shaders, UiCamera(640.0, 480.0f)),
+          nativeUiRenderService(graphics, shaders, UiCamera(viewportService->width(), viewportService->height())),
           bgm(std::move(bgm)),
           gameParameters(std::move(gameParameters))
     {
@@ -88,8 +92,8 @@ namespace rwe
 
     void LoadingScene::render(GraphicsContext& context)
     {
-        panel->render(context);
-        cursor->render(context);
+        panel->render(scaledUiRenderService);
+        cursor->render(nativeUiRenderService);
     }
 
     std::unique_ptr<GameScene> LoadingScene::createGameScene(const std::string& mapName, unsigned int schemaIndex)
@@ -108,23 +112,9 @@ namespace rwe
         CabinetCamera camera(viewportService->width(), viewportService->height());
         camera.setPosition(Vector3f(0.0f, 0.0f, 0.0f));
 
+        UiCamera uiCamera(viewportService->width(), viewportService->height());
+
         auto meshService = MeshService::createMeshService(vfs, graphics, palette);
-
-        std::vector<AttribMapping> unitTextureShaderAttribs{
-            AttribMapping{"position", 0},
-            AttribMapping{"texCoord", 1}};
-
-        std::vector<AttribMapping> unitColorShaderAttribs{
-            AttribMapping{"position", 0},
-            AttribMapping{"color", 1}};
-
-        std::vector<AttribMapping> basicColorShaderAttribs{
-            AttribMapping{"position", 0},
-            AttribMapping{"color", 1}};
-
-        SharedShaderProgramHandle unitTextureShader{loadShader("shaders/unitTexture.vert", "shaders/unitTexture.frag", unitTextureShaderAttribs)};
-        SharedShaderProgramHandle unitColorShader{loadShader("shaders/unitColor.vert", "shaders/unitColor.frag", unitColorShaderAttribs)};
-        SharedShaderProgramHandle basicColorShader{loadShader("shaders/basicColor.vert", "shaders/basicColor.frag", basicColorShaderAttribs)};
 
         auto unitDatabase = createUnitDatabase();
 
@@ -149,18 +139,19 @@ namespace rwe
             }
         }
 
+        RenderService renderService(graphics, shaders, camera);
+        UiRenderService uiRenderService(graphics, shaders, uiCamera);
+
         auto gameScene = std::make_unique<GameScene>(
             textureService,
             cursor,
             sdl,
             audioService,
             viewportService,
+            std::move(renderService),
+            std::move(uiRenderService),
             std::move(meshService),
-            std::move(camera),
             std::move(terrain),
-            std::move(unitTextureShader),
-            std::move(unitColorShader),
-            std::move(basicColorShader),
             std::move(unitDatabase),
             std::move(gamePlayers),
             localPlayerId);
@@ -425,26 +416,6 @@ namespace rwe
         assert(x < heightmap.getWidth() - 1);
         assert(y < heightmap.getHeight() - 1);
         return (heightmap.get(x, y) + heightmap.get(x + 1, y) + heightmap.get(x, y + 1) + heightmap.get(x + 1, y + 1)) / 4u;
-    }
-
-    ShaderProgramHandle
-    LoadingScene::loadShader(const std::string& vertexShaderName, const std::string& fragmentShaderName, const std::vector<AttribMapping>& attribs)
-    {
-        auto vertexShaderSource = slurpFile(vertexShaderName);
-        auto vertexShader = graphics->compileVertexShader(vertexShaderSource);
-
-        auto fragmentShaderSource = slurpFile(fragmentShaderName);
-        auto fragmentShader = graphics->compileFragmentShader(fragmentShaderSource);
-
-        return graphics->linkShaderProgram(vertexShader.get(), fragmentShader.get(), attribs);
-    }
-
-    std::string LoadingScene::slurpFile(const std::string& filename)
-    {
-        std::ifstream inFile(filename, std::ios::binary);
-        std::stringstream strStream;
-        strStream << inFile.rdbuf();
-        return strStream.str();
     }
 
     const SideData& LoadingScene::getSideData(const std::string& side) const

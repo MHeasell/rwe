@@ -2,12 +2,12 @@
 #define RWE_SIMPLETDFADAPTER_H
 
 #include <boost/variant.hpp>
+#include <memory>
+#include <rwe/tdf/TdfBlock.h>
 #include <rwe/tdf/TdfParser.h>
 #include <stack>
 #include <string>
 #include <vector>
-#include <memory>
-#include <rwe/tdf/TdfBlock.h>
 
 namespace rwe
 {

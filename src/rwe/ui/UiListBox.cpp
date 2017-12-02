@@ -7,7 +7,7 @@ namespace rwe
     {
     }
 
-    void UiListBox::render(GraphicsContext& context) const
+    void UiListBox::render(UiRenderService& context) const
     {
         auto lines = std::min<unsigned int>(numberOfLines(), items.size());
 

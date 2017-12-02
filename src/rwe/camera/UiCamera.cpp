@@ -2,24 +2,12 @@
 
 namespace rwe
 {
-    Matrix4f UiCamera::getViewMatrix() const
+    UiCamera::UiCamera(float width, float height)
+        : width(width),
+          height(height),
+          projectionMatrix(Matrix4f::orthographicProjection(0.0f, width, height, 0.0f, 100.0f, -100.0f)),
+          inverseProjectionMatrix(Matrix4f::inverseOrthographicProjection(0.0f, width, height, 0.0f, 100.0f, -100.0f))
     {
-        return Matrix4f::identity();
-    }
-
-    Matrix4f UiCamera::getInverseViewMatrix() const
-    {
-        return Matrix4f::identity();
-    }
-
-    Matrix4f UiCamera::getProjectionMatrix() const
-    {
-        return Matrix4f::orthographicProjection(0.0f, width, height, 0.0f, 100.0f, -100.0f);
-    }
-
-    Matrix4f UiCamera::getInverseProjectionMatrix() const
-    {
-        return Matrix4f::inverseOrthographicProjection(0.0f, width, height, 0.0f, 100.0f, -100.0f);
     }
 
     float UiCamera::getWidth()
@@ -30,5 +18,15 @@ namespace rwe
     float UiCamera::getHeight()
     {
         return height;
+    }
+
+    const Matrix4f& UiCamera::getViewProjectionMatrix() const
+    {
+        return projectionMatrix;
+    }
+
+    const Matrix4f& UiCamera::getInverseViewProjectionMatrix() const
+    {
+        return inverseProjectionMatrix;
     }
 }

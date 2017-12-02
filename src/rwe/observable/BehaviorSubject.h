@@ -1,9 +1,9 @@
 #ifndef RWE_BEHAVIORSUBJECT_H
 #define RWE_BEHAVIORSUBJECT_H
 
+#include "Subject.h"
 #include <functional>
 #include <rwe/observable/Subscription.h>
-#include "Subject.h"
 
 namespace rwe
 {

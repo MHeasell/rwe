@@ -2,7 +2,7 @@
 #define RWE_UICOMPONENT_H
 
 #include <memory>
-#include <rwe/GraphicsContext.h>
+#include <rwe/UiRenderService.h>
 #include <rwe/events.h>
 #include <rwe/observable/Subscription.h>
 #include <vector>
@@ -63,7 +63,7 @@ namespace rwe
 
         virtual void unfocus() {}
 
-        virtual void render(GraphicsContext& /*graphics*/) const {}
+        virtual void render(UiRenderService& /*graphics*/) const {}
 
         virtual void mouseMove(MouseMoveEvent event);
 

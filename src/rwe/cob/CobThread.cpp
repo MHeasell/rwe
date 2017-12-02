@@ -1,7 +1,7 @@
 #include "CobThread.h"
-#include <rwe/cob/CobEnvironment.h>
 #include <boost/variant.hpp>
 #include <rwe/SceneManager.h>
+#include <rwe/cob/CobEnvironment.h>
 
 namespace rwe
 {

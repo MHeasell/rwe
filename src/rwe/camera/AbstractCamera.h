@@ -20,17 +20,9 @@ namespace rwe
         AbstractCamera(AbstractCamera&& c) = default;
         AbstractCamera& operator=(AbstractCamera&& c) = default;
 
-        virtual Matrix4f getViewMatrix() const = 0;
+        virtual const Matrix4f& getViewProjectionMatrix() const = 0;
 
-        virtual Matrix4f getInverseViewMatrix() const = 0;
-
-        virtual Matrix4f getProjectionMatrix() const = 0;
-
-        virtual Matrix4f getInverseProjectionMatrix() const = 0;
-
-        Matrix4f getViewProjectionMatrix() const;
-
-        Matrix4f getInverseViewProjectionMatrix() const;
+        virtual const Matrix4f& getInverseViewProjectionMatrix() const = 0;
 
         /**
          * Returns the 8 points defining the frustum volume.

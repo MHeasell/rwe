@@ -23,13 +23,13 @@ namespace rwe
         currentCursor = _selectCursor.get();
     }
 
-    void CursorService::render(GraphicsContext& graphics) const
+    void CursorService::render(UiRenderService& renderer) const
     {
         int x;
         int y;
 
         sdlContext->getMouseState(&x, &y);
 
-        graphics.drawSprite(x, y, currentCursor->sprites[0]);
+        renderer.drawSprite(x, y, *(currentCursor->sprites[0]));
     }
 }

@@ -1,16 +1,16 @@
-#include <iostream>
-#include <rwe/util.h>
-#include <rwe/vfs/CompositeVirtualFileSystem.h>
-#include <rwe/vfs/AbstractVirtualFileSystem.h>
+#include <boost/functional/hash.hpp>
 #include <boost/interprocess/streams/bufferstream.hpp>
-#include <rwe/Gaf.h>
+#include <iostream>
+#include <memory>
+#include <png++/png.hpp>
 #include <rwe/BoxTreeSplit.h>
 #include <rwe/ColorPalette.h>
-#include <vector>
-#include <memory>
+#include <rwe/Gaf.h>
+#include <rwe/util.h>
+#include <rwe/vfs/AbstractVirtualFileSystem.h>
+#include <rwe/vfs/CompositeVirtualFileSystem.h>
 #include <string>
-#include <png++/png.hpp>
-#include <boost/functional/hash.hpp>
+#include <vector>
 
 namespace rwe
 {

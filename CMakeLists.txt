@@ -72,8 +72,6 @@ set(SOURCE_FILES
     src/rwe/ColorPalette.h
     src/rwe/CursorService.cpp
     src/rwe/CursorService.h
-    src/rwe/DebugLinesMesh.cpp
-    src/rwe/DebugLinesMesh.h
     src/rwe/DiscreteRect.h
     src/rwe/FeatureDefinition.cpp
     src/rwe/FeatureDefinition.h
@@ -81,6 +79,10 @@ set(SOURCE_FILES
     src/rwe/GameScene.cpp
     src/rwe/GameScene.h
     src/rwe/GlIdentifier.h
+    src/rwe/GlMesh.cpp
+    src/rwe/GlMesh.h
+    src/rwe/GlTexturedMesh.cpp
+    src/rwe/GlTexturedMesh.h
     src/rwe/GraphicsContext.cpp
     src/rwe/GraphicsContext.h
     src/rwe/Grid.h
@@ -112,6 +114,8 @@ set(SOURCE_FILES
     src/rwe/PlayerId.h
     src/rwe/Point.cpp
     src/rwe/Point.h
+    src/rwe/RenderService.cpp
+    src/rwe/RenderService.h
     src/rwe/SceneManager.cpp
     src/rwe/SceneManager.h
     src/rwe/SdlContextManager.cpp
@@ -122,6 +126,8 @@ set(SOURCE_FILES
     src/rwe/ShaderMesh.cpp
     src/rwe/ShaderMesh.h
     src/rwe/ShaderProgramHandle.h
+    src/rwe/ShaderService.cpp
+    src/rwe/ShaderService.h
     src/rwe/SharedHandle.h
     src/rwe/SideData.cpp
     src/rwe/SideData.h
@@ -136,6 +142,9 @@ set(SOURCE_FILES
     src/rwe/TextureRegion.h
     src/rwe/TextureService.cpp
     src/rwe/TextureService.h
+    src/rwe/UiRenderService.cpp
+    src/rwe/UiRenderService.h
+    src/rwe/UniformLocation.h
     src/rwe/UniqueHandle.h
     src/rwe/Unit.cpp
     src/rwe/Unit.h

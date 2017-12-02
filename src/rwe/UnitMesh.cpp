@@ -1,6 +1,6 @@
-#include <rwe/math/rwe_math.h>
 #include "UnitMesh.h"
 #include "util.h"
+#include <rwe/math/rwe_math.h>
 
 namespace rwe
 {
@@ -38,29 +38,6 @@ namespace rwe
             {
                 currentAngle += frameSpeed * (remaining > 0.0f ? 1.0f : -1.0f);
             }
-        }
-    }
-
-    void UnitMesh::render(
-        GraphicsContext& context,
-        ShaderProgramIdentifier textureShader,
-        ShaderProgramIdentifier colorShader,
-        const Matrix4f& modelMatrix,
-        const Matrix4f& viewMatrix,
-        const Matrix4f& projectionMatrix,
-        float seaLevel) const
-    {
-        Vector3f testRotation(-rotation.x, rotation.y, rotation.z);
-        auto matrix = modelMatrix * Matrix4f::translation(origin) * Matrix4f::rotationXYZ(testRotation) * Matrix4f::translation(offset);
-
-        if (visible)
-        {
-            context.drawShaderMesh(*mesh, textureShader, colorShader, matrix, viewMatrix, projectionMatrix, seaLevel);
-        }
-
-        for (const auto& c : children)
-        {
-            c.render(context, textureShader, colorShader, matrix, viewMatrix, projectionMatrix, seaLevel);
         }
     }
 

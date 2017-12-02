@@ -1,12 +1,12 @@
 #ifndef RWE_COBENVIRONMENT_H
 #define RWE_COBENVIRONMENT_H
 
-#include <vector>
+#include <boost/variant.hpp>
 #include <memory>
 #include <rwe/Cob.h>
-#include <rwe/cob/CobThread.h>
-#include <boost/variant.hpp>
 #include <rwe/UnitId.h>
+#include <rwe/cob/CobThread.h>
+#include <vector>
 
 
 namespace rwe

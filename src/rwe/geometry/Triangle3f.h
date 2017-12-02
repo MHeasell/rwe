@@ -2,9 +2,9 @@
 #define RWE_GEOMETRY_TRANGLE3F_H
 
 #include <boost/optional.hpp>
-#include <rwe/math/Vector3f.h>
-#include <rwe/geometry/Ray3f.h>
 #include <rwe/geometry/Plane3f.h>
+#include <rwe/geometry/Ray3f.h>
+#include <rwe/math/Vector3f.h>
 
 namespace rwe
 {

@@ -3,9 +3,9 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <rwe/ColorPalette.h>
 #include <stdexcept>
 #include <vector>
-#include <rwe/ColorPalette.h>
 
 namespace rwe
 {

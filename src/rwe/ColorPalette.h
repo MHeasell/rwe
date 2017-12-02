@@ -1,9 +1,9 @@
 #ifndef RWE_COLORPALETTE_H
 #define RWE_COLORPALETTE_H
 
+#include <boost/optional.hpp>
 #include <cstdint>
 #include <vector>
-#include <boost/optional.hpp>
 
 namespace rwe
 {

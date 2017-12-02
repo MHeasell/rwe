@@ -1,12 +1,12 @@
 #ifndef RWE_GAF_H
 #define RWE_GAF_H
 
+#include <boost/optional.hpp>
 #include <cstdint>
+#include <istream>
+#include <stdexcept>
 #include <string>
 #include <vector>
-#include <stdexcept>
-#include <istream>
-#include <boost/optional.hpp>
 
 namespace rwe
 {

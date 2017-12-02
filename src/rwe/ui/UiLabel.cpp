@@ -3,7 +3,7 @@
 namespace rwe
 {
 
-    void UiLabel::render(GraphicsContext& context) const
+    void UiLabel::render(UiRenderService& context) const
     {
         switch (alignment)
         {

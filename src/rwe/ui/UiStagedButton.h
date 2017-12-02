@@ -38,7 +38,7 @@ namespace rwe
             std::vector<std::string> _labels,
             std::shared_ptr<SpriteSeries> _labelFont);
 
-        void render(GraphicsContext& graphics) const override;
+        void render(UiRenderService& graphics) const override;
 
         void mouseDown(MouseButtonEvent /*event*/) override;
 

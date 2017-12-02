@@ -1,23 +1,17 @@
 #ifndef RWE_SELECTIONMESH_H
 #define RWE_SELECTIONMESH_H
 
-#include <rwe/geometry/CollisionMesh.h>
-#include "VboHandle.h"
 #include "VaoHandle.h"
+#include "VboHandle.h"
+#include <rwe/GlMesh.h>
+#include <rwe/geometry/CollisionMesh.h>
 
 namespace rwe
 {
-    struct VisualSelectionMesh
-    {
-        VboHandle vbo;
-        unsigned int vertexCount;
-        VaoHandle vao;
-    };
-
     struct SelectionMesh
     {
         CollisionMesh collisionMesh;
-        VisualSelectionMesh visualMesh;
+        GlMesh visualMesh;
     };
 }
 

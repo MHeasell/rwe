@@ -1,19 +1,21 @@
 #ifndef RWE_GAMESCENE_H
 #define RWE_GAMESCENE_H
 
+#include "AudioService.h"
+#include "DiscreteRect.h"
+#include "MeshService.h"
+#include "OccupiedGrid.h"
+#include "RenderService.h"
+#include "UiRenderService.h"
+#include "UnitDatabase.h"
+#include "UnitId.h"
 #include <rwe/CursorService.h>
+#include <rwe/PlayerId.h>
 #include <rwe/SceneManager.h>
 #include <rwe/TextureService.h>
 #include <rwe/Unit.h>
-#include <rwe/camera/UiCamera.h>
-#include "MeshService.h"
-#include "UnitDatabase.h"
-#include "AudioService.h"
-#include "UnitId.h"
-#include "OccupiedGrid.h"
-#include "DiscreteRect.h"
 #include <rwe/ViewportService.h>
-#include <rwe/PlayerId.h>
+#include <rwe/camera/UiCamera.h>
 
 namespace rwe
 {
@@ -41,14 +43,14 @@ namespace rwe
         AudioService* audioService;
         ViewportService* viewportService;
 
+        RenderService renderService;
+        UiRenderService uiRenderService;
+
         MeshService meshService;
 
-        CabinetCamera camera;
         MapTerrain terrain;
 
         std::vector<Unit> units;
-
-        UiCamera uiCamera;
 
         bool left{false};
         bool right{false};
@@ -57,11 +59,6 @@ namespace rwe
 
         bool leftShiftDown{false};
         bool rightShiftDown{false};
-
-        SharedShaderProgramHandle unitTextureShader;
-        SharedShaderProgramHandle unitColorShader;
-
-        SharedShaderProgramHandle basicColorShader;
 
         UnitDatabase unitDatabase;
 
@@ -85,12 +82,10 @@ namespace rwe
             SdlContext* sdl,
             AudioService* audioService,
             ViewportService* viewportService,
+            RenderService&& renderService,
+            UiRenderService&& uiRenderService,
             MeshService&& meshService,
-            CabinetCamera&& camera,
             MapTerrain&& terrain,
-            SharedShaderProgramHandle&& unitTextureShader,
-            SharedShaderProgramHandle&& unitColorShader,
-            SharedShaderProgramHandle&& selectBoxShader,
             UnitDatabase&& unitDatabase,
             std::array<boost::optional<GamePlayerInfo>, 10>&& players,
             PlayerId localPlayerId);
@@ -169,11 +164,6 @@ namespace rwe
         boost::optional<GamePlayerInfo>& getPlayer(PlayerId player);
 
         const boost::optional<GamePlayerInfo>& getPlayer(PlayerId player) const;
-
-        void renderOccupiedGrid(
-            GraphicsContext& graphics,
-            const Matrix4f& viewMatrix,
-            const Matrix4f& projectionMatrix);
     };
 }
 

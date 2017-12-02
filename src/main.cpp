@@ -5,27 +5,47 @@
 #include <rwe/SceneManager.h>
 
 #include <memory>
+#include <rwe/tdf.h>
 #include <rwe/ui/UiFactory.h>
 #include <rwe/vfs/CompositeVirtualFileSystem.h>
-#include <rwe/tdf.h>
 
-#include <rwe/gui.h>
-#include <iostream>
-#include <rwe/MainMenuScene.h>
-#include <rwe/ColorPalette.h>
 #include <boost/filesystem.hpp>
+#include <iostream>
 #include <rwe/AudioService.h>
+#include <rwe/ColorPalette.h>
 #include <rwe/LoadingScene.h>
+#include <rwe/MainMenuScene.h>
+#include <rwe/gui.h>
 
-#include <rwe/util.h>
+#include <rwe/ShaderService.h>
 #include <rwe/ViewportService.h>
-#include <spdlog/spdlog.h>
 #include <rwe/config.h>
+#include <rwe/util.h>
+#include <spdlog/spdlog.h>
 
 namespace fs = boost::filesystem;
 
 namespace rwe
 {
+    std::string slurpFile(const std::string& filename)
+    {
+        std::ifstream inFile(filename, std::ios::binary);
+        std::stringstream strStream;
+        strStream << inFile.rdbuf();
+        return strStream.str();
+    }
+
+    ShaderProgramHandle loadShader(GraphicsContext* graphics, const std::string& vertexShaderName, const std::string& fragmentShaderName, const std::vector<AttribMapping>& attribs)
+    {
+        auto vertexShaderSource = slurpFile(vertexShaderName);
+        auto vertexShader = graphics->compileVertexShader(vertexShaderSource);
+
+        auto fragmentShaderSource = slurpFile(fragmentShaderName);
+        auto fragmentShader = graphics->compileFragmentShader(fragmentShaderSource);
+
+        return graphics->linkShaderProgram(vertexShader.get(), fragmentShader.get(), attribs);
+    }
+
     int run(spdlog::logger& logger, const fs::path& localDataPath, const boost::optional<std::string>& mapName)
     {
         logger.info(ProjectNameVersion);
@@ -42,7 +62,7 @@ namespace rwe
         int requiredOpenGlMajorVersion = 3;
         int requiredOpenGlMinorVersion = 2;
 
-        logger.info("Requesting OpenGL version {0}.{1}, {2} profile", requiredOpenGlMajorVersion, requiredOpenGlMinorVersion, "compatibility");
+        logger.info("Requesting OpenGL version {0}.{1}, {2} profile", requiredOpenGlMajorVersion, requiredOpenGlMinorVersion, "core");
         if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, requiredOpenGlMajorVersion) != 0)
         {
             throw std::runtime_error(SDL_GetError());
@@ -51,7 +71,7 @@ namespace rwe
         {
             throw std::runtime_error(SDL_GetError());
         }
-        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY) != 0)
+        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE) != 0)
         {
             throw std::runtime_error(SDL_GetError());
         }
@@ -124,6 +144,9 @@ namespace rwe
         logger.info("Initializing services");
         GraphicsContext graphics;
         graphics.enableCulling();
+        graphics.enableBlending();
+
+        ShaderService shaders = ShaderService::createShaderService(graphics);
 
         TextureService textureService(&graphics, &vfs, &*palette);
 
@@ -181,6 +204,7 @@ namespace rwe
                 &audioService,
                 &cursor,
                 &graphics,
+                &shaders,
                 &featureService,
                 &*palette,
                 &sceneManager,
@@ -201,6 +225,7 @@ namespace rwe
                 &audioService,
                 &allSoundTdf,
                 &graphics,
+                &shaders,
                 &featureService,
                 &*palette,
                 &cursor,

@@ -1,6 +1,5 @@
 #include "MapTerrain.h"
-#include <rwe/GraphicsContext.h>
-#include <rwe/camera/CabinetCamera.h>
+#include <cmath>
 #include <rwe/geometry/Plane3f.h>
 #include <rwe/geometry/Triangle3f.h>
 
@@ -13,40 +12,6 @@ namespace rwe
         float seaLevel)
         : tileGraphics(std::move(tileGraphics)), tiles(std::move(tiles)), heights(std::move(heights)), seaLevel(seaLevel)
     {
-    }
-
-    void MapTerrain::render(GraphicsContext& graphics, const CabinetCamera& cabinetCamera) const
-    {
-        Vector3f cameraExtents(cabinetCamera.getWidth() / 2.0f, 0.0f, cabinetCamera.getHeight() / 2.0f);
-        auto topLeft = worldToTileCoordinate(cabinetCamera.getPosition() - cameraExtents);
-        auto bottomRight = worldToTileCoordinate(cabinetCamera.getPosition() + cameraExtents);
-        auto x1 = static_cast<unsigned int>(std::clamp<int>(topLeft.x, 0, tiles.getWidth() - 1));
-        auto y1 = static_cast<unsigned int>(std::clamp<int>(topLeft.y, 0, tiles.getHeight() - 1));
-        auto x2 = static_cast<unsigned int>(std::clamp<int>(bottomRight.x, 0, tiles.getWidth() - 1));
-        auto y2 = static_cast<unsigned int>(std::clamp<int>(bottomRight.y, 0, tiles.getHeight() - 1));
-
-        graphics.drawMapTerrain(*this, x1, y1, (x2 + 1) - x1, (y2 + 1) - y1);
-    }
-
-    void MapTerrain::renderFlatFeatures(GraphicsContext& graphics, const CabinetCamera& cabinetCamera) const
-    {
-        for (const auto& f : features)
-        {
-            if (!f.isBlocking())
-            {
-                graphics.drawFeature(f);
-            }
-        }
-    }
-    void MapTerrain::renderStandingFeatures(GraphicsContext& graphics, const CabinetCamera& cabinetCamera) const
-    {
-        for (const auto& f : features)
-        {
-            if (f.isBlocking())
-            {
-                graphics.drawFeature(f);
-            }
-        }
     }
 
     const TextureRegion& MapTerrain::getTileTexture(std::size_t index) const

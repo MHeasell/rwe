@@ -1,8 +1,8 @@
-#include <rwe/Gaf.h>
-#include <string>
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <rwe/Gaf.h>
+#include <string>
 
 #include <boost/filesystem.hpp>
 

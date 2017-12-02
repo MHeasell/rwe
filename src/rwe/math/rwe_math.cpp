@@ -1,8 +1,8 @@
 #include "rwe_math.h"
+#include <cassert>
+#include <cmath>
 #include <cstdlib>
 #include <stdexcept>
-#include <cmath>
-#include <cassert>
 
 
 namespace rwe

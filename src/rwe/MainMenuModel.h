@@ -20,13 +20,13 @@ namespace rwe
             std::string description;
             std::string size;
 
-            Sprite minimap;
+            std::shared_ptr<Sprite> minimap;
 
             SelectedMapInfo(
                 const std::string& name,
                 const std::string& description,
                 const std::string& size,
-                const Sprite& minimap);
+                const std::shared_ptr<Sprite>& minimap);
 
             bool operator==(const SelectedMapInfo& rhs) const;
 

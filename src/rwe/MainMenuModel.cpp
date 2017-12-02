@@ -19,7 +19,7 @@ namespace rwe
         const std::string& name,
         const std::string& description,
         const std::string& size,
-        const Sprite& minimap)
+        const std::shared_ptr<Sprite>& minimap)
         : name(name),
           description(description),
           size(size),

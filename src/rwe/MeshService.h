@@ -1,12 +1,12 @@
 #ifndef RWE_MESHSERVICE_H
 #define RWE_MESHSERVICE_H
 
-#include <memory>
-#include <rwe/TextureService.h>
-#include <rwe/vfs/AbstractVirtualFileSystem.h>
 #include "UnitMesh.h"
 #include "_3do.h"
 #include <boost/functional/hash.hpp>
+#include <memory>
+#include <rwe/TextureService.h>
+#include <rwe/vfs/AbstractVirtualFileSystem.h>
 
 namespace rwe
 {
@@ -73,6 +73,10 @@ namespace rwe
         UnitMesh unitMeshFrom3do(const _3do::Object& o, unsigned int teamColor);
 
         SelectionMesh selectionMeshFrom3do(const _3do::Object& o);
+
+        GlMesh createSelectionMesh(const Vector3f& a, const Vector3f& b, const Vector3f& c, const Vector3f& d);
+
+        ShaderMesh convertMesh(const Mesh& mesh);
     };
 }
 

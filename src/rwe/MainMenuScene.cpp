@@ -1,8 +1,8 @@
-#include "MainMenuScene.h"
-#include "tdf.h"
-#include "ota.h"
-#include "MainMenuModel.h"
 #include "LoadingScene.h"
+#include "MainMenuModel.h"
+#include "MainMenuScene.h"
+#include "ota.h"
+#include "tdf.h"
 
 #include <rwe/gui.h>
 
@@ -15,6 +15,7 @@ namespace rwe
         AudioService* audioService,
         TdfBlock* audioLookup,
         GraphicsContext* graphics,
+        ShaderService* shaders,
         MapFeatureService* featureService,
         const ColorPalette* palette,
         CursorService* cursor,
@@ -29,18 +30,19 @@ namespace rwe
           audioService(audioService),
           soundLookup(audioLookup),
           graphics(graphics),
+          shaders(shaders),
           featureService(featureService),
           palette(palette),
           cursor(cursor),
           sdl(sdl),
           sideData(sideData),
           viewportService(viewportService),
+          scaledUiRenderService(graphics, shaders, UiCamera(640.0f, 480.0f)),
+          nativeUiRenderService(graphics, shaders, UiCamera(width, height)),
           model(),
           uiFactory(textureService, audioService, soundLookup, vfs, &model, this),
           panelStack(),
           dialogStack(),
-          scaledUiCamera(640, 480),
-          nativeUiCamera(width, height),
           bgm()
     {
     }
@@ -53,17 +55,15 @@ namespace rwe
 
     void MainMenuScene::render(GraphicsContext& context)
     {
-        context.applyCamera(scaledUiCamera);
-        panelStack.back()->render(context);
+        panelStack.back()->render(scaledUiRenderService);
 
         for (auto& e : dialogStack)
         {
-            context.fillColor(0.0f, 0.0f, scaledUiCamera.getWidth(), scaledUiCamera.getHeight(), Color(0, 0, 0, 63));
-            e->render(context);
+            scaledUiRenderService.fillScreen(Color(0, 0, 0, 63));
+            e->render(scaledUiRenderService);
         }
 
-        context.applyCamera(nativeUiCamera);
-        cursor->render(context);
+        cursor->render(nativeUiRenderService);
     }
 
     void MainMenuScene::onMouseDown(MouseButtonEvent event)
@@ -576,6 +576,7 @@ namespace rwe
             audioService,
             cursor,
             graphics,
+            shaders,
             featureService,
             palette,
             sceneManager,
@@ -590,7 +591,7 @@ namespace rwe
 
     Point MainMenuScene::toScaledCoordinates(int x, int y) const
     {
-        auto clip = scaledUiCamera.screenToWorldRay(viewportService->toClipSpace(x, y));
+        auto clip = scaledUiRenderService.getCamera().screenToWorldRay(viewportService->toClipSpace(x, y));
         return Point(static_cast<int>(clip.origin.x), static_cast<int>(clip.origin.y));
     }
 }
