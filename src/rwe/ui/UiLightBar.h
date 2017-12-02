@@ -1,8 +1,8 @@
 #ifndef RWE_UILIGHTBAR_H
 #define RWE_UILIGHTBAR_H
 
-#include <rwe/ui/UiComponent.h>
 #include <memory>
+#include <rwe/ui/UiComponent.h>
 
 namespace rwe
 {

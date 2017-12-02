@@ -16,10 +16,10 @@
 #include <rwe/Sprite.h>
 #include <rwe/SpriteSeries.h>
 #include <rwe/TextureHandle.h>
+#include <rwe/UniformLocation.h>
 #include <rwe/camera/AbstractCamera.h>
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/math/Vector3f.h>
-#include <rwe/UniformLocation.h>
 
 namespace rwe
 {

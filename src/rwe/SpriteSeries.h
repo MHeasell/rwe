@@ -1,9 +1,9 @@
 #ifndef RWE_SPRITESERIES_H
 #define RWE_SPRITESERIES_H
 
+#include <memory>
 #include <rwe/Sprite.h>
 #include <vector>
-#include <memory>
 
 namespace rwe
 {
