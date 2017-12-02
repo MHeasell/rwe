@@ -30,6 +30,7 @@ namespace rwe
     int run(spdlog::logger& logger, const fs::path& localDataPath, const boost::optional<std::string>& mapName)
     {
         logger.info(ProjectNameVersion);
+        logger.info("Current directory: {0}", fs::current_path().string());
 
         ViewportService viewportService(800, 600);
 
