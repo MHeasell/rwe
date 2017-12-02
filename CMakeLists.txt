@@ -38,7 +38,7 @@ function(target_copy_dll target dll)
         add_custom_command(TARGET ${target} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy ${${dll}_DLL} ${PROJECT_BINARY_DIR})
 
-        install(FILES ${PROJECT_BINARY_DIR}/${dll} DESTINATION "bin")
+        install(FILES ${PROJECT_BINARY_DIR}/${dll} DESTINATION ".")
     endif()
 endfunction()
 
@@ -403,7 +403,7 @@ target_link_libraries(rwe_test librwe)
 add_test(NAME rwe_test COMMAND rwe_test)
 
 install(TARGETS rwe
-    RUNTIME DESTINATION bin
+    RUNTIME DESTINATION .
     )
 install(FILES LICENSE README.md DESTINATION .)
 
@@ -425,5 +425,7 @@ set(CPACK_PACKAGE_EXECUTABLES "rwe;RWE")
 set(CPACK_PACKAGE_VENDOR "Michael Heasell")
 
 set(CPACK_OUTPUT_FILE_PREFIX "dist")
+
+set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
 
 include(CPack)
