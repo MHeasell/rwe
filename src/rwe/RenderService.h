@@ -5,8 +5,8 @@
 #include "OccupiedGrid.h"
 #include "ShaderService.h"
 #include "Unit.h"
-#include <vector>
 #include <boost/iterator/filter_iterator.hpp>
+#include <vector>
 
 namespace rwe
 {
