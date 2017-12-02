@@ -11,6 +11,7 @@
 #include <rwe/vfs/CompositeVirtualFileSystem.h>
 #include <string>
 #include <vector>
+#include <rwe/math/rwe_math.h>
 
 namespace rwe
 {
@@ -129,8 +130,10 @@ namespace rwe
             frameRefs.push_back(&f);
         }
 
+        // For packing, round the area occupied by the texture up to the nearest power of two.
+        // This is required to prevent texture bleeding when shrinking the atlas for mipmaps.
         auto packInfo = packGridsGeneric<FrameInfo*>(frameRefs, [](const FrameInfo* f) {
-            return Size(f->data.getWidth(), f->data.getHeight());
+            return Size(roundUpToPowerOfTwo(f->data.getWidth()), roundUpToPowerOfTwo(f->data.getHeight()));
         });
 
         // pack the textures

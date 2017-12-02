@@ -25,4 +25,19 @@ namespace rwe
             REQUIRE(wrap(-2.0f, 5.0f, -3.0f) == 4.0f);
         }
     }
+
+    TEST_CASE("roundUpToPowerOfTwo")
+    {
+        SECTION("rounds up values to the next power of two")
+        {
+            REQUIRE(roundUpToPowerOfTwo(1) == 1);
+            REQUIRE(roundUpToPowerOfTwo(2) == 2);
+            REQUIRE(roundUpToPowerOfTwo(3) == 4);
+            REQUIRE(roundUpToPowerOfTwo(4) == 4);
+            REQUIRE(roundUpToPowerOfTwo(64) == 64);
+            REQUIRE(roundUpToPowerOfTwo(65) == 128);
+
+            REQUIRE(roundUpToPowerOfTwo(2'000'000'000) == 2'147'483'648);
+        }
+    }
 }

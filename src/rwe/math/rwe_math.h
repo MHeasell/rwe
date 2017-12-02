@@ -32,6 +32,8 @@ namespace rwe
     bool sameSign(float a, float b);
 
     Vector2f convertScreenToClipSpace(unsigned int screenWidth, unsigned int screenHeight, Point p);
+
+    unsigned int roundUpToPowerOfTwo(unsigned int v);
 }
 
 #endif
