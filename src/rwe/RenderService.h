@@ -5,6 +5,7 @@
 #include "OccupiedGrid.h"
 #include "ShaderService.h"
 #include "Unit.h"
+#include <vector>
 
 namespace rwe
 {
@@ -40,6 +41,10 @@ namespace rwe
         void drawStandingSprite(const Vector3f& position, const Sprite& sprite, float alpha);
 
         void drawMapTerrain(const MapTerrain& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
+
+        void drawUnitShadows(const MapTerrain& terrain, const std::vector<Unit>& units);
+
+        void fillScreen(float r, float g, float b, float a);
 
 
     private:

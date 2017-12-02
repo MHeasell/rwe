@@ -255,10 +255,10 @@ namespace rwe
     {
         if (feature.shadowAnimation)
         {
-            graphics->disableDepth();
+            graphics->disableDepthBuffer();
             float alpha = feature.transparentShadow ? 0.5f : 1.0f;
             drawStandingSprite(feature.position, *(*feature.shadowAnimation)->sprites[0], alpha);
-            graphics->enableDepth();
+            graphics->enableDepthBuffer();
         }
 
         float alpha = feature.transparentAnimation ? 0.5f : 1.0f;
@@ -338,5 +338,52 @@ namespace rwe
     const CabinetCamera& RenderService::getCamera() const
     {
         return camera;
+    }
+
+    void RenderService::drawUnitShadows(const MapTerrain& terrain, const std::vector<Unit>& units)
+    {
+        graphics->enableStencilBuffer();
+        graphics->clearStencilBuffer();
+        graphics->useStencilBufferForWrites();
+        graphics->disableColorBuffer();
+
+        for (const auto& unit : units)
+        {
+            auto groundHeight = terrain.getHeightAt(unit.position.x, unit.position.z);
+            renderUnitShadow(unit, groundHeight);
+        }
+
+        graphics->useStencilBufferAsMask();
+        graphics->enableColorBuffer();
+
+        fillScreen(0.0f, 0.0f, 0.0f, 0.5f);
+
+        graphics->enableColorBuffer();
+        graphics->disableStencilBuffer();
+    }
+
+    void RenderService::fillScreen(float r, float g, float b, float a)
+    {
+        auto floatColor = Vector3f(r, g, b);
+
+        // clang-format off
+        std::vector<GlColoredVertex> vertices{
+            {{-1.0f, -1.0f, 0.0f}, floatColor},
+            {{ 1.0f, -1.0f, 0.0f}, floatColor},
+            {{ 1.0f,  1.0f, 0.0f}, floatColor},
+
+            {{ 1.0f,  1.0f, 0.0f}, floatColor},
+            {{-1.0f,  1.0f, 0.0f}, floatColor},
+            {{-1.0f, -1.0f, 0.0f}, floatColor},
+        };
+        // clang-format on
+
+        auto mesh = graphics->createColoredMesh(vertices, GL_STREAM_DRAW);
+
+        const auto& shader = shaders->basicColor;
+        graphics->bindShader(shader.handle.get());
+        graphics->setUniformMatrix(shader.mvpMatrix, Matrix4f::identity());
+        graphics->setUniformFloat(shader.alpha, a);
+        graphics->drawTriangles(mesh);
     }
 }

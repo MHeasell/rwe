@@ -85,15 +85,20 @@ namespace rwe
 
         TextureHandle createColorTexture(Color c);
 
-        void enableDepth();
+        void enableDepthBuffer();
+
+        void disableDepthBuffer();
 
         void enableDepthWrites();
 
         void disableDepthWrites();
 
+        void enableDepthTest();
+
+        void disableDepthTest();
+
         void enableCulling();
 
-        void disableDepth();
 
         ShaderHandle compileVertexShader(const std::string& source);
 
@@ -101,9 +106,13 @@ namespace rwe
 
         ShaderProgramHandle linkShaderProgram(ShaderIdentifier vertexShader, ShaderIdentifier fragmentShader, const std::vector<AttribMapping>& attribs);
 
-        void beginUnitShadow();
-
-        void endUnitShadow();
+        void enableColorBuffer();
+        void disableColorBuffer();
+        void enableStencilBuffer();
+        void useStencilBufferForWrites();
+        void useStencilBufferAsMask();
+        void clearStencilBuffer();
+        void disableStencilBuffer();
 
         GlMesh createTexturedMesh(const std::vector<GlTexturedVertex>& vertices, GLenum usage);
 

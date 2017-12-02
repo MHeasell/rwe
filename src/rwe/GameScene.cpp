@@ -93,17 +93,9 @@ namespace rwe
         }
 
         // draw unit shadows
-        {
-            context.beginUnitShadow();
-            for (const auto& unit : units)
-            {
-                auto groundHeight = terrain.getHeightAt(unit.position.x, unit.position.z);
-                renderService.renderUnitShadow(unit, groundHeight);
-            }
-            context.endUnitShadow();
-        }
+        renderService.drawUnitShadows(terrain, units);
 
-        context.enableDepth();
+        context.enableDepthBuffer();
 
         for (const auto& unit : units)
         {
@@ -114,7 +106,7 @@ namespace rwe
         renderService.renderStandingFeatures(terrain);
         context.enableDepthWrites();
 
-        context.disableDepth();
+        context.disableDepthBuffer();
 
         cursor->render(uiRenderService);
     }

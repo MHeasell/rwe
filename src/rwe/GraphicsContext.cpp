@@ -100,12 +100,12 @@ namespace rwe
         return handle;
     }
 
-    void GraphicsContext::enableDepth()
+    void GraphicsContext::enableDepthBuffer()
     {
         glEnable(GL_DEPTH_TEST);
     }
 
-    void GraphicsContext::disableDepth()
+    void GraphicsContext::disableDepthBuffer()
     {
         glDisable(GL_DEPTH_TEST);
     }
@@ -177,59 +177,6 @@ namespace rwe
         return shader;
     }
 
-    void GraphicsContext::beginUnitShadow()
-    {
-        glEnable(GL_STENCIL_TEST);
-        glStencilFunc(GL_ALWAYS, 1, 0xFF);
-        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-        glStencilMask(0xFF);
-        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-        glDepthMask(GL_FALSE);
-        glDepthFunc(GL_ALWAYS);
-        glClear(GL_STENCIL_BUFFER_BIT);
-    }
-
-    void GraphicsContext::endUnitShadow()
-    {
-        glStencilFunc(GL_EQUAL, 1, 0xFF);
-        glStencilMask(0x00);
-
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
-        glMatrixMode(GL_PROJECTION);
-        glPushMatrix();
-        glLoadIdentity();
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-        glLoadIdentity();
-
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glUseProgram(0);
-
-        glBegin(GL_TRIANGLES);
-
-        glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
-
-        glVertex3f(-1.0f, -1.0f, 0.0f);
-        glVertex3f(1.0f, -1.0f, 0.0f);
-        glVertex3f(1.0f, 1.0f, 0.0f);
-
-        glVertex3f(1.0f, 1.0f, 0.0f);
-        glVertex3f(-1.0f, 1.0f, 0.0f);
-        glVertex3f(-1.0f, -1.0f, 0.0f);
-
-        glEnd();
-
-        glMatrixMode(GL_PROJECTION);
-        glPopMatrix();
-        glMatrixMode(GL_MODELVIEW);
-        glPopMatrix();
-
-        glDepthFunc(GL_LESS);
-        glDepthMask(GL_TRUE);
-        glDisable(GL_STENCIL_TEST);
-    }
-
     void GraphicsContext::enableDepthWrites()
     {
         glDepthMask(GL_TRUE);
@@ -238,6 +185,16 @@ namespace rwe
     void GraphicsContext::disableDepthWrites()
     {
         glDepthMask(GL_FALSE);
+    }
+
+    void GraphicsContext::enableDepthTest()
+    {
+        glDepthFunc(GL_LESS);
+    }
+
+    void GraphicsContext::disableDepthTest()
+    {
+        glDepthFunc(GL_ALWAYS);
     }
 
     GlMesh GraphicsContext::createTexturedMesh(const std::vector<GlTexturedVertex>& vertices, GLenum usage)
@@ -449,5 +406,42 @@ namespace rwe
         GlTexturedMesh texturedMesh(texture, std::move(mesh));
 
         return Sprite(bounds, std::move(texturedMesh));
+    }
+
+    void GraphicsContext::enableStencilBuffer()
+    {
+        glEnable(GL_STENCIL_TEST);
+    }
+
+    void GraphicsContext::enableColorBuffer()
+    {
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    }
+
+    void GraphicsContext::disableColorBuffer()
+    {
+        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    }
+
+    void GraphicsContext::disableStencilBuffer()
+    {
+        glDisable(GL_STENCIL_TEST);
+    }
+
+    void GraphicsContext::useStencilBufferAsMask()
+    {
+        glStencilFunc(GL_EQUAL, 1, 0xFF);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+    }
+
+    void GraphicsContext::clearStencilBuffer()
+    {
+        glClear(GL_STENCIL_BUFFER_BIT);
+    }
+
+    void GraphicsContext::useStencilBufferForWrites()
+    {
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     }
 }
