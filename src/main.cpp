@@ -62,7 +62,7 @@ namespace rwe
         int requiredOpenGlMajorVersion = 3;
         int requiredOpenGlMinorVersion = 2;
 
-        logger.info("Requesting OpenGL version {0}.{1}, {2} profile", requiredOpenGlMajorVersion, requiredOpenGlMinorVersion, "compatibility");
+        logger.info("Requesting OpenGL version {0}.{1}, {2} profile", requiredOpenGlMajorVersion, requiredOpenGlMinorVersion, "core");
         if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, requiredOpenGlMajorVersion) != 0)
         {
             throw std::runtime_error(SDL_GetError());
@@ -71,7 +71,7 @@ namespace rwe
         {
             throw std::runtime_error(SDL_GetError());
         }
-        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY) != 0)
+        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE) != 0)
         {
             throw std::runtime_error(SDL_GetError());
         }
