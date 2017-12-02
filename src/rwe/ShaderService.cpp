@@ -40,6 +40,11 @@ namespace rwe
     std::string ShaderService::slurpFile(const std::string& filename)
     {
         std::ifstream inFile(filename, std::ios::binary);
+        if (inFile.fail())
+        {
+            throw std::runtime_error("Failed to open file: " + filename);
+        }
+
         std::stringstream strStream;
         strStream << inFile.rdbuf();
         return strStream.str();
