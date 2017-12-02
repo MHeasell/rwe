@@ -33,7 +33,7 @@ namespace rwe
 
     void UiPanel::render(UiRenderService& graphics) const
     {
-        graphics.drawSpriteAbs(posX, posY, *background);
+        graphics.drawSpriteAbs(posX, posY, sizeX, sizeY, *background);
 
         graphics.pushMatrix();
         graphics.multiplyMatrix(Matrix4f::translation(Vector3f(posX, posY, 0.0f)));

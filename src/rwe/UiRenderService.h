@@ -29,6 +29,8 @@ namespace rwe
         /** Draws the sprite, ignoring its internal x and y offset. */
         void drawSpriteAbs(float x, float y, const Sprite& sprite);
 
+        void drawSpriteAbs(float x, float y, float width, float height, const Sprite& sprite);
+
         void drawText(float x, float y, const std::string& text, const SpriteSeries& font);
 
         void drawTextWrapped(Rectangle2f area, const std::string& text, const SpriteSeries& font);

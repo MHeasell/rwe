@@ -37,6 +37,18 @@ namespace rwe
         drawSprite(x - sprite.bounds.left(), y - sprite.bounds.top(), sprite);
     }
 
+    void UiRenderService::drawSpriteAbs(float x, float y, float width, float height, const Sprite& sprite)
+    {
+        auto matrix = Matrix4f::translation(Vector3f(x, y, 0.0f))
+            * Matrix4f::scale(Vector3f(width / sprite.bounds.width(), height / sprite.bounds.height(), 1.0f))
+            * Matrix4f::translation(Vector3f(-sprite.bounds.left(), -sprite.bounds.top(), 0.0f));
+
+        pushMatrix();
+        multiplyMatrix(matrix);
+        drawSprite(0.0f, 0.0f, sprite);
+        popMatrix();
+    }
+
     void UiRenderService::drawText(float x, float y, const std::string& text, const SpriteSeries& font)
     {
         auto it = utf8Begin(text);

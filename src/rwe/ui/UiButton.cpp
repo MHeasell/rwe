@@ -12,7 +12,7 @@ namespace rwe
     {
         const auto& sprite = pressed ? *spriteSeries->sprites[1] : *spriteSeries->sprites[0];
 
-        graphics.drawSpriteAbs(posX, posY, sprite);
+        graphics.drawSpriteAbs(posX, posY, sizeX, sizeY, sprite);
         float textX = posX + (sizeX / 2.0f);
         float textY = posY + (sizeY / 2.0f);
         graphics.drawTextCentered(textX, pressed ? textY + 1.0f : textY, label, *labelFont);

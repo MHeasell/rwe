@@ -15,7 +15,7 @@ namespace rwe
         auto spriteIndex = pressed ? pressedSprite : stageSprite;
         const auto& sprite = *spriteSeries->sprites[spriteIndex];
 
-        graphics.drawSpriteAbs(posX, posY, sprite);
+        graphics.drawSpriteAbs(posX, posY, sizeX, sizeY, sprite);
 
         float textX = posX + 6.0f;
         float textY = posY + (sizeY / 2.0f) + 6.0f;
