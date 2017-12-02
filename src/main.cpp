@@ -50,7 +50,7 @@ namespace rwe
     {
         logger.info(ProjectNameVersion);
 
-        ViewportService viewportService(640, 480);
+        ViewportService viewportService(800, 600);
 
         logger.info("Initializing SDL");
         SdlContextManager sdlManager;
