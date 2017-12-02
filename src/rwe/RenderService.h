@@ -43,13 +43,13 @@ namespace rwe
         CabinetCamera& getCamera();
         const CabinetCamera& getCamera() const;
 
-        void renderUnit(const Unit& unit, float seaLevel);
-        void renderUnitShadow(const Unit& unit, float groundHeight);
-        void renderUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel);
-        void renderSelectionRect(const Unit& unit);
-        void renderOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid);
+        void drawUnit(const Unit& unit, float seaLevel);
+        void drawUnitShadow(const Unit& unit, float groundHeight);
+        void drawUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel);
+        void drawSelectionRect(const Unit& unit);
+        void drawOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid);
 
-        void renderMapTerrain(const MapTerrain& terrain);
+        void drawMapTerrain(const MapTerrain& terrain);
         void drawFlatFeatures(const MapTerrain& terrain);
         void drawFlatFeatureShadows(const MapTerrain& terrain);
         void drawStandingFeatures(const MapTerrain& terrain);

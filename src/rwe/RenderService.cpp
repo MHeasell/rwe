@@ -33,7 +33,7 @@ namespace rwe
     }
 
     void
-    RenderService::renderSelectionRect(const Unit& unit)
+    RenderService::drawSelectionRect(const Unit& unit)
     {
         // try to ensure that the selection rectangle vertices
         // are aligned with the middle of pixels,
@@ -52,13 +52,13 @@ namespace rwe
         graphics->drawLineLoop(unit.selectionMesh.visualMesh);
     }
 
-    void RenderService::renderUnit(const Unit& unit, float seaLevel)
+    void RenderService::drawUnit(const Unit& unit, float seaLevel)
     {
         auto matrix = Matrix4f::translation(unit.position) * Matrix4f::rotationY(unit.rotation);
-        renderUnitMesh(unit.mesh, matrix, seaLevel);
+        drawUnitMesh(unit.mesh, matrix, seaLevel);
     }
 
-    void RenderService::renderUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel)
+    void RenderService::drawUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel)
     {
         Vector3f testRotation(-mesh.rotation.x, mesh.rotation.y, mesh.rotation.z);
         auto matrix = modelMatrix * Matrix4f::translation(mesh.origin) * Matrix4f::rotationXYZ(testRotation) * Matrix4f::translation(mesh.offset);
@@ -89,11 +89,11 @@ namespace rwe
 
         for (const auto& c : mesh.children)
         {
-            renderUnitMesh(c, matrix, seaLevel);
+            drawUnitMesh(c, matrix, seaLevel);
         }
     }
 
-    void RenderService::renderOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid)
+    void RenderService::drawOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid)
     {
         auto halfWidth = camera.getWidth() / 2.0f;
         auto halfHeight = camera.getHeight() / 2.0f;
@@ -250,7 +250,7 @@ namespace rwe
         }
     }
 
-    void RenderService::renderMapTerrain(const MapTerrain& terrain)
+    void RenderService::drawMapTerrain(const MapTerrain& terrain)
     {
         Vector3f cameraExtents(camera.getWidth() / 2.0f, 0.0f, camera.getHeight() / 2.0f);
         auto topLeft = terrain.worldToTileCoordinate(camera.getPosition() - cameraExtents);
@@ -287,7 +287,7 @@ namespace rwe
         drawStandingFeatureShadowsInternal(features.begin(), features.end());
     }
 
-    void RenderService::renderUnitShadow(const Unit& unit, float groundHeight)
+    void RenderService::drawUnitShadow(const Unit& unit, float groundHeight)
     {
         auto shadowProjection = Matrix4f::translation(Vector3f(0.0f, groundHeight, 0.0f))
             * Matrix4f::scale(Vector3f(1.0f, 0.0f, 1.0f))
@@ -296,7 +296,7 @@ namespace rwe
 
         auto matrix = Matrix4f::translation(unit.position) * Matrix4f::rotationY(unit.rotation);
 
-        renderUnitMesh(unit.mesh, shadowProjection * matrix, 0.0f);
+        drawUnitMesh(unit.mesh, shadowProjection * matrix, 0.0f);
     }
 
     CabinetCamera& RenderService::getCamera()
@@ -319,7 +319,7 @@ namespace rwe
         for (const auto& unit : units)
         {
             auto groundHeight = terrain.getHeightAt(unit.position.x, unit.position.z);
-            renderUnitShadow(unit, groundHeight);
+            drawUnitShadow(unit, groundHeight);
         }
 
         graphics->useStencilBufferAsMask();

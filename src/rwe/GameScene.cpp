@@ -78,19 +78,19 @@ namespace rwe
     {
         context.disableDepthBuffer();
 
-        renderService.renderMapTerrain(terrain);
+        renderService.drawMapTerrain(terrain);
 
         renderService.drawFlatFeatureShadows(terrain);
         renderService.drawFlatFeatures(terrain);
 
         if (occupiedGridVisible)
         {
-            renderService.renderOccupiedGrid(terrain, occupiedGrid);
+            renderService.drawOccupiedGrid(terrain, occupiedGrid);
         }
 
         if (selectedUnit)
         {
-            renderService.renderSelectionRect(getUnit(*selectedUnit));
+            renderService.drawSelectionRect(getUnit(*selectedUnit));
         }
 
         renderService.drawUnitShadows(terrain, units);
@@ -100,7 +100,7 @@ namespace rwe
         auto seaLevel = terrain.getSeaLevel();
         for (const auto& unit : units)
         {
-            renderService.renderUnit(unit, seaLevel);
+            renderService.drawUnit(unit, seaLevel);
         }
 
         context.disableDepthWrites();
