@@ -120,8 +120,8 @@ namespace rwe
         template <typename It>
         void drawFlatFeatureShadowsInternal(It begin, It end)
         {
-            auto fBegin = boost::make_filter_iterator<IsFeatureBlocking>(begin, end);
-            auto fEnd = boost::make_filter_iterator<IsFeatureBlocking>(end, end);
+            auto fBegin = boost::make_filter_iterator<IsFeatureNotBlocking>(begin, end);
+            auto fEnd = boost::make_filter_iterator<IsFeatureNotBlocking>(end, end);
 
             drawFeatureShadowsInternal(fBegin, fEnd);
         }
