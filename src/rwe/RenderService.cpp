@@ -251,38 +251,6 @@ namespace rwe
         }
     }
 
-    void RenderService::drawFeature(const MapFeature& feature)
-    {
-        if (feature.shadowAnimation)
-        {
-            graphics->disableDepthBuffer();
-            float alpha = feature.transparentShadow ? 0.5f : 1.0f;
-            drawStandingSprite(feature.position, *(*feature.shadowAnimation)->sprites[0], alpha);
-            graphics->enableDepthBuffer();
-        }
-
-        float alpha = feature.transparentAnimation ? 0.5f : 1.0f;
-        drawStandingSprite(feature.position, *feature.animation->sprites[0], alpha);
-    }
-
-    void RenderService::drawStandingSprite(const Vector3f& position, const Sprite& sprite, float alpha)
-    {
-        Vector3f snappedPosition(std::round(position.x), truncateToInterval(position.y, 2.0f), std::round(position.z));
-
-        // Convert to a world-space standing position.
-        // We stretch sprite y-dimension values by 2x
-        // to correct for TA camera distortion.
-        auto modelMatrix = Matrix4f::translation(snappedPosition)
-            * Matrix4f::scale(Vector3f(1.0f, -2.0f, 1.0f));
-
-        const auto& shader = shaders->basicTexture;
-        graphics->bindShader(shader.handle.get());
-        graphics->bindTexture(sprite.mesh.texture.get());
-        graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * modelMatrix);
-        graphics->setUniformFloat(shader.alpha, alpha);
-        graphics->drawTriangles(sprite.mesh.mesh);
-    }
-
     void RenderService::renderMapTerrain(const MapTerrain& terrain)
     {
         Vector3f cameraExtents(camera.getWidth() / 2.0f, 0.0f, camera.getHeight() / 2.0f);
@@ -296,26 +264,28 @@ namespace rwe
         drawMapTerrain(terrain, x1, y1, (x2 + 1) - x1, (y2 + 1) - y1);
     }
 
-    void RenderService::renderFlatFeatures(const MapTerrain& terrain)
+    void RenderService::drawFlatFeatures(const MapTerrain& terrain)
     {
-        for (const auto& f : terrain.getFeatures())
-        {
-            if (!f.isBlocking())
-            {
-                drawFeature(f);
-            }
-        }
+        const auto& features = terrain.getFeatures();
+        drawFlatFeaturesInternal(features.begin(), features.end());
     }
 
-    void RenderService::renderStandingFeatures(const MapTerrain& terrain)
+    void RenderService::drawFlatFeatureShadows(const MapTerrain& terrain)
     {
-        for (const auto& f : terrain.getFeatures())
-        {
-            if (f.isBlocking())
-            {
-                drawFeature(f);
-            }
-        }
+        const auto& features = terrain.getFeatures();
+        drawFlatFeatureShadowsInternal(features.begin(), features.end());
+    }
+
+    void RenderService::drawStandingFeatures(const MapTerrain& terrain)
+    {
+        const auto& features = terrain.getFeatures();
+        drawStandingFeaturesInternal(features.begin(), features.end());
+    }
+
+    void RenderService::drawStandingFeatureShadows(const MapTerrain& terrain)
+    {
+        const auto& features = terrain.getFeatures();
+        drawStandingFeatureShadowsInternal(features.begin(), features.end());
     }
 
     void RenderService::renderUnitShadow(const Unit& unit, float groundHeight)
@@ -385,5 +355,56 @@ namespace rwe
         graphics->setUniformMatrix(shader.mvpMatrix, Matrix4f::identity());
         graphics->setUniformFloat(shader.alpha, a);
         graphics->drawTriangles(mesh);
+    }
+
+    void RenderService::drawFeatureShadowInternal(const MapFeature& feature)
+    {
+        if (!feature.shadowAnimation)
+        {
+            return;
+        }
+
+        const auto& position = feature.position;
+        const auto& sprite = *(*feature.shadowAnimation)->sprites[0];
+
+        float alpha = feature.transparentShadow ? 0.5f : 1.0f;
+
+        Vector3f snappedPosition(std::round(position.x), truncateToInterval(position.y, 2.0f), std::round(position.z));
+
+        // Convert to a world-space flat position.
+        auto modelMatrix = Matrix4f::translation(snappedPosition)
+            * Matrix4f::rotationX(-Pif / 2.0f)
+            * Matrix4f::scale(Vector3f(1.0f, -1.0f, 1.0f));
+
+        const auto& shader = shaders->basicTexture;
+        graphics->bindTexture(sprite.mesh.texture.get());
+        graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * modelMatrix);
+        graphics->setUniformFloat(shader.alpha, alpha);
+        graphics->drawTriangles(sprite.mesh.mesh);
+    }
+
+    void RenderService::drawFeatureInternal(const MapFeature& feature)
+    {
+        const auto& position = feature.position;
+        const auto& sprite = *feature.animation->sprites[0];
+
+        float alpha = feature.transparentAnimation ? 0.5f : 1.0f;
+
+        Vector3f snappedPosition(std::round(position.x), truncateToInterval(position.y, 2.0f), std::round(position.z));
+
+        // Convert to a model position that makes sense in the game world.
+        // For standing (blocking) features we stretch y-dimension values by 2x
+        // to correct for TA camera distortion.
+        Matrix4f conversionMatrix = feature.isBlocking()
+            ? Matrix4f::scale(Vector3f(1.0f, -2.0f, 1.0f))
+            : Matrix4f::rotationX(-Pif / 2.0f) * Matrix4f::scale(Vector3f(1.0f, -1.0f, 1.0f));
+
+        auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix;
+
+        const auto& shader = shaders->basicTexture;
+        graphics->bindTexture(sprite.mesh.texture.get());
+        graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * modelMatrix);
+        graphics->setUniformFloat(shader.alpha, alpha);
+        graphics->drawTriangles(sprite.mesh.mesh);
     }
 }

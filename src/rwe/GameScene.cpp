@@ -76,39 +76,45 @@ namespace rwe
 
     void GameScene::render(GraphicsContext& context)
     {
-        auto seaLevel = terrain.getSeaLevel();
+        context.disableDepthBuffer();
 
         renderService.renderMapTerrain(terrain);
+
+        renderService.drawFlatFeatureShadows(terrain);
+        renderService.drawFlatFeatures(terrain);
 
         if (occupiedGridVisible)
         {
             renderService.renderOccupiedGrid(terrain, occupiedGrid);
         }
 
-        renderService.renderFlatFeatures(terrain);
-
         if (selectedUnit)
         {
             renderService.renderSelectionRect(getUnit(*selectedUnit));
         }
 
-        // draw unit shadows
         renderService.drawUnitShadows(terrain, units);
 
         context.enableDepthBuffer();
 
+        auto seaLevel = terrain.getSeaLevel();
         for (const auto& unit : units)
         {
             renderService.renderUnit(unit, seaLevel);
         }
 
         context.disableDepthWrites();
-        renderService.renderStandingFeatures(terrain);
+
+        context.disableDepthTest();
+        renderService.drawStandingFeatureShadows(terrain);
+        context.enableDepthTest();
+
+        renderService.drawStandingFeatures(terrain);
         context.enableDepthWrites();
 
         context.disableDepthBuffer();
-
         cursor->render(uiRenderService);
+        context.enableDepthBuffer();
     }
 
     void GameScene::onKeyDown(const SDL_Keysym& keysym)
