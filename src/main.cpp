@@ -240,6 +240,7 @@ namespace rwe
         logger.info("Entering main loop");
         sceneManager.execute();
 
+        logger.info("Finished main loop, exiting");
         return 0;
     }
 }
