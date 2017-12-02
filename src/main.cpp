@@ -27,25 +27,6 @@ namespace fs = boost::filesystem;
 
 namespace rwe
 {
-    std::string slurpFile(const std::string& filename)
-    {
-        std::ifstream inFile(filename, std::ios::binary);
-        std::stringstream strStream;
-        strStream << inFile.rdbuf();
-        return strStream.str();
-    }
-
-    ShaderProgramHandle loadShader(GraphicsContext* graphics, const std::string& vertexShaderName, const std::string& fragmentShaderName, const std::vector<AttribMapping>& attribs)
-    {
-        auto vertexShaderSource = slurpFile(vertexShaderName);
-        auto vertexShader = graphics->compileVertexShader(vertexShaderSource);
-
-        auto fragmentShaderSource = slurpFile(fragmentShaderName);
-        auto fragmentShader = graphics->compileFragmentShader(fragmentShaderSource);
-
-        return graphics->linkShaderProgram(vertexShader.get(), fragmentShader.get(), attribs);
-    }
-
     int run(spdlog::logger& logger, const fs::path& localDataPath, const boost::optional<std::string>& mapName)
     {
         logger.info(ProjectNameVersion);
