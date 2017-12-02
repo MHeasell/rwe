@@ -1,11 +1,12 @@
 #include "UnitDatabase.h"
+#include "rwe_string.h"
 
 namespace rwe
 {
 
     const UnitFbi& UnitDatabase::getUnitInfo(const std::string& unitName) const
     {
-        auto it = map.find(unitName);
+        auto it = map.find(toUpper(unitName));
         if (it == map.end())
         {
             throw std::runtime_error("No FBI data found for unit " + unitName);
@@ -16,12 +17,12 @@ namespace rwe
 
     void UnitDatabase::addUnitInfo(const std::string& unitName, const UnitFbi& info)
     {
-        map.insert({unitName, info});
+        map.insert({toUpper(unitName), info});
     }
 
     const CobScript& UnitDatabase::getUnitScript(const std::string& unitName) const
     {
-        auto it = cobMap.find(unitName);
+        auto it = cobMap.find(toUpper(unitName));
         if (it == cobMap.end())
         {
             throw std::runtime_error("No script data found for unit " + unitName);
@@ -32,7 +33,7 @@ namespace rwe
 
     void UnitDatabase::addUnitScript(const std::string& unitName, CobScript&& cob)
     {
-        cobMap.insert({unitName, std::move(cob)});
+        cobMap.insert({toUpper(unitName), std::move(cob)});
     }
 
     const SoundClass& UnitDatabase::getSoundClass(const std::string& className) const
