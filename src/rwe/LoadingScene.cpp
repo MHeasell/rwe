@@ -307,14 +307,16 @@ namespace rwe
         // populate the list of texture regions referencing the textures
         for (unsigned int i = 0; i < tnt.getHeader().numberOfTiles; ++i)
         {
+            auto textureIndex = i / tilesPerTexture;
+            auto tileIndex = i % tilesPerTexture;
             const float regionWidth = static_cast<float>(tileWidth) / static_cast<float>(textureWidth);
             const float regionHeight = static_cast<float>(tileHeight) / static_cast<float>(textureHeight);
-            auto x = i % textureWidthInTiles;
-            auto y = i / textureWidthInTiles;
+            auto x = tileIndex % textureWidthInTiles;
+            auto y = tileIndex / textureWidthInTiles;
 
             assert(textureHandles.size() > i / tilesPerTexture);
             tileTextures.emplace_back(
-                textureHandles[i / tilesPerTexture],
+                textureHandles[textureIndex],
                 Rectangle2f::fromTopLeft(x * regionWidth, y * regionHeight, regionWidth, regionHeight));
         }
 
