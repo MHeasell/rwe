@@ -269,7 +269,7 @@ namespace rwe
 
         std::vector<TextureRegion> tileTextures;
 
-        std::vector<Color> textureBuffer(textureWidth * textureHeight);
+        Grid<Color> textureBuffer(textureWidth, textureHeight);
 
         std::vector<SharedTextureHandle> textureHandles;
 
@@ -279,7 +279,7 @@ namespace rwe
             tnt.readTiles([this, &tileCount, &textureBuffer, &textureHandles](const char* tile) {
                 if (tileCount == tilesPerTexture)
                 {
-                    SharedTextureHandle handle(graphics->createTexture(textureWidth, textureHeight, textureBuffer));
+                    SharedTextureHandle handle(graphics->createTexture(textureBuffer));
                     textureHandles.push_back(std::move(handle));
                     tileCount = 0;
                 }
@@ -295,14 +295,14 @@ namespace rwe
                         auto textureX = startX + dx;
                         auto textureY = startY + dy;
                         auto index = static_cast<unsigned char>(tile[(dy * tileWidth) + dx]);
-                        textureBuffer[(textureY * textureWidth) + textureX] = (*palette)[index];
+                        textureBuffer.set(textureX, textureY, (*palette)[index]);
                     }
                 }
 
                 tileCount += 1;
             });
         }
-        textureHandles.emplace_back(graphics->createTexture(textureWidth, textureHeight, textureBuffer));
+        textureHandles.emplace_back(graphics->createTexture(textureBuffer));
 
         // populate the list of texture regions referencing the textures
         for (unsigned int i = 0; i < tnt.getHeader().numberOfTiles; ++i)
