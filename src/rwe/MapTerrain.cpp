@@ -182,7 +182,7 @@ namespace rwe
         auto ray = Ray3f::fromLine(line);
 
         int xDirection = ray.direction.x > 0 ? 1 : -1;
-        int zDirection = ray.direction.z > 1 ? 1 : -1;
+        int zDirection = ray.direction.z > 0 ? 1 : -1;
         float xPlaneOffset = (HeightTileWidthInWorldUnits / 2.0f) * xDirection;
         float zPlaneOffset = (HeightTileHeightInWorldUnits / 2.0f) * zDirection;
 
