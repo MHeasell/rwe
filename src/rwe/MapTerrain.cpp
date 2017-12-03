@@ -177,7 +177,8 @@ namespace rwe
 
     boost::optional<Vector3f> MapTerrain::intersectLine(const Line3f& line) const
     {
-        auto startCell = worldToHeightmapCoordinate(line.start);
+        auto heightmapPosition = worldToHeightmapSpace(line.start);
+        Point startCell(static_cast<int>(heightmapPosition.x), static_cast<int>(heightmapPosition.z));
 
         auto ray = Ray3f::fromLine(line);
 
@@ -188,12 +189,46 @@ namespace rwe
 
         while (true)
         {
-            if (startCell.x >= 0
-                && startCell.y >= 0
-                && startCell.x < heights.getWidth() - 1
-                && startCell.y < heights.getHeight() - 1)
+            auto neighbourX = (heightmapPosition.x - startCell.x) > 0.5 ? 1 : -1;
+            auto neighbourY = (heightmapPosition.z - startCell.y) > 0.5 ? 1 : -1;
+
+            // Due to floating-point precision issues,
+            // when the line passes very close to a cell boundary
+            // the "intersectWithHeightmapCell" check may fail,
+            // evaluating the line as passing outside the cell,
+            // even if the line never leaves the cell according to the values of "startCell".
+            // To guard against this, we check collision with the closest four cells,
+            // ensuring that the line cannot escape through any "cracks".
+            if (isInHeightMapBounds(startCell.x, startCell.y))
             {
                 auto cellIntersect = intersectWithHeightmapCell(line, startCell.x, startCell.y);
+                if (cellIntersect)
+                {
+                    return *cellIntersect;
+                }
+            }
+
+            if (isInHeightMapBounds(startCell.x + neighbourX, startCell.y))
+            {
+                auto cellIntersect = intersectWithHeightmapCell(line, startCell.x + neighbourX, startCell.y);
+                if (cellIntersect)
+                {
+                    return *cellIntersect;
+                }
+            }
+
+            if (isInHeightMapBounds(startCell.x, startCell.y + neighbourY))
+            {
+                auto cellIntersect = intersectWithHeightmapCell(line, startCell.x, startCell.y + neighbourY);
+                if (cellIntersect)
+                {
+                    return *cellIntersect;
+                }
+            }
+
+            if (isInHeightMapBounds(startCell.x + neighbourX, startCell.y + neighbourY))
+            {
+                auto cellIntersect = intersectWithHeightmapCell(line, startCell.x + neighbourX, startCell.y + neighbourY);
                 if (cellIntersect)
                 {
                     return *cellIntersect;
@@ -216,6 +251,7 @@ namespace rwe
                 }
 
                 startCell.x += xDirection;
+                heightmapPosition.x += xDirection;
             }
             else
             {
@@ -225,6 +261,7 @@ namespace rwe
                 }
 
                 startCell.y += zDirection;
+                heightmapPosition.z += zDirection;
             }
         }
     }
@@ -281,5 +318,13 @@ namespace rwe
     float MapTerrain::getSeaLevel() const
     {
         return seaLevel;
+    }
+
+    bool MapTerrain::isInHeightMapBounds(int x, int y) const
+    {
+        return (x >= 0
+            && y >= 0
+            && x < heights.getWidth() - 1
+            && y < heights.getHeight() - 1);
     }
 }

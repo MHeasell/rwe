@@ -91,6 +91,9 @@ namespace rwe
         boost::optional<Vector3f> intersectWithHeightmapCell(const Line3f& line, int x, int y) const;
 
         float getSeaLevel() const;
+
+    private:
+        bool isInHeightMapBounds(int x, int y) const;
     };
 }
 
