@@ -2,9 +2,9 @@
 
 namespace rwe
 {
-    static const float StandingFeatureMinHeight = 5.0f;
+    static const float StandingFeatureMinHeight = 10.0f;
 
-    bool MapFeature::isBlocking() const
+    bool MapFeature::isStanding() const
     {
         return height >= StandingFeatureMinHeight;
     }

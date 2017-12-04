@@ -53,7 +53,7 @@ namespace rwe
 
         f.permanent = tdf.extractBool("permanent").get_value_or(false);
 
-        f.blocking = tdf.extractBool("blocking").get_value_or(true);
+        f.blocking = tdf.extractBool("blocking").get_value_or(false);
 
         f.indestructible = tdf.extractBool("indestructible").get_value_or(false);
         f.damage = tdf.extractUint("damage").get_value_or(1);

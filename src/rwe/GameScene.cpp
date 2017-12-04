@@ -64,7 +64,7 @@ namespace rwe
         // add features to the occupied grid
         for (const auto& f : terrain.getFeatures())
         {
-            if (!f.isBlocking())
+            if (!f.isBlocking)
             {
                 continue;
             }

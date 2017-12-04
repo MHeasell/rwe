@@ -18,8 +18,9 @@ namespace rwe
         int footprintX;
         int footprintZ;
         float height;
+        bool isBlocking;
 
-        bool isBlocking() const;
+        bool isStanding() const;
     };
 }
 

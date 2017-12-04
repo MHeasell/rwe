@@ -390,7 +390,7 @@ namespace rwe
         // Convert to a model position that makes sense in the game world.
         // For standing (blocking) features we stretch y-dimension values by 2x
         // to correct for TA camera distortion.
-        Matrix4f conversionMatrix = feature.isBlocking()
+        Matrix4f conversionMatrix = feature.isStanding()
             ? Matrix4f::scale(Vector3f(1.0f, -2.0f, 1.0f))
             : Matrix4f::rotationX(-Pif / 2.0f) * Matrix4f::scale(Vector3f(1.0f, -1.0f, 1.0f));
 

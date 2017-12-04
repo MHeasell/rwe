@@ -354,6 +354,7 @@ namespace rwe
         f.footprintX = definition.footprintX;
         f.footprintZ = definition.footprintZ;
         f.height = definition.height;
+        f.isBlocking = definition.blocking;
         f.position = pos;
         f.transparentAnimation = definition.animTrans;
         f.transparentShadow = definition.shadTrans;
