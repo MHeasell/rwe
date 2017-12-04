@@ -212,6 +212,10 @@ namespace rwe
             }
         }
 
+        const auto& shader = shaders->basicTexture;
+        graphics->bindShader(shader.handle.get());
+        graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix());
+
         for (const auto& batch : batches)
         {
             std::vector<GlTexturedVertex> vertices;
@@ -235,13 +239,9 @@ namespace rwe
                 vertices.emplace_back(Vector3f(tilePosition.x, 0.0f, tilePosition.z), tileTexture.region.topLeft());
             }
 
-            const auto& shader = shaders->basicTexture;
-
             auto mesh = graphics->createTexturedMesh(vertices, GL_STREAM_DRAW);
 
-            graphics->bindShader(shader.handle.get());
             graphics->bindTexture(batch.first);
-            graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix());
             graphics->drawTriangles(mesh);
         }
     }
