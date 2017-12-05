@@ -12,8 +12,7 @@ namespace rwe
         ViewportService* viewportService,
         RenderService&& renderService,
         UiRenderService&& uiRenderService,
-        MeshService&& meshService,
-        UnitDatabase&& unitDatabase,
+        UnitFactory&& unitFactory,
         GameSimulation&& simulation,
         PlayerId localPlayerId)
         : textureService(textureService),
@@ -23,8 +22,7 @@ namespace rwe
           viewportService(viewportService),
           renderService(std::move(renderService)),
           uiRenderService(std::move(uiRenderService)),
-          meshService(std::move(meshService)),
-          unitDatabase(std::move(unitDatabase)),
+          unitFactory(std::move(unitFactory)),
           simulation(std::move(simulation)),
           localPlayerId(localPlayerId)
     {
@@ -238,7 +236,7 @@ namespace rwe
     void GameScene::spawnUnit(const std::string& unitType, PlayerId owner, const Vector3f& position)
     {
         auto unitId = simulation.predictNextUnitId();
-        auto unit = createUnit(unitId, unitType, owner, position);
+        auto unit = unitFactory.createUnit(unitId, unitType, owner, simulation.getPlayer(owner).color, position);
 
         // TODO: if we failed to add the unit throw some warning
         simulation.tryAddUnit(std::move(unit));
@@ -303,60 +301,6 @@ namespace rwe
     void GameScene::playSoundOnSelectChannel(const AudioService::SoundHandle& handle)
     {
         audioService->playSoundIfFree(handle, UnitSelectChannel);
-    }
-
-    Unit GameScene::createUnit(UnitId unitId, const std::string& unitType, PlayerId owner, const Vector3f& position)
-    {
-        const auto& fbi = unitDatabase.getUnitInfo(unitType);
-        const auto& soundClass = unitDatabase.getSoundClass(fbi.soundCategory);
-        boost::optional<const MovementClass&> movementClass;
-        if (!fbi.movementClass.empty())
-        {
-            movementClass = unitDatabase.getMovementClass(fbi.movementClass);
-        }
-
-        auto meshInfo = meshService.loadUnitMesh(fbi.objectName, getPlayer(owner).color);
-
-        const auto& script = unitDatabase.getUnitScript(fbi.unitName);
-        auto cobEnv = std::make_unique<CobEnvironment>(this, &script, unitId);
-        cobEnv->createThread("Create", std::vector<int>());
-        Unit unit(meshInfo.mesh, std::move(cobEnv), std::move(meshInfo.selectionMesh));
-        unit.owner = owner;
-        unit.position = position;
-
-        // These units are per-tick.
-        // We divide by two here because TA ticks are 1/30 of a second,
-        // where as ours are 1/60 of a second.
-        unit.turnRate = (fbi.turnRate / 2.0f) * (Pif / 32768.0f); // also convert to rads
-        unit.maxSpeed = fbi.maxVelocity / 2.0f;
-        unit.acceleration = fbi.acceleration / 2.0f;
-        unit.brakeRate = fbi.brakeRate / 2.0f;
-
-        if (movementClass)
-        {
-            unit.footprintX = movementClass->footprintX;
-            unit.footprintZ = movementClass->footprintZ;
-        }
-        else
-        {
-            unit.footprintX = fbi.footprintX;
-            unit.footprintZ = fbi.footprintZ;
-        }
-
-        if (soundClass.select1)
-        {
-            unit.selectionSound = unitDatabase.getSoundHandle(*(soundClass.select1));
-        }
-        if (soundClass.ok1)
-        {
-            unit.okSound = unitDatabase.getSoundHandle(*(soundClass.ok1));
-        }
-        if (soundClass.arrived1)
-        {
-            unit.arrivedSound = unitDatabase.getSoundHandle(*(soundClass.arrived1));
-        }
-
-        return unit;
     }
 
     boost::optional<UnitId> GameScene::getUnitUnderCursor() const

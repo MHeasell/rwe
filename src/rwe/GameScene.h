@@ -17,6 +17,7 @@
 #include <rwe/Unit.h>
 #include <rwe/ViewportService.h>
 #include <rwe/camera/UiCamera.h>
+#include <rwe/UnitFactory.h>
 
 namespace rwe
 {
@@ -42,9 +43,7 @@ namespace rwe
         RenderService renderService;
         UiRenderService uiRenderService;
 
-        MeshService meshService;
-
-        UnitDatabase unitDatabase;
+        UnitFactory unitFactory;
 
         GameSimulation simulation;
 
@@ -72,8 +71,7 @@ namespace rwe
             ViewportService* viewportService,
             RenderService&& renderService,
             UiRenderService&& uiRenderService,
-            MeshService&& meshService,
-            UnitDatabase&& unitDatabase,
+            UnitFactory&& unitFactory,
             GameSimulation&& simulation,
             PlayerId localPlayerId);
 
@@ -126,8 +124,6 @@ namespace rwe
         GameSimulation& getSimulation();
 
     private:
-        Unit createUnit(UnitId unitId, const std::string& unitType, PlayerId owner, const Vector3f& position);
-
         boost::optional<UnitId> getUnitUnderCursor() const;
 
         Vector2f screenToClipSpace(Point p) const;

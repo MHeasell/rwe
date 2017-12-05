@@ -152,6 +152,8 @@ set(SOURCE_FILES
     src/rwe/Unit.h
     src/rwe/UnitDatabase.cpp
     src/rwe/UnitDatabase.h
+    src/rwe/UnitFactory.cpp
+    src/rwe/UnitFactory.h
     src/rwe/UnitFbi.cpp
     src/rwe/UnitFbi.h
     src/rwe/UnitId.h

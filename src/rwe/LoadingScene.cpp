@@ -118,6 +118,8 @@ namespace rwe
 
         auto unitDatabase = createUnitDatabase();
 
+        UnitFactory unitFactory(std::move(unitDatabase), std::move(meshService));
+
         boost::optional<PlayerId> localPlayerId;
 
         std::array<boost::optional<PlayerId>, 10> gamePlayers;
@@ -156,8 +158,7 @@ namespace rwe
             viewportService,
             std::move(renderService),
             std::move(uiRenderService),
-            std::move(meshService),
-            std::move(unitDatabase),
+            std::move(unitFactory),
             std::move(simulation),
             *localPlayerId);
 
