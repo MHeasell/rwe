@@ -2,7 +2,6 @@
 #define RWE_MAPTERRAIN_H
 
 #include <rwe/Grid.h>
-#include <rwe/MapFeature.h>
 #include <rwe/Point.h>
 #include <rwe/TextureRegion.h>
 #include <rwe/camera/CabinetCamera.h>
@@ -29,8 +28,6 @@ namespace rwe
         Grid<std::size_t> tiles;
 
         Grid<unsigned char> heights;
-
-        std::vector<MapFeature> features;
 
         float seaLevel;
 
@@ -73,9 +70,6 @@ namespace rwe
         float rightCutoffInWorldUnits() const;
         float topInWorldUnits() const;
         float bottomCutoffInWorldUnits() const;
-
-        const std::vector<MapFeature>& getFeatures() const;
-        std::vector<MapFeature>& getFeatures();
 
         float getWidthInWorldUnits() const;
         float getHeightInWorldUnits() const;

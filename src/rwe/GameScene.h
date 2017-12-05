@@ -9,6 +9,7 @@
 #include "UiRenderService.h"
 #include "UnitDatabase.h"
 #include "UnitId.h"
+#include "GameSimulation.h"
 #include <rwe/CursorService.h>
 #include <rwe/PlayerId.h>
 #include <rwe/SceneManager.h>
@@ -19,11 +20,6 @@
 
 namespace rwe
 {
-    struct GamePlayerInfo
-    {
-        unsigned int color;
-    };
-
     class GameScene : public SceneManager::Scene
     {
     private:
@@ -48,9 +44,11 @@ namespace rwe
 
         MeshService meshService;
 
-        MapTerrain terrain;
+        UnitDatabase unitDatabase;
 
-        std::vector<Unit> units;
+        GameSimulation simulation;
+
+        PlayerId localPlayerId;
 
         bool left{false};
         bool right{false};
@@ -60,18 +58,8 @@ namespace rwe
         bool leftShiftDown{false};
         bool rightShiftDown{false};
 
-        UnitDatabase unitDatabase;
-
-        unsigned int gameTime{0};
-
-        std::array<boost::optional<GamePlayerInfo>, 10> players;
-
-        PlayerId localPlayerId;
-
         boost::optional<UnitId> hoveredUnit;
         boost::optional<UnitId> selectedUnit;
-
-        OccupiedGrid occupiedGrid;
 
         bool occupiedGridVisible{false};
 
@@ -85,9 +73,8 @@ namespace rwe
             RenderService&& renderService,
             UiRenderService&& uiRenderService,
             MeshService&& meshService,
-            MapTerrain&& terrain,
             UnitDatabase&& unitDatabase,
-            std::array<boost::optional<GamePlayerInfo>, 10>&& players,
+            GameSimulation&& simulation,
             PlayerId localPlayerId);
 
         void init() override;
@@ -128,13 +115,15 @@ namespace rwe
 
         unsigned int getGameTime() const;
 
-        void playSoundOnSelectChannel(const AudioService::SoundHandle& sound);
-
         bool isCollisionAt(const DiscreteRect& rect, UnitId self) const;
+
+        void playSoundOnSelectChannel(const AudioService::SoundHandle& sound);
 
         DiscreteRect computeFootprintRegion(const Vector3f& position, unsigned int footprintX, unsigned int footprintZ) const;
 
         void moveUnitOccupiedArea(const DiscreteRect& oldRect, const DiscreteRect& newRect, UnitId unitId);
+
+        GameSimulation& getSimulation();
 
     private:
         Unit createUnit(UnitId unitId, const std::string& unitType, PlayerId owner, const Vector3f& position);
@@ -161,9 +150,7 @@ namespace rwe
 
         const Unit& getUnit(UnitId id) const;
 
-        boost::optional<GamePlayerInfo>& getPlayer(PlayerId player);
-
-        const boost::optional<GamePlayerInfo>& getPlayer(PlayerId player) const;
+        const GamePlayerInfo& getPlayer(PlayerId player) const;
     };
 }
 

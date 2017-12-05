@@ -4,30 +4,6 @@
 
 namespace rwe
 {
-    class IsCollisionVisitor : public boost::static_visitor<bool>
-    {
-    private:
-        UnitId unitId;
-
-    public:
-        explicit IsCollisionVisitor(const UnitId& unitId) : unitId(unitId)
-        {
-        }
-
-        bool operator()(const OccupiedNone&) const
-        {
-            return false;
-        }
-        bool operator()(const OccupiedUnit& u) const
-        {
-            return u.id != unitId;
-        }
-        bool operator()(const OccupiedFeature&) const
-        {
-            return true;
-        }
-    };
-
     GameScene::GameScene(
         TextureService* textureService,
         CursorService* cursor,
@@ -37,9 +13,8 @@ namespace rwe
         RenderService&& renderService,
         UiRenderService&& uiRenderService,
         MeshService&& meshService,
-        MapTerrain&& terrain,
         UnitDatabase&& unitDatabase,
-        std::array<boost::optional<GamePlayerInfo>, 10>&& players,
+        GameSimulation&& simulation,
         PlayerId localPlayerId)
         : textureService(textureService),
           cursor(cursor),
@@ -49,43 +24,29 @@ namespace rwe
           renderService(std::move(renderService)),
           uiRenderService(std::move(uiRenderService)),
           meshService(std::move(meshService)),
-          terrain(std::move(terrain)),
           unitDatabase(std::move(unitDatabase)),
-          players(std::move(players)),
-          localPlayerId(localPlayerId),
-          occupiedGrid(this->terrain.getHeightMap().getWidth(), this->terrain.getHeightMap().getHeight())
+          simulation(std::move(simulation)),
+          localPlayerId(localPlayerId)
     {
     }
 
     void GameScene::init()
     {
         audioService->reserveChannels(reservedChannelsCount);
-
-        // add features to the occupied grid
-        for (const auto& f : terrain.getFeatures())
-        {
-            if (!f.isBlocking)
-            {
-                continue;
-            }
-
-            auto footprintRegion = computeFootprintRegion(f.position, f.footprintX, f.footprintZ);
-            occupiedGrid.grid.setArea(occupiedGrid.grid.clipRegion(footprintRegion), OccupiedFeature());
-        }
     }
 
     void GameScene::render(GraphicsContext& context)
     {
         context.disableDepthBuffer();
 
-        renderService.drawMapTerrain(terrain);
+        renderService.drawMapTerrain(simulation.terrain);
 
-        renderService.drawFlatFeatureShadows(terrain);
-        renderService.drawFlatFeatures(terrain);
+        renderService.drawFlatFeatureShadows(simulation.features);
+        renderService.drawFlatFeatures(simulation.features);
 
         if (occupiedGridVisible)
         {
-            renderService.drawOccupiedGrid(terrain, occupiedGrid);
+            renderService.drawOccupiedGrid(simulation.terrain, simulation.occupiedGrid);
         }
 
         if (selectedUnit)
@@ -93,12 +54,12 @@ namespace rwe
             renderService.drawSelectionRect(getUnit(*selectedUnit));
         }
 
-        renderService.drawUnitShadows(terrain, units);
+        renderService.drawUnitShadows(simulation.terrain, simulation.units);
 
         context.enableDepthBuffer();
 
-        auto seaLevel = terrain.getSeaLevel();
-        for (const auto& unit : units)
+        auto seaLevel = simulation.terrain.getSeaLevel();
+        for (const auto& unit : simulation.units)
         {
             renderService.drawUnit(unit, seaLevel);
         }
@@ -106,10 +67,10 @@ namespace rwe
         context.disableDepthWrites();
 
         context.disableDepthTest();
-        renderService.drawStandingFeatureShadows(terrain);
+        renderService.drawStandingFeatureShadows(simulation.features);
         context.enableDepthTest();
 
-        renderService.drawStandingFeatures(terrain);
+        renderService.drawStandingFeatures(simulation.features);
         context.enableDepthWrites();
 
         context.disableDepthBuffer();
@@ -228,7 +189,7 @@ namespace rwe
 
     void GameScene::update()
     {
-        gameTime += 1;
+        simulation.gameTime += 1;
 
         float secondsElapsed = static_cast<float>(SceneManager::TickInterval) / 1000.0f;
         const float speed = CameraPanSpeed * secondsElapsed;
@@ -241,10 +202,10 @@ namespace rwe
         auto top = camera.getRawPosition().z - (camera.getHeight() / 2.0f);
         auto bottom = camera.getRawPosition().z + (camera.getHeight() / 2.0f);
 
-        auto mindx = terrain.leftInWorldUnits() - left;
-        auto maxdx = terrain.rightCutoffInWorldUnits() - right;
-        auto mindz = terrain.topInWorldUnits() - top;
-        auto maxdz = terrain.bottomCutoffInWorldUnits() - bottom;
+        auto mindx = simulation.terrain.leftInWorldUnits() - left;
+        auto maxdx = simulation.terrain.rightCutoffInWorldUnits() - right;
+        auto mindz = simulation.terrain.topInWorldUnits() - top;
+        auto maxdz = simulation.terrain.bottomCutoffInWorldUnits() - bottom;
 
         auto dx = std::clamp(directionX * speed, mindx, maxdx);
         auto dz = std::clamp(directionZ * speed, mindz, maxdz);
@@ -263,10 +224,10 @@ namespace rwe
         }
 
         // run unit scripts
-        for (unsigned int i = 0; i < units.size(); ++i)
+        for (unsigned int i = 0; i < simulation.units.size(); ++i)
         {
             UnitId unitId(i);
-            auto& unit = units[i];
+            auto& unit = simulation.units[i];
 
             unit.update(*this, unitId, secondsElapsed);
             unit.mesh.update(secondsElapsed);
@@ -276,23 +237,11 @@ namespace rwe
 
     void GameScene::spawnUnit(const std::string& unitType, PlayerId owner, const Vector3f& position)
     {
-        UnitId unitId(units.size());
+        auto unitId = simulation.predictNextUnitId();
         auto unit = createUnit(unitId, unitType, owner, position);
 
-        // set footprint area as occupied by the unit
-        auto footprintRect = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
-        if (isCollisionAt(footprintRect, unitId))
-        {
-            // TODO: throw some warning that we didn't really spawn it
-            return;
-        }
-
-        auto footprintRegion = occupiedGrid.grid.tryToRegion(footprintRect);
-        assert(!!footprintRegion);
-
-        occupiedGrid.grid.setArea(*footprintRegion, OccupiedUnit(unitId));
-
-        units.push_back(std::move(unit));
+        // TODO: if we failed to add the unit throw some warning
+        simulation.tryAddUnit(std::move(unit));
     }
 
     void GameScene::setCameraPosition(const Vector3f& newPosition)
@@ -302,61 +251,53 @@ namespace rwe
 
     const MapTerrain& GameScene::getTerrain() const
     {
-        return terrain;
+        return simulation.terrain;
     }
 
     void GameScene::showObject(UnitId unitId, const std::string& name)
     {
-        auto mesh = getUnit(unitId).mesh.find(name);
-        if (mesh)
-        {
-            mesh->visible = true;
-        }
+        simulation.showObject(unitId, name);
     }
 
     void GameScene::hideObject(UnitId unitId, const std::string& name)
     {
-        auto mesh = getUnit(unitId).mesh.find(name);
-        if (mesh)
-        {
-            mesh->visible = false;
-        }
+        simulation.hideObject(unitId, name);
     }
 
     void
     GameScene::moveObject(UnitId unitId, const std::string& name, Axis axis, float position, float speed)
     {
-        getUnit(unitId).moveObject(name, axis, position, speed);
+        simulation.moveObject(unitId, name, axis, position, speed);
     }
 
     void GameScene::moveObjectNow(UnitId unitId, const std::string& name, Axis axis, float position)
     {
-        getUnit(unitId).moveObjectNow(name, axis, position);
+        simulation.moveObjectNow(unitId, name, axis, position);
     }
 
     void GameScene::turnObject(UnitId unitId, const std::string& name, Axis axis, float angle, float speed)
     {
-        getUnit(unitId).turnObject(name, axis, angle, speed);
+        simulation.turnObject(unitId, name, axis, angle, speed);
     }
 
     void GameScene::turnObjectNow(UnitId unitId, const std::string& name, Axis axis, float angle)
     {
-        getUnit(unitId).turnObjectNow(name, axis, angle);
+        simulation.turnObjectNow(unitId, name, axis, angle);
     }
 
     bool GameScene::isPieceMoving(UnitId unitId, const std::string& name, Axis axis) const
     {
-        return getUnit(unitId).isMoveInProgress(name, axis);
+        return simulation.isPieceMoving(unitId, name, axis);
     }
 
     bool GameScene::isPieceTurning(UnitId unitId, const std::string& name, Axis axis) const
     {
-        return getUnit(unitId).isTurnInProgress(name, axis);
+        return simulation.isPieceTurning(unitId, name, axis);
     }
 
     unsigned int GameScene::getGameTime() const
     {
-        return gameTime;
+        return simulation.gameTime;
     }
 
     void GameScene::playSoundOnSelectChannel(const AudioService::SoundHandle& handle)
@@ -374,7 +315,7 @@ namespace rwe
             movementClass = unitDatabase.getMovementClass(fbi.movementClass);
         }
 
-        auto meshInfo = meshService.loadUnitMesh(fbi.objectName, getPlayer(owner)->color);
+        auto meshInfo = meshService.loadUnitMesh(fbi.objectName, getPlayer(owner).color);
 
         const auto& script = unitDatabase.getUnitScript(fbi.unitName);
         auto cobEnv = std::make_unique<CobEnvironment>(this, &script, unitId);
@@ -439,26 +380,13 @@ namespace rwe
 
     boost::optional<UnitId> GameScene::getFirstCollidingUnit(const Ray3f& ray) const
     {
-        auto bestDistance = std::numeric_limits<float>::infinity();
-        boost::optional<UnitId> it;
-
-        for (unsigned int i = 0; i < units.size(); ++i)
-        {
-            auto distance = units[i].selectionIntersect(ray);
-            if (distance && distance < bestDistance)
-            {
-                bestDistance = *distance;
-                it = UnitId(i);
-            }
-        }
-
-        return it;
+        return simulation.getFirstCollidingUnit(ray);
     }
 
     boost::optional<Vector3f> GameScene::getMouseTerrainCoordinate() const
     {
         auto ray = renderService.getCamera().screenToWorldRay(screenToClipSpace(getMousePosition()));
-        return terrain.intersectLine(ray.toLine());
+        return simulation.intersectLineWithTerrain(ray.toLine());
     }
 
     void GameScene::issueMoveOrder(UnitId unitId, Vector3f position)
@@ -497,69 +425,32 @@ namespace rwe
 
     Unit& GameScene::getUnit(UnitId id)
     {
-        return units.at(id.value);
+        return simulation.getUnit(id);
     }
 
     const Unit& GameScene::getUnit(UnitId id) const
     {
-        return units.at(id.value);
+        return simulation.getUnit(id);
     }
 
-    boost::optional<GamePlayerInfo>& GameScene::getPlayer(PlayerId player)
+    const GamePlayerInfo& GameScene::getPlayer(PlayerId player) const
     {
-        return players.at(player.value);
-    }
-
-    const boost::optional<GamePlayerInfo>& GameScene::getPlayer(PlayerId player) const
-    {
-        return players.at(player.value);
+        return simulation.getPlayer(player);
     }
 
     DiscreteRect
     GameScene::computeFootprintRegion(const Vector3f& position, unsigned int footprintX, unsigned int footprintZ) const
     {
-        auto halfFootprintX = static_cast<float>(footprintX) * MapTerrain::HeightTileWidthInWorldUnits / 2.0f;
-        auto halfFootprintZ = static_cast<float>(footprintZ) * MapTerrain::HeightTileHeightInWorldUnits / 2.0f;
-        Vector3f topLeft(
-            position.x - halfFootprintX,
-            position.y,
-            position.z - halfFootprintZ);
-
-        auto cell = terrain.worldToHeightmapCoordinateNearest(topLeft);
-
-        return DiscreteRect(cell.x, cell.y, footprintX, footprintZ);
+        return simulation.computeFootprintRegion(position, footprintX, footprintZ);
     }
 
     bool GameScene::isCollisionAt(const DiscreteRect& rect, UnitId self) const
     {
-        auto region = occupiedGrid.grid.tryToRegion(rect);
-        if (!region)
-        {
-            return true;
-        }
-
-        for (unsigned int dy = 0; dy < region->height; ++dy)
-        {
-            for (unsigned int dx = 0; dx < region->width; ++dx)
-            {
-                const auto& cell = occupiedGrid.grid.get(region->x + dx, region->y + dy);
-                if (boost::apply_visitor(IsCollisionVisitor(self), cell))
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return simulation.isCollisionAt(rect, self);
     }
 
     void GameScene::moveUnitOccupiedArea(const DiscreteRect& oldRect, const DiscreteRect& newRect, UnitId unitId)
     {
-        auto oldRegion = occupiedGrid.grid.tryToRegion(oldRect);
-        assert(!!oldRegion);
-        auto newRegion = occupiedGrid.grid.tryToRegion(newRect);
-        assert(!!newRegion);
-
-        occupiedGrid.grid.setArea(*oldRegion, OccupiedNone());
-        occupiedGrid.grid.setArea(*newRegion, OccupiedUnit(unitId));
+        simulation.moveUnitOccupiedArea(oldRect, newRect, unitId);
     }
 }

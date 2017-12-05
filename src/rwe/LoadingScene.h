@@ -93,7 +93,7 @@ namespace rwe
 
         std::unique_ptr<GameScene> createGameScene(const std::string& mapName, unsigned int schemaIndex);
 
-        MapTerrain createMapTerrain(const std::string& mapName, const rwe::OtaRecord& ota, unsigned int schemaIndex);
+        GameSimulation createInitialSimulation(const std::string& mapName, const rwe::OtaRecord& ota, unsigned int schemaIndex);
 
         std::vector<TextureRegion> getTileTextures(TntArchive& tnt);
 

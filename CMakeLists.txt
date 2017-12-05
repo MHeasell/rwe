@@ -78,6 +78,8 @@ set(SOURCE_FILES
     src/rwe/Gaf.cpp src/rwe/Gaf.h
     src/rwe/GameScene.cpp
     src/rwe/GameScene.h
+    src/rwe/GameSimulation.cpp
+    src/rwe/GameSimulation.h
     src/rwe/GlIdentifier.h
     src/rwe/GlMesh.cpp
     src/rwe/GlMesh.h

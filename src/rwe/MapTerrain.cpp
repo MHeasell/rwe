@@ -121,16 +121,6 @@ namespace rwe
         return bottom - (TileHeightInWorldUnits * 4);
     }
 
-    const std::vector<MapFeature>& MapTerrain::getFeatures() const
-    {
-        return features;
-    }
-
-    std::vector<MapFeature>& MapTerrain::getFeatures()
-    {
-        return features;
-    }
-
     const Grid<unsigned char>& MapTerrain::getHeightMap() const
     {
         return heights;

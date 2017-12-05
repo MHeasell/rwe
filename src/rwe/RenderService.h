@@ -50,10 +50,10 @@ namespace rwe
         void drawOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid);
 
         void drawMapTerrain(const MapTerrain& terrain);
-        void drawFlatFeatures(const MapTerrain& terrain);
-        void drawFlatFeatureShadows(const MapTerrain& terrain);
-        void drawStandingFeatures(const MapTerrain& terrain);
-        void drawStandingFeatureShadows(const MapTerrain& terrain);
+        void drawFlatFeatures(const std::vector<MapFeature>& features);
+        void drawFlatFeatureShadows(const std::vector<MapFeature>& features);
+        void drawStandingFeatures(const std::vector<MapFeature>& features);
+        void drawStandingFeatureShadows(const std::vector<MapFeature>& features);
 
         void drawMapTerrain(const MapTerrain& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
 

@@ -107,7 +107,7 @@ namespace rwe
         std::string otaStr(otaRaw->begin(), otaRaw->end());
         auto ota = parseOta(parseTdfFromString(otaStr));
 
-        auto terrain = createMapTerrain(mapName, ota, schemaIndex);
+        auto simulation = createInitialSimulation(mapName, ota, schemaIndex);
 
         CabinetCamera camera(viewportService->width(), viewportService->height());
         camera.setPosition(Vector3f(0.0f, 0.0f, 0.0f));
@@ -118,25 +118,31 @@ namespace rwe
 
         auto unitDatabase = createUnitDatabase();
 
-        // detect which player is the local human
-        auto localPlayerIdIt = std::find_if(
-            gameParameters.players.begin(),
-            gameParameters.players.end(),
-            [](const auto& pi) { return pi && pi->controller == PlayerInfo::Controller::Human; });
-        if (localPlayerIdIt == gameParameters.players.end())
-        {
-            throw std::logic_error("No human player in the game");
-        }
-        PlayerId localPlayerId(localPlayerIdIt - gameParameters.players.begin());
+        boost::optional<PlayerId> localPlayerId;
 
-        std::array<boost::optional<GamePlayerInfo>, 10> gamePlayers;
+        std::array<boost::optional<PlayerId>, 10> gamePlayers;
         for (int i = 0; i < 10; ++i)
         {
-            if (gameParameters.players[i])
+            const auto& params = gameParameters.players[i];
+            if (params)
             {
-                GamePlayerInfo gpi{gameParameters.players[i]->color};
-                gamePlayers[i] = gpi;
+                GamePlayerInfo gpi{params->color};
+                gamePlayers[i] = simulation.addPlayer(gpi);
+
+                if (params->controller == PlayerInfo::Controller::Human)
+                {
+                    if (localPlayerId)
+                    {
+                        throw std::runtime_error("Multiple local human players found");
+                    }
+
+                    localPlayerId = gamePlayers[i];
+                }
             }
+        }
+        if (!localPlayerId)
+        {
+            throw std::runtime_error("No local player!");
         }
 
         RenderService renderService(graphics, shaders, camera);
@@ -151,14 +157,13 @@ namespace rwe
             std::move(renderService),
             std::move(uiRenderService),
             std::move(meshService),
-            std::move(terrain),
             std::move(unitDatabase),
-            std::move(gamePlayers),
-            localPlayerId);
+            std::move(simulation),
+            *localPlayerId);
 
         const auto& schema = ota.schemas.at(schemaIndex);
 
-        Vector3f humanStartPos;
+        boost::optional<Vector3f> humanStartPos;
 
         for (unsigned int i = 0; i < gameParameters.players.size(); ++i)
         {
@@ -181,21 +186,26 @@ namespace rwe
             auto worldStartPos = gameScene->getTerrain().topLeftCoordinateToWorld(Vector3f(startPos.xPos, 0.0f, startPos.zPos));
             worldStartPos.y = gameScene->getTerrain().getHeightAt(worldStartPos.x, worldStartPos.z);
 
-            if (i == localPlayerId.value)
+            if (*gamePlayers[i] == *localPlayerId)
             {
                 humanStartPos = worldStartPos;
             }
 
             const auto& sideData = getSideData(player->side);
-            gameScene->spawnUnit(sideData.commander, PlayerId(i), worldStartPos);
+            gameScene->spawnUnit(sideData.commander, *gamePlayers[i], worldStartPos);
         }
 
-        gameScene->setCameraPosition(Vector3f(humanStartPos.x, 0.0f, humanStartPos.z));
+        if (!humanStartPos)
+        {
+            throw std::runtime_error("No human player!");
+        }
+
+        gameScene->setCameraPosition(Vector3f(humanStartPos->x, 0.0f, humanStartPos->z));
 
         return gameScene;
     }
 
-    MapTerrain LoadingScene::createMapTerrain(const std::string& mapName, const OtaRecord& ota, unsigned int schemaIndex)
+    GameSimulation LoadingScene::createInitialSimulation(const std::string& mapName, const OtaRecord& ota, unsigned int schemaIndex)
     {
         auto tntBytes = vfs->readFile("maps/" + mapName + ".tnt");
         if (!tntBytes)
@@ -221,6 +231,8 @@ namespace rwe
             std::move(heightGrid),
             tnt.getHeader().seaLevel);
 
+        GameSimulation simulation(std::move(terrain));
+
         auto featureTemplates = getFeatures(tnt);
 
         for (std::size_t y = 0; y < mapAttributes.getHeight(); ++y)
@@ -236,9 +248,9 @@ namespace rwe
                         break;
                     default:
                         const auto& featureTemplate = featureTemplates[e.feature];
-                        Vector3f pos = computeFeaturePosition(terrain, featureTemplate, x, y);
+                        Vector3f pos = computeFeaturePosition(simulation.terrain, featureTemplate, x, y);
                         auto feature = createFeature(pos, featureTemplate);
-                        terrain.getFeatures().push_back(feature);
+                        simulation.addFeature(std::move(feature));
                 }
             }
         }
@@ -251,10 +263,10 @@ namespace rwe
             const auto& featureTemplate = featureService->getFeatureDefinition(f.featureName);
             Vector3f pos = computeFeaturePosition(terrain, featureTemplate, f.xPos, f.zPos);
             auto feature = createFeature(pos, featureTemplate);
-            terrain.getFeatures().push_back(feature);
+            simulation.addFeature(std::move(feature));
         }
 
-        return terrain;
+        return simulation;
     }
 
     std::vector<TextureRegion> LoadingScene::getTileTextures(TntArchive& tnt)

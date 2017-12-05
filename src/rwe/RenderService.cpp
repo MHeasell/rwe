@@ -259,27 +259,23 @@ namespace rwe
         drawMapTerrain(terrain, x1, y1, (x2 + 1) - x1, (y2 + 1) - y1);
     }
 
-    void RenderService::drawFlatFeatures(const MapTerrain& terrain)
+    void RenderService::drawFlatFeatures(const std::vector<MapFeature>& features)
     {
-        const auto& features = terrain.getFeatures();
         drawFlatFeaturesInternal(features.begin(), features.end());
     }
 
-    void RenderService::drawFlatFeatureShadows(const MapTerrain& terrain)
+    void RenderService::drawFlatFeatureShadows(const std::vector<MapFeature>& features)
     {
-        const auto& features = terrain.getFeatures();
         drawFlatFeatureShadowsInternal(features.begin(), features.end());
     }
 
-    void RenderService::drawStandingFeatures(const MapTerrain& terrain)
+    void RenderService::drawStandingFeatures(const std::vector<MapFeature>& features)
     {
-        const auto& features = terrain.getFeatures();
         drawStandingFeaturesInternal(features.begin(), features.end());
     }
 
-    void RenderService::drawStandingFeatureShadows(const MapTerrain& terrain)
+    void RenderService::drawStandingFeatureShadows(const std::vector<MapFeature>& features)
     {
-        const auto& features = terrain.getFeatures();
         drawStandingFeatureShadowsInternal(features.begin(), features.end());
     }
 
