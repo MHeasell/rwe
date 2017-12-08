@@ -18,6 +18,7 @@
 #include <rwe/ViewportService.h>
 #include <rwe/camera/UiCamera.h>
 #include <rwe/UnitFactory.h>
+#include <rwe/cob/CobExecutionService.h>
 
 namespace rwe
 {
@@ -46,6 +47,8 @@ namespace rwe
         UnitFactory unitFactory;
 
         GameSimulation simulation;
+
+        CobExecutionService cobExecutionService;
 
         PlayerId localPlayerId;
 

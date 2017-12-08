@@ -15,59 +15,63 @@ namespace rwe
 
     class CobEnvironment
     {
-    private:
-        class ThreadRescheduleVisitor : public boost::static_visitor<>
+    public:
+        struct BlockedStatus
         {
-        private:
-            CobEnvironment* env;
-            CobThread* thread;
+            struct Move
+            {
+                unsigned int object;
+                Axis axis;
+
+                Move(unsigned int object, Axis axis) : object(object), axis(axis)
+                {
+                }
+            };
+
+            struct Turn
+            {
+                unsigned int object;
+                Axis axis;
+
+                Turn(unsigned int object, Axis axis) : object(object), axis(axis)
+                {
+                }
+            };
+
+            struct Sleep
+            {
+                unsigned int wakeUpTime;
+
+                explicit Sleep(unsigned int wakeUpTime) : wakeUpTime(wakeUpTime)
+                {
+                }
+            };
+
+            using Condition = boost::variant<Move, Turn, Sleep>;
+
+            Condition condition;
 
         public:
-            ThreadRescheduleVisitor(CobEnvironment* env, CobThread* thread) : env(env), thread(thread)
-            {
-            }
-
-            void operator()(const CobThread::BlockedStatus& status) const
-            {
-                env->blockedQueue.emplace_back(status, thread);
-            }
-            void operator()(const CobThread::FinishedStatus&) const
-            {
-                env->deleteThread(thread);
-            }
+            explicit BlockedStatus(const Condition& condition) : condition(condition) {}
         };
-
-        class BlockCheckVisitor : public boost::static_visitor<bool>
+        struct FinishedStatus
         {
-        private:
-            CobEnvironment* env;
-
-        public:
-            explicit BlockCheckVisitor(CobEnvironment* env) : env(env)
-            {
-            }
-
-            bool operator()(const CobThread::BlockedStatus::Move& condition) const;
-
-            bool operator()(const CobThread::BlockedStatus::Turn& condition) const;
-
-            bool operator()(const CobThread::BlockedStatus::Sleep& condition) const;
         };
 
-    private:
-        GameScene* scene;
-        const CobScript* _script;
+        using Status = boost::variant<BlockedStatus, FinishedStatus>;
 
-        UnitId unitId;
+    public:
+        const CobScript* const _script;
+
         std::vector<int> _statics;
 
         std::vector<std::unique_ptr<CobThread>> threads;
 
         std::deque<CobThread*> readyQueue;
-        std::deque<std::pair<CobThread::Status, CobThread*>> blockedQueue;
+        std::deque<std::pair<Status, CobThread*>> blockedQueue;
 
     public:
-        CobEnvironment(GameScene* scene, const CobScript* _script, UnitId unitId);
+        explicit CobEnvironment(const CobScript* _script);
 
         CobEnvironment(const CobEnvironment& other) = delete;
         CobEnvironment& operator=(const CobEnvironment& other) = delete;
@@ -75,32 +79,11 @@ namespace rwe
         CobEnvironment& operator=(CobEnvironment&& other) = delete;
 
     public:
-        int getStatic(unsigned int id)
-        {
-            return _statics.at(id);
-        }
+        int getStatic(unsigned int id);
 
-        void setStatic(unsigned int id, int value)
-        {
-            _statics.at(id) = value;
-        }
+        void setStatic(unsigned int id, int value);
 
-        const CobScript* script()
-        {
-            return _script;
-        }
-
-        void showObject(unsigned int objectId);
-
-        void hideObject(unsigned int objectId);
-
-        void moveObject(unsigned int objectId, Axis axis, float position, float speed);
-
-        void moveObjectNow(unsigned int objectId, Axis axis, float position);
-
-        void turnObject(unsigned int objectId, Axis axis, float angle, float speed);
-
-        void turnObjectNow(unsigned int objectId, Axis axis, float angle);
+        const CobScript* script();
 
         void createThread(unsigned int functionId, const std::vector<int>& params);
 
@@ -108,11 +91,6 @@ namespace rwe
 
         void createThread(const std::string& functionName);
 
-        unsigned int getGameTime() const;
-
-        void executeThreads();
-
-    private:
         void deleteThread(const CobThread* thread);
     };
 }

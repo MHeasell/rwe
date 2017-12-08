@@ -171,8 +171,13 @@ set(SOURCE_FILES
     src/rwe/camera/CabinetCamera.h
     src/rwe/camera/UiCamera.cpp
     src/rwe/camera/UiCamera.h
+    src/rwe/cob/CobConstants.h
     src/rwe/cob/CobEnvironment.cpp
     src/rwe/cob/CobEnvironment.h
+    src/rwe/cob/CobExecutionContext.cpp
+    src/rwe/cob/CobExecutionContext.h
+    src/rwe/cob/CobExecutionService.cpp
+    src/rwe/cob/CobExecutionService.h
     src/rwe/cob/CobThread.cpp
     src/rwe/cob/CobThread.h
     src/rwe/events.cpp

@@ -27,7 +27,7 @@ namespace rwe
         auto meshInfo = meshService.loadUnitMesh(fbi.objectName, colorIndex);
 
         const auto& script = unitDatabase.getUnitScript(fbi.unitName);
-        auto cobEnv = std::make_unique<CobEnvironment>(this, &script, unitId);
+        auto cobEnv = std::make_unique<CobEnvironment>(&script);
         cobEnv->createThread("Create", std::vector<int>());
         Unit unit(meshInfo.mesh, std::move(cobEnv), std::move(meshInfo.selectionMesh));
         unit.owner = owner;

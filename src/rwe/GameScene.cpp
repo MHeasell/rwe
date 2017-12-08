@@ -229,7 +229,8 @@ namespace rwe
 
             unit.update(*this, unitId, secondsElapsed);
             unit.mesh.update(secondsElapsed);
-            unit.cobEnvironment->executeThreads();
+
+            cobExecutionService.run(simulation, unitId);
         }
     }
 
