@@ -52,14 +52,9 @@ namespace rwe
         return id;
     }
 
-    UnitId GameSimulation::predictNextUnitId() const
-    {
-        return UnitId(units.size());
-    }
-
     bool GameSimulation::tryAddUnit(Unit&& unit)
     {
-        auto unitId = predictNextUnitId();
+        UnitId unitId(units.size());
 
         // set footprint area as occupied by the unit
         auto footprintRect = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);

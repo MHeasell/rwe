@@ -10,7 +10,6 @@ namespace rwe
     }
 
     Unit UnitFactory::createUnit(
-        UnitId unitId,
         const std::string& unitType,
         PlayerId owner,
         unsigned int colorIndex,

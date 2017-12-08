@@ -19,7 +19,7 @@ namespace rwe
         UnitFactory(UnitDatabase&& unitDatabase, MeshService&& meshService);
 
     public:
-        Unit createUnit(UnitId unitId, const std::string& unitType, PlayerId owner, unsigned int colorIndex, const Vector3f& position);
+        Unit createUnit(const std::string& unitType, PlayerId owner, unsigned int colorIndex, const Vector3f& position);
     };
 }
 

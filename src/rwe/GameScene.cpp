@@ -236,8 +236,7 @@ namespace rwe
 
     void GameScene::spawnUnit(const std::string& unitType, PlayerId owner, const Vector3f& position)
     {
-        auto unitId = simulation.predictNextUnitId();
-        auto unit = unitFactory.createUnit(unitId, unitType, owner, simulation.getPlayer(owner).color, position);
+        auto unit = unitFactory.createUnit(unitType, owner, simulation.getPlayer(owner).color, position);
 
         // TODO: if we failed to add the unit throw some warning
         simulation.tryAddUnit(std::move(unit));

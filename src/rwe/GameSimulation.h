@@ -33,9 +33,6 @@ namespace rwe
 
         PlayerId addPlayer(const GamePlayerInfo& info);
 
-        /** We should refactor this away as soon as possible. */
-        UnitId predictNextUnitId() const;
-
         /**
          * Returns true if the unit was really added, false otherwise.
          * A unit might not be added because it violates collision constraints.
