@@ -119,7 +119,7 @@ namespace rwe
         else
         {
             // brake to target speed
-            if (unit.currentSpeed - targetSpeed < unit.brakeRate)
+            if (unit.currentSpeed - targetSpeed <= unit.brakeRate)
             {
                 unit.currentSpeed = targetSpeed;
             }
