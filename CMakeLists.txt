@@ -150,6 +150,8 @@ set(SOURCE_FILES
     src/rwe/UniqueHandle.h
     src/rwe/Unit.cpp
     src/rwe/Unit.h
+    src/rwe/UnitBehaviorService.cpp
+    src/rwe/UnitBehaviorService.h
     src/rwe/UnitDatabase.cpp
     src/rwe/UnitDatabase.h
     src/rwe/UnitFactory.cpp

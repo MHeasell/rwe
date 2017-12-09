@@ -10,6 +10,7 @@
 #include "UnitDatabase.h"
 #include "UnitId.h"
 #include "GameSimulation.h"
+#include "UnitBehaviorService.h"
 #include <rwe/CursorService.h>
 #include <rwe/PlayerId.h>
 #include <rwe/SceneManager.h>
@@ -48,6 +49,7 @@ namespace rwe
 
         GameSimulation simulation;
 
+        UnitBehaviorService unitBehaviorService;
         CobExecutionService cobExecutionService;
 
         PlayerId localPlayerId;

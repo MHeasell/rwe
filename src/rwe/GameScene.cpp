@@ -24,6 +24,8 @@ namespace rwe
           uiRenderService(std::move(uiRenderService)),
           unitFactory(std::move(unitFactory)),
           simulation(std::move(simulation)),
+          unitBehaviorService(this),
+          cobExecutionService(),
           localPlayerId(localPlayerId)
     {
     }
@@ -227,7 +229,8 @@ namespace rwe
             UnitId unitId(i);
             auto& unit = simulation.units[i];
 
-            unit.update(*this, unitId, secondsElapsed);
+            unitBehaviorService.update(unitId);
+
             unit.mesh.update(secondsElapsed);
 
             cobExecutionService.run(simulation, unitId);
@@ -396,5 +399,10 @@ namespace rwe
     void GameScene::moveUnitOccupiedArea(const DiscreteRect& oldRect, const DiscreteRect& newRect, UnitId unitId)
     {
         simulation.moveUnitOccupiedArea(oldRect, newRect, unitId);
+    }
+
+    GameSimulation& GameScene::getSimulation()
+    {
+        return simulation;
     }
 }
