@@ -24,7 +24,8 @@ namespace rwe
           uiRenderService(std::move(uiRenderService)),
           unitFactory(std::move(unitFactory)),
           simulation(std::move(simulation)),
-          unitBehaviorService(this),
+          pathFindingService(),
+          unitBehaviorService(this, &pathFindingService),
           cobExecutionService(),
           localPlayerId(localPlayerId)
     {
@@ -222,6 +223,8 @@ namespace rwe
         {
             cursor->useNormalCursor();
         }
+
+        pathFindingService.update();
 
         // run unit scripts
         for (unsigned int i = 0; i < simulation.units.size(); ++i)

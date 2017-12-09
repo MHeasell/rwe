@@ -4,7 +4,8 @@
 
 namespace rwe
 {
-    UnitBehaviorService::UnitBehaviorService(GameScene* scene) : scene(scene)
+    UnitBehaviorService::UnitBehaviorService(GameScene* scene, PathFindingService* pathFindingService)
+        : scene(scene), pathFindingService(pathFindingService)
     {
     }
 
@@ -27,37 +28,74 @@ namespace rwe
             auto moveOrder = boost::get<MoveOrder>(&order);
             if (moveOrder != nullptr)
             {
-                Vector2f xzPosition(unit.position.x, unit.position.z);
-                const auto& destination = moveOrder->destination;
-                Vector2f xzDestination(destination.x, destination.z);
-                auto distanceSquared = xzPosition.distanceSquared(xzDestination);
-                if (distanceSquared < 1.0f)
+                // update path status info
+                if (!unit.pathStatus)
                 {
-                    // order complete
-                    unit.orders.pop_front();
-
-                    if (unit.arrivedSound)
-                    {
-                        scene->playSoundOnSelectChannel(*unit.arrivedSound);
-                    }
+                    const auto& destination = moveOrder->destination;
+                    auto pathRequest = pathFindingService->getPath(unitId, destination);
+                    unit.pathStatus = PathStatusRequested{std::move(pathRequest)};
                 }
                 else
                 {
-                    // steer towards the goal
-                    auto xzDirection = xzDestination - xzPosition;
-                    auto destAngle = Vector2f(0.0f, -1.0f).angleTo(xzDirection);
-                    targetAngle = (2.0f * Pif) - destAngle; // convert to anticlockwise in our coordinate system
-
-                    // drive at full speed until we need to brake
-                    // to arrive at the goal
-                    auto brakingDistance = (unit.currentSpeed * unit.currentSpeed) / (2.0f * unit.brakeRate);
-                    if (distanceSquared > (brakingDistance * brakingDistance))
+                    auto pathRequest = boost::get<PathStatusRequested>(&*unit.pathStatus);
+                    if (pathRequest != nullptr)
                     {
-                        targetSpeed = unit.maxSpeed;
+                        auto status = pathRequest->token.result.wait_for(std::chrono::milliseconds::zero());
+                        if (status == std::future_status::ready)
+                        {
+                            unit.pathStatus = PathStatusFollowing(pathRequest->token.result.get());
+                        }
+                    }
+                }
+
+                auto pathToFollow = boost::get<PathStatusFollowing>(&*unit.pathStatus);
+
+                // if a path is available, attempt to follow it
+                if (pathToFollow != nullptr)
+                {
+                    const auto& destination = *pathToFollow->currentWaypoint;
+                    Vector2f xzPosition(unit.position.x, unit.position.z);
+                    Vector2f xzDestination(destination.x, destination.z);
+                    auto distanceSquared = xzPosition.distanceSquared(xzDestination);
+
+                    auto isFinalDestination = pathToFollow->currentWaypoint == (pathToFollow->path.waypoints.end() - 1);
+
+                    if (distanceSquared < 1.0f)
+                    {
+                        if (isFinalDestination)
+                        {
+                            // order complete
+                            unit.orders.pop_front();
+                            unit.pathStatus = boost::none;
+
+                            if (unit.arrivedSound)
+                            {
+                                scene->playSoundOnSelectChannel(*unit.arrivedSound);
+                            }
+                        }
+                        else
+                        {
+                            ++pathToFollow->currentWaypoint;
+                        }
                     }
                     else
                     {
-                        targetSpeed = 0.0f;
+                        // steer towards the goal
+                        auto xzDirection = xzDestination - xzPosition;
+                        auto destAngle = Vector2f(0.0f, -1.0f).angleTo(xzDirection);
+                        targetAngle = (2.0f * Pif) - destAngle; // convert to anticlockwise in our coordinate system
+
+                        // drive at full speed until we need to brake
+                        // to arrive at the goal
+                        auto brakingDistance = (unit.currentSpeed * unit.currentSpeed) / (2.0f * unit.brakeRate);
+                        if (isFinalDestination && distanceSquared <= (brakingDistance * brakingDistance))
+                        {
+                            targetSpeed = 0.0f;
+                        }
+                        else
+                        {
+                            targetSpeed = unit.maxSpeed;
+                        }
                     }
                 }
             }

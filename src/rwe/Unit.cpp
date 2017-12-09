@@ -180,6 +180,7 @@ namespace rwe
     void Unit::clearOrders()
     {
         orders.clear();
+        pathStatus = boost::none;
     }
 
     void Unit::addOrder(const UnitOrder& order)

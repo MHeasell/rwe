@@ -20,6 +20,7 @@
 #include <rwe/camera/UiCamera.h>
 #include <rwe/UnitFactory.h>
 #include <rwe/cob/CobExecutionService.h>
+#include <rwe/pathfinding/PathFindingService.h>
 
 namespace rwe
 {
@@ -49,6 +50,7 @@ namespace rwe
 
         GameSimulation simulation;
 
+        PathFindingService pathFindingService;
         UnitBehaviorService unitBehaviorService;
         CobExecutionService cobExecutionService;
 

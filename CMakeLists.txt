@@ -216,6 +216,11 @@ set(SOURCE_FILES
     src/rwe/observable/Subscription.h
     src/rwe/ota.cpp
     src/rwe/ota.h
+    src/rwe/pathfinding/PathFindingService.cpp
+    src/rwe/pathfinding/PathFindingService.h
+    src/rwe/pathfinding/PathTaskId.h
+    src/rwe/pathfinding/PathTaskToken.h
+    src/rwe/pathfinding/UnitPath.h
     src/rwe/pcx.cpp
     src/rwe/pcx.h
     src/rwe/rwe_string.cpp

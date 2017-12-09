@@ -12,6 +12,7 @@
 #include <rwe/cob/CobEnvironment.h>
 #include <rwe/geometry/BoundingBox3f.h>
 #include <rwe/geometry/CollisionMesh.h>
+#include <rwe/pathfinding/PathTaskToken.h>
 
 namespace rwe
 {
@@ -20,6 +21,21 @@ namespace rwe
         Vector3f destination;
         explicit MoveOrder(const Vector3f& destination);
     };
+
+    struct PathStatusRequested
+    {
+        PathTaskToken token;
+    };
+
+    struct PathStatusFollowing
+    {
+        UnitPath path;
+        std::vector<Vector3f>::const_iterator currentWaypoint;
+        explicit PathStatusFollowing(UnitPath&& path)
+            : path(std::move(path)), currentWaypoint(this->path.waypoints.begin()) {}
+    };
+
+    using PathStatus = boost::variant<PathStatusRequested, PathStatusFollowing>;
 
     using UnitOrder = boost::variant<MoveOrder>;
 
@@ -74,6 +90,7 @@ namespace rwe
         unsigned int footprintZ;
 
         std::deque<UnitOrder> orders;
+        boost::optional<PathStatus> pathStatus;
 
         Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, SelectionMesh&& selectionMesh);
 

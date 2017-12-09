@@ -2,6 +2,7 @@
 #define RWE_UNITBEHAVIORSERVICE_H
 
 #include <rwe/math/Vector3f.h>
+#include <rwe/pathfinding/PathFindingService.h>
 #include "UnitId.h"
 
 namespace rwe
@@ -12,9 +13,10 @@ namespace rwe
     {
     private:
         GameScene* scene;
+        PathFindingService* pathFindingService;
 
     public:
-        explicit UnitBehaviorService(GameScene* scene);
+        UnitBehaviorService(GameScene* scene, PathFindingService* pathFindingService);
 
         void update(UnitId unitId);
 
