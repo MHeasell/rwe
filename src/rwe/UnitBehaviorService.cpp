@@ -129,7 +129,6 @@ namespace rwe
             }
         }
 
-
         auto effectiveMaxSpeed = unit.maxSpeed;
         if (unit.position.y < scene->getTerrain().getSeaLevel())
         {
