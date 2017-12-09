@@ -19,6 +19,12 @@ namespace rwe
         void update(UnitId unitId);
 
     private:
+        void applyUnitSteering(UnitId id, float targetAngle, float targetSpeed);
+        void updateUnitRotation(UnitId id, float targetAngle);
+        void updateUnitSpeed(UnitId id, float targetSpeed);
+
+        void updateUnitPosition(UnitId unitId);
+
         bool tryApplyMovementToPosition(UnitId id, const Vector3f& newPosition);
     };
 }

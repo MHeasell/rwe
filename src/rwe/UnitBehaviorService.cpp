@@ -14,6 +14,10 @@ namespace rwe
 
         float previousSpeed = unit.currentSpeed;
 
+        // by default, stay put
+        float targetSpeed = 0.0f;
+        float targetAngle = unit.rotation;
+
         // check our orders
         if (!unit.orders.empty())
         {
@@ -31,60 +35,35 @@ namespace rwe
                 {
                     // order complete
                     unit.orders.pop_front();
+
                     if (unit.arrivedSound)
                     {
                         scene->playSoundOnSelectChannel(*unit.arrivedSound);
                     }
                 }
-                // TODO: if distance <= braking distance, brake
                 else
                 {
-                    auto effectiveMaxSpeed = unit.maxSpeed;
-                    if (unit.position.y < scene->getTerrain().getSeaLevel())
-                    {
-                        effectiveMaxSpeed /= 2.0f;
-                    }
+                    // steer towards the goal
+                    auto xzDirection = xzDestination - xzPosition;
+                    auto destAngle = Vector2f(0.0f, -1.0f).angleTo(xzDirection);
+                    targetAngle = (2.0f * Pif) - destAngle; // convert to anticlockwise in our coordinate system
 
-                    // accelerate to max speed
-                    auto accelerationThisFrame = unit.acceleration;
-                    if (effectiveMaxSpeed - unit.currentSpeed <= accelerationThisFrame)
+                    // drive at full speed until we need to brake
+                    // to arrive at the goal
+                    auto brakingDistance = (unit.currentSpeed * unit.currentSpeed) / (2.0f * unit.brakeRate);
+                    if (distanceSquared > (brakingDistance * brakingDistance))
                     {
-                        unit.currentSpeed = effectiveMaxSpeed;
+                        targetSpeed = unit.maxSpeed;
                     }
                     else
                     {
-                        unit.currentSpeed += accelerationThisFrame;
+                        targetSpeed = 0.0f;
                     }
                 }
-
-                // steer towards the goal
-                auto xzDirection = xzDestination - xzPosition;
-                auto destAngle = Vector2f(0.0f, -1.0f).angleTo(xzDirection);
-                destAngle = (2.0f * Pif) - destAngle; // convert to anticlockwise in our coordinate system
-                auto angleDelta = wrap(-Pif, Pif, destAngle - unit.rotation);
-
-                auto turnRateThisFrame = unit.turnRate;
-                if (std::abs(angleDelta) <= turnRateThisFrame)
-                {
-                    unit.rotation = destAngle;
-                }
-                else
-                {
-                    unit.rotation = wrap(-Pif, Pif, unit.rotation + (turnRateThisFrame * (angleDelta > 0.0f ? 1.0f : -1.0f)));
-                }
             }
         }
-        else
-        {
-            if (unit.currentSpeed < unit.brakeRate)
-            {
-                unit.currentSpeed = 0.0f;
-            }
-            else
-            {
-                unit.currentSpeed -= unit.brakeRate;
-            }
-        }
+
+        applyUnitSteering(unitId, targetAngle, targetSpeed);
 
         if (unit.currentSpeed > 0.0f && previousSpeed == 0.0f)
         {
@@ -94,6 +73,74 @@ namespace rwe
         {
             unit.cobEnvironment->createThread("StopMoving");
         }
+
+        updateUnitPosition(unitId);
+    }
+
+    void UnitBehaviorService::applyUnitSteering(UnitId id, float targetAngle, float targetSpeed)
+    {
+        updateUnitRotation(id, targetAngle);
+        updateUnitSpeed(id, targetSpeed);
+    }
+
+    void UnitBehaviorService::updateUnitRotation(UnitId id, float targetAngle)
+    {
+        auto& unit = scene->getSimulation().getUnit(id);
+
+        auto angleDelta = wrap(-Pif, Pif, targetAngle - unit.rotation);
+
+        auto turnRateThisFrame = unit.turnRate;
+        if (std::abs(angleDelta) <= turnRateThisFrame)
+        {
+            unit.rotation = targetAngle;
+        }
+        else
+        {
+            unit.rotation = wrap(-Pif, Pif, unit.rotation + (turnRateThisFrame * (angleDelta > 0.0f ? 1.0f : -1.0f)));
+        }
+    }
+
+    void UnitBehaviorService::updateUnitSpeed(UnitId id, float targetSpeed)
+    {
+        auto& unit = scene->getSimulation().getUnit(id);
+
+        if (targetSpeed > unit.currentSpeed)
+        {
+            // accelerate to target speed
+            if (targetSpeed - unit.currentSpeed <= unit.acceleration)
+            {
+                unit.currentSpeed = targetSpeed;
+            }
+            else
+            {
+                unit.currentSpeed += unit.acceleration;
+            }
+        }
+        else
+        {
+            // brake to target speed
+            if (unit.currentSpeed - targetSpeed < unit.brakeRate)
+            {
+                unit.currentSpeed = targetSpeed;
+            }
+            else
+            {
+                unit.currentSpeed -= unit.brakeRate;
+            }
+        }
+
+
+        auto effectiveMaxSpeed = unit.maxSpeed;
+        if (unit.position.y < scene->getTerrain().getSeaLevel())
+        {
+            effectiveMaxSpeed /= 2.0f;
+        }
+        unit.currentSpeed = std::clamp(unit.currentSpeed, 0.0f, effectiveMaxSpeed);
+    }
+
+    void UnitBehaviorService::updateUnitPosition(UnitId unitId)
+    {
+        auto& unit = scene->getSimulation().getUnit(unitId);
 
         auto direction = Matrix4f::rotationY(unit.rotation) * Vector3f(0.0f, 0.0f, -1.0f);
 
