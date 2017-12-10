@@ -1,6 +1,7 @@
 #ifndef RWE_3DO_H
 #define RWE_3DO_H
 
+#include <boost/optional.hpp>
 #include <istream>
 #include <string>
 #include <vector>
