@@ -1,9 +1,14 @@
 #include "PathFindingService.h"
+#include "UnitFootprintPathFinder.h"
 #include <future>
 
 namespace rwe
 {
     static const unsigned int MaxTasksPerTick = 10;
+
+    PathFindingService::PathFindingService(GameSimulation* const simulation) : simulation(simulation)
+    {
+    }
 
     PathTaskToken PathFindingService::getPath(UnitId unit, const Vector3f& destination)
     {
@@ -33,13 +38,44 @@ namespace rwe
         {
             auto& task = taskQueue.front();
 
-            // TODO: write a real pathfinding algo
-            UnitPath path;
-            path.waypoints.push_back(task.second.destination);
+            auto path = findPath(task.second.unit, task.second.destination);
             task.second.result.set_value(std::move(path));
 
             taskQueue.pop_front();
             tasksDone += 1;
         }
+    }
+
+    UnitPath PathFindingService::findPath(UnitId unitId, const Vector3f& destination)
+    {
+        const auto& unit = simulation->getUnit(unitId);
+
+        UnitFootprintPathFinder pathFinder(simulation, unitId);
+
+        auto start = simulation->computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+        auto goal = simulation->computeFootprintRegion(destination, unit.footprintX, unit.footprintZ);
+
+        auto path = pathFinder.findPath(start, goal);
+
+        std::vector<Vector3f> waypoints;
+        for (const auto& r : path)
+        {
+            waypoints.push_back(getWorldCenter(r));
+        }
+        waypoints.back() = destination;
+
+        return UnitPath{std::move(waypoints)};
+    }
+
+    Vector3f PathFindingService::getWorldCenter(const DiscreteRect& rect)
+    {
+        auto corner = simulation->terrain.heightmapIndexToWorldCorner(rect.x, rect.y);
+
+        auto halfWorldWidth = (rect.width * MapTerrain::TileWidthInWorldUnits) / 2.0f;
+        auto halfWorldHeight= (rect.height * MapTerrain::TileHeightInWorldUnits) / 2.0f;
+
+        auto center = corner + Vector3f(halfWorldWidth, 0.0f, halfWorldHeight);
+        center.y = simulation->terrain.getHeightAt(center.x, center.z);
+        return center;
     }
 }

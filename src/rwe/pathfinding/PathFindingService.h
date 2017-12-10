@@ -26,11 +26,13 @@ namespace rwe
     private:
         unsigned int nextId;
 
-        GameSimulation* simulation;
+        GameSimulation* const simulation;
 
         std::deque<std::pair<PathTaskId, PathTask>> taskQueue;
 
     public:
+        PathFindingService(GameSimulation* const simulation);
+
         PathTaskToken getPath(UnitId unit, const Vector3f& destination);
         void cancelGetPath(PathTaskId task);
 
@@ -38,6 +40,10 @@ namespace rwe
 
     private:
         PathTaskId getNextTaskId();
+
+        UnitPath findPath(UnitId unitId, const Vector3f& destination);
+
+        Vector3f getWorldCenter(const DiscreteRect& discreteRect);
     };
 }
 

@@ -60,7 +60,7 @@ namespace rwe
 
                     auto isFinalDestination = pathToFollow->currentWaypoint == (pathToFollow->path.waypoints.end() - 1);
 
-                    if (distanceSquared < 1.0f)
+                    if (distanceSquared < 4.0f)
                     {
                         if (isFinalDestination)
                         {

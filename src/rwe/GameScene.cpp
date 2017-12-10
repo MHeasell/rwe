@@ -24,7 +24,7 @@ namespace rwe
           uiRenderService(std::move(uiRenderService)),
           unitFactory(std::move(unitFactory)),
           simulation(std::move(simulation)),
-          pathFindingService(),
+          pathFindingService(&this->simulation),
           unitBehaviorService(this, &pathFindingService),
           cobExecutionService(),
           localPlayerId(localPlayerId)
