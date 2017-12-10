@@ -5,7 +5,6 @@
 #include <boost/variant.hpp>
 #include <memory>
 #include <rwe/Grid.h>
-#include <rwe/Sprite.h>
 #include <vector>
 
 namespace rwe

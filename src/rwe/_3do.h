@@ -2,7 +2,6 @@
 #define RWE_3DO_H
 
 #include <istream>
-#include <rwe/math/Vector3f.h>
 #include <string>
 #include <vector>
 
