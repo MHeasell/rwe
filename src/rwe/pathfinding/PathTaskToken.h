@@ -1,9 +1,9 @@
 #ifndef RWE_PATHTASKTOKEN_H
 #define RWE_PATHTASKTOKEN_H
 
-#include <future>
 #include "PathTaskId.h"
 #include "UnitPath.h"
+#include <future>
 
 namespace rwe
 {

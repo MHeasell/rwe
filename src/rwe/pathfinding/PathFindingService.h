@@ -1,21 +1,20 @@
 #ifndef RWE_PATHFINDINGSERVICE_H
 #define RWE_PATHFINDINGSERVICE_H
 
-#include "rwe/UnitId.h"
-#include "rwe/GameSimulation.h"
 #include "PathTaskId.h"
-#include "UnitPath.h"
 #include "PathTaskToken.h"
+#include "UnitPath.h"
+#include "rwe/GameSimulation.h"
+#include "rwe/UnitId.h"
+#include <deque>
 #include <future>
 #include <rwe/math/Vector3f.h>
-#include <deque>
 
 namespace rwe
 {
     class PathFindingService
     {
     public:
-
     private:
         struct PathTask
         {

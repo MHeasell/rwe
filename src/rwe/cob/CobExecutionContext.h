@@ -1,8 +1,8 @@
 #ifndef RWE_COBEXECUTIONCONTEXT_H
 #define RWE_COBEXECUTIONCONTEXT_H
 
-#include <rwe/GameSimulation.h>
 #include "CobEnvironment.h"
+#include <rwe/GameSimulation.h>
 
 namespace rwe
 {

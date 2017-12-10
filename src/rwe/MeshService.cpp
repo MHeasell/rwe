@@ -4,8 +4,8 @@
 #include "_3do.h"
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include <rwe/geometry/CollisionMesh.h>
-#include <rwe/rwe_string.h>
 #include <rwe/math/rwe_math.h>
+#include <rwe/rwe_string.h>
 
 namespace rwe
 {

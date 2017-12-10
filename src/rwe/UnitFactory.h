@@ -1,11 +1,11 @@
 #ifndef RWE_UNITFACTORY_H
 #define RWE_UNITFACTORY_H
 
-#include <rwe/Unit.h>
-#include <string>
-#include <rwe/MovementClass.h>
-#include <rwe/UnitDatabase.h>
 #include <rwe/MeshService.h>
+#include <rwe/MovementClass.h>
+#include <rwe/Unit.h>
+#include <rwe/UnitDatabase.h>
+#include <string>
 
 namespace rwe
 {

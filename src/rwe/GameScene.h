@@ -3,22 +3,22 @@
 
 #include "AudioService.h"
 #include "DiscreteRect.h"
+#include "GameSimulation.h"
 #include "MeshService.h"
 #include "OccupiedGrid.h"
 #include "RenderService.h"
 #include "UiRenderService.h"
+#include "UnitBehaviorService.h"
 #include "UnitDatabase.h"
 #include "UnitId.h"
-#include "GameSimulation.h"
-#include "UnitBehaviorService.h"
 #include <rwe/CursorService.h>
 #include <rwe/PlayerId.h>
 #include <rwe/SceneManager.h>
 #include <rwe/TextureService.h>
 #include <rwe/Unit.h>
+#include <rwe/UnitFactory.h>
 #include <rwe/ViewportService.h>
 #include <rwe/camera/UiCamera.h>
-#include <rwe/UnitFactory.h>
 #include <rwe/cob/CobExecutionService.h>
 #include <rwe/pathfinding/PathFindingService.h>
 
