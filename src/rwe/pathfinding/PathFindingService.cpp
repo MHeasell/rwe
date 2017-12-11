@@ -56,11 +56,13 @@ namespace rwe
         auto goal = simulation->computeFootprintRegion(destination, unit.footprintX, unit.footprintZ);
 
         auto path = pathFinder.findPath(start, goal);
+        assert(path.size() >= 1);
+        auto simplifiedPath = runSimplifyPath(path);
 
         std::vector<Vector3f> waypoints;
-        for (const auto& r : path)
+        for (auto it = ++simplifiedPath.cbegin(); it != simplifiedPath.end(); ++it)
         {
-            waypoints.push_back(getWorldCenter(r));
+            waypoints.push_back(getWorldCenter(*it));
         }
         waypoints.back() = destination;
 

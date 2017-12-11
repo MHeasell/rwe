@@ -225,6 +225,7 @@ set(SOURCE_FILES
     src/rwe/pathfinding/UnitFootprintPathFinder.cpp
     src/rwe/pathfinding/UnitFootprintPathFinder.h
     src/rwe/pathfinding/UnitPath.h
+    src/rwe/pathfinding/pathfinding_utils.h
     src/rwe/pcx.cpp
     src/rwe/pcx.h
     src/rwe/rwe_string.cpp
@@ -414,6 +415,7 @@ set(TEST_FILES
     test/rwe/math/Vector3f_test.cpp
     test/rwe/math/rwe_math_test.cpp
     test/rwe/ota_test.cpp
+    test/rwe/pathfinding/pathfinding_utils_test.cpp
     test/rwe/rwe_string_test.cpp
     )
 
