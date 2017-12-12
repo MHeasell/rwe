@@ -56,6 +56,7 @@ namespace rwe
                     if (existingIt == openVertices.end())
                     {
                         addEntry(openVertices, {estimatedTotalCost, s});
+                        continue;
                     }
 
                     if (estimatedTotalCost >= existingIt->first)
