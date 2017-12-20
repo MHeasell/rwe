@@ -187,6 +187,8 @@ set(SOURCE_FILES
     src/rwe/events.h
     src/rwe/geometry/BoundingBox3f.cpp
     src/rwe/geometry/BoundingBox3f.h
+    src/rwe/geometry/Circle2f.cpp
+    src/rwe/geometry/Circle2f.h
     src/rwe/geometry/CollisionMesh.cpp
     src/rwe/geometry/CollisionMesh.h
     src/rwe/geometry/Line3f.cpp
