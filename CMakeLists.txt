@@ -108,6 +108,7 @@ set(SOURCE_FILES
     src/rwe/Mesh.h
     src/rwe/MeshService.cpp
     src/rwe/MeshService.h
+    src/rwe/MinHeap.h
     src/rwe/MovementClass.cpp
     src/rwe/MovementClass.h
     src/rwe/OccupiedGrid.cpp
@@ -399,6 +400,7 @@ set(TEST_FILES
     test/rwe/BoxTreeSplit_test.cpp
     test/rwe/FeatureDefinition_test.cpp
     test/rwe/Grid_test.cpp
+    test/rwe/MinHeap_test.cpp
     test/rwe/SideData_test.cpp
     test/rwe/SimpleTdfAdapter_test.cpp
     test/rwe/TdfBlock_test.cpp
