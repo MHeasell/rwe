@@ -1,9 +1,28 @@
 #include "UnitBehaviorService.h"
 #include <rwe/GameScene.h>
 #include <rwe/math/rwe_math.h>
+#include <rwe/geometry/Circle2f.h>
 
 namespace rwe
 {
+    Vector2f Vector2fFromLengthAndAngle(float length, float angle)
+    {
+        auto v = Matrix4f::rotationY(angle) * Vector3f(0.0f, 0.0f, -length);
+        return Vector2f(v.x, v.z);
+    }
+
+    bool isWithinTurningCircle(const Vector2f& dest, float speed, float turnRate, float currentDirection)
+    {
+        auto turnRadius = speed / turnRate;
+
+        auto anticlockwiseCircleAngle = currentDirection + (Pif / 2.0f);
+        auto clockwiseCircleAngle = currentDirection - (Pif / 2.0f);
+        auto anticlockwiseCircle = Circle2f(turnRadius, Vector2fFromLengthAndAngle(turnRadius, anticlockwiseCircleAngle));
+        auto clockwiseCircle = Circle2f(turnRadius, Vector2fFromLengthAndAngle(turnRadius, clockwiseCircleAngle));
+
+        return anticlockwiseCircle.contains(dest) || clockwiseCircle.contains(dest);
+    }
+
     UnitBehaviorService::UnitBehaviorService(GameScene* scene, PathFindingService* pathFindingService)
         : scene(scene), pathFindingService(pathFindingService)
     {
@@ -86,9 +105,14 @@ namespace rwe
                         targetAngle = (2.0f * Pif) - destAngle; // convert to anticlockwise in our coordinate system
 
                         // drive at full speed until we need to brake
-                        // to arrive at the goal
+                        // to turn or to arrive at the goal
                         auto brakingDistance = (unit.currentSpeed * unit.currentSpeed) / (2.0f * unit.brakeRate);
-                        if (isFinalDestination && distanceSquared <= (brakingDistance * brakingDistance))
+
+                        if (isWithinTurningCircle(xzDirection, unit.currentSpeed, unit.turnRate, unit.rotation))
+                        {
+                            targetSpeed = 0.0f;
+                        }
+                        else if (isFinalDestination && distanceSquared <= (brakingDistance * brakingDistance))
                         {
                             targetSpeed = 0.0f;
                         }
