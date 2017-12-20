@@ -44,12 +44,12 @@ namespace rwe
         return std::sqrt(lengthSquared());
     }
 
-    float Vector2f::distanceSquared(const Vector2f& rhs)
+    float Vector2f::distanceSquared(const Vector2f& rhs) const
     {
         return (rhs - *this).lengthSquared();
     }
 
-    float Vector2f::distance(const Vector2f& rhs)
+    float Vector2f::distance(const Vector2f& rhs) const
     {
         return (rhs - *this).length();
     }
@@ -66,7 +66,7 @@ namespace rwe
         y /= n;
     }
 
-    Vector2f Vector2f::normalized()
+    Vector2f Vector2f::normalized() const
     {
         float n = length();
         if (n == 0.0f)

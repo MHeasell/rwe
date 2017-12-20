@@ -24,11 +24,11 @@ namespace rwe
         float lengthSquared() const;
         float length() const;
 
-        float distanceSquared(const Vector2f& rhs);
-        float distance(const Vector2f& rhs);
+        float distanceSquared(const Vector2f& rhs) const;
+        float distance(const Vector2f& rhs) const;
 
         void normalize();
-        Vector2f normalized();
+        Vector2f normalized() const;
 
         float dot(const Vector2f& rhs) const;
 
