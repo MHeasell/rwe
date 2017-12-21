@@ -403,6 +403,7 @@ set(TEST_FILES
     test/rwe/FeatureDefinition_test.cpp
     test/rwe/Grid_test.cpp
     test/rwe/MinHeap_test.cpp
+    test/rwe/Point_test.cpp
     test/rwe/SideData_test.cpp
     test/rwe/SimpleTdfAdapter_test.cpp
     test/rwe/TdfBlock_test.cpp
