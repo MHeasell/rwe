@@ -26,6 +26,8 @@ namespace rwe
 
     float wrap(float min, float max, float value);
 
+    int wrap(int min, int max, int value);
+
     /**
      * Returns true if a and b both have the same sign.
      */

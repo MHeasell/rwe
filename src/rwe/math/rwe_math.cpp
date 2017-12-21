@@ -42,6 +42,16 @@ namespace rwe
         return modVal + min;
     }
 
+    int wrap(int min, int max, int value)
+    {
+        assert(min <= max);
+
+        auto range = max - min;
+        auto offsetVal = value - min;
+        auto modVal = ((offsetVal % range) + range) % range;
+        return modVal + min;
+    }
+
     unsigned int roundUpToPowerOfTwo(unsigned int v)
     {
         // https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2

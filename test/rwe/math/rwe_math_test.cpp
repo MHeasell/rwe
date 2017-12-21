@@ -15,7 +15,7 @@ namespace rwe
 
     TEST_CASE("wrap")
     {
-        SECTION("wraps values")
+        SECTION("wraps floats")
         {
             REQUIRE(wrap(1.0f, 3.0f, 2.0f) == 2.0f);
             REQUIRE(wrap(1.0f, 3.0f, 3.5f) == 1.5f);
@@ -23,6 +23,16 @@ namespace rwe
 
             REQUIRE(wrap(-2.0f, 5.0f, -1.0f) == -1.0f);
             REQUIRE(wrap(-2.0f, 5.0f, -3.0f) == 4.0f);
+        }
+
+        SECTION("wraps ints")
+        {
+            REQUIRE(wrap(1, 3, 2) == 2);
+            REQUIRE(wrap(1, 3, 3) == 1);
+            REQUIRE(wrap(1, 3, 0) == 2);
+
+            REQUIRE(wrap(-2, 5, -1) == -1);
+            REQUIRE(wrap(-2, 5, -3) == 4);
         }
     }
 
