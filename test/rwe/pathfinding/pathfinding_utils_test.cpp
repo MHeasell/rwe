@@ -7,82 +7,82 @@ namespace rwe
     {
         SECTION("doesn't change a simple two element path")
         {
-            std::vector<DiscreteRect> v{
-                DiscreteRect(0, 0, 1, 1),
-                DiscreteRect(0, 1, 1, 1),
+            std::vector<PathVertex> v{
+                PathVertex(Point(0, 0), Direction::SOUTH),
+                PathVertex(Point(0, 1), Direction::SOUTH),
             };
 
-            std::vector<DiscreteRect> expected{
-                DiscreteRect(0, 0, 1, 1),
-                DiscreteRect(0, 1, 1, 1),
+            std::vector<PathVertex> expected{
+                PathVertex(Point(0, 0), Direction::SOUTH),
+                PathVertex(Point(0, 1), Direction::SOUTH),
             };
 
-            std::vector<DiscreteRect> actual = runSimplifyPath(v);
+            auto actual = runSimplifyPath(v);
 
             REQUIRE(expected == actual);
         }
 
         SECTION("simplifies a straight-line path")
         {
-            std::vector<DiscreteRect> v{
-                DiscreteRect(0, 0, 1, 1),
-                DiscreteRect(0, 1, 1, 1),
-                DiscreteRect(0, 2, 1, 1),
-                DiscreteRect(0, 3, 1, 1),
+            std::vector<PathVertex> v{
+                PathVertex(Point(0, 0), Direction::SOUTH),
+                PathVertex(Point(0, 1), Direction::SOUTH),
+                PathVertex(Point(0, 2), Direction::SOUTH),
+                PathVertex(Point(0, 3), Direction::SOUTH),
             };
 
-            std::vector<DiscreteRect> expected{
-                DiscreteRect(0, 0, 1, 1),
-                DiscreteRect(0, 3, 1, 1),
+            std::vector<PathVertex> expected{
+                PathVertex(Point(0, 0), Direction::SOUTH),
+                PathVertex(Point(0, 3), Direction::SOUTH),
             };
 
-            std::vector<DiscreteRect> actual = runSimplifyPath(v);
+            auto actual = runSimplifyPath(v);
 
             REQUIRE(expected == actual);
         }
 
         SECTION("simplifies a path with turns")
         {
-            std::vector<DiscreteRect> v{
-                DiscreteRect(0, 0, 1, 1),
+            std::vector<PathVertex> v{
+                PathVertex(Point(0, 0), Direction::SOUTH),
 
                 // down
-                DiscreteRect(0, 1, 1, 1),
-                DiscreteRect(0, 2, 1, 1),
-                DiscreteRect(0, 3, 1, 1),
+                PathVertex(Point(0, 1), Direction::SOUTH),
+                PathVertex(Point(0, 2), Direction::SOUTH),
+                PathVertex(Point(0, 3), Direction::SOUTH),
 
                 // diagonal
-                DiscreteRect(1, 4, 1, 1),
-                DiscreteRect(2, 5, 1, 1),
-                DiscreteRect(3, 6, 1, 1),
+                PathVertex(Point(1, 4), Direction::SOUTHEAST),
+                PathVertex(Point(2, 5), Direction::SOUTHEAST),
+                PathVertex(Point(3, 6), Direction::SOUTHEAST),
 
                 // up
-                DiscreteRect(3, 5, 1, 1),
+                PathVertex(Point(3, 5), Direction::NORTH),
 
                 // right
-                DiscreteRect(4, 5, 1, 1),
-                DiscreteRect(5, 5, 1, 1),
-                DiscreteRect(6, 5, 1, 1),
+                PathVertex(Point(4, 5), Direction::EAST),
+                PathVertex(Point(5, 5), Direction::EAST),
+                PathVertex(Point(6, 5), Direction::EAST),
             };
 
-            std::vector<DiscreteRect> expected{
-                DiscreteRect(0, 0, 1, 1),
+            std::vector<PathVertex> expected{
+                PathVertex(Point(0, 0), Direction::SOUTH),
 
                 // down
-                DiscreteRect(0, 3, 1, 1),
+                PathVertex(Point(0, 3), Direction::SOUTH),
 
                 // diagonal
-                DiscreteRect(3, 6, 1, 1),
+                PathVertex(Point(3, 6), Direction::SOUTHEAST),
 
                 // up
-                DiscreteRect(3, 5, 1, 1),
+                PathVertex(Point(3, 5), Direction::NORTH),
 
                 // right
-                DiscreteRect(6, 5, 1, 1),
+                PathVertex(Point(6, 5), Direction::EAST),
 
             };
 
-            std::vector<DiscreteRect> actual = runSimplifyPath(v);
+            auto actual = runSimplifyPath(v);
 
             REQUIRE(expected == actual);
         }

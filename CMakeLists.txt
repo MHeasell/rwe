@@ -230,6 +230,7 @@ set(SOURCE_FILES
     src/rwe/pathfinding/UnitFootprintPathFinder.cpp
     src/rwe/pathfinding/UnitFootprintPathFinder.h
     src/rwe/pathfinding/UnitPath.h
+    src/rwe/pathfinding/pathfinding_utils.cpp
     src/rwe/pathfinding/pathfinding_utils.h
     src/rwe/pcx.cpp
     src/rwe/pcx.h

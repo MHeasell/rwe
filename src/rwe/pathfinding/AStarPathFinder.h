@@ -14,14 +14,14 @@ namespace rwe
     {
         Cost costToReach;
         T vertex;
-        boost::optional<const AStarVertexInfo<T>*> predecessor;
+        boost::optional<const AStarVertexInfo<T, Cost>*> predecessor;
     };
 
     template <typename T, typename Cost = float>
     class AStarPathFinder
     {
     public:
-        using VertexInfo = AStarVertexInfo<T>;
+        using VertexInfo = AStarVertexInfo<T, Cost>;
 
     public:
         std::vector<T> findPath(const T& start)
@@ -29,13 +29,13 @@ namespace rwe
             auto openVertices = createMinHeap<T, std::pair<Cost, VertexInfo>>(
                 [](const auto& p) { return p.second.vertex; },
                 [](const auto& a, const auto& b) { return a.first < b.first; });
-            openVertices.pushOrDecrease({estimateCostToGoal(start), VertexInfo{0.0f, start, boost::none}});
+            openVertices.pushOrDecrease({estimateCostToGoal(start), VertexInfo{Cost(), start, boost::none}});
 
             std::unordered_map<T, VertexInfo> closedVertices;
 
             while (!openVertices.empty())
             {
-                const std::pair<float, VertexInfo>& openFront = openVertices.top();
+                const std::pair<Cost, VertexInfo>& openFront = openVertices.top();
                 const VertexInfo& current = closedVertices[openFront.second.vertex] = openFront.second;
                 openVertices.pop();
 
@@ -62,7 +62,7 @@ namespace rwe
     protected:
         virtual bool isGoal(const T& vertex) = 0;
 
-        virtual float estimateCostToGoal(const T& vertex) = 0;
+        virtual Cost estimateCostToGoal(const T& vertex) = 0;
 
         virtual std::vector<VertexInfo> getSuccessors(const VertexInfo& vertex) = 0;
 

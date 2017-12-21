@@ -66,4 +66,9 @@ namespace rwe
 
         return v;
     }
+
+    bool almostEquals(float a, float b, float delta)
+    {
+        return (std::abs(b - a) < delta);
+    }
 }

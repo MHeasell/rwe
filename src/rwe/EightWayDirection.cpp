@@ -1,4 +1,5 @@
 #include "EightWayDirection.h"
+#include "util.h"
 
 namespace rwe
 {
@@ -92,9 +93,32 @@ namespace rwe
         return static_cast<unsigned int>(d);
     }
 
+    Direction directionFromIndex(unsigned int i)
+    {
+        assert(i < 8);
+        return static_cast<Direction>(i);
+    }
+
     unsigned int directionDistance(Direction a, Direction b)
     {
         auto indexDifference = static_cast<int>(directionToIndex(b)) - static_cast<int>(directionToIndex(a));
         return static_cast<unsigned int>(std::abs(wrap(-4, 4, indexDifference)));
+    }
+
+    Direction directionFromRadians(float r)
+    {
+        auto eighth = Pif / 4.0f;
+
+        auto angle = wrap(0.0f, 2.0f * Pif, r + (eighth / 2.0f));
+
+        for (unsigned int i = 0; i < 8; ++i)
+        {
+            if (angle < (i + 1) * eighth)
+            {
+                return directionFromIndex(i);
+            }
+        }
+
+        throw std::logic_error("angle out of range, this should never happen");
     }
 }

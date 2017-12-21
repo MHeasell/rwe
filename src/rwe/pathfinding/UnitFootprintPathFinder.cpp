@@ -12,58 +12,67 @@ namespace rwe
     {
         GameSimulation* simulation;
         UnitId self;
+        unsigned int footprintX;
+        unsigned int footprintZ;
 
-        NotCollidesPredicate(GameSimulation* simulation, const UnitId& self) : simulation(simulation), self(self)
+        NotCollidesPredicate(GameSimulation* simulation, const UnitId& self, unsigned int footprintX, unsigned int footprintZ)
+            : simulation(simulation), self(self), footprintX(footprintX), footprintZ(footprintZ)
         {
         }
 
-        bool operator()(const AStarVertexInfo<DiscreteRect>& info)
+        template <typename Cost>
+        bool operator()(const AStarVertexInfo<PathVertex, Cost>& info)
         {
-            return !simulation->isCollisionAt(info.vertex, self);
+            DiscreteRect rect(info.vertex.position.x, info.vertex.position.y, footprintX, footprintZ);
+            return !simulation->isCollisionAt(rect, self);
         }
     };
 
-    UnitFootprintPathFinder::UnitFootprintPathFinder(GameSimulation* simulation, const UnitId& self, const DiscreteRect& goal)
-        : simulation(simulation), self(self), goal(goal)
+    UnitFootprintPathFinder::UnitFootprintPathFinder(GameSimulation* simulation, const UnitId& self, unsigned int footprintX, unsigned int footprintZ, const Point& goal)
+        : simulation(simulation), self(self), footprintX(footprintX), footprintZ(footprintZ), goal(goal)
     {
     }
 
-    bool UnitFootprintPathFinder::isGoal(const DiscreteRect& vertex)
+    bool UnitFootprintPathFinder::isGoal(const PathVertex& vertex)
     {
-        return vertex == goal;
+        return vertex.position == goal;
     }
 
-    float UnitFootprintPathFinder::estimateCostToGoal(const DiscreteRect& start)
+    PathCost UnitFootprintPathFinder::estimateCostToGoal(const PathVertex& start)
     {
-        auto deltaX = std::abs(goal.x - start.x);
-        auto deltaY = std::abs(goal.y - start.y);
+        auto deltaX = std::abs(goal.x - start.position.x);
+        auto deltaY = std::abs(goal.y - start.position.y);
         auto pair = std::minmax(deltaX, deltaY);
         auto deltaDiff = pair.second - pair.first;
-        return (pair.first * DiagonalCost) + (deltaDiff * StraightCost);
+        auto distanceCost = (pair.first * DiagonalCost) + (deltaDiff * StraightCost);
+
+        return PathCost{distanceCost, 0};
     }
 
     std::vector<UnitFootprintPathFinder::VertexInfo>
     UnitFootprintPathFinder::getSuccessors(const VertexInfo& info)
     {
-        // clang-format off
-        std::vector<AStarPathFinder<DiscreteRect>::VertexInfo> v{
-            VertexInfo{info.costToReach + StraightCost, DiscreteRect(info.vertex.x + 1, info.vertex.y    , info.vertex.width, info.vertex.height), &info},
-            VertexInfo{info.costToReach + DiagonalCost, DiscreteRect(info.vertex.x + 1, info.vertex.y + 1, info.vertex.width, info.vertex.height), &info},
-            VertexInfo{info.costToReach + StraightCost, DiscreteRect(info.vertex.x    , info.vertex.y + 1, info.vertex.width, info.vertex.height), &info},
-            VertexInfo{info.costToReach + DiagonalCost, DiscreteRect(info.vertex.x - 1, info.vertex.y + 1, info.vertex.width, info.vertex.height), &info},
-            VertexInfo{info.costToReach + StraightCost, DiscreteRect(info.vertex.x - 1, info.vertex.y    , info.vertex.width, info.vertex.height), &info},
-            VertexInfo{info.costToReach + DiagonalCost, DiscreteRect(info.vertex.x - 1, info.vertex.y - 1, info.vertex.width, info.vertex.height), &info},
-            VertexInfo{info.costToReach + StraightCost, DiscreteRect(info.vertex.x    , info.vertex.y - 1, info.vertex.width, info.vertex.height), &info},
-            VertexInfo{info.costToReach + DiagonalCost, DiscreteRect(info.vertex.x + 1, info.vertex.y - 1, info.vertex.width, info.vertex.height), &info},
-        };
-        // clang-format on
+        const auto& pos = info.vertex.position;
 
-        NotCollidesPredicate pred(simulation, self);
+        std::vector<VertexInfo> v;
+        v.reserve(Directions.size());
+
+        for (auto d : Directions)
+        {
+            auto distanceCost = isDiagonal(d) ? DiagonalCost : StraightCost;
+            PathCost cost{distanceCost, directionDistance(info.vertex.direction, d)};
+
+            auto newPosition = pos + directionToPoint(d);
+            v.push_back(VertexInfo{info.costToReach + cost, PathVertex(newPosition, d), &info});
+        }
+
+        NotCollidesPredicate pred(simulation, self, footprintX, footprintZ);
 
         auto a = boost::make_filter_iterator(pred, v.begin(), v.end());
         auto b = boost::make_filter_iterator(pred, v.end(), v.end());
 
-        std::vector<AStarPathFinder<DiscreteRect>::VertexInfo> w;
+        std::vector<VertexInfo> w;
+        v.reserve(v.size());
 
         std::copy(a, b, std::back_inserter(w));
 
