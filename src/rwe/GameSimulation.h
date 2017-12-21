@@ -27,7 +27,7 @@ namespace rwe
 
         unsigned int gameTime{0};
 
-        GameSimulation(MapTerrain&& terrain);
+        explicit GameSimulation(MapTerrain&& terrain);
 
         void addFeature(MapFeature&& newFeature);
 
