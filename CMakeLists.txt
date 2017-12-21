@@ -73,6 +73,8 @@ set(SOURCE_FILES
     src/rwe/CursorService.cpp
     src/rwe/CursorService.h
     src/rwe/DiscreteRect.h
+    src/rwe/EightWayDirection.cpp
+    src/rwe/EightWayDirection.h
     src/rwe/FeatureDefinition.cpp
     src/rwe/FeatureDefinition.h
     src/rwe/Gaf.cpp src/rwe/Gaf.h
@@ -400,6 +402,7 @@ endif()
 
 set(TEST_FILES
     test/rwe/BoxTreeSplit_test.cpp
+    test/rwe/EightWayDirection_test.cpp
     test/rwe/FeatureDefinition_test.cpp
     test/rwe/Grid_test.cpp
     test/rwe/MinHeap_test.cpp
