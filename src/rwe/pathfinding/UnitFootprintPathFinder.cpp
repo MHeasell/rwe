@@ -8,26 +8,6 @@ namespace rwe
     static const float StraightCost = 1.0f;
     static constexpr float DiagonalCost = std::sqrt(2.0f);
 
-    struct NotCollidesPredicate
-    {
-        GameSimulation* simulation;
-        UnitId self;
-        unsigned int footprintX;
-        unsigned int footprintZ;
-
-        NotCollidesPredicate(GameSimulation* simulation, const UnitId& self, unsigned int footprintX, unsigned int footprintZ)
-            : simulation(simulation), self(self), footprintX(footprintX), footprintZ(footprintZ)
-        {
-        }
-
-        template <typename Cost>
-        bool operator()(const AStarVertexInfo<PathVertex, Cost>& info)
-        {
-            DiscreteRect rect(info.vertex.position.x, info.vertex.position.y, footprintX, footprintZ);
-            return !simulation->isCollisionAt(rect, self);
-        }
-    };
-
     UnitFootprintPathFinder::UnitFootprintPathFinder(GameSimulation* simulation, const UnitId& self, unsigned int footprintX, unsigned int footprintZ, const Point& goal)
         : simulation(simulation), self(self), footprintX(footprintX), footprintZ(footprintZ), goal(goal)
     {
@@ -59,23 +39,25 @@ namespace rwe
 
         for (auto d : Directions)
         {
+            auto newPosition = pos + directionToPoint(d);
+            DiscreteRect rect(newPosition.x, newPosition.y, footprintX, footprintZ);
+            if (simulation->isCollisionAt(rect, self))
+            {
+                continue;
+            }
+
             auto distanceCost = isDiagonal(d) ? DiagonalCost : StraightCost;
+
+            if (simulation->isAdjacentToObstacle(rect, self))
+            {
+                distanceCost *= 2.0f;
+            }
+
             PathCost cost{distanceCost, directionDistance(info.vertex.direction, d)};
 
-            auto newPosition = pos + directionToPoint(d);
             v.push_back(VertexInfo{info.costToReach + cost, PathVertex(newPosition, d), &info});
         }
 
-        NotCollidesPredicate pred(simulation, self, footprintX, footprintZ);
-
-        auto a = boost::make_filter_iterator(pred, v.begin(), v.end());
-        auto b = boost::make_filter_iterator(pred, v.end(), v.end());
-
-        std::vector<VertexInfo> w;
-        v.reserve(v.size());
-
-        std::copy(a, b, std::back_inserter(w));
-
-        return w;
+        return v;
     }
 }

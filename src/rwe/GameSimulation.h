@@ -43,6 +43,8 @@ namespace rwe
 
         bool isCollisionAt(const DiscreteRect& rect, UnitId self) const;
 
+        bool isAdjacentToObstacle(const DiscreteRect& rect, UnitId self) const;
+
         void showObject(UnitId unitId, const std::string& name);
 
         void hideObject(UnitId unitId, const std::string& name);

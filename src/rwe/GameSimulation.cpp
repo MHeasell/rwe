@@ -109,6 +109,12 @@ namespace rwe
         return false;
     }
 
+    bool GameSimulation::isAdjacentToObstacle(const DiscreteRect& rect, UnitId self) const
+    {
+        DiscreteRect expandedRect(rect.x - 1, rect.y - 1, rect.width + 2, rect.height + 2);
+        return isCollisionAt(expandedRect, self);
+    }
+
     void GameSimulation::showObject(UnitId unitId, const std::string& name)
     {
         auto mesh = getUnit(unitId).mesh.find(name);
