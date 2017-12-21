@@ -51,12 +51,12 @@ namespace rwe
     {
         const auto& unit = simulation->getUnit(unitId);
 
-        UnitFootprintPathFinder pathFinder(simulation, unitId);
-
         auto start = simulation->computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
         auto goal = simulation->computeFootprintRegion(destination, unit.footprintX, unit.footprintZ);
 
-        auto path = pathFinder.findPath(start, goal);
+        UnitFootprintPathFinder pathFinder(simulation, unitId, goal);
+
+        auto path = pathFinder.findPath(start);
         assert(path.size() >= 1);
         auto simplifiedPath = runSimplifyPath(path);
 

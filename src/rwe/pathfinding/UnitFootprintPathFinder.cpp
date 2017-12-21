@@ -23,12 +23,17 @@ namespace rwe
         }
     };
 
-    UnitFootprintPathFinder::UnitFootprintPathFinder(GameSimulation* simulation, const UnitId& self)
-        : simulation(simulation), self(self)
+    UnitFootprintPathFinder::UnitFootprintPathFinder(GameSimulation* simulation, const UnitId& self, const DiscreteRect& goal)
+        : simulation(simulation), self(self), goal(goal)
     {
     }
 
-    float UnitFootprintPathFinder::estimateCost(const DiscreteRect& start, const DiscreteRect& goal)
+    bool UnitFootprintPathFinder::isGoal(const DiscreteRect& vertex)
+    {
+        return vertex == goal;
+    }
+
+    float UnitFootprintPathFinder::estimateCostToGoal(const DiscreteRect& start)
     {
         auto deltaX = std::abs(goal.x - start.x);
         auto deltaY = std::abs(goal.y - start.y);

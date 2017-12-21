@@ -9,27 +9,27 @@
 
 namespace rwe
 {
-    template <typename T>
+    template <typename T, typename Cost = float>
     struct AStarVertexInfo
     {
-        float costToReach;
+        Cost costToReach;
         T vertex;
         boost::optional<const AStarVertexInfo<T>*> predecessor;
     };
 
-    template <typename T>
+    template <typename T, typename Cost = float>
     class AStarPathFinder
     {
     public:
         using VertexInfo = AStarVertexInfo<T>;
 
     public:
-        std::vector<T> findPath(const T& start, const T& goal)
+        std::vector<T> findPath(const T& start)
         {
-            auto openVertices = createMinHeap<T, std::pair<float, VertexInfo>>(
+            auto openVertices = createMinHeap<T, std::pair<Cost, VertexInfo>>(
                 [](const auto& p) { return p.second.vertex; },
                 [](const auto& a, const auto& b) { return a.first < b.first; });
-            openVertices.pushOrDecrease({estimateCost(start, goal), VertexInfo{0.0f, start, boost::none}});
+            openVertices.pushOrDecrease({estimateCostToGoal(start), VertexInfo{0.0f, start, boost::none}});
 
             std::unordered_map<T, VertexInfo> closedVertices;
 
@@ -39,7 +39,7 @@ namespace rwe
                 const VertexInfo& current = closedVertices[openFront.second.vertex] = openFront.second;
                 openVertices.pop();
 
-                if (current.vertex == goal)
+                if (isGoal(current.vertex))
                 {
                     return walkPath(current);
                 }
@@ -51,7 +51,7 @@ namespace rwe
                         continue;
                     }
 
-                    auto estimatedTotalCost = s.costToReach + estimateCost(s.vertex, goal);
+                    auto estimatedTotalCost = s.costToReach + estimateCostToGoal(s.vertex);
                     openVertices.pushOrDecrease({estimatedTotalCost, s});
                 }
             }
@@ -60,7 +60,9 @@ namespace rwe
         }
 
     protected:
-        virtual float estimateCost(const T& start, const T& goal) = 0;
+        virtual bool isGoal(const T& vertex) = 0;
+
+        virtual float estimateCostToGoal(const T& vertex) = 0;
 
         virtual std::vector<VertexInfo> getSuccessors(const VertexInfo& vertex) = 0;
 

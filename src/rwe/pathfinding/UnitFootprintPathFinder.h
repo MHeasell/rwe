@@ -13,12 +13,15 @@ namespace rwe
     private:
         GameSimulation* simulation;
         UnitId self;
+        DiscreteRect goal;
 
     public:
-        UnitFootprintPathFinder(GameSimulation* simulation, const UnitId& self);
+        UnitFootprintPathFinder(GameSimulation* simulation, const UnitId& self, const DiscreteRect& goal);
 
     protected:
-        float estimateCost(const DiscreteRect& start, const DiscreteRect& goal) override;
+        bool isGoal(const DiscreteRect& vertex) override;
+
+        float estimateCostToGoal(const DiscreteRect& start) override;
 
         std::vector<VertexInfo> getSuccessors(const VertexInfo& vertex) override;
     };
