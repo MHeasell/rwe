@@ -17,6 +17,19 @@ namespace rwe
         boost::optional<const AStarVertexInfo<T, Cost>*> predecessor;
     };
 
+    enum class AStarPathType
+    {
+        Complete,
+        Partial
+    };
+
+    template <typename T>
+    struct AStarPathInfo
+    {
+        AStarPathType type;
+        std::vector<T> path;
+    };
+
     template <typename T, typename Cost = float>
     class AStarPathFinder
     {
@@ -24,7 +37,7 @@ namespace rwe
         using VertexInfo = AStarVertexInfo<T, Cost>;
 
     public:
-        std::vector<T> findPath(const T& start)
+        AStarPathInfo<T> findPath(const T& start)
         {
             auto openVertices = createMinHeap<T, std::pair<Cost, VertexInfo>>(
                 [](const auto& p) { return p.second.vertex; },
@@ -32,6 +45,8 @@ namespace rwe
             openVertices.pushOrDecrease({estimateCostToGoal(start), VertexInfo{Cost(), start, boost::none}});
 
             std::unordered_map<T, VertexInfo> closedVertices;
+
+            boost::optional<std::pair<Cost, const VertexInfo*>> closestVertex;
 
             while (!openVertices.empty())
             {
@@ -41,7 +56,12 @@ namespace rwe
 
                 if (isGoal(current.vertex))
                 {
-                    return walkPath(current);
+                    return AStarPathInfo<T>{AStarPathType::Complete, walkPath(current)};
+                }
+
+                if (!closestVertex || openFront.first < closestVertex->first)
+                {
+                    closestVertex = std::pair<Cost, const VertexInfo*>(openFront.first, &current);
                 }
 
                 for (const VertexInfo& s : getSuccessors(current))
@@ -56,7 +76,7 @@ namespace rwe
                 }
             }
 
-            throw std::logic_error("Path not found, and I haven't figured out what to do about this case yet");
+            return AStarPathInfo<T>{AStarPathType::Partial, walkPath(*(closestVertex->second))};
         }
 
     protected:

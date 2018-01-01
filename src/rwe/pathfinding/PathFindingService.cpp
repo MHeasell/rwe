@@ -56,10 +56,14 @@ namespace rwe
 
         UnitFootprintPathFinder pathFinder(simulation, unitId, unit.footprintX, unit.footprintZ, Point(goal.x, goal.y));
 
-        // TODO: fill in real direction
         auto path = pathFinder.findPath(PathVertex(Point(start.x, start.y), directionFromRadians(unit.rotation)));
-        assert(path.size() >= 1);
-        auto simplifiedPath = runSimplifyPath(path);
+        if (path.type == AStarPathType::Partial)
+        {
+            path.path.emplace_back(Point(goal.x, goal.y), path.path.back().direction);
+        }
+
+        assert(path.path.size() >= 1);
+        auto simplifiedPath = runSimplifyPath(path.path);
 
         std::vector<Vector3f> waypoints;
         for (auto it = ++simplifiedPath.cbegin(); it != simplifiedPath.end(); ++it)
