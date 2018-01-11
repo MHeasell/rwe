@@ -7,9 +7,11 @@ else()
     message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 endif()
 
+find_package(git REQUIRED)
+
 execute_process(
-    COMMAND "git" "describe" "--dirty=-d"
-    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+    COMMAND "${GIT_EXECUTABLE}" "describe" "--dirty=-d"
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     OUTPUT_VARIABLE RWE_GIT_DESCRIPTION
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
