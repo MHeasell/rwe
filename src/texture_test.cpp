@@ -12,6 +12,7 @@
 #include <rwe/vfs/CompositeVirtualFileSystem.h>
 #include <string>
 #include <vector>
+#include <rwe/geometry/Rectangle2f.h>
 
 namespace rwe
 {
