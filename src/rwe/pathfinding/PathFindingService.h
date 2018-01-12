@@ -31,7 +31,7 @@ namespace rwe
         std::deque<std::pair<PathTaskId, PathTask>> taskQueue;
 
     public:
-        PathFindingService(GameSimulation* const simulation);
+        explicit PathFindingService(GameSimulation* simulation);
 
         PathTaskToken getPath(UnitId unit, const Vector3f& destination);
         void cancelGetPath(PathTaskId task);

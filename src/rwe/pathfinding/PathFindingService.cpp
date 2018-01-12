@@ -7,7 +7,7 @@ namespace rwe
 {
     static const unsigned int MaxTasksPerTick = 10;
 
-    PathFindingService::PathFindingService(GameSimulation* const simulation) : simulation(simulation)
+    PathFindingService::PathFindingService(GameSimulation* simulation) : simulation(simulation)
     {
     }
 
