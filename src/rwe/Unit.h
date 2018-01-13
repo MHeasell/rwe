@@ -12,7 +12,7 @@
 #include <rwe/cob/CobEnvironment.h>
 #include <rwe/geometry/BoundingBox3f.h>
 #include <rwe/geometry/CollisionMesh.h>
-#include <rwe/pathfinding/PathTaskToken.h>
+#include <rwe/pathfinding/UnitPath.h>
 
 namespace rwe
 {
@@ -24,7 +24,7 @@ namespace rwe
 
     struct PathStatusRequested
     {
-        PathTaskToken token;
+        Vector3f destination;
     };
 
     struct PathStatusFollowing

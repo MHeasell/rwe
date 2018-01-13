@@ -51,20 +51,8 @@ namespace rwe
                 if (!unit.pathStatus)
                 {
                     const auto& destination = moveOrder->destination;
-                    auto pathRequest = pathFindingService->getPath(unitId, destination);
-                    unit.pathStatus = PathStatusRequested{std::move(pathRequest)};
-                }
-                else
-                {
-                    auto pathRequest = boost::get<PathStatusRequested>(&*unit.pathStatus);
-                    if (pathRequest != nullptr)
-                    {
-                        auto status = pathRequest->token.result.wait_for(std::chrono::milliseconds::zero());
-                        if (status == std::future_status::ready)
-                        {
-                            unit.pathStatus = PathStatusFollowing(pathRequest->token.result.get());
-                        }
-                    }
+                    unit.pathStatus = PathStatusRequested{destination};
+                    scene->getSimulation().requestPath(unitId);
                 }
 
                 auto pathToFollow = boost::get<PathStatusFollowing>(&*unit.pathStatus);

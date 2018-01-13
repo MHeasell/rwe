@@ -13,6 +13,15 @@ namespace rwe
         unsigned int color;
     };
 
+    struct PathRequest
+    {
+        UnitId unitId;
+
+        bool operator==(const PathRequest& rhs) const;
+
+        bool operator!=(const PathRequest& rhs) const;
+    };
+
     struct GameSimulation
     {
         MapTerrain terrain;
@@ -24,6 +33,8 @@ namespace rwe
         std::vector<MapFeature> features;
 
         std::vector<Unit> units;
+
+        std::deque<PathRequest> pathRequests;
 
         unsigned int gameTime{0};
 
@@ -72,6 +83,8 @@ namespace rwe
         boost::optional<Vector3f> intersectLineWithTerrain(const Line3f& line) const;
 
         void moveUnitOccupiedArea(const DiscreteRect& oldRect, const DiscreteRect& newRect, UnitId unitId);
+
+        void requestPath(UnitId unitId);
     };
 }
 

@@ -11,38 +11,24 @@ namespace rwe
     {
     }
 
-    PathTaskToken PathFindingService::getPath(UnitId unit, const Vector3f& destination)
-    {
-        auto taskId = getNextTaskId();
-        auto& task = taskQueue.emplace_back(taskId, PathTask{unit, destination, std::promise<UnitPath>()});
-        return {taskId, task.second.result.get_future()};
-    }
-
-    PathTaskId PathFindingService::getNextTaskId()
-    {
-        return PathTaskId(nextId++);
-    }
-
-    void PathFindingService::cancelGetPath(PathTaskId taskId)
-    {
-        auto it = std::find_if(taskQueue.begin(), taskQueue.end(), [taskId](const auto& pair) { return pair.first == taskId; });
-        if (it != taskQueue.end())
-        {
-            taskQueue.erase(it);
-        }
-    }
-
     void PathFindingService::update()
     {
+        auto& requests = simulation->pathRequests;
         unsigned int tasksDone = 0;
-        while (!taskQueue.empty() && tasksDone < MaxTasksPerTick)
+        while (!requests.empty() && tasksDone < MaxTasksPerTick)
         {
-            auto& task = taskQueue.front();
+            auto& request = requests.front();
 
-            auto path = findPath(task.second.unit, task.second.destination);
-            task.second.result.set_value(std::move(path));
+            auto& unit = simulation->getUnit(request.unitId);
 
-            taskQueue.pop_front();
+            auto pathRequest = boost::get<PathStatusRequested>(&*unit.pathStatus);
+            if (pathRequest != nullptr)
+            {
+                auto path = findPath(request.unitId, pathRequest->destination);
+                unit.pathStatus = PathStatusFollowing(std::move(path));
+            }
+
+            requests.pop_front();
             tasksDone += 1;
         }
     }

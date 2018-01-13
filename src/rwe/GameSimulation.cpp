@@ -2,6 +2,16 @@
 
 namespace rwe
 {
+    bool PathRequest::operator==(const PathRequest& rhs) const
+    {
+        return unitId == rhs.unitId;
+    }
+
+    bool PathRequest::operator!=(const PathRequest& rhs) const
+    {
+        return !(rhs == *this);
+    }
+
     class IsCollisionVisitor : public boost::static_visitor<bool>
     {
     private:
@@ -210,5 +220,22 @@ namespace rwe
 
         occupiedGrid.grid.setArea(*oldRegion, OccupiedNone());
         occupiedGrid.grid.setArea(*newRegion, OccupiedUnit(unitId));
+    }
+
+    void GameSimulation::requestPath(UnitId unitId)
+    {
+        PathRequest request{unitId};
+
+        // If the unit is already in the queue for a path,
+        // we'll assume that they no longer care about their old request
+        // and that their new request is for some new path,
+        // so we'll move them to the back of the queue for fairness.
+        auto it = std::find(pathRequests.begin(), pathRequests.end(), request);
+        if (it != pathRequests.end())
+        {
+            pathRequests.erase(it);
+        }
+
+        pathRequests.push_back(PathRequest{unitId});
     }
 }
