@@ -10,6 +10,9 @@
 
 namespace rwe
 {
+    /**
+     * Standard unit pathfinder, implementing jump point search.
+     */
     class UnitFootprintPathFinder : public AStarPathFinder<Point, float>
     {
     private:
@@ -35,10 +38,6 @@ namespace rwe
         bool isWalkable(const Point& p) const;
 
         bool isWalkable(int x, int y) const;
-
-        bool isNearObstacle(const Point& p) const;
-
-        float costToGo(const Point& p, Direction d) const;
 
         Point step(const Point& p, Direction d) const;
 

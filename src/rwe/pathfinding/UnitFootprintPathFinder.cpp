@@ -26,13 +26,8 @@ namespace rwe
 
     float UnitFootprintPathFinder::estimateCostToGoal(const Point& start)
     {
-        auto deltaX = std::abs(goal.x - start.x);
-        auto deltaY = std::abs(goal.y - start.y);
-        auto pair = std::minmax(deltaX, deltaY);
-        auto deltaDiff = pair.second - pair.first;
-        auto distanceCost = (pair.first * DiagonalCost) + (deltaDiff * StraightCost);
-
-        return distanceCost;
+        auto octile = octileDistance(start, goal);
+        return (octile.diagonal * DiagonalCost) + (octile.straight * StraightCost);
     }
 
     std::vector<UnitFootprintPathFinder::VertexInfo>
@@ -80,26 +75,6 @@ namespace rwe
     bool UnitFootprintPathFinder::isWalkable(int x, int y) const
     {
         return isWalkable(Point(x, y));
-    }
-
-    bool UnitFootprintPathFinder::isNearObstacle(const Point& p) const
-    {
-        DiscreteRect rect(p.x, p.y, footprintX, footprintZ);
-        return simulation->isAdjacentToObstacle(rect, self);
-    }
-
-    float UnitFootprintPathFinder::costToGo(const Point& p, Direction d) const
-    {
-        auto newPosition = step(p, d);
-
-        auto distanceCost = isDiagonal(d) ? DiagonalCost : StraightCost;
-
-        if (isNearObstacle(newPosition))
-        {
-            distanceCost *= 2.0f;
-        }
-
-        return distanceCost;
     }
 
     Point UnitFootprintPathFinder::step(const Point& p, Direction d) const
