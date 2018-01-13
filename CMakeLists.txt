@@ -7,7 +7,7 @@ else()
     message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 endif()
 
-find_package(git REQUIRED)
+find_package(Git REQUIRED)
 
 execute_process(
     COMMAND "${GIT_EXECUTABLE}" "describe" "--dirty=-d"
