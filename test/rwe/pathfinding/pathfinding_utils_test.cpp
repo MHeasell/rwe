@@ -7,14 +7,14 @@ namespace rwe
     {
         SECTION("doesn't change a simple two element path")
         {
-            std::vector<PathVertex> v{
-                PathVertex(Point(0, 0), Direction::SOUTH),
-                PathVertex(Point(0, 1), Direction::SOUTH),
+            std::vector<Point> v{
+                Point(0, 0),
+                Point(0, 1),
             };
 
-            std::vector<PathVertex> expected{
-                PathVertex(Point(0, 0), Direction::SOUTH),
-                PathVertex(Point(0, 1), Direction::SOUTH),
+            std::vector<Point> expected{
+                Point(0, 0),
+                Point(0, 1),
             };
 
             auto actual = runSimplifyPath(v);
@@ -24,16 +24,16 @@ namespace rwe
 
         SECTION("simplifies a straight-line path")
         {
-            std::vector<PathVertex> v{
-                PathVertex(Point(0, 0), Direction::SOUTH),
-                PathVertex(Point(0, 1), Direction::SOUTH),
-                PathVertex(Point(0, 2), Direction::SOUTH),
-                PathVertex(Point(0, 3), Direction::SOUTH),
+            std::vector<Point> v{
+                Point(0, 0),
+                Point(0, 1),
+                Point(0, 2),
+                Point(0, 3),
             };
 
-            std::vector<PathVertex> expected{
-                PathVertex(Point(0, 0), Direction::SOUTH),
-                PathVertex(Point(0, 3), Direction::SOUTH),
+            std::vector<Point> expected{
+                Point(0, 0),
+                Point(0, 3),
             };
 
             auto actual = runSimplifyPath(v);
@@ -43,48 +43,71 @@ namespace rwe
 
         SECTION("simplifies a path with turns")
         {
-            std::vector<PathVertex> v{
-                PathVertex(Point(0, 0), Direction::SOUTH),
+            std::vector<Point> v{
+                Point(0, 0),
 
                 // down
-                PathVertex(Point(0, 1), Direction::SOUTH),
-                PathVertex(Point(0, 2), Direction::SOUTH),
-                PathVertex(Point(0, 3), Direction::SOUTH),
+                Point(0, 1),
+                Point(0, 2),
+                Point(0, 3),
 
                 // diagonal
-                PathVertex(Point(1, 4), Direction::SOUTHEAST),
-                PathVertex(Point(2, 5), Direction::SOUTHEAST),
-                PathVertex(Point(3, 6), Direction::SOUTHEAST),
+                Point(1, 4),
+                Point(2, 5),
+                Point(3, 6),
 
                 // up
-                PathVertex(Point(3, 5), Direction::NORTH),
+                Point(3, 5),
 
                 // right
-                PathVertex(Point(4, 5), Direction::EAST),
-                PathVertex(Point(5, 5), Direction::EAST),
-                PathVertex(Point(6, 5), Direction::EAST),
+                Point(4, 5),
+                Point(5, 5),
+                Point(6, 5),
             };
 
-            std::vector<PathVertex> expected{
-                PathVertex(Point(0, 0), Direction::SOUTH),
+            std::vector<Point> expected{
+                Point(0, 0),
 
                 // down
-                PathVertex(Point(0, 3), Direction::SOUTH),
+                Point(0, 3),
 
                 // diagonal
-                PathVertex(Point(3, 6), Direction::SOUTHEAST),
+                Point(3, 6),
 
                 // up
-                PathVertex(Point(3, 5), Direction::NORTH),
+                Point(3, 5),
 
                 // right
-                PathVertex(Point(6, 5), Direction::EAST),
+                Point(6, 5),
 
             };
 
             auto actual = runSimplifyPath(v);
 
             REQUIRE(expected == actual);
+        }
+    }
+
+    TEST_CASE("octileDistance")
+    {
+        SECTION("returns octile distance between points")
+        {
+            // horizontal
+            REQUIRE(octileDistance(Point(2, 4), Point(2, 11)) == OctileDistance(7, 0));
+            REQUIRE(octileDistance(Point(2, 4), Point(2, -2)) == OctileDistance(6, 0));
+
+            // vertical
+            REQUIRE(octileDistance(Point(2, 4), Point(5, 4)) == OctileDistance(3, 0));
+            REQUIRE(octileDistance(Point(2, 4), Point(0, 4)) == OctileDistance(2, 0));
+
+            // pure diagonal
+            REQUIRE(octileDistance(Point(2, 4), Point(4, 6)) == OctileDistance(0, 2));
+            REQUIRE(octileDistance(Point(2, 4), Point(4, 2)) == OctileDistance(0, 2));
+            REQUIRE(octileDistance(Point(2, 4), Point(0, 6)) == OctileDistance(0, 2));
+            REQUIRE(octileDistance(Point(2, 4), Point(0, 2)) == OctileDistance(0, 2));
+
+            // combo
+            REQUIRE(octileDistance(Point(2, 4), Point(5, 6)) == OctileDistance(1, 2));
         }
     }
 }

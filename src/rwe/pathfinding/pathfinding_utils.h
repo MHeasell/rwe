@@ -7,65 +7,6 @@
 
 namespace rwe
 {
-    struct PathVertex
-    {
-        Point position;
-        Direction direction;
-
-        PathVertex() = default;
-        PathVertex(const Point& position, Direction direction) : position(position), direction(direction)
-        {
-        }
-
-        bool operator==(const PathVertex& rhs) const
-        {
-            return position == rhs.position && direction == rhs.direction;
-        }
-
-        bool operator!=(const PathVertex& rhs) const
-        {
-            return !(rhs == *this);
-        }
-    };
-
-    struct PathCost
-    {
-        float distance{0.0f};
-        unsigned int turningDistance{0};
-        bool operator<(const PathCost& rhs) const
-        {
-            if (almostEquals(distance, rhs.distance, 1.0f))
-            {
-                return turningDistance < rhs.turningDistance;
-            }
-
-            return distance < rhs.distance;
-        }
-
-        PathCost operator+(const PathCost& rhs) const
-        {
-            return PathCost{distance + rhs.distance, turningDistance + rhs.turningDistance};
-        }
-    };
-}
-
-namespace std
-{
-    template <>
-    struct hash<rwe::PathVertex>
-    {
-        std::size_t operator()(const rwe::PathVertex& v) const noexcept
-        {
-            std::size_t seed = 0;
-            boost::hash_combine(seed, v.position);
-            boost::hash_combine(seed, v.direction);
-            return seed;
-        }
-    };
-}
-
-namespace rwe
-{
     /**
      * This method assumes that the input path has a minimum of one element.
      * If this is not the case, the behaviour is undefined.
@@ -73,7 +14,7 @@ namespace rwe
     template <typename It, typename Inserter>
     static unsigned int simplifyPath(It it, It end, Inserter out)
     {
-        const PathVertex* curr = &*it;
+        const Point* curr = &*it;
         *out = *it++;
 
         unsigned int appendedCount = 1;
@@ -83,9 +24,9 @@ namespace rwe
 
         for (; it != end; ++it)
         {
-            const PathVertex* next = &*it;
-            int nextDirectionX = next->position.x - curr->position.x;
-            int nextDirectionY = next->position.y - curr->position.y;
+            const Point* next = &*it;
+            int nextDirectionX = next->x - curr->x;
+            int nextDirectionY = next->y - curr->y;
 
             // if both edges travel in the same direction,
             // replace the current vertex with next
@@ -107,7 +48,31 @@ namespace rwe
         return appendedCount;
     }
 
-    std::vector<PathVertex> runSimplifyPath(const std::vector<PathVertex>& input);
+    std::vector<Point> runSimplifyPath(const std::vector<Point>& input);
+
+    struct OctileDistance
+    {
+        unsigned int straight;
+        unsigned int diagonal;
+
+        OctileDistance(unsigned int straight, unsigned int diagonal) : straight(straight), diagonal(diagonal)
+        {
+        }
+
+        bool operator==(const OctileDistance& rhs) const
+        {
+            return straight == rhs.straight && diagonal == rhs.diagonal;
+        }
+
+        bool operator!=(const OctileDistance& rhs) const
+        {
+            return !(rhs == *this);
+        }
+    };
+
+    std::ostream& operator<<(std::ostream& stream, const OctileDistance& d);
+
+    OctileDistance octileDistance(const Point& a, const Point& b);
 }
 
 #endif
