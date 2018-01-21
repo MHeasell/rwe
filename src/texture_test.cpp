@@ -6,13 +6,13 @@
 #include <rwe/BoxTreeSplit.h>
 #include <rwe/ColorPalette.h>
 #include <rwe/Gaf.h>
+#include <rwe/geometry/Rectangle2f.h>
 #include <rwe/math/rwe_math.h>
 #include <rwe/util.h>
 #include <rwe/vfs/AbstractVirtualFileSystem.h>
 #include <rwe/vfs/CompositeVirtualFileSystem.h>
 #include <string>
 #include <vector>
-#include <rwe/geometry/Rectangle2f.h>
 
 namespace rwe
 {

@@ -1,9 +1,9 @@
 #ifndef RWE_MINHEAP_H
 #define RWE_MINHEAP_H
 
+#include <algorithm>
 #include <unordered_map>
 #include <vector>
-#include <algorithm>
 
 namespace rwe
 {
@@ -133,7 +133,7 @@ namespace rwe
         }
     };
 
-    template<typename K, typename V, typename KeySelector, typename LessThan>
+    template <typename K, typename V, typename KeySelector, typename LessThan>
     MinHeap<K, V, KeySelector, LessThan> createMinHeap(const KeySelector& keySelector, const LessThan& lessThan)
     {
         return MinHeap<K, V, KeySelector, LessThan>(keySelector, lessThan);

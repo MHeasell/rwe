@@ -2,7 +2,7 @@
 
 namespace rwe
 {
-    std::vector<Point> runSimplifyPath(const std::vector <Point>& input)
+    std::vector<Point> runSimplifyPath(const std::vector<Point>& input)
     {
         std::vector<Point> output(input.size());
         auto count = simplifyPath(input.begin(), input.end(), output.begin());

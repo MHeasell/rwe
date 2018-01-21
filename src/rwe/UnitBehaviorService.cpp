@@ -1,7 +1,7 @@
 #include "UnitBehaviorService.h"
 #include <rwe/GameScene.h>
-#include <rwe/math/rwe_math.h>
 #include <rwe/geometry/Circle2f.h>
+#include <rwe/math/rwe_math.h>
 
 namespace rwe
 {
