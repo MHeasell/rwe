@@ -79,7 +79,8 @@ set(SOURCE_FILES
     src/rwe/EightWayDirection.h
     src/rwe/FeatureDefinition.cpp
     src/rwe/FeatureDefinition.h
-    src/rwe/Gaf.cpp src/rwe/Gaf.h
+    src/rwe/Gaf.cpp
+    src/rwe/Gaf.h
     src/rwe/GameScene.cpp
     src/rwe/GameScene.h
     src/rwe/GameSimulation.cpp
