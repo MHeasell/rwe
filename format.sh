@@ -15,3 +15,6 @@ find src -type f -name '*.h' -print0 |
 while read -r -d '' file; do
     reformat "$file"
 done
+
+# Note: perl -i on cygwin always creates bak files.
+perl -i fix-cmakelists.pl CMakeLists.txt && rm -f CMakeLists.txt.bak
