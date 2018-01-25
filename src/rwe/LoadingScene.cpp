@@ -118,7 +118,19 @@ namespace rwe
 
         auto unitDatabase = createUnitDatabase();
 
-        UnitFactory unitFactory(std::move(unitDatabase), std::move(meshService));
+        MovementClassCollisionService collisionService;
+
+        // compute cached walkable grids for each movement class
+        {
+            UnitDatabase::MovementClassIterator it = unitDatabase.movementClassBegin();
+            UnitDatabase::MovementClassIterator end = unitDatabase.movementClassEnd();
+            for (; it != end; ++it)
+            {
+                const auto& name = it->first;
+                const auto& mc = it->second;
+                collisionService.registerMovementClass(name, computeWalkableGrid(simulation, mc));
+            }
+        }
 
         boost::optional<PlayerId> localPlayerId;
 
@@ -158,8 +170,10 @@ namespace rwe
             viewportService,
             std::move(renderService),
             std::move(uiRenderService),
-            std::move(unitFactory),
             std::move(simulation),
+            std::move(collisionService),
+            std::move(unitDatabase),
+            std::move(meshService),
             *localPlayerId);
 
         const auto& schema = ota.schemas.at(schemaIndex);

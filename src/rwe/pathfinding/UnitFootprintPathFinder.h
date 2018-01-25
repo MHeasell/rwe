@@ -5,6 +5,7 @@
 #include <rwe/DiscreteRect.h>
 #include <rwe/EightWayDirection.h>
 #include <rwe/GameSimulation.h>
+#include <rwe/MovementClassCollisionService.h>
 #include <rwe/UnitId.h>
 #include <rwe/pathfinding/AStarPathFinder.h>
 
@@ -16,14 +17,23 @@ namespace rwe
     class UnitFootprintPathFinder : public AStarPathFinder<Point, float>
     {
     private:
-        GameSimulation* simulation;
-        UnitId self;
-        unsigned int footprintX;
-        unsigned int footprintZ;
-        Point goal;
+        GameSimulation* const simulation;
+        MovementClassCollisionService* const collisionService;
+        const UnitId self;
+        const MovementClassId movementClass;
+        const unsigned int footprintX;
+        const unsigned int footprintZ;
+        const Point goal;
 
     public:
-        UnitFootprintPathFinder(GameSimulation* simulation, const UnitId& self, unsigned int footprintX, unsigned int footprintZ, const Point& goal);
+        UnitFootprintPathFinder(
+            GameSimulation* simulation,
+            MovementClassCollisionService* collisionService,
+            UnitId self,
+            MovementClassId movementClass,
+            unsigned int footprintX,
+            unsigned int footprintZ,
+            const Point& goal);
 
     protected:
         bool isGoal(const Point& vertex) override;

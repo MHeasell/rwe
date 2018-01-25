@@ -1,6 +1,7 @@
 #ifndef RWE_UNIT_H
 #define RWE_UNIT_H
 
+#include "MovementClassId.h"
 #include <boost/optional.hpp>
 #include <boost/variant.hpp>
 #include <deque>
@@ -85,6 +86,8 @@ namespace rwe
          * Speed at which the unit brakes in game units/tick.
          */
         float brakeRate;
+
+        MovementClassId movementClass;
 
         unsigned int footprintX;
         unsigned int footprintZ;

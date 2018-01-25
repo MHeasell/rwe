@@ -83,4 +83,14 @@ namespace rwe
     {
         movementClassMap.insert({className, std::move(movementClass)});
     }
+
+    UnitDatabase::MovementClassIterator UnitDatabase::movementClassBegin() const
+    {
+        return movementClassMap.begin();
+    }
+
+    UnitDatabase::MovementClassIterator UnitDatabase::movementClassEnd() const
+    {
+        return movementClassMap.end();
+    }
 }
