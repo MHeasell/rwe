@@ -28,7 +28,7 @@ namespace rwe
           collisionService(std::move(collisionService)),
           unitFactory(std::move(unitDatabase), std::move(meshService), &this->collisionService),
           pathFindingService(&this->simulation, &this->collisionService),
-          unitBehaviorService(this, &pathFindingService),
+          unitBehaviorService(this, &pathFindingService, &this->collisionService),
           cobExecutionService(),
           localPlayerId(localPlayerId)
     {

@@ -23,8 +23,8 @@ namespace rwe
         return anticlockwiseCircle.contains(dest) || clockwiseCircle.contains(dest);
     }
 
-    UnitBehaviorService::UnitBehaviorService(GameScene* scene, PathFindingService* pathFindingService)
-        : scene(scene), pathFindingService(pathFindingService)
+    UnitBehaviorService::UnitBehaviorService(GameScene* scene, PathFindingService* pathFindingService, MovementClassCollisionService* collisionService)
+        : scene(scene), pathFindingService(pathFindingService), collisionService(collisionService)
     {
     }
 
@@ -234,7 +234,7 @@ namespace rwe
 
         // check for collision at the new position and update accordingly
         auto newFootprintRegion = scene->computeFootprintRegion(newPosition, unit.footprintX, unit.footprintZ);
-        if (!scene->isCollisionAt(newFootprintRegion, id))
+        if (collisionService->isWalkable(unit.movementClass, Point(newFootprintRegion.x, newFootprintRegion.y)) && !scene->isCollisionAt(newFootprintRegion, id))
         {
             auto footprintRegion = scene->computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
             scene->moveUnitOccupiedArea(footprintRegion, newFootprintRegion, id);

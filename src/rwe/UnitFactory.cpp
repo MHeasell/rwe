@@ -55,6 +55,7 @@ namespace rwe
         }
         else
         {
+            // TODO: dynamically create a MovementClass -- game code relies on it being present
             unit.footprintX = fbi.footprintX;
             unit.footprintZ = fbi.footprintZ;
         }

@@ -14,9 +14,10 @@ namespace rwe
     private:
         GameScene* scene;
         PathFindingService* pathFindingService;
+        MovementClassCollisionService* collisionService;
 
     public:
-        UnitBehaviorService(GameScene* scene, PathFindingService* pathFindingService);
+        UnitBehaviorService(GameScene* scene, PathFindingService* pathFindingService, MovementClassCollisionService* collisionService);
 
         void update(UnitId unitId);
 
