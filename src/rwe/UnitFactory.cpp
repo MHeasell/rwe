@@ -52,12 +52,18 @@ namespace rwe
             unit.movementClass = *resolvedMovementClass;
             unit.footprintX = movementClass->footprintX;
             unit.footprintZ = movementClass->footprintZ;
+            unit.maxSlope = movementClass->maxSlope;
+            unit.minWaterDepth = movementClass->minWaterDepth;
+            unit.maxWaterDepth = movementClass->maxWaterDepth;
         }
         else
         {
-            // TODO: dynamically create a MovementClass -- game code relies on it being present
+            unit.movementClass = boost::none;
             unit.footprintX = fbi.footprintX;
             unit.footprintZ = fbi.footprintZ;
+            unit.maxSlope = fbi.maxSlope;
+            unit.minWaterDepth = fbi.minWaterDepth;
+            unit.maxWaterDepth = fbi.maxWaterDepth;
         }
 
         if (soundClass.select1)

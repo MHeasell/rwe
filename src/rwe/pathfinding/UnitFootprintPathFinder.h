@@ -20,7 +20,7 @@ namespace rwe
         GameSimulation* const simulation;
         MovementClassCollisionService* const collisionService;
         const UnitId self;
-        const MovementClassId movementClass;
+        const boost::optional<MovementClassId> movementClass;
         const unsigned int footprintX;
         const unsigned int footprintZ;
         const Point goal;
@@ -30,7 +30,7 @@ namespace rwe
             GameSimulation* simulation,
             MovementClassCollisionService* collisionService,
             UnitId self,
-            MovementClassId movementClass,
+            boost::optional<MovementClassId> movementClass,
             unsigned int footprintX,
             unsigned int footprintZ,
             const Point& goal);

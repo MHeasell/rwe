@@ -87,10 +87,13 @@ namespace rwe
          */
         float brakeRate;
 
-        MovementClassId movementClass;
+        boost::optional<MovementClassId> movementClass;
 
         unsigned int footprintX;
         unsigned int footprintZ;
+        unsigned int maxSlope;
+        unsigned int minWaterDepth;
+        unsigned int maxWaterDepth;
 
         std::deque<UnitOrder> orders;
         boost::optional<PathStatus> pathStatus;

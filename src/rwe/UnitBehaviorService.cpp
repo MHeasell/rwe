@@ -230,18 +230,36 @@ namespace rwe
 
     bool UnitBehaviorService::tryApplyMovementToPosition(UnitId id, const Vector3f& newPosition)
     {
-        auto& unit = scene->getSimulation().getUnit(id);
+        auto& sim = scene->getSimulation();
+        auto& unit = sim.getUnit(id);
 
-        // check for collision at the new position and update accordingly
+        // check for collision at the new position
         auto newFootprintRegion = scene->computeFootprintRegion(newPosition, unit.footprintX, unit.footprintZ);
-        if (collisionService->isWalkable(unit.movementClass, Point(newFootprintRegion.x, newFootprintRegion.y)) && !scene->isCollisionAt(newFootprintRegion, id))
+
+        // Unlike for pathfinding, TA doesn't care about the unit's actual movement class for collision checks,
+        // it only cares about the attributes defined directly on the unit.
+        // Jam these into an ad-hoc movement class to pass into our walkability check.
+        MovementClass mc;
+        mc.minWaterDepth = unit.minWaterDepth;
+        mc.maxWaterDepth = unit.maxWaterDepth;
+        mc.maxSlope = unit.maxSlope;
+        mc.footprintX = unit.footprintX;
+        mc.footprintZ = unit.footprintZ;
+
+        if (!isGridPointWalkable(sim.terrain, mc, newFootprintRegion.x, newFootprintRegion.y))
         {
-            auto footprintRegion = scene->computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
-            scene->moveUnitOccupiedArea(footprintRegion, newFootprintRegion, id);
-            unit.position = newPosition;
-            return true;
+            return false;
         }
 
-        return false;
+        if (scene->isCollisionAt(newFootprintRegion, id))
+        {
+            return false;
+        }
+
+        // we passed all collision checks, update accordingly
+        auto footprintRegion = scene->computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+        scene->moveUnitOccupiedArea(footprintRegion, newFootprintRegion, id);
+        unit.position = newPosition;
+        return true;
     }
 }

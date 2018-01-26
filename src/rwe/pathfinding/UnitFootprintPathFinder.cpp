@@ -9,7 +9,7 @@ namespace rwe
         GameSimulation* simulation,
         MovementClassCollisionService* collisionService,
         UnitId self,
-        MovementClassId movementClass,
+        boost::optional<MovementClassId> movementClass,
         unsigned int footprintX,
         unsigned int footprintZ,
         const Point& goal)
@@ -73,7 +73,7 @@ namespace rwe
     bool UnitFootprintPathFinder::isWalkable(const Point& p) const
     {
         DiscreteRect rect(p.x, p.y, footprintX, footprintZ);
-        return collisionService->isWalkable(movementClass, p) && !simulation->isCollisionAt(rect, self);
+        return (movementClass ? collisionService->isWalkable(*movementClass, p) : true) && !simulation->isCollisionAt(rect, self);
     }
 
     bool UnitFootprintPathFinder::isWalkable(int x, int y) const
