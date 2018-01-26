@@ -12,8 +12,10 @@ namespace rwe
         ViewportService* viewportService,
         RenderService&& renderService,
         UiRenderService&& uiRenderService,
-        UnitFactory&& unitFactory,
         GameSimulation&& simulation,
+        MovementClassCollisionService&& collisionService,
+        UnitDatabase&& unitDatabase,
+        MeshService&& meshService,
         PlayerId localPlayerId)
         : textureService(textureService),
           cursor(cursor),
@@ -22,10 +24,11 @@ namespace rwe
           viewportService(viewportService),
           renderService(std::move(renderService)),
           uiRenderService(std::move(uiRenderService)),
-          unitFactory(std::move(unitFactory)),
           simulation(std::move(simulation)),
-          pathFindingService(&this->simulation),
-          unitBehaviorService(this, &pathFindingService),
+          collisionService(std::move(collisionService)),
+          unitFactory(std::move(unitDatabase), std::move(meshService), &this->collisionService),
+          pathFindingService(&this->simulation, &this->collisionService),
+          unitBehaviorService(this, &pathFindingService, &this->collisionService),
           cobExecutionService(),
           localPlayerId(localPlayerId)
     {

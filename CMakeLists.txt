@@ -116,6 +116,10 @@ set(SOURCE_FILES
     src/rwe/MinHeap.h
     src/rwe/MovementClass.cpp
     src/rwe/MovementClass.h
+    src/rwe/MovementClassCollisionService.cpp
+    src/rwe/MovementClassCollisionService.h
+    src/rwe/MovementClassId.cpp
+    src/rwe/MovementClassId.h
     src/rwe/OccupiedGrid.cpp
     src/rwe/OccupiedGrid.h
     src/rwe/OpaqueId.h

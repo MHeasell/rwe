@@ -46,9 +46,11 @@ namespace rwe
         RenderService renderService;
         UiRenderService uiRenderService;
 
-        UnitFactory unitFactory;
-
         GameSimulation simulation;
+
+        MovementClassCollisionService collisionService;
+
+        UnitFactory unitFactory;
 
         PathFindingService pathFindingService;
         UnitBehaviorService unitBehaviorService;
@@ -78,8 +80,10 @@ namespace rwe
             ViewportService* viewportService,
             RenderService&& renderService,
             UiRenderService&& uiRenderService,
-            UnitFactory&& unitFactory,
             GameSimulation&& simulation,
+            MovementClassCollisionService&& collisionService,
+            UnitDatabase&& unitDatabase,
+            MeshService&& meshService,
             PlayerId localPlayerId);
 
         void init() override;

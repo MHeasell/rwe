@@ -5,6 +5,7 @@
 #include "rwe/GameSimulation.h"
 #include "rwe/UnitId.h"
 #include <deque>
+#include <rwe/MovementClassCollisionService.h>
 #include <rwe/math/Vector3f.h>
 
 namespace rwe
@@ -13,9 +14,10 @@ namespace rwe
     {
     private:
         GameSimulation* const simulation;
+        MovementClassCollisionService* const collisionService;
 
     public:
-        explicit PathFindingService(GameSimulation* simulation);
+        PathFindingService(GameSimulation* simulation, MovementClassCollisionService* collisionService);
 
         void update();
 

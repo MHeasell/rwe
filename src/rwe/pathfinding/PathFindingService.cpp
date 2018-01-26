@@ -7,7 +7,8 @@ namespace rwe
 {
     static const unsigned int MaxTasksPerTick = 10;
 
-    PathFindingService::PathFindingService(GameSimulation* simulation) : simulation(simulation)
+    PathFindingService::PathFindingService(GameSimulation* simulation, MovementClassCollisionService* collisionService)
+        : simulation(simulation), collisionService(collisionService)
     {
     }
 
@@ -40,7 +41,7 @@ namespace rwe
         auto start = simulation->computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
         auto goal = simulation->computeFootprintRegion(destination, unit.footprintX, unit.footprintZ);
 
-        UnitFootprintPathFinder pathFinder(simulation, unitId, unit.footprintX, unit.footprintZ, Point(goal.x, goal.y));
+        UnitFootprintPathFinder pathFinder(simulation, collisionService, unitId, unit.movementClass, unit.footprintX, unit.footprintZ, Point(goal.x, goal.y));
 
         auto path = pathFinder.findPath(Point(start.x, start.y));
         if (path.type == AStarPathType::Partial)

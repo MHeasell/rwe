@@ -32,6 +32,10 @@ namespace rwe
         u.footprintX = tdf.extractUint("FootprintX").get_value_or(0);
         u.footprintZ = tdf.extractUint("FootprintZ").get_value_or(0);
 
+        u.maxSlope = tdf.extractUint("MaxSlope").get_value_or(0);
+        u.minWaterDepth = tdf.extractUint("MinWaterDepth").get_value_or(0);
+        u.maxWaterDepth = tdf.extractUint("MaxWaterDepth").get_value_or(0);
+
         return u;
     }
 }

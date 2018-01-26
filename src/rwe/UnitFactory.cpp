@@ -4,8 +4,9 @@ namespace rwe
 {
     UnitFactory::UnitFactory(
         UnitDatabase&& unitDatabase,
-        MeshService&& meshService)
-        : unitDatabase(std::move(unitDatabase)), meshService(std::move(meshService))
+        MeshService&& meshService,
+        MovementClassCollisionService* collisionService)
+        : unitDatabase(std::move(unitDatabase)), meshService(std::move(meshService)), collisionService(collisionService)
     {
     }
 
@@ -42,13 +43,27 @@ namespace rwe
 
         if (movementClass)
         {
+            auto resolvedMovementClass = collisionService->resolveMovementClass(movementClass->name);
+            if (!resolvedMovementClass)
+            {
+                throw std::runtime_error("Failed to resolve movement class " + movementClass->name);
+            }
+
+            unit.movementClass = *resolvedMovementClass;
             unit.footprintX = movementClass->footprintX;
             unit.footprintZ = movementClass->footprintZ;
+            unit.maxSlope = movementClass->maxSlope;
+            unit.minWaterDepth = movementClass->minWaterDepth;
+            unit.maxWaterDepth = movementClass->maxWaterDepth;
         }
         else
         {
+            unit.movementClass = boost::none;
             unit.footprintX = fbi.footprintX;
             unit.footprintZ = fbi.footprintZ;
+            unit.maxSlope = fbi.maxSlope;
+            unit.minWaterDepth = fbi.minWaterDepth;
+            unit.maxWaterDepth = fbi.maxWaterDepth;
         }
 
         if (soundClass.select1)

@@ -1,6 +1,7 @@
 #ifndef RWE_UNIT_H
 #define RWE_UNIT_H
 
+#include "MovementClassId.h"
 #include <boost/optional.hpp>
 #include <boost/variant.hpp>
 #include <deque>
@@ -86,8 +87,13 @@ namespace rwe
          */
         float brakeRate;
 
+        boost::optional<MovementClassId> movementClass;
+
         unsigned int footprintX;
         unsigned int footprintZ;
+        unsigned int maxSlope;
+        unsigned int minWaterDepth;
+        unsigned int maxWaterDepth;
 
         std::deque<UnitOrder> orders;
         boost::optional<PathStatus> pathStatus;

@@ -11,6 +11,9 @@ namespace rwe
 {
     class UnitDatabase
     {
+    public:
+        using MovementClassIterator = typename std::unordered_map<std::string, MovementClass>::const_iterator;
+
     private:
         std::unordered_map<std::string, UnitFbi> map;
 
@@ -42,6 +45,10 @@ namespace rwe
         const AudioService::SoundHandle& getSoundHandle(const std::string sound) const;
 
         void addSound(const std::string& soundName, const AudioService::SoundHandle& sound);
+
+        MovementClassIterator movementClassBegin() const;
+
+        MovementClassIterator movementClassEnd() const;
     };
 }
 
