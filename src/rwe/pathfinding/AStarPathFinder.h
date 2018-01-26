@@ -67,7 +67,7 @@ namespace rwe
                     return AStarPathInfo<T>{AStarPathType::Complete, walkPath(current)};
                 }
 
-                if (!closestVertex || openFront.first < closestVertex->first)
+                if (!closestVertex || openFront.first - openFront.second.costToReach < closestVertex->first - closestVertex->second->costToReach)
                 {
                     closestVertex = std::pair<Cost, const VertexInfo*>(openFront.first, &current);
                 }
