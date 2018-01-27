@@ -44,7 +44,7 @@ namespace rwe
         {
             auto octile = octileDistance(info.vertex, neighbour);
             assert(octile.diagonal == 0 || octile.straight == 0);
-            auto cost = (octile.straight * StraightCost) + (octile.diagonal + DiagonalCost);
+            auto cost = (octile.diagonal * DiagonalCost) + (octile.straight * StraightCost);
             vs.push_back(VertexInfo{info.costToReach + cost, neighbour, &info});
         }
 
