@@ -70,6 +70,7 @@ namespace rwe
         boost::optional<UnitId> selectedUnit;
 
         bool occupiedGridVisible{false};
+        bool pathfindingVisualisationVisible{false};
 
     public:
         GameScene(

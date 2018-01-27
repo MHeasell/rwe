@@ -29,11 +29,12 @@ namespace rwe
         Partial
     };
 
-    template <typename T>
+    template <typename T, typename Cost>
     struct AStarPathInfo
     {
         AStarPathType type;
         std::vector<T> path;
+        std::unordered_map<T, AStarVertexInfo<T, Cost>> closedVertices;
     };
 
     template <typename T, typename Cost = float>
@@ -43,7 +44,7 @@ namespace rwe
         using VertexInfo = AStarVertexInfo<T, Cost>;
 
     public:
-        AStarPathInfo<T> findPath(const T& start)
+        AStarPathInfo<T, Cost> findPath(const T& start)
         {
             auto openVertices = createMinHeap<T, std::pair<Cost, VertexInfo>>(
                 [](const auto& p) { return p.second.vertex; },
@@ -65,7 +66,7 @@ namespace rwe
 
                 if (isGoal(current.vertex))
                 {
-                    return AStarPathInfo<T>{AStarPathType::Complete, walkPath(current)};
+                    return AStarPathInfo<T, Cost>{AStarPathType::Complete, walkPath(current), std::move(closedVertices)};
                 }
 
                 auto estimatedCostToGoal = estimateCostToGoal(current.vertex);
@@ -86,7 +87,7 @@ namespace rwe
                 }
             }
 
-            return AStarPathInfo<T>{AStarPathType::Partial, walkPath(*(closestVertex->second))};
+            return AStarPathInfo<T, Cost>{AStarPathType::Partial, walkPath(*(closestVertex->second)), std::move(closedVertices)};
         }
 
     protected:

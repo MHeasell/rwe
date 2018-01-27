@@ -6,6 +6,7 @@
 #include "ShaderService.h"
 #include "Unit.h"
 #include <boost/iterator/filter_iterator.hpp>
+#include <rwe/pathfinding/AStarPathFinder.h>
 #include <vector>
 
 namespace rwe
@@ -48,6 +49,7 @@ namespace rwe
         void drawUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel);
         void drawSelectionRect(const Unit& unit);
         void drawOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid);
+        void drawPathfindingVisualisation(const MapTerrain& terrain, const AStarPathInfo<Point, float>& pathInfo);
 
         void drawMapTerrain(const MapTerrain& terrain);
         void drawFlatFeatures(const std::vector<MapFeature>& features);
@@ -63,7 +65,12 @@ namespace rwe
 
     private:
         GlMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines);
+
+        GlMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines, const Color& color);
+
         GlMesh createTemporaryTriMesh(const std::vector<Triangle3f>& tris);
+
+        void drawTerrainArrow(const MapTerrain& terrain, const Point& start, const Point& end, const Color& color);
 
         void drawFeatureShadowInternal(const MapFeature& feature);
         void drawFeatureInternal(const MapFeature& feature);

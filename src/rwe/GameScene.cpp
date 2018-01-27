@@ -53,6 +53,11 @@ namespace rwe
             renderService.drawOccupiedGrid(simulation.terrain, simulation.occupiedGrid);
         }
 
+        if (pathfindingVisualisationVisible)
+        {
+            renderService.drawPathfindingVisualisation(simulation.terrain, pathFindingService.lastPathDebugInfo);
+        }
+
         if (selectedUnit)
         {
             renderService.drawSelectionRect(getUnit(*selectedUnit));
@@ -115,6 +120,10 @@ namespace rwe
         else if (keysym.sym == SDLK_F9)
         {
             occupiedGridVisible = !occupiedGridVisible;
+        }
+        else if (keysym.sym == SDLK_F10)
+        {
+            pathfindingVisualisationVisible = !pathfindingVisualisationVisible;
         }
     }
 

@@ -44,6 +44,8 @@ namespace rwe
         UnitFootprintPathFinder pathFinder(simulation, collisionService, unitId, unit.movementClass, unit.footprintX, unit.footprintZ, Point(goal.x, goal.y));
 
         auto path = pathFinder.findPath(Point(start.x, start.y));
+        lastPathDebugInfo = AStarPathInfo<Point, float>{path.type, path.path, std::move(path.closedVertices)};
+
         if (path.type == AStarPathType::Partial)
         {
             path.path.emplace_back(goal.x, goal.y);
