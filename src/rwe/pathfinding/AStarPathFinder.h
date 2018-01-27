@@ -54,13 +54,14 @@ namespace rwe
 
             boost::optional<std::pair<Cost, const VertexInfo*>> closestVertex;
 
-            unsigned int openListQueriesPerformed = 0;
+            unsigned int openListPopsPerformed = 0;
 
-            while (!openVertices.empty() && openListQueriesPerformed++ < MaxOpenListQueries)
+            while (!openVertices.empty() && openListPopsPerformed < MaxOpenListQueries)
             {
                 const std::pair<Cost, VertexInfo>& openFront = openVertices.top();
                 const VertexInfo& current = closedVertices[openFront.second.vertex] = openFront.second;
                 openVertices.pop();
+                openListPopsPerformed += 1;
 
                 if (isGoal(current.vertex))
                 {
