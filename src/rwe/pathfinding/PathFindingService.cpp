@@ -50,10 +50,17 @@ namespace rwe
         }
 
         assert(path.path.size() >= 1);
+
+        if (path.path.size() == 1)
+        {
+            // The path is trivial, we are already at the goal.
+            return UnitPath{std::vector<Vector3f>{destination}};
+        }
+
         auto simplifiedPath = runSimplifyPath(path.path);
 
         std::vector<Vector3f> waypoints;
-        for (auto it = ++simplifiedPath.cbegin(); it != simplifiedPath.end(); ++it)
+        for (auto it = ++simplifiedPath.cbegin(); it != simplifiedPath.cend(); ++it)
         {
             waypoints.push_back(getWorldCenter(DiscreteRect(it->x, it->y, unit.footprintX, unit.footprintZ)));
         }
