@@ -85,6 +85,8 @@ set(SOURCE_FILES
     src/rwe/GameScene.h
     src/rwe/GameSimulation.cpp
     src/rwe/GameSimulation.h
+    src/rwe/GameTime.cpp
+    src/rwe/GameTime.h
     src/rwe/GlIdentifier.h
     src/rwe/GlMesh.cpp
     src/rwe/GlMesh.h

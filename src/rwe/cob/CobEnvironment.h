@@ -4,6 +4,7 @@
 #include <boost/variant.hpp>
 #include <memory>
 #include <rwe/Cob.h>
+#include <rwe/GameTime.h>
 #include <rwe/UnitId.h>
 #include <rwe/cob/CobThread.h>
 #include <vector>
@@ -40,9 +41,9 @@ namespace rwe
 
             struct Sleep
             {
-                unsigned int wakeUpTime;
+                GameTime wakeUpTime;
 
-                explicit Sleep(unsigned int wakeUpTime) : wakeUpTime(wakeUpTime)
+                explicit Sleep(GameTime wakeUpTime) : wakeUpTime(wakeUpTime)
                 {
                 }
             };

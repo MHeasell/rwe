@@ -193,7 +193,7 @@ namespace rwe
 
     void GameScene::update()
     {
-        simulation.gameTime += 1;
+        simulation.gameTime = nextGameTime(simulation.gameTime);
 
         float secondsElapsed = static_cast<float>(SceneManager::TickInterval) / 1000.0f;
         const float speed = CameraPanSpeed * secondsElapsed;
@@ -302,7 +302,7 @@ namespace rwe
         return simulation.isPieceTurning(unitId, name, axis);
     }
 
-    unsigned int GameScene::getGameTime() const
+    GameTime GameScene::getGameTime() const
     {
         return simulation.gameTime;
     }

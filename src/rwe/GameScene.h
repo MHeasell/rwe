@@ -122,7 +122,7 @@ namespace rwe
 
         bool isPieceTurning(UnitId unitId, const std::string& name, Axis axis) const;
 
-        unsigned int getGameTime() const;
+        GameTime getGameTime() const;
 
         bool isCollisionAt(const DiscreteRect& rect, UnitId self) const;
 
