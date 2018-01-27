@@ -6,6 +6,7 @@
 #include <rwe/MinHeap.h>
 #include <unordered_map>
 #include <vector>
+#include <spdlog/spdlog.h>
 
 namespace rwe
 {
@@ -60,6 +61,7 @@ namespace rwe
 
                 if (isGoal(current.vertex))
                 {
+                    spdlog::get("rwe")->debug("Found goal after visiting {0} vertices", openListPopsPerformed);
                     return AStarPathInfo<T, Cost>{AStarPathType::Complete, walkPath(current), std::move(closedVertices)};
                 }
 
@@ -81,6 +83,7 @@ namespace rwe
                 }
             }
 
+            spdlog::get("rwe")->debug("Failed to find goal, visited {0} vertices", openListPopsPerformed);
             return AStarPathInfo<T, Cost>{AStarPathType::Partial, walkPath(*(closestVertex->second)), std::move(closedVertices)};
         }
 
