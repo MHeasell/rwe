@@ -181,6 +181,10 @@ set(SOURCE_FILES
     src/rwe/VboHandle.h
     src/rwe/ViewportService.cpp
     src/rwe/ViewportService.h
+    src/rwe/Weapon.cpp
+    src/rwe/Weapon.h
+    src/rwe/WeaponTdf.cpp
+    src/rwe/WeaponTdf.h
     src/rwe/_3do.cpp
     src/rwe/_3do.h
     src/rwe/camera/AbstractCamera.cpp
