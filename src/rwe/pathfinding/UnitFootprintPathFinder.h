@@ -43,8 +43,6 @@ namespace rwe
         std::vector<VertexInfo> getSuccessors(const VertexInfo& vertex) override;
 
     private:
-        boost::optional<Point> jump(const Point& p, const Point& parent);
-
         bool isWalkable(const Point& p) const;
 
         bool isWalkable(int x, int y) const;
@@ -52,8 +50,6 @@ namespace rwe
         Point step(const Point& p, Direction d) const;
 
         std::vector<Point> getNeighbours(const Point& p);
-
-        std::vector<Point> getNeighbours(const Point& p, Direction travelDirection);
     };
 }
 

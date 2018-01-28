@@ -44,16 +44,25 @@ namespace rwe
         UnitFootprintPathFinder pathFinder(simulation, collisionService, unitId, unit.movementClass, unit.footprintX, unit.footprintZ, Point(goal.x, goal.y));
 
         auto path = pathFinder.findPath(Point(start.x, start.y));
+        lastPathDebugInfo = AStarPathInfo<Point, float>{path.type, path.path, std::move(path.closedVertices)};
+
         if (path.type == AStarPathType::Partial)
         {
             path.path.emplace_back(goal.x, goal.y);
         }
 
         assert(path.path.size() >= 1);
+
+        if (path.path.size() == 1)
+        {
+            // The path is trivial, we are already at the goal.
+            return UnitPath{std::vector<Vector3f>{destination}};
+        }
+
         auto simplifiedPath = runSimplifyPath(path.path);
 
         std::vector<Vector3f> waypoints;
-        for (auto it = ++simplifiedPath.cbegin(); it != simplifiedPath.end(); ++it)
+        for (auto it = ++simplifiedPath.cbegin(); it != simplifiedPath.cend(); ++it)
         {
             waypoints.push_back(getWorldCenter(DiscreteRect(it->x, it->y, unit.footprintX, unit.footprintZ)));
         }

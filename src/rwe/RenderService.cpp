@@ -163,17 +163,53 @@ namespace rwe
         graphics->drawTriangles(triMesh);
     }
 
+    void
+    RenderService::drawPathfindingVisualisation(const MapTerrain& terrain, const AStarPathInfo<Point, float>& pathInfo)
+    {
+        const auto& shader = shaders->basicColor;
+        graphics->bindShader(shader.handle.get());
+        graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix());
+        graphics->setUniformFloat(shader.alpha, 1.0f);
+
+        for (const auto& item : pathInfo.closedVertices)
+        {
+            if (!item.second.predecessor)
+            {
+                continue;
+            }
+
+            auto start = (*item.second.predecessor)->vertex;
+            auto end = item.second.vertex;
+            drawTerrainArrow(terrain, start, end, Color(255, 0, 0));
+        }
+
+        if (pathInfo.path.size() > 1)
+        {
+            for (auto it = pathInfo.path.begin() + 1; it != pathInfo.path.end(); ++it)
+            {
+                auto start = *(it - 1);
+                auto end = *it;
+                drawTerrainArrow(terrain, start, end, Color(0, 0, 255));
+            }
+        }
+    }
+
     GlMesh RenderService::createTemporaryLinesMesh(const std::vector<Line3f>& lines)
+    {
+        return createTemporaryLinesMesh(lines, Color(255, 255, 255));
+    }
+
+    GlMesh RenderService::createTemporaryLinesMesh(const std::vector<Line3f>& lines, const Color& color)
     {
         std::vector<GlColoredVertex> buffer;
         buffer.reserve(lines.size() * 2); // 2 verts per line
 
-        Vector3f white(1.0f, 1.0f, 1.0f);
+        Vector3f floatColor(static_cast<float>(color.r) / 255.0f, static_cast<float>(color.g) / 255.0f, static_cast<float>(color.b) / 255.0f);
 
         for (const auto& l : lines)
         {
-            buffer.emplace_back(l.start, white);
-            buffer.emplace_back(l.end, white);
+            buffer.emplace_back(l.start, floatColor);
+            buffer.emplace_back(l.end, floatColor);
         }
 
         return graphics->createColoredMesh(buffer, GL_STREAM_DRAW);
@@ -397,5 +433,27 @@ namespace rwe
         graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * modelMatrix);
         graphics->setUniformFloat(shader.alpha, alpha);
         graphics->drawTriangles(sprite.mesh.mesh);
+    }
+
+    void
+    RenderService::drawTerrainArrow(const MapTerrain& terrain, const Point& start, const Point& end, const Color& color)
+    {
+        std::vector<Line3f> lines;
+
+        auto worldStart = terrain.heightmapIndexToWorldCenter(start);
+        worldStart.y = terrain.getHeightAt(worldStart.x, worldStart.z);
+
+        auto worldEnd = terrain.heightmapIndexToWorldCenter(end);
+        worldEnd.y = terrain.getHeightAt(worldStart.x, worldStart.z);
+
+        auto armTemplate = (worldStart - worldEnd).normalized() * 6.0f;
+        auto arm1 = Matrix4f::translation(worldEnd) * Matrix4f::rotationY(Pif / 6.0f) * armTemplate;
+        auto arm2 = Matrix4f::translation(worldEnd) * Matrix4f::rotationY(-Pif / 6.0f) * armTemplate;
+
+        lines.emplace_back(worldStart, worldEnd);
+        lines.emplace_back(worldEnd, arm1);
+        lines.emplace_back(worldEnd, arm2);
+
+        graphics->drawLines(createTemporaryLinesMesh(lines, color));
     }
 }

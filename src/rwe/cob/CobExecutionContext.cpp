@@ -225,7 +225,7 @@ namespace rwe
                 {
                     auto duration = pop();
 
-                    auto ticksToWait = duration / SceneManager::TickInterval;
+                    auto ticksToWait = GameTimeDelta(duration / SceneManager::TickInterval);
                     auto currentTime = sim->gameTime;
 
                     return CobEnvironment::BlockedStatus(CobEnvironment::BlockedStatus::Sleep(currentTime + ticksToWait));

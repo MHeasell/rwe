@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include <vector>
+#include <cassert>
 
 namespace rwe
 {
@@ -64,12 +65,39 @@ namespace rwe
             }
 
             const auto& existingItem = heap[existingIt->second];
+            assert(keySelector(existingItem) == keySelector(item));
             if (!lessThan(item, existingItem))
             {
                 return false;
             }
 
             siftUp(existingIt->second, item);
+
+            return true;
+        }
+
+        bool isNotCorrupt()
+        {
+            if (heap.size() != indexMap.size())
+            {
+                return false;
+            }
+
+            // really tough, performance crippling debugging assertion
+            for (const auto& indexItem : indexMap)
+            {
+                if (indexItem.second >= heap.size())
+                {
+                    return false;
+                }
+
+                const auto& heapItem = heap[indexItem.second];
+                if (keySelector(heapItem) != indexItem.first)
+                {
+                    return false;
+                }
+            }
+
             return true;
         }
 
@@ -92,18 +120,18 @@ namespace rwe
                 }
 
                 heap[position] = parentElement;
-                indexMap.insert({keySelector(parentElement), position});
+                indexMap[keySelector(parentElement)] = position;
                 position = parentPosition;
             }
 
             heap[position] = element;
-            indexMap.insert({keySelector(element), position});
+            indexMap[keySelector(element)] = position;
         }
 
         void siftDown(std::size_t position, const V& element)
         {
-            auto lastNonLeafPosition = (heap.size() - 1) / 2;
-            while (position <= lastNonLeafPosition) // while non-leaf
+            auto firstLeafPosition = heap.size() / 2;
+            while (position < firstLeafPosition) // while non-leaf
             {
                 auto smallestChildPosition = (position * 2) + 1;
                 const auto* smallestChild = &heap[smallestChildPosition];
@@ -124,12 +152,12 @@ namespace rwe
                 }
 
                 heap[position] = *smallestChild;
-                indexMap.insert({keySelector(*smallestChild), (position)});
+                indexMap[keySelector(*smallestChild)] = position;
                 position = smallestChildPosition;
             }
 
             heap[position] = element;
-            indexMap.insert({keySelector(element), (position)});
+            indexMap[keySelector(element)] = position;
         }
     };
 

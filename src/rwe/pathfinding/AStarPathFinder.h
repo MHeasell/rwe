@@ -6,6 +6,7 @@
 #include <rwe/MinHeap.h>
 #include <unordered_map>
 #include <vector>
+#include <spdlog/spdlog.h>
 
 namespace rwe
 {
@@ -13,7 +14,7 @@ namespace rwe
      * The maximum number of elements in the open list to expand
      * before giving up on a path search.
      */
-    const unsigned int MaxOpenListQueries = 100;
+    const unsigned int MaxOpenListQueries = 2000;
 
     template <typename T, typename Cost = float>
     struct AStarVertexInfo
@@ -29,11 +30,12 @@ namespace rwe
         Partial
     };
 
-    template <typename T>
+    template <typename T, typename Cost>
     struct AStarPathInfo
     {
         AStarPathType type;
         std::vector<T> path;
+        std::unordered_map<T, AStarVertexInfo<T, Cost>> closedVertices;
     };
 
     template <typename T, typename Cost = float>
@@ -43,7 +45,7 @@ namespace rwe
         using VertexInfo = AStarVertexInfo<T, Cost>;
 
     public:
-        AStarPathInfo<T> findPath(const T& start)
+        AStarPathInfo<T, Cost> findPath(const T& start)
         {
             auto openVertices = createMinHeap<T, std::pair<Cost, VertexInfo>>(
                 [](const auto& p) { return p.second.vertex; },
@@ -54,22 +56,25 @@ namespace rwe
 
             boost::optional<std::pair<Cost, const VertexInfo*>> closestVertex;
 
-            unsigned int openListQueriesPerformed = 0;
+            unsigned int openListPopsPerformed = 0;
 
-            while (!openVertices.empty() && openListQueriesPerformed++ < MaxOpenListQueries)
+            while (!openVertices.empty() && openListPopsPerformed < MaxOpenListQueries)
             {
                 const std::pair<Cost, VertexInfo>& openFront = openVertices.top();
                 const VertexInfo& current = closedVertices[openFront.second.vertex] = openFront.second;
                 openVertices.pop();
+                openListPopsPerformed += 1;
 
                 if (isGoal(current.vertex))
                 {
-                    return AStarPathInfo<T>{AStarPathType::Complete, walkPath(current)};
+                    spdlog::get("rwe")->debug("Found goal after visiting {0} vertices", openListPopsPerformed);
+                    return AStarPathInfo<T, Cost>{AStarPathType::Complete, walkPath(current), std::move(closedVertices)};
                 }
 
-                if (!closestVertex || openFront.first - openFront.second.costToReach < closestVertex->first - closestVertex->second->costToReach)
+                auto estimatedCostToGoal = estimateCostToGoal(current.vertex);
+                if (!closestVertex || estimatedCostToGoal < closestVertex->first)
                 {
-                    closestVertex = std::pair<Cost, const VertexInfo*>(openFront.first, &current);
+                    closestVertex = std::pair<Cost, const VertexInfo*>(estimatedCostToGoal, &current);
                 }
 
                 for (const VertexInfo& s : getSuccessors(current))
@@ -84,7 +89,8 @@ namespace rwe
                 }
             }
 
-            return AStarPathInfo<T>{AStarPathType::Partial, walkPath(*(closestVertex->second))};
+            spdlog::get("rwe")->debug("Failed to find goal, visited {0} vertices", openListPopsPerformed);
+            return AStarPathInfo<T, Cost>{AStarPathType::Partial, walkPath(*(closestVertex->second)), std::move(closedVertices)};
         }
 
     protected:

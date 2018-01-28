@@ -240,6 +240,7 @@ int main(int argc, char* argv[])
     fs::path logPath(*localDataPath);
     logPath /= "rwe.log";
     auto logger = spdlog::basic_logger_mt("rwe", logPath.string(), true);
+    logger->set_level(spdlog::level::debug);
     logger->flush_on(spdlog::level::debug); // always flush
 
     try

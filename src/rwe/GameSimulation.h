@@ -1,6 +1,7 @@
 #ifndef RWE_GAMESIMULATION_H
 #define RWE_GAMESIMULATION_H
 
+#include "GameTime.h"
 #include "MapFeature.h"
 #include "MapTerrain.h"
 #include "OccupiedGrid.h"
@@ -36,7 +37,7 @@ namespace rwe
 
         std::deque<PathRequest> pathRequests;
 
-        unsigned int gameTime{0};
+        GameTime gameTime{0};
 
         explicit GameSimulation(MapTerrain&& terrain);
 

@@ -6,7 +6,9 @@
 #include "rwe/UnitId.h"
 #include <deque>
 #include <rwe/MovementClassCollisionService.h>
+#include <rwe/Point.h>
 #include <rwe/math/Vector3f.h>
+#include <rwe/pathfinding/AStarPathFinder.h>
 
 namespace rwe
 {
@@ -18,6 +20,8 @@ namespace rwe
 
     public:
         PathFindingService(GameSimulation* simulation, MovementClassCollisionService* collisionService);
+
+        AStarPathInfo<Point, float> lastPathDebugInfo;
 
         void update();
 
