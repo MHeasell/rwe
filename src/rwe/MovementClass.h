@@ -14,6 +14,7 @@ namespace rwe
         unsigned int minWaterDepth;
         unsigned int maxWaterDepth;
         unsigned int maxSlope;
+        unsigned int maxWaterSlope;
     };
 
     MovementClass parseMovementClass(const TdfBlock& block);

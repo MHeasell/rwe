@@ -21,6 +21,7 @@ namespace rwe
         unsigned int footprintX;
         unsigned int footprintZ;
         unsigned int maxSlope;
+        unsigned int maxWaterSlope;
         unsigned int minWaterDepth;
         unsigned int maxWaterDepth;
     };

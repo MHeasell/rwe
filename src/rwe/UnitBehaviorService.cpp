@@ -243,6 +243,7 @@ namespace rwe
         mc.minWaterDepth = unit.minWaterDepth;
         mc.maxWaterDepth = unit.maxWaterDepth;
         mc.maxSlope = unit.maxSlope;
+        mc.maxWaterSlope = unit.maxWaterSlope;
         mc.footprintX = unit.footprintX;
         mc.footprintZ = unit.footprintZ;
 

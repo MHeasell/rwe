@@ -53,6 +53,7 @@ namespace rwe
             unit.footprintX = movementClass->footprintX;
             unit.footprintZ = movementClass->footprintZ;
             unit.maxSlope = movementClass->maxSlope;
+            unit.maxWaterSlope = movementClass->maxWaterSlope;
             unit.minWaterDepth = movementClass->minWaterDepth;
             unit.maxWaterDepth = movementClass->maxWaterDepth;
         }
@@ -62,6 +63,7 @@ namespace rwe
             unit.footprintX = fbi.footprintX;
             unit.footprintZ = fbi.footprintZ;
             unit.maxSlope = fbi.maxSlope;
+            unit.maxWaterSlope = fbi.maxWaterSlope;
             unit.minWaterDepth = fbi.minWaterDepth;
             unit.maxWaterDepth = fbi.maxWaterDepth;
         }
