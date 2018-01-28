@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include <vector>
+#include <cassert>
 
 namespace rwe
 {
@@ -52,6 +53,8 @@ namespace rwe
                 indexMap.erase(keySelector(firstElement));
                 siftDown(0, lastElement);
             }
+
+            assert(heap.size() == indexMap.size());
         }
 
         bool pushOrDecrease(const V& item)
@@ -64,12 +67,15 @@ namespace rwe
             }
 
             const auto& existingItem = heap[existingIt->second];
+            assert(keySelector(existingItem) == keySelector(item));
             if (!lessThan(item, existingItem))
             {
                 return false;
             }
 
             siftUp(existingIt->second, item);
+
+            assert(heap.size() == indexMap.size());
             return true;
         }
 
@@ -92,12 +98,12 @@ namespace rwe
                 }
 
                 heap[position] = parentElement;
-                indexMap.insert({keySelector(parentElement), position});
+                indexMap[keySelector(parentElement)] = position;
                 position = parentPosition;
             }
 
             heap[position] = element;
-            indexMap.insert({keySelector(element), position});
+            indexMap[keySelector(element)] = position;
         }
 
         void siftDown(std::size_t position, const V& element)
@@ -124,12 +130,12 @@ namespace rwe
                 }
 
                 heap[position] = *smallestChild;
-                indexMap.insert({keySelector(*smallestChild), (position)});
+                indexMap[keySelector(*smallestChild)] = position;
                 position = smallestChildPosition;
             }
 
             heap[position] = element;
-            indexMap.insert({keySelector(element), (position)});
+            indexMap[keySelector(element)] = position;
         }
     };
 

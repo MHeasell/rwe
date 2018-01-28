@@ -1,5 +1,20 @@
+#include <boost/functional/hash.hpp>
 #include <catch.hpp>
+#include <rapidcheck/catch.h>
 #include <rwe/MinHeap.h>
+#include <rwe/Point.h>
+
+namespace std
+{
+    template <typename A, typename B>
+    struct hash<std::pair<A, B>>
+    {
+        std::size_t operator()(const std::pair<A, B>& f) const noexcept
+        {
+            return boost::hash<std::pair<A, B>>()(f);
+        }
+    };
+}
 
 namespace rwe
 {
@@ -68,10 +83,8 @@ namespace rwe
             SECTION("decreases the key of an element")
             {
                 auto heap = createMinHeap<int, std::pair<int, double>>(
-                    [](const auto& p)
-                    { return p.first; },
-                    [](const auto& a, const auto& b)
-                    { return a.second < b.second; });
+                    [](const auto& p) { return p.first; },
+                    [](const auto& a, const auto& b) { return a.second < b.second; });
 
                 heap.pushOrDecrease({1, 1.0});
                 heap.pushOrDecrease({2, 4.0});
@@ -111,10 +124,8 @@ namespace rwe
             SECTION("doesn't decrease the key when the existing key is better")
             {
                 auto heap = createMinHeap<int, std::pair<int, double>>(
-                    [](const auto& p)
-                    { return p.first; },
-                    [](const auto& a, const auto& b)
-                    { return a.second < b.second; });
+                    [](const auto& p) { return p.first; },
+                    [](const auto& a, const auto& b) { return a.second < b.second; });
 
                 heap.pushOrDecrease({1, 1.0});
                 heap.pushOrDecrease({2, 4.0});
@@ -151,5 +162,99 @@ namespace rwe
                 REQUIRE(heap.empty());
             }
         }
+
+        SECTION("works with these values found by RapidCheck")
+        {
+            auto selectKey = [](const std::pair<int, int>& p) { return p.first; };
+            auto lessThan = [](const std::pair<int, int>& a, const std::pair<int, int>& b) { return a.second < b.second; };
+            auto heap = createMinHeap<int, std::pair<int, int>>(selectKey, lessThan);
+
+            // RapidCheck found that the heap would fail
+            // to correctly decrease the priority of the '-2'
+            // after inserting the '0'
+            // due to bad bookkeeping of the indexMap inside the heap.
+            heap.pushOrDecrease({-2, 0});
+            heap.pushOrDecrease({0, -1});
+            heap.pushOrDecrease({-2, -1});
+
+            {
+                std::pair<int, int> p(0, -1);
+                REQUIRE(heap.top() == p);
+            }
+            heap.pop();
+            {
+                std::pair<int, int> p(-2, -1);
+                REQUIRE(heap.top() == p);
+            }
+            heap.pop();
+
+            REQUIRE(heap.empty());
+        }
+    }
+
+    TEST_CASE("MinHeap RapidCheck")
+    {
+        rc::prop("always emits correctly sorted values", [](const std::vector<std::pair<int, int>>& inputNumbers) {
+            auto selectKey = [](const std::pair<int, int>& p) { return p.first; };
+            auto lessThan = [](const std::pair<int, int>& a, const std::pair<int, int>& b) { return a.second < b.second; };
+
+            // push all the numbers onto the heap,
+            // then pull them out into a sorted, unique vector.
+            auto heap = createMinHeap<int, std::pair<int, int>>(selectKey, lessThan);
+
+            for (const auto& elem : inputNumbers)
+            {
+                heap.pushOrDecrease(elem);
+            }
+
+            std::vector<std::pair<int, int>> outputNumbers;
+            while (!heap.empty())
+            {
+                outputNumbers.push_back(heap.top());
+                heap.pop();
+            }
+
+            // create a sorted, unique vector to check against
+            // by manually sorting, then removing duplicate keys.
+            // (Note that this list could reasonably be not be identical to the output
+            // because ordering of elements with the same priority
+            // is not strictly defined, so we will have to be a bit cleverer
+            // when we do comparisons to work around this.)
+            auto sortedNumbers = inputNumbers;
+
+            std::sort(sortedNumbers.begin(), sortedNumbers.end(), lessThan);
+            std::unordered_set<int> seenKeys;
+
+            std::vector<std::pair<int, int>> expectedNumbers;
+            for (const auto& item : sortedNumbers)
+            {
+                if (seenKeys.find(selectKey(item)) == seenKeys.end())
+                {
+                    expectedNumbers.push_back(item);
+                    seenKeys.insert(selectKey(item));
+                }
+            }
+
+            // verify the lists are the same size
+            RC_ASSERT(outputNumbers.size() == expectedNumbers.size());
+
+            // verify the lists contain the same frequency of elements
+            std::unordered_map<std::pair<int, int>, int> outputFreqs;
+            for (const auto& item : outputNumbers)
+            {
+                outputFreqs[item]++;
+            }
+
+            std::unordered_map<std::pair<int, int>, int> expectedFreqs;
+            for (const auto& item : expectedNumbers)
+            {
+                expectedFreqs[item]++;
+            }
+
+            RC_ASSERT(outputFreqs == expectedFreqs);
+
+            // verify that the list is sorted
+            RC_ASSERT(std::is_sorted(outputNumbers.begin(), outputNumbers.end(), lessThan));
+        });
     }
 }

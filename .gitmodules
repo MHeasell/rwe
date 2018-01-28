@@ -1,3 +1,6 @@
 [submodule "libs/spdlog"]
 	path = libs/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "libs/rapidcheck"]
+	path = libs/rapidcheck
+	url = https://github.com/MHeasell/rapidcheck.git

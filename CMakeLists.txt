@@ -27,6 +27,9 @@ endif()
 project(rwe VERSION ${CMAKE_MATCH_1})
 enable_testing()
 
+set(RC_ENABLE_CATCH ON)
+add_subdirectory("libs/rapidcheck")
+
 function(target_copy_dll target dll)
     if(WIN32)
         find_program("${dll}_DLL" ${dll})
@@ -437,6 +440,7 @@ set(TEST_FILES
 
 add_executable(rwe_test test/main.cpp ${TEST_FILES})
 target_include_directories(rwe_test PRIVATE "libs/catch")
+target_link_libraries(rwe_test rapidcheck_catch)
 target_link_libraries(rwe_test librwe)
 add_test(NAME rwe_test COMMAND rwe_test)
 
