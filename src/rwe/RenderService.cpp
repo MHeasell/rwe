@@ -444,7 +444,7 @@ namespace rwe
         worldStart.y = terrain.getHeightAt(worldStart.x, worldStart.z);
 
         auto worldEnd = terrain.heightmapIndexToWorldCenter(end);
-        worldEnd.y = terrain.getHeightAt(worldStart.x, worldStart.z);
+        worldEnd.y = terrain.getHeightAt(worldEnd.x, worldEnd.z);
 
         auto armTemplate = (worldStart - worldEnd).normalized() * 6.0f;
         auto arm1 = Matrix4f::translation(worldEnd) * Matrix4f::rotationY(Pif / 6.0f) * armTemplate;
