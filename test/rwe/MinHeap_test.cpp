@@ -1,5 +1,19 @@
+#include <iostream>
+
+namespace boost
+{
+    std::ostream& operator<<(std::ostream& os, const std::pair<int, int>& p)
+    {
+        os << "(" << p.first << ", " << p.second << ")";
+        return os;
+    }
+}
+
 #include <boost/functional/hash.hpp>
+#include <boost/optional.hpp>
+#include <boost/optional/optional_io.hpp>
 #include <catch.hpp>
+#include <rapidcheck/boost.h>
 #include <rapidcheck/catch.h>
 #include <rwe/MinHeap.h>
 #include <rwe/Point.h>
@@ -190,6 +204,23 @@ namespace rwe
 
             REQUIRE(heap.empty());
         }
+
+        SECTION("works with these values found by RapidCheck, round 2")
+        {
+            auto selectKey = [](const std::pair<int, int>& p) { return p.first; };
+            auto lessThan = [](const std::pair<int, int>& a, const std::pair<int, int>& b) { return a.second < b.second; };
+            auto heap = createMinHeap<int, std::pair<int, int>>(selectKey, lessThan);
+            REQUIRE(heap.isNotCorrupt());
+
+            heap.pushOrDecrease({0, 0});
+            REQUIRE(heap.isNotCorrupt());
+
+            heap.pushOrDecrease({1, 0});
+            REQUIRE(heap.isNotCorrupt());
+
+            heap.pop();
+            REQUIRE(heap.isNotCorrupt());
+        }
     }
 
     TEST_CASE("MinHeap RapidCheck")
@@ -255,6 +286,37 @@ namespace rwe
 
             // verify that the list is sorted
             RC_ASSERT(std::is_sorted(outputNumbers.begin(), outputNumbers.end(), lessThan));
+        });
+    }
+
+    TEST_CASE("MinHeap RapidCheck 2")
+    {
+        rc::prop("never becomes internally corrupted", [](const std::vector<boost::optional<std::pair<int, int>>>& inputs) {
+            auto selectKey = [](const std::pair<int, int>& p) { return p.first; };
+            auto lessThan = [](const std::pair<int, int>& a, const std::pair<int, int>& b) { return a.second < b.second; };
+
+            auto heap = createMinHeap<int, std::pair<int, int>>(selectKey, lessThan);
+
+            std::vector<std::pair<int, int>> dumbQueue;
+
+            for (const auto& elem : inputs)
+            {
+                if (elem)
+                {
+                    // insert onto the heap
+                    heap.pushOrDecrease(*elem);
+                }
+                else
+                {
+                    // pop the heap
+                    if (!heap.empty())
+                    {
+                        heap.pop();
+                    }
+                }
+
+                RC_ASSERT(heap.isNotCorrupt());
+            }
         });
     }
 }

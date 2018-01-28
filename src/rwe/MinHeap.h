@@ -53,8 +53,6 @@ namespace rwe
                 indexMap.erase(keySelector(firstElement));
                 siftDown(0, lastElement);
             }
-
-            assert(heap.size() == indexMap.size());
         }
 
         bool pushOrDecrease(const V& item)
@@ -75,7 +73,31 @@ namespace rwe
 
             siftUp(existingIt->second, item);
 
-            assert(heap.size() == indexMap.size());
+            return true;
+        }
+
+        bool isNotCorrupt()
+        {
+            if (heap.size() != indexMap.size())
+            {
+                return false;
+            }
+
+            // really tough, performance crippling debugging assertion
+            for (const auto& indexItem : indexMap)
+            {
+                if (indexItem.second >= heap.size())
+                {
+                    return false;
+                }
+
+                const auto& heapItem = heap[indexItem.second];
+                if (keySelector(heapItem) != indexItem.first)
+                {
+                    return false;
+                }
+            }
+
             return true;
         }
 
@@ -108,8 +130,8 @@ namespace rwe
 
         void siftDown(std::size_t position, const V& element)
         {
-            auto lastNonLeafPosition = (heap.size() - 1) / 2;
-            while (position <= lastNonLeafPosition) // while non-leaf
+            auto firstLeafPosition = heap.size() / 2;
+            while (position < firstLeafPosition) // while non-leaf
             {
                 auto smallestChildPosition = (position * 2) + 1;
                 const auto* smallestChild = &heap[smallestChildPosition];
