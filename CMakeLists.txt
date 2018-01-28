@@ -27,8 +27,8 @@ endif()
 project(rwe VERSION ${CMAKE_MATCH_1})
 enable_testing()
 
-set(RC_ENABLE_CATCH ON)
-set(RC_ENABLE_BOOST ON)
+set(RC_ENABLE_CATCH ON CACHE BOOL "Enables Catch support in RapidCheck" FORCE)
+set(RC_ENABLE_BOOST ON CACHE BOOL "Enables Boost support in RapidCheck" FORCE)
 add_subdirectory("libs/rapidcheck")
 
 function(target_copy_dll target dll)
