@@ -240,6 +240,8 @@ set(SOURCE_FILES
     src/rwe/pathfinding/OctileDistance.h
     src/rwe/pathfinding/OctileDistance_io.cpp
     src/rwe/pathfinding/OctileDistance_io.h
+    src/rwe/pathfinding/PathCost.cpp
+    src/rwe/pathfinding/PathCost.h
     src/rwe/pathfinding/PathFindingService.cpp
     src/rwe/pathfinding/PathFindingService.h
     src/rwe/pathfinding/UnitFootprintPathFinder.cpp

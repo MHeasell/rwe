@@ -1,6 +1,7 @@
 #ifndef RWE_UNITFOOTPRINTPATHFINDER_H
 #define RWE_UNITFOOTPRINTPATHFINDER_H
 
+#include "PathCost.h"
 #include "pathfinding_utils.h"
 #include <rwe/DiscreteRect.h>
 #include <rwe/EightWayDirection.h>
@@ -14,7 +15,7 @@ namespace rwe
     /**
      * Standard unit pathfinder.
      */
-    class UnitFootprintPathFinder : public AStarPathFinder<Point, OctileDistance>
+    class UnitFootprintPathFinder : public AStarPathFinder<Point, PathCost>
     {
     private:
         GameSimulation* const simulation;
@@ -38,7 +39,7 @@ namespace rwe
     protected:
         bool isGoal(const Point& vertex) override;
 
-        OctileDistance estimateCostToGoal(const Point& start) override;
+        PathCost estimateCostToGoal(const Point& start) override;
 
         std::vector<VertexInfo> getSuccessors(const VertexInfo& vertex) override;
 

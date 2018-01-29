@@ -10,6 +10,7 @@
 #include <rwe/Point.h>
 #include <rwe/math/Vector3f.h>
 #include <rwe/pathfinding/AStarPathFinder.h>
+#include <rwe/pathfinding/PathCost.h>
 
 namespace rwe
 {
@@ -22,7 +23,7 @@ namespace rwe
     public:
         PathFindingService(GameSimulation* simulation, MovementClassCollisionService* collisionService);
 
-        AStarPathInfo<Point, OctileDistance> lastPathDebugInfo;
+        AStarPathInfo<Point, PathCost> lastPathDebugInfo;
 
         void update();
 

@@ -8,6 +8,7 @@
 #include <boost/iterator/filter_iterator.hpp>
 #include <rwe/pathfinding/AStarPathFinder.h>
 #include <rwe/pathfinding/OctileDistance.h>
+#include <rwe/pathfinding/PathCost.h>
 #include <vector>
 
 namespace rwe
@@ -50,7 +51,7 @@ namespace rwe
         void drawUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel);
         void drawSelectionRect(const Unit& unit);
         void drawOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid);
-        void drawPathfindingVisualisation(const MapTerrain& terrain, const AStarPathInfo<Point, OctileDistance>& pathInfo);
+        void drawPathfindingVisualisation(const MapTerrain& terrain, const AStarPathInfo<Point, PathCost>& pathInfo);
 
         void drawMapTerrain(const MapTerrain& terrain);
         void drawFlatFeatures(const std::vector<MapFeature>& features);

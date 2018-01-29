@@ -25,21 +25,32 @@ namespace rwe
         return vertex == goal;
     }
 
-    OctileDistance UnitFootprintPathFinder::estimateCostToGoal(const Point& start)
+    PathCost UnitFootprintPathFinder::estimateCostToGoal(const Point& start)
     {
-        return octileDistance(start, goal);
+        auto distance = octileDistance(start, goal);
+        unsigned int turns = (distance.straight > 0 && distance.diagonal > 0) ? 1 : 0;
+        return PathCost(distance, turns);
     }
 
     std::vector<UnitFootprintPathFinder::VertexInfo>
     UnitFootprintPathFinder::getSuccessors(const VertexInfo& info)
     {
+        boost::optional<Direction> prevDirection;
+        if (info.predecessor)
+        {
+            prevDirection = pointToDirection(info.vertex - (*info.predecessor)->vertex);
+        }
+
         auto neighbours = getNeighbours(info.vertex);
 
         std::vector<VertexInfo> vs;
         for (const auto& neighbour : neighbours)
         {
-            auto cost = octileDistance(info.vertex, neighbour);
-            assert(cost.diagonal == 0 || cost.straight == 0);
+            auto direction = pointToDirection(neighbour - info.vertex);
+            auto distance = octileDistance(info.vertex, neighbour);
+            assert(distance.diagonal == 0 || distance.straight == 0);
+            unsigned int turns = (!prevDirection || direction == *prevDirection) ? 0 : 1;
+            PathCost cost(distance, turns);
             vs.push_back(VertexInfo{info.costToReach + cost, neighbour, &info});
         }
 
