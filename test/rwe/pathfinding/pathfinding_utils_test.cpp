@@ -1,4 +1,5 @@
 #include <catch.hpp>
+#include <rwe/pathfinding/OctileDistance_io.h>
 #include <rwe/pathfinding/pathfinding_utils.h>
 
 namespace rwe

@@ -236,6 +236,10 @@ set(SOURCE_FILES
     src/rwe/ota.h
     src/rwe/pathfinding/AStarPathFinder.cpp
     src/rwe/pathfinding/AStarPathFinder.h
+    src/rwe/pathfinding/OctileDistance.cpp
+    src/rwe/pathfinding/OctileDistance.h
+    src/rwe/pathfinding/OctileDistance_io.cpp
+    src/rwe/pathfinding/OctileDistance_io.h
     src/rwe/pathfinding/PathFindingService.cpp
     src/rwe/pathfinding/PathFindingService.h
     src/rwe/pathfinding/UnitFootprintPathFinder.cpp

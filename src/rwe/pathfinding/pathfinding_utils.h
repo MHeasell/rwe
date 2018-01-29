@@ -4,6 +4,7 @@
 #include <rwe/DiscreteRect.h>
 #include <rwe/EightWayDirection.h>
 #include <rwe/Point.h>
+#include <rwe/pathfinding/OctileDistance.h>
 
 namespace rwe
 {
@@ -49,28 +50,6 @@ namespace rwe
     }
 
     std::vector<Point> runSimplifyPath(const std::vector<Point>& input);
-
-    struct OctileDistance
-    {
-        unsigned int straight;
-        unsigned int diagonal;
-
-        OctileDistance(unsigned int straight, unsigned int diagonal) : straight(straight), diagonal(diagonal)
-        {
-        }
-
-        bool operator==(const OctileDistance& rhs) const
-        {
-            return straight == rhs.straight && diagonal == rhs.diagonal;
-        }
-
-        bool operator!=(const OctileDistance& rhs) const
-        {
-            return !(rhs == *this);
-        }
-    };
-
-    std::ostream& operator<<(std::ostream& stream, const OctileDistance& d);
 
     OctileDistance octileDistance(const Point& a, const Point& b);
 }

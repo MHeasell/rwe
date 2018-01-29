@@ -10,12 +10,6 @@ namespace rwe
         return output;
     }
 
-    std::ostream& operator<<(std::ostream& stream, const OctileDistance& d)
-    {
-        stream << "(s:" << d.straight << ", " << d.diagonal << ")";
-        return stream;
-    }
-
     OctileDistance octileDistance(const Point& start, const Point& goal)
     {
         auto deltaX = static_cast<unsigned int>(std::abs(goal.x - start.x));
