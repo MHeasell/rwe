@@ -12,7 +12,7 @@
 namespace rwe
 {
     /**
-     * Standard unit pathfinder, implementing jump point search.
+     * Standard unit pathfinder.
      */
     class UnitFootprintPathFinder : public AStarPathFinder<Point, float>
     {
