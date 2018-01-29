@@ -49,6 +49,11 @@ namespace rwe
             auto direction = pointToDirection(neighbour - info.vertex);
             auto distance = octileDistance(info.vertex, neighbour);
             assert(distance.diagonal == 0 || distance.straight == 0);
+            if (isRoughTerrain(neighbour))
+            {
+                // double the cost on rough terrain
+                distance = distance + distance;
+            }
             unsigned int turns = (!prevDirection || direction == *prevDirection) ? 0 : 1;
             PathCost cost(distance, turns);
             vs.push_back(VertexInfo{info.costToReach + cost, neighbour, &info});
@@ -66,6 +71,12 @@ namespace rwe
     bool UnitFootprintPathFinder::isWalkable(int x, int y) const
     {
         return isWalkable(Point(x, y));
+    }
+
+    bool UnitFootprintPathFinder::isRoughTerrain(const Point& p) const
+    {
+        DiscreteRect rect(p.x, p.y, footprintX, footprintZ);
+        return simulation->isAdjacentToObstacle(rect, self);
     }
 
     Point UnitFootprintPathFinder::step(const Point& p, Direction d) const

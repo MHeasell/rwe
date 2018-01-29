@@ -48,6 +48,8 @@ namespace rwe
 
         bool isWalkable(int x, int y) const;
 
+        bool isRoughTerrain(const Point& p) const;
+
         Point step(const Point& p, Direction d) const;
 
         std::vector<Point> getNeighbours(const Point& p);
