@@ -2,9 +2,6 @@
 
 namespace rwe
 {
-    static const float StraightCost = 1.0f;
-    static constexpr float DiagonalCost = std::sqrt(2.0f);
-
     UnitFootprintPathFinder::UnitFootprintPathFinder(
         GameSimulation* simulation,
         MovementClassCollisionService* collisionService,
@@ -31,7 +28,7 @@ namespace rwe
     float UnitFootprintPathFinder::estimateCostToGoal(const Point& start)
     {
         auto octile = octileDistance(start, goal);
-        return (octile.diagonal * DiagonalCost) + (octile.straight * StraightCost);
+        return octile.asFloat();
     }
 
     std::vector<UnitFootprintPathFinder::VertexInfo>
@@ -44,7 +41,7 @@ namespace rwe
         {
             auto octile = octileDistance(info.vertex, neighbour);
             assert(octile.diagonal == 0 || octile.straight == 0);
-            auto cost = (octile.diagonal * DiagonalCost) + (octile.straight * StraightCost);
+            auto cost = octile.asFloat();
             vs.push_back(VertexInfo{info.costToReach + cost, neighbour, &info});
         }
 
