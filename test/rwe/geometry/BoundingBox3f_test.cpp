@@ -1,8 +1,15 @@
+#include <boost/optional/optional_io.hpp>
 #include <catch.hpp>
 #include <rwe/geometry/BoundingBox3f.h>
 
 namespace rwe
 {
+    std::ostream& operator<<(std::ostream& os, const BoundingBox3f::RayIntersect& i)
+    {
+        os << "(" << std::to_string(i.enter) << ", " << std::to_string(i.exit) << ")";
+        return os;
+    }
+
     TEST_CASE("BoundingBox3f::intersect")
     {
         SECTION("finds the point at which the ray enters the box")

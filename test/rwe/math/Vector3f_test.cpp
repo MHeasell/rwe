@@ -1,5 +1,7 @@
+#include <boost/optional/optional_io.hpp>
 #include <catch.hpp>
 #include <rwe/math/Vector3f.h>
+#include <sstream>
 
 namespace rwe
 {

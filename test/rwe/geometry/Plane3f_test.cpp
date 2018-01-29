@@ -1,3 +1,4 @@
+#include <boost/optional/optional_io.hpp>
 #include <catch.hpp>
 #include <rwe/math/Vector3f.h>
 #include <rwe/geometry/Ray3f.h>

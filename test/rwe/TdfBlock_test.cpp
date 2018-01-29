@@ -1,8 +1,15 @@
+#include <boost/optional/optional_io.hpp>
 #include <catch.hpp>
 #include <rwe/tdf/TdfBlock.h>
 
 namespace rwe
 {
+    std::ostream& operator<<(std::ostream& os, const TdfBlock& b)
+    {
+        os << "<block with " << b.entries.size() << " entries>";
+        return os;
+    }
+
     TEST_CASE("TdfBlock")
     {
         TdfBlock inner;

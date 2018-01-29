@@ -1,3 +1,4 @@
+#include <boost/optional/optional_io.hpp>
 #include <catch.hpp>
 #include <rwe/geometry/Triangle3f.h>
 
