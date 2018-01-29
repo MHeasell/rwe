@@ -3,6 +3,7 @@
 
 namespace rwe
 {
+    /** A distance in grid squares separated into straight and diagonal components. */
     struct OctileDistance
     {
         unsigned int straight;
