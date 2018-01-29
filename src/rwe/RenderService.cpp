@@ -164,7 +164,7 @@ namespace rwe
     }
 
     void
-    RenderService::drawPathfindingVisualisation(const MapTerrain& terrain, const AStarPathInfo<Point, float>& pathInfo)
+    RenderService::drawPathfindingVisualisation(const MapTerrain& terrain, const AStarPathInfo<Point, OctileDistance>& pathInfo)
     {
         const auto& shader = shaders->basicColor;
         graphics->bindShader(shader.handle.get());

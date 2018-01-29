@@ -1,3 +1,4 @@
+#include <cmath>
 #include "OctileDistance.h"
 
 namespace rwe
@@ -16,6 +17,31 @@ namespace rwe
     bool OctileDistance::operator!=(const OctileDistance& rhs) const
     {
         return !(rhs == *this);
+    }
+
+    bool OctileDistance::operator<(const OctileDistance& rhs) const
+    {
+        return asFloat() < rhs.asFloat();
+    }
+
+    bool OctileDistance::operator>(const OctileDistance& rhs) const
+    {
+        return asFloat() > rhs.asFloat();
+    }
+
+    bool OctileDistance::operator<=(const OctileDistance& rhs) const
+    {
+        return asFloat() <= rhs.asFloat();
+    }
+
+    bool OctileDistance::operator>=(const OctileDistance& rhs) const
+    {
+        return asFloat() >= rhs.asFloat();
+    }
+
+    OctileDistance OctileDistance::operator+(const OctileDistance& rhs) const
+    {
+        return OctileDistance(straight + rhs.straight, diagonal + rhs.diagonal);
     }
 
     float OctileDistance::asFloat() const

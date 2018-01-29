@@ -1,6 +1,7 @@
 #ifndef RWE_PATHFINDINGSERVICE_H
 #define RWE_PATHFINDINGSERVICE_H
 
+#include "OctileDistance.h"
 #include "UnitPath.h"
 #include "rwe/GameSimulation.h"
 #include "rwe/UnitId.h"
@@ -21,7 +22,7 @@ namespace rwe
     public:
         PathFindingService(GameSimulation* simulation, MovementClassCollisionService* collisionService);
 
-        AStarPathInfo<Point, float> lastPathDebugInfo;
+        AStarPathInfo<Point, OctileDistance> lastPathDebugInfo;
 
         void update();
 

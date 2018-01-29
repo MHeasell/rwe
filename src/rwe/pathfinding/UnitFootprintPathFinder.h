@@ -14,7 +14,7 @@ namespace rwe
     /**
      * Standard unit pathfinder.
      */
-    class UnitFootprintPathFinder : public AStarPathFinder<Point, float>
+    class UnitFootprintPathFinder : public AStarPathFinder<Point, OctileDistance>
     {
     private:
         GameSimulation* const simulation;
@@ -38,7 +38,7 @@ namespace rwe
     protected:
         bool isGoal(const Point& vertex) override;
 
-        float estimateCostToGoal(const Point& start) override;
+        OctileDistance estimateCostToGoal(const Point& start) override;
 
         std::vector<VertexInfo> getSuccessors(const VertexInfo& vertex) override;
 

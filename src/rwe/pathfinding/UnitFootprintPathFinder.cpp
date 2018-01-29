@@ -25,10 +25,9 @@ namespace rwe
         return vertex == goal;
     }
 
-    float UnitFootprintPathFinder::estimateCostToGoal(const Point& start)
+    OctileDistance UnitFootprintPathFinder::estimateCostToGoal(const Point& start)
     {
-        auto octile = octileDistance(start, goal);
-        return octile.asFloat();
+        return octileDistance(start, goal);
     }
 
     std::vector<UnitFootprintPathFinder::VertexInfo>
@@ -39,9 +38,8 @@ namespace rwe
         std::vector<VertexInfo> vs;
         for (const auto& neighbour : neighbours)
         {
-            auto octile = octileDistance(info.vertex, neighbour);
-            assert(octile.diagonal == 0 || octile.straight == 0);
-            auto cost = octile.asFloat();
+            auto cost = octileDistance(info.vertex, neighbour);
+            assert(cost.diagonal == 0 || cost.straight == 0);
             vs.push_back(VertexInfo{info.costToReach + cost, neighbour, &info});
         }
 
