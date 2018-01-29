@@ -1,5 +1,5 @@
-#include <cmath>
 #include "OctileDistance.h"
+#include <cmath>
 
 namespace rwe
 {
