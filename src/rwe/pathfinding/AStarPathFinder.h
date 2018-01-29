@@ -4,9 +4,9 @@
 #include <boost/optional.hpp>
 #include <deque>
 #include <rwe/MinHeap.h>
+#include <spdlog/spdlog.h>
 #include <unordered_map>
 #include <vector>
-#include <spdlog/spdlog.h>
 
 namespace rwe
 {

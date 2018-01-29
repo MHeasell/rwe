@@ -2,9 +2,9 @@
 #define RWE_MINHEAP_H
 
 #include <algorithm>
+#include <cassert>
 #include <unordered_map>
 #include <vector>
-#include <cassert>
 
 namespace rwe
 {
