@@ -51,6 +51,7 @@ namespace rwe
         void drawUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel);
         void drawSelectionRect(const Unit& unit);
         void drawOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid);
+        void drawMovementClassCollisionGrid(const MapTerrain& terrain, const Grid<char>& movementClassGrid);
         void drawPathfindingVisualisation(const MapTerrain& terrain, const AStarPathInfo<Point, PathCost>& pathInfo);
 
         void drawMapTerrain(const MapTerrain& terrain);

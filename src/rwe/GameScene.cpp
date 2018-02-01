@@ -58,6 +58,16 @@ namespace rwe
             renderService.drawPathfindingVisualisation(simulation.terrain, pathFindingService.lastPathDebugInfo);
         }
 
+        if (selectedUnit && movementClassGridVisible)
+        {
+            const auto& unit = simulation.getUnit(*selectedUnit);
+            if (unit.movementClass)
+            {
+                const auto& grid = collisionService.getGrid(*unit.movementClass);
+                renderService.drawMovementClassCollisionGrid(simulation.terrain, grid);
+            }
+        }
+
         if (selectedUnit)
         {
             renderService.drawSelectionRect(getUnit(*selectedUnit));
@@ -124,6 +134,10 @@ namespace rwe
         else if (keysym.sym == SDLK_F10)
         {
             pathfindingVisualisationVisible = !pathfindingVisualisationVisible;
+        }
+        else if (keysym.sym == SDLK_F11)
+        {
+            movementClassGridVisible = !movementClassGridVisible;
         }
     }
 

@@ -24,6 +24,8 @@ namespace rwe
         boost::optional<MovementClassId> resolveMovementClass(const std::string& name);
 
         bool isWalkable(MovementClassId movementClass, const Point& position) const;
+
+        const Grid<char>& getGrid(MovementClassId movementClass) const;
     };
 
     Grid<char> computeWalkableGrid(const GameSimulation& sim, const MovementClass& movementClass);

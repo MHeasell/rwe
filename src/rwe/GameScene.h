@@ -71,6 +71,7 @@ namespace rwe
 
         bool occupiedGridVisible{false};
         bool pathfindingVisualisationVisible{false};
+        bool movementClassGridVisible{false};
 
     public:
         GameScene(

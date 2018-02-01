@@ -47,6 +47,17 @@ namespace rwe
         return grid.get(x, y);
     }
 
+    const Grid<char>& MovementClassCollisionService::getGrid(MovementClassId movementClass) const
+    {
+        auto it = walkableGrids.find(movementClass);
+        if (it == walkableGrids.end())
+        {
+            throw std::runtime_error("Failed to find movement class grid");
+        }
+
+        return it->second;
+    }
+
     Grid<char> computeWalkableGrid(const GameSimulation& sim, const MovementClass& movementClass)
     {
         const auto& terrain = sim.terrain;

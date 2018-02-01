@@ -163,6 +163,78 @@ namespace rwe
         graphics->drawTriangles(triMesh);
     }
 
+    void RenderService::drawMovementClassCollisionGrid(
+        const MapTerrain& terrain,
+        const Grid<char>& movementClassGrid)
+    {
+        auto halfWidth = camera.getWidth() / 2.0f;
+        auto halfHeight = camera.getHeight() / 2.0f;
+        auto left = camera.getPosition().x - halfWidth;
+        auto top = camera.getPosition().z - halfHeight;
+        auto right = camera.getPosition().x + halfWidth;
+        auto bottom = camera.getPosition().z + halfHeight;
+
+        assert(left < right);
+        assert(top < bottom);
+
+        assert(terrain.getHeightMap().getWidth() >= 2);
+        assert(terrain.getHeightMap().getHeight() >= 2);
+
+        auto topLeftCell = terrain.worldToHeightmapCoordinate(Vector3f(left, 0.0f, top));
+        topLeftCell.x = std::clamp(topLeftCell.x, 0, static_cast<int>(terrain.getHeightMap().getWidth() - 2));
+        topLeftCell.y = std::clamp(topLeftCell.y, 0, static_cast<int>(terrain.getHeightMap().getHeight() - 2));
+
+        auto bottomRightCell = terrain.worldToHeightmapCoordinate(Vector3f(right, 0.0f, bottom));
+        bottomRightCell.y += 7; // compensate for height
+        bottomRightCell.x = std::clamp(bottomRightCell.x, 0, static_cast<int>(terrain.getHeightMap().getWidth() - 2));
+        bottomRightCell.y = std::clamp(bottomRightCell.y, 0, static_cast<int>(terrain.getHeightMap().getHeight() - 2));
+
+        assert(topLeftCell.x <= bottomRightCell.x);
+        assert(topLeftCell.y <= bottomRightCell.y);
+
+        std::vector<Line3f> lines;
+
+        std::vector<Triangle3f> tris;
+
+        for (int y = topLeftCell.y; y <= bottomRightCell.y; ++y)
+        {
+            for (int x = topLeftCell.x; x <= bottomRightCell.x; ++x)
+            {
+                auto pos = terrain.heightmapIndexToWorldCorner(x, y);
+                pos.y = terrain.getHeightMap().get(x, y);
+
+                auto rightPos = terrain.heightmapIndexToWorldCorner(x + 1, y);
+                rightPos.y = terrain.getHeightMap().get(x + 1, y);
+
+                auto downPos = terrain.heightmapIndexToWorldCorner(x, y + 1);
+                downPos.y = terrain.getHeightMap().get(x, y + 1);
+
+                lines.emplace_back(pos, rightPos);
+                lines.emplace_back(pos, downPos);
+
+                if (!movementClassGrid.get(x, y))
+                {
+                    auto downRightPos = terrain.heightmapIndexToWorldCorner(x + 1, y + 1);
+                    downRightPos.y = terrain.getHeightMap().get(x + 1, y + 1);
+
+                    tris.emplace_back(pos, downPos, downRightPos);
+                    tris.emplace_back(pos, downRightPos, rightPos);
+                }
+            }
+        }
+
+        const auto& shader = shaders->basicColor;
+        graphics->bindShader(shader.handle.get());
+        graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix());
+        graphics->setUniformFloat(shader.alpha, 1.0f);
+
+        auto mesh = createTemporaryLinesMesh(lines);
+        graphics->drawLines(mesh);
+
+        auto triMesh = createTemporaryTriMesh(tris);
+        graphics->drawTriangles(triMesh);
+    }
+
     void
     RenderService::drawPathfindingVisualisation(const MapTerrain& terrain, const AStarPathInfo<Point, PathCost>& pathInfo)
     {
