@@ -18,8 +18,16 @@ namespace rwe
     struct GameTimeDeltaTag;
     using GameTimeDelta = OpaqueId<unsigned int, GameTimeDeltaTag>;
 
+    bool operator<(GameTimeDelta a, GameTimeDelta b);
+    bool operator>(GameTimeDelta a, GameTimeDelta b);
+    bool operator<=(GameTimeDelta a, GameTimeDelta b);
+    bool operator>=(GameTimeDelta a, GameTimeDelta b);
+
     GameTime operator+(GameTime a, GameTimeDelta b);
     GameTime operator-(GameTime a, GameTimeDelta b);
+
+    GameTimeDelta operator-(GameTime a, GameTime b);
+
 }
 
 #endif

@@ -26,9 +26,10 @@ namespace rwe
     struct PathFollowingInfo
     {
         UnitPath path;
+        GameTime pathCreationTime;
         std::vector<Vector3f>::const_iterator currentWaypoint;
-        explicit PathFollowingInfo(UnitPath&& path)
-            : path(std::move(path)), currentWaypoint(this->path.waypoints.begin()) {}
+        explicit PathFollowingInfo(UnitPath&& path, GameTime creationTime)
+            : path(std::move(path)), pathCreationTime(creationTime), currentWaypoint(this->path.waypoints.begin()) {}
     };
 
     struct MovingState

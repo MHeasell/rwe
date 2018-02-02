@@ -61,8 +61,15 @@ namespace rwe
                     // if we are colliding, request a new path
                     if (unit.inCollision && !movingState->pathRequested)
                     {
-                        scene->getSimulation().requestPath(unitId);
-                        movingState->pathRequested = true;
+                        auto& sim = scene->getSimulation();
+
+                        // only request a new path if we don't have one yet,
+                        // or we've already had our current one for a bit
+                        if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTimeDelta(60))
+                        {
+                            sim.requestPath(unitId);
+                            movingState->pathRequested = true;
+                        }
                     }
 
                     // if a path is available, attempt to follow it

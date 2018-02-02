@@ -26,7 +26,7 @@ namespace rwe
             if (movingState != nullptr)
             {
                 auto path = findPath(request.unitId, movingState->destination);
-                movingState->path = PathFollowingInfo(std::move(path));
+                movingState->path = PathFollowingInfo(std::move(path), simulation->gameTime);
                 movingState->pathRequested = false;
             }
 

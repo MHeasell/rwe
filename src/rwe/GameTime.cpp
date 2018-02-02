@@ -27,6 +27,26 @@ namespace rwe
         return a.value >= b.value;
     }
 
+    bool operator<(GameTimeDelta a, GameTimeDelta b)
+    {
+        return a.value < b.value;
+    }
+
+    bool operator>(GameTimeDelta a, GameTimeDelta b)
+    {
+        return a.value > b.value;
+    }
+
+    bool operator<=(GameTimeDelta a, GameTimeDelta b)
+    {
+        return a.value <= b.value;
+    }
+
+    bool operator>=(GameTimeDelta a, GameTimeDelta b)
+    {
+        return a.value >= b.value;
+    }
+
     GameTime operator+(GameTime a, GameTimeDelta b)
     {
         return GameTime(a.value + b.value);
@@ -35,5 +55,10 @@ namespace rwe
     GameTime operator-(GameTime a, GameTimeDelta b)
     {
         return GameTime(a.value - b.value);
+    }
+
+    GameTimeDelta operator-(GameTime a, GameTime b)
+    {
+        return GameTimeDelta(a.value - b.value);
     }
 }
