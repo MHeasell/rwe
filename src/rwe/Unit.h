@@ -23,20 +23,26 @@ namespace rwe
         explicit MoveOrder(const Vector3f& destination);
     };
 
-    struct PathStatusRequested
-    {
-        Vector3f destination;
-    };
-
-    struct PathStatusFollowing
+    struct PathFollowingInfo
     {
         UnitPath path;
         std::vector<Vector3f>::const_iterator currentWaypoint;
-        explicit PathStatusFollowing(UnitPath&& path)
+        explicit PathFollowingInfo(UnitPath&& path)
             : path(std::move(path)), currentWaypoint(this->path.waypoints.begin()) {}
     };
 
-    using PathStatus = boost::variant<PathStatusRequested, PathStatusFollowing>;
+    struct MovingState
+    {
+        Vector3f destination;
+        boost::optional<PathFollowingInfo> path;
+        bool pathRequested;
+    };
+
+    struct IdleState
+    {
+    };
+
+    using UnitState = boost::variant<IdleState, MovingState>;
 
     using UnitOrder = boost::variant<MoveOrder>;
 
@@ -97,7 +103,13 @@ namespace rwe
         unsigned int maxWaterDepth;
 
         std::deque<UnitOrder> orders;
-        boost::optional<PathStatus> pathStatus;
+        UnitState behaviourState;
+
+        /**
+         * True if the unit attempted to move last frame
+         * and its movement was limited (or prevented entirely) by a collision.
+         */
+        bool inCollision{false};
 
         Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, SelectionMesh&& selectionMesh);
 

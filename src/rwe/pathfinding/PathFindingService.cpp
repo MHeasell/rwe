@@ -22,11 +22,12 @@ namespace rwe
 
             auto& unit = simulation->getUnit(request.unitId);
 
-            auto pathRequest = boost::get<PathStatusRequested>(&*unit.pathStatus);
-            if (pathRequest != nullptr)
+            auto movingState = boost::get<MovingState>(&unit.behaviourState);
+            if (movingState != nullptr)
             {
-                auto path = findPath(request.unitId, pathRequest->destination);
-                unit.pathStatus = PathStatusFollowing(std::move(path));
+                auto path = findPath(request.unitId, movingState->destination);
+                movingState->path = PathFollowingInfo(std::move(path));
+                movingState->pathRequested = false;
             }
 
             requests.pop_front();

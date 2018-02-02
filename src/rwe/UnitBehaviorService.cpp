@@ -47,66 +47,76 @@ namespace rwe
             auto moveOrder = boost::get<MoveOrder>(&order);
             if (moveOrder != nullptr)
             {
-                // update path status info
-                if (!unit.pathStatus)
+                auto idleState = boost::get<IdleState>(&unit.behaviourState);
+                auto movingState = boost::get<MovingState>(&unit.behaviourState);
+                if (idleState != nullptr)
                 {
-                    const auto& destination = moveOrder->destination;
-                    unit.pathStatus = PathStatusRequested{destination};
+                    // request a path to follow
                     scene->getSimulation().requestPath(unitId);
+                    const auto& destination = moveOrder->destination;
+                    unit.behaviourState = MovingState{destination, boost::none, true};
                 }
-
-                auto pathToFollow = boost::get<PathStatusFollowing>(&*unit.pathStatus);
-
-                // if a path is available, attempt to follow it
-                if (pathToFollow != nullptr)
+                else if (movingState != nullptr)
                 {
-                    const auto& destination = *pathToFollow->currentWaypoint;
-                    Vector2f xzPosition(unit.position.x, unit.position.z);
-                    Vector2f xzDestination(destination.x, destination.z);
-                    auto distanceSquared = xzPosition.distanceSquared(xzDestination);
-
-                    auto isFinalDestination = pathToFollow->currentWaypoint == (pathToFollow->path.waypoints.end() - 1);
-
-                    if (distanceSquared < (8.0f * 8.0f))
+                    // if we are colliding, request a new path
+                    if (unit.inCollision && !movingState->pathRequested)
                     {
-                        if (isFinalDestination)
-                        {
-                            // order complete
-                            unit.orders.pop_front();
-                            unit.pathStatus = boost::none;
+                        scene->getSimulation().requestPath(unitId);
+                        movingState->pathRequested = true;
+                    }
 
-                            if (unit.arrivedSound)
+                    // if a path is available, attempt to follow it
+                    auto& pathToFollow = movingState->path;
+                    if (pathToFollow)
+                    {
+                        const auto& destination = *pathToFollow->currentWaypoint;
+                        Vector2f xzPosition(unit.position.x, unit.position.z);
+                        Vector2f xzDestination(destination.x, destination.z);
+                        auto distanceSquared = xzPosition.distanceSquared(xzDestination);
+
+                        auto isFinalDestination = pathToFollow->currentWaypoint == (pathToFollow->path.waypoints.end() - 1);
+
+                        if (distanceSquared < (8.0f * 8.0f))
+                        {
+                            if (isFinalDestination)
                             {
-                                scene->playSoundOnSelectChannel(*unit.arrivedSound);
+                                // order complete
+                                unit.orders.pop_front();
+                                unit.behaviourState = IdleState();
+
+                                if (unit.arrivedSound)
+                                {
+                                    scene->playSoundOnSelectChannel(*unit.arrivedSound);
+                                }
+                            }
+                            else
+                            {
+                                ++pathToFollow->currentWaypoint;
                             }
                         }
                         else
                         {
-                            ++pathToFollow->currentWaypoint;
-                        }
-                    }
-                    else
-                    {
-                        // steer towards the goal
-                        auto xzDirection = xzDestination - xzPosition;
-                        auto destAngle = Vector2f(0.0f, -1.0f).angleTo(xzDirection);
-                        targetAngle = (2.0f * Pif) - destAngle; // convert to anticlockwise in our coordinate system
+                            // steer towards the goal
+                            auto xzDirection = xzDestination - xzPosition;
+                            auto destAngle = Vector2f(0.0f, -1.0f).angleTo(xzDirection);
+                            targetAngle = (2.0f * Pif) - destAngle; // convert to anticlockwise in our coordinate system
 
-                        // drive at full speed until we need to brake
-                        // to turn or to arrive at the goal
-                        auto brakingDistance = (unit.currentSpeed * unit.currentSpeed) / (2.0f * unit.brakeRate);
+                            // drive at full speed until we need to brake
+                            // to turn or to arrive at the goal
+                            auto brakingDistance = (unit.currentSpeed * unit.currentSpeed) / (2.0f * unit.brakeRate);
 
-                        if (isWithinTurningCircle(xzDirection, unit.currentSpeed, unit.turnRate, unit.rotation))
-                        {
-                            targetSpeed = 0.0f;
-                        }
-                        else if (isFinalDestination && distanceSquared <= (brakingDistance * brakingDistance))
-                        {
-                            targetSpeed = 0.0f;
-                        }
-                        else
-                        {
-                            targetSpeed = unit.maxSpeed;
+                            if (isWithinTurningCircle(xzDirection, unit.currentSpeed, unit.turnRate, unit.rotation))
+                            {
+                                targetSpeed = 0.0f;
+                            }
+                            else if (isFinalDestination && distanceSquared <= (brakingDistance * brakingDistance))
+                            {
+                                targetSpeed = 0.0f;
+                            }
+                            else
+                            {
+                                targetSpeed = unit.maxSpeed;
+                            }
                         }
                     }
                 }
@@ -193,6 +203,8 @@ namespace rwe
 
         auto direction = Matrix4f::rotationY(unit.rotation) * Vector3f(0.0f, 0.0f, -1.0f);
 
+        unit.inCollision = false;
+
         if (unit.currentSpeed > 0.0f)
         {
             auto newPosition = unit.position + (direction * unit.currentSpeed);
@@ -200,6 +212,8 @@ namespace rwe
 
             if (!tryApplyMovementToPosition(unitId, newPosition))
             {
+                unit.inCollision = true;
+
                 // if we failed to move, try in each axis separately
                 // to see if we can complete a "partial" movement
                 const Vector3f maskX(0.0f, 1.0f, 1.0f);
