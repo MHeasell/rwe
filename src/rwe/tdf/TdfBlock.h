@@ -75,7 +75,7 @@ namespace rwe
         }
 
         template <typename T>
-        void readOrDefault(const std::string& key, T& out, T defaultValue = T()) const
+        void readOrDefault(const std::string& key, T& out, const T& defaultValue = T()) const
         {
             out = extract<T>(key).get_value_or(defaultValue);
         }
