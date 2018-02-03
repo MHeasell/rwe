@@ -164,5 +164,39 @@ namespace rwe
             auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
             REQUIRE(result == expected);
         }
+
+
+        SECTION("gives precedence to the last instance of a property")
+        {
+            std::string input = R"TDF(
+[COMMON]
+		{
+		id=0;
+		assoc=0;
+		name=Selmap.GUI;
+		xpos=84;
+		ypos=12;
+		width=494;  // width and height specified twice!
+		height=420;
+		width=640;  // this one is correct
+		height=480;
+        }
+            )TDF";
+
+            // clang-format off
+            auto expected = makeTdfBlock({{"COMMON", makeTdfBlock({
+                {"id", "0"},
+                {"assoc", "0"},
+                {"name", "Selmap.GUI"},
+                {"xpos", "84"},
+                {"ypos", "12"},
+                {"width", "640"},
+                {"height", "480"}
+            })}});
+            // clang-format on
+
+            auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
+            REQUIRE(result == expected);
+        }
     }
 }
