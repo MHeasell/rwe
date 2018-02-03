@@ -3,12 +3,12 @@
 
 #include <boost/optional.hpp>
 #include <boost/variant.hpp>
-#include <memory>
-#include <string>
-#include <vector>
-#include <unordered_map>
 #include <initializer_list>
+#include <memory>
 #include <rwe/rwe_string.h>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 namespace rwe
 {
