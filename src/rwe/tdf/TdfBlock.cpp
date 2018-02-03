@@ -4,6 +4,67 @@
 
 namespace rwe
 {
+    template<>
+    boost::optional<int> tdfTryParse<int>(const std::string& value)
+    {
+        try
+        {
+            return std::stoi(value);
+        }
+        catch (const std::invalid_argument& e)
+        {
+            return boost::none;
+        }
+    }
+
+    template<>
+    boost::optional<unsigned int> tdfTryParse<unsigned int>(const std::string& value)
+    {
+        try
+        {
+            return std::stoul(value);
+        }
+        catch (const std::invalid_argument& e)
+        {
+            return boost::none;
+        }
+    }
+
+    template<>
+    boost::optional<float> tdfTryParse<float>(const std::string& value)
+    {
+        try
+        {
+            return std::stof(value);
+        }
+        catch (const std::invalid_argument& e)
+        {
+            return boost::none;
+        }
+    }
+
+    template<>
+    boost::optional<bool> tdfTryParse<bool>(const std::string& value)
+    {
+        int i;
+        try
+        {
+            i = std::stoi(value);
+        }
+        catch (const std::invalid_argument& e)
+        {
+            return boost::none;
+        }
+
+        return i != 0;
+    }
+
+    template<>
+    boost::optional<std::string> tdfTryParse<std::string>(const std::string& value)
+    {
+        return value;
+    }
+
     class EqualityVisitor : public boost::static_visitor<bool>
     {
     private:
@@ -161,136 +222,46 @@ namespace rwe
 
     boost::optional<int> TdfBlock::extractInt(const std::string& key) const
     {
-        auto value = findValue(key);
-        if (!value)
-        {
-            return boost::none;
-        }
-
-        // convert the value to an integer
-        try
-        {
-            return std::stoi(*value);
-        }
-        catch (const std::invalid_argument& e)
-        {
-            return boost::none;
-        }
+        return extract<int>(key);
     }
-
 
     boost::optional<unsigned int> TdfBlock::extractUint(const std::string& key) const
     {
-        auto value = findValue(key);
-        if (!value)
-        {
-            return boost::none;
-        }
-
-        // convert the value to an integer
-        try
-        {
-            return std::stoul(*value);
-        }
-        catch (const std::invalid_argument& e)
-        {
-            return boost::none;
-        }
+        return extract<unsigned int>(key);
     }
 
     boost::optional<float> TdfBlock::extractFloat(const std::string& key) const
     {
-        auto value = findValue(key);
-        if (!value)
-        {
-            return boost::none;
-        }
-
-        // convert the value to an integer
-        try
-        {
-            return std::stof(*value);
-        }
-        catch (const std::invalid_argument& e)
-        {
-            return boost::none;
-        }
+        return extract<float>(key);
     }
 
-    const std::string& TdfBlock::expectString(const std::string& key) const
+    std::string TdfBlock::expectString(const std::string& key) const
     {
-        auto v = findValue(key);
-        if (!v)
-        {
-            throw TdfValueException("Failed to read string from key: " + key);
-        }
-
-        return *v;
+        return expect<std::string>(key);
     }
 
     int TdfBlock::expectInt(const std::string& key) const
     {
-        auto v = extractInt(key);
-        if (!v)
-        {
-            throw TdfValueException("Failed to read int from key: " + key);
-        }
-
-        return *v;
+        return expect<int>(key);
     }
 
     float TdfBlock::expectFloat(const std::string& key) const
     {
-        auto v = extractFloat(key);
-        if (!v)
-        {
-            throw TdfValueException("Failed to read float from key: " + key);
-        }
-
-        return *v;
+        return expect<float>(key);
     }
 
     boost::optional<bool> TdfBlock::extractBool(const std::string& key) const
     {
-        auto value = findValue(key);
-        if (!value)
-        {
-            return boost::none;
-        }
-
-        // convert the value to an integer
-        int i;
-        try
-        {
-            i = std::stoi(*value);
-        }
-        catch (const std::invalid_argument& e)
-        {
-            return boost::none;
-        }
-
-        return i != 0;
+        return extract<bool>(key);
     }
 
     bool TdfBlock::expectBool(const std::string& key) const
     {
-        auto v = extractBool(key);
-        if (!v)
-        {
-            throw TdfValueException("Failed to read bool from key: " + key);
-        }
-
-        return *v;
+        return expect<bool>(key);
     }
 
     unsigned int TdfBlock::expectUint(const std::string& key) const
     {
-        auto v = extractUint(key);
-        if (!v)
-        {
-            throw TdfValueException("Failed to read uint from key: " + key);
-        }
-
-        return *v;
+        return expect<unsigned int>(key);
     }
 }

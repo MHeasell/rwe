@@ -9,6 +9,24 @@
 
 namespace rwe
 {
+    template <typename T>
+    boost::optional<T> tdfTryParse(const std::string& value);
+
+    template <>
+    boost::optional<int> tdfTryParse<int>(const std::string& value);
+
+    template <>
+    boost::optional<unsigned int> tdfTryParse<unsigned int>(const std::string& value);
+
+    template <>
+    boost::optional<float> tdfTryParse<float>(const std::string& value);
+
+    template <>
+    boost::optional<std::string> tdfTryParse<std::string>(const std::string& value);
+
+    template <>
+    boost::optional<bool> tdfTryParse<bool>(const std::string& value);
+
     class TdfValueException : public std::runtime_error
     {
     public:
@@ -32,7 +50,7 @@ namespace rwe
 
         bool operator!=(const TdfBlock& rhs) const;
 
-        const std::string& expectString(const std::string& key) const;
+        std::string expectString(const std::string& key) const;
 
         boost::optional<int> extractInt(const std::string& key) const;
 
@@ -49,6 +67,42 @@ namespace rwe
         bool expectBool(const std::string& key) const;
 
         float expectFloat(const std::string& key) const;
+
+        template <typename T>
+        void read(const std::string& key, T& out) const
+        {
+            out = expect<T>(key);
+        }
+
+        template <typename T>
+        void readOrDefault(const std::string& key, T& out, T defaultValue = T()) const
+        {
+            out = extract<T>(key).get_value_or(defaultValue);
+        }
+
+        template <typename T>
+        boost::optional<T> extract(const std::string& key) const
+        {
+            auto value = findValue(key);
+            if (!value)
+            {
+                return boost::none;
+            }
+
+            return tdfTryParse<T>(*value);
+        }
+
+        template <typename T>
+        T expect(const std::string& key) const
+        {
+            auto v = extract<T>(key);
+            if (!v)
+            {
+                throw TdfValueException("Failed to read from key: " + key);
+            }
+
+            return *v;
+        }
     };
     using TdfPropertyValue = boost::variant<TdfBlock, std::string>;
     struct TdfBlockEntry
