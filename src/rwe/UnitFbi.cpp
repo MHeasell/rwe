@@ -17,25 +17,24 @@ namespace rwe
     {
         UnitFbi u;
 
-        u.unitName = tdf.expectString("UnitName");
-        u.objectName = tdf.expectString("Objectname");
-        u.soundCategory = tdf.expectString("SoundCategory");
+        tdf.read("UnitName", u.unitName);
+        tdf.read("Objectname", u.objectName);
+        tdf.read("SoundCategory", u.soundCategory);
 
-        const std::string emptyString;
-        u.movementClass = tdf.findValue("MovementClass").get_value_or(emptyString);
+        tdf.readOrDefault("MovementClass", u.movementClass);
 
-        u.turnRate = tdf.extractFloat("TurnRate").get_value_or(0.0f);
-        u.maxVelocity = tdf.extractFloat("MaxVelocity").get_value_or(0.0f);
-        u.acceleration = tdf.extractFloat("Acceleration").get_value_or(0.0f);
-        u.brakeRate = tdf.extractFloat("BrakeRate").get_value_or(0.0f);
+        tdf.readOrDefault("TurnRate", u.turnRate);
+        tdf.readOrDefault("MaxVelocity", u.maxVelocity);
+        tdf.readOrDefault("Acceleration", u.acceleration);
+        tdf.readOrDefault("BrakeRate", u.brakeRate);
 
-        u.footprintX = tdf.extractUint("FootprintX").get_value_or(0);
-        u.footprintZ = tdf.extractUint("FootprintZ").get_value_or(0);
+        tdf.readOrDefault("FootprintX", u.footprintX);
+        tdf.readOrDefault("FootprintZ", u.footprintZ);
 
-        u.maxSlope = tdf.extractUint("MaxSlope").get_value_or(0);
-        u.maxWaterSlope = tdf.extractUint("MaxWaterSlope").get_value_or(u.maxSlope);
-        u.minWaterDepth = tdf.extractUint("MinWaterDepth").get_value_or(0);
-        u.maxWaterDepth = tdf.extractUint("MaxWaterDepth").get_value_or(0);
+        tdf.readOrDefault("MaxSlope", u.maxSlope);
+        tdf.readOrDefault("MaxWaterSlope", u.maxWaterSlope, u.maxSlope);
+        tdf.readOrDefault("MinWaterDepth", u.minWaterDepth);
+        tdf.readOrDefault("MaxWaterDepth", u.maxWaterDepth);
 
         return u;
     }
