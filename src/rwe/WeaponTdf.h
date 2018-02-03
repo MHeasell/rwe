@@ -1,6 +1,7 @@
 #ifndef RWE_WEAPONTDF_H
 #define RWE_WEAPONTDF_H
 
+#include <rwe/tdf/TdfBlock.h>
 #include <string>
 #include <vector>
 
@@ -114,6 +115,12 @@ namespace rwe
 
         std::string weaponType2;
     };
+
+    std::vector<std::pair<std::string, unsigned int>> parseWeaponDamageBlock(const TdfBlock& block);
+
+    WeaponTdf parseWeaponBlock(const TdfBlock& tdf);
+
+    std::vector<std::pair<std::string, WeaponTdf>> parseWeaponTdf(const TdfBlock& tdf);
 }
 
 #endif
