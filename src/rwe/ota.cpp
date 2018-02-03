@@ -25,32 +25,30 @@ namespace rwe
 
     OtaRecord parseOtaGlobalHeader(const TdfBlock& tdf)
     {
-        std::string emptyString;
-
         OtaRecord r;
 
-        r.missionName = tdf.expectString("missionname");
+        tdf.read("missionname", r.missionName);
 
-        r.missionDescription = tdf.findValue("missiondescription").get_value_or(emptyString);
-        r.planet = tdf.findValue("planet").get_value_or(emptyString);
-        r.missionHint = tdf.findValue("missionhint").get_value_or(emptyString);
-        r.brief = tdf.findValue("brief").get_value_or(emptyString);
-        r.narration = tdf.findValue("narration").get_value_or(emptyString);
-        r.glamour = tdf.findValue("glamour").get_value_or(emptyString);
-        r.lineOfSight = tdf.extractInt("lineofsight").get_value_or(0);
-        r.mapping = tdf.extractInt("mapping").get_value_or(0);
-        r.tidalStrength = tdf.extractInt("tidalstrength").get_value_or(0);
-        r.solarStrength = tdf.extractInt("solarstrength").get_value_or(0);
-        r.lavaWorld = tdf.extractBool("lavaworld").get_value_or(false);
-        r.killMul = tdf.extractInt("killmul").get_value_or(50);
-        r.timeMul = tdf.extractInt("timemul").get_value_or(0);
-        r.minWindSpeed = tdf.extractInt("minwindspeed").get_value_or(0);
-        r.maxWindSpeed = tdf.extractInt("maxwindspeed").get_value_or(0);
-        r.gravity = tdf.extractInt("gravity").get_value_or(112);
-        r.numPlayers = tdf.findValue("numplayers").get_value_or(emptyString);
-        r.size = tdf.findValue("size").get_value_or(emptyString);
-        r.memory = tdf.findValue("memory").get_value_or(emptyString);
-        r.useOnlyUnits = tdf.findValue("useonlyunits").get_value_or(emptyString);
+        tdf.readOrDefault("missiondescription", r.missionDescription);
+        tdf.readOrDefault("planet", r.planet);
+        tdf.readOrDefault("missionhint", r.missionHint);
+        tdf.readOrDefault("brief", r.brief);
+        tdf.readOrDefault("narration", r.narration);
+        tdf.readOrDefault("glamour", r.glamour);
+        tdf.readOrDefault("lineofsight", r.lineOfSight);
+        tdf.readOrDefault("mapping", r.mapping);
+        tdf.readOrDefault("tidalstrength", r.tidalStrength);
+        tdf.readOrDefault("solarstrength", r.solarStrength);
+        tdf.readOrDefault("lavaworld", r.lavaWorld);
+        tdf.readOrDefault("killmul", r.killMul, 50);
+        tdf.readOrDefault("timemul", r.timeMul);
+        tdf.readOrDefault("minwindspeed", r.minWindSpeed);
+        tdf.readOrDefault("maxwindspeed", r.maxWindSpeed);
+        tdf.readOrDefault("gravity", r.gravity, 112);
+        tdf.readOrDefault("numplayers", r.numPlayers);
+        tdf.readOrDefault("size", r.size);
+        tdf.readOrDefault("memory", r.memory);
+        tdf.readOrDefault("useonlyunits", r.useOnlyUnits);
 
         r.schemaCount = tdf.expectInt("SCHEMACOUNT");
 
@@ -71,23 +69,20 @@ namespace rwe
 
     OtaSchema parseOtaSchema(const TdfBlock& tdf)
     {
-        std::string emptyString;
-        std::string defaultAiProfile("DEFAULT");
-
         OtaSchema s;
-        s.type = tdf.expectString("Type");
-        s.aiProfile = tdf.findValue("aiprofile").get_value_or(defaultAiProfile);
-        s.surfaceMetal = tdf.extractInt("SurfaceMetal").get_value_or(3);
-        s.mohoMetal = tdf.extractInt("MohoMetal").get_value_or(30);
-        s.humanMetal = tdf.extractInt("HumanMetal").get_value_or(1000);
-        s.computerMetal = tdf.extractInt("ComputerMetal").get_value_or(1000);
-        s.humanEnergy = tdf.extractInt("HumanEnergy").get_value_or(1000);
-        s.computerEnergy = tdf.extractInt("ComputerEnergy").get_value_or(1000);
-        s.meteorWeapon = tdf.findValue("MeteorWeapon").get_value_or(emptyString);
-        s.meteorRadius = tdf.extractInt("MeteorRadius").get_value_or(0);
-        s.meteorDensity = tdf.extractFloat("MeteorDensity").get_value_or(0.0f);
-        s.meteorDuration = tdf.extractInt("MeteorDuration").get_value_or(0);
-        s.meteorInterval = tdf.extractInt("MeteorInterval").get_value_or(0);
+        tdf.read("Type", s.type);
+        tdf.readOrDefault("aiprofile", s.aiProfile, std::string("DEFAULT"));
+        tdf.readOrDefault("SurfaceMetal", s.surfaceMetal, 3);
+        tdf.readOrDefault("MohoMetal", s.mohoMetal, 30);
+        tdf.readOrDefault("HumanMetal", s.humanMetal, 1000);
+        tdf.readOrDefault("ComputerMetal", s.computerMetal, 1000);
+        tdf.readOrDefault("HumanEnergy", s.humanEnergy, 1000);
+        tdf.readOrDefault("ComputerEnergy", s.computerEnergy, 1000);
+        tdf.readOrDefault("MeteorWeapon", s.meteorWeapon);
+        tdf.readOrDefault("MeteorRadius", s.meteorRadius);
+        tdf.readOrDefault("MeteorDensity", s.meteorDensity);
+        tdf.readOrDefault("MeteorDuration", s.meteorDuration);
+        tdf.readOrDefault("MeteorInterval", s.meteorInterval);
 
         auto featuresBlock = tdf.findBlock("features");
         if (featuresBlock)
@@ -121,18 +116,18 @@ namespace rwe
     OtaFeature parseOtaFeature(const TdfBlock& tdf)
     {
         OtaFeature f;
-        f.featureName = tdf.expectString("Featurename");
-        f.xPos = tdf.expectInt("XPos");
-        f.zPos = tdf.expectInt("ZPos");
+        tdf.read("Featurename", f.featureName);
+        tdf.read("XPos", f.xPos);
+        tdf.read("ZPos", f.zPos);
         return f;
     }
 
     OtaSpecial parseOtaSpecial(const TdfBlock& tdf)
     {
         OtaSpecial s;
-        s.specialWhat = tdf.expectString("specialwhat");
-        s.xPos = tdf.expectInt("XPos");
-        s.zPos = tdf.expectInt("ZPos");
+        tdf.read("specialwhat", s.specialWhat);
+        tdf.read("XPos", s.xPos);
+        tdf.read("ZPos", s.zPos);
         return s;
     }
 }
