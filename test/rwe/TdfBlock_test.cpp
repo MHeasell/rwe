@@ -4,27 +4,23 @@
 
 namespace rwe
 {
-    std::ostream& operator<<(std::ostream& os, const TdfBlock& b)
-    {
-        os << "<block with " << b.entries.size() << " entries>";
-        return os;
-    }
+    std::ostream& operator<<(std::ostream& os, const TdfBlock& b);
 
     TEST_CASE("TdfBlock")
     {
         TdfBlock inner;
-        inner.entries.push_back(TdfBlockEntry("asdf", "qwer"));
+        inner.insertOrAssignProperty("asdf", "qwer");
 
         TdfBlock dupe;
-        dupe.entries.push_back(TdfBlockEntry("x", "2"));
+        dupe.insertOrAssignProperty("x", "2");
 
         TdfBlock b;
-        b.entries.push_back(TdfBlockEntry("foo", "bar"));
-        b.entries.push_back(TdfBlockEntry("alice", "bob"));
-        b.entries.push_back(TdfBlockEntry("whiskey", inner));
-        b.entries.push_back(TdfBlockEntry("dupe", "1"));
+        b.insertOrAssignProperty("foo", "bar");
+        b.insertOrAssignProperty("alice", "bob");
+        b.insertOrAssignBlock("whiskey", inner);
+        b.insertOrAssignProperty("dupe", "1");
 
-        b.entries.push_back(TdfBlockEntry("DUPE", dupe));
+        b.insertOrAssignBlock("DUPE", dupe);
 
         SECTION("findValue")
         {

@@ -24,12 +24,11 @@ namespace rwe
     std::vector<std::pair<std::string, SoundClass>> parseSoundTdf(const TdfBlock& root)
     {
         std::vector<std::pair<std::string, SoundClass>> vec;
-        vec.reserve(root.entries.size());
+        vec.reserve(root.blocks.size());
 
-        for (const auto& e : root.entries)
+        for (const auto& e : root.blocks)
         {
-            const auto& block = boost::get<TdfBlock>(*(e.value));
-            vec.emplace_back(e.name, parseSoundClass(block));
+            vec.emplace_back(e.first, parseSoundClass(*e.second));
         }
 
         return vec;

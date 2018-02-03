@@ -110,16 +110,20 @@ namespace rwe
     {
         std::vector<GuiEntry> entries;
 
-        for (auto& entry : tdf.entries)
+        int i = 0;
+        auto block = tdf.findBlock("GADGET" + std::to_string(i));
+        while (block)
         {
-            auto block = boost::get<TdfBlock&>(*(entry.value));
-            auto guiEntry = parseGuiEntry(block);
+            auto guiEntry = parseGuiEntry(*block);
             if (!guiEntry)
             {
                 return boost::none;
             }
 
             entries.push_back(*guiEntry);
+
+            i += 1;
+            block = tdf.findBlock("GADGET" + std::to_string(i));
         }
 
         return entries;

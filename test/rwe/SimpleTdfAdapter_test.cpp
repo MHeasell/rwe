@@ -3,9 +3,9 @@
 
 #include <utf8.h>
 
+#include <algorithm>
 #include <ostream>
 #include <vector>
-#include <algorithm>
 
 namespace rwe
 {
@@ -24,13 +24,7 @@ namespace rwe
 }
 )TDF";
 
-            TdfBlock expected({
-                TdfBlockEntry("Foo", std::vector<TdfBlockEntry> {
-                    TdfBlockEntry("Bar", "1"),
-                    TdfBlockEntry("Baz", "2"),
-                    TdfBlockEntry("Alice", "Bob")
-                })
-            });
+            auto expected = makeTdfBlock({{"Foo", makeTdfBlock({{"Bar", "1"}, {"Baz", "2"}, {"Alice", "Bob"}})}});
 
             auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
 
@@ -48,13 +42,7 @@ namespace rwe
 }
 )TDF";
 
-            TdfBlock expected({
-                TdfBlockEntry("Foo", std::vector<TdfBlockEntry> {
-                    TdfBlockEntry("Bar", "1"),
-                    TdfBlockEntry("Baz", "2"),
-                    TdfBlockEntry("Alice", "Bob")
-                })
-            });
+            auto expected = makeTdfBlock({{"Foo", makeTdfBlock({{"Bar", "1"}, {"Baz", "2"}, {"Alice", "Bob"}})}});
 
             auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
 
@@ -74,13 +62,7 @@ namespace rwe
 }
 )TDF";
 
-            TdfBlock expected({
-                TdfBlockEntry("Foo", std::vector<TdfBlockEntry> {
-                    TdfBlockEntry("Bar", "1"),
-                    TdfBlockEntry("Baz", "2"),
-                    TdfBlockEntry("Alice", "Bob")
-                })
-            });
+            auto expected = makeTdfBlock({{"Foo", makeTdfBlock({{"Bar", "1"}, {"Baz", "2"}, {"Alice", "Bob"}})}});
 
             auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
 
@@ -104,13 +86,7 @@ namespace rwe
     }
     )TDF";
 
-            TdfBlock expected({
-                TdfBlockEntry("Foo", std::vector<TdfBlockEntry> {
-                    TdfBlockEntry("Bar", "1"),
-                    TdfBlockEntry("Baz", "2"),
-                    TdfBlockEntry("Alice", "Bob")
-                })
-            });
+            auto expected = makeTdfBlock({{"Foo", makeTdfBlock({{"Bar", "1"}, {"Baz", "2"}, {"Alice", "Bob"}})}});
 
             auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
 
@@ -128,13 +104,7 @@ namespace rwe
     }
     )TDF";
 
-            TdfBlock expected({
-                TdfBlockEntry("Foo", std::vector<TdfBlockEntry> {
-                    TdfBlockEntry("Bar", "1"),
-                    TdfBlockEntry("Baz", "2"),
-                    TdfBlockEntry("Alice", "Bob")
-                })
-            });
+            auto expected = makeTdfBlock({{"Foo", makeTdfBlock({{"Bar", "1"}, {"Baz", "2"}, {"Alice", "Bob"}})}});
 
             auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
 
@@ -152,13 +122,7 @@ namespace rwe
     }
     )TDF";
 
-            TdfBlock expected({
-                TdfBlockEntry("Foo Bar Baz", std::vector<TdfBlockEntry> {
-                    TdfBlockEntry("Item One", "The First Item"),
-                    TdfBlockEntry("Item Two", "123  456"),
-                    TdfBlockEntry("Item The Third", "Three ee eeee")
-                })
-            });
+            auto expected = makeTdfBlock({{"Foo Bar Baz", makeTdfBlock({{"Item One", "The First Item"}, {"Item Two", "123  456"}, {"Item The Third", "Three ee eeee"}})}});
 
             auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
 
@@ -175,11 +139,7 @@ namespace rwe
     }
     )TDF";
 
-            TdfBlock expected({
-                TdfBlockEntry("Foo", std::vector<TdfBlockEntry>{
-                    TdfBlockEntry("help", "")
-                })
-            });
+            auto expected = makeTdfBlock({{"Foo", makeTdfBlock({{"help", ""}})}});
 
             auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
             REQUIRE(result == expected);
@@ -199,11 +159,7 @@ namespace rwe
     }
     )TDF";
 
-            TdfBlock expected({
-                TdfBlockEntry("Foo", std::vector<TdfBlockEntry>{
-                    TdfBlockEntry("The\n        Thing", "Great")
-                })
-            });
+            auto expected = makeTdfBlock({{"Foo", makeTdfBlock({{"The\n        Thing", "Great"}})}});
 
             auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
             REQUIRE(result == expected);

@@ -19,12 +19,11 @@ namespace rwe
     std::vector<std::pair<std::string, MovementClass>> parseMovementTdf(const TdfBlock& root)
     {
         std::vector<std::pair<std::string, MovementClass>> vec;
-        vec.reserve(root.entries.size());
+        vec.reserve(root.blocks.size());
 
-        for (const auto& e : root.entries)
+        for (const auto& e : root.blocks)
         {
-            const auto& block = boost::get<TdfBlock>(*(e.value));
-            vec.emplace_back(e.name, parseMovementClass(block));
+            vec.emplace_back(e.first, parseMovementClass(*e.second));
         }
 
         return vec;

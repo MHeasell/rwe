@@ -29,8 +29,6 @@ namespace rwe
 
         Result onDone() override;
     };
-
-    std::ostream& operator<<(std::ostream& os, const TdfBlockEntry& entry);
 }
 
 #endif

@@ -4,21 +4,22 @@ namespace rwe
 {
     void SimpleTdfAdapter::onStart()
     {
-        root.entries.clear();
+        root.properties.clear();
+        root.blocks.clear();
         blockStack.clear();
         blockStack.push_back(&root);
     }
 
     void SimpleTdfAdapter::onProperty(const std::string& name, const std::string& value)
     {
-        blockStack.back()->entries.emplace_back(name, value);
+        blockStack.back()->insertOrAssignProperty(name, value);
     }
 
     void SimpleTdfAdapter::onStartBlock(const std::string& name)
     {
         auto top = blockStack.back();
-        auto& blockEntry = top->entries.emplace_back(name);
-        blockStack.push_back(&boost::get<TdfBlock>(*(blockEntry.value)));
+        auto& block = top->createBlock(name);
+        blockStack.push_back(&block);
     }
 
     void SimpleTdfAdapter::onEndBlock()

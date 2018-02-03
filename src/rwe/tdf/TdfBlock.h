@@ -6,6 +6,9 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <unordered_map>
+#include <initializer_list>
+#include <rwe/rwe_string.h>
 
 namespace rwe
 {
@@ -34,14 +37,38 @@ namespace rwe
         explicit TdfValueException(const std::string& message);
     };
 
-    struct TdfBlockEntry;
+    struct TdfPropertyValue;
+
+    struct CaseInsensitiveHash
+    {
+        std::hash<std::string> hash;
+
+        std::size_t operator()(const std::string& key) const
+        {
+            return hash(toUpper(key));
+        }
+    };
+
+    struct CaseInsensitiveEquals
+    {
+        bool operator()(const std::string& a, const std::string& b) const
+        {
+            return toUpper(a) == toUpper(b);
+        }
+    };
+
     struct TdfBlock
     {
-        std::vector<TdfBlockEntry> entries;
+        using PropertyMap = std::unordered_map<std::string, std::string, CaseInsensitiveHash, CaseInsensitiveEquals>;
+        using BlockMap = std::unordered_map<std::string, std::unique_ptr<TdfBlock>, CaseInsensitiveHash, CaseInsensitiveEquals>;
+
+        PropertyMap properties;
+        BlockMap blocks;
 
         TdfBlock() = default;
-
-        explicit TdfBlock(std::vector<TdfBlockEntry>&& entries);
+        explicit TdfBlock(PropertyMap&& entries);
+        TdfBlock(const TdfBlock& other);
+        TdfBlock& operator=(const TdfBlock& other);
 
         boost::optional<const TdfBlock&> findBlock(const std::string& name) const;
         boost::optional<const std::string&> findValue(const std::string& name) const;
@@ -49,6 +76,10 @@ namespace rwe
         bool operator==(const TdfBlock& rhs) const;
 
         bool operator!=(const TdfBlock& rhs) const;
+
+        void insertOrAssignProperty(const std::string& name, const std::string& value);
+        TdfBlock& insertOrAssignBlock(const std::string& name, const TdfBlock& block);
+        TdfBlock& createBlock(const std::string& name);
 
         std::string expectString(const std::string& key) const;
 
@@ -104,23 +135,30 @@ namespace rwe
             return *v;
         }
     };
-    using TdfPropertyValue = boost::variant<TdfBlock, std::string>;
-    struct TdfBlockEntry
+
+    struct TdfPropertyValue
     {
-        std::string name;
-        std::unique_ptr<TdfPropertyValue> value;
+        using ValueType = boost::variant<TdfBlock, std::string>;
+        ValueType value;
 
-        TdfBlockEntry(std::string name, const std::string& value);
-        TdfBlockEntry(std::string name, TdfBlock block);
-        TdfBlockEntry(std::string name, std::vector<TdfBlockEntry> entries);
-        explicit TdfBlockEntry(std::string name);
+        TdfPropertyValue(const std::string& s) : value(s) {}
+        TdfPropertyValue(std::string&& s) : value(std::move(s)) {}
 
-        TdfBlockEntry(const TdfBlockEntry& other);
+        TdfPropertyValue(const TdfBlock& s) : value(s) {}
+        TdfPropertyValue(TdfBlock&& s) : value(std::move(s)) {}
 
-        bool operator==(const TdfBlockEntry& rhs) const;
+        TdfPropertyValue(const ValueType& s) : value(std::move(s)) {}
+        TdfPropertyValue(ValueType&& s) : value(std::move(s)) {}
 
-        bool operator!=(const TdfBlockEntry& rhs) const;
+        bool operator==(const TdfPropertyValue& rhs) const;
+
+        bool operator!=(const TdfPropertyValue& rhs) const
+        {
+            return !(rhs == *this);
+        }
     };
+
+    TdfBlock makeTdfBlock(std::vector<std::pair<std::string, TdfPropertyValue::ValueType>> list);
 }
 
 #endif

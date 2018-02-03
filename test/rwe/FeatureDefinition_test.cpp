@@ -1,9 +1,16 @@
+#include <boost/optional/optional_io.hpp>
 #include <catch.hpp>
 #include <rwe/FeatureDefinition.h>
 #include <rwe/tdf.h>
 
 namespace rwe
 {
+    std::ostream& operator<<(std::ostream& os, const TdfBlock& b)
+    {
+        os << "<block with " << b.properties.size() << " properties and " << b.blocks.size() << "sub-blocks>";
+        return os;
+    }
+
     TEST_CASE("FeatureDefinition")
     {
         SECTION("fromTdf")
@@ -49,10 +56,11 @@ namespace rwe
 )TDF";
 
             auto tdfRoot = parseTdfFromString(input);
-            REQUIRE(tdfRoot.entries.size() == 1);
-            REQUIRE(tdfRoot.entries[0].name == "Tree1");
-            auto block = boost::get<TdfBlock>(tdfRoot.entries[0].value.get());
-            REQUIRE(block != nullptr);
+            REQUIRE(tdfRoot.blocks.size() == 1);
+            REQUIRE(tdfRoot.properties.size() == 0);
+
+            auto block = tdfRoot.findBlock("Tree1");
+            REQUIRE(block);
             auto f = FeatureDefinition::fromTdf(*block);
 
             REQUIRE(f.world == "greenworld");

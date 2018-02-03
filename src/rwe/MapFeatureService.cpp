@@ -18,14 +18,10 @@ namespace rwe
             std::string tdfString(bytes->data(), bytes->size());
 
             auto tdfRoot = parseTdfFromString(tdfString);
-            for (const auto& e : tdfRoot.entries)
+            for (const auto& e : tdfRoot.blocks)
             {
-                auto block = boost::get<TdfBlock>(e.value.get());
-                if (block != nullptr)
-                {
-                    auto featureDefinition = FeatureDefinition::fromTdf(*block);
-                    features.insert_or_assign(e.name, std::move(featureDefinition));
-                }
+                auto featureDefinition = FeatureDefinition::fromTdf(*e.second);
+                features.insert_or_assign(e.first, std::move(featureDefinition));
             }
         }
     }

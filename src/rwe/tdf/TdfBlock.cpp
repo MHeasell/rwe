@@ -68,10 +68,10 @@ namespace rwe
     class EqualityVisitor : public boost::static_visitor<bool>
     {
     private:
-        const TdfPropertyValue* other;
+        const TdfPropertyValue::ValueType* other;
 
     public:
-        explicit EqualityVisitor(const TdfPropertyValue* other) : other(other) {}
+        explicit EqualityVisitor(const TdfPropertyValue::ValueType* other) : other(other) {}
         bool operator()(const std::string& s) const
         {
             auto rhs = boost::get<std::string>(other);
@@ -103,66 +103,33 @@ namespace rwe
     {
     }
 
-    TdfBlockEntry::TdfBlockEntry(std::string name, const std::string& value) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(value)) {}
-
-    TdfBlockEntry::TdfBlockEntry(std::string name, TdfBlock block) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(std::move(block))) {}
-
-    TdfBlockEntry::TdfBlockEntry(std::string name) : name(std::move(name)), value(std::make_unique<TdfPropertyValue>(TdfBlock())) {}
-
-    TdfBlockEntry::TdfBlockEntry(const TdfBlockEntry& other) : name(other.name), value(std::make_unique<TdfPropertyValue>(*other.value))
+    bool TdfBlock::operator==(const TdfBlock& rhs) const
     {
-    }
-
-    bool TdfBlockEntry::operator==(const TdfBlockEntry& rhs) const
-    {
-        if (name != rhs.name)
+        if (properties != rhs.properties)
         {
             return false;
         }
 
-        return boost::apply_visitor(EqualityVisitor(rhs.value.get()), *value);
-    }
-
-    bool TdfBlockEntry::operator!=(const TdfBlockEntry& rhs) const
-    {
-        return !(rhs == *this);
-    }
-
-    TdfBlockEntry::TdfBlockEntry(std::string name, std::vector<TdfBlockEntry> entries) : TdfBlockEntry(std::move(name), TdfBlock(std::move(entries)))
-    {
-    }
-
-    std::ostream& operator<<(std::ostream& os, const TdfBlockEntry& entry)
-    {
-        auto leaf = boost::get<std::string>(&*entry.value);
-        if (leaf != nullptr)
+        if (blocks.size() != rhs.blocks.size())
         {
-            os << entry.name << " = " << *leaf << ";";
+            return false;
         }
-        else
+
+        for (const auto& kv : blocks)
         {
-            auto block = boost::get<TdfBlock>(&*entry.value);
-            if (block != nullptr)
+            auto it = rhs.blocks.find(kv.first);
+            if (it == rhs.blocks.end())
             {
-                os << "[" << entry.name << "]{ ";
-                for (auto elem : block->entries)
-                {
-                    os << elem << " ";
-                }
-                os << "}";
+                return false;
             }
-            else
+
+            if (*kv.second != *it->second)
             {
-                throw std::logic_error("Value was neither primitive nor block");
+                return false;
             }
         }
 
-        return os;
-    }
-
-    bool TdfBlock::operator==(const TdfBlock& rhs) const
-    {
-        return entries == rhs.entries;
+        return true;
     }
 
     bool TdfBlock::operator!=(const TdfBlock& rhs) const
@@ -172,52 +139,26 @@ namespace rwe
 
     boost::optional<const TdfBlock&> TdfBlock::findBlock(const std::string& name) const
     {
-        auto pos = entries.begin();
-        for (;;)
+        // find the key in the block
+        auto it = blocks.find(name);
+        if (it == blocks.end())
         {
-            // find the key in the block
-            pos = std::find_if(pos, entries.end(), [name](const TdfBlockEntry& e) { return toUpper(e.name) == toUpper(name); });
-            if (pos == entries.end())
-            {
-                return boost::none;
-            }
-
-            // make sure the key contains a block and extract it
-            auto& valuePointer = pos->value;
-            auto ptr = boost::get<TdfBlock>(&*valuePointer);
-            if (ptr == nullptr)
-            {
-                // the key didn't contain a block, keep looking
-                ++pos;
-                continue;
-            }
-
-            return *ptr;
+            return boost::none;
         }
+
+        return *it->second;
     }
 
     boost::optional<const std::string&> TdfBlock::findValue(const std::string& name) const
     {
         // find the key in the block
-        auto pos = std::find_if(entries.begin(), entries.end(), [name](const TdfBlockEntry& e) { return toUpper(e.name) == toUpper(name); });
-        if (pos == entries.end())
+        auto it = properties.find(name);
+        if (it == properties.end())
         {
             return boost::none;
         }
 
-        // make sure the key contains a primitive (not a block) and extract it
-        auto& valuePointer = pos->value;
-        auto ptr = boost::get<std::string>(&*valuePointer);
-        if (ptr == nullptr)
-        {
-            return boost::none;
-        }
-
-        return *ptr;
-    }
-
-    TdfBlock::TdfBlock(std::vector<TdfBlockEntry>&& entries) : entries(std::move(entries))
-    {
+        return it->second;
     }
 
     boost::optional<int> TdfBlock::extractInt(const std::string& key) const
@@ -263,5 +204,78 @@ namespace rwe
     unsigned int TdfBlock::expectUint(const std::string& key) const
     {
         return expect<unsigned int>(key);
+    }
+
+    TdfBlock::BlockMap copyEntries(const TdfBlock::BlockMap& entries)
+    {
+        TdfBlock::BlockMap newEntries;
+        for (const auto& e : entries)
+        {
+            newEntries.insert_or_assign(e.first, std::make_unique<TdfBlock>(*e.second));
+        }
+        return newEntries;
+    }
+
+    TdfBlock::TdfBlock(const TdfBlock& other) : properties(other.properties), blocks(copyEntries(other.blocks))
+    {
+    }
+
+    TdfBlock& TdfBlock::operator=(const TdfBlock& other)
+    {
+        properties = other.properties;
+        blocks = copyEntries(other.blocks);
+        return *this;
+    }
+
+    void TdfBlock::insertOrAssignProperty(const std::string& name, const std::string& value)
+    {
+        properties.insert_or_assign(name, value);
+    }
+
+    TdfBlock& TdfBlock::insertOrAssignBlock(const std::string& name, const TdfBlock& block)
+    {
+        auto pair = blocks.insert_or_assign(name, std::make_unique<TdfBlock>(block));
+        return *pair.first->second;
+    }
+
+    TdfBlock& TdfBlock::createBlock(const std::string& name)
+    {
+        auto pair = blocks.insert_or_assign(name, std::make_unique<TdfBlock>());
+        return *pair.first->second;
+    }
+
+    struct MakeBlockVisitor : public boost::static_visitor<>
+    {
+        TdfBlock* block;
+        const std::string* name;
+
+        MakeBlockVisitor(TdfBlock* block, const std::string* name) : block(block), name(name)
+        {
+        }
+
+        void operator()(const std::string& value) const
+        {
+            block->insertOrAssignProperty(*name, value);
+        }
+
+        void operator()(const TdfBlock& value) const
+        {
+            block->insertOrAssignBlock(*name, value);
+        }
+    };
+
+    TdfBlock makeTdfBlock(std::vector<std::pair<std::string, TdfPropertyValue::ValueType>> list)
+    {
+        TdfBlock block;
+        for (const auto& item : list)
+        {
+            boost::apply_visitor(MakeBlockVisitor(&block, &item.first), item.second);
+        }
+        return block;
+    }
+
+    bool TdfPropertyValue::operator==(const TdfPropertyValue& rhs) const
+    {
+        return boost::apply_visitor(EqualityVisitor(&rhs.value), value);
     }
 }
