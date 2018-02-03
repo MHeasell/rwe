@@ -27,9 +27,26 @@ namespace rwe
             panelEntry.common.width,
             panelEntry.common.height);
 
+
+        // Adjust x and y pos such that the bottom and right edges of the panel
+        // do not go over the edge of the screen.
+        auto rightBound = panelEntry.common.xpos + panelEntry.common.width;
+        int xPos = panelEntry.common.xpos;
+        if (rightBound > 640)
+        {
+            xPos -= rightBound - 640;
+        }
+
+        auto bottomBound = panelEntry.common.ypos + panelEntry.common.height;
+        int yPos = panelEntry.common.ypos;
+        if (bottomBound > 480)
+        {
+            yPos -= bottomBound - 480;
+        }
+
         auto panel = std::make_unique<UiPanel>(
-            panelEntry.common.xpos,
-            panelEntry.common.ypos,
+            xPos,
+            yPos,
             panelEntry.common.width,
             panelEntry.common.height,
             texture);
