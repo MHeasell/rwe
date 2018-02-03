@@ -27,7 +27,6 @@ namespace rwe
     GameTime operator-(GameTime a, GameTimeDelta b);
 
     GameTimeDelta operator-(GameTime a, GameTime b);
-
 }
 
 #endif

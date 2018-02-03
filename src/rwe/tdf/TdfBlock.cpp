@@ -4,7 +4,7 @@
 
 namespace rwe
 {
-    template<>
+    template <>
     boost::optional<int> tdfTryParse<int>(const std::string& value)
     {
         try
@@ -17,7 +17,7 @@ namespace rwe
         }
     }
 
-    template<>
+    template <>
     boost::optional<unsigned int> tdfTryParse<unsigned int>(const std::string& value)
     {
         try
@@ -30,7 +30,7 @@ namespace rwe
         }
     }
 
-    template<>
+    template <>
     boost::optional<float> tdfTryParse<float>(const std::string& value)
     {
         try
@@ -43,7 +43,7 @@ namespace rwe
         }
     }
 
-    template<>
+    template <>
     boost::optional<bool> tdfTryParse<bool>(const std::string& value)
     {
         int i;
@@ -59,7 +59,7 @@ namespace rwe
         return i != 0;
     }
 
-    template<>
+    template <>
     boost::optional<std::string> tdfTryParse<std::string>(const std::string& value)
     {
         return value;
