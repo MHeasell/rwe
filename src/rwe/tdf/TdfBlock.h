@@ -147,7 +147,7 @@ namespace rwe
         TdfPropertyValue(const TdfBlock& s) : value(s) {}
         TdfPropertyValue(TdfBlock&& s) : value(std::move(s)) {}
 
-        TdfPropertyValue(const ValueType& s) : value(std::move(s)) {}
+        TdfPropertyValue(const ValueType& s) : value(s) {}
         TdfPropertyValue(ValueType&& s) : value(std::move(s)) {}
 
         bool operator==(const TdfPropertyValue& rhs) const;
