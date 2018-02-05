@@ -24,11 +24,13 @@
 
 namespace rwe
 {
-    enum class CursorMode
+    struct AttackCursorMode {};
+    struct NormalCursorMode
     {
-        Normal,
-        Attack
+        bool selecting{false};
     };
+
+    using CursorMode = boost::variant<AttackCursorMode, NormalCursorMode>;
 
     class GameScene : public SceneManager::Scene
     {
@@ -79,7 +81,7 @@ namespace rwe
         bool pathfindingVisualisationVisible{false};
         bool movementClassGridVisible{false};
 
-        CursorMode cursorMode{CursorMode::Normal};
+        CursorMode cursorMode{NormalCursorMode()};
 
     public:
         GameScene(

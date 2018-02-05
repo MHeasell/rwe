@@ -119,13 +119,13 @@ namespace rwe
         {
             if (selectedUnit)
             {
-                if (cursorMode == CursorMode::Attack)
+                if (boost::get<AttackCursorMode>(&cursorMode) != nullptr)
                 {
-                    cursorMode = CursorMode::Normal;
+                    cursorMode = NormalCursorMode();
                 }
                 else
                 {
-                    cursorMode = CursorMode::Attack;
+                    cursorMode = AttackCursorMode();
                 }
             }
         }
@@ -187,7 +187,7 @@ namespace rwe
     {
         if (event.button == MouseButtonEvent::MouseButton::Left)
         {
-            if (cursorMode == CursorMode::Attack)
+            if (boost::get<AttackCursorMode>(&cursorMode) != nullptr)
             {
                 if (selectedUnit)
                 {
@@ -200,7 +200,7 @@ namespace rwe
                         else
                         {
                             issueAttackOrder(*selectedUnit, *hoveredUnit);
-                            cursorMode = CursorMode::Normal;
+                            cursorMode = NormalCursorMode();
                         }
                     }
                     else
@@ -215,33 +215,44 @@ namespace rwe
                             else
                             {
                                 issueAttackGroundOrder(*selectedUnit, *coord);
-                                cursorMode = CursorMode::Normal;
+                                cursorMode = NormalCursorMode();
                             }
                         }
                     }
                 }
             }
+            else
+            {
+                auto normalCursor = boost::get<NormalCursorMode>(&cursorMode);
+                if (normalCursor != nullptr)
+                {
+                    normalCursor->selecting = true;
+                }
+            }
         }
         else if (event.button == MouseButtonEvent::MouseButton::Right)
         {
-            if (cursorMode == CursorMode::Attack)
+            if (boost::get<AttackCursorMode>(&cursorMode) != nullptr)
             {
-                cursorMode = CursorMode::Normal;
+                cursorMode = NormalCursorMode();
             }
-            else if (selectedUnit)
+            else if (boost::get<NormalCursorMode>(&cursorMode) != nullptr)
             {
-                if (!hoveredUnit)
+                if (selectedUnit)
                 {
-                    auto coord = getMouseTerrainCoordinate();
-                    if (coord)
+                    if (!hoveredUnit)
                     {
-                        if (isShiftDown())
+                        auto coord = getMouseTerrainCoordinate();
+                        if (coord)
                         {
-                            enqueueMoveOrder(*selectedUnit, *coord);
-                        }
-                        else
-                        {
-                            issueMoveOrder(*selectedUnit, *coord);
+                            if (isShiftDown())
+                            {
+                                enqueueMoveOrder(*selectedUnit, *coord);
+                            }
+                            else
+                            {
+                                issueMoveOrder(*selectedUnit, *coord);
+                            }
                         }
                     }
                 }
@@ -253,20 +264,24 @@ namespace rwe
     {
         if (event.button == MouseButtonEvent::MouseButton::Left)
         {
-            if (cursorMode == CursorMode::Normal)
+            auto normalCursor = boost::get<NormalCursorMode>(&cursorMode);
+            if (normalCursor != nullptr)
             {
-                if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
+                if (normalCursor->selecting)
                 {
-                    selectedUnit = hoveredUnit;
-                    const auto& selectionSound = getUnit(*hoveredUnit).selectionSound;
-                    if (selectionSound)
+                    if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
                     {
-                        playSoundOnSelectChannel(*selectionSound);
+                        selectedUnit = hoveredUnit;
+                        const auto& selectionSound = getUnit(*hoveredUnit).selectionSound;
+                        if (selectionSound)
+                        {
+                            playSoundOnSelectChannel(*selectionSound);
+                        }
                     }
-                }
-                else
-                {
-                    selectedUnit = boost::none;
+                    else
+                    {
+                        selectedUnit = boost::none;
+                    }
                 }
             }
         }
@@ -299,21 +314,24 @@ namespace rwe
 
         hoveredUnit = getUnitUnderCursor();
 
-        if (cursorMode == CursorMode::Attack)
+        if (boost::get<AttackCursorMode>(&cursorMode) != nullptr)
         {
             cursor->useAttackCursor();
         }
-        else if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
+        else if (boost::get<NormalCursorMode>(&cursorMode) != nullptr)
         {
-            cursor->useSelectCursor();
-        }
-        else if (selectedUnit && getUnit(*selectedUnit).canAttack && hoveredUnit && isEnemy(*hoveredUnit))
-        {
-            cursor->useAttackCursor();
-        }
-        else
-        {
-            cursor->useNormalCursor();
+            if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
+            {
+                cursor->useSelectCursor();
+            }
+            else if (selectedUnit && getUnit(*selectedUnit).canAttack && hoveredUnit && isEnemy(*hoveredUnit))
+            {
+                cursor->useAttackCursor();
+            }
+            else
+            {
+                cursor->useNormalCursor();
+            }
         }
 
         pathFindingService.update();
