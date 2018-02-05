@@ -115,6 +115,20 @@ namespace rwe
         {
             right = true;
         }
+        else if (keysym.sym == SDLK_a)
+        {
+            if (selectedUnit)
+            {
+                if (cursorMode == CursorMode::Attack)
+                {
+                    cursorMode = CursorMode::Normal;
+                }
+                else
+                {
+                    cursorMode = CursorMode::Attack;
+                }
+            }
+        }
         else if (keysym.sym == SDLK_s)
         {
             stopSelectedUnit();
@@ -171,9 +185,50 @@ namespace rwe
 
     void GameScene::onMouseDown(MouseButtonEvent event)
     {
-        if (event.button == MouseButtonEvent::MouseButton::Right)
+        if (event.button == MouseButtonEvent::MouseButton::Left)
         {
-            if (selectedUnit)
+            if (cursorMode == CursorMode::Attack)
+            {
+                if (selectedUnit)
+                {
+                    if (hoveredUnit)
+                    {
+                        if (isShiftDown())
+                        {
+                            enqueueAttackOrder(*selectedUnit, *hoveredUnit);
+                        }
+                        else
+                        {
+                            issueAttackOrder(*selectedUnit, *hoveredUnit);
+                            cursorMode = CursorMode::Normal;
+                        }
+                    }
+                    else
+                    {
+                        auto coord = getMouseTerrainCoordinate();
+                        if (coord)
+                        {
+                            if (isShiftDown())
+                            {
+                                enqueueAttackGroundOrder(*selectedUnit, *coord);
+                            }
+                            else
+                            {
+                                issueAttackGroundOrder(*selectedUnit, *coord);
+                                cursorMode = CursorMode::Normal;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else if (event.button == MouseButtonEvent::MouseButton::Right)
+        {
+            if (cursorMode == CursorMode::Attack)
+            {
+                cursorMode = CursorMode::Normal;
+            }
+            else if (selectedUnit)
             {
                 if (!hoveredUnit)
                 {
@@ -241,9 +296,17 @@ namespace rwe
 
         hoveredUnit = getUnitUnderCursor();
 
-        if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
+        if (cursorMode == CursorMode::Attack)
+        {
+            cursor->useAttackCursor();
+        }
+        else if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
         {
             cursor->useSelectCursor();
+        }
+        else if (selectedUnit && getUnit(*selectedUnit).canAttack && hoveredUnit && isEnemy(*hoveredUnit))
+        {
+            cursor->useAttackCursor();
         }
         else
         {
@@ -381,6 +444,30 @@ namespace rwe
         getUnit(unitId).addOrder(createMoveOrder(position));
     }
 
+    void GameScene::issueAttackOrder(UnitId unitId, UnitId target)
+    {
+        auto& unit = getUnit(unitId);
+        unit.clearOrders();
+        unit.addOrder(createAttackOrder(target));
+    }
+
+    void GameScene::enqueueAttackOrder(UnitId unitId, UnitId target)
+    {
+        getUnit(unitId).addOrder(createAttackOrder(target));
+    }
+
+    void GameScene::issueAttackGroundOrder(UnitId unitId, Vector3f position)
+    {
+        auto& unit = getUnit(unitId);
+        unit.clearOrders();
+        unit.addOrder(createAttackGroundOrder(position));
+    }
+
+    void GameScene::enqueueAttackGroundOrder(UnitId unitId, Vector3f position)
+    {
+        getUnit(unitId).addOrder(createAttackGroundOrder(position));
+    }
+
     void GameScene::stopSelectedUnit()
     {
         if (selectedUnit)
@@ -433,5 +520,11 @@ namespace rwe
     GameSimulation& GameScene::getSimulation()
     {
         return simulation;
+    }
+
+    bool GameScene::isEnemy(UnitId id) const
+    {
+        // TODO: consider allies/teams here
+        return !getUnit(id).isOwnedBy(localPlayerId);
     }
 }

@@ -36,6 +36,8 @@ namespace rwe
         tdf.readOrDefault("MinWaterDepth", u.minWaterDepth);
         tdf.readOrDefault("MaxWaterDepth", u.maxWaterDepth);
 
+        tdf.readOrDefault("CanAttack", u.canAttack);
+
         tdf.readOrDefault("Weapon1", u.weapon1);
         tdf.readOrDefault("Weapon2", u.weapon2);
         tdf.readOrDefault("Weapon3", u.weapon3);

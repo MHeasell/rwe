@@ -41,6 +41,8 @@ namespace rwe
         unit.acceleration = fbi.acceleration / 2.0f;
         unit.brakeRate = fbi.brakeRate / 2.0f;
 
+        unit.canAttack = fbi.canAttack;
+
         if (movementClass)
         {
             auto resolvedMovementClass = collisionService->resolveMovementClass(movementClass->name);

@@ -151,7 +151,8 @@ namespace rwe
         CursorService cursor(
             sdlContext,
             textureService.getGafEntry("anims/CURSORS.GAF", "cursornormal"),
-            textureService.getGafEntry("anims/CURSORS.GAF", "cursorselect"));
+            textureService.getGafEntry("anims/CURSORS.GAF", "cursorselect"),
+            textureService.getGafEntry("anims/CURSORS.GAF", "cursorattack"));
 
         sdlContext->showCursor(SDL_DISABLE);
 

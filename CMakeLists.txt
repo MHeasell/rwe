@@ -177,6 +177,8 @@ set(SOURCE_FILES
     src/rwe/UnitId.h
     src/rwe/UnitMesh.cpp
     src/rwe/UnitMesh.h
+    src/rwe/UnitWeapon.cpp
+    src/rwe/UnitWeapon.h
     src/rwe/VaoHandle.h
     src/rwe/VboHandle.h
     src/rwe/ViewportService.cpp

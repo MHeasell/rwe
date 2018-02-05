@@ -24,6 +24,12 @@
 
 namespace rwe
 {
+    enum class CursorMode
+    {
+        Normal,
+        Attack
+    };
+
     class GameScene : public SceneManager::Scene
     {
     private:
@@ -72,6 +78,8 @@ namespace rwe
         bool occupiedGridVisible{false};
         bool pathfindingVisualisationVisible{false};
         bool movementClassGridVisible{false};
+
+        CursorMode cursorMode{CursorMode::Normal};
 
     public:
         GameScene(
@@ -151,6 +159,14 @@ namespace rwe
 
         void enqueueMoveOrder(UnitId unitId, Vector3f position);
 
+        void issueAttackOrder(UnitId unitId, UnitId target);
+
+        void enqueueAttackOrder(UnitId unitId, UnitId target);
+
+        void issueAttackGroundOrder(UnitId unitId, Vector3f position);
+
+        void enqueueAttackGroundOrder(UnitId unitId, Vector3f position);
+
         void stopSelectedUnit();
 
         bool isShiftDown() const;
@@ -160,6 +176,8 @@ namespace rwe
         const Unit& getUnit(UnitId id) const;
 
         const GamePlayerInfo& getPlayer(PlayerId player) const;
+
+        bool isEnemy(UnitId id) const;
     };
 }
 

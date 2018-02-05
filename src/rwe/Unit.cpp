@@ -14,6 +14,16 @@ namespace rwe
         return MoveOrder(destination);
     }
 
+    UnitOrder createAttackOrder(UnitId target)
+    {
+        return AttackOrder(target);
+    }
+
+    UnitOrder createAttackGroundOrder(const Vector3f& target)
+    {
+        return AttackGroundOrder(target);
+    }
+
     Unit::Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, SelectionMesh&& selectionMesh)
         : mesh(mesh), cobEnvironment(std::move(cobEnvironment)), selectionMesh(std::move(selectionMesh))
     {
