@@ -326,7 +326,7 @@ namespace rwe
             }
             else if (selectedUnit && getUnit(*selectedUnit).canAttack && hoveredUnit && isEnemy(*hoveredUnit))
             {
-                cursor->useAttackCursor();
+                cursor->useRedCursor();
             }
             else
             {
