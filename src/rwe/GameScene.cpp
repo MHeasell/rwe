@@ -240,7 +240,18 @@ namespace rwe
             {
                 if (selectedUnit)
                 {
-                    if (!hoveredUnit)
+                    if (hoveredUnit && isEnemy(*hoveredUnit))
+                    {
+                        if (isShiftDown())
+                        {
+                            enqueueAttackOrder(*selectedUnit, *hoveredUnit);
+                        }
+                        else
+                        {
+                            issueAttackOrder(*selectedUnit, *hoveredUnit);
+                        }
+                    }
+                    else
                     {
                         auto coord = getMouseTerrainCoordinate();
                         if (coord)
