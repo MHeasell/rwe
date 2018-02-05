@@ -253,18 +253,21 @@ namespace rwe
     {
         if (event.button == MouseButtonEvent::MouseButton::Left)
         {
-            if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
+            if (cursorMode == CursorMode::Normal)
             {
-                selectedUnit = hoveredUnit;
-                const auto& selectionSound = getUnit(*hoveredUnit).selectionSound;
-                if (selectionSound)
+                if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
                 {
-                    playSoundOnSelectChannel(*selectionSound);
+                    selectedUnit = hoveredUnit;
+                    const auto& selectionSound = getUnit(*hoveredUnit).selectionSound;
+                    if (selectionSound)
+                    {
+                        playSoundOnSelectChannel(*selectionSound);
+                    }
                 }
-            }
-            else
-            {
-                selectedUnit = boost::none;
+                else
+                {
+                    selectedUnit = boost::none;
+                }
             }
         }
     }
