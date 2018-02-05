@@ -6,13 +6,15 @@ namespace rwe
     {
         std::vector<std::pair<std::string, unsigned int>> items;
 
-        for (const auto& entry : block.entries)
+        for (const auto& entry : block.properties)
         {
-            auto value = boost::get<std::string>(entry.value.get());
-            if (value)
+            auto value = tdfTryParse<unsigned int>(entry.second);
+            if (!value)
             {
-                items.emplace_back(entry.name, tdfTryParse<unsigned int>(*value));
+                throw std::runtime_error("Failed to parse damage value: " + entry.second);
             }
+
+            items.emplace_back(entry.first, *value);
         }
 
         return items;
@@ -137,14 +139,10 @@ namespace rwe
     std::vector<std::pair<std::string, WeaponTdf>> parseWeaponTdf(const TdfBlock& tdf)
     {
         std::vector<std::pair<std::string, WeaponTdf>> items;
-        for (const auto& entry : tdf.entries)
+        for (const auto& entry : tdf.blocks)
         {
-            const auto& weaponName = entry.name;
-            const auto block = boost::get<TdfBlock>(entry.value.get());
-            if (block != nullptr)
-            {
-                items.emplace_back(weaponName, parseWeaponBlock(*block));
-            }
+            const auto& weaponName = entry.first;
+            items.emplace_back(weaponName, parseWeaponBlock(*entry.second));
         }
         return std::vector<std::pair<std::string, WeaponTdf>>();
     }
