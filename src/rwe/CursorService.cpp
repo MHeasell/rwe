@@ -44,6 +44,13 @@ namespace rwe
 
         sdlContext->getMouseState(&x, &y);
 
-        renderer.drawSprite(x, y, *(currentCursor->sprites[0]));
+        auto timeInMillis = sdlContext->getTicks();
+        const auto& frames = currentCursor->sprites;
+        unsigned int frameRateInSeconds = 6;
+        unsigned int millisPerFrame = 1000 / frameRateInSeconds;
+
+        auto frameIndex = (timeInMillis / millisPerFrame) % frames.size();
+
+        renderer.drawSprite(x, y, *(frames[frameIndex]));
     }
 }
