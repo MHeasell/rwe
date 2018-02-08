@@ -24,7 +24,9 @@
 
 namespace rwe
 {
-    struct AttackCursorMode {};
+    struct AttackCursorMode
+    {
+    };
     struct NormalCursorMode
     {
         bool selecting{false};
