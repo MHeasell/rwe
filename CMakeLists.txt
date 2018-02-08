@@ -132,6 +132,8 @@ set(SOURCE_FILES
     src/rwe/PlayerId.h
     src/rwe/Point.cpp
     src/rwe/Point.h
+    src/rwe/Radians.cpp
+    src/rwe/Radians.h
     src/rwe/RenderService.cpp
     src/rwe/RenderService.h
     src/rwe/SceneManager.cpp
@@ -155,6 +157,8 @@ set(SOURCE_FILES
     src/rwe/Sprite.h
     src/rwe/SpriteSeries.cpp
     src/rwe/SpriteSeries.h
+    src/rwe/TaAngle.cpp
+    src/rwe/TaAngle.h
     src/rwe/TextureHandle.h
     src/rwe/TextureRegion.cpp
     src/rwe/TextureRegion.h
