@@ -70,6 +70,12 @@ namespace rwe
             unit.maxWaterDepth = fbi.maxWaterDepth;
         }
 
+        // yeah this is a hack
+        if (!fbi.weapon1.empty())
+        {
+            unit.weapons.emplace_back();
+        }
+
         if (soundClass.select1)
         {
             unit.selectionSound = unitDatabase.getSoundHandle(*(soundClass.select1));

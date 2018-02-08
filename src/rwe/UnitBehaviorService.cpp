@@ -44,8 +44,7 @@ namespace rwe
             const auto& order = unit.orders.front();
 
             // process move orders
-            auto moveOrder = boost::get<MoveOrder>(&order);
-            if (moveOrder != nullptr)
+            if (auto moveOrder = boost::get<MoveOrder>(&order); moveOrder != nullptr)
             {
                 auto idleState = boost::get<IdleState>(&unit.behaviourState);
                 auto movingState = boost::get<MovingState>(&unit.behaviourState);
@@ -125,6 +124,30 @@ namespace rwe
                                 targetSpeed = unit.maxSpeed;
                             }
                         }
+                    }
+                }
+            }
+            else if (auto attackGroundOrder = boost::get<AttackGroundOrder>(&order); attackGroundOrder != nullptr)
+            {
+                // TODO: signal old aim scripts
+                if (unit.weapons.size() > 0)
+                {
+                    // this aiming code is all largely a hack
+                    auto& weapon = unit.weapons[0];
+                    if (!weapon.isAiming)
+                    {
+                        auto conversionFactor = (32768.0f / Pif);
+                        auto aimVector = attackGroundOrder->target - unit.position;
+                        auto heading = Vector2f(0.0f, -1.0f).angleTo(Vector2f(aimVector.x, aimVector.z));
+                        heading = -heading;
+                        heading = heading - unit.rotation;
+                        auto pitch = (Pif / 2.0f) - std::acos(aimVector.dot(Vector3f(0.0f, 1.0f, 0.0f)) / aimVector.length());
+
+                        unit.cobEnvironment->createThread("AimPrimary", {
+                            static_cast<int>(heading * conversionFactor),
+                            static_cast<int>(pitch * conversionFactor)
+                        });
+                        weapon.isAiming = true;
                     }
                 }
             }

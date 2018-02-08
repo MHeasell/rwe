@@ -5,10 +5,12 @@
 
 namespace rwe
 {
-    class UnitWeapon
+    struct UnitWeapon
     {
         /** The game time at which the weapon next becomes ready to fire. */
         GameTime readyTime{0};
+
+        bool isAiming{false};
     };
 }
 
