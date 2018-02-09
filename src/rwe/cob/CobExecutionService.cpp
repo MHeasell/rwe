@@ -64,7 +64,7 @@ namespace rwe
         std::vector<CobThread*> tempQueue;
         for (const auto& pair : env.blockedQueue)
         {
-            const auto& status = boost::get<CobEnvironment::BlockedStatus>(pair.first);
+            const auto& status = pair.first;
 
             auto isUnblocked = boost::apply_visitor(BlockCheckVisitor(&simulation, &env, unitId), status.condition);
             if (isUnblocked)

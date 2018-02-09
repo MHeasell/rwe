@@ -69,7 +69,7 @@ namespace rwe
         std::vector<std::unique_ptr<CobThread>> threads;
 
         std::deque<CobThread*> readyQueue;
-        std::deque<std::pair<Status, CobThread*>> blockedQueue;
+        std::deque<std::pair<BlockedStatus, CobThread*>> blockedQueue;
 
     public:
         explicit CobEnvironment(const CobScript* _script);
