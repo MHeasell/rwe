@@ -66,24 +66,22 @@ namespace rwe
         auto& env = *unit.cobEnvironment;
 
         // check if any blocked threads can be unblocked
-        std::vector<CobThread*> tempQueue;
-        for (const auto& pair : env.blockedQueue)
+        // and move them back into the ready queue
+        for (auto it = env.blockedQueue.begin(); it != env.blockedQueue.end();)
         {
+            const auto& pair = *it;
             const auto& status = pair.first;
 
             auto isUnblocked = boost::apply_visitor(BlockCheckVisitor(&simulation, &env, unitId), status.condition);
             if (isUnblocked)
             {
-                tempQueue.push_back(pair.second);
+                it = env.blockedQueue.erase(it);
+                env.readyQueue.push_back(pair.second);
             }
-        }
-
-        // move unblocked threads back into the ready queue
-        for (const auto& t : tempQueue)
-        {
-            auto it = std::find_if(env.blockedQueue.begin(), env.blockedQueue.end(), [&t](const auto& p) { return p.second == t; });
-            env.blockedQueue.erase(it);
-            env.readyQueue.push_back(t);
+            else
+            {
+                ++it;
+            }
         }
 
         // execute ready threads
