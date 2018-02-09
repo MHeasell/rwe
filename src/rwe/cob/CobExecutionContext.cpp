@@ -596,8 +596,8 @@ namespace rwe
 
     void CobExecutionContext::setSignalMask()
     {
-        auto mask = pop();
-        // TODO: this
+        auto mask = popSignalMask();
+        thread->signalMask = mask;
     }
 
     void CobExecutionContext::createLocalVariable()
@@ -685,6 +685,11 @@ namespace rwe
     {
         auto val = static_cast<unsigned int>(pop());
         return static_cast<float>(val) / 182.0f;
+    }
+
+    unsigned int CobExecutionContext::popSignalMask()
+    {
+        return static_cast<unsigned int>(pop());
     }
 
     void CobExecutionContext::push(int val)

@@ -53,6 +53,11 @@ namespace rwe
         {
             env->deleteThread(thread);
         }
+        void operator()(const CobEnvironment::SignalStatus& status) const
+        {
+            env->readyQueue.emplace_front(thread);
+            env->sendSignal(status.signal);
+        }
     };
 
     void CobExecutionService::run(GameSimulation& simulation, UnitId unitId)

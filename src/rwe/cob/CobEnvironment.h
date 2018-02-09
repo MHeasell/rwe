@@ -59,7 +59,17 @@ namespace rwe
         {
         };
 
-        using Status = boost::variant<BlockedStatus, FinishedStatus>;
+        /**
+         * Emitted when a cob thread wants to send a signal to other threads.
+         * The thread will go back to ready, and the signal will be broadcast.
+         * If the thread was not killed by the signal it will then resume execution.
+         */
+        struct SignalStatus
+        {
+            unsigned int signal;
+        };
+
+        using Status = boost::variant<SignalStatus, BlockedStatus, FinishedStatus>;
 
     public:
         const CobScript* const _script;
@@ -93,6 +103,16 @@ namespace rwe
         void createThread(const std::string& functionName);
 
         void deleteThread(const CobThread* thread);
+
+        /**
+         * Sends a signal to all threads.
+         * If the signal is non-zero after being ANDed
+         * with the thread's signal mask, the thread is killed.
+         */
+        void sendSignal(unsigned int signal);
+
+    private:
+        void removeThreadFromQueues(const CobThread* thread);
     };
 }
 

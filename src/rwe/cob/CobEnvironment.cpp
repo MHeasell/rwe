@@ -56,4 +56,42 @@ namespace rwe
             threads.erase(it);
         }
     }
+
+    void CobEnvironment::sendSignal(unsigned int signal)
+    {
+        for (auto it = threads.begin(); it != threads.end();)
+        {
+            if ((*it)->signalMask & signal)
+            {
+                // remove references to the thread
+                removeThreadFromQueues(it->get());
+
+                // delete the thread
+                it = threads.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+    }
+
+    void CobEnvironment::removeThreadFromQueues(const CobThread* thread)
+    {
+        {
+            auto it = std::find(readyQueue.begin(), readyQueue.end(), thread);
+            if (it != readyQueue.end())
+            {
+                readyQueue.erase(it);
+            }
+        }
+
+        {
+            auto it = std::find_if(blockedQueue.begin(), blockedQueue.end(), [thread](const auto& pair) { return pair.second == thread; });
+            if (it != blockedQueue.end())
+            {
+                blockedQueue.erase(it);
+            }
+        }
+    }
 }
