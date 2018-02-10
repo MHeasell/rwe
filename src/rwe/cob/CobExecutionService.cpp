@@ -82,8 +82,8 @@ namespace rwe
             auto isUnblocked = boost::apply_visitor(BlockCheckVisitor(&simulation, &env, unitId), status.condition);
             if (isUnblocked)
             {
-                it = env.blockedQueue.erase(it);
                 env.readyQueue.push_back(pair.second);
+                it = env.blockedQueue.erase(it);
             }
             else
             {
