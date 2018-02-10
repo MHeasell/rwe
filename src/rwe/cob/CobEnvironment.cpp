@@ -22,30 +22,31 @@ namespace rwe
         return _script;
     }
 
-    void CobEnvironment::createThread(unsigned int functionId, const std::vector<int>& params)
+    const CobThread* CobEnvironment::createThread(unsigned int functionId, const std::vector<int>& params)
     {
         const auto& functionInfo = _script->functions.at(functionId);
         auto& thread = threads.emplace_back(std::make_unique<CobThread>(
             functionInfo.name, functionInfo.address, _script->instructions.size(), params));
         readyQueue.push_back(thread.get());
+        return thread.get();
     }
 
-    void CobEnvironment::createThread(const std::string& functionName, const std::vector<int>& params)
+    boost::optional<const CobThread*> CobEnvironment::createThread(const std::string& functionName, const std::vector<int>& params)
     {
         auto it = std::find_if(_script->functions.begin(), _script->functions.end(), [&functionName](const auto& i) { return i.name == functionName; });
         if (it == _script->functions.end())
         {
             // silently ignore
-            return;
+            return boost::none;
         }
 
         auto index = it - _script->functions.begin();
-        createThread(index, params);
+        return createThread(index, params);
     }
 
-    void CobEnvironment::createThread(const std::string& functionName)
+    boost::optional<const CobThread*> CobEnvironment::createThread(const std::string& functionName)
     {
-        createThread(functionName, std::vector<int>());
+        return createThread(functionName, std::vector<int>());
     }
 
     void CobEnvironment::deleteThread(const CobThread* thread)
@@ -76,6 +77,19 @@ namespace rwe
         }
     }
 
+    boost::optional<int> CobEnvironment::tryReapThread(const CobThread* thread)
+    {
+        auto it = std::find(finishedQueue.begin(), finishedQueue.end(), thread);
+        if (it == finishedQueue.end())
+        {
+            return boost::none;
+        }
+
+        auto val = (*it)->returnValue;
+        finishedQueue.erase(it);
+        return val;
+    }
+
     void CobEnvironment::removeThreadFromQueues(const CobThread* thread)
     {
         {
@@ -91,6 +105,14 @@ namespace rwe
             if (it != blockedQueue.end())
             {
                 blockedQueue.erase(it);
+            }
+        }
+
+        {
+            auto it = std::find(finishedQueue.begin(), finishedQueue.end(), thread);
+            if (it != finishedQueue.end())
+            {
+                finishedQueue.erase(it);
             }
         }
     }

@@ -129,12 +129,11 @@ namespace rwe
             }
             else if (auto attackGroundOrder = boost::get<AttackGroundOrder>(&order); attackGroundOrder != nullptr)
             {
-                // TODO: signal old aim scripts
                 if (unit.weapons.size() > 0)
                 {
-                    // this aiming code is all largely a hack
+                    // for now, just assume that we only care about the first weapon
                     auto& weapon = unit.weapons[0];
-                    if (!weapon.isAiming)
+                    if (auto idleState = boost::get<UnitWeaponStateIdle>(&weapon.state); idleState != nullptr)
                     {
                         auto conversionFactor = (32768.0f / Pif);
                         auto aimVector = attackGroundOrder->target - unit.position;
@@ -143,11 +142,30 @@ namespace rwe
                         heading = heading - unit.rotation;
                         auto pitch = (Pif / 2.0f) - std::acos(aimVector.dot(Vector3f(0.0f, 1.0f, 0.0f)) / aimVector.length());
 
-                        unit.cobEnvironment->createThread("AimPrimary", {
+                        auto threadId = unit.cobEnvironment->createThread("AimPrimary", {
                             static_cast<int>(heading * conversionFactor),
                             static_cast<int>(pitch * conversionFactor)
                         });
-                        weapon.isAiming = true;
+
+                        if (threadId)
+                        {
+                            weapon.state = UnitWeaponStateAiming{*threadId};
+                        }
+                        else
+                        {
+                            // We couldn't launch an aiming script (there isn't one)
+                            // FIXME: should transition straight to firing state here
+                            weapon.state = UnitWeaponStateIdle();
+                        }
+                    }
+                    else if (auto aimingState = boost::get<UnitWeaponStateAiming>(&weapon.state); aimingState != nullptr)
+                    {
+                        auto returnValue = unit.cobEnvironment->tryReapThread(aimingState->aimingThread);
+                        if (returnValue)
+                        {
+                            // FIXME: should transition to firing state here
+                            weapon.state = UnitWeaponStateIdle();
+                        }
                     }
                 }
             }

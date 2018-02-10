@@ -549,10 +549,9 @@ namespace rwe
 
     void CobExecutionContext::returnFromScript()
     {
-        auto returnValue = pop();
+        thread->returnValue = pop();
         thread->instructionIndex = pop();
         thread->locals.pop();
-        // TODO: do something with the return value
     }
 
     void CobExecutionContext::callScript()

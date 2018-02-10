@@ -1,16 +1,27 @@
 #ifndef RWE_UNITWEAPON_H
 #define RWE_UNITWEAPON_H
 
+#include <boost/variant.hpp>
+#include <rwe/cob/CobThread.h>
 #include "GameTime.h"
 
 namespace rwe
 {
-    struct UnitWeapon
+    struct UnitWeaponStateIdle {};
+    struct UnitWeaponStateAiming
+    {
+        const CobThread* aimingThread;
+    };
+    struct UnitWeaponStateReloading
     {
         /** The game time at which the weapon next becomes ready to fire. */
-        GameTime readyTime{0};
+        GameTime readyTime;
+    };
+    using UnitWeaponState = boost::variant<UnitWeaponStateIdle, UnitWeaponStateAiming, UnitWeaponStateReloading>;
 
-        bool isAiming{false};
+    struct UnitWeapon
+    {
+        UnitWeaponState state{UnitWeaponStateIdle()};
     };
 }
 

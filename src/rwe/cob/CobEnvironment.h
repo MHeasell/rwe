@@ -80,6 +80,7 @@ namespace rwe
 
         std::deque<CobThread*> readyQueue;
         std::deque<std::pair<BlockedStatus, CobThread*>> blockedQueue;
+        std::deque<CobThread*> finishedQueue;
 
     public:
         explicit CobEnvironment(const CobScript* _script);
@@ -96,11 +97,11 @@ namespace rwe
 
         const CobScript* script();
 
-        void createThread(unsigned int functionId, const std::vector<int>& params);
+        const CobThread* createThread(unsigned int functionId, const std::vector<int>& params);
 
-        void createThread(const std::string& functionName, const std::vector<int>& params);
+        boost::optional<const CobThread*> createThread(const std::string& functionName, const std::vector<int>& params);
 
-        void createThread(const std::string& functionName);
+        boost::optional<const CobThread*> createThread(const std::string& functionName);
 
         void deleteThread(const CobThread* thread);
 
@@ -110,6 +111,8 @@ namespace rwe
          * with the thread's signal mask, the thread is killed.
          */
         void sendSignal(unsigned int signal);
+
+        boost::optional<int> tryReapThread(const CobThread* thread);
 
     private:
         void removeThreadFromQueues(const CobThread* thread);

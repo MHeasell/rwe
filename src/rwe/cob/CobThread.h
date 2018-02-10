@@ -20,6 +20,7 @@ namespace rwe
         unsigned int instructionIndex{0};
 
         unsigned int signalMask{0};
+        int returnValue;
 
         CobThread(
             const std::string& name,

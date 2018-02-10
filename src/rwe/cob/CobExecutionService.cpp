@@ -51,7 +51,7 @@ namespace rwe
         }
         void operator()(const CobEnvironment::FinishedStatus&) const
         {
-            env->deleteThread(thread);
+            env->finishedQueue.emplace_back(thread);
         }
         void operator()(const CobEnvironment::SignalStatus& status) const
         {
@@ -64,6 +64,13 @@ namespace rwe
     {
         auto& unit = simulation.getUnit(unitId);
         auto& env = *unit.cobEnvironment;
+
+        // clean up any finished threads that were not reaped last frame
+        for (const auto& thread : env.finishedQueue)
+        {
+            env.deleteThread(thread);
+        }
+        env.finishedQueue.clear();
 
         // check if any blocked threads can be unblocked
         // and move them back into the ready queue
