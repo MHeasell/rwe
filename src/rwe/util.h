@@ -1,7 +1,7 @@
 #ifndef RWE_UTIL_H
 #define RWE_UTIL_H
 
-#include "Radians.h"
+#include "RadiansAngle.h"
 #include "TaAngle.h"
 #include <boost/filesystem/path.hpp>
 #include <boost/optional.hpp>
@@ -22,7 +22,9 @@ namespace rwe
 
     float toRadians(float v);
 
-    Radians toRadians(TaAngle angle);
+    RadiansAngle toRadians(TaAngle angle);
+
+    TaAngle toTaAngle(RadiansAngle angle);
 }
 
 #endif

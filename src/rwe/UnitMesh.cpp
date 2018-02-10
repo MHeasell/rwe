@@ -26,17 +26,18 @@ namespace rwe
     {
         if (op)
         {
-            float remaining = wrap(-Pif, Pif, op->targetAngle - currentAngle);
+            auto remaining = op->targetAngle - RadiansAngle(currentAngle);
 
             float frameSpeed = op->speed * dt;
-            if (std::abs(remaining) <= frameSpeed)
+            if (std::abs(remaining.value) <= frameSpeed)
             {
-                currentAngle = op->targetAngle;
+                currentAngle = op->targetAngle.value;
                 op = boost::none;
             }
             else
             {
-                currentAngle += frameSpeed * (remaining > 0.0f ? 1.0f : -1.0f);
+                auto angleDelta = frameSpeed * (remaining.value > 0.0f ? 1.0f : -1.0f);
+                currentAngle = wrap(-Pif, Pif, currentAngle + angleDelta);
             }
         }
     }
@@ -92,7 +93,7 @@ namespace rwe
     {
     }
 
-    UnitMesh::TurnOperation::TurnOperation(float targetAngle, float speed)
+    UnitMesh::TurnOperation::TurnOperation(RadiansAngle targetAngle, float speed)
         : targetAngle(targetAngle), speed(speed)
     {
     }

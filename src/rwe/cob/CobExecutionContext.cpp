@@ -456,7 +456,7 @@ namespace rwe
         auto axis = nextInstructionAsAxis();
         auto angle = popAngle();
         auto speed = popAngularSpeed();
-        sim->turnObject(unitId, getObjectName(object), axis, angle, speed);
+        sim->turnObject(unitId, getObjectName(object), axis, toRadians(angle), speed);
     }
 
     void CobExecutionContext::turnObjectNow()
@@ -464,7 +464,7 @@ namespace rwe
         auto object = nextInstruction();
         auto axis = nextInstructionAsAxis();
         auto angle = popAngle();
-        sim->turnObjectNow(unitId, getObjectName(object), axis, angle);
+        sim->turnObjectNow(unitId, getObjectName(object), axis, toRadians(angle));
     }
 
     void CobExecutionContext::spinObject()
@@ -674,10 +674,9 @@ namespace rwe
         return static_cast<float>(val) / 163840.0f;
     }
 
-    float CobExecutionContext::popAngle()
+    TaAngle CobExecutionContext::popAngle()
     {
-        auto val = static_cast<unsigned int>(pop());
-        return static_cast<float>(val) / 182.0f;
+        return TaAngle(pop());
     }
 
     float CobExecutionContext::popAngularSpeed()

@@ -6,6 +6,7 @@
 #include <rwe/ShaderMesh.h>
 #include <rwe/math/Vector3f.h>
 #include <string>
+#include <rwe/RadiansAngle.h>
 
 
 namespace rwe
@@ -22,10 +23,10 @@ namespace rwe
 
         struct TurnOperation
         {
-            float targetAngle;
+            RadiansAngle targetAngle;
             float speed;
 
-            TurnOperation(float targetAngle, float speed);
+            TurnOperation(RadiansAngle targetAngle, float speed);
         };
 
         std::string name;

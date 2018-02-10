@@ -139,9 +139,9 @@ namespace rwe
 
         void moveObjectNow(const std::string& pieceName, Axis axis, float targetPosition);
 
-        void turnObject(const std::string& pieceName, Axis axis, float targetAngle, float speed);
+        void turnObject(const std::string& pieceName, Axis axis, RadiansAngle targetAngle, float speed);
 
-        void turnObjectNow(const std::string& pieceName, Axis axis, float targetAngle);
+        void turnObjectNow(const std::string& pieceName, Axis axis, RadiansAngle targetAngle);
 
         bool isMoveInProgress(const std::string& pieceName, Axis axis) const;
 

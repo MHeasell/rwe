@@ -135,16 +135,16 @@ namespace rwe
                     auto& weapon = unit.weapons[0];
                     if (auto idleState = boost::get<UnitWeaponStateIdle>(&weapon.state); idleState != nullptr)
                     {
-                        auto conversionFactor = (32768.0f / Pif);
                         auto aimVector = attackGroundOrder->target - unit.position;
                         auto heading = Vector2f(0.0f, -1.0f).angleTo(Vector2f(aimVector.x, aimVector.z));
                         heading = -heading;
-                        heading = heading - unit.rotation;
+                        heading = wrap(-Pif, Pif, heading - unit.rotation);
+
                         auto pitch = (Pif / 2.0f) - std::acos(aimVector.dot(Vector3f(0.0f, 1.0f, 0.0f)) / aimVector.length());
 
                         auto threadId = unit.cobEnvironment->createThread("AimPrimary", {
-                            static_cast<int>(heading * conversionFactor),
-                            static_cast<int>(pitch * conversionFactor)
+                            toTaAngle(RadiansAngle(heading)).value,
+                            toTaAngle(RadiansAngle(pitch)).value
                         });
 
                         if (threadId)
@@ -165,6 +165,10 @@ namespace rwe
                         {
                             // FIXME: should transition to firing state here
                             weapon.state = UnitWeaponStateIdle();
+
+                            // pretend we killed the target
+                            unit.cobEnvironment->createThread("TargetCleared", {0});
+                            unit.orders.pop_front();
                         }
                     }
                 }

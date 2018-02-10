@@ -35,8 +35,13 @@ namespace rwe
         return v * (Pif / 180.0f);
     }
 
-    Radians toRadians(TaAngle angle)
+    RadiansAngle toRadians(TaAngle angle)
     {
-        return Radians(static_cast<float>(angle.value) * (Pif / 32760.0f));
+        return RadiansAngle(static_cast<float>(angle.value) * (Pif / 32760.0f));
+    }
+
+    TaAngle toTaAngle(RadiansAngle angle)
+    {
+        return TaAngle(static_cast<int>(angle.value * (32760.0f / Pif)));
     }
 }

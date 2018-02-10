@@ -400,12 +400,12 @@ namespace rwe
         simulation.moveObjectNow(unitId, name, axis, position);
     }
 
-    void GameScene::turnObject(UnitId unitId, const std::string& name, Axis axis, float angle, float speed)
+    void GameScene::turnObject(UnitId unitId, const std::string& name, Axis axis, RadiansAngle angle, float speed)
     {
         simulation.turnObject(unitId, name, axis, angle, speed);
     }
 
-    void GameScene::turnObjectNow(UnitId unitId, const std::string& name, Axis axis, float angle)
+    void GameScene::turnObjectNow(UnitId unitId, const std::string& name, Axis axis, RadiansAngle angle)
     {
         simulation.turnObjectNow(unitId, name, axis, angle);
     }

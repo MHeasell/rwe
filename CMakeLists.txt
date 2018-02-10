@@ -132,8 +132,8 @@ set(SOURCE_FILES
     src/rwe/PlayerId.h
     src/rwe/Point.cpp
     src/rwe/Point.h
-    src/rwe/Radians.cpp
-    src/rwe/Radians.h
+    src/rwe/RadiansAngle.cpp
+    src/rwe/RadiansAngle.h
     src/rwe/RenderService.cpp
     src/rwe/RenderService.h
     src/rwe/SceneManager.cpp

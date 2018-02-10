@@ -128,9 +128,9 @@ namespace rwe
 
         void moveObjectNow(UnitId unitId, const std::string& name, Axis axis, float position);
 
-        void turnObject(UnitId unitId, const std::string& name, Axis axis, float angle, float speed);
+        void turnObject(UnitId unitId, const std::string& name, Axis axis, RadiansAngle angle, float speed);
 
-        void turnObjectNow(UnitId unitId, const std::string& name, Axis axis, float angle);
+        void turnObjectNow(UnitId unitId, const std::string& name, Axis axis, RadiansAngle angle);
 
         bool isPieceMoving(UnitId unitId, const std::string& name, Axis axis) const;
 

@@ -78,7 +78,7 @@ namespace rwe
         }
     }
 
-    void Unit::turnObject(const std::string& pieceName, Axis axis, float targetAngle, float speed)
+    void Unit::turnObject(const std::string& pieceName, Axis axis, RadiansAngle targetAngle, float speed)
     {
         auto piece = mesh.find(pieceName);
         if (!piece)
@@ -86,7 +86,7 @@ namespace rwe
             throw std::runtime_error("Invalid piece name: " + pieceName);
         }
 
-        UnitMesh::TurnOperation op(toRadians(targetAngle), toRadians(speed));
+        UnitMesh::TurnOperation op(targetAngle, toRadians(speed));
 
         switch (axis)
         {
@@ -102,7 +102,7 @@ namespace rwe
         }
     }
 
-    void Unit::turnObjectNow(const std::string& pieceName, Axis axis, float targetAngle)
+    void Unit::turnObjectNow(const std::string& pieceName, Axis axis, RadiansAngle targetAngle)
     {
         auto piece = mesh.find(pieceName);
         if (!piece)
@@ -113,15 +113,15 @@ namespace rwe
         switch (axis)
         {
             case Axis::X:
-                piece->rotation.x = toRadians(targetAngle);
+                piece->rotation.x = targetAngle.value;
                 piece->xTurnOperation = boost::none;
                 break;
             case Axis::Y:
-                piece->rotation.y = toRadians(targetAngle);
+                piece->rotation.y = targetAngle.value;
                 piece->yTurnOperation = boost::none;
                 break;
             case Axis::Z:
-                piece->rotation.z = toRadians(targetAngle);
+                piece->rotation.z = targetAngle.value;
                 piece->zTurnOperation = boost::none;
                 break;
         }
