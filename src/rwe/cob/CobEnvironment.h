@@ -112,10 +112,22 @@ namespace rwe
          */
         void sendSignal(unsigned int signal);
 
+        /**
+         * Attempts to collect the return value from a thread.
+         * The return value will be available for collection
+         * if the thread finished in the previous frame.
+         * If the return value is not collected,
+         * the cob execution service will clean up the thread
+         * next frame.
+         */
         boost::optional<int> tryReapThread(const CobThread* thread);
+
+        bool isNotCorrupt() const;
 
     private:
         void removeThreadFromQueues(const CobThread* thread);
+
+        bool isPresentInAQueue(const CobThread* thread) const;
     };
 }
 

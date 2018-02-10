@@ -86,7 +86,6 @@ namespace rwe
         }
 
         auto val = (*it)->returnValue;
-        finishedQueue.erase(it);
         return val;
     }
 
@@ -115,5 +114,53 @@ namespace rwe
                 finishedQueue.erase(it);
             }
         }
+    }
+
+    bool CobEnvironment::isNotCorrupt() const
+    {
+        auto sizes = readyQueue.size() + blockedQueue.size() + finishedQueue.size();
+        if (sizes != threads.size())
+        {
+            return false;
+        }
+
+        for (const auto& ptr : threads)
+        {
+            if (!isPresentInAQueue(ptr.get()))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    bool CobEnvironment::isPresentInAQueue(const CobThread* thread) const
+    {
+        {
+            auto it = std::find(readyQueue.begin(), readyQueue.end(), thread);
+            if (it != readyQueue.end())
+            {
+                return true;
+            }
+        }
+
+        {
+            auto it = std::find_if(blockedQueue.begin(), blockedQueue.end(), [thread](const auto& pair) { return pair.second == thread; });
+            if (it != blockedQueue.end())
+            {
+                return true;
+            }
+        }
+
+        {
+            auto it = std::find(finishedQueue.begin(), finishedQueue.end(), thread);
+            if (it != finishedQueue.end())
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

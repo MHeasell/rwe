@@ -65,12 +65,16 @@ namespace rwe
         auto& unit = simulation.getUnit(unitId);
         auto& env = *unit.cobEnvironment;
 
+        assert(env.isNotCorrupt());
+
         // clean up any finished threads that were not reaped last frame
         for (const auto& thread : env.finishedQueue)
         {
             env.deleteThread(thread);
         }
         env.finishedQueue.clear();
+
+        assert(env.isNotCorrupt());
 
         // check if any blocked threads can be unblocked
         // and move them back into the ready queue
@@ -91,6 +95,8 @@ namespace rwe
             }
         }
 
+        assert(env.isNotCorrupt());
+
         // execute ready threads
         while (!env.readyQueue.empty())
         {
@@ -103,5 +109,7 @@ namespace rwe
 
             boost::apply_visitor(ThreadRescheduleVisitor(&env, thread), status);
         }
+
+        assert(env.isNotCorrupt());
     }
 }
