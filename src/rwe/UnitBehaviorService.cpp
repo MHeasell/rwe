@@ -132,6 +132,12 @@ namespace rwe
                 if (unit.weapons.size() > 0)
                 {
                     // for now, just assume that we only care about the first weapon
+                    // FIXME: all this logic really needs to come out.
+                    // Weapons should run their own independent AI logic
+                    // (that runs every frame regardless of the unit's order).
+                    // Right now it's possible for a weapon to get stuck waiting for
+                    // some non-existent aim thread, because orders could change underneath us,
+                    // and there's loads of other oddities like not calling TargetCleared reliably.
                     auto& weapon = unit.weapons[0];
                     if (auto idleState = boost::get<UnitWeaponStateIdle>(&weapon.state); idleState != nullptr)
                     {
