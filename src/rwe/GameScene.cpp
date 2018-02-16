@@ -481,6 +481,10 @@ namespace rwe
         auto& unit = getUnit(unitId);
         unit.clearOrders();
         unit.addOrder(createAttackOrder(target));
+        if (unit.okSound)
+        {
+            playSoundOnSelectChannel(*(unit.okSound));
+        }
     }
 
     void GameScene::enqueueAttackOrder(UnitId unitId, UnitId target)
@@ -493,6 +497,10 @@ namespace rwe
         auto& unit = getUnit(unitId);
         unit.clearOrders();
         unit.addOrder(createAttackGroundOrder(position));
+        if (unit.okSound)
+        {
+            playSoundOnSelectChannel(*(unit.okSound));
+        }
     }
 
     void GameScene::enqueueAttackGroundOrder(UnitId unitId, Vector3f position)
