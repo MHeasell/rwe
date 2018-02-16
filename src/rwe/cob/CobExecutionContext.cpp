@@ -589,8 +589,8 @@ namespace rwe
 
     void CobExecutionContext::sendSignal()
     {
-        auto signal = pop();
-        // TODO: this
+        auto signal = popSignal();
+        env->sendSignal(signal);
     }
 
     void CobExecutionContext::setSignalMask()
@@ -683,6 +683,11 @@ namespace rwe
     {
         auto val = static_cast<unsigned int>(pop());
         return static_cast<float>(val) / 182.0f;
+    }
+
+    unsigned int CobExecutionContext::popSignal()
+    {
+        return static_cast<unsigned int>(pop());
     }
 
     unsigned int CobExecutionContext::popSignalMask()
