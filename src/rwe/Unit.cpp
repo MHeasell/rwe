@@ -191,10 +191,46 @@ namespace rwe
     {
         orders.clear();
         behaviourState = IdleState();
+
+        // not clear if this really belongs here
+        clearWeaponTargets();
     }
 
     void Unit::addOrder(const UnitOrder& order)
     {
         orders.push_back(order);
+    }
+
+    void Unit::setWeaponTarget(unsigned int weaponIndex, UnitId target)
+    {
+        clearWeaponTarget(weaponIndex);
+
+        auto& weapon = weapons[weaponIndex];
+
+        weapon.state = UnitWeaponStateAttacking(target);
+    }
+
+    void Unit::setWeaponTarget(unsigned int weaponIndex, const Vector3f& target)
+    {
+        clearWeaponTarget(weaponIndex);
+
+        auto& weapon = weapons[weaponIndex];
+
+        weapon.state = UnitWeaponStateAttacking(target);
+    }
+
+    void Unit::clearWeaponTarget(unsigned int weaponIndex)
+    {
+        auto& weapon = weapons[weaponIndex];
+        weapon.state = UnitWeaponStateIdle();
+        cobEnvironment->createThread("TargetCleared", {weaponIndex});
+    }
+
+    void Unit::clearWeaponTargets()
+    {
+        for (unsigned int i = 0; i < weapons.size(); ++i)
+        {
+            clearWeaponTarget(i);
+        }
     }
 }

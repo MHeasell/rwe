@@ -2,27 +2,40 @@
 #define RWE_UNITWEAPON_H
 
 #include "GameTime.h"
+#include "UnitId.h"
 #include <boost/variant.hpp>
 #include <rwe/cob/CobThread.h>
+#include <rwe/math/Vector3f.h>
 
 namespace rwe
 {
     struct UnitWeaponStateIdle
     {
     };
-    struct UnitWeaponStateAiming
+
+    using UnitWeaponAttackTarget = boost::variant<UnitId, Vector3f>;
+
+    struct UnitWeaponStateAttacking
     {
-        const CobThread* aimingThread;
+        /** The target the weapon is currently trying to shoot at. */
+        UnitWeaponAttackTarget target;
+
+        /** The unit's aiming thread. */
+        boost::optional<const CobThread*> aimingThread;
+
+        UnitWeaponStateAttacking(const UnitWeaponAttackTarget& target) : target(target)
+        {
+        }
     };
-    struct UnitWeaponStateReloading
-    {
-        /** The game time at which the weapon next becomes ready to fire. */
-        GameTime readyTime;
-    };
-    using UnitWeaponState = boost::variant<UnitWeaponStateIdle, UnitWeaponStateAiming, UnitWeaponStateReloading>;
+
+    using UnitWeaponState = boost::variant<UnitWeaponStateIdle, UnitWeaponStateAttacking>;
 
     struct UnitWeapon
     {
+        /** The game time at which the weapon next becomes ready to fire. */
+        GameTime readyTime;
+
+        /** The internal state of the weapon. */
         UnitWeaponState state{UnitWeaponStateIdle()};
     };
 }

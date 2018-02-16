@@ -22,6 +22,9 @@ namespace rwe
         void update(UnitId unitId);
 
     private:
+        void updateWeapon(UnitId id, unsigned int weaponIndex);
+        void tryFireWeapon(UnitId id, unsigned int weaponIndex);
+
         void applyUnitSteering(UnitId id, float targetAngle, float targetSpeed);
         void updateUnitRotation(UnitId id, float targetAngle);
         void updateUnitSpeed(UnitId id, float targetSpeed);
@@ -29,6 +32,8 @@ namespace rwe
         void updateUnitPosition(UnitId unitId);
 
         bool tryApplyMovementToPosition(UnitId id, const Vector3f& newPosition);
+
+        std::string getAimScriptName(unsigned int weaponIndex) const;
     };
 }
 

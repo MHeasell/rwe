@@ -160,6 +160,11 @@ namespace rwe
         void clearOrders();
 
         void addOrder(const UnitOrder& order);
+
+        void setWeaponTarget(unsigned int weaponIndex, UnitId target);
+        void setWeaponTarget(unsigned int weaponIndex, const Vector3f& target);
+        void clearWeaponTarget(unsigned int weaponIndex);
+        void clearWeaponTargets();
     };
 }
 

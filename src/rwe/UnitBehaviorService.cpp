@@ -129,53 +129,16 @@ namespace rwe
             }
             else if (auto attackGroundOrder = boost::get<AttackGroundOrder>(&order); attackGroundOrder != nullptr)
             {
-                if (unit.weapons.size() > 0)
+                for (unsigned int i = 0; i < unit.weapons.size(); ++i)
                 {
-                    // for now, just assume that we only care about the first weapon
-                    // FIXME: all this logic really needs to come out.
-                    // Weapons should run their own independent AI logic
-                    // (that runs every frame regardless of the unit's order).
-                    // Right now it's possible for a weapon to get stuck waiting for
-                    // some non-existent aim thread, because orders could change underneath us,
-                    // and there's loads of other oddities like not calling TargetCleared reliably.
-                    auto& weapon = unit.weapons[0];
-                    if (auto idleState = boost::get<UnitWeaponStateIdle>(&weapon.state); idleState != nullptr)
-                    {
-                        auto aimVector = attackGroundOrder->target - unit.position;
-                        auto heading = Vector2f(0.0f, -1.0f).angleTo(Vector2f(aimVector.x, aimVector.z));
-                        heading = -heading;
-                        heading = wrap(-Pif, Pif, heading - unit.rotation);
-
-                        auto pitch = (Pif / 2.0f) - std::acos(aimVector.dot(Vector3f(0.0f, 1.0f, 0.0f)) / aimVector.length());
-
-                        auto threadId = unit.cobEnvironment->createThread("AimPrimary", {toTaAngle(RadiansAngle(heading)).value, toTaAngle(RadiansAngle(pitch)).value});
-
-                        if (threadId)
-                        {
-                            weapon.state = UnitWeaponStateAiming{*threadId};
-                        }
-                        else
-                        {
-                            // We couldn't launch an aiming script (there isn't one)
-                            // FIXME: should transition straight to firing state here
-                            weapon.state = UnitWeaponStateIdle();
-                        }
-                    }
-                    else if (auto aimingState = boost::get<UnitWeaponStateAiming>(&weapon.state); aimingState != nullptr)
-                    {
-                        auto returnValue = unit.cobEnvironment->tryReapThread(aimingState->aimingThread);
-                        if (returnValue)
-                        {
-                            // FIXME: should transition to firing state here
-                            weapon.state = UnitWeaponStateIdle();
-
-                            // pretend we killed the target
-                            unit.cobEnvironment->createThread("TargetCleared", {0});
-                            unit.orders.pop_front();
-                        }
-                    }
+                    unit.setWeaponTarget(i, attackGroundOrder->target);
                 }
             }
+        }
+
+        for (unsigned int i = 0; i < unit.weapons.size(); ++i)
+        {
+            updateWeapon(unitId, i);
         }
 
         applyUnitSteering(unitId, targetAngle, targetSpeed);
@@ -190,6 +153,87 @@ namespace rwe
         }
 
         updateUnitPosition(unitId);
+    }
+
+    class GetTargetPosVisitor : public boost::static_visitor<Vector3f>
+    {
+    private:
+        const GameSimulation* sim;
+
+    public:
+        explicit GetTargetPosVisitor(const GameSimulation* sim) : sim(sim) {}
+        Vector3f operator()(const Vector3f& pos) const { return pos; }
+        // FIXME: unit could no longer exist (e.g. it died), currently this is UB.
+        Vector3f operator()(UnitId id) const { sim->getUnit(id).position; }
+    };
+
+    void UnitBehaviorService::updateWeapon(UnitId id, unsigned int weaponIndex)
+    {
+        auto& unit = scene->getSimulation().getUnit(id);
+        auto& weapon = unit.weapons[weaponIndex];
+
+        // FIXME: all this logic really needs to come out.
+        // Weapons should run their own independent AI logic
+        // (that runs every frame regardless of the unit's order).
+        // Right now it's possible for a weapon to get stuck waiting for
+        // some non-existent aim thread, because orders could change underneath us,
+        // and there's loads of other oddities like not calling TargetCleared reliably.
+
+        if (auto idleState = boost::get<UnitWeaponStateIdle>(&weapon.state); idleState != nullptr)
+        {
+            // TODO: attempt to acquire a target
+        }
+        else if (auto aimingState = boost::get<UnitWeaponStateAttacking>(&weapon.state); aimingState != nullptr)
+        {
+            if (!aimingState->aimingThread)
+            {
+                Vector3f targetPosition = boost::apply_visitor(GetTargetPosVisitor(&scene->getSimulation()), aimingState->target);
+
+                // FIXME: this calculation needs to take into account
+                // what the unit's AimFromPrimary (Secondary... etc) is.
+                auto aimVector = targetPosition - unit.position;
+                auto heading = Vector2f(0.0f, -1.0f).angleTo(Vector2f(aimVector.x, aimVector.z));
+                heading = -heading;
+                heading = wrap(-Pif, Pif, heading - unit.rotation);
+
+                auto pitch = (Pif / 2.0f) - std::acos(aimVector.dot(Vector3f(0.0f, 1.0f, 0.0f)) / aimVector.length());
+
+                auto threadId = unit.cobEnvironment->createThread(getAimScriptName(weaponIndex), {toTaAngle(RadiansAngle(heading)).value, toTaAngle(RadiansAngle(pitch)).value});
+
+                if (threadId)
+                {
+                    aimingState->aimingThread = *threadId;
+                }
+                else
+                {
+                    // We couldn't launch an aiming script (there isn't one)
+                    tryFireWeapon(id, weaponIndex);
+                }
+            }
+            else
+            {
+                auto returnValue = unit.cobEnvironment->tryReapThread(*aimingState->aimingThread);
+                if (returnValue)
+                {
+                    // we successfully reaped, clear the thread.
+                    aimingState->aimingThread = boost::none;
+
+                    if (*returnValue)
+                    {
+                        // aiming was successful, attempt to fire
+                        tryFireWeapon(id, weaponIndex);
+                    }
+                }
+            }
+        }
+    }
+
+    void UnitBehaviorService::tryFireWeapon(UnitId id, unsigned int weaponIndex)
+    {
+        auto& unit = scene->getSimulation().getUnit(id);
+        auto& weapon = unit.weapons[weaponIndex];
+
+        // TODO: should check alignment and attempt to fire here
     }
 
     void UnitBehaviorService::applyUnitSteering(UnitId id, float targetAngle, float targetSpeed)
@@ -331,5 +375,20 @@ namespace rwe
         scene->moveUnitOccupiedArea(footprintRegion, newFootprintRegion, id);
         unit.position = newPosition;
         return true;
+    }
+
+    std::string UnitBehaviorService::getAimScriptName(unsigned int weaponIndex) const
+    {
+        switch (weaponIndex)
+        {
+            case 0:
+                return "AimPrimary";
+            case 1:
+                return "AimSecondary";
+            case 2:
+                return "AimTertiary";
+            default:
+                throw std::logic_error("Invalid wepaon index: " + std::to_string(weaponIndex));
+        }
     }
 }
