@@ -148,10 +148,7 @@ namespace rwe
 
                         auto pitch = (Pif / 2.0f) - std::acos(aimVector.dot(Vector3f(0.0f, 1.0f, 0.0f)) / aimVector.length());
 
-                        auto threadId = unit.cobEnvironment->createThread("AimPrimary", {
-                            toTaAngle(RadiansAngle(heading)).value,
-                            toTaAngle(RadiansAngle(pitch)).value
-                        });
+                        auto threadId = unit.cobEnvironment->createThread("AimPrimary", {toTaAngle(RadiansAngle(heading)).value, toTaAngle(RadiansAngle(pitch)).value});
 
                         if (threadId)
                         {

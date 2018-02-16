@@ -1,13 +1,15 @@
 #ifndef RWE_UNITWEAPON_H
 #define RWE_UNITWEAPON_H
 
+#include "GameTime.h"
 #include <boost/variant.hpp>
 #include <rwe/cob/CobThread.h>
-#include "GameTime.h"
 
 namespace rwe
 {
-    struct UnitWeaponStateIdle {};
+    struct UnitWeaponStateIdle
+    {
+    };
     struct UnitWeaponStateAiming
     {
         const CobThread* aimingThread;

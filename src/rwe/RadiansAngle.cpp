@@ -1,6 +1,6 @@
-#include <rwe/math/rwe_math.h>
 #include "RadiansAngle.h"
 #include "util.h"
+#include <rwe/math/rwe_math.h>
 
 namespace rwe
 {

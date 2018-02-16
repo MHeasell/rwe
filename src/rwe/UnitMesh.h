@@ -3,10 +3,10 @@
 
 #include <boost/optional.hpp>
 #include <memory>
+#include <rwe/RadiansAngle.h>
 #include <rwe/ShaderMesh.h>
 #include <rwe/math/Vector3f.h>
 #include <string>
-#include <rwe/RadiansAngle.h>
 
 
 namespace rwe
