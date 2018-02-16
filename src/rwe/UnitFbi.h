@@ -24,6 +24,12 @@ namespace rwe
         unsigned int maxWaterSlope;
         unsigned int minWaterDepth;
         unsigned int maxWaterDepth;
+
+        bool canAttack;
+
+        std::string weapon1;
+        std::string weapon2;
+        std::string weapon3;
     };
 
     UnitFbi parseUnitInfoBlock(const TdfBlock& tdf);

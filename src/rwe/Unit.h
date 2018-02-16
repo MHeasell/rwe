@@ -2,6 +2,7 @@
 #define RWE_UNIT_H
 
 #include "MovementClassId.h"
+#include "UnitWeapon.h"
 #include <boost/optional.hpp>
 #include <boost/variant.hpp>
 #include <deque>
@@ -21,6 +22,18 @@ namespace rwe
     {
         Vector3f destination;
         explicit MoveOrder(const Vector3f& destination);
+    };
+
+    struct AttackOrder
+    {
+        UnitId target;
+        explicit AttackOrder(UnitId target) : target(target) {}
+    };
+
+    struct AttackGroundOrder
+    {
+        Vector3f target;
+        explicit AttackGroundOrder(const Vector3f& target) : target(target) {}
     };
 
     struct PathFollowingInfo
@@ -45,9 +58,13 @@ namespace rwe
 
     using UnitState = boost::variant<IdleState, MovingState>;
 
-    using UnitOrder = boost::variant<MoveOrder>;
+    using UnitOrder = boost::variant<MoveOrder, AttackOrder, AttackGroundOrder>;
 
     UnitOrder createMoveOrder(const Vector3f& destination);
+
+    UnitOrder createAttackOrder(UnitId target);
+
+    UnitOrder createAttackGroundOrder(const Vector3f& target);
 
     class Unit
     {
@@ -112,15 +129,19 @@ namespace rwe
          */
         bool inCollision{false};
 
+        std::vector<UnitWeapon> weapons;
+
+        bool canAttack;
+
         Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, SelectionMesh&& selectionMesh);
 
         void moveObject(const std::string& pieceName, Axis axis, float targetPosition, float speed);
 
         void moveObjectNow(const std::string& pieceName, Axis axis, float targetPosition);
 
-        void turnObject(const std::string& pieceName, Axis axis, float targetAngle, float speed);
+        void turnObject(const std::string& pieceName, Axis axis, RadiansAngle targetAngle, float speed);
 
-        void turnObjectNow(const std::string& pieceName, Axis axis, float targetAngle);
+        void turnObjectNow(const std::string& pieceName, Axis axis, RadiansAngle targetAngle);
 
         bool isMoveInProgress(const std::string& pieceName, Axis axis) const;
 
@@ -139,6 +160,11 @@ namespace rwe
         void clearOrders();
 
         void addOrder(const UnitOrder& order);
+
+        void setWeaponTarget(unsigned int weaponIndex, UnitId target);
+        void setWeaponTarget(unsigned int weaponIndex, const Vector3f& target);
+        void clearWeaponTarget(unsigned int weaponIndex);
+        void clearWeaponTargets();
     };
 }
 

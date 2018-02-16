@@ -59,7 +59,17 @@ namespace rwe
         {
         };
 
-        using Status = boost::variant<BlockedStatus, FinishedStatus>;
+        /**
+         * Emitted when a cob thread wants to send a signal to other threads.
+         * The thread will go back to ready, and the signal will be broadcast.
+         * If the thread was not killed by the signal it will then resume execution.
+         */
+        struct SignalStatus
+        {
+            unsigned int signal;
+        };
+
+        using Status = boost::variant<SignalStatus, BlockedStatus, FinishedStatus>;
 
     public:
         const CobScript* const _script;
@@ -69,7 +79,8 @@ namespace rwe
         std::vector<std::unique_ptr<CobThread>> threads;
 
         std::deque<CobThread*> readyQueue;
-        std::deque<std::pair<Status, CobThread*>> blockedQueue;
+        std::deque<std::pair<BlockedStatus, CobThread*>> blockedQueue;
+        std::deque<CobThread*> finishedQueue;
 
     public:
         explicit CobEnvironment(const CobScript* _script);
@@ -86,13 +97,37 @@ namespace rwe
 
         const CobScript* script();
 
-        void createThread(unsigned int functionId, const std::vector<int>& params);
+        const CobThread* createThread(unsigned int functionId, const std::vector<int>& params);
 
-        void createThread(const std::string& functionName, const std::vector<int>& params);
+        boost::optional<const CobThread*> createThread(const std::string& functionName, const std::vector<int>& params);
 
-        void createThread(const std::string& functionName);
+        boost::optional<const CobThread*> createThread(const std::string& functionName);
 
         void deleteThread(const CobThread* thread);
+
+        /**
+         * Sends a signal to all threads.
+         * If the signal is non-zero after being ANDed
+         * with the thread's signal mask, the thread is killed.
+         */
+        void sendSignal(unsigned int signal);
+
+        /**
+         * Attempts to collect the return value from a thread.
+         * The return value will be available for collection
+         * if the thread finished in the previous frame.
+         * If the return value is not collected,
+         * the cob execution service will clean up the thread
+         * next frame.
+         */
+        boost::optional<int> tryReapThread(const CobThread* thread);
+
+        bool isNotCorrupt() const;
+
+    private:
+        void removeThreadFromQueues(const CobThread* thread);
+
+        bool isPresentInAQueue(const CobThread* thread) const;
     };
 }
 

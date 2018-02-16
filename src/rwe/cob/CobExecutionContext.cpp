@@ -456,7 +456,7 @@ namespace rwe
         auto axis = nextInstructionAsAxis();
         auto angle = popAngle();
         auto speed = popAngularSpeed();
-        sim->turnObject(unitId, getObjectName(object), axis, angle, speed);
+        sim->turnObject(unitId, getObjectName(object), axis, toRadians(angle), speed);
     }
 
     void CobExecutionContext::turnObjectNow()
@@ -464,7 +464,7 @@ namespace rwe
         auto object = nextInstruction();
         auto axis = nextInstructionAsAxis();
         auto angle = popAngle();
-        sim->turnObjectNow(unitId, getObjectName(object), axis, angle);
+        sim->turnObjectNow(unitId, getObjectName(object), axis, toRadians(angle));
     }
 
     void CobExecutionContext::spinObject()
@@ -549,10 +549,9 @@ namespace rwe
 
     void CobExecutionContext::returnFromScript()
     {
-        auto returnValue = pop();
+        thread->returnValue = pop();
         thread->instructionIndex = pop();
         thread->locals.pop();
-        // TODO: do something with the return value
     }
 
     void CobExecutionContext::callScript()
@@ -590,14 +589,14 @@ namespace rwe
 
     void CobExecutionContext::sendSignal()
     {
-        auto signal = pop();
-        // TODO: this
+        auto signal = popSignal();
+        env->sendSignal(signal);
     }
 
     void CobExecutionContext::setSignalMask()
     {
-        auto mask = pop();
-        // TODO: this
+        auto mask = popSignalMask();
+        thread->signalMask = mask;
     }
 
     void CobExecutionContext::createLocalVariable()
@@ -675,16 +674,25 @@ namespace rwe
         return static_cast<float>(val) / 163840.0f;
     }
 
-    float CobExecutionContext::popAngle()
+    TaAngle CobExecutionContext::popAngle()
     {
-        auto val = static_cast<unsigned int>(pop());
-        return static_cast<float>(val) / 182.0f;
+        return TaAngle(pop());
     }
 
     float CobExecutionContext::popAngularSpeed()
     {
         auto val = static_cast<unsigned int>(pop());
         return static_cast<float>(val) / 182.0f;
+    }
+
+    unsigned int CobExecutionContext::popSignal()
+    {
+        return static_cast<unsigned int>(pop());
+    }
+
+    unsigned int CobExecutionContext::popSignalMask()
+    {
+        return static_cast<unsigned int>(pop());
     }
 
     void CobExecutionContext::push(int val)

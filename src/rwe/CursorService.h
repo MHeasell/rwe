@@ -16,6 +16,8 @@ namespace rwe
 
         std::shared_ptr<SpriteSeries> _normalCursor;
         std::shared_ptr<SpriteSeries> _selectCursor;
+        std::shared_ptr<SpriteSeries> _attackCursor;
+        std::shared_ptr<SpriteSeries> _redCursor;
 
         SpriteSeries* currentCursor;
 
@@ -23,11 +25,17 @@ namespace rwe
         CursorService(
             SdlContext* sdlContext,
             std::shared_ptr<SpriteSeries> normalCursor,
-            std::shared_ptr<SpriteSeries> selectCursor);
+            std::shared_ptr<SpriteSeries> selectCursor,
+            std::shared_ptr<SpriteSeries> attackCursor,
+            std::shared_ptr<SpriteSeries> redCursor);
 
         void useNormalCursor();
 
         void useSelectCursor();
+
+        void useAttackCursor();
+
+        void useRedCursor();
 
         void render(UiRenderService& renderer) const;
     };

@@ -132,6 +132,8 @@ set(SOURCE_FILES
     src/rwe/PlayerId.h
     src/rwe/Point.cpp
     src/rwe/Point.h
+    src/rwe/RadiansAngle.cpp
+    src/rwe/RadiansAngle.h
     src/rwe/RenderService.cpp
     src/rwe/RenderService.h
     src/rwe/SceneManager.cpp
@@ -155,6 +157,8 @@ set(SOURCE_FILES
     src/rwe/Sprite.h
     src/rwe/SpriteSeries.cpp
     src/rwe/SpriteSeries.h
+    src/rwe/TaAngle.cpp
+    src/rwe/TaAngle.h
     src/rwe/TextureHandle.h
     src/rwe/TextureRegion.cpp
     src/rwe/TextureRegion.h
@@ -177,10 +181,16 @@ set(SOURCE_FILES
     src/rwe/UnitId.h
     src/rwe/UnitMesh.cpp
     src/rwe/UnitMesh.h
+    src/rwe/UnitWeapon.cpp
+    src/rwe/UnitWeapon.h
     src/rwe/VaoHandle.h
     src/rwe/VboHandle.h
     src/rwe/ViewportService.cpp
     src/rwe/ViewportService.h
+    src/rwe/Weapon.cpp
+    src/rwe/Weapon.h
+    src/rwe/WeaponTdf.cpp
+    src/rwe/WeaponTdf.h
     src/rwe/_3do.cpp
     src/rwe/_3do.h
     src/rwe/camera/AbstractCamera.cpp

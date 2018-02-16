@@ -19,6 +19,9 @@ namespace rwe
         std::stack<std::vector<int>> locals;
         unsigned int instructionIndex{0};
 
+        unsigned int signalMask{0};
+        int returnValue;
+
         CobThread(
             const std::string& name,
             unsigned int instructionIndex,

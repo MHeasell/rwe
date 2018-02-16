@@ -32,6 +32,12 @@ namespace rwe
                 Vector2f b(0.0f, -1.0f);
                 REQUIRE(a.angleTo(b) == Approx(-Pif));
             }
+            SECTION("works for vectors not of the same length")
+            {
+                Vector2f a(0.0f, 1.0f);
+                Vector2f b(-1.0f, 1.0f);
+                REQUIRE(a.angleTo(b) == Approx(Pif / 4.0f));
+            }
         }
     }
 }

@@ -41,6 +41,8 @@ namespace rwe
         unit.acceleration = fbi.acceleration / 2.0f;
         unit.brakeRate = fbi.brakeRate / 2.0f;
 
+        unit.canAttack = fbi.canAttack;
+
         if (movementClass)
         {
             auto resolvedMovementClass = collisionService->resolveMovementClass(movementClass->name);
@@ -66,6 +68,12 @@ namespace rwe
             unit.maxWaterSlope = fbi.maxWaterSlope;
             unit.minWaterDepth = fbi.minWaterDepth;
             unit.maxWaterDepth = fbi.maxWaterDepth;
+        }
+
+        // yeah this is a hack
+        if (!fbi.weapon1.empty())
+        {
+            unit.weapons.emplace_back();
         }
 
         if (soundClass.select1)

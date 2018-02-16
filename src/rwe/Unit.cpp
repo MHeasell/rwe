@@ -14,6 +14,16 @@ namespace rwe
         return MoveOrder(destination);
     }
 
+    UnitOrder createAttackOrder(UnitId target)
+    {
+        return AttackOrder(target);
+    }
+
+    UnitOrder createAttackGroundOrder(const Vector3f& target)
+    {
+        return AttackGroundOrder(target);
+    }
+
     Unit::Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, SelectionMesh&& selectionMesh)
         : mesh(mesh), cobEnvironment(std::move(cobEnvironment)), selectionMesh(std::move(selectionMesh))
     {
@@ -68,7 +78,7 @@ namespace rwe
         }
     }
 
-    void Unit::turnObject(const std::string& pieceName, Axis axis, float targetAngle, float speed)
+    void Unit::turnObject(const std::string& pieceName, Axis axis, RadiansAngle targetAngle, float speed)
     {
         auto piece = mesh.find(pieceName);
         if (!piece)
@@ -76,7 +86,7 @@ namespace rwe
             throw std::runtime_error("Invalid piece name: " + pieceName);
         }
 
-        UnitMesh::TurnOperation op(toRadians(targetAngle), toRadians(speed));
+        UnitMesh::TurnOperation op(targetAngle, toRadians(speed));
 
         switch (axis)
         {
@@ -92,7 +102,7 @@ namespace rwe
         }
     }
 
-    void Unit::turnObjectNow(const std::string& pieceName, Axis axis, float targetAngle)
+    void Unit::turnObjectNow(const std::string& pieceName, Axis axis, RadiansAngle targetAngle)
     {
         auto piece = mesh.find(pieceName);
         if (!piece)
@@ -103,15 +113,15 @@ namespace rwe
         switch (axis)
         {
             case Axis::X:
-                piece->rotation.x = toRadians(targetAngle);
+                piece->rotation.x = targetAngle.value;
                 piece->xTurnOperation = boost::none;
                 break;
             case Axis::Y:
-                piece->rotation.y = toRadians(targetAngle);
+                piece->rotation.y = targetAngle.value;
                 piece->yTurnOperation = boost::none;
                 break;
             case Axis::Z:
-                piece->rotation.z = toRadians(targetAngle);
+                piece->rotation.z = targetAngle.value;
                 piece->zTurnOperation = boost::none;
                 break;
         }
@@ -181,10 +191,46 @@ namespace rwe
     {
         orders.clear();
         behaviourState = IdleState();
+
+        // not clear if this really belongs here
+        clearWeaponTargets();
     }
 
     void Unit::addOrder(const UnitOrder& order)
     {
         orders.push_back(order);
+    }
+
+    void Unit::setWeaponTarget(unsigned int weaponIndex, UnitId target)
+    {
+        clearWeaponTarget(weaponIndex);
+
+        auto& weapon = weapons[weaponIndex];
+
+        weapon.state = UnitWeaponStateAttacking(target);
+    }
+
+    void Unit::setWeaponTarget(unsigned int weaponIndex, const Vector3f& target)
+    {
+        clearWeaponTarget(weaponIndex);
+
+        auto& weapon = weapons[weaponIndex];
+
+        weapon.state = UnitWeaponStateAttacking(target);
+    }
+
+    void Unit::clearWeaponTarget(unsigned int weaponIndex)
+    {
+        auto& weapon = weapons[weaponIndex];
+        weapon.state = UnitWeaponStateIdle();
+        cobEnvironment->createThread("TargetCleared", {weaponIndex});
+    }
+
+    void Unit::clearWeaponTargets()
+    {
+        for (unsigned int i = 0; i < weapons.size(); ++i)
+        {
+            clearWeaponTarget(i);
+        }
     }
 }

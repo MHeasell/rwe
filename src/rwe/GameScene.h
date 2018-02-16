@@ -24,6 +24,16 @@
 
 namespace rwe
 {
+    struct AttackCursorMode
+    {
+    };
+    struct NormalCursorMode
+    {
+        bool selecting{false};
+    };
+
+    using CursorMode = boost::variant<AttackCursorMode, NormalCursorMode>;
+
     class GameScene : public SceneManager::Scene
     {
     private:
@@ -73,6 +83,8 @@ namespace rwe
         bool pathfindingVisualisationVisible{false};
         bool movementClassGridVisible{false};
 
+        CursorMode cursorMode{NormalCursorMode()};
+
     public:
         GameScene(
             TextureService* textureService,
@@ -116,9 +128,9 @@ namespace rwe
 
         void moveObjectNow(UnitId unitId, const std::string& name, Axis axis, float position);
 
-        void turnObject(UnitId unitId, const std::string& name, Axis axis, float angle, float speed);
+        void turnObject(UnitId unitId, const std::string& name, Axis axis, RadiansAngle angle, float speed);
 
-        void turnObjectNow(UnitId unitId, const std::string& name, Axis axis, float angle);
+        void turnObjectNow(UnitId unitId, const std::string& name, Axis axis, RadiansAngle angle);
 
         bool isPieceMoving(UnitId unitId, const std::string& name, Axis axis) const;
 
@@ -151,6 +163,14 @@ namespace rwe
 
         void enqueueMoveOrder(UnitId unitId, Vector3f position);
 
+        void issueAttackOrder(UnitId unitId, UnitId target);
+
+        void enqueueAttackOrder(UnitId unitId, UnitId target);
+
+        void issueAttackGroundOrder(UnitId unitId, Vector3f position);
+
+        void enqueueAttackGroundOrder(UnitId unitId, Vector3f position);
+
         void stopSelectedUnit();
 
         bool isShiftDown() const;
@@ -160,6 +180,8 @@ namespace rwe
         const Unit& getUnit(UnitId id) const;
 
         const GamePlayerInfo& getPlayer(PlayerId player) const;
+
+        bool isEnemy(UnitId id) const;
     };
 }
 

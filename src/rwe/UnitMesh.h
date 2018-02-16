@@ -3,6 +3,7 @@
 
 #include <boost/optional.hpp>
 #include <memory>
+#include <rwe/RadiansAngle.h>
 #include <rwe/ShaderMesh.h>
 #include <rwe/math/Vector3f.h>
 #include <string>
@@ -22,10 +23,10 @@ namespace rwe
 
         struct TurnOperation
         {
-            float targetAngle;
+            RadiansAngle targetAngle;
             float speed;
 
-            TurnOperation(float targetAngle, float speed);
+            TurnOperation(RadiansAngle targetAngle, float speed);
         };
 
         std::string name;

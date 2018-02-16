@@ -51,7 +51,12 @@ namespace rwe
         }
         void operator()(const CobEnvironment::FinishedStatus&) const
         {
-            env->deleteThread(thread);
+            env->finishedQueue.emplace_back(thread);
+        }
+        void operator()(const CobEnvironment::SignalStatus& status) const
+        {
+            env->readyQueue.emplace_front(thread);
+            env->sendSignal(status.signal);
         }
     };
 
@@ -60,26 +65,37 @@ namespace rwe
         auto& unit = simulation.getUnit(unitId);
         auto& env = *unit.cobEnvironment;
 
-        // check if any blocked threads can be unblocked
-        std::vector<CobThread*> tempQueue;
-        for (const auto& pair : env.blockedQueue)
+        assert(env.isNotCorrupt());
+
+        // clean up any finished threads that were not reaped last frame
+        for (const auto& thread : env.finishedQueue)
         {
-            const auto& status = boost::get<CobEnvironment::BlockedStatus>(pair.first);
+            env.deleteThread(thread);
+        }
+        env.finishedQueue.clear();
+
+        assert(env.isNotCorrupt());
+
+        // check if any blocked threads can be unblocked
+        // and move them back into the ready queue
+        for (auto it = env.blockedQueue.begin(); it != env.blockedQueue.end();)
+        {
+            const auto& pair = *it;
+            const auto& status = pair.first;
 
             auto isUnblocked = boost::apply_visitor(BlockCheckVisitor(&simulation, &env, unitId), status.condition);
             if (isUnblocked)
             {
-                tempQueue.push_back(pair.second);
+                env.readyQueue.push_back(pair.second);
+                it = env.blockedQueue.erase(it);
+            }
+            else
+            {
+                ++it;
             }
         }
 
-        // move unblocked threads back into the ready queue
-        for (const auto& t : tempQueue)
-        {
-            auto it = std::find_if(env.blockedQueue.begin(), env.blockedQueue.end(), [&t](const auto& p) { return p.second == t; });
-            env.blockedQueue.erase(it);
-            env.readyQueue.push_back(t);
-        }
+        assert(env.isNotCorrupt());
 
         // execute ready threads
         while (!env.readyQueue.empty())
@@ -93,5 +109,7 @@ namespace rwe
 
             boost::apply_visitor(ThreadRescheduleVisitor(&env, thread), status);
         }
+
+        assert(env.isNotCorrupt());
     }
 }

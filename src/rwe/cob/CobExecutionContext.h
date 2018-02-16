@@ -137,8 +137,10 @@ namespace rwe
 
         float popPosition();
         float popSpeed();
-        float popAngle();
+        TaAngle popAngle();
         float popAngularSpeed();
+        unsigned int popSignal();
+        unsigned int popSignalMask();
         void push(int val);
 
         unsigned int nextInstruction();

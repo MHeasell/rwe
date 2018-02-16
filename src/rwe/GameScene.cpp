@@ -115,6 +115,20 @@ namespace rwe
         {
             right = true;
         }
+        else if (keysym.sym == SDLK_a)
+        {
+            if (selectedUnit)
+            {
+                if (boost::get<AttackCursorMode>(&cursorMode) != nullptr)
+                {
+                    cursorMode = NormalCursorMode();
+                }
+                else
+                {
+                    cursorMode = AttackCursorMode();
+                }
+            }
+        }
         else if (keysym.sym == SDLK_s)
         {
             stopSelectedUnit();
@@ -171,22 +185,85 @@ namespace rwe
 
     void GameScene::onMouseDown(MouseButtonEvent event)
     {
-        if (event.button == MouseButtonEvent::MouseButton::Right)
+        if (event.button == MouseButtonEvent::MouseButton::Left)
         {
-            if (selectedUnit)
+            if (boost::get<AttackCursorMode>(&cursorMode) != nullptr)
             {
-                if (!hoveredUnit)
+                if (selectedUnit)
                 {
-                    auto coord = getMouseTerrainCoordinate();
-                    if (coord)
+                    if (hoveredUnit)
                     {
                         if (isShiftDown())
                         {
-                            enqueueMoveOrder(*selectedUnit, *coord);
+                            enqueueAttackOrder(*selectedUnit, *hoveredUnit);
                         }
                         else
                         {
-                            issueMoveOrder(*selectedUnit, *coord);
+                            issueAttackOrder(*selectedUnit, *hoveredUnit);
+                            cursorMode = NormalCursorMode();
+                        }
+                    }
+                    else
+                    {
+                        auto coord = getMouseTerrainCoordinate();
+                        if (coord)
+                        {
+                            if (isShiftDown())
+                            {
+                                enqueueAttackGroundOrder(*selectedUnit, *coord);
+                            }
+                            else
+                            {
+                                issueAttackGroundOrder(*selectedUnit, *coord);
+                                cursorMode = NormalCursorMode();
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                auto normalCursor = boost::get<NormalCursorMode>(&cursorMode);
+                if (normalCursor != nullptr)
+                {
+                    normalCursor->selecting = true;
+                }
+            }
+        }
+        else if (event.button == MouseButtonEvent::MouseButton::Right)
+        {
+            if (boost::get<AttackCursorMode>(&cursorMode) != nullptr)
+            {
+                cursorMode = NormalCursorMode();
+            }
+            else if (boost::get<NormalCursorMode>(&cursorMode) != nullptr)
+            {
+                if (selectedUnit)
+                {
+                    if (hoveredUnit && isEnemy(*hoveredUnit))
+                    {
+                        if (isShiftDown())
+                        {
+                            enqueueAttackOrder(*selectedUnit, *hoveredUnit);
+                        }
+                        else
+                        {
+                            issueAttackOrder(*selectedUnit, *hoveredUnit);
+                        }
+                    }
+                    else
+                    {
+                        auto coord = getMouseTerrainCoordinate();
+                        if (coord)
+                        {
+                            if (isShiftDown())
+                            {
+                                enqueueMoveOrder(*selectedUnit, *coord);
+                            }
+                            else
+                            {
+                                issueMoveOrder(*selectedUnit, *coord);
+                            }
                         }
                     }
                 }
@@ -198,18 +275,25 @@ namespace rwe
     {
         if (event.button == MouseButtonEvent::MouseButton::Left)
         {
-            if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
+            auto normalCursor = boost::get<NormalCursorMode>(&cursorMode);
+            if (normalCursor != nullptr)
             {
-                selectedUnit = hoveredUnit;
-                const auto& selectionSound = getUnit(*hoveredUnit).selectionSound;
-                if (selectionSound)
+                if (normalCursor->selecting)
                 {
-                    playSoundOnSelectChannel(*selectionSound);
+                    if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
+                    {
+                        selectedUnit = hoveredUnit;
+                        const auto& selectionSound = getUnit(*hoveredUnit).selectionSound;
+                        if (selectionSound)
+                        {
+                            playSoundOnSelectChannel(*selectionSound);
+                        }
+                    }
+                    else
+                    {
+                        selectedUnit = boost::none;
+                    }
                 }
-            }
-            else
-            {
-                selectedUnit = boost::none;
             }
         }
     }
@@ -241,13 +325,24 @@ namespace rwe
 
         hoveredUnit = getUnitUnderCursor();
 
-        if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
+        if (boost::get<AttackCursorMode>(&cursorMode) != nullptr)
         {
-            cursor->useSelectCursor();
+            cursor->useAttackCursor();
         }
-        else
+        else if (boost::get<NormalCursorMode>(&cursorMode) != nullptr)
         {
-            cursor->useNormalCursor();
+            if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
+            {
+                cursor->useSelectCursor();
+            }
+            else if (selectedUnit && getUnit(*selectedUnit).canAttack && hoveredUnit && isEnemy(*hoveredUnit))
+            {
+                cursor->useRedCursor();
+            }
+            else
+            {
+                cursor->useNormalCursor();
+            }
         }
 
         pathFindingService.update();
@@ -305,12 +400,12 @@ namespace rwe
         simulation.moveObjectNow(unitId, name, axis, position);
     }
 
-    void GameScene::turnObject(UnitId unitId, const std::string& name, Axis axis, float angle, float speed)
+    void GameScene::turnObject(UnitId unitId, const std::string& name, Axis axis, RadiansAngle angle, float speed)
     {
         simulation.turnObject(unitId, name, axis, angle, speed);
     }
 
-    void GameScene::turnObjectNow(UnitId unitId, const std::string& name, Axis axis, float angle)
+    void GameScene::turnObjectNow(UnitId unitId, const std::string& name, Axis axis, RadiansAngle angle)
     {
         simulation.turnObjectNow(unitId, name, axis, angle);
     }
@@ -381,6 +476,38 @@ namespace rwe
         getUnit(unitId).addOrder(createMoveOrder(position));
     }
 
+    void GameScene::issueAttackOrder(UnitId unitId, UnitId target)
+    {
+        auto& unit = getUnit(unitId);
+        unit.clearOrders();
+        unit.addOrder(createAttackOrder(target));
+        if (unit.okSound)
+        {
+            playSoundOnSelectChannel(*(unit.okSound));
+        }
+    }
+
+    void GameScene::enqueueAttackOrder(UnitId unitId, UnitId target)
+    {
+        getUnit(unitId).addOrder(createAttackOrder(target));
+    }
+
+    void GameScene::issueAttackGroundOrder(UnitId unitId, Vector3f position)
+    {
+        auto& unit = getUnit(unitId);
+        unit.clearOrders();
+        unit.addOrder(createAttackGroundOrder(position));
+        if (unit.okSound)
+        {
+            playSoundOnSelectChannel(*(unit.okSound));
+        }
+    }
+
+    void GameScene::enqueueAttackGroundOrder(UnitId unitId, Vector3f position)
+    {
+        getUnit(unitId).addOrder(createAttackGroundOrder(position));
+    }
+
     void GameScene::stopSelectedUnit()
     {
         if (selectedUnit)
@@ -433,5 +560,11 @@ namespace rwe
     GameSimulation& GameScene::getSimulation()
     {
         return simulation;
+    }
+
+    bool GameScene::isEnemy(UnitId id) const
+    {
+        // TODO: consider allies/teams here
+        return !getUnit(id).isOwnedBy(localPlayerId);
     }
 }
