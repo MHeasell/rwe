@@ -1,6 +1,7 @@
 #ifndef RWE_UNITFOOTPRINTPATHFINDER_H
 #define RWE_UNITFOOTPRINTPATHFINDER_H
 
+#include "AbstractUnitPathFinder.h"
 #include "PathCost.h"
 #include "pathfinding_utils.h"
 #include <rwe/DiscreteRect.h>
@@ -15,15 +16,9 @@ namespace rwe
     /**
      * Standard unit pathfinder.
      */
-    class UnitFootprintPathFinder : public AStarPathFinder<Point, PathCost>
+    class UnitFootprintPathFinder : public AbstractUnitPathFinder
     {
     private:
-        GameSimulation* const simulation;
-        MovementClassCollisionService* const collisionService;
-        const UnitId self;
-        const boost::optional<MovementClassId> movementClass;
-        const unsigned int footprintX;
-        const unsigned int footprintZ;
         const Point goal;
 
     public:
@@ -40,19 +35,6 @@ namespace rwe
         bool isGoal(const Point& vertex) override;
 
         PathCost estimateCostToGoal(const Point& start) override;
-
-        std::vector<VertexInfo> getSuccessors(const VertexInfo& vertex) override;
-
-    private:
-        bool isWalkable(const Point& p) const;
-
-        bool isWalkable(int x, int y) const;
-
-        bool isRoughTerrain(const Point& p) const;
-
-        Point step(const Point& p, Direction d) const;
-
-        std::vector<Point> getNeighbours(const Point& p);
     };
 }
 
