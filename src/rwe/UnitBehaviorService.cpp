@@ -173,7 +173,7 @@ namespace rwe
         explicit GetTargetPosVisitor(const GameSimulation* sim) : sim(sim) {}
         Vector3f operator()(const Vector3f& pos) const { return pos; }
         // FIXME: unit could no longer exist (e.g. it died), currently this is UB.
-        Vector3f operator()(UnitId id) const { sim->getUnit(id).position; }
+        Vector3f operator()(UnitId id) const { return sim->getUnit(id).position; }
     };
 
     void UnitBehaviorService::updateWeapon(UnitId id, unsigned int weaponIndex)
