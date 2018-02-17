@@ -129,9 +129,18 @@ namespace rwe
             }
             else if (auto attackGroundOrder = boost::get<AttackGroundOrder>(&order); attackGroundOrder != nullptr)
             {
+                // TODO: if out of attack range, move into range
                 for (unsigned int i = 0; i < unit.weapons.size(); ++i)
                 {
                     unit.setWeaponTarget(i, attackGroundOrder->target);
+                }
+            }
+            else if (auto attackOrder = boost::get<AttackOrder>(&order); attackOrder != nullptr)
+            {
+                // TODO: if out of attack range, move into range
+                for (unsigned int i = 0; i < unit.weapons.size(); ++i)
+                {
+                    unit.setWeaponTarget(i, attackOrder->target);
                 }
             }
         }
