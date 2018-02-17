@@ -1,8 +1,8 @@
-#include "UnitFootprintPathFinder.h"
+#include "UnitPathFinder.h"
 
 namespace rwe
 {
-    UnitFootprintPathFinder::UnitFootprintPathFinder(
+    UnitPathFinder::UnitPathFinder(
         GameSimulation* simulation,
         MovementClassCollisionService* collisionService,
         UnitId self,
@@ -21,12 +21,12 @@ namespace rwe
     {
     }
 
-    bool UnitFootprintPathFinder::isGoal(const Point& vertex)
+    bool UnitPathFinder::isGoal(const Point& vertex)
     {
         return vertex == goal;
     }
 
-    PathCost UnitFootprintPathFinder::estimateCostToGoal(const Point& start)
+    PathCost UnitPathFinder::estimateCostToGoal(const Point& start)
     {
         auto distance = octileDistance(start, goal);
         unsigned int turns = (distance.straight > 0 && distance.diagonal > 0) ? 1 : 0;

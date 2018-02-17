@@ -1,5 +1,5 @@
 #include "PathFindingService.h"
-#include "UnitFootprintPathFinder.h"
+#include "UnitPathFinder.h"
 #include "pathfinding_utils.h"
 #include <future>
 
@@ -42,7 +42,7 @@ namespace rwe
         auto start = simulation->computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
         auto goal = simulation->computeFootprintRegion(destination, unit.footprintX, unit.footprintZ);
 
-        UnitFootprintPathFinder pathFinder(simulation, collisionService, unitId, unit.movementClass, unit.footprintX, unit.footprintZ, Point(goal.x, goal.y));
+        UnitPathFinder pathFinder(simulation, collisionService, unitId, unit.movementClass, unit.footprintX, unit.footprintZ, Point(goal.x, goal.y));
 
         auto path = pathFinder.findPath(Point(start.x, start.y));
         lastPathDebugInfo = AStarPathInfo<Point, PathCost>{path.type, path.path, std::move(path.closedVertices)};

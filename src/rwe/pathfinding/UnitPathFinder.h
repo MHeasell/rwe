@@ -16,13 +16,13 @@ namespace rwe
     /**
      * Standard unit pathfinder.
      */
-    class UnitFootprintPathFinder : public AbstractUnitPathFinder
+    class UnitPathFinder : public AbstractUnitPathFinder
     {
     private:
         const Point goal;
 
     public:
-        UnitFootprintPathFinder(
+        UnitPathFinder(
             GameSimulation* simulation,
             MovementClassCollisionService* collisionService,
             UnitId self,

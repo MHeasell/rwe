@@ -256,9 +256,9 @@ set(SOURCE_FILES
     src/rwe/pathfinding/PathCost.h
     src/rwe/pathfinding/PathFindingService.cpp
     src/rwe/pathfinding/PathFindingService.h
-    src/rwe/pathfinding/UnitFootprintPathFinder.cpp
-    src/rwe/pathfinding/UnitFootprintPathFinder.h
     src/rwe/pathfinding/UnitPath.h
+    src/rwe/pathfinding/UnitPathFinder.cpp
+    src/rwe/pathfinding/UnitPathFinder.h
     src/rwe/pathfinding/pathfinding_utils.cpp
     src/rwe/pathfinding/pathfinding_utils.h
     src/rwe/pcx.cpp
