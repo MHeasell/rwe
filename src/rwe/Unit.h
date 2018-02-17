@@ -111,6 +111,12 @@ namespace rwe
          */
         float brakeRate;
 
+        /** The angle we are trying to steer towards. */
+        float targetAngle{0.0f};
+
+        /** The speed we are trying to accelerate/decelerate to */
+        float targetSpeed{0.0f};
+
         boost::optional<MovementClassId> movementClass;
 
         unsigned int footprintX;

@@ -34,9 +34,9 @@ namespace rwe
 
         float previousSpeed = unit.currentSpeed;
 
-        // by default, stay put
-        float targetSpeed = 0.0f;
-        float targetAngle = unit.rotation;
+        // Clear steering targets.
+        unit.targetAngle = unit.rotation;
+        unit.targetSpeed = 0.0f;
 
         // check our orders
         if (!unit.orders.empty())
@@ -75,53 +75,16 @@ namespace rwe
                     auto& pathToFollow = movingState->path;
                     if (pathToFollow)
                     {
-                        const auto& destination = *pathToFollow->currentWaypoint;
-                        Vector2f xzPosition(unit.position.x, unit.position.z);
-                        Vector2f xzDestination(destination.x, destination.z);
-                        auto distanceSquared = xzPosition.distanceSquared(xzDestination);
-
-                        auto isFinalDestination = pathToFollow->currentWaypoint == (pathToFollow->path.waypoints.end() - 1);
-
-                        if (distanceSquared < (8.0f * 8.0f))
+                        if (followPath(unit, *pathToFollow))
                         {
-                            if (isFinalDestination)
-                            {
-                                // order complete
-                                unit.orders.pop_front();
-                                unit.behaviourState = IdleState();
+                            // we finished following the path,
+                            // order complete
+                            unit.orders.pop_front();
+                            unit.behaviourState = IdleState();
 
-                                if (unit.arrivedSound)
-                                {
-                                    scene->playSoundOnSelectChannel(*unit.arrivedSound);
-                                }
-                            }
-                            else
+                            if (unit.arrivedSound)
                             {
-                                ++pathToFollow->currentWaypoint;
-                            }
-                        }
-                        else
-                        {
-                            // steer towards the goal
-                            auto xzDirection = xzDestination - xzPosition;
-                            auto destAngle = Vector2f(0.0f, -1.0f).angleTo(xzDirection);
-                            targetAngle = (2.0f * Pif) - destAngle; // convert to anticlockwise in our coordinate system
-
-                            // drive at full speed until we need to brake
-                            // to turn or to arrive at the goal
-                            auto brakingDistance = (unit.currentSpeed * unit.currentSpeed) / (2.0f * unit.brakeRate);
-
-                            if (isWithinTurningCircle(xzDirection, unit.currentSpeed, unit.turnRate, unit.rotation))
-                            {
-                                targetSpeed = 0.0f;
-                            }
-                            else if (isFinalDestination && distanceSquared <= (brakingDistance * brakingDistance))
-                            {
-                                targetSpeed = 0.0f;
-                            }
-                            else
-                            {
-                                targetSpeed = unit.maxSpeed;
+                                scene->playSoundOnSelectChannel(*unit.arrivedSound);
                             }
                         }
                     }
@@ -150,7 +113,7 @@ namespace rwe
             updateWeapon(unitId, i);
         }
 
-        applyUnitSteering(unitId, targetAngle, targetSpeed);
+        applyUnitSteering(unitId);
 
         if (unit.currentSpeed > 0.0f && previousSpeed == 0.0f)
         {
@@ -162,6 +125,54 @@ namespace rwe
         }
 
         updateUnitPosition(unitId);
+    }
+
+    bool UnitBehaviorService::followPath(Unit& unit, PathFollowingInfo& path)
+    {
+        const auto& destination = *path.currentWaypoint;
+        Vector2f xzPosition(unit.position.x, unit.position.z);
+        Vector2f xzDestination(destination.x, destination.z);
+        auto distanceSquared = xzPosition.distanceSquared(xzDestination);
+
+        auto isFinalDestination = path.currentWaypoint == (path.path.waypoints.end() - 1);
+
+        if (distanceSquared < (8.0f * 8.0f))
+        {
+            if (isFinalDestination)
+            {
+                return true;
+            }
+            else
+            {
+                ++path.currentWaypoint;
+            }
+        }
+        else
+        {
+            // steer towards the goal
+            auto xzDirection = xzDestination - xzPosition;
+            auto destAngle = Vector2f(0.0f, -1.0f).angleTo(xzDirection);
+            unit.targetAngle = (2.0f * Pif) - destAngle; // convert to anticlockwise in our coordinate system
+
+            // drive at full speed until we need to brake
+            // to turn or to arrive at the goal
+            auto brakingDistance = (unit.currentSpeed * unit.currentSpeed) / (2.0f * unit.brakeRate);
+
+            if (isWithinTurningCircle(xzDirection, unit.currentSpeed, unit.turnRate, unit.rotation))
+            {
+                unit.targetSpeed = 0.0f;
+            }
+            else if (isFinalDestination && distanceSquared <= (brakingDistance * brakingDistance))
+            {
+                unit.targetSpeed = 0.0f;
+            }
+            else
+            {
+                unit.targetSpeed = unit.maxSpeed;
+            }
+        }
+
+        return false;
     }
 
     class GetTargetPosVisitor : public boost::static_visitor<Vector3f>
@@ -245,22 +256,22 @@ namespace rwe
         // TODO: should check alignment and attempt to fire here
     }
 
-    void UnitBehaviorService::applyUnitSteering(UnitId id, float targetAngle, float targetSpeed)
+    void UnitBehaviorService::applyUnitSteering(UnitId id)
     {
-        updateUnitRotation(id, targetAngle);
-        updateUnitSpeed(id, targetSpeed);
+        updateUnitRotation(id);
+        updateUnitSpeed(id);
     }
 
-    void UnitBehaviorService::updateUnitRotation(UnitId id, float targetAngle)
+    void UnitBehaviorService::updateUnitRotation(UnitId id)
     {
         auto& unit = scene->getSimulation().getUnit(id);
 
-        auto angleDelta = wrap(-Pif, Pif, targetAngle - unit.rotation);
+        auto angleDelta = wrap(-Pif, Pif, unit.targetAngle - unit.rotation);
 
         auto turnRateThisFrame = unit.turnRate;
         if (std::abs(angleDelta) <= turnRateThisFrame)
         {
-            unit.rotation = targetAngle;
+            unit.rotation = unit.targetAngle;
         }
         else
         {
@@ -268,16 +279,16 @@ namespace rwe
         }
     }
 
-    void UnitBehaviorService::updateUnitSpeed(UnitId id, float targetSpeed)
+    void UnitBehaviorService::updateUnitSpeed(UnitId id)
     {
         auto& unit = scene->getSimulation().getUnit(id);
 
-        if (targetSpeed > unit.currentSpeed)
+        if (unit.targetSpeed > unit.currentSpeed)
         {
             // accelerate to target speed
-            if (targetSpeed - unit.currentSpeed <= unit.acceleration)
+            if (unit.targetSpeed - unit.currentSpeed <= unit.acceleration)
             {
-                unit.currentSpeed = targetSpeed;
+                unit.currentSpeed = unit.targetSpeed;
             }
             else
             {
@@ -287,9 +298,9 @@ namespace rwe
         else
         {
             // brake to target speed
-            if (unit.currentSpeed - targetSpeed <= unit.brakeRate)
+            if (unit.currentSpeed - unit.targetSpeed <= unit.brakeRate)
             {
-                unit.currentSpeed = targetSpeed;
+                unit.currentSpeed = unit.targetSpeed;
             }
             else
             {

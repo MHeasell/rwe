@@ -22,12 +22,14 @@ namespace rwe
         void update(UnitId unitId);
 
     private:
+        bool followPath(Unit& unit, PathFollowingInfo& path);
+
         void updateWeapon(UnitId id, unsigned int weaponIndex);
         void tryFireWeapon(UnitId id, unsigned int weaponIndex);
 
-        void applyUnitSteering(UnitId id, float targetAngle, float targetSpeed);
-        void updateUnitRotation(UnitId id, float targetAngle);
-        void updateUnitSpeed(UnitId id, float targetSpeed);
+        void applyUnitSteering(UnitId id);
+        void updateUnitRotation(UnitId id);
+        void updateUnitSpeed(UnitId id);
 
         void updateUnitPosition(UnitId unitId);
 
