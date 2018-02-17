@@ -201,22 +201,69 @@ namespace rwe
         orders.push_back(order);
     }
 
+    class TargetIsUnitVisitor : public boost::static_visitor<bool>
+    {
+    private:
+        UnitId unit;
+
+    public:
+        TargetIsUnitVisitor(UnitId unit) : unit(unit) {}
+        bool operator()(UnitId target) const { return unit == target; }
+        bool operator()(const Vector3f& target) const { return false; }
+    };
+
+    class IsAttackingUnitVisitor : public boost::static_visitor<bool>
+    {
+    private:
+        UnitId unit;
+
+    public:
+        IsAttackingUnitVisitor(const UnitId& unit) : unit(unit) {}
+        bool operator()(const UnitWeaponStateIdle&) const { return false; }
+        bool operator()(const UnitWeaponStateAttacking& state) const { return boost::apply_visitor(TargetIsUnitVisitor(unit), state.target); }
+    };
+
+
+    class TargetIsPositionVisitor : public boost::static_visitor<bool>
+    {
+    private:
+        Vector3f position;
+
+    public:
+        TargetIsPositionVisitor(const Vector3f& position) : position(position) {}
+        bool operator()(UnitId target) const { return false; }
+        bool operator()(const Vector3f& target) const { return target == position; }
+    };
+
+    class IsAttackingPositionVisitor : public boost::static_visitor<bool>
+    {
+    private:
+        Vector3f position;
+
+    public:
+        IsAttackingPositionVisitor(const Vector3f& position) : position(position) {}
+        bool operator()(const UnitWeaponStateIdle&) const { return false; }
+        bool operator()(const UnitWeaponStateAttacking& state) const { return boost::apply_visitor(TargetIsPositionVisitor(position), state.target); }
+    };
+
     void Unit::setWeaponTarget(unsigned int weaponIndex, UnitId target)
     {
-        clearWeaponTarget(weaponIndex);
-
         auto& weapon = weapons[weaponIndex];
-
-        weapon.state = UnitWeaponStateAttacking(target);
+        if (!boost::apply_visitor(IsAttackingUnitVisitor(target), weapon.state))
+        {
+            clearWeaponTarget(weaponIndex);
+            weapon.state = UnitWeaponStateAttacking(target);
+        }
     }
 
     void Unit::setWeaponTarget(unsigned int weaponIndex, const Vector3f& target)
     {
-        clearWeaponTarget(weaponIndex);
-
         auto& weapon = weapons[weaponIndex];
-
-        weapon.state = UnitWeaponStateAttacking(target);
+        if (!boost::apply_visitor(IsAttackingPositionVisitor(target), weapon.state))
+        {
+            clearWeaponTarget(weaponIndex);
+            weapon.state = UnitWeaponStateAttacking(target);
+        }
     }
 
     void Unit::clearWeaponTarget(unsigned int weaponIndex)
