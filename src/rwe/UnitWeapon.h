@@ -32,6 +32,8 @@ namespace rwe
 
     struct UnitWeapon
     {
+        float maxRange{200.0f};
+
         /** The game time at which the weapon next becomes ready to fire. */
         GameTime readyTime;
 
