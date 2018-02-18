@@ -39,8 +39,6 @@ namespace rwe
         /**
          * Returns the octile distance from the given coordinates
          * to the nearest coordinates that are adjacent to the rectangle.
-         * The given coordinates expected to be outside,
-         * if the coordinates are inside then behaviour is undefined.
          */
         OctileDistance octileDistanceToPerimeter(int px, int py) const;
     };
