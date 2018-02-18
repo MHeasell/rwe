@@ -78,6 +78,7 @@ set(SOURCE_FILES
     src/rwe/ColorPalette.h
     src/rwe/CursorService.cpp
     src/rwe/CursorService.h
+    src/rwe/DiscreteRect.cpp
     src/rwe/DiscreteRect.h
     src/rwe/EightWayDirection.cpp
     src/rwe/EightWayDirection.h
@@ -259,6 +260,8 @@ set(SOURCE_FILES
     src/rwe/pathfinding/UnitPath.h
     src/rwe/pathfinding/UnitPathFinder.cpp
     src/rwe/pathfinding/UnitPathFinder.h
+    src/rwe/pathfinding/UnitPerimeterPathFinder.cpp
+    src/rwe/pathfinding/UnitPerimeterPathFinder.h
     src/rwe/pathfinding/pathfinding_utils.cpp
     src/rwe/pathfinding/pathfinding_utils.h
     src/rwe/pcx.cpp
@@ -432,6 +435,7 @@ endif()
 
 set(TEST_FILES
     test/rwe/BoxTreeSplit_test.cpp
+    test/rwe/DiscreteRect_test.cpp
     test/rwe/EightWayDirection_test.cpp
     test/rwe/FeatureDefinition_test.cpp
     test/rwe/Grid_test.cpp

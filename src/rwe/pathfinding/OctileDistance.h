@@ -9,6 +9,8 @@ namespace rwe
         unsigned int straight{0};
         unsigned int diagonal{0};
 
+        static OctileDistance fromXAndY(unsigned int x, unsigned int y);
+
         OctileDistance() = default;
         OctileDistance(unsigned int straight, unsigned int diagonal);
 
