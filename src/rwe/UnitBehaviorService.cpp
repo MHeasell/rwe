@@ -46,16 +46,14 @@ namespace rwe
             // process move orders
             if (auto moveOrder = boost::get<MoveOrder>(&order); moveOrder != nullptr)
             {
-                auto idleState = boost::get<IdleState>(&unit.behaviourState);
-                auto movingState = boost::get<MovingState>(&unit.behaviourState);
-                if (idleState != nullptr)
+                if (auto idleState = boost::get<IdleState>(&unit.behaviourState); idleState != nullptr)
                 {
                     // request a path to follow
                     scene->getSimulation().requestPath(unitId);
                     const auto& destination = moveOrder->destination;
                     unit.behaviourState = MovingState{destination, boost::none, true};
                 }
-                else if (movingState != nullptr)
+                else if (auto movingState = boost::get<MovingState>(&unit.behaviourState); movingState != nullptr)
                 {
                     // if we are colliding, request a new path
                     if (unit.inCollision && !movingState->pathRequested)
