@@ -421,6 +421,12 @@ if(WIN32)
     target_link_libraries(3do_test -static)
 endif()
 
+add_executable(cob_test src/cob_test.cpp)
+target_link_libraries(cob_test librwe)
+if(WIN32)
+    target_link_libraries(cob_test -static)
+endif()
+
 add_executable(texture_test src/texture_test.cpp)
 target_copy_dll(texture_test "libpng16-16.dll")
 target_link_libraries(texture_test ${PNG_LIBRARIES})
