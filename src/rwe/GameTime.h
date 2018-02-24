@@ -27,6 +27,8 @@ namespace rwe
     GameTime operator-(GameTime a, GameTimeDelta b);
 
     GameTimeDelta operator-(GameTime a, GameTime b);
+
+    GameTimeDelta deltaSecondsToTicks(float seconds);
 }
 
 #endif

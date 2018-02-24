@@ -61,4 +61,9 @@ namespace rwe
     {
         return GameTimeDelta(a.value - b.value);
     }
+
+    GameTimeDelta deltaSecondsToTicks(float seconds)
+    {
+        return GameTimeDelta(seconds * 60.0f);
+    }
 }

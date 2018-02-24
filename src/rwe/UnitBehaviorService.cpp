@@ -372,7 +372,20 @@ namespace rwe
         auto& unit = scene->getSimulation().getUnit(id);
         auto& weapon = unit.weapons[weaponIndex];
 
-        // TODO: should check alignment and attempt to fire here
+        // wait for the weapon to reload
+        auto gameTime = scene->getGameTime();
+        if (gameTime < weapon.readyTime)
+        {
+            return;
+        }
+
+        // TODO: should check alignment before firing
+
+        // TODO: should actually spawn a projectile from the firing point
+        unit.cobEnvironment->createThread(getFireScriptName(weaponIndex));
+
+        // we are reloading now
+        weapon.readyTime = gameTime + deltaSecondsToTicks(weapon.reloadTime);
     }
 
     void UnitBehaviorService::applyUnitSteering(UnitId id)
@@ -526,6 +539,21 @@ namespace rwe
                 return "AimSecondary";
             case 2:
                 return "AimTertiary";
+            default:
+                throw std::logic_error("Invalid wepaon index: " + std::to_string(weaponIndex));
+        }
+    }
+
+    std::string UnitBehaviorService::getFireScriptName(unsigned int weaponIndex) const
+    {
+        switch (weaponIndex)
+        {
+            case 0:
+                return "FirePrimary";
+            case 1:
+                return "FireSecondary";
+            case 2:
+                return "FireTertiary";
             default:
                 throw std::logic_error("Invalid wepaon index: " + std::to_string(weaponIndex));
         }

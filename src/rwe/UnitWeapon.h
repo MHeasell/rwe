@@ -34,8 +34,10 @@ namespace rwe
     {
         float maxRange{200.0f};
 
+        float reloadTime{0.85f};
+
         /** The game time at which the weapon next becomes ready to fire. */
-        GameTime readyTime;
+        GameTime readyTime{0};
 
         /** The internal state of the weapon. */
         UnitWeaponState state{UnitWeaponStateIdle()};
