@@ -1,6 +1,7 @@
 #ifndef RWE_COBTHREAD_H
 #define RWE_COBTHREAD_H
 
+#include "CobFunction.h"
 #include <boost/variant.hpp>
 #include <rwe/util.h>
 #include <stack>
@@ -14,17 +15,15 @@ namespace rwe
         std::string name;
 
         std::stack<int> stack;
-        std::stack<std::vector<int>> locals;
-        unsigned int instructionIndex{0};
 
         unsigned int signalMask{0};
+
+        std::stack<CobFunction> callStack;
+
         int returnValue;
 
-        CobThread(
-            const std::string& name,
-            unsigned int instructionIndex,
-            unsigned int endIndex,
-            const std::vector<int>& params);
+    public:
+        explicit CobThread(const std::string& name);
     };
 }
 

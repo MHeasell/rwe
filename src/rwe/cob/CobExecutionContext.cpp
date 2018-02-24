@@ -15,7 +15,7 @@ namespace rwe
 
     CobEnvironment::Status CobExecutionContext::execute()
     {
-        while (thread->instructionIndex < env->script()->instructions.size())
+        while (!thread->callStack.empty())
         {
             auto instruction = nextInstruction();
             switch (static_cast<OpCode>(instruction))
@@ -297,7 +297,7 @@ namespace rwe
     void CobExecutionContext::jump()
     {
         auto jumpOffset = nextInstruction();
-        thread->instructionIndex = jumpOffset;
+        thread->callStack.top().instructionIndex = jumpOffset;
     }
 
     void CobExecutionContext::jumpIfZero()
@@ -306,7 +306,7 @@ namespace rwe
         auto value = pop();
         if (value == 0)
         {
-            thread->instructionIndex = jumpOffset;
+            thread->callStack.top().instructionIndex = jumpOffset;
         }
     }
 
@@ -481,8 +481,7 @@ namespace rwe
     void CobExecutionContext::returnFromScript()
     {
         thread->returnValue = pop();
-        thread->instructionIndex = pop();
-        thread->locals.pop();
+        thread->callStack.pop();
     }
 
     void CobExecutionContext::callScript()
@@ -490,18 +489,15 @@ namespace rwe
         auto functionId = nextInstruction();
         auto paramCount = nextInstruction();
 
-        // set up parameters as local variables
-        thread->locals.emplace(paramCount);
+        // collect up the parameters
+        std::vector<int> params(paramCount);
         for (unsigned int i = 0; i < paramCount; ++i)
         {
-            auto param = pop();
-            thread->locals.top()[i] = param;
+            params[i] = pop();
         }
 
-        push(thread->instructionIndex);
-
         const auto& functionInfo = env->script()->functions.at(functionId);
-        thread->instructionIndex = functionInfo.address;
+        thread->callStack.emplace(functionInfo.address, params);
     }
 
     void CobExecutionContext::startScript()
@@ -532,7 +528,7 @@ namespace rwe
 
     void CobExecutionContext::createLocalVariable()
     {
-        thread->locals.top().emplace_back();
+        thread->callStack.top().locals.emplace_back();
     }
 
     void CobExecutionContext::pushConstant()
@@ -544,14 +540,14 @@ namespace rwe
     void CobExecutionContext::pushLocalVariable()
     {
         auto variableId = nextInstruction();
-        push(thread->locals.top().at(variableId));
+        push(thread->callStack.top().locals.at(variableId));
     }
 
     void CobExecutionContext::popLocalVariable()
     {
         auto variableId = nextInstruction();
         auto value = pop();
-        thread->locals.top().at(variableId) = value;
+        thread->callStack.top().locals.at(variableId) = value;
     }
 
     void CobExecutionContext::pushStaticVariable()
@@ -649,7 +645,7 @@ namespace rwe
 
     unsigned int CobExecutionContext::nextInstruction()
     {
-        return env->script()->instructions.at(thread->instructionIndex++);
+        return env->script()->instructions.at(thread->callStack.top().instructionIndex++);
     }
 
     const std::string& CobExecutionContext::getObjectName(unsigned int objectId)
