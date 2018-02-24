@@ -144,6 +144,6 @@ namespace rwe
             const auto& weaponName = entry.first;
             items.emplace_back(weaponName, parseWeaponBlock(*entry.second));
         }
-        return std::vector<std::pair<std::string, WeaponTdf>>();
+        return items;
     }
 }

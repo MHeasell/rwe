@@ -22,6 +22,9 @@ namespace rwe
 
     public:
         Unit createUnit(const std::string& unitType, PlayerId owner, unsigned int colorIndex, const Vector3f& position);
+
+    private:
+        UnitWeapon createWeapon(const std::string& weaponType);
     };
 }
 

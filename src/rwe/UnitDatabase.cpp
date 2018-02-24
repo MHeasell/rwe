@@ -36,6 +36,22 @@ namespace rwe
         cobMap.insert({toUpper(unitName), std::move(cob)});
     }
 
+    const WeaponTdf& UnitDatabase::getWeapon(const std::string& weaponName) const
+    {
+        auto it = weaponMap.find(toUpper(weaponName));
+        if (it == weaponMap.end())
+        {
+            throw std::runtime_error("No weapon found with name " + weaponName);
+        }
+
+        return it->second;
+    }
+
+    void UnitDatabase::addWeapon(const std::string& weaponName, WeaponTdf&& weapon)
+    {
+        weaponMap.insert({toUpper(weaponName), std::move(weapon)});
+    }
+
     const SoundClass& UnitDatabase::getSoundClass(const std::string& className) const
     {
         auto it = soundClassMap.find(className);

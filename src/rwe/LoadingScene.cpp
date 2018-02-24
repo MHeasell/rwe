@@ -1,4 +1,5 @@
 #include "LoadingScene.h"
+#include "WeaponTdf.h"
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include <rwe/ota.h>
 #include <rwe/tdf.h>
@@ -506,6 +507,31 @@ namespace rwe
             {
                 auto name = c.second.name;
                 db.addMovementClass(name, std::move(c.second));
+            }
+        }
+
+        // read weapons
+        {
+            auto weaponFiles = vfs->getFileNames("weapons", ".tdf");
+
+            for (const auto& fileName : weaponFiles)
+            {
+                auto bytes = vfs->readFile("weapons/" + fileName);
+                if (!bytes)
+                {
+                    throw std::runtime_error("File in listing could not be read: " + fileName);
+                }
+
+                std::string tdfString(bytes->data(), bytes->size());
+                auto entries = parseWeaponTdf(parseTdfFromString(tdfString));
+
+                for (auto& pair : entries)
+                {
+                    preloadSound(db, pair.second.soundStart);
+                    preloadSound(db, pair.second.soundHit);
+                    preloadSound(db, pair.second.soundWater);
+                    db.addWeapon(pair.first, std::move(pair.second));
+                }
             }
         }
 

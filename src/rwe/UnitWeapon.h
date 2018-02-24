@@ -32,9 +32,9 @@ namespace rwe
 
     struct UnitWeapon
     {
-        float maxRange{200.0f};
+        float maxRange;
 
-        float reloadTime{0.85f};
+        float reloadTime;
 
         /** The game time at which the weapon next becomes ready to fire. */
         GameTime readyTime{0};

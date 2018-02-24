@@ -73,7 +73,7 @@ namespace rwe
         // yeah this is a hack
         if (!fbi.weapon1.empty())
         {
-            unit.weapons.emplace_back();
+            unit.weapons.emplace_back(createWeapon(fbi.weapon1));
         }
 
         if (soundClass.select1)
@@ -90,5 +90,14 @@ namespace rwe
         }
 
         return unit;
+    }
+
+    UnitWeapon UnitFactory::createWeapon(const std::string& weaponType)
+    {
+        const auto& tdf = unitDatabase.getWeapon(weaponType);
+        UnitWeapon weapon;
+        weapon.maxRange = tdf.range;
+        weapon.reloadTime = tdf.reloadTime;
+        return weapon;
     }
 }

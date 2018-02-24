@@ -5,6 +5,7 @@
 #include "MovementClass.h"
 #include "SoundClass.h"
 #include "UnitFbi.h"
+#include "WeaponTdf.h"
 #include <rwe/Cob.h>
 
 namespace rwe
@@ -18,6 +19,8 @@ namespace rwe
         std::unordered_map<std::string, UnitFbi> map;
 
         std::unordered_map<std::string, CobScript> cobMap;
+
+        std::unordered_map<std::string, WeaponTdf> weaponMap;
 
         std::unordered_map<std::string, SoundClass> soundClassMap;
 
@@ -33,6 +36,10 @@ namespace rwe
         const CobScript& getUnitScript(const std::string& unitName) const;
 
         void addUnitScript(const std::string& unitName, CobScript&& cob);
+
+        const WeaponTdf& getWeapon(const std::string& weaponName) const;
+
+        void addWeapon(const std::string& name, WeaponTdf&& weapon);
 
         const SoundClass& getSoundClass(const std::string& className) const;
 
