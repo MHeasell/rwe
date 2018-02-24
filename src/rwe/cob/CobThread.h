@@ -22,6 +22,12 @@ namespace rwe
 
         int returnValue;
 
+        /**
+         * Required for query functions, which communicate back to the engine
+         * not by a return value but by changing the values of their input parameters.
+         */
+        std::vector<int> returnLocals;
+
     public:
         explicit CobThread(const std::string& name);
     };

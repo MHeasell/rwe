@@ -481,6 +481,7 @@ namespace rwe
     void CobExecutionContext::returnFromScript()
     {
         thread->returnValue = pop();
+        thread->returnLocals = thread->callStack.top().locals;
         thread->callStack.pop();
     }
 

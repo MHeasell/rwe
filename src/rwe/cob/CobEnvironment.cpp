@@ -22,6 +22,27 @@ namespace rwe
         return _script;
     }
 
+    boost::optional<CobThread> CobEnvironment::createNonScheduledThread(const std::string& functionName, const std::vector<int>& params)
+    {
+        auto it = std::find_if(_script->functions.begin(), _script->functions.end(), [&functionName](const auto& i) { return i.name == functionName; });
+        if (it == _script->functions.end())
+        {
+            // silently ignore
+            return boost::none;
+        }
+
+        auto index = it - _script->functions.begin();
+        return createNonScheduledThread(index, params);
+    }
+
+    CobThread CobEnvironment::createNonScheduledThread(unsigned int functionId, const std::vector<int>& params)
+    {
+        const auto& functionInfo = _script->functions.at(functionId);
+        CobThread thread(functionInfo.name);
+        thread.callStack.emplace(functionInfo.address, params);
+        return thread;
+    }
+
     const CobThread* CobEnvironment::createThread(unsigned int functionId, const std::vector<int>& params)
     {
         const auto& functionInfo = _script->functions.at(functionId);

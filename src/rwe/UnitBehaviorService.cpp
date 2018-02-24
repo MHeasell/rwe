@@ -1,5 +1,6 @@
 #include "UnitBehaviorService.h"
 #include <rwe/GameScene.h>
+#include <rwe/cob/CobExecutionContext.h>
 #include <rwe/geometry/Circle2f.h>
 #include <rwe/math/rwe_math.h>
 
@@ -528,5 +529,24 @@ namespace rwe
             default:
                 throw std::logic_error("Invalid wepaon index: " + std::to_string(weaponIndex));
         }
+    }
+
+    boost::optional<int> UnitBehaviorService::runCobQuery(UnitId id, std::string& name)
+    {
+        auto& unit = scene->getSimulation().getUnit(id);
+        auto thread = unit.cobEnvironment->createNonScheduledThread(name, {0});
+        if (!thread)
+        {
+            return boost::none;
+        }
+        CobExecutionContext context(&scene->getSimulation(), unit.cobEnvironment.get(), &*thread, id);
+        auto status = context.execute();
+        if (boost::get<CobEnvironment::FinishedStatus>(&status) == nullptr)
+        {
+            throw std::runtime_error("Synchronous cob query thread blocked before completion");
+        }
+
+        auto result = thread->returnLocals[0];
+        return result;
     }
 }
