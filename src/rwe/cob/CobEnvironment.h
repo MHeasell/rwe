@@ -101,6 +101,8 @@ namespace rwe
 
         CobThread createNonScheduledThread(unsigned int functionId, const std::vector<int>& params);
 
+        const CobThread* createThread(unsigned int functionId, const std::vector<int>& params, unsigned int signalMask);
+
         const CobThread* createThread(unsigned int functionId, const std::vector<int>& params);
 
         boost::optional<const CobThread*> createThread(const std::string& functionName, const std::vector<int>& params);

@@ -43,13 +43,18 @@ namespace rwe
         return thread;
     }
 
-    const CobThread* CobEnvironment::createThread(unsigned int functionId, const std::vector<int>& params)
+    const CobThread* CobEnvironment::createThread(unsigned int functionId, const std::vector<int>& params, unsigned int signalMask)
     {
         const auto& functionInfo = _script->functions.at(functionId);
-        auto& thread = threads.emplace_back(std::make_unique<CobThread>(functionInfo.name));
+        auto& thread = threads.emplace_back(std::make_unique<CobThread>(functionInfo.name, signalMask));
         thread->callStack.emplace(functionInfo.address, params);
         readyQueue.push_back(thread.get());
         return thread.get();
+    }
+
+    const CobThread* CobEnvironment::createThread(unsigned int functionId, const std::vector<int>& params)
+    {
+        return createThread(functionId, params, 0);
     }
 
     boost::optional<const CobThread*> CobEnvironment::createThread(const std::string& functionName, const std::vector<int>& params)

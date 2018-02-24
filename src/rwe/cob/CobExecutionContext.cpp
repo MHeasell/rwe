@@ -512,7 +512,7 @@ namespace rwe
             params[i] = pop();
         }
 
-        env->createThread(functionId, params);
+        env->createThread(functionId, params, thread->signalMask);
     }
 
     void CobExecutionContext::sendSignal()

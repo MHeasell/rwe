@@ -29,6 +29,8 @@ namespace rwe
         std::vector<int> returnLocals;
 
     public:
+        CobThread(const std::string& name, unsigned int signalMask);
+
         explicit CobThread(const std::string& name);
     };
 }
