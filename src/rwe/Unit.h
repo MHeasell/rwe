@@ -8,6 +8,7 @@
 #include <deque>
 #include <memory>
 #include <rwe/AudioService.h>
+#include <rwe/DiscreteRect.h>
 #include <rwe/PlayerId.h>
 #include <rwe/SelectionMesh.h>
 #include <rwe/UnitMesh.h>
@@ -45,9 +46,11 @@ namespace rwe
             : path(std::move(path)), pathCreationTime(creationTime), currentWaypoint(this->path.waypoints.begin()) {}
     };
 
+    using MovingStateGoal = boost::variant<Vector3f, DiscreteRect>;
+
     struct MovingState
     {
-        Vector3f destination;
+        MovingStateGoal destination;
         boost::optional<PathFollowingInfo> path;
         bool pathRequested;
     };

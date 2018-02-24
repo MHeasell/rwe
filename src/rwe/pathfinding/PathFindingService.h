@@ -17,6 +17,27 @@ namespace rwe
     class PathFindingService
     {
     private:
+        class FindPathVisitor : public boost::static_visitor<UnitPath>
+        {
+        private:
+            PathFindingService* svc;
+            UnitId unitId;
+
+        public:
+            FindPathVisitor(PathFindingService* svc, const UnitId& unitId) : svc(svc), unitId(unitId)
+            {
+            }
+
+            UnitPath operator()(const Vector3f& pos) const
+            {
+                return svc->findPath(unitId, pos);
+            }
+            UnitPath operator()(const DiscreteRect& pos) const
+            {
+                return svc->findPath(unitId, pos);
+            }
+        };
+
         GameSimulation* const simulation;
         MovementClassCollisionService* const collisionService;
 
@@ -29,8 +50,11 @@ namespace rwe
 
     private:
         UnitPath findPath(UnitId unitId, const Vector3f& destination);
+        UnitPath findPath(UnitId unitId, const DiscreteRect& destination);
 
         Vector3f getWorldCenter(const DiscreteRect& discreteRect);
+
+        DiscreteRect expandTopLeft(const DiscreteRect& rect, unsigned int width, unsigned int height);
     };
 }
 

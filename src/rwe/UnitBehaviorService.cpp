@@ -162,7 +162,8 @@ namespace rwe
                 else
                 {
                     // FIXME: this is unsafe, the target unit could already be dead
-                    const auto& targetPosition = scene->getSimulation().getUnit(attackOrder->target).position;
+                    const auto& targetUnit = scene->getSimulation().getUnit(attackOrder->target);
+                    const auto& targetPosition = targetUnit.position;
 
                     auto maxRangeSquared = unit.weapons[0].maxRange * unit.weapons[0].maxRange;
                     if (auto idleState = boost::get<IdleState>(&unit.behaviourState); idleState != nullptr)
@@ -172,7 +173,7 @@ namespace rwe
                         {
                             // request a path to follow
                             scene->getSimulation().requestPath(unitId);
-                            const auto& destination = targetPosition;
+                            auto destination = scene->computeFootprintRegion(targetUnit.position, targetUnit.footprintX, targetUnit.footprintZ);
                             unit.behaviourState = MovingState{destination, boost::none, true};
                         }
                         else
