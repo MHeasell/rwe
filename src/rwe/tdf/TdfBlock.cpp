@@ -1,11 +1,11 @@
 #include "TdfBlock.h"
 
-#include <sstream>
 #include <rwe/rwe_string.h>
+#include <sstream>
 
 namespace rwe
 {
-    template<>
+    template <>
     boost::optional<std::string> tdfTryParse(const std::string& value)
     {
         return value;
