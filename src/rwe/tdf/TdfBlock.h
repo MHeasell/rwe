@@ -6,6 +6,7 @@
 #include <initializer_list>
 #include <memory>
 #include <rwe/rwe_string.h>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -13,22 +14,21 @@
 namespace rwe
 {
     template <typename T>
-    boost::optional<T> tdfTryParse(const std::string& value);
+    boost::optional<T> tdfTryParse(const std::string& value)
+    {
+        std::stringstream s(value);
+        T i;
+        s >> i;
+        if (s.fail())
+        {
+            return boost::none;
+        }
 
-    template <>
-    boost::optional<int> tdfTryParse<int>(const std::string& value);
-
-    template <>
-    boost::optional<unsigned int> tdfTryParse<unsigned int>(const std::string& value);
-
-    template <>
-    boost::optional<float> tdfTryParse<float>(const std::string& value);
+        return i;
+    }
 
     template <>
     boost::optional<std::string> tdfTryParse<std::string>(const std::string& value);
-
-    template <>
-    boost::optional<bool> tdfTryParse<bool>(const std::string& value);
 
     class TdfValueException : public std::runtime_error
     {

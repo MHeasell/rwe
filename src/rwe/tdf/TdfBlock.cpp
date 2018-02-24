@@ -1,65 +1,11 @@
 #include "TdfBlock.h"
 
+#include <sstream>
 #include <rwe/rwe_string.h>
 
 namespace rwe
 {
-    template <>
-    boost::optional<int> tdfTryParse<int>(const std::string& value)
-    {
-        try
-        {
-            return std::stoi(value);
-        }
-        catch (const std::invalid_argument& e)
-        {
-            return boost::none;
-        }
-    }
-
-    template <>
-    boost::optional<unsigned int> tdfTryParse<unsigned int>(const std::string& value)
-    {
-        try
-        {
-            return std::stoul(value);
-        }
-        catch (const std::invalid_argument& e)
-        {
-            return boost::none;
-        }
-    }
-
-    template <>
-    boost::optional<float> tdfTryParse<float>(const std::string& value)
-    {
-        try
-        {
-            return std::stof(value);
-        }
-        catch (const std::invalid_argument& e)
-        {
-            return boost::none;
-        }
-    }
-
-    template <>
-    boost::optional<bool> tdfTryParse<bool>(const std::string& value)
-    {
-        int i;
-        try
-        {
-            i = std::stoi(value);
-        }
-        catch (const std::invalid_argument& e)
-        {
-            return boost::none;
-        }
-
-        return i != 0;
-    }
-
-    template <>
+    template<>
     boost::optional<std::string> tdfTryParse<std::string>(const std::string& value)
     {
         return value;
