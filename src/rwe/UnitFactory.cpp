@@ -98,6 +98,18 @@ namespace rwe
         UnitWeapon weapon;
         weapon.maxRange = tdf.range;
         weapon.reloadTime = tdf.reloadTime;
+        if (!tdf.soundStart.empty())
+        {
+            weapon.soundStart = unitDatabase.getSoundHandle(tdf.soundStart);
+        }
+        if (!tdf.soundHit.empty())
+        {
+            weapon.soundHit = unitDatabase.getSoundHandle(tdf.soundHit);
+        }
+        if (!tdf.soundWater.empty())
+        {
+            weapon.soundWater = unitDatabase.getSoundHandle(tdf.soundWater);
+        }
         return weapon;
     }
 }

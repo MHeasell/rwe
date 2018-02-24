@@ -430,6 +430,12 @@ namespace rwe
         audioService->playSoundIfFree(handle, UnitSelectChannel);
     }
 
+    void GameScene::playUnitSound(UnitId unitId, const AudioService::SoundHandle& sound)
+    {
+        // FIXME: should play on a unit-specific channel group
+        audioService->playSound(sound);
+    }
+
     boost::optional<UnitId> GameScene::getUnitUnderCursor() const
     {
         auto ray = renderService.getCamera().screenToWorldRay(screenToClipSpace(getMousePosition()));

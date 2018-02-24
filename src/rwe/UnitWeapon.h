@@ -4,6 +4,7 @@
 #include "GameTime.h"
 #include "UnitId.h"
 #include <boost/variant.hpp>
+#include <rwe/AudioService.h>
 #include <rwe/cob/CobThread.h>
 #include <rwe/math/Vector3f.h>
 
@@ -35,6 +36,10 @@ namespace rwe
         float maxRange;
 
         float reloadTime;
+
+        boost::optional<AudioService::SoundHandle> soundStart;
+        boost::optional<AudioService::SoundHandle> soundHit;
+        boost::optional<AudioService::SoundHandle> soundWater;
 
         /** The game time at which the weapon next becomes ready to fire. */
         GameTime readyTime{0};

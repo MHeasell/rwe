@@ -382,6 +382,10 @@ namespace rwe
         // TODO: should check alignment before firing
 
         // TODO: should actually spawn a projectile from the firing point
+        if (weapon.soundStart)
+        {
+            scene->playUnitSound(id, *weapon.soundStart);
+        }
         unit.cobEnvironment->createThread(getFireScriptName(weaponIndex));
 
         // we are reloading now
