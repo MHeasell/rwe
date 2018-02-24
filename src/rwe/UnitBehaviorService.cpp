@@ -46,16 +46,14 @@ namespace rwe
             // process move orders
             if (auto moveOrder = boost::get<MoveOrder>(&order); moveOrder != nullptr)
             {
-                auto idleState = boost::get<IdleState>(&unit.behaviourState);
-                auto movingState = boost::get<MovingState>(&unit.behaviourState);
-                if (idleState != nullptr)
+                if (auto idleState = boost::get<IdleState>(&unit.behaviourState); idleState != nullptr)
                 {
                     // request a path to follow
                     scene->getSimulation().requestPath(unitId);
                     const auto& destination = moveOrder->destination;
                     unit.behaviourState = MovingState{destination, boost::none, true};
                 }
-                else if (movingState != nullptr)
+                else if (auto movingState = boost::get<MovingState>(&unit.behaviourState); movingState != nullptr)
                 {
                     // if we are colliding, request a new path
                     if (unit.inCollision && !movingState->pathRequested)
@@ -92,18 +90,138 @@ namespace rwe
             }
             else if (auto attackGroundOrder = boost::get<AttackGroundOrder>(&order); attackGroundOrder != nullptr)
             {
-                // TODO: if out of attack range, move into range
-                for (unsigned int i = 0; i < unit.weapons.size(); ++i)
+                if (unit.weapons.empty())
                 {
-                    unit.setWeaponTarget(i, attackGroundOrder->target);
+                    unit.orders.pop_front();
+                }
+                else
+                {
+                    auto maxRangeSquared = unit.weapons[0].maxRange * unit.weapons[0].maxRange;
+                    if (auto idleState = boost::get<IdleState>(&unit.behaviourState); idleState != nullptr)
+                    {
+                        // if we're out of range, drive into range
+                        if (unit.position.distanceSquared(attackGroundOrder->target) > maxRangeSquared)
+                        {
+                            // request a path to follow
+                            scene->getSimulation().requestPath(unitId);
+                            const auto& destination = attackGroundOrder->target;
+                            unit.behaviourState = MovingState{destination, boost::none, true};
+                        }
+                        else
+                        {
+                            // we're in range, aim weapons
+                            for (unsigned int i = 0; i < unit.weapons.size(); ++i)
+                            {
+                                unit.setWeaponTarget(i, attackGroundOrder->target);
+                            }
+                        }
+                    }
+                    else if (auto movingState = boost::get<MovingState>(&unit.behaviourState); movingState != nullptr)
+                    {
+                        if (unit.position.distanceSquared(attackGroundOrder->target) <= maxRangeSquared)
+                        {
+                            unit.behaviourState = IdleState();
+                        }
+                        else
+                        {
+                            // if we are colliding, request a new path
+                            if (unit.inCollision && !movingState->pathRequested)
+                            {
+                                auto& sim = scene->getSimulation();
+
+                                // only request a new path if we don't have one yet,
+                                // or we've already had our current one for a bit
+                                if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTimeDelta(60))
+                                {
+                                    sim.requestPath(unitId);
+                                    movingState->pathRequested = true;
+                                }
+                            }
+
+                            // if a path is available, attempt to follow it
+                            auto& pathToFollow = movingState->path;
+                            if (pathToFollow)
+                            {
+                                if (followPath(unit, *pathToFollow))
+                                {
+                                    // we finished following the path,
+                                    // go back to idle
+                                    unit.behaviourState = IdleState();
+                                }
+                            }
+                        }
+                    }
                 }
             }
             else if (auto attackOrder = boost::get<AttackOrder>(&order); attackOrder != nullptr)
             {
-                // TODO: if out of attack range, move into range
-                for (unsigned int i = 0; i < unit.weapons.size(); ++i)
+                if (unit.weapons.empty())
                 {
-                    unit.setWeaponTarget(i, attackOrder->target);
+                    unit.orders.pop_front();
+                }
+                else
+                {
+                    // FIXME: this is unsafe, the target unit could already be dead
+                    const auto& targetUnit = scene->getSimulation().getUnit(attackOrder->target);
+                    const auto& targetPosition = targetUnit.position;
+
+                    auto maxRangeSquared = unit.weapons[0].maxRange * unit.weapons[0].maxRange;
+                    if (auto idleState = boost::get<IdleState>(&unit.behaviourState); idleState != nullptr)
+                    {
+                        // if we're out of range, drive into range
+                        if (unit.position.distanceSquared(targetPosition) > maxRangeSquared)
+                        {
+                            // request a path to follow
+                            scene->getSimulation().requestPath(unitId);
+                            auto destination = scene->computeFootprintRegion(targetUnit.position, targetUnit.footprintX, targetUnit.footprintZ);
+                            unit.behaviourState = MovingState{destination, boost::none, true};
+                        }
+                        else
+                        {
+                            // we're in range, aim weapons
+                            for (unsigned int i = 0; i < unit.weapons.size(); ++i)
+                            {
+                                unit.setWeaponTarget(i, targetPosition);
+                            }
+                        }
+                    }
+                    else if (auto movingState = boost::get<MovingState>(&unit.behaviourState); movingState != nullptr)
+                    {
+                        if (unit.position.distanceSquared(targetPosition) <= maxRangeSquared)
+                        {
+                            unit.behaviourState = IdleState();
+                        }
+                        else
+                        {
+                            // TODO: consider requesting a new path if the target unit has moved significantly
+
+                            // if we are colliding, request a new path
+                            if (unit.inCollision && !movingState->pathRequested)
+                            {
+                                auto& sim = scene->getSimulation();
+
+                                // only request a new path if we don't have one yet,
+                                // or we've already had our current one for a bit
+                                if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTimeDelta(60))
+                                {
+                                    sim.requestPath(unitId);
+                                    movingState->pathRequested = true;
+                                }
+                            }
+
+                            // if a path is available, attempt to follow it
+                            auto& pathToFollow = movingState->path;
+                            if (pathToFollow)
+                            {
+                                if (followPath(unit, *pathToFollow))
+                                {
+                                    // we finished following the path,
+                                    // go back to idle
+                                    unit.behaviourState = IdleState();
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

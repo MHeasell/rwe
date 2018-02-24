@@ -1,39 +1,25 @@
-#include "UnitFootprintPathFinder.h"
+#include "AbstractUnitPathFinder.h"
 
 namespace rwe
 {
-    UnitFootprintPathFinder::UnitFootprintPathFinder(
+    AbstractUnitPathFinder::AbstractUnitPathFinder(
         GameSimulation* simulation,
         MovementClassCollisionService* collisionService,
         UnitId self,
         boost::optional<MovementClassId> movementClass,
         unsigned int footprintX,
-        unsigned int footprintZ,
-        const Point& goal)
+        unsigned int footprintZ)
         : simulation(simulation),
           collisionService(collisionService),
           self(self),
           movementClass(movementClass),
           footprintX(footprintX),
-          footprintZ(footprintZ),
-          goal(goal)
+          footprintZ(footprintZ)
     {
     }
 
-    bool UnitFootprintPathFinder::isGoal(const Point& vertex)
-    {
-        return vertex == goal;
-    }
-
-    PathCost UnitFootprintPathFinder::estimateCostToGoal(const Point& start)
-    {
-        auto distance = octileDistance(start, goal);
-        unsigned int turns = (distance.straight > 0 && distance.diagonal > 0) ? 1 : 0;
-        return PathCost(distance, turns);
-    }
-
-    std::vector<UnitFootprintPathFinder::VertexInfo>
-    UnitFootprintPathFinder::getSuccessors(const VertexInfo& info)
+    std::vector<AbstractUnitPathFinder::VertexInfo>
+    AbstractUnitPathFinder::getSuccessors(const VertexInfo& info)
     {
         boost::optional<Direction> prevDirection;
         if (info.predecessor)
@@ -62,30 +48,30 @@ namespace rwe
         return vs;
     }
 
-    bool UnitFootprintPathFinder::isWalkable(const Point& p) const
+    bool AbstractUnitPathFinder::isWalkable(const Point& p) const
     {
         DiscreteRect rect(p.x, p.y, footprintX, footprintZ);
         return (movementClass ? collisionService->isWalkable(*movementClass, p) : true) && !simulation->isCollisionAt(rect, self);
     }
 
-    bool UnitFootprintPathFinder::isWalkable(int x, int y) const
+    bool AbstractUnitPathFinder::isWalkable(int x, int y) const
     {
         return isWalkable(Point(x, y));
     }
 
-    bool UnitFootprintPathFinder::isRoughTerrain(const Point& p) const
+    bool AbstractUnitPathFinder::isRoughTerrain(const Point& p) const
     {
         DiscreteRect rect(p.x, p.y, footprintX, footprintZ);
         return simulation->isAdjacentToObstacle(rect, self);
     }
 
-    Point UnitFootprintPathFinder::step(const Point& p, Direction d) const
+    Point AbstractUnitPathFinder::step(const Point& p, Direction d) const
     {
         auto directionVector = directionToPoint(d);
         return p + directionVector;
     }
 
-    std::vector<Point> UnitFootprintPathFinder::getNeighbours(const Point& p)
+    std::vector<Point> AbstractUnitPathFinder::getNeighbours(const Point& p)
     {
         std::vector<Point> neighbours;
         neighbours.reserve(Directions.size());

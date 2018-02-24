@@ -5,6 +5,18 @@ namespace rwe
 {
     static constexpr float DiagonalDistance = std::sqrt(2.0f);
 
+    OctileDistance OctileDistance::fromXAndY(unsigned int x, unsigned int y)
+    {
+        if (x > y)
+        {
+            return OctileDistance(x - y, y);
+        }
+        else
+        {
+            return OctileDistance(y - x, x);
+        }
+    }
+
     OctileDistance::OctileDistance(unsigned int straight, unsigned int diagonal) : straight(straight), diagonal(diagonal)
     {
     }

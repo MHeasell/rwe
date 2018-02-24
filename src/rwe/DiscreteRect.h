@@ -2,6 +2,8 @@
 #define RWE_DISCRETERECT_H
 
 #include <boost/functional/hash.hpp>
+#include <rwe/Point.h>
+#include <rwe/pathfinding/OctileDistance.h>
 
 namespace rwe
 {
@@ -26,6 +28,19 @@ namespace rwe
         {
             return !(rhs == *this);
         }
+
+        /**
+         * Returns true if the given coordinates are adjacent to this rectangle.
+         * Coordinates are considered adjacent if they touch the perimeter
+         * of the rectangle from the outside, including touching at a corner.
+         */
+        bool isAdjacentTo(int px, int py) const;
+
+        /**
+         * Returns the octile distance from the given coordinates
+         * to the nearest coordinates that are adjacent to the rectangle.
+         */
+        OctileDistance octileDistanceToPerimeter(int px, int py) const;
     };
 }
 
