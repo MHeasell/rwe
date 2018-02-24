@@ -22,8 +22,7 @@ namespace rwe
 
             auto& unit = simulation->getUnit(request.unitId);
 
-            auto movingState = boost::get<MovingState>(&unit.behaviourState);
-            if (movingState != nullptr)
+            if (auto movingState = boost::get<MovingState>(&unit.behaviourState); movingState != nullptr)
             {
                 auto path = findPath(request.unitId, movingState->destination);
                 movingState->path = PathFollowingInfo(std::move(path), simulation->gameTime);
