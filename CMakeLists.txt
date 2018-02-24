@@ -207,6 +207,7 @@ set(SOURCE_FILES
     src/rwe/cob/CobExecutionContext.h
     src/rwe/cob/CobExecutionService.cpp
     src/rwe/cob/CobExecutionService.h
+    src/rwe/cob/CobOpCode.h
     src/rwe/cob/CobThread.cpp
     src/rwe/cob/CobThread.h
     src/rwe/events.cpp
