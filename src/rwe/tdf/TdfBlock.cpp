@@ -6,7 +6,7 @@
 namespace rwe
 {
     template<>
-    boost::optional<std::string> tdfTryParse<std::string>(const std::string& value)
+    boost::optional<std::string> tdfTryParse(const std::string& value)
     {
         return value;
     }
