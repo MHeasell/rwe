@@ -529,7 +529,11 @@ namespace rwe
 
     void CobExecutionContext::createLocalVariable()
     {
-        thread->callStack.top().locals.emplace_back();
+        if (thread->callStack.top().localCount == thread->callStack.top().locals.size())
+        {
+            thread->callStack.top().locals.emplace_back();
+        }
+        thread->callStack.top().localCount += 1;
     }
 
     void CobExecutionContext::pushConstant()

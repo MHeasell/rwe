@@ -10,6 +10,7 @@ namespace rwe
     public:
         unsigned int instructionIndex;
         std::vector<int> locals;
+        unsigned int localCount{0};
 
     public:
         CobFunction(unsigned int instructionIndex, const std::vector<int>& locals);
