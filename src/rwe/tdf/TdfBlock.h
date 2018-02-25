@@ -30,6 +30,9 @@ namespace rwe
     template <>
     boost::optional<std::string> tdfTryParse<std::string>(const std::string& value);
 
+    template <>
+    boost::optional<bool> tdfTryParse<bool>(const std::string& value);
+
     class TdfValueException : public std::runtime_error
     {
     public:

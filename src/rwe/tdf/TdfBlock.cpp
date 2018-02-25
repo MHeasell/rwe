@@ -11,6 +11,18 @@ namespace rwe
         return value;
     }
 
+    template <>
+    boost::optional<bool> tdfTryParse(const std::string& value)
+    {
+        auto val = tdfTryParse<int>(value);
+        if (!val)
+        {
+            return boost::none;
+        }
+
+        return val != 0;
+    }
+
     class EqualityVisitor : public boost::static_visitor<bool>
     {
     private:
