@@ -287,13 +287,13 @@ namespace rwe
 
     std::vector<TextureRegion> LoadingScene::getTileTextures(TntArchive& tnt)
     {
-        const unsigned int tileWidth = 32;
-        const unsigned int tileHeight = 32;
-        const unsigned int textureWidth = 1024;
-        const unsigned int textureHeight = 1024;
-        const auto textureWidthInTiles = textureWidth / tileWidth;
-        const auto textureHeightInTiles = textureHeight / tileHeight;
-        const auto tilesPerTexture = textureWidthInTiles * textureHeightInTiles;
+        static const unsigned int tileWidth = 32;
+        static const unsigned int tileHeight = 32;
+        static const unsigned int textureWidth = 1024;
+        static const unsigned int textureHeight = 1024;
+        static const auto textureWidthInTiles = textureWidth / tileWidth;
+        static const auto textureHeightInTiles = textureHeight / tileHeight;
+        static const auto tilesPerTexture = textureWidthInTiles * textureHeightInTiles;
 
         std::vector<TextureRegion> tileTextures;
 

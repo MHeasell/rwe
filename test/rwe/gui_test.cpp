@@ -170,7 +170,7 @@ namespace rwe
             gadget1.grayedOut = false;
             gadget1.stages = 0;
 
-            std::vector expected{gadget0, gadget1};
+            std::vector<GuiEntry> expected{gadget0, gadget1};
 
             auto gui = parseGui(parseTdfFromString(input));
             if (!gui)

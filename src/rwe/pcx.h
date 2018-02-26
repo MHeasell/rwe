@@ -57,15 +57,19 @@ namespace rwe
 
 #pragma pack()
 
+	template <typename It>
     class PcxDecoder
     {
     private:
-        const char* begin;
-        const char* end;
+        It begin;
+        It end;
         const PcxHeader* header;
 
     public:
-        PcxDecoder(const char* begin, const char* end);
+		PcxDecoder(It begin, It end) : begin(begin), end(end)
+		{
+			header = reinterpret_cast<const PcxHeader*>(&*begin);
+		}
 
         unsigned int getWidth()
         {
@@ -130,7 +134,7 @@ namespace rwe
                 throw PcxException("invalid palette");
             }
 
-            auto colorIt = reinterpret_cast<const PcxPaletteColor*>(it);
+            auto colorIt = reinterpret_cast<const PcxPaletteColor*>(&*it);
 
             std::vector<PcxPaletteColor> colors(256);
 

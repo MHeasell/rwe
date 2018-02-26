@@ -79,8 +79,8 @@ namespace rwe
             }
 
             outputObjects.push_back(std::move(outputObject));
-            offset = object.siblingOffset;
-        } while (offset != 0);
+            offset = std::streampos(object.siblingOffset);
+        } while (offset != std::streampos(0));
 
         return outputObjects;
     }

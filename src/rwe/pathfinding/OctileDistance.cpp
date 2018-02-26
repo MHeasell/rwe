@@ -3,7 +3,7 @@
 
 namespace rwe
 {
-    static constexpr float DiagonalDistance = std::sqrt(2.0f);
+    static const float DiagonalDistance = std::sqrt(2.0f);
 
     OctileDistance OctileDistance::fromXAndY(unsigned int x, unsigned int y)
     {

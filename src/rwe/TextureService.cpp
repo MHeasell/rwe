@@ -199,7 +199,7 @@ namespace rwe
             throw std::runtime_error("bitmap not found");
         }
 
-        PcxDecoder decoder(entry->begin().base(), entry->end().base());
+        PcxDecoder<std::vector<char>::const_iterator> decoder(entry->begin(), entry->end());
 
         auto decodedData = decoder.decodeImage();
         auto palette = decoder.decodePalette();
