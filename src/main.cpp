@@ -42,15 +42,15 @@ namespace rwe
     {
         logger.info(
             "Requesting OpenGL version {0}.{1}, {2} profile",
-            requiredVersion.version.major,
-            requiredVersion.version.minor,
+            requiredVersion.version.majorVersion,
+            requiredVersion.version.minorVersion,
             getOpenGlProfileName(requiredVersion.profile));
 
-        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, requiredVersion.version.major) != 0)
+        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, requiredVersion.version.majorVersion) != 0)
         {
             return Err(SDL_GetError());
         }
-        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, requiredVersion.version.minor) != 0)
+        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, requiredVersion.version.minorVersion) != 0)
         {
             return Err(SDL_GetError());
         }

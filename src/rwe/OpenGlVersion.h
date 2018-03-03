@@ -33,16 +33,16 @@ namespace rwe
 
     struct OpenGlVersion
     {
-        int major;
-        int minor;
+        int majorVersion;
+        int minorVersion;
 
-        OpenGlVersion(int major, int minor) : major(major), minor(minor)
+        OpenGlVersion(int majorVersion, int minorVersion) : majorVersion(majorVersion), minorVersion(minorVersion)
         {
         }
 
         bool operator==(const OpenGlVersion& rhs) const
         {
-            return major == rhs.major && minor == rhs.minor;
+            return majorVersion == rhs.majorVersion && minorVersion == rhs.minorVersion;
         }
 
         bool operator!=(const OpenGlVersion& rhs) const
@@ -52,7 +52,7 @@ namespace rwe
 
         bool operator<(const OpenGlVersion& rhs) const
         {
-            return major < rhs.major || (major == rhs.major && minor < rhs.minor);
+            return majorVersion < rhs.majorVersion || (majorVersion == rhs.majorVersion && minorVersion < rhs.minorVersion);
         }
 
         bool operator>(const OpenGlVersion& rhs) const
@@ -79,7 +79,7 @@ namespace rwe
         OpenGlVersionInfo(const OpenGlVersion& version, OpenGlProfile profile) : version(version), profile(profile)
         {
         }
-        OpenGlVersionInfo(int major, int minor, OpenGlProfile profile) : version(major, minor), profile(profile)
+        OpenGlVersionInfo(int majorVersion, int minorVersion, OpenGlProfile profile) : version(majorVersion, minorVersion), profile(profile)
         {
         }
     };
