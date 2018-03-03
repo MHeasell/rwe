@@ -63,12 +63,6 @@ namespace rwe
             return Err(SDL_GetError());
         }
 
-        // require a stencil buffer of some kind
-        if (sdlContext->glSetAttribute(SDL_GL_STENCIL_SIZE, 1) != 0)
-        {
-            return Err(SDL_GetError());
-        }
-
         auto glContext = sdlContext->glCreateContext(window);
         if (glContext == nullptr)
         {
@@ -96,6 +90,13 @@ namespace rwe
         SdlContextManager sdlManager;
 
         auto sdlContext = sdlManager.getSdlContext();
+
+        // require a stencil buffer of some kind
+        if (sdlContext->glSetAttribute(SDL_GL_STENCIL_SIZE, 1) != 0)
+        {
+            throw std::runtime_error(SDL_GetError());
+        }
+
         auto window = sdlContext->createWindow("RWE", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, viewportService.width(), viewportService.height(), SDL_WINDOW_OPENGL);
         if (window == nullptr)
         {
