@@ -54,7 +54,7 @@ namespace rwe
         {
             return Err(SDL_GetError());
         }
-        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE) != 0)
+        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, getSdlProfileMask(requiredVersion.profile)) != 0)
         {
             return Err(SDL_GetError());
         }
