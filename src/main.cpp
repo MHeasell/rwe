@@ -38,16 +38,19 @@ namespace rwe
         return OpenGlVersion(major, minor);
     }
 
-    Result<SdlContext::GlContextUniquePtr, const char*> createOpenGlContext(SdlContext* sdlContext, SDL_Window* window, spdlog::logger& logger)
+    Result<SdlContext::GlContextUniquePtr, const char*> createOpenGlContext(SdlContext* sdlContext, SDL_Window* window, spdlog::logger& logger, const OpenGlVersionInfo& requiredVersion)
     {
-        OpenGlVersion requiredVersion(3, 2);
+        logger.info(
+            "Requesting OpenGL version {0}.{1}, {2} profile",
+            requiredVersion.version.major,
+            requiredVersion.version.minor,
+            getOpenGlProfileName(requiredVersion.profile));
 
-        logger.info("Requesting OpenGL version {0}.{1}, {2} profile", requiredVersion.major, requiredVersion.minor, "core");
-        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, requiredVersion.major) != 0)
+        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, requiredVersion.version.major) != 0)
         {
             return Err(SDL_GetError());
         }
-        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, requiredVersion.minor) != 0)
+        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, requiredVersion.version.minor) != 0)
         {
             return Err(SDL_GetError());
         }
@@ -69,7 +72,7 @@ namespace rwe
         }
 
         auto contextVersion = getOpenGlContextVersion();
-        if (contextVersion < requiredVersion)
+        if (contextVersion < requiredVersion.version)
         {
             static const char* errMessage = "Created OpenGL context did not meet version requirements";
             return Err(errMessage);
@@ -97,7 +100,7 @@ namespace rwe
 
         logger.info("Initializing OpenGL context");
 
-        auto glContextResult = createOpenGlContext(sdlContext, window.get(), logger);
+        auto glContextResult = createOpenGlContext(sdlContext, window.get(), logger, OpenGlVersionInfo(3, 2, OpenGlProfile::Core));
         if (!glContextResult)
         {
             throw std::runtime_error(glContextResult.getErr());
