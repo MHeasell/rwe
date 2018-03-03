@@ -58,6 +58,10 @@ namespace rwe
         {
             return Err(SDL_GetError());
         }
+        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG) != 0)
+        {
+            return Err(SDL_GetError());
+        }
 
         // require a stencil buffer of some kind
         if (sdlContext->glSetAttribute(SDL_GL_STENCIL_SIZE, 1) != 0)
