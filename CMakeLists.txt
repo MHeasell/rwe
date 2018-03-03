@@ -130,6 +130,7 @@ set(SOURCE_FILES
     src/rwe/OccupiedGrid.cpp
     src/rwe/OccupiedGrid.h
     src/rwe/OpaqueId.h
+    src/rwe/OpenGlVersion.h
     src/rwe/PlayerId.h
     src/rwe/Point.cpp
     src/rwe/Point.h
