@@ -103,7 +103,12 @@ namespace rwe
         auto glContextResult = createOpenGlContext(sdlContext, window.get(), logger, OpenGlVersionInfo(3, 2, OpenGlProfile::Core));
         if (!glContextResult)
         {
-            throw std::runtime_error(glContextResult.getErr());
+            logger.error("Failed to create preferred OpenGL context: {0}", glContextResult.getErr());
+            glContextResult = createOpenGlContext(sdlContext, window.get(), logger, OpenGlVersionInfo(3, 0, OpenGlProfile::Compatibility));
+            if (!glContextResult)
+            {
+                throw std::runtime_error(glContextResult.getErr());
+            }
         }
 
         auto glContext = std::move(*glContextResult);
