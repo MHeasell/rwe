@@ -17,6 +17,8 @@
 #include <rwe/MainMenuScene.h>
 #include <rwe/gui.h>
 
+#include <rwe/OpenGlVersion.h>
+#include <rwe/Result.h>
 #include <rwe/ShaderService.h>
 #include <rwe/ViewportService.h>
 #include <rwe/config.h>
@@ -27,6 +29,58 @@ namespace fs = boost::filesystem;
 
 namespace rwe
 {
+    OpenGlVersion getOpenGlContextVersion()
+    {
+        int major;
+        int minor;
+        glGetIntegerv(GL_MAJOR_VERSION, &major);
+        glGetIntegerv(GL_MINOR_VERSION, &minor);
+        return OpenGlVersion(major, minor);
+    }
+
+    Result<SdlContext::GlContextUniquePtr, const char*> createOpenGlContext(SdlContext* sdlContext, SDL_Window* window, spdlog::logger& logger, const OpenGlVersionInfo& requiredVersion)
+    {
+        logger.info(
+            "Requesting OpenGL version {0}.{1}, {2} profile",
+            requiredVersion.version.major,
+            requiredVersion.version.minor,
+            getOpenGlProfileName(requiredVersion.profile));
+
+        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, requiredVersion.version.major) != 0)
+        {
+            return Err(SDL_GetError());
+        }
+        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, requiredVersion.version.minor) != 0)
+        {
+            return Err(SDL_GetError());
+        }
+        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE) != 0)
+        {
+            return Err(SDL_GetError());
+        }
+
+        // require a stencil buffer of some kind
+        if (sdlContext->glSetAttribute(SDL_GL_STENCIL_SIZE, 1) != 0)
+        {
+            return Err(SDL_GetError());
+        }
+
+        auto glContext = sdlContext->glCreateContext(window);
+        if (glContext == nullptr)
+        {
+            return Err(SDL_GetError());
+        }
+
+        auto contextVersion = getOpenGlContextVersion();
+        if (contextVersion < requiredVersion.version)
+        {
+            static const char* errMessage = "Created OpenGL context did not meet version requirements";
+            return Err(errMessage);
+        }
+
+        return Ok(std::move(glContext));
+    };
+
     int run(spdlog::logger& logger, const fs::path& localDataPath, const boost::optional<std::string>& mapName)
     {
         logger.info(ProjectNameVersion);
@@ -38,39 +92,26 @@ namespace rwe
         SdlContextManager sdlManager;
 
         auto sdlContext = sdlManager.getSdlContext();
-
-        logger.info("Initializing OpenGL context");
-
-        int requiredOpenGlMajorVersion = 3;
-        int requiredOpenGlMinorVersion = 2;
-
-        logger.info("Requesting OpenGL version {0}.{1}, {2} profile", requiredOpenGlMajorVersion, requiredOpenGlMinorVersion, "core");
-        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, requiredOpenGlMajorVersion) != 0)
-        {
-            throw std::runtime_error(SDL_GetError());
-        }
-        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, requiredOpenGlMinorVersion) != 0)
-        {
-            throw std::runtime_error(SDL_GetError());
-        }
-        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE) != 0)
-        {
-            throw std::runtime_error(SDL_GetError());
-        }
-
-        // require a stencil buffer of some kind
-        if (sdlContext->glSetAttribute(SDL_GL_STENCIL_SIZE, 1) != 0)
-        {
-            throw std::runtime_error(SDL_GetError());
-        }
-
         auto window = sdlContext->createWindow("RWE", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, viewportService.width(), viewportService.height(), SDL_WINDOW_OPENGL);
         if (window == nullptr)
         {
             throw std::runtime_error(SDL_GetError());
         }
 
-        auto glContext = sdlContext->glCreateContext(window.get());
+        logger.info("Initializing OpenGL context");
+
+        auto glContextResult = createOpenGlContext(sdlContext, window.get(), logger, OpenGlVersionInfo(3, 2, OpenGlProfile::Core));
+        if (!glContextResult)
+        {
+            logger.error("Failed to create preferred OpenGL context: {0}", glContextResult.getErr());
+            glContextResult = createOpenGlContext(sdlContext, window.get(), logger, OpenGlVersionInfo(3, 0, OpenGlProfile::Compatibility));
+            if (!glContextResult)
+            {
+                throw std::runtime_error(glContextResult.getErr());
+            }
+        }
+
+        auto glContext = std::move(*glContextResult);
         if (glContext == nullptr)
         {
             throw std::runtime_error(SDL_GetError());
@@ -93,16 +134,6 @@ namespace rwe
         for (int i = 0; i < openGlExtensionCount; ++i)
         {
             logger.debug("  {0}", glGetStringi(GL_EXTENSIONS, i));
-        }
-
-        int obtainedOpenGlMajorVersion;
-        int obtainedOpenGlMinorVersion;
-        glGetIntegerv(GL_MAJOR_VERSION, &obtainedOpenGlMajorVersion);
-        glGetIntegerv(GL_MINOR_VERSION, &obtainedOpenGlMinorVersion);
-        if (obtainedOpenGlMajorVersion < requiredOpenGlMajorVersion
-            || (obtainedOpenGlMajorVersion == requiredOpenGlMajorVersion && obtainedOpenGlMinorVersion < requiredOpenGlMinorVersion))
-        {
-            throw std::runtime_error("OpenGL version did not meet requirements");
         }
 
         logger.info("Initializing virtual file system");

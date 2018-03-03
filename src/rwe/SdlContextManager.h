@@ -50,6 +50,8 @@ namespace rwe
             void operator()(SDL_RWops* rw) { SDL_RWclose(rw); }
         };
 
+        using GlContextUniquePtr = std::unique_ptr<void, GlContextDeleter>;
+
     private:
         SdlContext();
         SdlContext(const SdlContext&) = delete;
@@ -61,9 +63,9 @@ namespace rwe
             return std::unique_ptr<SDL_Window, WindowDeleter>(SDL_CreateWindow(title, x, y, w, h, flags));
         }
 
-        std::unique_ptr<void, GlContextDeleter> glCreateContext(SDL_Window* window)
+        GlContextUniquePtr glCreateContext(SDL_Window* window)
         {
-            return std::unique_ptr<void, GlContextDeleter>(SDL_GL_CreateContext(window));
+            return GlContextUniquePtr(SDL_GL_CreateContext(window));
         }
 
         std::unique_ptr<SDL_RWops, RWopsDeleter> rwFromConstMem(const void* mem, int size)
