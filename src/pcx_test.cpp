@@ -3,7 +3,6 @@
 #include <rwe/pcx.h>
 #include <string>
 
-
 class PaletteReadingException : public std::runtime_error
 {
 public:

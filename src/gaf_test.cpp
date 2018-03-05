@@ -1,12 +1,10 @@
+#include <boost/filesystem.hpp>
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <png++/png.hpp>
 #include <rwe/Gaf.h>
 #include <string>
-
-#include <boost/filesystem.hpp>
-
-#include <png++/png.hpp>
 
 namespace fs = boost::filesystem;
 

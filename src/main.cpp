@@ -1,28 +1,24 @@
 #include <GL/glew.h>
-#include <rwe/SdlContextManager.h>
-
-#include <rwe/GraphicsContext.h>
-#include <rwe/SceneManager.h>
-
-#include <memory>
-#include <rwe/tdf.h>
-#include <rwe/ui/UiFactory.h>
-#include <rwe/vfs/CompositeVirtualFileSystem.h>
-
 #include <boost/filesystem.hpp>
 #include <iostream>
+#include <memory>
 #include <rwe/AudioService.h>
 #include <rwe/ColorPalette.h>
+#include <rwe/GraphicsContext.h>
 #include <rwe/LoadingScene.h>
 #include <rwe/MainMenuScene.h>
-#include <rwe/gui.h>
-
 #include <rwe/OpenGlVersion.h>
 #include <rwe/Result.h>
+#include <rwe/SceneManager.h>
+#include <rwe/SdlContextManager.h>
 #include <rwe/ShaderService.h>
 #include <rwe/ViewportService.h>
 #include <rwe/config.h>
+#include <rwe/gui.h>
+#include <rwe/tdf.h>
+#include <rwe/ui/UiFactory.h>
 #include <rwe/util.h>
+#include <rwe/vfs/CompositeVirtualFileSystem.h>
 #include <spdlog/spdlog.h>
 
 namespace fs = boost::filesystem;
