@@ -1,15 +1,15 @@
 #ifndef RWE_UNITFOOTPRINTPATHFINDER_H
 #define RWE_UNITFOOTPRINTPATHFINDER_H
 
-#include "AbstractUnitPathFinder.h"
-#include "PathCost.h"
-#include "pathfinding_utils.h"
 #include <rwe/DiscreteRect.h>
 #include <rwe/EightWayDirection.h>
 #include <rwe/GameSimulation.h>
 #include <rwe/MovementClassCollisionService.h>
 #include <rwe/UnitId.h>
 #include <rwe/pathfinding/AStarPathFinder.h>
+#include <rwe/pathfinding/AbstractUnitPathFinder.h>
+#include <rwe/pathfinding/PathCost.h>
+#include <rwe/pathfinding/pathfinding_utils.h>
 
 namespace rwe
 {

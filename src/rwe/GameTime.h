@@ -1,7 +1,7 @@
 #ifndef RWE_GAMETIME_H
 #define RWE_GAMETIME_H
 
-#include "OpaqueId.h"
+#include <rwe/OpaqueId.h>
 
 namespace rwe
 {

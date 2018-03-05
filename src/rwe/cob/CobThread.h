@@ -1,8 +1,8 @@
 #ifndef RWE_COBTHREAD_H
 #define RWE_COBTHREAD_H
 
-#include "CobFunction.h"
 #include <boost/variant.hpp>
+#include <rwe/cob/CobFunction.h>
 #include <rwe/util.h>
 #include <stack>
 #include <vector>

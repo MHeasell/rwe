@@ -1,10 +1,10 @@
 #ifndef RWE_UNITWEAPON_H
 #define RWE_UNITWEAPON_H
 
-#include "GameTime.h"
-#include "UnitId.h"
 #include <boost/variant.hpp>
 #include <rwe/AudioService.h>
+#include <rwe/GameTime.h>
+#include <rwe/UnitId.h>
 #include <rwe/cob/CobThread.h>
 #include <rwe/math/Vector3f.h>
 

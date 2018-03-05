@@ -1,5 +1,5 @@
-#include "CobExecutionContext.h"
 #include "CobExecutionService.h"
+#include <rwe/cob/CobExecutionContext.h>
 
 namespace rwe
 {

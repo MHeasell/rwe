@@ -1,7 +1,7 @@
 #ifndef RWE_SHADERSERVICE_H
 #define RWE_SHADERSERVICE_H
 
-#include "GraphicsContext.h"
+#include <rwe/GraphicsContext.h>
 #include <unordered_map>
 
 namespace rwe

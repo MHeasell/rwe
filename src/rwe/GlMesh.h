@@ -1,8 +1,8 @@
 #ifndef RWE_GLMESH_H
 #define RWE_GLMESH_H
 
-#include "VaoHandle.h"
-#include "VboHandle.h"
+#include <rwe/VaoHandle.h>
+#include <rwe/VboHandle.h>
 
 namespace rwe
 {

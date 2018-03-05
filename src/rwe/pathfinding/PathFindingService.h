@@ -1,16 +1,16 @@
 #ifndef RWE_PATHFINDINGSERVICE_H
 #define RWE_PATHFINDINGSERVICE_H
 
-#include "OctileDistance.h"
-#include "UnitPath.h"
-#include "rwe/GameSimulation.h"
-#include "rwe/UnitId.h"
 #include <deque>
+#include <rwe/GameSimulation.h>
 #include <rwe/MovementClassCollisionService.h>
 #include <rwe/Point.h>
+#include <rwe/UnitId.h>
 #include <rwe/math/Vector3f.h>
 #include <rwe/pathfinding/AStarPathFinder.h>
+#include <rwe/pathfinding/OctileDistance.h>
 #include <rwe/pathfinding/PathCost.h>
+#include <rwe/pathfinding/UnitPath.h>
 
 namespace rwe
 {

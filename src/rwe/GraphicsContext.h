@@ -1,18 +1,18 @@
 #ifndef RWE_GRAPHICSCONTEXT_H
 #define RWE_GRAPHICSCONTEXT_H
 
-#include "GlMesh.h"
-#include "SelectionMesh.h"
-#include "ShaderHandle.h"
-#include "ShaderMesh.h"
-#include "ShaderProgramHandle.h"
 #include <GL/glew.h>
 #include <SDL.h>
 #include <memory>
 #include <rwe/ColorPalette.h>
+#include <rwe/GlMesh.h>
 #include <rwe/MapFeature.h>
 #include <rwe/MapTerrain.h>
 #include <rwe/Mesh.h>
+#include <rwe/SelectionMesh.h>
+#include <rwe/ShaderHandle.h>
+#include <rwe/ShaderMesh.h>
+#include <rwe/ShaderProgramHandle.h>
 #include <rwe/Sprite.h>
 #include <rwe/SpriteSeries.h>
 #include <rwe/TextureHandle.h>

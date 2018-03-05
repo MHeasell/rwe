@@ -57,7 +57,7 @@ namespace rwe
 
 #pragma pack()
 
-	template <typename It>
+    template <typename It>
     class PcxDecoder
     {
     private:
@@ -66,10 +66,10 @@ namespace rwe
         const PcxHeader* header;
 
     public:
-		PcxDecoder(It begin, It end) : begin(begin), end(end)
-		{
-			header = reinterpret_cast<const PcxHeader*>(&*begin);
-		}
+        PcxDecoder(It begin, It end) : begin(begin), end(end)
+        {
+            header = reinterpret_cast<const PcxHeader*>(&*begin);
+        }
 
         unsigned int getWidth()
         {

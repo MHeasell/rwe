@@ -1,8 +1,8 @@
-#include "LoadingScene.h"
-#include "MainMenuModel.h"
 #include "MainMenuScene.h"
-#include "ota.h"
-#include "tdf.h"
+#include <rwe/LoadingScene.h>
+#include <rwe/MainMenuModel.h>
+#include <rwe/ota.h>
+#include <rwe/tdf.h>
 
 #include <rwe/gui.h>
 

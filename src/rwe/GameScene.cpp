@@ -1,5 +1,5 @@
 #include "GameScene.h"
-#include "Mesh.h"
+#include <rwe/Mesh.h>
 #include <rwe/math/rwe_math.h>
 
 namespace rwe

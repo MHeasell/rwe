@@ -1,8 +1,8 @@
 #ifndef RWE_COLLISIONMESH_H
 #define RWE_COLLISIONMESH_H
 
-#include "Ray3f.h"
-#include "Triangle3f.h"
+#include <rwe/geometry/Ray3f.h>
+#include <rwe/geometry/Triangle3f.h>
 
 namespace rwe
 {

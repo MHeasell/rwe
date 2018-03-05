@@ -1,11 +1,11 @@
 #ifndef RWE_GRID_H
 #define RWE_GRID_H
 
-#include "DiscreteRect.h"
-#include "GridRegion.h"
 #include <boost/optional.hpp>
 #include <cassert>
 #include <functional>
+#include <rwe/DiscreteRect.h>
+#include <rwe/GridRegion.h>
 #include <stdexcept>
 #include <vector>
 

@@ -1,8 +1,8 @@
 #ifndef RWE_UNITPERIMETERPATHFINDER_H
 #define RWE_UNITPERIMETERPATHFINDER_H
 
-#include "AbstractUnitPathFinder.h"
 #include <rwe/DiscreteRect.h>
+#include <rwe/pathfinding/AbstractUnitPathFinder.h>
 
 namespace rwe
 {

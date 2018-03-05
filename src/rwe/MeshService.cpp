@@ -1,8 +1,8 @@
-#include "BoxTreeSplit.h"
-#include "Gaf.h"
 #include "MeshService.h"
-#include "_3do.h"
 #include <boost/interprocess/streams/bufferstream.hpp>
+#include <rwe/BoxTreeSplit.h>
+#include <rwe/Gaf.h>
+#include <rwe/_3do.h>
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/math/rwe_math.h>
 #include <rwe/rwe_string.h>

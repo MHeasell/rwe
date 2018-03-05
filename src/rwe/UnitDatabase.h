@@ -1,12 +1,12 @@
 #ifndef RWE_UNITDATABASE_H
 #define RWE_UNITDATABASE_H
 
-#include "AudioService.h"
-#include "MovementClass.h"
-#include "SoundClass.h"
-#include "UnitFbi.h"
-#include "WeaponTdf.h"
+#include <rwe/AudioService.h>
 #include <rwe/Cob.h>
+#include <rwe/MovementClass.h>
+#include <rwe/SoundClass.h>
+#include <rwe/UnitFbi.h>
+#include <rwe/WeaponTdf.h>
 
 namespace rwe
 {

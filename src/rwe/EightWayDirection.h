@@ -1,8 +1,8 @@
 #ifndef RWE_EIGHTWAYDIRECTION_H
 #define RWE_EIGHTWAYDIRECTION_H
 
-#include "Point.h"
 #include <array>
+#include <rwe/Point.h>
 #include <rwe/math/rwe_math.h>
 #include <stdexcept>
 

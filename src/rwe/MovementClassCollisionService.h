@@ -1,11 +1,11 @@
 #ifndef RWE_MOVEMENTCLASSCOLLISIONSERVICE_H
 #define RWE_MOVEMENTCLASSCOLLISIONSERVICE_H
 
-#include "GameSimulation.h"
-#include "MovementClass.h"
-#include "MovementClassId.h"
-#include "Point.h"
+#include <rwe/GameSimulation.h>
 #include <rwe/Grid.h>
+#include <rwe/MovementClass.h>
+#include <rwe/MovementClassId.h>
+#include <rwe/Point.h>
 #include <unordered_map>
 
 namespace rwe

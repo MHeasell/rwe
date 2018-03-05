@@ -1,6 +1,6 @@
 #include "LoadingScene.h"
-#include "WeaponTdf.h"
 #include <boost/interprocess/streams/bufferstream.hpp>
+#include <rwe/WeaponTdf.h>
 #include <rwe/ota.h>
 #include <rwe/tdf.h>
 #include <rwe/tnt/TntArchive.h>

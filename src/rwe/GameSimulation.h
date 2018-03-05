@@ -1,11 +1,11 @@
 #ifndef RWE_GAMESIMULATION_H
 #define RWE_GAMESIMULATION_H
 
-#include "GameTime.h"
-#include "MapFeature.h"
-#include "MapTerrain.h"
-#include "OccupiedGrid.h"
-#include "Unit.h"
+#include <rwe/GameTime.h>
+#include <rwe/MapFeature.h>
+#include <rwe/MapTerrain.h>
+#include <rwe/OccupiedGrid.h>
+#include <rwe/Unit.h>
 
 namespace rwe
 {

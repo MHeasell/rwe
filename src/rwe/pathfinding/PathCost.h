@@ -1,7 +1,7 @@
 #ifndef RWE_PATHCOST_H
 #define RWE_PATHCOST_H
 
-#include "OctileDistance.h"
+#include <rwe/pathfinding/OctileDistance.h>
 
 namespace rwe
 {

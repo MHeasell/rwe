@@ -1,6 +1,6 @@
-#include "ShaderService.h"
 #include "UiRenderService.h"
-#include "rwe_string.h"
+#include <rwe/ShaderService.h>
+#include <rwe/rwe_string.h>
 
 namespace rwe
 {

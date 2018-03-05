@@ -1,8 +1,8 @@
 #ifndef RWE_BEHAVIORSUBJECT_H
 #define RWE_BEHAVIORSUBJECT_H
 
-#include "Subject.h"
 #include <functional>
+#include <rwe/observable/Subject.h>
 #include <rwe/observable/Subscription.h>
 
 namespace rwe
@@ -19,42 +19,42 @@ namespace rwe
 
     public:
         BehaviorSubject() = default;
-		BehaviorSubject(const T& value) : value(value) {}
-		BehaviorSubject(T&& value) : value(std::move(value)) {}
+        BehaviorSubject(const T& value) : value(value) {}
+        BehaviorSubject(T&& value) : value(std::move(value)) {}
 
-		void next(const T& newValue)
-		{
-			if (newValue != value)
-			{
-				value = newValue;
-				subject.next(value);
-			}
-		}
-		void next(T&& newValue)
-		{
-			if (newValue != value)
-			{
-				value = std::move(newValue);
-				subject.next(value);
-			}
-		}
+        void next(const T& newValue)
+        {
+            if (newValue != value)
+            {
+                value = newValue;
+                subject.next(value);
+            }
+        }
+        void next(T&& newValue)
+        {
+            if (newValue != value)
+            {
+                value = std::move(newValue);
+                subject.next(value);
+            }
+        }
 
-		const T& getValue() const
-		{
-			return value;
-		}
+        const T& getValue() const
+        {
+            return value;
+        }
 
-		std::unique_ptr<Subscription> subscribe(const SubscriberCallback& onNext) override
-		{
-			onNext(value);
-			return subject.subscribe(onNext);
-		}
+        std::unique_ptr<Subscription> subscribe(const SubscriberCallback& onNext) override
+        {
+            onNext(value);
+            return subject.subscribe(onNext);
+        }
 
-		std::unique_ptr<Subscription> subscribe(SubscriberCallback&& onNext) override
-		{
-			onNext(value);
-			return subject.subscribe(std::move(onNext));
-		}
+        std::unique_ptr<Subscription> subscribe(SubscriberCallback&& onNext) override
+        {
+            onNext(value);
+            return subject.subscribe(std::move(onNext));
+        }
     };
 }
 

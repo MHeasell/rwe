@@ -1,5 +1,4 @@
 #include "CompositeVirtualFileSystem.h"
-#include "HpiFileSystem.h"
 #include <boost/filesystem.hpp>
 #include <rwe/vfs/DirectoryFileSystem.h>
 #include <rwe/vfs/HpiFileSystem.h>

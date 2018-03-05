@@ -1,5 +1,5 @@
 #include "UiFactory.h"
-#include "UiSurface.h"
+#include <rwe/ui/UiSurface.h>
 
 #include <memory>
 #include <rwe/MainMenuScene.h>

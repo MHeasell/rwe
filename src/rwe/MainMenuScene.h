@@ -1,15 +1,15 @@
 #ifndef RWE_MAINMENUSCENE_H
 #define RWE_MAINMENUSCENE_H
 
-#include "RenderService.h"
-#include "SideData.h"
-#include "ViewportService.h"
 #include <memory>
 #include <rwe/AudioService.h>
 #include <rwe/CursorService.h>
 #include <rwe/MapFeatureService.h>
+#include <rwe/RenderService.h>
 #include <rwe/SceneManager.h>
+#include <rwe/SideData.h>
 #include <rwe/TextureService.h>
+#include <rwe/ViewportService.h>
 #include <rwe/camera/UiCamera.h>
 #include <rwe/tdf/TdfBlock.h>
 #include <rwe/ui/UiFactory.h>

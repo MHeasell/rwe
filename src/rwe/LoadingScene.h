@@ -1,17 +1,17 @@
 #ifndef RWE_LOADINGSCENE_H
 #define RWE_LOADINGSCENE_H
 
-#include "SideData.h"
-#include "UnitDatabase.h"
-#include "ota.h"
 #include <memory>
 #include <rwe/AudioService.h>
 #include <rwe/CursorService.h>
 #include <rwe/GameScene.h>
 #include <rwe/MapFeatureService.h>
 #include <rwe/SceneManager.h>
+#include <rwe/SideData.h>
 #include <rwe/TextureService.h>
+#include <rwe/UnitDatabase.h>
 #include <rwe/ViewportService.h>
+#include <rwe/ota.h>
 #include <rwe/tnt/TntArchive.h>
 #include <rwe/ui/UiLightBar.h>
 #include <rwe/ui/UiPanel.h>

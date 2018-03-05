@@ -13,8 +13,10 @@ namespace rwe
     {
         switch (profile)
         {
-            case OpenGlProfile::Core: return "core";
-            case OpenGlProfile::Compatibility: return "compatibility";
+            case OpenGlProfile::Core:
+                return "core";
+            case OpenGlProfile::Compatibility:
+                return "compatibility";
         }
 
         throw std::logic_error("Unknown profile");
@@ -24,8 +26,10 @@ namespace rwe
     {
         switch (profile)
         {
-            case OpenGlProfile::Core: return SDL_GL_CONTEXT_PROFILE_CORE;
-            case OpenGlProfile::Compatibility: return SDL_GL_CONTEXT_PROFILE_COMPATIBILITY;
+            case OpenGlProfile::Core:
+                return SDL_GL_CONTEXT_PROFILE_CORE;
+            case OpenGlProfile::Compatibility:
+                return SDL_GL_CONTEXT_PROFILE_COMPATIBILITY;
         }
 
         throw std::logic_error("Unknown profile");

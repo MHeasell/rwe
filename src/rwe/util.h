@@ -1,10 +1,10 @@
 #ifndef RWE_UTIL_H
 #define RWE_UTIL_H
 
-#include "RadiansAngle.h"
-#include "TaAngle.h"
 #include <boost/filesystem/path.hpp>
 #include <boost/optional.hpp>
+#include <rwe/RadiansAngle.h>
+#include <rwe/TaAngle.h>
 
 namespace rwe
 {

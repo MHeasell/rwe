@@ -1,7 +1,7 @@
 #ifndef RWE_SPRITE_H
 #define RWE_SPRITE_H
 
-#include "GlTexturedMesh.h"
+#include <rwe/GlTexturedMesh.h>
 #include <rwe/geometry/Rectangle2f.h>
 
 namespace rwe

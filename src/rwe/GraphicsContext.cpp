@@ -1,5 +1,5 @@
 #include "GraphicsContext.h"
-#include "rwe_string.h"
+#include <rwe/rwe_string.h>
 
 #include <GL/glew.h>
 

@@ -1,6 +1,6 @@
 #include "UnitMesh.h"
-#include "util.h"
 #include <rwe/math/rwe_math.h>
+#include <rwe/util.h>
 
 namespace rwe
 {

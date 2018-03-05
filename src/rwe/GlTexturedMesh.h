@@ -1,8 +1,8 @@
 #ifndef RWE_GLTEXTUREDMESH_H
 #define RWE_GLTEXTUREDMESH_H
 
-#include "GlMesh.h"
-#include "TextureHandle.h"
+#include <rwe/GlMesh.h>
+#include <rwe/TextureHandle.h>
 
 namespace rwe
 {

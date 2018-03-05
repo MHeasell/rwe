@@ -1,9 +1,9 @@
 #ifndef RWE_OCCUPIEDGRID_H
 #define RWE_OCCUPIEDGRID_H
 
-#include "Grid.h"
-#include "UnitId.h"
 #include <boost/variant.hpp>
+#include <rwe/Grid.h>
+#include <rwe/UnitId.h>
 
 namespace rwe
 {

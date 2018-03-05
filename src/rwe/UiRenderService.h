@@ -1,8 +1,8 @@
 #ifndef RWE_UIRENDERSERVICE_H
 #define RWE_UIRENDERSERVICE_H
 
-#include "GraphicsContext.h"
-#include "ShaderService.h"
+#include <rwe/GraphicsContext.h>
+#include <rwe/ShaderService.h>
 #include <rwe/camera/UiCamera.h>
 #include <stack>
 

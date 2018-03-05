@@ -1,8 +1,8 @@
 #include "PathFindingService.h"
-#include "UnitPathFinder.h"
-#include "UnitPerimeterPathFinder.h"
-#include "pathfinding_utils.h"
 #include <future>
+#include <rwe/pathfinding/UnitPathFinder.h>
+#include <rwe/pathfinding/UnitPerimeterPathFinder.h>
+#include <rwe/pathfinding/pathfinding_utils.h>
 
 namespace rwe
 {

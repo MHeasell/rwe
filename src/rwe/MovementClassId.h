@@ -1,7 +1,7 @@
 #ifndef RWE_MOVEMENTCLASSID_H
 #define RWE_MOVEMENTCLASSID_H
 
-#include "OpaqueId.h"
+#include <rwe/OpaqueId.h>
 
 namespace rwe
 {

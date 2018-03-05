@@ -1,11 +1,11 @@
 #ifndef RWE_RENDERSERVICE_H
 #define RWE_RENDERSERVICE_H
 
-#include "GraphicsContext.h"
-#include "OccupiedGrid.h"
-#include "ShaderService.h"
-#include "Unit.h"
 #include <boost/iterator/filter_iterator.hpp>
+#include <rwe/GraphicsContext.h>
+#include <rwe/OccupiedGrid.h>
+#include <rwe/ShaderService.h>
+#include <rwe/Unit.h>
 #include <rwe/pathfinding/AStarPathFinder.h>
 #include <rwe/pathfinding/OctileDistance.h>
 #include <rwe/pathfinding/PathCost.h>

@@ -1,7 +1,7 @@
-#include "CobConstants.h"
 #include "CobExecutionContext.h"
-#include "CobOpCode.h"
 #include <rwe/SceneManager.h>
+#include <rwe/cob/CobConstants.h>
+#include <rwe/cob/CobOpCode.h>
 
 namespace rwe
 {
