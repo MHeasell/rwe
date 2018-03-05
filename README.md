@@ -16,7 +16,7 @@ the latest zip file and/or installer is available at:
 
 https://ci.appveyor.com/project/MHeasell/rwe/branch/master
 
-To find the files, click "Configuration: Release", then "Artifacts".
+To find the files, click "Environment: RWE\_COMPILER=MSYS; Configuration: Release", then "Artifacts".
 
 RWE is currently only available on Windows,
 however the code is also built and tested on Linux.
