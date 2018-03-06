@@ -5,65 +5,86 @@
 
 namespace rwe
 {
-    template <typename T>
-    struct Ok
+    // Result is implemented in this convoluted way
+    // because MSVC does not yet support template argument deduction
+    // for classes/constructors.
+    // Putting the types in this namespace
+    // and providing functions that look like the constructors
+    // simulates the interface that callers would have had.
+    namespace result
     {
-        T value;
+        template <typename T>
+        struct Ok
+        {
+            T value;
 
-        Ok(const T& value) : value(value) {}
-        Ok(T&& value) : value(std::move(value)) {}
-    };
+            constexpr Ok(const T& value) : value(value) {}
+            constexpr Ok(T&& value) : value(std::move(value)) {}
+        };
 
-    template <typename E>
-    struct Err
+        template <typename T>
+        struct Err
+        {
+            T value;
+
+            constexpr Err(const T& value) : value(value) {}
+            constexpr Err(T&& value) : value(std::move(value)) {}
+        };
+    }
+
+    template <typename U>
+    constexpr result::Ok<std::decay_t<U>> Ok(U&& value)
     {
-        E value;
+        return result::Ok<std::decay_t<U>>(std::forward<U>(value));
+    }
 
-        Err(const E& value) : value(value) {}
-        Err(E&& value) : value(std::move(value)) {}
-    };
+    template <typename U>
+    constexpr result::Err<typename std::decay_t<U>> Err(U&& value)
+    {
+        return result::Err<std::decay_t<U>>(std::forward<U>(value));
+    }
 
     template <typename T, typename E>
     class Result
     {
     private:
-        boost::variant<Ok<T>, Err<E>> value;
+        boost::variant<result::Ok<T>, result::Err<E>> value;
 
     public:
-        Result(const Ok<T>& ok) : value(ok) {}
-        Result(Ok<T>&& ok) : value(std::move(ok)) {}
+        Result(const result::Ok<T>& ok) : value(ok) {}
+        Result(result::Ok<T>&& ok) : value(std::move(ok)) {}
 
-        Result(const Err<E>& err) : value(err) {}
-        Result(Err<E>&& err) : value(std::move(err)) {}
+        Result(const result::Err<E>& err) : value(err) {}
+        Result(result::Err<E>&& err) : value(std::move(err)) {}
 
         bool isOk() const
         {
-            return boost::get<Ok<T>>(&value) != nullptr;
+            return boost::get<result::Ok<T>>(&value) != nullptr;
         }
 
         bool isErr() const
         {
-            return boost::get<Err<E>>(&value) != nullptr;
+            return boost::get<result::Err<E>>(&value) != nullptr;
         }
 
         const T& get() const
         {
-            return boost::get<Ok<T>>(value).value;
+            return boost::get<result::Ok<T>>(value).value;
         }
 
         T& get()
         {
-            return boost::get<Ok<T>>(value).value;
+            return boost::get<result::Ok<T>>(value).value;
         }
 
         const E& getErr() const
         {
-            return boost::get<Err<E>>(value).value;
+            return boost::get<result::Err<E>>(value).value;
         }
 
         E& getErr()
         {
-            return boost::get<Err<E>>(value).value;
+            return boost::get<result::Err<E>>(value).value;
         }
 
         operator bool() const

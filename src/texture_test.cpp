@@ -113,7 +113,7 @@ namespace rwe
                 throw std::runtime_error("File in listing could not be read: " + gafName);
             }
 
-            auto stream = boost::interprocess::bufferstream(bytes->data(), bytes->size());
+            boost::interprocess::bufferstream stream(bytes->data(), bytes->size());
             GafArchive gaf(&stream);
 
             for (const auto& e : gaf.entries())

@@ -19,64 +19,43 @@ namespace rwe
 
     public:
         BehaviorSubject() = default;
-        BehaviorSubject(const T& value);
-        BehaviorSubject(T&& value);
+		BehaviorSubject(const T& value) : value(value) {}
+		BehaviorSubject(T&& value) : value(std::move(value)) {}
 
-        void next(const T& newValue);
-        void next(T&& newValue);
+		void next(const T& newValue)
+		{
+			if (newValue != value)
+			{
+				value = newValue;
+				subject.next(value);
+			}
+		}
+		void next(T&& newValue)
+		{
+			if (newValue != value)
+			{
+				value = std::move(newValue);
+				subject.next(value);
+			}
+		}
 
-        const T& getValue() const;
+		const T& getValue() const
+		{
+			return value;
+		}
 
-        std::unique_ptr<Subscription> subscribe(const SubscriberCallback& onNext) override;
-        std::unique_ptr<Subscription> subscribe(SubscriberCallback&& onNext) override;
+		std::unique_ptr<Subscription> subscribe(const SubscriberCallback& onNext) override
+		{
+			onNext(value);
+			return subject.subscribe(onNext);
+		}
+
+		std::unique_ptr<Subscription> subscribe(SubscriberCallback&& onNext) override
+		{
+			onNext(value);
+			return subject.subscribe(std::move(onNext));
+		}
     };
-
-    template <typename T>
-    BehaviorSubject<T>::BehaviorSubject(const T& value) : value(value) {}
-
-    template <typename T>
-    BehaviorSubject<T>::BehaviorSubject(T&& value) : value(std::move(value)) {}
-
-
-    template <typename T>
-    void BehaviorSubject<T>::next(const T& newValue)
-    {
-        if (newValue != value)
-        {
-            value = newValue;
-            subject.next(value);
-        }
-    }
-
-    template <typename T>
-    void BehaviorSubject<T>::next(T&& newValue)
-    {
-        if (newValue != value)
-        {
-            value = std::move(newValue);
-            subject.next(value);
-        }
-    }
-
-    template <typename T>
-    const T& BehaviorSubject<T>::getValue() const
-    {
-        return value;
-    }
-
-    template <typename T>
-    std::unique_ptr<Subscription> BehaviorSubject<T>::subscribe(const BehaviorSubject<T>::SubscriberCallback& onNext)
-    {
-        onNext(value);
-        return subject.subscribe(onNext);
-    }
-
-    template <typename T>
-    std::unique_ptr<Subscription> BehaviorSubject<T>::subscribe(BehaviorSubject<T>::SubscriberCallback&& onNext)
-    {
-        onNext(value);
-        return subject.subscribe(std::move(onNext));
-    }
 }
 
 #endif

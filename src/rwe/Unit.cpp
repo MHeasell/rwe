@@ -270,7 +270,7 @@ namespace rwe
     {
         auto& weapon = weapons[weaponIndex];
         weapon.state = UnitWeaponStateIdle();
-        cobEnvironment->createThread("TargetCleared", {weaponIndex});
+        cobEnvironment->createThread("TargetCleared", {static_cast<int>(weaponIndex)});
     }
 
     void Unit::clearWeaponTargets()

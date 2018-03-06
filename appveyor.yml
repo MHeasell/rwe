@@ -3,7 +3,6 @@ install:
 build_script:
   - ps: Update-AppveyorBuild -Version "$(git describe --dirty=-d)-$env:APPVEYOR_BUILD_NUMBER"
   - '%APPVEYOR_BUILD_FOLDER%\appveyor.bat'
-  - ps: Get-ChildItem "$env:APPVEYOR_BUILD_FOLDER\build\dist\*" | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
 
 test: off
 deploy: off
@@ -11,6 +10,12 @@ deploy: off
 configuration:
   - Debug
   - Release
+
+environment:
+  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+  matrix:
+    - RWE_COMPILER: MSVC
+    - RWE_COMPILER: MSYS
 
 matrix:
   fast_finish: true

@@ -50,53 +50,42 @@ namespace rwe
 
         std::vector<Subscriber> subscribers;
 
-        void unsubscribe(SubscriberId id);
+		void unsubscribe(SubscriberId id)
+		{
+			auto it = std::find_if(subscribers.begin(), subscribers.end(), [id](const Subscriber& s) { return s.id == id; });
+			if (it == subscribers.end())
+			{
+				return;
+			}
+
+			subscribers.erase(it);
+		}
 
     public:
-        void next(const T& newValue);
+		void next(const T& newValue)
+		{
+			for (const Subscriber& s : subscribers)
+			{
+				s.callback(newValue);
+			}
+		}
 
-        std::unique_ptr<Subscription> subscribe(const SubscriberCallback& onNext) override;
-        std::unique_ptr<Subscription> subscribe(SubscriberCallback&& onNext) override;
+		std::unique_ptr<Subscription> subscribe(const SubscriberCallback& onNext) override
+		{
+			auto id = nextId++;
+			subscribers.push_back({ id, onNext });
+
+			return std::unique_ptr<Subscription>(new ConcreteSubscription(this, id));
+		}
+
+		std::unique_ptr<Subscription> subscribe(SubscriberCallback&& onNext) override
+		{
+			auto id = nextId++;
+			subscribers.push_back({ id, std::move(onNext) });
+
+			return std::unique_ptr<Subscription>(new ConcreteSubscription(this, id));
+		}
     };
-
-    template <typename T>
-    void Subject<T>::unsubscribe(SubscriberId id)
-    {
-        auto it = std::find_if(subscribers.begin(), subscribers.end(), [id](const Subscriber& s) { return s.id == id; });
-        if (it == subscribers.end())
-        {
-            return;
-        }
-
-        subscribers.erase(it);
-    }
-
-    template <typename T>
-    void Subject<T>::next(const T& newValue)
-    {
-        for (const Subscriber& s : subscribers)
-        {
-            s.callback(newValue);
-        }
-    }
-
-    template <typename T>
-    std::unique_ptr<Subscription> Subject<T>::subscribe(const Subject<T>::SubscriberCallback& onNext)
-    {
-        auto id = nextId++;
-        subscribers.push_back({id, onNext});
-
-        return std::unique_ptr<Subscription>(new ConcreteSubscription(this, id));
-    }
-
-    template <typename T>
-    std::unique_ptr<Subscription> Subject<T>::subscribe(Subject<T>::SubscriberCallback&& onNext)
-    {
-        auto id = nextId++;
-        subscribers.push_back({id, std::move(onNext)});
-
-        return std::unique_ptr<Subscription>(new ConcreteSubscription(this, id));
-    }
 }
 
 #endif

@@ -212,7 +212,7 @@ void printCob(const rwe::CobScript& cob)
 
     std::cout << "Instructions: " << std::endl;
 
-    CobInstructionPrinter(cob.instructions.begin(), cob.instructions.end()).printInstructions();
+    CobInstructionPrinter<std::vector<unsigned int>::const_iterator>(cob.instructions.begin(), cob.instructions.end()).printInstructions();
 }
 
 int main(int argc, char* argv[])

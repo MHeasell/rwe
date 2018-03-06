@@ -207,7 +207,7 @@ namespace rwe
         std::unique_ptr<BoxTreeNode>&& right)
         : width(axis == SplitAxis::Vertical ? left->width + right->width : left->width),
           height(axis == SplitAxis::Horizontal ? left->height + right->height : left->height),
-          value(BoxTreeSplit(axis, std::move(left), std::move(right)))
+          value(BoxTreeSplit<T>(axis, std::move(left), std::move(right)))
     {
     }
 

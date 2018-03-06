@@ -21,7 +21,7 @@ int convert(const std::string& inFile, const std::string& outFile)
     std::vector<char> data(size);
     in.read(data.data(), size);
 
-    rwe::PcxDecoder decoder(data.begin().base(), data.end().base());
+    rwe::PcxDecoder<std::vector<char>::const_iterator> decoder(data.begin(), data.end());
 
     auto decodedData = decoder.decodeImage();
     auto palette = decoder.decodePalette();
