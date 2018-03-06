@@ -23,6 +23,12 @@ IF "%RWE_COMPILER%"=="MSYS" (
     goto :EOF
 ) ELSE IF "%RWE_COMPILER%"=="MSVC" (
     cd "%APPVEYOR_BUILD_FOLDER%" || goto :error
+
+    rem Fetch libs bundle
+    IF NOT EXIST "%APPVEYOR_BUILD_FOLDER%\libs\_msvc" (
+        C:\Python36-x64\python.exe fetch-msvc-libs.py || goto :error
+    )
+
     mkdir build || goto :error
     cd build || goto :error
     cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_BUILD_TYPE=%Configuration% .. || goto :error
