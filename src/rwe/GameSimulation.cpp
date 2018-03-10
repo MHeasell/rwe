@@ -238,4 +238,13 @@ namespace rwe
 
         pathRequests.push_back(PathRequest{unitId});
     }
+
+    void GameSimulation::spawnLaser(const Vector3f& position, const Vector3f& velocity, float duration)
+    {
+        auto& laser = lasers.emplace_back();
+        laser.position = position;
+        laser.origin = position;
+        laser.velocity = velocity;
+        laser.duration = duration;
+    }
 }

@@ -184,6 +184,8 @@ namespace rwe
         const GamePlayerInfo& getPlayer(PlayerId player) const;
 
         bool isEnemy(UnitId id) const;
+
+        void updateLasers();
     };
 }
 

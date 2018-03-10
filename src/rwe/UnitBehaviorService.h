@@ -25,7 +25,7 @@ namespace rwe
         bool followPath(Unit& unit, PathFollowingInfo& path);
 
         void updateWeapon(UnitId id, unsigned int weaponIndex);
-        void tryFireWeapon(UnitId id, unsigned int weaponIndex);
+        void tryFireWeapon(UnitId id, unsigned int weaponIndex, const Vector3f& targetPosition);
 
         void applyUnitSteering(UnitId id);
         void updateUnitRotation(UnitId id);

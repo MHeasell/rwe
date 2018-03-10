@@ -345,8 +345,9 @@ namespace rwe
                 }
                 else
                 {
-                    // We couldn't launch an aiming script (there isn't one)
-                    tryFireWeapon(id, weaponIndex);
+                    // We couldn't launch an aiming script (there isn't one),
+                    // just go straight to firing.
+                    tryFireWeapon(id, weaponIndex, targetPosition);
                 }
             }
             else
@@ -360,14 +361,15 @@ namespace rwe
                     if (*returnValue)
                     {
                         // aiming was successful, attempt to fire
-                        tryFireWeapon(id, weaponIndex);
+                        Vector3f targetPosition = boost::apply_visitor(GetTargetPosVisitor(&scene->getSimulation()), aimingState->target);
+                        tryFireWeapon(id, weaponIndex, targetPosition);
                     }
                 }
             }
         }
     }
 
-    void UnitBehaviorService::tryFireWeapon(UnitId id, unsigned int weaponIndex)
+    void UnitBehaviorService::tryFireWeapon(UnitId id, unsigned int weaponIndex, const Vector3f& targetPosition)
     {
         auto& unit = scene->getSimulation().getUnit(id);
         auto& weapon = unit.weapons[weaponIndex];
@@ -381,7 +383,13 @@ namespace rwe
 
         // TODO: should check alignment before firing
 
-        // TODO: should actually spawn a projectile from the firing point
+        // spawn a projectile from the firing point
+        // TODO: actually figure out the firing point
+        const auto& firingPoint = unit.position;
+        auto targetVector = targetPosition - firingPoint;
+        auto projectileVelocity = targetVector.normalized() * (400.0f / 60.0f);
+        scene->getSimulation().spawnLaser(unit.position, projectileVelocity, 3.6f);
+
         if (weapon.soundStart)
         {
             scene->playUnitSound(id, *weapon.soundStart);

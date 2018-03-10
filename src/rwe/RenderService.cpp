@@ -456,6 +456,26 @@ namespace rwe
         graphics->drawTriangles(mesh);
     }
 
+    void RenderService::drawLasers(const std::vector<LaserProjectile>& lasers)
+    {
+        Vector3f laserColor(0.0f, 1.0f, 0.0f);
+        std::vector<GlColoredVertex> vertices;
+        for (const auto& laser : lasers)
+        {
+            vertices.emplace_back(laser.position, laserColor);
+            vertices.emplace_back(laser.position - (laser.velocity * laser.duration), laserColor);
+        }
+
+        auto mesh = graphics->createColoredMesh(vertices, GL_STREAM_DRAW);
+
+        const auto& shader = shaders->basicColor;
+        graphics->bindShader(shader.handle.get());
+        graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix());
+        graphics->setUniformFloat(shader.alpha, 1.0f);
+
+        graphics->drawLines(mesh);
+    }
+
     void RenderService::drawFeatureShadowInternal(const MapFeature& feature)
     {
         if (!feature.shadowAnimation)

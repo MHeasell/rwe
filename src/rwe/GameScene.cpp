@@ -83,6 +83,8 @@ namespace rwe
             renderService.drawUnit(unit, seaLevel);
         }
 
+        renderService.drawLasers(simulation.lasers);
+
         context.disableDepthWrites();
 
         context.disableDepthTest();
@@ -359,6 +361,8 @@ namespace rwe
 
             cobExecutionService.run(simulation, unitId);
         }
+
+        updateLasers();
     }
 
     void GameScene::spawnUnit(const std::string& unitType, PlayerId owner, const Vector3f& position)
@@ -572,5 +576,14 @@ namespace rwe
     {
         // TODO: consider allies/teams here
         return !getUnit(id).isOwnedBy(localPlayerId);
+    }
+
+    void GameScene::updateLasers()
+    {
+        for (auto& laser : simulation.lasers)
+        {
+            laser.position += laser.velocity;
+            // TODO: detect collision between a laser and a unit, feature or terrain
+        }
     }
 }
