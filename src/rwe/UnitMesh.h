@@ -7,6 +7,7 @@
 #include <rwe/ShaderMesh.h>
 #include <rwe/math/Vector3f.h>
 #include <string>
+#include <vector>
 
 
 namespace rwe

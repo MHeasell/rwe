@@ -1,6 +1,7 @@
 #ifndef RWE_SUBJECT_H
 #define RWE_SUBJECT_H
 
+#include <algorithm>
 #include <functional>
 #include <memory>
 #include <rwe/observable/Observable.h>

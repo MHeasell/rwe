@@ -5,6 +5,7 @@
 #include <rwe/math/Matrix4f.h>
 #include <rwe/math/Vector2f.h>
 #include <rwe/math/Vector3f.h>
+#include <vector>
 
 namespace rwe
 {

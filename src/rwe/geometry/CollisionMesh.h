@@ -3,6 +3,7 @@
 
 #include <rwe/geometry/Ray3f.h>
 #include <rwe/geometry/Triangle3f.h>
+#include <vector>
 
 namespace rwe
 {
