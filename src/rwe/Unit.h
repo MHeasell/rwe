@@ -138,7 +138,7 @@ namespace rwe
          */
         bool inCollision{false};
 
-        std::vector<UnitWeapon> weapons;
+        std::array<boost::optional<UnitWeapon>, 3> weapons;
 
         bool canAttack;
 

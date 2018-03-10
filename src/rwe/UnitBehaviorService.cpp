@@ -91,13 +91,13 @@ namespace rwe
             }
             else if (auto attackGroundOrder = boost::get<AttackGroundOrder>(&order); attackGroundOrder != nullptr)
             {
-                if (unit.weapons.empty())
+                if (!unit.weapons[0])
                 {
                     unit.orders.pop_front();
                 }
                 else
                 {
-                    auto maxRangeSquared = unit.weapons[0].maxRange * unit.weapons[0].maxRange;
+                    auto maxRangeSquared = unit.weapons[0]->maxRange * unit.weapons[0]->maxRange;
                     if (auto idleState = boost::get<IdleState>(&unit.behaviourState); idleState != nullptr)
                     {
                         // if we're out of range, drive into range
@@ -111,7 +111,7 @@ namespace rwe
                         else
                         {
                             // we're in range, aim weapons
-                            for (unsigned int i = 0; i < unit.weapons.size(); ++i)
+                            for (unsigned int i = 0; i < 2; ++i)
                             {
                                 unit.setWeaponTarget(i, attackGroundOrder->target);
                             }
@@ -156,7 +156,7 @@ namespace rwe
             }
             else if (auto attackOrder = boost::get<AttackOrder>(&order); attackOrder != nullptr)
             {
-                if (unit.weapons.empty())
+                if (!unit.weapons[0])
                 {
                     unit.orders.pop_front();
                 }
@@ -166,7 +166,7 @@ namespace rwe
                     const auto& targetUnit = scene->getSimulation().getUnit(attackOrder->target);
                     const auto& targetPosition = targetUnit.position;
 
-                    auto maxRangeSquared = unit.weapons[0].maxRange * unit.weapons[0].maxRange;
+                    auto maxRangeSquared = unit.weapons[0]->maxRange * unit.weapons[0]->maxRange;
                     if (auto idleState = boost::get<IdleState>(&unit.behaviourState); idleState != nullptr)
                     {
                         // if we're out of range, drive into range
@@ -180,7 +180,7 @@ namespace rwe
                         else
                         {
                             // we're in range, aim weapons
-                            for (unsigned int i = 0; i < unit.weapons.size(); ++i)
+                            for (unsigned int i = 0; i < 2; ++i)
                             {
                                 unit.setWeaponTarget(i, targetPosition);
                             }
@@ -322,6 +322,10 @@ namespace rwe
     {
         auto& unit = scene->getSimulation().getUnit(id);
         auto& weapon = unit.weapons[weaponIndex];
+        if (!weapon)
+        {
+            return;
+        }
 
         // FIXME: all this logic really needs to come out.
         // Weapons should run their own independent AI logic
@@ -330,11 +334,11 @@ namespace rwe
         // some non-existent aim thread, because orders could change underneath us,
         // and there's loads of other oddities like not calling TargetCleared reliably.
 
-        if (auto idleState = boost::get<UnitWeaponStateIdle>(&weapon.state); idleState != nullptr)
+        if (auto idleState = boost::get<UnitWeaponStateIdle>(&weapon->state); idleState != nullptr)
         {
             // TODO: attempt to acquire a target
         }
-        else if (auto aimingState = boost::get<UnitWeaponStateAttacking>(&weapon.state); aimingState != nullptr)
+        else if (auto aimingState = boost::get<UnitWeaponStateAttacking>(&weapon->state); aimingState != nullptr)
         {
             if (!aimingState->aimInfo)
             {
@@ -378,7 +382,7 @@ namespace rwe
                         auto pitch = headingAndPitch.second;
 
                         // if the target is close enough, try to fire
-                        if (std::abs(heading - aimInfo.lastHeading) <= weapon.tolerance && std::abs(pitch - aimInfo.lastPitch) <= weapon.pitchTolerance)
+                        if (std::abs(heading - aimInfo.lastHeading) <= weapon->tolerance && std::abs(pitch - aimInfo.lastPitch) <= weapon->pitchTolerance)
                         {
                             tryFireWeapon(id, weaponIndex, targetPosition);
                         }
@@ -393,9 +397,14 @@ namespace rwe
         auto& unit = scene->getSimulation().getUnit(id);
         auto& weapon = unit.weapons[weaponIndex];
 
+        if (!weapon)
+        {
+            return;
+        }
+
         // wait for the weapon to reload
         auto gameTime = scene->getGameTime();
-        if (gameTime < weapon.readyTime)
+        if (gameTime < weapon->readyTime)
         {
             return;
         }
@@ -406,14 +415,14 @@ namespace rwe
         auto projectileVelocity = targetVector.normalized() * (400.0f / 60.0f);
         scene->getSimulation().spawnLaser(firingPoint, projectileVelocity, 4.0f);
 
-        if (weapon.soundStart)
+        if (weapon->soundStart)
         {
-            scene->playUnitSound(id, *weapon.soundStart);
+            scene->playUnitSound(id, *weapon->soundStart);
         }
         unit.cobEnvironment->createThread(getFireScriptName(weaponIndex));
 
         // we are reloading now
-        weapon.readyTime = gameTime + deltaSecondsToTicks(weapon.reloadTime);
+        weapon->readyTime = gameTime + deltaSecondsToTicks(weapon->reloadTime);
     }
 
     void UnitBehaviorService::applyUnitSteering(UnitId id)
