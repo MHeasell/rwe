@@ -566,7 +566,7 @@ namespace rwe
             case 2:
                 return "FireTertiary";
             default:
-                throw std::logic_error("Invalid wepaon index: " + std::to_string(weaponIndex));
+                throw std::logic_error("Invalid weapon index: " + std::to_string(weaponIndex));
         }
     }
 
