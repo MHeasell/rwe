@@ -17,6 +17,8 @@ namespace rwe
 
         /** Duration in ticks */
         float duration;
+
+        Vector3f getBackPosition() const;
     };
 }
 
