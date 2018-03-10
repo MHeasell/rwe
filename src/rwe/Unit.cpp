@@ -209,7 +209,7 @@ namespace rwe
     public:
         TargetIsUnitVisitor(UnitId unit) : unit(unit) {}
         bool operator()(UnitId target) const { return unit == target; }
-        bool operator()(const Vector3f& target) const { return false; }
+        bool operator()(const Vector3f&) const { return false; }
     };
 
     class IsAttackingUnitVisitor : public boost::static_visitor<bool>
@@ -231,7 +231,7 @@ namespace rwe
 
     public:
         TargetIsPositionVisitor(const Vector3f& position) : position(position) {}
-        bool operator()(UnitId target) const { return false; }
+        bool operator()(UnitId) const { return false; }
         bool operator()(const Vector3f& target) const { return target == position; }
     };
 
