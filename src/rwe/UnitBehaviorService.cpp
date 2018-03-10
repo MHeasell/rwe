@@ -328,9 +328,8 @@ namespace rwe
             {
                 Vector3f targetPosition = boost::apply_visitor(GetTargetPosVisitor(&scene->getSimulation()), aimingState->target);
 
-                // FIXME: this calculation needs to take into account
-                // what the unit's AimFromPrimary (Secondary... etc) is.
-                auto aimVector = targetPosition - unit.position;
+                auto aimFromPosition = getAimingPoint(id, weaponIndex);
+                auto aimVector = targetPosition - aimFromPosition;
                 auto heading = Vector2f(0.0f, -1.0f).angleTo(Vector2f(aimVector.x, aimVector.z));
                 heading = -heading;
                 heading = wrap(-Pif, Pif, heading - unit.rotation);
@@ -555,6 +554,21 @@ namespace rwe
         }
     }
 
+    std::string UnitBehaviorService::getAimFromScriptName(unsigned int weaponIndex) const
+    {
+        switch (weaponIndex)
+        {
+            case 0:
+                return "AimFromPrimary";
+            case 1:
+                return "AimFromSecondary";
+            case 2:
+                return "AimFromTertiary";
+            default:
+                throw std::logic_error("Invalid weapon index: " + std::to_string(weaponIndex));
+        }
+    }
+
     std::string UnitBehaviorService::getFireScriptName(unsigned int weaponIndex) const
     {
         switch (weaponIndex)
@@ -604,19 +618,37 @@ namespace rwe
         return result;
     }
 
+    Vector3f UnitBehaviorService::getAimingPoint(UnitId id, unsigned int weaponIndex)
+    {
+        auto scriptName = getAimFromScriptName(weaponIndex);
+        auto pieceId = runCobQuery(id, scriptName);
+        if (!pieceId)
+        {
+            return scene->getSimulation().getUnit(id).position;
+        }
+
+        return getPiecePosition(id, *pieceId);
+    }
+
     Vector3f UnitBehaviorService::getFiringPoint(UnitId id, unsigned int weaponIndex)
+    {
+
+        auto scriptName = getQueryScriptName(weaponIndex);
+        auto pieceId = runCobQuery(id, scriptName);
+        if (!pieceId)
+        {
+            return scene->getSimulation().getUnit(id).position;
+        }
+
+        return getPiecePosition(id, *pieceId);
+    }
+
+    Vector3f UnitBehaviorService::getPiecePosition(UnitId id, unsigned int pieceId)
     {
         auto& unit = scene->getSimulation().getUnit(id);
 
-        auto queryScriptName = getQueryScriptName(weaponIndex);
-        auto firingPiece = runCobQuery(id, queryScriptName);
-        if (!firingPiece)
-        {
-            return unit.position;
-        }
-
-        const auto& firingPieceName = unit.cobEnvironment->_script->pieces.at(*firingPiece);
-        auto pieceTransform = unit.mesh.getPieceTransform(firingPieceName);
+        const auto& pieceName = unit.cobEnvironment->_script->pieces.at(pieceId);
+        auto pieceTransform = unit.mesh.getPieceTransform(pieceName);
         if (!pieceTransform)
         {
             throw std::logic_error("Failed to find piece offset");

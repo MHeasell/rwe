@@ -36,12 +36,17 @@ namespace rwe
         bool tryApplyMovementToPosition(UnitId id, const Vector3f& newPosition);
 
         std::string getAimScriptName(unsigned int weaponIndex) const;
+        std::string getAimFromScriptName(unsigned int weaponIndex) const;
         std::string getFireScriptName(unsigned int weaponIndex) const;
         std::string getQueryScriptName(unsigned int weaponIndex) const;
 
         boost::optional<int> runCobQuery(UnitId id, std::string& name);
 
+        Vector3f getAimingPoint(UnitId id, unsigned int weaponIndex);
+
         Vector3f getFiringPoint(UnitId id, unsigned int weaponIndex);
+
+        Vector3f getPiecePosition(UnitId id, unsigned int pieceId);
     };
 }
 
