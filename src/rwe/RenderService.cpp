@@ -54,14 +54,12 @@ namespace rwe
 
     void RenderService::drawUnit(const Unit& unit, float seaLevel)
     {
-        auto matrix = Matrix4f::translation(unit.position) * Matrix4f::rotationY(unit.rotation);
-        drawUnitMesh(unit.mesh, matrix, seaLevel);
+        drawUnitMesh(unit.mesh, unit.getTransform(), seaLevel);
     }
 
     void RenderService::drawUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel)
     {
-        Vector3f testRotation(-mesh.rotation.x, mesh.rotation.y, mesh.rotation.z);
-        auto matrix = modelMatrix * Matrix4f::translation(mesh.origin) * Matrix4f::rotationXYZ(testRotation) * Matrix4f::translation(mesh.offset);
+        auto matrix = modelMatrix * mesh.getTransform();
 
         if (mesh.visible)
         {

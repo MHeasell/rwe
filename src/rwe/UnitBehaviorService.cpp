@@ -384,11 +384,10 @@ namespace rwe
         // TODO: should check alignment before firing
 
         // spawn a projectile from the firing point
-        // TODO: actually figure out the firing point
-        const auto& firingPoint = unit.position;
+        auto firingPoint = getFiringPoint(id, weaponIndex);
         auto targetVector = targetPosition - firingPoint;
         auto projectileVelocity = targetVector.normalized() * (400.0f / 60.0f);
-        scene->getSimulation().spawnLaser(unit.position, projectileVelocity, 3.6f);
+        scene->getSimulation().spawnLaser(firingPoint, projectileVelocity, 3.6f);
 
         if (weapon.soundStart)
         {
@@ -571,6 +570,21 @@ namespace rwe
         }
     }
 
+    std::string UnitBehaviorService::getQueryScriptName(unsigned int weaponIndex) const
+    {
+        switch (weaponIndex)
+        {
+            case 0:
+                return "QueryPrimary";
+            case 1:
+                return "QuerySecondary";
+            case 2:
+                return "QueryTertiary";
+            default:
+                throw std::logic_error("Invalid wepaon index: " + std::to_string(weaponIndex));
+        }
+    }
+
     boost::optional<int> UnitBehaviorService::runCobQuery(UnitId id, std::string& name)
     {
         auto& unit = scene->getSimulation().getUnit(id);
@@ -588,5 +602,26 @@ namespace rwe
 
         auto result = thread->returnLocals[0];
         return result;
+    }
+
+    Vector3f UnitBehaviorService::getFiringPoint(UnitId id, unsigned int weaponIndex)
+    {
+        auto& unit = scene->getSimulation().getUnit(id);
+
+        auto queryScriptName = getQueryScriptName(weaponIndex);
+        auto firingPiece = runCobQuery(id, queryScriptName);
+        if (!firingPiece)
+        {
+            return unit.position;
+        }
+
+        const auto& firingPieceName = unit.cobEnvironment->_script->pieces.at(*firingPiece);
+        auto pieceTransform = unit.mesh.getPieceTransform(firingPieceName);
+        if (!pieceTransform)
+        {
+            throw std::logic_error("Failed to find piece offset");
+        }
+
+        return unit.getTransform() * (*pieceTransform) * Vector3f(0.0f, 0.0f, 0.0f);
     }
 }

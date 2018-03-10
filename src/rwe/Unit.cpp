@@ -280,4 +280,9 @@ namespace rwe
             clearWeaponTarget(i);
         }
     }
+
+    Matrix4f Unit::getTransform() const
+    {
+        return Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
+    }
 }

@@ -174,6 +174,8 @@ namespace rwe
         void setWeaponTarget(unsigned int weaponIndex, const Vector3f& target);
         void clearWeaponTarget(unsigned int weaponIndex);
         void clearWeaponTargets();
+
+        Matrix4f getTransform() const;
     };
 }
 

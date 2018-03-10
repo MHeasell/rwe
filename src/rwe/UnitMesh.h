@@ -5,6 +5,7 @@
 #include <memory>
 #include <rwe/RadiansAngle.h>
 #include <rwe/ShaderMesh.h>
+#include <rwe/math/Matrix4f.h>
 #include <rwe/math/Vector3f.h>
 #include <string>
 #include <vector>
@@ -49,6 +50,10 @@ namespace rwe
         boost::optional<const UnitMesh&> find(const std::string& pieceName) const;
 
         boost::optional<UnitMesh&> find(const std::string& pieceName);
+
+        boost::optional<Matrix4f> getPieceTransform(const std::string& pieceName);
+
+        Matrix4f getTransform() const;
 
         void update(float dt);
     };

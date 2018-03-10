@@ -1,4 +1,5 @@
 #include "UnitMesh.h"
+#include <rwe/math/Matrix4f.h>
 #include <rwe/math/rwe_math.h>
 #include <rwe/util.h>
 
@@ -70,6 +71,31 @@ namespace rwe
         }
 
         return const_cast<UnitMesh&>(*value);
+    }
+
+    boost::optional<Matrix4f> UnitMesh::getPieceTransform(const std::string& pieceName)
+    {
+        if (pieceName == name)
+        {
+            return getTransform();
+        }
+
+        for (auto& c : children)
+        {
+            auto childTransform = c.getPieceTransform(pieceName);
+            if (childTransform)
+            {
+                return getTransform() * (*childTransform);
+            }
+        }
+
+        return boost::none;
+    }
+
+    Matrix4f UnitMesh::getTransform() const
+    {
+        Vector3f rotationVec(-rotation.x, rotation.y, rotation.z);
+        return Matrix4f::translation(origin) * Matrix4f::rotationXYZ(rotationVec) * Matrix4f::translation(offset);
     }
 
     void UnitMesh::update(float dt)
