@@ -49,7 +49,7 @@ namespace rwe
 
             BehaviorSubject<Type> type;
             BehaviorSubject<Side> side;
-            BehaviorSubject<int> colorIndex;
+            BehaviorSubject<unsigned int> colorIndex;
             BehaviorSubject<boost::optional<int>> teamIndex;
             BehaviorSubject<int> metal;
             BehaviorSubject<int> energy;
@@ -85,12 +85,12 @@ namespace rwe
         /**
          * Returns true if there is a player using the given color index.
          */
-        bool isColorInUse(int colorIndex) const;
+        bool isColorInUse(unsigned int colorIndex) const;
 
         /**
          * Returns the first available player color index.
          */
-        boost::optional<int> getFirstFreeColor() const;
+        boost::optional<unsigned int> getFirstFreeColor() const;
     };
 }
 

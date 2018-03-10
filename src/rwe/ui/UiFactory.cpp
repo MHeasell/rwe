@@ -642,7 +642,7 @@ namespace rwe
                 }
             });
 
-            auto sub = model->players[i].colorIndex.subscribe([b = b.get()](int index) {
+            auto sub = model->players[i].colorIndex.subscribe([b = b.get()](unsigned int index) {
                 b->setStage(index);
             });
             b->addSubscription(std::move(sub));

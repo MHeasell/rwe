@@ -471,7 +471,7 @@ namespace rwe
     {
         auto& player = model.players[playerIndex];
         auto currentColor = player.colorIndex.getValue();
-        for (int i = 1; i < 10; ++i)
+        for (unsigned int i = 1; i < 10; ++i)
         {
             auto newColor = (currentColor + i) % 10;
             if (!model.isColorInUse(newColor))
@@ -486,7 +486,7 @@ namespace rwe
     {
         auto& player = model.players[playerIndex];
         auto currentColor = player.colorIndex.getValue();
-        for (int i = 9; i >= 1; --i)
+        for (unsigned int i = 9; i >= 1; --i)
         {
             auto newColor = (currentColor + i) % 10;
             if (!model.isColorInUse(newColor))

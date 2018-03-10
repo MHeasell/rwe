@@ -37,16 +37,16 @@ namespace rwe
         return count >= 2;
     }
 
-    bool MainMenuModel::isColorInUse(int colorIndex) const
+    bool MainMenuModel::isColorInUse(unsigned int colorIndex) const
     {
         return std::find_if(players.begin(), players.end(), [colorIndex](const auto& p) {
             return p.type.getValue() != PlayerSettings::Type::Open && p.colorIndex.getValue() == colorIndex;
         }) != players.end();
     }
 
-    boost::optional<int> MainMenuModel::getFirstFreeColor() const
+    boost::optional<unsigned int> MainMenuModel::getFirstFreeColor() const
     {
-        for (int i = 0; i < 10; ++i)
+        for (unsigned int i = 0; i < 10; ++i)
         {
             if (!isColorInUse(i))
             {
