@@ -22,6 +22,8 @@ namespace rwe
         void update(UnitId unitId);
 
     private:
+        static std::pair<float, float> computeHeadingAndPitch(float rotation, const Vector3f& from, const Vector3f& to);
+
         bool followPath(Unit& unit, PathFollowingInfo& path);
 
         void updateWeapon(UnitId id, unsigned int weaponIndex);

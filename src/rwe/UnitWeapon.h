@@ -18,11 +18,17 @@ namespace rwe
 
     struct UnitWeaponStateAttacking
     {
+        struct AimInfo
+        {
+            const CobThread* thread;
+            float lastHeading;
+            float lastPitch;
+        };
+
         /** The target the weapon is currently trying to shoot at. */
         UnitWeaponAttackTarget target;
 
-        /** The unit's aiming thread. */
-        boost::optional<const CobThread*> aimingThread;
+        boost::optional<AimInfo> aimInfo;
 
         UnitWeaponStateAttacking(const UnitWeaponAttackTarget& target) : target(target)
         {
@@ -43,6 +49,10 @@ namespace rwe
 
         /** The game time at which the weapon next becomes ready to fire. */
         GameTime readyTime{0};
+
+        float tolerance;
+
+        float pitchTolerance;
 
         /** The internal state of the weapon. */
         UnitWeaponState state{UnitWeaponStateIdle()};

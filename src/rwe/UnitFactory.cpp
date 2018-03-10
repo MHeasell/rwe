@@ -98,6 +98,8 @@ namespace rwe
         UnitWeapon weapon;
         weapon.maxRange = tdf.range;
         weapon.reloadTime = tdf.reloadTime;
+        weapon.tolerance = toleranceToRadians(tdf.tolerance);
+        weapon.pitchTolerance = toleranceToRadians(tdf.pitchTolerance);
         if (!tdf.soundStart.empty())
         {
             weapon.soundStart = unitDatabase.getSoundHandle(tdf.soundStart);

@@ -246,6 +246,18 @@ namespace rwe
         updateUnitPosition(unitId);
     }
 
+    std::pair<float, float> UnitBehaviorService::computeHeadingAndPitch(float rotation, const Vector3f& from, const Vector3f& to)
+    {
+        auto aimVector = to - from;
+        auto heading = Vector2f(0.0f, -1.0f).angleTo(Vector2f(aimVector.x, aimVector.z));
+        heading = -heading;
+        heading = wrap(-Pif, Pif, heading - rotation);
+
+        auto pitch = (Pif / 2.0f) - std::acos(aimVector.dot(Vector3f(0.0f, 1.0f, 0.0f)) / aimVector.length());
+
+        return {heading, pitch};
+    }
+
     bool UnitBehaviorService::followPath(Unit& unit, PathFollowingInfo& path)
     {
         const auto& destination = *path.currentWaypoint;
@@ -324,23 +336,20 @@ namespace rwe
         }
         else if (auto aimingState = boost::get<UnitWeaponStateAttacking>(&weapon.state); aimingState != nullptr)
         {
-            if (!aimingState->aimingThread)
+            if (!aimingState->aimInfo)
             {
                 Vector3f targetPosition = boost::apply_visitor(GetTargetPosVisitor(&scene->getSimulation()), aimingState->target);
-
                 auto aimFromPosition = getAimingPoint(id, weaponIndex);
-                auto aimVector = targetPosition - aimFromPosition;
-                auto heading = Vector2f(0.0f, -1.0f).angleTo(Vector2f(aimVector.x, aimVector.z));
-                heading = -heading;
-                heading = wrap(-Pif, Pif, heading - unit.rotation);
 
-                auto pitch = (Pif / 2.0f) - std::acos(aimVector.dot(Vector3f(0.0f, 1.0f, 0.0f)) / aimVector.length());
+                auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, targetPosition);
+                auto heading = headingAndPitch.first;
+                auto pitch = headingAndPitch.second;
 
                 auto threadId = unit.cobEnvironment->createThread(getAimScriptName(weaponIndex), {toTaAngle(RadiansAngle(heading)).value, toTaAngle(RadiansAngle(pitch)).value});
 
                 if (threadId)
                 {
-                    aimingState->aimingThread = *threadId;
+                    aimingState->aimInfo = UnitWeaponStateAttacking::AimInfo{*threadId, heading, pitch};
                 }
                 else
                 {
@@ -351,17 +360,28 @@ namespace rwe
             }
             else
             {
-                auto returnValue = unit.cobEnvironment->tryReapThread(*aimingState->aimingThread);
+                const auto aimInfo = *aimingState->aimInfo;
+                auto returnValue = unit.cobEnvironment->tryReapThread(aimInfo.thread);
                 if (returnValue)
                 {
                     // we successfully reaped, clear the thread.
-                    aimingState->aimingThread = boost::none;
+                    aimingState->aimInfo = boost::none;
 
                     if (*returnValue)
                     {
-                        // aiming was successful, attempt to fire
+                        // aiming was successful, check the target again for drift
                         Vector3f targetPosition = boost::apply_visitor(GetTargetPosVisitor(&scene->getSimulation()), aimingState->target);
-                        tryFireWeapon(id, weaponIndex, targetPosition);
+                        auto aimFromPosition = getAimingPoint(id, weaponIndex);
+
+                        auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, targetPosition);
+                        auto heading = headingAndPitch.first;
+                        auto pitch = headingAndPitch.second;
+
+                        // if the target is close enough, try to fire
+                        if (std::abs(heading - aimInfo.lastHeading) <= weapon.tolerance && std::abs(pitch - aimInfo.lastPitch) <= weapon.pitchTolerance)
+                        {
+                            tryFireWeapon(id, weaponIndex, targetPosition);
+                        }
                     }
                 }
             }
@@ -379,8 +399,6 @@ namespace rwe
         {
             return;
         }
-
-        // TODO: should check alignment before firing
 
         // spawn a projectile from the firing point
         auto firingPoint = getFiringPoint(id, weaponIndex);

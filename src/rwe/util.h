@@ -24,6 +24,8 @@ namespace rwe
 
     RadiansAngle toRadians(TaAngle angle);
 
+    float toleranceToRadians(unsigned int angle);
+
     TaAngle toTaAngle(RadiansAngle angle);
 }
 
