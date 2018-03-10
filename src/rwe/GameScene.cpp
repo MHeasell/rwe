@@ -582,8 +582,23 @@ namespace rwe
     {
         for (auto& laser : simulation.lasers)
         {
-            laser.position += laser.velocity;
-            // TODO: detect collision between a laser and a unit, feature or terrain
+            if (!laser)
+            {
+                continue;
+            }
+
+            laser->position += laser->velocity;
+
+            // test collision with terrain
+            auto terrainHeight = simulation.terrain.getHeightAt(laser->position.x, laser->position.z);
+            if (laser->position.y <= terrainHeight)
+            {
+                // destroy the projectile
+                // TODO: trigger detonation/impact sound, animation
+                laser = boost::none;
+            }
+
+            // TODO: detect collision between a laser and a unit, feature, world boundary
         }
     }
 }

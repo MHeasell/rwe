@@ -36,7 +36,7 @@ namespace rwe
 
         std::vector<Unit> units;
 
-        std::vector<LaserProjectile> lasers;
+        std::vector<boost::optional<LaserProjectile>> lasers;
 
         std::deque<PathRequest> pathRequests;
 

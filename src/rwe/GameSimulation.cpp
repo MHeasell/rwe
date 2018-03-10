@@ -241,10 +241,20 @@ namespace rwe
 
     void GameSimulation::spawnLaser(const Vector3f& position, const Vector3f& velocity, float duration)
     {
-        auto& laser = lasers.emplace_back();
+        LaserProjectile laser;
         laser.position = position;
         laser.origin = position;
         laser.velocity = velocity;
         laser.duration = duration;
+
+        auto it = std::find_if(lasers.begin(), lasers.end(), [](const auto& x) { return !x; });
+        if (it == lasers.end())
+        {
+            lasers.push_back(laser);
+        }
+        else
+        {
+            *it = laser;
+        }
     }
 }

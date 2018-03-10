@@ -67,7 +67,7 @@ namespace rwe
 
         void fillScreen(float r, float g, float b, float a);
 
-        void drawLasers(const std::vector<LaserProjectile>& lasers);
+        void drawLasers(const std::vector<boost::optional<LaserProjectile>>& lasers);
 
     private:
         GlMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines);
