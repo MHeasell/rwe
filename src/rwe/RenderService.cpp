@@ -463,7 +463,15 @@ namespace rwe
         for (const auto& laser : lasers)
         {
             vertices.emplace_back(laser.position, laserColor);
-            vertices.emplace_back(laser.position - (laser.velocity * laser.duration), laserColor);
+            auto laserDurationVector = laser.velocity * laser.duration;
+            if (laserDurationVector.lengthSquared() < (laser.position - laser.origin).lengthSquared())
+            {
+                vertices.emplace_back(laser.position - laserDurationVector, laserColor);
+            }
+            else
+            {
+                vertices.emplace_back(laser.origin, laserColor);
+            }
         }
 
         auto mesh = graphics->createColoredMesh(vertices, GL_STREAM_DRAW);
