@@ -287,13 +287,7 @@ int main(int argc, char* argv[])
 
         return rwe::run(*logger, *localDataPath, mapName);
     }
-    catch (const std::runtime_error& e)
-    {
-        logger->critical(e.what());
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Critical Error", e.what(), nullptr);
-        return 1;
-    }
-    catch (const std::logic_error& e)
+    catch (const std::exception& e)
     {
         logger->critical(e.what());
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Critical Error", e.what(), nullptr);
