@@ -116,8 +116,14 @@ Install the necessary packages:
 
 Ensure you have a recent version of CMake (3.8+).
 The one provided by your package manager may not be new enough.
+Here's how you might install CMake:
 
-Build the code:
+    wget 'https://cmake.org/files/v3.8/cmake-3.8.2-Linux-x86_64.tar.gz'
+    tar -xf cmake-3.8.2-Linux-x86_64.tar.gz
+    export CMAKE_MODULE_PATH=$(pwd)/cmake-3.8.2-Linux-x86_64/share/cmake-3.8/Modules
+    export PATH=$(pwd)/cmake-3.8.2-Linux-x86_64/bin:$PATH
+
+Now build the code:
 
     cd /path/to/rwe
     mkdir build
