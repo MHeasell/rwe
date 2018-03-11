@@ -70,10 +70,18 @@ namespace rwe
             unit.maxWaterDepth = fbi.maxWaterDepth;
         }
 
-        // yeah this is a hack
+        // add weapons
         if (!fbi.weapon1.empty())
         {
-            unit.weapons.emplace_back(createWeapon(fbi.weapon1));
+            unit.weapons[0] = createWeapon(fbi.weapon1);
+        }
+        if (!fbi.weapon2.empty())
+        {
+            unit.weapons[1] = createWeapon(fbi.weapon2);
+        }
+        if (!fbi.weapon3.empty())
+        {
+            unit.weapons[2] = createWeapon(fbi.weapon3);
         }
 
         if (soundClass.select1)
@@ -98,6 +106,8 @@ namespace rwe
         UnitWeapon weapon;
         weapon.maxRange = tdf.range;
         weapon.reloadTime = tdf.reloadTime;
+        weapon.tolerance = toleranceToRadians(tdf.tolerance);
+        weapon.pitchTolerance = toleranceToRadians(tdf.pitchTolerance);
         if (!tdf.soundStart.empty())
         {
             weapon.soundStart = unitDatabase.getSoundHandle(tdf.soundStart);

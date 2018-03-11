@@ -3,6 +3,7 @@
 
 #include <boost/iterator/filter_iterator.hpp>
 #include <rwe/GraphicsContext.h>
+#include <rwe/LaserProjectile.h>
 #include <rwe/OccupiedGrid.h>
 #include <rwe/ShaderService.h>
 #include <rwe/Unit.h>
@@ -65,6 +66,8 @@ namespace rwe
         void drawUnitShadows(const MapTerrain& terrain, const std::vector<Unit>& units);
 
         void fillScreen(float r, float g, float b, float a);
+
+        void drawLasers(const std::vector<boost::optional<LaserProjectile>>& lasers);
 
     private:
         GlMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines);

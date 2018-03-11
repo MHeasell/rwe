@@ -249,27 +249,42 @@ namespace rwe
     void Unit::setWeaponTarget(unsigned int weaponIndex, UnitId target)
     {
         auto& weapon = weapons[weaponIndex];
-        if (!boost::apply_visitor(IsAttackingUnitVisitor(target), weapon.state))
+        if (!weapon)
+        {
+            return;
+        }
+
+        if (!boost::apply_visitor(IsAttackingUnitVisitor(target), weapon->state))
         {
             clearWeaponTarget(weaponIndex);
-            weapon.state = UnitWeaponStateAttacking(target);
+            weapon->state = UnitWeaponStateAttacking(target);
         }
     }
 
     void Unit::setWeaponTarget(unsigned int weaponIndex, const Vector3f& target)
     {
         auto& weapon = weapons[weaponIndex];
-        if (!boost::apply_visitor(IsAttackingPositionVisitor(target), weapon.state))
+        if (!weapon)
+        {
+            return;
+        }
+
+        if (!boost::apply_visitor(IsAttackingPositionVisitor(target), weapon->state))
         {
             clearWeaponTarget(weaponIndex);
-            weapon.state = UnitWeaponStateAttacking(target);
+            weapon->state = UnitWeaponStateAttacking(target);
         }
     }
 
     void Unit::clearWeaponTarget(unsigned int weaponIndex)
     {
         auto& weapon = weapons[weaponIndex];
-        weapon.state = UnitWeaponStateIdle();
+        if (!weapon)
+        {
+            return;
+        }
+
+        weapon->state = UnitWeaponStateIdle();
         cobEnvironment->createThread("TargetCleared", {static_cast<int>(weaponIndex)});
     }
 
@@ -279,5 +294,10 @@ namespace rwe
         {
             clearWeaponTarget(i);
         }
+    }
+
+    Matrix4f Unit::getTransform() const
+    {
+        return Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
     }
 }

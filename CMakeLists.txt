@@ -186,6 +186,8 @@ set(SOURCE_FILES
     src/rwe/GridRegion.h
     src/rwe/Hpi.cpp
     src/rwe/Hpi.h
+    src/rwe/LaserProjectile.cpp
+    src/rwe/LaserProjectile.h
     src/rwe/LoadingScene.cpp
     src/rwe/LoadingScene.h
     src/rwe/MainMenuModel.cpp

@@ -91,13 +91,13 @@ namespace rwe
             }
             else if (auto attackGroundOrder = boost::get<AttackGroundOrder>(&order); attackGroundOrder != nullptr)
             {
-                if (unit.weapons.empty())
+                if (!unit.weapons[0])
                 {
                     unit.orders.pop_front();
                 }
                 else
                 {
-                    auto maxRangeSquared = unit.weapons[0].maxRange * unit.weapons[0].maxRange;
+                    auto maxRangeSquared = unit.weapons[0]->maxRange * unit.weapons[0]->maxRange;
                     if (auto idleState = boost::get<IdleState>(&unit.behaviourState); idleState != nullptr)
                     {
                         // if we're out of range, drive into range
@@ -111,7 +111,7 @@ namespace rwe
                         else
                         {
                             // we're in range, aim weapons
-                            for (unsigned int i = 0; i < unit.weapons.size(); ++i)
+                            for (unsigned int i = 0; i < 2; ++i)
                             {
                                 unit.setWeaponTarget(i, attackGroundOrder->target);
                             }
@@ -156,7 +156,7 @@ namespace rwe
             }
             else if (auto attackOrder = boost::get<AttackOrder>(&order); attackOrder != nullptr)
             {
-                if (unit.weapons.empty())
+                if (!unit.weapons[0])
                 {
                     unit.orders.pop_front();
                 }
@@ -166,7 +166,7 @@ namespace rwe
                     const auto& targetUnit = scene->getSimulation().getUnit(attackOrder->target);
                     const auto& targetPosition = targetUnit.position;
 
-                    auto maxRangeSquared = unit.weapons[0].maxRange * unit.weapons[0].maxRange;
+                    auto maxRangeSquared = unit.weapons[0]->maxRange * unit.weapons[0]->maxRange;
                     if (auto idleState = boost::get<IdleState>(&unit.behaviourState); idleState != nullptr)
                     {
                         // if we're out of range, drive into range
@@ -180,7 +180,7 @@ namespace rwe
                         else
                         {
                             // we're in range, aim weapons
-                            for (unsigned int i = 0; i < unit.weapons.size(); ++i)
+                            for (unsigned int i = 0; i < 2; ++i)
                             {
                                 unit.setWeaponTarget(i, targetPosition);
                             }
@@ -244,6 +244,18 @@ namespace rwe
         }
 
         updateUnitPosition(unitId);
+    }
+
+    std::pair<float, float> UnitBehaviorService::computeHeadingAndPitch(float rotation, const Vector3f& from, const Vector3f& to)
+    {
+        auto aimVector = to - from;
+        auto heading = Vector2f(0.0f, -1.0f).angleTo(Vector2f(aimVector.x, aimVector.z));
+        heading = -heading;
+        heading = wrap(-Pif, Pif, heading - rotation);
+
+        auto pitch = (Pif / 2.0f) - std::acos(aimVector.dot(Vector3f(0.0f, 1.0f, 0.0f)) / aimVector.length());
+
+        return {heading, pitch};
     }
 
     bool UnitBehaviorService::followPath(Unit& unit, PathFollowingInfo& path)
@@ -310,6 +322,10 @@ namespace rwe
     {
         auto& unit = scene->getSimulation().getUnit(id);
         auto& weapon = unit.weapons[weaponIndex];
+        if (!weapon)
+        {
+            return;
+        }
 
         // FIXME: all this logic really needs to come out.
         // Weapons should run their own independent AI logic
@@ -318,78 +334,95 @@ namespace rwe
         // some non-existent aim thread, because orders could change underneath us,
         // and there's loads of other oddities like not calling TargetCleared reliably.
 
-        if (auto idleState = boost::get<UnitWeaponStateIdle>(&weapon.state); idleState != nullptr)
+        if (auto idleState = boost::get<UnitWeaponStateIdle>(&weapon->state); idleState != nullptr)
         {
             // TODO: attempt to acquire a target
         }
-        else if (auto aimingState = boost::get<UnitWeaponStateAttacking>(&weapon.state); aimingState != nullptr)
+        else if (auto aimingState = boost::get<UnitWeaponStateAttacking>(&weapon->state); aimingState != nullptr)
         {
-            if (!aimingState->aimingThread)
+            if (!aimingState->aimInfo)
             {
                 Vector3f targetPosition = boost::apply_visitor(GetTargetPosVisitor(&scene->getSimulation()), aimingState->target);
+                auto aimFromPosition = getAimingPoint(id, weaponIndex);
 
-                // FIXME: this calculation needs to take into account
-                // what the unit's AimFromPrimary (Secondary... etc) is.
-                auto aimVector = targetPosition - unit.position;
-                auto heading = Vector2f(0.0f, -1.0f).angleTo(Vector2f(aimVector.x, aimVector.z));
-                heading = -heading;
-                heading = wrap(-Pif, Pif, heading - unit.rotation);
-
-                auto pitch = (Pif / 2.0f) - std::acos(aimVector.dot(Vector3f(0.0f, 1.0f, 0.0f)) / aimVector.length());
+                auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, targetPosition);
+                auto heading = headingAndPitch.first;
+                auto pitch = headingAndPitch.second;
 
                 auto threadId = unit.cobEnvironment->createThread(getAimScriptName(weaponIndex), {toTaAngle(RadiansAngle(heading)).value, toTaAngle(RadiansAngle(pitch)).value});
 
                 if (threadId)
                 {
-                    aimingState->aimingThread = *threadId;
+                    aimingState->aimInfo = UnitWeaponStateAttacking::AimInfo{*threadId, heading, pitch};
                 }
                 else
                 {
-                    // We couldn't launch an aiming script (there isn't one)
-                    tryFireWeapon(id, weaponIndex);
+                    // We couldn't launch an aiming script (there isn't one),
+                    // just go straight to firing.
+                    tryFireWeapon(id, weaponIndex, targetPosition);
                 }
             }
             else
             {
-                auto returnValue = unit.cobEnvironment->tryReapThread(*aimingState->aimingThread);
+                const auto aimInfo = *aimingState->aimInfo;
+                auto returnValue = unit.cobEnvironment->tryReapThread(aimInfo.thread);
                 if (returnValue)
                 {
                     // we successfully reaped, clear the thread.
-                    aimingState->aimingThread = boost::none;
+                    aimingState->aimInfo = boost::none;
 
                     if (*returnValue)
                     {
-                        // aiming was successful, attempt to fire
-                        tryFireWeapon(id, weaponIndex);
+                        // aiming was successful, check the target again for drift
+                        Vector3f targetPosition = boost::apply_visitor(GetTargetPosVisitor(&scene->getSimulation()), aimingState->target);
+                        auto aimFromPosition = getAimingPoint(id, weaponIndex);
+
+                        auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, targetPosition);
+                        auto heading = headingAndPitch.first;
+                        auto pitch = headingAndPitch.second;
+
+                        // if the target is close enough, try to fire
+                        if (std::abs(heading - aimInfo.lastHeading) <= weapon->tolerance && std::abs(pitch - aimInfo.lastPitch) <= weapon->pitchTolerance)
+                        {
+                            tryFireWeapon(id, weaponIndex, targetPosition);
+                        }
                     }
                 }
             }
         }
     }
 
-    void UnitBehaviorService::tryFireWeapon(UnitId id, unsigned int weaponIndex)
+    void UnitBehaviorService::tryFireWeapon(UnitId id, unsigned int weaponIndex, const Vector3f& targetPosition)
     {
         auto& unit = scene->getSimulation().getUnit(id);
         auto& weapon = unit.weapons[weaponIndex];
 
-        // wait for the weapon to reload
-        auto gameTime = scene->getGameTime();
-        if (gameTime < weapon.readyTime)
+        if (!weapon)
         {
             return;
         }
 
-        // TODO: should check alignment before firing
-
-        // TODO: should actually spawn a projectile from the firing point
-        if (weapon.soundStart)
+        // wait for the weapon to reload
+        auto gameTime = scene->getGameTime();
+        if (gameTime < weapon->readyTime)
         {
-            scene->playUnitSound(id, *weapon.soundStart);
+            return;
+        }
+
+        // spawn a projectile from the firing point
+        auto firingPoint = getFiringPoint(id, weaponIndex);
+        auto targetVector = targetPosition - firingPoint;
+        auto projectileVelocity = targetVector.normalized() * (400.0f / 60.0f);
+        scene->getSimulation().spawnLaser(firingPoint, projectileVelocity, 4.0f);
+
+        if (weapon->soundStart)
+        {
+            scene->playUnitSound(id, *weapon->soundStart);
         }
         unit.cobEnvironment->createThread(getFireScriptName(weaponIndex));
 
         // we are reloading now
-        weapon.readyTime = gameTime + deltaSecondsToTicks(weapon.reloadTime);
+        weapon->readyTime = gameTime + deltaSecondsToTicks(weapon->reloadTime);
     }
 
     void UnitBehaviorService::applyUnitSteering(UnitId id)
@@ -548,6 +581,21 @@ namespace rwe
         }
     }
 
+    std::string UnitBehaviorService::getAimFromScriptName(unsigned int weaponIndex) const
+    {
+        switch (weaponIndex)
+        {
+            case 0:
+                return "AimFromPrimary";
+            case 1:
+                return "AimFromSecondary";
+            case 2:
+                return "AimFromTertiary";
+            default:
+                throw std::logic_error("Invalid weapon index: " + std::to_string(weaponIndex));
+        }
+    }
+
     std::string UnitBehaviorService::getFireScriptName(unsigned int weaponIndex) const
     {
         switch (weaponIndex)
@@ -558,6 +606,21 @@ namespace rwe
                 return "FireSecondary";
             case 2:
                 return "FireTertiary";
+            default:
+                throw std::logic_error("Invalid weapon index: " + std::to_string(weaponIndex));
+        }
+    }
+
+    std::string UnitBehaviorService::getQueryScriptName(unsigned int weaponIndex) const
+    {
+        switch (weaponIndex)
+        {
+            case 0:
+                return "QueryPrimary";
+            case 1:
+                return "QuerySecondary";
+            case 2:
+                return "QueryTertiary";
             default:
                 throw std::logic_error("Invalid wepaon index: " + std::to_string(weaponIndex));
         }
@@ -580,5 +643,44 @@ namespace rwe
 
         auto result = thread->returnLocals[0];
         return result;
+    }
+
+    Vector3f UnitBehaviorService::getAimingPoint(UnitId id, unsigned int weaponIndex)
+    {
+        auto scriptName = getAimFromScriptName(weaponIndex);
+        auto pieceId = runCobQuery(id, scriptName);
+        if (!pieceId)
+        {
+            return scene->getSimulation().getUnit(id).position;
+        }
+
+        return getPiecePosition(id, *pieceId);
+    }
+
+    Vector3f UnitBehaviorService::getFiringPoint(UnitId id, unsigned int weaponIndex)
+    {
+
+        auto scriptName = getQueryScriptName(weaponIndex);
+        auto pieceId = runCobQuery(id, scriptName);
+        if (!pieceId)
+        {
+            return scene->getSimulation().getUnit(id).position;
+        }
+
+        return getPiecePosition(id, *pieceId);
+    }
+
+    Vector3f UnitBehaviorService::getPiecePosition(UnitId id, unsigned int pieceId)
+    {
+        auto& unit = scene->getSimulation().getUnit(id);
+
+        const auto& pieceName = unit.cobEnvironment->_script->pieces.at(pieceId);
+        auto pieceTransform = unit.mesh.getPieceTransform(pieceName);
+        if (!pieceTransform)
+        {
+            throw std::logic_error("Failed to find piece offset");
+        }
+
+        return unit.getTransform() * (*pieceTransform) * Vector3f(0.0f, 0.0f, 0.0f);
     }
 }

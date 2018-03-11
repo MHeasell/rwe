@@ -54,14 +54,12 @@ namespace rwe
 
     void RenderService::drawUnit(const Unit& unit, float seaLevel)
     {
-        auto matrix = Matrix4f::translation(unit.position) * Matrix4f::rotationY(unit.rotation);
-        drawUnitMesh(unit.mesh, matrix, seaLevel);
+        drawUnitMesh(unit.mesh, unit.getTransform(), seaLevel);
     }
 
     void RenderService::drawUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel)
     {
-        Vector3f testRotation(-mesh.rotation.x, mesh.rotation.y, mesh.rotation.z);
-        auto matrix = modelMatrix * Matrix4f::translation(mesh.origin) * Matrix4f::rotationXYZ(testRotation) * Matrix4f::translation(mesh.offset);
+        auto matrix = modelMatrix * mesh.getTransform();
 
         if (mesh.visible)
         {
@@ -454,6 +452,40 @@ namespace rwe
         graphics->setUniformMatrix(shader.mvpMatrix, Matrix4f::identity());
         graphics->setUniformFloat(shader.alpha, a);
         graphics->drawTriangles(mesh);
+    }
+
+    void RenderService::drawLasers(const std::vector<boost::optional<LaserProjectile>>& lasers)
+    {
+        Vector3f pixelOffset(0.0f, 0.0f, 1.0f);
+
+        Vector3f laserColor(155.0f / 255.0f, 131.0f / 255.0f, 47.0f / 255.0f);
+        Vector3f laserColor2(211.0f / 255.0f, 43.0f / 255.0f, 0.0f / 255.0f);
+
+        std::vector<GlColoredVertex> vertices;
+        for (const auto& laser : lasers)
+        {
+            if (!laser)
+            {
+                continue;
+            }
+
+            auto backPosition = laser->getBackPosition();
+
+            vertices.emplace_back(laser->position, laserColor);
+            vertices.emplace_back(backPosition, laserColor);
+
+            vertices.emplace_back(laser->position + pixelOffset, laserColor2);
+            vertices.emplace_back(backPosition + pixelOffset, laserColor2);
+        }
+
+        auto mesh = graphics->createColoredMesh(vertices, GL_STREAM_DRAW);
+
+        const auto& shader = shaders->basicColor;
+        graphics->bindShader(shader.handle.get());
+        graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix());
+        graphics->setUniformFloat(shader.alpha, 1.0f);
+
+        graphics->drawLines(mesh);
     }
 
     void RenderService::drawFeatureShadowInternal(const MapFeature& feature)

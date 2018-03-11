@@ -40,6 +40,11 @@ namespace rwe
         return RadiansAngle(static_cast<float>(angle.value) * (Pif / 32760.0f));
     }
 
+    float toleranceToRadians(unsigned int angle)
+    {
+        return static_cast<float>(angle) * (Pif / 65536.0f);
+    }
+
     TaAngle toTaAngle(RadiansAngle angle)
     {
         return TaAngle(static_cast<int>(angle.value * (32760.0f / Pif)));

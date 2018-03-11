@@ -2,6 +2,7 @@
 #define RWE_GAMESIMULATION_H
 
 #include <rwe/GameTime.h>
+#include <rwe/LaserProjectile.h>
 #include <rwe/MapFeature.h>
 #include <rwe/MapTerrain.h>
 #include <rwe/OccupiedGrid.h>
@@ -34,6 +35,8 @@ namespace rwe
         std::vector<MapFeature> features;
 
         std::vector<Unit> units;
+
+        std::vector<boost::optional<LaserProjectile>> lasers;
 
         std::deque<PathRequest> pathRequests;
 
@@ -86,6 +89,8 @@ namespace rwe
         void moveUnitOccupiedArea(const DiscreteRect& oldRect, const DiscreteRect& newRect, UnitId unitId);
 
         void requestPath(UnitId unitId);
+
+        void spawnLaser(const Vector3f& position, const Vector3f& velocity, float duration);
     };
 }
 

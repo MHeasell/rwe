@@ -138,7 +138,7 @@ namespace rwe
          */
         bool inCollision{false};
 
-        std::vector<UnitWeapon> weapons;
+        std::array<boost::optional<UnitWeapon>, 3> weapons;
 
         bool canAttack;
 
@@ -174,6 +174,8 @@ namespace rwe
         void setWeaponTarget(unsigned int weaponIndex, const Vector3f& target);
         void clearWeaponTarget(unsigned int weaponIndex);
         void clearWeaponTargets();
+
+        Matrix4f getTransform() const;
     };
 }
 
