@@ -2,12 +2,12 @@
 
 namespace rwe
 {
-    boost::optional<boost::filesystem::path> getLocalDataPath()
+    std::optional<boost::filesystem::path> getLocalDataPath()
     {
         auto appData = std::getenv("APPDATA");
         if (appData == nullptr)
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         boost::filesystem::path path(appData);
@@ -16,12 +16,12 @@ namespace rwe
         return path;
     }
 
-    boost::optional<boost::filesystem::path> getSearchPath()
+    std::optional<boost::filesystem::path> getSearchPath()
     {
         auto path = getLocalDataPath();
         if (!path)
         {
-            return boost::none;
+            return std::nullopt;
         }
 
 

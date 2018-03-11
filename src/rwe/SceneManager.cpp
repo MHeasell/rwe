@@ -2,7 +2,7 @@
 
 namespace rwe
 {
-    boost::optional<MouseButtonEvent::MouseButton> convertSdlMouseButton(Uint8 button)
+    std::optional<MouseButtonEvent::MouseButton> convertSdlMouseButton(Uint8 button)
     {
         switch (button)
         {
@@ -13,7 +13,7 @@ namespace rwe
             case SDL_BUTTON_RIGHT:
                 return MouseButtonEvent::MouseButton::Right;
             default:
-                return boost::none;
+                return std::nullopt;
         }
     }
     SceneManager::SceneManager(SdlContext* sdl, SDL_Window* window, GraphicsContext* graphics) : currentScene(), nextScene(), sdl(sdl), window(window), graphics(graphics), requestedExit(false)

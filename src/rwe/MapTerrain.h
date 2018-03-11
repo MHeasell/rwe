@@ -80,9 +80,9 @@ namespace rwe
          */
         float getHeightAt(float x, float z) const;
 
-        boost::optional<Vector3f> intersectLine(const Line3f& line) const;
+        std::optional<Vector3f> intersectLine(const Line3f& line) const;
 
-        boost::optional<Vector3f> intersectWithHeightmapCell(const Line3f& line, int x, int y) const;
+        std::optional<Vector3f> intersectWithHeightmapCell(const Line3f& line, int x, int y) const;
 
         float getSeaLevel() const;
 

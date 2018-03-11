@@ -1,7 +1,7 @@
 #ifndef RWE_GEOMETRY_BOUNDINGBOX3F_H
 #define RWE_GEOMETRY_BOUNDINGBOX3F_H
 
-#include <boost/optional.hpp>
+#include <optional>
 #include <rwe/geometry/Ray3f.h>
 #include <rwe/math/Vector3f.h>
 
@@ -31,7 +31,7 @@ namespace rwe
          * at which the ray enters and exits the bounding box.
          * Otherwise, returns a result indicating that the ray missed.
          */
-        boost::optional<RayIntersect> intersect(const Ray3f& ray) const;
+        std::optional<RayIntersect> intersect(const Ray3f& ray) const;
     };
 }
 

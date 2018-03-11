@@ -1,7 +1,7 @@
 #ifndef RWE_FEATUREDEFINITION_H
 #define RWE_FEATUREDEFINITION_H
 
-#include <boost/optional.hpp>
+#include <optional>
 #include <rwe/tdf/TdfBlock.h>
 #include <string>
 

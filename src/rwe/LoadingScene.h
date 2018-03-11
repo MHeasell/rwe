@@ -35,7 +35,7 @@ namespace rwe
     {
         std::string mapName;
         unsigned int schemaIndex;
-        std::array<boost::optional<PlayerInfo>, 10> players;
+        std::array<std::optional<PlayerInfo>, 10> players;
 
         GameParameters(const std::string& mapName, unsigned int schemaIndex);
     };
@@ -113,7 +113,7 @@ namespace rwe
 
         void preloadSound(UnitDatabase& db, const std::string& soundName);
 
-        void preloadSound(UnitDatabase& db, const boost::optional<std::string>& soundName);
+        void preloadSound(UnitDatabase& db, const std::optional<std::string>& soundName);
     };
 }
 

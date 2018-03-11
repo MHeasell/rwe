@@ -6,7 +6,7 @@ namespace rwe
         GameSimulation* simulation,
         MovementClassCollisionService* collisionService,
         UnitId self,
-        boost::optional<MovementClassId> movementClass,
+        std::optional<MovementClassId> movementClass,
         unsigned int footprintX,
         unsigned int footprintZ,
         const Point& goal)

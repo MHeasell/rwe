@@ -2,7 +2,7 @@
 #define RWE_UIPANEL_H
 
 #include <GL/glew.h>
-#include <boost/optional.hpp>
+#include <optional>
 #include <rwe/GraphicsContext.h>
 #include <rwe/TextureHandle.h>
 #include <rwe/ui/UiComponent.h>
@@ -14,7 +14,7 @@ namespace rwe
     private:
         std::shared_ptr<Sprite> background;
         std::vector<std::unique_ptr<UiComponent>> children;
-        boost::optional<UiComponent*> focusedChild{boost::none};
+        std::optional<UiComponent*> focusedChild{std::nullopt};
 
     public:
         UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<Sprite> background);

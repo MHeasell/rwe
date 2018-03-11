@@ -1,7 +1,7 @@
 #ifndef RWE_GEOMETRY_PLANE3F_H
 #define RWE_GEOMETRY_PLANE3F_H
 
-#include <boost/optional.hpp>
+#include <optional>
 #include <rwe/geometry/Ray3f.h>
 #include <rwe/math/Vector3f.h>
 
@@ -36,7 +36,7 @@ namespace rwe
          * i.e. they are parallel, this will return
          * a result indicating that they did not intersect.
          */
-        boost::optional<float> intersect(const Ray3f& ray) const;
+        std::optional<float> intersect(const Ray3f& ray) const;
 
         /**
          * Returns the distance along the ray
@@ -50,7 +50,7 @@ namespace rwe
          */
         float intersectOrInfinity(const Ray3f& ray) const;
 
-        boost::optional<Vector3f> intersectLine(const Vector3f& startPoint, const Vector3f& endPoint);
+        std::optional<Vector3f> intersectLine(const Vector3f& startPoint, const Vector3f& endPoint);
 
         /**
          * Returns true if the given point is in front of the plane.

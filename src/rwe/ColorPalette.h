@@ -1,8 +1,8 @@
 #ifndef RWE_COLORPALETTE_H
 #define RWE_COLORPALETTE_H
 
-#include <boost/optional.hpp>
 #include <cstdint>
+#include <optional>
 #include <vector>
 
 namespace rwe
@@ -28,7 +28,7 @@ namespace rwe
 
     void readColorPalette(const char* input, Color* output);
 
-    boost::optional<ColorPalette> readPalette(std::vector<char>& vector);
+    std::optional<ColorPalette> readPalette(std::vector<char>& vector);
 }
 
 #endif

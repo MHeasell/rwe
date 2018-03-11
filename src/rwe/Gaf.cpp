@@ -1,7 +1,7 @@
 #include "Gaf.h"
-#include <rwe/rwe_string.h>
-
+#include <algorithm>
 #include <memory>
+#include <rwe/rwe_string.h>
 
 namespace rwe
 {
@@ -133,13 +133,13 @@ namespace rwe
         return Entry{std::move(name), std::move(frames)};
     }
 
-    boost::optional<const GafArchive::Entry&> GafArchive::findEntry(const std::string& name) const
+    std::optional<std::reference_wrapper<const GafArchive::Entry>> GafArchive::findEntry(const std::string& name) const
     {
         auto pos = std::find_if(_entries.begin(), _entries.end(), [&name](const Entry& e) { return toUpper(e.name) == toUpper(name); });
 
         if (pos == _entries.end())
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         return *pos;

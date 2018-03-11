@@ -1,8 +1,8 @@
 #ifndef RWE_3DO_H
 #define RWE_3DO_H
 
-#include <boost/optional.hpp>
 #include <istream>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -60,7 +60,7 @@ namespace rwe
         {
             unsigned int colorIndex;
             std::vector<unsigned int> vertices;
-            boost::optional<std::string> textureName;
+            std::optional<std::string> textureName;
         };
 
         struct Object
@@ -72,7 +72,7 @@ namespace rwe
             std::vector<Primitive> primitives;
             std::vector<Object> children;
             std::string name;
-            boost::optional<unsigned int> selectionPrimitiveIndex;
+            std::optional<unsigned int> selectionPrimitiveIndex;
         };
     };
 

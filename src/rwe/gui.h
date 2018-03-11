@@ -1,7 +1,7 @@
 #ifndef RWE_GUI_H
 #define RWE_GUI_H
 
-#include <boost/optional.hpp>
+#include <optional>
 #include <rwe/tdf/TdfBlock.h>
 #include <string>
 
@@ -75,7 +75,7 @@ namespace rwe
         int fontNumber;
         bool active;
         int commonAttribs;
-        boost::optional<std::string> help;
+        std::optional<std::string> help;
 
         bool operator==(const GuiCommon& rhs) const
         {
@@ -106,19 +106,19 @@ namespace rwe
     {
         GuiCommon common;
 
-        boost::optional<std::string> panel;
-        boost::optional<std::string> crDefault;
-        boost::optional<std::string> escdefault;
-        boost::optional<std::string> defaultFocus;
-        boost::optional<int> totalGadgets;
+        std::optional<std::string> panel;
+        std::optional<std::string> crDefault;
+        std::optional<std::string> escdefault;
+        std::optional<std::string> defaultFocus;
+        std::optional<int> totalGadgets;
 
-        boost::optional<GuiVersion> version;
+        std::optional<GuiVersion> version;
 
-        boost::optional<int> status;
-        boost::optional<std::string> text;
-        boost::optional<int> quickKey;
-        boost::optional<bool> grayedOut;
-        boost::optional<int> stages;
+        std::optional<int> status;
+        std::optional<std::string> text;
+        std::optional<int> quickKey;
+        std::optional<bool> grayedOut;
+        std::optional<int> stages;
 
         bool operator==(const GuiEntry& rhs) const;
 
@@ -126,7 +126,7 @@ namespace rwe
     };
 
 
-    boost::optional<std::vector<GuiEntry>> parseGui(const TdfBlock& tdf);
+    std::optional<std::vector<GuiEntry>> parseGui(const TdfBlock& tdf);
 }
 
 #endif

@@ -165,7 +165,7 @@ namespace rwe
         return pos->y;
     }
 
-    boost::optional<Vector3f> MapTerrain::intersectLine(const Line3f& line) const
+    std::optional<Vector3f> MapTerrain::intersectLine(const Line3f& line) const
     {
         auto heightmapPosition = worldToHeightmapSpace(line.start);
         Point startCell(static_cast<int>(heightmapPosition.x), static_cast<int>(heightmapPosition.z));
@@ -228,16 +228,16 @@ namespace rwe
             auto cellPos = heightmapIndexToWorldCenter(startCell);
 
             Plane3f xPlane(Vector3f(cellPos.x + xPlaneOffset, 0.0f, 0.0f), Vector3f(1.0f, 0.0f, 0.0f));
-            float xIntersect = xPlane.intersect(ray).get_value_or(std::numeric_limits<float>::infinity());
+            float xIntersect = xPlane.intersect(ray).value_or(std::numeric_limits<float>::infinity());
 
             Plane3f zPlane(Vector3f(0.0f, 0.0f, cellPos.z + zPlaneOffset), Vector3f(0.0f, 0.0f, 1.0f));
-            float zIntersect = zPlane.intersect(ray).get_value_or(std::numeric_limits<float>::infinity());
+            float zIntersect = zPlane.intersect(ray).value_or(std::numeric_limits<float>::infinity());
 
             if (xIntersect < zIntersect)
             {
                 if (xIntersect > 1.0f)
                 {
-                    return boost::none;
+                    return std::nullopt;
                 }
 
                 startCell.x += xDirection;
@@ -247,7 +247,7 @@ namespace rwe
             {
                 if (zIntersect > 1.0f)
                 {
-                    return boost::none;
+                    return std::nullopt;
                 }
 
                 startCell.y += zDirection;
@@ -256,7 +256,7 @@ namespace rwe
         }
     }
 
-    boost::optional<Vector3f> MapTerrain::intersectWithHeightmapCell(const Line3f& line, int x, int y) const
+    std::optional<Vector3f> MapTerrain::intersectWithHeightmapCell(const Line3f& line, int x, int y) const
     {
         auto posTopLeft = heightmapIndexToWorldCorner(x, y);
         posTopLeft.y = heights.get(x, y);

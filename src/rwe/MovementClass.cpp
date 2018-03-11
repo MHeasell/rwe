@@ -8,10 +8,10 @@ namespace rwe
         m.name = block.expectString("Name");
         m.footprintX = block.expectUint("FootprintX");
         m.footprintZ = block.expectUint("FootprintZ");
-        m.minWaterDepth = block.extractUint("MinWaterDepth").get_value_or(0);
-        m.maxWaterDepth = block.extractUint("MaxWaterDepth").get_value_or(255);
-        m.maxSlope = block.extractUint("MaxSlope").get_value_or(0);
-        m.maxWaterSlope = block.extractUint("MaxWaterSlope").get_value_or(m.maxSlope);
+        m.minWaterDepth = block.extractUint("MinWaterDepth").value_or(0);
+        m.maxWaterDepth = block.extractUint("MaxWaterDepth").value_or(255);
+        m.maxSlope = block.extractUint("MaxSlope").value_or(0);
+        m.maxWaterSlope = block.extractUint("MaxWaterSlope").value_or(m.maxSlope);
 
         return m;
     }

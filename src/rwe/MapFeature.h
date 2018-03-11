@@ -1,8 +1,8 @@
 #ifndef RWE_MAPFEATURE_H
 #define RWE_MAPFEATURE_H
 
-#include <boost/optional.hpp>
 #include <memory>
+#include <optional>
 #include <rwe/SpriteSeries.h>
 #include <rwe/math/Vector3f.h>
 
@@ -12,7 +12,7 @@ namespace rwe
     {
         std::shared_ptr<SpriteSeries> animation;
         bool transparentAnimation;
-        boost::optional<std::shared_ptr<SpriteSeries>> shadowAnimation;
+        std::optional<std::shared_ptr<SpriteSeries>> shadowAnimation;
         bool transparentShadow;
         Vector3f position;
         int footprintX;

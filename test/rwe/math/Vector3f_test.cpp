@@ -1,4 +1,4 @@
-#include <boost/optional/optional_io.hpp>
+#include <rwe/optional_io.h>
 #include <catch.hpp>
 #include <rwe/math/Vector3f.h>
 #include <sstream>
@@ -63,8 +63,8 @@ namespace rwe
         SECTION("returns a when b is not defined")
         {
             Vector3f origin(0.0f, 0.0f, 0.0f);
-            boost::optional<Vector3f> a = Vector3f(1.0f, 2.0f, 3.0f);
-            boost::optional<Vector3f> b;
+            std::optional<Vector3f> a = Vector3f(1.0f, 2.0f, 3.0f);
+            std::optional<Vector3f> b;
 
             auto result = closestTo(origin, a, b);
             REQUIRE(result);
@@ -76,8 +76,8 @@ namespace rwe
         SECTION("returns b when a is not defined")
         {
             Vector3f origin(0.0f, 0.0f, 0.0f);
-            boost::optional<Vector3f> a;
-            boost::optional<Vector3f> b = Vector3f(2.0f, 3.0f, 4.0f);
+            std::optional<Vector3f> a;
+            std::optional<Vector3f> b = Vector3f(2.0f, 3.0f, 4.0f);
 
             auto result = closestTo(origin, a, b);
             REQUIRE(result);
@@ -89,8 +89,8 @@ namespace rwe
         SECTION("when both are defined, returns the closer")
         {
             Vector3f origin(0.0f, 0.0f, 0.0f);
-            boost::optional<Vector3f> a = Vector3f(1.0f, 2.0f, 3.0f);
-            boost::optional<Vector3f> b = Vector3f(2.0f, 3.0f, 4.0f);
+            std::optional<Vector3f> a = Vector3f(1.0f, 2.0f, 3.0f);
+            std::optional<Vector3f> b = Vector3f(2.0f, 3.0f, 4.0f);
 
             auto result = closestTo(origin, a, b);
             REQUIRE(result);
@@ -102,8 +102,8 @@ namespace rwe
         SECTION("when both are defined, returns the closer (test 2)")
         {
             Vector3f origin(3.0f, 3.0f, 3.0f);
-            boost::optional<Vector3f> a = Vector3f(1.0f, 2.0f, 3.0f);
-            boost::optional<Vector3f> b = Vector3f(2.0f, 3.0f, 4.0f);
+            std::optional<Vector3f> a = Vector3f(1.0f, 2.0f, 3.0f);
+            std::optional<Vector3f> b = Vector3f(2.0f, 3.0f, 4.0f);
 
             auto result = closestTo(origin, a, b);
             REQUIRE(result);

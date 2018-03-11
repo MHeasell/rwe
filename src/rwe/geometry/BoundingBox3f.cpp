@@ -10,7 +10,7 @@ namespace rwe
     {
     }
 
-    boost::optional<BoundingBox3f::RayIntersect> BoundingBox3f::intersect(const Ray3f& ray) const
+    std::optional<BoundingBox3f::RayIntersect> BoundingBox3f::intersect(const Ray3f& ray) const
     {
         Plane3f bottomPlane(center + Vector3f(0.0f, 0.0f, -extents.z), Vector3f(0.0f, 0.0f, -1.0f));
         Plane3f topPlane(center + Vector3f(0.0f, 0.0f, extents.z), Vector3f(0.0f, 0.0f, -1.0f));
@@ -78,6 +78,6 @@ namespace rwe
         }
 
         // return a miss
-        return boost::none;
+        return std::nullopt;
     }
 }

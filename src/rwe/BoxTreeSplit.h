@@ -1,9 +1,9 @@
 #ifndef RWE_BOXTREE_H
 #define RWE_BOXTREE_H
 
-#include <boost/optional.hpp>
 #include <boost/variant.hpp>
 #include <memory>
+#include <optional>
 #include <rwe/Grid.h>
 #include <vector>
 
@@ -59,7 +59,7 @@ namespace rwe
 
         BoxTreeNode(unsigned int width, unsigned int height, T&& value);
 
-        boost::optional<BoxTreeNode<T>*> findNode(unsigned int itemWidth, unsigned int itemHeight);
+        std::optional<BoxTreeNode<T>*> findNode(unsigned int itemWidth, unsigned int itemHeight);
 
         std::vector<BoxPackInfoEntry<T>> walk();
     };
@@ -80,7 +80,7 @@ namespace rwe
     template <typename T>
     struct BoxTreeLeaf
     {
-        boost::optional<T> value;
+        std::optional<T> value;
 
         BoxTreeLeaf() = default;
 
@@ -230,11 +230,11 @@ namespace rwe
     }
 
     template <typename T>
-    boost::optional<BoxTreeNode<T>*> BoxTreeNode<T>::findNode(unsigned int itemWidth, unsigned int itemHeight)
+    std::optional<BoxTreeNode<T>*> BoxTreeNode<T>::findNode(unsigned int itemWidth, unsigned int itemHeight)
     {
         if (itemWidth > width || itemHeight > height)
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         auto leaf = boost::get<BoxTreeLeaf<T>>(&value);
@@ -243,7 +243,7 @@ namespace rwe
             if (leaf->value)
             {
                 // leaf is already occupied
-                return boost::none;
+                return std::nullopt;
             }
 
             return this;

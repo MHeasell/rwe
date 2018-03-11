@@ -44,7 +44,7 @@ namespace rwe
         }) != players.end();
     }
 
-    boost::optional<unsigned int> MainMenuModel::getFirstFreeColor() const
+    std::optional<unsigned int> MainMenuModel::getFirstFreeColor() const
     {
         for (unsigned int i = 0; i < 10; ++i)
         {
@@ -54,6 +54,6 @@ namespace rwe
             }
         }
 
-        return boost::none;
+        return std::nullopt;
     }
 }

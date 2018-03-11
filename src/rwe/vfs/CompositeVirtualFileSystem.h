@@ -10,7 +10,7 @@ namespace rwe
     class CompositeVirtualFileSystem final : public AbstractVirtualFileSystem
     {
     public:
-        boost::optional<std::vector<char>> readFile(const std::string& filename) const override;
+        std::optional<std::vector<char>> readFile(const std::string& filename) const override;
 
         std::vector<std::string> getFileNames(const std::string& directory, const std::string& extension) override;
 

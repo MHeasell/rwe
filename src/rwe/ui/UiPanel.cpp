@@ -151,7 +151,7 @@ namespace rwe
             (*focusedChild)->unfocus();
         }
 
-        focusedChild = boost::none;
+        focusedChild = std::nullopt;
     }
 
     void UiPanel::update(float dt)
@@ -196,7 +196,7 @@ namespace rwe
             {
                 if (focusedChild && focusedChild == it->get())
                 {
-                    focusedChild = boost::none;
+                    focusedChild = std::nullopt;
                 }
 
                 children.erase(--(it.base()));

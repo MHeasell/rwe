@@ -1,7 +1,7 @@
 #include "Hpi.h"
 
-#include <boost/optional.hpp>
 #include <memory>
+#include <optional>
 #include <rwe/rwe_string.h>
 
 #include <zlib.h>
@@ -189,7 +189,7 @@ namespace rwe
         inflateEnd(&stream);
     }
 
-    boost::optional<std::size_t> stringSize(const char* begin, const char* end)
+    std::optional<std::size_t> stringSize(const char* begin, const char* end)
     {
         std::size_t count = 0;
         while (begin != end)
@@ -203,7 +203,7 @@ namespace rwe
             ++begin;
         }
 
-        return boost::none;
+        return std::nullopt;
     }
 
     HpiArchive::DirectoryEntry
@@ -362,20 +362,20 @@ namespace rwe
         }
     }
 
-    struct FileToOptionalVisitor : public boost::static_visitor<boost::optional<const HpiArchive::File&>>
+    struct FileToOptionalVisitor : public boost::static_visitor<std::optional<std::reference_wrapper<const HpiArchive::File>>>
     {
-        boost::optional<const HpiArchive::File&> operator()(const HpiArchive::File& f) const
+        std::optional<std::reference_wrapper<const HpiArchive::File>> operator()(const HpiArchive::File& f) const
         {
             return f;
         }
 
-        boost::optional<const HpiArchive::File&> operator()(const HpiArchive::Directory& /*d*/) const
+        std::optional<std::reference_wrapper<const HpiArchive::File>> operator()(const HpiArchive::Directory& /*d*/) const
         {
-            return boost::none;
+            return std::nullopt;
         }
     };
 
-    boost::optional<const HpiArchive::File&> findFileInner(const HpiArchive::Directory& dir, const std::string& name)
+    std::optional<std::reference_wrapper<const HpiArchive::File>> findFileInner(const HpiArchive::Directory& dir, const std::string& name)
     {
         auto it = std::find_if(
             dir.entries.begin(),
@@ -386,26 +386,26 @@ namespace rwe
 
         if (it == dir.entries.end())
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         return boost::apply_visitor(FileToOptionalVisitor(), it->data);
     }
 
-    struct DirToOptionalVisitor : public boost::static_visitor<boost::optional<const HpiArchive::Directory&>>
+    struct DirToOptionalVisitor : public boost::static_visitor<std::optional<std::reference_wrapper<const HpiArchive::Directory>>>
     {
-        boost::optional<const HpiArchive::Directory&> operator()(const HpiArchive::File& /*f*/) const
+        std::optional<std::reference_wrapper<const HpiArchive::Directory>> operator()(const HpiArchive::File& /*f*/) const
         {
-            return boost::none;
+            return std::nullopt;
         }
 
-        boost::optional<const HpiArchive::Directory&> operator()(const HpiArchive::Directory& d) const
+        std::optional<std::reference_wrapper<const HpiArchive::Directory>> operator()(const HpiArchive::Directory& d) const
         {
             return d;
         }
     };
 
-    boost::optional<const HpiArchive::File&> HpiArchive::findFile(const std::string& path) const
+    std::optional<std::reference_wrapper<const HpiArchive::File>> HpiArchive::findFile(const std::string& path) const
     {
         auto components = split(path, {'/'});
 
@@ -425,23 +425,23 @@ namespace rwe
                 });
             if (it == end)
             {
-                return boost::none;
+                return std::nullopt;
             }
 
             auto foundDir = boost::apply_visitor(DirToOptionalVisitor(), it->data);
             if (!foundDir)
             {
-                return boost::none;
+                return std::nullopt;
             }
 
-            dir = &*foundDir;
+            dir = &foundDir->get();
         }
 
         // find the file in the directory
         return findFileInner(*dir, components.back());
     }
 
-    boost::optional<const HpiArchive::Directory&> HpiArchive::findDirectory(const std::string& path) const
+    std::optional<std::reference_wrapper<const HpiArchive::Directory>> HpiArchive::findDirectory(const std::string& path) const
     {
         auto components = split(path, {'/'});
 
@@ -461,16 +461,16 @@ namespace rwe
                 });
             if (it == end)
             {
-                return boost::none;
+                return std::nullopt;
             }
 
             auto foundDir = boost::apply_visitor(DirToOptionalVisitor(), it->data);
             if (!foundDir)
             {
-                return boost::none;
+                return std::nullopt;
             }
 
-            dir = &*foundDir;
+            dir = &foundDir->get();
         }
 
         return *dir;

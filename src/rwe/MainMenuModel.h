@@ -2,8 +2,8 @@
 #define RWE_MAINMENUMODEL_H
 
 #include <array>
-#include <boost/optional.hpp>
 #include <boost/variant.hpp>
+#include <optional>
 #include <rwe/Sprite.h>
 #include <rwe/events.h>
 #include <rwe/observable/BehaviorSubject.h>
@@ -50,7 +50,7 @@ namespace rwe
             BehaviorSubject<Type> type;
             BehaviorSubject<Side> side;
             BehaviorSubject<unsigned int> colorIndex;
-            BehaviorSubject<boost::optional<int>> teamIndex;
+            BehaviorSubject<std::optional<int>> teamIndex;
             BehaviorSubject<int> metal;
             BehaviorSubject<int> energy;
         };
@@ -60,21 +60,21 @@ namespace rwe
 
         Subject<int> teamChanges;
 
-        BehaviorSubject<boost::optional<SelectedMapInfo>> selectedMap;
+        BehaviorSubject<std::optional<SelectedMapInfo>> selectedMap;
 
-        BehaviorSubject<boost::optional<SelectedMapInfo>> candidateSelectedMap;
+        BehaviorSubject<std::optional<SelectedMapInfo>> candidateSelectedMap;
 
         std::array<PlayerSettings, 10> players{{
-            {PlayerSettings::Type::Human, PlayerSettings::Side::Arm, 0, boost::optional<int>(boost::none), 1000, 1000},
-            {PlayerSettings::Type::Computer, PlayerSettings::Side::Core, 1, boost::optional<int>(boost::none), 1000, 1000},
-            {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 2, boost::optional<int>(boost::none), 1000, 1000},
-            {PlayerSettings::Type::Open, PlayerSettings::Side::Core, 3, boost::optional<int>(boost::none), 1000, 1000},
-            {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 4, boost::optional<int>(boost::none), 1000, 1000},
-            {PlayerSettings::Type::Open, PlayerSettings::Side::Core, 5, boost::optional<int>(boost::none), 1000, 1000},
-            {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 6, boost::optional<int>(boost::none), 1000, 1000},
-            {PlayerSettings::Type::Open, PlayerSettings::Side::Core, 7, boost::optional<int>(boost::none), 1000, 1000},
-            {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 8, boost::optional<int>(boost::none), 1000, 1000},
-            {PlayerSettings::Type::Open, PlayerSettings::Side::Core, 9, boost::optional<int>(boost::none), 1000, 1000},
+            {PlayerSettings::Type::Human, PlayerSettings::Side::Arm, 0, std::optional<int>(std::nullopt), 1000, 1000},
+            {PlayerSettings::Type::Computer, PlayerSettings::Side::Core, 1, std::optional<int>(std::nullopt), 1000, 1000},
+            {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 2, std::optional<int>(std::nullopt), 1000, 1000},
+            {PlayerSettings::Type::Open, PlayerSettings::Side::Core, 3, std::optional<int>(std::nullopt), 1000, 1000},
+            {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 4, std::optional<int>(std::nullopt), 1000, 1000},
+            {PlayerSettings::Type::Open, PlayerSettings::Side::Core, 5, std::optional<int>(std::nullopt), 1000, 1000},
+            {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 6, std::optional<int>(std::nullopt), 1000, 1000},
+            {PlayerSettings::Type::Open, PlayerSettings::Side::Core, 7, std::optional<int>(std::nullopt), 1000, 1000},
+            {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 8, std::optional<int>(std::nullopt), 1000, 1000},
+            {PlayerSettings::Type::Open, PlayerSettings::Side::Core, 9, std::optional<int>(std::nullopt), 1000, 1000},
         }};
 
         /**
@@ -90,7 +90,7 @@ namespace rwe
         /**
          * Returns the first available player color index.
          */
-        boost::optional<unsigned int> getFirstFreeColor() const;
+        std::optional<unsigned int> getFirstFreeColor() const;
     };
 }
 

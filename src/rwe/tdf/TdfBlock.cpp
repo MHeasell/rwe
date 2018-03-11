@@ -6,18 +6,18 @@
 namespace rwe
 {
     template <>
-    boost::optional<std::string> tdfTryParse(const std::string& value)
+    std::optional<std::string> tdfTryParse(const std::string& value)
     {
         return value;
     }
 
     template <>
-    boost::optional<bool> tdfTryParse(const std::string& value)
+    std::optional<bool> tdfTryParse(const std::string& value)
     {
         auto val = tdfTryParse<int>(value);
         if (!val)
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         return val != 0;
@@ -95,41 +95,41 @@ namespace rwe
         return !(rhs == *this);
     }
 
-    boost::optional<const TdfBlock&> TdfBlock::findBlock(const std::string& name) const
+    std::optional<std::reference_wrapper<const TdfBlock>> TdfBlock::findBlock(const std::string& name) const
     {
         // find the key in the block
         auto it = blocks.find(name);
         if (it == blocks.end())
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         return *it->second;
     }
 
-    boost::optional<const std::string&> TdfBlock::findValue(const std::string& name) const
+    std::optional<std::reference_wrapper<const std::string>> TdfBlock::findValue(const std::string& name) const
     {
         // find the key in the block
         auto it = properties.find(name);
         if (it == properties.end())
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         return it->second;
     }
 
-    boost::optional<int> TdfBlock::extractInt(const std::string& key) const
+    std::optional<int> TdfBlock::extractInt(const std::string& key) const
     {
         return extract<int>(key);
     }
 
-    boost::optional<unsigned int> TdfBlock::extractUint(const std::string& key) const
+    std::optional<unsigned int> TdfBlock::extractUint(const std::string& key) const
     {
         return extract<unsigned int>(key);
     }
 
-    boost::optional<float> TdfBlock::extractFloat(const std::string& key) const
+    std::optional<float> TdfBlock::extractFloat(const std::string& key) const
     {
         return extract<float>(key);
     }
@@ -149,7 +149,7 @@ namespace rwe
         return expect<float>(key);
     }
 
-    boost::optional<bool> TdfBlock::extractBool(const std::string& key) const
+    std::optional<bool> TdfBlock::extractBool(const std::string& key) const
     {
         return extract<bool>(key);
     }

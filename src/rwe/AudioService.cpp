@@ -23,7 +23,7 @@ namespace rwe
         sdlMixerContext->playChannel(-1, sound.get(), 0);
     }
 
-    boost::optional<AudioService::SoundHandle> AudioService::loadSound(const std::string& soundName)
+    std::optional<AudioService::SoundHandle> AudioService::loadSound(const std::string& soundName)
     {
 
         auto soundIter = soundBank.find(soundName);
@@ -36,7 +36,7 @@ namespace rwe
         auto bytes = fileSystem->readFile("sounds/" + soundName + ".WAV");
         if (!bytes)
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         auto rwOps = sdlContext->rwFromConstMem(bytes->data(), bytes->size());
@@ -103,11 +103,11 @@ namespace rwe
 
     AudioService::LoopToken::LoopToken() : audioService(nullptr), channel(-1), sound(nullptr) {}
 
-    boost::optional<const AudioService::SoundHandle&> AudioService::LoopToken::getSound()
+    std::optional<std::reference_wrapper<const AudioService::SoundHandle>> AudioService::LoopToken::getSound()
     {
         if (channel == -1)
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         return sound;

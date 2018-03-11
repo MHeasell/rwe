@@ -39,6 +39,6 @@ namespace rwe
 
     void UiSurface::clearBackground()
     {
-        background = boost::none;
+        background = std::nullopt;
     }
 }

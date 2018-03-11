@@ -36,7 +36,7 @@ namespace rwe
 
         std::vector<Unit> units;
 
-        std::vector<boost::optional<LaserProjectile>> lasers;
+        std::vector<std::optional<LaserProjectile>> lasers;
 
         std::deque<PathRequest> pathRequests;
 
@@ -82,9 +82,9 @@ namespace rwe
 
         bool isPieceTurning(UnitId unitId, const std::string& name, Axis axis) const;
 
-        boost::optional<UnitId> getFirstCollidingUnit(const Ray3f& ray) const;
+        std::optional<UnitId> getFirstCollidingUnit(const Ray3f& ray) const;
 
-        boost::optional<Vector3f> intersectLineWithTerrain(const Line3f& line) const;
+        std::optional<Vector3f> intersectLineWithTerrain(const Line3f& line) const;
 
         void moveUnitOccupiedArea(const DiscreteRect& oldRect, const DiscreteRect& newRect, UnitId unitId);
 

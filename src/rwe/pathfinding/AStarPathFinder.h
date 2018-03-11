@@ -1,8 +1,8 @@
 #ifndef RWE_ASTARPATHFINDER_H
 #define RWE_ASTARPATHFINDER_H
 
-#include <boost/optional.hpp>
 #include <deque>
+#include <optional>
 #include <rwe/MinHeap.h>
 #include <spdlog/spdlog.h>
 #include <unordered_map>
@@ -21,7 +21,7 @@ namespace rwe
     {
         Cost costToReach;
         T vertex;
-        boost::optional<const AStarVertexInfo<T, Cost>*> predecessor;
+        std::optional<const AStarVertexInfo<T, Cost>*> predecessor;
     };
 
     enum class AStarPathType
@@ -50,11 +50,11 @@ namespace rwe
             auto openVertices = createMinHeap<T, std::pair<Cost, VertexInfo>>(
                 [](const auto& p) { return p.second.vertex; },
                 [](const auto& a, const auto& b) { return a.first < b.first; });
-            openVertices.pushOrDecrease({estimateCostToGoal(start), VertexInfo{Cost(), start, boost::none}});
+            openVertices.pushOrDecrease({estimateCostToGoal(start), VertexInfo{Cost(), start, std::nullopt}});
 
             std::unordered_map<T, VertexInfo> closedVertices;
 
-            boost::optional<std::pair<Cost, const VertexInfo*>> closestVertex;
+            std::optional<std::pair<Cost, const VertexInfo*>> closestVertex;
 
             unsigned int openListPopsPerformed = 0;
 
@@ -104,7 +104,7 @@ namespace rwe
         std::vector<T> walkPath(const VertexInfo& info)
         {
             std::vector<T> items;
-            boost::optional<const VertexInfo*> v = &info;
+            std::optional<const VertexInfo*> v = &info;
             while (v)
             {
                 items.push_back((*v)->vertex);

@@ -133,9 +133,9 @@ namespace rwe
             }
         }
 
-        boost::optional<PlayerId> localPlayerId;
+        std::optional<PlayerId> localPlayerId;
 
-        std::array<boost::optional<PlayerId>, 10> gamePlayers;
+        std::array<std::optional<PlayerId>, 10> gamePlayers;
         for (int i = 0; i < 10; ++i)
         {
             const auto& params = gameParameters.players[i];
@@ -179,7 +179,7 @@ namespace rwe
 
         const auto& schema = ota.schemas.at(schemaIndex);
 
-        boost::optional<Vector3f> humanStartPos;
+        std::optional<Vector3f> humanStartPos;
 
         for (unsigned int i = 0; i < gameParameters.players.size(); ++i)
         {
@@ -578,7 +578,7 @@ namespace rwe
         return db;
     }
 
-    void LoadingScene::preloadSound(UnitDatabase& db, const boost::optional<std::string>& soundName)
+    void LoadingScene::preloadSound(UnitDatabase& db, const std::optional<std::string>& soundName)
     {
         if (!soundName)
         {

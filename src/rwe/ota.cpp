@@ -84,9 +84,10 @@ namespace rwe
         tdf.readOrDefault("MeteorDuration", s.meteorDuration);
         tdf.readOrDefault("MeteorInterval", s.meteorInterval);
 
-        auto featuresBlock = tdf.findBlock("features");
-        if (featuresBlock)
+        auto featuresBlockOption = tdf.findBlock("features");
+        if (featuresBlockOption)
         {
+            auto featuresBlock = &featuresBlockOption->get();
             int i = 0;
             auto block = featuresBlock->findBlock("feature" + std::to_string(i));
             while (block)
@@ -98,9 +99,10 @@ namespace rwe
             }
         }
 
-        auto specialsBlock = tdf.findBlock("specials");
-        if (specialsBlock)
+        auto specialsBlockOption = tdf.findBlock("specials");
+        if (specialsBlockOption)
         {
+            auto specialsBlock = &specialsBlockOption->get();
             int i = 0;
             auto block = specialsBlock->findBlock("special" + std::to_string(i));
             while (block)

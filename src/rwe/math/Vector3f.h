@@ -1,7 +1,7 @@
 #ifndef RWE_MATH_VECTOR3F_H
 #define RWE_MATH_VECTOR3F_H
 
-#include <boost/optional.hpp>
+#include <optional>
 #include <ostream>
 
 namespace rwe
@@ -58,10 +58,10 @@ namespace rwe
      * If either of the vectors a and b are none,
      * the other vector is returned.
      */
-    const boost::optional<Vector3f>& closestTo(
+    const std::optional<Vector3f>& closestTo(
         const Vector3f& v,
-        const boost::optional<Vector3f>& a,
-        const boost::optional<Vector3f>& b);
+        const std::optional<Vector3f>& a,
+        const std::optional<Vector3f>& b);
 
     /**
      * Returns true if a is closer to v than b.

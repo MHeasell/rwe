@@ -1,8 +1,8 @@
 #ifndef RWE_UILISTBOX_H
 #define RWE_UILISTBOX_H
 
-#include <boost/optional.hpp>
 #include <memory>
+#include <optional>
 #include <rwe/SpriteSeries.h>
 #include <rwe/observable/BehaviorSubject.h>
 #include <rwe/ui/UiComponent.h>
@@ -44,7 +44,7 @@ namespace rwe
     private:
         std::vector<std::string> items;
         std::shared_ptr<SpriteSeries> font;
-        BehaviorSubject<boost::optional<unsigned int>> selectedIndexSubject;
+        BehaviorSubject<std::optional<unsigned int>> selectedIndexSubject;
         BehaviorSubject<unsigned int> scrollPositionSubject{0};
 
     public:
@@ -63,9 +63,9 @@ namespace rwe
 
         void uiMessage(const GroupMessage& message) override;
 
-        Observable<boost::optional<unsigned int>>& selectedIndex();
+        Observable<std::optional<unsigned int>>& selectedIndex();
 
-        const Observable<boost::optional<unsigned int>>& selectedIndex() const;
+        const Observable<std::optional<unsigned int>>& selectedIndex() const;
 
         Observable<unsigned int>& scrollPosition();
 
@@ -80,7 +80,7 @@ namespace rwe
     private:
         unsigned int numberOfLines() const;
 
-        boost::optional<unsigned int> pixelToLine(int y) const;
+        std::optional<unsigned int> pixelToLine(int y) const;
 
         void setScrollPosition(unsigned int newPosition);
 

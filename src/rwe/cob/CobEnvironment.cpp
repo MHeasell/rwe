@@ -22,13 +22,13 @@ namespace rwe
         return _script;
     }
 
-    boost::optional<CobThread> CobEnvironment::createNonScheduledThread(const std::string& functionName, const std::vector<int>& params)
+    std::optional<CobThread> CobEnvironment::createNonScheduledThread(const std::string& functionName, const std::vector<int>& params)
     {
         auto it = std::find_if(_script->functions.begin(), _script->functions.end(), [&functionName](const auto& i) { return i.name == functionName; });
         if (it == _script->functions.end())
         {
             // silently ignore
-            return boost::none;
+            return std::nullopt;
         }
 
         auto index = it - _script->functions.begin();
@@ -57,20 +57,20 @@ namespace rwe
         return createThread(functionId, params, 0);
     }
 
-    boost::optional<const CobThread*> CobEnvironment::createThread(const std::string& functionName, const std::vector<int>& params)
+    std::optional<const CobThread*> CobEnvironment::createThread(const std::string& functionName, const std::vector<int>& params)
     {
         auto it = std::find_if(_script->functions.begin(), _script->functions.end(), [&functionName](const auto& i) { return i.name == functionName; });
         if (it == _script->functions.end())
         {
             // silently ignore
-            return boost::none;
+            return std::nullopt;
         }
 
         auto index = it - _script->functions.begin();
         return createThread(index, params);
     }
 
-    boost::optional<const CobThread*> CobEnvironment::createThread(const std::string& functionName)
+    std::optional<const CobThread*> CobEnvironment::createThread(const std::string& functionName)
     {
         return createThread(functionName, std::vector<int>());
     }
@@ -103,12 +103,12 @@ namespace rwe
         }
     }
 
-    boost::optional<int> CobEnvironment::tryReapThread(const CobThread* thread)
+    std::optional<int> CobEnvironment::tryReapThread(const CobThread* thread)
     {
         auto it = std::find(finishedQueue.begin(), finishedQueue.end(), thread);
         if (it == finishedQueue.end())
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         auto val = (*it)->returnValue;

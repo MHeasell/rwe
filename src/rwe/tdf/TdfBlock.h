@@ -1,10 +1,11 @@
 #ifndef RWE_TDFBLOCK_H
 #define RWE_TDFBLOCK_H
 
-#include <boost/optional.hpp>
 #include <boost/variant.hpp>
+#include <functional>
 #include <initializer_list>
 #include <memory>
+#include <optional>
 #include <rwe/rwe_string.h>
 #include <sstream>
 #include <string>
@@ -14,24 +15,24 @@
 namespace rwe
 {
     template <typename T>
-    boost::optional<T> tdfTryParse(const std::string& value)
+    std::optional<T> tdfTryParse(const std::string& value)
     {
         std::stringstream s(value);
         T i;
         s >> i;
         if (s.fail())
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         return i;
     }
 
     template <>
-    boost::optional<std::string> tdfTryParse<std::string>(const std::string& value);
+    std::optional<std::string> tdfTryParse<std::string>(const std::string& value);
 
     template <>
-    boost::optional<bool> tdfTryParse<bool>(const std::string& value);
+    std::optional<bool> tdfTryParse<bool>(const std::string& value);
 
     class TdfValueException : public std::runtime_error
     {
@@ -73,8 +74,8 @@ namespace rwe
         TdfBlock(const TdfBlock& other);
         TdfBlock& operator=(const TdfBlock& other);
 
-        boost::optional<const TdfBlock&> findBlock(const std::string& name) const;
-        boost::optional<const std::string&> findValue(const std::string& name) const;
+        std::optional<std::reference_wrapper<const TdfBlock>> findBlock(const std::string& name) const;
+        std::optional<std::reference_wrapper<const std::string>> findValue(const std::string& name) const;
 
         bool operator==(const TdfBlock& rhs) const;
 
@@ -86,17 +87,17 @@ namespace rwe
 
         std::string expectString(const std::string& key) const;
 
-        boost::optional<int> extractInt(const std::string& key) const;
+        std::optional<int> extractInt(const std::string& key) const;
 
-        boost::optional<unsigned int> extractUint(const std::string& key) const;
+        std::optional<unsigned int> extractUint(const std::string& key) const;
 
-        boost::optional<float> extractFloat(const std::string& key) const;
+        std::optional<float> extractFloat(const std::string& key) const;
 
         int expectInt(const std::string& key) const;
 
         unsigned int expectUint(const std::string& key) const;
 
-        boost::optional<bool> extractBool(const std::string& key) const;
+        std::optional<bool> extractBool(const std::string& key) const;
 
         bool expectBool(const std::string& key) const;
 
@@ -111,16 +112,16 @@ namespace rwe
         template <typename T>
         void readOrDefault(const std::string& key, T& out, const T& defaultValue = T()) const
         {
-            out = extract<T>(key).get_value_or(defaultValue);
+            out = extract<T>(key).value_or(defaultValue);
         }
 
         template <typename T>
-        boost::optional<T> extract(const std::string& key) const
+        std::optional<T> extract(const std::string& key) const
         {
             auto value = findValue(key);
             if (!value)
             {
-                return boost::none;
+                return std::nullopt;
             }
 
             return tdfTryParse<T>(*value);

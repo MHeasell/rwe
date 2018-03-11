@@ -1,7 +1,7 @@
 #ifndef RWE_GEOMETRY_TRANGLE3F_H
 #define RWE_GEOMETRY_TRANGLE3F_H
 
-#include <boost/optional.hpp>
+#include <optional>
 #include <rwe/geometry/Plane3f.h>
 #include <rwe/geometry/Ray3f.h>
 #include <rwe/math/Vector3f.h>
@@ -27,7 +27,7 @@ namespace rwe
          * If the ray and the triangle never intersect,
          * this will return a result indicating that they did not intersect.
          */
-        boost::optional<float> intersect(const Ray3f& ray) const;
+        std::optional<float> intersect(const Ray3f& ray) const;
 
         /**
          * Returns the point at which the given line intersects this triangle.
@@ -45,9 +45,9 @@ namespace rwe
          * @param p The point at which the line starts
          * @param q The point at which the line ends
          */
-        boost::optional<Vector3f> intersectLine(const Vector3f& p, const Vector3f& q) const;
+        std::optional<Vector3f> intersectLine(const Vector3f& p, const Vector3f& q) const;
 
-        boost::optional<Vector3f> intersectLine(const Line3f& line) const;
+        std::optional<Vector3f> intersectLine(const Line3f& line) const;
 
         /**
          * Converts the input world-space coordinates

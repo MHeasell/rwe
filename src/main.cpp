@@ -75,7 +75,7 @@ namespace rwe
         return Ok(std::move(glContext));
     };
 
-    int run(spdlog::logger& logger, const fs::path& localDataPath, const boost::optional<std::string>& mapName)
+    int run(spdlog::logger& logger, const fs::path& localDataPath, const std::optional<std::string>& mapName)
     {
         logger.info(ProjectNameVersion);
         logger.info("Current directory: {0}", fs::current_path().string());
@@ -279,7 +279,7 @@ int main(int argc, char* argv[])
 
     try
     {
-        boost::optional<std::string> mapName;
+        std::optional<std::string> mapName;
         if (argc == 2)
         {
             mapName = argv[1];

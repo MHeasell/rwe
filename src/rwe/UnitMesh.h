@@ -1,8 +1,8 @@
 #ifndef RWE_UNITMESH_H
 #define RWE_UNITMESH_H
 
-#include <boost/optional.hpp>
 #include <memory>
+#include <optional>
 #include <rwe/RadiansAngle.h>
 #include <rwe/ShaderMesh.h>
 #include <rwe/math/Matrix4f.h>
@@ -39,19 +39,19 @@ namespace rwe
         Vector3f offset{0.0f, 0.0f, 0.0f};
         Vector3f rotation{0.0f, 0.0f, 0.0f};
 
-        boost::optional<MoveOperation> xMoveOperation;
-        boost::optional<MoveOperation> yMoveOperation;
-        boost::optional<MoveOperation> zMoveOperation;
+        std::optional<MoveOperation> xMoveOperation;
+        std::optional<MoveOperation> yMoveOperation;
+        std::optional<MoveOperation> zMoveOperation;
 
-        boost::optional<TurnOperation> xTurnOperation;
-        boost::optional<TurnOperation> yTurnOperation;
-        boost::optional<TurnOperation> zTurnOperation;
+        std::optional<TurnOperation> xTurnOperation;
+        std::optional<TurnOperation> yTurnOperation;
+        std::optional<TurnOperation> zTurnOperation;
 
-        boost::optional<const UnitMesh&> find(const std::string& pieceName) const;
+        std::optional<std::reference_wrapper<const UnitMesh>> find(const std::string& pieceName) const;
 
-        boost::optional<UnitMesh&> find(const std::string& pieceName);
+        std::optional<std::reference_wrapper<UnitMesh>> find(const std::string& pieceName);
 
-        boost::optional<Matrix4f> getPieceTransform(const std::string& pieceName);
+        std::optional<Matrix4f> getPieceTransform(const std::string& pieceName);
 
         Matrix4f getTransform() const;
 

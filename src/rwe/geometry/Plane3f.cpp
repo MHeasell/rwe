@@ -16,13 +16,13 @@ namespace rwe
         return Plane3f(position, normal);
     }
 
-    boost::optional<float> Plane3f::intersect(const Ray3f& ray) const
+    std::optional<float> Plane3f::intersect(const Ray3f& ray) const
     {
         float a = (point - ray.origin).dot(normal);
         float b = ray.direction.dot(normal);
         if (b == 0.0f)
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         return a / b;
@@ -46,7 +46,7 @@ namespace rwe
             : -::std::numeric_limits<float>::infinity();
     }
 
-    boost::optional<Vector3f>
+    std::optional<Vector3f>
     Plane3f::intersectLine(const Vector3f& startPoint, const Vector3f& endPoint)
     {
         Ray3f ray(startPoint, endPoint - startPoint);
@@ -56,6 +56,6 @@ namespace rwe
             return ray.pointAt(*result);
         }
 
-        return boost::none;
+        return std::nullopt;
     }
 }

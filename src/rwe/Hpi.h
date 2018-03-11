@@ -1,10 +1,11 @@
 #ifndef RWE_HPI_H
 #define RWE_HPI_H
 
-#include <boost/optional.hpp>
 #include <boost/variant.hpp>
 #include <cstdint>
+#include <functional>
 #include <istream>
+#include <optional>
 #include <vector>
 
 namespace rwe
@@ -135,9 +136,9 @@ namespace rwe
 
         const Directory& root() const;
 
-        boost::optional<const File&> findFile(const std::string& path) const;
+        std::optional<std::reference_wrapper<const File>> findFile(const std::string& path) const;
 
-        boost::optional<const Directory&> findDirectory(const std::string& path) const;
+        std::optional<std::reference_wrapper<const Directory>> findDirectory(const std::string& path) const;
 
         void extract(const File& file, char* buffer) const;
 

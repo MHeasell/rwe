@@ -42,13 +42,13 @@ namespace rwe
         switch (axis)
         {
             case Axis::X:
-                piece->xMoveOperation = op;
+                piece->get().xMoveOperation = op;
                 break;
             case Axis::Y:
-                piece->yMoveOperation = op;
+                piece->get().yMoveOperation = op;
                 break;
             case Axis::Z:
-                piece->zMoveOperation = op;
+                piece->get().zMoveOperation = op;
                 break;
         }
     }
@@ -64,16 +64,16 @@ namespace rwe
         switch (axis)
         {
             case Axis::X:
-                piece->offset.x = targetPosition;
-                piece->xMoveOperation = boost::none;
+                piece->get().offset.x = targetPosition;
+                piece->get().xMoveOperation = std::nullopt;
                 break;
             case Axis::Y:
-                piece->offset.y = targetPosition;
-                piece->yMoveOperation = boost::none;
+                piece->get().offset.y = targetPosition;
+                piece->get().yMoveOperation = std::nullopt;
                 break;
             case Axis::Z:
-                piece->offset.z = targetPosition;
-                piece->zMoveOperation = boost::none;
+                piece->get().offset.z = targetPosition;
+                piece->get().zMoveOperation = std::nullopt;
                 break;
         }
     }
@@ -91,13 +91,13 @@ namespace rwe
         switch (axis)
         {
             case Axis::X:
-                piece->xTurnOperation = op;
+                piece->get().xTurnOperation = op;
                 break;
             case Axis::Y:
-                piece->yTurnOperation = op;
+                piece->get().yTurnOperation = op;
                 break;
             case Axis::Z:
-                piece->zTurnOperation = op;
+                piece->get().zTurnOperation = op;
                 break;
         }
     }
@@ -113,16 +113,16 @@ namespace rwe
         switch (axis)
         {
             case Axis::X:
-                piece->rotation.x = targetAngle.value;
-                piece->xTurnOperation = boost::none;
+                piece->get().rotation.x = targetAngle.value;
+                piece->get().xTurnOperation = std::nullopt;
                 break;
             case Axis::Y:
-                piece->rotation.y = targetAngle.value;
-                piece->yTurnOperation = boost::none;
+                piece->get().rotation.y = targetAngle.value;
+                piece->get().yTurnOperation = std::nullopt;
                 break;
             case Axis::Z:
-                piece->rotation.z = targetAngle.value;
-                piece->zTurnOperation = boost::none;
+                piece->get().rotation.z = targetAngle.value;
+                piece->get().zTurnOperation = std::nullopt;
                 break;
         }
     }
@@ -138,11 +138,11 @@ namespace rwe
         switch (axis)
         {
             case Axis::X:
-                return !!(piece->xMoveOperation);
+                return !!(piece->get().xMoveOperation);
             case Axis::Y:
-                return !!(piece->yMoveOperation);
+                return !!(piece->get().yMoveOperation);
             case Axis::Z:
-                return !!(piece->zMoveOperation);
+                return !!(piece->get().zMoveOperation);
         }
 
         throw std::logic_error("Invalid axis");
@@ -159,24 +159,24 @@ namespace rwe
         switch (axis)
         {
             case Axis::X:
-                return !!(piece->xTurnOperation);
+                return !!(piece->get().xTurnOperation);
             case Axis::Y:
-                return !!(piece->yTurnOperation);
+                return !!(piece->get().yTurnOperation);
             case Axis::Z:
-                return !!(piece->zTurnOperation);
+                return !!(piece->get().zTurnOperation);
         }
 
         throw std::logic_error("Invalid axis");
     }
 
-    boost::optional<float> Unit::selectionIntersect(const Ray3f& ray) const
+    std::optional<float> Unit::selectionIntersect(const Ray3f& ray) const
     {
         auto line = ray.toLine();
         Line3f modelSpaceLine(line.start - position, line.end - position);
         auto v = selectionMesh.collisionMesh.intersectLine(modelSpaceLine);
         if (!v)
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         return ray.origin.distance(*v);

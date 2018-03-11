@@ -1,8 +1,8 @@
 #ifndef RWE_UISURFACE_H
 #define RWE_UISURFACE_H
 
-#include <boost/optional.hpp>
 #include <memory>
+#include <optional>
 #include <rwe/ui/UiComponent.h>
 
 namespace rwe
@@ -10,7 +10,7 @@ namespace rwe
     class UiSurface : public UiComponent
     {
     private:
-        boost::optional<std::shared_ptr<Sprite>> background;
+        std::optional<std::shared_ptr<Sprite>> background;
 
     public:
         UiSurface(int posX, int posY, unsigned int sizeX, unsigned int sizeY);

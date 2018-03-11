@@ -1,6 +1,7 @@
 #include "gui.h"
 
 #include <algorithm>
+#include <rwe/optional_util.h>
 #include <rwe/tdf/TdfBlock.h>
 #include <stdexcept>
 
@@ -14,7 +15,7 @@ namespace rwe
     {
     }
 
-    boost::optional<GuiElementType> toGuiElementType(int value)
+    std::optional<GuiElementType> toGuiElementType(int value)
     {
         switch (value)
         {
@@ -29,16 +30,16 @@ namespace rwe
             case static_cast<int>(GuiElementType::PictureBox):
                 return static_cast<GuiElementType>(value);
             default:
-                return boost::none;
+                return std::nullopt;
         }
     }
 
-    boost::optional<GuiElementType> extractGuiElementType(const TdfBlock& block, const std::string& key)
+    std::optional<GuiElementType> extractGuiElementType(const TdfBlock& block, const std::string& key)
     {
         auto value = block.extractInt(key);
         if (!value)
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         return toGuiElementType(*value);
@@ -55,15 +56,17 @@ namespace rwe
         return *v;
     }
 
-    boost::optional<GuiEntry> parseGuiEntry(const TdfBlock& e)
+    std::optional<GuiEntry> parseGuiEntry(const TdfBlock& e)
     {
         GuiEntry g;
 
-        auto common = e.findBlock("COMMON");
-        if (!common)
+        auto commonOption = e.findBlock("COMMON");
+        if (!commonOption)
         {
             throw GuiParseException("Block is missing common section");
         }
+
+        auto common = &commonOption->get();
 
         g.common.id = expectGuiElementType(*common, "id");
         g.common.assoc = common->expectInt("assoc");
@@ -79,18 +82,20 @@ namespace rwe
         g.common.fontNumber = common->expectInt("fontnumber");
         g.common.active = common->expectBool("active");
         g.common.commonAttribs = common->expectInt("commonattribs");
-        g.common.help = common->findValue("help");
+        g.common.help = refToCopy(common->findValue("help"));
 
-        g.panel = e.findValue("panel");
-        g.crDefault = e.findValue("crdefault");
-        g.escdefault = e.findValue("escdefault");
-        g.defaultFocus = e.findValue("defaultfocus");
+        g.panel = refToCopy(e.findValue("panel"));
+        g.crDefault = refToCopy(e.findValue("crdefault"));
+        g.escdefault = refToCopy(e.findValue("escdefault"));
+        g.defaultFocus = refToCopy(e.findValue("defaultfocus"));
 
         g.totalGadgets = e.extractInt("totalgadgets");
 
-        auto version = e.findBlock("VERSION");
-        if (version)
+        auto versionOption = e.findBlock("VERSION");
+        if (versionOption)
         {
+            auto version = &versionOption->get();
+
             auto major = version->expectInt("major");
             auto minor = version->expectInt("minor");
             auto revision = version->expectInt("revision");
@@ -98,7 +103,7 @@ namespace rwe
         }
 
         g.status = e.extractInt("status");
-        g.text = e.findValue("text");
+        g.text = refToCopy(e.findValue("text"));
         g.quickKey = e.extractInt("quickkey");
         g.grayedOut = e.extractBool("grayedout");
         g.stages = e.extractInt("stages");
@@ -106,7 +111,7 @@ namespace rwe
         return g;
     }
 
-    boost::optional<std::vector<GuiEntry>> parseGui(const TdfBlock& tdf)
+    std::optional<std::vector<GuiEntry>> parseGui(const TdfBlock& tdf)
     {
         std::vector<GuiEntry> entries;
 
@@ -117,7 +122,7 @@ namespace rwe
             auto guiEntry = parseGuiEntry(*block);
             if (!guiEntry)
             {
-                return boost::none;
+                return std::nullopt;
             }
 
             entries.push_back(*guiEntry);

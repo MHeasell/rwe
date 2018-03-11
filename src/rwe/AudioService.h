@@ -1,6 +1,7 @@
 #ifndef RWE_AUDIOSERVICE_H
 #define RWE_AUDIOSERVICE_H
 
+#include <functional>
 #include <memory>
 #include <rwe/SdlContextManager.h>
 #include <rwe/vfs/AbstractVirtualFileSystem.h>
@@ -29,7 +30,7 @@ namespace rwe
             LoopToken& operator=(const LoopToken&) = delete;
             LoopToken(LoopToken&& other) noexcept;
             LoopToken& operator=(LoopToken&& other) noexcept;
-            boost::optional<const SoundHandle&> getSound();
+            std::optional<std::reference_wrapper<const SoundHandle>> getSound();
         };
 
     private:
@@ -45,7 +46,7 @@ namespace rwe
 
         void playSound(const SoundHandle& sound);
 
-        boost::optional<SoundHandle> loadSound(const std::string& soundName);
+        std::optional<SoundHandle> loadSound(const std::string& soundName);
 
         void reserveChannels(unsigned int count);
 

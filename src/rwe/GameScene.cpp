@@ -293,7 +293,7 @@ namespace rwe
                     }
                     else
                     {
-                        selectedUnit = boost::none;
+                        selectedUnit = std::nullopt;
                     }
                 }
             }
@@ -440,7 +440,7 @@ namespace rwe
         audioService->playSound(sound);
     }
 
-    boost::optional<UnitId> GameScene::getUnitUnderCursor() const
+    std::optional<UnitId> GameScene::getUnitUnderCursor() const
     {
         auto ray = renderService.getCamera().screenToWorldRay(screenToClipSpace(getMousePosition()));
         return getFirstCollidingUnit(ray);
@@ -459,12 +459,12 @@ namespace rwe
         return Point(x, y);
     }
 
-    boost::optional<UnitId> GameScene::getFirstCollidingUnit(const Ray3f& ray) const
+    std::optional<UnitId> GameScene::getFirstCollidingUnit(const Ray3f& ray) const
     {
         return simulation.getFirstCollidingUnit(ray);
     }
 
-    boost::optional<Vector3f> GameScene::getMouseTerrainCoordinate() const
+    std::optional<Vector3f> GameScene::getMouseTerrainCoordinate() const
     {
         auto ray = renderService.getCamera().screenToWorldRay(screenToClipSpace(getMousePosition()));
         return simulation.intersectLineWithTerrain(ray.toLine());
@@ -600,7 +600,7 @@ namespace rwe
             {
                 // destroy the projectile
                 // TODO: trigger detonation/impact sound, animation
-                laser = boost::none;
+                laser = std::nullopt;
             }
 
             // TODO: detect collision between a laser and a unit, feature, world boundary

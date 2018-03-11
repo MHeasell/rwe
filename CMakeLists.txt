@@ -332,6 +332,10 @@ set(SOURCE_FILES
     src/rwe/observable/Observable.h
     src/rwe/observable/Subject.h
     src/rwe/observable/Subscription.h
+    src/rwe/optional_io.cpp
+    src/rwe/optional_io.h
+    src/rwe/optional_util.cpp
+    src/rwe/optional_util.h
     src/rwe/ota.cpp
     src/rwe/ota.h
     src/rwe/pathfinding/AStarPathFinder.cpp
@@ -559,6 +563,7 @@ set(TEST_FILES
     test/rwe/math/rwe_math_test.cpp
     test/rwe/ota_test.cpp
     test/rwe/pathfinding/pathfinding_utils_test.cpp
+    test/rwe/rc_gen_optional.h
     test/rwe/rwe_string_test.cpp
     )
 

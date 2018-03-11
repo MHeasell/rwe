@@ -2,7 +2,7 @@
 #define RWE_UTIL_H
 
 #include <boost/filesystem/path.hpp>
-#include <boost/optional.hpp>
+#include <optional>
 #include <rwe/RadiansAngle.h>
 #include <rwe/TaAngle.h>
 
@@ -17,8 +17,8 @@ namespace rwe
 
     static const float Pif = 3.14159265358979323846f;
 
-    boost::optional<boost::filesystem::path> getLocalDataPath();
-    boost::optional<boost::filesystem::path> getSearchPath();
+    std::optional<boost::filesystem::path> getLocalDataPath();
+    std::optional<boost::filesystem::path> getSearchPath();
 
     float toRadians(float v);
 

@@ -7,24 +7,24 @@ namespace rwe
     {
     }
 
-    boost::optional<float> Triangle3f::intersect(const Ray3f& ray) const
+    std::optional<float> Triangle3f::intersect(const Ray3f& ray) const
     {
         auto intersect = toPlane().intersect(ray);
         if (!intersect)
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         Vector3f p = toBarycentric(ray.pointAt(*intersect));
         if (p.x < 0 || p.y < 0 || p.z < 0)
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         return *intersect;
     }
 
-    boost::optional<Vector3f> Triangle3f::intersectLine(const Vector3f& p, const Vector3f& q) const
+    std::optional<Vector3f> Triangle3f::intersectLine(const Vector3f& p, const Vector3f& q) const
     {
         auto pq = q - p;
         auto pa = a - p;
@@ -35,13 +35,13 @@ namespace rwe
         float v = scalarTriple(pq, pa, pc);
         if (!sameSign(u, v))
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         float w = scalarTriple(pq, pb, pa);
         if (!sameSign(v, w))
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         float denominator = u + v + w;
@@ -79,7 +79,7 @@ namespace rwe
         return (a * p.x) + (b * p.y) + (c * p.z);
     }
 
-    boost::optional<Vector3f> Triangle3f::intersectLine(const Line3f& line) const
+    std::optional<Vector3f> Triangle3f::intersectLine(const Line3f& line) const
     {
         return intersectLine(line.start, line.end);
     }

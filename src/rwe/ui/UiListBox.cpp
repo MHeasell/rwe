@@ -61,15 +61,15 @@ namespace rwe
 
     void UiListBox::clearSelectedItem()
     {
-        selectedIndexSubject.next(boost::none);
+        selectedIndexSubject.next(std::nullopt);
     }
 
-    Observable<boost::optional<unsigned int>>& UiListBox::selectedIndex()
+    Observable<std::optional<unsigned int>>& UiListBox::selectedIndex()
     {
         return selectedIndexSubject;
     }
 
-    const Observable<boost::optional<unsigned int>>& UiListBox::selectedIndex() const
+    const Observable<std::optional<unsigned int>>& UiListBox::selectedIndex() const
     {
         return selectedIndexSubject;
     }
@@ -100,18 +100,18 @@ namespace rwe
         return lines - 1;
     }
 
-    boost::optional<unsigned int> UiListBox::pixelToLine(int y) const
+    std::optional<unsigned int> UiListBox::pixelToLine(int y) const
     {
         auto floatIndex = (y - posY) / 12.0f;
         if (floatIndex < 0.0f)
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         auto index = static_cast<unsigned int>(floatIndex);
         if (index >= numberOfLines())
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         return index;

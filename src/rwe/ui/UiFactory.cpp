@@ -74,7 +74,7 @@ namespace rwe
         // set the default focused control
         if (panelEntry.defaultFocus)
         {
-            const auto& focusName = panelEntry.defaultFocus.get();
+            const auto& focusName = *panelEntry.defaultFocus;
             const auto& children = panel->getChildren();
             auto it = std::find_if(children.begin(), children.end(), [&focusName](const auto& c) { return c->getName() == focusName; });
             if (it != children.end())
@@ -92,7 +92,7 @@ namespace rwe
         {
             case GuiElementType::Button:
             {
-                auto stages = entry.stages.get_value_or(0);
+                auto stages = entry.stages.value_or(0);
                 if (stages > 1)
                 {
                     return stagedButtonFromGuiEntry(guiName, entry);
@@ -171,7 +171,7 @@ namespace rwe
             entry.common.ypos,
             entry.common.width,
             entry.common.height,
-            entry.text.get_value_or(""),
+            entry.text.value_or(""),
             font);
 
         if (guiName == "MAINMENU")
@@ -241,10 +241,10 @@ namespace rwe
         auto graphics = textureService->getGuiTexture(guiName, entry.common.name);
         if (!graphics)
         {
-            graphics = getDefaultStagedButtonGraphics(guiName, entry.stages.get());
+            graphics = getDefaultStagedButtonGraphics(guiName, *entry.stages);
         }
 
-        auto labels = entry.text ? utf8Split(entry.text.get(), '|') : std::vector<std::string>();
+        auto labels = entry.text ? utf8Split(*entry.text, '|') : std::vector<std::string>();
 
         auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
 
@@ -339,7 +339,7 @@ namespace rwe
         return listBox;
     }
 
-    boost::optional<AudioService::SoundHandle> UiFactory::deduceButtonSound(const std::string& guiName, const GuiEntry& entry)
+    std::optional<AudioService::SoundHandle> UiFactory::deduceButtonSound(const std::string& guiName, const GuiEntry& entry)
     {
         auto sound = getButtonSound(entry.common.name);
         if (!sound && (entry.common.name == "PrevMenu" || entry.common.name == "PREVMENU"))
@@ -414,18 +414,18 @@ namespace rwe
         return series;
     }
 
-    boost::optional<AudioService::SoundHandle> UiFactory::getButtonSound(const std::string& buttonName)
+    std::optional<AudioService::SoundHandle> UiFactory::getButtonSound(const std::string& buttonName)
     {
         auto soundBlock = soundLookup->findBlock(buttonName);
         if (!soundBlock)
         {
-            return boost::none;
+            return std::nullopt;
         }
 
-        auto soundName = soundBlock->findValue("sound");
+        auto soundName = soundBlock->get().findValue("sound");
         if (!soundName)
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         return audioService->loadSound(*soundName);

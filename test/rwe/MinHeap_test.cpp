@@ -1,6 +1,6 @@
 #include <iostream>
 
-namespace boost
+namespace std
 {
     std::ostream& operator<<(std::ostream& os, const std::pair<int, int>& p)
     {
@@ -9,14 +9,15 @@ namespace boost
     }
 }
 
+#include "rc_gen_optional.h"
 #include <boost/functional/hash.hpp>
-#include <boost/optional.hpp>
-#include <boost/optional/optional_io.hpp>
 #include <catch.hpp>
+#include <optional>
 #include <rapidcheck/boost.h>
 #include <rapidcheck/catch.h>
 #include <rwe/MinHeap.h>
 #include <rwe/Point.h>
+#include <rwe/optional_io.h>
 
 namespace std
 {
@@ -291,7 +292,7 @@ namespace rwe
 
     TEST_CASE("MinHeap RapidCheck 2")
     {
-        rc::prop("never becomes internally corrupted", [](const std::vector<boost::optional<std::pair<int, int>>>& inputs) {
+        rc::prop("never becomes internally corrupted", [](const std::vector<std::optional<std::pair<int, int>>>& inputs) {
             auto selectKey = [](const std::pair<int, int>& p) { return p.first; };
             auto lessThan = [](const std::pair<int, int>& a, const std::pair<int, int>& b) { return a.second < b.second; };
 

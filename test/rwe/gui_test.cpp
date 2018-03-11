@@ -2,7 +2,7 @@
 #include <rwe/gui.h>
 #include <rwe/tdf.h>
 
-#include <boost/optional/optional_io.hpp>
+#include <rwe/optional_io.h>
 
 namespace rwe
 {

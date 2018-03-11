@@ -146,10 +146,10 @@ namespace rwe
         return a.cross(b).dot(c);
     }
 
-    const boost::optional<Vector3f>& closestTo(
+    const std::optional<Vector3f>& closestTo(
         const Vector3f& v,
-        const boost::optional<Vector3f>& a,
-        const boost::optional<Vector3f>& b)
+        const std::optional<Vector3f>& a,
+        const std::optional<Vector3f>& b)
     {
         if (!a)
         {

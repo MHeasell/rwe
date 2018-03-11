@@ -98,7 +98,7 @@ namespace rwe
             return AudioService::LoopToken();
         }
 
-        auto bgmName = bgmBlock->findValue("sound");
+        auto bgmName = bgmBlock->get().findValue("sound");
         if (!bgmName)
         {
             return AudioService::LoopToken();
@@ -330,7 +330,7 @@ namespace rwe
 
     void MainMenuScene::clearCandidateSelectedMap()
     {
-        model.candidateSelectedMap.next(boost::none);
+        model.candidateSelectedMap.next(std::nullopt);
     }
 
     void MainMenuScene::scrollUpMessage(const std::string& topic, unsigned int group, const std::string& name)
@@ -510,7 +510,7 @@ namespace rwe
             auto val = *(player.teamIndex.getValue());
             if (val == 4)
             {
-                player.teamIndex.next(boost::none);
+                player.teamIndex.next(std::nullopt);
                 model.teamChanges.next(val);
             }
             else
@@ -549,7 +549,7 @@ namespace rwe
             const auto& playerSlot = model.players[i];
             if (playerSlot.type.getValue() == MainMenuModel::PlayerSettings::Type::Open)
             {
-                params.players[i] = boost::none;
+                params.players[i] = std::nullopt;
                 continue;
             }
 

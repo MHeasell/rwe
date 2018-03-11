@@ -1,15 +1,15 @@
-#include <boost/optional/optional_io.hpp>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <rwe/Cob.h>
 #include <rwe/_3do.h>
 #include <rwe/cob/CobOpCode.h>
+#include <rwe/optional_io.h>
 #include <vector>
 
 namespace rwe
 {
-    boost::optional<const char*> getInstructionName(uint32_t instruction)
+    std::optional<const char*> getInstructionName(uint32_t instruction)
     {
         switch (static_cast<OpCode>(instruction))
         {
@@ -134,7 +134,7 @@ namespace rwe
                 return "DROP_UNIT";
 
             default:
-                return boost::none;
+                return std::nullopt;
         }
     }
 }
@@ -174,11 +174,11 @@ public:
     }
 
 private:
-    boost::optional<std::pair<unsigned int, uint32_t>> next()
+    std::optional<std::pair<unsigned int, uint32_t>> next()
     {
         if (it == end)
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         auto count = it - begin;

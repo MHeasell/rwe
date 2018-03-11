@@ -18,10 +18,10 @@ namespace rwe
     {
         const auto& fbi = unitDatabase.getUnitInfo(unitType);
         const auto& soundClass = unitDatabase.getSoundClass(fbi.soundCategory);
-        boost::optional<const MovementClass&> movementClass;
+        std::optional<std::reference_wrapper<const MovementClass>> movementClassOption;
         if (!fbi.movementClass.empty())
         {
-            movementClass = unitDatabase.getMovementClass(fbi.movementClass);
+            movementClassOption = unitDatabase.getMovementClass(fbi.movementClass);
         }
 
         auto meshInfo = meshService.loadUnitMesh(fbi.objectName, colorIndex);
@@ -43,8 +43,10 @@ namespace rwe
 
         unit.canAttack = fbi.canAttack;
 
-        if (movementClass)
+        if (movementClassOption)
         {
+            auto movementClass = &movementClassOption->get();
+
             auto resolvedMovementClass = collisionService->resolveMovementClass(movementClass->name);
             if (!resolvedMovementClass)
             {
@@ -61,7 +63,7 @@ namespace rwe
         }
         else
         {
-            unit.movementClass = boost::none;
+            unit.movementClass = std::nullopt;
             unit.footprintX = fbi.footprintX;
             unit.footprintZ = fbi.footprintZ;
             unit.maxSlope = fbi.maxSlope;

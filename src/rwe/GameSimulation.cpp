@@ -130,7 +130,7 @@ namespace rwe
         auto mesh = getUnit(unitId).mesh.find(name);
         if (mesh)
         {
-            mesh->visible = true;
+            mesh->get().visible = true;
         }
     }
 
@@ -139,7 +139,7 @@ namespace rwe
         auto mesh = getUnit(unitId).mesh.find(name);
         if (mesh)
         {
-            mesh->visible = false;
+            mesh->get().visible = false;
         }
     }
 
@@ -188,10 +188,10 @@ namespace rwe
         return getUnit(unitId).isTurnInProgress(name, axis);
     }
 
-    boost::optional<UnitId> GameSimulation::getFirstCollidingUnit(const Ray3f& ray) const
+    std::optional<UnitId> GameSimulation::getFirstCollidingUnit(const Ray3f& ray) const
     {
         auto bestDistance = std::numeric_limits<float>::infinity();
-        boost::optional<UnitId> it;
+        std::optional<UnitId> it;
 
         for (unsigned int i = 0; i < units.size(); ++i)
         {
@@ -206,7 +206,7 @@ namespace rwe
         return it;
     }
 
-    boost::optional<Vector3f> GameSimulation::intersectLineWithTerrain(const Line3f& line) const
+    std::optional<Vector3f> GameSimulation::intersectLineWithTerrain(const Line3f& line) const
     {
         return terrain.intersectLine(line);
     }

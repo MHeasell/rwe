@@ -3,7 +3,7 @@
 
 namespace rwe
 {
-    boost::optional<float> CollisionMesh::intersect(const Ray3f& ray) const
+    std::optional<float> CollisionMesh::intersect(const Ray3f& ray) const
     {
         auto distance = std::numeric_limits<float>::infinity();
 
@@ -18,15 +18,15 @@ namespace rwe
 
         if (std::isinf(distance))
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         return distance;
     }
 
-    boost::optional<Vector3f> CollisionMesh::intersectLine(const Line3f& line) const
+    std::optional<Vector3f> CollisionMesh::intersectLine(const Line3f& line) const
     {
-        boost::optional<Vector3f> winner;
+        std::optional<Vector3f> winner;
 
         for (const auto& t : triangles)
         {

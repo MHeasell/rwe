@@ -11,12 +11,12 @@ namespace rwe
         return id;
     }
 
-    boost::optional<MovementClassId> MovementClassCollisionService::resolveMovementClass(const std::string& name)
+    std::optional<MovementClassId> MovementClassCollisionService::resolveMovementClass(const std::string& name)
     {
         auto it = movementClassNameMap.find(name);
         if (it == movementClassNameMap.end())
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         return it->second;

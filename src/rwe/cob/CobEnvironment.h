@@ -97,7 +97,7 @@ namespace rwe
 
         const CobScript* script();
 
-        boost::optional<CobThread> createNonScheduledThread(const std::string& functionName, const std::vector<int>& params);
+        std::optional<CobThread> createNonScheduledThread(const std::string& functionName, const std::vector<int>& params);
 
         CobThread createNonScheduledThread(unsigned int functionId, const std::vector<int>& params);
 
@@ -105,9 +105,9 @@ namespace rwe
 
         const CobThread* createThread(unsigned int functionId, const std::vector<int>& params);
 
-        boost::optional<const CobThread*> createThread(const std::string& functionName, const std::vector<int>& params);
+        std::optional<const CobThread*> createThread(const std::string& functionName, const std::vector<int>& params);
 
-        boost::optional<const CobThread*> createThread(const std::string& functionName);
+        std::optional<const CobThread*> createThread(const std::string& functionName);
 
         void deleteThread(const CobThread* thread);
 
@@ -126,7 +126,7 @@ namespace rwe
          * the cob execution service will clean up the thread
          * next frame.
          */
-        boost::optional<int> tryReapThread(const CobThread* thread);
+        std::optional<int> tryReapThread(const CobThread* thread);
 
         bool isNotCorrupt() const;
 

@@ -454,7 +454,7 @@ namespace rwe
         graphics->drawTriangles(mesh);
     }
 
-    void RenderService::drawLasers(const std::vector<boost::optional<LaserProjectile>>& lasers)
+    void RenderService::drawLasers(const std::vector<std::optional<LaserProjectile>>& lasers)
     {
         Vector3f pixelOffset(0.0f, 0.0f, 1.0f);
 

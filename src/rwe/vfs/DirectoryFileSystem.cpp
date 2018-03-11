@@ -7,7 +7,7 @@ namespace fs = boost::filesystem;
 
 namespace rwe
 {
-    boost::optional<std::vector<char>> DirectoryFileSystem::readFile(const std::string& filename) const
+    std::optional<std::vector<char>> DirectoryFileSystem::readFile(const std::string& filename) const
     {
         fs::path fullPath;
         fullPath /= path;
@@ -16,7 +16,7 @@ namespace rwe
         std::ifstream input(fullPath.string(), std::ios::binary);
         if (!input.is_open())
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         std::ostringstream buf;

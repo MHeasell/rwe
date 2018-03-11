@@ -42,7 +42,7 @@ namespace rwe
         std::string getFireScriptName(unsigned int weaponIndex) const;
         std::string getQueryScriptName(unsigned int weaponIndex) const;
 
-        boost::optional<int> runCobQuery(UnitId id, std::string& name);
+        std::optional<int> runCobQuery(UnitId id, std::string& name);
 
         Vector3f getAimingPoint(UnitId id, unsigned int weaponIndex);
 

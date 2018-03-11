@@ -82,7 +82,7 @@ namespace rwe
                     // request a path to follow
                     scene->getSimulation().requestPath(unitId);
                     const auto& destination = moveOrder->destination;
-                    unit.behaviourState = MovingState{destination, boost::none, true};
+                    unit.behaviourState = MovingState{destination, std::nullopt, true};
                 }
                 else if (auto movingState = boost::get<MovingState>(&unit.behaviourState); movingState != nullptr)
                 {
@@ -138,7 +138,7 @@ namespace rwe
                             // request a path to follow
                             scene->getSimulation().requestPath(unitId);
                             auto destination = boost::apply_visitor(AttackTargetToMovingStateGoalVisitor(scene), attackOrder->target);
-                            unit.behaviourState = MovingState{destination, boost::none, true};
+                            unit.behaviourState = MovingState{destination, std::nullopt, true};
                         }
                         else
                         {
@@ -320,7 +320,7 @@ namespace rwe
                 if (returnValue)
                 {
                     // we successfully reaped, clear the thread.
-                    aimingState->aimInfo = boost::none;
+                    aimingState->aimInfo = std::nullopt;
 
                     if (*returnValue)
                     {
@@ -576,13 +576,13 @@ namespace rwe
         }
     }
 
-    boost::optional<int> UnitBehaviorService::runCobQuery(UnitId id, std::string& name)
+    std::optional<int> UnitBehaviorService::runCobQuery(UnitId id, std::string& name)
     {
         auto& unit = scene->getSimulation().getUnit(id);
         auto thread = unit.cobEnvironment->createNonScheduledThread(name, {0});
         if (!thread)
         {
-            return boost::none;
+            return std::nullopt;
         }
         CobExecutionContext context(&scene->getSimulation(), unit.cobEnvironment.get(), &*thread, id);
         auto status = context.execute();

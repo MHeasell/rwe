@@ -1,10 +1,10 @@
 #ifndef RWE_UNIT_H
 #define RWE_UNIT_H
 
-#include <boost/optional.hpp>
 #include <boost/variant.hpp>
 #include <deque>
 #include <memory>
+#include <optional>
 #include <rwe/AudioService.h>
 #include <rwe/DiscreteRect.h>
 #include <rwe/MovementClassId.h>
@@ -48,7 +48,7 @@ namespace rwe
     struct MovingState
     {
         MovingStateGoal destination;
-        boost::optional<PathFollowingInfo> path;
+        std::optional<PathFollowingInfo> path;
         bool pathRequested;
     };
 
@@ -73,9 +73,9 @@ namespace rwe
         Vector3f position;
         std::unique_ptr<CobEnvironment> cobEnvironment;
         SelectionMesh selectionMesh;
-        boost::optional<AudioService::SoundHandle> selectionSound;
-        boost::optional<AudioService::SoundHandle> okSound;
-        boost::optional<AudioService::SoundHandle> arrivedSound;
+        std::optional<AudioService::SoundHandle> selectionSound;
+        std::optional<AudioService::SoundHandle> okSound;
+        std::optional<AudioService::SoundHandle> arrivedSound;
         PlayerId owner;
 
         /**
@@ -117,7 +117,7 @@ namespace rwe
         /** The speed we are trying to accelerate/decelerate to */
         float targetSpeed{0.0f};
 
-        boost::optional<MovementClassId> movementClass;
+        std::optional<MovementClassId> movementClass;
 
         unsigned int footprintX;
         unsigned int footprintZ;
@@ -135,7 +135,7 @@ namespace rwe
          */
         bool inCollision{false};
 
-        std::array<boost::optional<UnitWeapon>, 3> weapons;
+        std::array<std::optional<UnitWeapon>, 3> weapons;
 
         bool canAttack;
 
@@ -159,7 +159,7 @@ namespace rwe
          * The value returned is the distance along the ray
          * where the intersection occurred.
          */
-        boost::optional<float> selectionIntersect(const Ray3f& ray) const;
+        std::optional<float> selectionIntersect(const Ray3f& ray) const;
 
         bool isOwnedBy(PlayerId playerId) const;
 

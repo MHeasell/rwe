@@ -1,7 +1,7 @@
 #ifndef RWE_SOUNDCLASS_H
 #define RWE_SOUNDCLASS_H
 
-#include <boost/optional.hpp>
+#include <optional>
 #include <rwe/tdf/TdfBlock.h>
 #include <string>
 
@@ -9,18 +9,18 @@ namespace rwe
 {
     struct SoundClass
     {
-        boost::optional<std::string> select1;
-        boost::optional<std::string> ok1;
-        boost::optional<std::string> arrived1;
-        boost::optional<std::string> cant1;
-        boost::optional<std::string> underAttack;
-        boost::optional<std::string> count5;
-        boost::optional<std::string> count4;
-        boost::optional<std::string> count3;
-        boost::optional<std::string> count2;
-        boost::optional<std::string> count1;
-        boost::optional<std::string> count0;
-        boost::optional<std::string> cancelDestruct;
+        std::optional<std::string> select1;
+        std::optional<std::string> ok1;
+        std::optional<std::string> arrived1;
+        std::optional<std::string> cant1;
+        std::optional<std::string> underAttack;
+        std::optional<std::string> count5;
+        std::optional<std::string> count4;
+        std::optional<std::string> count3;
+        std::optional<std::string> count2;
+        std::optional<std::string> count1;
+        std::optional<std::string> count0;
+        std::optional<std::string> cancelDestruct;
     };
 
     SoundClass parseSoundClass(const TdfBlock& block);

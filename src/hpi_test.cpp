@@ -95,12 +95,12 @@ int extractCommand(const std::string& hpiPath, const std::string& filePath, cons
     }
 
     std::cout << "Extracting..." << std::endl;
-    auto buf = std::make_unique<char[]>(entry->size);
+    auto buf = std::make_unique<char[]>(entry->get().size);
     archive.extract(*entry, buf.get());
 
     std::cout << "Writing..." << std::endl;
     std::ofstream out(destinationPath, std::ios::binary);
-    out.write(buf.get(), entry->size);
+    out.write(buf.get(), entry->get().size);
 
     std::cout << "Done!" << std::endl;
 

@@ -1,4 +1,4 @@
-#include <boost/optional/optional_io.hpp>
+#include <rwe/optional_io.h>
 #include <catch.hpp>
 #include <rwe/tdf/TdfBlock.h>
 
@@ -28,13 +28,13 @@ namespace rwe
             {
                 auto value = b.findValue("alice");
                 REQUIRE(value);
-                REQUIRE(*value == "bob");
+                REQUIRE(value->get() == "bob");
             }
             SECTION("ignores case")
             {
                 auto value = b.findValue("AlIcE");
                 REQUIRE(value);
-                REQUIRE(*value == "bob");
+                REQUIRE(value->get() == "bob");
             }
             SECTION("returns none if the key does not exist")
             {
@@ -53,12 +53,12 @@ namespace rwe
             SECTION("returns the block matching the key")
             {
                 auto block = b.findBlock("whiskey");
-                REQUIRE(*block == inner);
+                REQUIRE(block->get() == inner);
             }
             SECTION("returns the block matching the key")
             {
                 auto block = b.findBlock("wHIskEY");
-                REQUIRE(*block == inner);
+                REQUIRE(block->get() == inner);
             }
             SECTION("returns none if the key does not exist")
             {
@@ -74,7 +74,7 @@ namespace rwe
             {
                 auto block = b.findBlock("DUPE");
                 REQUIRE(block);
-                REQUIRE(*block == dupe);
+                REQUIRE(block->get() == dupe);
             }
         }
     }

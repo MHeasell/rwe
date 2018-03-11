@@ -5,7 +5,7 @@
 
 namespace rwe
 {
-    void applyMoveOperation(boost::optional<UnitMesh::MoveOperation>& op, float& currentPos, float dt)
+    void applyMoveOperation(std::optional<UnitMesh::MoveOperation>& op, float& currentPos, float dt)
     {
         if (op)
         {
@@ -14,7 +14,7 @@ namespace rwe
             if (std::abs(remaining) <= frameSpeed)
             {
                 currentPos = op->targetPosition;
-                op = boost::none;
+                op = std::nullopt;
             }
             else
             {
@@ -23,7 +23,7 @@ namespace rwe
         }
     }
 
-    void applyTurnOperation(boost::optional<UnitMesh::TurnOperation>& op, float& currentAngle, float dt)
+    void applyTurnOperation(std::optional<UnitMesh::TurnOperation>& op, float& currentAngle, float dt)
     {
         if (op)
         {
@@ -33,7 +33,7 @@ namespace rwe
             if (std::abs(remaining.value) <= frameSpeed)
             {
                 currentAngle = op->targetAngle.value;
-                op = boost::none;
+                op = std::nullopt;
             }
             else
             {
@@ -43,7 +43,7 @@ namespace rwe
         }
     }
 
-    boost::optional<const UnitMesh&> UnitMesh::find(const std::string& pieceName) const
+    std::optional<std::reference_wrapper<const UnitMesh>> UnitMesh::find(const std::string& pieceName) const
     {
         if (pieceName == name)
         {
@@ -59,21 +59,21 @@ namespace rwe
             }
         }
 
-        return boost::none;
+        return std::nullopt;
     }
 
-    boost::optional<UnitMesh&> UnitMesh::find(const std::string& pieceName)
+    std::optional<std::reference_wrapper<UnitMesh>> UnitMesh::find(const std::string& pieceName)
     {
         auto value = static_cast<const UnitMesh&>(*this).find(pieceName);
         if (!value)
         {
-            return boost::none;
+            return std::nullopt;
         }
 
-        return const_cast<UnitMesh&>(*value);
+        return std::ref(const_cast<UnitMesh&>(value->get()));
     }
 
-    boost::optional<Matrix4f> UnitMesh::getPieceTransform(const std::string& pieceName)
+    std::optional<Matrix4f> UnitMesh::getPieceTransform(const std::string& pieceName)
     {
         if (pieceName == name)
         {
@@ -89,7 +89,7 @@ namespace rwe
             }
         }
 
-        return boost::none;
+        return std::nullopt;
     }
 
     Matrix4f UnitMesh::getTransform() const

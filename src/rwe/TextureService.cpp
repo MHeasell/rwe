@@ -89,7 +89,7 @@ namespace rwe
         defaultSpriteSeries = std::move(series);
     }
 
-    boost::optional<std::shared_ptr<SpriteSeries>> TextureService::getGafEntryInternal(const std::string& gafName, const std::string& entryName)
+    std::optional<std::shared_ptr<SpriteSeries>> TextureService::getGafEntryInternal(const std::string& gafName, const std::string& entryName)
     {
         auto normEntryName = toUpper(entryName);
 
@@ -103,7 +103,7 @@ namespace rwe
         auto gafBytes = fileSystem->readFile(gafName);
         if (!gafBytes)
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         boost::interprocess::bufferstream gafStream(gafBytes->data(), gafBytes->size());
@@ -112,7 +112,7 @@ namespace rwe
         auto gafEntry = gafArchive.findEntry(normEntryName);
         if (!gafEntry)
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         BufferGafAdapter adapter(graphics, palette);
@@ -122,7 +122,7 @@ namespace rwe
         return ptr;
     }
 
-    boost::optional<std::shared_ptr<SpriteSeries>>
+    std::optional<std::shared_ptr<SpriteSeries>>
     TextureService::tryGetGafEntry(const std::string& gafName, const std::string& entryName)
     {
         return getGafEntryInternal(gafName, entryName);
@@ -139,7 +139,7 @@ namespace rwe
         return *entry;
     }
 
-    boost::optional<std::shared_ptr<SpriteSeries>>
+    std::optional<std::shared_ptr<SpriteSeries>>
     TextureService::getGuiTexture(const std::string& guiName, const std::string& graphicName)
     {
         auto entry = getGafEntryInternal("anims/" + guiName + ".gaf", graphicName);
@@ -154,7 +154,7 @@ namespace rwe
             return entry;
         }
 
-        return boost::none;
+        return std::nullopt;
     }
 
     SharedTextureHandle TextureService::getBitmap(const std::string& bitmapName)

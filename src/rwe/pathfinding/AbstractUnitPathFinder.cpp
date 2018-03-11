@@ -6,7 +6,7 @@ namespace rwe
         GameSimulation* simulation,
         MovementClassCollisionService* collisionService,
         UnitId self,
-        boost::optional<MovementClassId> movementClass,
+        std::optional<MovementClassId> movementClass,
         unsigned int footprintX,
         unsigned int footprintZ)
         : simulation(simulation),
@@ -21,7 +21,7 @@ namespace rwe
     std::vector<AbstractUnitPathFinder::VertexInfo>
     AbstractUnitPathFinder::getSuccessors(const VertexInfo& info)
     {
-        boost::optional<Direction> prevDirection;
+        std::optional<Direction> prevDirection;
         if (info.predecessor)
         {
             prevDirection = pointToDirection(info.vertex - (*info.predecessor)->vertex);

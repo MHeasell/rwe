@@ -10,7 +10,7 @@ namespace fs = boost::filesystem;
 
 namespace rwe
 {
-    boost::optional<std::vector<char>> CompositeVirtualFileSystem::readFile(const std::string& filename) const
+    std::optional<std::vector<char>> CompositeVirtualFileSystem::readFile(const std::string& filename) const
     {
         for (const auto& fs : filesystems)
         {
@@ -21,7 +21,7 @@ namespace rwe
             }
         }
 
-        return boost::none;
+        return std::nullopt;
     }
 
     std::vector<std::string>

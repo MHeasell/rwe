@@ -1,4 +1,4 @@
-#include <boost/optional/optional_io.hpp>
+#include <rwe/optional_io.h>
 #include <catch.hpp>
 #include <rwe/geometry/Ray3f.h>
 #include <rwe/geometry/CollisionMesh.h>

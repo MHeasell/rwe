@@ -1,9 +1,10 @@
 #ifndef RWE_GAF_H
 #define RWE_GAF_H
 
-#include <boost/optional.hpp>
 #include <cstdint>
+#include <functional>
 #include <istream>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -122,7 +123,7 @@ namespace rwe
 
         const std::vector<Entry>& entries() const;
 
-        boost::optional<const Entry&> findEntry(const std::string& name) const;
+        std::optional<std::reference_wrapper<const Entry>> findEntry(const std::string& name) const;
 
         void extract(const Entry& entry, GafReaderAdapter& adapter);
 

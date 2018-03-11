@@ -22,7 +22,7 @@ namespace rwe
 
             if (object.selectionPrimitiveOffset == -1)
             {
-                outputObject.selectionPrimitiveIndex = boost::none;
+                outputObject.selectionPrimitiveIndex = std::nullopt;
             }
             else
             {
@@ -60,7 +60,7 @@ namespace rwe
                 }
                 else
                 {
-                    outP.textureName = boost::none;
+                    outP.textureName = std::nullopt;
                 }
 
                 stream.seekg(p.verticesOffset);

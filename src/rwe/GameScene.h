@@ -76,8 +76,8 @@ namespace rwe
         bool leftShiftDown{false};
         bool rightShiftDown{false};
 
-        boost::optional<UnitId> hoveredUnit;
-        boost::optional<UnitId> selectedUnit;
+        std::optional<UnitId> hoveredUnit;
+        std::optional<UnitId> selectedUnit;
 
         bool occupiedGridVisible{false};
         bool pathfindingVisualisationVisible{false};
@@ -153,15 +153,15 @@ namespace rwe
         const GameSimulation& getSimulation() const;
 
     private:
-        boost::optional<UnitId> getUnitUnderCursor() const;
+        std::optional<UnitId> getUnitUnderCursor() const;
 
         Vector2f screenToClipSpace(Point p) const;
 
         Point getMousePosition() const;
 
-        boost::optional<UnitId> getFirstCollidingUnit(const Ray3f& ray) const;
+        std::optional<UnitId> getFirstCollidingUnit(const Ray3f& ray) const;
 
-        boost::optional<Vector3f> getMouseTerrainCoordinate() const;
+        std::optional<Vector3f> getMouseTerrainCoordinate() const;
 
         void issueMoveOrder(UnitId unitId, Vector3f position);
 

@@ -28,7 +28,7 @@ namespace rwe
         /** The target the weapon is currently trying to shoot at. */
         UnitWeaponAttackTarget target;
 
-        boost::optional<AimInfo> aimInfo;
+        std::optional<AimInfo> aimInfo;
 
         UnitWeaponStateAttacking(const UnitWeaponAttackTarget& target) : target(target)
         {
@@ -43,9 +43,9 @@ namespace rwe
 
         float reloadTime;
 
-        boost::optional<AudioService::SoundHandle> soundStart;
-        boost::optional<AudioService::SoundHandle> soundHit;
-        boost::optional<AudioService::SoundHandle> soundWater;
+        std::optional<AudioService::SoundHandle> soundStart;
+        std::optional<AudioService::SoundHandle> soundHit;
+        std::optional<AudioService::SoundHandle> soundWater;
 
         /** The game time at which the weapon next becomes ready to fire. */
         GameTime readyTime{0};

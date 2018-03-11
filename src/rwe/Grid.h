@@ -1,9 +1,9 @@
 #ifndef RWE_GRID_H
 #define RWE_GRID_H
 
-#include <boost/optional.hpp>
 #include <cassert>
 #include <functional>
+#include <optional>
 #include <rwe/DiscreteRect.h>
 #include <rwe/GridRegion.h>
 #include <stdexcept>
@@ -61,7 +61,7 @@ namespace rwe
          * Converts the given discrete rect into a grid region
          * as long as it is contained entirely within the grid.
          */
-        boost::optional<GridRegion> tryToRegion(const DiscreteRect& rect) const;
+        std::optional<GridRegion> tryToRegion(const DiscreteRect& rect) const;
 
         template <typename U>
         void transformAndReplaceArea(std::size_t x, std::size_t y, const Grid<U>& replacement, const std::function<T(const U&)>& transformation);
@@ -263,11 +263,11 @@ namespace rwe
     }
 
     template <typename T>
-    boost::optional<GridRegion> Grid<T>::tryToRegion(const DiscreteRect& rect) const
+    std::optional<GridRegion> Grid<T>::tryToRegion(const DiscreteRect& rect) const
     {
         if (!contains(rect))
         {
-            return boost::none;
+            return std::nullopt;
         }
 
         return GridRegion(rect.x, rect.y, rect.width, rect.height);

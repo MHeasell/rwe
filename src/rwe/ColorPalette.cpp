@@ -1,4 +1,5 @@
 #include "ColorPalette.h"
+#include <cassert>
 
 namespace rwe
 {
@@ -19,7 +20,7 @@ namespace rwe
         }
     }
 
-    boost::optional<ColorPalette> readPalette(std::vector<char>& vector)
+    std::optional<ColorPalette> readPalette(std::vector<char>& vector)
     {
         assert(vector.size() >= (4 * 256));
 

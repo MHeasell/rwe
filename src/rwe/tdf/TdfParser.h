@@ -1,8 +1,8 @@
 #ifndef RWE_TDFPARSER_H
 #define RWE_TDFPARSER_H
 
-#include <boost/optional.hpp>
 #include <memory>
+#include <optional>
 #include <rwe/rwe_string.h>
 #include <stdexcept>
 #include <string>
@@ -336,13 +336,13 @@ namespace rwe
         }
 
         template <typename Container>
-        boost::optional<TdfCodePoint> acceptNotAny(const Container& container)
+        std::optional<TdfCodePoint> acceptNotAny(const Container& container)
         {
             return acceptNotAny(container.begin(), container.end());
         }
 
         template <typename CharIt>
-        boost::optional<TdfCodePoint> acceptNotAny(const CharIt& begin, const CharIt& end)
+        std::optional<TdfCodePoint> acceptNotAny(const CharIt& begin, const CharIt& end)
         {
             auto curr = peek();
             auto it = std::find(begin, end, curr);
@@ -352,16 +352,16 @@ namespace rwe
                 return curr;
             }
 
-            return boost::none;
+            return std::nullopt;
         }
 
-        boost::optional<TdfCodePoint> acceptNot(TdfCodePoint cp)
+        std::optional<TdfCodePoint> acceptNot(TdfCodePoint cp)
         {
             auto val = peek();
 
             if (val == cp)
             {
-                return boost::none;
+                return std::nullopt;
             }
 
             next();
