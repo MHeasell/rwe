@@ -41,7 +41,7 @@ namespace rwe
 
         auto start = simulation->computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
         // expand the goal rect to take into account our own collision rect
-        auto goal = expandTopLeft(destination, unit.footprintX - 1, unit.footprintZ - 1);
+        auto goal = expandTopLeft(destination, unit.footprintX, unit.footprintZ);
 
         UnitPerimeterPathFinder pathFinder(simulation, collisionService, unitId, unit.movementClass, unit.footprintX, unit.footprintZ, goal);
 

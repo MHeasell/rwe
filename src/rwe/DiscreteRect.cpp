@@ -4,10 +4,15 @@ namespace rwe
 {
     bool DiscreteRect::isAdjacentTo(int px, int py) const
     {
-        int minX = x - 1;
-        int maxX = x + width;
-        int minY = y - 1;
-        int maxY = y + height;
+        return expand(1).isInteriorPerimeter(px, py);
+    }
+
+    bool DiscreteRect::isInteriorPerimeter(int px, int py) const
+    {
+        int minX = x;
+        int maxX = x + width - 1;
+        int minY = y;
+        int maxY = y + height - 1;
 
         if (py == minY || py == maxY)
         {
@@ -30,10 +35,15 @@ namespace rwe
 
     OctileDistance DiscreteRect::octileDistanceToPerimeter(int px, int py) const
     {
-        int minX = x - 1;
-        int maxX = x + width;
-        int minY = y - 1;
-        int maxY = y + height;
+        return expand(1).octileDistanceToInterior(px, py);
+    }
+
+    OctileDistance DiscreteRect::octileDistanceToInterior(int px, int py) const
+    {
+        int minX = x;
+        int maxX = x + width - 1;
+        int minY = y;
+        int maxY = y + height - 1;
 
         // point is left of the rectangle
         if (px <= minX)
@@ -97,10 +107,15 @@ namespace rwe
 
         // inside
         auto distance = std::min<unsigned int>(
-            {static_cast<unsigned int>(px - minX),
-                static_cast<unsigned int>(maxX - px),
-                static_cast<unsigned int>(py - minY),
-                static_cast<unsigned int>(maxY - py)});
+                {static_cast<unsigned int>(px - minX),
+                 static_cast<unsigned int>(maxX - px),
+                 static_cast<unsigned int>(py - minY),
+                 static_cast<unsigned int>(maxY - py)});
         return OctileDistance(distance, 0);
+    }
+
+    DiscreteRect DiscreteRect::expand(unsigned int amount) const
+    {
+        return DiscreteRect(x - amount, y - amount, width + (2 * amount), height + (2 * amount));
     }
 }

@@ -36,11 +36,17 @@ namespace rwe
          */
         bool isAdjacentTo(int px, int py) const;
 
+        bool isInteriorPerimeter(int px, int py) const;
+
         /**
          * Returns the octile distance from the given coordinates
          * to the nearest coordinates that are adjacent to the rectangle.
          */
         OctileDistance octileDistanceToPerimeter(int px, int py) const;
+
+        OctileDistance octileDistanceToInterior(int px, int py) const;
+
+        DiscreteRect expand(unsigned int amount) const;
     };
 }
 
