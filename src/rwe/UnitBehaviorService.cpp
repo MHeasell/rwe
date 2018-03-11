@@ -43,7 +43,7 @@ namespace rwe
         Vector3f operator()(UnitId id) const { return simulation->getUnit(id).position; }
     };
 
-    class AttackTargetToMovingStateGoalVisitor : boost::static_visitor<MovingStateGoal>
+    class AttackTargetToMovingStateGoalVisitor : public boost::static_visitor<MovingStateGoal>
     {
     private:
         const GameScene* scene;
