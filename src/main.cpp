@@ -155,6 +155,19 @@ namespace rwe
             throw std::runtime_error("Couldn't read palette");
         }
 
+        logger.info("Loading GUI palette");
+        auto guiPaletteBytes = vfs.readFile("palettes/GUIPAL.PAL");
+        if (!guiPaletteBytes)
+        {
+            throw std::runtime_error("Couldn't find palette");
+        }
+
+        auto guiPalette = readPalette(*guiPaletteBytes);
+        if (!guiPalette)
+        {
+            throw std::runtime_error("Couldn't read GUI palette");
+        }
+
         logger.info("Initializing services");
         GraphicsContext graphics;
         graphics.enableCulling();
@@ -223,6 +236,7 @@ namespace rwe
                 &shaders,
                 &featureService,
                 &*palette,
+                &*guiPalette,
                 &sceneManager,
                 sdlContext,
                 &sideDataMap,
@@ -244,6 +258,7 @@ namespace rwe
                 &shaders,
                 &featureService,
                 &*palette,
+                &*guiPalette,
                 &cursor,
                 sdlContext,
                 &sideDataMap,

@@ -1,12 +1,19 @@
 #include "UnitFactory.h"
+#include <algorithm>
 
 namespace rwe
 {
     UnitFactory::UnitFactory(
         UnitDatabase&& unitDatabase,
         MeshService&& meshService,
-        MovementClassCollisionService* collisionService)
-        : unitDatabase(std::move(unitDatabase)), meshService(std::move(meshService)), collisionService(collisionService)
+        MovementClassCollisionService* collisionService,
+        const ColorPalette* palette,
+        const ColorPalette* guiPalette)
+        : unitDatabase(std::move(unitDatabase)),
+          meshService(std::move(meshService)),
+          collisionService(collisionService),
+          palette(palette),
+          guiPalette(guiPalette)
     {
     }
 
@@ -112,6 +119,8 @@ namespace rwe
         weapon.pitchTolerance = toleranceToRadians(tdf.pitchTolerance);
         weapon.velocity = static_cast<float>(tdf.weaponVelocity) / 60.0f;
         weapon.duration = tdf.duration * 60.0f * 2.0f; // duration seems to match better if doubled
+        weapon.color = getLaserColor(tdf.color);
+        weapon.color2 = getLaserColor(tdf.color2);
         if (!tdf.soundStart.empty())
         {
             weapon.soundStart = unitDatabase.getSoundHandle(tdf.soundStart);
@@ -125,5 +134,36 @@ namespace rwe
             weapon.soundWater = unitDatabase.getSoundHandle(tdf.soundWater);
         }
         return weapon;
+    }
+
+    Vector3f colorToVector(const Color& color)
+    {
+        return Vector3f(
+            static_cast<float>(color.r) / 255.0f,
+            static_cast<float>(color.g) / 255.0f,
+            static_cast<float>(color.b) / 255.0f);
+    }
+
+    unsigned int colorDistance(const Color& a, const Color& b)
+    {
+        auto dr = a.r > b.r ? a.r - b.r : b.r - a.r;
+        auto dg = a.g > b.g ? a.g - b.g : b.g - a.g;
+        auto db = a.b > b.b ? a.b - b.b : b.b - a.b;
+        return dr + dg + db;
+    }
+
+    Vector3f UnitFactory::getLaserColor(unsigned int colorIndex)
+    {
+        // In TA, lasers use the GUIPAL colors,
+        // but these must be mapped to a color available
+        // in the in-game PALETTE.
+        const auto& guiColor = (*guiPalette).at(colorIndex);
+
+        auto elem = std::min_element(
+            palette->begin(),
+            palette->end(),
+            [&guiColor](const auto& a, const auto& b) { return colorDistance(guiColor, a) < colorDistance(guiColor, b); });
+
+        return colorToVector(*elem);
     }
 }

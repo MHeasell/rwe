@@ -54,6 +54,9 @@ namespace rwe
 
         float pitchTolerance;
 
+        Vector3f color;
+        Vector3f color2;
+
         /** Projectile velocity in pixels/tick. */
         float velocity;
 

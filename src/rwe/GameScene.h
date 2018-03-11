@@ -92,6 +92,8 @@ namespace rwe
             SdlContext* sdl,
             AudioService* audioService,
             ViewportService* viewportService,
+            const ColorPalette* palette,
+            const ColorPalette* guiPalette,
             RenderService&& renderService,
             UiRenderService&& uiRenderService,
             GameSimulation&& simulation,

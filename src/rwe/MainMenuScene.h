@@ -29,6 +29,7 @@ namespace rwe
         ShaderService* shaders;
         MapFeatureService* featureService;
         const ColorPalette* palette;
+        const ColorPalette* guiPalette;
         CursorService* cursor;
         SdlContext* sdl;
         const std::unordered_map<std::string, SideData>* sideData;
@@ -56,6 +57,7 @@ namespace rwe
             ShaderService* shaders,
             MapFeatureService* featureService,
             const ColorPalette* palette,
+            const ColorPalette* guiPalette,
             CursorService* cursor,
             SdlContext* sdl,
             const std::unordered_map<std::string, SideData>* sideData,

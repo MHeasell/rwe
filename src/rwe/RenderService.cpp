@@ -458,9 +458,6 @@ namespace rwe
     {
         Vector3f pixelOffset(0.0f, 0.0f, 1.0f);
 
-        Vector3f laserColor(155.0f / 255.0f, 131.0f / 255.0f, 47.0f / 255.0f);
-        Vector3f laserColor2(211.0f / 255.0f, 43.0f / 255.0f, 0.0f / 255.0f);
-
         std::vector<GlColoredVertex> vertices;
         for (const auto& laser : lasers)
         {
@@ -471,11 +468,11 @@ namespace rwe
 
             auto backPosition = laser->getBackPosition();
 
-            vertices.emplace_back(laser->position, laserColor);
-            vertices.emplace_back(backPosition, laserColor);
+            vertices.emplace_back(laser->position, laser->color);
+            vertices.emplace_back(backPosition, laser->color);
 
-            vertices.emplace_back(laser->position + pixelOffset, laserColor2);
-            vertices.emplace_back(backPosition + pixelOffset, laserColor2);
+            vertices.emplace_back(laser->position + pixelOffset, laser->color2);
+            vertices.emplace_back(backPosition + pixelOffset, laser->color2);
         }
 
         auto mesh = graphics->createColoredMesh(vertices, GL_STREAM_DRAW);

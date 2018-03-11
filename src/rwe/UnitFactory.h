@@ -16,15 +16,24 @@ namespace rwe
         UnitDatabase unitDatabase;
         MeshService meshService;
         MovementClassCollisionService* const collisionService;
+        const ColorPalette* palette;
+        const ColorPalette* guiPalette;
 
     public:
-        UnitFactory(UnitDatabase&& unitDatabase, MeshService&& meshService, MovementClassCollisionService* collisionService);
+        UnitFactory(
+            UnitDatabase&& unitDatabase,
+            MeshService&& meshService,
+            MovementClassCollisionService* collisionService,
+            const ColorPalette* palette,
+            const ColorPalette* guiPalette);
 
     public:
         Unit createUnit(const std::string& unitType, PlayerId owner, unsigned int colorIndex, const Vector3f& position);
 
     private:
         UnitWeapon createWeapon(const std::string& weaponType);
+
+        Vector3f getLaserColor(unsigned int colorIndex);
     };
 }
 

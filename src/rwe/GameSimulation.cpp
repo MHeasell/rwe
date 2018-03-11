@@ -246,6 +246,8 @@ namespace rwe
         laser.origin = position;
         laser.velocity = direction * weapon.velocity;
         laser.duration = weapon.duration;
+        laser.color = weapon.color;
+        laser.color2 = weapon.color2;
 
         auto it = std::find_if(lasers.begin(), lasers.end(), [](const auto& x) { return !x; });
         if (it == lasers.end())
