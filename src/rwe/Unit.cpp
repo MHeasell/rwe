@@ -21,7 +21,7 @@ namespace rwe
 
     UnitOrder createAttackGroundOrder(const Vector3f& target)
     {
-        return AttackGroundOrder(target);
+        return AttackOrder(target);
     }
 
     Unit::Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, SelectionMesh&& selectionMesh)

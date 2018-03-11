@@ -572,6 +572,11 @@ namespace rwe
         return simulation;
     }
 
+    const GameSimulation& GameScene::getSimulation() const
+    {
+        return simulation;
+    }
+
     bool GameScene::isEnemy(UnitId id) const
     {
         // TODO: consider allies/teams here

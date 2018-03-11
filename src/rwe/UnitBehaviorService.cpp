@@ -29,6 +29,36 @@ namespace rwe
     {
     }
 
+    class GetTargetPositionVisitor : public boost::static_visitor<Vector3f>
+    {
+    private:
+        const GameSimulation* simulation;
+
+    public:
+        explicit GetTargetPositionVisitor(const GameSimulation* simulation) : simulation(simulation) {}
+
+        Vector3f operator()(const Vector3f& target) const { return target; }
+
+        // FIXME: this is unsafe, the target unit could already be dead
+        Vector3f operator()(UnitId id) const { return simulation->getUnit(id).position; }
+    };
+
+    class AttackTargetToMovingStateGoalVisitor : boost::static_visitor<MovingStateGoal>
+    {
+    private:
+        const GameScene* scene;
+
+    public:
+        explicit AttackTargetToMovingStateGoalVisitor(const GameScene *scene) : scene(scene) {}
+
+        MovingStateGoal operator()(const Vector3f& target) const { return target; }
+        MovingStateGoal operator()(UnitId unitId) const
+        {
+            const auto& targetUnit = scene->getSimulation().getUnit(unitId);
+            return scene->computeFootprintRegion(targetUnit.position, targetUnit.footprintX, targetUnit.footprintZ);
+        }
+    };
+
     void UnitBehaviorService::update(UnitId unitId)
     {
         auto& unit = scene->getSimulation().getUnit(unitId);
@@ -89,71 +119,6 @@ namespace rwe
                     }
                 }
             }
-            else if (auto attackGroundOrder = boost::get<AttackGroundOrder>(&order); attackGroundOrder != nullptr)
-            {
-                if (!unit.weapons[0])
-                {
-                    unit.orders.pop_front();
-                }
-                else
-                {
-                    auto maxRangeSquared = unit.weapons[0]->maxRange * unit.weapons[0]->maxRange;
-                    if (auto idleState = boost::get<IdleState>(&unit.behaviourState); idleState != nullptr)
-                    {
-                        // if we're out of range, drive into range
-                        if (unit.position.distanceSquared(attackGroundOrder->target) > maxRangeSquared)
-                        {
-                            // request a path to follow
-                            scene->getSimulation().requestPath(unitId);
-                            const auto& destination = attackGroundOrder->target;
-                            unit.behaviourState = MovingState{destination, boost::none, true};
-                        }
-                        else
-                        {
-                            // we're in range, aim weapons
-                            for (unsigned int i = 0; i < 2; ++i)
-                            {
-                                unit.setWeaponTarget(i, attackGroundOrder->target);
-                            }
-                        }
-                    }
-                    else if (auto movingState = boost::get<MovingState>(&unit.behaviourState); movingState != nullptr)
-                    {
-                        if (unit.position.distanceSquared(attackGroundOrder->target) <= maxRangeSquared)
-                        {
-                            unit.behaviourState = IdleState();
-                        }
-                        else
-                        {
-                            // if we are colliding, request a new path
-                            if (unit.inCollision && !movingState->pathRequested)
-                            {
-                                auto& sim = scene->getSimulation();
-
-                                // only request a new path if we don't have one yet,
-                                // or we've already had our current one for a bit
-                                if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTimeDelta(60))
-                                {
-                                    sim.requestPath(unitId);
-                                    movingState->pathRequested = true;
-                                }
-                            }
-
-                            // if a path is available, attempt to follow it
-                            auto& pathToFollow = movingState->path;
-                            if (pathToFollow)
-                            {
-                                if (followPath(unit, *pathToFollow))
-                                {
-                                    // we finished following the path,
-                                    // go back to idle
-                                    unit.behaviourState = IdleState();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
             else if (auto attackOrder = boost::get<AttackOrder>(&order); attackOrder != nullptr)
             {
                 if (!unit.weapons[0])
@@ -162,9 +127,7 @@ namespace rwe
                 }
                 else
                 {
-                    // FIXME: this is unsafe, the target unit could already be dead
-                    const auto& targetUnit = scene->getSimulation().getUnit(attackOrder->target);
-                    const auto& targetPosition = targetUnit.position;
+                    const auto& targetPosition = boost::apply_visitor(GetTargetPositionVisitor(&scene->getSimulation()), attackOrder->target);
 
                     auto maxRangeSquared = unit.weapons[0]->maxRange * unit.weapons[0]->maxRange;
                     if (auto idleState = boost::get<IdleState>(&unit.behaviourState); idleState != nullptr)
@@ -174,7 +137,7 @@ namespace rwe
                         {
                             // request a path to follow
                             scene->getSimulation().requestPath(unitId);
-                            auto destination = scene->computeFootprintRegion(targetUnit.position, targetUnit.footprintX, targetUnit.footprintZ);
+                            auto destination = boost::apply_visitor(AttackTargetToMovingStateGoalVisitor(scene), attackOrder->target);
                             unit.behaviourState = MovingState{destination, boost::none, true};
                         }
                         else
@@ -306,18 +269,6 @@ namespace rwe
         return false;
     }
 
-    class GetTargetPosVisitor : public boost::static_visitor<Vector3f>
-    {
-    private:
-        const GameSimulation* sim;
-
-    public:
-        explicit GetTargetPosVisitor(const GameSimulation* sim) : sim(sim) {}
-        Vector3f operator()(const Vector3f& pos) const { return pos; }
-        // FIXME: unit could no longer exist (e.g. it died), currently this is UB.
-        Vector3f operator()(UnitId id) const { return sim->getUnit(id).position; }
-    };
-
     void UnitBehaviorService::updateWeapon(UnitId id, unsigned int weaponIndex)
     {
         auto& unit = scene->getSimulation().getUnit(id);
@@ -342,7 +293,7 @@ namespace rwe
         {
             if (!aimingState->aimInfo)
             {
-                Vector3f targetPosition = boost::apply_visitor(GetTargetPosVisitor(&scene->getSimulation()), aimingState->target);
+                Vector3f targetPosition = boost::apply_visitor(GetTargetPositionVisitor(&scene->getSimulation()), aimingState->target);
                 auto aimFromPosition = getAimingPoint(id, weaponIndex);
 
                 auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, targetPosition);
@@ -374,7 +325,7 @@ namespace rwe
                     if (*returnValue)
                     {
                         // aiming was successful, check the target again for drift
-                        Vector3f targetPosition = boost::apply_visitor(GetTargetPosVisitor(&scene->getSimulation()), aimingState->target);
+                        Vector3f targetPosition = boost::apply_visitor(GetTargetPositionVisitor(&scene->getSimulation()), aimingState->target);
                         auto aimFromPosition = getAimingPoint(id, weaponIndex);
 
                         auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, targetPosition);

@@ -150,6 +150,8 @@ namespace rwe
 
         GameSimulation& getSimulation();
 
+        const GameSimulation& getSimulation() const;
+
     private:
         boost::optional<UnitId> getUnitUnderCursor() const;
 

@@ -25,16 +25,13 @@ namespace rwe
         explicit MoveOrder(const Vector3f& destination);
     };
 
+    using AttackTarget = boost::variant<UnitId, Vector3f>;
+
     struct AttackOrder
     {
-        UnitId target;
+        AttackTarget target;
         explicit AttackOrder(UnitId target) : target(target) {}
-    };
-
-    struct AttackGroundOrder
-    {
-        Vector3f target;
-        explicit AttackGroundOrder(const Vector3f& target) : target(target) {}
+        explicit AttackOrder(const Vector3f& target) : target(target) {}
     };
 
     struct PathFollowingInfo
@@ -61,7 +58,7 @@ namespace rwe
 
     using UnitState = boost::variant<IdleState, MovingState>;
 
-    using UnitOrder = boost::variant<MoveOrder, AttackOrder, AttackGroundOrder>;
+    using UnitOrder = boost::variant<MoveOrder, AttackOrder>;
 
     UnitOrder createMoveOrder(const Vector3f& destination);
 
