@@ -108,6 +108,8 @@ namespace rwe
         weapon.reloadTime = tdf.reloadTime;
         weapon.tolerance = toleranceToRadians(tdf.tolerance);
         weapon.pitchTolerance = toleranceToRadians(tdf.pitchTolerance);
+        weapon.velocity = static_cast<float>(tdf.weaponVelocity) / 60.0f;
+        weapon.duration = tdf.duration * 60.0f * 2.0f; // duration seems to match better if doubled
         if (!tdf.soundStart.empty())
         {
             weapon.soundStart = unitDatabase.getSoundHandle(tdf.soundStart);

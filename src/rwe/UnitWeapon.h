@@ -54,6 +54,12 @@ namespace rwe
 
         float pitchTolerance;
 
+        /** Projectile velocity in pixels/tick. */
+        float velocity;
+
+        /** Beam duration in ticks. */
+        float duration;
+
         /** The internal state of the weapon. */
         UnitWeaponState state{UnitWeaponStateIdle()};
     };

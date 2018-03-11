@@ -363,8 +363,7 @@ namespace rwe
         // spawn a projectile from the firing point
         auto firingPoint = getFiringPoint(id, weaponIndex);
         auto targetVector = targetPosition - firingPoint;
-        auto projectileVelocity = targetVector.normalized() * (400.0f / 60.0f);
-        scene->getSimulation().spawnLaser(firingPoint, projectileVelocity, 4.0f);
+        scene->getSimulation().spawnLaser(*weapon, firingPoint, targetVector.normalized());
 
         if (weapon->soundStart)
         {

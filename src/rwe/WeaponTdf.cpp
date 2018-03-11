@@ -99,7 +99,7 @@ namespace rwe
         tdf.readOrDefault("endSmoke", w.endSmoke);
         tdf.readOrDefault("renderType", w.renderType);
         tdf.readOrDefault("beamWeapon", w.beamWeapon);
-
+        tdf.readOrDefault("duration", w.duration);
 
         tdf.readOrDefault("explosionGaf", w.explosionGaf);
         tdf.readOrDefault("explosionArt", w.explosionArt);

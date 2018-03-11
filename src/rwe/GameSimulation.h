@@ -90,7 +90,7 @@ namespace rwe
 
         void requestPath(UnitId unitId);
 
-        void spawnLaser(const Vector3f& position, const Vector3f& velocity, float duration);
+        void spawnLaser(const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction);
     };
 }
 

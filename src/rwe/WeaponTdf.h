@@ -85,7 +85,7 @@ namespace rwe
         bool endSmoke;
         unsigned int renderType;
         bool beamWeapon;
-
+        float duration;
 
         std::string explosionGaf;
         std::string explosionArt;

@@ -239,13 +239,13 @@ namespace rwe
         pathRequests.push_back(PathRequest{unitId});
     }
 
-    void GameSimulation::spawnLaser(const Vector3f& position, const Vector3f& velocity, float duration)
+    void GameSimulation::spawnLaser(const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction)
     {
         LaserProjectile laser;
         laser.position = position;
         laser.origin = position;
-        laser.velocity = velocity;
-        laser.duration = duration;
+        laser.velocity = direction * weapon.velocity;
+        laser.duration = weapon.duration;
 
         auto it = std::find_if(lasers.begin(), lasers.end(), [](const auto& x) { return !x; });
         if (it == lasers.end())
