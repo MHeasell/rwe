@@ -277,7 +277,7 @@ namespace rwe
         for (const auto& f : schema.features)
         {
             const auto& featureTemplate = featureService->getFeatureDefinition(f.featureName);
-            Vector3f pos = computeFeaturePosition(terrain, featureTemplate, f.xPos, f.zPos);
+            Vector3f pos = computeFeaturePosition(simulation.terrain, featureTemplate, f.xPos, f.zPos);
             auto feature = createFeature(pos, featureTemplate);
             simulation.addFeature(std::move(feature));
         }
