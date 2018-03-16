@@ -456,7 +456,7 @@ namespace rwe
 
     void RenderService::drawLasers(const std::vector<std::optional<LaserProjectile>>& lasers)
     {
-        Vector3f pixelOffset(0.0f, 0.0f, 1.0f);
+        Vector3f pixelOffset(0.0f, 0.0f, -1.0f);
 
         std::vector<GlColoredVertex> vertices;
         for (const auto& laser : lasers)
