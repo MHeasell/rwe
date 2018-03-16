@@ -26,8 +26,6 @@ namespace rwe
 
     using ColorPalette = std::vector<Color>;
 
-    void readColorPalette(const char* input, Color* output);
-
     std::optional<ColorPalette> readPalette(std::vector<char>& vector);
 }
 
