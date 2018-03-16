@@ -49,7 +49,7 @@ namespace rwe
         const GameScene* scene;
 
     public:
-        explicit AttackTargetToMovingStateGoalVisitor(const GameScene *scene) : scene(scene) {}
+        explicit AttackTargetToMovingStateGoalVisitor(const GameScene* scene) : scene(scene) {}
 
         MovingStateGoal operator()(const Vector3f& target) const { return target; }
         MovingStateGoal operator()(UnitId unitId) const

@@ -107,10 +107,10 @@ namespace rwe
 
         // inside
         auto distance = std::min<unsigned int>(
-                {static_cast<unsigned int>(px - minX),
-                 static_cast<unsigned int>(maxX - px),
-                 static_cast<unsigned int>(py - minY),
-                 static_cast<unsigned int>(maxY - py)});
+            {static_cast<unsigned int>(px - minX),
+                static_cast<unsigned int>(maxX - px),
+                static_cast<unsigned int>(py - minY),
+                static_cast<unsigned int>(maxY - py)});
         return OctileDistance(distance, 0);
     }
 
