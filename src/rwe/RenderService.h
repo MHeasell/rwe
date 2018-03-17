@@ -2,6 +2,8 @@
 #define RWE_RENDERSERVICE_H
 
 #include <boost/iterator/filter_iterator.hpp>
+#include <rwe/Explosion.h>
+#include <rwe/GameTime.h>
 #include <rwe/GraphicsContext.h>
 #include <rwe/LaserProjectile.h>
 #include <rwe/OccupiedGrid.h>
@@ -68,6 +70,8 @@ namespace rwe
         void fillScreen(float r, float g, float b, float a);
 
         void drawLasers(const std::vector<std::optional<LaserProjectile>>& lasers);
+
+        void drawExplosions(GameTime currentTime, const std::vector<std::optional<Explosion>>& explosions);
 
     private:
         GlMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines);

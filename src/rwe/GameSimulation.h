@@ -1,6 +1,7 @@
 #ifndef RWE_GAMESIMULATION_H
 #define RWE_GAMESIMULATION_H
 
+#include <rwe/Explosion.h>
 #include <rwe/GameTime.h>
 #include <rwe/LaserProjectile.h>
 #include <rwe/MapFeature.h>
@@ -37,6 +38,8 @@ namespace rwe
         std::vector<Unit> units;
 
         std::vector<std::optional<LaserProjectile>> lasers;
+
+        std::vector<std::optional<Explosion>> explosions;
 
         std::deque<PathRequest> pathRequests;
 
@@ -91,6 +94,8 @@ namespace rwe
         void requestPath(UnitId unitId);
 
         void spawnLaser(const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction);
+
+        void spawnExplosion(const Vector3f& position, const std::shared_ptr<SpriteSeries>& animation);
     };
 }
 

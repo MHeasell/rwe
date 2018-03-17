@@ -485,6 +485,48 @@ namespace rwe
         graphics->drawLines(mesh);
     }
 
+    void RenderService::drawExplosions(GameTime currentTime, const std::vector<std::optional<Explosion>>& explosions)
+    {
+        graphics->bindShader(shaders->basicTexture.handle.get());
+
+        for (const auto& exp : explosions)
+        {
+            if (!exp)
+            {
+                continue;
+            }
+
+            if (!exp->isStarted(currentTime) || exp->isFinished(currentTime))
+            {
+                continue;
+            }
+
+            const auto& position = exp->position;
+            auto frameIndex = exp->getFrameIndex(currentTime);
+            const auto& sprite = *exp->animation->sprites[frameIndex];
+
+            float alpha = 1.0f;
+
+            Vector3f snappedPosition(
+                std::round(position.x),
+                truncateToInterval(position.y, 2.0f),
+                std::round(position.z));
+
+            // Convert to a model position that makes sense in the game world.
+            // For standing (blocking) features we stretch y-dimension values by 2x
+            // to correct for TA camera distortion.
+            Matrix4f conversionMatrix = Matrix4f::scale(Vector3f(1.0f, -2.0f, 1.0f));
+
+            auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix;
+
+            const auto& shader = shaders->basicTexture;
+            graphics->bindTexture(sprite.mesh.texture.get());
+            graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * modelMatrix);
+            graphics->setUniformFloat(shader.alpha, alpha);
+            graphics->drawTriangles(sprite.mesh.mesh);
+        }
+    }
+
     void RenderService::drawFeatureShadowInternal(const MapFeature& feature)
     {
         if (!feature.shadowAnimation)

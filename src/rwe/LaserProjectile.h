@@ -1,9 +1,10 @@
 #ifndef RWE_LASERPROJECTILE_H
 #define RWE_LASERPROJECTILE_H
 
+#include <rwe/AudioService.h>
+#include <rwe/SpriteSeries.h>
 #include <rwe/geometry/Line3f.h>
 #include <rwe/math/Vector3f.h>
-#include <rwe/AudioService.h>
 
 namespace rwe
 {
@@ -24,6 +25,9 @@ namespace rwe
 
         std::optional<AudioService::SoundHandle> soundHit;
         std::optional<AudioService::SoundHandle> soundWater;
+
+        std::optional<std::shared_ptr<SpriteSeries>> explosion;
+        std::optional<std::shared_ptr<SpriteSeries>> waterExplosion;
 
         Vector3f getBackPosition() const;
     };

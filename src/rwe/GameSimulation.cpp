@@ -252,6 +252,9 @@ namespace rwe
         laser.soundHit = weapon.soundHit;
         laser.soundWater = weapon.soundWater;
 
+        laser.explosion = weapon.explosion;
+        laser.waterExplosion = weapon.waterExplosion;
+
         auto it = std::find_if(lasers.begin(), lasers.end(), [](const auto& x) { return !x; });
         if (it == lasers.end())
         {
@@ -260,6 +263,24 @@ namespace rwe
         else
         {
             *it = laser;
+        }
+    }
+
+    void GameSimulation::spawnExplosion(const Vector3f& position, const std::shared_ptr<SpriteSeries>& animation)
+    {
+        Explosion exp;
+        exp.position = position;
+        exp.animation = animation;
+        exp.startTime = gameTime;
+
+        auto it = std::find_if(explosions.begin(), explosions.end(), [](const auto& x) { return !x; });
+        if (it == explosions.end())
+        {
+            explosions.push_back(exp);
+        }
+        else
+        {
+            *it = exp;
         }
     }
 }

@@ -192,6 +192,8 @@ namespace rwe
         bool isEnemy(UnitId id) const;
 
         void updateLasers();
+
+        void updateExplosions();
     };
 }
 

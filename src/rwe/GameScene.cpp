@@ -28,7 +28,7 @@ namespace rwe
           uiRenderService(std::move(uiRenderService)),
           simulation(std::move(simulation)),
           collisionService(std::move(collisionService)),
-          unitFactory(std::move(unitDatabase), std::move(meshService), &this->collisionService, palette, guiPalette),
+          unitFactory(textureService, std::move(unitDatabase), std::move(meshService), &this->collisionService, palette, guiPalette),
           pathFindingService(&this->simulation, &this->collisionService),
           unitBehaviorService(this, &pathFindingService, &this->collisionService),
           cobExecutionService(),
@@ -86,6 +86,8 @@ namespace rwe
         }
 
         renderService.drawLasers(simulation.lasers);
+
+        renderService.drawExplosions(simulation.gameTime, simulation.explosions);
 
         context.disableDepthWrites();
 
@@ -365,6 +367,8 @@ namespace rwe
         }
 
         updateLasers();
+
+        updateExplosions();
     }
 
     void GameScene::spawnUnit(const std::string& unitType, PlayerId owner, const Vector3f& position)
@@ -616,6 +620,10 @@ namespace rwe
                 {
                     playSoundAt(laser->position, *laser->soundWater);
                 }
+                if (laser->waterExplosion)
+                {
+                    simulation.spawnExplosion(laser->position, *laser->waterExplosion);
+                }
                 laser = std::nullopt;
             }
             else if (laser->position.y <= terrainHeight)
@@ -626,10 +634,30 @@ namespace rwe
                 {
                     playSoundAt(laser->position, *laser->soundHit);
                 }
+                if (laser->explosion)
+                {
+                    simulation.spawnExplosion(laser->position, *laser->explosion);
+                }
                 laser = std::nullopt;
             }
 
             // TODO: detect collision between a laser and a unit, feature, world boundary
+        }
+    }
+
+    void GameScene::updateExplosions()
+    {
+        for (auto& exp : simulation.explosions)
+        {
+            if (!exp)
+            {
+                continue;
+            }
+
+            if (exp->isFinished(simulation.gameTime))
+            {
+                exp = std::nullopt;
+            }
         }
     }
 }

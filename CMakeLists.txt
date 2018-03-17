@@ -164,6 +164,8 @@ set(SOURCE_FILES
     src/rwe/DiscreteRect.h
     src/rwe/EightWayDirection.cpp
     src/rwe/EightWayDirection.h
+    src/rwe/Explosion.cpp
+    src/rwe/Explosion.h
     src/rwe/FeatureDefinition.cpp
     src/rwe/FeatureDefinition.h
     src/rwe/Gaf.cpp

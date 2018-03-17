@@ -13,6 +13,7 @@ namespace rwe
     class UnitFactory
     {
     private:
+        TextureService* const textureService;
         UnitDatabase unitDatabase;
         MeshService meshService;
         MovementClassCollisionService* const collisionService;
@@ -21,6 +22,7 @@ namespace rwe
 
     public:
         UnitFactory(
+            TextureService* textureService,
             UnitDatabase&& unitDatabase,
             MeshService&& meshService,
             MovementClassCollisionService* collisionService,

@@ -4,6 +4,7 @@
 #include <boost/variant.hpp>
 #include <rwe/AudioService.h>
 #include <rwe/GameTime.h>
+#include <rwe/SpriteSeries.h>
 #include <rwe/UnitId.h>
 #include <rwe/cob/CobThread.h>
 #include <rwe/math/Vector3f.h>
@@ -46,6 +47,9 @@ namespace rwe
         std::optional<AudioService::SoundHandle> soundStart;
         std::optional<AudioService::SoundHandle> soundHit;
         std::optional<AudioService::SoundHandle> soundWater;
+
+        std::optional<std::shared_ptr<SpriteSeries>> explosion;
+        std::optional<std::shared_ptr<SpriteSeries>> waterExplosion;
 
         /** The game time at which the weapon next becomes ready to fire. */
         GameTime readyTime{0};

@@ -4,12 +4,14 @@
 namespace rwe
 {
     UnitFactory::UnitFactory(
+        TextureService* textureService,
         UnitDatabase&& unitDatabase,
         MeshService&& meshService,
         MovementClassCollisionService* collisionService,
         const ColorPalette* palette,
         const ColorPalette* guiPalette)
-        : unitDatabase(std::move(unitDatabase)),
+        : textureService(textureService),
+          unitDatabase(std::move(unitDatabase)),
           meshService(std::move(meshService)),
           collisionService(collisionService),
           palette(palette),
@@ -132,6 +134,14 @@ namespace rwe
         if (!tdf.soundWater.empty())
         {
             weapon.soundWater = unitDatabase.getSoundHandle(tdf.soundWater);
+        }
+        if (!tdf.explosionGaf.empty() && !tdf.explosionArt.empty())
+        {
+            weapon.explosion = textureService->getGafEntry("anims/" + tdf.explosionGaf + ".gaf", tdf.explosionArt);
+        }
+        if (!tdf.waterExplosionGaf.empty() && !tdf.waterExplosionArt.empty())
+        {
+            weapon.waterExplosion = textureService->getGafEntry("anims/" + tdf.waterExplosionGaf + ".gaf", tdf.waterExplosionArt);
         }
         return weapon;
     }
