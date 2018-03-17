@@ -604,7 +604,21 @@ namespace rwe
 
             // test collision with terrain
             auto terrainHeight = simulation.terrain.getHeightAt(laser->position.x, laser->position.z);
-            if (laser->position.y <= terrainHeight)
+            auto seaLevel = simulation.terrain.getSeaLevel();
+
+            // test collision with sea
+            // FIXME: waterweapons should be allowed in water
+            if (seaLevel > terrainHeight && laser->position.y <= seaLevel)
+            {
+                // destroy the projectile
+                // TODO: trigger detonation/impact animation
+                if (laser->soundWater)
+                {
+                    playSoundAt(laser->position, *laser->soundWater);
+                }
+                laser = std::nullopt;
+            }
+            else if (laser->position.y <= terrainHeight)
             {
                 // destroy the projectile
                 // TODO: trigger detonation/impact animation
