@@ -36,6 +36,14 @@ namespace rwe
 
         float dot(const Vector3f& rhs) const;
         Vector3f cross(const Vector3f& rhs) const;
+
+        /**
+         * Returns the angle between this vector and the rhs.
+         * The returned angle is positive if the rotation to the rhs vector
+         * would be anti-clockwise when viewed from the end of the supplied normal.
+         * The range of the return value is -PI <= v < PI.
+         */
+        float angleTo(const Vector3f& rhs, const Vector3f& normal) const;
     };
 
     Vector3f operator+(const Vector3f& lhs, const Vector3f& rhs);
@@ -68,6 +76,8 @@ namespace rwe
      * Otherwise, returns false.
      */
     bool isCloserTo(const Vector3f& v, const Vector3f& a, const Vector3f& b);
+
+    float determinant(const Vector3f& a, const Vector3f& b, const Vector3f& c);
 }
 
 #endif

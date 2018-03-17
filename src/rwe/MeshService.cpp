@@ -17,9 +17,9 @@ namespace rwe
     Vector3f vertexToVector(const _3do::Vertex& v)
     {
         return Vector3f(
-            convertFixedPoint(-v.x), // flip the x axis
+            convertFixedPoint(v.x),
             convertFixedPoint(v.y),
-            convertFixedPoint(v.z));
+            convertFixedPoint(-v.z)); // flip to convert from left-handed to right-handed
     }
 
     struct FrameInfo
@@ -226,10 +226,7 @@ namespace rwe
     UnitMesh MeshService::unitMeshFrom3do(const _3do::Object& o, unsigned int teamColor)
     {
         UnitMesh m;
-        m.origin = Vector3f(
-            convertFixedPoint(-o.x), // flip the x axis
-            convertFixedPoint(o.y),
-            convertFixedPoint(o.z));
+        m.origin = vertexToVector(_3do::Vertex(o.x, o.y, o.z));
         m.name = o.name;
         m.mesh = std::make_shared<ShaderMesh>(convertMesh(meshFrom3do(o, teamColor)));
 
@@ -294,7 +291,7 @@ namespace rwe
         auto p = o.primitives.at(index);
 
         assert(p.vertices.size() == 4);
-        Vector3f offset(convertFixedPoint(o.x), convertFixedPoint(o.y), convertFixedPoint(o.z));
+        Vector3f offset(vertexToVector(_3do::Vertex(o.x, o.y, o.z)));
 
         auto a = offset + vertexToVector(o.vertices[p.vertices[0]]);
         auto b = offset + vertexToVector(o.vertices[p.vertices[1]]);

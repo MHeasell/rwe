@@ -139,6 +139,10 @@ namespace rwe
 
         bool canAttack;
 
+        static float toRotation(const Vector3f& direction);
+
+        static Vector3f toDirection(float rotation);
+
         Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, SelectionMesh&& selectionMesh);
 
         void moveObject(const std::string& pieceName, Axis axis, float targetPosition, float speed);

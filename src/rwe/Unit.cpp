@@ -24,6 +24,16 @@ namespace rwe
         return AttackOrder(target);
     }
 
+    float Unit::toRotation(const Vector3f& direction)
+    {
+        return Vector3f(0.0f, 0.0f, 1.0f).angleTo(direction, Vector3f(0.0f, 1.0f, 0.0f));
+    }
+
+    Vector3f Unit::toDirection(float rotation)
+    {
+        return Matrix4f::rotationY(rotation) * Vector3f(0.0f, 0.0f, 1.0f);
+    }
+
     Unit::Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, SelectionMesh&& selectionMesh)
         : mesh(mesh), cobEnvironment(std::move(cobEnvironment)), selectionMesh(std::move(selectionMesh))
     {

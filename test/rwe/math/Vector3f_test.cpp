@@ -2,6 +2,7 @@
 #include <catch.hpp>
 #include <rwe/math/Vector3f.h>
 #include <sstream>
+#include <rwe/util.h>
 
 namespace rwe
 {
@@ -121,5 +122,122 @@ namespace rwe
             Vector3f b = -a;
             REQUIRE(b == Vector3f(-1.0f, -2.0f, -3.0f));
         }
+    }
+
+    TEST_CASE("Vector3f::angleTo")
+    {
+        SECTION("works for parallel vectors")
+        {
+            SECTION("X")
+            {
+                Vector3f a(1.0f, 0.0f, 0.0f);
+                Vector3f b(1.0f, 0.0f, 0.0f);
+                Vector3f n(0.0f, 0.0f, 1.0f);
+                REQUIRE(a.angleTo(b, n) == Approx(0.0f));
+            }
+            SECTION("Y")
+            {
+                Vector3f a(0.0f, 1.0f, 0.0f);
+                Vector3f b(0.0f, 1.0f, 0.0f);
+                Vector3f n(1.0f, 0.0f, 0.0f);
+                REQUIRE(a.angleTo(b, n) == Approx(0.0f));
+            }
+            SECTION("Z")
+            {
+                Vector3f a(0.0f, 0.0f, 1.0f);
+                Vector3f b(0.0f, 0.0f, 1.0f);
+                Vector3f n(0.0f, 1.0f, 0.0f);
+                REQUIRE(a.angleTo(b, n) == Approx(0.0f));
+            }
+        }
+        SECTION("works for perpendicular vectors")
+        {
+            SECTION("X -> Y")
+            {
+                Vector3f a(1.0f, 0.0f, 0.0f);
+                Vector3f b(0.0f, 1.0f, 0.0f);
+                Vector3f n(0.0f, 0.0f, 1.0f);
+                REQUIRE(a.angleTo(b, n) == Approx(Pif / 2.0f));
+            }
+            SECTION("Z -> X")
+            {
+                Vector3f a(0.0f, 0.0f, 1.0f);
+                Vector3f b(1.0f, 0.0f, 0.0f);
+                Vector3f n(0.0f, 1.0f, 0.0f);
+                REQUIRE(a.angleTo(b, n) == Approx(Pif / 2.0f));
+            }
+            SECTION("Y -> Z")
+            {
+                Vector3f a(0.0f, 1.0f, 0.0f);
+                Vector3f b(0.0f, 0.0f, 1.0f);
+                Vector3f n(1.0f, 0.0f, 0.0f);
+                REQUIRE(a.angleTo(b, n) == Approx(Pif / 2.0f));
+            }
+        }
+        SECTION("works for perpendicular vectors with negative angle")
+        {
+            SECTION("Y -> X")
+            {
+                Vector3f a(0.0f, 1.0f, 0.0f);
+                Vector3f b(1.0f, 0.0f, 0.0f);
+                Vector3f n(0.0f, 0.0f, 1.0f);
+                REQUIRE(a.angleTo(b, n) == Approx(-Pif / 2.0f));
+            }
+            SECTION("X -> Z")
+            {
+                Vector3f a(1.0f, 0.0f, 0.0f);
+                Vector3f b(0.0f, 0.0f, 1.0f);
+                Vector3f n(0.0f, 1.0f, 0.0f);
+                REQUIRE(a.angleTo(b, n) == Approx(-Pif / 2.0f));
+            }
+            SECTION("Z -> Y")
+            {
+                Vector3f a(0.0f, 0.0f, 1.0f);
+                Vector3f b(0.0f, 1.0f, 0.0f);
+                Vector3f n(1.0f, 0.0f, 0.0f);
+                REQUIRE(a.angleTo(b, n) == Approx(-Pif / 2.0f));
+            }
+        }
+        SECTION("works for opposite vectors")
+        {
+            SECTION("X")
+            {
+                Vector3f a(1.0f, 0.0f, 0.0f);
+                Vector3f b(-1.0f, 0.0f, 0.0f);
+                Vector3f n(0.0f, 0.0f, 1.0f);
+                REQUIRE(a.angleTo(b, n) == Approx(-Pif));
+            }
+
+            SECTION("Y")
+            {
+                Vector3f a(0.0f, 1.0f, 0.0f);
+                Vector3f b(0.0f, -1.0f, 0.0f);
+                Vector3f n(1.0f, 0.0f, 0.0f);
+                REQUIRE(a.angleTo(b, n) == Approx(-Pif));
+            }
+
+            SECTION("Z")
+            {
+                Vector3f a(0.0f, 0.0f, 1.0f);
+                Vector3f b(0.0f, 0.0f, -1.0f);
+                Vector3f n(0.0f, 1.0f, 0.0f);
+                REQUIRE(a.angleTo(b, n) == Approx(-Pif));
+            }
+        }
+        SECTION("works for vectors not of the same length")
+        {
+            Vector3f a(0.0f, 1.0f, 0.0f);
+            Vector3f b(-1.0f, 1.0f, 0.0f);
+            Vector3f n(-1.0f, 1.0f, 1.0f);
+            REQUIRE(a.angleTo(b, n) == Approx(Pif / 4.0f));
+        }
+    }
+
+    TEST_CASE("determinant")
+    {
+        Vector3f a(6.0f, 4.0f, 2.0f);
+        Vector3f b(1.0f, -2.0f, 8.0f);
+        Vector3f c(1.0f, 5.0f, 7.0f);
+        REQUIRE(determinant(a, b, c) == -306.0f);
     }
 }

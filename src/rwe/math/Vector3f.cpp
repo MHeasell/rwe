@@ -134,6 +134,12 @@ namespace rwe
         return !(rhs == *this);
     }
 
+    float Vector3f::angleTo(const Vector3f& rhs, const Vector3f& normal) const
+    {
+        auto angle = std::acos(dot(rhs) / (length() * rhs.length()));
+        auto det = determinant(*this, rhs, normal);
+        return angle * (det > 0.0f ? 1.0f : -1.0f);
+    }
 
     std::ostream& operator<<(std::ostream& lhs, const Vector3f& rhs)
     {
@@ -172,5 +178,20 @@ namespace rwe
     bool isCloserTo(const Vector3f& v, const Vector3f& a, const Vector3f& b)
     {
         return (a - v).lengthSquared() < (b - v).lengthSquared();
+    }
+
+    float determinant(const Vector3f& v1, const Vector3f& v2, const Vector3f& v3)
+    {
+        float a = v1.x;
+        float b = v2.x;
+        float c = v3.x;
+        float d = v1.y;
+        float e = v2.y;
+        float f = v3.y;
+        float g = v1.z;
+        float h = v2.z;
+        float i = v3.z;
+
+        return (a * e * i) + (b * f * g) +  (c * d * h) - (c * e * g) - (b * d * i) - (a * f * h);
     }
 }

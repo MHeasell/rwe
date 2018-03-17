@@ -8,11 +8,11 @@ namespace rwe
 {
     Vector2f Vector2fFromLengthAndAngle(float length, float angle)
     {
-        auto v = Matrix4f::rotationY(angle) * Vector3f(0.0f, 0.0f, -length);
+        auto v = Matrix4f::rotationY(angle) * Vector3f(0.0f, 0.0f, length);
         return Vector2f(v.x, v.z);
     }
 
-    bool isWithinTurningCircle(const Vector2f& dest, float speed, float turnRate, float currentDirection)
+    bool isWithinTurningCircle(const Vector3f& dest, float speed, float turnRate, float currentDirection)
     {
         auto turnRadius = speed / turnRate;
 
@@ -21,7 +21,7 @@ namespace rwe
         auto anticlockwiseCircle = Circle2f(turnRadius, Vector2fFromLengthAndAngle(turnRadius, anticlockwiseCircleAngle));
         auto clockwiseCircle = Circle2f(turnRadius, Vector2fFromLengthAndAngle(turnRadius, clockwiseCircleAngle));
 
-        return anticlockwiseCircle.contains(dest) || clockwiseCircle.contains(dest);
+        return anticlockwiseCircle.contains(Vector2f(dest.x, dest.z)) || clockwiseCircle.contains(Vector2f(dest.x, dest.z));
     }
 
     UnitBehaviorService::UnitBehaviorService(GameScene* scene, PathFindingService* pathFindingService, MovementClassCollisionService* collisionService)
@@ -212,11 +212,13 @@ namespace rwe
     std::pair<float, float> UnitBehaviorService::computeHeadingAndPitch(float rotation, const Vector3f& from, const Vector3f& to)
     {
         auto aimVector = to - from;
-        auto heading = Vector2f(0.0f, -1.0f).angleTo(Vector2f(aimVector.x, aimVector.z));
-        heading = -heading;
+        Vector3f aimVectorXZ(aimVector.x, 0.0f, aimVector.z);
+
+        auto heading = Unit::toRotation(aimVectorXZ);
         heading = wrap(-Pif, Pif, heading - rotation);
 
-        auto pitch = (Pif / 2.0f) - std::acos(aimVector.dot(Vector3f(0.0f, 1.0f, 0.0f)) / aimVector.length());
+        auto pitchNormal = aimVectorXZ.cross(Vector3f(0.0f, 1.0f, 0.0f));
+        auto pitch = aimVectorXZ.angleTo(aimVector, pitchNormal);
 
         return {heading, pitch};
     }
@@ -224,8 +226,8 @@ namespace rwe
     bool UnitBehaviorService::followPath(Unit& unit, PathFollowingInfo& path)
     {
         const auto& destination = *path.currentWaypoint;
-        Vector2f xzPosition(unit.position.x, unit.position.z);
-        Vector2f xzDestination(destination.x, destination.z);
+        Vector3f xzPosition(unit.position.x, 0.0f, unit.position.z);
+        Vector3f xzDestination(destination.x, 0.0f, destination.z);
         auto distanceSquared = xzPosition.distanceSquared(xzDestination);
 
         auto isFinalDestination = path.currentWaypoint == (path.path.waypoints.end() - 1);
@@ -245,8 +247,7 @@ namespace rwe
         {
             // steer towards the goal
             auto xzDirection = xzDestination - xzPosition;
-            auto destAngle = Vector2f(0.0f, -1.0f).angleTo(xzDirection);
-            unit.targetAngle = (2.0f * Pif) - destAngle; // convert to anticlockwise in our coordinate system
+            unit.targetAngle = Unit::toRotation(xzDirection);
 
             // drive at full speed until we need to brake
             // to turn or to arrive at the goal
@@ -439,7 +440,7 @@ namespace rwe
     {
         auto& unit = scene->getSimulation().getUnit(unitId);
 
-        auto direction = Matrix4f::rotationY(unit.rotation) * Vector3f(0.0f, 0.0f, -1.0f);
+        auto direction = Unit::toDirection(unit.rotation);
 
         unit.inCollision = false;
 

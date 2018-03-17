@@ -369,14 +369,6 @@ namespace rwe
         auto object = nextInstruction();
         auto axis = nextInstructionAsAxis();
         auto position = popPosition();
-
-        // For some reason this seems to be flipped,
-        // unsure why.
-        if (axis == Axis::Z)
-        {
-            position = -position;
-        }
-
         auto speed = popSpeed();
         sim->moveObject(unitId, getObjectName(object), axis, position, speed);
     }
