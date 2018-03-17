@@ -369,6 +369,10 @@ namespace rwe
         auto object = nextInstruction();
         auto axis = nextInstructionAsAxis();
         auto position = popPosition();
+        if (axis == Axis::X) // flip x-axis translations to match our right-handed coordinates
+        {
+            position = -position;
+        }
         auto speed = popSpeed();
         sim->moveObject(unitId, getObjectName(object), axis, position, speed);
     }
@@ -378,6 +382,10 @@ namespace rwe
         auto object = nextInstruction();
         auto axis = nextInstructionAsAxis();
         auto position = popPosition();
+        if (axis == Axis::X) // flip x-axis translations to match our right-handed coordinates
+        {
+            position = -position;
+        }
         sim->moveObjectNow(unitId, getObjectName(object), axis, position);
     }
 
@@ -386,6 +394,10 @@ namespace rwe
         auto object = nextInstruction();
         auto axis = nextInstructionAsAxis();
         auto angle = popAngle();
+        if (axis == Axis::Z) // flip z-axis rotations to match our right-handed coordinates
+        {
+            angle = TaAngle(-angle.value);
+        }
         auto speed = popAngularSpeed();
         sim->turnObject(unitId, getObjectName(object), axis, toRadians(angle), speed);
     }
@@ -395,6 +407,10 @@ namespace rwe
         auto object = nextInstruction();
         auto axis = nextInstructionAsAxis();
         auto angle = popAngle();
+        if (axis == Axis::Z) // flip z-axis rotations to match our right-handed coordinates
+        {
+            angle = TaAngle(-angle.value);
+        }
         sim->turnObjectNow(unitId, getObjectName(object), axis, toRadians(angle));
     }
 
