@@ -613,13 +613,13 @@ namespace rwe
     float CobExecutionContext::popPosition()
     {
         auto val = pop();
-        return static_cast<float>(val) / 163840.0f;
+        return static_cast<float>(val) / 65536.0f;
     }
 
     float CobExecutionContext::popSpeed()
     {
         auto val = static_cast<unsigned int>(pop());
-        return static_cast<float>(val) / 163840.0f;
+        return static_cast<float>(val) / 65536.0f;
     }
 
     TaAngle CobExecutionContext::popAngle()
