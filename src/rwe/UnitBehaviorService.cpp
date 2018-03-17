@@ -279,13 +279,6 @@ namespace rwe
             return;
         }
 
-        // FIXME: all this logic really needs to come out.
-        // Weapons should run their own independent AI logic
-        // (that runs every frame regardless of the unit's order).
-        // Right now it's possible for a weapon to get stuck waiting for
-        // some non-existent aim thread, because orders could change underneath us,
-        // and there's loads of other oddities like not calling TargetCleared reliably.
-
         if (auto idleState = boost::get<UnitWeaponStateIdle>(&weapon->state); idleState != nullptr)
         {
             // TODO: attempt to acquire a target
