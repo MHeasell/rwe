@@ -3,6 +3,7 @@
 
 #include <rwe/geometry/Line3f.h>
 #include <rwe/math/Vector3f.h>
+#include <rwe/AudioService.h>
 
 namespace rwe
 {
@@ -20,6 +21,9 @@ namespace rwe
 
         Vector3f color;
         Vector3f color2;
+
+        std::optional<AudioService::SoundHandle> soundHit;
+        std::optional<AudioService::SoundHandle> soundWater;
 
         Vector3f getBackPosition() const;
     };

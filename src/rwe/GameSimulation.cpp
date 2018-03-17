@@ -249,6 +249,9 @@ namespace rwe
         laser.color = weapon.color;
         laser.color2 = weapon.color2;
 
+        laser.soundHit = weapon.soundHit;
+        laser.soundWater = weapon.soundWater;
+
         auto it = std::find_if(lasers.begin(), lasers.end(), [](const auto& x) { return !x; });
         if (it == lasers.end())
         {

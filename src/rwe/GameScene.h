@@ -146,6 +146,8 @@ namespace rwe
 
         void playUnitSound(UnitId unitId, const AudioService::SoundHandle& sound);
 
+        void playSoundAt(const Vector3f& position, const AudioService::SoundHandle& sound);
+
         DiscreteRect computeFootprintRegion(const Vector3f& position, unsigned int footprintX, unsigned int footprintZ) const;
 
         void moveUnitOccupiedArea(const DiscreteRect& oldRect, const DiscreteRect& newRect, UnitId unitId);

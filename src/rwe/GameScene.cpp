@@ -442,6 +442,12 @@ namespace rwe
         audioService->playSound(sound);
     }
 
+    void GameScene::playSoundAt(const Vector3f& position, const AudioService::SoundHandle& sound)
+    {
+        // FIXME: should play on a position-aware channel
+        audioService->playSound(sound);
+    }
+
     std::optional<UnitId> GameScene::getUnitUnderCursor() const
     {
         auto ray = renderService.getCamera().screenToWorldRay(screenToClipSpace(getMousePosition()));
@@ -601,7 +607,11 @@ namespace rwe
             if (laser->position.y <= terrainHeight)
             {
                 // destroy the projectile
-                // TODO: trigger detonation/impact sound, animation
+                // TODO: trigger detonation/impact animation
+                if (laser->soundHit)
+                {
+                    playSoundAt(laser->position, *laser->soundHit);
+                }
                 laser = std::nullopt;
             }
 
