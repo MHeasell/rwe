@@ -310,10 +310,15 @@ namespace rwe
         }
         else if (auto aimingState = boost::get<UnitWeaponStateAttacking>(&weapon->state); aimingState != nullptr)
         {
-            if (!aimingState->aimInfo)
+            GetTargetPositionVisitor targetPositionVisitor(this);
+            auto targetPosition = boost::apply_visitor(targetPositionVisitor, aimingState->target);
+
+            if (unit.position.distanceSquared(targetPosition) > weapon->maxRange * weapon->maxRange)
             {
-                GetTargetPositionVisitor targetPositionVisitor(this);
-                auto targetPosition = boost::apply_visitor(targetPositionVisitor, aimingState->target);
+                unit.clearWeaponTarget(weaponIndex);
+            }
+            else if (!aimingState->aimInfo)
+            {
                 auto aimFromPosition = getAimingPoint(id, weaponIndex);
 
                 auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, targetPosition);
