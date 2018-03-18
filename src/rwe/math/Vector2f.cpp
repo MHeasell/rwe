@@ -1,6 +1,7 @@
 #include "Vector2f.h"
 #include <cmath>
 #include <rwe/math/Vector3f.h>
+#include <algorithm>
 
 namespace rwe
 {
@@ -88,7 +89,11 @@ namespace rwe
         Vector3f b(rhs.x, rhs.y, 0.0f);
         auto c = a.cross(b);
 
-        auto angle = std::acos(dot(rhs) / (length() * rhs.length()));
+        auto cosAngle = dot(rhs) / (length() * rhs.length());
+        // acos is only defined between -1 and 1
+        // but float rounding error can nudge us over.
+        // clamp to prevent this from causing problems.
+        auto angle = std::acos(std::clamp(cosAngle, -1.0f, 1.0f));
 
         return angle * (c.z > 0.0f ? 1.0f : -1.0f);
     }

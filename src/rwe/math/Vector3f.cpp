@@ -1,4 +1,5 @@
 #include "Vector3f.h"
+#include <algorithm>
 #include <cmath>
 
 namespace rwe
@@ -136,7 +137,11 @@ namespace rwe
 
     float Vector3f::angleTo(const Vector3f& rhs, const Vector3f& normal) const
     {
-        auto angle = std::acos(dot(rhs) / (length() * rhs.length()));
+        auto cosAngle = dot(rhs) / (length() * rhs.length());
+        // acos is only defined between -1 and 1
+        // but float rounding error can nudge us over.
+        // clamp to prevent this from causing problems.
+        auto angle = std::acos(std::clamp(cosAngle, -1.0f, 1.0f));
         auto det = determinant(*this, rhs, normal);
         return angle * (det > 0.0f ? 1.0f : -1.0f);
     }
