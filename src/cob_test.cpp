@@ -116,8 +116,8 @@ namespace rwe
                 return "JUMP";
             case OpCode::RETURN:
                 return "RETURN";
-            case OpCode::JUMP_NOT_EQUAL:
-                return "JUMP_NOT_EQUAL";
+            case OpCode::JUMP_IF_ZERO:
+                return "JUMP_IF_ZERO";
             case OpCode::SIGNAL:
                 return "SIGNAL";
             case OpCode::SET_SIGNAL_MASK:

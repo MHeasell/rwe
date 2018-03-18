@@ -59,7 +59,7 @@ namespace rwe
                 case OpCode::JUMP:
                     jump();
                     break;
-                case OpCode::JUMP_NOT_EQUAL:
+                case OpCode::JUMP_IF_ZERO:
                     jumpIfZero();
                     break;
 

@@ -62,7 +62,7 @@ namespace rwe
         CALL_SCRIPT = 0x10062000,
         JUMP = 0x10064000,
         RETURN = 0x10065000,
-        JUMP_NOT_EQUAL = 0x10066000,
+        JUMP_IF_ZERO = 0x10066000,
         SIGNAL = 0x10067000,
         SET_SIGNAL_MASK = 0x10068000,
 
