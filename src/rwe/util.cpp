@@ -42,7 +42,7 @@ namespace rwe
 
     float toleranceToRadians(unsigned int angle)
     {
-        return static_cast<float>(angle) * (Pif / 65536.0f);
+        return static_cast<float>(angle) * (Pif / 32768.0f);
     }
 
     TaAngle toTaAngle(RadiansAngle angle)

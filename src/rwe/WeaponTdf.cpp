@@ -71,8 +71,8 @@ namespace rwe
 
         tdf.readOrDefault("burnBlow", w.burnBlow);
         tdf.readOrDefault("accuracy", w.accuracy);
-        tdf.readOrDefault("tolerance", w.tolerance, 182u);
-        tdf.readOrDefault("pitchTolerance", w.pitchTolerance, 182u);
+        tdf.readOrDefault("tolerance", w.tolerance, 256u);
+        tdf.readOrDefault("pitchTolerance", w.pitchTolerance, 256u);
         tdf.readOrDefault("aimRate", w.aimRate);
         tdf.readOrDefault("holdTime", w.holdTime);
 
