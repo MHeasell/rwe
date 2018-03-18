@@ -627,7 +627,7 @@ namespace rwe
         auto pieceId = runCobQuery(id, scriptName);
         if (!pieceId)
         {
-            return scene->getSimulation().getUnit(id).position;
+            return getFiringPoint(id, weaponIndex);
         }
 
         return getPiecePosition(id, *pieceId);
