@@ -32,15 +32,18 @@ namespace rwe
     class GetTargetPositionVisitor : public boost::static_visitor<Vector3f>
     {
     private:
-        const GameSimulation* simulation;
+        UnitBehaviorService* service;
 
     public:
-        explicit GetTargetPositionVisitor(const GameSimulation* simulation) : simulation(simulation) {}
+        explicit GetTargetPositionVisitor(UnitBehaviorService* service) : service(service) {}
 
-        Vector3f operator()(const Vector3f& target) const { return target; }
+        Vector3f operator()(const Vector3f& target) { return target; }
 
         // FIXME: this is unsafe, the target unit could already be dead
-        Vector3f operator()(UnitId id) const { return simulation->getUnit(id).position; }
+        Vector3f operator()(UnitId id)
+        {
+            return service->getSweetSpot(id);
+        }
     };
 
     class AttackTargetToMovingStateGoalVisitor : public boost::static_visitor<MovingStateGoal>
@@ -127,7 +130,8 @@ namespace rwe
                 }
                 else
                 {
-                    const auto& targetPosition = boost::apply_visitor(GetTargetPositionVisitor(&scene->getSimulation()), attackOrder->target);
+                    GetTargetPositionVisitor targetPositionVisitor(this);
+                    auto targetPosition = boost::apply_visitor(targetPositionVisitor, attackOrder->target);
 
                     auto maxRangeSquared = unit.weapons[0]->maxRange * unit.weapons[0]->maxRange;
                     if (auto idleState = boost::get<IdleState>(&unit.behaviourState); idleState != nullptr)
@@ -308,7 +312,8 @@ namespace rwe
         {
             if (!aimingState->aimInfo)
             {
-                Vector3f targetPosition = boost::apply_visitor(GetTargetPositionVisitor(&scene->getSimulation()), aimingState->target);
+                GetTargetPositionVisitor targetPositionVisitor(this);
+                auto targetPosition = boost::apply_visitor(targetPositionVisitor, aimingState->target);
                 auto aimFromPosition = getAimingPoint(id, weaponIndex);
 
                 auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, targetPosition);
@@ -340,7 +345,8 @@ namespace rwe
                     if (*returnValue)
                     {
                         // aiming was successful, check the target again for drift
-                        Vector3f targetPosition = boost::apply_visitor(GetTargetPositionVisitor(&scene->getSimulation()), aimingState->target);
+                        GetTargetPositionVisitor targetPositionVisitor(this);
+                        auto targetPosition = boost::apply_visitor(targetPositionVisitor, aimingState->target);
                         auto aimFromPosition = getAimingPoint(id, weaponIndex);
 
                         auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, targetPosition);
@@ -591,7 +597,7 @@ namespace rwe
         }
     }
 
-    std::optional<int> UnitBehaviorService::runCobQuery(UnitId id, std::string& name)
+    std::optional<int> UnitBehaviorService::runCobQuery(UnitId id, const std::string& name)
     {
         auto& unit = scene->getSimulation().getUnit(id);
         auto thread = unit.cobEnvironment->createNonScheduledThread(name, {0});
@@ -627,6 +633,17 @@ namespace rwe
 
         auto scriptName = getQueryScriptName(weaponIndex);
         auto pieceId = runCobQuery(id, scriptName);
+        if (!pieceId)
+        {
+            return scene->getSimulation().getUnit(id).position;
+        }
+
+        return getPiecePosition(id, *pieceId);
+    }
+
+    Vector3f UnitBehaviorService::getSweetSpot(UnitId id)
+    {
+        auto pieceId = runCobQuery(id, "SweetSpot");
         if (!pieceId)
         {
             return scene->getSimulation().getUnit(id).position;

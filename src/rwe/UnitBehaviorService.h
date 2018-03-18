@@ -21,6 +21,9 @@ namespace rwe
 
         void update(UnitId unitId);
 
+        // FIXME: shouldn't really be public
+        Vector3f getSweetSpot(UnitId id);
+
     private:
         static std::pair<float, float> computeHeadingAndPitch(float rotation, const Vector3f& from, const Vector3f& to);
 
@@ -42,7 +45,7 @@ namespace rwe
         std::string getFireScriptName(unsigned int weaponIndex) const;
         std::string getQueryScriptName(unsigned int weaponIndex) const;
 
-        std::optional<int> runCobQuery(UnitId id, std::string& name);
+        std::optional<int> runCobQuery(UnitId id, const std::string& name);
 
         Vector3f getAimingPoint(UnitId id, unsigned int weaponIndex);
 
