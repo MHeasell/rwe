@@ -56,7 +56,7 @@ namespace rwe
             int z;
 
             Vertex() = default;
-            Vertex(int x, int y, int z): x(x), y(y), z(z) {}
+            Vertex(int x, int y, int z) : x(x), y(y), z(z) {}
         };
 
         struct Primitive

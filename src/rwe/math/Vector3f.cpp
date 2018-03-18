@@ -192,6 +192,6 @@ namespace rwe
         float h = v2.z;
         float i = v3.z;
 
-        return (a * e * i) + (b * f * g) +  (c * d * h) - (c * e * g) - (b * d * i) - (a * f * h);
+        return (a * e * i) + (b * f * g) + (c * d * h) - (c * e * g) - (b * d * i) - (a * f * h);
     }
 }
