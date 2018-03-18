@@ -95,7 +95,7 @@ namespace rwe
     Matrix4f UnitMesh::getTransform() const
     {
         Vector3f rotationVec(rotation.x, rotation.y, rotation.z);
-        return Matrix4f::translation(origin) * Matrix4f::translation(offset) * Matrix4f::rotationXYZ(rotationVec);
+        return Matrix4f::translation(origin) * Matrix4f::translation(offset) * Matrix4f::rotationZXY(rotationVec);
     }
 
     void UnitMesh::update(float dt)

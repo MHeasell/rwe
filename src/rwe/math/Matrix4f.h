@@ -26,6 +26,8 @@ namespace rwe
 
         static Matrix4f rotationXYZ(const Vector3f& angles);
 
+        static Matrix4f rotationZXY(const Vector3f& angles);
+
         /**
          * Elements are stored in column-major order,
          * i.e. the array is indexed E[(column * column_length) + row] or E[(x * height) + y].

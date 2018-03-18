@@ -361,6 +361,11 @@ namespace rwe
         return Matrix4f::rotationZ(angles.z) * Matrix4f::rotationY(angles.y) * Matrix4f::rotationX(angles.x);
     }
 
+    Matrix4f Matrix4f::rotationZXY(const Vector3f& angles)
+    {
+        return Matrix4f::rotationY(angles.y) * Matrix4f::rotationX(angles.x) * Matrix4f::rotationZ(angles.z);
+    }
+
     Matrix4f operator*(const Matrix4f& a, const Matrix4f& b)
     {
         Matrix4f m;
