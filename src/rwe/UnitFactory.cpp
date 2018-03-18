@@ -123,6 +123,7 @@ namespace rwe
         weapon.duration = tdf.duration * 60.0f * 2.0f; // duration seems to match better if doubled
         weapon.color = getLaserColor(tdf.color);
         weapon.color2 = getLaserColor(tdf.color2);
+        weapon.commandFire = tdf.commandFire;
         if (!tdf.soundStart.empty())
         {
             weapon.soundStart = unitDatabase.getSoundHandle(tdf.soundStart);

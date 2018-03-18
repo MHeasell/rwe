@@ -67,6 +67,9 @@ namespace rwe
         /** Beam duration in ticks. */
         float duration;
 
+        /** If true, the weapon only fires on command and does not auto-target. */
+        bool commandFire;
+
         /** The internal state of the weapon. */
         UnitWeaponState state{UnitWeaponStateIdle()};
     };

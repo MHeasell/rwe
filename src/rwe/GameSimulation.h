@@ -8,6 +8,7 @@
 #include <rwe/MapTerrain.h>
 #include <rwe/OccupiedGrid.h>
 #include <rwe/Unit.h>
+#include <unordered_map>
 
 namespace rwe
 {
@@ -35,7 +36,9 @@ namespace rwe
 
         std::vector<MapFeature> features;
 
-        std::vector<Unit> units;
+        UnitId nextUnitId{0};
+
+        std::unordered_map<UnitId, Unit> units;
 
         std::vector<std::optional<LaserProjectile>> lasers;
 

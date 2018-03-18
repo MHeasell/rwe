@@ -281,7 +281,28 @@ namespace rwe
 
         if (auto idleState = boost::get<UnitWeaponStateIdle>(&weapon->state); idleState != nullptr)
         {
-            // TODO: attempt to acquire a target
+            // attempt to acquire a target
+            if (!weapon->commandFire)
+            {
+                for (const auto& entry : scene->getSimulation().units)
+                {
+                    auto otherUnitId = entry.first;
+                    const auto& otherUnit = entry.second;
+
+                    if (otherUnit.isOwnedBy(unit.owner))
+                    {
+                        continue;
+                    }
+
+                    if (unit.position.distanceSquared(otherUnit.position) > weapon->maxRange * weapon->maxRange)
+                    {
+                        continue;
+                    }
+
+                    weapon->state = UnitWeaponStateAttacking(otherUnitId);
+                    break;
+                }
+            }
         }
         else if (auto aimingState = boost::get<UnitWeaponStateAttacking>(&weapon->state); aimingState != nullptr)
         {

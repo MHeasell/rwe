@@ -407,28 +407,6 @@ namespace rwe
         return camera;
     }
 
-    void RenderService::drawUnitShadows(const MapTerrain& terrain, const std::vector<Unit>& units)
-    {
-        graphics->enableStencilBuffer();
-        graphics->clearStencilBuffer();
-        graphics->useStencilBufferForWrites();
-        graphics->disableColorBuffer();
-
-        for (const auto& unit : units)
-        {
-            auto groundHeight = terrain.getHeightAt(unit.position.x, unit.position.z);
-            drawUnitShadow(unit, groundHeight);
-        }
-
-        graphics->useStencilBufferAsMask();
-        graphics->enableColorBuffer();
-
-        fillScreen(0.0f, 0.0f, 0.0f, 0.5f);
-
-        graphics->enableColorBuffer();
-        graphics->disableStencilBuffer();
-    }
-
     void RenderService::fillScreen(float r, float g, float b, float a)
     {
         auto floatColor = Vector3f(r, g, b);

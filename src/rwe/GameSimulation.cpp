@@ -64,7 +64,7 @@ namespace rwe
 
     bool GameSimulation::tryAddUnit(Unit&& unit)
     {
-        UnitId unitId(units.size());
+        auto unitId = nextUnitId;
 
         // set footprint area as occupied by the unit
         auto footprintRect = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
@@ -78,7 +78,9 @@ namespace rwe
 
         occupiedGrid.grid.setArea(*footprintRegion, OccupiedUnit(unitId));
 
-        units.push_back(std::move(unit));
+        units.insert_or_assign(unitId, std::move(unit));
+
+        nextUnitId = UnitId(nextUnitId.value + 1);
 
         return true;
     }
@@ -145,12 +147,16 @@ namespace rwe
 
     Unit& GameSimulation::getUnit(UnitId id)
     {
-        return units.at(id.value);
+        auto it = units.find(id);
+        assert(it != units.end());
+        return it->second;
     }
 
     const Unit& GameSimulation::getUnit(UnitId id) const
     {
-        return units.at(id.value);
+        auto it = units.find(id);
+        assert(it != units.end());
+        return it->second;
     }
 
     const GamePlayerInfo& GameSimulation::getPlayer(PlayerId player) const
@@ -193,13 +199,13 @@ namespace rwe
         auto bestDistance = std::numeric_limits<float>::infinity();
         std::optional<UnitId> it;
 
-        for (unsigned int i = 0; i < units.size(); ++i)
+        for (const auto& entry : units)
         {
-            auto distance = units[i].selectionIntersect(ray);
+            auto distance = entry.second.selectionIntersect(ray);
             if (distance && distance < bestDistance)
             {
                 bestDistance = *distance;
-                it = UnitId(i);
+                it = entry.first;
             }
         }
 

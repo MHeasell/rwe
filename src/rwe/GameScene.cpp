@@ -1,4 +1,5 @@
 #include "GameScene.h"
+#include <boost/range/adaptor/map.hpp>
 #include <rwe/Mesh.h>
 #include <rwe/math/rwe_math.h>
 
@@ -75,12 +76,12 @@ namespace rwe
             renderService.drawSelectionRect(getUnit(*selectedUnit));
         }
 
-        renderService.drawUnitShadows(simulation.terrain, simulation.units);
+        renderService.drawUnitShadows(simulation.terrain, simulation.units | boost::adaptors::map_values);
 
         context.enableDepthBuffer();
 
         auto seaLevel = simulation.terrain.getSeaLevel();
-        for (const auto& unit : simulation.units)
+        for (const auto& unit : (simulation.units | boost::adaptors::map_values))
         {
             renderService.drawUnit(unit, seaLevel);
         }
@@ -354,10 +355,10 @@ namespace rwe
         pathFindingService.update();
 
         // run unit scripts
-        for (unsigned int i = 0; i < simulation.units.size(); ++i)
+        for (auto& entry : simulation.units)
         {
-            UnitId unitId(i);
-            auto& unit = simulation.units[i];
+            auto unitId = entry.first;
+            auto& unit = entry.second;
 
             unitBehaviorService.update(unitId);
 

@@ -65,7 +65,28 @@ namespace rwe
 
         void drawMapTerrain(const MapTerrain& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
 
-        void drawUnitShadows(const MapTerrain& terrain, const std::vector<Unit>& units);
+        template <typename Range>
+        void drawUnitShadows(const MapTerrain& terrain, Range units)
+        {
+            graphics->enableStencilBuffer();
+            graphics->clearStencilBuffer();
+            graphics->useStencilBufferForWrites();
+            graphics->disableColorBuffer();
+
+            for (const Unit& unit : units)
+            {
+                auto groundHeight = terrain.getHeightAt(unit.position.x, unit.position.z);
+                drawUnitShadow(unit, groundHeight);
+            }
+
+            graphics->useStencilBufferAsMask();
+            graphics->enableColorBuffer();
+
+            fillScreen(0.0f, 0.0f, 0.0f, 0.5f);
+
+            graphics->enableColorBuffer();
+            graphics->disableStencilBuffer();
+        }
 
         void fillScreen(float r, float g, float b, float a);
 
