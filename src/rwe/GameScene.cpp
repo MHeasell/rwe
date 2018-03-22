@@ -106,8 +106,8 @@ namespace rwe
 
         renderService.drawMapTerrain(simulation.terrain);
 
-        renderService.drawFlatFeatureShadows(simulation.features);
-        renderService.drawFlatFeatures(simulation.features);
+        renderService.drawFlatFeatureShadows(simulation.features | boost::adaptors::map_values);
+        renderService.drawFlatFeatures(simulation.features | boost::adaptors::map_values);
 
         if (occupiedGridVisible)
         {
@@ -151,10 +151,10 @@ namespace rwe
         context.disableDepthWrites();
 
         context.disableDepthTest();
-        renderService.drawStandingFeatureShadows(simulation.features);
+        renderService.drawStandingFeatureShadows(simulation.features | boost::adaptors::map_values);
         context.enableDepthTest();
 
-        renderService.drawStandingFeatures(simulation.features);
+        renderService.drawStandingFeatures(simulation.features | boost::adaptors::map_values);
         context.enableDepthWrites();
 
         context.disableDepthBuffer();

@@ -2,6 +2,7 @@
 #define RWE_GAMESIMULATION_H
 
 #include <rwe/Explosion.h>
+#include <rwe/FeatureId.h>
 #include <rwe/GameTime.h>
 #include <rwe/LaserProjectile.h>
 #include <rwe/MapFeature.h>
@@ -35,9 +36,11 @@ namespace rwe
 
         std::vector<GamePlayerInfo> players;
 
-        std::vector<MapFeature> features;
+        std::unordered_map<FeatureId, MapFeature> features;
 
         UnitId nextUnitId{0};
+
+        FeatureId nextFeatureId{0};
 
         std::unordered_map<UnitId, Unit> units;
 
@@ -51,7 +54,7 @@ namespace rwe
 
         explicit GameSimulation(MapTerrain&& terrain);
 
-        void addFeature(MapFeature&& newFeature);
+        FeatureId addFeature(MapFeature&& newFeature);
 
         PlayerId addPlayer(const GamePlayerInfo& info);
 

@@ -42,17 +42,21 @@ namespace rwe
     {
     }
 
-    void GameSimulation::addFeature(MapFeature&& newFeature)
+    FeatureId GameSimulation::addFeature(MapFeature&& newFeature)
     {
-        auto featureId = features.size();
-        features.push_back(std::move(newFeature));
+        auto featureId = nextFeatureId;
+        auto pair = features.insert_or_assign(featureId, std::move(newFeature));
+        nextFeatureId = FeatureId(nextFeatureId.value + 1);
 
-        auto& f = features[featureId];
+
+        auto& f = pair.first->second;
         if (f.isBlocking)
         {
             auto footprintRegion = computeFootprintRegion(f.position, f.footprintX, f.footprintZ);
             occupiedGrid.grid.setArea(occupiedGrid.grid.clipRegion(footprintRegion), OccupiedFeature());
         }
+
+        return featureId;
     }
 
     PlayerId GameSimulation::addPlayer(const GamePlayerInfo& info)
