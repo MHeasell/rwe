@@ -616,7 +616,7 @@ namespace rwe
             if (seaLevel > terrainHeight && laser->position.y <= seaLevel)
             {
                 // destroy the projectile
-                // TODO: trigger detonation/impact animation
+                // TODO: trigger detonation damage
                 if (laser->soundWater)
                 {
                     playSoundAt(laser->position, *laser->soundWater);
@@ -630,7 +630,7 @@ namespace rwe
             else if (laser->position.y <= terrainHeight)
             {
                 // destroy the projectile
-                // TODO: trigger detonation/impact animation
+                // TODO: trigger detonation damage
                 if (laser->soundHit)
                 {
                     playSoundAt(laser->position, *laser->soundHit);
