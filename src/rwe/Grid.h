@@ -279,7 +279,7 @@ namespace rwe
         return GridRegion(rect.x, rect.y, rect.width, rect.height);
     }
 
-    template<typename T>
+    template <typename T>
     std::optional<std::reference_wrapper<const T>> Grid<T>::tryGet(const Point& p) const
     {
         if (p.x < 0 || p.y < 0 || p.x >= width || p.y >= height)
