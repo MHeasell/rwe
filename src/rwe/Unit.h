@@ -79,6 +79,11 @@ namespace rwe
         PlayerId owner;
 
         /**
+         * The height of the unit. Typically computed from the mesh.
+         */
+        float height;
+
+        /**
          * Anticlockwise rotation of the unit around the Y axis in radians.
          * The other two axes of rotation are normally determined
          * by the normal of the terrain the unit is standing on.

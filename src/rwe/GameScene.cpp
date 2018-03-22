@@ -28,6 +28,12 @@ namespace rwe
                 return;
             }
 
+            // ignore if the laser is above or below the unit
+            if (laser->position.y < unit.position.y || laser->position.y > unit.position.y + unit.height)
+            {
+                return;
+            }
+
             if (laser->soundHit)
             {
                 scene->playSoundAt(laser->position, *laser->soundHit);
