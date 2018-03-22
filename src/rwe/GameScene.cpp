@@ -5,6 +5,50 @@
 
 namespace rwe
 {
+    class LaserCollisionVisitor : public boost::static_visitor<>
+    {
+    private:
+        GameScene* scene;
+        std::optional<LaserProjectile>* laserPtr;
+
+    public:
+        LaserCollisionVisitor(GameScene* scene, std::optional<LaserProjectile>* laserPtr)
+            : scene(scene), laserPtr(laserPtr)
+        {
+        }
+
+        void operator()(const OccupiedUnit& v)
+        {
+            auto& laser = *laserPtr;
+            if (laser->soundHit)
+            {
+                scene->playSoundAt(laser->position, *laser->soundHit);
+            }
+            if (laser->explosion)
+            {
+                scene->getSimulation().spawnExplosion(laser->position, *laser->explosion);
+            }
+            laser = std::nullopt;
+        }
+        void operator()(const OccupiedFeature& v)
+        {
+            auto& laser = *laserPtr;
+            if (laser->soundHit)
+            {
+                scene->playSoundAt(laser->position, *laser->soundHit);
+            }
+            if (laser->explosion)
+            {
+                scene->getSimulation().spawnExplosion(laser->position, *laser->explosion);
+            }
+            laser = std::nullopt;
+        }
+        void operator()(const OccupiedNone&)
+        {
+            // do nothing
+        }
+    };
+
     GameScene::GameScene(
         TextureService* textureService,
         CursorService* cursor,
@@ -640,6 +684,17 @@ namespace rwe
                     simulation.spawnExplosion(laser->position, *laser->explosion);
                 }
                 laser = std::nullopt;
+            }
+            else
+            {
+                // detect collision with something's footprint
+                auto heightMapPos = simulation.terrain.worldToHeightmapCoordinate(laser->position);
+                auto cellValue = simulation.occupiedGrid.grid.tryGet(heightMapPos);
+                if (cellValue)
+                {
+                    LaserCollisionVisitor visitor(this, &laser);
+                    boost::apply_visitor(visitor, cellValue->get());
+                }
             }
 
             // TODO: detect collision between a laser and a unit, feature, world boundary

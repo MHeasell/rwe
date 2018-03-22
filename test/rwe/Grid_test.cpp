@@ -1,5 +1,6 @@
 #include <catch.hpp>
 #include <rwe/Grid.h>
+#include <optional>
 
 namespace rwe
 {
@@ -160,6 +161,28 @@ namespace rwe
                 REQUIRE(g.get(0, 3) == 5);
                 REQUIRE(g.get(1, 3) == 5);
                 REQUIRE(g.get(2, 3) == 5);
+            }
+        }
+
+        SECTION(".tryGet")
+        {
+            SECTION("gets if the cell is inside the grid")
+            {
+                Grid<int> g(3, 2, {1, 2, 3, 4, 5, 6});
+
+                // inside points
+                REQUIRE(g.tryGet(Point(0, 0)) == std::optional(1));
+                REQUIRE(g.tryGet(Point(1, 0)) == std::optional(2));
+                REQUIRE(g.tryGet(Point(2, 0)) == std::optional(3));
+                REQUIRE(g.tryGet(Point(0, 1)) == std::optional(4));
+                REQUIRE(g.tryGet(Point(1, 1)) == std::optional(5));
+                REQUIRE(g.tryGet(Point(2, 1)) == std::optional(6));
+
+                // outside points
+                REQUIRE(g.tryGet(Point(-1, 0)) == std::nullopt);
+                REQUIRE(g.tryGet(Point(0, -1)) == std::nullopt);
+                REQUIRE(g.tryGet(Point(3, 0)) == std::nullopt);
+                REQUIRE(g.tryGet(Point(0, 2)) == std::nullopt);
             }
         }
     }
