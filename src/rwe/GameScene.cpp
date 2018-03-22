@@ -154,8 +154,6 @@ namespace rwe
 
         renderService.drawLasers(simulation.lasers);
 
-        renderService.drawExplosions(simulation.gameTime, simulation.explosions);
-
         context.disableDepthWrites();
 
         context.disableDepthTest();
@@ -163,6 +161,11 @@ namespace rwe
         context.enableDepthTest();
 
         renderService.drawStandingFeatures(simulation.features | boost::adaptors::map_values);
+
+        context.disableDepthTest();
+        renderService.drawExplosions(simulation.gameTime, simulation.explosions);
+        context.enableDepthTest();
+
         context.enableDepthWrites();
 
         context.disableDepthBuffer();
