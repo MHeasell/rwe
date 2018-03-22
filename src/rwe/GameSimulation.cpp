@@ -245,9 +245,10 @@ namespace rwe
         pathRequests.push_back(PathRequest{unitId});
     }
 
-    void GameSimulation::spawnLaser(const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction)
+    void GameSimulation::spawnLaser(PlayerId owner, const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction)
     {
         LaserProjectile laser;
+        laser.owner = owner;
         laser.position = position;
         laser.origin = position;
         laser.velocity = direction * weapon.velocity;

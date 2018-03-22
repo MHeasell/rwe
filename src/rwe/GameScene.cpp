@@ -20,6 +20,14 @@ namespace rwe
         void operator()(const OccupiedUnit& v)
         {
             auto& laser = *laserPtr;
+            const auto& unit = scene->getSimulation().getUnit(v.id);
+
+            // TODO: ignore allied units as well as player-owned units
+            if (unit.isOwnedBy(laser->owner))
+            {
+                return;
+            }
+
             if (laser->soundHit)
             {
                 scene->playSoundAt(laser->position, *laser->soundHit);

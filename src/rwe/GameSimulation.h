@@ -7,6 +7,7 @@
 #include <rwe/MapFeature.h>
 #include <rwe/MapTerrain.h>
 #include <rwe/OccupiedGrid.h>
+#include <rwe/PlayerId.h>
 #include <rwe/Unit.h>
 #include <unordered_map>
 
@@ -96,7 +97,7 @@ namespace rwe
 
         void requestPath(UnitId unitId);
 
-        void spawnLaser(const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction);
+        void spawnLaser(PlayerId owner, const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction);
 
         void spawnExplosion(const Vector3f& position, const std::shared_ptr<SpriteSeries>& animation);
     };
