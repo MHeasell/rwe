@@ -47,6 +47,14 @@ namespace rwe
         void operator()(const OccupiedFeature& v)
         {
             auto& laser = *laserPtr;
+            const auto& feature = scene->getSimulation().getFeature(v.id);
+
+            // ignore if the laser is above or below the feature
+            if (laser->position.y < feature.position.y || laser->position.y > feature.position.y + feature.height)
+            {
+                return;
+            }
+
             if (laser->soundHit)
             {
                 scene->playSoundAt(laser->position, *laser->soundHit);

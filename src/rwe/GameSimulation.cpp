@@ -53,7 +53,7 @@ namespace rwe
         if (f.isBlocking)
         {
             auto footprintRegion = computeFootprintRegion(f.position, f.footprintX, f.footprintZ);
-            occupiedGrid.grid.setArea(occupiedGrid.grid.clipRegion(footprintRegion), OccupiedFeature());
+            occupiedGrid.grid.setArea(occupiedGrid.grid.clipRegion(footprintRegion), OccupiedFeature(featureId));
         }
 
         return featureId;
@@ -160,6 +160,20 @@ namespace rwe
     {
         auto it = units.find(id);
         assert(it != units.end());
+        return it->second;
+    }
+
+    MapFeature& GameSimulation::getFeature(FeatureId id)
+    {
+        auto it = features.find(id);
+        assert(it != features.end());
+        return it->second;
+    }
+
+    const MapFeature& GameSimulation::getFeature(FeatureId id) const
+    {
+        auto it = features.find(id);
+        assert(it != features.end());
         return it->second;
     }
 

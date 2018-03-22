@@ -2,6 +2,7 @@
 #define RWE_OCCUPIEDGRID_H
 
 #include <boost/variant.hpp>
+#include <rwe/FeatureId.h>
 #include <rwe/Grid.h>
 #include <rwe/UnitId.h>
 
@@ -20,9 +21,13 @@ namespace rwe
 
     struct OccupiedFeature
     {
-        bool operator==(const OccupiedFeature&) const { return true; }
+        FeatureId id;
 
-        bool operator!=(const OccupiedFeature&) const { return true; }
+        explicit OccupiedFeature(const FeatureId& id);
+
+        bool operator==(const OccupiedFeature& rhs) const;
+
+        bool operator!=(const OccupiedFeature& rhs) const;
     };
 
     struct OccupiedNone

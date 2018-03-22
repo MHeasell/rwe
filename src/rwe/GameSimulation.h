@@ -78,6 +78,10 @@ namespace rwe
 
         const Unit& getUnit(UnitId id) const;
 
+        MapFeature& getFeature(FeatureId id);
+
+        const MapFeature& getFeature(FeatureId id) const;
+
         const GamePlayerInfo& getPlayer(PlayerId player) const;
 
         void moveObject(UnitId unitId, const std::string& name, Axis axis, float position, float speed);
