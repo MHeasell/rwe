@@ -2,11 +2,13 @@
 #define RWE_GAMESIMULATION_H
 
 #include <rwe/Explosion.h>
+#include <rwe/FeatureId.h>
 #include <rwe/GameTime.h>
 #include <rwe/LaserProjectile.h>
 #include <rwe/MapFeature.h>
 #include <rwe/MapTerrain.h>
 #include <rwe/OccupiedGrid.h>
+#include <rwe/PlayerId.h>
 #include <rwe/Unit.h>
 #include <unordered_map>
 
@@ -34,9 +36,11 @@ namespace rwe
 
         std::vector<GamePlayerInfo> players;
 
-        std::vector<MapFeature> features;
+        std::unordered_map<FeatureId, MapFeature> features;
 
         UnitId nextUnitId{0};
+
+        FeatureId nextFeatureId{0};
 
         std::unordered_map<UnitId, Unit> units;
 
@@ -50,7 +54,7 @@ namespace rwe
 
         explicit GameSimulation(MapTerrain&& terrain);
 
-        void addFeature(MapFeature&& newFeature);
+        FeatureId addFeature(MapFeature&& newFeature);
 
         PlayerId addPlayer(const GamePlayerInfo& info);
 
@@ -74,6 +78,10 @@ namespace rwe
 
         const Unit& getUnit(UnitId id) const;
 
+        MapFeature& getFeature(FeatureId id);
+
+        const MapFeature& getFeature(FeatureId id) const;
+
         const GamePlayerInfo& getPlayer(PlayerId player) const;
 
         void moveObject(UnitId unitId, const std::string& name, Axis axis, float position, float speed);
@@ -96,7 +104,7 @@ namespace rwe
 
         void requestPath(UnitId unitId);
 
-        void spawnLaser(const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction);
+        void spawnLaser(PlayerId owner, const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction);
 
         void spawnExplosion(const Vector3f& position, const std::shared_ptr<SpriteSeries>& animation);
     };

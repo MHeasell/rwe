@@ -58,15 +58,35 @@ namespace rwe
         void drawPathfindingVisualisation(const MapTerrain& terrain, const AStarPathInfo<Point, PathCost>& pathInfo);
 
         void drawMapTerrain(const MapTerrain& terrain);
-        void drawFlatFeatures(const std::vector<MapFeature>& features);
-        void drawFlatFeatureShadows(const std::vector<MapFeature>& features);
-        void drawStandingFeatures(const std::vector<MapFeature>& features);
-        void drawStandingFeatureShadows(const std::vector<MapFeature>& features);
+
+        template <typename Range>
+        void drawFlatFeatures(const Range& features)
+        {
+            drawFlatFeaturesInternal(features.begin(), features.end());
+        }
+
+        template <typename Range>
+        void drawFlatFeatureShadows(const Range& features)
+        {
+            drawFlatFeatureShadowsInternal(features.begin(), features.end());
+        }
+
+        template <typename Range>
+        void drawStandingFeatures(const Range& features)
+        {
+            drawStandingFeaturesInternal(features.begin(), features.end());
+        }
+
+        template <typename Range>
+        void drawStandingFeatureShadows(const Range& features)
+        {
+            drawStandingFeatureShadowsInternal(features.begin(), features.end());
+        }
 
         void drawMapTerrain(const MapTerrain& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
 
         template <typename Range>
-        void drawUnitShadows(const MapTerrain& terrain, Range units)
+        void drawUnitShadows(const MapTerrain& terrain, const Range& units)
         {
             graphics->enableStencilBuffer();
             graphics->clearStencilBuffer();

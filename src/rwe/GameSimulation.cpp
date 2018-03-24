@@ -42,17 +42,21 @@ namespace rwe
     {
     }
 
-    void GameSimulation::addFeature(MapFeature&& newFeature)
+    FeatureId GameSimulation::addFeature(MapFeature&& newFeature)
     {
-        auto featureId = features.size();
-        features.push_back(std::move(newFeature));
+        auto featureId = nextFeatureId;
+        auto pair = features.insert_or_assign(featureId, std::move(newFeature));
+        nextFeatureId = FeatureId(nextFeatureId.value + 1);
 
-        auto& f = features[featureId];
+
+        auto& f = pair.first->second;
         if (f.isBlocking)
         {
             auto footprintRegion = computeFootprintRegion(f.position, f.footprintX, f.footprintZ);
-            occupiedGrid.grid.setArea(occupiedGrid.grid.clipRegion(footprintRegion), OccupiedFeature());
+            occupiedGrid.grid.setArea(occupiedGrid.grid.clipRegion(footprintRegion), OccupiedFeature(featureId));
         }
+
+        return featureId;
     }
 
     PlayerId GameSimulation::addPlayer(const GamePlayerInfo& info)
@@ -159,6 +163,20 @@ namespace rwe
         return it->second;
     }
 
+    MapFeature& GameSimulation::getFeature(FeatureId id)
+    {
+        auto it = features.find(id);
+        assert(it != features.end());
+        return it->second;
+    }
+
+    const MapFeature& GameSimulation::getFeature(FeatureId id) const
+    {
+        auto it = features.find(id);
+        assert(it != features.end());
+        return it->second;
+    }
+
     const GamePlayerInfo& GameSimulation::getPlayer(PlayerId player) const
     {
         return players.at(player.value);
@@ -245,9 +263,10 @@ namespace rwe
         pathRequests.push_back(PathRequest{unitId});
     }
 
-    void GameSimulation::spawnLaser(const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction)
+    void GameSimulation::spawnLaser(PlayerId owner, const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction)
     {
         LaserProjectile laser;
+        laser.owner = owner;
         laser.position = position;
         laser.origin = position;
         laser.velocity = direction * weapon.velocity;

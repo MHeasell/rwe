@@ -168,6 +168,7 @@ set(SOURCE_FILES
     src/rwe/Explosion.h
     src/rwe/FeatureDefinition.cpp
     src/rwe/FeatureDefinition.h
+    src/rwe/FeatureId.h
     src/rwe/Gaf.cpp
     src/rwe/Gaf.h
     src/rwe/GameScene.cpp

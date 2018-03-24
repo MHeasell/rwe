@@ -41,6 +41,8 @@ namespace rwe
         Unit unit(meshInfo.mesh, std::move(cobEnv), std::move(meshInfo.selectionMesh));
         unit.owner = owner;
         unit.position = position;
+        // TODO: compute unit height from the mesh
+        unit.height = 50.0f;
 
         // These units are per-tick.
         // We divide by two here because TA ticks are 1/30 of a second,

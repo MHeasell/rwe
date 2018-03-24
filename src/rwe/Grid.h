@@ -63,6 +63,12 @@ namespace rwe
          */
         std::optional<GridRegion> tryToRegion(const DiscreteRect& rect) const;
 
+        /**
+         * If the given point is within the bounds of the grid
+         * returns the value at the corresponding grid cell.
+         */
+        std::optional<std::reference_wrapper<const T>> tryGet(const Point& p) const;
+
         template <typename U>
         void transformAndReplaceArea(std::size_t x, std::size_t y, const Grid<U>& replacement, const std::function<T(const U&)>& transformation);
 
@@ -271,6 +277,17 @@ namespace rwe
         }
 
         return GridRegion(rect.x, rect.y, rect.width, rect.height);
+    }
+
+    template <typename T>
+    std::optional<std::reference_wrapper<const T>> Grid<T>::tryGet(const Point& p) const
+    {
+        if (p.x < 0 || p.y < 0 || p.x >= width || p.y >= height)
+        {
+            return std::nullopt;
+        }
+
+        return get(p.x, p.y);
     }
 }
 

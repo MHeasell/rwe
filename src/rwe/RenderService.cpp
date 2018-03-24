@@ -365,26 +365,6 @@ namespace rwe
         drawMapTerrain(terrain, x1, y1, (x2 + 1) - x1, (y2 + 1) - y1);
     }
 
-    void RenderService::drawFlatFeatures(const std::vector<MapFeature>& features)
-    {
-        drawFlatFeaturesInternal(features.begin(), features.end());
-    }
-
-    void RenderService::drawFlatFeatureShadows(const std::vector<MapFeature>& features)
-    {
-        drawFlatFeatureShadowsInternal(features.begin(), features.end());
-    }
-
-    void RenderService::drawStandingFeatures(const std::vector<MapFeature>& features)
-    {
-        drawStandingFeaturesInternal(features.begin(), features.end());
-    }
-
-    void RenderService::drawStandingFeatureShadows(const std::vector<MapFeature>& features)
-    {
-        drawStandingFeatureShadowsInternal(features.begin(), features.end());
-    }
-
     void RenderService::drawUnitShadow(const Unit& unit, float groundHeight)
     {
         auto shadowProjection = Matrix4f::translation(Vector3f(0.0f, groundHeight, 0.0f))

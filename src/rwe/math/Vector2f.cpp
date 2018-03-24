@@ -1,7 +1,7 @@
 #include "Vector2f.h"
+#include <algorithm>
 #include <cmath>
 #include <rwe/math/Vector3f.h>
-#include <algorithm>
 
 namespace rwe
 {

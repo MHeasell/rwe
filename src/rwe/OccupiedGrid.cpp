@@ -1,4 +1,5 @@
 #include "OccupiedGrid.h"
+#include "FeatureId.h"
 
 namespace rwe
 {
@@ -17,4 +18,18 @@ namespace rwe
     }
 
     OccupiedGrid::OccupiedGrid(std::size_t width, std::size_t height) : grid(width, height, OccupiedType(OccupiedNone())) {}
+
+    OccupiedFeature::OccupiedFeature(const FeatureId& id) : id(id)
+    {
+    }
+
+    bool OccupiedFeature::operator==(const OccupiedFeature& rhs) const
+    {
+        return id == rhs.id;
+    }
+
+    bool OccupiedFeature::operator!=(const OccupiedFeature& rhs) const
+    {
+        return !(rhs == *this);
+    }
 }
