@@ -34,14 +34,7 @@ namespace rwe
                 return;
             }
 
-            if (laser->soundHit)
-            {
-                scene->playSoundAt(laser->position, *laser->soundHit);
-            }
-            if (laser->explosion)
-            {
-                scene->getSimulation().spawnExplosion(laser->position, *laser->explosion);
-            }
+            scene->doLaserImpact(*laser, ImpactType::Normal);
             laser = std::nullopt;
         }
         void operator()(const OccupiedFeature& v)
@@ -55,14 +48,7 @@ namespace rwe
                 return;
             }
 
-            if (laser->soundHit)
-            {
-                scene->playSoundAt(laser->position, *laser->soundHit);
-            }
-            if (laser->explosion)
-            {
-                scene->getSimulation().spawnExplosion(laser->position, *laser->explosion);
-            }
+            scene->doLaserImpact(*laser, ImpactType::Normal);
             laser = std::nullopt;
         }
         void operator()(const OccupiedNone&)
@@ -684,30 +670,12 @@ namespace rwe
             // FIXME: waterweapons should be allowed in water
             if (seaLevel > terrainHeight && laser->position.y <= seaLevel)
             {
-                // destroy the projectile
-                // TODO: trigger detonation damage
-                if (laser->soundWater)
-                {
-                    playSoundAt(laser->position, *laser->soundWater);
-                }
-                if (laser->waterExplosion)
-                {
-                    simulation.spawnExplosion(laser->position, *laser->waterExplosion);
-                }
+                doLaserImpact(*laser, ImpactType::Water);
                 laser = std::nullopt;
             }
             else if (laser->position.y <= terrainHeight)
             {
-                // destroy the projectile
-                // TODO: trigger detonation damage
-                if (laser->soundHit)
-                {
-                    playSoundAt(laser->position, *laser->soundHit);
-                }
-                if (laser->explosion)
-                {
-                    simulation.spawnExplosion(laser->position, *laser->explosion);
-                }
+                doLaserImpact(*laser, ImpactType::Normal);
                 laser = std::nullopt;
             }
             else
@@ -738,6 +706,38 @@ namespace rwe
             if (exp->isFinished(simulation.gameTime))
             {
                 exp = std::nullopt;
+            }
+        }
+    }
+
+    void GameScene::doLaserImpact(const LaserProjectile& laser, ImpactType impactType)
+    {
+        // TODO: trigger detonation damage
+        switch (impactType)
+        {
+            case ImpactType::Normal:
+            {
+                if (laser.soundHit)
+                {
+                    playSoundAt(laser.position, *laser.soundHit);
+                }
+                if (laser.explosion)
+                {
+                    simulation.spawnExplosion(laser.position, *laser.explosion);
+                }
+                break;
+            }
+            case ImpactType::Water:
+            {
+                if (laser.soundWater)
+                {
+                    playSoundAt(laser.position, *laser.soundWater);
+                }
+                if (laser.waterExplosion)
+                {
+                    simulation.spawnExplosion(laser.position, *laser.waterExplosion);
+                }
+                break;
             }
         }
     }

@@ -34,6 +34,12 @@ namespace rwe
 
     using CursorMode = boost::variant<AttackCursorMode, NormalCursorMode>;
 
+    enum class ImpactType
+    {
+        Normal,
+        Water
+    };
+
     class GameScene : public SceneManager::Scene
     {
     private:
@@ -155,6 +161,8 @@ namespace rwe
         GameSimulation& getSimulation();
 
         const GameSimulation& getSimulation() const;
+
+        void doLaserImpact(const LaserProjectile& laser, ImpactType impactType);
 
     private:
         std::optional<UnitId> getUnitUnderCursor() const;
