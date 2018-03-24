@@ -223,19 +223,52 @@ namespace rwe
         return m;
     }
 
-    UnitMesh MeshService::unitMeshFrom3do(const _3do::Object& o, unsigned int teamColor)
+    template <typename TriRange>
+    float getHeight(const TriRange& r)
+    {
+        auto height = -std::numeric_limits<float>::infinity();
+        for (const auto& t : r)
+        {
+            for (const auto& f : std::array<Mesh::Vertex, 3>{t.a, t.b, t.c})
+            {
+                if (f.position.y > height)
+                {
+                    height = f.position.y;
+                }
+            }
+        }
+
+        return height;
+    }
+
+    float getMeshHeight(const Mesh& mesh)
+    {
+        return std::max(getHeight(mesh.faces), getHeight(mesh.colorFaces));
+    }
+
+    MeshService::InnerUnitMeshInfo MeshService::unitMeshFrom3do(const _3do::Object& o, unsigned int teamColor)
     {
         UnitMesh m;
         m.origin = vertexToVector(_3do::Vertex(o.x, o.y, o.z));
         m.name = o.name;
-        m.mesh = std::make_shared<ShaderMesh>(convertMesh(meshFrom3do(o, teamColor)));
+        auto mesh = meshFrom3do(o, teamColor);
+        auto height = m.origin.y + getMeshHeight(mesh);
+        m.mesh = std::make_shared<ShaderMesh>(convertMesh(mesh));
 
         for (const auto& c : o.children)
         {
-            m.children.push_back(unitMeshFrom3do(c, teamColor));
+            auto info = unitMeshFrom3do(c, teamColor);
+            auto childHeight = m.origin.y + info.height;
+
+            if (height < childHeight)
+            {
+                height = childHeight;
+            }
+
+            m.children.push_back(std::move(info.mesh));
         }
 
-        return m;
+        return InnerUnitMeshInfo{std::move(m), height};
     }
 
     MeshService::UnitMeshInfo MeshService::loadUnitMesh(const std::string& name, unsigned int teamColor)
@@ -251,7 +284,7 @@ namespace rwe
         assert(objects.size() == 1);
         auto selectionMesh = selectionMeshFrom3do(objects.front());
         auto unitMesh = unitMeshFrom3do(objects.front(), teamColor);
-        return UnitMeshInfo{std::move(unitMesh), std::move(selectionMesh)};
+        return UnitMeshInfo{std::move(unitMesh.mesh), std::move(selectionMesh), unitMesh.height};
     }
 
     SharedTextureHandle MeshService::getMeshTextureAtlas()

@@ -60,6 +60,13 @@ namespace rwe
         {
             UnitMesh mesh;
             SelectionMesh selectionMesh;
+            float height;
+        };
+
+        struct InnerUnitMeshInfo
+        {
+            UnitMesh mesh;
+            float height;
         };
 
         UnitMeshInfo loadUnitMesh(const std::string& name, unsigned int teamColor);
@@ -70,7 +77,7 @@ namespace rwe
 
         Mesh meshFrom3do(const _3do::Object& o, unsigned int teamColor);
 
-        UnitMesh unitMeshFrom3do(const _3do::Object& o, unsigned int teamColor);
+        InnerUnitMeshInfo unitMeshFrom3do(const _3do::Object& o, unsigned int teamColor);
 
         SelectionMesh selectionMeshFrom3do(const _3do::Object& o);
 
