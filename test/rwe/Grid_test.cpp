@@ -171,12 +171,12 @@ namespace rwe
                 Grid<int> g(3, 2, {1, 2, 3, 4, 5, 6});
 
                 // inside points
-                REQUIRE(g.tryGet(Point(0, 0)) == std::optional(1));
-                REQUIRE(g.tryGet(Point(1, 0)) == std::optional(2));
-                REQUIRE(g.tryGet(Point(2, 0)) == std::optional(3));
-                REQUIRE(g.tryGet(Point(0, 1)) == std::optional(4));
-                REQUIRE(g.tryGet(Point(1, 1)) == std::optional(5));
-                REQUIRE(g.tryGet(Point(2, 1)) == std::optional(6));
+                REQUIRE(g.tryGet(Point(0, 0)) == std::optional<int>(1));
+                REQUIRE(g.tryGet(Point(1, 0)) == std::optional<int>(2));
+                REQUIRE(g.tryGet(Point(2, 0)) == std::optional<int>(3));
+                REQUIRE(g.tryGet(Point(0, 1)) == std::optional<int>(4));
+                REQUIRE(g.tryGet(Point(1, 1)) == std::optional<int>(5));
+                REQUIRE(g.tryGet(Point(2, 1)) == std::optional<int>(6));
 
                 // outside points
                 REQUIRE(g.tryGet(Point(-1, 0)) == std::nullopt);
