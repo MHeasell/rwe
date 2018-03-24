@@ -5,19 +5,19 @@
 
 namespace rwe
 {
-    class LaserCollisionVisitor : public boost::static_visitor<>
+    class LaserCollisionVisitor : public boost::static_visitor<bool>
     {
     private:
-        GameScene* scene;
-        std::optional<LaserProjectile>* laserPtr;
+        const GameScene* scene;
+        const std::optional<LaserProjectile>* laserPtr;
 
     public:
-        LaserCollisionVisitor(GameScene* scene, std::optional<LaserProjectile>* laserPtr)
+        LaserCollisionVisitor(const GameScene* scene, const std::optional<LaserProjectile>* laserPtr)
             : scene(scene), laserPtr(laserPtr)
         {
         }
 
-        void operator()(const OccupiedUnit& v)
+        bool operator()(const OccupiedUnit& v) const
         {
             auto& laser = *laserPtr;
             const auto& unit = scene->getSimulation().getUnit(v.id);
@@ -25,19 +25,18 @@ namespace rwe
             // TODO: ignore allied units as well as player-owned units
             if (unit.isOwnedBy(laser->owner))
             {
-                return;
+                return false;
             }
 
             // ignore if the laser is above or below the unit
             if (laser->position.y < unit.position.y || laser->position.y > unit.position.y + unit.height)
             {
-                return;
+                return false;
             }
 
-            scene->doLaserImpact(*laser, ImpactType::Normal);
-            laser = std::nullopt;
+            return true;
         }
-        void operator()(const OccupiedFeature& v)
+        bool operator()(const OccupiedFeature& v) const
         {
             auto& laser = *laserPtr;
             const auto& feature = scene->getSimulation().getFeature(v.id);
@@ -45,15 +44,14 @@ namespace rwe
             // ignore if the laser is above or below the feature
             if (laser->position.y < feature.position.y || laser->position.y > feature.position.y + feature.height)
             {
-                return;
+                return false;
             }
 
-            scene->doLaserImpact(*laser, ImpactType::Normal);
-            laser = std::nullopt;
+            return true;
         }
-        void operator()(const OccupiedNone&)
+        bool operator()(const OccupiedNone&) const
         {
-            // do nothing
+            return false;
         }
     };
 
@@ -685,8 +683,12 @@ namespace rwe
                 auto cellValue = simulation.occupiedGrid.grid.tryGet(heightMapPos);
                 if (cellValue)
                 {
-                    LaserCollisionVisitor visitor(this, &laser);
-                    boost::apply_visitor(visitor, cellValue->get());
+                    auto collides = boost::apply_visitor(LaserCollisionVisitor(this, &laser), cellValue->get());
+                    if (collides)
+                    {
+                        doLaserImpact(*laser, ImpactType::Normal);
+                        laser = std::nullopt;
+                    }
                 }
             }
 
