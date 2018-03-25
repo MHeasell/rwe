@@ -74,6 +74,10 @@ namespace rwe
 
         void hideObject(UnitId unitId, const std::string& name);
 
+        void enableShading(UnitId unitId, const std::string& name);
+
+        void disableShading(UnitId unitId, const std::string& name);
+
         Unit& getUnit(UnitId id);
 
         const Unit& getUnit(UnitId id) const;
