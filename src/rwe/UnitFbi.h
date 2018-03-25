@@ -29,6 +29,8 @@ namespace rwe
 
         unsigned int maxDamage;
 
+        bool bmCode;
+
         std::string weapon1;
         std::string weapon2;
         std::string weapon3;
