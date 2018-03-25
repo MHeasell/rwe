@@ -61,6 +61,8 @@ namespace rwe
         It findEndOfWord(It it, It end);
 
         void fillColor(float x, float y, float width, float height, Color color);
+
+        void drawHealthBar(float x, float y, float percentFull);
     };
 
     template <typename It>

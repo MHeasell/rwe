@@ -183,4 +183,42 @@ namespace rwe
         auto replacement = matrixStack.top() * matrix;
         matrixStack.top() = replacement;
     }
+
+    Color getHealthColor(float fractionFull)
+    {
+        if (fractionFull < 1.0f/3.0f)
+        {
+            return Color(255, 71, 0);
+        }
+
+        if (fractionFull < 2.0f/3.0f)
+        {
+            return Color(247, 227, 103);
+        }
+
+        return Color(83, 223, 79);
+    }
+
+    void UiRenderService::drawHealthBar(float x, float y, float percentFull)
+    {
+        x = std::floor(x);
+        y = std::floor(y);
+
+        // offset the healtbar from the unit centre
+        x -= 17.0f;
+        y += 8.0f;
+
+        auto width = 35.0f;
+        auto height = 5.0f;
+        auto borderWidth = 1.0f;
+        Color borderColor = Color::Black;
+
+        auto innerMaxWidth = width - (borderWidth * 2.0f);
+        auto innerWidth = std::floor(percentFull * innerMaxWidth);
+        auto innerHeight = height - (borderWidth * 2.0f);
+        auto healthColor = getHealthColor(percentFull);
+
+        fillColor(x, y, width, height, borderColor);
+        fillColor(x + borderWidth, y + borderWidth, innerWidth, innerHeight, healthColor);
+    }
 }

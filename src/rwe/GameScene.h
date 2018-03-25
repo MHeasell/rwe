@@ -89,6 +89,8 @@ namespace rwe
         bool pathfindingVisualisationVisible{false};
         bool movementClassGridVisible{false};
 
+        bool healthBarsVisible{false};
+
         CursorMode cursorMode{NormalCursorMode()};
 
     public:

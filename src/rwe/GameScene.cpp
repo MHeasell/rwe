@@ -151,7 +151,27 @@ namespace rwe
 
         context.enableDepthWrites();
 
+        // UI rendering
         context.disableDepthBuffer();
+
+        if (healthBarsVisible)
+        {
+            for (const Unit& unit : (simulation.units | boost::adaptors::map_values))
+            {
+                if (!unit.isOwnedBy(localPlayerId))
+                {
+                    // only draw healthbars on units we own
+                    continue;
+                }
+
+                auto uiPos =
+                    uiRenderService.getCamera().getInverseViewProjectionMatrix()
+                    * renderService.getCamera().getViewProjectionMatrix()
+                    * unit.position;
+                uiRenderService.drawHealthBar(uiPos.x, uiPos.y, static_cast<float>(unit.hitPoints) / static_cast<float>(unit.maxHitPoints));
+            }
+        }
+
         cursor->render(uiRenderService);
         context.enableDepthBuffer();
     }
@@ -211,6 +231,10 @@ namespace rwe
         else if (keysym.sym == SDLK_F11)
         {
             movementClassGridVisible = !movementClassGridVisible;
+        }
+        else if (keysym.scancode == SDL_SCANCODE_GRAVE)
+        {
+            healthBarsVisible = !healthBarsVisible;
         }
     }
 
