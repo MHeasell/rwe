@@ -57,6 +57,12 @@ namespace rwe
         unit.position = position;
         unit.height = meshInfo.height;
 
+        if (fbi.bmCode) // unit is mobile
+        {
+            // spawn the unit facing the other way
+            unit.rotation = Pif;
+        }
+
         // These units are per-tick.
         // We divide by two here because TA ticks are 1/30 of a second,
         // where as ours are 1/60 of a second.
