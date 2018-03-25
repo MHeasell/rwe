@@ -162,7 +162,7 @@ namespace rwe
 
         const GameSimulation& getSimulation() const;
 
-        void doLaserImpact(const LaserProjectile& laser, ImpactType impactType);
+        void doLaserImpact(std::optional<LaserProjectile>& laser, ImpactType impactType);
 
     private:
         std::optional<UnitId> getUnitUnderCursor() const;

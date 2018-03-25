@@ -667,13 +667,11 @@ namespace rwe
             // FIXME: waterweapons should be allowed in water
             if (seaLevel > terrainHeight && laser->position.y <= seaLevel)
             {
-                doLaserImpact(*laser, ImpactType::Water);
-                laser = std::nullopt;
+                doLaserImpact(laser, ImpactType::Water);
             }
             else if (laser->position.y <= terrainHeight)
             {
-                doLaserImpact(*laser, ImpactType::Normal);
-                laser = std::nullopt;
+                doLaserImpact(laser, ImpactType::Normal);
             }
             else
             {
@@ -685,8 +683,7 @@ namespace rwe
                     auto collides = boost::apply_visitor(LaserCollisionVisitor(this, &laser), cellValue->get());
                     if (collides)
                     {
-                        doLaserImpact(*laser, ImpactType::Normal);
-                        laser = std::nullopt;
+                        doLaserImpact(laser, ImpactType::Normal);
                     }
                 }
             }
@@ -711,35 +708,37 @@ namespace rwe
         }
     }
 
-    void GameScene::doLaserImpact(const LaserProjectile& laser, ImpactType impactType)
+    void GameScene::doLaserImpact(std::optional<LaserProjectile>& laser, ImpactType impactType)
     {
         // TODO: trigger detonation damage
         switch (impactType)
         {
             case ImpactType::Normal:
             {
-                if (laser.soundHit)
+                if (laser->soundHit)
                 {
-                    playSoundAt(laser.position, *laser.soundHit);
+                    playSoundAt(laser->position, *laser->soundHit);
                 }
-                if (laser.explosion)
+                if (laser->explosion)
                 {
-                    simulation.spawnExplosion(laser.position, *laser.explosion);
+                    simulation.spawnExplosion(laser->position, *laser->explosion);
                 }
                 break;
             }
             case ImpactType::Water:
             {
-                if (laser.soundWater)
+                if (laser->soundWater)
                 {
-                    playSoundAt(laser.position, *laser.soundWater);
+                    playSoundAt(laser->position, *laser->soundWater);
                 }
-                if (laser.waterExplosion)
+                if (laser->waterExplosion)
                 {
-                    simulation.spawnExplosion(laser.position, *laser.waterExplosion);
+                    simulation.spawnExplosion(laser->position, *laser->waterExplosion);
                 }
                 break;
             }
         }
+
+        laser = std::nullopt;
     }
 }
