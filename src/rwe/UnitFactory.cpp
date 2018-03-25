@@ -53,6 +53,9 @@ namespace rwe
 
         unit.canAttack = fbi.canAttack;
 
+        unit.maxHitPoints = fbi.maxDamage;
+        unit.hitPoints = fbi.maxDamage;
+
         if (movementClassOption)
         {
             auto movementClass = &movementClassOption->get();

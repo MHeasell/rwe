@@ -38,6 +38,8 @@ namespace rwe
 
         tdf.readOrDefault("CanAttack", u.canAttack);
 
+        tdf.readOrDefault("MaxDamage", u.maxDamage);
+
         tdf.readOrDefault("Weapon1", u.weapon1);
         tdf.readOrDefault("Weapon2", u.weapon2);
         tdf.readOrDefault("Weapon3", u.weapon3);

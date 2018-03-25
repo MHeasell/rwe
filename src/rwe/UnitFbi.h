@@ -27,6 +27,8 @@ namespace rwe
 
         bool canAttack;
 
+        unsigned int maxDamage;
+
         std::string weapon1;
         std::string weapon2;
         std::string weapon3;

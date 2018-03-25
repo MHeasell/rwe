@@ -131,6 +131,9 @@ namespace rwe
         unsigned int minWaterDepth;
         unsigned int maxWaterDepth;
 
+        unsigned int hitPoints;
+        unsigned int maxHitPoints;
+
         std::deque<UnitOrder> orders;
         UnitState behaviourState;
 
