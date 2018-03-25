@@ -15,6 +15,8 @@ const vec3 lightDirection = normalize(vec3(-1.0, 4.0, 1.0));
 void main(void)
 {
     vec3 baseColor = fragColor;
-    float lightIntensity = shade ? clamp(dot(worldNormal, lightDirection), 0.0, 1.0) : 1.0;
+    float lightIntensity = shade
+        ? 1.5 * clamp(dot(worldNormal, lightDirection), 0.0, 1.0) + 0.5
+        : 1.0;
     outColor = vec4(baseColor * lightIntensity * (height > seaLevel ? normalTint : waterTint), 1.0);
 }
