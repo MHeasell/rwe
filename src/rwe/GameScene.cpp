@@ -688,7 +688,7 @@ namespace rwe
                 }
             }
 
-            // TODO: detect collision between a laser and a unit, feature, world boundary
+            // TODO: detect collision between a laser and the world boundary
         }
     }
 
