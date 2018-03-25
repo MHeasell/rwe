@@ -71,6 +71,7 @@ namespace rwe
                 graphics->setUniformMatrix(colorShader.mvpMatrix, mvpMatrix);
                 graphics->setUniformMatrix(colorShader.modelMatrix, matrix);
                 graphics->setUniformFloat(colorShader.seaLevel, seaLevel);
+                graphics->setUniformBool(colorShader.shade, mesh.shaded);
                 graphics->drawTriangles(mesh.mesh->coloredVertices);
             }
 
@@ -81,6 +82,7 @@ namespace rwe
                 graphics->setUniformMatrix(textureShader.mvpMatrix, mvpMatrix);
                 graphics->setUniformMatrix(textureShader.modelMatrix, matrix);
                 graphics->setUniformFloat(textureShader.seaLevel, seaLevel);
+                graphics->setUniformBool(textureShader.shade, mesh.shaded);
                 graphics->drawTriangles(mesh.mesh->texturedVertices);
             }
         }

@@ -350,31 +350,40 @@ namespace rwe
         return graphics->createColoredMesh(buffer, GL_STATIC_DRAW);
     }
 
+    Vector3f getNormal(const Mesh::Triangle& t)
+    {
+        auto v1 = t.b.position - t.a.position;
+        auto v2 = t.c.position - t.a.position;
+        return v1.cross(v2).normalized();
+    }
+
     ShaderMesh MeshService::convertMesh(const Mesh& mesh)
     {
-        std::vector<GlTexturedVertex> texturedVerticesBuffer;
+        std::vector<GlTexturedNormalVertex> texturedVerticesBuffer;
         texturedVerticesBuffer.reserve(mesh.faces.size() * 3);
 
         for (const auto& t : mesh.faces)
         {
-            texturedVerticesBuffer.emplace_back(t.a.position, t.a.textureCoord);
-            texturedVerticesBuffer.emplace_back(t.b.position, t.b.textureCoord);
-            texturedVerticesBuffer.emplace_back(t.c.position, t.c.textureCoord);
+            auto normal = getNormal(t);
+            texturedVerticesBuffer.emplace_back(t.a.position, t.a.textureCoord, normal);
+            texturedVerticesBuffer.emplace_back(t.b.position, t.b.textureCoord, normal);
+            texturedVerticesBuffer.emplace_back(t.c.position, t.c.textureCoord, normal);
         }
 
-        auto texturedMesh = graphics->createTexturedMesh(texturedVerticesBuffer, GL_STATIC_DRAW);
+        auto texturedMesh = graphics->createTexturedNormalMesh(texturedVerticesBuffer, GL_STATIC_DRAW);
 
-        std::vector<GlColoredVertex> coloredVerticesBuffer;
+        std::vector<GlColoredNormalVertex> coloredVerticesBuffer;
         for (const auto& t : mesh.colorFaces)
         {
             auto color = Vector3f(t.color.r, t.color.g, t.color.b) / 255.0f;
+            auto normal = getNormal(t);
 
-            coloredVerticesBuffer.emplace_back(t.a.position, color);
-            coloredVerticesBuffer.emplace_back(t.b.position, color);
-            coloredVerticesBuffer.emplace_back(t.c.position, color);
+            coloredVerticesBuffer.emplace_back(t.a.position, color, normal);
+            coloredVerticesBuffer.emplace_back(t.b.position, color, normal);
+            coloredVerticesBuffer.emplace_back(t.c.position, color, normal);
         }
 
-        auto coloredMesh = graphics->createColoredMesh(coloredVerticesBuffer, GL_STATIC_DRAW);
+        auto coloredMesh = graphics->createColoredNormalMesh(coloredVerticesBuffer, GL_STATIC_DRAW);
 
         return ShaderMesh(mesh.texture, std::move(texturedMesh), std::move(coloredMesh));
     }

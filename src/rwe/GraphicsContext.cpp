@@ -19,8 +19,18 @@ namespace rwe
     {
     }
 
+    GlTexturedNormalVertex::GlTexturedNormalVertex(const Vector3f& pos, const Vector2f& texCoord, const Vector3f& normal)
+        : x(pos.x), y(pos.y), z(pos.z), u(texCoord.x), v(texCoord.y), nx(normal.x), ny(normal.y), nz(normal.z)
+    {
+    }
+
     GlColoredVertex::GlColoredVertex(const Vector3f& pos, const Vector3f& color)
         : x(pos.x), y(pos.y), z(pos.z), r(color.x), g(color.y), b(color.z)
+    {
+    }
+
+    GlColoredNormalVertex::GlColoredNormalVertex(const Vector3f& pos, const Vector3f& color, const Vector3f& normal)
+        : x(pos.x), y(pos.y), z(pos.z), r(color.x), g(color.y), b(color.z), nx(normal.x), ny(normal.y), nz(normal.z)
     {
     }
 
@@ -246,6 +256,52 @@ namespace rwe
         return GlMesh(std::move(vao), std::move(vbo), vertices.size());
     }
 
+    GlMesh GraphicsContext::createTexturedNormalMesh(const std::vector<GlTexturedNormalVertex>& vertices, GLenum usage)
+    {
+        auto vao = genVertexArray();
+        bindVertexArray(vao.get());
+
+        auto vbo = genBuffer();
+        bindBuffer(GL_ARRAY_BUFFER, vbo.get());
+
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GlTexturedNormalVertex), vertices.data(), usage);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), reinterpret_cast<void*>(0));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), reinterpret_cast<void*>(3 * sizeof(GLfloat)));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), reinterpret_cast<void*>(5 * sizeof(GLfloat)));
+
+        unbindBuffer(GL_ARRAY_BUFFER);
+        unbindVertexArray();
+
+        return GlMesh(std::move(vao), std::move(vbo), vertices.size());
+    }
+
+    GlMesh GraphicsContext::createColoredNormalMesh(const std::vector<GlColoredNormalVertex>& vertices, GLenum usage)
+    {
+        auto vao = genVertexArray();
+        bindVertexArray(vao.get());
+
+        auto vbo = genBuffer();
+        bindBuffer(GL_ARRAY_BUFFER, vbo.get());
+
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GlColoredNormalVertex), vertices.data(), usage);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), reinterpret_cast<void*>(0));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), reinterpret_cast<void*>(3 * sizeof(GLfloat)));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), reinterpret_cast<void*>(6 * sizeof(GLfloat)));
+
+        unbindBuffer(GL_ARRAY_BUFFER);
+        unbindVertexArray();
+
+        return GlMesh(std::move(vao), std::move(vbo), vertices.size());
+    }
+
     VboHandle GraphicsContext::genBuffer()
     {
         GLuint vbo;
@@ -371,6 +427,11 @@ namespace rwe
     void GraphicsContext::setUniformMatrix(UniformLocation location, const Matrix4f& matrix)
     {
         glUniformMatrix4fv(location.value, 1, GL_FALSE, matrix.data);
+    }
+
+    void GraphicsContext::setUniformBool(UniformLocation location, bool value)
+    {
+        glUniform1i(location.value, value);
     }
 
     void GraphicsContext::drawTriangles(const GlMesh& mesh)

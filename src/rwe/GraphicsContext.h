@@ -36,6 +36,21 @@ namespace rwe
         GlTexturedVertex(const Vector3f& pos, const Vector2f& texCoord);
     };
 
+    struct GlTexturedNormalVertex
+    {
+        GLfloat x;
+        GLfloat y;
+        GLfloat z;
+        GLfloat u;
+        GLfloat v;
+        GLfloat nx;
+        GLfloat ny;
+        GLfloat nz;
+
+        GlTexturedNormalVertex() = default;
+        GlTexturedNormalVertex(const Vector3f& pos, const Vector2f& texCoord, const Vector3f& normal);
+    };
+
     struct GlColoredVertex
     {
         GLfloat x;
@@ -47,6 +62,22 @@ namespace rwe
 
         GlColoredVertex() = default;
         GlColoredVertex(const Vector3f& pos, const Vector3f& color);
+    };
+
+    struct GlColoredNormalVertex
+    {
+        GLfloat x;
+        GLfloat y;
+        GLfloat z;
+        GLfloat r;
+        GLfloat g;
+        GLfloat b;
+        GLfloat nx;
+        GLfloat ny;
+        GLfloat nz;
+
+        GlColoredNormalVertex() = default;
+        GlColoredNormalVertex(const Vector3f& pos, const Vector3f& color, const Vector3f& normal);
     };
 #pragma pack()
 
@@ -118,6 +149,10 @@ namespace rwe
 
         GlMesh createColoredMesh(const std::vector<GlColoredVertex>& vertices, GLenum usage);
 
+        GlMesh createTexturedNormalMesh(const std::vector<GlTexturedNormalVertex>& vertices, GLenum usage);
+
+        GlMesh createColoredNormalMesh(const std::vector<GlColoredNormalVertex>& vertices, GLenum usage);
+
         void bindShader(ShaderProgramIdentifier shader);
 
         void unbindShader();
@@ -134,6 +169,7 @@ namespace rwe
 
         void setUniformFloat(UniformLocation location, float value);
         void setUniformMatrix(UniformLocation location, const Matrix4f& matrix);
+        void setUniformBool(UniformLocation location, bool value);
 
         void drawTriangles(const GlMesh& mesh);
         void drawLines(const GlMesh& mesh);

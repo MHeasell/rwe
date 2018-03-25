@@ -26,6 +26,7 @@ namespace rwe
         UniformLocation mvpMatrix;
         UniformLocation modelMatrix;
         UniformLocation seaLevel;
+        UniformLocation shade;
     };
 
     struct UnitColorShader
@@ -34,6 +35,7 @@ namespace rwe
         UniformLocation mvpMatrix;
         UniformLocation modelMatrix;
         UniformLocation seaLevel;
+        UniformLocation shade;
     };
 
     class ShaderService
