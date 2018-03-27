@@ -149,6 +149,24 @@ namespace rwe
         }
     }
 
+    void GameSimulation::enableShading(UnitId unitId, const std::string& name)
+    {
+        auto mesh = getUnit(unitId).mesh.find(name);
+        if (mesh)
+        {
+            mesh->get().shaded = true;
+        }
+    }
+
+    void GameSimulation::disableShading(UnitId unitId, const std::string& name)
+    {
+        auto mesh = getUnit(unitId).mesh.find(name);
+        if (mesh)
+        {
+            mesh->get().shaded = false;
+        }
+    }
+
     Unit& GameSimulation::getUnit(UnitId id)
     {
         auto it = units.find(id);

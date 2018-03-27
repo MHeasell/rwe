@@ -460,13 +460,13 @@ namespace rwe
     void CobExecutionContext::enableShading()
     {
         auto object = nextInstruction();
-        // TODO: this
+        sim->enableShading(unitId, getObjectName(object));
     }
 
     void CobExecutionContext::disableShading()
     {
         auto object = nextInstruction();
-        // TODO: this
+        sim->disableShading(unitId, getObjectName(object));
     }
 
     void CobExecutionContext::enableCaching()

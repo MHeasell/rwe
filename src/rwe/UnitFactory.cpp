@@ -19,6 +19,15 @@ namespace rwe
     {
     }
 
+    void setShadeRecursive(UnitMesh& mesh, bool shade)
+    {
+        mesh.shaded = shade;
+        for (auto& c : mesh.children)
+        {
+            setShadeRecursive(c, shade);
+        }
+    }
+
     Unit UnitFactory::createUnit(
         const std::string& unitType,
         PlayerId owner,
@@ -34,6 +43,11 @@ namespace rwe
         }
 
         auto meshInfo = meshService.loadUnitMesh(fbi.objectName, colorIndex);
+        if (fbi.bmCode) // unit is mobile
+        {
+            // don't shade mobile units
+            setShadeRecursive(meshInfo.mesh, false);
+        }
 
         const auto& script = unitDatabase.getUnitScript(fbi.unitName);
         auto cobEnv = std::make_unique<CobEnvironment>(&script);

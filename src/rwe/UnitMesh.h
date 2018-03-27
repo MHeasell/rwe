@@ -36,6 +36,7 @@ namespace rwe
         std::shared_ptr<ShaderMesh> mesh;
         std::vector<UnitMesh> children;
         bool visible{true};
+        bool shaded{true};
         Vector3f offset{0.0f, 0.0f, 0.0f};
         Vector3f rotation{0.0f, 0.0f, 0.0f};
 

@@ -28,11 +28,13 @@ namespace rwe
         s.unitColor.mvpMatrix = graphics.getUniformLocation(s.unitColor.handle.get(), "mvpMatrix");
         s.unitColor.modelMatrix = graphics.getUniformLocation(s.unitColor.handle.get(), "modelMatrix");
         s.unitColor.seaLevel = graphics.getUniformLocation(s.unitColor.handle.get(), "seaLevel");
+        s.unitColor.shade = graphics.getUniformLocation(s.unitColor.handle.get(), "shade");
 
         s.unitTexture.handle = loadShader(graphics, "shaders/unitTexture.vert", "shaders/unitTexture.frag", texturedVertexAttribs);
         s.unitTexture.mvpMatrix = graphics.getUniformLocation(s.unitTexture.handle.get(), "mvpMatrix");
         s.unitTexture.modelMatrix = graphics.getUniformLocation(s.unitTexture.handle.get(), "modelMatrix");
         s.unitTexture.seaLevel = graphics.getUniformLocation(s.unitTexture.handle.get(), "seaLevel");
+        s.unitTexture.shade = graphics.getUniformLocation(s.unitTexture.handle.get(), "shade");
 
         return s;
     }
