@@ -52,7 +52,7 @@ namespace rwe
 
         std::optional<std::reference_wrapper<UnitMesh>> find(const std::string& pieceName);
 
-        std::optional<Matrix4f> getPieceTransform(const std::string& pieceName);
+        std::optional<Matrix4f> getPieceTransform(const std::string& pieceName) const;
 
         Matrix4f getTransform() const;
 

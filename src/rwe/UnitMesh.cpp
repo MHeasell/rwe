@@ -73,7 +73,7 @@ namespace rwe
         return std::ref(const_cast<UnitMesh&>(value->get()));
     }
 
-    std::optional<Matrix4f> UnitMesh::getPieceTransform(const std::string& pieceName)
+    std::optional<Matrix4f> UnitMesh::getPieceTransform(const std::string& pieceName) const
     {
         if (pieceName == name)
         {
