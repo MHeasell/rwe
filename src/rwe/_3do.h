@@ -44,7 +44,7 @@ namespace rwe
         uint32_t textureNameOffset;
         uint32_t unknown2;
         uint32_t unknown3;
-        uint32_t unknown4;
+        uint32_t isColored;
     };
 #pragma pack()
     struct _3do
@@ -61,7 +61,7 @@ namespace rwe
 
         struct Primitive
         {
-            unsigned int colorIndex;
+            std::optional<unsigned int> colorIndex;
             std::vector<unsigned int> vertices;
             std::optional<std::string> textureName;
         };

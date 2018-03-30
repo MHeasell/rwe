@@ -199,7 +199,7 @@ namespace rwe
             }
 
             // handle other polygon types
-            if (p.vertices.size() >= 3)
+            if (p.vertices.size() >= 3 && p.colorIndex)
             {
                 const auto& first = vertexToVector(o.vertices[p.vertices.front()]);
                 for (unsigned int i = p.vertices.size() - 1; i >= 2; --i)
@@ -210,7 +210,7 @@ namespace rwe
                         Mesh::Vertex(first, Vector2f(0.0f, 0.0f)),
                         Mesh::Vertex(second, Vector2f(0.0f, 0.0f)),
                         Mesh::Vertex(third, Vector2f(0.0f, 0.0f)),
-                        (*palette)[p.colorIndex]);
+                        (*palette)[*p.colorIndex]);
                     m.colorFaces.push_back(t);
                 }
 

@@ -51,7 +51,10 @@ namespace rwe
             {
                 _3do::Primitive outP;
 
-                outP.colorIndex = p.colorIndex;
+                if (p.isColored)
+                {
+                    outP.colorIndex = p.colorIndex;
+                }
 
                 if (p.textureNameOffset != 0)
                 {
