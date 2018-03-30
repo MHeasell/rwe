@@ -305,8 +305,12 @@ set(SOURCE_FILES
     src/rwe/cob/CobThread.cpp
     src/rwe/cob/CobThread.h
     src/rwe/cob/CobValueId.h
+    src/rwe/cob/cob_util.cpp
+    src/rwe/cob/cob_util.h
     src/rwe/events.cpp
     src/rwe/events.h
+    src/rwe/fixed_point.cpp
+    src/rwe/fixed_point.h
     src/rwe/geometry/BoundingBox3f.cpp
     src/rwe/geometry/BoundingBox3f.h
     src/rwe/geometry/Circle2f.cpp
@@ -563,6 +567,7 @@ set(TEST_FILES
     test/rwe/SimpleTdfAdapter_test.cpp
     test/rwe/TdfBlock_test.cpp
     test/rwe/camera/CabinetCamera_test.cpp
+    test/rwe/cob/cob_util_test.cpp
     test/rwe/geometry/BoundingBox3f_test.cpp
     test/rwe/geometry/CollisionMesh_test.cpp
     test/rwe/geometry/Plane3f_test.cpp

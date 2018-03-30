@@ -2,6 +2,8 @@
 #include <rwe/SceneManager.h>
 #include <rwe/cob/CobConstants.h>
 #include <rwe/cob/CobOpCode.h>
+#include <rwe/cob/cob_util.h>
+#include <rwe/fixed_point.h>
 
 namespace rwe
 {
@@ -869,35 +871,5 @@ namespace rwe
             default:
                 throw std::runtime_error("Cannot set unit value with ID: " + std::to_string(static_cast<unsigned int>(valueId)));
         }
-    }
-
-    uint32_t CobExecutionContext::packCoords(float x, float z)
-    {
-        auto intX = static_cast<int16_t>(x);
-        auto intZ = static_cast<int16_t>(z);
-        return (static_cast<uint32_t>(intX) << 16) | (static_cast<uint32_t>(intZ) & 0xffff);
-    }
-
-    std::pair<float, float> CobExecutionContext::unpackCoords(uint32_t xz)
-    {
-        auto x = static_cast<int16_t>(xz >> 16);
-        auto z = static_cast<int16_t>(xz & 0xffff);
-        return std::pair<float, float>(x, z);
-    }
-
-    uint32_t CobExecutionContext::toFixedPoint(float val)
-    {
-        float intPart;
-        auto fracPart = std::modf(val, &intPart);
-        auto intBits = static_cast<uint16_t>(intPart);
-        auto fracBits = static_cast<uint16_t>(fracPart * 0xffff);
-        return (static_cast<uint32_t>(intBits) << 16) | (static_cast<uint32_t>(fracBits) & 0xffff);
-    }
-
-    float CobExecutionContext::fromFixedPoint(uint32_t val)
-    {
-        auto intPart = static_cast<int16_t>(val >> 16);
-        auto fracPart = static_cast<int16_t>(val & 0xffff);
-        return static_cast<float>(intPart) + (static_cast<float>(fracPart) / 0xffff);
     }
 }

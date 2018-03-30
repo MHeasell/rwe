@@ -155,13 +155,6 @@ namespace rwe
 
         int getGetter(CobValueId valueId, int arg1, int arg2, int arg3, int arg4);
         void setGetter(CobValueId valueId, int value);
-
-        uint32_t packCoords(float x, float z);
-
-        std::pair<float, float> unpackCoords(uint32_t xz);
-
-        uint32_t toFixedPoint(float val);
-        float fromFixedPoint(uint32_t val);
     };
 }
 

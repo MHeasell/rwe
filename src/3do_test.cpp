@@ -1,13 +1,9 @@
 #include <fstream>
 #include <iostream>
 #include <rwe/_3do.h>
+#include <rwe/fixed_point.h>
 #include <rwe/optional_io.h>
 #include <vector>
-
-float convertFixedPoint(int p)
-{
-    return static_cast<float>(p) / 65536.0f;
-}
 
 void print3doObject(unsigned int indent, const std::vector<rwe::_3do::Object>& os)
 {
@@ -16,7 +12,7 @@ void print3doObject(unsigned int indent, const std::vector<rwe::_3do::Object>& o
         std::string indentString(indent, ' ');
         std::cout << indentString << "name: " << o.name << std::endl;
         std::cout << indentString << "offset: "
-                  << "(" << convertFixedPoint(o.x) << ", " << convertFixedPoint(o.y) << ", " << convertFixedPoint(o.z) << ")" << std::endl;
+                  << "(" << rwe::fromFixedPoint(o.x) << ", " << rwe::fromFixedPoint(o.y) << ", " << rwe::fromFixedPoint(o.z) << ")" << std::endl;
         std::cout << indentString << "primitives: " << o.primitives.size() << std::endl;
         std::cout << indentString << "vertices: " << o.vertices.size() << std::endl;
         std::cout << indentString << "selection primitive: " << o.selectionPrimitiveIndex << std::endl;
