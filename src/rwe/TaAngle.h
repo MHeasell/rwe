@@ -6,7 +6,7 @@
 namespace rwe
 {
     struct TaAngleTag;
-    using TaAngle = OpaqueId<int, TaAngleTag>;
+    using TaAngle = OpaqueId<int16_t, TaAngleTag>;
 }
 
 #endif

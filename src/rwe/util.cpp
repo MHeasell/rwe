@@ -47,6 +47,6 @@ namespace rwe
 
     TaAngle toTaAngle(RadiansAngle angle)
     {
-        return TaAngle(static_cast<int>(angle.value * (32768.0f / Pif)));
+        return TaAngle(static_cast<int16_t>(angle.value * (32768.0f / Pif)));
     }
 }
