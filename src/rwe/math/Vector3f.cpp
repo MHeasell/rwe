@@ -63,7 +63,7 @@ namespace rwe
         float n = length();
         if (n == 0.0f)
         {
-            throw std::logic_error("Attempted to normalize a zero-length rwe_math");
+            throw std::logic_error("Attempted to normalize a zero-length vector");
         }
 
         x /= n;
@@ -76,7 +76,7 @@ namespace rwe
         float n = length();
         if (n == 0.0f)
         {
-            throw std::logic_error("Attempted to normalize a zero-length rwe_math");
+            throw std::logic_error("Attempted to normalize a zero-length vector");
         }
 
         return Vector3f(x / n, y / n, z / n);

@@ -38,7 +38,7 @@ namespace rwe
     }
     TEST_CASE("Vector3f::operator<<")
     {
-        SECTION("prints the rwe_math to the stream")
+        SECTION("prints the vector to the stream")
         {
             Vector3f v(0.5f, 1.0f, 1.5f);
             std::ostringstream os;
@@ -49,7 +49,7 @@ namespace rwe
 
     TEST_CASE("Vector3f::normalized")
     {
-        SECTION("returns a new normalized rwe_math")
+        SECTION("returns a new normalized vector")
         {
             Vector3f v(3.0, 4.0, 0.0);
             Vector3f n = v.normalized();
