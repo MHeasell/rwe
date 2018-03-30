@@ -4,6 +4,11 @@
 
 namespace rwe
 {
+    RadiansAngle RadiansAngle::fromUnwrappedAngle(float value)
+    {
+        return RadiansAngle(wrap(-Pif, Pif, value));
+    }
+
     RadiansAngle::RadiansAngle(float value) : OpaqueId(value)
     {
         assert(value >= -Pif);
@@ -12,6 +17,6 @@ namespace rwe
 
     RadiansAngle RadiansAngle::operator-(RadiansAngle rhs)
     {
-        return RadiansAngle(wrap(-Pif, Pif, value - rhs.value));
+        return fromUnwrappedAngle(value - rhs.value);
     }
 }

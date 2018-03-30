@@ -12,6 +12,8 @@ namespace rwe
      */
     struct RadiansAngle : public OpaqueId<float, RadiansAngleTag>
     {
+        static RadiansAngle fromUnwrappedAngle(float value);
+
         explicit RadiansAngle(ValueType value);
 
         RadiansAngle operator-(RadiansAngle rhs);

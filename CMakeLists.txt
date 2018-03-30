@@ -304,6 +304,7 @@ set(SOURCE_FILES
     src/rwe/cob/CobOpCode.h
     src/rwe/cob/CobThread.cpp
     src/rwe/cob/CobThread.h
+    src/rwe/cob/CobValueId.h
     src/rwe/events.cpp
     src/rwe/events.h
     src/rwe/geometry/BoundingBox3f.cpp
