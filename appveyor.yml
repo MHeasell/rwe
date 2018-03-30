@@ -1,3 +1,7 @@
+branches:
+  except:
+    - travis
+
 install:
   - git submodule update --init --recursive
 build_script:
