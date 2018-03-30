@@ -164,8 +164,7 @@ namespace rwe
                     continue;
                 }
 
-                auto uiPos =
-                    uiRenderService.getCamera().getInverseViewProjectionMatrix()
+                auto uiPos = uiRenderService.getCamera().getInverseViewProjectionMatrix()
                     * renderService.getCamera().getViewProjectionMatrix()
                     * unit.position;
                 uiRenderService.drawHealthBar(uiPos.x, uiPos.y, static_cast<float>(unit.hitPoints) / static_cast<float>(unit.maxHitPoints));

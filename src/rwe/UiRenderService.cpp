@@ -186,12 +186,12 @@ namespace rwe
 
     Color getHealthColor(float fractionFull)
     {
-        if (fractionFull < 1.0f/3.0f)
+        if (fractionFull < 1.0f / 3.0f)
         {
             return Color(255, 71, 0);
         }
 
-        if (fractionFull < 2.0f/3.0f)
+        if (fractionFull < 2.0f / 3.0f)
         {
             return Color(247, 227, 103);
         }
