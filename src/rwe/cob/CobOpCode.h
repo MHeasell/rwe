@@ -42,10 +42,10 @@ namespace rwe
         BITWISE_NOT = 0x10038000,
 
         RAND = 0x10041000,
-        GET_UNIT_VALUE = 0x10042000,
-        GET = 0x10043000,
+        GET_VALUE = 0x10042000,
+        GET_VALUE_WITH_ARGS = 0x10043000,
 
-        SET_UNIT_VALUE = 0x10082000,
+        SET_VALUE = 0x10082000,
 
         SET_LESS = 0x10051000,
         SET_LESS_OR_EQUAL = 0x10052000,
@@ -68,7 +68,6 @@ namespace rwe
 
         EXPLODE = 0x10071000,
 
-        SET = 0x10082000,
         ATTACH_UNIT = 0x10083000,
         DROP_UNIT = 0x10084000,
     };

@@ -203,15 +203,15 @@ namespace rwe
                     popStackOperation();
                     break;
 
-                case OpCode::GET_UNIT_VALUE:
-                    getUnitValue();
+                case OpCode::GET_VALUE:
+                    getValue();
                     break;
-                case OpCode::GET:
-                    getWithArgs();
+                case OpCode::GET_VALUE_WITH_ARGS:
+                    getValueWithArgs();
                     break;
 
-                case OpCode::SET_UNIT_VALUE:
-                    setUnitValue();
+                case OpCode::SET_VALUE:
+                    setValue();
                     break;
 
                 default:
@@ -598,23 +598,23 @@ namespace rwe
         pop();
     }
 
-    void CobExecutionContext::getUnitValue()
+    void CobExecutionContext::getValue()
     {
         auto valueId = popValueId();
-        push(getGetter(valueId, 0, 0, 0, 0));
+        push(getValueInternal(valueId, 0, 0, 0, 0));
     }
 
-    void CobExecutionContext::getWithArgs()
+    void CobExecutionContext::getValueWithArgs()
     {
         auto arg4 = pop();
         auto arg3 = pop();
         auto arg2 = pop();
         auto arg1 = pop();
         auto valueId = popValueId();
-        push(getGetter(valueId, arg1, arg2, arg3, arg4));
+        push(getValueInternal(valueId, arg1, arg2, arg3, arg4));
     }
 
-    void CobExecutionContext::setUnitValue()
+    void CobExecutionContext::setValue()
     {
         auto newValue = pop();
         auto valueId = popValueId();
@@ -703,7 +703,7 @@ namespace rwe
         return env->_script->pieces.at(objectId);
     }
 
-    int CobExecutionContext::getGetter(CobValueId valueId, int arg1, int arg2, int arg3, int arg4)
+    int CobExecutionContext::getValueInternal(CobValueId valueId, int arg1, int arg2, int arg3, int arg4)
     {
         switch (valueId)
         {
