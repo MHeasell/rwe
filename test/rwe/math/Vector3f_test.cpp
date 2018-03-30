@@ -59,6 +59,26 @@ namespace rwe
         }
     }
 
+    TEST_CASE("Vector3f::normalizedOr")
+    {
+        SECTION("when length is non-zero, returns a new normalized vector")
+        {
+            Vector3f v(3.0, 4.0, 0.0);
+            Vector3f n = v.normalizedOr(Vector3f(1.0f, 0.0f, 0.0f));
+            REQUIRE(n.x == Approx(0.6f));
+            REQUIRE(n.y == Approx(0.8f));
+            REQUIRE(n.z == Approx(0.0f));
+        }
+        SECTION("when length is zero, returns the default value")
+        {
+            Vector3f v(0.0, 0.0, 0.0);
+            Vector3f n = v.normalizedOr(Vector3f(1.0f, 0.0f, 0.0f));
+            REQUIRE(n.x == 1.0f);
+            REQUIRE(n.y == 0.0f);
+            REQUIRE(n.z == 0.0f);
+        }
+    }
+
     TEST_CASE("closestTo")
     {
         SECTION("returns a when b is not defined")

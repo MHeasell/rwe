@@ -82,6 +82,17 @@ namespace rwe
         return Vector3f(x / n, y / n, z / n);
     }
 
+    Vector3f Vector3f::normalizedOr(const Vector3f& defaultValue)
+    {
+        float n = length();
+        if (n == 0.0f)
+        {
+            return defaultValue;
+        }
+
+        return Vector3f(x / n, y / n, z / n);
+    }
+
     float Vector3f::dot(const Vector3f& rhs) const
     {
         return (x * rhs.x) + (y * rhs.y) + (z * rhs.z);

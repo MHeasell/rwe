@@ -33,6 +33,7 @@ namespace rwe
 
         void normalize();
         Vector3f normalized();
+        Vector3f normalizedOr(const Vector3f& defaultValue);
 
         float dot(const Vector3f& rhs) const;
         Vector3f cross(const Vector3f& rhs) const;

@@ -354,7 +354,7 @@ namespace rwe
     {
         auto v1 = t.b.position - t.a.position;
         auto v2 = t.c.position - t.a.position;
-        return v1.cross(v2).normalized();
+        return v1.cross(v2).normalizedOr(Vector3f(1.0f, 0.0f, 0.0f));
     }
 
     ShaderMesh MeshService::convertMesh(const Mesh& mesh)
