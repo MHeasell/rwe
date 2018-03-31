@@ -147,6 +147,8 @@ namespace rwe
 
         bool canAttack;
 
+        std::optional<UnitWeapon> explosionWeapon;
+
         static float toRotation(const Vector3f& direction);
 
         static Vector3f toDirection(float rotation);
@@ -178,6 +180,10 @@ namespace rwe
         std::optional<float> selectionIntersect(const Ray3f& ray) const;
 
         bool isOwnedBy(PlayerId playerId) const;
+
+        bool isDead() const;
+
+        void markAsDead();
 
         void clearOrders();
 

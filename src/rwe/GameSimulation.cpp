@@ -89,11 +89,6 @@ namespace rwe
         return true;
     }
 
-    bool GameSimulation::deleteUnit(UnitId unit)
-    {
-        units.erase(unit);
-    }
-
     DiscreteRect GameSimulation::computeFootprintRegion(const Vector3f& position, unsigned int footprintX, unsigned int footprintZ) const
     {
         auto halfFootprintX = static_cast<float>(footprintX) * MapTerrain::HeightTileWidthInWorldUnits / 2.0f;
@@ -302,7 +297,8 @@ namespace rwe
         pathRequests.push_back(PathRequest{unitId});
     }
 
-    void GameSimulation::spawnLaser(PlayerId owner, const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction)
+    LaserProjectile GameSimulation::createProjectileFromWeapon(
+        PlayerId owner, const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction)
     {
         LaserProjectile laser;
         laser.owner = owner;
@@ -322,6 +318,13 @@ namespace rwe
 
         laser.explosion = weapon.explosion;
         laser.waterExplosion = weapon.waterExplosion;
+
+        return laser;
+    }
+
+    void GameSimulation::spawnLaser(PlayerId owner, const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction)
+    {
+        auto laser = createProjectileFromWeapon(owner, weapon, position, direction);
 
         auto it = std::find_if(lasers.begin(), lasers.end(), [](const auto& x) { return !x; });
         if (it == lasers.end())

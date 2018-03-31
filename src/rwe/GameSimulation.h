@@ -64,8 +64,6 @@ namespace rwe
          */
         bool tryAddUnit(Unit&& unit);
 
-        bool deleteUnit(UnitId unit);
-
         DiscreteRect computeFootprintRegion(const Vector3f& position, unsigned int footprintX, unsigned int footprintZ) const;
 
         bool isCollisionAt(const DiscreteRect& rect, UnitId self) const;
@@ -115,6 +113,8 @@ namespace rwe
         void moveUnitOccupiedArea(const DiscreteRect& oldRect, const DiscreteRect& newRect, UnitId unitId);
 
         void requestPath(UnitId unitId);
+
+        LaserProjectile createProjectileFromWeapon(PlayerId owner, const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction);
 
         void spawnLaser(PlayerId owner, const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction);
 

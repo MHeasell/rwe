@@ -445,6 +445,8 @@ namespace rwe
         updateLasers();
 
         updateExplosions();
+
+        deleteDeadUnits();
     }
 
     void GameScene::spawnUnit(const std::string& unitType, PlayerId owner, const Vector3f& position)
@@ -787,6 +789,12 @@ namespace rwe
         for (auto& pair : simulation.units)
         {
             Unit& unit = pair.second;
+
+            if (unit.isDead())
+            {
+                continue;
+            }
+
             auto distanceSquared = laser->position.distanceSquared(unit.position);
             if (distanceSquared <= (32.0f * 32.0f))
             {
@@ -803,8 +811,15 @@ namespace rwe
         auto& unit = simulation.getUnit(unitId);
         if (unit.hitPoints <= damagePoints)
         {
-            // TODO: spawn death explosion, particles, corpse
-            simulation.deleteUnit(unitId);
+            unit.markAsDead();
+
+            // TODO: spawn debris particles, corpse
+            if (unit.explosionWeapon)
+            {
+                auto impactType = unit.position.y < simulation.terrain.getSeaLevel() ? ImpactType::Water : ImpactType::Normal;
+                std::optional<LaserProjectile> projectile = simulation.createProjectileFromWeapon(unit.owner, *unit.explosionWeapon, unit.position, Vector3f(0.0f, -1.0f, 0.0f));
+                doLaserImpact(projectile, impactType);
+            }
         }
         else
         {
@@ -815,5 +830,20 @@ namespace rwe
     void GameScene::createLightSmoke(const Vector3f& position)
     {
         simulation.spawnSmoke(position, textureService->getGafEntry("anims/FX.GAF", "smoke 1"));
+    }
+
+    void GameScene::deleteDeadUnits()
+    {
+        for (auto it = simulation.units.begin(); it != simulation.units.end();)
+        {
+            if (it->second.isDead())
+            {
+                it = simulation.units.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+        }
     }
 }

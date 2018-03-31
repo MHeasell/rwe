@@ -265,6 +265,16 @@ namespace rwe
         return owner == playerId;
     }
 
+    bool Unit::isDead() const
+    {
+        return hitPoints == 0;
+    }
+
+    void Unit::markAsDead()
+    {
+        hitPoints = 0;
+    }
+
     void Unit::clearOrders()
     {
         orders.clear();

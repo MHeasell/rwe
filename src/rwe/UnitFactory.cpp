@@ -119,6 +119,11 @@ namespace rwe
             unit.weapons[2] = createWeapon(fbi.weapon3);
         }
 
+        if (!fbi.explodeAs.empty())
+        {
+            unit.explosionWeapon = createWeapon(fbi.explodeAs);
+        }
+
         if (soundClass.select1)
         {
             unit.selectionSound = unitDatabase.getSoundHandle(*(soundClass.select1));

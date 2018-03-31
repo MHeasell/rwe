@@ -34,6 +34,8 @@ namespace rwe
         std::string weapon1;
         std::string weapon2;
         std::string weapon3;
+
+        std::string explodeAs;
     };
 
     UnitFbi parseUnitInfoBlock(const TdfBlock& tdf);

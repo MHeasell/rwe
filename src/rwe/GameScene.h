@@ -208,6 +208,8 @@ namespace rwe
         void updateExplosions();
 
         void applyDamage(UnitId unitId, unsigned int damagePoints);
+
+        void deleteDeadUnits();
     };
 }
 
