@@ -23,6 +23,10 @@ namespace rwe
 
         // FIXME: shouldn't really be public
         Vector3f getSweetSpot(UnitId id);
+        std::optional<Vector3f> tryGetSweetSpot(UnitId id);
+
+        /** Returns true if the order has been completed. */
+        bool handleAttackOrder(UnitId unitId, const AttackOrder& attackOrder);
 
     private:
         static std::pair<float, float> computeHeadingAndPitch(float rotation, const Vector3f& from, const Vector3f& to);

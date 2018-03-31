@@ -84,6 +84,8 @@ namespace rwe
 
         const Unit& getUnit(UnitId id) const;
 
+        bool unitExists(UnitId id) const;
+
         MapFeature& getFeature(FeatureId id);
 
         const MapFeature& getFeature(FeatureId id) const;

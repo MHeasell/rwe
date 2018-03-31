@@ -186,6 +186,12 @@ namespace rwe
         return it->second;
     }
 
+    bool GameSimulation::unitExists(UnitId id) const
+    {
+        auto it = units.find(id);
+        return it != units.end();
+    }
+
     MapFeature& GameSimulation::getFeature(FeatureId id)
     {
         auto it = features.find(id);
