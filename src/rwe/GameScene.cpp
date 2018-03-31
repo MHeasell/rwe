@@ -673,6 +673,7 @@ namespace rwe
 
     void GameScene::updateLasers()
     {
+        auto gameTime = getGameTime();
         for (auto& laser : simulation.lasers)
         {
             if (!laser)
@@ -681,6 +682,16 @@ namespace rwe
             }
 
             laser->position += laser->velocity;
+
+            // emit smoke trail
+            if (laser->smokeTrail)
+            {
+                if (gameTime > laser->lastSmoke + *laser->smokeTrail)
+                {
+                    createLightSmoke(laser->position);
+                    laser->lastSmoke = gameTime;
+                }
+            }
 
             // test collision with terrain
             auto terrainHeight = simulation.terrain.getHeightAt(laser->position.x, laser->position.z);
@@ -727,6 +738,13 @@ namespace rwe
             if (exp->isFinished(simulation.gameTime))
             {
                 exp = std::nullopt;
+                continue;
+            }
+
+            if (exp->floats)
+            {
+                // TODO: drift with the wind
+                exp->position.y += 0.5f;
             }
         }
     }
@@ -744,6 +762,10 @@ namespace rwe
                 if (laser->explosion)
                 {
                     simulation.spawnExplosion(laser->position, *laser->explosion);
+                }
+                if (laser->endSmoke)
+                {
+                    createLightSmoke(laser->position);
                 }
                 break;
             }
@@ -788,5 +810,10 @@ namespace rwe
         {
             unit.hitPoints -= damagePoints;
         }
+    }
+
+    void GameScene::createLightSmoke(const Vector3f& position)
+    {
+        simulation.spawnSmoke(position, textureService->getGafEntry("anims/FX.GAF", "smoke 1"));
     }
 }

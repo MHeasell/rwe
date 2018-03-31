@@ -313,6 +313,10 @@ namespace rwe
         laser.color = weapon.color;
         laser.color2 = weapon.color2;
 
+        laser.endSmoke = weapon.endSmoke;
+        laser.smokeTrail = weapon.smokeTrail;
+        laser.lastSmoke = gameTime;
+
         laser.soundHit = weapon.soundHit;
         laser.soundWater = weapon.soundWater;
 
@@ -336,6 +340,25 @@ namespace rwe
         exp.position = position;
         exp.animation = animation;
         exp.startTime = gameTime;
+
+        auto it = std::find_if(explosions.begin(), explosions.end(), [](const auto& x) { return !x; });
+        if (it == explosions.end())
+        {
+            explosions.push_back(exp);
+        }
+        else
+        {
+            *it = exp;
+        }
+    }
+
+    void GameSimulation::spawnSmoke(const Vector3f& position, const std::shared_ptr<SpriteSeries>& animation)
+    {
+        Explosion exp;
+        exp.position = position;
+        exp.animation = animation;
+        exp.startTime = gameTime;
+        exp.floats = true;
 
         auto it = std::find_if(explosions.begin(), explosions.end(), [](const auto& x) { return !x; });
         if (it == explosions.end())

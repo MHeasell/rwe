@@ -44,6 +44,11 @@ namespace rwe
 
         float reloadTime;
 
+        bool startSmoke;
+        bool endSmoke;
+
+        std::optional<GameTimeDelta> smokeTrail;
+
         std::optional<AudioService::SoundHandle> soundStart;
         std::optional<AudioService::SoundHandle> soundHit;
         std::optional<AudioService::SoundHandle> soundWater;

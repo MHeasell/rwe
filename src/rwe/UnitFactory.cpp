@@ -148,6 +148,12 @@ namespace rwe
         weapon.color = getLaserColor(tdf.color);
         weapon.color2 = getLaserColor(tdf.color2);
         weapon.commandFire = tdf.commandFire;
+        weapon.startSmoke = tdf.startSmoke;
+        weapon.endSmoke = tdf.endSmoke;
+        if (tdf.smokeTrail)
+        {
+            weapon.smokeTrail = GameTimeDelta(static_cast<unsigned int>(tdf.smokeDelay * 60.0f));
+        }
         if (!tdf.soundStart.empty())
         {
             weapon.soundStart = unitDatabase.getSoundHandle(tdf.soundStart);

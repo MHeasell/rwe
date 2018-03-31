@@ -166,6 +166,8 @@ namespace rwe
 
         void doLaserImpact(std::optional<LaserProjectile>& laser, ImpactType impactType);
 
+        void createLightSmoke(const Vector3f& position);
+
     private:
         std::optional<UnitId> getUnitUnderCursor() const;
 

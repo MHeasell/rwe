@@ -119,6 +119,8 @@ namespace rwe
         void spawnLaser(PlayerId owner, const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction);
 
         void spawnExplosion(const Vector3f& position, const std::shared_ptr<SpriteSeries>& animation);
+
+        void spawnSmoke(const Vector3f& position, const std::shared_ptr<SpriteSeries>& animation);
     };
 }
 
