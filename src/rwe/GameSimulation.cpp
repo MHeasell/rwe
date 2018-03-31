@@ -319,6 +319,8 @@ namespace rwe
         laser.explosion = weapon.explosion;
         laser.waterExplosion = weapon.waterExplosion;
 
+        laser.damage = weapon.damage;
+
         return laser;
     }
 

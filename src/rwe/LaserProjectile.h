@@ -47,7 +47,11 @@ namespace rwe
         std::optional<std::shared_ptr<SpriteSeries>> explosion;
         std::optional<std::shared_ptr<SpriteSeries>> waterExplosion;
 
+        std::unordered_map<std::string, unsigned int> damage;
+
         Vector3f getBackPosition() const;
+
+        unsigned int getDamage(const std::string& unitType) const;
     };
 }
 

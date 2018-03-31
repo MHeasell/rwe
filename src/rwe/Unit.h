@@ -69,6 +69,7 @@ namespace rwe
     class Unit
     {
     public:
+        std::string unitType;
         UnitMesh mesh;
         Vector3f position;
         std::unique_ptr<CobEnvironment> cobEnvironment;

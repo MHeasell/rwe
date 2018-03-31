@@ -53,6 +53,7 @@ namespace rwe
         auto cobEnv = std::make_unique<CobEnvironment>(&script);
         cobEnv->createThread("Create", std::vector<int>());
         Unit unit(meshInfo.mesh, std::move(cobEnv), std::move(meshInfo.selectionMesh));
+        unit.unitType = toUpper(unitType);
         unit.owner = owner;
         unit.position = position;
         unit.height = meshInfo.height;
@@ -144,6 +145,7 @@ namespace rwe
     {
         const auto& tdf = unitDatabase.getWeapon(weaponType);
         UnitWeapon weapon;
+
         weapon.maxRange = tdf.range;
         weapon.reloadTime = tdf.reloadTime;
         weapon.tolerance = toleranceToRadians(tdf.tolerance);
@@ -179,6 +181,12 @@ namespace rwe
         {
             weapon.waterExplosion = textureService->getGafEntry("anims/" + tdf.waterExplosionGaf + ".gaf", tdf.waterExplosionArt);
         }
+
+        for (const auto& p : tdf.damage)
+        {
+            weapon.damage.insert_or_assign(toUpper(p.first), p.second);
+        }
+
         return weapon;
     }
 

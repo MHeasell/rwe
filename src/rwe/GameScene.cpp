@@ -799,7 +799,7 @@ namespace rwe
             if (distanceSquared <= (32.0f * 32.0f))
             {
                 // do damage
-                applyDamage(pair.first, 100);
+                applyDamage(pair.first, laser->getDamage(unit.unitType));
             }
         }
 
