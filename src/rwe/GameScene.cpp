@@ -733,7 +733,6 @@ namespace rwe
 
     void GameScene::doLaserImpact(std::optional<LaserProjectile>& laser, ImpactType impactType)
     {
-        // TODO: trigger detonation damage
         switch (impactType)
         {
             case ImpactType::Normal:
@@ -762,6 +761,32 @@ namespace rwe
             }
         }
 
+        // TODO: trigger detonation damage
+        for (auto& pair : simulation.units)
+        {
+            Unit& unit = pair.second;
+            auto distanceSquared = laser->position.distanceSquared(unit.position);
+            if (distanceSquared <= (32.0f * 32.0f))
+            {
+                // do damage
+                applyDamage(pair.first, 100);
+            }
+        }
+
         laser = std::nullopt;
+    }
+
+    void GameScene::applyDamage(UnitId unitId, unsigned int damagePoints)
+    {
+        auto& unit = simulation.getUnit(unitId);
+        if (unit.hitPoints <= damagePoints)
+        {
+            // TODO: spawn death explosion, particles, corpse
+            simulation.deleteUnit(unitId);
+        }
+        else
+        {
+            unit.hitPoints -= damagePoints;
+        }
     }
 }

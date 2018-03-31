@@ -89,6 +89,11 @@ namespace rwe
         return true;
     }
 
+    bool GameSimulation::deleteUnit(UnitId unit)
+    {
+        units.erase(unit);
+    }
+
     DiscreteRect GameSimulation::computeFootprintRegion(const Vector3f& position, unsigned int footprintX, unsigned int footprintZ) const
     {
         auto halfFootprintX = static_cast<float>(footprintX) * MapTerrain::HeightTileWidthInWorldUnits / 2.0f;

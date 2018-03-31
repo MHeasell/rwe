@@ -64,6 +64,8 @@ namespace rwe
          */
         bool tryAddUnit(Unit&& unit);
 
+        bool deleteUnit(UnitId unit);
+
         DiscreteRect computeFootprintRegion(const Vector3f& position, unsigned int footprintX, unsigned int footprintZ) const;
 
         bool isCollisionAt(const DiscreteRect& rect, UnitId self) const;

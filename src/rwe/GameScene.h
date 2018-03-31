@@ -204,6 +204,8 @@ namespace rwe
         void updateLasers();
 
         void updateExplosions();
+
+        void applyDamage(UnitId unitId, unsigned int damagePoints);
     };
 }
 
