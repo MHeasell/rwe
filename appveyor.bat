@@ -32,7 +32,7 @@ IF "%RWE_COMPILER%"=="MSYS" (
     mkdir build || goto :error
     cd build || goto :error
     cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_BUILD_TYPE=%Configuration% .. || goto :error
-    msbuild rwe.sln /m /p:Configuration=%Configuration% || goto :error
+    msbuild "Robot War Engine.sln" /m /p:Configuration=%Configuration% || goto :error
     %Configuration%\rwe_test.exe || goto :error
 
     goto :EOF
