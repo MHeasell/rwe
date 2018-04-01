@@ -838,6 +838,14 @@ namespace rwe
         {
             if (it->second.isDead())
             {
+                if (selectedUnit && *selectedUnit == it->first)
+                {
+                    selectedUnit = std::nullopt;
+                }
+                if (hoveredUnit && *hoveredUnit == it->first)
+                {
+                    hoveredUnit = std::nullopt;
+                }
                 it = simulation.units.erase(it);
             }
             else
