@@ -2,9 +2,9 @@
 #define RWE_DISCRETERECT_H
 
 #include <boost/functional/hash.hpp>
+#include <optional>
 #include <rwe/Point.h>
 #include <rwe/pathfinding/OctileDistance.h>
-#include <optional>
 
 namespace rwe
 {

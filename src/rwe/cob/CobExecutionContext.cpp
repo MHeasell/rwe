@@ -471,13 +471,13 @@ namespace rwe
 
     void CobExecutionContext::enableCaching()
     {
-        /*auto object = */ nextInstruction();
+        /*auto object =*/ nextInstruction();
         // do nothing, RWE does not have the concept of caching
     }
 
     void CobExecutionContext::disableCaching()
     {
-        /*auto object = */nextInstruction();
+        /*auto object =*/ nextInstruction();
         // do nothing, RWE does not have the concept of caching
     }
 
