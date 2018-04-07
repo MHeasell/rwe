@@ -1,6 +1,7 @@
 #ifndef RWE_UNITMESH_H
 #define RWE_UNITMESH_H
 
+#include <boost/variant.hpp>
 #include <memory>
 #include <optional>
 #include <rwe/RadiansAngle.h>
@@ -31,6 +32,34 @@ namespace rwe
             TurnOperation(RadiansAngle targetAngle, float speed);
         };
 
+        struct SpinOperation
+        {
+            float currentSpeed;
+            float targetSpeed;
+            float acceleration;
+
+            SpinOperation(float currentSpeed, float targetSpeed, float acceleration)
+                : currentSpeed(currentSpeed),
+                  targetSpeed(targetSpeed),
+                  acceleration(acceleration)
+            {
+            }
+        };
+
+        struct StopSpinOperation
+        {
+            float currentSpeed;
+            float deceleration;
+
+            StopSpinOperation(float currentSpeed, float deceleration)
+                : currentSpeed(currentSpeed),
+                  deceleration(deceleration)
+            {
+            }
+        };
+
+        using TurnOperationUnion = boost::variant<TurnOperation, SpinOperation, StopSpinOperation>;
+
         std::string name;
         Vector3f origin;
         std::shared_ptr<ShaderMesh> mesh;
@@ -44,9 +73,9 @@ namespace rwe
         std::optional<MoveOperation> yMoveOperation;
         std::optional<MoveOperation> zMoveOperation;
 
-        std::optional<TurnOperation> xTurnOperation;
-        std::optional<TurnOperation> yTurnOperation;
-        std::optional<TurnOperation> zTurnOperation;
+        std::optional<TurnOperationUnion> xTurnOperation;
+        std::optional<TurnOperationUnion> yTurnOperation;
+        std::optional<TurnOperationUnion> zTurnOperation;
 
         std::optional<std::reference_wrapper<const UnitMesh>> find(const std::string& pieceName) const;
 

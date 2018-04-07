@@ -220,6 +220,16 @@ namespace rwe
         getUnit(unitId).turnObjectNow(name, axis, angle);
     }
 
+    void GameSimulation::spinObject(UnitId unitId, const std::string& name, Axis axis, float speed, float acceleration)
+    {
+        getUnit(unitId).spinObject(name, axis, speed, acceleration);
+    }
+
+    void GameSimulation::stopSpinObject(UnitId unitId, const std::string& name, Axis axis, float deceleration)
+    {
+        getUnit(unitId).stopSpinObject(name, axis, deceleration);
+    }
+
     bool GameSimulation::isPieceMoving(UnitId unitId, const std::string& name, Axis axis) const
     {
         return getUnit(unitId).isMoveInProgress(name, axis);

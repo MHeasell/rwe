@@ -23,23 +23,60 @@ namespace rwe
         }
     }
 
-    void applyTurnOperation(std::optional<UnitMesh::TurnOperation>& op, float& currentAngle, float dt)
+    void applyTurnOperation(std::optional<UnitMesh::TurnOperationUnion>& op, float& currentAngle, float dt)
     {
-        if (op)
+        if (!op)
         {
-            auto remaining = op->targetAngle - RadiansAngle(currentAngle);
+            return;
+        }
 
-            float frameSpeed = op->speed * dt;
+        if (auto turnOp = boost::get<UnitMesh::TurnOperation>(&*op); turnOp != nullptr)
+        {
+            auto remaining = turnOp->targetAngle - RadiansAngle(currentAngle);
+
+            float frameSpeed = turnOp->speed * dt;
             if (std::abs(remaining.value) <= frameSpeed)
             {
-                currentAngle = op->targetAngle.value;
+                currentAngle = turnOp->targetAngle.value;
                 op = std::nullopt;
+                return;
+            }
+
+            auto angleDelta = frameSpeed * (remaining.value > 0.0f ? 1.0f : -1.0f);
+            currentAngle = wrap(-Pif, Pif, currentAngle + angleDelta);
+            return;
+        }
+
+        if (auto spinOp = boost::get<UnitMesh::SpinOperation>(&*op); spinOp != nullptr)
+        {
+            auto frameAccel = spinOp->acceleration * dt;
+            if (spinOp->targetSpeed - spinOp->currentSpeed <= frameAccel)
+            {
+                spinOp->currentSpeed = spinOp->targetSpeed;
             }
             else
             {
-                auto angleDelta = frameSpeed * (remaining.value > 0.0f ? 1.0f : -1.0f);
-                currentAngle = wrap(-Pif, Pif, currentAngle + angleDelta);
+                spinOp->currentSpeed += frameAccel;
             }
+
+            auto frameSpeed = spinOp->currentSpeed * dt;
+            currentAngle = wrap(-Pif, Pif, currentAngle + frameSpeed);
+            return;
+        }
+
+        if (auto stopSpinOp = boost::get<UnitMesh::StopSpinOperation>(&*op); stopSpinOp != nullptr)
+        {
+            auto frameDecel = stopSpinOp->deceleration * dt;
+            if (stopSpinOp->currentSpeed <= frameDecel)
+            {
+                op = std::nullopt;
+                return;
+            }
+
+            stopSpinOp->currentSpeed -= frameDecel;
+            auto frameSpeed = stopSpinOp->currentSpeed * dt;
+            currentAngle = wrap(-Pif, Pif, currentAngle + frameSpeed);
+            return;
         }
     }
 

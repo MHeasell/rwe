@@ -137,6 +137,74 @@ namespace rwe
         }
     }
 
+    void Unit::spinObject(const std::string& pieceName, Axis axis, float speed, float acceleration)
+    {
+        auto piece = mesh.find(pieceName);
+        if (!piece)
+        {
+            throw std::runtime_error("Invalid piece name: " + pieceName);
+        }
+
+        UnitMesh::SpinOperation op(acceleration == 0.0f ? toRadians(speed) : 0.0f, toRadians(speed), toRadians(acceleration));
+
+        switch (axis)
+        {
+            case Axis::X:
+                piece->get().xTurnOperation = op;
+                break;
+            case Axis::Y:
+                piece->get().yTurnOperation = op;
+                break;
+            case Axis::Z:
+                piece->get().zTurnOperation = op;
+                break;
+        }
+    }
+
+    void setStopSpinOp(std::optional<UnitMesh::TurnOperationUnion>& existingOp, float deceleration)
+    {
+        if (!existingOp)
+        {
+            return;
+        }
+        auto spinOp = boost::get<UnitMesh::SpinOperation>(&*existingOp);
+        if (spinOp == nullptr)
+        {
+            return;
+        }
+
+        if (deceleration == 0.0f)
+        {
+            existingOp = std::nullopt;
+            return;
+        }
+
+        existingOp = UnitMesh::StopSpinOperation(spinOp->currentSpeed, toRadians(deceleration));
+    }
+
+    void Unit::stopSpinObject(const std::string& pieceName, Axis axis, float deceleration)
+    {
+
+        auto piece = mesh.find(pieceName);
+        if (!piece)
+        {
+            throw std::runtime_error("Invalid piece name: " + pieceName);
+        }
+
+        switch (axis)
+        {
+            case Axis::X:
+                setStopSpinOp(piece->get().xTurnOperation, deceleration);
+                break;
+            case Axis::Y:
+                setStopSpinOp(piece->get().yTurnOperation, deceleration);
+                break;
+            case Axis::Z:
+                setStopSpinOp(piece->get().zTurnOperation, deceleration);
+                break;
+        }
+    }
+
     bool Unit::isMoveInProgress(const std::string& pieceName, Axis axis) const
     {
         auto piece = mesh.find(pieceName);

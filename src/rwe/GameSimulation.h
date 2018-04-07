@@ -96,6 +96,10 @@ namespace rwe
 
         void turnObjectNow(UnitId unitId, const std::string& name, Axis axis, RadiansAngle angle);
 
+        void spinObject(UnitId unitId, const std::string& name, Axis axis, float speed, float acceleration);
+
+        void stopSpinObject(UnitId unitId, const std::string& name, Axis axis, float deceleration);
+
         bool isPieceMoving(UnitId unitId, const std::string& name, Axis axis) const;
 
         bool isPieceTurning(UnitId unitId, const std::string& name, Axis axis) const;

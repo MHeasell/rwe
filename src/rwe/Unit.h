@@ -161,6 +161,10 @@ namespace rwe
 
         void turnObjectNow(const std::string& pieceName, Axis axis, RadiansAngle targetAngle);
 
+        void spinObject(const std::string& pieceName, Axis axis, float speed, float acceleration);
+
+        void stopSpinObject(const std::string& pieceName, Axis axis, float deceleration);
+
         bool isMoveInProgress(const std::string& pieceName, Axis axis) const;
 
         bool isTurnInProgress(const std::string& pieceName, Axis axis) const;

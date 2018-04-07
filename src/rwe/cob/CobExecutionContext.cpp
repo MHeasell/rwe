@@ -417,18 +417,18 @@ namespace rwe
     void CobExecutionContext::spinObject()
     {
         auto object = nextInstruction();
-        auto axis = nextInstruction();
-        auto targetSpeed = pop();
-        auto acceleration = pop();
-        // TODO: this
+        auto axis = nextInstructionAsAxis();
+        auto targetSpeed = popAngularSpeed();
+        auto acceleration = popAngularSpeed();
+        sim->spinObject(unitId, getObjectName(object), axis, targetSpeed, acceleration);
     }
 
     void CobExecutionContext::stopSpinObject()
     {
         auto object = nextInstruction();
-        auto axis = nextInstruction();
-        auto deceleration = pop();
-        // TODO: this
+        auto axis = nextInstructionAsAxis();
+        auto deceleration = popAngularSpeed();
+        sim->stopSpinObject(unitId, getObjectName(object), axis, deceleration);
     }
 
     void CobExecutionContext::explode()
