@@ -261,8 +261,8 @@ namespace rwe
     {
         return rect.x >= 0
             && rect.y >= 0
-            && rect.x + static_cast<int>(rect.width) <= width
-            && rect.y + static_cast<int>(rect.height) <= height;
+            && static_cast<unsigned int>(rect.x) + rect.width <= width
+            && static_cast<unsigned int>(rect.y) + rect.height <= height;
     }
 
     template <typename T>

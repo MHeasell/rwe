@@ -92,7 +92,7 @@ namespace rwe
     {
     }
 
-    std::vector<std::string> HpiFileSystem::HpiRecursiveFilenamesVisitor::operator()(const HpiArchive::File& e) const
+    std::vector<std::string> HpiFileSystem::HpiRecursiveFilenamesVisitor::operator()(const HpiArchive::File& /*e*/) const
     {
         return endsWith(toUpper(*name), toUpper(*extension)) ? std::vector<std::string>{*name} : std::vector<std::string>();
     }

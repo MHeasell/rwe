@@ -149,9 +149,9 @@ namespace rwe
         auto tilePos = worldToHeightmapCoordinate(Vector3f(x, 0.0f, z));
         if (
             tilePos.x < 0
-            || tilePos.x >= heights.getWidth() - 1
+            || static_cast<std::size_t>(tilePos.x) >= heights.getWidth() - 1
             || tilePos.y < 0
-            || tilePos.y >= heights.getHeight() - 1)
+            || static_cast<std::size_t>(tilePos.y) >= heights.getHeight() - 1)
         {
             return 0.0f;
         }
@@ -312,9 +312,9 @@ namespace rwe
 
     bool MapTerrain::isInHeightMapBounds(int x, int y) const
     {
-        return (x >= 0
+        return x >= 0
             && y >= 0
-            && x < heights.getWidth() - 1
-            && y < heights.getHeight() - 1);
+            && static_cast<std::size_t>(x) < heights.getWidth() - 1
+            && static_cast<std::size_t>(y) < heights.getHeight() - 1;
     }
 }

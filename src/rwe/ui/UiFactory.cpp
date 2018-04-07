@@ -293,7 +293,7 @@ namespace rwe
         return series;
     }
 
-    std::unique_ptr<UiListBox> UiFactory::listBoxFromGuiEntry(const std::string& guiName, const GuiEntry& entry)
+    std::unique_ptr<UiListBox> UiFactory::listBoxFromGuiEntry(const std::string& /*guiName*/, const GuiEntry& entry)
     {
         auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
 
