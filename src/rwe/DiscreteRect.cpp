@@ -118,4 +118,23 @@ namespace rwe
     {
         return DiscreteRect(x - amount, y - amount, width + (2 * amount), height + (2 * amount));
     }
+
+    std::optional<DiscreteRect> DiscreteRect::intersection(const DiscreteRect& rhs) const
+    {
+        auto left = std::max(x, rhs.x);
+        auto top = std::max(y, rhs.y);
+
+        auto right = std::min(x + static_cast<int>(width), rhs.x + static_cast<int>(rhs.width));
+        auto bottom = std::min(y + static_cast<int>(height), rhs.y + static_cast<int>(rhs.height));
+
+        auto intersectWidth = right - left;
+        auto intersectHeight = bottom - top;
+
+        if (intersectWidth <= 0 || intersectHeight <= 0)
+        {
+            return std::nullopt;
+        }
+
+        return DiscreteRect(left, top, static_cast<unsigned int>(intersectWidth), static_cast<unsigned int>(intersectHeight));
+    }
 }

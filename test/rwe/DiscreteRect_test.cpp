@@ -178,5 +178,29 @@ namespace rwe
                 }
             }
         }
+
+        SECTION(".intersection")
+        {
+            SECTION("returns the intersection of rectangles")
+            {
+                // . . . . . . . . . .
+                // . . . . . . . . . .
+                // . a a a . . . . . .
+                // . a c c b b b b . .
+                // . a c c b b b b . .
+                // . a a a . . . . . .
+                // . . . . . . . . . .
+                DiscreteRect a(1, 2, 3, 4);
+                DiscreteRect b(2, 3, 6, 2);
+                DiscreteRect expected(2, 3, 2, 2);
+                REQUIRE(a.intersection(b) == expected);
+            }
+            SECTION("returns None if rectangles do not intersect")
+            {
+                DiscreteRect a(2, 2, 2, 2);
+                DiscreteRect b(4, 4, 2, 2);
+                REQUIRE(a.intersection(b) == std::nullopt);
+            }
+        }
     }
 }

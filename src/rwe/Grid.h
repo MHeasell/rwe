@@ -244,19 +244,16 @@ namespace rwe
     template <typename T>
     GridRegion Grid<T>::clipRegion(const DiscreteRect& rect) const
     {
-        auto left = std::max(0, rect.x);
-        auto top = std::max(0, rect.y);
-        auto right = std::min(static_cast<int>(width), rect.x + static_cast<int>(rect.width));
-        auto bottom = std::min(static_cast<int>(height), rect.y + static_cast<int>(rect.height));
-
-        assert(left >= 0);
-        assert(top >= 0);
-        assert(right >= left);
-        assert(bottom >= top);
-        assert(right <= width);
-        assert(bottom <= height);
-
-        return GridRegion(left, top, right - left, bottom - top);
+        auto intersect = rect.intersection(DiscreteRect(0, 0, width, height));
+        if (!intersect)
+        {
+            return GridRegion(0, 0, 0, 0);
+        }
+        return GridRegion(
+            static_cast<unsigned int>(intersect->x), // guaranteed non-negative
+            static_cast<unsigned int>(intersect->y), // guaranteed non-negative
+            intersect->width,
+            intersect->height);
     }
 
     template <typename T>

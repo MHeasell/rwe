@@ -4,6 +4,7 @@
 #include <boost/functional/hash.hpp>
 #include <rwe/Point.h>
 #include <rwe/pathfinding/OctileDistance.h>
+#include <optional>
 
 namespace rwe
 {
@@ -47,6 +48,12 @@ namespace rwe
         OctileDistance octileDistanceToInterior(int px, int py) const;
 
         DiscreteRect expand(unsigned int amount) const;
+
+        /**
+         * Returns the intersection of this rectangle and the given rectangle.
+         * If the two rectangles do not intersect, returns None.
+         */
+        std::optional<DiscreteRect> intersection(const DiscreteRect& rhs) const;
     };
 }
 
