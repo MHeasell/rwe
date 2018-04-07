@@ -279,12 +279,20 @@ namespace rwe
     template <typename T>
     std::optional<std::reference_wrapper<const T>> Grid<T>::tryGet(const Point& p) const
     {
-        if (p.x < 0 || p.y < 0 || p.x >= width || p.y >= height)
+        if (p.x < 0 || p.y < 0)
         {
             return std::nullopt;
         }
 
-        return get(p.x, p.y);
+        auto x1 = static_cast<std::size_t>(p.x);
+        auto y1 = static_cast<std::size_t>(p.y);
+
+        if (x1 >= width || y1 >= height)
+        {
+            return std::nullopt;
+        }
+
+        return get(x1, y1);
     }
 }
 

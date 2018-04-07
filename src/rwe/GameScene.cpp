@@ -516,13 +516,13 @@ namespace rwe
         audioService->playSoundIfFree(handle, UnitSelectChannel);
     }
 
-    void GameScene::playUnitSound(UnitId unitId, const AudioService::SoundHandle& sound)
+    void GameScene::playUnitSound(UnitId /*unitId*/, const AudioService::SoundHandle& sound)
     {
         // FIXME: should play on a unit-specific channel group
         audioService->playSound(sound);
     }
 
-    void GameScene::playSoundAt(const Vector3f& position, const AudioService::SoundHandle& sound)
+    void GameScene::playSoundAt(const Vector3f& /*position*/, const AudioService::SoundHandle& sound)
     {
         // FIXME: should play on a position-aware channel
         audioService->playSound(sound);
