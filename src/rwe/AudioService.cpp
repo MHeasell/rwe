@@ -1,4 +1,5 @@
 #include "AudioService.h"
+#include <cassert>
 
 namespace rwe
 {
@@ -50,7 +51,8 @@ namespace rwe
     void AudioService::reserveChannels(unsigned int count)
     {
         auto num = sdlMixerContext->reserveChannels(count);
-        if (num < count)
+        assert(num >= 0);
+        if (static_cast<unsigned int>(num) < count)
         {
             throw std::runtime_error("Failed to reserve audio channels");
         }
