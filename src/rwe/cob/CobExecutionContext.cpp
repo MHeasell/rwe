@@ -418,7 +418,7 @@ namespace rwe
     {
         auto object = nextInstruction();
         auto axis = nextInstructionAsAxis();
-        auto targetSpeed = popAngularSpeed();
+        auto targetSpeed = popSignedAngularSpeed();
         auto acceleration = popAngularSpeed();
         sim->spinObject(unitId, getObjectName(object), axis, targetSpeed, acceleration);
     }
@@ -630,6 +630,12 @@ namespace rwe
     float CobExecutionContext::popAngularSpeed()
     {
         auto val = static_cast<unsigned int>(pop());
+        return static_cast<float>(val) / 182.0f;
+    }
+
+    float CobExecutionContext::popSignedAngularSpeed()
+    {
+        auto val = pop();
         return static_cast<float>(val) / 182.0f;
     }
 

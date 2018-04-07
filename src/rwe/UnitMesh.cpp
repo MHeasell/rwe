@@ -50,13 +50,14 @@ namespace rwe
         if (auto spinOp = boost::get<UnitMesh::SpinOperation>(&*op); spinOp != nullptr)
         {
             auto frameAccel = spinOp->acceleration * dt;
-            if (spinOp->targetSpeed - spinOp->currentSpeed <= frameAccel)
+            auto remaining = spinOp->targetSpeed - spinOp->currentSpeed;
+            if (std::abs(remaining) <= frameAccel)
             {
                 spinOp->currentSpeed = spinOp->targetSpeed;
             }
             else
             {
-                spinOp->currentSpeed += frameAccel;
+                spinOp->currentSpeed += frameAccel * (remaining > 0.0f ? 1.0f : -1.0f);
             }
 
             auto frameSpeed = spinOp->currentSpeed * dt;
@@ -67,13 +68,13 @@ namespace rwe
         if (auto stopSpinOp = boost::get<UnitMesh::StopSpinOperation>(&*op); stopSpinOp != nullptr)
         {
             auto frameDecel = stopSpinOp->deceleration * dt;
-            if (stopSpinOp->currentSpeed <= frameDecel)
+            if (std::abs(stopSpinOp->currentSpeed) <= frameDecel)
             {
                 op = std::nullopt;
                 return;
             }
 
-            stopSpinOp->currentSpeed -= frameDecel;
+            stopSpinOp->currentSpeed -= frameDecel * (stopSpinOp->currentSpeed > 0.0f ? 1.0f : -1.0f);
             auto frameSpeed = stopSpinOp->currentSpeed * dt;
             currentAngle = wrap(-Pif, Pif, currentAngle + frameSpeed);
             return;
