@@ -150,12 +150,12 @@ namespace rwe
 
         if (sound)
         {
-            button->onClick().subscribe([ as = audioService, s = std::move(*sound) ](const auto& /*param*/) {
+            button->onClick().subscribe([as = audioService, s = std::move(*sound)](const auto& /*param*/) {
                 as->playSound(s);
             });
         }
 
-        button->onClick().subscribe([ c = controller, guiName, name = entry.common.name ](const auto& /*param*/) {
+        button->onClick().subscribe([c = controller, guiName, name = entry.common.name](const auto& /*param*/) {
             c->message(guiName, name);
         });
 
@@ -261,12 +261,12 @@ namespace rwe
 
         if (sound)
         {
-            button->onClick().subscribe([ as = audioService, s = std::move(*sound) ](const auto& /*param*/) {
+            button->onClick().subscribe([as = audioService, s = std::move(*sound)](const auto& /*param*/) {
                 as->playSound(s);
             });
         }
 
-        button->onClick().subscribe([ c = controller, guiName, name = entry.common.name ](const auto& /*param*/) {
+        button->onClick().subscribe([c = controller, guiName, name = entry.common.name](const auto& /*param*/) {
             c->message(guiName, name);
         });
 
@@ -324,7 +324,7 @@ namespace rwe
             });
             listBox->addSubscription(std::move(sub));
 
-            listBox->selectedIndex().subscribe([ l = listBox.get(), c = controller ](const auto& selectedMap) {
+            listBox->selectedIndex().subscribe([l = listBox.get(), c = controller](const auto& selectedMap) {
                 if (selectedMap)
                 {
                     c->setCandidateSelectedMap(l->getItems()[*selectedMap]);
@@ -444,7 +444,7 @@ namespace rwe
             auto listBox = dynamic_cast<UiListBox*>(c.get());
             if (listBox)
             {
-                listBox->scrollPosition().subscribe([ listBox, c = controller, guiName ](const auto& /*scrollPos*/) {
+                listBox->scrollPosition().subscribe([listBox, c = controller, guiName](const auto& /*scrollPos*/) {
                     ScrollPositionMessage m{listBox->getViewportPercent(), listBox->getScrollPercent()};
                     c->scrollMessage(guiName, listBox->getGroup(), listBox->getName(), m);
                 });
@@ -453,16 +453,16 @@ namespace rwe
             auto scrollBar = dynamic_cast<UiScrollBar*>(c.get());
             if (scrollBar)
             {
-                scrollBar->scrollChanged().subscribe([ scrollBar, c = controller, guiName ](float scrollPercent) {
+                scrollBar->scrollChanged().subscribe([scrollBar, c = controller, guiName](float scrollPercent) {
                     ScrollPositionMessage m{scrollBar->getScrollBarPercent(), scrollPercent};
                     c->scrollMessage(guiName, scrollBar->getGroup(), scrollBar->getName(), m);
                 });
 
-                scrollBar->scrollUp().subscribe([ scrollBar, c = controller, guiName ](const auto& /*msg*/) {
+                scrollBar->scrollUp().subscribe([scrollBar, c = controller, guiName](const auto& /*msg*/) {
                     c->scrollUpMessage(guiName, scrollBar->getGroup(), scrollBar->getName());
                 });
 
-                scrollBar->scrollDown().subscribe([ scrollBar, c = controller, guiName ](const auto& /*msg*/) {
+                scrollBar->scrollDown().subscribe([scrollBar, c = controller, guiName](const auto& /*msg*/) {
                     c->scrollDownMessage(guiName, scrollBar->getGroup(), scrollBar->getName());
                 });
             }
@@ -520,16 +520,16 @@ namespace rwe
                 auto b = std::make_unique<UiButton>(45, rowStart, width, height, *graphics, "Player", font);
                 if (sound)
                 {
-                    b->onClick().subscribe([ as = audioService, s = *sound ](const auto& /*param*/) {
+                    b->onClick().subscribe([as = audioService, s = *sound](const auto& /*param*/) {
                         as->playSound(s);
                     });
                 }
 
-                b->onClick().subscribe([ c = controller, i ](const auto& /*param*/) {
+                b->onClick().subscribe([c = controller, i](const auto& /*param*/) {
                     c->togglePlayer(i);
                 });
 
-                auto sub = model->players[i].type.subscribe([ b = b.get(), &panel, this, guiName, i ](MainMenuModel::PlayerSettings::Type type) {
+                auto sub = model->players[i].type.subscribe([b = b.get(), &panel, this, guiName, i](MainMenuModel::PlayerSettings::Type type) {
                     switch (type)
                     {
                         case MainMenuModel::PlayerSettings::Type::Open:
@@ -580,12 +580,12 @@ namespace rwe
             b->autoChangeStage = false;
             if (sound)
             {
-                b->onClick().subscribe([ as = audioService, s = *sound ](const auto& /*param*/) {
+                b->onClick().subscribe([as = audioService, s = *sound](const auto& /*param*/) {
                     as->playSound(s);
                 });
             }
 
-            b->onClick().subscribe([ c = controller, i ](const auto& /*param*/) {
+            b->onClick().subscribe([c = controller, i](const auto& /*param*/) {
                 c->togglePlayerSide(i);
             });
 
@@ -625,12 +625,12 @@ namespace rwe
             b->autoChangeStage = false;
             if (sound)
             {
-                b->onClick().subscribe([ as = audioService, s = *sound ](const auto& /*param*/) {
+                b->onClick().subscribe([as = audioService, s = *sound](const auto& /*param*/) {
                     as->playSound(s);
                 });
             }
 
-            b->onClick().subscribe([ c = controller, i ](const auto& event) {
+            b->onClick().subscribe([c = controller, i](const auto& event) {
                 switch (event.source)
                 {
                     case ButtonClickEvent::Source::RightMouseButton:
@@ -674,16 +674,16 @@ namespace rwe
             b->setStage(10); // blank button
             if (sound)
             {
-                b->onClick().subscribe([ as = audioService, s = *sound ](const auto& /*param*/) {
+                b->onClick().subscribe([as = audioService, s = *sound](const auto& /*param*/) {
                     as->playSound(s);
                 });
             }
 
-            b->onClick().subscribe([ c = controller, i ](const auto& /*param*/) {
+            b->onClick().subscribe([c = controller, i](const auto& /*param*/) {
                 c->cyclePlayerTeam(i);
             });
 
-            auto sub = model->players[i].teamIndex.subscribe([ b = b.get(), m = model ](auto index) {
+            auto sub = model->players[i].teamIndex.subscribe([b = b.get(), m = model](auto index) {
                 if (!index)
                 {
                     b->setStage(10);
@@ -700,7 +700,7 @@ namespace rwe
             });
             b->addSubscription(std::move(sub));
 
-            auto teamSub = model->teamChanges.subscribe([ b = b.get(), m = model, i ](auto index) {
+            auto teamSub = model->teamChanges.subscribe([b = b.get(), m = model, i](auto index) {
                 if (index == m->players[i].teamIndex.getValue())
                 {
                     auto stage = index * 2;
@@ -734,12 +734,12 @@ namespace rwe
             b->setName("PLAYER" + std::to_string(i) + "_metal");
             if (sound)
             {
-                b->onClick().subscribe([ as = audioService, s = *sound ](const auto& /*param*/) {
+                b->onClick().subscribe([as = audioService, s = *sound](const auto& /*param*/) {
                     as->playSound(s);
                 });
             }
 
-            b->onClick().subscribe([ b = b.get(), c = controller, i ](const auto& event) {
+            b->onClick().subscribe([b = b.get(), c = controller, i](const auto& event) {
                 switch (event.source)
                 {
                     case ButtonClickEvent::Source::RightMouseButton:
@@ -774,12 +774,12 @@ namespace rwe
             b->setName("PLAYER" + std::to_string(i) + "_energy");
             if (sound)
             {
-                b->onClick().subscribe([ as = audioService, s = *sound ](const auto& /*param*/) {
+                b->onClick().subscribe([as = audioService, s = *sound](const auto& /*param*/) {
                     as->playSound(s);
                 });
             }
 
-            b->onClick().subscribe([ b = b.get(), c = controller, i ](const auto& event) {
+            b->onClick().subscribe([b = b.get(), c = controller, i](const auto& event) {
                 switch (event.source)
                 {
                     case ButtonClickEvent::Source::RightMouseButton:

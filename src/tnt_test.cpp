@@ -58,7 +58,6 @@ int tilesCommand(const std::string& palettePath, const std::string& tntPath, con
 
     int i = 0;
     tnt.readTiles([&palette, &i, &outPath](const char* tileData) {
-
         png::image<png::rgb_pixel> image(32, 32);
         for (png::uint_32 y = 0; y < image.get_height(); ++y)
         {

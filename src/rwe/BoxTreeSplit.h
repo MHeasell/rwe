@@ -311,7 +311,6 @@ namespace rwe
         assert(!items.empty());
 
         std::sort(items.begin(), items.end(), [&f](const T& a, const T& b) {
-
             auto sizeA = f(a);
             auto maxSideA = std::max(sizeA.width, sizeA.height);
 
