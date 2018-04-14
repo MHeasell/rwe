@@ -91,9 +91,9 @@ namespace rwe
     float BoundingBox3f::distanceSquared(const Vector3f& pos) const
     {
         auto toCenter = center - pos;
-        auto dX = std::max(0.0f, std::abs(toCenter.x) - extents.x);
-        auto dY = std::max(0.0f, std::abs(toCenter.y) - extents.y);
-        auto dZ = std::max(0.0f, std::abs(toCenter.z) - extents.z);
+        auto dX = std::fmax(0.0f, std::abs(toCenter.x) - extents.x);
+        auto dY = std::fmax(0.0f, std::abs(toCenter.y) - extents.y);
+        auto dZ = std::fmax(0.0f, std::abs(toCenter.z) - extents.z);
         return (dX * dX) + (dY * dY) + (dZ * dZ);
     }
 }
