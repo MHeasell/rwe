@@ -52,6 +52,8 @@ namespace rwe
 
         Vector3f heightmapIndexToWorldCenter(int x, int y) const;
 
+        Vector3f heightmapIndexToWorldCenter(std::size_t x, std::size_t y) const;
+
         Vector3f heightmapIndexToWorldCenter(Point p) const;
 
         Vector3f worldToHeightmapSpace(const Vector3f& v) const;

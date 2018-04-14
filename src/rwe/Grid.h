@@ -11,6 +11,26 @@
 
 namespace rwe
 {
+    struct GridCoordinates
+    {
+        std::size_t x;
+        std::size_t y;
+        GridCoordinates() = default;
+        GridCoordinates(size_t x, size_t y) : x(x), y(y)
+        {
+        }
+
+        bool operator==(const GridCoordinates& rhs) const
+        {
+            return x == rhs.x && y == rhs.y;
+        }
+
+        bool operator!=(const GridCoordinates& rhs) const
+        {
+            return !(rhs == *this);
+        }
+    };
+
     template <typename T>
     class Grid
     {
@@ -62,6 +82,18 @@ namespace rwe
          * as long as it is contained entirely within the grid.
          */
         std::optional<GridRegion> tryToRegion(const DiscreteRect& rect) const;
+
+        /**
+         * Converts the given point to grid coordinates.
+         * If the point lies outside of the grid,
+         * the point is clamped to the edge of the grid
+         * before being returned.
+         *
+         * If the grid is of width 0 or height 0,
+         * there can be no coordinate that is inside the grid
+         * and the return value of this method is undefined.
+         */
+        GridCoordinates clampToCoords(const Point& p) const;
 
         /**
          * If the given point is within the bounds of the grid
@@ -274,6 +306,24 @@ namespace rwe
         }
 
         return GridRegion(rect.x, rect.y, rect.width, rect.height);
+    }
+
+    template <typename T>
+    GridCoordinates Grid<T>::clampToCoords(const Point& p) const
+    {
+        std::size_t x = (p.x > 0) ? static_cast<std::size_t>(p.x) : 0;
+        if (x >= width)
+        {
+            x = width - 1;
+        }
+
+        std::size_t y = (p.y > 0) ? static_cast<std::size_t>(p.y) : 0;
+        if (y >= height)
+        {
+            y = height - 1;
+        }
+
+        return GridCoordinates(x, y);
     }
 
     template <typename T>

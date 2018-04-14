@@ -1,4 +1,5 @@
 #include "Rectangle2f.h"
+#include <rwe/math/rwe_math.h>
 
 namespace rwe
 {
@@ -91,5 +92,12 @@ namespace rwe
     bool Rectangle2f::operator!=(const Rectangle2f& rhs) const
     {
         return !(rhs == *this);
+    }
+
+    float Rectangle2f::distanceSquared(const Vector2f& pos) const
+    {
+        auto dX = distanceSquaredToRange(left(), right(), pos.x);
+        auto dY = distanceSquaredToRange(top(), bottom(), pos.y);
+        return dX + dY;
     }
 }
