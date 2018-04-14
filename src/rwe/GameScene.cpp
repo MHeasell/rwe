@@ -896,7 +896,8 @@ namespace rwe
     {
         for (auto it = simulation.units.begin(); it != simulation.units.end();)
         {
-            if (it->second.isDead())
+            const auto& unit = it->second;
+            if (unit.isDead())
             {
                 if (selectedUnit && *selectedUnit == it->first)
                 {
@@ -906,6 +907,12 @@ namespace rwe
                 {
                     hoveredUnit = std::nullopt;
                 }
+
+                auto footprintRect = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+                auto footprintRegion = simulation.occupiedGrid.grid.tryToRegion(footprintRect);
+                assert(!!footprintRegion);
+                simulation.occupiedGrid.grid.setArea(*footprintRegion, OccupiedNone());
+
                 it = simulation.units.erase(it);
             }
             else
