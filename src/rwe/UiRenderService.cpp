@@ -214,7 +214,7 @@ namespace rwe
         Color borderColor = Color::Black;
 
         auto innerMaxWidth = width - (borderWidth * 2.0f);
-        auto innerWidth = std::floor(percentFull * innerMaxWidth);
+        auto innerWidth = 1.0f + std::floor(percentFull * (innerMaxWidth - 1.0f));
         auto innerHeight = height - (borderWidth * 2.0f);
         auto healthColor = getHealthColor(percentFull);
 
