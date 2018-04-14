@@ -785,7 +785,13 @@ namespace rwe
             }
         }
 
-        // TODO: trigger detonation damage
+        applyDamageInRadius(laser->position, laser->damageRadius, *laser);
+
+        laser = std::nullopt;
+    }
+
+    void GameScene::applyDamageInRadius(const Vector3f& position, float radius, const LaserProjectile& laser)
+    {
         for (auto& pair : simulation.units)
         {
             Unit& unit = pair.second;
@@ -795,15 +801,13 @@ namespace rwe
                 continue;
             }
 
-            auto distanceSquared = laser->position.distanceSquared(unit.position);
-            if (distanceSquared <= (32.0f * 32.0f))
+            auto distanceSquared = position.distanceSquared(unit.position);
+            if (distanceSquared <= (radius * radius))
             {
                 // do damage
-                applyDamage(pair.first, laser->getDamage(unit.unitType));
+                applyDamage(pair.first, laser.getDamage(unit.unitType));
             }
         }
-
-        laser = std::nullopt;
     }
 
     void GameScene::applyDamage(UnitId unitId, unsigned int damagePoints)

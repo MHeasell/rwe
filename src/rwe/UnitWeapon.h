@@ -77,6 +77,8 @@ namespace rwe
 
         std::unordered_map<std::string, unsigned int> damage;
 
+        float damageRadius;
+
         /** The internal state of the weapon. */
         UnitWeaponState state{UnitWeaponStateIdle()};
     };

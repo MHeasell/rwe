@@ -187,6 +187,8 @@ namespace rwe
             weapon.damage.insert_or_assign(toUpper(p.first), p.second);
         }
 
+        weapon.damageRadius = static_cast<float>(tdf.areaOfEffect) / 2.0f;
+
         return weapon;
     }
 

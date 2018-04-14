@@ -49,6 +49,8 @@ namespace rwe
 
         std::unordered_map<std::string, unsigned int> damage;
 
+        float damageRadius;
+
         Vector3f getBackPosition() const;
 
         unsigned int getDamage(const std::string& unitType) const;

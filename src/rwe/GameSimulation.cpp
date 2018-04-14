@@ -321,6 +321,8 @@ namespace rwe
 
         laser.damage = weapon.damage;
 
+        laser.damageRadius = weapon.damageRadius;
+
         return laser;
     }
 

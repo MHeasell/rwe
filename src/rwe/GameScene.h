@@ -207,6 +207,8 @@ namespace rwe
 
         void updateExplosions();
 
+        void applyDamageInRadius(const Vector3f& position, float radius, const LaserProjectile& laser);
+
         void applyDamage(UnitId unitId, unsigned int damagePoints);
 
         void deleteDeadUnits();
