@@ -38,6 +38,10 @@ namespace rwe
     unsigned int roundUpToPowerOfTwo(unsigned int v);
 
     bool almostEquals(float a, float b, float delta);
+
+    float distanceToRange(float min, float max, float pos);
+
+    float distanceSquaredToRange(float min, float max, float pos);
 }
 
 #endif

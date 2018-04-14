@@ -14,6 +14,9 @@ namespace rwe
         std::shared_ptr<SpriteSeries> animation;
         GameTime startTime;
 
+        /** If true, the particle moves upwards each tick, as smoke. */
+        bool floats{false};
+
         bool isStarted(GameTime currentTime) const;
         unsigned int getFrameIndex(GameTime currentTime) const;
         bool isFinished(GameTime currentTime) const;

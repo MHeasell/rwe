@@ -53,6 +53,7 @@ namespace rwe
         auto cobEnv = std::make_unique<CobEnvironment>(&script);
         cobEnv->createThread("Create", std::vector<int>());
         Unit unit(meshInfo.mesh, std::move(cobEnv), std::move(meshInfo.selectionMesh));
+        unit.unitType = toUpper(unitType);
         unit.owner = owner;
         unit.position = position;
         unit.height = meshInfo.height;
@@ -119,6 +120,11 @@ namespace rwe
             unit.weapons[2] = createWeapon(fbi.weapon3);
         }
 
+        if (!fbi.explodeAs.empty())
+        {
+            unit.explosionWeapon = createWeapon(fbi.explodeAs);
+        }
+
         if (soundClass.select1)
         {
             unit.selectionSound = unitDatabase.getSoundHandle(*(soundClass.select1));
@@ -139,6 +145,7 @@ namespace rwe
     {
         const auto& tdf = unitDatabase.getWeapon(weaponType);
         UnitWeapon weapon;
+
         weapon.maxRange = tdf.range;
         weapon.reloadTime = tdf.reloadTime;
         weapon.tolerance = toleranceToRadians(tdf.tolerance);
@@ -148,6 +155,12 @@ namespace rwe
         weapon.color = getLaserColor(tdf.color);
         weapon.color2 = getLaserColor(tdf.color2);
         weapon.commandFire = tdf.commandFire;
+        weapon.startSmoke = tdf.startSmoke;
+        weapon.endSmoke = tdf.endSmoke;
+        if (tdf.smokeTrail)
+        {
+            weapon.smokeTrail = GameTimeDelta(static_cast<unsigned int>(tdf.smokeDelay * 60.0f));
+        }
         if (!tdf.soundStart.empty())
         {
             weapon.soundStart = unitDatabase.getSoundHandle(tdf.soundStart);
@@ -168,6 +181,14 @@ namespace rwe
         {
             weapon.waterExplosion = textureService->getGafEntry("anims/" + tdf.waterExplosionGaf + ".gaf", tdf.waterExplosionArt);
         }
+
+        for (const auto& p : tdf.damage)
+        {
+            weapon.damage.insert_or_assign(toUpper(p.first), p.second);
+        }
+
+        weapon.damageRadius = static_cast<float>(tdf.areaOfEffect) / 2.0f;
+
         return weapon;
     }
 

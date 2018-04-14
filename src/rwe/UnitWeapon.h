@@ -44,6 +44,11 @@ namespace rwe
 
         float reloadTime;
 
+        bool startSmoke;
+        bool endSmoke;
+
+        std::optional<GameTimeDelta> smokeTrail;
+
         std::optional<AudioService::SoundHandle> soundStart;
         std::optional<AudioService::SoundHandle> soundHit;
         std::optional<AudioService::SoundHandle> soundWater;
@@ -69,6 +74,10 @@ namespace rwe
 
         /** If true, the weapon only fires on command and does not auto-target. */
         bool commandFire;
+
+        std::unordered_map<std::string, unsigned int> damage;
+
+        float damageRadius;
 
         /** The internal state of the weapon. */
         UnitWeaponState state{UnitWeaponStateIdle()};

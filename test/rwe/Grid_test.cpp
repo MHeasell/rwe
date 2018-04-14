@@ -185,5 +185,30 @@ namespace rwe
                 REQUIRE(g.tryGet(Point(0, 2)) == std::nullopt);
             }
         }
+
+        SECTION(".clampToCoords")
+        {
+            SECTION("Returns the coords when they are in the grid")
+            {
+                Grid<int> g(3, 2);
+                REQUIRE(g.clampToCoords(Point(0, 0)) == GridCoordinates(0, 0));
+                REQUIRE(g.clampToCoords(Point(0, 1)) == GridCoordinates(0, 1));
+                REQUIRE(g.clampToCoords(Point(1, 0)) == GridCoordinates(1, 0));
+            }
+
+            SECTION("clamps when points are outside")
+            {
+                Grid<int> g(3, 2);
+                REQUIRE(g.clampToCoords(Point(-1, 1)) == GridCoordinates(0, 1)); // left
+                REQUIRE(g.clampToCoords(Point(3, 1)) == GridCoordinates(2, 1)); // right
+                REQUIRE(g.clampToCoords(Point(2, -1)) == GridCoordinates(2, 0)); // up
+                REQUIRE(g.clampToCoords(Point(2, 2)) == GridCoordinates(2, 1)); // down
+
+                REQUIRE(g.clampToCoords(Point(-1, -1)) == GridCoordinates(0, 0)); // topleft
+                REQUIRE(g.clampToCoords(Point(3, -1)) == GridCoordinates(2, 0)); // topright
+                REQUIRE(g.clampToCoords(Point(-1, 2)) == GridCoordinates(0, 1)); // bottomleft
+                REQUIRE(g.clampToCoords(Point(3, 2)) == GridCoordinates(2, 1)); // bottomright
+            }
+        }
     }
 }

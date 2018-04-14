@@ -74,6 +74,11 @@ namespace rwe
         return heightmapToWorldSpace(Vector3f(static_cast<float>(x) + 0.5f, 0.0f, static_cast<float>(y) + 0.5f));
     }
 
+    Vector3f MapTerrain::heightmapIndexToWorldCenter(std::size_t x, std::size_t y) const
+    {
+        return heightmapToWorldSpace(Vector3f(static_cast<float>(x) + 0.5f, 0.0f, static_cast<float>(y) + 0.5f));
+    }
+
     Vector3f MapTerrain::heightmapIndexToWorldCenter(Point p) const
     {
         return heightmapIndexToWorldCenter(p.x, p.y);

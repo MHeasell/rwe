@@ -2,6 +2,7 @@
 #include <boost/range/adaptor/map.hpp>
 #include <rwe/Mesh.h>
 #include <rwe/math/rwe_math.h>
+#include <unordered_set>
 
 namespace rwe
 {
@@ -445,6 +446,8 @@ namespace rwe
         updateLasers();
 
         updateExplosions();
+
+        deleteDeadUnits();
     }
 
     void GameScene::spawnUnit(const std::string& unitType, PlayerId owner, const Vector3f& position)
@@ -673,6 +676,7 @@ namespace rwe
 
     void GameScene::updateLasers()
     {
+        auto gameTime = getGameTime();
         for (auto& laser : simulation.lasers)
         {
             if (!laser)
@@ -681,6 +685,16 @@ namespace rwe
             }
 
             laser->position += laser->velocity;
+
+            // emit smoke trail
+            if (laser->smokeTrail)
+            {
+                if (gameTime > laser->lastSmoke + *laser->smokeTrail)
+                {
+                    createLightSmoke(laser->position);
+                    laser->lastSmoke = gameTime;
+                }
+            }
 
             // test collision with terrain
             auto terrainHeight = simulation.terrain.getHeightAt(laser->position.x, laser->position.z);
@@ -727,13 +741,19 @@ namespace rwe
             if (exp->isFinished(simulation.gameTime))
             {
                 exp = std::nullopt;
+                continue;
+            }
+
+            if (exp->floats)
+            {
+                // TODO: drift with the wind
+                exp->position.y += 0.5f;
             }
         }
     }
 
     void GameScene::doLaserImpact(std::optional<LaserProjectile>& laser, ImpactType impactType)
     {
-        // TODO: trigger detonation damage
         switch (impactType)
         {
             case ImpactType::Normal:
@@ -745,6 +765,10 @@ namespace rwe
                 if (laser->explosion)
                 {
                     simulation.spawnExplosion(laser->position, *laser->explosion);
+                }
+                if (laser->endSmoke)
+                {
+                    createLightSmoke(laser->position);
                 }
                 break;
             }
@@ -762,6 +786,132 @@ namespace rwe
             }
         }
 
+        applyDamageInRadius(laser->position, laser->damageRadius, *laser);
+
         laser = std::nullopt;
+    }
+
+    void GameScene::applyDamageInRadius(const Vector3f& position, float radius, const LaserProjectile& laser)
+    {
+        auto minX = position.x - radius;
+        auto maxX = position.x + radius;
+        auto minZ = position.z - radius;
+        auto maxZ = position.z + radius;
+
+        auto minPoint = simulation.terrain.worldToHeightmapCoordinate(Vector3f(minX, position.y, minZ));
+        auto maxPoint = simulation.terrain.worldToHeightmapCoordinate(Vector3f(maxX, position.y, maxZ));
+        auto minCell = simulation.terrain.getHeightMap().clampToCoords(minPoint);
+        auto maxCell = simulation.terrain.getHeightMap().clampToCoords(maxPoint);
+
+        assert(minCell.x <= maxCell.x);
+        assert(minCell.y <= maxCell.y);
+
+        auto radiusSquared = radius * radius;
+
+        std::unordered_set<UnitId> seenUnits;
+
+        // for each cell
+        for (std::size_t y = minCell.y; y <= maxCell.y; ++y)
+        {
+            for (std::size_t x = minCell.x; x <= maxCell.x; ++x)
+            {
+                // check if it's in range
+                auto cellCenter = simulation.terrain.heightmapIndexToWorldCenter(x, y);
+                Rectangle2f rect(
+                    Vector2f(cellCenter.x, cellCenter.z),
+                    Vector2f(MapTerrain::HeightTileWidthInWorldUnits / 2.0f, MapTerrain::HeightTileHeightInWorldUnits / 2.0f));
+                auto d = rect.distanceSquared(Vector2f(position.x, position.z));
+                if (d > radiusSquared)
+                {
+                    continue;
+                }
+
+                // check if a unit (or feature) is there
+                auto occupiedType = simulation.occupiedGrid.grid.get(x, y);
+                auto u = boost::get<OccupiedUnit>(&occupiedType);
+                if (u == nullptr)
+                {
+                    continue;
+                }
+
+                const auto& unit = simulation.getUnit(u->id);
+
+                // skip dead units
+                if (unit.isDead())
+                {
+                    continue;
+                }
+
+                // add in the third dimension component to distance,
+                // check if we are still in range
+                d += distanceSquaredToRange(unit.position.y, unit.position.y + unit.height, position.y);
+                if (d > radiusSquared)
+                {
+                    continue;
+                }
+
+                // check if the unit was seen/mark as seen
+                auto pair = seenUnits.insert(u->id);
+                if (!pair.second) // the unit was already present
+                {
+                    continue;
+                }
+
+                // apply appropriate damage
+                auto damageScale = std::clamp(1.0f - (std::sqrt(d) / radius), 0.0f, 1.0f);
+                auto rawDamage = laser.getDamage(unit.unitType);
+                auto scaledDamage = static_cast<unsigned int>(static_cast<float>(rawDamage) * damageScale);
+                applyDamage(u->id, scaledDamage);
+            }
+        }
+    }
+
+    void GameScene::applyDamage(UnitId unitId, unsigned int damagePoints)
+    {
+        auto& unit = simulation.getUnit(unitId);
+        if (unit.hitPoints <= damagePoints)
+        {
+            unit.markAsDead();
+
+            // TODO: spawn debris particles, corpse
+            if (unit.explosionWeapon)
+            {
+                auto impactType = unit.position.y < simulation.terrain.getSeaLevel() ? ImpactType::Water : ImpactType::Normal;
+                std::optional<LaserProjectile> projectile = simulation.createProjectileFromWeapon(unit.owner, *unit.explosionWeapon, unit.position, Vector3f(0.0f, -1.0f, 0.0f));
+                doLaserImpact(projectile, impactType);
+            }
+        }
+        else
+        {
+            unit.hitPoints -= damagePoints;
+        }
+    }
+
+    void GameScene::createLightSmoke(const Vector3f& position)
+    {
+        simulation.spawnSmoke(position, textureService->getGafEntry("anims/FX.GAF", "smoke 1"));
+    }
+
+    void GameScene::deleteDeadUnits()
+    {
+        for (auto it = simulation.units.begin(); it != simulation.units.end();)
+        {
+            if (it->second.isDead())
+            {
+                if (selectedUnit && *selectedUnit == it->first)
+                {
+                    selectedUnit = std::nullopt;
+                }
+                if (hoveredUnit && *hoveredUnit == it->first)
+                {
+                    hoveredUnit = std::nullopt;
+                }
+                it = simulation.units.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+        }
     }
 }

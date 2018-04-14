@@ -82,6 +82,8 @@ namespace rwe
 
         const Unit& getUnit(UnitId id) const;
 
+        bool unitExists(UnitId id) const;
+
         MapFeature& getFeature(FeatureId id);
 
         const MapFeature& getFeature(FeatureId id) const;
@@ -112,9 +114,13 @@ namespace rwe
 
         void requestPath(UnitId unitId);
 
+        LaserProjectile createProjectileFromWeapon(PlayerId owner, const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction);
+
         void spawnLaser(PlayerId owner, const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction);
 
         void spawnExplosion(const Vector3f& position, const std::shared_ptr<SpriteSeries>& animation);
+
+        void spawnSmoke(const Vector3f& position, const std::shared_ptr<SpriteSeries>& animation);
     };
 }
 

@@ -46,6 +46,8 @@ namespace rwe
         tdf.readOrDefault("Weapon2", u.weapon2);
         tdf.readOrDefault("Weapon3", u.weapon3);
 
+        tdf.readOrDefault("ExplodeAs", u.explodeAs);
+
         return u;
     }
 }

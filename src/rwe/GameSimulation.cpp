@@ -181,6 +181,12 @@ namespace rwe
         return it->second;
     }
 
+    bool GameSimulation::unitExists(UnitId id) const
+    {
+        auto it = units.find(id);
+        return it != units.end();
+    }
+
     MapFeature& GameSimulation::getFeature(FeatureId id)
     {
         auto it = features.find(id);
@@ -291,7 +297,8 @@ namespace rwe
         pathRequests.push_back(PathRequest{unitId});
     }
 
-    void GameSimulation::spawnLaser(PlayerId owner, const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction)
+    LaserProjectile GameSimulation::createProjectileFromWeapon(
+        PlayerId owner, const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction)
     {
         LaserProjectile laser;
         laser.owner = owner;
@@ -302,11 +309,26 @@ namespace rwe
         laser.color = weapon.color;
         laser.color2 = weapon.color2;
 
+        laser.endSmoke = weapon.endSmoke;
+        laser.smokeTrail = weapon.smokeTrail;
+        laser.lastSmoke = gameTime;
+
         laser.soundHit = weapon.soundHit;
         laser.soundWater = weapon.soundWater;
 
         laser.explosion = weapon.explosion;
         laser.waterExplosion = weapon.waterExplosion;
+
+        laser.damage = weapon.damage;
+
+        laser.damageRadius = weapon.damageRadius;
+
+        return laser;
+    }
+
+    void GameSimulation::spawnLaser(PlayerId owner, const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction)
+    {
+        auto laser = createProjectileFromWeapon(owner, weapon, position, direction);
 
         auto it = std::find_if(lasers.begin(), lasers.end(), [](const auto& x) { return !x; });
         if (it == lasers.end())
@@ -325,6 +347,25 @@ namespace rwe
         exp.position = position;
         exp.animation = animation;
         exp.startTime = gameTime;
+
+        auto it = std::find_if(explosions.begin(), explosions.end(), [](const auto& x) { return !x; });
+        if (it == explosions.end())
+        {
+            explosions.push_back(exp);
+        }
+        else
+        {
+            *it = exp;
+        }
+    }
+
+    void GameSimulation::spawnSmoke(const Vector3f& position, const std::shared_ptr<SpriteSeries>& animation)
+    {
+        Explosion exp;
+        exp.position = position;
+        exp.animation = animation;
+        exp.startTime = gameTime;
+        exp.floats = true;
 
         auto it = std::find_if(explosions.begin(), explosions.end(), [](const auto& x) { return !x; });
         if (it == explosions.end())

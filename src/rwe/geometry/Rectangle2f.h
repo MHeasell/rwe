@@ -36,6 +36,8 @@ namespace rwe
 
         float width() const;
         float height() const;
+
+        float distanceSquared(const Vector2f& pos) const;
     };
 }
 

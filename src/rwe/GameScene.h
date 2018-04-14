@@ -166,6 +166,8 @@ namespace rwe
 
         void doLaserImpact(std::optional<LaserProjectile>& laser, ImpactType impactType);
 
+        void createLightSmoke(const Vector3f& position);
+
     private:
         std::optional<UnitId> getUnitUnderCursor() const;
 
@@ -204,6 +206,12 @@ namespace rwe
         void updateLasers();
 
         void updateExplosions();
+
+        void applyDamageInRadius(const Vector3f& position, float radius, const LaserProjectile& laser);
+
+        void applyDamage(UnitId unitId, unsigned int damagePoints);
+
+        void deleteDeadUnits();
     };
 }
 
