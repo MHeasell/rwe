@@ -17,6 +17,8 @@ namespace rwe
             RayIntersect(float enter, float exit) : enter(enter), exit(exit) {}
         };
 
+        static BoundingBox3f fromMinMax(const Vector3f& min, const Vector3f& max);
+
         /** The position of the center of the box. */
         Vector3f center;
 
@@ -32,6 +34,8 @@ namespace rwe
          * Otherwise, returns a result indicating that the ray missed.
          */
         std::optional<RayIntersect> intersect(const Ray3f& ray) const;
+
+        float distanceSquared(const Vector3f& pos) const;
     };
 }
 

@@ -212,6 +212,8 @@ namespace rwe
         void applyDamage(UnitId unitId, unsigned int damagePoints);
 
         void deleteDeadUnits();
+
+        BoundingBox3f createBoundingBox(const Unit& unit) const;
     };
 }
 

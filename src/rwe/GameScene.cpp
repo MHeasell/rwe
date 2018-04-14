@@ -1,7 +1,6 @@
 #include "GameScene.h"
 #include <boost/range/adaptor/map.hpp>
 #include <rwe/Mesh.h>
-#include <rwe/math/rwe_math.h>
 #include <unordered_set>
 
 namespace rwe
@@ -817,11 +816,11 @@ namespace rwe
             {
                 // check if it's in range
                 auto cellCenter = simulation.terrain.heightmapIndexToWorldCenter(x, y);
-                Rectangle2f rect(
+                Rectangle2f cellRectangle(
                     Vector2f(cellCenter.x, cellCenter.z),
                     Vector2f(MapTerrain::HeightTileWidthInWorldUnits / 2.0f, MapTerrain::HeightTileHeightInWorldUnits / 2.0f));
-                auto d = rect.distanceSquared(Vector2f(position.x, position.z));
-                if (d > radiusSquared)
+                auto cellDistanceSquared = cellRectangle.distanceSquared(Vector2f(position.x, position.z));
+                if (cellDistanceSquared > radiusSquared)
                 {
                     continue;
                 }
@@ -830,6 +829,13 @@ namespace rwe
                 auto occupiedType = simulation.occupiedGrid.grid.get(x, y);
                 auto u = boost::get<OccupiedUnit>(&occupiedType);
                 if (u == nullptr)
+                {
+                    continue;
+                }
+
+                // check if the unit was seen/mark as seen
+                auto pair = seenUnits.insert(u->id);
+                if (!pair.second) // the unit was already present
                 {
                     continue;
                 }
@@ -844,21 +850,14 @@ namespace rwe
 
                 // add in the third dimension component to distance,
                 // check if we are still in range
-                d += distanceSquaredToRange(unit.position.y, unit.position.y + unit.height, position.y);
-                if (d > radiusSquared)
-                {
-                    continue;
-                }
-
-                // check if the unit was seen/mark as seen
-                auto pair = seenUnits.insert(u->id);
-                if (!pair.second) // the unit was already present
+                auto unitDistanceSquared = createBoundingBox(unit).distanceSquared(position);
+                if (unitDistanceSquared > radiusSquared)
                 {
                     continue;
                 }
 
                 // apply appropriate damage
-                auto damageScale = std::clamp(1.0f - (std::sqrt(d) / radius), 0.0f, 1.0f);
+                auto damageScale = std::clamp(1.0f - (std::sqrt(unitDistanceSquared) / radius), 0.0f, 1.0f);
                 auto rawDamage = laser.getDamage(unit.unitType);
                 auto scaledDamage = static_cast<unsigned int>(static_cast<float>(rawDamage) * damageScale);
                 applyDamage(u->id, scaledDamage);
@@ -920,5 +919,15 @@ namespace rwe
                 ++it;
             }
         }
+    }
+
+    BoundingBox3f GameScene::createBoundingBox(const Unit& unit) const
+    {
+        auto footprint = simulation.computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+        auto min = Vector3f(footprint.x, unit.position.y, footprint.y);
+        auto max = Vector3f(footprint.x + footprint.width, unit.position.y + unit.height, footprint.y + footprint.height);
+        auto worldMin = simulation.terrain.heightmapToWorldSpace(min);
+        auto worldMax = simulation.terrain.heightmapToWorldSpace(max);
+        return BoundingBox3f::fromMinMax(worldMin, worldMax);
     }
 }

@@ -71,24 +71,4 @@ namespace rwe
     {
         return (std::abs(b - a) < delta);
     }
-
-    float distanceToRange(float min, float max, float pos)
-    {
-        assert(min <= max);
-        if (pos < min)
-        {
-            return min - pos;
-        }
-        if (pos > max)
-        {
-            return pos - max;
-        }
-        return 0.0f;
-    }
-
-    float distanceSquaredToRange(float min, float max, float pos)
-    {
-        auto d = distanceToRange(min, max, pos);
-        return d * d;
-    }
 }

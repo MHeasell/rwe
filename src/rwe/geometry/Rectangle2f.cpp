@@ -96,8 +96,9 @@ namespace rwe
 
     float Rectangle2f::distanceSquared(const Vector2f& pos) const
     {
-        auto dX = distanceSquaredToRange(left(), right(), pos.x);
-        auto dY = distanceSquaredToRange(top(), bottom(), pos.y);
-        return dX + dY;
+        auto toCenter = position - pos;
+        auto dX = std::max(0.0f, std::abs(toCenter.x) - extents.x);
+        auto dY = std::max(0.0f, std::abs(toCenter.y) - extents.y);
+        return (dX * dX) + (dY * dY);
     }
 }
