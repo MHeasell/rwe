@@ -21,6 +21,8 @@ addons:
       - libsdl2-net-dev
       - libsdl2-mixer-dev
       - libglew-dev
+      - zlib1g-dev
+      - libpng-dev
 
 env:
   - MATRIX_EVAL="CC=gcc-7 CXX=g++-7"

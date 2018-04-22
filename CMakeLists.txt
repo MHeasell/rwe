@@ -405,6 +405,12 @@ set(SOURCE_FILES
     src/rwe/vfs/HpiFileSystem.h
     )
 
+if (WIN32)
+    add_definitions(-DRWE_PLATFORM_WINDOWS)
+else()
+    add_definitions(-DRWE_PLATFORM_LINUX)
+endif()
+
 add_library(librwe STATIC ${SOURCE_FILES})
 set_target_properties(librwe PROPERTIES PREFIX "")
 if(MSVC)
