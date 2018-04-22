@@ -81,7 +81,9 @@ Install the required packages:
       mingw-w64-x86_64-SDL2_mixer \
       mingw-w64-x86_64-SDL2_net \
       mingw-w64-x86_64-glew \
-      mingw-w64-x86_64-smpeg2
+      mingw-w64-x86_64-smpeg2 \
+      mingw-w64-x86_64-zlib \
+      mingw-w64-x86_64-libpng
 
 Open the `MSYS MinGW 64-bit` terminal and do the following
 to generate and build the project:
@@ -112,7 +114,9 @@ Install the necessary packages:
       libsdl2-image-dev \
       libsdl2-net-dev \
       libsdl2-mixer-dev \
-      libglew-dev
+      libglew-dev \
+      zlib1g-dev \
+      libpng-dev
 
 Ensure you have a recent version of CMake (3.8+).
 The one provided by your package manager may not be new enough.
