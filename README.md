@@ -132,7 +132,13 @@ Now build the code:
     cmake .. -G 'Unix Makefiles'
     make
 
-Once built, launch RWE from the top-level directory:
+Install some TA data files (.hpi, .ufo, .ccx, rev31.gp3, etc.)
+to your local data directory:
+
+    mkdir -p $HOME/.rwe/Data
+    cp /path/to/totala1.hpi /path/to/totala2.hpi $HOME/.rwe/Data
+
+Finally, launch RWE from the top-level project directory:
 
     cd /path/to/rwe
     build/rwe
