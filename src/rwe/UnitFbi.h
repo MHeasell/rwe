@@ -27,6 +27,8 @@ namespace rwe
 
         bool canAttack;
 
+        bool commander;
+
         unsigned int maxDamage;
 
         bool bmCode;

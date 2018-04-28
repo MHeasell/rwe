@@ -1,6 +1,9 @@
 #ifndef RWE_GAMESCENE_H
 #define RWE_GAMESCENE_H
 
+#include <deque>
+#include <functional>
+#include <optional>
 #include <rwe/AudioService.h>
 #include <rwe/CursorService.h>
 #include <rwe/DiscreteRect.h>
@@ -10,6 +13,7 @@
 #include <rwe/PlayerId.h>
 #include <rwe/RenderService.h>
 #include <rwe/SceneManager.h>
+#include <rwe/SceneTime.h>
 #include <rwe/TextureService.h>
 #include <rwe/UiRenderService.h>
 #include <rwe/Unit.h>
@@ -24,6 +28,23 @@
 
 namespace rwe
 {
+    struct GameSceneTimeAction
+    {
+        using Time = SceneTime;
+        Time triggerTime;
+        std::function<void()> callback;
+
+        GameSceneTimeAction(Time triggerTime, const std::function<void()>& callback)
+            : triggerTime(triggerTime), callback(callback)
+        {
+        }
+
+        GameSceneTimeAction(Time triggerTime, std::function<void()>&& callback)
+            : triggerTime(triggerTime), callback(std::move(callback))
+        {
+        }
+    };
+
     struct AttackCursorMode
     {
     };
@@ -53,6 +74,7 @@ namespace rwe
          */
         static constexpr float CameraPanSpeed = 1000.0f;
 
+        SceneManager* const sceneManager;
         TextureService* textureService;
         CursorService* cursor;
         SdlContext* sdl;
@@ -74,6 +96,8 @@ namespace rwe
 
         PlayerId localPlayerId;
 
+        SceneTime sceneTime{0};
+
         bool left{false};
         bool right{false};
         bool up{false};
@@ -93,8 +117,12 @@ namespace rwe
 
         CursorMode cursorMode{NormalCursorMode()};
 
+        std::deque<std::optional<GameSceneTimeAction>> actions;
+
+
     public:
         GameScene(
+            SceneManager* sceneManager,
             TextureService* textureService,
             CursorService* cursor,
             SdlContext* sdl,
@@ -214,6 +242,18 @@ namespace rwe
         void deleteDeadUnits();
 
         BoundingBox3f createBoundingBox(const Unit& unit) const;
+
+        void killUnit(UnitId unitId);
+
+        void killPlayer(PlayerId playerId);
+
+        void processActions();
+
+        template <typename T>
+        void delay(SceneTimeDelta interval, T&& f)
+        {
+            actions.push_back(GameSceneTimeAction(sceneTime + interval, std::forward<T>(f)));
+        }
     };
 }
 

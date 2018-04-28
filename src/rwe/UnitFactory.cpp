@@ -74,6 +74,8 @@ namespace rwe
 
         unit.canAttack = fbi.canAttack;
 
+        unit.commander = fbi.commander;
+
         unit.maxHitPoints = fbi.maxDamage;
         unit.hitPoints = fbi.maxDamage;
 

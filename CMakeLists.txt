@@ -217,6 +217,7 @@ set(SOURCE_FILES
     src/rwe/OccupiedGrid.cpp
     src/rwe/OccupiedGrid.h
     src/rwe/OpaqueId.h
+    src/rwe/OpaqueUnit.h
     src/rwe/OpenGlVersion.h
     src/rwe/PlayerId.h
     src/rwe/Point.cpp
@@ -228,6 +229,8 @@ set(SOURCE_FILES
     src/rwe/Result.h
     src/rwe/SceneManager.cpp
     src/rwe/SceneManager.h
+    src/rwe/SceneTime.cpp
+    src/rwe/SceneTime.h
     src/rwe/SdlContextManager.cpp
     src/rwe/SdlContextManager.h
     src/rwe/SelectionMesh.cpp
