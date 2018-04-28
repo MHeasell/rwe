@@ -141,7 +141,7 @@ namespace rwe
 
         void spawnSmoke(const Vector3f& position, const std::shared_ptr<SpriteSeries>& animation);
 
-        WinStatus computeGameStatus() const;
+        WinStatus computeWinStatus() const;
     };
 }
 

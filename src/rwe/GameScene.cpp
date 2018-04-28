@@ -384,7 +384,10 @@ namespace rwe
 
     void GameScene::update()
     {
+        sceneTime = nextSceneTime(sceneTime);
         simulation.gameTime = nextGameTime(simulation.gameTime);
+
+        processActions();
 
         float secondsElapsed = static_cast<float>(SceneManager::TickInterval) / 1000.0f;
         const float speed = CameraPanSpeed * secondsElapsed;
@@ -457,14 +460,14 @@ namespace rwe
             }
         }
 
-        auto winStatus = simulation.computeGameStatus();
+        auto winStatus = simulation.computeWinStatus();
         if (auto wonStatus = boost::get<WinStatusWon>(&winStatus); wonStatus != nullptr)
         {
-            sceneManager->requestExit();
+            delay(SceneTimeDelta(5 * 60), [sm=sceneManager](){ sm->requestExit(); });
         }
         else if (auto drawStatus = boost::get<WinStatusDraw>(&winStatus); drawStatus != nullptr)
         {
-            sceneManager->requestExit();
+            delay(SceneTimeDelta(5 * 60), [sm=sceneManager](){ sm->requestExit(); });
         }
 
         deleteDeadUnits();
@@ -976,6 +979,25 @@ namespace rwe
             }
 
             killUnit(p.first);
+        }
+    }
+
+    void GameScene::processActions()
+    {
+        for (auto& a : actions)
+        {
+            if (!a)
+            {
+                continue;
+            }
+
+            if (sceneTime < a->triggerTime)
+            {
+                continue;
+            }
+
+            a->callback();
+            a = std::nullopt;
         }
     }
 }

@@ -403,7 +403,7 @@ set(SOURCE_FILES
     src/rwe/vfs/DirectoryFileSystem.h
     src/rwe/vfs/HpiFileSystem.cpp
     src/rwe/vfs/HpiFileSystem.h
-    )
+    src/rwe/SceneTime.cpp src/rwe/SceneTime.h)
 
 if (WIN32)
     add_definitions(-DRWE_PLATFORM_WINDOWS)

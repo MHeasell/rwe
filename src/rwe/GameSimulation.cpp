@@ -383,7 +383,7 @@ namespace rwe
         }
     }
 
-    WinStatus GameSimulation::computeGameStatus() const
+    WinStatus GameSimulation::computeWinStatus() const
     {
         std::optional<PlayerId> livingPlayer;
         for (unsigned int i = 0; i < players.size(); ++i)

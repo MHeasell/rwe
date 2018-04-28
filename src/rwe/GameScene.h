@@ -1,6 +1,9 @@
 #ifndef RWE_GAMESCENE_H
 #define RWE_GAMESCENE_H
 
+#include <deque>
+#include <functional>
+#include <optional>
 #include <rwe/AudioService.h>
 #include <rwe/CursorService.h>
 #include <rwe/DiscreteRect.h>
@@ -21,9 +24,27 @@
 #include <rwe/camera/UiCamera.h>
 #include <rwe/cob/CobExecutionService.h>
 #include <rwe/pathfinding/PathFindingService.h>
+#include "SceneTime.h"
 
 namespace rwe
 {
+    struct GameSceneTimeAction
+    {
+        using Time = SceneTime;
+        Time triggerTime;
+        std::function<void()> callback;
+
+        GameSceneTimeAction(Time triggerTime, const std::function<void()>& callback)
+            : triggerTime(triggerTime), callback(callback)
+        {
+        }
+
+        GameSceneTimeAction(Time triggerTime, std::function<void()>&& callback)
+            : triggerTime(triggerTime), callback(std::move(callback))
+        {
+        }
+    };
+
     struct AttackCursorMode
     {
     };
@@ -75,6 +96,8 @@ namespace rwe
 
         PlayerId localPlayerId;
 
+        SceneTime sceneTime{0};
+
         bool left{false};
         bool right{false};
         bool up{false};
@@ -93,6 +116,9 @@ namespace rwe
         bool healthBarsVisible{false};
 
         CursorMode cursorMode{NormalCursorMode()};
+
+        std::deque<std::optional<GameSceneTimeAction>> actions;
+
 
     public:
         GameScene(
@@ -220,6 +246,14 @@ namespace rwe
         void killUnit(UnitId unitId);
 
         void killPlayer(PlayerId playerId);
+
+        void processActions();
+
+        template <typename T>
+        void delay(SceneTimeDelta interval, T&& f)
+        {
+            actions.push_back(GameSceneTimeAction(sceneTime + interval, std::forward<T>(f)));
+        }
     };
 }
 
