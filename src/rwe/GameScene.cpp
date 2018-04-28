@@ -55,6 +55,7 @@ namespace rwe
     };
 
     GameScene::GameScene(
+        SceneManager* sceneManager,
         TextureService* textureService,
         CursorService* cursor,
         SdlContext* sdl,
@@ -69,7 +70,8 @@ namespace rwe
         UnitDatabase&& unitDatabase,
         MeshService&& meshService,
         PlayerId localPlayerId)
-        : textureService(textureService),
+        : sceneManager(sceneManager),
+          textureService(textureService),
           cursor(cursor),
           sdl(sdl),
           audioService(audioService),
@@ -445,6 +447,25 @@ namespace rwe
         updateLasers();
 
         updateExplosions();
+
+        // if a commander died this frame, kill the player that owns it
+        for (const auto& p : simulation.units)
+        {
+            if (p.second.isCommander() && p.second.isDead())
+            {
+                killPlayer(p.second.owner);
+            }
+        }
+
+        auto winStatus = simulation.computeGameStatus();
+        if (auto wonStatus = boost::get<WinStatusWon>(&winStatus); wonStatus != nullptr)
+        {
+            sceneManager->requestExit();
+        }
+        else if (auto drawStatus = boost::get<WinStatusDraw>(&winStatus); drawStatus != nullptr)
+        {
+            sceneManager->requestExit();
+        }
 
         deleteDeadUnits();
     }
@@ -870,15 +891,7 @@ namespace rwe
         auto& unit = simulation.getUnit(unitId);
         if (unit.hitPoints <= damagePoints)
         {
-            unit.markAsDead();
-
-            // TODO: spawn debris particles, corpse
-            if (unit.explosionWeapon)
-            {
-                auto impactType = unit.position.y < simulation.terrain.getSeaLevel() ? ImpactType::Water : ImpactType::Normal;
-                std::optional<LaserProjectile> projectile = simulation.createProjectileFromWeapon(unit.owner, *unit.explosionWeapon, unit.position, Vector3f(0.0f, -1.0f, 0.0f));
-                doLaserImpact(projectile, impactType);
-            }
+            killUnit(unitId);
         }
         else
         {
@@ -929,5 +942,40 @@ namespace rwe
         auto worldMin = simulation.terrain.heightmapToWorldSpace(min);
         auto worldMax = simulation.terrain.heightmapToWorldSpace(max);
         return BoundingBox3f::fromMinMax(worldMin, worldMax);
+    }
+
+    void GameScene::killUnit(UnitId unitId)
+    {
+        auto& unit = simulation.getUnit(unitId);
+
+        unit.markAsDead();
+
+        // TODO: spawn debris particles, corpse
+        if (unit.explosionWeapon)
+        {
+            auto impactType = unit.position.y < simulation.terrain.getSeaLevel() ? ImpactType::Water : ImpactType::Normal;
+            std::optional<LaserProjectile> projectile = simulation.createProjectileFromWeapon(unit.owner, *unit.explosionWeapon, unit.position, Vector3f(0.0f, -1.0f, 0.0f));
+            doLaserImpact(projectile, impactType);
+        }
+    }
+
+    void GameScene::killPlayer(PlayerId playerId)
+    {
+        simulation.getPlayer(playerId).status = GamePlayerStatus::Dead;
+        for (auto& p : simulation.units)
+        {
+            auto& unit = p.second;
+            if (unit.isDead())
+            {
+                continue;
+            }
+
+            if (!unit.isOwnedBy(playerId))
+            {
+                continue;
+            }
+
+            killUnit(p.first);
+        }
     }
 }

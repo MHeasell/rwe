@@ -143,7 +143,7 @@ namespace rwe
             const auto& params = gameParameters.players[i];
             if (params)
             {
-                GamePlayerInfo gpi{params->color};
+                GamePlayerInfo gpi{params->color, GamePlayerStatus::Alive};
                 gamePlayers[i] = simulation.addPlayer(gpi);
 
                 if (params->controller == PlayerInfo::Controller::Human)
@@ -166,6 +166,7 @@ namespace rwe
         UiRenderService uiRenderService(graphics, shaders, uiCamera);
 
         auto gameScene = std::make_unique<GameScene>(
+            sceneManager,
             textureService,
             cursor,
             sdl,

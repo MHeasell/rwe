@@ -14,9 +14,16 @@
 
 namespace rwe
 {
+    enum class GamePlayerStatus
+    {
+        Alive,
+        Dead
+    };
+
     struct GamePlayerInfo
     {
         unsigned int color;
+        GamePlayerStatus status;
     };
 
     struct PathRequest
@@ -28,8 +35,18 @@ namespace rwe
         bool operator!=(const PathRequest& rhs) const;
     };
 
+    struct WinStatusWon
+    {
+        PlayerId winner;
+    };
+    struct WinStatusDraw {};
+    struct WinStatusUndecided {};
+    using WinStatus = boost::variant<WinStatusWon, WinStatusDraw, WinStatusUndecided>;
+
     struct GameSimulation
     {
+        WinStatus gameStatus{WinStatusUndecided()};
+
         MapTerrain terrain;
 
         OccupiedGrid occupiedGrid;
@@ -88,6 +105,8 @@ namespace rwe
 
         const MapFeature& getFeature(FeatureId id) const;
 
+        GamePlayerInfo& getPlayer(PlayerId player);
+
         const GamePlayerInfo& getPlayer(PlayerId player) const;
 
         void moveObject(UnitId unitId, const std::string& name, Axis axis, float position, float speed);
@@ -121,6 +140,8 @@ namespace rwe
         void spawnExplosion(const Vector3f& position, const std::shared_ptr<SpriteSeries>& animation);
 
         void spawnSmoke(const Vector3f& position, const std::shared_ptr<SpriteSeries>& animation);
+
+        WinStatus computeGameStatus() const;
     };
 }
 

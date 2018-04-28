@@ -132,6 +132,9 @@ namespace rwe
         unsigned int minWaterDepth;
         unsigned int maxWaterDepth;
 
+        /** If true, the unit is considered a commander for victory conditions. */
+        bool commander;
+
         unsigned int hitPoints;
         unsigned int maxHitPoints;
 
@@ -155,6 +158,8 @@ namespace rwe
         static Vector3f toDirection(float rotation);
 
         Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, SelectionMesh&& selectionMesh);
+
+        bool isCommander() const;
 
         void moveObject(const std::string& pieceName, Axis axis, float targetPosition, float speed);
 

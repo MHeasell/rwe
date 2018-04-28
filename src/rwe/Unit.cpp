@@ -39,6 +39,11 @@ namespace rwe
     {
     }
 
+    bool Unit::isCommander() const
+    {
+        return commander;
+    }
+
     void Unit::moveObject(const std::string& pieceName, Axis axis, float targetPosition, float speed)
     {
         auto piece = mesh.find(pieceName);

@@ -53,6 +53,7 @@ namespace rwe
          */
         static constexpr float CameraPanSpeed = 1000.0f;
 
+        SceneManager* const sceneManager;
         TextureService* textureService;
         CursorService* cursor;
         SdlContext* sdl;
@@ -95,6 +96,7 @@ namespace rwe
 
     public:
         GameScene(
+            SceneManager* sceneManager,
             TextureService* textureService,
             CursorService* cursor,
             SdlContext* sdl,
@@ -214,6 +216,10 @@ namespace rwe
         void deleteDeadUnits();
 
         BoundingBox3f createBoundingBox(const Unit& unit) const;
+
+        void killUnit(UnitId unitId);
+
+        void killPlayer(PlayerId playerId);
     };
 }
 

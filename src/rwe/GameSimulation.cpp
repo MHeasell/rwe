@@ -201,6 +201,11 @@ namespace rwe
         return it->second;
     }
 
+    GamePlayerInfo& GameSimulation::getPlayer(PlayerId player)
+    {
+        return players.at(player.value);
+    }
+
     const GamePlayerInfo& GameSimulation::getPlayer(PlayerId player) const
     {
         return players.at(player.value);
@@ -376,5 +381,36 @@ namespace rwe
         {
             *it = exp;
         }
+    }
+
+    WinStatus GameSimulation::computeGameStatus() const
+    {
+        std::optional<PlayerId> livingPlayer;
+        for (unsigned int i = 0; i < players.size(); ++i)
+        {
+            const auto& p = players[i];
+
+            if (p.status == GamePlayerStatus::Alive)
+            {
+                if (livingPlayer)
+                {
+                    // multiple players are alive, the game is not over
+                    return WinStatusUndecided();
+                }
+                else
+                {
+                    livingPlayer = PlayerId(i);
+                }
+            }
+        }
+
+        if (livingPlayer)
+        {
+            // one player is alive, declare them the winner
+            return WinStatusWon{*livingPlayer};
+        }
+
+        // no players are alive, the game is a draw
+        return WinStatusDraw();
     }
 }
