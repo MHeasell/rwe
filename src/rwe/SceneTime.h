@@ -1,7 +1,7 @@
 #ifndef RWE_SCENETIME_H
 #define RWE_SCENETIME_H
 
-#include "OpaqueUnit.h"
+#include <rwe/OpaqueUnit.h>
 
 namespace rwe
 {

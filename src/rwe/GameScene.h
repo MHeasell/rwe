@@ -13,6 +13,7 @@
 #include <rwe/PlayerId.h>
 #include <rwe/RenderService.h>
 #include <rwe/SceneManager.h>
+#include <rwe/SceneTime.h>
 #include <rwe/TextureService.h>
 #include <rwe/UiRenderService.h>
 #include <rwe/Unit.h>
@@ -24,7 +25,6 @@
 #include <rwe/camera/UiCamera.h>
 #include <rwe/cob/CobExecutionService.h>
 #include <rwe/pathfinding/PathFindingService.h>
-#include "SceneTime.h"
 
 namespace rwe
 {

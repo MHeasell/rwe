@@ -33,10 +33,10 @@ namespace rwe
     };
 
     template <typename T, typename Tag>
-    OpaqueUnit<T, Tag> operator+(OpaqueUnit<T, Tag> a, OpaqueUnitDelta<T, Tag> b){ return OpaqueUnit<T, Tag>(a.value + b.value); };
+    OpaqueUnit<T, Tag> operator+(OpaqueUnit<T, Tag> a, OpaqueUnitDelta<T, Tag> b) { return OpaqueUnit<T, Tag>(a.value + b.value); };
 
     template <typename T, typename Tag>
-    OpaqueUnit<T, Tag> operator-(OpaqueUnit<T, Tag> a, OpaqueUnitDelta<T, Tag> b){ return OpaqueUnit<T, Tag>(a.value - b.value); };
+    OpaqueUnit<T, Tag> operator-(OpaqueUnit<T, Tag> a, OpaqueUnitDelta<T, Tag> b) { return OpaqueUnit<T, Tag>(a.value - b.value); };
 
     template <typename T, typename Tag>
     OpaqueUnitDelta<T, Tag> operator-(OpaqueUnit<T, Tag> a, OpaqueUnit<T, Tag> b) { return OpaqueUnitDelta<T, Tag>(a.value - b.value); };

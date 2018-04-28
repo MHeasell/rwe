@@ -217,6 +217,8 @@ set(SOURCE_FILES
     src/rwe/OccupiedGrid.cpp
     src/rwe/OccupiedGrid.h
     src/rwe/OpaqueId.h
+    src/rwe/OpaqueUnit.cpp
+    src/rwe/OpaqueUnit.h
     src/rwe/OpenGlVersion.h
     src/rwe/PlayerId.h
     src/rwe/Point.cpp
@@ -228,6 +230,8 @@ set(SOURCE_FILES
     src/rwe/Result.h
     src/rwe/SceneManager.cpp
     src/rwe/SceneManager.h
+    src/rwe/SceneTime.cpp
+    src/rwe/SceneTime.h
     src/rwe/SdlContextManager.cpp
     src/rwe/SdlContextManager.h
     src/rwe/SelectionMesh.cpp
@@ -403,7 +407,7 @@ set(SOURCE_FILES
     src/rwe/vfs/DirectoryFileSystem.h
     src/rwe/vfs/HpiFileSystem.cpp
     src/rwe/vfs/HpiFileSystem.h
-    src/rwe/SceneTime.cpp src/rwe/SceneTime.h src/rwe/OpaqueUnit.cpp src/rwe/OpaqueUnit.h)
+    )
 
 if (WIN32)
     add_definitions(-DRWE_PLATFORM_WINDOWS)

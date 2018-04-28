@@ -39,8 +39,12 @@ namespace rwe
     {
         PlayerId winner;
     };
-    struct WinStatusDraw {};
-    struct WinStatusUndecided {};
+    struct WinStatusDraw
+    {
+    };
+    struct WinStatusUndecided
+    {
+    };
     using WinStatus = boost::variant<WinStatusWon, WinStatusDraw, WinStatusUndecided>;
 
     struct GameSimulation

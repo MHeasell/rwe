@@ -463,11 +463,11 @@ namespace rwe
         auto winStatus = simulation.computeWinStatus();
         if (auto wonStatus = boost::get<WinStatusWon>(&winStatus); wonStatus != nullptr)
         {
-            delay(SceneTimeDelta(5 * 60), [sm=sceneManager](){ sm->requestExit(); });
+            delay(SceneTimeDelta(5 * 60), [sm = sceneManager]() { sm->requestExit(); });
         }
         else if (auto drawStatus = boost::get<WinStatusDraw>(&winStatus); drawStatus != nullptr)
         {
-            delay(SceneTimeDelta(5 * 60), [sm=sceneManager](){ sm->requestExit(); });
+            delay(SceneTimeDelta(5 * 60), [sm = sceneManager]() { sm->requestExit(); });
         }
 
         deleteDeadUnits();
