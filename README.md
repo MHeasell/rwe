@@ -26,10 +26,26 @@ Source code is hosted on Github:
 
 https://github.com/MHeasell/rwe
 
-## How to Play
+## How to Install
 
 1. Create the folder `%AppData%/RWE/Data` and copy your TA data files to it (.hpi, .ufo, rev31.gp3, etc.)
 2. Run rwe.exe (if you used the installer, RWE will be in your start menu items)
+
+## How to Play
+
+General:
+- Scroll through the map using the arrow keys (UP, DOWN, LEFT, RIGHT).
+Units:
+- Left click to select units.
+- Right click to move units to the clicked area on the map.
+- To deselect units, left click on the map itself, off the unit.
+- To attack, with the unit selected, press A and select where to attack.
+- To stop units attacking, select them and press S.
+
+Debugging:
+- To show the collision grid, press F9.
+- To show unit pathfinding, press F10. Unit pathfinding will only display when a unit is moving/has arrived at their destination.
+- To show passable/impassible terrain for units, press F11 (Be sure to have the unit selected for this to display!). This will show where units can travel according to their movement class.
 
 ## Development Status
 
