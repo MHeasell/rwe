@@ -34,6 +34,40 @@ namespace rwe
         return OpenGlVersion(major, minor);
     }
 
+    void doGlewInit()
+    {
+        // Must set glewExperimental to true, otherwise in glew <= 1.13.0 glewInit() will fail
+        // and set glError to GL_INVALID_ENUM if called in an OpenGL core context.
+        // GL_INVALID_ENUM may *still* be emitted anyway, but isn't critical.
+        // Ubuntu 16.04 and earlier uses glew 1.13.0, Ubuntu 18.04 uses glew 2.0.0.
+        // See: https://www.khronos.org/opengl/wiki/OpenGL_Loading_Library
+        glewExperimental = GL_TRUE;
+        if (auto result = glewInit(); result != GLEW_OK)
+        {
+            throw std::runtime_error(reinterpret_cast<const char*>(glewGetErrorString(result)));
+        }
+
+        if (auto error = glGetError(); error == GL_NO_ERROR)
+        {
+            // all good, continue on
+        }
+        else if (error == GL_INVALID_ENUM)
+        {
+            // Ignore, expected from glew even with glewExperimental = true.
+            // It should have still worked anyway.
+
+            // Check if there are any more errors.
+            if (auto nextError = glGetError(); nextError != GL_NO_ERROR)
+            {
+                throw OpenGlException(error);
+            }
+        }
+        else
+        {
+            throw OpenGlException(error);
+        }
+    }
+
     Result<SdlContext::GlContextUniquePtr, const char*> createOpenGlContext(SdlContext* sdlContext, SDL_Window* window, spdlog::logger& logger, const OpenGlVersionInfo& requiredVersion)
     {
         logger.info(
@@ -118,11 +152,7 @@ namespace rwe
             throw std::runtime_error(SDL_GetError());
         }
 
-        auto glewResult = glewInit();
-        if (glewResult != GLEW_OK)
-        {
-            throw std::runtime_error(reinterpret_cast<const char*>(glewGetErrorString(glewResult)));
-        }
+        doGlewInit();
 
         // log opengl context info
         logger.info("OpenGL version: {0}", glGetString(GL_VERSION));
