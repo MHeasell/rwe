@@ -45,7 +45,7 @@ Units:
 Debugging:
 - To show the collision grid, press F9.
 - To show unit pathfinding, press F10. Unit pathfinding will only display when a unit is moving/has arrived at their destination.
-- To show passable/impassible terrain for units, press F11 (Be sure to have the unit selected for this to display!). This will show where land, water, and air units can travel with respect to their attribute.
+- To show passable/impassible terrain for units, press F11 (Be sure to have the unit selected for this to display!). This will show where units can travel according to their movement class.
 
 ## Development Status
 
