@@ -293,7 +293,11 @@ namespace rwe
         auto attrsIt = textureAttributesMap.find(name);
         if (attrsIt == textureAttributesMap.end())
         {
-            throw std::runtime_error("Texture attributes not found for texture: " + name);
+            // Some unit models in the wild (e.g. the ARM commander in TA:Zero)
+            // contain references to textures that don't exist,
+            // so we cannot simply throw here.
+            // TODO: consider returning an optional and making the caller decide what to do
+            return Rectangle2f(0, 0, 0, 0);
         }
 
         const auto& attrs = attrsIt->second;
