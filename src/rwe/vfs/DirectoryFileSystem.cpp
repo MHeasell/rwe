@@ -100,7 +100,7 @@ namespace rwe
                 for (const auto& innerEntry : innerEntries)
                 {
                     auto path = fs::path(innerDirectoryName) / innerEntry;
-                    innerEntries.push_back(path.string());
+                    v.push_back(path.string());
                 }
             }
             else if (e.path().extension().string() == extension)
