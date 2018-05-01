@@ -334,32 +334,37 @@ auto createLogger(const fs::path& logDir)
 
 int main(int argc, char* argv[])
 {
-    auto localDataPath = rwe::getLocalDataPath();
-    if (!localDataPath)
-    {
-        auto message = "Failed to determine local data path";
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Critical Error", message, nullptr);
-        return 1;
-    }
-
-    fs::path logPath(*localDataPath);
-    auto logger = createLogger(logPath);
-    logger->set_level(spdlog::level::debug);
-    logger->flush_on(spdlog::level::debug); // always flush
-
     try
     {
-        std::optional<std::string> mapName;
-        if (argc == 2)
+        auto localDataPath = rwe::getLocalDataPath();
+        if (!localDataPath)
         {
-            mapName = argv[1];
+            throw std::runtime_error("Failed to determine local data path");
         }
 
-        return rwe::run(*logger, *localDataPath, mapName);
+        fs::path logPath(*localDataPath);
+        auto logger = createLogger(logPath);
+        logger->set_level(spdlog::level::debug);
+        logger->flush_on(spdlog::level::debug); // always flush
+
+        try
+        {
+            std::optional<std::string> mapName;
+            if (argc == 2)
+            {
+                mapName = argv[1];
+            }
+
+            return rwe::run(*logger, *localDataPath, mapName);
+        }
+        catch (const std::exception& e)
+        {
+            logger->critical(e.what());
+            throw;
+        }
     }
     catch (const std::exception& e)
     {
-        logger->critical(e.what());
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Critical Error", e.what(), nullptr);
         return 1;
     }
