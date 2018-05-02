@@ -1,5 +1,6 @@
 #include <GL/glew.h>
 #include <boost/filesystem.hpp>
+#include <boost/program_options.hpp>
 #include <iostream>
 #include <memory>
 #include <rwe/AudioService.h>
@@ -22,6 +23,7 @@
 #include <spdlog/spdlog.h>
 
 namespace fs = boost::filesystem;
+namespace po = boost::program_options;
 
 namespace rwe
 {
@@ -109,7 +111,7 @@ namespace rwe
         return Ok(std::move(glContext));
     };
 
-    int run(spdlog::logger& logger, const fs::path& localDataPath, const std::optional<std::string>& mapName)
+    int run(spdlog::logger& logger, const fs::path& localDataPath, const std::optional<GameParameters>& gameParameters)
     {
         logger.info(ProjectNameVersion);
         logger.info("Current directory: {0}", fs::current_path().string());
@@ -251,12 +253,9 @@ namespace rwe
 
         MapFeatureService featureService(&vfs);
 
-        if (mapName)
+        if (gameParameters)
         {
-            logger.info("Launching into map: {0}", *mapName);
-            GameParameters params{*mapName, 0};
-            params.players[0] = PlayerInfo{PlayerInfo::Controller::Human, "ARM", 0};
-            params.players[1] = PlayerInfo{PlayerInfo::Controller::Computer, "CORE", 1};
+            logger.info("Launching into game on map: {0}", gameParameters->mapName);
             auto scene = std::make_unique<LoadingScene>(
                 &vfs,
                 &textureService,
@@ -272,7 +271,7 @@ namespace rwe
                 &sideDataMap,
                 &viewportService,
                 AudioService::LoopToken(),
-                params);
+                *gameParameters);
             sceneManager.setNextScene(std::move(scene));
         }
         else
@@ -303,6 +302,62 @@ namespace rwe
 
         logger.info("Finished main loop, exiting");
         return 0;
+    }
+
+    PlayerInfo::Controller parseControllerFromString(const std::string& controllerString)
+    {
+        if (controllerString == "Human")
+        {
+            return PlayerInfo::Controller::Human;
+        }
+
+        if (controllerString == "Computer")
+        {
+            return PlayerInfo::Controller::Computer;
+        }
+
+        throw std::runtime_error("Unknown controller string");
+    }
+
+    std::string parseSideFromString(const std::string& side)
+    {
+        if (side == "ARM" || side == "CORE")
+        {
+            return side;
+        }
+
+        throw std::runtime_error("Unknown side string");
+    }
+
+    unsigned int parseColorFromString(const std::string& colorString)
+    {
+        std::stringstream s(colorString);
+        unsigned int i;
+        s >> i;
+        if (s.fail())
+        {
+            throw std::runtime_error("Invalid player colour string");
+        }
+        if (i > 9)
+        {
+            throw std::runtime_error("Invalid player colour string");
+        }
+        return i;
+    }
+
+    PlayerInfo parsePlayerInfoFromArg(const std::string& playerString)
+    {
+        auto components = rwe::utf8Split(playerString, ':');
+        if (components.size() != 3)
+        {
+            throw std::runtime_error("Invalid player arg");
+        }
+
+        auto controller = parseControllerFromString(components[0]);
+        auto side = parseSideFromString(components[1]);
+        auto color = parseColorFromString(components[2]);
+
+        return PlayerInfo{controller, side, color};
     }
 }
 
@@ -349,13 +404,45 @@ int main(int argc, char* argv[])
 
         try
         {
-            std::optional<std::string> mapName;
-            if (argc == 2)
+            po::options_description desc("Allowed options");
+
+            // clang-format off
+            desc.add_options()
+                ("help", "produce help message")
+                ("map", po::value<std::string>(), "If given, launches straight into a game on the given map")
+                ("player", po::value<std::vector<std::string>>(), "type:side:color");
+            // clang-format on
+
+            po::variables_map vm;
+            po::store(po::parse_command_line(argc, argv, desc), vm);
+            po::notify(vm);
+
+            if (vm.count("help"))
             {
-                mapName = argv[1];
+                std::cout << desc << std::endl;
+                return 0;
             }
 
-            return rwe::run(*logger, *localDataPath, mapName);
+            std::optional<rwe::GameParameters> gameParameters;
+            if (vm.count("map"))
+            {
+                const auto& mapName = vm["map"].as<std::string>();
+                const auto& players = vm["player"].as<std::vector<std::string>>();
+
+                gameParameters = rwe::GameParameters{mapName, 0};
+                unsigned int playerIndex = 0;
+                if (players.size() >= 10)
+                {
+                    throw std::runtime_error("too many players");
+                }
+                for (const auto& playerString : players)
+                {
+                    gameParameters->players[playerIndex] = rwe::parsePlayerInfoFromArg(playerString);
+                    ++playerIndex;
+                }
+            }
+
+            return rwe::run(*logger, *localDataPath, gameParameters);
         }
         catch (const std::exception& e)
         {
