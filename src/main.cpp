@@ -25,6 +25,9 @@ namespace fs = boost::filesystem;
 
 namespace rwe
 {
+    /**
+        Gets the major and minor OpenGL context version (for ex., OpenGL 3.1, where 3 is the major version, and 1 is the minor version).
+    **/
     OpenGlVersion getOpenGlContextVersion()
     {
         int major;
@@ -34,6 +37,9 @@ namespace rwe
         return OpenGlVersion(major, minor);
     }
 
+    /**
+        Initializes the OpenGL library (GLEW) to be used in the engine.
+    **/
     void doGlewInit()
     {
         // Must set glewExperimental to true, otherwise in glew <= 1.13.0 glewInit() will fail
@@ -68,6 +74,14 @@ namespace rwe
         }
     }
 
+    /**
+        Creates a context in which to store OpenGL objects.
+        
+        @param sdlContext The SDL context to be used in conjunction with OpenGL.
+        @param window The window object to create an OpenGL context with.
+        @param logger The logger object in which to record console output to.
+        @param requiredVersion The specified OpenGL version that is required for usage.
+    **/
     Result<SdlContext::GlContextUniquePtr, const char*> createOpenGlContext(SdlContext* sdlContext, SDL_Window* window, spdlog::logger& logger, const OpenGlVersionInfo& requiredVersion)
     {
         logger.info(
@@ -109,6 +123,14 @@ namespace rwe
         return Ok(std::move(glContext));
     };
 
+    /**
+        Does the actual execution of the engine when the program is ran. 
+        Establishes the window size, sdlContextManager, openGL context, initializes GLEW, and so on.
+        
+        @param logger The logger in which to print output to (for debugging, errors, etc.)
+        @param localDataPath The path in which to retrieve TA data  (.hpi, .ufo, rev31.gp3, etc.)
+        @param mapName (???)
+    **/
     int run(spdlog::logger& logger, const fs::path& localDataPath, const std::optional<std::string>& mapName)
     {
         logger.info(ProjectNameVersion);
@@ -306,6 +328,12 @@ namespace rwe
     }
 }
 
+/**
+    Creates a logger. 
+    
+    @param path The path to get to the log.
+    @param logDir The directory in which to place the log.
+**/
 auto createLogger(const fs::path& logDir)
 {
     for (int i = 0; i < 3; ++i)
@@ -332,6 +360,9 @@ auto createLogger(const fs::path& logDir)
     throw std::runtime_error("Failed to create logger");
 }
 
+/**
+    The main method where the program starts. Initializes logs and starts up the RWE engine.
+**/
 int main(int argc, char* argv[])
 {
     try
