@@ -3,8 +3,8 @@
 
 # configuration
 
-bundle_name = "rwe-msvc-libs-2.zip"
-sha256hash_hex = "acd57a56cbadfd0dee880a92609b86e68fe95872b3da92ccdc4cf00a9f2a0efe"
+bundle_name = "rwe-msvc-libs-3.zip"
+sha256hash_hex = "c7d65c78a7e693a8c5471f3c31055c13310a9f407c834bee46ad993838d1ff59"
 
 
 # code

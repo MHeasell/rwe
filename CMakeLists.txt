@@ -77,9 +77,9 @@ if(MSVC)
 
     set(Boost_INCLUDE_DIRS "libs/_msvc/boost_1_66_0")
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        set(Boost_LIBRARIES "${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_66_0/lib64-msvc-14.1/libboost_filesystem-vc141-mt-gd-x64-1_66.lib;${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_66_0/lib64-msvc-14.1/libboost_system-vc141-mt-gd-x64-1_66.lib")
+        set(Boost_LIBRARIES "${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_66_0/lib64-msvc-14.1/libboost_filesystem-vc141-mt-gd-x64-1_66.lib;${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_66_0/lib64-msvc-14.1/libboost_system-vc141-mt-gd-x64-1_66.lib;${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_66_0/lib64-msvc-14.1/libboost_program_options-vc141-mt-gd-x64-1_66.lib")
     else()
-        set(Boost_LIBRARIES "${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_66_0/lib64-msvc-14.1/libboost_filesystem-vc141-mt-x64-1_66.lib;${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_66_0/lib64-msvc-14.1/libboost_system-vc141-mt-x64-1_66.lib")
+        set(Boost_LIBRARIES "${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_66_0/lib64-msvc-14.1/libboost_filesystem-vc141-mt-x64-1_66.lib;${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_66_0/lib64-msvc-14.1/libboost_system-vc141-mt-x64-1_66.lib;${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_66_0/lib64-msvc-14.1/libboost_program_options-vc141-mt-x64-1_66.lib")
     endif()
     add_definitions(-DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE)
 
@@ -121,7 +121,7 @@ else()
     find_windows_dll(GLEW_DLL "glew32.dll")
 
     set(Boost_USE_STATIC_LIBS ON)
-    find_package(Boost 1.54.0 REQUIRED COMPONENTS filesystem)
+    find_package(Boost 1.54.0 REQUIRED COMPONENTS filesystem program_options)
 
     find_package(SDL2 REQUIRED)
     find_windows_dll(SDL2_DLL "SDL2.dll")
