@@ -71,6 +71,14 @@ endif()
 find_package(OpenGL REQUIRED)
 
 if(MSVC)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(Protobuf_LIBRARY "${CMAKE_SOURCE_DIR}/libs/_msvc/protobuf-3.5.1/lib/libprotobufd.lib")
+    else()
+        set(Protobuf_LIBRARY "${CMAKE_SOURCE_DIR}/libs/_msvc/protobuf-3.5.1/lib/libprotobuf.lib")
+    endif()
+    set(Protobuf_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/libs/_msvc/protobuf-3.5.1/include")
+    set(Protobuf_PROTOC_EXECUTABLE "${CMAKE_SOURCE_DIR}/libs/_msvc/protobuf-3.5.1/bin/protoc.exe")
+
     set(GLEW_DLL "${CMAKE_SOURCE_DIR}/libs/_msvc/glew-2.1.0/bin/Release/x64/glew32.dll")
     set(GLEW_LIBRARIES "${CMAKE_SOURCE_DIR}/libs/_msvc/glew-2.1.0/lib/Release/x64/glew32.lib")
     set(GLEW_INCLUDE_DIRS "libs/_msvc/glew-2.1.0/include")
@@ -82,6 +90,8 @@ if(MSVC)
         set(Boost_LIBRARIES "${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_66_0/lib64-msvc-14.1/libboost_filesystem-vc141-mt-x64-1_66.lib;${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_66_0/lib64-msvc-14.1/libboost_system-vc141-mt-x64-1_66.lib;${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_66_0/lib64-msvc-14.1/libboost_program_options-vc141-mt-x64-1_66.lib")
     endif()
     add_definitions(-DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE)
+    add_definitions(-DBOOST_DATE_TIME_NO_LIB)
+    add_definitions(-DBOOST_REGEX_NO_LIB)
 
     set(SDL2_DLL "${CMAKE_SOURCE_DIR}/libs/_msvc/SDL2-2.0.7/lib/x64/SDL2.dll")
     set(SDL2_LIBRARY "${CMAKE_SOURCE_DIR}/libs/_msvc/SDL2-2.0.7/lib/x64/SDL2.lib;${CMAKE_SOURCE_DIR}/libs/_msvc/SDL2-2.0.7/lib/x64/SDL2main.lib")
@@ -148,6 +158,12 @@ else()
     find_windows_dll(WEBP_DLL "libwebp-7.dll")
 endif()
 
+set(Protobuf_USE_STATIC_LIBS ON)
+find_package(Protobuf REQUIRED)
+
+protobuf_generate_cpp(PROTO_SOURCE_FILES PROTO_HEADER_FILES proto/network.proto)
+message("proto src files: ${PROTO_SOURCE_FILES}")
+message("proto header files: ${PROTO_HEADER_FILES}")
 
 set(SOURCE_FILES
     src/rwe/AudioService.cpp
@@ -191,6 +207,8 @@ set(SOURCE_FILES
     src/rwe/Hpi.h
     src/rwe/LaserProjectile.cpp
     src/rwe/LaserProjectile.h
+    src/rwe/LoadingNetworkService.cpp
+    src/rwe/LoadingNetworkService.h
     src/rwe/LoadingScene.cpp
     src/rwe/LoadingScene.h
     src/rwe/MainMenuModel.cpp
@@ -415,7 +433,7 @@ else()
     add_definitions(-DRWE_PLATFORM_LINUX)
 endif()
 
-add_library(librwe STATIC ${SOURCE_FILES})
+add_library(librwe STATIC ${SOURCE_FILES} ${PROTO_SOURCE_FILES} ${PROTO_HEADER_FILES})
 set_target_properties(librwe PROPERTIES PREFIX "")
 if(MSVC)
     target_compile_options(librwe PUBLIC "/std:c++latest")
@@ -428,6 +446,10 @@ target_include_directories(librwe PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/config")
 
 target_include_directories(librwe PUBLIC ${Boost_INCLUDE_DIRS})
 target_link_libraries(librwe ${Boost_LIBRARIES})
+if(WIN32)
+    # winsock needed for boost asio on windows
+    target_link_libraries(librwe ws2_32)
+endif()
 
 target_include_directories(librwe PUBLIC "libs/utfcpp/source")
 target_include_directories(librwe PUBLIC "libs/spdlog/include")
@@ -471,6 +493,10 @@ endif()
 target_copy_file(librwe ${VORBIS_DLL})
 target_copy_file(librwe ${VORBISFILE_DLL})
 target_copy_file(librwe ${WEBP_DLL})
+
+target_link_libraries(librwe ${Protobuf_LIBRARIES})
+target_include_directories(librwe PUBLIC ${Protobuf_INCLUDE_DIRS})
+target_include_directories(librwe PUBLIC ${CMAKE_CURRENT_BINARY_DIR}) # for generated headers
 
 add_executable(rwe src/main.cpp)
 target_link_libraries(rwe librwe)

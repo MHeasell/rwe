@@ -24,6 +24,8 @@ addons:
       - libglew-dev
       - zlib1g-dev
       - libpng-dev
+      - libprotobuf-dev
+      - protobuf-compiler
 
 env:
   - MATRIX_EVAL="CC=gcc-7 CXX=g++-7"

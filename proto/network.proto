@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+package rwe;
+
+message LoadingStatusMessage
+{
+    enum Status
+    {
+        Loading = 0;
+        Ready = 1;
+    }
+
+    required Status status = 1;
+}

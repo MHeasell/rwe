@@ -302,16 +302,36 @@ namespace rwe
         return 0;
     }
 
-    PlayerInfo::Controller parseControllerFromString(const std::string& controllerString)
+    PlayerControllerType parseControllerFromString(const std::string& controllerString)
     {
-        if (controllerString == "Human")
+        auto components = utf8Split(controllerString, ',');
+        if (components.empty())
         {
-            return PlayerInfo::Controller::Human;
+            throw std::runtime_error("controller string was empty?");
         }
 
-        if (controllerString == "Computer")
+        if (components[0] == "Human")
         {
-            return PlayerInfo::Controller::Computer;
+            return PlayerControllerTypeHuman();
+        }
+
+        if (components[0] == "Computer")
+        {
+            return PlayerControllerTypeComputer();
+        }
+
+        if (components[0] == "Network")
+        {
+            if (components.size() != 2)
+            {
+                throw std::runtime_error("Invalid network player string format");
+            }
+            auto hostAndPort = utf8Split(components[1], ':');
+            if (hostAndPort.size() != 2)
+            {
+                throw std::runtime_error("Invalid network player address format");
+            }
+            return PlayerControllerTypeNetwork{hostAndPort[0], hostAndPort[1]};
         }
 
         throw std::runtime_error("Unknown controller string");
@@ -409,6 +429,8 @@ int main(int argc, char* argv[])
                 ("help", "produce help message")
                 ("data-path", po::value<std::string>(), "Overrides the location to search for game data")
                 ("map", po::value<std::string>(), "If given, launches straight into a game on the given map")
+                ("interface", po::value<std::string>()->default_value("0.0.0.0"), "Network interface to bind to")
+                ("port", po::value<std::string>()->default_value("1337"), "Network port to bind to")
                 ("player", po::value<std::vector<std::string>>(), "type:side:color");
             // clang-format on
 
@@ -429,6 +451,8 @@ int main(int argc, char* argv[])
                 const auto& players = vm["player"].as<std::vector<std::string>>();
 
                 gameParameters = rwe::GameParameters{mapName, 0};
+                gameParameters->localNetworkInterface = vm["interface"].as<std::string>();
+                gameParameters->localNetworkPort = vm["port"].as<std::string>();
                 unsigned int playerIndex = 0;
                 if (players.size() >= 10)
                 {

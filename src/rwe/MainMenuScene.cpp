@@ -537,6 +537,19 @@ namespace rwe
         throw std::logic_error("Invalid side");
     }
 
+    PlayerControllerType playerSettingsTypeToPlayerControllerType(MainMenuModel::PlayerSettings::Type t)
+    {
+        switch (t)
+        {
+            case MainMenuModel::PlayerSettings::Type::Human:
+                return PlayerControllerTypeHuman();
+            case MainMenuModel::PlayerSettings::Type::Computer:
+                return PlayerControllerTypeComputer();
+            default:
+                throw std::logic_error("Invalid player settings type");
+        }
+    }
+
     void MainMenuScene::startGame()
     {
         if (!model.selectedMap.getValue())
@@ -555,18 +568,7 @@ namespace rwe
                 continue;
             }
 
-            PlayerInfo::Controller controller;
-            switch (playerSlot.type.getValue())
-            {
-                case MainMenuModel::PlayerSettings::Type::Human:
-                    controller = PlayerInfo::Controller::Human;
-                    break;
-                case MainMenuModel::PlayerSettings::Type::Computer:
-                    controller = PlayerInfo::Controller::Computer;
-                    break;
-                default:
-                    throw std::logic_error("Invalid slot type");
-            }
+            auto controller = playerSettingsTypeToPlayerControllerType(playerSlot.type.getValue());
 
             PlayerInfo playerInfo{controller, getSideName(playerSlot.side.getValue()), playerSlot.colorIndex.getValue()};
             params.players[i] = std::move(playerInfo);

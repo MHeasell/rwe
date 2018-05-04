@@ -89,8 +89,29 @@ namespace rwe
             panel->appendChild(std::move(bar));
         }
 
+        // set up network
+        for (const auto& p : gameParameters.players)
+        {
+            if (!p)
+            {
+                continue;
+            }
+            const auto address = boost::apply_visitor(GetNetworkAddressVisitor(), p->controller);
+            if (!address)
+            {
+                continue;
+            }
+
+            networkService.addEndpoint(address->first, address->second);
+        }
+        networkService.start(gameParameters.localNetworkInterface, gameParameters.localNetworkPort);
+
         featureService->loadAllFeatureDefinitions();
         sceneManager->setNextScene(createGameScene(gameParameters.mapName, gameParameters.schemaIndex));
+
+        // wait for other players before starting
+        networkService.setDoneLoading();
+        networkService.waitForAllToBeReady();
     }
 
     void LoadingScene::render(GraphicsContext& context)
@@ -146,7 +167,7 @@ namespace rwe
                 GamePlayerInfo gpi{params->color, GamePlayerStatus::Alive};
                 gamePlayers[i] = simulation.addPlayer(gpi);
 
-                if (params->controller == PlayerInfo::Controller::Human)
+                if (boost::apply_visitor(IsHumanVisitor(), params->controller))
                 {
                     if (localPlayerId)
                     {
