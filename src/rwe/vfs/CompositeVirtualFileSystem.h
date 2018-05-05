@@ -9,6 +9,9 @@ namespace rwe
 {
     class CompositeVirtualFileSystem final : public AbstractVirtualFileSystem
     {
+    private:
+        std::vector<std::unique_ptr<AbstractVirtualFileSystem>> filesystems;
+
     public:
         std::optional<std::vector<char>> readFile(const std::string& filename) const override;
 
@@ -22,9 +25,6 @@ namespace rwe
         {
             filesystems.emplace_back(new T(std::forward<Args>(args)...));
         }
-
-    private:
-        std::vector<std::unique_ptr<AbstractVirtualFileSystem>> filesystems;
     };
 
 
