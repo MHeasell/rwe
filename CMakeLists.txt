@@ -158,6 +158,13 @@ else()
     find_windows_dll(WEBP_DLL "libwebp-7.dll")
 endif()
 
+# We should have std::chrono everywhere,
+# but boost sometimes fails to detect this (e.g. with clang 5 on Ubuntu)
+# and falls back to using boost::chrono.
+# This enables the use of std::chrono explicitly
+# in boost.asio.
+add_definitions(-DBOOST_ASIO_HAS_STD_CHRONO)
+
 set(Protobuf_USE_STATIC_LIBS ON)
 find_package(Protobuf REQUIRED)
 

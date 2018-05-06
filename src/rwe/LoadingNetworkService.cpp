@@ -167,7 +167,7 @@ namespace rwe
     {
         // go back to waiting for the next message
         socket.async_receive_from(
-            boost::asio::buffer(messageBuffer),
+            boost::asio::buffer(messageBuffer.data(), messageBuffer.size()),
             currentRemoteEndpoint,
             std::bind(&LoadingNetworkService::onReceive, this, std::placeholders::_1, std::placeholders::_2));
     }
