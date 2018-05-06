@@ -22,7 +22,7 @@ namespace rwe
         std::scoped_lock<std::mutex> lock(mutex);
 
         // boost guarantees that resolve returns non-empty
-        remoteEndpoints.emplace_back(*resolver.resolve(host, port).begin(), Status::Loading);
+        remoteEndpoints.emplace_back(*resolver.resolve(boost::asio::ip::udp::resolver::query(host, port)), Status::Loading);
     }
 
     void LoadingNetworkService::setDoneLoading()
@@ -62,7 +62,7 @@ namespace rwe
     {
         try
         {
-            auto localEndpoint = *resolver.resolve(host, port).begin();
+            auto localEndpoint = *resolver.resolve(boost::asio::ip::udp::resolver::query(host, port));
             spdlog::get("rwe")->debug("Binding to {0} {1}", localEndpoint.endpoint().address().to_string(), localEndpoint.endpoint().port());
             socket.open(localEndpoint.endpoint().protocol());
             socket.bind(localEndpoint);
@@ -144,15 +144,15 @@ namespace rwe
 
         for (const auto& p : remoteEndpoints)
         {
-            spdlog::get("rwe")->debug("Sending notification to {0} {1}, size {2}", p.first.address().to_string(), p.first.port(), message.ByteSizeLong());
-            socket.send_to(boost::asio::buffer(messageBuffer.data(), message.ByteSizeLong()), p.first);
+            spdlog::get("rwe")->debug("Sending notification to {0} {1}, size {2}", p.first.address().to_string(), p.first.port(), message.ByteSize());
+            socket.send_to(boost::asio::buffer(messageBuffer.data(), message.ByteSize()), p.first);
         }
     }
 
     void LoadingNetworkService::notifyStatusLoop()
     {
         notifyStatus();
-        notifyTimer.expires_after(std::chrono::milliseconds(100));
+        notifyTimer.expires_from_now(std::chrono::milliseconds(100));
         notifyTimer.async_wait([this](const boost::system::error_code& error) {
             if (error)
             {
