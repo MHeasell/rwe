@@ -127,6 +127,7 @@ Install the necessary packages:
       g++-7 \
       libboost-dev \
       libboost-filesystem-dev \
+      libboost-program-options-dev \
       libsdl2-dev \
       libsdl2-image-dev \
       libsdl2-net-dev \
