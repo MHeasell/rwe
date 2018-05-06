@@ -4,6 +4,7 @@
 #include <array>
 #include <atomic>
 #include <boost/asio.hpp>
+#include <boost/asio/steady_timer.hpp> // not in asio.hpp in old boost versions
 #include <chrono>
 #include <functional>
 #include <mutex>
