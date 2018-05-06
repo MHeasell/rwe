@@ -32,7 +32,7 @@ namespace rwe
         std::vector<std::pair<boost::asio::ip::udp::endpoint, Status>> remoteEndpoints;
 
         // state owned by the worker thread
-        boost::asio::io_context ioContext;
+        boost::asio::io_service ioContext;
         boost::asio::ip::udp::resolver resolver;
         boost::asio::ip::udp::socket socket;
         std::array<char, 1500> messageBuffer;
