@@ -623,6 +623,13 @@ namespace rwe
 
     int CobExecutionContext::pop()
     {
+        // Malformed scripts may attempt to pop when the stack is empty.
+        // For example see Github issue #56.
+        if (thread->stack.empty())
+        {
+            return 0;
+        }
+
         auto v = thread->stack.top();
         thread->stack.pop();
         return v;
