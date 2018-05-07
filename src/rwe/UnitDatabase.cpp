@@ -73,7 +73,7 @@ namespace rwe
         auto it = soundMap.find(sound);
         if (it == soundMap.end())
         {
-            throw std::runtime_error("No sound class found with name " + sound);
+            throw std::runtime_error("No sound found with name " + sound);
         }
 
         return it->second;
