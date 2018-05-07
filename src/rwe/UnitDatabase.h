@@ -49,7 +49,7 @@ namespace rwe
 
         void addMovementClass(const std::string& className, MovementClass&& movementClass);
 
-        const AudioService::SoundHandle& getSoundHandle(const std::string sound) const;
+        const AudioService::SoundHandle& getSoundHandle(const std::string& sound) const;
 
         void addSound(const std::string& soundName, const AudioService::SoundHandle& sound);
 

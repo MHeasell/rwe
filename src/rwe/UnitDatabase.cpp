@@ -68,7 +68,7 @@ namespace rwe
         soundClassMap.insert({className, std::move(soundClass)});
     }
 
-    const AudioService::SoundHandle& UnitDatabase::getSoundHandle(const std::string sound) const
+    const AudioService::SoundHandle& UnitDatabase::getSoundHandle(const std::string& sound) const
     {
         auto it = soundMap.find(sound);
         if (it == soundMap.end())
