@@ -51,6 +51,8 @@ namespace rwe
 
         const AudioService::SoundHandle& getSoundHandle(const std::string& sound) const;
 
+        std::optional<AudioService::SoundHandle> tryGetSoundHandle(const std::string& sound);
+
         void addSound(const std::string& soundName, const AudioService::SoundHandle& sound);
 
         MovementClassIterator movementClassBegin() const;

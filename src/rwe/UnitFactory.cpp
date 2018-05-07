@@ -129,15 +129,15 @@ namespace rwe
 
         if (soundClass.select1)
         {
-            unit.selectionSound = unitDatabase.getSoundHandle(*(soundClass.select1));
+            unit.selectionSound = unitDatabase.tryGetSoundHandle(*(soundClass.select1));
         }
         if (soundClass.ok1)
         {
-            unit.okSound = unitDatabase.getSoundHandle(*(soundClass.ok1));
+            unit.okSound = unitDatabase.tryGetSoundHandle(*(soundClass.ok1));
         }
         if (soundClass.arrived1)
         {
-            unit.arrivedSound = unitDatabase.getSoundHandle(*(soundClass.arrived1));
+            unit.arrivedSound = unitDatabase.tryGetSoundHandle(*(soundClass.arrived1));
         }
 
         return unit;
@@ -165,15 +165,15 @@ namespace rwe
         }
         if (!tdf.soundStart.empty())
         {
-            weapon.soundStart = unitDatabase.getSoundHandle(tdf.soundStart);
+            weapon.soundStart = unitDatabase.tryGetSoundHandle(tdf.soundStart);
         }
         if (!tdf.soundHit.empty())
         {
-            weapon.soundHit = unitDatabase.getSoundHandle(tdf.soundHit);
+            weapon.soundHit = unitDatabase.tryGetSoundHandle(tdf.soundHit);
         }
         if (!tdf.soundWater.empty())
         {
-            weapon.soundWater = unitDatabase.getSoundHandle(tdf.soundWater);
+            weapon.soundWater = unitDatabase.tryGetSoundHandle(tdf.soundWater);
         }
         if (!tdf.explosionGaf.empty() && !tdf.explosionArt.empty())
         {
