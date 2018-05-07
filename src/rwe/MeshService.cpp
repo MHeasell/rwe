@@ -3,23 +3,19 @@
 #include <rwe/BoxTreeSplit.h>
 #include <rwe/Gaf.h>
 #include <rwe/_3do.h>
+#include <rwe/fixed_point.h>
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/math/rwe_math.h>
 #include <rwe/rwe_string.h>
 
 namespace rwe
 {
-    float convertFixedPoint(int p)
-    {
-        return static_cast<float>(p) / 65536.0f;
-    }
-
     Vector3f vertexToVector(const _3do::Vertex& v)
     {
         return Vector3f(
-            convertFixedPoint(v.x),
-            convertFixedPoint(v.y),
-            convertFixedPoint(-v.z)); // flip to convert from left-handed to right-handed
+            fromFixedPoint(v.x),
+            fromFixedPoint(v.y),
+            fromFixedPoint(-v.z)); // flip to convert from left-handed to right-handed
     }
 
     struct FrameInfo

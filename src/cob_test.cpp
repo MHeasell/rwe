@@ -82,10 +82,13 @@ namespace rwe
 
             case OpCode::RAND:
                 return "RAND";
-            case OpCode::GET_UNIT_VALUE:
-                return "GET_UNIT_VALUE";
-            case OpCode::GET:
-                return "GET";
+            case OpCode::GET_VALUE:
+                return "GET_VALUE";
+            case OpCode::GET_VALUE_WITH_ARGS:
+                return "GET_VALUE_WITH_ARGS";
+
+            case OpCode::SET_VALUE:
+                return "SET_VALUE";
 
             case OpCode::SET_LESS:
                 return "SET_LESS";
@@ -126,8 +129,6 @@ namespace rwe
             case OpCode::EXPLODE:
                 return "EXPLODE";
 
-            case OpCode::SET:
-                return "SET";
             case OpCode::ATTACH_UNIT:
                 return "ATTACH_UNIT";
             case OpCode::DROP_UNIT:

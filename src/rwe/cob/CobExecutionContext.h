@@ -3,6 +3,7 @@
 
 #include <rwe/GameSimulation.h>
 #include <rwe/cob/CobEnvironment.h>
+#include <rwe/cob/CobValueId.h>
 
 namespace rwe
 {
@@ -128,9 +129,11 @@ namespace rwe
 
         void popStackOperation();
 
-        void getUnitValue();
+        void getValue();
 
-        void setUnitValue();
+        void getValueWithArgs();
+
+        void setValue();
 
         // non-commands
         int pop();
@@ -142,12 +145,16 @@ namespace rwe
         float popSignedAngularSpeed();
         unsigned int popSignal();
         unsigned int popSignalMask();
+        CobValueId popValueId();
         void push(int val);
 
         unsigned int nextInstruction();
         Axis nextInstructionAsAxis();
 
         const std::string& getObjectName(unsigned int objectId);
+
+        int getValueInternal(CobValueId valueId, int arg1, int arg2, int arg3, int arg4);
+        void setGetter(CobValueId valueId, int value);
     };
 }
 

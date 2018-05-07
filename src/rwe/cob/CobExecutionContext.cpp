@@ -2,6 +2,8 @@
 #include <rwe/SceneManager.h>
 #include <rwe/cob/CobConstants.h>
 #include <rwe/cob/CobOpCode.h>
+#include <rwe/cob/cob_util.h>
+#include <rwe/fixed_point.h>
 
 namespace rwe
 {
@@ -201,8 +203,15 @@ namespace rwe
                     popStackOperation();
                     break;
 
-                case OpCode::GET_UNIT_VALUE:
-                    getUnitValue();
+                case OpCode::GET_VALUE:
+                    getValue();
+                    break;
+                case OpCode::GET_VALUE_WITH_ARGS:
+                    getValueWithArgs();
+                    break;
+
+                case OpCode::SET_VALUE:
+                    setValue();
                     break;
 
                 default:
@@ -589,18 +598,27 @@ namespace rwe
         pop();
     }
 
-    void CobExecutionContext::getUnitValue()
+    void CobExecutionContext::getValue()
     {
-        auto valueId = pop();
-        // TODO: retrieve actual value
-        push(0);
+        auto valueId = popValueId();
+        push(getValueInternal(valueId, 0, 0, 0, 0));
     }
 
-    void CobExecutionContext::setUnitValue()
+    void CobExecutionContext::getValueWithArgs()
+    {
+        auto arg4 = pop();
+        auto arg3 = pop();
+        auto arg2 = pop();
+        auto arg1 = pop();
+        auto valueId = popValueId();
+        push(getValueInternal(valueId, arg1, arg2, arg3, arg4));
+    }
+
+    void CobExecutionContext::setValue()
     {
         auto newValue = pop();
-        auto valueId = pop();
-        // TODO: actually set the value
+        auto valueId = popValueId();
+        setGetter(valueId, newValue);
     }
 
     int CobExecutionContext::pop()
@@ -649,6 +667,11 @@ namespace rwe
         return static_cast<unsigned int>(pop());
     }
 
+    CobValueId CobExecutionContext::popValueId()
+    {
+        return static_cast<CobValueId>(pop());
+    }
+
     void CobExecutionContext::push(int val)
     {
         thread->stack.push(val);
@@ -678,5 +701,175 @@ namespace rwe
     const std::string& CobExecutionContext::getObjectName(unsigned int objectId)
     {
         return env->_script->pieces.at(objectId);
+    }
+
+    int CobExecutionContext::getValueInternal(CobValueId valueId, int arg1, int arg2, int arg3, int arg4)
+    {
+        switch (valueId)
+        {
+            case CobValueId::Activation:
+                return false; // TODO
+            case CobValueId::StandingFireOrders:
+                return 0; // TODO
+            case CobValueId::StandingMoveOrders:
+                return 0; // TODO
+            case CobValueId::Health:
+            {
+                const auto& unit = sim->getUnit(unitId);
+                return unit.hitPoints / unit.maxHitPoints;
+            }
+            case CobValueId::InBuildStance:
+                return false; // TODO
+            case CobValueId::Busy:
+                return false; // TODO
+            case CobValueId::PieceXZ:
+            {
+                auto pieceId = arg1;
+                const auto& pieceName = getObjectName(pieceId);
+                const auto& unit = sim->getUnit(unitId);
+                auto pieceTransform = unit.mesh.getPieceTransform(pieceName);
+                if (!pieceTransform)
+                {
+                    throw std::runtime_error("Unknown piece " + pieceName);
+                }
+                auto pos = unit.getTransform() * (*pieceTransform) * Vector3f(0.0f, 0.0f, 0.0f);
+                return packCoords(pos.x, pos.z);
+            }
+            case CobValueId::PieceY:
+            {
+                auto pieceId = arg1;
+                const auto& pieceName = getObjectName(pieceId);
+                const auto& unit = sim->getUnit(unitId);
+                auto pieceTransform = unit.mesh.getPieceTransform(pieceName);
+                if (!pieceTransform)
+                {
+                    throw std::runtime_error("Unknown piece " + pieceName);
+                }
+                const auto& pos = unit.getTransform() * (*pieceTransform) * Vector3f(0.0f, 0.0f, 0.0f);
+                return toFixedPoint(pos.y);
+            }
+            case CobValueId::UnitXZ:
+            {
+                auto targetUnitId = UnitId(arg1);
+                const auto& pos = sim->getUnit(targetUnitId).position;
+                return packCoords(pos.x, pos.z);
+            }
+            case CobValueId::UnitY:
+            {
+                auto targetUnitId = UnitId(arg1);
+                const auto& pos = sim->getUnit(targetUnitId).position;
+                return toFixedPoint(pos.y);
+            }
+            case CobValueId::UnitHeight:
+            {
+                auto targetUnitId = UnitId(arg1);
+                return toFixedPoint(sim->getUnit(targetUnitId).height);
+            }
+            case CobValueId::XZAtan:
+            {
+                auto coords = arg1;
+                auto pair = unpackCoords(coords);
+                const auto& unit = sim->getUnit(unitId);
+                auto result = RadiansAngle::fromUnwrappedAngle(std::atan2(pair.first, pair.second) - unit.rotation);
+                return static_cast<int>(toTaAngle(result).value);
+            }
+            case CobValueId::XZHypot:
+            {
+                auto coords = arg1;
+                auto pair = unpackCoords(coords);
+                auto result = std::hypot(pair.first, pair.second);
+                return toFixedPoint(result);
+            }
+            case CobValueId::Atan:
+            {
+                auto a = arg1;
+                auto b = arg2;
+                auto result = RadiansAngle::fromUnwrappedAngle(std::atan2(fromFixedPoint(a), fromFixedPoint(b)));
+                return static_cast<int>(toTaAngle(result).value);
+            }
+            case CobValueId::Hypot:
+            {
+                auto a = fromFixedPoint(arg1);
+                auto b = fromFixedPoint(arg2);
+                auto result = std::hypot(a, b);
+                return toFixedPoint(result);
+            }
+            case CobValueId::GroundHeight:
+            {
+                auto coords = arg1;
+                auto pair = unpackCoords(coords);
+                auto result = sim->terrain.getHeightAt(pair.first, pair.second);
+                return toFixedPoint(result);
+            }
+            case CobValueId::BuildPercentLeft:
+                return 0; // TODO
+            case CobValueId::YardOpen:
+                return false; // TODO
+            case CobValueId::BuggerOff:
+                return false; // TODO
+            case CobValueId::Armored:
+                return false; // TODO
+            case CobValueId::VeteranLevel:
+                return 0; // TODO
+            case CobValueId::UnitIsOnThisComp:
+                // This concept is not supported in RWE.
+                // Simulation state cannot be allowed to diverge
+                // between one computer and another.
+                return true;
+            case CobValueId::MinId:
+                return 0; // TODO
+            case CobValueId::MaxId:
+                return sim->nextUnitId.value - 1;
+            case CobValueId::MyId:
+                return unitId.value;
+            case CobValueId::UnitTeam:
+            {
+                auto targetUnitId = UnitId(arg1);
+                const auto& unit = sim->getUnit(targetUnitId);
+                // TODO: return player's team instead of player ID
+                return unit.owner.value;
+            }
+            case CobValueId::UnitBuildPercentLeft:
+            {
+                auto targetUnitId = UnitId(arg1);
+                return 0; // TODO
+            }
+            case CobValueId::UnitAllied:
+            {
+                auto targetUnitId = UnitId(arg1);
+
+                const auto& unit = sim->getUnit(unitId);
+                const auto& targetUnit = sim->getUnit(targetUnitId);
+                // TODO: real allied check including teams/alliances
+                return targetUnit.isOwnedBy(unit.owner);
+            }
+            default:
+                throw std::runtime_error("Unknown unit value ID: " + std::to_string(static_cast<unsigned int>(valueId)));
+        }
+    }
+
+    void CobExecutionContext::setGetter(CobValueId valueId, int value)
+    {
+        switch (valueId)
+        {
+            case CobValueId::Activation:
+                return; // TODO
+            case CobValueId::StandingMoveOrders:
+                return; // TODO
+            case CobValueId::StandingFireOrders:
+                return; // TODO
+            case CobValueId::InBuildStance:
+                return; // TODO
+            case CobValueId::Busy:
+                return; // TODO
+            case CobValueId::YardOpen:
+                return; // TODO
+            case CobValueId::BuggerOff:
+                return; // TODO
+            case CobValueId::Armored:
+                return; // TODO
+            default:
+                throw std::runtime_error("Cannot set unit value with ID: " + std::to_string(static_cast<unsigned int>(valueId)));
+        }
     }
 }
