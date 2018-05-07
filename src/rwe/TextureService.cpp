@@ -39,7 +39,10 @@ namespace rwe
 
                     if (outPosX < 0 || outPosX >= currentFrameHeader.width || outPosY < 0 || outPosY >= currentFrameHeader.height)
                     {
-                        throw std::runtime_error("frame coordinate out of bounds");
+                        // Some third-party gafs (e.g. "FAVBOOM.gaf" for the CORMKL [Cybran Monkeylord] unit)
+                        // contain layers whose bounds exceed the dimensions of the frame.
+                        // If this happens we'll just ignore the pixels that are out of bounds.
+                        continue;
                     }
 
                     auto colorIndex = static_cast<unsigned char>(data.data[(y * data.width) + x]);
