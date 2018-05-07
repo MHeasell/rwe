@@ -211,7 +211,10 @@ namespace rwe
         }
         else if (keysym.sym == SDLK_s)
         {
-            stopSelectedUnit();
+            if (selectedUnit)
+            {
+                localPlayerStopUnit(*selectedUnit);
+            }
         }
         else if (keysym.sym == SDLK_LSHIFT)
         {
@@ -279,11 +282,11 @@ namespace rwe
                     {
                         if (isShiftDown())
                         {
-                            enqueueAttackOrder(*selectedUnit, *hoveredUnit);
+                            localPlayerEnqueueUnitOrder(*selectedUnit, AttackOrder(*hoveredUnit));
                         }
                         else
                         {
-                            issueAttackOrder(*selectedUnit, *hoveredUnit);
+                            localPlayerIssueUnitOrder(*selectedUnit, AttackOrder(*hoveredUnit));
                             cursorMode = NormalCursorMode();
                         }
                     }
@@ -294,11 +297,11 @@ namespace rwe
                         {
                             if (isShiftDown())
                             {
-                                enqueueAttackGroundOrder(*selectedUnit, *coord);
+                                localPlayerEnqueueUnitOrder(*selectedUnit, AttackOrder(*coord));
                             }
                             else
                             {
-                                issueAttackGroundOrder(*selectedUnit, *coord);
+                                localPlayerIssueUnitOrder(*selectedUnit, AttackOrder(*coord));
                                 cursorMode = NormalCursorMode();
                             }
                         }
@@ -328,11 +331,11 @@ namespace rwe
                     {
                         if (isShiftDown())
                         {
-                            enqueueAttackOrder(*selectedUnit, *hoveredUnit);
+                            localPlayerEnqueueUnitOrder(*selectedUnit, AttackOrder(*hoveredUnit));
                         }
                         else
                         {
-                            issueAttackOrder(*selectedUnit, *hoveredUnit);
+                            localPlayerIssueUnitOrder(*selectedUnit, AttackOrder(*hoveredUnit));
                         }
                     }
                     else
@@ -342,11 +345,11 @@ namespace rwe
                         {
                             if (isShiftDown())
                             {
-                                enqueueMoveOrder(*selectedUnit, *coord);
+                                localPlayerEnqueueUnitOrder(*selectedUnit, MoveOrder(*coord));
                             }
                             else
                             {
-                                issueMoveOrder(*selectedUnit, *coord);
+                                localPlayerIssueUnitOrder(*selectedUnit, MoveOrder(*coord));
                             }
                         }
                     }
@@ -388,6 +391,8 @@ namespace rwe
         simulation.gameTime = nextGameTime(simulation.gameTime);
 
         processActions();
+
+        processPlayerCommands();
 
         float secondsElapsed = static_cast<float>(SceneManager::TickInterval) / 1000.0f;
         const float speed = CameraPanSpeed * secondsElapsed;
@@ -584,65 +589,52 @@ namespace rwe
         return simulation.intersectLineWithTerrain(ray.toLine());
     }
 
-    void GameScene::issueMoveOrder(UnitId unitId, Vector3f position)
+    void GameScene::localPlayerIssueUnitOrder(UnitId unitId, const UnitOrder& order)
     {
-        auto& unit = getUnit(unitId);
-        unit.clearOrders();
-        unit.addOrder(createMoveOrder(position));
+        auto kind = PlayerCommand::UnitCommand::IssueOrder::IssueKind::Immediate;
+        commandQueue.push(PlayerCommand(nextSceneTime(sceneTime), PlayerCommand::UnitCommand(unitId, PlayerCommand::UnitCommand::IssueOrder(order, kind))));
+
+        const auto& unit = getUnit(unitId);
         if (unit.okSound)
         {
             playSoundOnSelectChannel(*(unit.okSound));
         }
     }
 
-    void GameScene::enqueueMoveOrder(UnitId unitId, Vector3f position)
+    void GameScene::localPlayerEnqueueUnitOrder(UnitId unitId, const UnitOrder& order)
     {
-        getUnit(unitId).addOrder(createMoveOrder(position));
+        auto kind = PlayerCommand::UnitCommand::IssueOrder::IssueKind::Queued;
+        commandQueue.push(PlayerCommand(nextSceneTime(sceneTime), PlayerCommand::UnitCommand(unitId, PlayerCommand::UnitCommand::IssueOrder(order, kind))));
     }
 
-    void GameScene::issueAttackOrder(UnitId unitId, UnitId target)
+    void GameScene::localPlayerStopUnit(UnitId unitId)
     {
-        auto& unit = getUnit(unitId);
-        unit.clearOrders();
-        unit.addOrder(createAttackOrder(target));
+        commandQueue.push(PlayerCommand(nextSceneTime(sceneTime), PlayerCommand::UnitCommand(unitId, PlayerCommand::UnitCommand::Stop())));
+
+        const auto& unit = getUnit(unitId);
         if (unit.okSound)
         {
             playSoundOnSelectChannel(*(unit.okSound));
         }
     }
 
-    void GameScene::enqueueAttackOrder(UnitId unitId, UnitId target)
-    {
-        getUnit(unitId).addOrder(createAttackOrder(target));
-    }
-
-    void GameScene::issueAttackGroundOrder(UnitId unitId, Vector3f position)
+    void GameScene::issueUnitOrder(UnitId unitId, const UnitOrder& order)
     {
         auto& unit = getUnit(unitId);
         unit.clearOrders();
-        unit.addOrder(createAttackGroundOrder(position));
-        if (unit.okSound)
-        {
-            playSoundOnSelectChannel(*(unit.okSound));
-        }
+        unit.addOrder(order);
     }
 
-    void GameScene::enqueueAttackGroundOrder(UnitId unitId, Vector3f position)
+    void GameScene::enqueueUnitOrder(UnitId unitId, const UnitOrder& order)
     {
-        getUnit(unitId).addOrder(createAttackGroundOrder(position));
+        auto& unit = getUnit(unitId);
+        unit.addOrder(order);
     }
 
-    void GameScene::stopSelectedUnit()
+    void GameScene::stopUnit(UnitId unitId)
     {
-        if (selectedUnit)
-        {
-            auto& unit = getUnit(*selectedUnit);
-            unit.clearOrders();
-            if (unit.okSound)
-            {
-                playSoundOnSelectChannel(*(unit.okSound));
-            }
-        }
+        auto& unit = getUnit(unitId);
+        unit.clearOrders();
     }
 
     bool GameScene::isShiftDown() const
@@ -998,6 +990,22 @@ namespace rwe
 
             a->callback();
             a = std::nullopt;
+        }
+    }
+
+    void GameScene::processPlayerCommands()
+    {
+        for (; !commandQueue.empty(); commandQueue.pop())
+        {
+            const auto& c = commandQueue.top();
+            assert(c.triggerTime >= sceneTime);
+            if (c.triggerTime > sceneTime)
+            {
+                break;
+            }
+
+            PlayerCommandDispatcher dispatcher(this);
+            boost::apply_visitor(dispatcher, c.command);
         }
     }
 }
