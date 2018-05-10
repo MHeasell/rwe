@@ -777,7 +777,15 @@ namespace rwe
                 auto coords = arg1;
                 auto pair = unpackCoords(coords);
                 const auto& unit = sim->getUnit(unitId);
-                auto result = RadiansAngle::fromUnwrappedAngle(std::atan2(pair.first, pair.second) - unit.rotation);
+
+                // Surprisingly, the result of XZAtan is offset by the unit's current rotation.
+                // The other interesting thing is that in TA, at least for mobile units,
+                // it appears that a unit with rotation 0 faces up, towards negative Z.
+                // However, in RWE, a unit with rotation 0 faces down, towards positive z.
+                // We therefore subtract a half turn to convert to what scripts expect.
+                // TODO: test whether this is also the case for buildings
+                auto correctedUnitRotation = unit.rotation - Pif;
+                auto result = RadiansAngle::fromUnwrappedAngle(std::atan2(pair.first, pair.second) - correctedUnitRotation);
                 return static_cast<int>(toTaAngle(result).value);
             }
             case CobValueId::XZHypot:
