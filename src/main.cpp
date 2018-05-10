@@ -345,7 +345,7 @@ namespace rwe
 
     PlayerInfo parsePlayerInfoFromArg(const std::string& playerString)
     {
-        auto components = rwe::utf8Split(playerString, ':');
+        auto components = rwe::utf8Split(playerString, ';');
         if (components.size() != 3)
         {
             throw std::runtime_error("Invalid player arg");
