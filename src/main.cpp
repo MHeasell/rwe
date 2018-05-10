@@ -111,7 +111,7 @@ namespace rwe
         return Ok(std::move(glContext));
     };
 
-    int run(spdlog::logger& logger, const fs::path& localDataPath, const std::optional<GameParameters>& gameParameters)
+    int run(spdlog::logger& logger, const fs::path& searchPath, const std::optional<GameParameters>& gameParameters)
     {
         logger.info(ProjectNameVersion);
         logger.info("Current directory: {0}", fs::current_path().string());
@@ -170,8 +170,6 @@ namespace rwe
         }
 
         logger.info("Initializing virtual file system");
-        fs::path searchPath(localDataPath);
-        searchPath /= "Data";
         auto vfs = constructVfs(searchPath.string());
 
         logger.info("Loading palette");
@@ -409,6 +407,7 @@ int main(int argc, char* argv[])
             // clang-format off
             desc.add_options()
                 ("help", "produce help message")
+                ("data-path", po::value<std::string>(), "Overrides the location to search for game data")
                 ("map", po::value<std::string>(), "If given, launches straight into a game on the given map")
                 ("player", po::value<std::vector<std::string>>(), "type:side:color");
             // clang-format on
@@ -442,7 +441,15 @@ int main(int argc, char* argv[])
                 }
             }
 
-            return rwe::run(*logger, *localDataPath, gameParameters);
+            fs::path gameDataPath = *localDataPath;
+            gameDataPath /= "Data";
+
+            if (vm.count("data-path"))
+            {
+                gameDataPath = fs::path(vm["data-path"].as<std::string>());
+            }
+
+            return rwe::run(*logger, gameDataPath, gameParameters);
         }
         catch (const std::exception& e)
         {
