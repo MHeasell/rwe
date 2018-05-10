@@ -583,6 +583,7 @@ set(TEST_FILES
     test/rwe/pathfinding/pathfinding_utils_test.cpp
     test/rwe/rc_gen_optional.h
     test/rwe/rwe_string_test.cpp
+    test/rwe/util_test.cpp
     )
 
 add_executable(rwe_test test/main.cpp ${TEST_FILES})

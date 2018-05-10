@@ -1,4 +1,5 @@
 #include "util.h"
+#include <cmath>
 
 namespace rwe
 {
@@ -55,7 +56,7 @@ namespace rwe
 
     RadiansAngle toRadians(TaAngle angle)
     {
-        return RadiansAngle(static_cast<float>(angle.value) * (Pif / 32768.0f));
+        return RadiansAngle::fromUnwrappedAngle(static_cast<float>(angle.value) * (Pif / 32768.0f));
     }
 
     float toleranceToRadians(unsigned int angle)
@@ -65,6 +66,6 @@ namespace rwe
 
     TaAngle toTaAngle(RadiansAngle angle)
     {
-        return TaAngle(static_cast<int16_t>(angle.value * (32768.0f / Pif)));
+        return TaAngle(static_cast<uint16_t>(std::round(angle.value * (32768.0f / Pif))));
     }
 }
