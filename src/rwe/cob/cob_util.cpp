@@ -1,4 +1,8 @@
 #include "cob_util.h"
+#include <cmath>
+#include <rwe/RadiansAngle.h>
+#include <rwe/fixed_point.h>
+#include <rwe/util.h>
 
 namespace rwe
 {
@@ -14,5 +18,11 @@ namespace rwe
         auto x = static_cast<int16_t>(xz >> 16);
         auto z = static_cast<int16_t>(xz & 0xffff);
         return std::pair<float, float>(x, z);
+    }
+
+    int cobAtan(int a, int b)
+    {
+        auto result = RadiansAngle::fromUnwrappedAngle(std::atan2(fromFixedPoint(a), fromFixedPoint(b)));
+        return static_cast<int>(toTaAngle(result).value);
     }
 }

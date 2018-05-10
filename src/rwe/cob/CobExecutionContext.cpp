@@ -789,10 +789,7 @@ namespace rwe
             }
             case CobValueId::Atan:
             {
-                auto a = arg1;
-                auto b = arg2;
-                auto result = RadiansAngle::fromUnwrappedAngle(std::atan2(fromFixedPoint(a), fromFixedPoint(b)));
-                return static_cast<int>(toTaAngle(result).value);
+                return cobAtan(arg1, arg2);
             }
             case CobValueId::Hypot:
             {

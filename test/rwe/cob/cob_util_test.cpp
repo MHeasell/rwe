@@ -42,4 +42,14 @@ namespace rwe
             RC_ASSERT(result.second == fB);
         });
     }
+
+    TEST_CASE("cobAtan")
+    {
+        REQUIRE(cobAtan(0, 0) == 0);
+        REQUIRE(cobAtan(1, 1) == 8192);
+        REQUIRE(cobAtan(1, 0) == 16384);
+        REQUIRE(cobAtan(0, -1) == 32768);
+        REQUIRE(cobAtan(-1, 0) == 49152);
+        REQUIRE(cobAtan(0, 1) == 0);
+    }
 }
