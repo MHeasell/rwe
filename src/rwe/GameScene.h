@@ -2,9 +2,9 @@
 #define RWE_GAMESCENE_H
 
 #include <deque>
-#include <queue>
 #include <functional>
 #include <optional>
+#include <queue>
 #include <rwe/AudioService.h>
 #include <rwe/CursorService.h>
 #include <rwe/DiscreteRect.h>
