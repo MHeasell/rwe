@@ -95,10 +95,20 @@ namespace rwe
                 }
             }
 
+            int catchupLimit = 4;
             while (currentSimulationTime < currentRealTime)
             {
+                // If we haven't caught up after a few extra cycles
+                // just abandon catching up more.
+                if (catchupLimit == 0)
+                {
+                    currentSimulationTime = currentRealTime;
+                    break;
+                }
+
                 currentScene->update();
                 currentSimulationTime += TickInterval;
+                catchupLimit -= 1;
             }
 
             graphics->clear();
