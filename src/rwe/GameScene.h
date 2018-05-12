@@ -155,7 +155,7 @@ namespace rwe
         PathFindingService pathFindingService;
         UnitBehaviorService unitBehaviorService;
         CobExecutionService cobExecutionService;
-        PlayerCommandService gameNetworkService;
+        PlayerCommandService playerCommandService;
 
         PlayerId localPlayerId;
 

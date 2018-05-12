@@ -431,7 +431,7 @@ namespace rwe
         }
 
         // Queue up commands collected from the local player
-        gameNetworkService.pushCommands(localPlayerId, localPlayerCommandBuffer);
+        playerCommandService.pushCommands(localPlayerId, localPlayerCommandBuffer);
         localPlayerCommandBuffer.clear();
 
         // Queue up commands from the computer players
@@ -441,7 +441,7 @@ namespace rwe
             if (id != localPlayerId) // FIXME: should properly check that the player is a computer
             {
                 // TODO: implement computer AI logic to decide commands here
-                gameNetworkService.pushCommands(id, std::vector<PlayerCommand>());
+                playerCommandService.pushCommands(id, std::vector<PlayerCommand>());
             }
         }
 
@@ -1016,7 +1016,7 @@ namespace rwe
         for (unsigned int i = 0; i < simulation.players.size(); ++i)
         {
             PlayerId id(i);
-            if (!gameNetworkService.hasCommands(id))
+            if (!playerCommandService.hasCommands(id))
             {
                 return false;
             }
@@ -1033,7 +1033,7 @@ namespace rwe
         {
             PlayerId id(i);
 
-            auto commands = gameNetworkService.getFrontCommands(id);
+            auto commands = playerCommandService.getFrontCommands(id);
 
             PlayerCommandDispatcher dispatcher(this, id);
             for (const auto& c : commands)
@@ -1042,6 +1042,6 @@ namespace rwe
             }
         }
 
-        gameNetworkService.popCommands();
+        playerCommandService.popCommands();
     }
 }
