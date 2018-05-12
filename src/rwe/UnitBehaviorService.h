@@ -2,6 +2,7 @@
 #define RWE_UNITBEHAVIORSERVICE_H
 
 #include <rwe/UnitId.h>
+#include <rwe/UnitOrder.h>
 #include <rwe/math/Vector3f.h>
 #include <rwe/pathfinding/PathFindingService.h>
 

@@ -11,6 +11,7 @@
 #include <rwe/PlayerId.h>
 #include <rwe/SelectionMesh.h>
 #include <rwe/UnitMesh.h>
+#include <rwe/UnitOrder.h>
 #include <rwe/UnitWeapon.h>
 #include <rwe/cob/CobEnvironment.h>
 #include <rwe/geometry/BoundingBox3f.h>
@@ -19,21 +20,6 @@
 
 namespace rwe
 {
-    struct MoveOrder
-    {
-        Vector3f destination;
-        explicit MoveOrder(const Vector3f& destination);
-    };
-
-    using AttackTarget = boost::variant<UnitId, Vector3f>;
-
-    struct AttackOrder
-    {
-        AttackTarget target;
-        explicit AttackOrder(UnitId target) : target(target) {}
-        explicit AttackOrder(const Vector3f& target) : target(target) {}
-    };
-
     struct PathFollowingInfo
     {
         UnitPath path;
@@ -57,8 +43,6 @@ namespace rwe
     };
 
     using UnitState = boost::variant<IdleState, MovingState>;
-
-    using UnitOrder = boost::variant<MoveOrder, AttackOrder>;
 
     UnitOrder createMoveOrder(const Vector3f& destination);
 
