@@ -387,13 +387,6 @@ namespace rwe
 
     void GameScene::update()
     {
-        sceneTime = nextSceneTime(sceneTime);
-        simulation.gameTime = nextGameTime(simulation.gameTime);
-
-        processActions();
-
-        processPlayerCommands();
-
         float secondsElapsed = static_cast<float>(SceneManager::TickInterval) / 1000.0f;
         const float speed = CameraPanSpeed * secondsElapsed;
         int directionX = (right ? 1 : 0) - (left ? 1 : 0);
@@ -437,45 +430,70 @@ namespace rwe
             }
         }
 
-        pathFindingService.update();
+        // Queue up commands collected from the local player
+        gameNetworkService.pushCommands(localPlayerId, localPlayerCommandBuffer);
+        localPlayerCommandBuffer.clear();
 
-        // run unit scripts
-        for (auto& entry : simulation.units)
+        // Queue up commands from the computer players
+        for (unsigned int i = 0; i < simulation.players.size(); ++i)
         {
-            auto unitId = entry.first;
-            auto& unit = entry.second;
-
-            unitBehaviorService.update(unitId);
-
-            unit.mesh.update(secondsElapsed);
-
-            cobExecutionService.run(simulation, unitId);
-        }
-
-        updateLasers();
-
-        updateExplosions();
-
-        // if a commander died this frame, kill the player that owns it
-        for (const auto& p : simulation.units)
-        {
-            if (p.second.isCommander() && p.second.isDead())
+            PlayerId id(i);
+            if (id != localPlayerId) // FIXME: should properly check that the player is a computer
             {
-                killPlayer(p.second.owner);
+                // TODO: implement computer AI logic to decide commands here
+                gameNetworkService.pushCommands(id, std::vector<PlayerCommand>());
             }
         }
 
-        auto winStatus = simulation.computeWinStatus();
-        if (auto wonStatus = boost::get<WinStatusWon>(&winStatus); wonStatus != nullptr)
-        {
-            delay(SceneTimeDelta(5 * 60), [sm = sceneManager]() { sm->requestExit(); });
-        }
-        else if (auto drawStatus = boost::get<WinStatusDraw>(&winStatus); drawStatus != nullptr)
-        {
-            delay(SceneTimeDelta(5 * 60), [sm = sceneManager]() { sm->requestExit(); });
-        }
+        processActions();
 
-        deleteDeadUnits();
+        if (hasPlayerCommands())
+        {
+            sceneTime = nextSceneTime(sceneTime);
+            simulation.gameTime = nextGameTime(simulation.gameTime);
+
+            processPlayerCommands();
+
+            pathFindingService.update();
+
+            // run unit scripts
+            for (auto& entry : simulation.units)
+            {
+                auto unitId = entry.first;
+                auto& unit = entry.second;
+
+                unitBehaviorService.update(unitId);
+
+                unit.mesh.update(secondsElapsed);
+
+                cobExecutionService.run(simulation, unitId);
+            }
+
+            updateLasers();
+
+            updateExplosions();
+
+            // if a commander died this frame, kill the player that owns it
+            for (const auto& p : simulation.units)
+            {
+                if (p.second.isCommander() && p.second.isDead())
+                {
+                    killPlayer(p.second.owner);
+                }
+            }
+
+            auto winStatus = simulation.computeWinStatus();
+            if (auto wonStatus = boost::get<WinStatusWon>(&winStatus); wonStatus != nullptr)
+            {
+                delay(SceneTimeDelta(5 * 60), [sm = sceneManager]() { sm->requestExit(); });
+            }
+            else if (auto drawStatus = boost::get<WinStatusDraw>(&winStatus); drawStatus != nullptr)
+            {
+                delay(SceneTimeDelta(5 * 60), [sm = sceneManager]() { sm->requestExit(); });
+            }
+
+            deleteDeadUnits();
+        }
     }
 
     void GameScene::spawnUnit(const std::string& unitType, PlayerId owner, const Vector3f& position)
@@ -591,8 +609,8 @@ namespace rwe
 
     void GameScene::localPlayerIssueUnitOrder(UnitId unitId, const UnitOrder& order)
     {
-        auto kind = PlayerCommand::UnitCommand::IssueOrder::IssueKind::Immediate;
-        commandQueue.push(PlayerCommand(nextSceneTime(sceneTime), PlayerCommand::UnitCommand(unitId, PlayerCommand::UnitCommand::IssueOrder(order, kind))));
+        auto kind = PlayerUnitCommand::IssueOrder::IssueKind::Immediate;
+        localPlayerCommandBuffer.push_back(PlayerUnitCommand(unitId, PlayerUnitCommand::IssueOrder(order, kind)));
 
         const auto& unit = getUnit(unitId);
         if (unit.okSound)
@@ -603,13 +621,13 @@ namespace rwe
 
     void GameScene::localPlayerEnqueueUnitOrder(UnitId unitId, const UnitOrder& order)
     {
-        auto kind = PlayerCommand::UnitCommand::IssueOrder::IssueKind::Queued;
-        commandQueue.push(PlayerCommand(nextSceneTime(sceneTime), PlayerCommand::UnitCommand(unitId, PlayerCommand::UnitCommand::IssueOrder(order, kind))));
+        auto kind = PlayerUnitCommand::IssueOrder::IssueKind::Queued;
+        localPlayerCommandBuffer.push_back(PlayerUnitCommand(unitId, PlayerUnitCommand::IssueOrder(order, kind)));
     }
 
     void GameScene::localPlayerStopUnit(UnitId unitId)
     {
-        commandQueue.push(PlayerCommand(nextSceneTime(sceneTime), PlayerCommand::UnitCommand(unitId, PlayerCommand::UnitCommand::Stop())));
+        localPlayerCommandBuffer.push_back(PlayerUnitCommand(unitId, PlayerUnitCommand::Stop()));
 
         const auto& unit = getUnit(unitId);
         if (unit.okSound)
@@ -993,19 +1011,37 @@ namespace rwe
         }
     }
 
+    bool GameScene::hasPlayerCommands() const
+    {
+        for (unsigned int i = 0; i < simulation.players.size(); ++i)
+        {
+            PlayerId id(i);
+            if (!gameNetworkService.hasCommands(id))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     void GameScene::processPlayerCommands()
     {
-        for (; !commandQueue.empty(); commandQueue.pop())
-        {
-            const auto& c = commandQueue.top();
-            assert(c.triggerTime >= sceneTime);
-            if (c.triggerTime > sceneTime)
-            {
-                break;
-            }
+        assert(hasPlayerCommands());
 
-            PlayerCommandDispatcher dispatcher(this);
-            boost::apply_visitor(dispatcher, c.command);
+        for (unsigned int i = 0; i < simulation.players.size(); ++i)
+        {
+            PlayerId id(i);
+
+            auto commands = gameNetworkService.getFrontCommands(id);
+
+            PlayerCommandDispatcher dispatcher(this, id);
+            for (const auto& c : commands)
+            {
+                boost::apply_visitor(dispatcher, c);
+            }
         }
+
+        gameNetworkService.popCommands();
     }
 }

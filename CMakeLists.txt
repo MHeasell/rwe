@@ -219,6 +219,10 @@ set(SOURCE_FILES
     src/rwe/OpaqueId.h
     src/rwe/OpaqueUnit.h
     src/rwe/OpenGlVersion.h
+    src/rwe/PlayerCommand.cpp
+    src/rwe/PlayerCommand.h
+    src/rwe/PlayerCommandService.cpp
+    src/rwe/PlayerCommandService.h
     src/rwe/PlayerId.h
     src/rwe/Point.cpp
     src/rwe/Point.h

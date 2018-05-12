@@ -11,6 +11,8 @@
 #include <rwe/GameSimulation.h>
 #include <rwe/MeshService.h>
 #include <rwe/OccupiedGrid.h>
+#include <rwe/PlayerCommand.h>
+#include <rwe/PlayerCommandService.h>
 #include <rwe/PlayerId.h>
 #include <rwe/RenderService.h>
 #include <rwe/SceneManager.h>
@@ -62,62 +64,6 @@ namespace rwe
         Water
     };
 
-    struct PlayerCommand
-    {
-        struct UnitCommand
-        {
-            struct IssueOrder
-            {
-                enum IssueKind
-                {
-                    Immediate,
-                    Queued
-                };
-                UnitOrder order;
-                IssueKind issueKind;
-
-                IssueOrder(const UnitOrder& order, IssueKind issueKind) : order(order), issueKind(issueKind)
-                {
-                }
-            };
-
-            struct Stop
-            {
-            };
-
-            using Command = boost::variant<IssueOrder, Stop>;
-
-            UnitId unit;
-            Command command;
-
-            UnitCommand(const UnitId& unit, const Command& command) : unit(unit), command(command)
-            {
-            }
-        };
-
-        struct PauseGame
-        {
-        };
-
-        struct UnpauseGame
-        {
-        };
-
-        using Type = boost::variant<UnitCommand, PauseGame, UnpauseGame>;
-
-        SceneTime triggerTime;
-        Type command;
-
-        PlayerCommand(const SceneTime& triggerTime, const Type& command) : triggerTime(triggerTime), command(command)
-        {
-        }
-    };
-
-    struct PlayerCommandTimeCompare
-    {
-        bool operator()(const PlayerCommand& a, const PlayerCommand& b) const { return a.triggerTime < b.triggerTime; }
-    };
-
     class GameScene : public SceneManager::Scene
     {
     public:
@@ -125,27 +71,29 @@ namespace rwe
         {
         private:
             GameScene* scene;
+            PlayerId player;
             UnitId unit;
 
         public:
-            UnitCommandDispacher(GameScene* scene, const UnitId& unit) : scene(scene), unit(unit)
+            UnitCommandDispacher(GameScene* scene, const PlayerId& player, const UnitId& unit)
+                : scene(scene), player(player), unit(unit)
             {
             }
 
-            void operator()(const PlayerCommand::UnitCommand::IssueOrder& c)
+            void operator()(const PlayerUnitCommand::IssueOrder& c)
             {
                 switch (c.issueKind)
                 {
-                    case PlayerCommand::UnitCommand::IssueOrder::IssueKind::Immediate:
+                    case PlayerUnitCommand::IssueOrder::IssueKind::Immediate:
                         scene->issueUnitOrder(unit, c.order);
                         break;
-                    case PlayerCommand::UnitCommand::IssueOrder::IssueKind::Queued:
+                    case PlayerUnitCommand::IssueOrder::IssueKind::Queued:
                         scene->enqueueUnitOrder(unit, c.order);
                         break;
                 }
             }
 
-            void operator()(const PlayerCommand::UnitCommand::Stop&)
+            void operator()(const PlayerUnitCommand::Stop&)
             {
                 scene->stopUnit(unit);
             }
@@ -155,22 +103,23 @@ namespace rwe
         {
         private:
             GameScene* scene;
+            PlayerId playerId;
 
         public:
-            PlayerCommandDispatcher(GameScene* scene) : scene(scene)
+            PlayerCommandDispatcher(GameScene* scene, PlayerId playerId) : scene(scene), playerId(playerId)
             {
             }
 
-            void operator()(const PlayerCommand::UnitCommand& c)
+            void operator()(const PlayerUnitCommand& c)
             {
-                UnitCommandDispacher dispatcher(scene, c.unit);
+                UnitCommandDispacher dispatcher(scene, playerId, c.unit);
                 boost::apply_visitor(dispatcher, c.command);
             }
-            void operator()(const PlayerCommand::PauseGame&)
+            void operator()(const PlayerPauseGameCommand&)
             {
                 // TODO
             }
-            void operator()(const PlayerCommand::UnpauseGame&)
+            void operator()(const PlayerUnpauseGameCommand&)
             {
                 // TODO
             }
@@ -206,6 +155,7 @@ namespace rwe
         PathFindingService pathFindingService;
         UnitBehaviorService unitBehaviorService;
         CobExecutionService cobExecutionService;
+        PlayerCommandService gameNetworkService;
 
         PlayerId localPlayerId;
 
@@ -232,7 +182,7 @@ namespace rwe
 
         std::deque<std::optional<GameSceneTimeAction>> actions;
 
-        std::priority_queue<PlayerCommand, std::vector<PlayerCommand>, PlayerCommandTimeCompare> commandQueue;
+        std::vector<PlayerCommand> localPlayerCommandBuffer;
 
     public:
         GameScene(
@@ -360,6 +310,8 @@ namespace rwe
         void killPlayer(PlayerId playerId);
 
         void processActions();
+
+        bool hasPlayerCommands() const;
 
         void processPlayerCommands();
 
