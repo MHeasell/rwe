@@ -100,16 +100,23 @@ namespace rwe
 
         spdlog::get("rwe")->debug("Sender was recognised");
 
-        LoadingStatusMessage message;
+        proto::NetworkMessage message;
         message.ParseFromArray(messageBuffer.data(), bytesTransferred);
 
-        switch (message.status())
+        if (!message.has_loading_status())
         {
-            case LoadingStatusMessage_Status_Loading:
+            spdlog::get("rwe")->debug("Sender is already in game!");
+            it->second = Status::Ready;
+            return;
+        }
+
+        switch (message.loading_status().status())
+        {
+            case proto::LoadingStatusMessage_Status_Loading:
                 spdlog::get("rwe")->debug("Sender is loading");
                 it->second = Status::Loading;
                 break;
-            case LoadingStatusMessage_Status_Ready:
+            case proto::LoadingStatusMessage_Status_Ready:
                 spdlog::get("rwe")->debug("Sender is ready");
                 it->second = Status::Ready;
                 break;
@@ -125,27 +132,31 @@ namespace rwe
         std::scoped_lock<std::mutex> lock(mutex);
         spdlog::get("rwe")->debug("Notifying peers about loading status");
 
-        LoadingStatusMessage message;
-        switch (loadingStatus)
+        proto::NetworkMessage outerMessage;
+
         {
-            case Status::Loading:
-                spdlog::get("rwe")->debug("we are loading");
-                message.set_status(LoadingStatusMessage_Status_Loading);
-                break;
-            case Status::Ready:
-                spdlog::get("rwe")->debug("we are ready");
-                message.set_status(LoadingStatusMessage_Status_Ready);
-                break;
-            default:
-                throw std::logic_error("Unhandled loading status");
+            auto& innerMessage = *outerMessage.mutable_loading_status();
+            switch (loadingStatus)
+            {
+                case Status::Loading:
+                    spdlog::get("rwe")->debug("we are loading");
+                    innerMessage.set_status(proto::LoadingStatusMessage_Status_Loading);
+                    break;
+                case Status::Ready:
+                    spdlog::get("rwe")->debug("we are ready");
+                    innerMessage.set_status(proto::LoadingStatusMessage_Status_Ready);
+                    break;
+                default:
+                    throw std::logic_error("Unhandled loading status");
+            }
         }
 
-        message.SerializeToArray(messageBuffer.data(), messageBuffer.size());
+        outerMessage.SerializeToArray(messageBuffer.data(), messageBuffer.size());
 
         for (const auto& p : remoteEndpoints)
         {
-            spdlog::get("rwe")->debug("Sending notification to {0} {1}, size {2}", p.first.address().to_string(), p.first.port(), message.ByteSize());
-            socket.send_to(boost::asio::buffer(messageBuffer.data(), message.ByteSize()), p.first);
+            spdlog::get("rwe")->debug("Sending notification to {0} {1}, size {2}", p.first.address().to_string(), p.first.port(), outerMessage.ByteSize());
+            socket.send_to(boost::asio::buffer(messageBuffer.data(), outerMessage.ByteSize()), p.first);
         }
     }
 

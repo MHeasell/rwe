@@ -194,6 +194,8 @@ set(SOURCE_FILES
     src/rwe/FeatureId.h
     src/rwe/Gaf.cpp
     src/rwe/Gaf.h
+    src/rwe/GameNetworkService.cpp
+    src/rwe/GameNetworkService.h
     src/rwe/GameScene.cpp
     src/rwe/GameScene.h
     src/rwe/GameSimulation.cpp
