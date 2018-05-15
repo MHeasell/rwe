@@ -313,7 +313,7 @@ namespace rwe
 
         bool hasPlayerCommands() const;
 
-        void processPlayerCommands();
+        void processPlayerCommands(const std::vector<std::pair<PlayerId, std::vector<PlayerCommand>>>& commands);
 
         template <typename T>
         void delay(SceneTimeDelta interval, T&& f)

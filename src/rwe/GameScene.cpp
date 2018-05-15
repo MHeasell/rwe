@@ -91,6 +91,10 @@ namespace rwe
     void GameScene::init()
     {
         audioService->reserveChannels(reservedChannelsCount);
+        for (unsigned int i = 0; i < simulation.players.size(); ++i)
+        {
+            playerCommandService.registerPlayer(PlayerId(i));
+        }
     }
 
     void GameScene::render(GraphicsContext& context)
@@ -447,12 +451,13 @@ namespace rwe
 
         processActions();
 
-        if (hasPlayerCommands())
+        auto playerCommands = playerCommandService.tryPopCommands();
+        if (playerCommands)
         {
             sceneTime = nextSceneTime(sceneTime);
             simulation.gameTime = nextGameTime(simulation.gameTime);
 
-            processPlayerCommands();
+            processPlayerCommands(*playerCommands);
 
             pathFindingService.update();
 
@@ -1011,37 +1016,15 @@ namespace rwe
         }
     }
 
-    bool GameScene::hasPlayerCommands() const
+    void GameScene::processPlayerCommands(const std::vector<std::pair<PlayerId, std::vector<PlayerCommand>>>& commands)
     {
-        for (unsigned int i = 0; i < simulation.players.size(); ++i)
+        for (const auto& p : commands)
         {
-            PlayerId id(i);
-            if (!playerCommandService.hasCommands(id))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    void GameScene::processPlayerCommands()
-    {
-        assert(hasPlayerCommands());
-
-        for (unsigned int i = 0; i < simulation.players.size(); ++i)
-        {
-            PlayerId id(i);
-
-            auto commands = playerCommandService.getFrontCommands(id);
-
-            PlayerCommandDispatcher dispatcher(this, id);
-            for (const auto& c : commands)
+            PlayerCommandDispatcher dispatcher(this, p.first);
+            for (const auto& c : p.second)
             {
                 boost::apply_visitor(dispatcher, c);
             }
         }
-
-        playerCommandService.popCommands();
     }
 }
