@@ -1,5 +1,5 @@
-#ifndef RWE_GAMENETWORKSERVICE_H
-#define RWE_GAMENETWORKSERVICE_H
+#ifndef RWE_PLAYERCOMMANDSERVICE_H
+#define RWE_PLAYERCOMMANDSERVICE_H
 
 #include <deque>
 #include <rwe/PlayerCommand.h>
