@@ -63,6 +63,7 @@ namespace rwe
         MovementClassCollisionService&& collisionService,
         UnitDatabase&& unitDatabase,
         MeshService&& meshService,
+        std::unique_ptr<GameNetworkService>&& gameNetworkService,
         PlayerId localPlayerId)
         : sceneContext(sceneContext),
           playerCommandService(std::move(playerCommandService)),
@@ -71,6 +72,7 @@ namespace rwe
           simulation(std::move(simulation)),
           collisionService(std::move(collisionService)),
           unitFactory(sceneContext.textureService, std::move(unitDatabase), std::move(meshService), &this->collisionService, sceneContext.palette, sceneContext.guiPalette),
+          gameNetworkService(std::move(gameNetworkService)),
           pathFindingService(&this->simulation, &this->collisionService),
           unitBehaviorService(this, &pathFindingService, &this->collisionService),
           cobExecutionService(),
@@ -81,6 +83,7 @@ namespace rwe
     void GameScene::init()
     {
         sceneContext.audioService->reserveChannels(reservedChannelsCount);
+        gameNetworkService->start();
     }
 
     void GameScene::render(GraphicsContext& context)
@@ -422,13 +425,15 @@ namespace rwe
 
         // Queue up commands collected from the local player
         playerCommandService->pushCommands(localPlayerId, localPlayerCommandBuffer);
+        gameNetworkService->submitCommands(localPlayerCommandBuffer);
         localPlayerCommandBuffer.clear();
 
         // Queue up commands from the computer players
         for (unsigned int i = 0; i < simulation.players.size(); ++i)
         {
             PlayerId id(i);
-            if (id != localPlayerId) // FIXME: should properly check that the player is a computer
+            const auto& player = simulation.players[i];
+            if (player.type == GamePlayerType::Computer)
             {
                 // TODO: implement computer AI logic to decide commands here
                 playerCommandService->pushCommands(id, std::vector<PlayerCommand>());

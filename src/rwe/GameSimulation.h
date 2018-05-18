@@ -20,8 +20,15 @@ namespace rwe
         Dead
     };
 
+    enum class GamePlayerType
+    {
+        Human,
+        Computer
+    };
+
     struct GamePlayerInfo
     {
+        GamePlayerType type;
         unsigned int color;
         GamePlayerStatus status;
     };

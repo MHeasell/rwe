@@ -1,5 +1,6 @@
 #include "LoadingScene.h"
 #include <boost/interprocess/streams/bufferstream.hpp>
+#include <rwe/GameNetworkService.h>
 #include <rwe/WeaponTdf.h>
 #include <rwe/ota.h>
 #include <rwe/tdf.h>
@@ -136,14 +137,24 @@ namespace rwe
 
         std::optional<PlayerId> localPlayerId;
 
+        auto playerCommandService = std::make_unique<PlayerCommandService>();
+
         std::array<std::optional<PlayerId>, 10> gamePlayers;
+        std::vector<GameNetworkService::EndpointInfo> endpointInfos;
+
+        boost::asio::io_service ioContext;
+        boost::asio::ip::udp::resolver resolver(ioContext);
+
         for (int i = 0; i < 10; ++i)
         {
             const auto& params = gameParameters.players[i];
             if (params)
             {
-                GamePlayerInfo gpi{params->color, GamePlayerStatus::Alive};
-                gamePlayers[i] = simulation.addPlayer(gpi);
+                auto playerType = boost::apply_visitor(IsComputerVisitor(), params->controller) ? GamePlayerType::Computer : GamePlayerType::Human;
+                GamePlayerInfo gpi{playerType, params->color, GamePlayerStatus::Alive};
+                auto playerId = simulation.addPlayer(gpi);
+                gamePlayers[i] = playerId;
+                playerCommandService->registerPlayer(playerId);
 
                 if (boost::apply_visitor(IsHumanVisitor(), params->controller))
                 {
@@ -154,6 +165,11 @@ namespace rwe
 
                     localPlayerId = gamePlayers[i];
                 }
+
+                if (auto networkInfo = boost::get<PlayerControllerTypeNetwork>(&params->controller); networkInfo != nullptr)
+                {
+                    endpointInfos.emplace_back(playerId, *resolver.resolve(boost::asio::ip::udp::resolver::query(networkInfo->host, networkInfo->port)));
+                }
             }
         }
         if (!localPlayerId)
@@ -161,14 +177,11 @@ namespace rwe
             throw std::runtime_error("No local player!");
         }
 
+        auto localEndpoint = *resolver.resolve(boost::asio::ip::udp::resolver::query(gameParameters.localNetworkInterface, gameParameters.localNetworkPort));
+        auto gameNetworkService = std::make_unique<GameNetworkService>(localEndpoint, endpointInfos, playerCommandService.get());
+
         RenderService renderService(sceneContext.graphics, sceneContext.shaders, camera);
         UiRenderService uiRenderService(sceneContext.graphics, sceneContext.shaders, uiCamera);
-
-        auto playerCommandService = std::make_unique<PlayerCommandService>();
-        for (unsigned int i = 0; i < simulation.players.size(); ++i)
-        {
-            playerCommandService->registerPlayer(PlayerId(i));
-        }
 
         auto gameScene = std::make_unique<GameScene>(
             sceneContext,
@@ -179,6 +192,7 @@ namespace rwe
             std::move(collisionService),
             std::move(unitDatabase),
             std::move(meshService),
+            std::move(gameNetworkService),
             *localPlayerId);
 
         const auto& schema = ota.schemas.at(schemaIndex);

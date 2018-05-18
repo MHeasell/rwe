@@ -42,6 +42,14 @@ namespace rwe
         bool operator()(const PlayerControllerTypeNetwork&) const { return false; }
     };
 
+    class IsComputerVisitor : public boost::static_visitor<bool>
+    {
+    public:
+        bool operator()(const PlayerControllerTypeHuman&) const { return false; }
+        bool operator()(const PlayerControllerTypeComputer&) const { return true; }
+        bool operator()(const PlayerControllerTypeNetwork&) const { return false; }
+    };
+
     class GetNetworkAddressVisitor : public boost::static_visitor<std::optional<std::pair<std::reference_wrapper<const std::string>, std::reference_wrapper<const std::string>>>>
     {
     public:

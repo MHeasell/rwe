@@ -8,6 +8,7 @@
 #include <rwe/AudioService.h>
 #include <rwe/CursorService.h>
 #include <rwe/DiscreteRect.h>
+#include <rwe/GameNetworkService.h>
 #include <rwe/GameSimulation.h>
 #include <rwe/MeshService.h>
 #include <rwe/OccupiedGrid.h>
@@ -150,6 +151,8 @@ namespace rwe
 
         UnitFactory unitFactory;
 
+        std::unique_ptr<GameNetworkService> gameNetworkService;
+
         PathFindingService pathFindingService;
         UnitBehaviorService unitBehaviorService;
         CobExecutionService cobExecutionService;
@@ -191,6 +194,7 @@ namespace rwe
             MovementClassCollisionService&& collisionService,
             UnitDatabase&& unitDatabase,
             MeshService&& meshService,
+            std::unique_ptr<GameNetworkService>&& gameNetworkService,
             PlayerId localPlayerId);
 
         void init() override;

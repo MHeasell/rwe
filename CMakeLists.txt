@@ -395,6 +395,8 @@ set(SOURCE_FILES
     src/rwe/pathfinding/pathfinding_utils.h
     src/rwe/pcx.cpp
     src/rwe/pcx.h
+    src/rwe/proto/serialization.cpp
+    src/rwe/proto/serialization.h
     src/rwe/rwe_string.cpp
     src/rwe/rwe_string.h
     src/rwe/tdf.cpp
