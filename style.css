@@ -1,0 +1,22 @@
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #fff;
+  color: #333;
+  line-height: 1.5;
+  font-size: 18px;
+}
+
+.container {
+  margin: 0 auto;
+  max-width: 656px;
+  overflow: auto;
+}
+
+.container img {
+  display: block;
+  margin: 24px auto;
+}
