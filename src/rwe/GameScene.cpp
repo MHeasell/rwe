@@ -56,6 +56,7 @@ namespace rwe
 
     GameScene::GameScene(
         const SceneContext& sceneContext,
+        std::unique_ptr<PlayerCommandService>&& playerCommandService,
         RenderService&& renderService,
         UiRenderService&& uiRenderService,
         GameSimulation&& simulation,
@@ -64,6 +65,7 @@ namespace rwe
         MeshService&& meshService,
         PlayerId localPlayerId)
         : sceneContext(sceneContext),
+          playerCommandService(std::move(playerCommandService)),
           renderService(std::move(renderService)),
           uiRenderService(std::move(uiRenderService)),
           simulation(std::move(simulation)),
@@ -79,10 +81,6 @@ namespace rwe
     void GameScene::init()
     {
         sceneContext.audioService->reserveChannels(reservedChannelsCount);
-        for (unsigned int i = 0; i < simulation.players.size(); ++i)
-        {
-            playerCommandService.registerPlayer(PlayerId(i));
-        }
     }
 
     void GameScene::render(GraphicsContext& context)
@@ -423,7 +421,7 @@ namespace rwe
         }
 
         // Queue up commands collected from the local player
-        playerCommandService.pushCommands(localPlayerId, localPlayerCommandBuffer);
+        playerCommandService->pushCommands(localPlayerId, localPlayerCommandBuffer);
         localPlayerCommandBuffer.clear();
 
         // Queue up commands from the computer players
@@ -433,13 +431,13 @@ namespace rwe
             if (id != localPlayerId) // FIXME: should properly check that the player is a computer
             {
                 // TODO: implement computer AI logic to decide commands here
-                playerCommandService.pushCommands(id, std::vector<PlayerCommand>());
+                playerCommandService->pushCommands(id, std::vector<PlayerCommand>());
             }
         }
 
         processActions();
 
-        auto playerCommands = playerCommandService.tryPopCommands();
+        auto playerCommands = playerCommandService->tryPopCommands();
         if (playerCommands)
         {
             sceneTime = nextSceneTime(sceneTime);

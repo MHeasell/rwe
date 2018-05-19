@@ -164,8 +164,15 @@ namespace rwe
         RenderService renderService(sceneContext.graphics, sceneContext.shaders, camera);
         UiRenderService uiRenderService(sceneContext.graphics, sceneContext.shaders, uiCamera);
 
+        auto playerCommandService = std::make_unique<PlayerCommandService>();
+        for (unsigned int i = 0; i < simulation.players.size(); ++i)
+        {
+            playerCommandService->registerPlayer(PlayerId(i));
+        }
+
         auto gameScene = std::make_unique<GameScene>(
             sceneContext,
+            std::move(playerCommandService),
             std::move(renderService),
             std::move(uiRenderService),
             std::move(simulation),

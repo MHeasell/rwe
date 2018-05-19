@@ -139,6 +139,8 @@ namespace rwe
 
         SceneContext sceneContext;
 
+        std::unique_ptr<PlayerCommandService> playerCommandService;
+
         RenderService renderService;
         UiRenderService uiRenderService;
 
@@ -151,7 +153,6 @@ namespace rwe
         PathFindingService pathFindingService;
         UnitBehaviorService unitBehaviorService;
         CobExecutionService cobExecutionService;
-        PlayerCommandService playerCommandService;
 
         PlayerId localPlayerId;
 
@@ -183,6 +184,7 @@ namespace rwe
     public:
         GameScene(
             const SceneContext& sceneContext,
+            std::unique_ptr<PlayerCommandService>&& playerCommandService,
             RenderService&& renderService,
             UiRenderService&& uiRenderService,
             GameSimulation&& simulation,
