@@ -6,6 +6,7 @@
 #include <rwe/CursorService.h>
 #include <rwe/MapFeatureService.h>
 #include <rwe/RenderService.h>
+#include <rwe/SceneContext.h>
 #include <rwe/SceneManager.h>
 #include <rwe/SideData.h>
 #include <rwe/TextureService.h>
@@ -20,20 +21,10 @@ namespace rwe
     class MainMenuScene : public SceneManager::Scene
     {
     private:
-        SceneManager* sceneManager;
-        AbstractVirtualFileSystem* vfs;
-        TextureService* textureService;
-        AudioService* audioService;
+        SceneContext sceneContext;
         TdfBlock* soundLookup;
-        GraphicsContext* graphics;
-        ShaderService* shaders;
+
         MapFeatureService* featureService;
-        const ColorPalette* palette;
-        const ColorPalette* guiPalette;
-        CursorService* cursor;
-        SdlContext* sdl;
-        const std::unordered_map<std::string, SideData>* sideData;
-        ViewportService* viewportService;
 
         UiRenderService scaledUiRenderService;
         UiRenderService nativeUiRenderService;
@@ -48,20 +39,9 @@ namespace rwe
 
     public:
         MainMenuScene(
-            SceneManager* sceneManager,
-            AbstractVirtualFileSystem* vfs,
-            TextureService* textureService,
-            AudioService* audioService,
+            const SceneContext& sceneContext,
             TdfBlock* audioLookup,
-            GraphicsContext* graphics,
-            ShaderService* shaders,
             MapFeatureService* featureService,
-            const ColorPalette* palette,
-            const ColorPalette* guiPalette,
-            CursorService* cursor,
-            SdlContext* sdl,
-            const std::unordered_map<std::string, SideData>* sideData,
-            ViewportService* viewportService,
             float width,
             float height);
 

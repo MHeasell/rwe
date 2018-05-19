@@ -55,14 +55,7 @@ namespace rwe
     };
 
     GameScene::GameScene(
-        SceneManager* sceneManager,
-        TextureService* textureService,
-        CursorService* cursor,
-        SdlContext* sdl,
-        AudioService* audioService,
-        ViewportService* viewportService,
-        const ColorPalette* palette,
-        const ColorPalette* guiPalette,
+        const SceneContext& sceneContext,
         RenderService&& renderService,
         UiRenderService&& uiRenderService,
         GameSimulation&& simulation,
@@ -70,17 +63,12 @@ namespace rwe
         UnitDatabase&& unitDatabase,
         MeshService&& meshService,
         PlayerId localPlayerId)
-        : sceneManager(sceneManager),
-          textureService(textureService),
-          cursor(cursor),
-          sdl(sdl),
-          audioService(audioService),
-          viewportService(viewportService),
+        : sceneContext(sceneContext),
           renderService(std::move(renderService)),
           uiRenderService(std::move(uiRenderService)),
           simulation(std::move(simulation)),
           collisionService(std::move(collisionService)),
-          unitFactory(textureService, std::move(unitDatabase), std::move(meshService), &this->collisionService, palette, guiPalette),
+          unitFactory(sceneContext.textureService, std::move(unitDatabase), std::move(meshService), &this->collisionService, sceneContext.palette, sceneContext.guiPalette),
           pathFindingService(&this->simulation, &this->collisionService),
           unitBehaviorService(this, &pathFindingService, &this->collisionService),
           cobExecutionService(),
@@ -90,7 +78,7 @@ namespace rwe
 
     void GameScene::init()
     {
-        audioService->reserveChannels(reservedChannelsCount);
+        sceneContext.audioService->reserveChannels(reservedChannelsCount);
         for (unsigned int i = 0; i < simulation.players.size(); ++i)
         {
             playerCommandService.registerPlayer(PlayerId(i));
@@ -177,7 +165,7 @@ namespace rwe
             }
         }
 
-        cursor->render(uiRenderService);
+        sceneContext.cursor->render(uiRenderService);
         context.enableDepthBuffer();
     }
 
@@ -416,21 +404,21 @@ namespace rwe
 
         if (boost::get<AttackCursorMode>(&cursorMode) != nullptr)
         {
-            cursor->useAttackCursor();
+            sceneContext.cursor->useAttackCursor();
         }
         else if (boost::get<NormalCursorMode>(&cursorMode) != nullptr)
         {
             if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
             {
-                cursor->useSelectCursor();
+                sceneContext.cursor->useSelectCursor();
             }
             else if (selectedUnit && getUnit(*selectedUnit).canAttack && hoveredUnit && isEnemy(*hoveredUnit))
             {
-                cursor->useRedCursor();
+                sceneContext.cursor->useRedCursor();
             }
             else
             {
-                cursor->useNormalCursor();
+                sceneContext.cursor->useNormalCursor();
             }
         }
 
@@ -490,11 +478,11 @@ namespace rwe
             auto winStatus = simulation.computeWinStatus();
             if (auto wonStatus = boost::get<WinStatusWon>(&winStatus); wonStatus != nullptr)
             {
-                delay(SceneTimeDelta(5 * 60), [sm = sceneManager]() { sm->requestExit(); });
+                delay(SceneTimeDelta(5 * 60), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
             }
             else if (auto drawStatus = boost::get<WinStatusDraw>(&winStatus); drawStatus != nullptr)
             {
-                delay(SceneTimeDelta(5 * 60), [sm = sceneManager]() { sm->requestExit(); });
+                delay(SceneTimeDelta(5 * 60), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
             }
 
             deleteDeadUnits();
@@ -567,19 +555,19 @@ namespace rwe
 
     void GameScene::playSoundOnSelectChannel(const AudioService::SoundHandle& handle)
     {
-        audioService->playSoundIfFree(handle, UnitSelectChannel);
+        sceneContext.audioService->playSoundIfFree(handle, UnitSelectChannel);
     }
 
     void GameScene::playUnitSound(UnitId /*unitId*/, const AudioService::SoundHandle& sound)
     {
         // FIXME: should play on a unit-specific channel group
-        audioService->playSound(sound);
+        sceneContext.audioService->playSound(sound);
     }
 
     void GameScene::playSoundAt(const Vector3f& /*position*/, const AudioService::SoundHandle& sound)
     {
         // FIXME: should play on a position-aware channel
-        audioService->playSound(sound);
+        sceneContext.audioService->playSound(sound);
     }
 
     std::optional<UnitId> GameScene::getUnitUnderCursor() const
@@ -590,14 +578,14 @@ namespace rwe
 
     Vector2f GameScene::screenToClipSpace(Point p) const
     {
-        return viewportService->toClipSpace(p);
+        return sceneContext.viewportService->toClipSpace(p);
     }
 
     Point GameScene::getMousePosition() const
     {
         int x;
         int y;
-        sdl->getMouseState(&x, &y);
+        sceneContext.sdl->getMouseState(&x, &y);
         return Point(x, y);
     }
 
@@ -919,7 +907,7 @@ namespace rwe
 
     void GameScene::createLightSmoke(const Vector3f& position)
     {
-        simulation.spawnSmoke(position, textureService->getGafEntry("anims/FX.GAF", "smoke 1"));
+        simulation.spawnSmoke(position, sceneContext.textureService->getGafEntry("anims/FX.GAF", "smoke 1"));
     }
 
     void GameScene::deleteDeadUnits()

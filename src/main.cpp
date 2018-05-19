@@ -10,6 +10,7 @@
 #include <rwe/MainMenuScene.h>
 #include <rwe/OpenGlVersion.h>
 #include <rwe/Result.h>
+#include <rwe/SceneContext.h>
 #include <rwe/SceneManager.h>
 #include <rwe/SdlContextManager.h>
 #include <rwe/ShaderService.h>
@@ -251,23 +252,26 @@ namespace rwe
 
         MapFeatureService featureService(&vfs);
 
+        SceneContext sceneContext(
+            sdlContext,
+            &viewportService,
+            &graphics,
+            &textureService,
+            &audioService,
+            &cursor,
+            &shaders,
+            &vfs,
+            &*palette,
+            &*guiPalette,
+            &sceneManager,
+            &sideDataMap);
+
         if (gameParameters)
         {
             logger.info("Launching into game on map: {0}", gameParameters->mapName);
             auto scene = std::make_unique<LoadingScene>(
-                &vfs,
-                &textureService,
-                &audioService,
-                &cursor,
-                &graphics,
-                &shaders,
+                sceneContext,
                 &featureService,
-                &*palette,
-                &*guiPalette,
-                &sceneManager,
-                sdlContext,
-                &sideDataMap,
-                &viewportService,
                 AudioService::LoopToken(),
                 *gameParameters);
             sceneManager.setNextScene(std::move(scene));
@@ -276,20 +280,9 @@ namespace rwe
         {
             logger.info("Launching into the main menu");
             auto scene = std::make_unique<MainMenuScene>(
-                &sceneManager,
-                &vfs,
-                &textureService,
-                &audioService,
+                sceneContext,
                 &allSoundTdf,
-                &graphics,
-                &shaders,
                 &featureService,
-                &*palette,
-                &*guiPalette,
-                &cursor,
-                sdlContext,
-                &sideDataMap,
-                &viewportService,
                 viewportService.width(),
                 viewportService.height());
             sceneManager.setNextScene(std::move(scene));

@@ -7,6 +7,7 @@
 #include <rwe/GameScene.h>
 #include <rwe/LoadingNetworkService.h>
 #include <rwe/MapFeatureService.h>
+#include <rwe/SceneContext.h>
 #include <rwe/SceneManager.h>
 #include <rwe/SideData.h>
 #include <rwe/TextureService.h>
@@ -70,21 +71,11 @@ namespace rwe
     class LoadingScene : public SceneManager::Scene
     {
     private:
+        SceneContext sceneContext;
+
         std::unique_ptr<UiPanel> panel;
 
-        AbstractVirtualFileSystem* vfs;
-        TextureService* textureService;
-        AudioService* audioService;
-        CursorService* cursor;
-        GraphicsContext* graphics;
-        ShaderService* shaders;
         MapFeatureService* featureService;
-        const ColorPalette* palette;
-        const ColorPalette* guiPalette;
-        SceneManager* sceneManager;
-        SdlContext* sdl;
-        const std::unordered_map<std::string, SideData>* sideData;
-        ViewportService* viewportService;
 
         UiRenderService scaledUiRenderService;
         UiRenderService nativeUiRenderService;
@@ -99,19 +90,8 @@ namespace rwe
 
     public:
         LoadingScene(
-            AbstractVirtualFileSystem* vfs,
-            TextureService* textureService,
-            AudioService* audioService,
-            CursorService* cursor,
-            GraphicsContext* graphics,
-            ShaderService* shaders,
+            const SceneContext& sceneContext,
             MapFeatureService* featureService,
-            const ColorPalette* palette,
-            const ColorPalette* guiPalette,
-            SceneManager* sceneManager,
-            SdlContext* sdl,
-            const std::unordered_map<std::string, SideData>* sideData,
-            ViewportService* viewportService,
             AudioService::LoopToken&& bgm,
             GameParameters gameParameters);
 

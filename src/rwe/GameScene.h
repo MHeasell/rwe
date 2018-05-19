@@ -15,6 +15,7 @@
 #include <rwe/PlayerCommandService.h>
 #include <rwe/PlayerId.h>
 #include <rwe/RenderService.h>
+#include <rwe/SceneContext.h>
 #include <rwe/SceneManager.h>
 #include <rwe/SceneTime.h>
 #include <rwe/TextureService.h>
@@ -136,12 +137,7 @@ namespace rwe
          */
         static constexpr float CameraPanSpeed = 1000.0f;
 
-        SceneManager* const sceneManager;
-        TextureService* textureService;
-        CursorService* cursor;
-        SdlContext* sdl;
-        AudioService* audioService;
-        ViewportService* viewportService;
+        SceneContext sceneContext;
 
         RenderService renderService;
         UiRenderService uiRenderService;
@@ -186,14 +182,7 @@ namespace rwe
 
     public:
         GameScene(
-            SceneManager* sceneManager,
-            TextureService* textureService,
-            CursorService* cursor,
-            SdlContext* sdl,
-            AudioService* audioService,
-            ViewportService* viewportService,
-            const ColorPalette* palette,
-            const ColorPalette* guiPalette,
+            const SceneContext& sceneContext,
             RenderService&& renderService,
             UiRenderService&& uiRenderService,
             GameSimulation&& simulation,

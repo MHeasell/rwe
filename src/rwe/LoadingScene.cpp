@@ -15,36 +15,14 @@ namespace rwe
     }
 
     LoadingScene::LoadingScene(
-        AbstractVirtualFileSystem* vfs,
-        TextureService* textureService,
-        AudioService* audioService,
-        CursorService* cursor,
-        GraphicsContext* graphics,
-        ShaderService* shaders,
+        const SceneContext& sceneContext,
         MapFeatureService* featureService,
-        const ColorPalette* palette,
-        const ColorPalette* guiPalette,
-        SceneManager* sceneManager,
-        SdlContext* sdl,
-        const std::unordered_map<std::string, SideData>* sideData,
-        ViewportService* viewportService,
         AudioService::LoopToken&& bgm,
         GameParameters gameParameters)
-        : vfs(vfs),
-          textureService(textureService),
-          audioService(audioService),
-          cursor(cursor),
-          graphics(graphics),
-          shaders(shaders),
+        : sceneContext(sceneContext),
           featureService(featureService),
-          palette(palette),
-          guiPalette(guiPalette),
-          sceneManager(sceneManager),
-          sdl(sdl),
-          sideData(sideData),
-          viewportService(viewportService),
-          scaledUiRenderService(graphics, shaders, UiCamera(640.0, 480.0f)),
-          nativeUiRenderService(graphics, shaders, UiCamera(viewportService->width(), viewportService->height())),
+          scaledUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(640.0, 480.0f)),
+          nativeUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(sceneContext.viewportService->width(), sceneContext.viewportService->height())),
           bgm(std::move(bgm)),
           gameParameters(std::move(gameParameters))
     {
@@ -52,7 +30,7 @@ namespace rwe
 
     void LoadingScene::init()
     {
-        auto backgroundSprite = textureService->getBitmapRegion(
+        auto backgroundSprite = sceneContext.textureService->getBitmapRegion(
             "Loadgame2bg",
             0,
             0,
@@ -69,13 +47,13 @@ namespace rwe
             "3D Data",
             "Explosions"};
 
-        auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
+        auto font = sceneContext.textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
 
-        auto barSpriteSeries = textureService->getGuiTexture("", "LIGHTBAR");
+        auto barSpriteSeries = sceneContext.textureService->getGuiTexture("", "LIGHTBAR");
 
         auto barSprite = barSpriteSeries
             ? (*barSpriteSeries)->sprites[0]
-            : textureService->getDefaultSpriteSeries()->sprites[0];
+            : sceneContext.textureService->getDefaultSpriteSeries()->sprites[0];
 
         for (unsigned int i = 0; i < categories.size(); ++i)
         {
@@ -107,7 +85,7 @@ namespace rwe
         networkService.start(gameParameters.localNetworkInterface, gameParameters.localNetworkPort);
 
         featureService->loadAllFeatureDefinitions();
-        sceneManager->setNextScene(createGameScene(gameParameters.mapName, gameParameters.schemaIndex));
+        sceneContext.sceneManager->setNextScene(createGameScene(gameParameters.mapName, gameParameters.schemaIndex));
 
         // wait for other players before starting
         networkService.setDoneLoading();
@@ -117,12 +95,12 @@ namespace rwe
     void LoadingScene::render(GraphicsContext& context)
     {
         panel->render(scaledUiRenderService);
-        cursor->render(nativeUiRenderService);
+        sceneContext.cursor->render(nativeUiRenderService);
     }
 
     std::unique_ptr<GameScene> LoadingScene::createGameScene(const std::string& mapName, unsigned int schemaIndex)
     {
-        auto otaRaw = vfs->readFile(std::string("maps/").append(mapName).append(".ota"));
+        auto otaRaw = sceneContext.vfs->readFile(std::string("maps/").append(mapName).append(".ota"));
         if (!otaRaw)
         {
             throw std::runtime_error("Failed to read OTA file");
@@ -133,12 +111,12 @@ namespace rwe
 
         auto simulation = createInitialSimulation(mapName, ota, schemaIndex);
 
-        CabinetCamera camera(viewportService->width(), viewportService->height());
+        CabinetCamera camera(sceneContext.viewportService->width(), sceneContext.viewportService->height());
         camera.setPosition(Vector3f(0.0f, 0.0f, 0.0f));
 
-        UiCamera uiCamera(viewportService->width(), viewportService->height());
+        UiCamera uiCamera(sceneContext.viewportService->width(), sceneContext.viewportService->height());
 
-        auto meshService = MeshService::createMeshService(vfs, graphics, palette);
+        auto meshService = MeshService::createMeshService(sceneContext.vfs, sceneContext.graphics, sceneContext.palette);
 
         auto unitDatabase = createUnitDatabase();
 
@@ -183,18 +161,11 @@ namespace rwe
             throw std::runtime_error("No local player!");
         }
 
-        RenderService renderService(graphics, shaders, camera);
-        UiRenderService uiRenderService(graphics, shaders, uiCamera);
+        RenderService renderService(sceneContext.graphics, sceneContext.shaders, camera);
+        UiRenderService uiRenderService(sceneContext.graphics, sceneContext.shaders, uiCamera);
 
         auto gameScene = std::make_unique<GameScene>(
-            sceneManager,
-            textureService,
-            cursor,
-            sdl,
-            audioService,
-            viewportService,
-            palette,
-            guiPalette,
+            sceneContext,
             std::move(renderService),
             std::move(uiRenderService),
             std::move(simulation),
@@ -249,7 +220,7 @@ namespace rwe
 
     GameSimulation LoadingScene::createInitialSimulation(const std::string& mapName, const OtaRecord& ota, unsigned int schemaIndex)
     {
-        auto tntBytes = vfs->readFile("maps/" + mapName + ".tnt");
+        auto tntBytes = sceneContext.vfs->readFile("maps/" + mapName + ".tnt");
         if (!tntBytes)
         {
             throw std::runtime_error("Failed to load map bytes");
@@ -333,7 +304,7 @@ namespace rwe
             tnt.readTiles([this, &tileCount, &textureBuffer, &textureHandles](const char* tile) {
                 if (tileCount == tilesPerTexture)
                 {
-                    SharedTextureHandle handle(graphics->createTexture(textureBuffer));
+                    SharedTextureHandle handle(sceneContext.graphics->createTexture(textureBuffer));
                     textureHandles.push_back(std::move(handle));
                     tileCount = 0;
                 }
@@ -349,14 +320,14 @@ namespace rwe
                         auto textureX = startX + dx;
                         auto textureY = startY + dy;
                         auto index = static_cast<unsigned char>(tile[(dy * tileWidth) + dx]);
-                        textureBuffer.set(textureX, textureY, (*palette)[index]);
+                        textureBuffer.set(textureX, textureY, (*sceneContext.palette)[index]);
                     }
                 }
 
                 tileCount += 1;
             });
         }
-        textureHandles.emplace_back(graphics->createTexture(textureBuffer));
+        textureHandles.emplace_back(sceneContext.graphics->createTexture(textureBuffer));
 
         // populate the list of texture regions referencing the textures
         for (unsigned int i = 0; i < tnt.getHeader().numberOfTiles; ++i)
@@ -414,18 +385,18 @@ namespace rwe
         f.transparentShadow = definition.shadTrans;
         if (!definition.fileName.empty() && !definition.seqName.empty())
         {
-            f.animation = textureService->getGafEntry("anims/" + definition.fileName + ".GAF", definition.seqName);
+            f.animation = sceneContext.textureService->getGafEntry("anims/" + definition.fileName + ".GAF", definition.seqName);
         }
         if (!f.animation)
         {
-            f.animation = textureService->getDefaultSpriteSeries();
+            f.animation = sceneContext.textureService->getDefaultSpriteSeries();
         }
 
         if (!definition.fileName.empty() && !definition.seqNameShad.empty())
         {
             // Some third-party features have broken shadow anim names (e.g. "empty"),
             // ignore them if they don't exist.
-            f.shadowAnimation = textureService->tryGetGafEntry("anims/" + definition.fileName + ".GAF", definition.seqNameShad);
+            f.shadowAnimation = sceneContext.textureService->tryGetGafEntry("anims/" + definition.fileName + ".GAF", definition.seqNameShad);
         }
 
         return f;
@@ -477,8 +448,8 @@ namespace rwe
 
     const SideData& LoadingScene::getSideData(const std::string& side) const
     {
-        auto it = sideData->find(side);
-        if (it == sideData->end())
+        auto it = sceneContext.sideData->find(side);
+        if (it == sceneContext.sideData->end())
         {
             throw std::runtime_error("Missing side data for " + side);
         }
@@ -492,7 +463,7 @@ namespace rwe
 
         // read sound categories
         {
-            auto bytes = vfs->readFile("gamedata/SOUND.TDF");
+            auto bytes = sceneContext.vfs->readFile("gamedata/SOUND.TDF");
             if (!bytes)
             {
                 throw std::runtime_error("Failed to read gamedata/SOUND.TDF");
@@ -521,7 +492,7 @@ namespace rwe
 
         // read movement classes
         {
-            auto bytes = vfs->readFile("gamedata/MOVEINFO.TDF");
+            auto bytes = sceneContext.vfs->readFile("gamedata/MOVEINFO.TDF");
             if (!bytes)
             {
                 throw std::runtime_error("Failed to read gamedata/MOVEINFO.TDF");
@@ -538,11 +509,11 @@ namespace rwe
 
         // read weapons
         {
-            auto weaponFiles = vfs->getFileNames("weapons", ".tdf");
+            auto weaponFiles = sceneContext.vfs->getFileNames("weapons", ".tdf");
 
             for (const auto& fileName : weaponFiles)
             {
-                auto bytes = vfs->readFile("weapons/" + fileName);
+                auto bytes = sceneContext.vfs->readFile("weapons/" + fileName);
                 if (!bytes)
                 {
                     throw std::runtime_error("File in listing could not be read: " + fileName);
@@ -563,11 +534,11 @@ namespace rwe
 
         // read unit FBIs
         {
-            auto fbis = vfs->getFileNames("units", ".fbi");
+            auto fbis = sceneContext.vfs->getFileNames("units", ".fbi");
 
             for (const auto& fbiName : fbis)
             {
-                auto bytes = vfs->readFile("units/" + fbiName);
+                auto bytes = sceneContext.vfs->readFile("units/" + fbiName);
                 if (!bytes)
                 {
                     throw std::runtime_error("File in listing could not be read: " + fbiName);
@@ -582,11 +553,11 @@ namespace rwe
 
         // read unit scripts
         {
-            auto scripts = vfs->getFileNames("scripts", ".cob");
+            auto scripts = sceneContext.vfs->getFileNames("scripts", ".cob");
 
             for (const auto& scriptName : scripts)
             {
-                auto bytes = vfs->readFile("scripts/" + scriptName);
+                auto bytes = sceneContext.vfs->readFile("scripts/" + scriptName);
                 if (!bytes)
                 {
                     throw std::runtime_error("File in listing could not be read: " + scriptName);
@@ -616,7 +587,7 @@ namespace rwe
 
     void LoadingScene::preloadSound(UnitDatabase& db, const std::string& soundName)
     {
-        auto sound = audioService->loadSound(soundName);
+        auto sound = sceneContext.audioService->loadSound(soundName);
         if (!sound)
         {
             return; // sometimes sound categories name invalid sounds
