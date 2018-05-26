@@ -212,14 +212,12 @@ set(SOURCE_FILES
     src/rwe/MovementClass.h
     src/rwe/MovementClassCollisionService.cpp
     src/rwe/MovementClassCollisionService.h
-    src/rwe/MovementClassId.cpp
     src/rwe/MovementClassId.h
     src/rwe/OccupiedGrid.cpp
     src/rwe/OccupiedGrid.h
     src/rwe/OpaqueId.h
     src/rwe/OpaqueUnit.h
     src/rwe/OpenGlVersion.h
-    src/rwe/PlayerCommand.cpp
     src/rwe/PlayerCommand.h
     src/rwe/PlayerCommandService.cpp
     src/rwe/PlayerCommandService.h
@@ -237,7 +235,6 @@ set(SOURCE_FILES
     src/rwe/SceneTime.h
     src/rwe/SdlContextManager.cpp
     src/rwe/SdlContextManager.h
-    src/rwe/SelectionMesh.cpp
     src/rwe/SelectionMesh.h
     src/rwe/ShaderHandle.h
     src/rwe/ShaderMesh.cpp
@@ -254,7 +251,6 @@ set(SOURCE_FILES
     src/rwe/Sprite.h
     src/rwe/SpriteSeries.cpp
     src/rwe/SpriteSeries.h
-    src/rwe/TaAngle.cpp
     src/rwe/TaAngle.h
     src/rwe/TextureHandle.h
     src/rwe/TextureRegion.cpp
@@ -278,15 +274,12 @@ set(SOURCE_FILES
     src/rwe/UnitId.h
     src/rwe/UnitMesh.cpp
     src/rwe/UnitMesh.h
-    src/rwe/UnitOrder.cpp
     src/rwe/UnitOrder.h
-    src/rwe/UnitWeapon.cpp
     src/rwe/UnitWeapon.h
     src/rwe/VaoHandle.h
     src/rwe/VboHandle.h
     src/rwe/ViewportService.cpp
     src/rwe/ViewportService.h
-    src/rwe/Weapon.cpp
     src/rwe/Weapon.h
     src/rwe/WeaponTdf.cpp
     src/rwe/WeaponTdf.h
@@ -349,13 +342,10 @@ set(SOURCE_FILES
     src/rwe/observable/Observable.h
     src/rwe/observable/Subject.h
     src/rwe/observable/Subscription.h
-    src/rwe/optional_io.cpp
     src/rwe/optional_io.h
-    src/rwe/optional_util.cpp
     src/rwe/optional_util.h
     src/rwe/ota.cpp
     src/rwe/ota.h
-    src/rwe/pathfinding/AStarPathFinder.cpp
     src/rwe/pathfinding/AStarPathFinder.h
     src/rwe/pathfinding/AbstractUnitPathFinder.cpp
     src/rwe/pathfinding/AbstractUnitPathFinder.h
