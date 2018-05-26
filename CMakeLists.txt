@@ -256,7 +256,6 @@ set(SOURCE_FILES
     src/rwe/RenderService.cpp
     src/rwe/RenderService.h
     src/rwe/Result.h
-    src/rwe/SceneContext.cpp
     src/rwe/SceneContext.h
     src/rwe/SceneManager.cpp
     src/rwe/SceneManager.h
