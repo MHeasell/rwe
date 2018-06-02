@@ -10,6 +10,7 @@
 #include <rwe/PlayerCommandService.h>
 #include <rwe/PlayerId.h>
 #include <thread>
+#include <chrono>
 
 namespace rwe
 {
@@ -28,6 +29,19 @@ namespace rwe
             SequenceNumber nextCommandToSend{0};
             SequenceNumber nextCommandToReceive{0};
             std::deque<CommandSet> sendBuffer;
+
+            /**
+             * Records the time at which we first sent a packet
+             * finishing at the given sequence number.
+             * This is used for measuring RTT when we receive acks.
+             */
+            std::deque<std::pair<SequenceNumber, std::chrono::time_point<std::chrono::steady_clock>>> sendTimes;
+
+            /**
+             * Exponential moving average of round trip time
+             * for communication between us and the remote peer.
+             */
+            float averageRoundTripTime{0};
 
             EndpointInfo(const PlayerId& playerId, const boost::asio::ip::udp::endpoint& endpoint)
                 : playerId(playerId), endpoint(endpoint)

@@ -133,10 +133,23 @@ namespace rwe
         auto message = createProtoMessage(endpoint.nextCommandToSend, endpoint.nextCommandToReceive, endpoint.sendBuffer);
         message.SerializeToArray(messageBuffer.data(), messageBuffer.size());
         socket.send_to(boost::asio::buffer(messageBuffer.data(), message.ByteSize()), endpoint.endpoint);
+        auto sendTime = std::chrono::steady_clock::now();
+
+        auto nextSequenceNumber = SequenceNumber(endpoint.nextCommandToSend.value + (endpoint.sendBuffer.size()));
+        if (endpoint.sendTimes.empty() || endpoint.sendTimes.front().first < nextSequenceNumber)
+        {
+            endpoint.sendTimes.emplace_back(nextSequenceNumber, sendTime);
+        }
+    }
+
+    float ema(float val, float average, float alpha)
+    {
+        return (alpha * val) + ((1.0f - alpha) * average);
     }
 
     void GameNetworkService::receive(std::size_t receivedBytes)
     {
+        auto receiveTime = std::chrono::steady_clock::now();
         spdlog::get("rwe")->debug("Received from endpoint: {0}:{1}", currentRemoteEndpoint.address().to_string(), currentRemoteEndpoint.port());
 
         auto endpointIt = std::find_if(endpoints.begin(), endpoints.end(), [this](const auto& e) { return currentRemoteEndpoint == e.endpoint; });
@@ -165,6 +178,18 @@ namespace rwe
         {
             endpoint.sendBuffer.pop_front();
             endpoint.nextCommandToSend = SequenceNumber(endpoint.nextCommandToSend.value + 1);
+        }
+
+        while (!endpoint.sendTimes.empty() && endpoint.nextCommandToSend > endpoint.sendTimes.front().first)
+        {
+            // skip older send time measurements
+            endpoint.sendTimes.pop_front();
+        }
+        if (!endpoint.sendTimes.empty() && endpoint.nextCommandToSend == endpoint.sendTimes.front().first)
+        {
+            auto roundTripTime = receiveTime - endpoint.sendTimes.front().second;
+            auto rttMillis = std::chrono::duration_cast<std::chrono::milliseconds>(roundTripTime).count();
+            endpoint.averageRoundTripTime = ema(rttMillis, endpoint.averageRoundTripTime, 0.1f);
         }
 
         SequenceNumber firstCommandNumber(message.next_command_set_to_send());
