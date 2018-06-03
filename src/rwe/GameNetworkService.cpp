@@ -173,6 +173,8 @@ namespace rwe
 
         const auto& message = outerMessage.game_update();
 
+        spdlog::get("rwe")->debug("Received ack to {0} and {1} commands starting at {2}", message.next_command_set_to_receive(), message.command_set_size(), message.next_command_set_to_send());
+
         SequenceNumber newNextCommandToSend(message.next_command_set_to_receive());
         while (newNextCommandToSend > endpoint.nextCommandToSend && !endpoint.sendBuffer.empty())
         {
@@ -190,6 +192,7 @@ namespace rwe
             auto roundTripTime = receiveTime - endpoint.sendTimes.front().second;
             auto rttMillis = std::chrono::duration_cast<std::chrono::milliseconds>(roundTripTime).count();
             endpoint.averageRoundTripTime = ema(rttMillis, endpoint.averageRoundTripTime, 0.1f);
+            spdlog::get("rwe")->debug("Average RTT: {0}ms", endpoint.averageRoundTripTime);
         }
 
         SequenceNumber firstCommandNumber(message.next_command_set_to_send());
