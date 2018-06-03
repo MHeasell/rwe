@@ -173,6 +173,8 @@ namespace rwe
 
         const auto& message = outerMessage.game_update();
 
+        endpoint.lastReceiveTime = receiveTime;
+
         spdlog::get("rwe")->debug("Received ack to {0} and {1} commands starting at {2}", message.next_command_set_to_receive(), message.command_set_size(), message.next_command_set_to_send());
 
         SequenceNumber newNextCommandToSend(message.next_command_set_to_receive());

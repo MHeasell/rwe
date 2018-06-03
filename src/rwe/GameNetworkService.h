@@ -28,6 +28,12 @@ namespace rwe
 
             SequenceNumber nextCommandToSend{0};
             SequenceNumber nextCommandToReceive{0};
+
+            /**
+             * The time at which the last update packet
+             * was received from the remote peer.
+             */
+            std::optional<std::chrono::time_point<std::chrono::steady_clock>> lastReceiveTime;
             std::deque<CommandSet> sendBuffer;
 
             /**
