@@ -10,6 +10,7 @@
 #include <rwe/PlayerCommandService.h>
 #include <rwe/PlayerId.h>
 #include <thread>
+#include <rwe/rwe_time.h>
 #include <chrono>
 
 namespace rwe
@@ -33,7 +34,7 @@ namespace rwe
              * The time at which the last update packet
              * was received from the remote peer.
              */
-            std::optional<std::chrono::time_point<std::chrono::steady_clock>> lastReceiveTime;
+            std::optional<Timestamp> lastReceiveTime;
             std::deque<CommandSet> sendBuffer;
 
             /**
@@ -41,7 +42,7 @@ namespace rwe
              * finishing at the given sequence number.
              * This is used for measuring RTT when we receive acks.
              */
-            std::deque<std::pair<SequenceNumber, std::chrono::time_point<std::chrono::steady_clock>>> sendTimes;
+            std::deque<std::pair<SequenceNumber, Timestamp>> sendTimes;
 
             /**
              * Exponential moving average of round trip time

@@ -133,7 +133,7 @@ namespace rwe
         auto message = createProtoMessage(endpoint.nextCommandToSend, endpoint.nextCommandToReceive, endpoint.sendBuffer);
         message.SerializeToArray(messageBuffer.data(), messageBuffer.size());
         socket.send_to(boost::asio::buffer(messageBuffer.data(), message.ByteSize()), endpoint.endpoint);
-        auto sendTime = std::chrono::steady_clock::now();
+        auto sendTime = getTimestamp();
 
         auto nextSequenceNumber = SequenceNumber(endpoint.nextCommandToSend.value + (endpoint.sendBuffer.size()));
         if (endpoint.sendTimes.empty() || endpoint.sendTimes.front().first < nextSequenceNumber)
@@ -149,7 +149,7 @@ namespace rwe
 
     void GameNetworkService::receive(std::size_t receivedBytes)
     {
-        auto receiveTime = std::chrono::steady_clock::now();
+        auto receiveTime = getTimestamp();
         spdlog::get("rwe")->debug("Received from endpoint: {0}:{1}", currentRemoteEndpoint.address().to_string(), currentRemoteEndpoint.port());
 
         auto endpointIt = std::find_if(endpoints.begin(), endpoints.end(), [this](const auto& e) { return currentRemoteEndpoint == e.endpoint; });
