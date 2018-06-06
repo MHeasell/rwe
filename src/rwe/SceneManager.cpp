@@ -16,7 +16,18 @@ namespace rwe
                 return std::nullopt;
         }
     }
-    SceneManager::SceneManager(SdlContext* sdl, SDL_Window* window, GraphicsContext* graphics) : currentScene(), nextScene(), sdl(sdl), window(window), graphics(graphics), requestedExit(false)
+    SceneManager::SceneManager(
+        SdlContext* sdl,
+        SDL_Window* window,
+        GraphicsContext* graphics,
+        TimeService* timeService)
+        : currentScene(),
+          nextScene(),
+          sdl(sdl),
+          window(window),
+          graphics(graphics),
+          timeService(timeService),
+          requestedExit(false)
     {
     }
 
@@ -27,11 +38,11 @@ namespace rwe
 
     void SceneManager::execute()
     {
-        auto currentSimulationTime = sdl->getTicks();
+        auto currentSimulationTime = timeService->getTicks();
 
         while (!requestedExit)
         {
-            auto currentRealTime = sdl->getTicks();
+            auto currentRealTime = timeService->getTicks();
 
             if (nextScene)
             {
@@ -115,7 +126,7 @@ namespace rwe
             currentScene->render(*graphics);
             sdl->glSwapWindow(window);
 
-            auto finishTime = sdl->getTicks();
+            auto finishTime = timeService->getTicks();
             auto nextSimTime = currentSimulationTime + TickInterval;
             if (finishTime < nextSimTime)
             {

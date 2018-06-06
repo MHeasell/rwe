@@ -398,6 +398,8 @@ set(SOURCE_FILES
     src/rwe/proto/serialization.h
     src/rwe/rwe_string.cpp
     src/rwe/rwe_string.h
+    src/rwe/rwe_time.cpp
+    src/rwe/rwe_time.h
     src/rwe/tdf.cpp
     src/rwe/tdf.h
     src/rwe/tdf/SimpleTdfAdapter.cpp

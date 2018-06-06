@@ -17,6 +17,7 @@
 #include <rwe/ViewportService.h>
 #include <rwe/config.h>
 #include <rwe/gui.h>
+#include <rwe/rwe_time.h>
 #include <rwe/tdf.h>
 #include <rwe/ui/UiFactory.h>
 #include <rwe/util.h>
@@ -117,6 +118,8 @@ namespace rwe
         logger.info(ProjectNameVersion);
         logger.info("Current directory: {0}", fs::current_path().string());
 
+        TimeService timeService(getTimestamp());
+
         ViewportService viewportService(800, 600);
 
         logger.info("Initializing SDL");
@@ -210,7 +213,7 @@ namespace rwe
 
         AudioService audioService(sdlContext, sdlManager.getSdlMixerContext(), &vfs);
 
-        SceneManager sceneManager(sdlContext, window.get(), &graphics);
+        SceneManager sceneManager(sdlContext, window.get(), &graphics, &timeService);
 
         // load sound definitions
         logger.info("Loading global sound definitions");
@@ -226,6 +229,7 @@ namespace rwe
         logger.info("Loading cursors");
         CursorService cursor(
             sdlContext,
+            &timeService,
             textureService.getGafEntry("anims/CURSORS.GAF", "cursornormal"),
             textureService.getGafEntry("anims/CURSORS.GAF", "cursorselect"),
             textureService.getGafEntry("anims/CURSORS.GAF", "cursorattack"),
@@ -264,7 +268,8 @@ namespace rwe
             &*palette,
             &*guiPalette,
             &sceneManager,
-            &sideDataMap);
+            &sideDataMap,
+            &timeService);
 
         if (gameParameters)
         {

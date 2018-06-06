@@ -8,6 +8,7 @@
 #include <rwe/SideData.h>
 #include <rwe/TextureService.h>
 #include <rwe/ViewportService.h>
+#include <rwe/rwe_time.h>
 #include <rwe/vfs/AbstractVirtualFileSystem.h>
 
 namespace rwe
@@ -27,6 +28,7 @@ namespace rwe
         const ColorPalette* const guiPalette;
         SceneManager* const sceneManager;
         const std::unordered_map<std::string, SideData>* const sideData;
+        TimeService* const timeService;
 
         SceneContext(
             SdlContext* const sdl,
@@ -40,7 +42,8 @@ namespace rwe
             const ColorPalette* const palette,
             const ColorPalette* const guiPalette,
             SceneManager* const sceneManager,
-            const std::unordered_map<std::string, SideData>* const sideData)
+            const std::unordered_map<std::string, SideData>* const sideData,
+            TimeService* const timeService)
             : sdl(sdl),
               viewportService(viewportService),
               graphics(graphics),
@@ -52,7 +55,8 @@ namespace rwe
               palette(palette),
               guiPalette(guiPalette),
               sceneManager(sceneManager),
-              sideData(sideData)
+              sideData(sideData),
+              timeService(timeService)
         {
         }
     };
