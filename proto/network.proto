@@ -90,7 +90,8 @@ message GameUpdateMessage
     }
     required int32 next_command_set_to_receive = 1;
     required int32 next_command_set_to_send = 2;
-    repeated PlayerCommandSet command_set = 3;
+    required int32 ack_delay = 3;
+    repeated PlayerCommandSet command_set = 4;
 }
 
 message NetworkMessage

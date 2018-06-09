@@ -2,6 +2,7 @@
 #define RWE_GAMENETWORKSERVICE_H
 
 #include <boost/asio.hpp>
+#include <chrono>
 #include <deque>
 #include <network.pb.h>
 #include <rwe/OpaqueId.h>
@@ -9,9 +10,8 @@
 #include <rwe/PlayerCommand.h>
 #include <rwe/PlayerCommandService.h>
 #include <rwe/PlayerId.h>
-#include <thread>
 #include <rwe/rwe_time.h>
-#include <chrono>
+#include <future>
 
 namespace rwe
 {
@@ -31,8 +31,10 @@ namespace rwe
             SequenceNumber nextCommandToReceive{0};
 
             /**
-             * The time at which the last update packet
+             * The time at which the last relevant update packet
              * was received from the remote peer.
+             * An update packet is relevant
+             * if it contains new commands that we haven't seen before.
              */
             std::optional<Timestamp> lastReceiveTime;
             std::deque<CommandSet> sendBuffer;
@@ -89,7 +91,11 @@ namespace rwe
 
         void onReceive(const boost::system::error_code& error, std::size_t bytesTransferred);
 
-        proto::NetworkMessage createProtoMessage(SequenceNumber nextCommandToSend, SequenceNumber nextCommandToReceive, const std::deque<CommandSet>& sendBuffer);
+        proto::NetworkMessage createProtoMessage(
+            SequenceNumber nextCommandToSend,
+            SequenceNumber nextCommandToReceive,
+            std::chrono::milliseconds delay,
+            const std::deque<CommandSet>& sendBuffer);
 
         void sendLoop();
 

@@ -83,12 +83,17 @@ namespace rwe
     }
 
     proto::NetworkMessage
-    GameNetworkService::createProtoMessage(SequenceNumber nextCommandToSend, SequenceNumber nextCommandToReceive, const std::deque<GameNetworkService::CommandSet>& sendBuffer)
+    GameNetworkService::createProtoMessage(
+        SequenceNumber nextCommandToSend,
+        SequenceNumber nextCommandToReceive,
+        std::chrono::milliseconds ackDelay,
+        const std::deque<GameNetworkService::CommandSet>& sendBuffer)
     {
         proto::NetworkMessage outerMessage;
         auto& m = *outerMessage.mutable_game_update();
         m.set_next_command_set_to_send(nextCommandToSend.value);
         m.set_next_command_set_to_receive(nextCommandToReceive.value);
+        m.set_ack_delay(ackDelay.count());
 
         for (const auto& set : sendBuffer)
         {
@@ -130,10 +135,16 @@ namespace rwe
     void GameNetworkService::send(GameNetworkService::EndpointInfo& endpoint)
     {
         spdlog::get("rwe")->debug("Sending to endpoint: {0}:{1}", endpoint.endpoint.address().to_string(), endpoint.endpoint.port());
-        auto message = createProtoMessage(endpoint.nextCommandToSend, endpoint.nextCommandToReceive, endpoint.sendBuffer);
+        std::chrono::milliseconds delay(0);
+        auto sendTime = getTimestamp();
+        if (endpoint.lastReceiveTime)
+        {
+            delay = std::chrono::duration_cast<std::chrono::milliseconds>(sendTime - *endpoint.lastReceiveTime);
+        }
+
+        auto message = createProtoMessage(endpoint.nextCommandToSend, endpoint.nextCommandToReceive, delay, endpoint.sendBuffer);
         message.SerializeToArray(messageBuffer.data(), messageBuffer.size());
         socket.send_to(boost::asio::buffer(messageBuffer.data(), message.ByteSize()), endpoint.endpoint);
-        auto sendTime = getTimestamp();
 
         auto nextSequenceNumber = SequenceNumber(endpoint.nextCommandToSend.value + (endpoint.sendBuffer.size()));
         if (endpoint.sendTimes.empty() || endpoint.sendTimes.front().first < nextSequenceNumber)
@@ -173,8 +184,6 @@ namespace rwe
 
         const auto& message = outerMessage.game_update();
 
-        endpoint.lastReceiveTime = receiveTime;
-
         spdlog::get("rwe")->debug("Received ack to {0} and {1} commands starting at {2}", message.next_command_set_to_receive(), message.command_set_size(), message.next_command_set_to_send());
 
         SequenceNumber newNextCommandToSend(message.next_command_set_to_receive());
@@ -192,6 +201,7 @@ namespace rwe
         if (!endpoint.sendTimes.empty() && endpoint.nextCommandToSend == endpoint.sendTimes.front().first)
         {
             auto roundTripTime = receiveTime - endpoint.sendTimes.front().second;
+            roundTripTime -= std::chrono::milliseconds(message.ack_delay());
             auto rttMillis = std::chrono::duration_cast<std::chrono::milliseconds>(roundTripTime).count();
             endpoint.averageRoundTripTime = ema(rttMillis, endpoint.averageRoundTripTime, 0.1f);
             spdlog::get("rwe")->debug("Average RTT: {0}ms", endpoint.averageRoundTripTime);
@@ -208,11 +218,17 @@ namespace rwe
 
         auto firstRelevantCommandIndex = endpoint.nextCommandToReceive - firstCommandNumber;
 
-        for (int i = firstRelevantCommandIndex.value; i < message.command_set_size(); ++i)
+        // if the packet is relevant (contains new information), process it
+        if (firstRelevantCommandIndex.value < message.command_set_size())
         {
-            auto commandSet = deserializeCommandSet(message.command_set(i));
-            playerCommandService->pushCommands(endpoint.playerId, commandSet);
-            endpoint.nextCommandToReceive = SequenceNumber(endpoint.nextCommandToReceive.value + 1);
+            endpoint.lastReceiveTime = receiveTime;
+
+            for (int i = firstRelevantCommandIndex.value; i < message.command_set_size(); ++i)
+            {
+                auto commandSet = deserializeCommandSet(message.command_set(i));
+                playerCommandService->pushCommands(endpoint.playerId, commandSet);
+                endpoint.nextCommandToReceive = SequenceNumber(endpoint.nextCommandToReceive.value + 1);
+            }
         }
     }
 }
