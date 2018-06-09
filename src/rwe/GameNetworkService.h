@@ -37,6 +37,13 @@ namespace rwe
              * if it contains new commands that we haven't seen before.
              */
             std::optional<Timestamp> lastReceiveTime;
+
+            /**
+             * The last reported scene time from this peer,
+             * adjusted for RTT.
+             */
+            std::optional<std::pair<SceneTime, Timestamp>> lastKnownSceneTime;
+
             std::deque<CommandSet> sendBuffer;
 
             /**

@@ -1,4 +1,5 @@
 #include "GameNetworkService.h"
+#include "SceneManager.h"
 #include <rwe/proto/serialization.h>
 #include <spdlog/spdlog.h>
 
@@ -201,11 +202,15 @@ namespace rwe
         if (!endpoint.sendTimes.empty() && endpoint.nextCommandToSend == endpoint.sendTimes.front().first)
         {
             auto roundTripTime = receiveTime - endpoint.sendTimes.front().second;
-            roundTripTime -= std::chrono::milliseconds(message.ack_delay());
+            auto ackDelay = std::chrono::milliseconds(message.ack_delay());
+            roundTripTime = roundTripTime > ackDelay ? roundTripTime - ackDelay : std::chrono::milliseconds(0);
             auto rttMillis = std::chrono::duration_cast<std::chrono::milliseconds>(roundTripTime).count();
             endpoint.averageRoundTripTime = ema(rttMillis, endpoint.averageRoundTripTime, 0.1f);
             spdlog::get("rwe")->debug("Average RTT: {0}ms", endpoint.averageRoundTripTime);
         }
+
+        auto extraFrames = static_cast<unsigned int>((endpoint.averageRoundTripTime / 2.0f) / SceneManager::TickInterval);
+        endpoint.lastKnownSceneTime = std::make_pair(SceneTime(message.current_scene_time() + extraFrames), receiveTime);
 
         SequenceNumber firstCommandNumber(message.next_command_set_to_send());
         if (firstCommandNumber > endpoint.nextCommandToReceive)
