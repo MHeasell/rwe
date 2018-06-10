@@ -82,6 +82,8 @@ namespace rwe
 
         PlayerCommandService* const playerCommandService;
 
+        SceneTime currentSceneTime{0};
+
     public:
         GameNetworkService(const boost::asio::ip::udp::endpoint& localEndpoint, const std::vector<EndpointInfo>& endpoints, PlayerCommandService* playerCommandService);
 
@@ -89,7 +91,16 @@ namespace rwe
 
         void start();
 
-        void submitCommands(const CommandSet& commands);
+        /**
+         * Submit new information to be sent on the network.
+         * @param currentSceneTime The scene time we are currently simulating.
+         *                         This is used to inform peers/synchronise simulation speed.
+         * @param commands The latest set of player commands.
+         *                 These are not related to the current scene time.
+         *                 They will be queued up to be sent over the network
+         *                 after all the previously submitted commands.
+         */
+        void submitCommands(SceneTime currentSceneTime, const CommandSet& commands);
 
     private:
         void run();
@@ -97,12 +108,6 @@ namespace rwe
         void listenForNextMessage();
 
         void onReceive(const boost::system::error_code& error, std::size_t bytesTransferred);
-
-        proto::NetworkMessage createProtoMessage(
-            SequenceNumber nextCommandToSend,
-            SequenceNumber nextCommandToReceive,
-            std::chrono::milliseconds delay,
-            const std::deque<CommandSet>& sendBuffer);
 
         void sendLoop();
 

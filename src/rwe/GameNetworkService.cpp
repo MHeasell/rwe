@@ -32,9 +32,10 @@ namespace rwe
         networkThread = std::thread(&GameNetworkService::run, this);
     }
 
-    void GameNetworkService::submitCommands(const GameNetworkService::CommandSet& commands)
+    void GameNetworkService::submitCommands(SceneTime currentSceneTime, const GameNetworkService::CommandSet& commands)
     {
-        ioContext.post([this, commands]() {
+        ioContext.post([this, currentSceneTime, commands]() {
+            this->currentSceneTime = currentSceneTime;
             for (auto& e : endpoints)
             {
                 e.sendBuffer.push_back(commands);
@@ -83,8 +84,8 @@ namespace rwe
         listenForNextMessage();
     }
 
-    proto::NetworkMessage
-    GameNetworkService::createProtoMessage(
+    proto::NetworkMessage createProtoMessage(
+        SceneTime currentSceneTime,
         SequenceNumber nextCommandToSend,
         SequenceNumber nextCommandToReceive,
         std::chrono::milliseconds ackDelay,
@@ -92,6 +93,7 @@ namespace rwe
     {
         proto::NetworkMessage outerMessage;
         auto& m = *outerMessage.mutable_game_update();
+        m.set_current_scene_time(currentSceneTime.value);
         m.set_next_command_set_to_send(nextCommandToSend.value);
         m.set_next_command_set_to_receive(nextCommandToReceive.value);
         m.set_ack_delay(ackDelay.count());
@@ -143,7 +145,7 @@ namespace rwe
             delay = std::chrono::duration_cast<std::chrono::milliseconds>(sendTime - *endpoint.lastReceiveTime);
         }
 
-        auto message = createProtoMessage(endpoint.nextCommandToSend, endpoint.nextCommandToReceive, delay, endpoint.sendBuffer);
+        auto message = createProtoMessage(currentSceneTime, endpoint.nextCommandToSend, endpoint.nextCommandToReceive, delay, endpoint.sendBuffer);
         message.SerializeToArray(messageBuffer.data(), messageBuffer.size());
         socket.send_to(boost::asio::buffer(messageBuffer.data(), message.ByteSize()), endpoint.endpoint);
 
@@ -211,6 +213,7 @@ namespace rwe
 
         auto extraFrames = static_cast<unsigned int>((endpoint.averageRoundTripTime / 2.0f) / SceneManager::TickInterval);
         endpoint.lastKnownSceneTime = std::make_pair(SceneTime(message.current_scene_time() + extraFrames), receiveTime);
+        spdlog::get("rwe")->debug("Estimated peer scene time: {0}", endpoint.lastKnownSceneTime->first.value);
 
         SequenceNumber firstCommandNumber(message.next_command_set_to_send());
         if (firstCommandNumber > endpoint.nextCommandToReceive)

@@ -425,7 +425,7 @@ namespace rwe
 
         // Queue up commands collected from the local player
         playerCommandService->pushCommands(localPlayerId, localPlayerCommandBuffer);
-        gameNetworkService->submitCommands(localPlayerCommandBuffer);
+        gameNetworkService->submitCommands(sceneTime, localPlayerCommandBuffer);
         localPlayerCommandBuffer.clear();
 
         // Queue up commands from the computer players
