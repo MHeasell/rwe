@@ -380,8 +380,7 @@ namespace rwe
 
     void GameScene::update()
     {
-        float secondsElapsed = static_cast<float>(SceneManager::TickInterval) / 1000.0f;
-        const float speed = CameraPanSpeed * secondsElapsed;
+        const float speed = CameraPanSpeed * SecondsPerTick;
         int directionX = (right ? 1 : 0) - (left ? 1 : 0);
         int directionZ = (down ? 1 : 0) - (up ? 1 : 0);
 
@@ -440,55 +439,11 @@ namespace rwe
             }
         }
 
-        processActions();
+        auto averageSceneTime = gameNetworkService->estimateAvergeSceneTime(sceneTime);
 
-        auto playerCommands = playerCommandService->tryPopCommands();
-        if (playerCommands)
+        if (sceneTime <= averageSceneTime)
         {
-            sceneTime = nextSceneTime(sceneTime);
-            simulation.gameTime = nextGameTime(simulation.gameTime);
-
-            processPlayerCommands(*playerCommands);
-
-            pathFindingService.update();
-
-            // run unit scripts
-            for (auto& entry : simulation.units)
-            {
-                auto unitId = entry.first;
-                auto& unit = entry.second;
-
-                unitBehaviorService.update(unitId);
-
-                unit.mesh.update(secondsElapsed);
-
-                cobExecutionService.run(simulation, unitId);
-            }
-
-            updateLasers();
-
-            updateExplosions();
-
-            // if a commander died this frame, kill the player that owns it
-            for (const auto& p : simulation.units)
-            {
-                if (p.second.isCommander() && p.second.isDead())
-                {
-                    killPlayer(p.second.owner);
-                }
-            }
-
-            auto winStatus = simulation.computeWinStatus();
-            if (auto wonStatus = boost::get<WinStatusWon>(&winStatus); wonStatus != nullptr)
-            {
-                delay(SceneTimeDelta(5 * 60), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
-            }
-            else if (auto drawStatus = boost::get<WinStatusDraw>(&winStatus); drawStatus != nullptr)
-            {
-                delay(SceneTimeDelta(5 * 60), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
-            }
-
-            deleteDeadUnits();
+            tryTickGame();
         }
     }
 
@@ -571,6 +526,60 @@ namespace rwe
     {
         // FIXME: should play on a position-aware channel
         sceneContext.audioService->playSound(sound);
+    }
+
+    void GameScene::tryTickGame()
+    {
+        auto playerCommands = playerCommandService->tryPopCommands();
+        if (playerCommands)
+        {
+            sceneTime = nextSceneTime(sceneTime);
+            simulation.gameTime = nextGameTime(simulation.gameTime);
+
+            processActions();
+
+            processPlayerCommands(*playerCommands);
+
+            pathFindingService.update();
+
+            // run unit scripts
+            for (auto& entry : simulation.units)
+            {
+                auto unitId = entry.first;
+                auto& unit = entry.second;
+
+                unitBehaviorService.update(unitId);
+
+                unit.mesh.update(SecondsPerTick);
+
+                cobExecutionService.run(simulation, unitId);
+            }
+
+            updateLasers();
+
+            updateExplosions();
+
+            // if a commander died this frame, kill the player that owns it
+            for (const auto& p : simulation.units)
+            {
+                if (p.second.isCommander() && p.second.isDead())
+                {
+                    killPlayer(p.second.owner);
+                }
+            }
+
+            auto winStatus = simulation.computeWinStatus();
+            if (auto wonStatus = boost::get<WinStatusWon>(&winStatus); wonStatus != nullptr)
+            {
+                delay(SceneTimeDelta(5 * 60), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
+            }
+            else if (auto drawStatus = boost::get<WinStatusDraw>(&winStatus); drawStatus != nullptr)
+            {
+                delay(SceneTimeDelta(5 * 60), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
+            }
+
+            deleteDeadUnits();
+        }
     }
 
     std::optional<UnitId> GameScene::getUnitUnderCursor() const

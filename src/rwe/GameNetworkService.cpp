@@ -2,6 +2,7 @@
 #include "SceneManager.h"
 #include <rwe/proto/serialization.h>
 #include <spdlog/spdlog.h>
+#include <thread>
 
 namespace rwe
 {
@@ -41,6 +42,34 @@ namespace rwe
                 e.sendBuffer.push_back(commands);
             }
         });
+    }
+
+    SceneTime GameNetworkService::estimateAvergeSceneTime(SceneTime localSceneTime)
+    {
+        std::promise<unsigned int> result;
+        ioContext.post([this, localSceneTime, &result]() {
+            auto time = getTimestamp();
+
+            auto accum = localSceneTime.value;
+            for (const auto& e : endpoints)
+            {
+                if (!e.lastKnownSceneTime)
+                {
+                    continue;
+                }
+
+                auto elapsedTimeMillis = std::chrono::duration_cast<std::chrono::milliseconds>(time - e.lastKnownSceneTime->second).count();
+                auto extraFrames = elapsedTimeMillis / 16;
+
+                auto peerSceneTime = e.lastKnownSceneTime->first.value + extraFrames;
+                accum += peerSceneTime;
+            }
+            auto finalValue = accum / (endpoints.size() + 1);
+
+            result.set_value(finalValue);
+        });
+
+        return SceneTime(result.get_future().get());
     }
 
     void GameNetworkService::run()

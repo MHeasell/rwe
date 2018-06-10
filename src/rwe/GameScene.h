@@ -69,6 +69,8 @@ namespace rwe
     class GameScene : public SceneManager::Scene
     {
     public:
+        static constexpr float SecondsPerTick = static_cast<float>(SceneManager::TickInterval) / 1000.0f;
+
         class UnitCommandDispacher : public boost::static_visitor<>
         {
         private:
@@ -256,6 +258,8 @@ namespace rwe
         void createLightSmoke(const Vector3f& position);
 
     private:
+        void tryTickGame();
+
         std::optional<UnitId> getUnitUnderCursor() const;
 
         Vector2f screenToClipSpace(Point p) const;

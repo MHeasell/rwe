@@ -102,6 +102,8 @@ namespace rwe
          */
         void submitCommands(SceneTime currentSceneTime, const CommandSet& commands);
 
+        SceneTime estimateAvergeSceneTime(SceneTime localSceneTime);
+
     private:
         void run();
 
