@@ -72,6 +72,27 @@ namespace rwe
         return SceneTime(result.get_future().get());
     }
 
+    float GameNetworkService::getMaxAverageRttMillis()
+    {
+        std::promise<float> result;
+        ioContext.post([this, &result]() {
+            auto time = getTimestamp();
+
+            auto maxRtt = 0.0f;
+            for (const auto& e : endpoints)
+            {
+                if (e.averageRoundTripTime > maxRtt)
+                {
+                    maxRtt = e.averageRoundTripTime;
+                }
+            }
+
+            result.set_value(maxRtt);
+        });
+
+        return result.get_future().get();
+    }
+
     void GameNetworkService::run()
     {
         try

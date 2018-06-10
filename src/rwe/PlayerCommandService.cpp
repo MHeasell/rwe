@@ -41,4 +41,11 @@ namespace rwe
             throw std::logic_error("Player already registered");
         }
     }
+
+    unsigned int PlayerCommandService::bufferedCommandCount(PlayerId player) const
+    {
+        std::scoped_lock<std::mutex> lock(mutex);
+
+        return commandBuffers.at(player).size();
+    }
 }

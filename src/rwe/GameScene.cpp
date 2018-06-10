@@ -422,28 +422,46 @@ namespace rwe
             }
         }
 
-        // Queue up commands collected from the local player
-        playerCommandService->pushCommands(localPlayerId, localPlayerCommandBuffer);
-        gameNetworkService->submitCommands(sceneTime, localPlayerCommandBuffer);
-        localPlayerCommandBuffer.clear();
+        auto maxRtt = gameNetworkService->getMaxAverageRttMillis();
+        auto commandLatencyMillis = ((maxRtt / 2.0f) * 1.2f) + 100.0f;
+        auto commandLatencyFrames = static_cast<unsigned int>(commandLatencyMillis / 16.0f) + 1;
 
-        // Queue up commands from the computer players
-        for (unsigned int i = 0; i < simulation.players.size(); ++i)
+        if (playerCommandService->bufferedCommandCount(localPlayerId) > commandLatencyFrames)
         {
-            PlayerId id(i);
-            const auto& player = simulation.players[i];
-            if (player.type == GamePlayerType::Computer)
+            // we have too many commands buffered,
+            // defer submitting commands this frame
+        }
+        else
+        {
+            // Queue up commands collected from the local player
+            playerCommandService->pushCommands(localPlayerId, localPlayerCommandBuffer);
+            gameNetworkService->submitCommands(sceneTime, localPlayerCommandBuffer);
+            localPlayerCommandBuffer.clear();
+
+            // Queue up commands from the computer players
+            for (unsigned int i = 0; i < simulation.players.size(); ++i)
             {
-                // TODO: implement computer AI logic to decide commands here
-                playerCommandService->pushCommands(id, std::vector<PlayerCommand>());
+                PlayerId id(i);
+                const auto& player = simulation.players[i];
+                if (player.type == GamePlayerType::Computer)
+                {
+                    // TODO: implement computer AI logic to decide commands here
+                    playerCommandService->pushCommands(id, std::vector<PlayerCommand>());
+                }
             }
         }
 
         auto averageSceneTime = gameNetworkService->estimateAvergeSceneTime(sceneTime);
 
-        if (sceneTime <= averageSceneTime)
+        // allow skipping sim frames every so often to get back down to average
+        if (sceneTime.value % 5 != 0 || sceneTime <= averageSceneTime)
         {
             tryTickGame();
+            if (sceneTime.value % 5 == 0 && sceneTime <= averageSceneTime)
+            {
+                // simulate an extra frame to catch up every so often
+                tryTickGame();
+            }
         }
     }
 

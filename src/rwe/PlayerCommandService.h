@@ -14,13 +14,15 @@ namespace rwe
     class PlayerCommandService
     {
     private:
-        std::mutex mutex;
+        mutable std::mutex mutex;
         std::unordered_map<PlayerId, std::deque<std::vector<PlayerCommand>>> commandBuffers;
 
     public:
         std::optional<std::vector<std::pair<PlayerId, std::vector<PlayerCommand>>>> tryPopCommands();
 
         void pushCommands(PlayerId player, const std::vector<PlayerCommand>& commands);
+
+        unsigned int bufferedCommandCount(PlayerId player) const;
 
         void registerPlayer(PlayerId playerId);
     };

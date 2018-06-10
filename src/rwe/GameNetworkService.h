@@ -104,6 +104,8 @@ namespace rwe
 
         SceneTime estimateAvergeSceneTime(SceneTime localSceneTime);
 
+        float getMaxAverageRttMillis();
+
     private:
         void run();
 
