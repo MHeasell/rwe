@@ -468,13 +468,19 @@ namespace rwe
 
         auto averageSceneTime = gameNetworkService->estimateAvergeSceneTime(sceneTime);
 
-        // allow skipping sim frames every so often to get back down to average
-        if (sceneTime.value % 5 != 0 || sceneTime <= averageSceneTime)
+        // allow skipping sim frames every so often to get back down to average.
+        // We tolerate X frames of drift in either direction to cope with noisiness in the estimation.
+        const unsigned int frameTolerance = 3;
+        const unsigned int frameCheckInterval = 5;
+        auto highSceneTime = averageSceneTime + SceneTimeDelta(frameTolerance);
+        auto lowSceneTime = averageSceneTime.value <= frameTolerance ? SceneTime{0} : averageSceneTime - SceneTimeDelta(frameTolerance);
+        if (sceneTime.value % frameCheckInterval != 0 || sceneTime <= highSceneTime)
         {
             tryTickGame();
-            if (sceneTime.value % 5 == 0 && sceneTime <= averageSceneTime)
+
+            // simulate an extra frame to catch up every so often
+            if (sceneTime.value % frameCheckInterval == 0 && sceneTime < lowSceneTime)
             {
-                // simulate an extra frame to catch up every so often
                 tryTickGame();
             }
         }
