@@ -423,8 +423,8 @@ namespace rwe
             }
         }
 
-        auto maxRtt = gameNetworkService->getMaxAverageRttMillis();
-        auto commandLatencyMillis = (maxRtt / 2.0f) + std::max(50.0f, maxRtt / 8.0f) + 100.0f;
+        auto maxRtt = std::clamp(gameNetworkService->getMaxAverageRttMillis(), 16.0f, 2000.0f);
+        auto commandLatencyMillis = maxRtt + (maxRtt / 8.0f) + 100.0f;
         auto commandLatencyFrames = static_cast<unsigned int>(commandLatencyMillis / 16.0f) + 1;
 
         if (playerCommandService->bufferedCommandCount(localPlayerId) > commandLatencyFrames)
