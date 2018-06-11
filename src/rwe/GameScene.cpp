@@ -424,27 +424,41 @@ namespace rwe
         }
 
         auto maxRtt = std::clamp(gameNetworkService->getMaxAverageRttMillis(), 16.0f, 2000.0f);
-        auto commandLatencyMillis = maxRtt + (maxRtt / 8.0f) + 100.0f;
-        auto commandLatencyFrames = static_cast<unsigned int>(commandLatencyMillis / 16.0f) + 1;
+        auto highCommandLatencyMillis = maxRtt + (maxRtt / 4.0f) + 200.0f;
+        auto commandLatencyFrames = static_cast<unsigned int>(highCommandLatencyMillis / 16.0f) + 1;
+        auto targetCommandBufferSize = commandLatencyFrames;
 
-        if (playerCommandService->bufferedCommandCount(localPlayerId) > commandLatencyFrames)
-        {
-            // we have too many commands buffered,
-            // defer submitting commands this frame
-        }
-        else
+        auto bufferedCommandCount = playerCommandService->bufferedCommandCount(localPlayerId);
+
+        spdlog::get("rwe")->debug("Buffer levels (real/target) {0}/{1}", bufferedCommandCount, targetCommandBufferSize);
+
+        // If we have too many commands buffered,
+        // defer submitting commands this frame
+        // so that we drop back down to the threshold.
+        if (bufferedCommandCount <= targetCommandBufferSize)
         {
             // Queue up commands collected from the local player
             playerCommandService->pushCommands(localPlayerId, localPlayerCommandBuffer);
             gameNetworkService->submitCommands(sceneTime, localPlayerCommandBuffer);
             localPlayerCommandBuffer.clear();
+            ++bufferedCommandCount;
+        }
 
-            // Queue up commands from the computer players
-            for (unsigned int i = 0; i < simulation.players.size(); ++i)
+        // fill up to the required threshold
+        for (; bufferedCommandCount < targetCommandBufferSize; ++bufferedCommandCount)
+        {
+            playerCommandService->pushCommands(localPlayerId, std::vector<PlayerCommand>());
+            gameNetworkService->submitCommands(sceneTime, std::vector<PlayerCommand>());
+        }
+
+        // Queue up commands from the computer players
+        for (unsigned int i = 0; i < simulation.players.size(); ++i)
+        {
+            PlayerId id(i);
+            const auto& player = simulation.players[i];
+            if (player.type == GamePlayerType::Computer)
             {
-                PlayerId id(i);
-                const auto& player = simulation.players[i];
-                if (player.type == GamePlayerType::Computer)
+                if (playerCommandService->bufferedCommandCount(id) == 0)
                 {
                     // TODO: implement computer AI logic to decide commands here
                     playerCommandService->pushCommands(id, std::vector<PlayerCommand>());
