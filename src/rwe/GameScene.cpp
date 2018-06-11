@@ -2,6 +2,7 @@
 #include <boost/range/adaptor/map.hpp>
 #include <rwe/Mesh.h>
 #include <unordered_set>
+#include <spdlog/spdlog.h>
 
 namespace rwe
 {
@@ -423,7 +424,7 @@ namespace rwe
         }
 
         auto maxRtt = gameNetworkService->getMaxAverageRttMillis();
-        auto commandLatencyMillis = ((maxRtt / 2.0f) * 1.2f) + 100.0f;
+        auto commandLatencyMillis = (maxRtt / 2.0f) + std::max(50.0f, maxRtt / 8.0f) + 100.0f;
         auto commandLatencyFrames = static_cast<unsigned int>(commandLatencyMillis / 16.0f) + 1;
 
         if (playerCommandService->bufferedCommandCount(localPlayerId) > commandLatencyFrames)
@@ -549,55 +550,58 @@ namespace rwe
     void GameScene::tryTickGame()
     {
         auto playerCommands = playerCommandService->tryPopCommands();
-        if (playerCommands)
+        if (!playerCommands)
         {
-            sceneTime = nextSceneTime(sceneTime);
-            simulation.gameTime = nextGameTime(simulation.gameTime);
-
-            processActions();
-
-            processPlayerCommands(*playerCommands);
-
-            pathFindingService.update();
-
-            // run unit scripts
-            for (auto& entry : simulation.units)
-            {
-                auto unitId = entry.first;
-                auto& unit = entry.second;
-
-                unitBehaviorService.update(unitId);
-
-                unit.mesh.update(SecondsPerTick);
-
-                cobExecutionService.run(simulation, unitId);
-            }
-
-            updateLasers();
-
-            updateExplosions();
-
-            // if a commander died this frame, kill the player that owns it
-            for (const auto& p : simulation.units)
-            {
-                if (p.second.isCommander() && p.second.isDead())
-                {
-                    killPlayer(p.second.owner);
-                }
-            }
-
-            auto winStatus = simulation.computeWinStatus();
-            if (auto wonStatus = boost::get<WinStatusWon>(&winStatus); wonStatus != nullptr)
-            {
-                delay(SceneTimeDelta(5 * 60), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
-            }
-            else if (auto drawStatus = boost::get<WinStatusDraw>(&winStatus); drawStatus != nullptr)
-            {
-                delay(SceneTimeDelta(5 * 60), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
-            }
-
-            deleteDeadUnits();
+            spdlog::get("rwe")->error("Blocked waiting for player commands");
+            return;
         }
+
+        sceneTime = nextSceneTime(sceneTime);
+        simulation.gameTime = nextGameTime(simulation.gameTime);
+
+        processActions();
+
+        processPlayerCommands(*playerCommands);
+
+        pathFindingService.update();
+
+        // run unit scripts
+        for (auto& entry : simulation.units)
+        {
+            auto unitId = entry.first;
+            auto& unit = entry.second;
+
+            unitBehaviorService.update(unitId);
+
+            unit.mesh.update(SecondsPerTick);
+
+            cobExecutionService.run(simulation, unitId);
+        }
+
+        updateLasers();
+
+        updateExplosions();
+
+        // if a commander died this frame, kill the player that owns it
+        for (const auto& p : simulation.units)
+        {
+            if (p.second.isCommander() && p.second.isDead())
+            {
+                killPlayer(p.second.owner);
+            }
+        }
+
+        auto winStatus = simulation.computeWinStatus();
+        if (auto wonStatus = boost::get<WinStatusWon>(&winStatus); wonStatus != nullptr)
+        {
+            delay(SceneTimeDelta(5 * 60), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
+        }
+        else if (auto drawStatus = boost::get<WinStatusDraw>(&winStatus); drawStatus != nullptr)
+        {
+            delay(SceneTimeDelta(5 * 60), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
+        }
+
+        deleteDeadUnits();
     }
 
     std::optional<UnitId> GameScene::getUnitUnderCursor() const
