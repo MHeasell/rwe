@@ -2,6 +2,7 @@
 #define RWE_GAMENETWORKSERVICE_H
 
 #include <boost/asio.hpp>
+#include <boost/asio/steady_timer.hpp> // not in asio.hpp in old boost versions
 #include <chrono>
 #include <deque>
 #include <network.pb.h>
