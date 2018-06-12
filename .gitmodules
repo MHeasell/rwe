@@ -4,3 +4,6 @@
 [submodule "libs/rapidcheck"]
 	path = libs/rapidcheck
 	url = https://github.com/MHeasell/rapidcheck.git
+[submodule "libs/protobuf"]
+	path = libs/protobuf
+	url = https://github.com/google/protobuf.git
