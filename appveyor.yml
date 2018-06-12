@@ -23,3 +23,6 @@ environment:
 
 matrix:
   fast_finish: true
+
+cache:
+  - libs\_protobuf-install
