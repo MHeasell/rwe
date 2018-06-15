@@ -25,6 +25,10 @@ addons:
       - zlib1g-dev
       - libpng-dev
 
+cache:
+  directories:
+    - libs/_protobuf-install
+
 env:
   - MATRIX_EVAL="CC=gcc-7 CXX=g++-7"
   - MATRIX_EVAL="CC=clang CXX=clang++"
@@ -32,4 +36,4 @@ env:
 before_install:
   - eval "${MATRIX_EVAL}"
 
-script: mkdir build && cd build && cmake .. && make -j 2 && ./rwe_test
+script: cd libs && ./build-protobuf.sh && cd .. && mkdir build && cd build && cmake .. && make -j 2 && ./rwe_test

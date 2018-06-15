@@ -4,11 +4,13 @@ namespace rwe
 {
     CursorService::CursorService(
         SdlContext* sdlContext,
+        TimeService* timeService,
         std::shared_ptr<SpriteSeries> normalCursor,
         std::shared_ptr<SpriteSeries> selectCursor,
         std::shared_ptr<SpriteSeries> attackCursor,
         std::shared_ptr<SpriteSeries> redCursor)
         : sdlContext(sdlContext),
+          timeService(timeService),
           _normalCursor(std::move(normalCursor)),
           _selectCursor(std::move(selectCursor)),
           _attackCursor(std::move(attackCursor)),
@@ -44,7 +46,7 @@ namespace rwe
 
         sdlContext->getMouseState(&x, &y);
 
-        auto timeInMillis = sdlContext->getTicks();
+        auto timeInMillis = timeService->getTicks();
         const auto& frames = currentCursor->sprites;
         unsigned int frameRateInSeconds = 6;
         unsigned int millisPerFrame = 1000 / frameRateInSeconds;

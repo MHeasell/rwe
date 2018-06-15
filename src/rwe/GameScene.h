@@ -8,6 +8,7 @@
 #include <rwe/AudioService.h>
 #include <rwe/CursorService.h>
 #include <rwe/DiscreteRect.h>
+#include <rwe/GameNetworkService.h>
 #include <rwe/GameSimulation.h>
 #include <rwe/MeshService.h>
 #include <rwe/OccupiedGrid.h>
@@ -15,6 +16,7 @@
 #include <rwe/PlayerCommandService.h>
 #include <rwe/PlayerId.h>
 #include <rwe/RenderService.h>
+#include <rwe/SceneContext.h>
 #include <rwe/SceneManager.h>
 #include <rwe/SceneTime.h>
 #include <rwe/TextureService.h>
@@ -67,6 +69,8 @@ namespace rwe
     class GameScene : public SceneManager::Scene
     {
     public:
+        static constexpr float SecondsPerTick = static_cast<float>(SceneManager::TickInterval) / 1000.0f;
+
         class UnitCommandDispacher : public boost::static_visitor<>
         {
         private:
@@ -136,12 +140,9 @@ namespace rwe
          */
         static constexpr float CameraPanSpeed = 1000.0f;
 
-        SceneManager* const sceneManager;
-        TextureService* textureService;
-        CursorService* cursor;
-        SdlContext* sdl;
-        AudioService* audioService;
-        ViewportService* viewportService;
+        SceneContext sceneContext;
+
+        std::unique_ptr<PlayerCommandService> playerCommandService;
 
         RenderService renderService;
         UiRenderService uiRenderService;
@@ -152,10 +153,11 @@ namespace rwe
 
         UnitFactory unitFactory;
 
+        std::unique_ptr<GameNetworkService> gameNetworkService;
+
         PathFindingService pathFindingService;
         UnitBehaviorService unitBehaviorService;
         CobExecutionService cobExecutionService;
-        PlayerCommandService playerCommandService;
 
         PlayerId localPlayerId;
 
@@ -186,20 +188,15 @@ namespace rwe
 
     public:
         GameScene(
-            SceneManager* sceneManager,
-            TextureService* textureService,
-            CursorService* cursor,
-            SdlContext* sdl,
-            AudioService* audioService,
-            ViewportService* viewportService,
-            const ColorPalette* palette,
-            const ColorPalette* guiPalette,
+            const SceneContext& sceneContext,
+            std::unique_ptr<PlayerCommandService>&& playerCommandService,
             RenderService&& renderService,
             UiRenderService&& uiRenderService,
             GameSimulation&& simulation,
             MovementClassCollisionService&& collisionService,
             UnitDatabase&& unitDatabase,
             MeshService&& meshService,
+            std::unique_ptr<GameNetworkService>&& gameNetworkService,
             PlayerId localPlayerId);
 
         void init() override;
@@ -261,6 +258,8 @@ namespace rwe
         void createLightSmoke(const Vector3f& position);
 
     private:
+        void tryTickGame();
+
         std::optional<UnitId> getUnitUnderCursor() const;
 
         Vector2f screenToClipSpace(Point p) const;
@@ -313,7 +312,7 @@ namespace rwe
 
         bool hasPlayerCommands() const;
 
-        void processPlayerCommands();
+        void processPlayerCommands(const std::vector<std::pair<PlayerId, std::vector<PlayerCommand>>>& commands);
 
         template <typename T>
         void delay(SceneTimeDelta interval, T&& f)

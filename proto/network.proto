@@ -1,0 +1,105 @@
+syntax = "proto2";
+
+package rwe.proto;
+
+message LoadingStatusMessage
+{
+    enum Status
+    {
+        Loading = 0;
+        Ready = 1;
+    }
+
+    required Status status = 1;
+}
+
+message Vector3f
+{
+    required float x = 1;
+    required float y = 2;
+    required float z = 3;
+}
+
+message MoveOrder
+{
+    required Vector3f destination = 1;
+}
+
+message AttackOrder
+{
+    oneof target
+    {
+        int32 unit = 1;
+        Vector3f ground = 2;
+    }
+}
+
+message PlayerUnitCommand
+{
+    message IssueOrder
+    {
+        enum IssueKind
+        {
+            Immediate = 0;
+            Queued = 1;
+        }
+
+        required IssueKind issue_kind = 1;
+        oneof order
+        {
+            MoveOrder move = 2;
+            AttackOrder attack = 3;
+        }
+    }
+
+    message Stop
+    {
+    }
+
+    required int32 unit = 1;
+
+    oneof command {
+        IssueOrder order = 2;
+        Stop stop = 3;
+    }
+}
+
+message PlayerPauseGameCommand
+{
+}
+
+message PlayerUnpauseGameCommand
+{
+}
+
+message PlayerCommand
+{
+    oneof command
+    {
+        PlayerUnitCommand unit_command = 1;
+        PlayerPauseGameCommand pause = 2;
+        PlayerUnpauseGameCommand unpause = 3;
+    }
+}
+
+message GameUpdateMessage
+{
+    message PlayerCommandSet
+    {
+        repeated PlayerCommand command = 1;
+    }
+    required int32 next_command_set_to_receive = 1;
+    required int32 next_command_set_to_send = 2;
+    required int32 ack_delay = 3;
+    required int32 current_scene_time = 4;
+    repeated PlayerCommandSet command_set = 5;
+}
+
+message NetworkMessage
+{
+    oneof message
+    {
+        LoadingStatusMessage loading_status = 1;
+        GameUpdateMessage game_update = 2;
+    }
+}

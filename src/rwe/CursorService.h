@@ -6,6 +6,7 @@
 #include <rwe/SdlContextManager.h>
 #include <rwe/SpriteSeries.h>
 #include <rwe/UiRenderService.h>
+#include <rwe/rwe_time.h>
 
 namespace rwe
 {
@@ -13,6 +14,7 @@ namespace rwe
     {
     private:
         SdlContext* sdlContext;
+        TimeService* timeService;
 
         std::shared_ptr<SpriteSeries> _normalCursor;
         std::shared_ptr<SpriteSeries> _selectCursor;
@@ -24,6 +26,7 @@ namespace rwe
     public:
         CursorService(
             SdlContext* sdlContext,
+            TimeService* timeService,
             std::shared_ptr<SpriteSeries> normalCursor,
             std::shared_ptr<SpriteSeries> selectCursor,
             std::shared_ptr<SpriteSeries> attackCursor,

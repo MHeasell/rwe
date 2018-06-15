@@ -16,7 +16,18 @@ namespace rwe
                 return std::nullopt;
         }
     }
-    SceneManager::SceneManager(SdlContext* sdl, SDL_Window* window, GraphicsContext* graphics) : currentScene(), nextScene(), sdl(sdl), window(window), graphics(graphics), requestedExit(false)
+    SceneManager::SceneManager(
+        SdlContext* sdl,
+        SDL_Window* window,
+        GraphicsContext* graphics,
+        TimeService* timeService)
+        : currentScene(),
+          nextScene(),
+          sdl(sdl),
+          window(window),
+          graphics(graphics),
+          timeService(timeService),
+          requestedExit(false)
     {
     }
 
@@ -27,17 +38,15 @@ namespace rwe
 
     void SceneManager::execute()
     {
-        auto currentSimulationTime = sdl->getTicks();
-
         while (!requestedExit)
         {
-            auto currentRealTime = sdl->getTicks();
-
             if (nextScene)
             {
                 currentScene = std::move(nextScene);
                 currentScene->init();
             }
+
+            auto startTime = timeService->getTicks();
 
             SDL_Event event;
             while (sdl->pollEvent(&event))
@@ -95,31 +104,17 @@ namespace rwe
                 }
             }
 
-            int catchupLimit = 4;
-            while (currentSimulationTime < currentRealTime)
-            {
-                // If we haven't caught up after a few extra cycles
-                // just abandon catching up more.
-                if (catchupLimit == 0)
-                {
-                    currentSimulationTime = currentRealTime;
-                    break;
-                }
-
-                currentScene->update();
-                currentSimulationTime += TickInterval;
-                catchupLimit -= 1;
-            }
+            currentScene->update();
 
             graphics->clear();
             currentScene->render(*graphics);
             sdl->glSwapWindow(window);
 
-            auto finishTime = sdl->getTicks();
-            auto nextSimTime = currentSimulationTime + TickInterval;
-            if (finishTime < nextSimTime)
+            auto finishTime = timeService->getTicks();
+            auto timeTaken = finishTime - startTime;
+            if (timeTaken < TickInterval)
             {
-                sdl->delay(nextSimTime - finishTime);
+                sdl->delay(TickInterval - timeTaken);
             }
         }
     }

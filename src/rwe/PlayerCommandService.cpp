@@ -2,39 +2,50 @@
 
 namespace rwe
 {
-    bool PlayerCommandService::hasCommands(PlayerId player) const
+    std::optional<std::vector<std::pair<PlayerId, std::vector<PlayerCommand>>>> PlayerCommandService::tryPopCommands()
     {
-        auto it = commandBuffers.find(player);
-        if (it == commandBuffers.end())
+        std::scoped_lock<std::mutex> lock(mutex);
+
+        for (const auto& p : commandBuffers)
         {
-            return false;
+            if (p.second.empty())
+            {
+                return std::nullopt;
+            }
         }
 
-        return !it->second.empty();
-    }
-
-    const std::vector<PlayerCommand>& PlayerCommandService::getFrontCommands(PlayerId player) const
-    {
-        auto it = commandBuffers.find(player);
-        if (it == commandBuffers.end())
-        {
-            throw std::runtime_error("Unknown player");
-        }
-
-        return it->second.front();
-    }
-
-    void PlayerCommandService::popCommands()
-    {
+        std::vector<std::pair<PlayerId, std::vector<PlayerCommand>>> out;
         for (auto& p : commandBuffers)
         {
-            assert(!p.second.empty());
+            out.emplace_back(p.first, p.second.front());
             p.second.pop_front();
         }
+
+        return out;
     }
 
     void PlayerCommandService::pushCommands(PlayerId player, const std::vector<PlayerCommand>& commands)
     {
-        commandBuffers[player].push_back(commands);
+        std::scoped_lock<std::mutex> lock(mutex);
+
+        commandBuffers.at(player).push_back(commands);
+    }
+
+    void PlayerCommandService::registerPlayer(PlayerId playerId)
+    {
+        std::scoped_lock<std::mutex> lock(mutex);
+
+        auto result = commandBuffers.emplace(playerId, std::deque<std::vector<PlayerCommand>>());
+        if (!result.second)
+        {
+            throw std::logic_error("Player already registered");
+        }
+    }
+
+    unsigned int PlayerCommandService::bufferedCommandCount(PlayerId player) const
+    {
+        std::scoped_lock<std::mutex> lock(mutex);
+
+        return commandBuffers.at(player).size();
     }
 }
