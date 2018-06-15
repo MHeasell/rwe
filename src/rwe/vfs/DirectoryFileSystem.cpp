@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <rwe/rwe_string.h>
 
 namespace fs = boost::filesystem;
 
@@ -60,7 +61,7 @@ namespace rwe
         {
             const auto& e = *it;
 
-            if (e.path().extension().string() == extension)
+            if (toUpper(e.path().extension().string()) == toUpper(extension))
             {
                 auto filename = e.path().filename();
                 v.push_back(filename.string());
@@ -103,7 +104,7 @@ namespace rwe
                     v.push_back(path.string());
                 }
             }
-            else if (e.path().extension().string() == extension)
+            else if (toUpper(e.path().extension().string()) == toUpper(extension))
             {
                 auto filename = e.path().filename();
                 v.push_back(filename.string());
