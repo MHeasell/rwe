@@ -9,6 +9,9 @@ namespace rwe
 {
     class DirectoryFileSystem final : public AbstractVirtualFileSystem
     {
+    private:
+        boost::filesystem::path path;
+
     public:
         explicit DirectoryFileSystem(const std::string& path);
         explicit DirectoryFileSystem(const boost::filesystem::path& path);
@@ -18,9 +21,6 @@ namespace rwe
         std::vector<std::string> getFileNames(const std::string& directory, const std::string& filter) override;
 
         std::vector<std::string> getFileNamesRecursive(const std::string& directory, const std::string& extension) override;
-
-    private:
-        boost::filesystem::path path;
     };
 }
 

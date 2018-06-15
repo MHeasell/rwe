@@ -8,6 +8,16 @@ namespace fs = boost::filesystem;
 
 namespace rwe
 {
+    DirectoryFileSystem::DirectoryFileSystem(const std::string& path)
+        : path(path)
+    {
+    }
+
+    DirectoryFileSystem::DirectoryFileSystem(const boost::filesystem::path& path)
+        : path(path)
+    {
+    }
+
     std::optional<std::vector<char>> DirectoryFileSystem::readFile(const std::string& filename) const
     {
         fs::path fullPath;
@@ -28,16 +38,6 @@ namespace rwe
         std::copy(str.begin(), str.end(), output.begin());
 
         return output;
-    }
-
-    DirectoryFileSystem::DirectoryFileSystem(const std::string& path)
-        : path(path)
-    {
-    }
-
-    DirectoryFileSystem::DirectoryFileSystem(const boost::filesystem::path& path)
-        : path(path)
-    {
     }
 
     std::vector<std::string> DirectoryFileSystem::getFileNames(const std::string& directory, const std::string& extension)
