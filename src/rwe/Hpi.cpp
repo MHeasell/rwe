@@ -301,6 +301,23 @@ namespace rwe
 
     void HpiArchive::extract(const HpiArchive::File& file, char* buffer) const
     {
+        switch (file.compressionScheme)
+        {
+            case HpiArchive::File::CompressionScheme::None:
+                stream->seekg(file.offset);
+                stream->read(buffer, file.size);
+                break;
+            case HpiArchive::File::CompressionScheme::LZ77:
+            case HpiArchive::File::CompressionScheme::ZLib:
+                extractCompressed(file, buffer);
+                break;
+            default:
+                throw HpiException("Invalid file entry compression scheme");
+        }
+    }
+
+    void HpiArchive::extractCompressed(const HpiArchive::File& file, char* buffer) const
+    {
         auto chunkCount = (file.size / 65536) + (file.size % 65536 == 0 ? 0 : 1);
         stream->seekg(file.offset);
 
