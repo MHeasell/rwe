@@ -305,7 +305,7 @@ namespace rwe
         {
             case HpiArchive::File::CompressionScheme::None:
                 stream->seekg(file.offset);
-                stream->read(buffer, file.size);
+                readAndDecrypt(*stream, decryptionKey, buffer, file.size);
                 break;
             case HpiArchive::File::CompressionScheme::LZ77:
             case HpiArchive::File::CompressionScheme::ZLib:
