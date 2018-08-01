@@ -26,6 +26,7 @@ namespace rwe
         };
 
     private:
+        std::string name;
         std::ifstream stream;
         HpiArchive hpi;
 

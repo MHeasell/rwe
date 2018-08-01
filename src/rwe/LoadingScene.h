@@ -5,7 +5,9 @@
 #include <rwe/AudioService.h>
 #include <rwe/CursorService.h>
 #include <rwe/GameScene.h>
+#include <rwe/LoadingNetworkService.h>
 #include <rwe/MapFeatureService.h>
+#include <rwe/SceneContext.h>
 #include <rwe/SceneManager.h>
 #include <rwe/SideData.h>
 #include <rwe/TextureService.h>
@@ -18,15 +20,47 @@
 
 namespace rwe
 {
+    struct PlayerControllerTypeHuman
+    {
+    };
+    struct PlayerControllerTypeComputer
+    {
+    };
+    struct PlayerControllerTypeNetwork
+    {
+        std::string host;
+        std::string port;
+    };
+
+    using PlayerControllerType = boost::variant<PlayerControllerTypeHuman, PlayerControllerTypeComputer, PlayerControllerTypeNetwork>;
+
+    class IsHumanVisitor : public boost::static_visitor<bool>
+    {
+    public:
+        bool operator()(const PlayerControllerTypeHuman&) const { return true; }
+        bool operator()(const PlayerControllerTypeComputer&) const { return false; }
+        bool operator()(const PlayerControllerTypeNetwork&) const { return false; }
+    };
+
+    class IsComputerVisitor : public boost::static_visitor<bool>
+    {
+    public:
+        bool operator()(const PlayerControllerTypeHuman&) const { return false; }
+        bool operator()(const PlayerControllerTypeComputer&) const { return true; }
+        bool operator()(const PlayerControllerTypeNetwork&) const { return false; }
+    };
+
+    class GetNetworkAddressVisitor : public boost::static_visitor<std::optional<std::pair<std::reference_wrapper<const std::string>, std::reference_wrapper<const std::string>>>>
+    {
+    public:
+        std::optional<std::pair<std::reference_wrapper<const std::string>, std::reference_wrapper<const std::string>>> operator()(const PlayerControllerTypeHuman&) const { return std::nullopt; }
+        std::optional<std::pair<std::reference_wrapper<const std::string>, std::reference_wrapper<const std::string>>> operator()(const PlayerControllerTypeComputer&) const { return std::nullopt; }
+        std::optional<std::pair<std::reference_wrapper<const std::string>, std::reference_wrapper<const std::string>>> operator()(const PlayerControllerTypeNetwork& p) const { return std::make_pair(std::cref(p.host), std::cref(p.port)); }
+    };
+
     struct PlayerInfo
     {
-        enum class Controller
-        {
-            Human,
-            Computer
-        };
-
-        Controller controller;
+        PlayerControllerType controller;
         std::string side;
         unsigned int color;
     };
@@ -36,6 +70,8 @@ namespace rwe
         std::string mapName;
         unsigned int schemaIndex;
         std::array<std::optional<PlayerInfo>, 10> players;
+        std::string localNetworkInterface{"0.0.0.0"};
+        std::string localNetworkPort{"1337"};
 
         GameParameters(const std::string& mapName, unsigned int schemaIndex);
     };
@@ -43,21 +79,11 @@ namespace rwe
     class LoadingScene : public SceneManager::Scene
     {
     private:
+        SceneContext sceneContext;
+
         std::unique_ptr<UiPanel> panel;
 
-        AbstractVirtualFileSystem* vfs;
-        TextureService* textureService;
-        AudioService* audioService;
-        CursorService* cursor;
-        GraphicsContext* graphics;
-        ShaderService* shaders;
         MapFeatureService* featureService;
-        const ColorPalette* palette;
-        const ColorPalette* guiPalette;
-        SceneManager* sceneManager;
-        SdlContext* sdl;
-        const std::unordered_map<std::string, SideData>* sideData;
-        ViewportService* viewportService;
 
         UiRenderService scaledUiRenderService;
         UiRenderService nativeUiRenderService;
@@ -68,21 +94,12 @@ namespace rwe
 
         std::vector<UiLightBar*> bars;
 
+        LoadingNetworkService networkService;
+
     public:
         LoadingScene(
-            AbstractVirtualFileSystem* vfs,
-            TextureService* textureService,
-            AudioService* audioService,
-            CursorService* cursor,
-            GraphicsContext* graphics,
-            ShaderService* shaders,
+            const SceneContext& sceneContext,
             MapFeatureService* featureService,
-            const ColorPalette* palette,
-            const ColorPalette* guiPalette,
-            SceneManager* sceneManager,
-            SdlContext* sdl,
-            const std::unordered_map<std::string, SideData>* sideData,
-            ViewportService* viewportService,
             AudioService::LoopToken&& bgm,
             GameParameters gameParameters);
 

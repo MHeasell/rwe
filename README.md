@@ -90,7 +90,7 @@ Download and install MSYS2 (http://www.msys2.org/)
 
 Install the required packages:
 
-    pacman -S make mingw-w64-x86_64-cmake mingw-w64-x86_64-toolchain
+    pacman -S make unzip mingw-w64-x86_64-cmake mingw-w64-x86_64-toolchain
     pacman -S \
       mingw-w64-x86_64-boost \
       mingw-w64-x86_64-SDL2 \
@@ -102,8 +102,15 @@ Install the required packages:
       mingw-w64-x86_64-zlib \
       mingw-w64-x86_64-libpng
 
-Open the `MSYS MinGW 64-bit` terminal and do the following
-to generate and build the project:
+Open the `MSYS MinGW 64-bit` terminal.
+
+Compile protobuf:
+
+    cd /path/to/rwe
+    cd libs
+    ./build-protobuf.sh
+
+Generate and build the project:
 
     cd /path/to/rwe
     mkdir build
@@ -144,6 +151,12 @@ Here's how you might install CMake:
     tar -xf cmake-3.8.2-Linux-x86_64.tar.gz
     export CMAKE_MODULE_PATH=$(pwd)/cmake-3.8.2-Linux-x86_64/share/cmake-3.8/Modules
     export PATH=$(pwd)/cmake-3.8.2-Linux-x86_64/bin:$PATH
+
+Compile protobuf:
+
+    cd /path/to/rwe
+    cd libs
+    ./build-protobuf.sh
 
 Now build the code:
 

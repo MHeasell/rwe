@@ -9,40 +9,18 @@
 namespace rwe
 {
     MainMenuScene::MainMenuScene(
-        SceneManager* sceneManager,
-        AbstractVirtualFileSystem* vfs,
-        TextureService* textureService,
-        AudioService* audioService,
+        const SceneContext& sceneContext,
         TdfBlock* audioLookup,
-        GraphicsContext* graphics,
-        ShaderService* shaders,
         MapFeatureService* featureService,
-        const ColorPalette* palette,
-        const ColorPalette* guiPalette,
-        CursorService* cursor,
-        SdlContext* sdl,
-        const std::unordered_map<std::string, SideData>* sideData,
-        ViewportService* viewportService,
         float width,
         float height)
-        : sceneManager(sceneManager),
-          vfs(vfs),
-          textureService(textureService),
-          audioService(audioService),
+        : sceneContext(sceneContext),
           soundLookup(audioLookup),
-          graphics(graphics),
-          shaders(shaders),
           featureService(featureService),
-          palette(palette),
-          guiPalette(guiPalette),
-          cursor(cursor),
-          sdl(sdl),
-          sideData(sideData),
-          viewportService(viewportService),
-          scaledUiRenderService(graphics, shaders, UiCamera(640.0f, 480.0f)),
-          nativeUiRenderService(graphics, shaders, UiCamera(width, height)),
+          scaledUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(640.0f, 480.0f)),
+          nativeUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(width, height)),
           model(),
-          uiFactory(textureService, audioService, soundLookup, vfs, &model, this),
+          uiFactory(sceneContext.textureService, sceneContext.audioService, soundLookup, sceneContext.vfs, &model, this),
           panelStack(),
           dialogStack(),
           bgm()
@@ -65,7 +43,7 @@ namespace rwe
             e->render(scaledUiRenderService);
         }
 
-        cursor->render(nativeUiRenderService);
+        sceneContext.cursor->render(nativeUiRenderService);
     }
 
     void MainMenuScene::onMouseDown(MouseButtonEvent event)
@@ -106,13 +84,13 @@ namespace rwe
             return AudioService::LoopToken();
         }
 
-        auto bgm = audioService->loadSound(*bgmName);
+        auto bgm = sceneContext.audioService->loadSound(*bgmName);
         if (!bgm)
         {
             return AudioService::LoopToken();
         }
 
-        return audioService->loopSound(*bgm);
+        return sceneContext.audioService->loopSound(*bgm);
     }
 
     void MainMenuScene::goToPreviousMenu()
@@ -169,7 +147,7 @@ namespace rwe
 
     void MainMenuScene::goToMainMenu()
     {
-        auto mainMenuGuiRaw = vfs->readFile("guis/MAINMENU.GUI");
+        auto mainMenuGuiRaw = sceneContext.vfs->readFile("guis/MAINMENU.GUI");
         if (!mainMenuGuiRaw)
         {
             throw std::runtime_error("Couldn't read MAINMENU.GUI");
@@ -188,7 +166,7 @@ namespace rwe
 
     void MainMenuScene::exit()
     {
-        sceneManager->requestExit();
+        sceneContext.sceneManager->requestExit();
     }
 
     void MainMenuScene::message(const std::string& topic, const std::string& message)
@@ -239,7 +217,7 @@ namespace rwe
 
     void MainMenuScene::goToSingleMenu()
     {
-        auto mainMenuGuiRaw = vfs->readFile("guis/SINGLE.GUI");
+        auto mainMenuGuiRaw = sceneContext.vfs->readFile("guis/SINGLE.GUI");
         if (!mainMenuGuiRaw)
         {
             throw std::runtime_error("Couldn't read SINGLE.GUI");
@@ -258,7 +236,7 @@ namespace rwe
 
     void MainMenuScene::goToSkirmishMenu()
     {
-        auto mainMenuGuiRaw = vfs->readFile("guis/SKIRMISH.GUI");
+        auto mainMenuGuiRaw = sceneContext.vfs->readFile("guis/SKIRMISH.GUI");
         if (!mainMenuGuiRaw)
         {
             throw std::runtime_error("Couldn't read SKIRMISH.GUI");
@@ -277,7 +255,7 @@ namespace rwe
 
     void MainMenuScene::openMapSelectionDialog()
     {
-        auto guiRaw = vfs->readFile("guis/SELMAP.GUI");
+        auto guiRaw = sceneContext.vfs->readFile("guis/SELMAP.GUI");
         if (!guiRaw)
         {
             throw std::runtime_error("Couldn't read SELMAP.GUI");
@@ -296,7 +274,7 @@ namespace rwe
 
     void MainMenuScene::setCandidateSelectedMap(const std::string& mapName)
     {
-        auto otaRaw = vfs->readFile(std::string("maps/").append(mapName).append(".ota"));
+        auto otaRaw = sceneContext.vfs->readFile(std::string("maps/").append(mapName).append(".ota"));
         if (!otaRaw)
         {
             return;
@@ -306,7 +284,7 @@ namespace rwe
 
         auto ota = parseOta(parseTdfFromString(otaStr));
 
-        auto minimap = textureService->getMinimap(mapName);
+        auto minimap = sceneContext.textureService->getMinimap(mapName);
 
         // this is what TA shows in its map selection dialog
         auto sizeInfo = std::string().append(ota.memory).append("  Players: ").append(ota.numPlayers);
@@ -537,6 +515,19 @@ namespace rwe
         throw std::logic_error("Invalid side");
     }
 
+    PlayerControllerType playerSettingsTypeToPlayerControllerType(MainMenuModel::PlayerSettings::Type t)
+    {
+        switch (t)
+        {
+            case MainMenuModel::PlayerSettings::Type::Human:
+                return PlayerControllerTypeHuman();
+            case MainMenuModel::PlayerSettings::Type::Computer:
+                return PlayerControllerTypeComputer();
+            default:
+                throw std::logic_error("Invalid player settings type");
+        }
+    }
+
     void MainMenuScene::startGame()
     {
         if (!model.selectedMap.getValue())
@@ -555,46 +546,24 @@ namespace rwe
                 continue;
             }
 
-            PlayerInfo::Controller controller;
-            switch (playerSlot.type.getValue())
-            {
-                case MainMenuModel::PlayerSettings::Type::Human:
-                    controller = PlayerInfo::Controller::Human;
-                    break;
-                case MainMenuModel::PlayerSettings::Type::Computer:
-                    controller = PlayerInfo::Controller::Computer;
-                    break;
-                default:
-                    throw std::logic_error("Invalid slot type");
-            }
+            auto controller = playerSettingsTypeToPlayerControllerType(playerSlot.type.getValue());
 
             PlayerInfo playerInfo{controller, getSideName(playerSlot.side.getValue()), playerSlot.colorIndex.getValue()};
             params.players[i] = std::move(playerInfo);
         }
 
         auto scene = std::make_unique<LoadingScene>(
-            vfs,
-            textureService,
-            audioService,
-            cursor,
-            graphics,
-            shaders,
+            sceneContext,
             featureService,
-            palette,
-            guiPalette,
-            sceneManager,
-            sdl,
-            sideData,
-            viewportService,
             std::move(bgm),
             params);
 
-        sceneManager->setNextScene(std::move(scene));
+        sceneContext.sceneManager->setNextScene(std::move(scene));
     }
 
     Point MainMenuScene::toScaledCoordinates(int x, int y) const
     {
-        auto clip = scaledUiRenderService.getCamera().screenToWorldRay(viewportService->toClipSpace(x, y));
+        auto clip = scaledUiRenderService.getCamera().screenToWorldRay(sceneContext.viewportService->toClipSpace(x, y));
         return Point(static_cast<int>(clip.origin.x), static_cast<int>(clip.origin.y));
     }
 }

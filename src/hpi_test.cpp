@@ -3,6 +3,9 @@
 #include <memory>
 #include <rwe/Hpi.h>
 #include <string>
+#include <boost/filesystem.hpp>
+
+namespace fs = boost::filesystem;
 
 std::string schemeName(rwe::HpiArchive::File::CompressionScheme scheme)
 {
@@ -107,6 +110,58 @@ int extractCommand(const std::string& hpiPath, const std::string& filePath, cons
     return 0;
 }
 
+void extractRecursive(rwe::HpiArchive& archive, const rwe::HpiArchive::DirectoryEntry& entry, const fs::path& outDir)
+{
+    if (auto d = boost::get<rwe::HpiArchive::Directory>(&entry.data); d != nullptr)
+    {
+        auto innerDir = outDir;
+        innerDir /= entry.name;
+        fs::create_directory(innerDir);
+
+        for (const auto& e : d->entries)
+        {
+            extractRecursive(archive, e, innerDir);
+        }
+
+        return;
+    }
+
+    if (auto f = boost::get<rwe::HpiArchive::File>(&entry.data); f != nullptr)
+    {
+        auto innerFile = outDir;
+        innerFile /= entry.name;
+        auto buf = std::make_unique<char[]>(f->size);
+        archive.extract(*f, buf.get());
+        std::ofstream out(innerFile.string(), std::ios::binary);
+        out.write(buf.get(), f->size);
+        return;
+    }
+}
+
+int extractAllCommand(const std::string& hpiPath, const std::string& destinationPath)
+{
+    std::cout << "HPI archive: " << hpiPath << std::endl;
+    std::ifstream file(hpiPath, std::ios::binary);
+
+    if (!file.is_open())
+    {
+        std::cerr << "Failed to open file." << std::endl;
+        return 1;
+    }
+
+    std::cout << "Extracting..." << std::endl;
+    rwe::HpiArchive archive(&file);
+
+    for (const auto& e : archive.root().entries)
+    {
+        extractRecursive(archive, e, destinationPath);
+    }
+
+    std::cout << "Done!" << std::endl;
+
+    return 0;
+}
+
 int main(int argc, char* argv[])
 {
     if (argc < 2)
@@ -137,6 +192,17 @@ int main(int argc, char* argv[])
         }
 
         return extractCommand(argv[2], argv[3], argv[4]);
+    }
+
+    if (command == "extract-all")
+    {
+        if (argc < 4)
+        {
+            std::cerr << "Specify HPI file and destination directory" << std::endl;
+            return 1;
+        }
+
+        return extractAllCommand(argv[2], argv[3]);
     }
 
     std::cerr << "Unrecognised command: " << command << std::endl;

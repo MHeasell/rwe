@@ -2,16 +2,71 @@
 
 #include <fstream>
 #include <sstream>
+#include <rwe/rwe_string.h>
 
 namespace fs = boost::filesystem;
 
 namespace rwe
 {
+    /**
+     * Searches the directory tree for the given path
+     * in a case-insensitive manner and returns the path with the correct case.
+     * The search starts from the root, which is assumed
+     * to already be correctly cased.
+     *
+     * This function is necessary because file references in TA
+     * are case-insensitive, however some of the filesystems
+     * we may be operating on (e.g. Linux) are case-sensitive.
+     * If we naively try to follow file references on a case-sensitive filesystem
+     * we may fail to find the file we wanted.
+     */
+    std::optional<boost::filesystem::path> findPathCaseInsensitive(
+        const boost::filesystem::path& root, const boost::filesystem::path& path)
+    {
+        fs::path basePath;
+
+        for (const auto& component : path)
+        {
+            fs::path searchPath(root);
+            searchPath /= basePath;
+            fs::directory_iterator it(searchPath);
+            fs::directory_iterator end;
+
+            auto foundItem = std::find_if(it, end, [&component](const auto& e) {
+                return toUpper(e.path().filename().string()) == toUpper(component.string());
+            });
+
+            if (foundItem == end)
+            {
+                return std::nullopt;
+            }
+
+            basePath /= foundItem->path().filename();
+        }
+
+        return basePath;
+    }
+
+    DirectoryFileSystem::DirectoryFileSystem(const std::string& path)
+        : path(path)
+    {
+    }
+
+    DirectoryFileSystem::DirectoryFileSystem(const boost::filesystem::path& path)
+        : path(path)
+    {
+    }
+
     std::optional<std::vector<char>> DirectoryFileSystem::readFile(const std::string& filename) const
     {
-        fs::path fullPath;
-        fullPath /= path;
-        fullPath /= filename;
+        fs::path fullPath(path);
+        auto correctlyCasedPath = findPathCaseInsensitive(path, filename);
+        if (!correctlyCasedPath)
+        {
+            return std::nullopt;
+        }
+
+        fullPath /= *correctlyCasedPath;
 
         std::ifstream input(fullPath.string(), std::ios::binary);
         if (!input.is_open())
@@ -27,16 +82,6 @@ namespace rwe
         std::copy(str.begin(), str.end(), output.begin());
 
         return output;
-    }
-
-    DirectoryFileSystem::DirectoryFileSystem(const std::string& path)
-        : path(path)
-    {
-    }
-
-    DirectoryFileSystem::DirectoryFileSystem(const boost::filesystem::path& path)
-        : path(path)
-    {
     }
 
     std::vector<std::string> DirectoryFileSystem::getFileNames(const std::string& directory, const std::string& extension)
@@ -60,7 +105,7 @@ namespace rwe
         {
             const auto& e = *it;
 
-            if (e.path().extension().string() == extension)
+            if (toUpper(e.path().extension().string()) == toUpper(extension))
             {
                 auto filename = e.path().filename();
                 v.push_back(filename.string());
@@ -103,7 +148,7 @@ namespace rwe
                     v.push_back(path.string());
                 }
             }
-            else if (e.path().extension().string() == extension)
+            else if (toUpper(e.path().extension().string()) == toUpper(extension))
             {
                 auto filename = e.path().filename();
                 v.push_back(filename.string());

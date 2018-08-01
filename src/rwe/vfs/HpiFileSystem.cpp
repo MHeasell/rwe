@@ -18,7 +18,8 @@ namespace rwe
     }
 
     HpiFileSystem::HpiFileSystem(const std::string& file)
-        : stream(file, std::ios::binary),
+        : name(file),
+          stream(file, std::ios::binary),
           hpi(&stream)
     {
         if (!stream.is_open())

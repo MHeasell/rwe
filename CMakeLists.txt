@@ -71,6 +71,14 @@ endif()
 find_package(OpenGL REQUIRED)
 
 if(MSVC)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(Protobuf_LIBRARY "${CMAKE_SOURCE_DIR}/libs/_msvc/protobuf-3.5.1/lib/libprotobufd.lib")
+    else()
+        set(Protobuf_LIBRARY "${CMAKE_SOURCE_DIR}/libs/_msvc/protobuf-3.5.1/lib/libprotobuf.lib")
+    endif()
+    set(Protobuf_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/libs/_msvc/protobuf-3.5.1/include")
+    set(Protobuf_PROTOC_EXECUTABLE "${CMAKE_SOURCE_DIR}/libs/_msvc/protobuf-3.5.1/bin/protoc.exe")
+
     set(GLEW_DLL "${CMAKE_SOURCE_DIR}/libs/_msvc/glew-2.1.0/bin/Release/x64/glew32.dll")
     set(GLEW_LIBRARIES "${CMAKE_SOURCE_DIR}/libs/_msvc/glew-2.1.0/lib/Release/x64/glew32.lib")
     set(GLEW_INCLUDE_DIRS "libs/_msvc/glew-2.1.0/include")
@@ -82,6 +90,8 @@ if(MSVC)
         set(Boost_LIBRARIES "${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_66_0/lib64-msvc-14.1/libboost_filesystem-vc141-mt-x64-1_66.lib;${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_66_0/lib64-msvc-14.1/libboost_system-vc141-mt-x64-1_66.lib;${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_66_0/lib64-msvc-14.1/libboost_program_options-vc141-mt-x64-1_66.lib")
     endif()
     add_definitions(-DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE)
+    add_definitions(-DBOOST_DATE_TIME_NO_LIB)
+    add_definitions(-DBOOST_REGEX_NO_LIB)
 
     set(SDL2_DLL "${CMAKE_SOURCE_DIR}/libs/_msvc/SDL2-2.0.7/lib/x64/SDL2.dll")
     set(SDL2_LIBRARY "${CMAKE_SOURCE_DIR}/libs/_msvc/SDL2-2.0.7/lib/x64/SDL2.lib;${CMAKE_SOURCE_DIR}/libs/_msvc/SDL2-2.0.7/lib/x64/SDL2main.lib")
@@ -117,6 +127,14 @@ if(MSVC)
     set(VORBISFILE_DLL "${CMAKE_SOURCE_DIR}/libs/_msvc/extras/libvorbisfile-3.dll")
     set(WEBP_DLL "${CMAKE_SOURCE_DIR}/libs/_msvc/extras/libwebp-7.dll")
 else()
+    set(Protobuf_LIBRARY "${CMAKE_SOURCE_DIR}/libs/_protobuf-install/lib/libprotobuf.a")
+    set(Protobuf_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/libs/_protobuf-install/include")
+    if(WIN32)
+        set(Protobuf_PROTOC_EXECUTABLE "${CMAKE_SOURCE_DIR}/libs/_protobuf-install/bin/protoc.exe")
+    else()
+        set(Protobuf_PROTOC_EXECUTABLE "${CMAKE_SOURCE_DIR}/libs/_protobuf-install/bin/protoc")
+    endif()
+
     find_package(GLEW REQUIRED)
     find_windows_dll(GLEW_DLL "glew32.dll")
 
@@ -148,6 +166,19 @@ else()
     find_windows_dll(WEBP_DLL "libwebp-7.dll")
 endif()
 
+# We should have std::chrono everywhere,
+# but boost sometimes fails to detect this (e.g. with clang 5 on Ubuntu)
+# and falls back to using boost::chrono.
+# This enables the use of std::chrono explicitly
+# in boost.asio.
+add_definitions(-DBOOST_ASIO_HAS_STD_CHRONO)
+
+set(Protobuf_USE_STATIC_LIBS ON)
+find_package(Protobuf REQUIRED)
+
+protobuf_generate_cpp(PROTO_SOURCE_FILES PROTO_HEADER_FILES proto/network.proto)
+message("proto src files: ${PROTO_SOURCE_FILES}")
+message("proto header files: ${PROTO_HEADER_FILES}")
 
 set(SOURCE_FILES
     src/rwe/AudioService.cpp
@@ -171,6 +202,8 @@ set(SOURCE_FILES
     src/rwe/FeatureId.h
     src/rwe/Gaf.cpp
     src/rwe/Gaf.h
+    src/rwe/GameNetworkService.cpp
+    src/rwe/GameNetworkService.h
     src/rwe/GameScene.cpp
     src/rwe/GameScene.h
     src/rwe/GameSimulation.cpp
@@ -191,6 +224,8 @@ set(SOURCE_FILES
     src/rwe/Hpi.h
     src/rwe/LaserProjectile.cpp
     src/rwe/LaserProjectile.h
+    src/rwe/LoadingNetworkService.cpp
+    src/rwe/LoadingNetworkService.h
     src/rwe/LoadingScene.cpp
     src/rwe/LoadingScene.h
     src/rwe/MainMenuModel.cpp
@@ -212,14 +247,12 @@ set(SOURCE_FILES
     src/rwe/MovementClass.h
     src/rwe/MovementClassCollisionService.cpp
     src/rwe/MovementClassCollisionService.h
-    src/rwe/MovementClassId.cpp
     src/rwe/MovementClassId.h
     src/rwe/OccupiedGrid.cpp
     src/rwe/OccupiedGrid.h
     src/rwe/OpaqueId.h
     src/rwe/OpaqueUnit.h
     src/rwe/OpenGlVersion.h
-    src/rwe/PlayerCommand.cpp
     src/rwe/PlayerCommand.h
     src/rwe/PlayerCommandService.cpp
     src/rwe/PlayerCommandService.h
@@ -231,13 +264,13 @@ set(SOURCE_FILES
     src/rwe/RenderService.cpp
     src/rwe/RenderService.h
     src/rwe/Result.h
+    src/rwe/SceneContext.h
     src/rwe/SceneManager.cpp
     src/rwe/SceneManager.h
     src/rwe/SceneTime.cpp
     src/rwe/SceneTime.h
     src/rwe/SdlContextManager.cpp
     src/rwe/SdlContextManager.h
-    src/rwe/SelectionMesh.cpp
     src/rwe/SelectionMesh.h
     src/rwe/ShaderHandle.h
     src/rwe/ShaderMesh.cpp
@@ -254,7 +287,6 @@ set(SOURCE_FILES
     src/rwe/Sprite.h
     src/rwe/SpriteSeries.cpp
     src/rwe/SpriteSeries.h
-    src/rwe/TaAngle.cpp
     src/rwe/TaAngle.h
     src/rwe/TextureHandle.h
     src/rwe/TextureRegion.cpp
@@ -278,15 +310,12 @@ set(SOURCE_FILES
     src/rwe/UnitId.h
     src/rwe/UnitMesh.cpp
     src/rwe/UnitMesh.h
-    src/rwe/UnitOrder.cpp
     src/rwe/UnitOrder.h
-    src/rwe/UnitWeapon.cpp
     src/rwe/UnitWeapon.h
     src/rwe/VaoHandle.h
     src/rwe/VboHandle.h
     src/rwe/ViewportService.cpp
     src/rwe/ViewportService.h
-    src/rwe/Weapon.cpp
     src/rwe/Weapon.h
     src/rwe/WeaponTdf.cpp
     src/rwe/WeaponTdf.h
@@ -349,13 +378,10 @@ set(SOURCE_FILES
     src/rwe/observable/Observable.h
     src/rwe/observable/Subject.h
     src/rwe/observable/Subscription.h
-    src/rwe/optional_io.cpp
     src/rwe/optional_io.h
-    src/rwe/optional_util.cpp
     src/rwe/optional_util.h
     src/rwe/ota.cpp
     src/rwe/ota.h
-    src/rwe/pathfinding/AStarPathFinder.cpp
     src/rwe/pathfinding/AStarPathFinder.h
     src/rwe/pathfinding/AbstractUnitPathFinder.cpp
     src/rwe/pathfinding/AbstractUnitPathFinder.h
@@ -376,8 +402,12 @@ set(SOURCE_FILES
     src/rwe/pathfinding/pathfinding_utils.h
     src/rwe/pcx.cpp
     src/rwe/pcx.h
+    src/rwe/proto/serialization.cpp
+    src/rwe/proto/serialization.h
     src/rwe/rwe_string.cpp
     src/rwe/rwe_string.h
+    src/rwe/rwe_time.cpp
+    src/rwe/rwe_time.h
     src/rwe/tdf.cpp
     src/rwe/tdf.h
     src/rwe/tdf/SimpleTdfAdapter.cpp
@@ -425,7 +455,7 @@ else()
     add_definitions(-DRWE_PLATFORM_LINUX)
 endif()
 
-add_library(librwe STATIC ${SOURCE_FILES})
+add_library(librwe STATIC ${SOURCE_FILES} ${PROTO_SOURCE_FILES} ${PROTO_HEADER_FILES})
 set_target_properties(librwe PROPERTIES PREFIX "")
 if(MSVC)
     target_compile_options(librwe PUBLIC "/std:c++latest")
@@ -438,6 +468,10 @@ target_include_directories(librwe PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/config")
 
 target_include_directories(librwe PUBLIC ${Boost_INCLUDE_DIRS})
 target_link_libraries(librwe ${Boost_LIBRARIES})
+if(WIN32)
+    # winsock needed for boost asio on windows
+    target_link_libraries(librwe ws2_32)
+endif()
 
 target_include_directories(librwe PUBLIC "libs/utfcpp/source")
 target_include_directories(librwe PUBLIC "libs/spdlog/include")
@@ -481,6 +515,10 @@ endif()
 target_copy_file(librwe ${VORBIS_DLL})
 target_copy_file(librwe ${VORBISFILE_DLL})
 target_copy_file(librwe ${WEBP_DLL})
+
+target_link_libraries(librwe ${Protobuf_LIBRARIES})
+target_include_directories(librwe PUBLIC ${Protobuf_INCLUDE_DIRS})
+target_include_directories(librwe PUBLIC ${CMAKE_CURRENT_BINARY_DIR}) # for generated headers
 
 add_executable(rwe src/main.cpp)
 target_link_libraries(rwe librwe)

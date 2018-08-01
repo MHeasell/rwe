@@ -1,7 +1,8 @@
-#ifndef RWE_GAMENETWORKSERVICE_H
-#define RWE_GAMENETWORKSERVICE_H
+#ifndef RWE_PLAYERCOMMANDSERVICE_H
+#define RWE_PLAYERCOMMANDSERVICE_H
 
 #include <deque>
+#include <mutex>
 #include <rwe/PlayerCommand.h>
 #include <rwe/PlayerId.h>
 #include <rwe/SceneTime.h>
@@ -13,16 +14,17 @@ namespace rwe
     class PlayerCommandService
     {
     private:
+        mutable std::mutex mutex;
         std::unordered_map<PlayerId, std::deque<std::vector<PlayerCommand>>> commandBuffers;
 
     public:
-        bool hasCommands(PlayerId player) const;
-
-        const std::vector<PlayerCommand>& getFrontCommands(PlayerId player) const;
-
-        void popCommands();
+        std::optional<std::vector<std::pair<PlayerId, std::vector<PlayerCommand>>>> tryPopCommands();
 
         void pushCommands(PlayerId player, const std::vector<PlayerCommand>& commands);
+
+        unsigned int bufferedCommandCount(PlayerId player) const;
+
+        void registerPlayer(PlayerId playerId);
     };
 }
 
