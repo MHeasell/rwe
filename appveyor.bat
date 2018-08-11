@@ -1,3 +1,11 @@
+rem Build the launcher
+cd launcher || goto :error
+CALL npm install || goto :error
+CALL npm run package || goto :error
+cd .. || goto :error
+
+rem Build RWE
+
 IF "%RWE_COMPILER%"=="MSYS" (
     rem Required for bash to set itself up
     SET MSYSTEM=MINGW64
@@ -43,7 +51,6 @@ IF "%RWE_COMPILER%"=="MSYS" (
     echo "Unrecognised RWE_COMPILER: %RWE_COMPILER%"
     exit /b 1
 )
-
 
 :error
 exit /b %errorlevel%

@@ -27,6 +27,7 @@ addons:
 
 cache:
   directories:
+    - launcher/node_modules
     - libs/_protobuf-install
 
 env:
@@ -36,4 +37,4 @@ env:
 before_install:
   - eval "${MATRIX_EVAL}"
 
-script: cd libs && ./build-protobuf.sh && cd .. && mkdir build && cd build && cmake .. && make -j 2 && ./rwe_test
+script: cd launcher && npm install && npm run package && cd ../libs && ./build-protobuf.sh && cd .. && mkdir build && cd build && cmake .. && make -j 2 && ./rwe_test
