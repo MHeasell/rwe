@@ -11,7 +11,7 @@
     "start": "npm run build:main && cross-env RWE_LAUNCHER_IS_DEV=1 electron ./dist/main.js",
     "server": "webpack-dev-server --config webpack.renderer.config.js",
     "clean": "rm -rf ./dist",
-    "package": "npm run build && electron-packager dist --overwrite --asar"
+    "package": "npm run build && electron-packager dist --arch=x64 --overwrite --asar"
   },
   "author": "Michael Heasell",
   "license": "GPL-3.0-only",
