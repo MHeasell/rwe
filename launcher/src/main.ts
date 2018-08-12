@@ -12,7 +12,9 @@ if (development) {
 }
 
 if (!process.env["RWE_HOME"]) {
-  process.env["RWE_HOME"] = path.resolve(__dirname);
+  // When packaged, getAppPath() will return path/to/launcher/resources/app.asar.
+  // The rwe binary will be three levels up from here.
+  process.env["RWE_HOME"] = path.resolve(app.getAppPath(), "..", "..", "..");
 }
 
 let mainWindow: Electron.BrowserWindow | null;
