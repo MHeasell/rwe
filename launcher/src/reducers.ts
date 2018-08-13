@@ -171,6 +171,17 @@ function games(state: State = initialState, action: AppAction): State {
       const room: GameRoom = { ...state.currentGame, messages: newMessages };
       return { ...state, currentGame: room };
     }
+    case "RECEIVE_PLAYER_READY": {
+      if (!state.currentGame) { return state; }
+      const newPlayers = state.currentGame.players.map(x => {
+        if (x.id !== action.payload.playerId) {
+          return x;
+        }
+        return { ...x, ready: action.payload.value };
+      });
+      const room: GameRoom = { ...state.currentGame, players: newPlayers };
+      return { ...state, currentGame: room };
+    }
     case "LEAVE_GAME":
     case "DISCONNECT_GAME":
       if (!state.currentGame) { return state; }

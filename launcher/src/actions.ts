@@ -4,7 +4,7 @@ import { Dispatch } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { State } from "./reducers";
 import { GetRoomsResponse } from "./web";
-import { PlayerJoinedPayload, HandshakeResponsePayload, PlayerLeftPayload } from "./game-server";
+import { PlayerJoinedPayload, HandshakeResponsePayload, PlayerLeftPayload, PlayerReadyPayload } from "./game-server";
 
 export interface SelectGameAction {
   type: "SELECT_GAME";
@@ -178,6 +178,18 @@ export function receiveHandshakeResponse(payload: HandshakeResponsePayload): Rec
   };
 }
 
+export interface ReceivePlayerReadyAction {
+  type: "RECEIVE_PLAYER_READY";
+  payload: PlayerReadyPayload;
+}
+
+export function receivePlayerReady(payload: PlayerReadyPayload): ReceivePlayerReadyAction {
+  return {
+    type: "RECEIVE_PLAYER_READY",
+    payload,
+  };
+}
+
 export interface LeaveGameAction {
   type: "LEAVE_GAME";
 }
@@ -198,6 +210,16 @@ export function disconnectGame(): DisconnectGameAction {
   };
 }
 
+export interface ToggleReadyAction {
+  type: "TOGGLE_READY";
+}
+
+export function toggleReady(): ToggleReadyAction {
+  return {
+    type: "TOGGLE_READY",
+  };
+}
+
 export type AppAction =
   | SelectGameAction
   | JoinSelectedGameAction
@@ -213,7 +235,9 @@ export type AppAction =
   | ReceivePlayerJoinedAction
   | ReceivePlayerLeftAction
   | ReceiveChatMessageAction
+  | ReceivePlayerReadyAction
   | SendChatMessageAction
+  | ToggleReadyAction
   | LeaveGameAction
   | DisconnectGameAction;
 

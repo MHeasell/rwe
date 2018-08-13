@@ -27,11 +27,12 @@ const gameHoster: Middleware = (store: MiddlewareAPI<Dispatch, State>) => {
     next(action);
 
     switch (action.type) {
-      case "HOST_GAME_FORM_CONFIRM":
+      case "HOST_GAME_FORM_CONFIRM": {
         hostService.createServer(action.gameDescription, action.players, 1337);
         clientService.connectToServer("http://localhost:1337/", action.playerName);
         break;
-      case "JOIN_SELECTED_GAME_CONFIRM":
+      }
+      case "JOIN_SELECTED_GAME_CONFIRM": {
         const state = store.getState();
         if (state.selectedGameId === undefined) { break; }
         const gameInfo = state.games.find(x => x.id == state.selectedGameId)!;
@@ -41,13 +42,24 @@ const gameHoster: Middleware = (store: MiddlewareAPI<Dispatch, State>) => {
         console.log(`connecting to ${connectionString}`);
         clientService.connectToServer(connectionString, action.name);
         break;
-      case "SEND_CHAT_MESSAGE":
+      }
+      case "SEND_CHAT_MESSAGE": {
         clientService.sendChatMessage(action.message);
         break;
-      case "LEAVE_GAME":
+      }
+      case "TOGGLE_READY": {
+        const state = store.getState();
+        if (!state.currentGame) { break; }
+        if (state.currentGame.localPlayerId === undefined) { break; }
+        const currentValue = state.currentGame.players.find(x => x.id === state.currentGame!.localPlayerId)!.ready;
+        clientService.setReadyState(!currentValue);
+        break;
+      }
+      case "LEAVE_GAME": {
         clientService.disconnect();
         hostService.destroyServer();
         break;
+      }
     }
   };
 };

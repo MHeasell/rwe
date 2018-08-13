@@ -3,7 +3,7 @@ import * as socketio from "socket.io";
 import * as socketioClient from "socket.io-client";
 import { Store, MiddlewareAPI, Dispatch } from "redux";
 import { State } from "./reducers";
-import { receiveChatMessage, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, disconnectGame } from "./actions";
+import { receiveChatMessage, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, disconnectGame, receivePlayerReady } from "./actions";
 import { keepAliveRoom, createRoom, KeepAliveRoomRequest, deleteRoom } from "./web";
 
 type PlayerSide = "ARM" | "CORE";
@@ -29,14 +29,19 @@ export interface HandshakeResponsePayload {
 
 export type ChatMessagePayload = string;
 
-export type PlayerJoinedPayload = {
+export interface PlayerJoinedPayload {
   playerId: number;
   name: string;
 };
 
-export type PlayerLeftPayload = {
+export interface PlayerLeftPayload {
   playerId: number;
 };
+
+export interface PlayerReadyPayload {
+  playerId: number;
+  value: boolean;
+}
 
 export class GameClientService {
   private readonly store : MiddlewareAPI<Dispatch, State>;
@@ -78,6 +83,10 @@ export class GameClientService {
     this.client.on("chat-message", (data: ChatMessagePayload) => {
       this.store.dispatch(receiveChatMessage(data));
     });
+
+    this.client.on("player-ready", (data: PlayerReadyPayload) => {
+      this.store.dispatch(receivePlayerReady(data));
+    });
   }
 
   disconnect() {
@@ -89,6 +98,11 @@ export class GameClientService {
   sendChatMessage(message: string) {
     if (!this.client) { return; }
     this.client.emit("chat-message", message);
+  }
+
+  setReadyState(value: boolean) {
+    if (!this.client) { return; }
+    this.client.emit("ready", value);
   }
 }
 
@@ -183,6 +197,14 @@ export class GameHostService {
             return;
           }
           this.server.ioServer.emit("chat-message", data);
+        });
+        socket.on("ready", (data: boolean) => {
+          if (!this.server) {
+            this.log(`Received ready from ${playerId}, but server not running!`);
+            return;
+          }
+          const payload: PlayerReadyPayload = { playerId, value: data };
+          this.server.ioServer.emit("player-ready", payload);
         });
         socket.on("disconnect", () => {
           if (!this.server) {

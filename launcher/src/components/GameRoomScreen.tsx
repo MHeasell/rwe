@@ -1,19 +1,22 @@
 import * as React from "react";
 import { State, PlayerInfo } from "../reducers";
 import { connect } from "react-redux";
-import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Table, TableHead, TableRow, TableCell, TableBody } from "@material-ui/core";
+import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Table, TableHead, TableRow, TableCell, TableBody, Checkbox } from "@material-ui/core";
 import { Dispatch } from "redux";
-import { sendChatMessage, leaveGame } from "../actions";
+import { sendChatMessage, leaveGame, toggleReady } from "../actions";
 
 interface GameRoomScreenStateProps {
+  localPlayerId?: number;
   players: PlayerInfo[];
   messages: string[];
   userMessage: string;
+  canStartGame: boolean;
 }
 
 interface GameRoomScreenDispatchProps {
   onSend: (message: string) => void;
   onLeaveGame: () => void;
+  onToggleReady: () => void;
 }
 
 const styles = (theme: Theme) => createStyles({
@@ -36,6 +39,7 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
 
     this.handleUserMessageChange = this.handleUserMessageChange.bind(this);
     this.handleSend = this.handleSend.bind(this);
+    this.handleReadyChange = this.handleReadyChange.bind(this);
   }
 
   handleUserMessageChange(event: React.SyntheticEvent<EventTarget>) {
@@ -48,16 +52,23 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
     this.props.onSend(this.state.value);
   }
 
+  handleReadyChange(event: React.SyntheticEvent<EventTarget>) {
+    this.props.onToggleReady();
+  }
+
   render() {
     const messageElements = this.props.messages.map((m, i) => <div key={i}>{m}</div>);
     const rows = this.props.players.map((player) => {
+      const checkbox = player.id === this.props.localPlayerId
+        ? <Checkbox checked={player.ready} onChange={this.handleReadyChange} />
+        : <Checkbox checked={player.ready} disabled />
       return (
         <TableRow key={player.id}>
           <TableCell>{player.name}</TableCell>
           <TableCell>{player.side}</TableCell>
           <TableCell>{player.color}</TableCell>
           <TableCell>{player.team}</TableCell>
-          <TableCell>{player.ready?"Yes":"No"}</TableCell>
+          <TableCell>{checkbox}</TableCell>
         </TableRow>
       );
     });
@@ -72,7 +83,7 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
                   <TableCell>Side</TableCell>
                   <TableCell>Color</TableCell>
                   <TableCell>Team</TableCell>
-                  <TableCell>Go?</TableCell>
+                  <TableCell>Ready?</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -89,7 +100,12 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
           </form>
         </div>
         <div className="game-room-screen-right">
-          <Button onClick={this.props.onLeaveGame}>Leave Game</Button>
+          <div>
+            <Button onClick={this.props.onLeaveGame}>Leave Game</Button>
+          </div>
+          <div>
+            <Button variant="contained" color="primary" disabled={!this.props.canStartGame}>Start Game</Button>
+          </div>
         </div>
       </div>
     );
@@ -97,16 +113,19 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
 }
 
 function mapStateToProps(state: State): GameRoomScreenStateProps {
+  const localPlayerId = state.currentGame ? state.currentGame.localPlayerId : undefined;
   const players = state.currentGame ? state.currentGame.players : [];
   const messages = state.currentGame ? state.currentGame.messages : [];
   const userMessage = state.currentScreen.screen == "game-room" ? state.currentScreen.userMessage : "";
-  return { players, messages, userMessage };
+  const canStartGame = state.currentGame ? state.currentGame.players.length > 0 && state.currentGame.players.every(x => x.ready) : false;
+  return { localPlayerId, players, messages, userMessage, canStartGame };
 }
 
 function mapDispatchToProps(dispatch: Dispatch): GameRoomScreenDispatchProps {
   return {
-    onSend: (message: string) => dispatch(sendChatMessage(message)), // TODO: replace with actual chat message
+    onSend: (message: string) => dispatch(sendChatMessage(message)),
     onLeaveGame: () => dispatch(leaveGame()),
+    onToggleReady: () => dispatch(toggleReady()),
   };
 }
 
