@@ -157,6 +157,10 @@ export class GameHostService {
   }
 
   createServer(description: string, players: number, port: number = 1337) {
+    if (this.server) {
+      this.log("Server already running, destroying first");
+      this.destroyServer();
+    }
     this.log(`Creating server on port ${port}`)
     this.server = this.createServerObjects(port);
 
