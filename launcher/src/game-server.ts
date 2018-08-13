@@ -29,14 +29,19 @@ export interface HandshakeResponsePayload {
 
 export type ChatMessagePayload = string;
 
+export interface PlayerChatMessagePayload {
+  playerId: number;
+  message: string;
+}
+
 export interface PlayerJoinedPayload {
   playerId: number;
   name: string;
-};
+}
 
 export interface PlayerLeftPayload {
   playerId: number;
-};
+}
 
 export interface PlayerReadyPayload {
   playerId: number;
@@ -80,7 +85,7 @@ export class GameClientService {
       this.store.dispatch(receivePlayerLeft(data));
     });
 
-    this.client.on("chat-message", (data: ChatMessagePayload) => {
+    this.client.on("player-chat-message", (data: PlayerChatMessagePayload) => {
       this.store.dispatch(receiveChatMessage(data));
     });
 
@@ -196,7 +201,8 @@ export class GameHostService {
             this.log(`Received chat-message from ${playerId}, but server not running!`);
             return;
           }
-          this.server.ioServer.emit("chat-message", data);
+          const payload: PlayerChatMessagePayload = { playerId, message: data };
+          this.server.ioServer.emit("player-chat-message", payload);
         });
         socket.on("ready", (data: boolean) => {
           if (!this.server) {

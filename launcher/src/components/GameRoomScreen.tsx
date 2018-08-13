@@ -1,5 +1,5 @@
 import * as React from "react";
-import { State, PlayerInfo } from "../reducers";
+import { State, PlayerInfo, ChatMessage } from "../reducers";
 import { connect } from "react-redux";
 import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Table, TableHead, TableRow, TableCell, TableBody, Checkbox } from "@material-ui/core";
 import { Dispatch } from "redux";
@@ -8,7 +8,7 @@ import { sendChatMessage, leaveGame, toggleReady } from "../actions";
 interface GameRoomScreenStateProps {
   localPlayerId?: number;
   players: PlayerInfo[];
-  messages: string[];
+  messages: ChatMessage[];
   userMessage: string;
   canStartGame: boolean;
 }
@@ -57,7 +57,7 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
   }
 
   render() {
-    const messageElements = this.props.messages.map((m, i) => <div key={i}>{m}</div>);
+    const messageElements = this.props.messages.map((m, i) => <div key={i}>{m.senderName ? m.senderName : "<unknown>"}: {m.message}</div>);
     const rows = this.props.players.map((player) => {
       const checkbox = player.id === this.props.localPlayerId
         ? <Checkbox checked={player.ready} onChange={this.handleReadyChange} />

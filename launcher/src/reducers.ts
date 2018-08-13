@@ -40,10 +40,15 @@ export interface PlayerInfo {
   ready: boolean;
 }
 
+export interface ChatMessage {
+  senderName?: string;
+  message: string;
+}
+
 export interface GameRoom {
   localPlayerId?: number;
   players: PlayerInfo[];
-  messages: string[];
+  messages: ChatMessage[];
 }
 
 export interface State {
@@ -167,7 +172,13 @@ function games(state: State = initialState, action: AppAction): State {
     case "RECEIVE_CHAT_MESSAGE": {
       if (!state.currentGame) { return state; }
       const newMessages = state.currentGame.messages.slice();
-      newMessages.push(action.message);
+      const sender = state.currentGame.players.find(x => x.id === action.payload.playerId);
+      const senderName = sender ? sender.name : undefined;
+      const newMessage: ChatMessage = {
+        senderName: senderName,
+        message: action.payload.message,
+      };
+      newMessages.push(newMessage);
       const room: GameRoom = { ...state.currentGame, messages: newMessages };
       return { ...state, currentGame: room };
     }

@@ -4,7 +4,7 @@ import { Dispatch } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { State } from "./reducers";
 import { GetRoomsResponse } from "./web";
-import { PlayerJoinedPayload, HandshakeResponsePayload, PlayerLeftPayload, PlayerReadyPayload } from "./game-server";
+import { PlayerJoinedPayload, HandshakeResponsePayload, PlayerLeftPayload, PlayerReadyPayload, PlayerChatMessagePayload } from "./game-server";
 
 export interface SelectGameAction {
   type: "SELECT_GAME";
@@ -120,13 +120,13 @@ export function receiveRooms(rooms: GetRoomsResponse): ReceiveRoomsAction {
 
 export interface ReceiveChatMessageAction {
   type: "RECEIVE_CHAT_MESSAGE";
-  message: string;
+  payload: PlayerChatMessagePayload;
 }
 
-export function receiveChatMessage(message: string): ReceiveChatMessageAction {
+export function receiveChatMessage(payload: PlayerChatMessagePayload): ReceiveChatMessageAction {
   return {
     type: "RECEIVE_CHAT_MESSAGE",
-    message,
+    payload,
   };
 }
 
