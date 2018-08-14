@@ -12,6 +12,7 @@ type PlayerColor = number;
 export interface PlayerInfo {
   id: number;
   name: string;
+  host: string;
   side: PlayerSide;
   color: PlayerColor;
   team: number;
@@ -37,6 +38,7 @@ export interface PlayerChatMessagePayload {
 export interface PlayerJoinedPayload {
   playerId: number;
   name: string;
+  host: string;
 }
 
 export interface PlayerLeftPayload {
@@ -141,6 +143,16 @@ function publishRoom(port: number, description: string, maxPlayers: number) {
   });
 }
 
+// This function is a dirty hack to extract an IPv4 address
+// out of an IPv4-mapped IPv6 address.
+function extractAddress(addr: string) {
+  const match = addr.match(/^::ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/);
+  if (match) {
+    return match[1];
+  }
+  return addr;
+}
+
 export class GameHostService {
   private nextLocalRoomId = 0;
 
@@ -165,6 +177,7 @@ export class GameHostService {
     this.server = this.createServerObjects(port);
 
     this.server.ioServer.on("connection", socket => {
+      const address = extractAddress(socket.handshake.address);
       if (!this.server) {
         this.log("Received new connection, but server not running!");
         return;
@@ -174,6 +187,7 @@ export class GameHostService {
       let info: PlayerInfo = {
         id: playerId,
         name: `Player #${playerId}`,
+        host: address,
         side: "ARM",
         color: 0,
         team: 0,
@@ -197,6 +211,7 @@ export class GameHostService {
         const playerJoined: PlayerJoinedPayload = {
           playerId: playerId,
           name: data.name,
+          host: address,
         };
         socket.broadcast.emit("player-joined", playerJoined);
 

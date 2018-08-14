@@ -1,10 +1,12 @@
 import { execFile } from "child_process";
 import * as path from "path";
+import * as util from "util";
 import { Dispatch } from "redux";
 import { ThunkAction } from "redux-thunk";
-import { State } from "./reducers";
+import { State, GameRoom } from "./reducers";
 import { GetRoomsResponse } from "./web";
 import { PlayerJoinedPayload, HandshakeResponsePayload, PlayerLeftPayload, PlayerReadyPayload, PlayerChatMessagePayload } from "./game-server";
+import { resolve } from "dns";
 
 export interface SelectGameAction {
   type: "SELECT_GAME";
@@ -220,6 +222,26 @@ export function toggleReady(): ToggleReadyAction {
   };
 }
 
+export interface StartGameAction {
+  type: "START_GAME";
+}
+
+export function startGame(): StartGameAction {
+  return {
+    type: "START_GAME",
+  };
+}
+
+export interface GameEndedAction {
+  type: "GAME_ENDED";
+}
+
+export function gameEnded(): GameEndedAction {
+  return {
+    type: "GAME_ENDED",
+  };
+}
+
 export type AppAction =
   | SelectGameAction
   | JoinSelectedGameAction
@@ -239,7 +261,145 @@ export type AppAction =
   | SendChatMessageAction
   | ToggleReadyAction
   | LeaveGameAction
-  | DisconnectGameAction;
+  | DisconnectGameAction
+  | StartGameAction
+  | GameEndedAction;
+
+interface RweArgsPlayerHuman {
+  type: "human";
+}
+
+interface RweArgsPlayerComputer {
+  type: "computer";
+}
+
+interface RweArgsPlayerRemote {
+  type: "remote";
+  host: string;
+  port: number;
+}
+
+type RweArgsPlayerController = RweArgsPlayerHuman | RweArgsPlayerComputer | RweArgsPlayerRemote;
+
+interface RweArgsPlayerInfo {
+  side: "ARM" | "CORE";
+  color: number;
+  controller: RweArgsPlayerController;
+}
+
+interface RweArgs {
+  dataPath?: string;
+  map?: string;
+  interface?: string;
+  port?: number;
+  players: RweArgsPlayerInfo[];
+}
+
+function serializeRweController(controller: RweArgsPlayerController): string {
+  switch (controller.type) {
+    case "human":
+      return "Human";
+    case "computer":
+      return "Computer";
+    case "remote":
+      return `Network,${controller.host}:${controller.port.toString()}`;
+    default:
+      throw new Error("unknown controller type");
+  }
+}
+
+function serializeRweArgs(args: RweArgs): string[] {
+  const out = [];
+  if (args.dataPath !== undefined) {
+    out.push("--data-path", args.dataPath);
+  }
+  if (args.map !== undefined) {
+    out.push("--map", args.map);
+  }
+  if (args.interface !== undefined) {
+    out.push("--interface", args.interface);
+  }
+  if (args.port !== undefined) {
+    out.push("--port", args.port.toString());
+  }
+  for (const p of args.players) {
+    const controllerString = serializeRweController(p.controller);
+    out.push("--player", `${controllerString};${p.side};${p.color}`);
+  }
+  return out;
+}
+
+// Naively quotes args, as if you were going to pass them through a shell,
+// for display purposes.
+// Don't use this for actual shell escaping, it's probably really insecure.
+function quoteArg(arg: string) {
+  if (arg.match(/[ "'\\]/)) {
+    const escapedArg = arg.replace(/["\\]/, "\\$1");
+    return `"${escapedArg}"`;
+  }
+  return arg;
+}
+
+function execRwe(args?: RweArgs): Promise<any> {
+  const rweHome = process.env["RWE_HOME"];
+  if (!rweHome) {
+    return Promise.reject("Cannot launch RWE, RWE_HOME is not defined");
+  }
+
+  const serializedArgs = args ? serializeRweArgs(args) : undefined;
+
+  return new Promise((resolve, reject) => {
+    if (serializedArgs) {
+      console.log("Launching RWE with args: " + serializedArgs.map(quoteArg).join(" "));
+    }
+    else {
+      console.log("Launching RWE");
+    }
+    // FIXME: assumes windows
+    execFile(path.join(rweHome, "rwe.exe"), serializedArgs, { cwd: rweHome }, (error: (null | Error), stdout: any, stderr: any) => {
+      if (error) {
+        const exitCode = (error as any).code;
+        reject(`RWE exited with exit code ${exitCode}: ${error.message}`);
+        return;
+      }
+
+      resolve();
+    });
+  });
+}
+
+function rweArgsFromGameRoom(game: GameRoom): RweArgs {
+  const playersArgs = game.players.map((x, i) => {
+    const controller: RweArgsPlayerController =
+      x.id === game.localPlayerId
+      ? { type: "human" }
+      : { type: "remote", host: x.host, port: (6670 + i) };
+    const a: RweArgsPlayerInfo = {
+      side: x.side,
+      color: x.color,
+      controller,
+    };
+    return a;
+  });
+  const portOffset = game.players.findIndex(x => x.id === game.localPlayerId);
+  return {
+    map: "Evad River Confluence",
+    port: (6670 + portOffset),
+    players: playersArgs,
+  };
+}
+
+export function startGameThunk(): ThunkAction<void, State, void, AppAction>  {
+  return (dispatch: Dispatch, getState: () => State) => {
+    const state = getState();
+    if (!state.currentGame) {
+      return;
+    }
+    dispatch(startGame());
+    execRwe(rweArgsFromGameRoom(state.currentGame))
+    .then(() => dispatch(gameEnded()), () => dispatch(gameEnded()));
+  }
+}
 
 export function launchRwe(): ThunkAction<void, State, void, AppAction>  {
   return (dispatch: Dispatch, getState: () => State) => {
@@ -247,20 +407,8 @@ export function launchRwe(): ThunkAction<void, State, void, AppAction>  {
       return;
     }
 
-    const rweHome = process.env["RWE_HOME"];
-    if (!rweHome) {
-      console.error("Cannot launch RWE, RWE_HOME is not defined");
-      return;
-    }
-
     dispatch(launchRweBegin());
-    // FIXME: assumes windows
-    execFile(path.join(rweHome, "rwe.exe"), { cwd: rweHome }, (error: (null | Error), stdout: any, stderr: any) => {
-      if (error) {
-        console.error("RWE exited with code: " + (error as any).code);
-        console.error("Message: " + error.message);
-      }
-      dispatch(launchRweEnd());
-    });
+    execRwe()
+    .then(() => dispatch(launchRweEnd()), () => dispatch(launchRweEnd()));
   };
 }

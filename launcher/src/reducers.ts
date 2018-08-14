@@ -34,6 +34,7 @@ export type PlayerColor = number;
 export interface PlayerInfo {
   id: number;
   name: string;
+  host: string;
   side: PlayerSide;
   color: PlayerColor;
   team: number;
@@ -154,6 +155,7 @@ function games(state: State = initialState, action: AppAction): State {
       const newPlayer: PlayerInfo = {
         id: action.payload.playerId,
         name: action.payload.name,
+        host: action.payload.host,
         side: "ARM",
         color: 0,
         team: 0,
@@ -197,6 +199,11 @@ function games(state: State = initialState, action: AppAction): State {
     case "DISCONNECT_GAME":
       if (!state.currentGame) { return state; }
       return { ...state, currentScreen: { screen: "overview", dialogOpen: false }, currentGame: undefined}
+    case "START_GAME":
+      if (!state.currentGame) { return state; }
+      return { ...state, currentScreen: { screen: "overview", dialogOpen: false }, currentGame: undefined, isRweRunning: true }
+    case "GAME_ENDED":
+      return { ...state, isRweRunning: false }
     default:
       return state;
   }
