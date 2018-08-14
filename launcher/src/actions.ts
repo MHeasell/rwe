@@ -242,6 +242,26 @@ export function gameEnded(): GameEndedAction {
   };
 }
 
+export interface SendStartGameAction {
+  type: "SEND_START_GAME";
+}
+
+export function sendStartGame(): SendStartGameAction {
+  return {
+    type: "SEND_START_GAME",
+  };
+}
+
+export interface ReceiveStartGameAction {
+  type: "RECEIVE_START_GAME";
+}
+
+export function receiveStartGame(): ReceiveStartGameAction {
+  return {
+    type: "RECEIVE_START_GAME",
+  };
+}
+
 export type AppAction =
   | SelectGameAction
   | JoinSelectedGameAction
@@ -260,6 +280,8 @@ export type AppAction =
   | ReceivePlayerReadyAction
   | SendChatMessageAction
   | ToggleReadyAction
+  | SendStartGameAction
+  | ReceiveStartGameAction
   | LeaveGameAction
   | DisconnectGameAction
   | StartGameAction

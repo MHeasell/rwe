@@ -48,6 +48,7 @@ export interface ChatMessage {
 
 export interface GameRoom {
   localPlayerId?: number;
+  adminPlayerId?: number;
   players: PlayerInfo[];
   messages: ChatMessage[];
 }
@@ -146,7 +147,7 @@ function games(state: State = initialState, action: AppAction): State {
     }
     case "RECEIVE_HANDSHAKE_RESPONSE": {
       if (!state.currentGame) { return state; }
-      const newRoom = { ...state.currentGame, players: action.payload.players, localPlayerId: action.payload.playerId };
+      const newRoom = { ...state.currentGame, players: action.payload.players, localPlayerId: action.payload.playerId, adminPlayerId: action.payload.adminPlayerId };
       return { ...state, currentGame: newRoom };
     }
     case "RECEIVE_PLAYER_JOINED": {

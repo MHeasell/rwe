@@ -8,7 +8,7 @@ import * as ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import { applyMiddleware, createStore, Store, compose, MiddlewareAPI, Middleware, Dispatch } from "redux";
 import thunk from "redux-thunk";
-import { receiveRooms, AppAction } from "./actions";
+import { receiveRooms, AppAction, startGameThunk } from "./actions";
 import App from "./components/App";
 import rootReducer, { State } from "./reducers";
 import { getRooms } from "./web";
@@ -58,6 +58,14 @@ const gameHoster: Middleware = (store: MiddlewareAPI<Dispatch, State>) => {
       case "LEAVE_GAME": {
         clientService.disconnect();
         hostService.destroyServer();
+        break;
+      }
+      case "SEND_START_GAME": {
+        clientService.startGame();
+        break;
+      }
+      case "RECEIVE_START_GAME": {
+        store.dispatch<any>(startGameThunk());
         break;
       }
     }

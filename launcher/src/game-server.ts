@@ -3,7 +3,7 @@ import * as socketio from "socket.io";
 import * as socketioClient from "socket.io-client";
 import { Store, MiddlewareAPI, Dispatch } from "redux";
 import { State } from "./reducers";
-import { receiveChatMessage, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, disconnectGame, receivePlayerReady } from "./actions";
+import { receiveChatMessage, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, disconnectGame, receivePlayerReady, receiveStartGame } from "./actions";
 import { keepAliveRoom, createRoom, KeepAliveRoomRequest, deleteRoom } from "./web";
 
 type PlayerSide = "ARM" | "CORE";
@@ -25,6 +25,7 @@ export interface HandshakePayload {
 
 export interface HandshakeResponsePayload {
   playerId: number;
+  adminPlayerId: number;
   players: PlayerInfo[];
 }
 
@@ -94,6 +95,10 @@ export class GameClientService {
     this.client.on("player-ready", (data: PlayerReadyPayload) => {
       this.store.dispatch(receivePlayerReady(data));
     });
+
+    this.client.on("start-game", () => {
+      this.store.dispatch(receiveStartGame());
+    });
   }
 
   disconnect() {
@@ -111,6 +116,11 @@ export class GameClientService {
     if (!this.client) { return; }
     this.client.emit("ready", value);
   }
+
+  startGame() {
+    if (!this.client) { return; }
+    this.client.emit("start-game");
+  }
 }
 
 interface ServerObjects {
@@ -119,6 +129,7 @@ interface ServerObjects {
   ioServer: socketio.Server;
   nextPlayerId: number;
   players: PlayerInfo[];
+  adminPlayerId?: number;
   roomInfo?: RoomInfo;
 }
 
@@ -194,6 +205,9 @@ export class GameHostService {
         ready: false,
       };
       this.server.players.push(info);
+      if (this.server.adminPlayerId === undefined) {
+        this.server.adminPlayerId = playerId;
+      }
       socket.on("handshake", (data: HandshakePayload) => {
         if (!this.server) {
           this.log(`Received handshake from ${playerId}, but server not running!`);
@@ -204,6 +218,7 @@ export class GameHostService {
 
         const handshakeResponse: HandshakeResponsePayload = {
           playerId: playerId,
+          adminPlayerId: this.server.adminPlayerId!,
           players: this.server.players,
         };
         socket.emit("handshake-response", handshakeResponse);
@@ -231,12 +246,26 @@ export class GameHostService {
           const payload: PlayerReadyPayload = { playerId, value: data };
           this.server.ioServer.emit("player-ready", payload);
         });
+        socket.on("start-game", () => {
+          if (!this.server) {
+            this.log(`Received start-game from ${playerId}, but server not running!`);
+            return;
+          }
+          if (playerId !== this.server.adminPlayerId) {
+            this.log(`Received start-game from ${playerId}, but that player is not admin!`);
+            return;
+          }
+          this.server.ioServer.emit("start-game");
+        });
         socket.on("disconnect", () => {
           if (!this.server) {
             this.log(`Player ${playerId} disconnected, but server not running!`);
             return;
           }
           this.server.players = this.server.players.filter(x => x.id !== playerId);
+          if (this.server.adminPlayerId === playerId) {
+            this.server.adminPlayerId = undefined;
+          }
           const playerLeft: PlayerLeftPayload = {
             playerId: playerId
           };

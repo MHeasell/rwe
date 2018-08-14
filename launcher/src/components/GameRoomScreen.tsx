@@ -3,7 +3,7 @@ import { State, PlayerInfo, ChatMessage } from "../reducers";
 import { connect } from "react-redux";
 import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Table, TableHead, TableRow, TableCell, TableBody, Checkbox, Typography } from "@material-ui/core";
 import { Dispatch } from "redux";
-import { sendChatMessage, leaveGame, toggleReady, startGameThunk } from "../actions";
+import { sendChatMessage, leaveGame, toggleReady, startGameThunk, sendStartGame } from "../actions";
 
 interface GameRoomScreenStateProps {
   localPlayerId?: number;
@@ -124,7 +124,7 @@ function mapStateToProps(state: State): GameRoomScreenStateProps {
   const players = state.currentGame ? state.currentGame.players : [];
   const messages = state.currentGame ? state.currentGame.messages : [];
   const userMessage = state.currentScreen.screen == "game-room" ? state.currentScreen.userMessage : "";
-  const canStartGame = state.currentGame ? state.currentGame.players.length > 0 && state.currentGame.players.every(x => x.ready) : false;
+  const canStartGame = state.currentGame ? state.currentGame.adminPlayerId === state.currentGame.localPlayerId && state.currentGame.players.length > 0 && state.currentGame.players.every(x => x.ready) : false;
   return { localPlayerId, players, messages, userMessage, canStartGame };
 }
 
@@ -133,7 +133,7 @@ function mapDispatchToProps(dispatch: Dispatch): GameRoomScreenDispatchProps {
     onSend: (message: string) => dispatch(sendChatMessage(message)),
     onLeaveGame: () => dispatch(leaveGame()),
     onToggleReady: () => dispatch(toggleReady()),
-    onStartGame: () => dispatch<any>(startGameThunk()),
+    onStartGame: () => dispatch(sendStartGame()),
   };
 }
 
