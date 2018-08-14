@@ -78,8 +78,8 @@ class UnconnectedHostGameForm extends React.Component<HostGameFormProps, HostGam
           </div>
 
           <div className="host-game-form-bottom-panel">
-            <Button variant="contained" color="primary" onClick={this.handleSubmit}>Create Game Room</Button>
-            <Button type="submit" variant="contained" className={this.props.classes.cancelButton} onClick={this.props.onCancel}>Cancel</Button>
+            <Button type="submit" variant="contained" color="primary">Create Game Room</Button>
+            <Button variant="contained" className={this.props.classes.cancelButton} onClick={this.props.onCancel}>Cancel</Button>
           </div>
         </form>
       </div>
