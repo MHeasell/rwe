@@ -21,21 +21,6 @@ interface RoomInfo {
   intervalId: NodeJS.Timer;
 }
 
-function publishRoom(port: number, description: string, maxPlayers: number) {
-  return createRoom({ port, description, number_of_players: 1, max_players: maxPlayers })
-  .then(r => {
-    const id = r.id;
-    const payload: KeepAliveRoomRequest = { key: r.key, number_of_players: 1 }; // FIXME: hardcoded number_of_players
-
-    const intervalId = setInterval(() => {
-      keepAliveRoom(id, payload);
-    }, 5000);
-
-    const info: RoomInfo = { id, key: r.key, intervalId };
-    return info;
-  });
-}
-
 // This function is a dirty hack to extract an IPv4 address
 // out of an IPv4-mapped IPv6 address.
 function extractAddress(addr: string) {
@@ -157,7 +142,7 @@ export class GameHostService {
     });
 
     const localRoomId = this.server.localRoomId;
-    publishRoom(port, description, players)
+    this.publishRoom(port, description, players)
     .then(info => {
       if (!this.server || this.server.localRoomId != localRoomId) {
         clearInterval(info.intervalId);
@@ -191,5 +176,27 @@ export class GameHostService {
       nextPlayerId: 1,
       players: [],
     };
+  }
+
+  private publishRoom(port: number, description: string, maxPlayers: number) {
+    return createRoom({ port, description, number_of_players: 1, max_players: maxPlayers })
+    .then(r => {
+      const id = r.id;
+      const key = r.key;
+      const intervalId = setInterval(() => {
+        if (!this.server) {
+          this.log("Attempted to send keep-alive but server is not running!");
+          return;
+        }
+        const payload: KeepAliveRoomRequest = {
+          key,
+          number_of_players: this.server.players.length,
+        };
+        keepAliveRoom(id, payload);
+      }, 5000);
+
+      const info: RoomInfo = { id, key: key, intervalId };
+      return info;
+    });
   }
 }
