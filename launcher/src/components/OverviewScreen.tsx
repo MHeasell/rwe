@@ -4,7 +4,7 @@ import { Dispatch } from "redux";
 import BottomPanel from "./BottomPanel";
 import GamesTable from "./GamesTable";
 import { PlayerNameDialog } from "./PlayerNameDialog";
-import { State } from "../reducers";
+import { State } from "../state";
 import { joinSelectedGameCancel, joinSelectedGameConfirm } from "../actions";
 
 function MainPanel() {

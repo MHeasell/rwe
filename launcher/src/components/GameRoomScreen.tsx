@@ -1,5 +1,5 @@
 import * as React from "react";
-import { State, PlayerInfo, ChatMessage } from "../reducers";
+import { State, PlayerInfo, ChatMessage } from "../state";
 import { connect } from "react-redux";
 import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Table, TableHead, TableRow, TableCell, TableBody, Checkbox, Typography } from "@material-ui/core";
 import { Dispatch } from "redux";

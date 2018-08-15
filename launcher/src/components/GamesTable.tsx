@@ -5,7 +5,7 @@ import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { selectGame } from "../actions";
-import { State } from "../reducers";
+import { State } from "../state";
 
 interface GameTableEntry {
   id: number;

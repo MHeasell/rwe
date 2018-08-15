@@ -3,13 +3,13 @@ import { createStyles, Theme, withStyles, WithStyles } from "@material-ui/core/s
 import * as React from "react";
 import { hot } from "react-hot-loader";
 import { connect } from "react-redux";
-import { Screen, State } from "../reducers";
+import { AppScreen, State } from "../state";
 import HostGameForm from "./HostGameForm";
 import OverviewScreen from "./OverviewScreen";
 import GameRoomScreen from "./GameRoomScreen";
 
 interface ScreenContainerProps {
-  screen: Screen;
+  screen: AppScreen;
 }
 
 function ScreenContainer(props: ScreenContainerProps): JSX.Element  {

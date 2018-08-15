@@ -1,8 +1,8 @@
 import * as http from "http";
 import * as socketio from "socket.io";
 import * as socketioClient from "socket.io-client";
-import { Store, MiddlewareAPI, Dispatch } from "redux";
-import { State } from "./reducers";
+import { MiddlewareAPI, Dispatch } from "redux";
+import { State } from "./state";
 import { receiveChatMessage, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, disconnectGame, receivePlayerReady, receiveStartGame } from "./actions";
 import { keepAliveRoom, createRoom, KeepAliveRoomRequest, deleteRoom } from "./web";
 

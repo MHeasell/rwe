@@ -1,12 +1,10 @@
 import { execFile } from "child_process";
 import * as path from "path";
-import * as util from "util";
 import { Dispatch } from "redux";
 import { ThunkAction } from "redux-thunk";
-import { State, GameRoom } from "./reducers";
+import { State, GameRoom } from "./state";
 import { GetRoomsResponse } from "./web";
 import { PlayerJoinedPayload, HandshakeResponsePayload, PlayerLeftPayload, PlayerReadyPayload, PlayerChatMessagePayload } from "./game-server";
-import { resolve } from "dns";
 
 export interface SelectGameAction {
   type: "SELECT_GAME";

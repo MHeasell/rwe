@@ -10,7 +10,8 @@ import { applyMiddleware, createStore, Store, compose, MiddlewareAPI, Middleware
 import thunk from "redux-thunk";
 import { receiveRooms, AppAction, startGameThunk } from "./actions";
 import App from "./components/App";
-import rootReducer, { State } from "./reducers";
+import rootReducer from "./reducers";
+import { State } from "./state";
 import { getRooms } from "./web";
 
 import "./style.css";
