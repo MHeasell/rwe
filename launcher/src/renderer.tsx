@@ -15,7 +15,8 @@ import { State } from "./state";
 import { getRooms } from "./web";
 
 import "./style.css";
-import { GameHostService, GameClientService } from "./game-server";
+import { GameHostService } from "./ws/game-server";
+import { GameClientService } from "./ws/game-client";
 
 function looksLikeIPv6Address(value: string) {
   return value.match(/^[0-9a-fA-F:]+$/) && value.match(/:/);
@@ -62,7 +63,7 @@ const gameHoster: Middleware = (store: MiddlewareAPI<Dispatch, State>) => {
         break;
       }
       case "SEND_START_GAME": {
-        clientService.startGame();
+        clientService.requestStartGame();
         break;
       }
       case "RECEIVE_START_GAME": {

@@ -1,134 +1,16 @@
 import * as http from "http";
 import * as socketio from "socket.io";
-import * as socketioClient from "socket.io-client";
 import { MiddlewareAPI, Dispatch } from "redux";
-import { State } from "./state";
-import { receiveChatMessage, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, disconnectGame, receivePlayerReady, receiveStartGame } from "./actions";
-import { keepAliveRoom, createRoom, KeepAliveRoomRequest, deleteRoom } from "./web";
-
-type PlayerSide = "ARM" | "CORE";
-type PlayerColor = number;
-
-export interface PlayerInfo {
-  id: number;
-  name: string;
-  host: string;
-  side: PlayerSide;
-  color: PlayerColor;
-  team: number;
-  ready: boolean;
-}
-
-export interface HandshakePayload {
-  name: string;
-}
-
-export interface HandshakeResponsePayload {
-  playerId: number;
-  adminPlayerId: number;
-  players: PlayerInfo[];
-}
-
-export type ChatMessagePayload = string;
-
-export interface PlayerChatMessagePayload {
-  playerId: number;
-  message: string;
-}
-
-export interface PlayerJoinedPayload {
-  playerId: number;
-  name: string;
-  host: string;
-}
-
-export interface PlayerLeftPayload {
-  playerId: number;
-}
-
-export interface PlayerReadyPayload {
-  playerId: number;
-  value: boolean;
-}
-
-export class GameClientService {
-  private readonly store : MiddlewareAPI<Dispatch, State>;
-  private client : SocketIOClient.Socket | undefined;
-
-  constructor(store: MiddlewareAPI<Dispatch, State>) {
-    this.store = store;
-  }
-
-  connectToServer(connectionString: string, playerName: string) {
-    this.client = socketioClient(connectionString);
-
-    this.client.on("connect_error", (error: any) => {
-      console.log(error);
-    });
-
-    this.client.on("disconnect", () => {
-      this.disconnect();
-      this.store.dispatch(disconnectGame());
-    });
-
-    const handshake: HandshakePayload = {
-      name: playerName,
-    };
-    this.client.emit("handshake", handshake);
-
-    this.client.on("handshake-response", (data: HandshakeResponsePayload) => {
-      this.store.dispatch(receiveHandshakeResponse(data));
-    });
-
-    this.client.on("player-joined", (data: PlayerJoinedPayload) => {
-      this.store.dispatch(receivePlayerJoined(data));
-    });
-
-    this.client.on("player-left", (data: PlayerLeftPayload) => {
-      this.store.dispatch(receivePlayerLeft(data));
-    });
-
-    this.client.on("player-chat-message", (data: PlayerChatMessagePayload) => {
-      this.store.dispatch(receiveChatMessage(data));
-    });
-
-    this.client.on("player-ready", (data: PlayerReadyPayload) => {
-      this.store.dispatch(receivePlayerReady(data));
-    });
-
-    this.client.on("start-game", () => {
-      this.store.dispatch(receiveStartGame());
-    });
-  }
-
-  disconnect() {
-    if (!this.client) { return; }
-    this.client.close();
-    this.client = undefined;
-  }
-
-  sendChatMessage(message: string) {
-    if (!this.client) { return; }
-    this.client.emit("chat-message", message);
-  }
-
-  setReadyState(value: boolean) {
-    if (!this.client) { return; }
-    this.client.emit("ready", value);
-  }
-
-  startGame() {
-    if (!this.client) { return; }
-    this.client.emit("start-game");
-  }
-}
+import { State } from "../state";
+import { keepAliveRoom, createRoom, KeepAliveRoomRequest, deleteRoom } from "../web";
+import * as protocol from "./protocol";
 
 interface ServerObjects {
   localRoomId: number;
   httpServer: http.Server;
   ioServer: socketio.Server;
   nextPlayerId: number;
-  players: PlayerInfo[];
+  players: protocol.PlayerInfo[];
   adminPlayerId?: number;
   roomInfo?: RoomInfo;
 }
@@ -195,7 +77,7 @@ export class GameHostService {
       }
       const playerId = this.server.nextPlayerId++;
       this.log(`Received new connection, assigned ID ${playerId}`);
-      let info: PlayerInfo = {
+      let info: protocol.PlayerInfo = {
         id: playerId,
         name: `Player #${playerId}`,
         host: address,
@@ -208,7 +90,7 @@ export class GameHostService {
       if (this.server.adminPlayerId === undefined) {
         this.server.adminPlayerId = playerId;
       }
-      socket.on("handshake", (data: HandshakePayload) => {
+      socket.on(protocol.Handshake, (data: protocol.HandshakePayload) => {
         if (!this.server) {
           this.log(`Received handshake from ${playerId}, but server not running!`);
           return;
@@ -216,37 +98,37 @@ export class GameHostService {
         this.log(`Received handshake from ${playerId}`);
         info.name = data.name;
 
-        const handshakeResponse: HandshakeResponsePayload = {
+        const handshakeResponse: protocol.HandshakeResponsePayload = {
           playerId: playerId,
           adminPlayerId: this.server.adminPlayerId!,
           players: this.server.players,
         };
-        socket.emit("handshake-response", handshakeResponse);
+        socket.emit(protocol.HandshakeResponse, handshakeResponse);
 
-        const playerJoined: PlayerJoinedPayload = {
+        const playerJoined: protocol.PlayerJoinedPayload = {
           playerId: playerId,
           name: data.name,
           host: address,
         };
-        socket.broadcast.emit("player-joined", playerJoined);
+        socket.broadcast.emit(protocol.PlayerJoined, playerJoined);
 
-        socket.on("chat-message", (data: ChatMessagePayload) => {
+        socket.on(protocol.ChatMessage, (data: protocol.ChatMessagePayload) => {
           if (!this.server) {
             this.log(`Received chat-message from ${playerId}, but server not running!`);
             return;
           }
-          const payload: PlayerChatMessagePayload = { playerId, message: data };
-          this.server.ioServer.emit("player-chat-message", payload);
+          const payload: protocol.PlayerChatMessagePayload = { playerId, message: data };
+          this.server.ioServer.emit(protocol.PlayerChatMessage, payload);
         });
-        socket.on("ready", (data: boolean) => {
+        socket.on(protocol.Ready, (data: protocol.ReadyPayload) => {
           if (!this.server) {
             this.log(`Received ready from ${playerId}, but server not running!`);
             return;
           }
-          const payload: PlayerReadyPayload = { playerId, value: data };
-          this.server.ioServer.emit("player-ready", payload);
+          const payload: protocol.PlayerReadyPayload = { playerId, value: data };
+          this.server.ioServer.emit(protocol.PlayerReady, payload);
         });
-        socket.on("start-game", () => {
+        socket.on(protocol.RequestStartGame, () => {
           if (!this.server) {
             this.log(`Received start-game from ${playerId}, but server not running!`);
             return;
@@ -255,7 +137,7 @@ export class GameHostService {
             this.log(`Received start-game from ${playerId}, but that player is not admin!`);
             return;
           }
-          this.server.ioServer.emit("start-game");
+          this.server.ioServer.emit(protocol.StartGame);
         });
         socket.on("disconnect", () => {
           if (!this.server) {
@@ -266,10 +148,10 @@ export class GameHostService {
           if (this.server.adminPlayerId === playerId) {
             this.server.adminPlayerId = undefined;
           }
-          const playerLeft: PlayerLeftPayload = {
+          const playerLeft: protocol.PlayerLeftPayload = {
             playerId: playerId
           };
-          socket.broadcast.emit("player-left", playerLeft);
+          socket.broadcast.emit(protocol.PlayerLeft, playerLeft);
         });
       });
     });

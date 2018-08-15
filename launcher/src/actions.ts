@@ -4,7 +4,7 @@ import { Dispatch } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { State, GameRoom } from "./state";
 import { GetRoomsResponse } from "./web";
-import { PlayerJoinedPayload, HandshakeResponsePayload, PlayerLeftPayload, PlayerReadyPayload, PlayerChatMessagePayload } from "./game-server";
+import * as protocol from "./ws/protocol";
 
 export interface SelectGameAction {
   type: "SELECT_GAME";
@@ -120,10 +120,10 @@ export function receiveRooms(rooms: GetRoomsResponse): ReceiveRoomsAction {
 
 export interface ReceiveChatMessageAction {
   type: "RECEIVE_CHAT_MESSAGE";
-  payload: PlayerChatMessagePayload;
+  payload: protocol.PlayerChatMessagePayload;
 }
 
-export function receiveChatMessage(payload: PlayerChatMessagePayload): ReceiveChatMessageAction {
+export function receiveChatMessage(payload: protocol.PlayerChatMessagePayload): ReceiveChatMessageAction {
   return {
     type: "RECEIVE_CHAT_MESSAGE",
     payload,
@@ -144,10 +144,10 @@ export function sendChatMessage(message: string): SendChatMessageAction {
 
 export interface ReceivePlayerJoinedAction {
   type: "RECEIVE_PLAYER_JOINED";
-  payload: PlayerJoinedPayload;
+  payload: protocol.PlayerJoinedPayload;
 }
 
-export function receivePlayerJoined(payload: PlayerJoinedPayload): ReceivePlayerJoinedAction {
+export function receivePlayerJoined(payload: protocol.PlayerJoinedPayload): ReceivePlayerJoinedAction {
   return {
     type: "RECEIVE_PLAYER_JOINED",
     payload,
@@ -156,10 +156,10 @@ export function receivePlayerJoined(payload: PlayerJoinedPayload): ReceivePlayer
 
 export interface ReceivePlayerLeftAction {
   type: "RECEIVE_PLAYER_LEFT";
-  payload: PlayerLeftPayload;
+  payload: protocol.PlayerLeftPayload;
 }
 
-export function receivePlayerLeft(payload: PlayerLeftPayload): ReceivePlayerLeftAction {
+export function receivePlayerLeft(payload: protocol.PlayerLeftPayload): ReceivePlayerLeftAction {
   return {
     type: "RECEIVE_PLAYER_LEFT",
     payload,
@@ -168,10 +168,10 @@ export function receivePlayerLeft(payload: PlayerLeftPayload): ReceivePlayerLeft
 
 export interface ReceiveHandshakeResponseAction {
   type: "RECEIVE_HANDSHAKE_RESPONSE";
-  payload: HandshakeResponsePayload;
+  payload: protocol.HandshakeResponsePayload;
 }
 
-export function receiveHandshakeResponse(payload: HandshakeResponsePayload): ReceiveHandshakeResponseAction {
+export function receiveHandshakeResponse(payload: protocol.HandshakeResponsePayload): ReceiveHandshakeResponseAction {
   return {
     type: "RECEIVE_HANDSHAKE_RESPONSE",
     payload,
@@ -180,10 +180,10 @@ export function receiveHandshakeResponse(payload: HandshakeResponsePayload): Rec
 
 export interface ReceivePlayerReadyAction {
   type: "RECEIVE_PLAYER_READY";
-  payload: PlayerReadyPayload;
+  payload: protocol.PlayerReadyPayload;
 }
 
-export function receivePlayerReady(payload: PlayerReadyPayload): ReceivePlayerReadyAction {
+export function receivePlayerReady(payload: protocol.PlayerReadyPayload): ReceivePlayerReadyAction {
   return {
     type: "RECEIVE_PLAYER_READY",
     payload,
