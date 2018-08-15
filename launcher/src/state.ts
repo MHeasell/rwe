@@ -42,6 +42,17 @@ export interface GameRoom {
   messages: ChatMessage[];
 }
 
+export function canStartGame(room: GameRoom) {
+  if (room.adminPlayerId !== room.localPlayerId) {
+    return false;
+  }
+  if (room.players.length === 0) {
+    return false;
+  }
+
+  return room.players.every(x => x.ready);
+}
+
 export interface GameListEntry {
   id: number;
   description: string;

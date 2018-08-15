@@ -1,5 +1,5 @@
 import * as React from "react";
-import { State, PlayerInfo, ChatMessage } from "../state";
+import { State, PlayerInfo, ChatMessage, canStartGame } from "../state";
 import { connect } from "react-redux";
 import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Table, TableHead, TableRow, TableCell, TableBody, Checkbox, Typography } from "@material-ui/core";
 import { Dispatch } from "redux";
@@ -9,8 +9,7 @@ interface GameRoomScreenStateProps {
   localPlayerId?: number;
   players: PlayerInfo[];
   messages: ChatMessage[];
-  userMessage: string;
-  canStartGame: boolean;
+  startEnabled: boolean;
 }
 
 interface GameRoomScreenDispatchProps {
@@ -111,7 +110,7 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
             <Button onClick={this.props.onLeaveGame}>Leave Game</Button>
           </div>
           <div>
-            <Button variant="contained" color="primary" disabled={!this.props.canStartGame} onClick={this.props.onStartGame}>Start Game</Button>
+            <Button variant="contained" color="primary" disabled={!this.props.startEnabled} onClick={this.props.onStartGame}>Start Game</Button>
           </div>
         </div>
       </div>
@@ -120,12 +119,20 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
 }
 
 function mapStateToProps(state: State): GameRoomScreenStateProps {
-  const localPlayerId = state.currentGame ? state.currentGame.localPlayerId : undefined;
-  const players = state.currentGame ? state.currentGame.players : [];
-  const messages = state.currentGame ? state.currentGame.messages : [];
-  const userMessage = state.currentScreen.screen == "game-room" ? state.currentScreen.userMessage : "";
-  const canStartGame = state.currentGame ? state.currentGame.adminPlayerId === state.currentGame.localPlayerId && state.currentGame.players.length > 0 && state.currentGame.players.every(x => x.ready) : false;
-  return { localPlayerId, players, messages, userMessage, canStartGame };
+  if (!state.currentGame) {
+    return {
+      players: [],
+      messages: [],
+      startEnabled: false
+    };
+  }
+
+  return {
+    localPlayerId: state.currentGame.localPlayerId,
+    players: state.currentGame.players,
+    messages: state.currentGame.messages,
+    startEnabled: canStartGame(state.currentGame),
+  };
 }
 
 function mapDispatchToProps(dispatch: Dispatch): GameRoomScreenDispatchProps {
