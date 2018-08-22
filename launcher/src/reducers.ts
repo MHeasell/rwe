@@ -16,6 +16,7 @@ function roomResponseEntryToGamesListEntry(room: GetRoomsResponseRoomEntry): Gam
     maxPlayers: room.room.max_players,
     host: room.room.host,
     port: room.room.port,
+    localRoomId: room.room.local_room_id,
   };
 }
 

@@ -20,6 +20,7 @@ function deleteJson(url: string, data: {}) {
 
 export interface CreateRoomRequest {
   port: number;
+  local_room_id: number;
   description: string;
   number_of_players: number;
   max_players: number;
@@ -64,6 +65,7 @@ export function deleteRoom(roomId: number, request: DeleteRoomRequest) {
 }
 
 export interface GetRoomsResponseRoom {
+  local_room_id: number;
   description: string;
   host: string;
   number_of_players: number;

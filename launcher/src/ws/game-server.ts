@@ -3,20 +3,25 @@ import * as socketio from "socket.io";
 import { keepAliveRoom, createRoom, KeepAliveRoomRequest, deleteRoom } from "../web";
 import * as protocol from "./protocol";
 
-interface ServerObjects {
+interface RoomInfo {
+  id: number;
+  key: string;
+  intervalId: NodeJS.Timer;
+}
+
+interface Room {
   localRoomId: number;
-  httpServer: http.Server;
-  ioServer: socketio.Server;
   nextPlayerId: number;
   players: protocol.PlayerInfo[];
   adminPlayerId?: number;
   roomInfo?: RoomInfo;
 }
 
-interface RoomInfo {
-  id: number;
-  key: string;
-  intervalId: NodeJS.Timer;
+interface ServerObjects {
+  port: number;
+  httpServer: http.Server;
+  ioServer: socketio.Server;
+  rooms: Room[];
 }
 
 // This function is a dirty hack to extract an IPv4 address
@@ -30,7 +35,7 @@ function extractAddress(addr: string) {
 }
 
 export class GameHostService {
-  private nextLocalRoomId = 0;
+  private nextLocalRoomId = 1;
 
   private server: ServerObjects | undefined;
 
@@ -38,7 +43,7 @@ export class GameHostService {
     console.log(`SERVER: ${message}`);
   }
 
-  createServer(description: string, players: number, port: number = 1337) {
+  createServer(port: number = 1337) {
     if (this.server) {
       this.log("Server already running, destroying first");
       this.destroyServer();
@@ -52,33 +57,44 @@ export class GameHostService {
         this.log("Received new connection, but server not running!");
         return;
       }
-      const playerId = this.server.nextPlayerId++;
-      this.log(`Received new connection, assigned ID ${playerId}`);
-      const info: protocol.PlayerInfo = {
-        id: playerId,
-        name: `Player #${playerId}`,
-        host: address,
-        side: "ARM",
-        color: 0,
-        team: 0,
-        ready: false,
-      };
-      this.server.players.push(info);
-      if (this.server.adminPlayerId === undefined) {
-        this.server.adminPlayerId = playerId;
-      }
       socket.on(protocol.Handshake, (data: protocol.HandshakePayload) => {
         if (!this.server) {
-          this.log(`Received handshake from ${playerId}, but server not running!`);
+          this.log(`Received handshake from ${address}, but server not running!`);
           return;
         }
-        this.log(`Received handshake from ${playerId}`);
-        info.name = data.name;
+        this.log(`Received handshake from ${address} with name "${data.name}" to join room ${data.roomId}`);
+
+        const room = this.server.rooms.find(x => x.localRoomId === data.roomId);
+        if (!room) {
+          this.log(`Client from ${address} tried to join room ${data.roomId}, but it doesn't exist.`);
+          return;
+        }
+        const roomLog = (msg: string) => this.log(`room ${room.localRoomId}: ${msg}`);
+        const roomStr = `room/${room.localRoomId}`;
+
+        const playerId = room.nextPlayerId++;
+        roomLog(`Received new connection, assigned ID ${playerId}`);
+        const info: protocol.PlayerInfo = {
+          id: playerId,
+          name: data.name,
+          host: address,
+          side: "ARM",
+          color: 0,
+          team: 0,
+          ready: false,
+        };
+
+        room.players.push(info);
+        if (room.adminPlayerId === undefined) {
+          room.adminPlayerId = playerId;
+        }
+
+        socket.join(roomStr);
 
         const handshakeResponse: protocol.HandshakeResponsePayload = {
           playerId: playerId,
-          adminPlayerId: this.server.adminPlayerId!,
-          players: this.server.players,
+          adminPlayerId: room.adminPlayerId!,
+          players: room.players,
         };
         socket.emit(protocol.HandshakeResponse, handshakeResponse);
 
@@ -87,72 +103,98 @@ export class GameHostService {
           name: data.name,
           host: address,
         };
-        socket.broadcast.emit(protocol.PlayerJoined, playerJoined);
+        socket.broadcast.to(roomStr).emit(protocol.PlayerJoined, playerJoined);
 
         socket.on(protocol.ChatMessage, (data: protocol.ChatMessagePayload) => {
           if (!this.server) {
-            this.log(`Received chat-message from ${playerId}, but server not running!`);
+            roomLog(`Received chat-message from ${playerId}, but server not running!`);
             return;
           }
           const payload: protocol.PlayerChatMessagePayload = { playerId, message: data };
-          this.server.ioServer.emit(protocol.PlayerChatMessage, payload);
+          this.server.ioServer.to(roomStr).emit(protocol.PlayerChatMessage, payload);
         });
         socket.on(protocol.Ready, (data: protocol.ReadyPayload) => {
           if (!this.server) {
-            this.log(`Received ready from ${playerId}, but server not running!`);
+            roomLog(`Received ready from ${playerId}, but server not running!`);
             return;
           }
           const payload: protocol.PlayerReadyPayload = { playerId, value: data };
-          this.server.ioServer.emit(protocol.PlayerReady, payload);
+          this.server.ioServer.to(roomStr).emit(protocol.PlayerReady, payload);
         });
         socket.on(protocol.RequestStartGame, () => {
           if (!this.server) {
-            this.log(`Received start-game from ${playerId}, but server not running!`);
+            roomLog(`Received start-game from ${playerId}, but server not running!`);
             return;
           }
-          if (playerId !== this.server.adminPlayerId) {
-            this.log(`Received start-game from ${playerId}, but that player is not admin!`);
+          if (playerId !== room.adminPlayerId) {
+            roomLog(`Received start-game from ${playerId}, but that player is not admin!`);
             return;
           }
-          this.server.ioServer.emit(protocol.StartGame);
+          this.server.ioServer.to(roomStr).emit(protocol.StartGame);
         });
         socket.on("disconnect", () => {
           if (!this.server) {
-            this.log(`Player ${playerId} disconnected, but server not running!`);
+            roomLog(`Player ${playerId} disconnected, but server not running!`);
             return;
           }
-          this.server.players = this.server.players.filter(x => x.id !== playerId);
-          if (this.server.adminPlayerId === playerId) {
-            this.server.adminPlayerId = undefined;
+          room.players = room.players.filter(x => x.id !== playerId);
+          if (room.adminPlayerId === playerId) {
+            room.adminPlayerId = undefined;
           }
           const playerLeft: protocol.PlayerLeftPayload = {
             playerId,
           };
-          socket.broadcast.emit(protocol.PlayerLeft, playerLeft);
+          socket.broadcast.to(roomStr).emit(protocol.PlayerLeft, playerLeft);
         });
       });
     });
+  }
 
-    const localRoomId = this.server.localRoomId;
-    this.publishRoom(port, description, players)
+  createRoom(description: string, players: number): number | undefined {
+    if (!this.server) {
+      return undefined;
+    }
+
+    const room: Room = {
+      localRoomId: this.nextLocalRoomId++,
+      nextPlayerId: 1,
+      players: [],
+    };
+
+    this.server.rooms.push(room);
+
+    const localRoomId = room.localRoomId;
+    this.publishRoom(localRoomId, this.server.port, description, players)
     .then(info => {
-      if (!this.server || this.server.localRoomId !== localRoomId) {
+      if (!this.server || !this.server.rooms.find(x => x.localRoomId === localRoomId)) {
         clearInterval(info.intervalId);
         deleteRoom(info.id, { key: info.key });
         return;
       }
 
-      this.server.roomInfo = info;
+      room.roomInfo = info;
     });
+
+    return localRoomId;
+  }
+
+  destroyRoom(roomId: number) {
+    if (!this.server) { return; }
+    const room = this.server.rooms.find(x => x.localRoomId === roomId);
+    if (!room) { return; }
+    if (room.roomInfo) {
+      clearInterval(room.roomInfo.intervalId);
+      deleteRoom(room.roomInfo.id, { key: room.roomInfo.key });
+    }
+    this.server.rooms = this.server.rooms.filter(x => x.localRoomId !== roomId);
   }
 
   destroyServer() {
     if (!this.server) { return; }
     this.server.ioServer.close();
     this.server.httpServer.close();
-    if (this.server.roomInfo) {
-      clearInterval(this.server.roomInfo.intervalId);
-      deleteRoom(this.server.roomInfo.id, { key: this.server.roomInfo.key });
+    for (const id of this.server.rooms.map(x => x.localRoomId)) {
+      this.destroyRoom(id);
     }
     this.server = undefined;
   }
@@ -162,27 +204,31 @@ export class GameHostService {
     const io = socketio(server, { serveClient: false });
 
     return {
-      localRoomId: this.nextLocalRoomId++,
+      port: port,
       httpServer: server,
       ioServer: io,
-      nextPlayerId: 1,
-      players: [],
+      rooms: [],
     };
   }
 
-  private publishRoom(port: number, description: string, maxPlayers: number) {
-    return createRoom({ port, description, number_of_players: 1, max_players: maxPlayers })
+  private publishRoom(localRoomId: number, port: number, description: string, maxPlayers: number) {
+    return createRoom({ port, local_room_id: localRoomId, description, number_of_players: 1, max_players: maxPlayers })
     .then(r => {
       const id = r.id;
       const key = r.key;
       const intervalId = setInterval(() => {
         if (!this.server) {
-          this.log("Attempted to send keep-alive but server is not running!");
+          this.log(`Attempted to send keep-alive for room ${localRoomId} but server is not running!`);
+          return;
+        }
+        const room = this.server.rooms.find(x => x.localRoomId === localRoomId);
+        if (!room) {
+          this.log(`Attempted to send keep-alive for room ${localRoomId} but room does not exist!`);
           return;
         }
         const payload: KeepAliveRoomRequest = {
           key,
-          number_of_players: this.server.players.length,
+          number_of_players: room.players.length,
         };
         keepAliveRoom(id, payload);
       }, 5000);

@@ -70,8 +70,10 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
     rxop.flatMap(action => {
       switch (action.type) {
         case "HOST_GAME_FORM_CONFIRM": {
-          hostService.createServer(action.gameDescription, action.players, 1337);
-          clientService.connectToServer("http://localhost:1337/", action.playerName);
+          hostService.createServer(1337);
+          const roomId = hostService.createRoom(action.gameDescription, action.players);
+          if (roomId === undefined) { break; }
+          clientService.connectToServer("http://localhost:1337/", roomId, action.playerName);
           break;
         }
         case "JOIN_SELECTED_GAME_CONFIRM": {
@@ -82,7 +84,7 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
           const address = looksLikeIPv6Address(gameInfo.host) ? `[${gameInfo.host}]` : gameInfo.host;
           const connectionString = `http://${address}:${gameInfo.port}/`;
           console.log(`connecting to ${connectionString}`);
-          clientService.connectToServer(connectionString, action.name);
+          clientService.connectToServer(connectionString, gameInfo.localRoomId, action.name);
           break;
         }
         case "SEND_CHAT_MESSAGE": {

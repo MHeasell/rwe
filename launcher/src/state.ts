@@ -60,6 +60,7 @@ export interface GameListEntry {
   maxPlayers: number;
   host: string;
   port: number;
+  localRoomId: number;
 }
 
 export function isFull(game: GameListEntry): boolean {

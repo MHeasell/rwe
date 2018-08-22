@@ -21,7 +21,7 @@ export class GameClientService {
   get onPlayerReady(): Observable<protocol.PlayerReadyPayload> { return this._onPlayerReady; }
   get onStartGame(): Observable<void> { return this._onStartGame; }
 
-  connectToServer(connectionString: string, playerName: string) {
+  connectToServer(connectionString: string, roomId: number, playerName: string) {
     this.client = socketioClient(connectionString);
 
     this.client.on("connect_error", (error: any) => {
@@ -34,6 +34,7 @@ export class GameClientService {
     });
 
     const handshakePayload: protocol.HandshakePayload = {
+      roomId: roomId,
       name: playerName,
     };
     this.client.emit(protocol.Handshake, handshakePayload);

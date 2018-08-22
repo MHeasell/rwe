@@ -14,6 +14,7 @@ export interface PlayerInfo {
 // Emitted by the client upon connection
 export const Handshake = "handshake";
 export interface HandshakePayload {
+  roomId: number;
   name: string;
 }
 
