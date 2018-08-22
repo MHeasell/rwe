@@ -1,11 +1,13 @@
-import { AppAction, disconnectGame, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, receiveChatMessage, receivePlayerReady, startGameThunk, receiveStartGame } from "../actions";
-import { StateObservable, combineEpics } from "redux-observable";
-import { State } from "../state";
+import { AppAction, disconnectGame, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, receiveChatMessage, receivePlayerReady, receiveStartGame, gameEnded, LaunchRweAction } from "../actions";
+import { StateObservable, combineEpics, ofType } from "redux-observable";
+import { State, GameRoom } from "../state";
 import * as rx from "rxjs";
 import * as rxop from "rxjs/operators";
 
 import { GameHostService } from "../ws/game-server";
 import { GameClientService } from "../ws/game-client";
+
+import { RweArgs, RweArgsPlayerController, RweArgsPlayerInfo, execRwe } from "../rwe";
 
 export interface EpicDependencies {
   hostService: GameHostService;
@@ -27,6 +29,41 @@ const gameClientEventsEpic = (action$: rx.Observable<AppAction>, state$: StateOb
     clientService.onStartGame.pipe(rxop.map(receiveStartGame)),
   );
 };
+
+function rweArgsFromGameRoom(game: GameRoom): RweArgs {
+  const playersArgs = game.players.map((x, i) => {
+    const controller: RweArgsPlayerController =
+      x.id === game.localPlayerId
+      ? { type: "human" }
+      : { type: "remote", host: x.host, port: (6670 + i) };
+    const a: RweArgsPlayerInfo = {
+      side: x.side,
+      color: x.color,
+      controller,
+    };
+    return a;
+  });
+  const portOffset = game.players.findIndex(x => x.id === game.localPlayerId);
+  return {
+    map: "Evad River Confluence",
+    port: (6670 + portOffset),
+    players: playersArgs,
+  };
+}
+
+const launchRweEpic = (action$: rx.Observable<AppAction>, state$: StateObservable<State>, {clientService, hostService}: EpicDependencies): rx.Observable<AppAction> => {
+  return action$.pipe(
+    ofType<AppAction, LaunchRweAction>("LAUNCH_RWE"),
+    rxop.flatMap(() => {
+      return rx.from(execRwe())
+      .pipe(
+        rxop.mapTo(undefined),
+        rxop.catchError(e => rx.of(undefined)),
+        rxop.mapTo(gameEnded()),
+      );
+    }),
+  );
+}
 
 const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable<State>, {clientService, hostService}: EpicDependencies): rx.Observable<AppAction> => {
   return action$.pipe(
@@ -70,7 +107,14 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
           break;
         }
         case "RECEIVE_START_GAME": {
-          return rx.of(startGameThunk()) as any;
+          const state = state$.value;
+          if (!state.currentGame) { break; }
+          return rx.from(execRwe(rweArgsFromGameRoom(state.currentGame)))
+          .pipe(
+            rxop.mapTo(undefined),
+            rxop.catchError(e => rx.of(undefined)),
+            rxop.mapTo(gameEnded()),
+          );
         }
       }
       return rx.empty();
@@ -78,4 +122,4 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
   );
 };
 
-export const rootEpic = combineEpics(gameClientEventsEpic, gameRoomEpic);
+export const rootEpic = combineEpics(gameClientEventsEpic, gameRoomEpic, launchRweEpic);

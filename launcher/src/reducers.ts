@@ -45,7 +45,7 @@ function games(state: State = initialState, action: AppAction): State {
       const game: GameRoom = { players: [], messages: [] };
       return { ...state, currentScreen: { screen: "game-room", userMessage: "" }, currentGame: game };
     }
-    case "LAUNCH_RWE_BEGIN":
+    case "LAUNCH_RWE":
       return { ...state, isRweRunning: true };
     case "LAUNCH_RWE_END":
       return { ...state, isRweRunning: false };

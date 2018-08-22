@@ -53,7 +53,7 @@ function mapDispatchToProps(dispatch: Dispatch): BottomPanelDispatchProps {
   return {
     onHostGame: () => dispatch(hostGame()),
     onJoinGame: () => { dispatch(joinSelectedGame()) },
-    onLaunchRwe: () => dispatch<any>(launchRwe()),
+    onLaunchRwe: () => dispatch(launchRwe()),
   };
 }
 

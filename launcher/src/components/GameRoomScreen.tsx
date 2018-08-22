@@ -3,7 +3,7 @@ import { State, PlayerInfo, ChatMessage, canStartGame } from "../state";
 import { connect } from "react-redux";
 import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Table, TableHead, TableRow, TableCell, TableBody, Checkbox, Typography } from "@material-ui/core";
 import { Dispatch } from "redux";
-import { sendChatMessage, leaveGame, toggleReady, startGameThunk, sendStartGame } from "../actions";
+import { sendChatMessage, leaveGame, toggleReady, sendStartGame } from "../actions";
 
 interface GameRoomScreenStateProps {
   localPlayerId?: number;
