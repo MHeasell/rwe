@@ -1,8 +1,9 @@
-import { AppAction, disconnectGame, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, receiveChatMessage, receivePlayerReady, receiveStartGame, gameEnded, LaunchRweAction } from "../actions";
+import { AppAction, disconnectGame, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, receiveChatMessage, receivePlayerReady, receiveStartGame, gameEnded, LaunchRweAction, receiveRooms } from "../actions";
 import { StateObservable, combineEpics, ofType } from "redux-observable";
 import { State, GameRoom } from "../state";
 import * as rx from "rxjs";
 import * as rxop from "rxjs/operators";
+import { getRooms, GetRoomsResponse } from "../web";
 
 import { GameHostService } from "../ws/game-server";
 import { GameClientService } from "../ws/game-client";
@@ -124,4 +125,15 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
   );
 };
 
-export const rootEpic = combineEpics(gameClientEventsEpic, gameRoomEpic, launchRweEpic);
+function getRoomsStream(): rx.Observable<GetRoomsResponse> {
+  const req = rx.defer(getRooms).pipe(rxop.catchError(() => rx.empty()));
+  return rx.concat(req, rx.timer(5000).pipe(rxop.flatMap(getRoomsStream)));
+}
+
+const pollLoopEpic = (action$: rx.Observable<AppAction>, state$: StateObservable<State>, {clientService, hostService}: EpicDependencies): rx.Observable<AppAction> => {
+  return getRoomsStream().pipe(
+    rxop.map(receiveRooms),
+  );
+};
+
+export const rootEpic = combineEpics(gameClientEventsEpic, gameRoomEpic, launchRweEpic, pollLoopEpic);

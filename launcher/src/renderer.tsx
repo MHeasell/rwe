@@ -7,10 +7,9 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import { applyMiddleware, createStore, Store, compose } from "redux";
-import { receiveRooms, AppAction } from "./actions";
+import { AppAction } from "./actions";
 import App from "./components/App";
 import rootReducer from "./reducers";
-import { getRooms } from "./web";
 import { createEpicMiddleware } from "redux-observable";
 import { State } from "./state";
 import { rootEpic, EpicDependencies } from "./middleware/GameRoomEpic";
@@ -27,16 +26,6 @@ const composeEnhancers = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ||
 const store: Store<any> = createStore(rootReducer, composeEnhancers(applyMiddleware(epicMiddleware)));
 
 epicMiddleware.run(rootEpic);
-
-function doPollLoop() {
-  getRooms()
-  .then(rooms => {
-    store.dispatch(receiveRooms(rooms));
-  })
-  .then(() => setTimeout(doPollLoop, 5000), () => setTimeout(doPollLoop, 5000));
-}
-
-doPollLoop();
 
 ReactDOM.render(
   <React.Fragment>
