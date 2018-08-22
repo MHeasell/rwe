@@ -1,7 +1,5 @@
 import * as http from "http";
 import * as socketio from "socket.io";
-import { MiddlewareAPI, Dispatch } from "redux";
-import { State } from "../state";
 import { keepAliveRoom, createRoom, KeepAliveRoomRequest, deleteRoom } from "../web";
 import * as protocol from "./protocol";
 
