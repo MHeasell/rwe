@@ -5,12 +5,23 @@
       true,
       "check-space"
     ],
+    "eofline": true,
     "indent": [
       true,
       "spaces"
     ],
+    "member-ordering": [
+      true,
+      {
+        "order": "fields-first"
+      }
+    ],
     "no-duplicate-variable": true,
     "no-eval": true,
+    "no-inferrable-types": [
+      true,
+      "ignore-params"
+    ],
     "no-internal-module": true,
     "no-trailing-whitespace": true,
     "no-unsafe-finally": true,
@@ -20,6 +31,7 @@
       "check-open-brace",
       "check-whitespace"
     ],
+    "prefer-const": true,
     "quotemark": [
       true,
       "double"
@@ -27,6 +39,14 @@
     "semicolon": [
       true,
       "always"
+    ],
+    "trailing-comma": [
+      true,
+      {
+        "singleline": "never",
+        "multiline": "always",
+        "esSpecCompliant": true
+      }
     ],
     "triple-equals": [
       true,
@@ -53,15 +73,6 @@
       "check-operator",
       "check-separator",
       "check-type"
-    ],
-    "trailing-comma": [
-      true,
-      {
-        "singleline": "never",
-        "multiline": "always",
-        "esSpecCompliant": true
-      }
-    ],
-    "prefer-const": true
+    ]
   }
 }
