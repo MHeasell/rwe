@@ -1,16 +1,25 @@
 import * as socketioClient from "socket.io-client";
-import { MiddlewareAPI, Dispatch } from "redux";
-import { State } from "../state";
-import { receiveChatMessage, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, disconnectGame, receivePlayerReady, receiveStartGame } from "../actions";
 import * as protocol from "./protocol";
+import { Observable, Subject } from "rxjs";
 
 export class GameClientService {
-  private readonly store : MiddlewareAPI<Dispatch, State>;
   private client : SocketIOClient.Socket | undefined;
 
-  constructor(store: MiddlewareAPI<Dispatch, State>) {
-    this.store = store;
-  }
+  private readonly _onDisconnect: Subject<void> = new Subject();
+  private readonly _onHandshakeResponse: Subject<protocol.HandshakeResponsePayload> = new Subject();
+  private readonly _onPlayerJoined: Subject<protocol.PlayerJoinedPayload> = new Subject();
+  private readonly _onPlayerLeft: Subject<protocol.PlayerLeftPayload> = new Subject();
+  private readonly _onPlayerChatMessage: Subject<protocol.PlayerChatMessagePayload> = new Subject();
+  private readonly _onPlayerReady: Subject<protocol.PlayerReadyPayload> = new Subject();
+  private readonly _onStartGame: Subject<void> = new Subject();
+
+  get onDisconnect(): Observable<void> { return this._onDisconnect; }
+  get onHandshakeResponse(): Observable<protocol.HandshakeResponsePayload> { return this._onHandshakeResponse; }
+  get onPlayerJoined(): Observable<protocol.PlayerJoinedPayload> { return this._onPlayerJoined; }
+  get onPlayerLeft(): Observable<protocol.PlayerLeftPayload> { return this._onPlayerLeft; }
+  get onPlayerChatMessage(): Observable<protocol.PlayerChatMessagePayload> { return this._onPlayerChatMessage; }
+  get onPlayerReady(): Observable<protocol.PlayerReadyPayload> { return this._onPlayerReady; }
+  get onStartGame(): Observable<void> { return this._onStartGame; }
 
   connectToServer(connectionString: string, playerName: string) {
     this.client = socketioClient(connectionString);
@@ -21,7 +30,7 @@ export class GameClientService {
 
     this.client.on("disconnect", () => {
       this.disconnect();
-      this.store.dispatch(disconnectGame());
+      this._onDisconnect.next();
     });
 
     const handshakePayload: protocol.HandshakePayload = {
@@ -30,27 +39,27 @@ export class GameClientService {
     this.client.emit(protocol.Handshake, handshakePayload);
 
     this.client.on(protocol.HandshakeResponse, (data: protocol.HandshakeResponsePayload) => {
-      this.store.dispatch(receiveHandshakeResponse(data));
+      this._onHandshakeResponse.next(data);
     });
 
     this.client.on(protocol.PlayerJoined, (data: protocol.PlayerJoinedPayload) => {
-      this.store.dispatch(receivePlayerJoined(data));
+      this._onPlayerJoined.next(data);
     });
 
     this.client.on(protocol.PlayerLeft, (data: protocol.PlayerLeftPayload) => {
-      this.store.dispatch(receivePlayerLeft(data));
+      this._onPlayerLeft.next(data);
     });
 
     this.client.on(protocol.PlayerChatMessage, (data: protocol.PlayerChatMessagePayload) => {
-      this.store.dispatch(receiveChatMessage(data));
+      this._onPlayerChatMessage.next(data);
     });
 
     this.client.on(protocol.PlayerReady, (data: protocol.PlayerReadyPayload) => {
-      this.store.dispatch(receivePlayerReady(data));
+      this._onPlayerReady.next(data);
     });
 
     this.client.on(protocol.StartGame, () => {
-      this.store.dispatch(receiveStartGame());
+      this._onStartGame.next();
     });
   }
 

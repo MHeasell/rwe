@@ -34,13 +34,7 @@ function extractAddress(addr: string) {
 export class GameHostService {
   private nextLocalRoomId = 0;
 
-  private readonly store : MiddlewareAPI<Dispatch, State>;
-
   private server : ServerObjects | undefined;
-
-  constructor(store: MiddlewareAPI<Dispatch, State>) {
-    this.store = store;
-  }
 
   log(message: string) {
     console.log(`SERVER: ${message}`);

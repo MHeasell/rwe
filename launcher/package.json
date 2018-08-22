@@ -50,7 +50,9 @@
     "react-hot-loader": "^4.3.0",
     "react-redux": "^5.0.7",
     "redux": "^4.0.0",
+    "redux-observable": "^1.0.0",
     "redux-thunk": "^2.3.0",
+    "rxjs": "^6.2.2",
     "socket.io": "^2.1.1",
     "socket.io-client": "^2.1.1",
     "utf-8-validate": "^5.0.1"
