@@ -35,7 +35,7 @@ interface GameRoomScreenState {
 class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, GameRoomScreenState> {
   constructor(props: GameRoomScreenProps) {
     super(props);
-    this.state = {value: ""}
+    this.state = { value: "" };
 
     this.handleUserMessageChange = this.handleUserMessageChange.bind(this);
     this.handleSend = this.handleSend.bind(this);
@@ -67,7 +67,7 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
     const rows = this.props.players.map((player) => {
       const checkbox = player.id === this.props.localPlayerId
         ? <Checkbox checked={player.ready} onChange={this.handleReadyChange} />
-        : <Checkbox checked={player.ready} disabled />
+        : <Checkbox checked={player.ready} disabled />;
       return (
         <TableRow key={player.id}>
           <TableCell>{player.name}</TableCell>
@@ -115,7 +115,7 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
         </div>
       </div>
     );
-  };
+  }
 }
 
 function mapStateToProps(state: State): GameRoomScreenStateProps {
@@ -123,7 +123,7 @@ function mapStateToProps(state: State): GameRoomScreenStateProps {
     return {
       players: [],
       messages: [],
-      startEnabled: false
+      startEnabled: false,
     };
   }
 

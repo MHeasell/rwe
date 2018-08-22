@@ -13,7 +13,7 @@ interface PlayerNameDialogState {
 export class PlayerNameDialog extends React.Component<PlayerNameDialogProps, PlayerNameDialogState> {
   constructor(props: PlayerNameDialogProps) {
     super(props);
-    this.state = { name: "" }
+    this.state = { name: "" };
 
     this.handleConfirm = this.handleConfirm.bind(this);
     this.handleChange = this.handleChange.bind(this);

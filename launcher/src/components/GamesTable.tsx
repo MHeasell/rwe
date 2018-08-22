@@ -28,7 +28,7 @@ const gamesTableStyles = (theme: Theme) => createStyles({
     backgroundColor: "#fafafa",
     position: "sticky",
     top: 0,
-  }
+  },
 });
 
 interface UnstyledGamesTableProps extends GamesTableStateProps, GamesTableDispatchProps { }
@@ -67,13 +67,13 @@ function mapStateToProps(state: State): UnstyledGamesTableProps {
   const selectedIndex = gameIndex === -1 ? undefined : gameIndex;
   return {
     games: state.games,
-    selectedIndex
+    selectedIndex,
   };
 }
 
 function mapDispatchToProps(dispatch: Dispatch): GamesTableDispatchProps {
   return {
-    onRowClick: (id: number) => dispatch(selectGame(id))
+    onRowClick: (id: number) => dispatch(selectGame(id)),
   };
 }
 

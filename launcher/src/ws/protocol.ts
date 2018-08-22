@@ -26,7 +26,7 @@ export interface HandshakeResponsePayload {
 }
 
 // Emitted by the client when the user sends a chat message
-export const ChatMessage = "chat-message"
+export const ChatMessage = "chat-message";
 export type ChatMessagePayload = string;
 
 // Broadcast by the server to all clients when a chat message is sent

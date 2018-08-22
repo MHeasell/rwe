@@ -30,7 +30,7 @@ function games(state: State = initialState, action: AppAction): State {
     }
     case "JOIN_SELECTED_GAME_CONFIRM": {
       const game: GameRoom = { players: [], messages: [] };
-      return { ...state, currentScreen: { screen: "game-room", userMessage: "" }, currentGame: game }
+      return { ...state, currentScreen: { screen: "game-room", userMessage: "" }, currentGame: game };
     }
     case "JOIN_SELECTED_GAME_CANCEL": {
       if (state.currentScreen.screen !== "overview") { return state; }
@@ -72,7 +72,7 @@ function games(state: State = initialState, action: AppAction): State {
         side: "ARM",
         color: 0,
         team: 0,
-        ready: false
+        ready: false,
       };
       newPlayers.push(newPlayer);
       const newRoom: GameRoom = { ...state.currentGame, players: newPlayers };
@@ -111,12 +111,12 @@ function games(state: State = initialState, action: AppAction): State {
     case "LEAVE_GAME":
     case "DISCONNECT_GAME":
       if (!state.currentGame) { return state; }
-      return { ...state, currentScreen: { screen: "overview", dialogOpen: false }, currentGame: undefined}
+      return { ...state, currentScreen: { screen: "overview", dialogOpen: false }, currentGame: undefined };
     case "START_GAME":
       if (!state.currentGame) { return state; }
-      return { ...state, currentScreen: { screen: "overview", dialogOpen: false }, currentGame: undefined, isRweRunning: true }
+      return { ...state, currentScreen: { screen: "overview", dialogOpen: false }, currentGame: undefined, isRweRunning: true };
     case "GAME_ENDED":
-      return { ...state, isRweRunning: false }
+      return { ...state, isRweRunning: false };
     default:
       return state;
   }

@@ -63,7 +63,7 @@ const launchRweEpic = (action$: rx.Observable<AppAction>, state$: StateObservabl
       );
     }),
   );
-}
+};
 
 const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable<State>, {clientService, hostService}: EpicDependencies): rx.Observable<AppAction> => {
   return action$.pipe(
@@ -77,9 +77,9 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
         case "JOIN_SELECTED_GAME_CONFIRM": {
           const state = state$.value;
           if (state.selectedGameId === undefined) { break; }
-          const gameInfo = state.games.find(x => x.id == state.selectedGameId)!;
+          const gameInfo = state.games.find(x => x.id === state.selectedGameId)!;
           // hackily detect IPv6 addressses and enclose them in []
-          let address = looksLikeIPv6Address(gameInfo.host) ? `[${gameInfo.host}]` : gameInfo.host;
+          const address = looksLikeIPv6Address(gameInfo.host) ? `[${gameInfo.host}]` : gameInfo.host;
           const connectionString = `http://${address}:${gameInfo.port}/`;
           console.log(`connecting to ${connectionString}`);
           clientService.connectToServer(connectionString, action.name);

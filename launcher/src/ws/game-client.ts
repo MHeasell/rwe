@@ -3,7 +3,7 @@ import * as protocol from "./protocol";
 import { Observable, Subject } from "rxjs";
 
 export class GameClientService {
-  private client : SocketIOClient.Socket | undefined;
+  private client: SocketIOClient.Socket | undefined;
 
   private readonly _onDisconnect: Subject<void> = new Subject();
   private readonly _onHandshakeResponse: Subject<protocol.HandshakeResponsePayload> = new Subject();

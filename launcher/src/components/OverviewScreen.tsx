@@ -38,9 +38,7 @@ function OverviewScreen(props: OverviewScreenProps) {
 
 function mapStateToProps(state: State): OverviewScreenStateProps {
   const dialogOpen = state.currentScreen.screen === "overview" ? state.currentScreen.dialogOpen : false;
-  return {
-    dialogOpen
-  };
+  return { dialogOpen };
 }
 
 function mapDispatchToProps(dispatch: Dispatch): OverviewScreenDispatchProps {

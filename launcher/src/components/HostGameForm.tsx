@@ -40,7 +40,7 @@ interface HostGameFormState {
 class UnconnectedHostGameForm extends React.Component<HostGameFormProps, HostGameFormState> {
   constructor(props: HostGameFormProps) {
     super(props);
-    this.state = { playerName: "", gameDescription: "", players: 2 }
+    this.state = { playerName: "", gameDescription: "", players: 2 };
 
     this.handlePlayerNameChange = this.handlePlayerNameChange.bind(this);
     this.handleGameDescriptionChange = this.handleGameDescriptionChange.bind(this);

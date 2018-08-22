@@ -9,7 +9,7 @@ export interface SelectGameAction {
 export function selectGame(gameId: number): SelectGameAction {
   return {
     type: "SELECT_GAME",
-    gameId
+    gameId,
   };
 }
 
@@ -77,7 +77,7 @@ export function hostGameFormConfirm(playerName: string, gameDescription: string,
     type: "HOST_GAME_FORM_CONFIRM",
     playerName,
     gameDescription,
-    players
+    players,
   };
 }
 

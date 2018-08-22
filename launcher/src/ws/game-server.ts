@@ -32,7 +32,7 @@ function extractAddress(addr: string) {
 export class GameHostService {
   private nextLocalRoomId = 0;
 
-  private server : ServerObjects | undefined;
+  private server: ServerObjects | undefined;
 
   log(message: string) {
     console.log(`SERVER: ${message}`);
@@ -43,7 +43,7 @@ export class GameHostService {
       this.log("Server already running, destroying first");
       this.destroyServer();
     }
-    this.log(`Creating server on port ${port}`)
+    this.log(`Creating server on port ${port}`);
     this.server = this.createServerObjects(port);
 
     this.server.ioServer.on("connection", socket => {
@@ -54,7 +54,7 @@ export class GameHostService {
       }
       const playerId = this.server.nextPlayerId++;
       this.log(`Received new connection, assigned ID ${playerId}`);
-      let info: protocol.PlayerInfo = {
+      const info: protocol.PlayerInfo = {
         id: playerId,
         name: `Player #${playerId}`,
         host: address,
@@ -126,7 +126,7 @@ export class GameHostService {
             this.server.adminPlayerId = undefined;
           }
           const playerLeft: protocol.PlayerLeftPayload = {
-            playerId: playerId
+            playerId,
           };
           socket.broadcast.emit(protocol.PlayerLeft, playerLeft);
         });
@@ -136,7 +136,7 @@ export class GameHostService {
     const localRoomId = this.server.localRoomId;
     this.publishRoom(port, description, players)
     .then(info => {
-      if (!this.server || this.server.localRoomId != localRoomId) {
+      if (!this.server || this.server.localRoomId !== localRoomId) {
         clearInterval(info.intervalId);
         deleteRoom(info.id, { key: info.key });
         return;

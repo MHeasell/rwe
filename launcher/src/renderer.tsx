@@ -20,7 +20,7 @@ import { GameHostService } from "./ws/game-server";
 import "./style.css";
 
 const epicMiddleware = createEpicMiddleware<AppAction, AppAction, State, EpicDependencies>({
-  dependencies: { clientService: new GameClientService(), hostService: new GameHostService() }
+  dependencies: { clientService: new GameClientService(), hostService: new GameHostService() },
 });
 
 const composeEnhancers = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
