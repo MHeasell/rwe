@@ -1,25 +1,24 @@
-import { AppAction, disconnectGame, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, receiveChatMessage, receivePlayerReady, receiveStartGame, gameEnded, LaunchRweAction, receiveRooms } from "../actions";
+import { AppAction, disconnectGame, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, receiveChatMessage, receivePlayerReady, receiveStartGame, gameEnded, LaunchRweAction, receiveRooms, receiveGameCreated, receiveGameUpdated, receiveGameDeleted, receiveCreateGameResponse, ReceiveCreateGameResponseAction } from "../actions";
 import { StateObservable, combineEpics, ofType } from "redux-observable";
 import { State, GameRoom } from "../state";
 import * as rx from "rxjs";
 import * as rxop from "rxjs/operators";
-import { getRooms, GetRoomsResponse } from "../web";
 
-import { GameHostService } from "../ws/game-server";
 import { GameClientService } from "../ws/game-client";
 
 import { RweArgs, RweArgsPlayerController, RweArgsPlayerInfo, execRwe } from "../rwe";
+import { MasterClientService } from "../master/master-client";
 
 export interface EpicDependencies {
-  hostService: GameHostService;
   clientService: GameClientService;
+  masterClentService: MasterClientService;
 }
 
 function looksLikeIPv6Address(value: string) {
   return value.match(/^[0-9a-fA-F:]+$/) && value.match(/:/);
 }
 
-const gameClientEventsEpic = (action$: rx.Observable<AppAction>, state$: StateObservable<State>, {clientService, hostService}: EpicDependencies): rx.Observable<AppAction> => {
+const gameClientEventsEpic = (action$: rx.Observable<AppAction>, state$: StateObservable<State>, {clientService}: EpicDependencies): rx.Observable<AppAction> => {
   return rx.merge<AppAction>(
     clientService.onDisconnect.pipe(rxop.map(disconnectGame)),
     clientService.onHandshakeResponse.pipe(rxop.map(receiveHandshakeResponse)),
@@ -28,6 +27,17 @@ const gameClientEventsEpic = (action$: rx.Observable<AppAction>, state$: StateOb
     clientService.onPlayerChatMessage.pipe(rxop.map(receiveChatMessage)),
     clientService.onPlayerReady.pipe(rxop.map(receivePlayerReady)),
     clientService.onStartGame.pipe(rxop.map(receiveStartGame)),
+  );
+};
+
+const masterClientEventsEpic = (action$: rx.Observable<AppAction>, state$: StateObservable<State>, deps: EpicDependencies): rx.Observable<AppAction> => {
+  const s = deps.masterClentService;
+  return rx.merge<AppAction>(
+    s.onGetGamesResponse.pipe(rxop.map(receiveRooms)),
+    s.onCreateGameResponse.pipe(rxop.map(receiveCreateGameResponse)),
+    s.onGameCreated.pipe(rxop.map(receiveGameCreated)),
+    s.onGameUpdated.pipe(rxop.map(receiveGameUpdated)),
+    s.onGameDeleted.pipe(rxop.map(receiveGameDeleted)),
   );
 };
 
@@ -52,7 +62,7 @@ function rweArgsFromGameRoom(game: GameRoom): RweArgs {
   };
 }
 
-const launchRweEpic = (action$: rx.Observable<AppAction>, state$: StateObservable<State>, {clientService, hostService}: EpicDependencies): rx.Observable<AppAction> => {
+const launchRweEpic = (action$: rx.Observable<AppAction>, state$: StateObservable<State>, _: EpicDependencies): rx.Observable<AppAction> => {
   return action$.pipe(
     ofType<AppAction, LaunchRweAction>("LAUNCH_RWE"),
     rxop.flatMap(() => {
@@ -66,26 +76,30 @@ const launchRweEpic = (action$: rx.Observable<AppAction>, state$: StateObservabl
   );
 };
 
-const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable<State>, {clientService, hostService}: EpicDependencies): rx.Observable<AppAction> => {
+const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable<State>, deps: EpicDependencies): rx.Observable<AppAction> => {
+  const clientService = deps.clientService;
+  const masterClientService = deps.masterClentService;
+
   return action$.pipe(
     rxop.flatMap(action => {
       switch (action.type) {
         case "HOST_GAME_FORM_CONFIRM": {
-          hostService.createServer(1337);
-          const roomId = hostService.createRoom(action.gameDescription, action.players);
-          if (roomId === undefined) { break; }
-          clientService.connectToServer("http://localhost:1337/", roomId, action.playerName);
+          masterClientService.requestCreateGame(action.gameDescription, action.players);
+          action$.pipe(
+            ofType<AppAction, ReceiveCreateGameResponseAction>("RECEIVE_CREATE_GAME_RESPONSE"),
+            rxop.first(),
+          ).subscribe(x => {
+            clientService.connectToServer("http://127.0.0.1:5000/rooms", x.payload.game_id, action.playerName, x.payload.admin_key);
+          });
           break;
         }
         case "JOIN_SELECTED_GAME_CONFIRM": {
           const state = state$.value;
           if (state.selectedGameId === undefined) { break; }
           const gameInfo = state.games.find(x => x.id === state.selectedGameId)!;
-          // hackily detect IPv6 addressses and enclose them in []
-          const address = looksLikeIPv6Address(gameInfo.host) ? `[${gameInfo.host}]` : gameInfo.host;
-          const connectionString = `http://${address}:${gameInfo.port}/`;
+          const connectionString = "http://127.0.0.1:5000/rooms";
           console.log(`connecting to ${connectionString}`);
-          clientService.connectToServer(connectionString, gameInfo.localRoomId, action.name);
+          clientService.connectToServer(connectionString, state.selectedGameId, action.name);
           break;
         }
         case "SEND_CHAT_MESSAGE": {
@@ -102,7 +116,6 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
         }
         case "LEAVE_GAME": {
           clientService.disconnect();
-          hostService.destroyServer();
           break;
         }
         case "SEND_START_GAME": {
@@ -125,15 +138,4 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
   );
 };
 
-function getRoomsStream(): rx.Observable<GetRoomsResponse> {
-  const req = rx.defer(getRooms).pipe(rxop.catchError(() => rx.empty()));
-  return rx.concat(req, rx.timer(5000).pipe(rxop.flatMap(getRoomsStream)));
-}
-
-const pollLoopEpic = (action$: rx.Observable<AppAction>, state$: StateObservable<State>, {clientService, hostService}: EpicDependencies): rx.Observable<AppAction> => {
-  return getRoomsStream().pipe(
-    rxop.map(receiveRooms),
-  );
-};
-
-export const rootEpic = combineEpics(gameClientEventsEpic, gameRoomEpic, launchRweEpic, pollLoopEpic);
+export const rootEpic = combineEpics(masterClientEventsEpic, gameClientEventsEpic, gameRoomEpic, launchRweEpic);

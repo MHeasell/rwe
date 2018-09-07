@@ -6,10 +6,12 @@
   "main": "main.js",
   "scripts": {
     "build:main": "webpack --config webpack.main.config.js",
+    "build:master": "webpack --config webpack.master.config.js",
     "build:renderer": "webpack --config webpack.renderer.config.js",
-    "build": "npm run build:main && npm run build:renderer",
+    "build": "npm run build:master && npm run build:main && npm run build:renderer",
     "start": "npm run build:main && cross-env RWE_LAUNCHER_IS_DEV=1 electron ./dist/main.js",
     "server": "webpack-dev-server --config webpack.renderer.config.js",
+    "master-server": "npm run build:master && node dist/master-server.js",
     "clean": "rm -rf ./dist",
     "package": "npm run build && electron-packager dist --arch=x64 --overwrite --asar"
   },
@@ -30,7 +32,6 @@
     "electron": "^2.0.2",
     "electron-devtools-installer": "^2.2.4",
     "electron-packager": "^12.1.0",
-    "express": "^4.16.3",
     "file-loader": "^1.1.11",
     "style-loader": "^0.21.0",
     "ts-loader": "^4.3.1",

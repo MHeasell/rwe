@@ -1,6 +1,6 @@
 import { AppAction } from "./actions";
-import { GetRoomsResponseRoomEntry } from "./web";
 import { State, GameListEntry, GameRoom, PlayerInfo, ChatMessage } from "./state";
+import { GetGamesResponseItem } from "./master/protocol";
 
 const initialState: State = {
   games: [],
@@ -8,15 +8,12 @@ const initialState: State = {
   isRweRunning: false,
 };
 
-function roomResponseEntryToGamesListEntry(room: GetRoomsResponseRoomEntry): GameListEntry {
+function roomResponseEntryToGamesListEntry(room: GetGamesResponseItem): GameListEntry {
   return {
     id: room.id,
-    description: room.room.description,
-    players: room.room.number_of_players,
-    maxPlayers: room.room.max_players,
-    host: room.room.host,
-    port: room.room.port,
-    localRoomId: room.room.local_room_id,
+    description: room.game.description,
+    players: room.game.players,
+    maxPlayers: room.game.max_players,
   };
 }
 
@@ -51,12 +48,28 @@ function games(state: State = initialState, action: AppAction): State {
     case "LAUNCH_RWE_END":
       return { ...state, isRweRunning: false };
     case "RECEIVE_ROOMS": {
-      const gamesList = action.rooms.rooms.map(roomResponseEntryToGamesListEntry);
+      const gamesList = action.rooms.games.map(roomResponseEntryToGamesListEntry);
       const selectedId =
         (state.selectedGameId && gamesList.find(x => x.id === state.selectedGameId))
         ? state.selectedGameId
         : undefined;
       return { ...state, games: gamesList, selectedGameId: selectedId };
+    }
+    case "RECEIVE_GAME_CREATED": {
+      const game = roomResponseEntryToGamesListEntry({ id: action.payload.game_id, game: action.payload.game });
+      const games = state.games.slice();
+      games.push(game);
+      return { ...state, games };
+    }
+    case "RECEIVE_GAME_UPDATED": {
+      const game = roomResponseEntryToGamesListEntry({ id: action.payload.game_id, game: action.payload.game });
+      const games = state.games.map(x => x.id === game.id ? game : x);
+      return { ...state, games };
+    }
+    case "RECEIVE_GAME_DELETED": {
+      const games = state.games.filter(x => x.id !== action.payload.game_id);
+      const selectedId = state.selectedGameId === action.payload.game_id ? undefined : state.selectedGameId;
+      return { ...state, games, selectedGameId: selectedId };
     }
     case "RECEIVE_HANDSHAKE_RESPONSE": {
       if (!state.currentGame) { return state; }
@@ -82,7 +95,12 @@ function games(state: State = initialState, action: AppAction): State {
     case "RECEIVE_PLAYER_LEFT": {
       if (!state.currentGame) { return state; }
       const newPlayers = state.currentGame.players.filter(x => x.id !== action.payload.playerId);
-      const newRoom: GameRoom = { ...state.currentGame, players: newPlayers };
+      const newAdminId =
+        action.payload.newAdminPlayerId !== undefined ? action.payload.newAdminPlayerId
+        : action.payload.playerId === state.currentGame.adminPlayerId ? undefined
+        : state.currentGame.adminPlayerId;
+
+      const newRoom: GameRoom = { ...state.currentGame, players: newPlayers, adminPlayerId: newAdminId };
       return { ...state, currentGame: newRoom };
     }
     case "RECEIVE_CHAT_MESSAGE": {

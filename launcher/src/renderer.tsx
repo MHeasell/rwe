@@ -14,12 +14,14 @@ import { createEpicMiddleware } from "redux-observable";
 import { State } from "./state";
 import { rootEpic, EpicDependencies } from "./middleware/GameRoomEpic";
 import { GameClientService } from "./ws/game-client";
-import { GameHostService } from "./ws/game-server";
 
 import "./style.css";
+import { MasterClientService } from "./master/master-client";
 
+const masterClentService = new MasterClientService();
+masterClentService.connectToServer("http://127.0.0.1:5000/master");
 const epicMiddleware = createEpicMiddleware<AppAction, AppAction, State, EpicDependencies>({
-  dependencies: { clientService: new GameClientService(), hostService: new GameHostService() },
+  dependencies: { clientService: new GameClientService(), masterClentService },
 });
 
 const composeEnhancers = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;

@@ -5,13 +5,13 @@ import { Observable, Subject } from "rxjs";
 export class GameClientService {
   private client: SocketIOClient.Socket | undefined;
 
-  private readonly _onDisconnect: Subject<void> = new Subject();
-  private readonly _onHandshakeResponse: Subject<protocol.HandshakeResponsePayload> = new Subject();
-  private readonly _onPlayerJoined: Subject<protocol.PlayerJoinedPayload> = new Subject();
-  private readonly _onPlayerLeft: Subject<protocol.PlayerLeftPayload> = new Subject();
-  private readonly _onPlayerChatMessage: Subject<protocol.PlayerChatMessagePayload> = new Subject();
-  private readonly _onPlayerReady: Subject<protocol.PlayerReadyPayload> = new Subject();
-  private readonly _onStartGame: Subject<void> = new Subject();
+  private readonly _onDisconnect = new Subject<void>();
+  private readonly _onHandshakeResponse = new Subject<protocol.HandshakeResponsePayload>();
+  private readonly _onPlayerJoined = new Subject<protocol.PlayerJoinedPayload>();
+  private readonly _onPlayerLeft = new Subject<protocol.PlayerLeftPayload>();
+  private readonly _onPlayerChatMessage = new Subject<protocol.PlayerChatMessagePayload>();
+  private readonly _onPlayerReady = new Subject<protocol.PlayerReadyPayload>();
+  private readonly _onStartGame = new Subject<void>();
 
   get onDisconnect(): Observable<void> { return this._onDisconnect; }
   get onHandshakeResponse(): Observable<protocol.HandshakeResponsePayload> { return this._onHandshakeResponse; }
@@ -21,7 +21,7 @@ export class GameClientService {
   get onPlayerReady(): Observable<protocol.PlayerReadyPayload> { return this._onPlayerReady; }
   get onStartGame(): Observable<void> { return this._onStartGame; }
 
-  connectToServer(connectionString: string, roomId: number, playerName: string) {
+  connectToServer(connectionString: string, gameId: number, playerName: string, adminKey?: string) {
     this.client = socketioClient(connectionString);
 
     this.client.on("connect_error", (error: any) => {
@@ -34,9 +34,10 @@ export class GameClientService {
     });
 
     const handshakePayload: protocol.HandshakePayload = {
-      roomId: roomId,
+      gameId,
       name: playerName,
     };
+    if (adminKey !== undefined) { handshakePayload.adminKey = adminKey; }
     this.client.emit(protocol.Handshake, handshakePayload);
 
     this.client.on(protocol.HandshakeResponse, (data: protocol.HandshakeResponsePayload) => {

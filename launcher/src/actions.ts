@@ -1,5 +1,5 @@
-import { GetRoomsResponse } from "./web";
 import * as protocol from "./ws/protocol";
+import { GetGamesResponsePayload, GetGamesReponseEntry, GameCreatedEventPayload, GameUpdatedEventPayload, GameDeletedEventPayload, CreateGameResponsePayload } from "./master/protocol";
 
 export interface SelectGameAction {
   type: "SELECT_GAME";
@@ -103,13 +103,61 @@ export function launchRweEnd(): LaunchRweEndAction {
 
 export interface ReceiveRoomsAction {
   type: "RECEIVE_ROOMS";
-  rooms: GetRoomsResponse;
+  rooms: GetGamesResponsePayload;
 }
 
-export function receiveRooms(rooms: GetRoomsResponse): ReceiveRoomsAction {
+export function receiveRooms(rooms: GetGamesResponsePayload): ReceiveRoomsAction {
   return {
     type: "RECEIVE_ROOMS",
     rooms,
+  };
+}
+
+export interface ReceiveCreateGameResponseAction {
+  type: "RECEIVE_CREATE_GAME_RESPONSE";
+  payload: CreateGameResponsePayload;
+}
+
+export function receiveCreateGameResponse(payload: CreateGameResponsePayload): ReceiveCreateGameResponseAction {
+  return {
+    type: "RECEIVE_CREATE_GAME_RESPONSE",
+    payload,
+  };
+}
+
+export interface ReceiveGameCreatedAction {
+  type: "RECEIVE_GAME_CREATED";
+  payload: GameCreatedEventPayload;
+}
+
+export function receiveGameCreated(payload: GameCreatedEventPayload): ReceiveGameCreatedAction {
+  return {
+    type: "RECEIVE_GAME_CREATED",
+    payload,
+  };
+}
+
+export interface ReceiveGameUpdatedAction {
+  type: "RECEIVE_GAME_UPDATED";
+  payload: GameUpdatedEventPayload;
+}
+
+export function receiveGameUpdated(payload: GameUpdatedEventPayload): ReceiveGameUpdatedAction {
+  return {
+    type: "RECEIVE_GAME_UPDATED",
+    payload,
+  };
+}
+
+export interface ReceiveGameDeletedAction {
+  type: "RECEIVE_GAME_DELETED";
+  payload: GameDeletedEventPayload;
+}
+
+export function receiveGameDeleted(payload: GameDeletedEventPayload): ReceiveGameDeletedAction {
+  return {
+    type: "RECEIVE_GAME_DELETED",
+    payload,
   };
 }
 
@@ -265,7 +313,11 @@ export type AppAction =
   | HostGameFormConfirmAction
   | LaunchRweAction
   | LaunchRweEndAction
+  | ReceiveCreateGameResponseAction
   | ReceiveRoomsAction
+  | ReceiveGameCreatedAction
+  | ReceiveGameUpdatedAction
+  | ReceiveGameDeletedAction
   | ReceiveHandshakeResponseAction
   | ReceivePlayerJoinedAction
   | ReceivePlayerLeftAction

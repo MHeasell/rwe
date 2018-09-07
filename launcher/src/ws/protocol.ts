@@ -14,15 +14,16 @@ export interface PlayerInfo {
 // Emitted by the client upon connection
 export const Handshake = "handshake";
 export interface HandshakePayload {
-  roomId: number;
+  gameId: number;
   name: string;
+  adminKey?: string;
 }
 
 // Emitted by the server to a client in response to a handshake
 export const HandshakeResponse = "handshake-response";
 export interface HandshakeResponsePayload {
   playerId: number;
-  adminPlayerId: number;
+  adminPlayerId?: number;
   players: PlayerInfo[];
 }
 
@@ -49,6 +50,7 @@ export interface PlayerJoinedPayload {
 export const PlayerLeft = "player-left";
 export interface PlayerLeftPayload {
   playerId: number;
+  newAdminPlayerId?: number;
 }
 
 // Emitted by the client when the player changes ready state
