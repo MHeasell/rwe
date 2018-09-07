@@ -134,8 +134,6 @@ export class GameServer {
           }
         }
 
-        const roomString = `room/${roomId}`;
-        socket.join(roomString);
 
         this._gameUpdated.next([roomId, room]);
 
@@ -151,7 +149,10 @@ export class GameServer {
           name: data.name,
           host: address,
         };
-        socket.broadcast.emit(protocol.PlayerJoined, playerJoined);
+
+        this.sendToRoom(roomId, protocol.PlayerJoined, playerJoined);
+
+        socket.join(this.getRoomString(roomId));
 
         socket.on(protocol.ChatMessage, (data: protocol.ChatMessagePayload) => {
           this.onChatMessage(roomId, playerId, data);
@@ -173,9 +174,12 @@ export class GameServer {
     console.log(`game server: ${message}`);
   }
 
+  private getRoomString(roomId: number) {
+    return `room/${roomId}`;
+  }
+
   private sendToRoom(roomId: number, event: string, ...args: any[]) {
-    const roomString = `room/${roomId}`;
-    this.ns.to(roomString).emit(event, ...args);
+    this.ns.to(this.getRoomString(roomId)).emit(event, ...args);
   }
 
   private onChatMessage(roomId: number, playerId: number, message: string) {
