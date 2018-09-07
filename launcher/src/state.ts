@@ -64,12 +64,15 @@ export function isFull(game: GameListEntry): boolean {
   return game.players === game.maxPlayers;
 }
 
+export type MasterServerConnectionStatus = "connected" | "disconnected";
+
 export interface State {
   games: GameListEntry[];
   selectedGameId?: number;
   currentScreen: AppScreen;
   isRweRunning: boolean;
   currentGame?: GameRoom;
+  masterServerConnectionStatus: MasterServerConnectionStatus;
 }
 
 export function canJoinSelectedGame(state: State): boolean {

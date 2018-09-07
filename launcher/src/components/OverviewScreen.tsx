@@ -15,12 +15,26 @@ function MainPanel() {
   );
 }
 
+interface ConnectionNoticeProps {
+  connected: boolean;
+}
+
+function ConnectionNotice(props: ConnectionNoticeProps) {
+  if (props.connected) {
+    return (<div>You are connected!</div>);
+  }
+  return (
+    <div>You are not connected to the master server...</div>
+  );
+}
+
 interface OverviewScreenDispatchProps {
   onDialogClose: () => void;
   onDialogConfirm: (name: string) => void;
 }
 
 interface OverviewScreenStateProps {
+  connected: boolean;
   dialogOpen: boolean;
 }
 
@@ -29,6 +43,7 @@ interface OverviewScreenProps extends OverviewScreenDispatchProps, OverviewScree
 function OverviewScreen(props: OverviewScreenProps) {
   return (
     <div className="app-container">
+    <ConnectionNotice connected={props.connected} />
       <MainPanel />
       <BottomPanel />
       <PlayerNameDialog open={props.dialogOpen} onConfirm={props.onDialogConfirm} onClose={props.onDialogClose} />
@@ -38,7 +53,7 @@ function OverviewScreen(props: OverviewScreenProps) {
 
 function mapStateToProps(state: State): OverviewScreenStateProps {
   const dialogOpen = state.currentScreen.screen === "overview" ? state.currentScreen.dialogOpen : false;
-  return { dialogOpen };
+  return { connected: state.masterServerConnectionStatus === "connected", dialogOpen };
 }
 
 function mapDispatchToProps(dispatch: Dispatch): OverviewScreenDispatchProps {

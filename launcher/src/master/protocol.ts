@@ -9,6 +9,8 @@ export interface GetGamesResponseItem {
   game: GetGamesReponseEntry;
 }
 
+export const GetGames = "get-games";
+
 export const GetGamesResponse = "get-games-response";
 export interface GetGamesResponsePayload {
   games: GetGamesResponseItem[];

@@ -37,13 +37,28 @@ gameServer.gameDeleted.subscribe(id => {
 });
 
 masterNamespace.on("connection", socket => {
+  const addr = socket.handshake.address;
+  console.log(`Received connection from ${addr}`);
 
-  const gamesList = Array.from(gameServer.getAllRooms())
-  .map(([roomId, room]) => {
-    return { id: roomId, game: roomToEntry(room) };
+  {
+    const gamesList = Array.from(gameServer.getAllRooms())
+    .map(([roomId, room]) => {
+      return { id: roomId, game: roomToEntry(room) };
+    });
+
+    const payload: protocol.GetGamesResponsePayload = { games: gamesList };
+    socket.emit(protocol.GetGamesResponse, payload);
+  }
+
+  socket.on(protocol.GetGames, () => {
+    const gamesList = Array.from(gameServer.getAllRooms())
+    .map(([roomId, room]) => {
+      return { id: roomId, game: roomToEntry(room) };
+    });
+
+    const payload: protocol.GetGamesResponsePayload = { games: gamesList };
+    socket.emit(protocol.GetGamesResponse, payload);
   });
-  const payload: protocol.GetGamesResponsePayload = { games: gamesList };
-  socket.emit(protocol.GetGamesResponse, payload);
 
   socket.on(protocol.CreateGameRequest, (data: protocol.CreateGameRequestPayload) => {
     const gameInfo = gameServer.createRoom(data.description, data.max_players);
@@ -63,6 +78,14 @@ masterNamespace.on("connection", socket => {
       },
     };
     masterNamespace.emit(protocol.GameCreatedEvent, eventPayload);
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`Client from ${addr} disconnected`);
+  });
+
+  socket.on("error", (error: Error) => {
+    console.log(`Error from ${addr}: ${error}`);
   });
 });
 

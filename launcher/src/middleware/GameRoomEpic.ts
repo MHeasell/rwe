@@ -1,4 +1,4 @@
-import { AppAction, disconnectGame, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, receiveChatMessage, receivePlayerReady, receiveStartGame, gameEnded, LaunchRweAction, receiveRooms, receiveGameCreated, receiveGameUpdated, receiveGameDeleted, receiveCreateGameResponse, ReceiveCreateGameResponseAction } from "../actions";
+import { AppAction, disconnectGame, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, receiveChatMessage, receivePlayerReady, receiveStartGame, gameEnded, LaunchRweAction, receiveRooms, receiveGameCreated, receiveGameUpdated, receiveGameDeleted, receiveCreateGameResponse, ReceiveCreateGameResponseAction, masterServerConnect, masterServerDisconnect } from "../actions";
 import { StateObservable, combineEpics, ofType } from "redux-observable";
 import { State, GameRoom } from "../state";
 import * as rx from "rxjs";
@@ -33,6 +33,8 @@ const gameClientEventsEpic = (action$: rx.Observable<AppAction>, state$: StateOb
 const masterClientEventsEpic = (action$: rx.Observable<AppAction>, state$: StateObservable<State>, deps: EpicDependencies): rx.Observable<AppAction> => {
   const s = deps.masterClentService;
   return rx.merge<AppAction>(
+    s.onConnect.pipe(rxop.map(masterServerConnect)),
+    s.onDisconnect.pipe(rxop.map(masterServerDisconnect)),
     s.onGetGamesResponse.pipe(rxop.map(receiveRooms)),
     s.onCreateGameResponse.pipe(rxop.map(receiveCreateGameResponse)),
     s.onGameCreated.pipe(rxop.map(receiveGameCreated)),

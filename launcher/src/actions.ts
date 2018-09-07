@@ -101,6 +101,26 @@ export function launchRweEnd(): LaunchRweEndAction {
   };
 }
 
+export interface MasterServerConnectAction {
+  type: "MASTER_SERVER_CONNECT";
+}
+
+export function masterServerConnect(): MasterServerConnectAction {
+  return {
+    type: "MASTER_SERVER_CONNECT",
+  };
+}
+
+export interface MasterServerDisconnectAction {
+  type: "MASTER_SERVER_DISCONNECT";
+}
+
+export function masterServerDisconnect(): MasterServerDisconnectAction {
+  return {
+    type: "MASTER_SERVER_DISCONNECT",
+  };
+}
+
 export interface ReceiveRoomsAction {
   type: "RECEIVE_ROOMS";
   rooms: GetGamesResponsePayload;
@@ -314,6 +334,8 @@ export type AppAction =
   | LaunchRweAction
   | LaunchRweEndAction
   | ReceiveCreateGameResponseAction
+  | MasterServerConnectAction
+  | MasterServerDisconnectAction
   | ReceiveRoomsAction
   | ReceiveGameCreatedAction
   | ReceiveGameUpdatedAction

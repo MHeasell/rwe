@@ -6,6 +6,7 @@ const initialState: State = {
   games: [],
   currentScreen: { screen: "overview", dialogOpen: false },
   isRweRunning: false,
+  masterServerConnectionStatus: "disconnected",
 };
 
 function roomResponseEntryToGamesListEntry(room: GetGamesResponseItem): GameListEntry {
@@ -136,6 +137,10 @@ function games(state: State = initialState, action: AppAction): State {
       return { ...state, currentScreen: { screen: "overview", dialogOpen: false }, currentGame: undefined, isRweRunning: true };
     case "GAME_ENDED":
       return { ...state, isRweRunning: false };
+    case "MASTER_SERVER_CONNECT":
+      return { ...state, masterServerConnectionStatus: "connected" };
+    case "MASTER_SERVER_DISCONNECT":
+      return { ...state, masterServerConnectionStatus: "disconnected" };
     default:
       return state;
   }
