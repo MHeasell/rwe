@@ -24,13 +24,19 @@ export class GameClientService {
   connectToServer(connectionString: string, gameId: number, playerName: string, adminKey?: string) {
     this.client = socketioClient(connectionString);
 
-    this.client.on("connect_error", (error: any) => {
-      console.log(error);
-    });
+    this.client.on("connect", () => { this.log("Connected"); });
+    this.client.on("connect_error", (error: Error) => { this.log(`Connection error: ${error}`); });
+    this.client.on("connect_timeout", () => { this.log("Connection timeout"); });
+    this.client.on("error", (error: Error) => { this.log(`Error: ${error}`); });
+
+    this.client.on("reconnect", (attempt: number) => { this.log(`successful reconnect attempt ${attempt}`); });
+    this.client.on("reconnect_attempt", () => { this.log("reconnect attempt"); });
+    this.client.on("reconnecting", (attempt: number) => { this.log(`reconnecting attempt ${attempt}`); });
+    this.client.on("reconnect_failed", () => { this.log("failed to reconnect and gave up"); });
 
     this.client.on("disconnect", () => {
+      this.log("Disconnected");
       this.disconnect();
-      this._onDisconnect.next();
     });
 
     const handshakePayload: protocol.HandshakePayload = {
@@ -69,6 +75,7 @@ export class GameClientService {
     if (!this.client) { return; }
     this.client.close();
     this.client = undefined;
+    this._onDisconnect.next();
   }
 
   sendChatMessage(message: string) {
@@ -86,5 +93,9 @@ export class GameClientService {
   requestStartGame() {
     if (!this.client) { return; }
     this.client.emit(protocol.RequestStartGame);
+  }
+
+  private log(msg: string) {
+    console.log(`Game client: ${msg}`);
   }
 }

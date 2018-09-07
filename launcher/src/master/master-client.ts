@@ -25,21 +25,21 @@ export class MasterClientService {
     this.client = socketioClient(connectionString);
 
     this.client.on("connect", () => {
-      console.log("connected");
+      this.log("connected");
       this._onConnect.next();
     });
 
     this.client.on("disconnect", () => {
-      console.log("disconnected");
+      this.log("disconnected");
       this._onDisconnect.next();
     });
 
-    this.client.on("connect_error", (e: Error) => { console.log(e); });
-    this.client.on("connect_timeout", () => { console.log("connection timeout"); });
-    this.client.on("reconnect", (attempt: number) => { console.log(`successful reconnect attempt ${attempt}`); });
-    this.client.on("reconnect_attempt", () => { console.log("reconnect attempt"); });
-    this.client.on("reconnecting", (attempt: number) => { console.log(`reconnecting attempt ${attempt}`); });
-    this.client.on("reconnect_failed", () => { console.log("failed to reconnect and gave up"); });
+    this.client.on("connect_error", (e: Error) => { this.log(`connection error: ${e}`); });
+    this.client.on("connect_timeout", () => { this.log("connection timeout"); });
+    this.client.on("reconnect", (attempt: number) => { this.log(`successful reconnect attempt ${attempt}`); });
+    this.client.on("reconnect_attempt", () => { this.log("reconnect attempt"); });
+    this.client.on("reconnecting", (attempt: number) => { this.log(`reconnecting attempt ${attempt}`); });
+    this.client.on("reconnect_failed", () => { this.log("failed to reconnect and gave up"); });
 
     this.client.on(protocol.GetGamesResponse, (data: protocol.GetGamesResponsePayload) => {
       this._onGetGamesReponse.next(data);
@@ -74,5 +74,9 @@ export class MasterClientService {
   getGames() {
     if (!this.client) { return; }
     this.client.emit(protocol.GetGames);
+  }
+
+  private log(msg: string) {
+    console.log(`master client: ${msg}`);
   }
 }

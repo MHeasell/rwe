@@ -16,6 +16,10 @@ function roomToEntry(x: Room): protocol.GetGamesReponseEntry {
   };
 }
 
+function log(msg: string) {
+  console.log(`master server: ${msg}`);
+}
+
 const masterNamespace = io.of("/master");
 const roomsNamespace = io.of("/rooms");
 
@@ -38,7 +42,7 @@ gameServer.gameDeleted.subscribe(id => {
 
 masterNamespace.on("connection", socket => {
   const addr = socket.handshake.address;
-  console.log(`Received connection from ${addr}`);
+  log(`Received connection from ${addr}`);
 
   {
     const gamesList = Array.from(gameServer.getAllRooms())
@@ -81,12 +85,12 @@ masterNamespace.on("connection", socket => {
   });
 
   socket.on("disconnect", () => {
-    console.log(`Client from ${addr} disconnected`);
+    log(`Client from ${addr} disconnected`);
   });
 
   socket.on("error", (error: Error) => {
-    console.log(`Error from ${addr}: ${error}`);
+    log(`Error from ${addr}: ${error}`);
   });
 });
 
-console.log("master server started");
+log("master server started");

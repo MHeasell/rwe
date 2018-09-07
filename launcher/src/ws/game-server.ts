@@ -170,7 +170,7 @@ export class GameServer {
   }
 
   private log(message: string) {
-    console.log(`SERVER: ${message}`);
+    console.log(`game server: ${message}`);
   }
 
   private sendToRoom(roomId: number, event: string, ...args: any[]) {

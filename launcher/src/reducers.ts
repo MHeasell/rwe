@@ -128,7 +128,6 @@ function games(state: State = initialState, action: AppAction): State {
       const room: GameRoom = { ...state.currentGame, players: newPlayers };
       return { ...state, currentGame: room };
     }
-    case "LEAVE_GAME":
     case "DISCONNECT_GAME":
       if (!state.currentGame) { return state; }
       return { ...state, currentScreen: { screen: "overview", dialogOpen: false }, currentGame: undefined };
