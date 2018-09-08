@@ -1,4 +1,4 @@
-import { TableBody, TableCell, TableHead, TableRow } from "@material-ui/core";
+import { TableBody, TableCell, TableHead, TableRow, Typography } from "@material-ui/core";
 import { createStyles, Theme, withStyles, WithStyles } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
 import * as React from "react";
@@ -45,6 +45,17 @@ const UnstyledGamesTable = (props: GamesTableProps) => {
     );
   });
 
+  const rowsOrMessage = props.games.length > 0 ? rows
+  : (
+    <TableRow>
+      <TableCell colSpan={2}>
+        <Typography align="center">
+          There are no online games being hosted right now.
+        </Typography>
+      </TableCell>
+    </TableRow>
+  );
+
   return (
     <Table className="games-table">
       <TableHead>
@@ -54,7 +65,7 @@ const UnstyledGamesTable = (props: GamesTableProps) => {
         </TableRow>
       </TableHead>
       <TableBody>
-        {rows}
+        {rowsOrMessage}
       </TableBody>
     </Table>
   );
