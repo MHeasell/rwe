@@ -48,8 +48,10 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
 
   handleSend(event: React.SyntheticEvent<EventTarget>) {
     event.preventDefault();
-    this.setState({value: ""});
-    this.props.onSend(this.state.value);
+    if (this.state.value) {
+      this.setState({value: ""});
+      this.props.onSend(this.state.value);
+    }
   }
 
   handleReadyChange(event: React.SyntheticEvent<EventTarget>) {
