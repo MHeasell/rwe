@@ -1,7 +1,7 @@
 import * as React from "react";
 import { State, PlayerInfo, ChatMessage, canStartGame } from "../state";
 import { connect } from "react-redux";
-import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Table, TableHead, TableRow, TableCell, TableBody, Checkbox, Typography } from "@material-ui/core";
+import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Table, TableHead, TableRow, TableCell, TableBody, Checkbox, Typography, Divider, Paper } from "@material-ui/core";
 import { Dispatch } from "redux";
 import { sendChatMessage, leaveGame, toggleReady, sendStartGame } from "../actions";
 
@@ -76,7 +76,7 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
           <TableCell>{player.side}</TableCell>
           <TableCell>{player.color}</TableCell>
           <TableCell>{player.team}</TableCell>
-          <TableCell>{checkbox}</TableCell>
+          <TableCell padding="checkbox">{checkbox}</TableCell>
         </TableRow>
       );
     });
@@ -84,6 +84,7 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
       <div className="game-room-screen-container">
         <div className="game-room-screen-left">
           <div className="game-room-players-panel">
+            <Typography variant="title" className="game-room-players-title">Players</Typography>
             <Table>
               <TableHead>
                 <TableRow>
@@ -99,9 +100,11 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
               </TableBody>
             </Table>
           </div>
+          <Typography variant="title" className="game-room-screen-messages-title">Messages</Typography>
           <div className="game-room-screen-messages-panel">
             {messageElements}
           </div>
+          <Divider />
           <form className="game-room-screen-bottom-panel" onSubmit={this.handleSend}>
             <TextField className={this.props.classes.messageInput} value={this.state.value} onChange={this.handleUserMessageChange} />
             <Button type="submit">Send</Button>

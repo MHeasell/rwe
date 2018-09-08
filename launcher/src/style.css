@@ -47,17 +47,17 @@ html, body {
 .main-panel-title {
   padding-top: 16px;
   padding-bottom: 16px;
-  padding-left: 16px;
+  padding-left: 24px;
 }
 
 .bottom-panel {
   flex-grow: 0;
   flex-shrink: 0;
   display: flex;
-  margin-left: 16px;
-  margin-right: 16px;
+  margin-left: 8px;
+  margin-right: 8px;
   margin-top: 16px;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .bottom-panel-left {
@@ -105,16 +105,32 @@ html, body {
   flex-direction: row;
 }
 
+.game-room-players-title {
+  padding-top: 16px;
+  padding-left: 24px;
+  padding-bottom: 16px;
+}
+
+.game-room-screen-messages-title {
+  padding: 16px;
+  padding-left: 24px;
+}
+
 .game-room-screen-messages-panel {
   flex-grow: 1;
   flex-shrink: 1;
   flex-basis: 0;
+  overflow: auto;
+  padding-left: 24px;
 }
 
 .game-room-screen-bottom-panel {
   flex-grow: 0;
   flex-shrink: 0;
   display: flex;
+  padding-top: 8px;
+  padding-left: 16px;
+  padding-bottom: 8px;
 }
 
 
@@ -128,4 +144,7 @@ html, body {
 .game-room-screen-right {
   flex-grow: 0;
   flex-shrink: 0;
+  margin-top: 8px;
+  margin-right: 8px;
+  margin-left: 16px;
 }
