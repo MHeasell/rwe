@@ -2,11 +2,13 @@ import * as React from "react";
 import { State, PlayerInfo, ChatMessage, canStartGame } from "../state";
 import { connect } from "react-redux";
 import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Table, TableHead, TableRow, TableCell, TableBody, Checkbox, Typography, Divider, Paper } from "@material-ui/core";
+import StarIcon from "@material-ui/icons/Grade";
 import { Dispatch } from "redux";
 import { sendChatMessage, leaveGame, toggleReady, sendStartGame } from "../actions";
 
 interface GameRoomScreenStateProps {
   localPlayerId?: number;
+  adminPlayerId?: number;
   players: PlayerInfo[];
   messages: ChatMessage[];
   startEnabled: boolean;
@@ -70,9 +72,13 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
       const checkbox = player.id === this.props.localPlayerId
         ? <Checkbox checked={player.ready} onChange={this.handleReadyChange} />
         : <Checkbox checked={player.ready} disabled />;
+      // const nameCell = <TableCell>{player.name}</TableCell>;
+      const nameCell = player.id === this.props.adminPlayerId
+        ? <TableCell><StarIcon /> {player.name}</TableCell>
+        : <TableCell>{player.name}</TableCell>;
       return (
         <TableRow key={player.id}>
-          <TableCell>{player.name}</TableCell>
+          {nameCell}
           <TableCell>{player.side}</TableCell>
           <TableCell>{player.color}</TableCell>
           <TableCell>{player.team}</TableCell>
@@ -134,6 +140,7 @@ function mapStateToProps(state: State): GameRoomScreenStateProps {
 
   return {
     localPlayerId: state.currentGame.localPlayerId,
+    adminPlayerId: state.currentGame.adminPlayerId,
     players: state.currentGame.players,
     messages: state.currentGame.messages,
     startEnabled: canStartGame(state.currentGame),

@@ -45,6 +45,7 @@
   "dependencies": {
     "7zip": "0.0.6",
     "@material-ui/core": "^1.2.0",
+    "@material-ui/icons": "^3.0.1",
     "bufferutil": "^4.0.0",
     "react": "^16.4.0",
     "react-dom": "^16.4.0",
