@@ -6,10 +6,12 @@ import GamesTable from "./GamesTable";
 import { PlayerNameDialog } from "./PlayerNameDialog";
 import { State } from "../state";
 import { joinSelectedGameCancel, joinSelectedGameConfirm } from "../actions";
+import { Paper, Typography, Divider, Slide, Collapse } from "@material-ui/core";
 
 function MainPanel() {
   return (
     <div className="main-panel">
+      <Typography variant="title" className="main-panel-title">Online Games</Typography>
       <GamesTable />
     </div>
   );
@@ -20,11 +22,17 @@ interface ConnectionNoticeProps {
 }
 
 function ConnectionNotice(props: ConnectionNoticeProps) {
-  if (props.connected) {
-    return (<div>You are connected!</div>);
-  }
   return (
-    <div>You are not connected to the master server...</div>
+    <React.Fragment>
+      <Collapse in={!props.connected}>
+        <div className="connection-notice">
+          <Typography>
+            Cannot reach the master server, attempting to reconnect...
+          </Typography>
+        </div>
+      </Collapse>
+      <Divider />
+    </React.Fragment>
   );
 }
 
@@ -42,12 +50,12 @@ interface OverviewScreenProps extends OverviewScreenDispatchProps, OverviewScree
 
 function OverviewScreen(props: OverviewScreenProps) {
   return (
-    <div className="app-container">
-    <ConnectionNotice connected={props.connected} />
+    <Paper className="app-container">
+      <ConnectionNotice connected={props.connected} />
       <MainPanel />
       <BottomPanel />
       <PlayerNameDialog open={props.dialogOpen} onConfirm={props.onDialogConfirm} onClose={props.onDialogClose} />
-    </div>
+    </Paper>
   );
 }
 

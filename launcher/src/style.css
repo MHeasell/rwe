@@ -33,6 +33,10 @@ html, body {
   flex-direction: column;
 }
 
+.connection-notice {
+  padding: 16px;
+}
+
 .main-panel {
   flex-grow: 1;
   flex-shrink: 1;
@@ -40,11 +44,20 @@ html, body {
   overflow: auto;
 }
 
+.main-panel-title {
+  padding-top: 16px;
+  padding-bottom: 16px;
+  padding-left: 16px;
+}
+
 .bottom-panel {
-  padding: 8px;
   flex-grow: 0;
   flex-shrink: 0;
   display: flex;
+  margin-left: 16px;
+  margin-right: 16px;
+  margin-top: 16px;
+  margin-bottom: 16px;
 }
 
 .bottom-panel-left {
