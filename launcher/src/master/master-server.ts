@@ -2,8 +2,13 @@ import * as http from "http";
 import * as socketio from "socket.io";
 import { GameServer, Room } from "../ws/game-server";
 import * as protocol from "./protocol";
+import * as yargs from "yargs";
 
-const port = 5000;
+const argv = yargs
+.option("port", { alias: "p", default: 5000 })
+.argv;
+
+const port = argv.port;
 
 const server = http.createServer().listen(port);
 const io = socketio(server, { serveClient: false });
