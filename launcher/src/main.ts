@@ -3,6 +3,7 @@ import * as path from "path";
 import { installExtensions } from "./install-devtools-extensions";
 
 const development = !!process.env["RWE_LAUNCHER_IS_DEV"];
+console.log(`Running in ${development ? "development" : "production"} mode`);
 
 // We intentionally load "remote" content during development
 // because we use the webpack-dev-server
