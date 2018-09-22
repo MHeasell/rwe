@@ -1,6 +1,7 @@
 import * as protocol from "./protocol";
 import * as rx from "rxjs";
 import * as crypto from "crypto";
+import { getAddr } from "../util";
 
 export interface AdminUnclaimed {
   state: "unclaimed";
@@ -43,6 +44,7 @@ export interface GameCreatedInfo {
 
 export class GameServer {
   private readonly ns: SocketIO.Namespace;
+  private readonly reverseProxy: boolean;
 
   private nextRoomId = 1;
   private readonly rooms = new Map<number, Room>();
@@ -50,8 +52,9 @@ export class GameServer {
   private _gameUpdated = new rx.Subject<[number, Room]>();
   private _gameDeleted = new rx.Subject<number>();
 
-  constructor (ns: SocketIO.Namespace) {
+  constructor (ns: SocketIO.Namespace, reverseProxy: boolean) {
     this.ns = ns;
+    this.reverseProxy = reverseProxy;
     this.connect();
   }
 
@@ -102,7 +105,7 @@ export class GameServer {
 
   connect() {
     this.ns.on("connection", socket => {
-      const address = extractAddress(socket.handshake.address);
+      const address = extractAddress(getAddr(socket, this.reverseProxy));
       this.log(`Received connection from ${address}`);
       socket.on(protocol.Handshake, (data: protocol.HandshakePayload) => {
         this.log(`Received handshake from ${address} with name "${data.name}"`);

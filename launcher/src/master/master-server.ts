@@ -3,12 +3,18 @@ import * as socketio from "socket.io";
 import { GameServer, Room } from "../ws/game-server";
 import * as protocol from "./protocol";
 import * as yargs from "yargs";
+import { getAddr } from "../util";
 
 const argv = yargs
 .option("port", { alias: "p", default: 5000 })
+.option("reverse-proxy", { alias: "r", default: false })
 .argv;
 
 const port = argv.port;
+const reverseProxy = argv.reverseProxy;
+
+console.log(`Running on port ${port}`);
+console.log(`Reverse proxy mode is ${reverseProxy ? "ON" : "OFF"}`);
 
 const server = http.createServer().listen(port);
 const io = socketio(server, { serveClient: false });
@@ -28,7 +34,7 @@ function log(msg: string) {
 const masterNamespace = io.of("/master");
 const roomsNamespace = io.of("/rooms");
 
-const gameServer = new GameServer(roomsNamespace);
+const gameServer = new GameServer(roomsNamespace, reverseProxy);
 
 gameServer.gameUpdated.subscribe(([roomId, room]) => {
   const payload: protocol.GameUpdatedEventPayload = {
@@ -46,7 +52,7 @@ gameServer.gameDeleted.subscribe(id => {
 });
 
 masterNamespace.on("connection", socket => {
-  const addr = socket.handshake.address;
+  const addr = getAddr(socket, reverseProxy);
   log(`Received connection from ${addr}`);
 
   {
