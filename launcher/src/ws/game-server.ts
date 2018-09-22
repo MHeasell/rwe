@@ -191,6 +191,11 @@ export class GameServer {
   }
 
   private onPlayerReady(roomId: number, playerId: number, value: boolean) {
+    const room = this.rooms.get(roomId);
+    if (!room) { throw new Error("onPlayerReady triggered for non-existent room"); }
+    const player = room.players.find(x => x.id === playerId);
+    if (!player) { throw new Error(`Failed to find player ${playerId}`); }
+    player.ready = value;
     const payload: protocol.PlayerReadyPayload = { playerId, value };
     this.sendToRoom(roomId, protocol.PlayerReady, payload);
   }
