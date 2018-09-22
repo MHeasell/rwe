@@ -9,6 +9,9 @@ const development = !!process.env["RWE_LAUNCHER_IS_DEV"];
 // to provide hot-reload features.
 if (development) {
   process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "1";
+  if (!process.env["RWE_MASTER_SERVER"]) {
+    process.env["RWE_MASTER_SERVER"] = "http://localhost:5000";
+  }
 }
 
 if (!process.env["RWE_HOME"]) {

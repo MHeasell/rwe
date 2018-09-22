@@ -17,9 +17,10 @@ import { GameClientService } from "./ws/game-client";
 
 import "./style.css";
 import { MasterClientService } from "./master/master-client";
+import { masterServer } from "./util";
 
 const masterClentService = new MasterClientService();
-masterClentService.connectToServer("http://127.0.0.1:5000/master");
+masterClentService.connectToServer(`${masterServer()}/master`);
 const epicMiddleware = createEpicMiddleware<AppAction, AppAction, State, EpicDependencies>({
   dependencies: { clientService: new GameClientService(), masterClentService },
 });

@@ -8,6 +8,7 @@ import { GameClientService } from "../ws/game-client";
 
 import { RweArgs, RweArgsPlayerController, RweArgsPlayerInfo, execRwe } from "../rwe";
 import { MasterClientService } from "../master/master-client";
+import { masterServer } from "../util";
 
 export interface EpicDependencies {
   clientService: GameClientService;
@@ -91,7 +92,7 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
             ofType<AppAction, ReceiveCreateGameResponseAction>("RECEIVE_CREATE_GAME_RESPONSE"),
             rxop.first(),
           ).subscribe(x => {
-            clientService.connectToServer("http://127.0.0.1:5000/rooms", x.payload.game_id, action.playerName, x.payload.admin_key);
+            clientService.connectToServer(`${masterServer()}/rooms`, x.payload.game_id, action.playerName, x.payload.admin_key);
           });
           break;
         }
@@ -99,7 +100,7 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
           const state = state$.value;
           if (state.selectedGameId === undefined) { break; }
           const gameInfo = state.games.find(x => x.id === state.selectedGameId)!;
-          const connectionString = "http://127.0.0.1:5000/rooms";
+          const connectionString = `${masterServer()}/rooms`;
           console.log(`connecting to ${connectionString}`);
           clientService.connectToServer(connectionString, state.selectedGameId, action.name);
           break;
