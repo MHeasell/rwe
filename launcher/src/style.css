@@ -1,0 +1,150 @@
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 300;
+  src: url(font/Roboto-Light.ttf) format("truetype");
+}
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 400;
+  src: url(font/Roboto-Regular.ttf) format("truetype");
+}
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 500;
+  src: url(font/Roboto-Medium.ttf) format("truetype");
+}
+
+
+html, body {
+  height: 100%;
+}
+
+#app {
+  height: 100%;
+  overflow: auto;
+}
+
+.app-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.connection-notice {
+  padding: 16px;
+}
+
+.main-panel {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 0;
+  overflow: auto;
+}
+
+.main-panel-title {
+  padding-top: 16px;
+  padding-bottom: 16px;
+  padding-left: 24px;
+}
+
+.bottom-panel {
+  flex-grow: 0;
+  flex-shrink: 0;
+  display: flex;
+  margin-left: 8px;
+  margin-right: 8px;
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.bottom-panel-left {
+  flex-grow: 1;
+}
+
+.bottom-panel-right {
+  flex-grow: 0;
+}
+
+.host-game-form-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.host-game-form-bottom-panel {
+}
+
+.host-game-form-main-panel {
+  padding-top: 8px;
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 0;
+  flex-direction: column;
+  overflow: auto;
+  display: flex;
+}
+
+.host-game-form-bottom-panel {
+  padding: 8px;
+  flex-grow: 0;
+  flex-shrink: 0;
+  display: flex;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.game-room-screen-container {
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.game-room-players-title {
+  padding-top: 16px;
+  padding-left: 24px;
+  padding-bottom: 16px;
+}
+
+.game-room-screen-messages-title {
+  padding: 16px;
+  padding-left: 24px;
+}
+
+.game-room-screen-messages-panel {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 0;
+  overflow: auto;
+  padding-left: 24px;
+}
+
+.game-room-screen-bottom-panel {
+  flex-grow: 0;
+  flex-shrink: 0;
+  display: flex;
+  padding-top: 8px;
+  padding-left: 16px;
+  padding-bottom: 8px;
+}
+
+
+.game-room-screen-left {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 0;
+  display: flex;
+  flex-direction: column;
+}
+.game-room-screen-right {
+  flex-grow: 0;
+  flex-shrink: 0;
+  margin-top: 8px;
+  margin-right: 8px;
+  margin-left: 16px;
+}
