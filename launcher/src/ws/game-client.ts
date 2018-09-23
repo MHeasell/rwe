@@ -1,6 +1,7 @@
 import * as socketioClient from "socket.io-client";
 import * as protocol from "./protocol";
 import { Observable, Subject } from "rxjs";
+import { PlayerSide } from "../state";
 
 export class GameClientService {
   private client: SocketIOClient.Socket | undefined;
@@ -10,6 +11,7 @@ export class GameClientService {
   private readonly _onPlayerJoined = new Subject<protocol.PlayerJoinedPayload>();
   private readonly _onPlayerLeft = new Subject<protocol.PlayerLeftPayload>();
   private readonly _onPlayerChatMessage = new Subject<protocol.PlayerChatMessagePayload>();
+  private readonly _onPlayerChangedSide = new Subject<protocol.PlayerChangedSidePayload>();
   private readonly _onPlayerReady = new Subject<protocol.PlayerReadyPayload>();
   private readonly _onStartGame = new Subject<void>();
 
@@ -18,6 +20,7 @@ export class GameClientService {
   get onPlayerJoined(): Observable<protocol.PlayerJoinedPayload> { return this._onPlayerJoined; }
   get onPlayerLeft(): Observable<protocol.PlayerLeftPayload> { return this._onPlayerLeft; }
   get onPlayerChatMessage(): Observable<protocol.PlayerChatMessagePayload> { return this._onPlayerChatMessage; }
+  get onPlayerChangedSide(): Observable<protocol.PlayerChangedSidePayload> { return this._onPlayerChangedSide; }
   get onPlayerReady(): Observable<protocol.PlayerReadyPayload> { return this._onPlayerReady; }
   get onStartGame(): Observable<void> { return this._onStartGame; }
 
@@ -62,6 +65,10 @@ export class GameClientService {
       this._onPlayerChatMessage.next(data);
     });
 
+    this.client.on(protocol.PlayerChangedSide, (data: protocol.PlayerChangedSidePayload) => {
+      this._onPlayerChangedSide.next(data);
+    });
+
     this.client.on(protocol.PlayerReady, (data: protocol.PlayerReadyPayload) => {
       this._onPlayerReady.next(data);
     });
@@ -82,6 +89,12 @@ export class GameClientService {
     if (!this.client) { return; }
     const payload: protocol.ChatMessagePayload = message;
     this.client.emit(protocol.ChatMessage, payload);
+  }
+
+  changeSide(side: PlayerSide) {
+    if (!this.client) { return; }
+    const payload: protocol.ChangeSidePayload = { side };
+    this.client.emit(protocol.ChangeSide, payload);
   }
 
   setReadyState(value: boolean) {

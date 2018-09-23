@@ -1,5 +1,6 @@
 import * as protocol from "./ws/protocol";
 import { GetGamesResponsePayload, GetGamesReponseEntry, GameCreatedEventPayload, GameUpdatedEventPayload, GameDeletedEventPayload, CreateGameResponsePayload } from "./master/protocol";
+import { PlayerSide } from "./state";
 
 export interface SelectGameAction {
   type: "SELECT_GAME";
@@ -253,6 +254,18 @@ export function receivePlayerReady(payload: protocol.PlayerReadyPayload): Receiv
   };
 }
 
+export interface ReceivePlayerChangedSideAction {
+  type: "RECEIVE_PLAYER_CHANGED_SIDE";
+  payload: protocol.PlayerChangedSidePayload;
+}
+
+export function receivePlayerChangedSide(payload: protocol.PlayerChangedSidePayload): ReceivePlayerChangedSideAction {
+  return {
+    type: "RECEIVE_PLAYER_CHANGED_SIDE",
+    payload,
+  };
+}
+
 export interface LeaveGameAction {
   type: "LEAVE_GAME";
 }
@@ -280,6 +293,18 @@ export interface ToggleReadyAction {
 export function toggleReady(): ToggleReadyAction {
   return {
     type: "TOGGLE_READY",
+  };
+}
+
+export interface ChangeSideAction {
+  type: "CHANGE_SIDE";
+  side: PlayerSide;
+}
+
+export function changeSide(side: PlayerSide): ChangeSideAction {
+  return {
+    type: "CHANGE_SIDE",
+    side,
   };
 }
 
@@ -344,8 +369,10 @@ export type AppAction =
   | ReceivePlayerJoinedAction
   | ReceivePlayerLeftAction
   | ReceiveChatMessageAction
+  | ReceivePlayerChangedSideAction
   | ReceivePlayerReadyAction
   | SendChatMessageAction
+  | ChangeSideAction
   | ToggleReadyAction
   | SendStartGameAction
   | ReceiveStartGameAction

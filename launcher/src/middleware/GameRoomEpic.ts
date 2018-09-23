@@ -1,4 +1,4 @@
-import { AppAction, disconnectGame, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, receiveChatMessage, receivePlayerReady, receiveStartGame, gameEnded, LaunchRweAction, receiveRooms, receiveGameCreated, receiveGameUpdated, receiveGameDeleted, receiveCreateGameResponse, ReceiveCreateGameResponseAction, masterServerConnect, masterServerDisconnect } from "../actions";
+import { AppAction, disconnectGame, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, receiveChatMessage, receivePlayerReady, receiveStartGame, gameEnded, LaunchRweAction, receiveRooms, receiveGameCreated, receiveGameUpdated, receiveGameDeleted, receiveCreateGameResponse, ReceiveCreateGameResponseAction, masterServerConnect, masterServerDisconnect, receivePlayerChangedSide } from "../actions";
 import { StateObservable, combineEpics, ofType } from "redux-observable";
 import { State, GameRoom } from "../state";
 import * as rx from "rxjs";
@@ -26,6 +26,7 @@ const gameClientEventsEpic = (action$: rx.Observable<AppAction>, state$: StateOb
     clientService.onPlayerJoined.pipe(rxop.map(receivePlayerJoined)),
     clientService.onPlayerLeft.pipe(rxop.map(receivePlayerLeft)),
     clientService.onPlayerChatMessage.pipe(rxop.map(receiveChatMessage)),
+    clientService.onPlayerChangedSide.pipe(rxop.map(receivePlayerChangedSide)),
     clientService.onPlayerReady.pipe(rxop.map(receivePlayerReady)),
     clientService.onStartGame.pipe(rxop.map(receiveStartGame)),
   );
@@ -107,6 +108,10 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
         }
         case "SEND_CHAT_MESSAGE": {
           clientService.sendChatMessage(action.message);
+          break;
+        }
+        case "CHANGE_SIDE": {
+          clientService.changeSide(action.side);
           break;
         }
         case "TOGGLE_READY": {

@@ -69,3 +69,15 @@ export const RequestStartGame = "request-start-game";
 
 // Broadcast by the server to all clients to announce the start of the game
 export const StartGame = "start-game";
+
+
+export const ChangeSide = "change-side";
+export interface ChangeSidePayload {
+  side: PlayerSide;
+}
+
+export const PlayerChangedSide = "player-change-side";
+export interface PlayerChangedSidePayload {
+  playerId: number;
+  side: PlayerSide;
+}

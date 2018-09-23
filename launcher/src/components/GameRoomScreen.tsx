@@ -1,10 +1,10 @@
 import * as React from "react";
-import { State, PlayerInfo, ChatMessage, canStartGame } from "../state";
+import { State, PlayerInfo, ChatMessage, canStartGame, PlayerSide } from "../state";
 import { connect } from "react-redux";
-import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Table, TableHead, TableRow, TableCell, TableBody, Checkbox, Typography, Divider, Paper } from "@material-ui/core";
+import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Table, TableHead, TableRow, TableCell, TableBody, Checkbox, Typography, Divider, Paper, Select, MenuItem } from "@material-ui/core";
 import StarIcon from "@material-ui/icons/Grade";
 import { Dispatch } from "redux";
-import { sendChatMessage, leaveGame, toggleReady, sendStartGame } from "../actions";
+import { sendChatMessage, leaveGame, toggleReady, sendStartGame, changeSide } from "../actions";
 
 interface GameRoomScreenStateProps {
   localPlayerId?: number;
@@ -17,6 +17,7 @@ interface GameRoomScreenStateProps {
 interface GameRoomScreenDispatchProps {
   onSend: (message: string) => void;
   onLeaveGame: () => void;
+  onChangeSide: (side: PlayerSide) => void;
   onToggleReady: () => void;
   onStartGame: () => void;
 }
@@ -42,6 +43,7 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
     this.handleUserMessageChange = this.handleUserMessageChange.bind(this);
     this.handleSend = this.handleSend.bind(this);
     this.handleReadyChange = this.handleReadyChange.bind(this);
+    this.handleSideChange = this.handleSideChange.bind(this);
   }
 
   handleUserMessageChange(event: React.SyntheticEvent<EventTarget>) {
@@ -60,6 +62,10 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
     this.props.onToggleReady();
   }
 
+  handleSideChange(event: React.SyntheticEvent<EventTarget>) {
+    this.props.onChangeSide((event.target as HTMLSelectElement).value as PlayerSide);
+  }
+
   render() {
     const messageElements = this.props.messages.map((m, i) => {
       return (
@@ -76,10 +82,17 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
       const nameCell = player.id === this.props.adminPlayerId
         ? <TableCell><StarIcon /> {player.name}</TableCell>
         : <TableCell>{player.name}</TableCell>;
+      const sideItems = ["ARM", "CORE"].map((x, i) => <MenuItem key={i} value={x}>{x}</MenuItem>);
+      const sideSelect = player.id === this.props.localPlayerId
+        ? <Select value={player.side} onChange={this.handleSideChange}>{sideItems}</Select>
+        : <Select value={player.side} disabled>{sideItems}</Select>;
+
       return (
         <TableRow key={player.id}>
           {nameCell}
-          <TableCell>{player.side}</TableCell>
+          <TableCell>
+            {sideSelect}
+          </TableCell>
           <TableCell>{player.color}</TableCell>
           <TableCell>{player.team}</TableCell>
           <TableCell padding="checkbox">{checkbox}</TableCell>
@@ -151,6 +164,7 @@ function mapDispatchToProps(dispatch: Dispatch): GameRoomScreenDispatchProps {
   return {
     onSend: (message: string) => dispatch(sendChatMessage(message)),
     onLeaveGame: () => dispatch(leaveGame()),
+    onChangeSide: (side: PlayerSide) => dispatch(changeSide(side)),
     onToggleReady: () => dispatch(toggleReady()),
     onStartGame: () => dispatch(sendStartGame()),
   };

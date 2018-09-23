@@ -2,6 +2,7 @@ import * as protocol from "./protocol";
 import * as rx from "rxjs";
 import * as crypto from "crypto";
 import { getAddr } from "../util";
+import { PlayerSide } from "../state";
 
 export interface AdminUnclaimed {
   state: "unclaimed";
@@ -160,6 +161,9 @@ export class GameServer {
         socket.on(protocol.ChatMessage, (data: protocol.ChatMessagePayload) => {
           this.onChatMessage(roomId, playerId, data);
         });
+        socket.on(protocol.ChangeSide, (data: protocol.ChangeSidePayload) => {
+          this.onChangeSide(roomId, playerId, data);
+        });
         socket.on(protocol.Ready, (data: protocol.ReadyPayload) => {
           this.onPlayerReady(roomId, playerId, data);
         });
@@ -188,6 +192,16 @@ export class GameServer {
   private onChatMessage(roomId: number, playerId: number, message: string) {
     const payload: protocol.PlayerChatMessagePayload = { playerId, message };
     this.sendToRoom(roomId, protocol.PlayerChatMessage, payload);
+  }
+
+  private onChangeSide(roomId: number, playerId: number, data: protocol.ChangeSidePayload) {
+    const room = this.rooms.get(roomId);
+    if (!room) { throw new Error("onChangeSide triggered for non-existent room"); }
+    const player = room.players.find(x => x.id === playerId);
+    if (!player) { throw new Error(`Failed to find player ${playerId}`); }
+    player.side = data.side;
+    const payload: protocol.PlayerChangedSidePayload = { playerId, side: data.side };
+    this.sendToRoom(roomId, protocol.PlayerChangedSide, payload);
   }
 
   private onPlayerReady(roomId: number, playerId: number, value: boolean) {
