@@ -361,8 +361,12 @@ namespace rwe
         return i;
     }
 
-    PlayerInfo parsePlayerInfoFromArg(const std::string& playerString)
+    std::optional<PlayerInfo> parsePlayerInfoFromArg(const std::string& playerString)
     {
+        if (playerString == "empty") {
+            return std::nullopt;
+        }
+
         auto components = rwe::utf8Split(playerString, ';');
         if (components.size() != 3)
         {
