@@ -1,4 +1,4 @@
-import { createStyles, Theme, WithStyles, withStyles } from "@material-ui/core";
+import { createStyles, Theme, WithStyles, withStyles, MenuItem } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import * as React from "react";
@@ -73,7 +73,7 @@ class UnconnectedHostGameForm extends React.Component<HostGameFormProps, HostGam
             <TextField className={this.props.classes.nameInput} label="Your Name" value={this.state.playerName} onChange={this.handlePlayerNameChange} />
             <TextField className={this.props.classes.descriptionInput} label="Game Description" value={this.state.gameDescription} onChange={this.handleGameDescriptionChange} />
             <TextField className={this.props.classes.playersInput} select label="Players" value={this.state.players} onChange={this.handlePlayersChange}>
-              {playerCountList.map(i => <option key={i} value={i}>{i}</option>)}
+              {playerCountList.map(i => <MenuItem key={i} value={i}>{i}</MenuItem>)}
             </TextField>
           </div>
 
