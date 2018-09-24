@@ -76,7 +76,7 @@ export interface ChangeSidePayload {
   side: PlayerSide;
 }
 
-export const PlayerChangedSide = "player-change-side";
+export const PlayerChangedSide = "player-changed-side";
 export interface PlayerChangedSidePayload {
   playerId: number;
   side: PlayerSide;
