@@ -164,6 +164,9 @@ export class GameServer {
         socket.on(protocol.ChangeSide, (data: protocol.ChangeSidePayload) => {
           this.onChangeSide(roomId, playerId, data);
         });
+        socket.on(protocol.ChangeColor, (data: protocol.ChangeColorPayload) => {
+          this.onChangeColor(roomId, playerId, data);
+        });
         socket.on(protocol.Ready, (data: protocol.ReadyPayload) => {
           this.onPlayerReady(roomId, playerId, data);
         });
@@ -202,6 +205,16 @@ export class GameServer {
     player.side = data.side;
     const payload: protocol.PlayerChangedSidePayload = { playerId, side: data.side };
     this.sendToRoom(roomId, protocol.PlayerChangedSide, payload);
+  }
+
+  private onChangeColor(roomId: number, playerId: number, data: protocol.ChangeColorPayload) {
+    const room = this.rooms.get(roomId);
+    if (!room) { throw new Error("onChangeSide triggered for non-existent room"); }
+    const player = room.players.find(x => x.id === playerId);
+    if (!player) { throw new Error(`Failed to find player ${playerId}`); }
+    player.color = data.color;
+    const payload: protocol.PlayerChangedColorPayload = { playerId, color: data.color };
+    this.sendToRoom(roomId, protocol.PlayerChangedColor, payload);
   }
 
   private onPlayerReady(roomId: number, playerId: number, value: boolean) {

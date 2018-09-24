@@ -81,3 +81,15 @@ export interface PlayerChangedSidePayload {
   playerId: number;
   side: PlayerSide;
 }
+
+
+export const ChangeColor = "change-color";
+export interface ChangeColorPayload {
+  color: number;
+}
+
+export const PlayerChangedColor = "player-changed-color";
+export interface PlayerChangedColorPayload {
+  playerId: number;
+  color: number;
+}

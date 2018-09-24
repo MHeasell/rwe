@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Table, TableHead, TableRow, TableCell, TableBody, Checkbox, Typography, Divider, Paper, Select, MenuItem } from "@material-ui/core";
 import StarIcon from "@material-ui/icons/Grade";
 import { Dispatch } from "redux";
-import { sendChatMessage, leaveGame, toggleReady, sendStartGame, changeSide } from "../actions";
+import { sendChatMessage, leaveGame, toggleReady, sendStartGame, changeSide, changeColor } from "../actions";
 
 interface GameRoomScreenStateProps {
   localPlayerId?: number;
@@ -18,9 +18,23 @@ interface GameRoomScreenDispatchProps {
   onSend: (message: string) => void;
   onLeaveGame: () => void;
   onChangeSide: (side: PlayerSide) => void;
+  onChangeColor: (color: number) => void;
   onToggleReady: () => void;
   onStartGame: () => void;
 }
+
+const teamColors = [
+  "#1747e7",
+  "#d32b00",
+  "#fbfbfb",
+  "#1b9f13",
+  "#071f7b",
+  "#7f579f",
+  "#ffff00",
+  "#2b2b2b",
+  "#9bcbdf",
+  "#abab83",
+];
 
 const styles = (theme: Theme) => createStyles({
   messageInput: {
@@ -44,6 +58,7 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
     this.handleSend = this.handleSend.bind(this);
     this.handleReadyChange = this.handleReadyChange.bind(this);
     this.handleSideChange = this.handleSideChange.bind(this);
+    this.handleColorChange = this.handleColorChange.bind(this);
   }
 
   handleUserMessageChange(event: React.SyntheticEvent<EventTarget>) {
@@ -64,6 +79,10 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
 
   handleSideChange(event: React.SyntheticEvent<EventTarget>) {
     this.props.onChangeSide((event.target as HTMLSelectElement).value as PlayerSide);
+  }
+
+  handleColorChange(event: React.SyntheticEvent<EventTarget>) {
+    this.props.onChangeColor(parseInt((event.target as HTMLSelectElement).value));
   }
 
   render() {
@@ -87,13 +106,27 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
         ? <Select value={player.side} onChange={this.handleSideChange}>{sideItems}</Select>
         : <Select value={player.side} disabled>{sideItems}</Select>;
 
+      const colorItems = teamColors.map((c, i) => {
+        const style = {
+          width: "16px",
+          height: "16px",
+          backgroundColor: c,
+        };
+        return <MenuItem key={i} value={i}><div style={style}></div></MenuItem>;
+      });
+      const colorSelect = player.id === this.props.localPlayerId
+        ? <Select value={player.color} onChange={this.handleColorChange}>{colorItems}</Select>
+        : <Select value={player.color} disabled>{colorItems}</Select>;
+
       return (
         <TableRow key={player.id}>
           {nameCell}
           <TableCell>
             {sideSelect}
           </TableCell>
-          <TableCell>{player.color}</TableCell>
+          <TableCell>
+            {colorSelect}
+          </TableCell>
           <TableCell>{player.team}</TableCell>
           <TableCell padding="checkbox">{checkbox}</TableCell>
         </TableRow>
@@ -164,6 +197,7 @@ function mapDispatchToProps(dispatch: Dispatch): GameRoomScreenDispatchProps {
   return {
     onSend: (message: string) => dispatch(sendChatMessage(message)),
     onLeaveGame: () => dispatch(leaveGame()),
+    onChangeColor: (color: number) => dispatch(changeColor(color)),
     onChangeSide: (side: PlayerSide) => dispatch(changeSide(side)),
     onToggleReady: () => dispatch(toggleReady()),
     onStartGame: () => dispatch(sendStartGame()),
