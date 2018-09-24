@@ -1,12 +1,12 @@
 import { AppAction, disconnectGame, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, receiveChatMessage, receivePlayerReady, receiveStartGame, gameEnded, LaunchRweAction, receiveRooms, receiveGameCreated, receiveGameUpdated, receiveGameDeleted, receiveCreateGameResponse, ReceiveCreateGameResponseAction, masterServerConnect, masterServerDisconnect, receivePlayerChangedSide, receivePlayerChangedColor } from "../actions";
 import { StateObservable, combineEpics, ofType } from "redux-observable";
-import { State, GameRoom } from "../state";
+import { State, GameRoom, FilledPlayerSlot } from "../state";
 import * as rx from "rxjs";
 import * as rxop from "rxjs/operators";
 
 import { GameClientService } from "../ws/game-client";
 
-import { RweArgs, RweArgsPlayerController, RweArgsPlayerInfo, execRwe } from "../rwe";
+import { RweArgs, RweArgsPlayerController, RweArgsPlayerInfo, execRwe, RweArgsEmptyPlayerSlot, RweArgsPlayerSlot, RweArgsFilledPlayerSlot } from "../rwe";
 import { MasterClientService } from "../master/master-client";
 import { masterServer } from "../util";
 
@@ -47,19 +47,29 @@ const masterClientEventsEpic = (action$: rx.Observable<AppAction>, state$: State
 };
 
 function rweArgsFromGameRoom(game: GameRoom): RweArgs {
-  const playersArgs = game.players.map((x, i) => {
-    const controller: RweArgsPlayerController =
-      x.id === game.localPlayerId
-      ? { type: "human" }
-      : { type: "remote", host: x.host, port: (6670 + i) };
-    const a: RweArgsPlayerInfo = {
-      side: x.side,
-      color: x.color,
-      controller,
-    };
-    return a;
+  const playersArgs: RweArgsPlayerSlot[] = game.players.map((x, i) => {
+    switch (x.state) {
+      case "empty": {
+        const s: RweArgsEmptyPlayerSlot = { state: "empty" };
+        return s;
+      }
+      case "filled": {
+        const controller: RweArgsPlayerController =
+          x.player.id === game.localPlayerId
+          ? { type: "human" }
+          : { type: "remote", host: x.player.host, port: (6670 + i) };
+        const a: RweArgsPlayerInfo = {
+          side: x.player.side,
+          color: x.player.color,
+          controller,
+        };
+        const s: RweArgsFilledPlayerSlot = { ...a, state: "filled" };
+        return s;
+      }
+      default: throw new Error("Unknown player slot state");
+    }
   });
-  const portOffset = game.players.findIndex(x => x.id === game.localPlayerId);
+  const portOffset = game.players.findIndex(x => x.state === "filled" && x.player.id === game.localPlayerId);
   return {
     map: "Evad River Confluence",
     port: (6670 + portOffset),
@@ -123,7 +133,8 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
           const state = state$.value;
           if (!state.currentGame) { break; }
           if (state.currentGame.localPlayerId === undefined) { break; }
-          const currentValue = state.currentGame.players.find(x => x.id === state.currentGame!.localPlayerId)!.ready;
+          const localPlayerSlot = state.currentGame.players.find(x => x.state === "filled" && x.player.id === state.currentGame!.localPlayerId)! as FilledPlayerSlot;
+          const currentValue = localPlayerSlot.player.ready;
           clientService.setReadyState(!currentValue);
           break;
         }

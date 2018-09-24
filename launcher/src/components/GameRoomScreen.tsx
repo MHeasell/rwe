@@ -1,5 +1,5 @@
 import * as React from "react";
-import { State, PlayerInfo, ChatMessage, canStartGame, PlayerSide } from "../state";
+import { State, PlayerInfo, ChatMessage, canStartGame, PlayerSide, PlayerSlot } from "../state";
 import { connect } from "react-redux";
 import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Table, TableHead, TableRow, TableCell, TableBody, Checkbox, Typography, Divider, Paper, Select, MenuItem } from "@material-ui/core";
 import StarIcon from "@material-ui/icons/Grade";
@@ -9,7 +9,7 @@ import { sendChatMessage, leaveGame, toggleReady, sendStartGame, changeSide, cha
 interface GameRoomScreenStateProps {
   localPlayerId?: number;
   adminPlayerId?: number;
-  players: PlayerInfo[];
+  players: PlayerSlot[];
   messages: ChatMessage[];
   startEnabled: boolean;
 }
@@ -85,6 +85,50 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
     this.props.onChangeColor(parseInt((event.target as HTMLSelectElement).value));
   }
 
+  emptyToRow(id: number) {
+    return <TableRow key={id}><TableCell colSpan={5}><Typography>Empty Slot</Typography></TableCell></TableRow>;
+  }
+
+  playerToRow(id: number, player: PlayerInfo) {
+    const checkbox = player.id === this.props.localPlayerId
+      ? <Checkbox checked={player.ready} onChange={this.handleReadyChange} />
+      : <Checkbox checked={player.ready} disabled />;
+    // const nameCell = <TableCell>{player.name}</TableCell>;
+    const nameCell = player.id === this.props.adminPlayerId
+      ? <TableCell><StarIcon /> {player.name}</TableCell>
+      : <TableCell>{player.name}</TableCell>;
+    const sideItems = ["ARM", "CORE"].map((x, i) => <MenuItem key={i} value={x}>{x}</MenuItem>);
+    const sideSelect = player.id === this.props.localPlayerId
+      ? <Select value={player.side} onChange={this.handleSideChange}>{sideItems}</Select>
+      : <Select value={player.side} disabled>{sideItems}</Select>;
+
+    const colorItems = teamColors.map((c, i) => {
+      const style = {
+        width: "16px",
+        height: "16px",
+        backgroundColor: c,
+      };
+      return <MenuItem key={i} value={i}><div style={style}></div></MenuItem>;
+    });
+    const colorSelect = player.id === this.props.localPlayerId
+      ? <Select value={player.color} onChange={this.handleColorChange}>{colorItems}</Select>
+      : <Select value={player.color} disabled>{colorItems}</Select>;
+
+    return (
+      <TableRow key={id}>
+        {nameCell}
+        <TableCell>
+          {sideSelect}
+        </TableCell>
+        <TableCell>
+          {colorSelect}
+        </TableCell>
+        <TableCell>{player.team}</TableCell>
+        <TableCell padding="checkbox">{checkbox}</TableCell>
+      </TableRow>
+    );
+  }
+
   render() {
     const messageElements = this.props.messages.map((m, i) => {
       return (
@@ -93,44 +137,12 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
         </Typography>
       );
     });
-    const rows = this.props.players.map((player) => {
-      const checkbox = player.id === this.props.localPlayerId
-        ? <Checkbox checked={player.ready} onChange={this.handleReadyChange} />
-        : <Checkbox checked={player.ready} disabled />;
-      // const nameCell = <TableCell>{player.name}</TableCell>;
-      const nameCell = player.id === this.props.adminPlayerId
-        ? <TableCell><StarIcon /> {player.name}</TableCell>
-        : <TableCell>{player.name}</TableCell>;
-      const sideItems = ["ARM", "CORE"].map((x, i) => <MenuItem key={i} value={x}>{x}</MenuItem>);
-      const sideSelect = player.id === this.props.localPlayerId
-        ? <Select value={player.side} onChange={this.handleSideChange}>{sideItems}</Select>
-        : <Select value={player.side} disabled>{sideItems}</Select>;
-
-      const colorItems = teamColors.map((c, i) => {
-        const style = {
-          width: "16px",
-          height: "16px",
-          backgroundColor: c,
-        };
-        return <MenuItem key={i} value={i}><div style={style}></div></MenuItem>;
-      });
-      const colorSelect = player.id === this.props.localPlayerId
-        ? <Select value={player.color} onChange={this.handleColorChange}>{colorItems}</Select>
-        : <Select value={player.color} disabled>{colorItems}</Select>;
-
-      return (
-        <TableRow key={player.id}>
-          {nameCell}
-          <TableCell>
-            {sideSelect}
-          </TableCell>
-          <TableCell>
-            {colorSelect}
-          </TableCell>
-          <TableCell>{player.team}</TableCell>
-          <TableCell padding="checkbox">{checkbox}</TableCell>
-        </TableRow>
-      );
+    const rows = this.props.players.map((slot, i) => {
+      switch (slot.state) {
+        case "empty": return this.emptyToRow(i);
+        case "filled": return this.playerToRow(i, slot.player);
+        default: throw new Error("Unknown slot state");
+      }
     });
     return (
       <div className="game-room-screen-container">

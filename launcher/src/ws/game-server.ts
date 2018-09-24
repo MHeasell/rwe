@@ -1,8 +1,8 @@
 import * as protocol from "./protocol";
 import * as rx from "rxjs";
 import * as crypto from "crypto";
-import { getAddr } from "../util";
-import { PlayerSide } from "../state";
+import { getAddr, findAndMap } from "../util";
+import { EmptyPlayerSlot } from "../state";
 
 export interface AdminUnclaimed {
   state: "unclaimed";
@@ -19,7 +19,7 @@ export type AdminState = AdminUnclaimed | AdminClaimed;
 export interface Room {
   description: string;
   nextPlayerId: number;
-  players: protocol.PlayerInfo[];
+  players: protocol.PlayerSlot[];
   maxPlayers: number;
   adminState: AdminState;
 }
@@ -37,6 +37,11 @@ function extractAddress(addr: string) {
   }
   return addr;
 }
+
+function findPlayer(players: protocol.PlayerSlot[], playerId: number): protocol.PlayerInfo | undefined {
+  return findAndMap(players, x => x.state === "filled" && x.player.id === playerId ? x.player : undefined);
+}
+
 
 export interface GameCreatedInfo {
   gameId: number;
@@ -69,10 +74,14 @@ export class GameServer {
   createRoom(description: string, maxPlayers: number): GameCreatedInfo {
     const id = this.nextRoomId++;
     const adminKey = generateAdminKey();
+    const players: protocol.PlayerSlot[] = new Array(10);
+    for (let i = 0; i < 10; ++i) {
+      players[i] = { state: "empty" };
+    }
     this.rooms.set(id, {
       description,
       nextPlayerId: 1,
-      players: [],
+      players,
       maxPlayers,
       adminState: { state: "unclaimed", adminKey },
     });
@@ -122,22 +131,31 @@ export class GameServer {
         const playerId = room.nextPlayerId++;
         this.log(`Received new connection, assigned ID ${playerId}`);
 
-        room.players.push({
-          id: playerId,
-          name: data.name,
-          host: address,
-          side: "ARM",
-          color: 0,
-          team: 0,
-          ready: false,
-        });
+        const freeSlotIndex = room.players.findIndex(x => x.state === "empty");
+        if (freeSlotIndex === -1) {
+          this.log(`Room full, rejecting client`);
+          socket.disconnect();
+          return;
+        }
+
+        room.players[freeSlotIndex] = {
+          state: "filled",
+          player: {
+            id: playerId,
+            name: data.name,
+            host: address,
+            side: "ARM",
+            color: 0,
+            team: 0,
+            ready: false,
+          },
+        };
 
         if (room.adminState.state === "unclaimed") {
           if (data.adminKey === room.adminState.adminKey) {
             room.adminState = { state: "claimed", adminPlayerId: playerId };
           }
         }
-
 
         this._gameUpdated.next([roomId, room]);
 
@@ -200,7 +218,7 @@ export class GameServer {
   private onChangeSide(roomId: number, playerId: number, data: protocol.ChangeSidePayload) {
     const room = this.rooms.get(roomId);
     if (!room) { throw new Error("onChangeSide triggered for non-existent room"); }
-    const player = room.players.find(x => x.id === playerId);
+    const player = findPlayer(room.players, playerId);
     if (!player) { throw new Error(`Failed to find player ${playerId}`); }
     player.side = data.side;
     const payload: protocol.PlayerChangedSidePayload = { playerId, side: data.side };
@@ -210,7 +228,7 @@ export class GameServer {
   private onChangeColor(roomId: number, playerId: number, data: protocol.ChangeColorPayload) {
     const room = this.rooms.get(roomId);
     if (!room) { throw new Error("onChangeSide triggered for non-existent room"); }
-    const player = room.players.find(x => x.id === playerId);
+    const player = findPlayer(room.players, playerId);
     if (!player) { throw new Error(`Failed to find player ${playerId}`); }
     player.color = data.color;
     const payload: protocol.PlayerChangedColorPayload = { playerId, color: data.color };
@@ -220,7 +238,7 @@ export class GameServer {
   private onPlayerReady(roomId: number, playerId: number, value: boolean) {
     const room = this.rooms.get(roomId);
     if (!room) { throw new Error("onPlayerReady triggered for non-existent room"); }
-    const player = room.players.find(x => x.id === playerId);
+    const player = findPlayer(room.players, playerId);
     if (!player) { throw new Error(`Failed to find player ${playerId}`); }
     player.ready = value;
     const payload: protocol.PlayerReadyPayload = { playerId, value };
@@ -240,24 +258,30 @@ export class GameServer {
   private onDisconnected(roomId: number, playerId: number) {
     const room = this.rooms.get(roomId);
     if (!room) { throw new Error("onDisconnected triggered for non-existent room"); }
-    room.players = room.players.filter(x => x.id !== playerId);
+    room.players = room.players.map(x => {
+      if (x.state === "filled" && x.player.id === playerId) {
+        const e: EmptyPlayerSlot = { state: "empty" };
+        return e;
+      }
+      return x;
+    });
     const playerLeft: protocol.PlayerLeftPayload = {
       playerId,
     };
+
+    const firstPlayerIndex = room.players.findIndex(x => x.state === "filled");
+    if (firstPlayerIndex === -1) {
+      this.deleteRoom(roomId);
+      return;
+    }
+
+    const firstPlayer = room.players[firstPlayerIndex] as protocol.FilledPlayerSlot;
+
     if (room.adminState.state === "claimed" && room.adminState.adminPlayerId === playerId) {
-      if (room.players.length < 1) {
-        room.adminState.adminPlayerId = undefined;
-      }
-      else {
-        room.adminState.adminPlayerId = room.players[0].id;
-        playerLeft.newAdminPlayerId = room.adminState.adminPlayerId;
-      }
+      room.adminState.adminPlayerId = firstPlayer.player.id;
+      playerLeft.newAdminPlayerId = room.adminState.adminPlayerId;
     }
     this.sendToRoom(roomId, protocol.PlayerLeft, playerLeft);
     this._gameUpdated.next([roomId, room]);
-
-    if (room.players.length === 0) {
-      this.deleteRoom(roomId);
-    }
   }
 }

@@ -1,6 +1,8 @@
 import { AppAction } from "./actions";
-import { State, GameListEntry, GameRoom, PlayerInfo, ChatMessage } from "./state";
+import { State, GameListEntry, GameRoom, PlayerInfo, ChatMessage, PlayerSlot } from "./state";
 import { GetGamesResponseItem } from "./master/protocol";
+import { findAndMap } from "./util";
+import { EmptyPlayerSlot } from "./ws/protocol";
 
 const initialState: State = {
   games: [],
@@ -16,6 +18,10 @@ function roomResponseEntryToGamesListEntry(room: GetGamesResponseItem): GameList
     players: room.game.players,
     maxPlayers: room.game.max_players,
   };
+}
+
+function findPlayer(players: PlayerSlot[], playerId: number): PlayerInfo | undefined {
+  return findAndMap(players, x => x.state === "filled" && x.player.id === playerId ? x.player : undefined);
 }
 
 function games(state: State = initialState, action: AppAction): State {
@@ -79,23 +85,33 @@ function games(state: State = initialState, action: AppAction): State {
     }
     case "RECEIVE_PLAYER_JOINED": {
       if (!state.currentGame) { return state; }
-      const newPlayers = state.currentGame.players.slice();
-      const newPlayer: PlayerInfo = {
-        id: action.payload.playerId,
-        name: action.payload.name,
-        host: action.payload.host,
-        side: "ARM",
-        color: 0,
-        team: 0,
-        ready: false,
+      const newPlayer: PlayerSlot = {
+        state: "filled",
+        player: {
+          id: action.payload.playerId,
+          name: action.payload.name,
+          host: action.payload.host,
+          side: "ARM",
+          color: 0,
+          team: 0,
+          ready: false,
+        },
       };
-      newPlayers.push(newPlayer);
+      const newPlayerIndex = state.currentGame.players.findIndex(x => x.state === "empty");
+      if (newPlayerIndex === -1) { throw new Error("Player joined game, but already full!"); }
+      const newPlayers = state.currentGame.players.map((x, i) => i === newPlayerIndex ? newPlayer : x);
       const newRoom: GameRoom = { ...state.currentGame, players: newPlayers };
       return { ...state, currentGame: newRoom };
     }
     case "RECEIVE_PLAYER_LEFT": {
       if (!state.currentGame) { return state; }
-      const newPlayers = state.currentGame.players.filter(x => x.id !== action.payload.playerId);
+      const newPlayers = state.currentGame.players.map(x => {
+        if (x.state === "filled" && x.player.id === action.payload.playerId) {
+          const e: EmptyPlayerSlot = { state: "empty" };
+          return e;
+        }
+        return x;
+      });
       const newAdminId =
         action.payload.newAdminPlayerId !== undefined ? action.payload.newAdminPlayerId
         : action.payload.playerId === state.currentGame.adminPlayerId ? undefined
@@ -107,7 +123,7 @@ function games(state: State = initialState, action: AppAction): State {
     case "RECEIVE_CHAT_MESSAGE": {
       if (!state.currentGame) { return state; }
       const newMessages = state.currentGame.messages.slice();
-      const sender = state.currentGame.players.find(x => x.id === action.payload.playerId);
+      const sender = findPlayer(state.currentGame.players, action.payload.playerId);
       const senderName = sender ? sender.name : undefined;
       const newMessage: ChatMessage = {
         senderName: senderName,
@@ -120,8 +136,9 @@ function games(state: State = initialState, action: AppAction): State {
     case "RECEIVE_PLAYER_CHANGED_SIDE": {
       if (!state.currentGame) { return state; }
       const newPlayers = state.currentGame.players.map(x => {
-        if (x.id !== action.payload.playerId) { return x; }
-        return { ...x, side: action.payload.side };
+        if (x.state !== "filled" || x.player.id !== action.payload.playerId) { return x; }
+        const p = { ...x.player, side: action.payload.side };
+        return { ...x, player: p };
       });
       const room: GameRoom = { ...state.currentGame, players: newPlayers };
       return { ...state, currentGame: room };
@@ -129,8 +146,9 @@ function games(state: State = initialState, action: AppAction): State {
     case "RECEIVE_PLAYER_CHANGED_COLOR": {
       if (!state.currentGame) { return state; }
       const newPlayers = state.currentGame.players.map(x => {
-        if (x.id !== action.payload.playerId) { return x; }
-        return { ...x, color: action.payload.color };
+        if (x.state !== "filled" || x.player.id !== action.payload.playerId) { return x; }
+        const p = { ...x.player, color: action.payload.color };
+        return { ...x, player: p };
       });
       const room: GameRoom = { ...state.currentGame, players: newPlayers };
       return { ...state, currentGame: room };
@@ -138,10 +156,9 @@ function games(state: State = initialState, action: AppAction): State {
     case "RECEIVE_PLAYER_READY": {
       if (!state.currentGame) { return state; }
       const newPlayers = state.currentGame.players.map(x => {
-        if (x.id !== action.payload.playerId) {
-          return x;
-        }
-        return { ...x, ready: action.payload.value };
+        if (x.state !== "filled" || x.player.id !== action.payload.playerId) { return x; }
+        const p = { ...x.player, ready: action.payload.value };
+        return { ...x, player: p };
       });
       const room: GameRoom = { ...state.currentGame, players: newPlayers };
       return { ...state, currentGame: room };

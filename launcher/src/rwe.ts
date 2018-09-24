@@ -23,12 +23,22 @@ export interface RweArgsPlayerInfo {
   controller: RweArgsPlayerController;
 }
 
+export interface RweArgsEmptyPlayerSlot {
+  state: "empty";
+}
+
+export interface RweArgsFilledPlayerSlot extends RweArgsPlayerInfo {
+  state: "filled";
+}
+
+export type RweArgsPlayerSlot = RweArgsEmptyPlayerSlot | RweArgsFilledPlayerSlot;
+
 export interface RweArgs {
   dataPath?: string;
   map?: string;
   interface?: string;
   port?: number;
-  players: RweArgsPlayerInfo[];
+  players: RweArgsPlayerSlot[];
 }
 
 function serializeRweController(controller: RweArgsPlayerController): string {
@@ -59,8 +69,16 @@ function serializeRweArgs(args: RweArgs): string[] {
     out.push("--port", args.port.toString());
   }
   for (const p of args.players) {
-    const controllerString = serializeRweController(p.controller);
-    out.push("--player", `${controllerString};${p.side};${p.color}`);
+    switch (p.state) {
+      case "filled": {
+        const controllerString = serializeRweController(p.controller);
+        out.push("--player", `${controllerString};${p.side};${p.color}`);
+      }
+      case "empty": {
+        out.push("--player", "empty");
+      }
+      default: throw new Error("Unknown player slot state");
+    }
   }
   return out;
 }

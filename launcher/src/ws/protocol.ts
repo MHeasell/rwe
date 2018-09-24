@@ -11,6 +11,21 @@ export interface PlayerInfo {
   ready: boolean;
 }
 
+export interface FilledPlayerSlot {
+  state: "filled";
+  player: PlayerInfo;
+}
+
+export interface EmptyPlayerSlot {
+  state: "empty";
+}
+
+export type PlayerSlot = EmptyPlayerSlot | FilledPlayerSlot;
+
+export function isFilled(slot: PlayerSlot): slot is FilledPlayerSlot { return slot.state === "filled"; }
+export function isPlayer(slot: PlayerSlot, id: number): slot is FilledPlayerSlot { return slot.state === "filled" && slot.player.id === id; }
+export function isEmpty(slot: PlayerSlot): slot is EmptyPlayerSlot { return slot.state === "empty"; }
+
 // Emitted by the client upon connection
 export const Handshake = "handshake";
 export interface HandshakePayload {
@@ -24,7 +39,7 @@ export const HandshakeResponse = "handshake-response";
 export interface HandshakeResponsePayload {
   playerId: number;
   adminPlayerId?: number;
-  players: PlayerInfo[];
+  players: PlayerSlot[];
 }
 
 // Emitted by the client when the user sends a chat message

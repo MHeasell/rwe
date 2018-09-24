@@ -35,10 +35,21 @@ export interface ChatMessage {
   message: string;
 }
 
+export interface FilledPlayerSlot {
+  state: "filled";
+  player: PlayerInfo;
+}
+
+export interface EmptyPlayerSlot {
+  state: "empty";
+}
+
+export type PlayerSlot = EmptyPlayerSlot | FilledPlayerSlot;
+
 export interface GameRoom {
   localPlayerId?: number;
   adminPlayerId?: number;
-  players: PlayerInfo[];
+  players: PlayerSlot[];
   messages: ChatMessage[];
 }
 
@@ -50,7 +61,7 @@ export function canStartGame(room: GameRoom) {
     return false;
   }
 
-  return room.players.every(x => x.ready);
+  return room.players.every(x => x.state === "filled" && x.player.ready);
 }
 
 export interface GameListEntry {

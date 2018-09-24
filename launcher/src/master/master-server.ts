@@ -22,7 +22,7 @@ const io = socketio(server, { serveClient: false });
 function roomToEntry(x: Room): protocol.GetGamesReponseEntry {
   return {
     description: x.description,
-    players: x.players.length,
+    players: x.players.filter(x => x.state === "filled").length,
     max_players: x.maxPlayers,
   };
 }
