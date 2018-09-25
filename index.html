@@ -1,3 +1,5 @@
+---
+---
 <!DOCTYPE html>
 <html lang="en">
 
@@ -19,6 +21,15 @@
       For more information please visit
       <a href="https://github.com/MHeasell/rwe">https://github.com/MHeasell/rwe</a>
     </p>
+
+    <h2>Posts</h2>
+    <ul>
+      {% for post in site.posts %}
+        <li>
+          <a href="{{ post.url }}">{{ post.title }}</a>
+        </li>
+      {% endfor %}
+    </ul>
 
     <h2>Images</h2>
     <p>
