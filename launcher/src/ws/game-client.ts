@@ -12,6 +12,7 @@ export class GameClientService {
   private readonly _onPlayerLeft = new Subject<protocol.PlayerLeftPayload>();
   private readonly _onPlayerChatMessage = new Subject<protocol.PlayerChatMessagePayload>();
   private readonly _onPlayerChangedSide = new Subject<protocol.PlayerChangedSidePayload>();
+  private readonly _onPlayerChangedTeam = new Subject<protocol.PlayerChangedTeamPayload>();
   private readonly _onPlayerChangedColor = new Subject<protocol.PlayerChangedColorPayload>();
   private readonly _onPlayerReady = new Subject<protocol.PlayerReadyPayload>();
   private readonly _onStartGame = new Subject<void>();
@@ -22,6 +23,7 @@ export class GameClientService {
   get onPlayerLeft(): Observable<protocol.PlayerLeftPayload> { return this._onPlayerLeft; }
   get onPlayerChatMessage(): Observable<protocol.PlayerChatMessagePayload> { return this._onPlayerChatMessage; }
   get onPlayerChangedSide(): Observable<protocol.PlayerChangedSidePayload> { return this._onPlayerChangedSide; }
+  get onPlayerChangedTeam(): Observable<protocol.PlayerChangedTeamPayload> { return this._onPlayerChangedTeam; }
   get onPlayerChangedColor(): Observable<protocol.PlayerChangedColorPayload> { return this._onPlayerChangedColor; }
   get onPlayerReady(): Observable<protocol.PlayerReadyPayload> { return this._onPlayerReady; }
   get onStartGame(): Observable<void> { return this._onStartGame; }
@@ -71,6 +73,10 @@ export class GameClientService {
       this._onPlayerChangedSide.next(data);
     });
 
+    this.client.on(protocol.PlayerChangedTeam, (data: protocol.PlayerChangedTeamPayload) => {
+      this._onPlayerChangedTeam.next(data);
+    });
+
     this.client.on(protocol.PlayerChangedColor, (data: protocol.PlayerChangedColorPayload) => {
       this._onPlayerChangedColor.next(data);
     });
@@ -101,6 +107,12 @@ export class GameClientService {
     if (!this.client) { return; }
     const payload: protocol.ChangeSidePayload = { side };
     this.client.emit(protocol.ChangeSide, payload);
+  }
+
+  changeTeam(team?: number) {
+    if (!this.client) { return; }
+    const payload: protocol.ChangeTeamPayload = { team };
+    this.client.emit(protocol.ChangeTeam, payload);
   }
 
   changeColor(color: number) {

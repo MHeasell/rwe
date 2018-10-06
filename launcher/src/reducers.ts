@@ -143,6 +143,16 @@ function games(state: State = initialState, action: AppAction): State {
       const room: GameRoom = { ...state.currentGame, players: newPlayers };
       return { ...state, currentGame: room };
     }
+    case "RECEIVE_PLAYER_CHANGED_TEAM": {
+      if (!state.currentGame) { return state; }
+      const newPlayers = state.currentGame.players.map(x => {
+        if (x.state !== "filled" || x.player.id !== action.payload.playerId) { return x; }
+        const p = { ...x.player, team: action.payload.team };
+        return { ...x, player: p };
+      });
+      const room: GameRoom = { ...state.currentGame, players: newPlayers };
+      return { ...state, currentGame: room };
+    }
     case "RECEIVE_PLAYER_CHANGED_COLOR": {
       if (!state.currentGame) { return state; }
       const newPlayers = state.currentGame.players.map(x => {

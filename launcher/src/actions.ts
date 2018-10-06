@@ -266,6 +266,18 @@ export function receivePlayerChangedSide(payload: protocol.PlayerChangedSidePayl
   };
 }
 
+export interface ReceivePlayerChangedTeamAction {
+  type: "RECEIVE_PLAYER_CHANGED_TEAM";
+  payload: protocol.PlayerChangedTeamPayload;
+}
+
+export function receivePlayerChangedTeam(payload: protocol.PlayerChangedTeamPayload): ReceivePlayerChangedTeamAction {
+  return {
+    type: "RECEIVE_PLAYER_CHANGED_TEAM",
+    payload,
+  };
+}
+
 export interface ReceivePlayerChangedColorAction {
   type: "RECEIVE_PLAYER_CHANGED_COLOR";
   payload: protocol.PlayerChangedColorPayload;
@@ -317,6 +329,18 @@ export function changeSide(side: PlayerSide): ChangeSideAction {
   return {
     type: "CHANGE_SIDE",
     side,
+  };
+}
+
+export interface ChangeTeamAction {
+  type: "CHANGE_TEAM";
+  team?: number;
+}
+
+export function changeTeam(team?: number): ChangeTeamAction {
+  return {
+    type: "CHANGE_TEAM",
+    team,
   };
 }
 
@@ -394,10 +418,12 @@ export type AppAction =
   | ReceivePlayerLeftAction
   | ReceiveChatMessageAction
   | ReceivePlayerChangedSideAction
+  | ReceivePlayerChangedTeamAction
   | ReceivePlayerChangedColorAction
   | ReceivePlayerReadyAction
   | SendChatMessageAction
   | ChangeSideAction
+  | ChangeTeamAction
   | ChangeColorAction
   | ToggleReadyAction
   | SendStartGameAction

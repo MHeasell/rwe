@@ -26,7 +26,7 @@ export interface PlayerInfo {
   host: string;
   side: PlayerSide;
   color: PlayerColor;
-  team: number;
+  team?: number;
   ready: boolean;
 }
 

@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Table, TableHead, TableRow, TableCell, TableBody, Checkbox, Typography, Divider, Paper, Select, MenuItem } from "@material-ui/core";
 import StarIcon from "@material-ui/icons/Grade";
 import { Dispatch } from "redux";
-import { sendChatMessage, leaveGame, toggleReady, sendStartGame, changeSide, changeColor } from "../actions";
+import { sendChatMessage, leaveGame, toggleReady, sendStartGame, changeSide, changeColor, changeTeam } from "../actions";
 
 interface GameRoomScreenStateProps {
   localPlayerId?: number;
@@ -18,6 +18,7 @@ interface GameRoomScreenDispatchProps {
   onSend: (message: string) => void;
   onLeaveGame: () => void;
   onChangeSide: (side: PlayerSide) => void;
+  onChangeTeam: (team?: number) => void;
   onChangeColor: (color: number) => void;
   onToggleReady: () => void;
   onStartGame: () => void;
@@ -59,6 +60,7 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
     this.handleReadyChange = this.handleReadyChange.bind(this);
     this.handleSideChange = this.handleSideChange.bind(this);
     this.handleColorChange = this.handleColorChange.bind(this);
+    this.handleTeamChange = this.handleTeamChange.bind(this);
   }
 
   handleUserMessageChange(event: React.SyntheticEvent<EventTarget>) {
@@ -85,6 +87,12 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
     this.props.onChangeColor(parseInt((event.target as HTMLSelectElement).value));
   }
 
+  handleTeamChange(event: React.SyntheticEvent<EventTarget>) {
+    const value = (event.target as HTMLSelectElement).value;
+    const parsedValue = value === "" ? undefined : parseInt(value);
+    this.props.onChangeTeam(parsedValue);
+  }
+
   emptyToRow(id: number) {
     return <TableRow key={id}><TableCell colSpan={5}><Typography>Empty Slot</Typography></TableCell></TableRow>;
   }
@@ -101,6 +109,12 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
     const sideSelect = player.id === this.props.localPlayerId
       ? <Select value={player.side} onChange={this.handleSideChange}>{sideItems}</Select>
       : <Select value={player.side} disabled>{sideItems}</Select>;
+
+    const teamItems = ["", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"].map((x, i) => <MenuItem key={i} value={x}>{x}</MenuItem>);
+    const playerTeamValue = player.team === undefined ? "" : player.team.toString();
+    const teamSelect = player.id === this.props.localPlayerId
+      ? <Select value={playerTeamValue} onChange={this.handleTeamChange}>{teamItems}</Select>
+      : <Select value={playerTeamValue} onChange={this.handleTeamChange} disabled>{teamItems}</Select>;
 
     const colorItems = teamColors.map((c, i) => {
       const style = {
@@ -123,7 +137,9 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
         <TableCell>
           {colorSelect}
         </TableCell>
-        <TableCell>{player.team}</TableCell>
+        <TableCell>
+          {teamSelect}
+        </TableCell>
         <TableCell padding="checkbox">{checkbox}</TableCell>
       </TableRow>
     );
@@ -211,6 +227,7 @@ function mapDispatchToProps(dispatch: Dispatch): GameRoomScreenDispatchProps {
     onLeaveGame: () => dispatch(leaveGame()),
     onChangeColor: (color: number) => dispatch(changeColor(color)),
     onChangeSide: (side: PlayerSide) => dispatch(changeSide(side)),
+    onChangeTeam: (team?: number) => dispatch(changeTeam(team)),
     onToggleReady: () => dispatch(toggleReady()),
     onStartGame: () => dispatch(sendStartGame()),
   };

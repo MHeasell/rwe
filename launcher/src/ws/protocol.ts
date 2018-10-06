@@ -7,7 +7,7 @@ export interface PlayerInfo {
   host: string;
   side: PlayerSide;
   color: PlayerColor;
-  team: number;
+  team?: number;
   ready: boolean;
 }
 
@@ -95,6 +95,18 @@ export const PlayerChangedSide = "player-changed-side";
 export interface PlayerChangedSidePayload {
   playerId: number;
   side: PlayerSide;
+}
+
+
+export const ChangeTeam = "change-team";
+export interface ChangeTeamPayload {
+  team?: number;
+}
+
+export const PlayerChangedTeam = "player-changed-team";
+export interface PlayerChangedTeamPayload {
+  playerId: number;
+  team?: number;
 }
 
 
