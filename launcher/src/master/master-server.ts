@@ -23,7 +23,7 @@ function roomToEntry(x: Room): protocol.GetGamesReponseEntry {
   return {
     description: x.description,
     players: x.players.filter(x => x.state === "filled").length,
-    max_players: x.maxPlayers,
+    max_players: x.players.filter(x => x.state !== "closed").length,
   };
 }
 

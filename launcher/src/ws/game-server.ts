@@ -20,7 +20,6 @@ export interface Room {
   description: string;
   nextPlayerId: number;
   players: protocol.PlayerSlot[];
-  maxPlayers: number;
   adminState: AdminState;
 }
 
@@ -75,14 +74,16 @@ export class GameServer {
     const id = this.nextRoomId++;
     const adminKey = generateAdminKey();
     const players: protocol.PlayerSlot[] = new Array(10);
-    for (let i = 0; i < 10; ++i) {
+    for (let i = 0; i < maxPlayers; ++i) {
       players[i] = { state: "empty" };
+    }
+    for (let i = maxPlayers; i < 10; ++i) {
+      players[i] = { state: "closed" };
     }
     this.rooms.set(id, {
       description,
       nextPlayerId: 1,
       players,
-      maxPlayers,
       adminState: { state: "unclaimed", adminKey },
     });
 

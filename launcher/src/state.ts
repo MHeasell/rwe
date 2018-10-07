@@ -44,7 +44,11 @@ export interface EmptyPlayerSlot {
   state: "empty";
 }
 
-export type PlayerSlot = EmptyPlayerSlot | FilledPlayerSlot;
+export interface ClosedPlayerSlot {
+  state: "closed";
+}
+
+export type PlayerSlot = EmptyPlayerSlot | ClosedPlayerSlot | FilledPlayerSlot;
 
 export interface GameRoom {
   localPlayerId?: number;

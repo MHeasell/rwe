@@ -50,6 +50,15 @@ interface GameRoomScreenState {
   value: string;
 }
 
+type OpenStatus = "open" | "closed";
+const openStatuses: OpenStatus[] = ["open", "closed"];
+function statusToLabel(status: OpenStatus) {
+  switch (status) {
+    case "open": return "Open Slot";
+    case "closed": return "Closed Slot";
+  }
+}
+
 class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, GameRoomScreenState> {
   constructor(props: GameRoomScreenProps) {
     super(props);
@@ -93,8 +102,17 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
     this.props.onChangeTeam(parsedValue);
   }
 
-  emptyToRow(id: number) {
-    return <TableRow key={id}><TableCell colSpan={5}><Typography>Empty Slot</Typography></TableCell></TableRow>;
+  emptyToRow(id: number, openStatus: OpenStatus) {
+    const items = openStatuses.map((x, i) => <MenuItem key={i} value={x}>{statusToLabel(x)}</MenuItem>);
+    const select = this.props.localPlayerId === this.props.adminPlayerId
+      ? <Select value={openStatus}>{items}</Select>
+      : <Select value={openStatus} disabled>{items}</Select>;
+    return (
+      <TableRow key={id}>
+        <TableCell>{select}</TableCell>
+        <TableCell colSpan={4}></TableCell>
+      </TableRow>
+    );
   }
 
   playerToRow(id: number, player: PlayerInfo) {
@@ -153,11 +171,11 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
         </Typography>
       );
     });
-    const rows = this.props.players.map((slot, i) => {
+    const rows: JSX.Element[] = this.props.players.map((slot, i) => {
       switch (slot.state) {
-        case "empty": return this.emptyToRow(i);
+        case "empty": return this.emptyToRow(i, "open");
+        case "closed": return this.emptyToRow(i, "closed");
         case "filled": return this.playerToRow(i, slot.player);
-        default: throw new Error("Unknown slot state");
       }
     });
     return (

@@ -20,11 +20,11 @@ export interface EmptyPlayerSlot {
   state: "empty";
 }
 
-export type PlayerSlot = EmptyPlayerSlot | FilledPlayerSlot;
+export interface ClosedPlayerSlot {
+  state: "closed";
+}
 
-export function isFilled(slot: PlayerSlot): slot is FilledPlayerSlot { return slot.state === "filled"; }
-export function isPlayer(slot: PlayerSlot, id: number): slot is FilledPlayerSlot { return slot.state === "filled" && slot.player.id === id; }
-export function isEmpty(slot: PlayerSlot): slot is EmptyPlayerSlot { return slot.state === "empty"; }
+export type PlayerSlot = EmptyPlayerSlot | ClosedPlayerSlot | FilledPlayerSlot;
 
 // Emitted by the client upon connection
 export const Handshake = "handshake";
