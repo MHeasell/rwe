@@ -1,5 +1,6 @@
 import { execFile } from "child_process";
 import * as path from "path";
+import { assertNever } from "./util";
 
 export interface RweArgsPlayerHuman {
   type: "human";
@@ -73,11 +74,13 @@ function serializeRweArgs(args: RweArgs): string[] {
       case "filled": {
         const controllerString = serializeRweController(p.controller);
         out.push("--player", `${controllerString};${p.side};${p.color}`);
+        break;
       }
       case "empty": {
         out.push("--player", "empty");
+        break;
       }
-      default: throw new Error("Unknown player slot state");
+      default: assertNever(p);
     }
   }
   return out;
