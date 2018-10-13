@@ -24,3 +24,7 @@ export function findAndMap<T, R>(arr: T[], f: (x: T) => (R | undefined)): (R | u
   }
   return undefined;
 }
+
+export function assertNever(x: never): never {
+  throw new Error(`Unexpected object: ${x}`);
+}

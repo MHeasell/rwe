@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Table, TableHead, TableRow, TableCell, TableBody, Checkbox, Typography, Divider, Paper, Select, MenuItem } from "@material-ui/core";
 import StarIcon from "@material-ui/icons/Grade";
 import { Dispatch } from "redux";
-import { sendChatMessage, leaveGame, toggleReady, sendStartGame, changeSide, changeColor, changeTeam } from "../actions";
+import { sendChatMessage, leaveGame, toggleReady, sendStartGame, changeSide, changeColor, changeTeam, openSlot, closeSlot } from "../actions";
 
 interface GameRoomScreenStateProps {
   localPlayerId?: number;
@@ -17,6 +17,8 @@ interface GameRoomScreenStateProps {
 interface GameRoomScreenDispatchProps {
   onSend: (message: string) => void;
   onLeaveGame: () => void;
+  onOpenSlot: (slotId: number) => void;
+  onCloseSlot: (slotId: number) => void;
   onChangeSide: (side: PlayerSide) => void;
   onChangeTeam: (team?: number) => void;
   onChangeColor: (color: number) => void;
@@ -102,10 +104,22 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
     this.props.onChangeTeam(parsedValue);
   }
 
+  handleOpenStatusChange(slotId: number, event: React.SyntheticEvent<EventTarget>) {
+    const value = (event.target as HTMLSelectElement).value as OpenStatus;
+    switch (value) {
+      case "open":
+        this.props.onOpenSlot(slotId);
+        return;
+      case "closed":
+        this.props.onCloseSlot(slotId);
+        return;
+    }
+  }
+
   emptyToRow(id: number, openStatus: OpenStatus) {
     const items = openStatuses.map((x, i) => <MenuItem key={i} value={x}>{statusToLabel(x)}</MenuItem>);
     const select = this.props.localPlayerId === this.props.adminPlayerId
-      ? <Select value={openStatus}>{items}</Select>
+      ? <Select value={openStatus} onChange={e => this.handleOpenStatusChange(id, e)}>{items}</Select>
       : <Select value={openStatus} disabled>{items}</Select>;
     return (
       <TableRow key={id}>
@@ -243,6 +257,8 @@ function mapDispatchToProps(dispatch: Dispatch): GameRoomScreenDispatchProps {
   return {
     onSend: (message: string) => dispatch(sendChatMessage(message)),
     onLeaveGame: () => dispatch(leaveGame()),
+    onOpenSlot: (slotId: number) => dispatch(openSlot(slotId)),
+    onCloseSlot: (slotId: number) => dispatch(closeSlot(slotId)),
     onChangeColor: (color: number) => dispatch(changeColor(color)),
     onChangeSide: (side: PlayerSide) => dispatch(changeSide(side)),
     onChangeTeam: (team?: number) => dispatch(changeTeam(team)),

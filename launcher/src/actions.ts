@@ -310,6 +310,54 @@ export function disconnectGame(): DisconnectGameAction {
   };
 }
 
+export interface OpenSlotAction {
+  type: "OPEN_SLOT";
+  slotId: number;
+}
+
+export function openSlot(slotId: number): OpenSlotAction {
+  return {
+    type: "OPEN_SLOT",
+    slotId,
+  };
+}
+
+export interface ReceiveSlotOpenedAction {
+  type: "RECEIVE_SLOT_OPENED";
+  payload: protocol.SlotOpenedPayload;
+}
+
+export function receiveSlotOpened(payload: protocol.SlotOpenedPayload): ReceiveSlotOpenedAction {
+  return {
+    type: "RECEIVE_SLOT_OPENED",
+    payload,
+  };
+}
+
+export interface ReceiveSlotClosedAction {
+  type: "RECEIVE_SLOT_CLOSED";
+  payload: protocol.SlotClosedPayload;
+}
+
+export function receiveSlotClosed(payload: protocol.SlotClosedPayload): ReceiveSlotClosedAction {
+  return {
+    type: "RECEIVE_SLOT_CLOSED",
+    payload,
+  };
+}
+
+export interface CloseSlotAction {
+  type: "CLOSE_SLOT";
+  slotId: number;
+}
+
+export function closeSlot(slotId: number): CloseSlotAction {
+  return {
+    type: "CLOSE_SLOT",
+    slotId,
+  };
+}
+
 export interface ToggleReadyAction {
   type: "TOGGLE_READY";
 }
@@ -421,10 +469,14 @@ export type AppAction =
   | ReceivePlayerChangedTeamAction
   | ReceivePlayerChangedColorAction
   | ReceivePlayerReadyAction
+  | ReceiveSlotOpenedAction
+  | ReceiveSlotClosedAction
   | SendChatMessageAction
   | ChangeSideAction
   | ChangeTeamAction
   | ChangeColorAction
+  | OpenSlotAction
+  | CloseSlotAction
   | ToggleReadyAction
   | SendStartGameAction
   | ReceiveStartGameAction

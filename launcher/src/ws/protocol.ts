@@ -120,3 +120,23 @@ export interface PlayerChangedColorPayload {
   playerId: number;
   color: number;
 }
+
+export const OpenSlot = "open-slot";
+export interface OpenSlotPayload {
+  slotId: number;
+}
+
+export const CloseSlot = "close-slot";
+export interface CloseSlotPayload {
+  slotId: number;
+}
+
+export const SlotOpened = "slot-opened";
+export interface SlotOpenedPayload {
+  slotId: number;
+}
+
+export const SlotClosed = "slot-closed";
+export interface SlotClosedPayload {
+  slotId: number;
+}

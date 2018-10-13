@@ -1,4 +1,4 @@
-import { AppAction, disconnectGame, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, receiveChatMessage, receivePlayerReady, receiveStartGame, gameEnded, LaunchRweAction, receiveRooms, receiveGameCreated, receiveGameUpdated, receiveGameDeleted, receiveCreateGameResponse, ReceiveCreateGameResponseAction, masterServerConnect, masterServerDisconnect, receivePlayerChangedSide, receivePlayerChangedColor, receivePlayerChangedTeam } from "../actions";
+import { AppAction, disconnectGame, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, receiveChatMessage, receivePlayerReady, receiveStartGame, gameEnded, LaunchRweAction, receiveRooms, receiveGameCreated, receiveGameUpdated, receiveGameDeleted, receiveCreateGameResponse, ReceiveCreateGameResponseAction, masterServerConnect, masterServerDisconnect, receivePlayerChangedSide, receivePlayerChangedColor, receivePlayerChangedTeam, receiveSlotOpened, receiveSlotClosed } from "../actions";
 import { StateObservable, combineEpics, ofType } from "redux-observable";
 import { State, GameRoom, FilledPlayerSlot } from "../state";
 import * as rx from "rxjs";
@@ -29,6 +29,8 @@ const gameClientEventsEpic = (action$: rx.Observable<AppAction>, state$: StateOb
     clientService.onPlayerChangedSide.pipe(rxop.map(receivePlayerChangedSide)),
     clientService.onPlayerChangedTeam.pipe(rxop.map(receivePlayerChangedTeam)),
     clientService.onPlayerChangedColor.pipe(rxop.map(receivePlayerChangedColor)),
+    clientService.onSlotOpened.pipe(rxop.map(receiveSlotOpened)),
+    clientService.onSlotClosed.pipe(rxop.map(receiveSlotClosed)),
     clientService.onPlayerReady.pipe(rxop.map(receivePlayerReady)),
     clientService.onStartGame.pipe(rxop.map(receiveStartGame)),
   );
@@ -132,6 +134,14 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
         }
         case "CHANGE_COLOR": {
           clientService.changeColor(action.color);
+          break;
+        }
+        case "OPEN_SLOT": {
+          clientService.openSlot(action.slotId);
+          break;
+        }
+        case "CLOSE_SLOT": {
+          clientService.closeSlot(action.slotId);
           break;
         }
         case "TOGGLE_READY": {

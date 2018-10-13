@@ -1,8 +1,7 @@
 import { AppAction } from "./actions";
-import { State, GameListEntry, GameRoom, PlayerInfo, ChatMessage, PlayerSlot } from "./state";
+import { State, GameListEntry, GameRoom, PlayerInfo, ChatMessage, PlayerSlot, ClosedPlayerSlot, EmptyPlayerSlot } from "./state";
 import { GetGamesResponseItem } from "./master/protocol";
 import { findAndMap } from "./util";
-import { EmptyPlayerSlot } from "./ws/protocol";
 
 const initialState: State = {
   games: [],
@@ -169,6 +168,26 @@ function games(state: State = initialState, action: AppAction): State {
         if (x.state !== "filled" || x.player.id !== action.payload.playerId) { return x; }
         const p = { ...x.player, ready: action.payload.value };
         return { ...x, player: p };
+      });
+      const room: GameRoom = { ...state.currentGame, players: newPlayers };
+      return { ...state, currentGame: room };
+    }
+    case "RECEIVE_SLOT_OPENED": {
+      if (!state.currentGame) { return state; }
+      const newPlayers = state.currentGame.players.map((x, i) => {
+        if (i !== action.payload.slotId) { return x; }
+        const e: EmptyPlayerSlot = { state: "empty" };
+        return e;
+      });
+      const room: GameRoom = { ...state.currentGame, players: newPlayers };
+      return { ...state, currentGame: room };
+    }
+    case "RECEIVE_SLOT_CLOSED": {
+      if (!state.currentGame) { return state; }
+      const newPlayers = state.currentGame.players.map((x, i) => {
+        if (i !== action.payload.slotId) { return x; }
+        const e: ClosedPlayerSlot = { state: "closed" };
+        return e;
       });
       const room: GameRoom = { ...state.currentGame, players: newPlayers };
       return { ...state, currentGame: room };

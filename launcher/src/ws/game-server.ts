@@ -1,7 +1,7 @@
 import * as protocol from "./protocol";
 import * as rx from "rxjs";
 import * as crypto from "crypto";
-import { getAddr, findAndMap } from "../util";
+import { getAddr, findAndMap, assertNever } from "../util";
 import { EmptyPlayerSlot } from "../state";
 
 export interface AdminUnclaimed {
@@ -192,6 +192,12 @@ export class GameServer {
         socket.on(protocol.Ready, (data: protocol.ReadyPayload) => {
           this.onPlayerReady(roomId, playerId, data);
         });
+        socket.on(protocol.OpenSlot, (data: protocol.OpenSlotPayload) => {
+          this.onOpenSlot(roomId, playerId, data);
+        });
+        socket.on(protocol.CloseSlot, (data: protocol.CloseSlotPayload) => {
+          this.onCloseSlot(roomId, playerId, data);
+        });
         socket.on(protocol.RequestStartGame, () => {
           this.onPlayerRequestStartGame(roomId, playerId);
         });
@@ -247,6 +253,52 @@ export class GameServer {
     player.color = data.color;
     const payload: protocol.PlayerChangedColorPayload = { playerId, color: data.color };
     this.sendToRoom(roomId, protocol.PlayerChangedColor, payload);
+  }
+
+  private onOpenSlot(roomId: number, playerId: number, data: protocol.OpenSlotPayload) {
+    const room = this.rooms.get(roomId);
+    if (!room) { throw new Error("onOpenSlot triggered for non-existent room"); }
+    if (room.adminState.state !== "claimed" || room.adminState.adminPlayerId !== playerId) {
+      this.log(`Received open-slot from player ${playerId}, but that player is not admin!`);
+      return;
+    }
+    const state = room.players[data.slotId].state;
+    switch (state) {
+      case "filled":
+        this.log(`Player ${playerId} tried to open filled player slot ${data.slotId}`);
+        return;
+      case "closed":
+      case "empty":
+        room.players[data.slotId] = { state: "empty" };
+        const payload: protocol.SlotOpenedPayload = { slotId: data.slotId };
+        this.sendToRoom(roomId, protocol.SlotOpened, payload);
+        this._gameUpdated.next([roomId, room]);
+        return;
+      default: return assertNever(state);
+    }
+  }
+
+  private onCloseSlot(roomId: number, playerId: number, data: protocol.CloseSlotPayload) {
+    const room = this.rooms.get(roomId);
+    if (!room) { throw new Error("onCloseSlot triggered for non-existent room"); }
+    if (room.adminState.state !== "claimed" || room.adminState.adminPlayerId !== playerId) {
+      this.log(`Received close-slot from player ${playerId}, but that player is not admin!`);
+      return;
+    }
+    const state = room.players[data.slotId].state;
+    switch (state) {
+      case "filled":
+        this.log(`Player ${playerId} tried to close filled player slot ${data.slotId}`);
+        return;
+      case "closed":
+      case "empty":
+        room.players[data.slotId] = { state: "closed" };
+        const payload: protocol.SlotClosedPayload = { slotId: data.slotId };
+        this.sendToRoom(roomId, protocol.SlotClosed, payload);
+        this._gameUpdated.next([roomId, room]);
+        return;
+      default: return assertNever(state);
+    }
   }
 
   private onPlayerReady(roomId: number, playerId: number, value: boolean) {

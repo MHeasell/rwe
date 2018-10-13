@@ -14,6 +14,8 @@ export class GameClientService {
   private readonly _onPlayerChangedSide = new Subject<protocol.PlayerChangedSidePayload>();
   private readonly _onPlayerChangedTeam = new Subject<protocol.PlayerChangedTeamPayload>();
   private readonly _onPlayerChangedColor = new Subject<protocol.PlayerChangedColorPayload>();
+  private readonly _onSlotOpened = new Subject<protocol.SlotOpenedPayload>();
+  private readonly _onSlotClosed = new Subject<protocol.SlotClosedPayload>();
   private readonly _onPlayerReady = new Subject<protocol.PlayerReadyPayload>();
   private readonly _onStartGame = new Subject<void>();
 
@@ -25,6 +27,8 @@ export class GameClientService {
   get onPlayerChangedSide(): Observable<protocol.PlayerChangedSidePayload> { return this._onPlayerChangedSide; }
   get onPlayerChangedTeam(): Observable<protocol.PlayerChangedTeamPayload> { return this._onPlayerChangedTeam; }
   get onPlayerChangedColor(): Observable<protocol.PlayerChangedColorPayload> { return this._onPlayerChangedColor; }
+  get onSlotOpened(): Observable<protocol.SlotOpenedPayload> { return this._onSlotOpened; }
+  get onSlotClosed(): Observable<protocol.SlotClosedPayload> { return this._onSlotClosed; }
   get onPlayerReady(): Observable<protocol.PlayerReadyPayload> { return this._onPlayerReady; }
   get onStartGame(): Observable<void> { return this._onStartGame; }
 
@@ -81,6 +85,14 @@ export class GameClientService {
       this._onPlayerChangedColor.next(data);
     });
 
+    this.client.on(protocol.SlotOpened, (data: protocol.SlotOpenedPayload) => {
+      this._onSlotOpened.next(data);
+    });
+
+    this.client.on(protocol.SlotClosed, (data: protocol.SlotClosedPayload) => {
+      this._onSlotClosed.next(data);
+    });
+
     this.client.on(protocol.PlayerReady, (data: protocol.PlayerReadyPayload) => {
       this._onPlayerReady.next(data);
     });
@@ -119,6 +131,18 @@ export class GameClientService {
     if (!this.client) { return; }
     const payload: protocol.ChangeColorPayload = { color };
     this.client.emit(protocol.ChangeColor, payload);
+  }
+
+  openSlot(slotId: number) {
+    if (!this.client) { return; }
+    const payload: protocol.OpenSlotPayload = { slotId };
+    this.client.emit(protocol.OpenSlot, payload);
+  }
+
+  closeSlot(slotId: number) {
+    if (!this.client) { return; }
+    const payload: protocol.CloseSlotPayload = { slotId };
+    this.client.emit(protocol.CloseSlot, payload);
   }
 
   setReadyState(value: boolean) {
