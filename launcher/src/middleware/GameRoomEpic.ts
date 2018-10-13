@@ -8,7 +8,7 @@ import { GameClientService } from "../ws/game-client";
 
 import { RweArgs, RweArgsPlayerController, RweArgsPlayerInfo, execRwe, RweArgsEmptyPlayerSlot, RweArgsPlayerSlot, RweArgsFilledPlayerSlot } from "../rwe";
 import { MasterClientService } from "../master/master-client";
-import { masterServer } from "../util";
+import { masterServer, assertNever } from "../util";
 
 export interface EpicDependencies {
   clientService: GameClientService;
@@ -52,7 +52,8 @@ const masterClientEventsEpic = (action$: rx.Observable<AppAction>, state$: State
 function rweArgsFromGameRoom(game: GameRoom): RweArgs {
   const playersArgs: RweArgsPlayerSlot[] = game.players.map((x, i) => {
     switch (x.state) {
-      case "empty": {
+      case "empty":
+      case "closed": {
         const s: RweArgsEmptyPlayerSlot = { state: "empty" };
         return s;
       }
@@ -69,7 +70,7 @@ function rweArgsFromGameRoom(game: GameRoom): RweArgs {
         const s: RweArgsFilledPlayerSlot = { ...a, state: "filled" };
         return s;
       }
-      default: throw new Error("Unknown player slot state");
+      default: return assertNever(x);
     }
   });
   const portOffset = game.players.findIndex(x => x.state === "filled" && x.player.id === game.localPlayerId);
