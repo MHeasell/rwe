@@ -65,7 +65,13 @@ export function canStartGame(room: GameRoom) {
     return false;
   }
 
-  return room.players.every(x => x.state === "filled" && x.player.ready);
+  return room.players.every(x => {
+    switch (x.state) {
+      case "filled": return x.player.ready;
+      case "closed": return true;
+      case "empty": return false;
+    }
+  });
 }
 
 export interface GameListEntry {
