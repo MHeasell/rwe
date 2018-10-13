@@ -1,7 +1,7 @@
 import * as React from "react";
 import { State, PlayerInfo, ChatMessage, canStartGame, PlayerSide, PlayerSlot } from "../state";
 import { connect } from "react-redux";
-import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Table, TableHead, TableRow, TableCell, TableBody, Checkbox, Typography, Divider, Paper, Select, MenuItem } from "@material-ui/core";
+import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Table, TableHead, TableRow, TableCell, TableBody, Checkbox, Typography, Divider, Paper, Select, MenuItem, FormControl, InputLabel } from "@material-ui/core";
 import StarIcon from "@material-ui/icons/Grade";
 import { Dispatch } from "redux";
 import { sendChatMessage, leaveGame, toggleReady, sendStartGame, changeSide, changeColor, changeTeam, openSlot, closeSlot } from "../actions";
@@ -224,10 +224,47 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
         </div>
         <div className="game-room-screen-right">
           <div>
-            <Button onClick={this.props.onLeaveGame}>Leave Game</Button>
+            <FormControl fullWidth>
+              <InputLabel shrink>Commander Dies</InputLabel>
+              <Select value="continues">
+                <MenuItem value="continues">Continues</MenuItem>
+                <MenuItem value="ends">Game Ends</MenuItem>
+              </Select>
+            </FormControl>
           </div>
           <div>
-            <Button variant="contained" color="primary" disabled={!this.props.startEnabled} onClick={this.props.onStartGame}>Start Game</Button>
+            <FormControl fullWidth>
+              <InputLabel shrink>Location</InputLabel>
+              <Select value="fixed">
+                <MenuItem value="fixed">Fixed</MenuItem>
+                <MenuItem value="random">Random</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
+          <div>
+            <FormControl fullWidth>
+              <InputLabel shrink>Mapping Mode</InputLabel>
+              <Select value="unmapped">
+                <MenuItem value="unmapped">Unmapped</MenuItem>
+                <MenuItem value="mapped">Mapped</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
+          <div>
+            <FormControl fullWidth>
+              <InputLabel shrink>Line of Sight</InputLabel>
+              <Select value="true">
+                <MenuItem value="true">True</MenuItem>
+                <MenuItem value="circular">Circular</MenuItem>
+                <MenuItem value="permanent">Permanent</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
+          <div>
+            <Button fullWidth onClick={this.props.onLeaveGame}>Leave Game</Button>
+          </div>
+          <div>
+            <Button fullWidth variant="contained" color="primary" disabled={!this.props.startEnabled} onClick={this.props.onStartGame}>Start Game</Button>
           </div>
         </div>
       </div>

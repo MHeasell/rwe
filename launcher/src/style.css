@@ -147,4 +147,5 @@ html, body {
   margin-top: 8px;
   margin-right: 8px;
   margin-left: 16px;
+  min-width: 140px;
 }
