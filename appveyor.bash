@@ -7,11 +7,13 @@ set -euo pipefail
 # Refresh packages list
 pacman -Syq
 
-# Install build tools
+# Install build tools.
+# Except cmake, because for some reason if you install it
+# then you'll get exit code 127 when you try to call it.
+# We'll rely on the one bundled with the machine image instead.
 pacman -Sq --needed --noconfirm \
     make \
     unzip \
-    mingw-w64-x86_64-cmake \
     mingw-w64-x86_64-toolchain
 
 # Install project dependencies
