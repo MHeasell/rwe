@@ -23,7 +23,7 @@ namespace rwe
         template <typename T, typename... Args>
         void emplaceFileSystem(Args&&... args)
         {
-            filesystems.emplace_back(new T(std::forward<Args>(args)...));
+            filesystems.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
         }
     };
 
