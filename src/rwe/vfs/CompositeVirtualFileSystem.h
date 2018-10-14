@@ -20,6 +20,8 @@ namespace rwe
         std::vector<std::string>
         getFileNamesRecursive(const std::string& directory, const std::string& extension) override;
 
+        void clear();
+
         template <typename T, typename... Args>
         void emplaceFileSystem(Args&&... args)
         {

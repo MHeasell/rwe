@@ -54,6 +54,11 @@ namespace rwe
         return v;
     }
 
+    void CompositeVirtualFileSystem::clear()
+    {
+        filesystems.clear();
+    }
+
     void addHpisWithExtension(CompositeVirtualFileSystem& vfs, const fs::path& searchPath, const std::string& extension)
     {
         fs::directory_iterator it(searchPath);
