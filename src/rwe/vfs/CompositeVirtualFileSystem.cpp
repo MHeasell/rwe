@@ -70,11 +70,10 @@ namespace rwe
         }
     }
 
-    CompositeVirtualFileSystem constructVfs(const boost::filesystem::path& searchPath)
+    void addToVfs(CompositeVirtualFileSystem& vfs, const boost::filesystem::path& searchPath)
     {
         std::vector<std::string> hpiExtensions{".hpi", ".ufo", ".ccx", ".gpf", ".gp3"};
 
-        auto vfs = CompositeVirtualFileSystem();
         vfs.emplaceFileSystem<DirectoryFileSystem>(searchPath);
 
         // scan for HPIs to add
@@ -82,7 +81,12 @@ namespace rwe
         {
             addHpisWithExtension(vfs, searchPath, *it);
         }
+    }
 
+    CompositeVirtualFileSystem constructVfs(const boost::filesystem::path& searchPath)
+    {
+        CompositeVirtualFileSystem vfs;
+        addToVfs(vfs, searchPath);
         return vfs;
     }
 }

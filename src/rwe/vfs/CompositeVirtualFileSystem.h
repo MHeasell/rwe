@@ -28,6 +28,7 @@ namespace rwe
     };
 
 
+    void addToVfs(CompositeVirtualFileSystem& vfs, const boost::filesystem::path& searchPath);
     CompositeVirtualFileSystem constructVfs(const boost::filesystem::path& searchPath);
 }
 

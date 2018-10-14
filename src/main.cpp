@@ -113,7 +113,7 @@ namespace rwe
         return Ok(std::move(glContext));
     };
 
-    int run(spdlog::logger& logger, const fs::path& searchPath, const std::optional<GameParameters>& gameParameters)
+    int run(spdlog::logger& logger, const std::vector<fs::path>& searchPath, const std::optional<GameParameters>& gameParameters)
     {
         logger.info(ProjectNameVersion);
         logger.info("Current directory: {0}", fs::current_path().string());
@@ -174,7 +174,11 @@ namespace rwe
         }
 
         logger.info("Initializing virtual file system");
-        auto vfs = constructVfs(searchPath.string());
+        CompositeVirtualFileSystem vfs;
+        for (const auto& path : searchPath)
+        {
+            addToVfs(vfs, path.string());
+        }
 
         logger.info("Loading palette");
         auto paletteBytes = vfs.readFile("palettes/PALETTE.PAL");
@@ -467,15 +471,19 @@ int main(int argc, char* argv[])
                 }
             }
 
-            fs::path gameDataPath = *localDataPath;
-            gameDataPath /= "Data";
+            std::vector<fs::path> gameDataPaths;
 
             if (vm.count("data-path"))
             {
-                gameDataPath = fs::path(vm["data-path"].as<std::string>());
+                auto paths = vm["data-path"].as<std::vector<std::string>>();
+                gameDataPaths.insert(gameDataPaths.end(), paths.begin(), paths.end());
+            }
+            else
+            {
+                gameDataPaths.emplace_back(*localDataPath) /= "Data";
             }
 
-            return rwe::run(*logger, gameDataPath, gameParameters);
+            return rwe::run(*logger, gameDataPaths, gameParameters);
         }
         catch (const std::exception& e)
         {
