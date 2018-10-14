@@ -6,17 +6,20 @@ import * as yargs from "yargs";
 import { getAddr } from "../util";
 
 const argv = yargs
+.option("host", { alias: "h", default: "127.0.0.1" })
 .option("port", { alias: "p", default: 5000 })
 .option("reverse-proxy", { alias: "r", default: false })
 .argv;
 
+const host = argv.host;
 const port = argv.port;
 const reverseProxy = argv.reverseProxy;
 
+console.log(`Running on host ${host}`);
 console.log(`Running on port ${port}`);
 console.log(`Reverse proxy mode is ${reverseProxy ? "ON" : "OFF"}`);
 
-const server = http.createServer().listen(port);
+const server = http.createServer().listen(port, host);
 const io = socketio(server, { serveClient: false });
 
 function roomToEntry(x: Room): protocol.GetGamesReponseEntry {
