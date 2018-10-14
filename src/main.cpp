@@ -460,7 +460,7 @@ int main(int argc, char* argv[])
                 gameParameters->localNetworkInterface = vm["interface"].as<std::string>();
                 gameParameters->localNetworkPort = vm["port"].as<std::string>();
                 unsigned int playerIndex = 0;
-                if (players.size() >= 10)
+                if (players.size() > 10)
                 {
                     throw std::runtime_error("too many players");
                 }
