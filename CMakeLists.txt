@@ -598,6 +598,12 @@ if(WIN32 AND NOT MSVC)
     target_link_libraries(texture_test -static)
 endif()
 
+add_executable(rwe_bridge src/bridge.cpp)
+target_link_libraries(rwe_bridge librwe)
+if(WIN32 AND NOT MSVC)
+    target_link_libraries(rwe_bridge -static)
+endif()
+
 set(TEST_FILES
     test/rwe/BoxTreeSplit_test.cpp
     test/rwe/DiscreteRect_test.cpp
