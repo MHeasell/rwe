@@ -9,10 +9,12 @@ import { GameClientService } from "../ws/game-client";
 import { RweArgs, RweArgsPlayerController, RweArgsPlayerInfo, execRwe, RweArgsEmptyPlayerSlot, RweArgsPlayerSlot, RweArgsFilledPlayerSlot } from "../rwe";
 import { MasterClientService } from "../master/master-client";
 import { masterServer, assertNever } from "../util";
+import { RweBridge } from "../bridge";
 
 export interface EpicDependencies {
   clientService: GameClientService;
   masterClentService: MasterClientService;
+  bridgeService: RweBridge;
 }
 
 function looksLikeIPv6Address(value: string) {
@@ -176,6 +178,10 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
       return rx.empty();
     }),
   );
+};
+
+const rweBridgeEpic = (action$: rx.Observable<AppAction>, state$: StateObservable<State>, deps: EpicDependencies): rx.Observable<AppAction> => {
+
 };
 
 export const rootEpic = combineEpics(masterClientEventsEpic, gameClientEventsEpic, gameRoomEpic, launchRweEpic);
