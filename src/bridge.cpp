@@ -6,47 +6,81 @@
 #include <vector>
 #include <rwe/rwe_string.h>
 #include <rwe/vfs/CompositeVirtualFileSystem.h>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
+
+void writeError(const std::string& error)
+{
+    json j = {
+        {"result", "error"},
+        {"message", error}
+    };
+    std::cout << j << std::endl;
+}
+
+void writeSuccess()
+{
+    json j = {
+        {"result", "ok"},
+    };
+    std::cout << j << std::endl;
+}
+
+void writeMapSuccess(const std::string& data)
+{
+    json j = {
+        {"result", "ok"},
+        {"data", data},
+    };
+    std::cout << j << std::endl;
+}
 
 int main(int argc, char* argv[])
 {
     rwe::CompositeVirtualFileSystem vfs;
+    json j;
 
-    for (std::string line; std::getline(std::cin, line);)
+    while (std::cin >> j)
     {
-        auto tokens = rwe::utf8Split(line, '|');
-        if (tokens.empty())
+        auto cmdIt = j.find("command");
+        if (cmdIt == j.end())
         {
-            std::cout << "Failed to tokenize command" << std::endl;
+            std::cout << "Missing command field" << std::endl;
             return 1;
         }
 
-        auto& command = tokens[0];
+        std::string command = *cmdIt;
         if (command == "clear-data-paths")
         {
             vfs.clear();
-            std::cout << "OK" << std::endl;
+            writeSuccess();
         }
         else if (command == "add-data-path")
         {
-            if (tokens.size() != 2)
+            auto pathIt = j.find("path");
+            if (pathIt == j.end())
             {
-                std::cout << "Expected two operands, really got " << tokens.size() << std::endl;
+                std::cout << "Missing path field" << std::endl;
                 return 1;
             }
 
-            rwe::addToVfs(vfs, tokens[1]);
-            std::cout << "OK" << std::endl;
+            rwe::addToVfs(vfs, pathIt->get<std::string>());
+            writeSuccess();
         }
         else if (command == "map-info")
         {
-            if (tokens.size() != 2)
+            auto mapIt = j.find("map");
+            if (mapIt == j.end())
             {
-                std::cout << "Expected two operands, really got " << tokens.size() << std::endl;
+                std::cout << "Missing map field" << std::endl;
                 return 1;
             }
 
-            auto data = vfs.readFile("maps/" + tokens[1] + ".ota");
-            std::cout.write(data->data(), data->size());
+            auto data = vfs.readFile("maps/" + mapIt->get<std::string>() + ".ota");
+            std::string dataString;
+            dataString.insert(dataString.begin(), data->begin(), data->end());
+            writeMapSuccess(dataString);
         }
         else
         {

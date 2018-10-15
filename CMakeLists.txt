@@ -31,6 +31,9 @@ set(RC_ENABLE_CATCH ON CACHE BOOL "Enables Catch support in RapidCheck" FORCE)
 set(RC_ENABLE_BOOST ON CACHE BOOL "Enables Boost support in RapidCheck" FORCE)
 add_subdirectory("libs/rapidcheck")
 
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+add_subdirectory("libs/json")
+
 function(find_windows_dll var dll)
     if(WIN32)
         find_program(${var} ${dll})
@@ -599,9 +602,10 @@ if(WIN32 AND NOT MSVC)
 endif()
 
 add_executable(rwe_bridge src/bridge.cpp)
-target_link_libraries(rwe_bridge librwe)
+target_link_libraries(rwe_bridge PRIVATE librwe)
+target_link_libraries(rwe_bridge PRIVATE nlohmann_json::nlohmann_json)
 if(WIN32 AND NOT MSVC)
-    target_link_libraries(rwe_bridge -static)
+    target_link_libraries(rwe_bridge PRIVATE -static)
 endif()
 
 set(TEST_FILES
