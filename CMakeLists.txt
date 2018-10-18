@@ -647,7 +647,7 @@ target_link_libraries(rwe_test rapidcheck_boost)
 target_link_libraries(rwe_test librwe)
 add_test(NAME rwe_test COMMAND rwe_test)
 
-install(TARGETS rwe
+install(TARGETS rwe rwe_bridge
     RUNTIME DESTINATION .
     )
 install(FILES LICENSE README.md DESTINATION .)
