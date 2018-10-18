@@ -10,6 +10,19 @@
 
 using json = nlohmann::json;
 
+std::vector<std::string> getMapNames(rwe::AbstractVirtualFileSystem& vfs)
+{
+    auto mapNames = vfs.getFileNames("maps", ".ota");
+
+    for (auto& e : mapNames)
+    {
+        // chop off the extension
+        e.resize(e.size() - 4);
+    }
+
+    return mapNames;
+}
+
 void writeError(const std::string& error)
 {
     json j = {
@@ -32,6 +45,14 @@ void writeMapSuccess(const std::string& data)
     json j = {
         {"result", "ok"},
         {"data", data},
+    };
+    std::cout << j << std::endl;
+}
+
+void writeMapListSuccess(const std::vector<std::string>& names) {
+    json j = {
+        {"result", "ok"},
+        {"maps", names},
     };
     std::cout << j << std::endl;
 }
@@ -81,6 +102,11 @@ int main(int argc, char* argv[])
             std::string dataString;
             dataString.insert(dataString.begin(), data->begin(), data->end());
             writeMapSuccess(dataString);
+        }
+        else if (command == "map-list")
+        {
+            auto mapNames = getMapNames(vfs);
+            writeMapListSuccess(mapNames);
         }
         else
         {
