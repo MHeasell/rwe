@@ -77,9 +77,6 @@ html, body {
   margin-right: auto;
 }
 
-.host-game-form-bottom-panel {
-}
-
 .host-game-form-main-panel {
   padding-top: 8px;
   flex-grow: 1;
