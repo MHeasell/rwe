@@ -310,7 +310,7 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
   private toMapDialogItems(maps: string[], selectedMap?: string) {
     return maps.map(name => {
       return (
-        <ListItem button key={name}>
+        <ListItem button key={name} selected={name === selectedMap}>
           <ListItemText primary={name}></ListItemText>
         </ListItem>
       );
