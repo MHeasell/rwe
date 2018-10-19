@@ -52,6 +52,7 @@ export type PlayerSlot = EmptyPlayerSlot | ClosedPlayerSlot | FilledPlayerSlot;
 
 export interface MapDialogState {
   maps?: string[];
+  selectedMap?: string;
 }
 
 export interface GameRoom {

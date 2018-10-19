@@ -146,3 +146,30 @@ html, body {
   margin-left: 16px;
   min-width: 140px;
 }
+
+.map-dialog-container {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+.map-dialog-left {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.map-dialog-list {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 0;
+  overflow: auto;
+}
+
+.map-dialog-right {
+  flex-grow: 0;
+  flex-shrink: 0;
+}

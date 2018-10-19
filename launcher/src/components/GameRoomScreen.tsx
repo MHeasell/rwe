@@ -1,7 +1,7 @@
 import * as React from "react";
 import { State, PlayerInfo, ChatMessage, canStartGame, PlayerSide, PlayerSlot } from "../state";
 import { connect } from "react-redux";
-import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Table, TableHead, TableRow, TableCell, TableBody, Checkbox, Typography, Divider, Paper, Select, MenuItem, FormControl, InputLabel, Dialog, List, ListItemText, ListItem } from "@material-ui/core";
+import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Table, TableHead, TableRow, TableCell, TableBody, Checkbox, Typography, Divider, Paper, Select, MenuItem, FormControl, InputLabel, Dialog, List, ListItemText, ListItem, DialogContent, DialogActions, DialogTitle } from "@material-ui/core";
 import StarIcon from "@material-ui/icons/Grade";
 import { Dispatch } from "redux";
 import { sendChatMessage, leaveGame, toggleReady, sendStartGame, changeSide, changeColor, changeTeam, openSlot, closeSlot, openSelectMapDialog, closeSelectMapDialog } from "../actions";
@@ -15,6 +15,7 @@ interface GameRoomScreenStateProps {
   mapName?: string;
   mapDialogOpen: boolean;
   mapDialogMaps?: string[];
+  selectedMap?: string;
 }
 
 interface GameRoomScreenDispatchProps {
@@ -199,7 +200,7 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
     });
 
     const mapDialogMaps = this.props.mapDialogMaps
-      ? this.toMapDialogItems(this.props.mapDialogMaps)
+      ? this.toMapDialogItems(this.props.mapDialogMaps, this.props.selectedMap)
       : <Typography>Maps not yet loaded</Typography>;
 
     return (
@@ -281,18 +282,26 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
             <Button fullWidth variant="contained" color="primary" disabled={!this.props.startEnabled} onClick={this.props.onStartGame}>Start Game</Button>
           </div>
         </div>
-        <Dialog open={this.props.mapDialogOpen} onClose={this.props.onCloseSelectMapDialog}>
-          <div className="map-dialog-left">
-            <List>
-              {mapDialogMaps}
-            </List>
-          </div>
-          <div className="map-dialog-right">
-          </div>
-          <div className="map-dialog-bottom">
+        <Dialog open={this.props.mapDialogOpen} onClose={this.props.onCloseSelectMapDialog} fullWidth>
+          <DialogTitle>Select Map</DialogTitle>
+          <DialogContent>
+            <div className="map-dialog-container">
+              <div className="map-dialog-left">
+                <div className="map-dialog-list">
+                  <List>
+                    {mapDialogMaps}
+                  </List>
+                </div>
+              </div>
+              <div className="map-dialog-right">
+                <img width="252" height="252" />
+              </div>
+            </div>
+          </DialogContent>
+          <DialogActions>
             <Button>Select Map</Button>
-            <Button>Back</Button>
-          </div>
+            <Button onClick={this.props.onCloseSelectMapDialog}>Back</Button>
+          </DialogActions>
         </Dialog>
       </div>
     );
@@ -330,6 +339,7 @@ function mapStateToProps(state: State): GameRoomScreenStateProps {
     mapName: state.currentGame.mapName,
     mapDialogOpen: !!mapDialog,
     mapDialogMaps: mapDialog ? mapDialog.maps : undefined,
+    selectedMap: mapDialog ? mapDialog.selectedMap : undefined,
   };
 }
 
