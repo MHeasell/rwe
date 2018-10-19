@@ -29,6 +29,15 @@ interface GetMapInfoResponse {
   data: string;
 }
 
+interface GetMapListCommand {
+  command: "map-list";
+}
+
+interface GetMapListResponse {
+  result: "ok";
+  maps: string[];
+}
+
 interface CommandQueueItem {
   command: BridgeCommand;
   callback: (value: string) => void;
@@ -37,7 +46,8 @@ interface CommandQueueItem {
 type BridgeCommand =
     AddDataPathCommand
   | ClearDataPathsCommand
-  | GetMapInfoCommand;
+  | GetMapInfoCommand
+  | GetMapListCommand;
 
 export class RweBridge {
   private readonly proc: ChildProcess;
@@ -77,6 +87,11 @@ export class RweBridge {
     return this.submitCommand(cmd).then(answer => JSON.parse(answer) as GetMapInfoResponse);
   }
 
+  getMapList(): Promise<GetMapListResponse> {
+    const cmd: GetMapListCommand = { command: "map-list" };
+    return this.submitCommand(cmd).then(answer => JSON.parse(answer) as GetMapListResponse);
+  }
+
   private submitCommand(cmd: BridgeCommand): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       this.commandQueue.push({command: cmd, callback: resolve});
@@ -101,8 +116,12 @@ export class RweBridge {
 
   private writeCommand(cmd: BridgeCommand): Promise<string> {
     const str = JSON.stringify(cmd);
+    console.log(`BRIDGE: sending: ${str}`);
     return new Promise<string>((resolve, reject) => {
-      this.rl.question(str, answer => { resolve(answer); });
+      this.rl.question(str, answer => {
+        console.log(`BRIDGE: received: ${answer}`);
+        resolve(answer);
+      });
     });
   }
 }

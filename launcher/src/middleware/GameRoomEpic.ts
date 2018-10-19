@@ -1,4 +1,4 @@
-import { AppAction, disconnectGame, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, receiveChatMessage, receivePlayerReady, receiveStartGame, gameEnded, LaunchRweAction, receiveRooms, receiveGameCreated, receiveGameUpdated, receiveGameDeleted, receiveCreateGameResponse, ReceiveCreateGameResponseAction, masterServerConnect, masterServerDisconnect, receivePlayerChangedSide, receivePlayerChangedColor, receivePlayerChangedTeam, receiveSlotOpened, receiveSlotClosed } from "../actions";
+import { AppAction, disconnectGame, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, receiveChatMessage, receivePlayerReady, receiveStartGame, gameEnded, LaunchRweAction, receiveRooms, receiveGameCreated, receiveGameUpdated, receiveGameDeleted, receiveCreateGameResponse, ReceiveCreateGameResponseAction, masterServerConnect, masterServerDisconnect, receivePlayerChangedSide, receivePlayerChangedColor, receivePlayerChangedTeam, receiveSlotOpened, receiveSlotClosed, receiveMapList } from "../actions";
 import { StateObservable, combineEpics, ofType } from "redux-observable";
 import { State, GameRoom, FilledPlayerSlot } from "../state";
 import * as rx from "rxjs";
@@ -181,7 +181,21 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
 };
 
 const rweBridgeEpic = (action$: rx.Observable<AppAction>, state$: StateObservable<State>, deps: EpicDependencies): rx.Observable<AppAction> => {
-
+  return action$.pipe(
+    rxop.flatMap(action => {
+      switch (action.type) {
+        case "OPEN_SELECT_MAP_DIALOG": {
+          return rx.from(
+            deps.bridgeService.addDataPath("D:/Users/Michael/AppData/Roaming/RWE/Data")
+            .then(() => deps.bridgeService.getMapList())
+            .then(response => deps.bridgeService.clearDataPaths().then(() => response)))
+          .pipe(rxop.map(x => receiveMapList(x.maps)));
+        }
+        default:
+          return rx.empty();
+      }
+    }),
+  );
 };
 
-export const rootEpic = combineEpics(masterClientEventsEpic, gameClientEventsEpic, gameRoomEpic, launchRweEpic);
+export const rootEpic = combineEpics(masterClientEventsEpic, gameClientEventsEpic, gameRoomEpic, launchRweEpic, rweBridgeEpic);

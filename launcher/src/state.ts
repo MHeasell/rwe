@@ -50,11 +50,17 @@ export interface ClosedPlayerSlot {
 
 export type PlayerSlot = EmptyPlayerSlot | ClosedPlayerSlot | FilledPlayerSlot;
 
+export interface MapDialogState {
+  maps?: string[];
+}
+
 export interface GameRoom {
   localPlayerId?: number;
   adminPlayerId?: number;
   players: PlayerSlot[];
   messages: ChatMessage[];
+  mapName?: string;
+  mapDialog?: MapDialogState;
 }
 
 export function canStartGame(room: GameRoom) {

@@ -204,6 +204,23 @@ function games(state: State = initialState, action: AppAction): State {
       return { ...state, masterServerConnectionStatus: "connected" };
     case "MASTER_SERVER_DISCONNECT":
       return { ...state, masterServerConnectionStatus: "disconnected" };
+    case "OPEN_SELECT_MAP_DIALOG": {
+      if (!state.currentGame) { return state; }
+      const room = { ...state.currentGame, mapDialog: {} };
+      return { ...state, currentGame: room };
+    }
+    case "CLOSE_SELECT_MAP_DIALOG": {
+      if (!state.currentGame) { return state; }
+      const room = { ...state.currentGame, mapDialog: undefined };
+      return { ...state, currentGame: room };
+    }
+    case "RECEIVE_MAP_LIST": {
+      if (!state.currentGame) { return state; }
+      if (!state.currentGame.mapDialog) { return state; }
+      const dialog = {...state.currentGame.mapDialog, maps: action.maps };
+      const room = { ...state.currentGame, mapDialog: dialog };
+      return { ...state, currentGame: room };
+    }
     default:
       return state;
   }
