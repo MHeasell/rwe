@@ -47,7 +47,8 @@ export class GameClientService {
 
     this.client.on("disconnect", () => {
       this.log("Disconnected");
-      this.disconnect();
+      this.client = undefined;
+      this._onDisconnect.next();
     });
 
     const handshakePayload: protocol.HandshakePayload = {
@@ -105,8 +106,6 @@ export class GameClientService {
   disconnect() {
     if (!this.client) { return; }
     this.client.close();
-    this.client = undefined;
-    this._onDisconnect.next();
   }
 
   sendChatMessage(message: string) {
