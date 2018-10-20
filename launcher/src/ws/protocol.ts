@@ -40,6 +40,7 @@ export interface HandshakeResponsePayload {
   playerId: number;
   adminPlayerId?: number;
   players: PlayerSlot[];
+  mapName?: string;
 }
 
 // Emitted by the client when the user sends a chat message
@@ -139,4 +140,14 @@ export interface SlotOpenedPayload {
 export const SlotClosed = "slot-closed";
 export interface SlotClosedPayload {
   slotId: number;
+}
+
+export const ChangeMap = "change-map";
+export interface ChangeMapPayload {
+  mapName: string;
+}
+
+export const MapChanged = "map-changed";
+export interface MapChangedPayload {
+  mapName: string;
 }

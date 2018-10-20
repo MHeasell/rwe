@@ -444,6 +444,116 @@ export function receiveStartGame(): ReceiveStartGameAction {
   };
 }
 
+export interface AddDataPathAction {
+  type: "ADD_DATA_PATH";
+  path: string;
+}
+
+export function addDataPath(path: string): AddDataPathAction {
+  return {
+    type: "ADD_DATA_PATH",
+    path,
+  };
+}
+
+export interface ClearDataPathsAction {
+  type: "CLEAR_DATA_PATHS";
+}
+
+export function clearDataPaths(): ClearDataPathsAction {
+  return {
+    type: "CLEAR_DATA_PATHS",
+  };
+}
+
+export interface GetMapInfoAction {
+  type: "GET_MAP_INFO";
+  map: string;
+}
+
+export function getMapInfo(map: string): GetMapInfoAction {
+  return {
+    type: "GET_MAP_INFO",
+    map,
+  };
+}
+
+export interface GetMapListAction {
+  type: "GET_MAP_LIST";
+}
+
+export function getMapList(): GetMapListAction {
+  return {
+    type: "GET_MAP_LIST",
+  };
+}
+
+export interface OpenSelectMapDialogAction {
+  type: "OPEN_SELECT_MAP_DIALOG";
+}
+
+export function openSelectMapDialog(): OpenSelectMapDialogAction {
+  return {
+    type: "OPEN_SELECT_MAP_DIALOG",
+  };
+}
+
+export interface CloseSelectMapDialogAction {
+  type: "CLOSE_SELECT_MAP_DIALOG";
+}
+
+export function closeSelectMapDialog(): CloseSelectMapDialogAction {
+  return {
+    type: "CLOSE_SELECT_MAP_DIALOG",
+  };
+}
+
+export interface ReceiveMapListAction {
+  type: "RECEIVE_MAP_LIST";
+  maps: string[];
+}
+
+export function receiveMapList(maps: string[]): ReceiveMapListAction {
+  return {
+    type: "RECEIVE_MAP_LIST",
+    maps,
+  };
+}
+
+export interface ChangeMapAction {
+  type: "CHANGE_MAP";
+}
+
+export function changeMap(): ChangeMapAction {
+  return {
+    type: "CHANGE_MAP",
+  };
+}
+
+export interface DialogSelectMapAction {
+  type: "DIALOG_SELECT_MAP";
+  mapName: string;
+}
+
+export function dialogSelectMap(mapName: string): DialogSelectMapAction {
+  return {
+    type: "DIALOG_SELECT_MAP",
+    mapName,
+  };
+}
+
+export interface ReceiveMapChangedAction {
+  type: "RECEIVE_MAP_CHANGED";
+  data: protocol.MapChangedPayload;
+}
+
+export function receiveMapChanged(data: protocol.MapChangedPayload): ReceiveMapChangedAction {
+  return {
+    type: "RECEIVE_MAP_CHANGED",
+    data,
+  };
+}
+
 export type AppAction =
   | SelectGameAction
   | JoinSelectedGameAction
@@ -483,4 +593,14 @@ export type AppAction =
   | LeaveGameAction
   | DisconnectGameAction
   | StartGameAction
-  | GameEndedAction;
+  | GameEndedAction
+  | AddDataPathAction
+  | ClearDataPathsAction
+  | GetMapListAction
+  | GetMapInfoAction
+  | OpenSelectMapDialogAction
+  | CloseSelectMapDialogAction
+  | ReceiveMapListAction
+  | ChangeMapAction
+  | ReceiveMapChangedAction
+  | DialogSelectMapAction;

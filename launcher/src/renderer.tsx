@@ -18,11 +18,12 @@ import { GameClientService } from "./ws/game-client";
 import "./style.css";
 import { MasterClientService } from "./master/master-client";
 import { masterServer } from "./util";
+import { RweBridge } from "./bridge";
 
 const masterClentService = new MasterClientService();
 masterClentService.connectToServer(`${masterServer()}/master`);
 const epicMiddleware = createEpicMiddleware<AppAction, AppAction, State, EpicDependencies>({
-  dependencies: { clientService: new GameClientService(), masterClentService },
+  dependencies: { clientService: new GameClientService(), masterClentService, bridgeService: new RweBridge() },
 });
 
 const composeEnhancers = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;

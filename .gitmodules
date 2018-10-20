@@ -7,3 +7,6 @@
 [submodule "libs/protobuf"]
 	path = libs/protobuf
 	url = https://github.com/google/protobuf.git
+[submodule "libs/json"]
+	path = libs/json
+	url = https://github.com/nlohmann/json.git

@@ -21,6 +21,7 @@ export interface Room {
   nextPlayerId: number;
   players: protocol.PlayerSlot[];
   adminState: AdminState;
+  mapName?: string;
 }
 
 function generateAdminKey() {
@@ -164,6 +165,7 @@ export class GameServer {
           playerId: playerId,
           adminPlayerId: room.adminState.state === "claimed" ? room.adminState.adminPlayerId : undefined,
           players: room.players,
+          mapName: room.mapName,
         };
         socket.emit(protocol.HandshakeResponse, handshakeResponse);
 
@@ -197,6 +199,9 @@ export class GameServer {
         });
         socket.on(protocol.CloseSlot, (data: protocol.CloseSlotPayload) => {
           this.onCloseSlot(roomId, playerId, data);
+        });
+        socket.on(protocol.ChangeMap, (data: protocol.ChangeMapPayload) => {
+          this.onChangeMap(roomId, playerId, data);
         });
         socket.on(protocol.RequestStartGame, () => {
           this.onPlayerRequestStartGame(roomId, playerId);
@@ -301,6 +306,18 @@ export class GameServer {
     }
   }
 
+  private onChangeMap(roomId: number, playerId: number, data: protocol.ChangeMapPayload) {
+    const room = this.rooms.get(roomId);
+    if (!room) { throw new Error("onChangeMap triggered for non-existent room"); }
+    if (room.adminState.state !== "claimed" || room.adminState.adminPlayerId !== playerId) {
+      this.log(`Received change-map from player ${playerId}, but that player is not admin!`);
+      return;
+    }
+    room.mapName = data.mapName;
+    const payload: protocol.MapChangedPayload = { mapName: data.mapName };
+    this.sendToRoom(roomId, protocol.MapChanged, payload);
+  }
+
   private onPlayerReady(roomId: number, playerId: number, value: boolean) {
     const room = this.rooms.get(roomId);
     if (!room) { throw new Error("onPlayerReady triggered for non-existent room"); }
@@ -316,6 +333,20 @@ export class GameServer {
     if (!room) { throw new Error("onPlayerRequestStartGame triggered for non-existent room"); }
     if (room.adminState.state !== "claimed" || room.adminState.adminPlayerId !== playerId) {
       this.log(`Received start-game from ${playerId}, but that player is not admin!`);
+      return;
+    }
+    if (room.mapName === undefined) {
+      this.log(`Received start-game from ${playerId}, but the map is not set`);
+      return;
+    }
+    if (!room.players.every(x => {
+      switch (x.state) {
+        case "filled": return x.player.ready;
+        case "closed": return true;
+        case "empty": return false;
+      }
+    })) {
+      this.log(`Received start-game from ${playerId}, but not all open slots are filled and ready`);
       return;
     }
     this.sendToRoom(roomId, protocol.StartGame);

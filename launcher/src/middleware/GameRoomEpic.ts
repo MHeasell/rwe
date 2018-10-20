@@ -1,18 +1,21 @@
-import { AppAction, disconnectGame, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, receiveChatMessage, receivePlayerReady, receiveStartGame, gameEnded, LaunchRweAction, receiveRooms, receiveGameCreated, receiveGameUpdated, receiveGameDeleted, receiveCreateGameResponse, ReceiveCreateGameResponseAction, masterServerConnect, masterServerDisconnect, receivePlayerChangedSide, receivePlayerChangedColor, receivePlayerChangedTeam, receiveSlotOpened, receiveSlotClosed } from "../actions";
+import { AppAction, disconnectGame, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, receiveChatMessage, receivePlayerReady, receiveStartGame, gameEnded, LaunchRweAction, receiveRooms, receiveGameCreated, receiveGameUpdated, receiveGameDeleted, receiveCreateGameResponse, ReceiveCreateGameResponseAction, masterServerConnect, masterServerDisconnect, receivePlayerChangedSide, receivePlayerChangedColor, receivePlayerChangedTeam, receiveSlotOpened, receiveSlotClosed, receiveMapList, receiveMapChanged, closeSelectMapDialog } from "../actions";
 import { StateObservable, combineEpics, ofType } from "redux-observable";
 import { State, GameRoom, FilledPlayerSlot } from "../state";
 import * as rx from "rxjs";
 import * as rxop from "rxjs/operators";
+import * as path from "path";
 
 import { GameClientService } from "../ws/game-client";
 
 import { RweArgs, RweArgsPlayerController, RweArgsPlayerInfo, execRwe, RweArgsEmptyPlayerSlot, RweArgsPlayerSlot, RweArgsFilledPlayerSlot } from "../rwe";
 import { MasterClientService } from "../master/master-client";
 import { masterServer, assertNever } from "../util";
+import { RweBridge } from "../bridge";
 
 export interface EpicDependencies {
   clientService: GameClientService;
   masterClentService: MasterClientService;
+  bridgeService: RweBridge;
 }
 
 function looksLikeIPv6Address(value: string) {
@@ -32,6 +35,7 @@ const gameClientEventsEpic = (action$: rx.Observable<AppAction>, state$: StateOb
     clientService.onSlotOpened.pipe(rxop.map(receiveSlotOpened)),
     clientService.onSlotClosed.pipe(rxop.map(receiveSlotClosed)),
     clientService.onPlayerReady.pipe(rxop.map(receivePlayerReady)),
+    clientService.onMapChanged.pipe(rxop.map(receiveMapChanged)),
     clientService.onStartGame.pipe(rxop.map(receiveStartGame)),
   );
 };
@@ -74,8 +78,11 @@ function rweArgsFromGameRoom(game: GameRoom): RweArgs {
     }
   });
   const portOffset = game.players.findIndex(x => x.state === "filled" && x.player.id === game.localPlayerId);
+  if (game.mapName === undefined) {
+    throw new Error("map is not set");
+  }
   return {
-    map: "Evad River Confluence",
+    map: game.mapName,
     port: (6670 + portOffset),
     players: playersArgs,
   };
@@ -95,6 +102,14 @@ const launchRweEpic = (action$: rx.Observable<AppAction>, state$: StateObservabl
   );
 };
 
+function getDefaultDataPath() {
+  const appData = process.env["APPDATA"];
+  if (appData === undefined) {
+    throw new Error("Failed to find AppData path");
+  }
+  return path.join(appData, "RWE", "Data");
+}
+
 const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable<State>, deps: EpicDependencies): rx.Observable<AppAction> => {
   const clientService = deps.clientService;
   const masterClientService = deps.masterClentService;
@@ -108,6 +123,7 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
             ofType<AppAction, ReceiveCreateGameResponseAction>("RECEIVE_CREATE_GAME_RESPONSE"),
             rxop.first(),
           ).subscribe(x => {
+            deps.bridgeService.addDataPath(getDefaultDataPath());
             clientService.connectToServer(`${masterServer()}/rooms`, x.payload.game_id, action.playerName, x.payload.admin_key);
           });
           break;
@@ -118,6 +134,7 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
           const gameInfo = state.games.find(x => x.id === state.selectedGameId)!;
           const connectionString = `${masterServer()}/rooms`;
           console.log(`connecting to ${connectionString}`);
+          deps.bridgeService.addDataPath(getDefaultDataPath());
           clientService.connectToServer(connectionString, state.selectedGameId, action.name);
           break;
         }
@@ -158,6 +175,14 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
           clientService.disconnect();
           break;
         }
+        case "DISCONNECT_GAME": {
+          deps.bridgeService.clearDataPaths();
+          break;
+        }
+        case "START_GAME": {
+          deps.bridgeService.clearDataPaths();
+          break;
+        }
         case "SEND_START_GAME": {
           clientService.requestStartGame();
           break;
@@ -172,10 +197,33 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
             rxop.mapTo(gameEnded()),
           );
         }
+        case "CHANGE_MAP": {
+          const state = state$.value;
+          if (!state.currentGame) { break; }
+          if (!state.currentGame.mapDialog) { break; }
+          if (!state.currentGame.mapDialog.selectedMap) { break; }
+          clientService.changeMap(state.currentGame.mapDialog.selectedMap);
+          return rx.of<AppAction>(closeSelectMapDialog());
+        }
       }
       return rx.empty();
     }),
   );
 };
 
-export const rootEpic = combineEpics(masterClientEventsEpic, gameClientEventsEpic, gameRoomEpic, launchRweEpic);
+const rweBridgeEpic = (action$: rx.Observable<AppAction>, state$: StateObservable<State>, deps: EpicDependencies): rx.Observable<AppAction> => {
+  return action$.pipe(
+    rxop.flatMap(action => {
+      switch (action.type) {
+        case "OPEN_SELECT_MAP_DIALOG": {
+          return rx.from(deps.bridgeService.getMapList())
+          .pipe(rxop.map(x => receiveMapList(x.maps)));
+        }
+        default:
+          return rx.empty();
+      }
+    }),
+  );
+};
+
+export const rootEpic = combineEpics(masterClientEventsEpic, gameClientEventsEpic, gameRoomEpic, launchRweEpic, rweBridgeEpic);

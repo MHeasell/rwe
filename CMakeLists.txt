@@ -31,6 +31,9 @@ set(RC_ENABLE_CATCH ON CACHE BOOL "Enables Catch support in RapidCheck" FORCE)
 set(RC_ENABLE_BOOST ON CACHE BOOL "Enables Boost support in RapidCheck" FORCE)
 add_subdirectory("libs/rapidcheck")
 
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+add_subdirectory("libs/json")
+
 function(find_windows_dll var dll)
     if(WIN32)
         find_program(${var} ${dll})
@@ -598,6 +601,19 @@ if(WIN32 AND NOT MSVC)
     target_link_libraries(texture_test -static)
 endif()
 
+add_executable(rwe_bridge src/bridge.cpp)
+target_link_libraries(rwe_bridge PRIVATE librwe)
+target_link_libraries(rwe_bridge PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(rwe_bridge PRIVATE ${PNG_LIBRARIES})
+target_include_directories(rwe_bridge PUBLIC ${PNG_INCLUDE_DIRS})
+target_include_directories(rwe_bridge PUBLIC libs/png++-0.2.9)
+if(WIN32)
+    target_compile_definitions(rwe_bridge PRIVATE __STDC_LIB_EXT1__=1)
+endif()
+if(WIN32 AND NOT MSVC)
+    target_link_libraries(rwe_bridge PRIVATE -static)
+endif()
+
 set(TEST_FILES
     test/rwe/BoxTreeSplit_test.cpp
     test/rwe/DiscreteRect_test.cpp
@@ -637,7 +653,7 @@ target_link_libraries(rwe_test rapidcheck_boost)
 target_link_libraries(rwe_test librwe)
 add_test(NAME rwe_test COMMAND rwe_test)
 
-install(TARGETS rwe
+install(TARGETS rwe rwe_bridge
     RUNTIME DESTINATION .
     )
 install(FILES LICENSE README.md DESTINATION .)

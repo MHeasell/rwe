@@ -17,6 +17,7 @@ export class GameClientService {
   private readonly _onSlotOpened = new Subject<protocol.SlotOpenedPayload>();
   private readonly _onSlotClosed = new Subject<protocol.SlotClosedPayload>();
   private readonly _onPlayerReady = new Subject<protocol.PlayerReadyPayload>();
+  private readonly _onMapChanged = new Subject<protocol.MapChangedPayload>();
   private readonly _onStartGame = new Subject<void>();
 
   get onDisconnect(): Observable<void> { return this._onDisconnect; }
@@ -30,6 +31,7 @@ export class GameClientService {
   get onSlotOpened(): Observable<protocol.SlotOpenedPayload> { return this._onSlotOpened; }
   get onSlotClosed(): Observable<protocol.SlotClosedPayload> { return this._onSlotClosed; }
   get onPlayerReady(): Observable<protocol.PlayerReadyPayload> { return this._onPlayerReady; }
+  get onMapChanged(): Observable<protocol.MapChangedPayload> { return this._onMapChanged; }
   get onStartGame(): Observable<void> { return this._onStartGame; }
 
   connectToServer(connectionString: string, gameId: number, playerName: string, adminKey?: string) {
@@ -47,7 +49,8 @@ export class GameClientService {
 
     this.client.on("disconnect", () => {
       this.log("Disconnected");
-      this.disconnect();
+      this.client = undefined;
+      this._onDisconnect.next();
     });
 
     const handshakePayload: protocol.HandshakePayload = {
@@ -97,6 +100,10 @@ export class GameClientService {
       this._onPlayerReady.next(data);
     });
 
+    this.client.on(protocol.MapChanged, (data: protocol.MapChangedPayload) => {
+      this._onMapChanged.next(data);
+    });
+
     this.client.on(protocol.StartGame, () => {
       this._onStartGame.next();
     });
@@ -105,8 +112,6 @@ export class GameClientService {
   disconnect() {
     if (!this.client) { return; }
     this.client.close();
-    this.client = undefined;
-    this._onDisconnect.next();
   }
 
   sendChatMessage(message: string) {
@@ -149,6 +154,12 @@ export class GameClientService {
     if (!this.client) { return; }
     const payload: protocol.ReadyPayload = value;
     this.client.emit(protocol.Ready, payload);
+  }
+
+  changeMap(mapName: string) {
+    if (!this.client) { return; }
+    const payload: protocol.ChangeMapPayload = { mapName };
+    this.client.emit(protocol.ChangeMap, payload);
   }
 
   requestStartGame() {
