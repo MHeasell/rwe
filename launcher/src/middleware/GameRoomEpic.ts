@@ -3,6 +3,7 @@ import { StateObservable, combineEpics, ofType } from "redux-observable";
 import { State, GameRoom, FilledPlayerSlot } from "../state";
 import * as rx from "rxjs";
 import * as rxop from "rxjs/operators";
+import * as path from "path";
 
 import { GameClientService } from "../ws/game-client";
 
@@ -97,6 +98,14 @@ const launchRweEpic = (action$: rx.Observable<AppAction>, state$: StateObservabl
   );
 };
 
+function getDefaultDataPath() {
+  const appData = process.env["APPDATA"];
+  if (appData === undefined) {
+    throw new Error("Failed to find AppData path");
+  }
+  return path.join(appData, "RWE", "Data");
+}
+
 const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable<State>, deps: EpicDependencies): rx.Observable<AppAction> => {
   const clientService = deps.clientService;
   const masterClientService = deps.masterClentService;
@@ -110,6 +119,7 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
             ofType<AppAction, ReceiveCreateGameResponseAction>("RECEIVE_CREATE_GAME_RESPONSE"),
             rxop.first(),
           ).subscribe(x => {
+            deps.bridgeService.addDataPath(getDefaultDataPath());
             clientService.connectToServer(`${masterServer()}/rooms`, x.payload.game_id, action.playerName, x.payload.admin_key);
           });
           break;
@@ -120,6 +130,7 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
           const gameInfo = state.games.find(x => x.id === state.selectedGameId)!;
           const connectionString = `${masterServer()}/rooms`;
           console.log(`connecting to ${connectionString}`);
+          deps.bridgeService.addDataPath(getDefaultDataPath());
           clientService.connectToServer(connectionString, state.selectedGameId, action.name);
           break;
         }
@@ -160,6 +171,14 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
           clientService.disconnect();
           break;
         }
+        case "DISCONNECT_GAME": {
+          deps.bridgeService.clearDataPaths();
+          break;
+        }
+        case "START_GAME": {
+          deps.bridgeService.clearDataPaths();
+          break;
+        }
         case "SEND_START_GAME": {
           clientService.requestStartGame();
           break;
@@ -185,10 +204,7 @@ const rweBridgeEpic = (action$: rx.Observable<AppAction>, state$: StateObservabl
     rxop.flatMap(action => {
       switch (action.type) {
         case "OPEN_SELECT_MAP_DIALOG": {
-          return rx.from(
-            deps.bridgeService.addDataPath("D:/Users/Michael/AppData/Roaming/RWE/Data")
-            .then(() => deps.bridgeService.getMapList())
-            .then(response => deps.bridgeService.clearDataPaths().then(() => response)))
+          return rx.from(deps.bridgeService.getMapList())
           .pipe(rxop.map(x => receiveMapList(x.maps)));
         }
         default:
