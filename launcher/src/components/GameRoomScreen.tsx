@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Table, TableHead, TableRow, TableCell, TableBody, Checkbox, Typography, Divider, Paper, Select, MenuItem, FormControl, InputLabel, Dialog, List, ListItemText, ListItem, DialogContent, DialogActions, DialogTitle } from "@material-ui/core";
 import StarIcon from "@material-ui/icons/Grade";
 import { Dispatch } from "redux";
-import { sendChatMessage, leaveGame, toggleReady, sendStartGame, changeSide, changeColor, changeTeam, openSlot, closeSlot, openSelectMapDialog, closeSelectMapDialog } from "../actions";
+import { sendChatMessage, leaveGame, toggleReady, sendStartGame, changeSide, changeColor, changeTeam, openSlot, closeSlot, openSelectMapDialog, closeSelectMapDialog, dialogSelectMap, changeMap } from "../actions";
 
 interface GameRoomScreenStateProps {
   localPlayerId?: number;
@@ -30,6 +30,8 @@ interface GameRoomScreenDispatchProps {
   onStartGame: () => void;
   onOpenSelectMapDialog: () => void;
   onCloseSelectMapDialog: () => void;
+  onDialogSelectMap: (mapName: string) => void;
+  onChangeMap: () => void;
 }
 
 const teamColors = [
@@ -224,7 +226,7 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
             </Table>
           </div>
           <div className="game-room-map-panel">
-            <TextField disabled>{this.props.mapName}</TextField>
+            <TextField disabled value={this.props.mapName ? this.props.mapName : ""} />
             <Button onClick={this.props.onOpenSelectMapDialog} disabled={this.props.localPlayerId !== this.props.adminPlayerId}>Select Map</Button>
           </div>
           <Typography variant="title" className="game-room-screen-messages-title">Messages</Typography>
@@ -299,7 +301,7 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
             </div>
           </DialogContent>
           <DialogActions>
-            <Button>Select Map</Button>
+            <Button onClick={this.props.onChangeMap}>Select Map</Button>
             <Button onClick={this.props.onCloseSelectMapDialog}>Back</Button>
           </DialogActions>
         </Dialog>
@@ -310,7 +312,7 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
   private toMapDialogItems(maps: string[], selectedMap?: string) {
     return maps.map(name => {
       return (
-        <ListItem button key={name} selected={name === selectedMap}>
+        <ListItem button key={name} selected={name === selectedMap} onClick={() => this.props.onDialogSelectMap(name)}>
           <ListItemText primary={name}></ListItemText>
         </ListItem>
       );
@@ -356,6 +358,8 @@ function mapDispatchToProps(dispatch: Dispatch): GameRoomScreenDispatchProps {
     onStartGame: () => dispatch(sendStartGame()),
     onOpenSelectMapDialog: () => dispatch(openSelectMapDialog()),
     onCloseSelectMapDialog: () => dispatch(closeSelectMapDialog()),
+    onDialogSelectMap: (mapName: string) => dispatch(dialogSelectMap(mapName)),
+    onChangeMap: () => dispatch(changeMap()),
   };
 }
 

@@ -72,6 +72,10 @@ export function canStartGame(room: GameRoom) {
     return false;
   }
 
+  if (room.mapName === undefined) {
+    return false;
+  }
+
   return room.players.every(x => {
     switch (x.state) {
       case "filled": return x.player.ready;

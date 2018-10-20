@@ -520,6 +520,40 @@ export function receiveMapList(maps: string[]): ReceiveMapListAction {
   };
 }
 
+export interface ChangeMapAction {
+  type: "CHANGE_MAP";
+}
+
+export function changeMap(): ChangeMapAction {
+  return {
+    type: "CHANGE_MAP",
+  };
+}
+
+export interface DialogSelectMapAction {
+  type: "DIALOG_SELECT_MAP";
+  mapName: string;
+}
+
+export function dialogSelectMap(mapName: string): DialogSelectMapAction {
+  return {
+    type: "DIALOG_SELECT_MAP",
+    mapName,
+  };
+}
+
+export interface ReceiveMapChangedAction {
+  type: "RECEIVE_MAP_CHANGED";
+  data: protocol.MapChangedPayload;
+}
+
+export function receiveMapChanged(data: protocol.MapChangedPayload): ReceiveMapChangedAction {
+  return {
+    type: "RECEIVE_MAP_CHANGED",
+    data,
+  };
+}
+
 export type AppAction =
   | SelectGameAction
   | JoinSelectedGameAction
@@ -566,4 +600,7 @@ export type AppAction =
   | GetMapInfoAction
   | OpenSelectMapDialogAction
   | CloseSelectMapDialogAction
-  | ReceiveMapListAction;
+  | ReceiveMapListAction
+  | ChangeMapAction
+  | ReceiveMapChangedAction
+  | DialogSelectMapAction;

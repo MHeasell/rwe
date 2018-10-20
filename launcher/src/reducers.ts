@@ -79,7 +79,13 @@ function games(state: State = initialState, action: AppAction): State {
     }
     case "RECEIVE_HANDSHAKE_RESPONSE": {
       if (!state.currentGame) { return state; }
-      const newRoom = { ...state.currentGame, players: action.payload.players, localPlayerId: action.payload.playerId, adminPlayerId: action.payload.adminPlayerId };
+      const newRoom = {
+        ...state.currentGame,
+        players: action.payload.players,
+        localPlayerId: action.payload.playerId,
+        adminPlayerId: action.payload.adminPlayerId,
+        mapName: action.payload.mapName,
+      };
       return { ...state, currentGame: newRoom };
     }
     case "RECEIVE_PLAYER_JOINED": {
@@ -219,6 +225,18 @@ function games(state: State = initialState, action: AppAction): State {
       if (!state.currentGame.mapDialog) { return state; }
       const dialog = {...state.currentGame.mapDialog, maps: action.maps };
       const room = { ...state.currentGame, mapDialog: dialog };
+      return { ...state, currentGame: room };
+    }
+    case "DIALOG_SELECT_MAP": {
+      if (!state.currentGame) { return state; }
+      if (!state.currentGame.mapDialog) { return state; }
+      const dialog = {...state.currentGame.mapDialog, selectedMap: action.mapName };
+      const room = { ...state.currentGame, mapDialog: dialog };
+      return { ...state, currentGame: room };
+    }
+    case "RECEIVE_MAP_CHANGED": {
+      if (!state.currentGame) { return state; }
+      const room = { ...state.currentGame, mapName: action.data.mapName };
       return { ...state, currentGame: room };
     }
     default:

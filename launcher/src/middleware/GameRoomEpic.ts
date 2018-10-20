@@ -1,4 +1,4 @@
-import { AppAction, disconnectGame, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, receiveChatMessage, receivePlayerReady, receiveStartGame, gameEnded, LaunchRweAction, receiveRooms, receiveGameCreated, receiveGameUpdated, receiveGameDeleted, receiveCreateGameResponse, ReceiveCreateGameResponseAction, masterServerConnect, masterServerDisconnect, receivePlayerChangedSide, receivePlayerChangedColor, receivePlayerChangedTeam, receiveSlotOpened, receiveSlotClosed, receiveMapList } from "../actions";
+import { AppAction, disconnectGame, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, receiveChatMessage, receivePlayerReady, receiveStartGame, gameEnded, LaunchRweAction, receiveRooms, receiveGameCreated, receiveGameUpdated, receiveGameDeleted, receiveCreateGameResponse, ReceiveCreateGameResponseAction, masterServerConnect, masterServerDisconnect, receivePlayerChangedSide, receivePlayerChangedColor, receivePlayerChangedTeam, receiveSlotOpened, receiveSlotClosed, receiveMapList, receiveMapChanged, closeSelectMapDialog } from "../actions";
 import { StateObservable, combineEpics, ofType } from "redux-observable";
 import { State, GameRoom, FilledPlayerSlot } from "../state";
 import * as rx from "rxjs";
@@ -35,6 +35,7 @@ const gameClientEventsEpic = (action$: rx.Observable<AppAction>, state$: StateOb
     clientService.onSlotOpened.pipe(rxop.map(receiveSlotOpened)),
     clientService.onSlotClosed.pipe(rxop.map(receiveSlotClosed)),
     clientService.onPlayerReady.pipe(rxop.map(receivePlayerReady)),
+    clientService.onMapChanged.pipe(rxop.map(receiveMapChanged)),
     clientService.onStartGame.pipe(rxop.map(receiveStartGame)),
   );
 };
@@ -77,8 +78,11 @@ function rweArgsFromGameRoom(game: GameRoom): RweArgs {
     }
   });
   const portOffset = game.players.findIndex(x => x.state === "filled" && x.player.id === game.localPlayerId);
+  if (game.mapName === undefined) {
+    throw new Error("map is not set");
+  }
   return {
-    map: "Evad River Confluence",
+    map: game.mapName,
     port: (6670 + portOffset),
     players: playersArgs,
   };
@@ -192,6 +196,14 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
             rxop.catchError(e => rx.of(undefined)),
             rxop.mapTo(gameEnded()),
           );
+        }
+        case "CHANGE_MAP": {
+          const state = state$.value;
+          if (!state.currentGame) { break; }
+          if (!state.currentGame.mapDialog) { break; }
+          if (!state.currentGame.mapDialog.selectedMap) { break; }
+          clientService.changeMap(state.currentGame.mapDialog.selectedMap);
+          return rx.of<AppAction>(closeSelectMapDialog());
         }
       }
       return rx.empty();
