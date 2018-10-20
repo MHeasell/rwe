@@ -225,7 +225,7 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
           </div>
           <div className="game-room-map-panel">
             <TextField disabled>{this.props.mapName}</TextField>
-            <Button onClick={this.props.onOpenSelectMapDialog}>Select Map</Button>
+            <Button onClick={this.props.onOpenSelectMapDialog} disabled={this.props.localPlayerId !== this.props.adminPlayerId}>Select Map</Button>
           </div>
           <Typography variant="title" className="game-room-screen-messages-title">Messages</Typography>
           <div className="game-room-screen-messages-panel">
