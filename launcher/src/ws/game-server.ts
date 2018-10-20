@@ -339,6 +339,16 @@ export class GameServer {
       this.log(`Received start-game from ${playerId}, but the map is not set`);
       return;
     }
+    if (!room.players.every(x => {
+      switch (x.state) {
+        case "filled": return x.player.ready;
+        case "closed": return true;
+        case "empty": return false;
+      }
+    })) {
+      this.log(`Received start-game from ${playerId}, but not all open slots are filled and ready`);
+      return;
+    }
     this.sendToRoom(roomId, protocol.StartGame);
   }
 
