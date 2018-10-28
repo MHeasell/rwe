@@ -37,9 +37,6 @@ interface GameRoomScreenDispatchProps {
 }
 
 const styles = (theme: Theme) => createStyles({
-  messageInput: {
-    "flex-grow": 1,
-  },
 });
 
 interface GameRoomScreenProps extends GameRoomScreenStateProps, GameRoomScreenDispatchProps, WithStyles<typeof styles> {
