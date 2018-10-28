@@ -6,6 +6,7 @@ import { Dispatch } from "redux";
 import { sendChatMessage, leaveGame, toggleReady, sendStartGame, changeSide, changeColor, changeTeam, openSlot, closeSlot, openSelectMapDialog, closeSelectMapDialog, dialogSelectMap, changeMap } from "../actions";
 import MessageInput from "./MessageInput";
 import { PlayersTable } from "./PlayersTable";
+import { MapSelectDialog } from "./MapSelectDialog";
 
 interface GameRoomScreenStateProps {
   localPlayerId?: number;
@@ -55,14 +56,6 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps> {
         </Typography>
       );
     });
-
-    const mapDialogMaps = this.props.mapDialogMaps
-      ? this.toMapDialogItems(this.props.mapDialogMaps, this.props.selectedMap)
-      : <Typography>Maps not yet loaded</Typography>;
-
-    const mapImage = this.props.mapDialogMinimapPath
-      ? <img width="252" height="252" src={this.props.mapDialogMinimapPath} />
-      : <img width="252" height="252" />;
 
     return (
       <div className="game-room-screen-container">
@@ -136,39 +129,16 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps> {
             <Button fullWidth variant="contained" color="primary" disabled={!this.props.startEnabled} onClick={this.props.onStartGame}>Start Game</Button>
           </div>
         </div>
-        <Dialog open={this.props.mapDialogOpen} onClose={this.props.onCloseSelectMapDialog} fullWidth>
-          <DialogTitle>Select Map</DialogTitle>
-          <DialogContent>
-            <div className="map-dialog-container">
-              <div className="map-dialog-left">
-                <div className="map-dialog-list">
-                  <List>
-                    {mapDialogMaps}
-                  </List>
-                </div>
-              </div>
-              <div className="map-dialog-right">
-                {mapImage}
-              </div>
-            </div>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={this.props.onChangeMap}>Select Map</Button>
-            <Button onClick={this.props.onCloseSelectMapDialog}>Back</Button>
-          </DialogActions>
-        </Dialog>
+        <MapSelectDialog
+          open={this.props.mapDialogOpen}
+          maps={this.props.mapDialogMaps}
+          selectedMap={this.props.selectedMap}
+          minimapSrc={this.props.mapDialogMinimapPath}
+          onSelect={this.props.onDialogSelectMap}
+          onConfirm={this.props.onChangeMap}
+          onClose={this.props.onCloseSelectMapDialog} />
       </div>
     );
-  }
-
-  private toMapDialogItems(maps: string[], selectedMap?: string) {
-    return maps.map(name => {
-      return (
-        <ListItem button key={name} selected={name === selectedMap} onClick={() => this.props.onDialogSelectMap(name)}>
-          <ListItemText primary={name}></ListItemText>
-        </ListItem>
-      );
-    });
   }
 }
 
