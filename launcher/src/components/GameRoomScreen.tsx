@@ -209,7 +209,7 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
       <div className="game-room-screen-container">
         <div className="game-room-screen-left">
           <div className="game-room-players-panel">
-            <Typography variant="title" className="game-room-players-title">Players</Typography>
+            <Typography variant="h6" className="game-room-players-title">Players</Typography>
             <Table>
               <TableHead>
                 <TableRow>
@@ -229,7 +229,7 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
             <TextField disabled value={this.props.mapName ? this.props.mapName : ""} />
             <Button onClick={this.props.onOpenSelectMapDialog} disabled={this.props.localPlayerId !== this.props.adminPlayerId}>Select Map</Button>
           </div>
-          <Typography variant="title" className="game-room-screen-messages-title">Messages</Typography>
+          <Typography variant="h6" className="game-room-screen-messages-title">Messages</Typography>
           <div className="game-room-screen-messages-panel">
             {messageElements}
           </div>

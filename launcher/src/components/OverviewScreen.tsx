@@ -11,7 +11,7 @@ import { Paper, Typography, Divider, Slide, Collapse } from "@material-ui/core";
 function MainPanel() {
   return (
     <div className="main-panel">
-      <Typography variant="title" className="main-panel-title">Online Games</Typography>
+      <Typography variant="h6" className="main-panel-title">Online Games</Typography>
       <GamesTable />
     </div>
   );
