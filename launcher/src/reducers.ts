@@ -1,5 +1,5 @@
 import { AppAction } from "./actions";
-import { State, GameListEntry, GameRoom, PlayerInfo, ChatMessage, PlayerSlot, ClosedPlayerSlot, EmptyPlayerSlot, MapDialogState, AppScreen, GameRoomScreen, OverviewScreen, HostFormScreen } from "./state";
+import { State, GameListEntry, GameRoom, PlayerInfo, ChatMessage, PlayerSlot, ClosedPlayerSlot, EmptyPlayerSlot, AppScreen, GameRoomScreen, OverviewScreen, HostFormScreen } from "./state";
 import { GetGamesResponseItem } from "./master/protocol";
 import { findAndMap } from "./util";
 

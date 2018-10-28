@@ -11,16 +11,11 @@ import { RweArgs, RweArgsPlayerController, RweArgsPlayerInfo, execRwe, RweArgsEm
 import { MasterClientService } from "../master/master-client";
 import { masterServer, assertNever } from "../util";
 import { RweBridge } from "../bridge";
-import { stat } from "fs";
 
 export interface EpicDependencies {
   clientService: GameClientService;
   masterClentService: MasterClientService;
   bridgeService: RweBridge;
-}
-
-function looksLikeIPv6Address(value: string) {
-  return value.match(/^[0-9a-fA-F:]+$/) && value.match(/:/);
 }
 
 const gameClientEventsEpic = (action$: rx.Observable<AppAction>, state$: StateObservable<State>, {clientService}: EpicDependencies): rx.Observable<AppAction> => {
@@ -132,7 +127,6 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
         case "JOIN_SELECTED_GAME_CONFIRM": {
           const state = state$.value;
           if (state.selectedGameId === undefined) { break; }
-          const gameInfo = state.games.find(x => x.id === state.selectedGameId)!;
           const connectionString = `${masterServer()}/rooms`;
           console.log(`connecting to ${connectionString}`);
           deps.bridgeService.addDataPath(getDefaultDataPath());

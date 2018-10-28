@@ -1,5 +1,5 @@
 import * as protocol from "./ws/protocol";
-import { GetGamesResponsePayload, GetGamesReponseEntry, GameCreatedEventPayload, GameUpdatedEventPayload, GameDeletedEventPayload, CreateGameResponsePayload } from "./master/protocol";
+import { GetGamesResponsePayload, GameCreatedEventPayload, GameUpdatedEventPayload, GameDeletedEventPayload, CreateGameResponsePayload } from "./master/protocol";
 import { PlayerSide } from "./state";
 
 export interface SelectGameAction {

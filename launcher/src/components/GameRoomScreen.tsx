@@ -1,7 +1,7 @@
 import * as React from "react";
-import { State, PlayerInfo, ChatMessage, canStartGame, PlayerSide, PlayerSlot, getRoom } from "../state";
+import { State, ChatMessage, canStartGame, PlayerSide, PlayerSlot, getRoom } from "../state";
 import { connect } from "react-redux";
-import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Table, TableHead, TableRow, TableCell, TableBody, Checkbox, Typography, Divider, Paper, Select, MenuItem, FormControl, InputLabel, Dialog, List, ListItemText, ListItem, DialogContent, DialogActions, DialogTitle } from "@material-ui/core";
+import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Typography, Divider, Select, MenuItem, FormControl, InputLabel } from "@material-ui/core";
 import { Dispatch } from "redux";
 import { sendChatMessage, leaveGame, toggleReady, sendStartGame, changeSide, changeColor, changeTeam, openSlot, closeSlot, openSelectMapDialog, closeSelectMapDialog, dialogSelectMap, changeMap } from "../actions";
 import MessageInput from "./MessageInput";

@@ -6,7 +6,7 @@ import GamesTable from "./GamesTable";
 import { PlayerNameDialog } from "./PlayerNameDialog";
 import { State } from "../state";
 import { joinSelectedGameCancel, joinSelectedGameConfirm } from "../actions";
-import { Paper, Typography, Divider, Slide, Collapse } from "@material-ui/core";
+import { Paper, Typography, Divider, Collapse } from "@material-ui/core";
 
 function MainPanel() {
   return (

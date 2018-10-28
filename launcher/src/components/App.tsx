@@ -1,5 +1,3 @@
-import Button from "@material-ui/core/Button";
-import { createStyles, Theme, withStyles, WithStyles } from "@material-ui/core/styles";
 import * as React from "react";
 import { hot } from "react-hot-loader";
 import { connect } from "react-redux";
