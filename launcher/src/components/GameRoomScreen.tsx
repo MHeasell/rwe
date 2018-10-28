@@ -5,6 +5,7 @@ import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Table, 
 import StarIcon from "@material-ui/icons/Grade";
 import { Dispatch } from "redux";
 import { sendChatMessage, leaveGame, toggleReady, sendStartGame, changeSide, changeColor, changeTeam, openSlot, closeSlot, openSelectMapDialog, closeSelectMapDialog, dialogSelectMap, changeMap } from "../actions";
+import MessageInput from "./MessageInput";
 
 interface GameRoomScreenStateProps {
   localPlayerId?: number;
@@ -57,10 +58,6 @@ const styles = (theme: Theme) => createStyles({
 interface GameRoomScreenProps extends GameRoomScreenStateProps, GameRoomScreenDispatchProps, WithStyles<typeof styles> {
 }
 
-interface GameRoomScreenState {
-  value: string;
-}
-
 type OpenStatus = "open" | "closed";
 const openStatuses: OpenStatus[] = ["open", "closed"];
 function statusToLabel(status: OpenStatus) {
@@ -70,29 +67,14 @@ function statusToLabel(status: OpenStatus) {
   }
 }
 
-class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, GameRoomScreenState> {
+class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps> {
   constructor(props: GameRoomScreenProps) {
     super(props);
-    this.state = { value: "" };
 
-    this.handleUserMessageChange = this.handleUserMessageChange.bind(this);
-    this.handleSend = this.handleSend.bind(this);
     this.handleReadyChange = this.handleReadyChange.bind(this);
     this.handleSideChange = this.handleSideChange.bind(this);
     this.handleColorChange = this.handleColorChange.bind(this);
     this.handleTeamChange = this.handleTeamChange.bind(this);
-  }
-
-  handleUserMessageChange(event: React.SyntheticEvent<EventTarget>) {
-    this.setState({value: (event.target as HTMLInputElement).value});
-  }
-
-  handleSend(event: React.SyntheticEvent<EventTarget>) {
-    event.preventDefault();
-    if (this.state.value) {
-      this.setState({value: ""});
-      this.props.onSend(this.state.value);
-    }
   }
 
   handleReadyChange(event: React.SyntheticEvent<EventTarget>) {
@@ -239,10 +221,7 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
             {messageElements}
           </div>
           <Divider />
-          <form className="game-room-screen-bottom-panel" onSubmit={this.handleSend}>
-            <TextField className={this.props.classes.messageInput} value={this.state.value} onChange={this.handleUserMessageChange} />
-            <Button type="submit">Send</Button>
-          </form>
+          <MessageInput onSend={this.props.onSend} />
         </div>
         <div className="game-room-screen-right">
           <div>
