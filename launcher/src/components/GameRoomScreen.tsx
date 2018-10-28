@@ -2,10 +2,10 @@ import * as React from "react";
 import { State, PlayerInfo, ChatMessage, canStartGame, PlayerSide, PlayerSlot } from "../state";
 import { connect } from "react-redux";
 import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Table, TableHead, TableRow, TableCell, TableBody, Checkbox, Typography, Divider, Paper, Select, MenuItem, FormControl, InputLabel, Dialog, List, ListItemText, ListItem, DialogContent, DialogActions, DialogTitle } from "@material-ui/core";
-import StarIcon from "@material-ui/icons/Grade";
 import { Dispatch } from "redux";
 import { sendChatMessage, leaveGame, toggleReady, sendStartGame, changeSide, changeColor, changeTeam, openSlot, closeSlot, openSelectMapDialog, closeSelectMapDialog, dialogSelectMap, changeMap } from "../actions";
 import MessageInput from "./MessageInput";
+import { PlayersTable } from "./PlayersTable";
 
 interface GameRoomScreenStateProps {
   localPlayerId?: number;
@@ -36,19 +36,6 @@ interface GameRoomScreenDispatchProps {
   onChangeMap: () => void;
 }
 
-const teamColors = [
-  "#1747e7",
-  "#d32b00",
-  "#fbfbfb",
-  "#1b9f13",
-  "#071f7b",
-  "#7f579f",
-  "#ffff00",
-  "#2b2b2b",
-  "#9bcbdf",
-  "#abab83",
-];
-
 const styles = (theme: Theme) => createStyles({
   messageInput: {
     "flex-grow": 1,
@@ -58,114 +45,9 @@ const styles = (theme: Theme) => createStyles({
 interface GameRoomScreenProps extends GameRoomScreenStateProps, GameRoomScreenDispatchProps, WithStyles<typeof styles> {
 }
 
-type OpenStatus = "open" | "closed";
-const openStatuses: OpenStatus[] = ["open", "closed"];
-function statusToLabel(status: OpenStatus) {
-  switch (status) {
-    case "open": return "Open Slot";
-    case "closed": return "Closed Slot";
-  }
-}
-
 class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps> {
   constructor(props: GameRoomScreenProps) {
     super(props);
-
-    this.handleReadyChange = this.handleReadyChange.bind(this);
-    this.handleSideChange = this.handleSideChange.bind(this);
-    this.handleColorChange = this.handleColorChange.bind(this);
-    this.handleTeamChange = this.handleTeamChange.bind(this);
-  }
-
-  handleReadyChange(event: React.SyntheticEvent<EventTarget>) {
-    this.props.onToggleReady();
-  }
-
-  handleSideChange(event: React.SyntheticEvent<EventTarget>) {
-    this.props.onChangeSide((event.target as HTMLSelectElement).value as PlayerSide);
-  }
-
-  handleColorChange(event: React.SyntheticEvent<EventTarget>) {
-    this.props.onChangeColor(parseInt((event.target as HTMLSelectElement).value));
-  }
-
-  handleTeamChange(event: React.SyntheticEvent<EventTarget>) {
-    const value = (event.target as HTMLSelectElement).value;
-    const parsedValue = value === "" ? undefined : parseInt(value);
-    this.props.onChangeTeam(parsedValue);
-  }
-
-  handleOpenStatusChange(slotId: number, event: React.SyntheticEvent<EventTarget>) {
-    const value = (event.target as HTMLSelectElement).value as OpenStatus;
-    switch (value) {
-      case "open":
-        this.props.onOpenSlot(slotId);
-        return;
-      case "closed":
-        this.props.onCloseSlot(slotId);
-        return;
-    }
-  }
-
-  emptyToRow(id: number, openStatus: OpenStatus) {
-    const items = openStatuses.map((x, i) => <MenuItem key={i} value={x}>{statusToLabel(x)}</MenuItem>);
-    const select = this.props.localPlayerId === this.props.adminPlayerId
-      ? <Select value={openStatus} onChange={e => this.handleOpenStatusChange(id, e)}>{items}</Select>
-      : <Select value={openStatus} disabled>{items}</Select>;
-    return (
-      <TableRow key={id}>
-        <TableCell>{select}</TableCell>
-        <TableCell colSpan={4}></TableCell>
-      </TableRow>
-    );
-  }
-
-  playerToRow(id: number, player: PlayerInfo) {
-    const checkbox = player.id === this.props.localPlayerId
-      ? <Checkbox checked={player.ready} onChange={this.handleReadyChange} />
-      : <Checkbox checked={player.ready} disabled />;
-    // const nameCell = <TableCell>{player.name}</TableCell>;
-    const nameCell = player.id === this.props.adminPlayerId
-      ? <TableCell><StarIcon /> {player.name}</TableCell>
-      : <TableCell>{player.name}</TableCell>;
-    const sideItems = ["ARM", "CORE"].map((x, i) => <MenuItem key={i} value={x}>{x}</MenuItem>);
-    const sideSelect = player.id === this.props.localPlayerId
-      ? <Select value={player.side} onChange={this.handleSideChange}>{sideItems}</Select>
-      : <Select value={player.side} disabled>{sideItems}</Select>;
-
-    const teamItems = ["", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"].map((x, i) => <MenuItem key={i} value={x}>{x}</MenuItem>);
-    const playerTeamValue = player.team === undefined ? "" : player.team.toString();
-    const teamSelect = player.id === this.props.localPlayerId
-      ? <Select value={playerTeamValue} onChange={this.handleTeamChange}>{teamItems}</Select>
-      : <Select value={playerTeamValue} onChange={this.handleTeamChange} disabled>{teamItems}</Select>;
-
-    const colorItems = teamColors.map((c, i) => {
-      const style = {
-        width: "16px",
-        height: "16px",
-        backgroundColor: c,
-      };
-      return <MenuItem key={i} value={i}><div style={style}></div></MenuItem>;
-    });
-    const colorSelect = player.id === this.props.localPlayerId
-      ? <Select value={player.color} onChange={this.handleColorChange}>{colorItems}</Select>
-      : <Select value={player.color} disabled>{colorItems}</Select>;
-
-    return (
-      <TableRow key={id}>
-        {nameCell}
-        <TableCell>
-          {sideSelect}
-        </TableCell>
-        <TableCell>
-          {colorSelect}
-        </TableCell>
-        <TableCell>
-          {teamSelect}
-        </TableCell>
-        <TableCell padding="checkbox">{checkbox}</TableCell>
-      </TableRow>
-    );
   }
 
   render() {
@@ -175,13 +57,6 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps> {
           {m.senderName ? m.senderName : "<unknown>"}: {m.message}
         </Typography>
       );
-    });
-    const rows: JSX.Element[] = this.props.players.map((slot, i) => {
-      switch (slot.state) {
-        case "empty": return this.emptyToRow(i, "open");
-        case "closed": return this.emptyToRow(i, "closed");
-        case "filled": return this.playerToRow(i, slot.player);
-      }
     });
 
     const mapDialogMaps = this.props.mapDialogMaps
@@ -197,20 +72,16 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps> {
         <div className="game-room-screen-left">
           <div className="game-room-players-panel">
             <Typography variant="h6" className="game-room-players-title">Players</Typography>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Player</TableCell>
-                  <TableCell>Side</TableCell>
-                  <TableCell>Color</TableCell>
-                  <TableCell>Team</TableCell>
-                  <TableCell>Ready?</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {rows}
-              </TableBody>
-            </Table>
+            <PlayersTable
+              rows={this.props.players}
+              localPlayerId={this.props.localPlayerId}
+              adminPlayerId={this.props.adminPlayerId}
+              onOpenSlot={this.props.onOpenSlot}
+              onCloseSlot={this.props.onCloseSlot}
+              onChangeSide={this.props.onChangeSide}
+              onChangeColor={this.props.onChangeColor}
+              onChangeTeam={this.props.onChangeTeam}
+              onToggleReady={this.props.onToggleReady} />
           </div>
           <div className="game-room-map-panel">
             <TextField disabled value={this.props.mapName ? this.props.mapName : ""} />
