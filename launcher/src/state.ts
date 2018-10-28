@@ -50,9 +50,14 @@ export interface ClosedPlayerSlot {
 
 export type PlayerSlot = EmptyPlayerSlot | ClosedPlayerSlot | FilledPlayerSlot;
 
+export interface SelectedMapInfo {
+  name: string;
+  minimap?: string;
+}
+
 export interface MapDialogState {
   maps?: string[];
-  selectedMap?: string;
+  selectedMap?: SelectedMapInfo;
 }
 
 export interface GameRoom {

@@ -554,6 +554,18 @@ export function receiveMapChanged(data: protocol.MapChangedPayload): ReceiveMapC
   };
 }
 
+export interface ReceiveMinimapAction {
+  type: "RECEIVE_MINIMAP";
+  path: string;
+}
+
+export function receiveMinimap(path: string): ReceiveMinimapAction {
+  return {
+    type: "RECEIVE_MINIMAP",
+    path,
+  };
+}
+
 export type AppAction =
   | SelectGameAction
   | JoinSelectedGameAction
@@ -603,4 +615,5 @@ export type AppAction =
   | ReceiveMapListAction
   | ChangeMapAction
   | ReceiveMapChangedAction
-  | DialogSelectMapAction;
+  | DialogSelectMapAction
+  | ReceiveMinimapAction;

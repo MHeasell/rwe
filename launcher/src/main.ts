@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, BrowserWindowConstructorOptions } from "electron";
 import * as path from "path";
 import { installExtensions } from "./install-devtools-extensions";
 
@@ -25,10 +25,16 @@ let mainWindow: Electron.BrowserWindow | null;
 
 function createWindow() {
   // Create the browser window.
-  mainWindow = new BrowserWindow({
+  const windowOptions: BrowserWindowConstructorOptions = {
     height: 600,
     width: 800,
-  });
+  };
+  // disable web security in development, to permit accessing local files
+  // even though the page is served from a remote URL
+  if (development) {
+    windowOptions.webPreferences = { webSecurity: false };
+  }
+  mainWindow = new BrowserWindow(windowOptions);
 
   // and load the index.html of the app.
   if (development) {

@@ -15,6 +15,7 @@ interface GameRoomScreenStateProps {
   mapName?: string;
   mapDialogOpen: boolean;
   mapDialogMaps?: string[];
+  mapDialogMinimapPath?: string;
   selectedMap?: string;
 }
 
@@ -205,6 +206,10 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
       ? this.toMapDialogItems(this.props.mapDialogMaps, this.props.selectedMap)
       : <Typography>Maps not yet loaded</Typography>;
 
+    const mapImage = this.props.mapDialogMinimapPath
+      ? <img width="252" height="252" src={this.props.mapDialogMinimapPath} />
+      : <img width="252" height="252" />;
+
     return (
       <div className="game-room-screen-container">
         <div className="game-room-screen-left">
@@ -296,7 +301,7 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps, Gam
                 </div>
               </div>
               <div className="map-dialog-right">
-                <img width="252" height="252" />
+                {mapImage}
               </div>
             </div>
           </DialogContent>
@@ -341,7 +346,8 @@ function mapStateToProps(state: State): GameRoomScreenStateProps {
     mapName: state.currentGame.mapName,
     mapDialogOpen: !!mapDialog,
     mapDialogMaps: mapDialog ? mapDialog.maps : undefined,
-    selectedMap: mapDialog ? mapDialog.selectedMap : undefined,
+    selectedMap: mapDialog && mapDialog.selectedMap ? mapDialog.selectedMap.name : undefined,
+    mapDialogMinimapPath: mapDialog && mapDialog.selectedMap ? mapDialog.selectedMap.minimap : undefined,
   };
 }
 

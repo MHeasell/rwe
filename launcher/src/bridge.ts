@@ -38,6 +38,16 @@ interface GetMapListResponse {
   maps: string[];
 }
 
+interface GetMinimapCommand {
+  command: "get-minimap";
+  map: string;
+}
+
+interface GetMinimapResponse {
+  result: "ok";
+  path: string;
+}
+
 interface CommandQueueItem {
   command: BridgeCommand;
   callback: (value: string) => void;
@@ -47,7 +57,8 @@ type BridgeCommand =
     AddDataPathCommand
   | ClearDataPathsCommand
   | GetMapInfoCommand
-  | GetMapListCommand;
+  | GetMapListCommand
+  | GetMinimapCommand;
 
 export class RweBridge {
   private readonly proc: ChildProcess;
@@ -55,7 +66,7 @@ export class RweBridge {
 
   private readonly commandQueue: CommandQueueItem[] = [];
 
-  private isCommandInProgress = false;
+  private inProgressCommand?: CommandQueueItem;
 
   constructor() {
     const rweHome = process.env["RWE_HOME"];
@@ -68,8 +79,9 @@ export class RweBridge {
 
     this.rl = readline.createInterface({
       input: this.proc.stdout,
-      output: this.proc.stdin,
     });
+
+    this.rl.on("line", line => this.onReceiveLine(line));
   }
 
   addDataPath(path: string): Promise<AddDataPathResponse> {
@@ -92,6 +104,11 @@ export class RweBridge {
     return this.submitCommand(cmd).then(answer => JSON.parse(answer) as GetMapListResponse);
   }
 
+  getMinimap(mapName: string): Promise<GetMinimapResponse> {
+    const cmd: GetMinimapCommand = { command: "get-minimap", map: mapName };
+    return this.submitCommand(cmd).then(answer => JSON.parse(answer) as GetMinimapResponse);
+  }
+
   private submitCommand(cmd: BridgeCommand): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       this.commandQueue.push({command: cmd, callback: resolve});
@@ -99,29 +116,29 @@ export class RweBridge {
     });
   }
 
-  private pumpCommands() {
-    if (this.isCommandInProgress) { return; }
+  private onReceiveLine(line: string) {
+    console.log(`BRIDGE: received: ${line}`);
 
-    const cmd = this.commandQueue.shift();
-    if (!cmd) { return; }
+    if (!this.inProgressCommand) {
+      console.warn("Received line when no command in progress!");
+      return;
+    }
 
-    this.isCommandInProgress = true;
-    this.writeCommand(cmd.command)
-    .then(answer => {
-      cmd.callback(answer);
-      this.isCommandInProgress = false;
-      this.pumpCommands();
-    });
+    this.inProgressCommand.callback(line);
+    this.inProgressCommand = undefined;
+    this.pumpCommands();
   }
 
-  private writeCommand(cmd: BridgeCommand): Promise<string> {
+  private pumpCommands() {
+    if (this.inProgressCommand) { return; }
+    this.inProgressCommand = this.commandQueue.shift();
+    if (!this.inProgressCommand) { return; }
+    this.writeCommand(this.inProgressCommand.command);
+  }
+
+  private writeCommand(cmd: BridgeCommand) {
     const str = JSON.stringify(cmd);
     console.log(`BRIDGE: sending: ${str}`);
-    return new Promise<string>((resolve, reject) => {
-      this.rl.question(str, answer => {
-        console.log(`BRIDGE: received: ${answer}`);
-        resolve(answer);
-      });
-    });
+    this.proc.stdin.write(`${str}\n`);
   }
 }

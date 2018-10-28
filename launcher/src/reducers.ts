@@ -1,5 +1,5 @@
 import { AppAction } from "./actions";
-import { State, GameListEntry, GameRoom, PlayerInfo, ChatMessage, PlayerSlot, ClosedPlayerSlot, EmptyPlayerSlot } from "./state";
+import { State, GameListEntry, GameRoom, PlayerInfo, ChatMessage, PlayerSlot, ClosedPlayerSlot, EmptyPlayerSlot, MapDialogState } from "./state";
 import { GetGamesResponseItem } from "./master/protocol";
 import { findAndMap } from "./util";
 
@@ -212,7 +212,10 @@ function games(state: State = initialState, action: AppAction): State {
       return { ...state, masterServerConnectionStatus: "disconnected" };
     case "OPEN_SELECT_MAP_DIALOG": {
       if (!state.currentGame) { return state; }
-      const room = { ...state.currentGame, mapDialog: { selectedMap: state.currentGame.mapName } };
+      const selectedMapInfo = state.currentGame.mapName
+        ? { name: state.currentGame.mapName }
+        : undefined;
+      const room = { ...state.currentGame, mapDialog: { selectedMap: selectedMapInfo } };
       return { ...state, currentGame: room };
     }
     case "CLOSE_SELECT_MAP_DIALOG": {
@@ -230,13 +233,23 @@ function games(state: State = initialState, action: AppAction): State {
     case "DIALOG_SELECT_MAP": {
       if (!state.currentGame) { return state; }
       if (!state.currentGame.mapDialog) { return state; }
-      const dialog = {...state.currentGame.mapDialog, selectedMap: action.mapName };
+      const dialog = {...state.currentGame.mapDialog, selectedMap: { name: action.mapName } };
       const room = { ...state.currentGame, mapDialog: dialog };
       return { ...state, currentGame: room };
     }
     case "RECEIVE_MAP_CHANGED": {
       if (!state.currentGame) { return state; }
       const room = { ...state.currentGame, mapName: action.data.mapName };
+      return { ...state, currentGame: room };
+    }
+    case "RECEIVE_MINIMAP": {
+      if (!state.currentGame) { return state; }
+      if (!state.currentGame.mapDialog) { return state; }
+      if (!state.currentGame.mapDialog.selectedMap) { return state; }
+
+      const selectedMapInfo = { ...state.currentGame.mapDialog.selectedMap, minimap: action.path };
+      const dialog = { ...state.currentGame.mapDialog, selectedMap: selectedMapInfo };
+      const room = { ...state.currentGame, mapDialog: dialog };
       return { ...state, currentGame: room };
     }
     default:

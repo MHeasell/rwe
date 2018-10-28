@@ -1,4 +1,4 @@
-import { AppAction, disconnectGame, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, receiveChatMessage, receivePlayerReady, receiveStartGame, gameEnded, LaunchRweAction, receiveRooms, receiveGameCreated, receiveGameUpdated, receiveGameDeleted, receiveCreateGameResponse, ReceiveCreateGameResponseAction, masterServerConnect, masterServerDisconnect, receivePlayerChangedSide, receivePlayerChangedColor, receivePlayerChangedTeam, receiveSlotOpened, receiveSlotClosed, receiveMapList, receiveMapChanged, closeSelectMapDialog } from "../actions";
+import { AppAction, disconnectGame, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, receiveChatMessage, receivePlayerReady, receiveStartGame, gameEnded, LaunchRweAction, receiveRooms, receiveGameCreated, receiveGameUpdated, receiveGameDeleted, receiveCreateGameResponse, ReceiveCreateGameResponseAction, masterServerConnect, masterServerDisconnect, receivePlayerChangedSide, receivePlayerChangedColor, receivePlayerChangedTeam, receiveSlotOpened, receiveSlotClosed, receiveMapList, receiveMapChanged, closeSelectMapDialog, receiveMinimap } from "../actions";
 import { StateObservable, combineEpics, ofType } from "redux-observable";
 import { State, GameRoom, FilledPlayerSlot } from "../state";
 import * as rx from "rxjs";
@@ -202,7 +202,7 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
           if (!state.currentGame) { break; }
           if (!state.currentGame.mapDialog) { break; }
           if (!state.currentGame.mapDialog.selectedMap) { break; }
-          clientService.changeMap(state.currentGame.mapDialog.selectedMap);
+          clientService.changeMap(state.currentGame.mapDialog.selectedMap.name);
           return rx.of<AppAction>(closeSelectMapDialog());
         }
       }
@@ -212,18 +212,33 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
 };
 
 const rweBridgeEpic = (action$: rx.Observable<AppAction>, state$: StateObservable<State>, deps: EpicDependencies): rx.Observable<AppAction> => {
-  return action$.pipe(
-    rxop.flatMap(action => {
+  const statePipe = state$.pipe(
+    rxop.map(state => {
+      if (!state.currentGame) { return undefined; }
+      if (!state.currentGame.mapDialog) { return undefined; }
+      if (!state.currentGame.mapDialog.selectedMap) { return undefined; }
+      return state.currentGame.mapDialog.selectedMap.name;
+    }),
+    rxop.distinctUntilChanged(),
+    rxop.switchMap((mapName): rx.Observable<AppAction> => {
+      if (mapName === undefined) { return rx.empty(); }
+      return rx.from(deps.bridgeService.getMinimap(mapName))
+      .pipe(rxop.map(x => receiveMinimap(x.path)));
+  }));
+
+  const actionPipe = action$.pipe(
+    rxop.flatMap((action): rx.Observable<AppAction> => {
       switch (action.type) {
         case "OPEN_SELECT_MAP_DIALOG": {
           return rx.from(deps.bridgeService.getMapList())
           .pipe(rxop.map(x => receiveMapList(x.maps)));
         }
-        default:
-          return rx.empty();
       }
+      return rx.empty();
     }),
   );
+
+  return rx.merge(statePipe, actionPipe);
 };
 
 export const rootEpic = combineEpics(masterClientEventsEpic, gameClientEventsEpic, gameRoomEpic, launchRweEpic, rweBridgeEpic);
