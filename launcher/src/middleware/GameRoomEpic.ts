@@ -1,6 +1,6 @@
 import { AppAction, disconnectGame, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, receiveChatMessage, receivePlayerReady, receiveStartGame, gameEnded, LaunchRweAction, receiveRooms, receiveGameCreated, receiveGameUpdated, receiveGameDeleted, receiveCreateGameResponse, ReceiveCreateGameResponseAction, masterServerConnect, masterServerDisconnect, receivePlayerChangedSide, receivePlayerChangedColor, receivePlayerChangedTeam, receiveSlotOpened, receiveSlotClosed, receiveMapList, receiveMapChanged, closeSelectMapDialog, receiveMinimap } from "../actions";
 import { StateObservable, combineEpics, ofType } from "redux-observable";
-import { State, GameRoom, FilledPlayerSlot } from "../state";
+import { State, GameRoom, FilledPlayerSlot, getRoom } from "../state";
 import * as rx from "rxjs";
 import * as rxop from "rxjs/operators";
 import * as path from "path";
@@ -11,6 +11,7 @@ import { RweArgs, RweArgsPlayerController, RweArgsPlayerInfo, execRwe, RweArgsEm
 import { MasterClientService } from "../master/master-client";
 import { masterServer, assertNever } from "../util";
 import { RweBridge } from "../bridge";
+import { stat } from "fs";
 
 export interface EpicDependencies {
   clientService: GameClientService;
@@ -164,9 +165,10 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
         }
         case "TOGGLE_READY": {
           const state = state$.value;
-          if (!state.currentGame) { break; }
-          if (state.currentGame.localPlayerId === undefined) { break; }
-          const localPlayerSlot = state.currentGame.players.find(x => x.state === "filled" && x.player.id === state.currentGame!.localPlayerId)! as FilledPlayerSlot;
+          const room = getRoom(state);
+          if (!room) { break; }
+          if (room.localPlayerId === undefined) { break; }
+          const localPlayerSlot = room.players.find(x => x.state === "filled" && x.player.id === room.localPlayerId)! as FilledPlayerSlot;
           const currentValue = localPlayerSlot.player.ready;
           clientService.setReadyState(!currentValue);
           break;
@@ -189,8 +191,9 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
         }
         case "RECEIVE_START_GAME": {
           const state = state$.value;
-          if (!state.currentGame) { break; }
-          return rx.from(execRwe(rweArgsFromGameRoom(state.currentGame)))
+          const room = getRoom(state);
+          if (!room) { break; }
+          return rx.from(execRwe(rweArgsFromGameRoom(room)))
           .pipe(
             rxop.mapTo(undefined),
             rxop.catchError(e => rx.of(undefined)),
@@ -199,10 +202,11 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
         }
         case "CHANGE_MAP": {
           const state = state$.value;
-          if (!state.currentGame) { break; }
-          if (!state.currentGame.mapDialog) { break; }
-          if (!state.currentGame.mapDialog.selectedMap) { break; }
-          clientService.changeMap(state.currentGame.mapDialog.selectedMap.name);
+          const room = getRoom(state);
+          if (!room) { break; }
+          if (!room.mapDialog) { break; }
+          if (!room.mapDialog.selectedMap) { break; }
+          clientService.changeMap(room.mapDialog.selectedMap.name);
           return rx.of<AppAction>(closeSelectMapDialog());
         }
       }
@@ -214,10 +218,11 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
 const rweBridgeEpic = (action$: rx.Observable<AppAction>, state$: StateObservable<State>, deps: EpicDependencies): rx.Observable<AppAction> => {
   const statePipe = state$.pipe(
     rxop.map(state => {
-      if (!state.currentGame) { return undefined; }
-      if (!state.currentGame.mapDialog) { return undefined; }
-      if (!state.currentGame.mapDialog.selectedMap) { return undefined; }
-      return state.currentGame.mapDialog.selectedMap.name;
+      const room = getRoom(state);
+      if (!room) { return undefined; }
+      if (!room.mapDialog) { return undefined; }
+      if (!room.mapDialog.selectedMap) { return undefined; }
+      return room.mapDialog.selectedMap.name;
     }),
     rxop.distinctUntilChanged(),
     rxop.switchMap((mapName): rx.Observable<AppAction> => {

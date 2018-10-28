@@ -1,5 +1,5 @@
 import * as React from "react";
-import { State, PlayerInfo, ChatMessage, canStartGame, PlayerSide, PlayerSlot } from "../state";
+import { State, PlayerInfo, ChatMessage, canStartGame, PlayerSide, PlayerSlot, getRoom } from "../state";
 import { connect } from "react-redux";
 import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Table, TableHead, TableRow, TableCell, TableBody, Checkbox, Typography, Divider, Paper, Select, MenuItem, FormControl, InputLabel, Dialog, List, ListItemText, ListItem, DialogContent, DialogActions, DialogTitle } from "@material-ui/core";
 import { Dispatch } from "redux";
@@ -142,25 +142,26 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps> {
   }
 }
 
-function mapStateToProps(state: State): GameRoomScreenStateProps {
-  if (!state.currentGame) {
-    return {
-      players: [],
-      messages: [],
-      startEnabled: false,
-      mapDialogOpen: false,
-    };
-  }
+const emptyProps: GameRoomScreenStateProps = {
+  players: [],
+  messages: [],
+  startEnabled: false,
+  mapDialogOpen: false,
+};
 
-  const mapDialog = state.currentGame.mapDialog;
+function mapStateToProps(state: State): GameRoomScreenStateProps {
+  const room = getRoom(state);
+  if (!room) { return emptyProps; }
+
+  const mapDialog = room.mapDialog;
 
   return {
-    localPlayerId: state.currentGame.localPlayerId,
-    adminPlayerId: state.currentGame.adminPlayerId,
-    players: state.currentGame.players,
-    messages: state.currentGame.messages,
-    startEnabled: canStartGame(state.currentGame),
-    mapName: state.currentGame.mapName,
+    localPlayerId: room.localPlayerId,
+    adminPlayerId: room.adminPlayerId,
+    players: room.players,
+    messages: room.messages,
+    startEnabled: canStartGame(room),
+    mapName: room.mapName,
     mapDialogOpen: !!mapDialog,
     mapDialogMaps: mapDialog ? mapDialog.maps : undefined,
     selectedMap: mapDialog && mapDialog.selectedMap ? mapDialog.selectedMap.name : undefined,

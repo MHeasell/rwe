@@ -1,5 +1,5 @@
 import { AppAction } from "./actions";
-import { State, GameListEntry, GameRoom, PlayerInfo, ChatMessage, PlayerSlot, ClosedPlayerSlot, EmptyPlayerSlot, MapDialogState } from "./state";
+import { State, GameListEntry, GameRoom, PlayerInfo, ChatMessage, PlayerSlot, ClosedPlayerSlot, EmptyPlayerSlot, MapDialogState, AppScreen, GameRoomScreen, OverviewScreen, HostFormScreen } from "./state";
 import { GetGamesResponseItem } from "./master/protocol";
 import { findAndMap } from "./util";
 
@@ -23,17 +23,73 @@ function findPlayer(players: PlayerSlot[], playerId: number): PlayerInfo | undef
   return findAndMap(players, x => x.state === "filled" && x.player.id === playerId ? x.player : undefined);
 }
 
-function gameRoomReducer(room: GameRoom, action: AppAction): GameRoom {
+function gameRoomScreenReducer(screen: GameRoomScreen, action: AppAction): AppScreen {
   switch (action.type) {
     case "RECEIVE_HANDSHAKE_RESPONSE": {
-      return {
-        ...room,
+      const room: GameRoom = {
         players: action.payload.players,
         localPlayerId: action.payload.playerId,
         adminPlayerId: action.payload.adminPlayerId,
         mapName: action.payload.mapName,
+        messages: [],
       };
+      return { ...screen, room };
     }
+    case "START_GAME": {
+      return { screen: "overview", dialogOpen: false };
+    }
+    case "DISCONNECT_GAME": {
+      return { screen: "overview", dialogOpen: false };
+    }
+    default: {
+      if (!screen.room) { return screen; }
+      const room = gameRoomReducer(screen.room, action);
+      if (room === screen.room) { return screen; }
+      return { ...screen, room };
+    }
+  }
+}
+
+function overviewScreenReducer(screen: OverviewScreen, action: AppAction): AppScreen {
+  switch (action.type) {
+    case "JOIN_SELECTED_GAME": {
+      return { ...screen, dialogOpen: true };
+    }
+    case "JOIN_SELECTED_GAME_CONFIRM": {
+      return { screen: "game-room" };
+    }
+    case "JOIN_SELECTED_GAME_CANCEL": {
+      return { ...screen, dialogOpen: false };
+    }
+    case "HOST_GAME": {
+      return { screen: "host-form" };
+    }
+    default: return screen;
+  }
+}
+
+function hostFormReducer(screen: HostFormScreen, action: AppAction): AppScreen {
+  switch (action.type) {
+    case "HOST_GAME_FORM_CONFIRM": {
+      return { screen: "game-room" };
+    }
+    case "HOST_GAME_FORM_CANCEL": {
+      return { screen: "overview", dialogOpen: false };
+    }
+    default: return screen;
+  }
+}
+
+function currentScreenReducer(screen: AppScreen, action: AppAction): AppScreen {
+  switch (screen.screen) {
+    case "game-room": return gameRoomScreenReducer(screen, action);
+    case "overview": return overviewScreenReducer(screen, action);
+    case "host-form": return hostFormReducer(screen, action);
+  }
+}
+
+function gameRoomReducer(room: GameRoom, action: AppAction): GameRoom {
+  switch (action.type) {
     case "RECEIVE_PLAYER_JOINED": {
       const newPlayer: PlayerSlot = {
         state: "filled",
@@ -164,6 +220,7 @@ function gameRoomReducer(room: GameRoom, action: AppAction): GameRoom {
       const dialog = { ...room.mapDialog, selectedMap: selectedMapInfo };
       return { ...room, mapDialog: dialog };
     }
+
     default: return room;
   }
 }
@@ -172,28 +229,6 @@ function games(state: State = initialState, action: AppAction): State {
   switch (action.type) {
     case "SELECT_GAME":
       return { ...state, selectedGameId: action.gameId };
-    case "JOIN_SELECTED_GAME": {
-      if (state.currentScreen.screen !== "overview") { return state; }
-      const newScreen = { ...state.currentScreen, dialogOpen: true };
-      return { ...state, currentScreen: newScreen };
-    }
-    case "JOIN_SELECTED_GAME_CONFIRM": {
-      const game: GameRoom = { players: [], messages: [] };
-      return { ...state, currentScreen: { screen: "game-room", userMessage: "" }, currentGame: game };
-    }
-    case "JOIN_SELECTED_GAME_CANCEL": {
-      if (state.currentScreen.screen !== "overview") { return state; }
-      const newScreen = { ...state.currentScreen, dialogOpen: false };
-      return { ...state, currentScreen: newScreen };
-    }
-    case "HOST_GAME":
-      return { ...state, currentScreen: { screen: "host-form" } };
-    case "HOST_GAME_FORM_CANCEL":
-      return { ...state, currentScreen: { screen: "overview", dialogOpen: false } };
-    case "HOST_GAME_FORM_CONFIRM": {
-      const game: GameRoom = { players: [], messages: [] };
-      return { ...state, currentScreen: { screen: "game-room", userMessage: "" }, currentGame: game };
-    }
     case "LAUNCH_RWE":
       return { ...state, isRweRunning: true };
     case "LAUNCH_RWE_END":
@@ -222,23 +257,17 @@ function games(state: State = initialState, action: AppAction): State {
       const selectedId = state.selectedGameId === action.payload.game_id ? undefined : state.selectedGameId;
       return { ...state, games, selectedGameId: selectedId };
     }
-    case "DISCONNECT_GAME":
-      if (!state.currentGame) { return state; }
-      return { ...state, currentScreen: { screen: "overview", dialogOpen: false }, currentGame: undefined };
-    case "START_GAME":
-      if (!state.currentGame) { return state; }
-      return { ...state, currentScreen: { screen: "overview", dialogOpen: false }, currentGame: undefined, isRweRunning: true };
     case "GAME_ENDED":
       return { ...state, isRweRunning: false };
     case "MASTER_SERVER_CONNECT":
       return { ...state, masterServerConnectionStatus: "connected" };
     case "MASTER_SERVER_DISCONNECT":
       return { ...state, masterServerConnectionStatus: "disconnected" };
-    default:
-      if (!state.currentGame) { return state; }
-      const newRoom = gameRoomReducer(state.currentGame, action);
-      if (newRoom !== state.currentGame) { return { ...state, currentGame: newRoom } };
-      return state;
+    default: {
+      const screen = currentScreenReducer(state.currentScreen, action);
+      if (screen === state.currentScreen) { return state; }
+      return { ...state, currentScreen: screen };
+    }
   }
 }
 

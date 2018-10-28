@@ -9,7 +9,16 @@ export interface HostFormScreen {
 
 export interface GameRoomScreen {
   screen: "game-room";
-  userMessage: string;
+  room?: GameRoom;
+}
+
+export interface GameRoom {
+  localPlayerId?: number;
+  adminPlayerId?: number;
+  players: PlayerSlot[];
+  messages: ChatMessage[];
+  mapName?: string;
+  mapDialog?: MapDialogState;
 }
 
 export type AppScreen =
@@ -60,13 +69,9 @@ export interface MapDialogState {
   selectedMap?: SelectedMapInfo;
 }
 
-export interface GameRoom {
-  localPlayerId?: number;
-  adminPlayerId?: number;
-  players: PlayerSlot[];
-  messages: ChatMessage[];
-  mapName?: string;
-  mapDialog?: MapDialogState;
+export function getRoom(state: State): GameRoom | undefined {
+  if (state.currentScreen.screen !== "game-room") { return undefined; }
+  return (state.currentScreen.room);
 }
 
 export function canStartGame(room: GameRoom) {
@@ -108,7 +113,6 @@ export interface State {
   selectedGameId?: number;
   currentScreen: AppScreen;
   isRweRunning: boolean;
-  currentGame?: GameRoom;
   masterServerConnectionStatus: MasterServerConnectionStatus;
 }
 
