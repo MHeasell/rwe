@@ -1,6 +1,6 @@
 import { AppAction } from "./actions";
-import { State, GameListEntry, GameRoom, PlayerInfo, ChatMessage, PlayerSlot, ClosedPlayerSlot, EmptyPlayerSlot, AppScreen, GameRoomScreen, OverviewScreen, HostFormScreen } from "./state";
 import { GetGamesResponseItem } from "./master/protocol";
+import { AppScreen, ChatMessage, ClosedPlayerSlot, EmptyPlayerSlot, GameListEntry, GameRoom, GameRoomScreen, HostFormScreen, OverviewScreen, PlayerInfo, PlayerSlot, State } from "./state";
 import { findAndMap } from "./util";
 
 const initialState: State = {

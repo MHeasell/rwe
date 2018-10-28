@@ -1,16 +1,16 @@
-import { AppAction, disconnectGame, receiveHandshakeResponse, receivePlayerJoined, receivePlayerLeft, receiveChatMessage, receivePlayerReady, receiveStartGame, gameEnded, LaunchRweAction, receiveRooms, receiveGameCreated, receiveGameUpdated, receiveGameDeleted, receiveCreateGameResponse, ReceiveCreateGameResponseAction, masterServerConnect, masterServerDisconnect, receivePlayerChangedSide, receivePlayerChangedColor, receivePlayerChangedTeam, receiveSlotOpened, receiveSlotClosed, receiveMapList, receiveMapChanged, closeSelectMapDialog, receiveMinimap } from "../actions";
-import { StateObservable, combineEpics, ofType } from "redux-observable";
-import { State, GameRoom, FilledPlayerSlot, getRoom } from "../state";
+import * as path from "path";
+import { combineEpics, ofType, StateObservable } from "redux-observable";
 import * as rx from "rxjs";
 import * as rxop from "rxjs/operators";
-import * as path from "path";
+import { AppAction, closeSelectMapDialog, disconnectGame, gameEnded, LaunchRweAction, masterServerConnect, masterServerDisconnect, receiveChatMessage, receiveCreateGameResponse, ReceiveCreateGameResponseAction, receiveGameCreated, receiveGameDeleted, receiveGameUpdated, receiveHandshakeResponse, receiveMapChanged, receiveMapList, receiveMinimap, receivePlayerChangedColor, receivePlayerChangedSide, receivePlayerChangedTeam, receivePlayerJoined, receivePlayerLeft, receivePlayerReady, receiveRooms, receiveSlotClosed, receiveSlotOpened, receiveStartGame } from "../actions";
+import { FilledPlayerSlot, GameRoom, getRoom, State } from "../state";
 
 import { GameClientService } from "../ws/game-client";
 
-import { RweArgs, RweArgsPlayerController, RweArgsPlayerInfo, execRwe, RweArgsEmptyPlayerSlot, RweArgsPlayerSlot, RweArgsFilledPlayerSlot } from "../rwe";
-import { MasterClientService } from "../master/master-client";
-import { masterServer, assertNever } from "../util";
 import { RweBridge } from "../bridge";
+import { MasterClientService } from "../master/master-client";
+import { execRwe, RweArgs, RweArgsEmptyPlayerSlot, RweArgsFilledPlayerSlot, RweArgsPlayerController, RweArgsPlayerInfo, RweArgsPlayerSlot } from "../rwe";
+import { assertNever, masterServer } from "../util";
 
 export interface EpicDependencies {
   clientService: GameClientService;

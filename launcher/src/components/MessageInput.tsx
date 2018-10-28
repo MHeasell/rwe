@@ -1,5 +1,5 @@
+import { Button, createStyles, TextField, Theme, WithStyles, withStyles } from "@material-ui/core";
 import * as React from "react";
-import { TextField, Button, Theme, createStyles, WithStyles, withStyles } from "@material-ui/core";
 
 const styles = (theme: Theme) => createStyles({
   messageInput: {

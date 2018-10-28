@@ -1,7 +1,7 @@
-import * as socketioClient from "socket.io-client";
-import * as protocol from "./protocol";
 import { Observable, Subject } from "rxjs";
+import * as socketioClient from "socket.io-client";
 import { PlayerSide } from "../state";
+import * as protocol from "./protocol";
 
 export class GameClientService {
   private client: SocketIOClient.Socket | undefined;

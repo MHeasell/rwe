@@ -3,7 +3,7 @@ import { createStyles, Theme, withStyles, WithStyles } from "@material-ui/core/s
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import { hostGame, launchRwe, joinSelectedGame } from "../actions";
+import { hostGame, joinSelectedGame, launchRwe } from "../actions";
 import { canHostGame, canJoinSelectedGame, canLaunchRwe, State } from "../state";
 
 const styles = (theme: Theme) => createStyles({

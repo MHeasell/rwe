@@ -1,5 +1,5 @@
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, List, ListItem, ListItemText, Typography } from "@material-ui/core";
 import * as React from "react";
-import { Dialog, DialogTitle, DialogContent, List, DialogActions, Button, ListItem, ListItemText, Typography } from "@material-ui/core";
 
 export interface MapSelectDialogProps {
   open: boolean;

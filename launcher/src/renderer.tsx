@@ -6,19 +6,19 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { Provider } from "react-redux";
-import { applyMiddleware, createStore, Store, compose } from "redux";
+import { applyMiddleware, compose, createStore, Store } from "redux";
+import { createEpicMiddleware } from "redux-observable";
 import { AppAction } from "./actions";
 import App from "./components/App";
+import { EpicDependencies, rootEpic } from "./middleware/GameRoomEpic";
 import rootReducer from "./reducers";
-import { createEpicMiddleware } from "redux-observable";
 import { State } from "./state";
-import { rootEpic, EpicDependencies } from "./middleware/GameRoomEpic";
 import { GameClientService } from "./ws/game-client";
 
-import "./style.css";
-import { MasterClientService } from "./master/master-client";
-import { masterServer } from "./util";
 import { RweBridge } from "./bridge";
+import { MasterClientService } from "./master/master-client";
+import "./style.css";
+import { masterServer } from "./util";
 
 const masterClentService = new MasterClientService();
 masterClentService.connectToServer(`${masterServer()}/master`);

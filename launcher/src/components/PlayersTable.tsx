@@ -1,8 +1,8 @@
-import * as React from "react";
-import { Table, TableHead, TableRow, TableCell, TableBody, MenuItem, Select, Checkbox } from "@material-ui/core";
-import { PlayerSlot, PlayerInfo, PlayerSide } from "../state";
-import { assertNever } from "../util";
+import { Checkbox, MenuItem, Select, Table, TableBody, TableCell, TableHead, TableRow } from "@material-ui/core";
 import StarIcon from "@material-ui/icons/Grade";
+import * as React from "react";
+import { PlayerInfo, PlayerSide, PlayerSlot } from "../state";
+import { assertNever } from "../util";
 
 type OpenStatus = "open" | "closed";
 const openStatuses: OpenStatus[] = ["open", "closed"];

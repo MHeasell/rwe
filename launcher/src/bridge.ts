@@ -1,4 +1,4 @@
-import { spawn, ChildProcess } from "child_process";
+import { ChildProcess, spawn } from "child_process";
 import * as path from "path";
 import * as readline from "readline";
 

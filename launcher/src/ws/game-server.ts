@@ -1,8 +1,8 @@
-import * as protocol from "./protocol";
-import * as rx from "rxjs";
 import * as crypto from "crypto";
-import { getAddr, findAndMap, assertNever } from "../util";
+import * as rx from "rxjs";
 import { EmptyPlayerSlot } from "../state";
+import { assertNever, findAndMap, getAddr } from "../util";
+import * as protocol from "./protocol";
 
 export interface AdminUnclaimed {
   state: "unclaimed";

@@ -1,9 +1,9 @@
 import * as http from "http";
 import * as socketio from "socket.io";
-import { GameServer, Room } from "../ws/game-server";
-import * as protocol from "./protocol";
 import * as yargs from "yargs";
 import { getAddr } from "../util";
+import { GameServer, Room } from "../ws/game-server";
+import * as protocol from "./protocol";
 
 const argv = yargs
 .option("host", { alias: "h", default: "127.0.0.1" })

@@ -1,12 +1,12 @@
+import { Button, createStyles, Divider, FormControl, InputLabel, MenuItem, Select, TextField, Theme, Typography, WithStyles, withStyles } from "@material-ui/core";
 import * as React from "react";
-import { State, ChatMessage, canStartGame, PlayerSide, PlayerSlot, getRoom } from "../state";
 import { connect } from "react-redux";
-import { TextField, WithStyles, createStyles, Theme, withStyles, Button, Typography, Divider, Select, MenuItem, FormControl, InputLabel } from "@material-ui/core";
 import { Dispatch } from "redux";
-import { sendChatMessage, leaveGame, toggleReady, sendStartGame, changeSide, changeColor, changeTeam, openSlot, closeSlot, openSelectMapDialog, closeSelectMapDialog, dialogSelectMap, changeMap } from "../actions";
+import { changeColor, changeMap, changeSide, changeTeam, closeSelectMapDialog, closeSlot, dialogSelectMap, leaveGame, openSelectMapDialog, openSlot, sendChatMessage, sendStartGame, toggleReady } from "../actions";
+import { canStartGame, ChatMessage, getRoom, PlayerSide, PlayerSlot, State } from "../state";
+import { MapSelectDialog } from "./MapSelectDialog";
 import MessageInput from "./MessageInput";
 import { PlayersTable } from "./PlayersTable";
-import { MapSelectDialog } from "./MapSelectDialog";
 
 interface GameRoomScreenStateProps {
   localPlayerId?: number;

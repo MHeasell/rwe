@@ -2,9 +2,9 @@ import * as React from "react";
 import { hot } from "react-hot-loader";
 import { connect } from "react-redux";
 import { AppScreen, State } from "../state";
+import GameRoomScreen from "./GameRoomScreen";
 import HostGameForm from "./HostGameForm";
 import OverviewScreen from "./OverviewScreen";
-import GameRoomScreen from "./GameRoomScreen";
 
 interface ScreenContainerProps {
   screen: AppScreen;

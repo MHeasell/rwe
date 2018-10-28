@@ -1,12 +1,12 @@
+import { Collapse, Divider, Paper, Typography } from "@material-ui/core";
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
+import { joinSelectedGameCancel, joinSelectedGameConfirm } from "../actions";
+import { State } from "../state";
 import BottomPanel from "./BottomPanel";
 import GamesTable from "./GamesTable";
 import { PlayerNameDialog } from "./PlayerNameDialog";
-import { State } from "../state";
-import { joinSelectedGameCancel, joinSelectedGameConfirm } from "../actions";
-import { Paper, Typography, Divider, Collapse } from "@material-ui/core";
 
 function MainPanel() {
   return (
