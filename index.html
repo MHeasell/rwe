@@ -1,103 +1,41 @@
 ---
+layout: default
 ---
-<!DOCTYPE html>
-<html lang="en">
+<h1>Robot War Engine</h1>
+<p>
+  Open-source real-time strategy game engine that is highly compatible with Total Annihilation data files.
+</p>
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" type="text/css" href="style.css">
-  <title>Robot War Engine</title>
-</head>
+<p>
+  For more information please visit
+  <a href="https://github.com/MHeasell/rwe">https://github.com/MHeasell/rwe</a>
+</p>
 
-<body>
-  <div class="container">
-    <h1>Robot War Engine</h1>
-    <p>
-      Open-source real-time strategy game engine that is highly compatible with Total Annihilation data files.
-    </p>
+<h2>Posts</h2>
 
-    <p>
-      For more information please visit
-      <a href="https://github.com/MHeasell/rwe">https://github.com/MHeasell/rwe</a>
-    </p>
+{% for post in site.posts limit:4 %}
+  <article class="card my-3">
+    <div class="card-body">
+      <h5><a href="{{ post.url }}">{{ post.title }}</a></h5>
+      {{ post.excerpt }}
+      <footer>
+        <a href="{{ post.url }}" class="btn btn-outline-primary btn-sm">Read More</a>
+      </footer>
+    </div>
+  </article>
+{% endfor %}
+<div class="my-3">
+  <a href="/posts" class="btn btn-primary">See All Posts</a>
+</div>
 
-    <h2>Posts</h2>
-    <ul>
-      {% for post in site.posts %}
-        <li>
-          <a href="{{ post.url }}">{{ post.title }}</a>
-        </li>
-      {% endfor %}
-    </ul>
+<h3>Miscellaneous Images</h3>
+<div class="text-center">
+  {% for image in site.data.misc-images %}
+  <img class="img-fluid img-thumbnail" src="blank.gif" data-echo="{{ image.url }}" width="{{ image.width }}" height="{{ image.height }}">
+  {% endfor %}
+</div>
 
-    <h2>Images</h2>
-    <p>
-      Progress updates for RWE are issued usually once a week and are posted to a thread on the TAUniverse forums. Often the update
-      will feature an image demonstrating the latest engine feature. For your convenience, the full collection of images
-      is also available here.
-    </p>
-
-    <p>
-      There are a substantial number of images here and they do consume a reasonable amount of data (15MB+), so please beware if
-      you are on a metered connection such as mobile data. To avoid using unnecessary bandwidth, the images will be loaded
-      on demand as you scroll.
-    </p>
-
-    <h3>Progress Images</h3>
-    <h4>2017-09-10</h4>
-    <img src="blank.gif" data-echo="pics/progress-2017-09-10.gif" width="656" height="518">
-    <h4>2017-09-17</h4>
-    <img src="blank.gif" data-echo="pics/progress-2017-09-17.gif" width="656" height="518">
-    <h4>2017-09-24</h4>
-    <img src="blank.gif" data-echo="pics/progress-2017-09-24.png" width="656" height="518">
-    <h4>2017-10-01</h4>
-    <img src="blank.gif" data-echo="pics/progress-2017-10-01.png" width="656" height="518">
-    <h4>2017-10-08</h4>
-    <img src="blank.gif" data-echo="pics/progress-2017-10-08.png" width="656" height="518">
-    <h4>2017-10-15</h4>
-    <img src="blank.gif" data-echo="pics/progress-2017-10-15.png" width="656" height="518">
-    <h4>2017-10-29</h4>
-    <img src="blank.gif" data-echo="pics/progress-2017-10-29.png" width="656" height="518">
-    <h4>2017-11-05</h4>
-    <img src="blank.gif" data-echo="pics/progress-2017-11-05.gif" width="656" height="518">
-    <h4>2017-11-12</h4>
-    <img src="blank.gif" data-echo="pics/progress-2017-11-12.gif" width="555" height="492">
-    <h4>2017-11-19</h4>
-    <img src="blank.gif" data-echo="pics/progress-2017-11-19.gif" width="255" height="215">
-    <h4>2017-12-11</h4>
-    <img src="blank.gif" data-echo="pics/progress-2017-12-11.gif" width="350" height="350">
-    <h4>2018-01-28</h4>
-    <img src="blank.gif" data-echo="pics/progress-2018-01-28.gif" width="387" height="358">
-    <h4>2018-02-04</h4>
-    <img src="blank.gif" data-echo="pics/progress-2018-02-04.gif" width="510" height="438">
-    <h4>2018-02-11</h4>
-    <img src="blank.gif" data-echo="pics/progress-2018-02-11.gif" width="301" height="248">
-    <h4>2018-02-18</h4>
-    <img src="blank.gif" data-echo="pics/progress-2018-02-18.gif" width="301" height="248">
-    <h4>2018-02-25</h4>
-    <img src="blank.gif" data-echo="pics/progress-2018-02-25.gif" width="301" height="248">
-    <h4>2018-03-11</h4>
-    <img src="blank.gif" data-echo="pics/progress-2018-03-11.gif" width="164" height="120">
-    <h4>2018-03-18</h4>
-    <img src="blank.gif" data-echo="pics/progress-2018-03-18.gif" width="231" height="209">
-    <h4>2018-03-18</h4>
-    <img src="blank.gif" data-echo="pics/progress-2018-03-18-2.gif" width="256" height="191">
-    <h4>2018-03-25</h4>
-    <img src="blank.gif" data-echo="pics/progress-2018-03-25.gif" width="227" height="129">
-    <h4>2018-05-20</h4>
-    <img src="blank.gif" data-echo="pics/progress-2018-05-20.gif" width="530" height="188">
-
-    <h3>Miscellaneous Images</h3>
-    {% for image in site.data.misc-images %}
-    <img src="blank.gif" data-echo="{{ image.url }}" width="{{ image.width }}" height="{{ image.height }}">
-    {% endfor %}
-  </div>
-
-  <script src="echo.js"></script>
-  <script>
-    echo.init();
-  </script>
-</body>
-
-</html>
+<script src="echo.js"></script>
+<script>
+  echo.init();
+</script>

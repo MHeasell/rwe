@@ -1,0 +1,15 @@
+---
+layout: default
+title: Progress Posts
+---
+{% for post in site.posts %}
+  <article class="card my-3">
+    <div class="card-body">
+      <h5><a href="{{ post.url }}">{{ post.title }}</a></h5>
+      {{ post.excerpt }}
+      <footer>
+        <a href="{{ post.url }}" class="btn btn-outline-primary btn-sm">Read More</a>
+      </footer>
+    </div>
+  </article>
+{% endfor %}
