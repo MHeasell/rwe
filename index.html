@@ -89,22 +89,9 @@
     <img src="blank.gif" data-echo="pics/progress-2018-05-20.gif" width="530" height="188">
 
     <h3>Miscellaneous Images</h3>
-    <img src="blank.gif" data-echo="pics/aiming.gif" width="206" height="172">
-    <img src="blank.gif" data-echo="pics/beep-boop.gif" width="164" height="110">
-    <img src="blank.gif" data-echo="pics/boom.gif" width="303" height="231">
-    <img src="blank.gif" data-echo="pics/corecom.png" width="184" height="176">
-    <img src="blank.gif" data-echo="pics/cursor.gif" width="271" height="223">
-    <img src="blank.gif" data-echo="pics/duel.gif" width="237" height="167">
-    <img src="blank.gif" data-echo="pics/mkl.gif" width="349" height="302">
-    <img src="blank.gif" data-echo="pics/ow-ow-ow.gif" width="227" height="129">
-    <img src="blank.gif" data-echo="pics/peewee.gif" width="272" height="229">
-    <img src="blank.gif" data-echo="pics/pew-pew.gif" width="164" height="120">
-    <img src="blank.gif" data-echo="pics/pew-pew-2.gif" width="164" height="120">
-    <img src="blank.gif" data-echo="pics/radar.gif" width="164" height="132">
-    <img src="blank.gif" data-echo="pics/spider.gif" width="216" height="230">
-    <img src="blank.gif" data-echo="pics/walkies.gif" width="272" height="229">
-    <img src="blank.gif" data-echo="pics/zarg.gif" width="212" height="302">
-    <img src="blank.gif" data-echo="pics/zero.gif" width="303" height="231">
+    {% for image in site.data.misc-images %}
+    <img src="blank.gif" data-echo="{{ image.url }}" width="{{ image.width }}" height="{{ image.height }}">
+    {% endfor %}
   </div>
 
   <script src="echo.js"></script>
