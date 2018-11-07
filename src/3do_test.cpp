@@ -1,10 +1,11 @@
+#include <algorithm>
+#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <rwe/_3do.h>
 #include <rwe/fixed_point.h>
 #include <rwe/optional_io.h>
 #include <vector>
-#include <cassert>
 
 namespace rwe
 {
