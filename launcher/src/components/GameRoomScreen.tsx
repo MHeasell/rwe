@@ -8,6 +8,50 @@ import { MapSelectDialog } from "./MapSelectDialog";
 import MessageInput from "./MessageInput";
 import { PlayersTable } from "./PlayersTable";
 
+function GameSettingsPanel() {
+  return (
+    <React.Fragment>
+      <div>
+        <FormControl fullWidth>
+          <InputLabel shrink>Commander Dies</InputLabel>
+          <Select value="continues">
+            <MenuItem value="continues">Continues</MenuItem>
+            <MenuItem value="ends">Game Ends</MenuItem>
+          </Select>
+        </FormControl>
+      </div>
+      <div>
+        <FormControl fullWidth>
+          <InputLabel shrink>Location</InputLabel>
+          <Select value="fixed">
+            <MenuItem value="fixed">Fixed</MenuItem>
+            <MenuItem value="random">Random</MenuItem>
+          </Select>
+        </FormControl>
+      </div>
+      <div>
+        <FormControl fullWidth>
+          <InputLabel shrink>Mapping Mode</InputLabel>
+          <Select value="unmapped">
+            <MenuItem value="unmapped">Unmapped</MenuItem>
+            <MenuItem value="mapped">Mapped</MenuItem>
+          </Select>
+        </FormControl>
+      </div>
+      <div>
+        <FormControl fullWidth>
+          <InputLabel shrink>Line of Sight</InputLabel>
+          <Select value="true">
+            <MenuItem value="true">True</MenuItem>
+            <MenuItem value="circular">Circular</MenuItem>
+            <MenuItem value="permanent">Permanent</MenuItem>
+          </Select>
+        </FormControl>
+      </div>
+    </React.Fragment>
+  );
+}
+
 interface GameRoomScreenStateProps {
   localPlayerId?: number;
   adminPlayerId?: number;
@@ -85,43 +129,7 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps> {
           <MessageInput onSend={this.props.onSend} />
         </div>
         <div className="game-room-screen-right">
-          <div>
-            <FormControl fullWidth>
-              <InputLabel shrink>Commander Dies</InputLabel>
-              <Select value="continues">
-                <MenuItem value="continues">Continues</MenuItem>
-                <MenuItem value="ends">Game Ends</MenuItem>
-              </Select>
-            </FormControl>
-          </div>
-          <div>
-            <FormControl fullWidth>
-              <InputLabel shrink>Location</InputLabel>
-              <Select value="fixed">
-                <MenuItem value="fixed">Fixed</MenuItem>
-                <MenuItem value="random">Random</MenuItem>
-              </Select>
-            </FormControl>
-          </div>
-          <div>
-            <FormControl fullWidth>
-              <InputLabel shrink>Mapping Mode</InputLabel>
-              <Select value="unmapped">
-                <MenuItem value="unmapped">Unmapped</MenuItem>
-                <MenuItem value="mapped">Mapped</MenuItem>
-              </Select>
-            </FormControl>
-          </div>
-          <div>
-            <FormControl fullWidth>
-              <InputLabel shrink>Line of Sight</InputLabel>
-              <Select value="true">
-                <MenuItem value="true">True</MenuItem>
-                <MenuItem value="circular">Circular</MenuItem>
-                <MenuItem value="permanent">Permanent</MenuItem>
-              </Select>
-            </FormControl>
-          </div>
+          <GameSettingsPanel />
           <div>
             <Button fullWidth onClick={this.props.onLeaveGame}>Leave Game</Button>
           </div>
