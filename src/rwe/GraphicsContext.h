@@ -177,6 +177,8 @@ namespace rwe
 
         Sprite createSprite(const Rectangle2f& bounds, const Rectangle2f& textureRegion, const SharedTextureHandle& texture);
 
+        void setViewport(int x, int y, int width, int height);
+
     private:
         ShaderHandle compileShader(GLenum shaderType, const std::string& source);
 

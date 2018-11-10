@@ -512,4 +512,9 @@ namespace rwe
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     }
+
+    void GraphicsContext::setViewport(int x, int y, int width, int height)
+    {
+        glViewport(x, y, width, height);
+    }
 }

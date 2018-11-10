@@ -112,10 +112,15 @@ namespace rwe
 
         auto simulation = createInitialSimulation(mapName, ota, schemaIndex);
 
-        CabinetCamera camera(sceneContext.viewportService->width(), sceneContext.viewportService->height());
-        camera.setPosition(Vector3f(0.0f, 0.0f, 0.0f));
+        auto worldViewportWidth = sceneContext.viewportService->width() - GameScene::GuiSizeLeft - GameScene::GuiSizeRight;
+        auto worldViewportHeight = sceneContext.viewportService->height() - GameScene::GuiSizeTop - GameScene::GuiSizeBottom;
 
-        UiCamera uiCamera(sceneContext.viewportService->width(), sceneContext.viewportService->height());
+        CabinetCamera worldCamera(worldViewportWidth, worldViewportHeight);
+        worldCamera.setPosition(Vector3f(0.0f, 0.0f, 0.0f));
+
+        UiCamera worldUiCamera(worldViewportWidth, worldViewportHeight);
+
+        UiCamera chromeUiCamera(sceneContext.viewportService->width(), sceneContext.viewportService->height());
 
         auto meshService = MeshService::createMeshService(sceneContext.vfs, sceneContext.graphics, sceneContext.palette);
 
@@ -180,14 +185,16 @@ namespace rwe
         auto localEndpoint = *resolver.resolve(boost::asio::ip::udp::resolver::query(gameParameters.localNetworkInterface, gameParameters.localNetworkPort));
         auto gameNetworkService = std::make_unique<GameNetworkService>(localEndpoint, endpointInfos, playerCommandService.get());
 
-        RenderService renderService(sceneContext.graphics, sceneContext.shaders, camera);
-        UiRenderService uiRenderService(sceneContext.graphics, sceneContext.shaders, uiCamera);
+        RenderService worldRenderService(sceneContext.graphics, sceneContext.shaders, worldCamera);
+        UiRenderService worldUiRenderService(sceneContext.graphics, sceneContext.shaders, worldUiCamera);
+        UiRenderService chromeUiRenderService(sceneContext.graphics, sceneContext.shaders, chromeUiCamera);
 
         auto gameScene = std::make_unique<GameScene>(
             sceneContext,
             std::move(playerCommandService),
-            std::move(renderService),
-            std::move(uiRenderService),
+            std::move(worldRenderService),
+            std::move(worldUiRenderService),
+            std::move(chromeUiRenderService),
             std::move(simulation),
             std::move(collisionService),
             std::move(unitDatabase),

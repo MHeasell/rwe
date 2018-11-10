@@ -58,8 +58,9 @@ namespace rwe
     GameScene::GameScene(
         const SceneContext& sceneContext,
         std::unique_ptr<PlayerCommandService>&& playerCommandService,
-        RenderService&& renderService,
-        UiRenderService&& uiRenderService,
+        RenderService&& worldRenderService,
+        UiRenderService&& worldUiRenderService,
+        UiRenderService&& chromeUiRenderService,
         GameSimulation&& simulation,
         MovementClassCollisionService&& collisionService,
         UnitDatabase&& unitDatabase,
@@ -68,8 +69,9 @@ namespace rwe
         PlayerId localPlayerId)
         : sceneContext(sceneContext),
           playerCommandService(std::move(playerCommandService)),
-          renderService(std::move(renderService)),
-          uiRenderService(std::move(uiRenderService)),
+          worldRenderService(std::move(worldRenderService)),
+          worldUiRenderService(std::move(worldUiRenderService)),
+          chromeUiRenderService(std::move(chromeUiRenderService)),
           simulation(std::move(simulation)),
           collisionService(std::move(collisionService)),
           unitFactory(sceneContext.textureService, std::move(unitDatabase), std::move(meshService), &this->collisionService, sceneContext.palette, sceneContext.guiPalette),
@@ -89,21 +91,36 @@ namespace rwe
 
     void GameScene::render(GraphicsContext& context)
     {
+        context.setViewport(
+            GuiSizeLeft,
+            GuiSizeBottom,
+            sceneContext.viewportService->width() - GuiSizeLeft - GuiSizeRight,
+            sceneContext.viewportService->height() - GuiSizeTop - GuiSizeBottom);
+        renderWorld(context);
+
+        context.setViewport(0, 0, sceneContext.viewportService->width(), sceneContext.viewportService->height());
+        context.disableDepthBuffer();
+        sceneContext.cursor->render(chromeUiRenderService);
+        context.enableDepthBuffer();
+    }
+
+    void GameScene::renderWorld(GraphicsContext& context)
+    {
         context.disableDepthBuffer();
 
-        renderService.drawMapTerrain(simulation.terrain);
+        worldRenderService.drawMapTerrain(simulation.terrain);
 
-        renderService.drawFlatFeatureShadows(simulation.features | boost::adaptors::map_values);
-        renderService.drawFlatFeatures(simulation.features | boost::adaptors::map_values);
+        worldRenderService.drawFlatFeatureShadows(simulation.features | boost::adaptors::map_values);
+        worldRenderService.drawFlatFeatures(simulation.features | boost::adaptors::map_values);
 
         if (occupiedGridVisible)
         {
-            renderService.drawOccupiedGrid(simulation.terrain, simulation.occupiedGrid);
+            worldRenderService.drawOccupiedGrid(simulation.terrain, simulation.occupiedGrid);
         }
 
         if (pathfindingVisualisationVisible)
         {
-            renderService.drawPathfindingVisualisation(simulation.terrain, pathFindingService.lastPathDebugInfo);
+            worldRenderService.drawPathfindingVisualisation(simulation.terrain, pathFindingService.lastPathDebugInfo);
         }
 
         if (selectedUnit && movementClassGridVisible)
@@ -112,42 +129,42 @@ namespace rwe
             if (unit.movementClass)
             {
                 const auto& grid = collisionService.getGrid(*unit.movementClass);
-                renderService.drawMovementClassCollisionGrid(simulation.terrain, grid);
+                worldRenderService.drawMovementClassCollisionGrid(simulation.terrain, grid);
             }
         }
 
         if (selectedUnit)
         {
-            renderService.drawSelectionRect(getUnit(*selectedUnit));
+            worldRenderService.drawSelectionRect(getUnit(*selectedUnit));
         }
 
-        renderService.drawUnitShadows(simulation.terrain, simulation.units | boost::adaptors::map_values);
+        worldRenderService.drawUnitShadows(simulation.terrain, simulation.units | boost::adaptors::map_values);
 
         context.enableDepthBuffer();
 
         auto seaLevel = simulation.terrain.getSeaLevel();
         for (const auto& unit : (simulation.units | boost::adaptors::map_values))
         {
-            renderService.drawUnit(unit, seaLevel);
+            worldRenderService.drawUnit(unit, seaLevel);
         }
 
-        renderService.drawLasers(simulation.lasers);
+        worldRenderService.drawLasers(simulation.lasers);
 
         context.disableDepthWrites();
 
         context.disableDepthTest();
-        renderService.drawStandingFeatureShadows(simulation.features | boost::adaptors::map_values);
+        worldRenderService.drawStandingFeatureShadows(simulation.features | boost::adaptors::map_values);
         context.enableDepthTest();
 
-        renderService.drawStandingFeatures(simulation.features | boost::adaptors::map_values);
+        worldRenderService.drawStandingFeatures(simulation.features | boost::adaptors::map_values);
 
         context.disableDepthTest();
-        renderService.drawExplosions(simulation.gameTime, simulation.explosions);
+        worldRenderService.drawExplosions(simulation.gameTime, simulation.explosions);
         context.enableDepthTest();
 
         context.enableDepthWrites();
 
-        // UI rendering
+        // in-world UI/overlay rendering
         context.disableDepthBuffer();
 
         if (healthBarsVisible)
@@ -160,14 +177,13 @@ namespace rwe
                     continue;
                 }
 
-                auto uiPos = uiRenderService.getCamera().getInverseViewProjectionMatrix()
-                    * renderService.getCamera().getViewProjectionMatrix()
+                auto uiPos = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
+                    * worldRenderService.getCamera().getViewProjectionMatrix()
                     * unit.position;
-                uiRenderService.drawHealthBar(uiPos.x, uiPos.y, static_cast<float>(unit.hitPoints) / static_cast<float>(unit.maxHitPoints));
+                worldUiRenderService.drawHealthBar(uiPos.x, uiPos.y, static_cast<float>(unit.hitPoints) / static_cast<float>(unit.maxHitPoints));
             }
         }
 
-        sceneContext.cursor->render(uiRenderService);
         context.enableDepthBuffer();
     }
 
@@ -385,7 +401,7 @@ namespace rwe
         int directionX = (right ? 1 : 0) - (left ? 1 : 0);
         int directionZ = (down ? 1 : 0) - (up ? 1 : 0);
 
-        auto& camera = renderService.getCamera();
+        auto& camera = worldRenderService.getCamera();
         auto left = camera.getRawPosition().x - (camera.getWidth() / 2.0f);
         auto right = camera.getRawPosition().x + (camera.getWidth() / 2.0f);
         auto top = camera.getRawPosition().z - (camera.getHeight() / 2.0f);
@@ -496,7 +512,7 @@ namespace rwe
 
     void GameScene::setCameraPosition(const Vector3f& newPosition)
     {
-        renderService.getCamera().setPosition(newPosition);
+        worldRenderService.getCamera().setPosition(newPosition);
     }
 
     const MapTerrain& GameScene::getTerrain() const
@@ -626,7 +642,7 @@ namespace rwe
 
     std::optional<UnitId> GameScene::getUnitUnderCursor() const
     {
-        auto ray = renderService.getCamera().screenToWorldRay(screenToClipSpace(getMousePosition()));
+        auto ray = worldRenderService.getCamera().screenToWorldRay(screenToClipSpace(getMousePosition()));
         return getFirstCollidingUnit(ray);
     }
 
@@ -650,7 +666,7 @@ namespace rwe
 
     std::optional<Vector3f> GameScene::getMouseTerrainCoordinate() const
     {
-        auto ray = renderService.getCamera().screenToWorldRay(screenToClipSpace(getMousePosition()));
+        auto ray = worldRenderService.getCamera().screenToWorldRay(screenToClipSpace(getMousePosition()));
         return simulation.intersectLineWithTerrain(ray.toLine());
     }
 

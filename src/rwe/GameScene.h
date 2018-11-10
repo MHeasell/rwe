@@ -71,6 +71,11 @@ namespace rwe
     public:
         static constexpr float SecondsPerTick = static_cast<float>(SceneManager::TickInterval) / 1000.0f;
 
+        static constexpr int GuiSizeLeft = 128;
+        static constexpr int GuiSizeRight = 0;
+        static constexpr int GuiSizeTop = 32;
+        static constexpr int GuiSizeBottom = 32;
+
         class UnitCommandDispacher : public boost::static_visitor<>
         {
         private:
@@ -144,8 +149,9 @@ namespace rwe
 
         std::unique_ptr<PlayerCommandService> playerCommandService;
 
-        RenderService renderService;
-        UiRenderService uiRenderService;
+        RenderService worldRenderService;
+        UiRenderService worldUiRenderService;
+        UiRenderService chromeUiRenderService;
 
         GameSimulation simulation;
 
@@ -190,8 +196,9 @@ namespace rwe
         GameScene(
             const SceneContext& sceneContext,
             std::unique_ptr<PlayerCommandService>&& playerCommandService,
-            RenderService&& renderService,
-            UiRenderService&& uiRenderService,
+            RenderService&& worldRenderService,
+            UiRenderService&& worldUiRenderService,
+            UiRenderService&& chromeUiRenderService,
             GameSimulation&& simulation,
             MovementClassCollisionService&& collisionService,
             UnitDatabase&& unitDatabase,
@@ -319,6 +326,8 @@ namespace rwe
         {
             actions.push_back(GameSceneTimeAction(sceneTime + interval, std::forward<T>(f)));
         }
+
+        void renderWorld(GraphicsContext& context);
     };
 }
 
