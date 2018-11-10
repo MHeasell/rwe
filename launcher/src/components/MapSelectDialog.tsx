@@ -68,7 +68,7 @@ class MapSelectDialog extends React.Component<MapSelectDialogProps> {
           </div>
         </DialogContent>
         <DialogActions>
-          <Button onClick={this.props.onConfirm}>Select Map</Button>
+          <Button color="primary" onClick={this.props.onConfirm}>Select Map</Button>
           <Button onClick={this.props.onClose}>Back</Button>
         </DialogActions>
       </Dialog>
