@@ -172,4 +172,17 @@ html, body {
 .map-dialog-right {
   flex-grow: 0;
   flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.map-dialog-minimap-container {
+  width: 252px;
+  height: 252px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-dialog-minimap {
+  display: block;
 }

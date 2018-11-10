@@ -206,6 +206,9 @@ function gameRoomReducer(room: GameRoom, action: AppAction): GameRoom {
     }
     case "DIALOG_SELECT_MAP": {
       if (!room.mapDialog) { return room; }
+      if (room.mapDialog.selectedMap && room.mapDialog.selectedMap.name === action.mapName) {
+        return room;
+      }
       const dialog = {...room.mapDialog, selectedMap: { name: action.mapName } };
       return { ...room, mapDialog: dialog };
     }

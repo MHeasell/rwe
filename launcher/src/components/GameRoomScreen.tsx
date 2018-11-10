@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { changeColor, changeMap, changeSide, changeTeam, closeSelectMapDialog, closeSlot, dialogSelectMap, leaveGame, openSelectMapDialog, openSlot, sendChatMessage, sendStartGame, toggleReady } from "../actions";
 import { canStartGame, ChatMessage, getRoom, PlayerSide, PlayerSlot, State } from "../state";
-import { MapSelectDialog } from "./MapSelectDialog";
+import MapSelectDialog from "./MapSelectDialog";
 import MessageInput from "./MessageInput";
 import { PlayersTable } from "./PlayersTable";
 

@@ -1,7 +1,11 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, List, ListItem, ListItemText, Typography } from "@material-ui/core";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, List, ListItem, ListItemText, Typography, createStyles, Theme, WithStyles, withStyles } from "@material-ui/core";
 import * as React from "react";
 
-export interface MapSelectDialogProps {
+const styles = (theme: Theme) => createStyles({
+
+});
+
+export interface MapSelectDialogProps extends WithStyles<typeof styles> {
   open: boolean;
 
   maps?: string[];
@@ -13,7 +17,7 @@ export interface MapSelectDialogProps {
   onClose: () => void;
 }
 
-export class MapSelectDialog extends React.Component<MapSelectDialogProps> {
+class MapSelectDialog extends React.Component<MapSelectDialogProps> {
 
   render() {
     const mapItems = this.props.maps
@@ -21,8 +25,8 @@ export class MapSelectDialog extends React.Component<MapSelectDialogProps> {
       : <Typography>Maps not yet loaded</Typography>;
 
     const mapImage = this.props.minimapSrc
-      ? <img width="252" height="252" src={this.props.minimapSrc} />
-      : <img width="252" height="252" />;
+      ? <img src={this.props.minimapSrc} className="map-dialog-minimap" />
+      : <React.Fragment />;
 
     return (
       <Dialog open={this.props.open} onClose={this.props.onClose} fullWidth>
@@ -37,7 +41,9 @@ export class MapSelectDialog extends React.Component<MapSelectDialogProps> {
               </div>
             </div>
             <div className="map-dialog-right">
-              {mapImage}
+              <div className="map-dialog-minimap-container">
+                {mapImage}
+              </div>
             </div>
           </div>
         </DialogContent>
@@ -59,3 +65,5 @@ export class MapSelectDialog extends React.Component<MapSelectDialogProps> {
     });
   }
 }
+
+export default withStyles(styles)(MapSelectDialog);
