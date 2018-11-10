@@ -35,7 +35,7 @@ class MapSelectDialog extends React.Component<MapSelectDialogProps> {
           <div className="map-dialog-container">
             <div className="map-dialog-left">
               <div className="map-dialog-list">
-                <List>
+                <List dense>
                   {mapItems}
                 </List>
               </div>
