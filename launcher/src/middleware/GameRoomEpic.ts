@@ -2,7 +2,7 @@ import * as path from "path";
 import { combineEpics, ofType, StateObservable } from "redux-observable";
 import * as rx from "rxjs";
 import * as rxop from "rxjs/operators";
-import { AppAction, closeSelectMapDialog, disconnectGame, gameEnded, LaunchRweAction, masterServerConnect, masterServerDisconnect, receiveChatMessage, receiveCreateGameResponse, ReceiveCreateGameResponseAction, receiveGameCreated, receiveGameDeleted, receiveGameUpdated, receiveHandshakeResponse, receiveMapChanged, receiveMapList, receiveMinimap, receivePlayerChangedColor, receivePlayerChangedSide, receivePlayerChangedTeam, receivePlayerJoined, receivePlayerLeft, receivePlayerReady, receiveRooms, receiveSlotClosed, receiveSlotOpened, receiveStartGame } from "../actions";
+import { AppAction, closeSelectMapDialog, disconnectGame, gameEnded, LaunchRweAction, masterServerConnect, masterServerDisconnect, receiveChatMessage, receiveCreateGameResponse, ReceiveCreateGameResponseAction, receiveGameCreated, receiveGameDeleted, receiveGameUpdated, receiveHandshakeResponse, receiveMapChanged, receiveMapList, receiveMinimap, receivePlayerChangedColor, receivePlayerChangedSide, receivePlayerChangedTeam, receivePlayerJoined, receivePlayerLeft, receivePlayerReady, receiveRooms, receiveSlotClosed, receiveSlotOpened, receiveStartGame, receiveMapInfo } from "../actions";
 import { FilledPlayerSlot, GameRoom, getRoom, State } from "../state";
 
 import { GameClientService } from "../ws/game-client";
@@ -210,7 +210,7 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
 };
 
 const rweBridgeEpic = (action$: rx.Observable<AppAction>, state$: StateObservable<State>, deps: EpicDependencies): rx.Observable<AppAction> => {
-  const statePipe = state$.pipe(
+  const selectedMap$ = state$.pipe(
     rxop.map(state => {
       const room = getRoom(state);
       if (!room) { return undefined; }
@@ -219,6 +219,16 @@ const rweBridgeEpic = (action$: rx.Observable<AppAction>, state$: StateObservabl
       return room.mapDialog.selectedMap.name;
     }),
     rxop.distinctUntilChanged(),
+  );
+
+  const mapInfoStream = selectedMap$.pipe(
+    rxop.switchMap((mapName): rx.Observable<AppAction> => {
+      if (mapName === undefined) { return rx.empty(); }
+      return rx.from(deps.bridgeService.getMapInfo(mapName))
+      .pipe(rxop.map(receiveMapInfo));
+  }));
+
+  const minimapStream = selectedMap$.pipe(
     rxop.switchMap((mapName): rx.Observable<AppAction> => {
       if (mapName === undefined) { return rx.empty(); }
       return rx.from(deps.bridgeService.getMinimap(mapName))
@@ -237,7 +247,7 @@ const rweBridgeEpic = (action$: rx.Observable<AppAction>, state$: StateObservabl
     }),
   );
 
-  return rx.merge(statePipe, actionPipe);
+  return rx.merge(mapInfoStream, minimapStream, actionPipe);
 };
 
 export const rootEpic = combineEpics(masterClientEventsEpic, gameClientEventsEpic, gameRoomEpic, launchRweEpic, rweBridgeEpic);

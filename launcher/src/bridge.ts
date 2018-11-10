@@ -24,9 +24,11 @@ interface GetMapInfoCommand {
   map: string;
 }
 
-interface GetMapInfoResponse {
+export interface GetMapInfoResponse {
   result: "ok";
-  data: string;
+  description: string;
+  memory: string;
+  numberOfPlayers: string;
 }
 
 interface GetMapListCommand {

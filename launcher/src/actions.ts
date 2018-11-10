@@ -1,6 +1,7 @@
 import { CreateGameResponsePayload, GameCreatedEventPayload, GameDeletedEventPayload, GameUpdatedEventPayload, GetGamesResponsePayload } from "./master/protocol";
 import { PlayerSide } from "./state";
 import * as protocol from "./ws/protocol";
+import { GetMapInfoResponse } from "./bridge";
 
 export interface SelectGameAction {
   type: "SELECT_GAME";
@@ -566,6 +567,18 @@ export function receiveMinimap(path: string): ReceiveMinimapAction {
   };
 }
 
+export interface ReceiveMapInfoAction {
+  type: "RECEIVE_MAP_INFO";
+  info: GetMapInfoResponse;
+}
+
+export function receiveMapInfo(info: GetMapInfoResponse): ReceiveMapInfoAction {
+  return {
+    type: "RECEIVE_MAP_INFO",
+    info,
+  };
+}
+
 export type AppAction =
   | SelectGameAction
   | JoinSelectedGameAction
@@ -616,4 +629,5 @@ export type AppAction =
   | ChangeMapAction
   | ReceiveMapChangedAction
   | DialogSelectMapAction
-  | ReceiveMinimapAction;
+  | ReceiveMinimapAction
+  | ReceiveMapInfoAction;

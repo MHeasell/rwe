@@ -3,7 +3,7 @@ import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { changeColor, changeMap, changeSide, changeTeam, closeSelectMapDialog, closeSlot, dialogSelectMap, leaveGame, openSelectMapDialog, openSlot, sendChatMessage, sendStartGame, toggleReady } from "../actions";
-import { canStartGame, ChatMessage, getRoom, PlayerSide, PlayerSlot, State } from "../state";
+import { canStartGame, ChatMessage, getRoom, PlayerSide, PlayerSlot, State, SelectedMapDetails } from "../state";
 import MapSelectDialog from "./MapSelectDialog";
 import MessageInput from "./MessageInput";
 import { PlayersTable } from "./PlayersTable";
@@ -62,6 +62,7 @@ interface GameRoomScreenStateProps {
   mapDialogOpen: boolean;
   mapDialogMaps?: string[];
   mapDialogMinimapPath?: string;
+  mapDialogMapInfo?: SelectedMapDetails;
   selectedMap?: string;
 }
 
@@ -142,6 +143,7 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps> {
           maps={this.props.mapDialogMaps}
           selectedMap={this.props.selectedMap}
           minimapSrc={this.props.mapDialogMinimapPath}
+          selectedMapDetails={this.props.mapDialogMapInfo}
           onSelect={this.props.onDialogSelectMap}
           onConfirm={this.props.onChangeMap}
           onClose={this.props.onCloseSelectMapDialog} />
@@ -174,6 +176,7 @@ function mapStateToProps(state: State): GameRoomScreenStateProps {
     mapDialogMaps: mapDialog ? mapDialog.maps : undefined,
     selectedMap: mapDialog && mapDialog.selectedMap ? mapDialog.selectedMap.name : undefined,
     mapDialogMinimapPath: mapDialog && mapDialog.selectedMap ? mapDialog.selectedMap.minimap : undefined,
+    mapDialogMapInfo: mapDialog && mapDialog.selectedMap ? mapDialog.selectedMap.details : undefined,
   };
 }
 

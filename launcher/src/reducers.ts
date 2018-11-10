@@ -223,6 +223,14 @@ function gameRoomReducer(room: GameRoom, action: AppAction): GameRoom {
       const dialog = { ...room.mapDialog, selectedMap: selectedMapInfo };
       return { ...room, mapDialog: dialog };
     }
+    case "RECEIVE_MAP_INFO": {
+      if (!room.mapDialog) { return room; }
+      if (!room.mapDialog.selectedMap) { return room; }
+
+      const selectedMapInfo = { ...room.mapDialog.selectedMap, details: action.info };
+      const dialog = { ...room.mapDialog, selectedMap: selectedMapInfo };
+      return { ...room, mapDialog: dialog };
+    }
 
     default: return room;
   }

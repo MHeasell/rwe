@@ -1,5 +1,6 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, List, ListItem, ListItemText, Typography, createStyles, Theme, WithStyles, withStyles, RootRef } from "@material-ui/core";
 import * as React from "react";
+import { SelectedMapDetails } from "../state";
 
 const styles = (theme: Theme) => createStyles({
 
@@ -11,6 +12,7 @@ export interface MapSelectDialogProps extends WithStyles<typeof styles> {
   maps?: string[];
   selectedMap?: string;
   minimapSrc?: string;
+  selectedMapDetails?: SelectedMapDetails;
 
   onSelect: (map: string) => void;
   onConfirm: () => void;
@@ -46,6 +48,11 @@ class MapSelectDialog extends React.Component<MapSelectDialogProps> {
       ? <img src={this.props.minimapSrc} className="map-dialog-minimap" />
       : <React.Fragment />;
 
+      const mapDescription = this.props.selectedMapDetails
+      ? this.props.selectedMapDetails.description : "";
+      const mapDescription2 = this.props.selectedMapDetails
+      ? `${this.props.selectedMapDetails.memory} Players: ${this.props.selectedMapDetails.numberOfPlayers}` : "";
+
     return (
       <Dialog open={this.props.open} onClose={this.props.onClose} fullWidth>
         <DialogTitle>Select Map</DialogTitle>
@@ -63,6 +70,10 @@ class MapSelectDialog extends React.Component<MapSelectDialogProps> {
             <div className="map-dialog-right">
               <div className="map-dialog-minimap-container">
                 {mapImage}
+              </div>
+              <div className="map-dialog-map-info">
+                <Typography>{mapDescription}</Typography>
+                <Typography>{mapDescription2}</Typography>
               </div>
             </div>
           </div>

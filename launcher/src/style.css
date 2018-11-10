@@ -186,3 +186,8 @@ html, body {
 .map-dialog-minimap {
   display: block;
 }
+
+.map-dialog-map-info {
+  margin-top: 8px;
+  min-height: 60px;
+}
