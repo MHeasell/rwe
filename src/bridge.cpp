@@ -11,6 +11,8 @@
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include <png++/png.hpp>
 #include <boost/filesystem.hpp>
+#include <rwe/ota.h>
+#include <rwe/tdf.h>
 
 namespace fs = boost::filesystem;
 
@@ -46,15 +48,6 @@ void writeSuccess()
     std::cout << j << std::endl;
 }
 
-void writeMapSuccess(const std::string& data)
-{
-    json j = {
-        {"result", "ok"},
-        {"data", data},
-    };
-    std::cout << j << std::endl;
-}
-
 void writeMapListSuccess(const std::vector<std::string>& names) {
     json j = {
         {"result", "ok"},
@@ -67,6 +60,16 @@ void writeGetMinimapSuccess(const std::string& outputFileName) {
     json j = {
         {"result", "ok"},
         {"path", outputFileName},
+    };
+    std::cout << j << std::endl;
+}
+
+void writeMapInfoSuccess(const rwe::OtaRecord& ota) {
+    json j = {
+        {"result", "ok"},
+        {"description", ota.missionDescription},
+        {"memory", ota.memory},
+        {"numberOfPlayers", ota.numPlayers},
     };
     std::cout << j << std::endl;
 }
@@ -155,9 +158,14 @@ int main(int argc, char* argv[])
             }
 
             auto data = vfs.readFile("maps/" + mapIt->get<std::string>() + ".ota");
-            std::string dataString;
-            dataString.insert(dataString.begin(), data->begin(), data->end());
-            writeMapSuccess(dataString);
+            if (!data)
+            {
+                std::cout << "Map ota not found!" << std::endl;
+                return 1;
+            }
+            std::string dataString(data->begin(), data->end());
+            auto ota = rwe::parseOta(rwe::parseTdfFromString(dataString));
+            writeMapInfoSuccess(ota);
         }
         else if (command == "map-list")
         {
