@@ -120,7 +120,7 @@ namespace rwe
 
         TimeService timeService(getTimestamp());
 
-        ViewportService viewportService(800, 600);
+        ViewportService viewportService(0, 0, 800, 600);
 
         logger.info("Initializing SDL");
         SdlContextManager sdlManager;

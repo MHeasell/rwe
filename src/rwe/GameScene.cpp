@@ -68,6 +68,7 @@ namespace rwe
         std::unique_ptr<GameNetworkService>&& gameNetworkService,
         PlayerId localPlayerId)
         : sceneContext(sceneContext),
+          worldViewport(ViewportService(GuiSizeLeft, GuiSizeTop, sceneContext.viewportService->width() - GuiSizeLeft - GuiSizeRight, sceneContext.viewportService->height() - GuiSizeTop - GuiSizeBottom)),
           playerCommandService(std::move(playerCommandService)),
           worldRenderService(std::move(worldRenderService)),
           worldUiRenderService(std::move(worldUiRenderService)),
@@ -91,11 +92,12 @@ namespace rwe
 
     void GameScene::render(GraphicsContext& context)
     {
+        auto viewportPos = worldViewport.toOtherViewport(*sceneContext.viewportService, 0, worldViewport.height());
         context.setViewport(
-            GuiSizeLeft,
-            GuiSizeBottom,
-            sceneContext.viewportService->width() - GuiSizeLeft - GuiSizeRight,
-            sceneContext.viewportService->height() - GuiSizeTop - GuiSizeBottom);
+            viewportPos.x,
+            sceneContext.viewportService->height() - viewportPos.y,
+            worldViewport.width(),
+            worldViewport.height());
         renderWorld(context);
 
         context.setViewport(0, 0, sceneContext.viewportService->width(), sceneContext.viewportService->height());
@@ -642,13 +644,13 @@ namespace rwe
 
     std::optional<UnitId> GameScene::getUnitUnderCursor() const
     {
-        auto ray = worldRenderService.getCamera().screenToWorldRay(screenToClipSpace(getMousePosition()));
+        auto ray = worldRenderService.getCamera().screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
         return getFirstCollidingUnit(ray);
     }
 
-    Vector2f GameScene::screenToClipSpace(Point p) const
+    Vector2f GameScene::screenToWorldClipSpace(Point p) const
     {
-        return sceneContext.viewportService->toClipSpace(p);
+        return worldViewport.toClipSpace(sceneContext.viewportService->toOtherViewport(worldViewport, p));
     }
 
     Point GameScene::getMousePosition() const
@@ -666,7 +668,7 @@ namespace rwe
 
     std::optional<Vector3f> GameScene::getMouseTerrainCoordinate() const
     {
-        auto ray = worldRenderService.getCamera().screenToWorldRay(screenToClipSpace(getMousePosition()));
+        auto ray = worldRenderService.getCamera().screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
         return simulation.intersectLineWithTerrain(ray.toLine());
     }
 

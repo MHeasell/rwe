@@ -147,6 +147,8 @@ namespace rwe
 
         SceneContext sceneContext;
 
+        ViewportService worldViewport;
+
         std::unique_ptr<PlayerCommandService> playerCommandService;
 
         RenderService worldRenderService;
@@ -269,7 +271,7 @@ namespace rwe
 
         std::optional<UnitId> getUnitUnderCursor() const;
 
-        Vector2f screenToClipSpace(Point p) const;
+        Vector2f screenToWorldClipSpace(Point p) const;
 
         Point getMousePosition() const;
 
