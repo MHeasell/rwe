@@ -112,6 +112,10 @@ namespace rwe
 
         auto simulation = createInitialSimulation(mapName, ota, schemaIndex);
 
+        auto minimap = sceneContext.textureService->getMinimap(mapName);
+        auto minimapMaxSide = std::max(minimap->bounds.width(), minimap->bounds.height());
+        auto minimapScale = static_cast<float>(GameScene::GuiSizeLeft) / minimapMaxSide;
+
         auto worldViewportWidth = sceneContext.viewportService->width() - GameScene::GuiSizeLeft - GameScene::GuiSizeRight;
         auto worldViewportHeight = sceneContext.viewportService->height() - GameScene::GuiSizeTop - GameScene::GuiSizeBottom;
 
@@ -200,6 +204,8 @@ namespace rwe
             std::move(unitDatabase),
             std::move(meshService),
             std::move(gameNetworkService),
+            minimap,
+            minimapScale,
             *localPlayerId);
 
         const auto& schema = ota.schemas.at(schemaIndex);

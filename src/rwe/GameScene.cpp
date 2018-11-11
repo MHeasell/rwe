@@ -66,6 +66,8 @@ namespace rwe
         UnitDatabase&& unitDatabase,
         MeshService&& meshService,
         std::unique_ptr<GameNetworkService>&& gameNetworkService,
+        const std::shared_ptr<Sprite>& minimap,
+        float minimapScale,
         PlayerId localPlayerId)
         : sceneContext(sceneContext),
           worldViewport(ViewportService(GuiSizeLeft, GuiSizeTop, sceneContext.viewportService->width() - GuiSizeLeft - GuiSizeRight, sceneContext.viewportService->height() - GuiSizeTop - GuiSizeBottom)),
@@ -80,6 +82,8 @@ namespace rwe
           pathFindingService(&this->simulation, &this->collisionService),
           unitBehaviorService(this, &pathFindingService, &this->collisionService),
           cobExecutionService(),
+          minimap(minimap),
+          minimapScale(minimapScale),
           localPlayerId(localPlayerId)
     {
     }
@@ -102,6 +106,12 @@ namespace rwe
 
         context.setViewport(0, 0, sceneContext.viewportService->width(), sceneContext.viewportService->height());
         context.disableDepthBuffer();
+
+        chromeUiRenderService.pushMatrix();
+        chromeUiRenderService.multiplyMatrix(Matrix4f::scale(minimapScale));
+        chromeUiRenderService.drawSprite(0.0f, 0.0f, *minimap);
+        chromeUiRenderService.popMatrix();
+
         sceneContext.cursor->render(chromeUiRenderService);
         context.enableDepthBuffer();
     }

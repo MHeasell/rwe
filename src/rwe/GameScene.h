@@ -167,6 +167,9 @@ namespace rwe
         UnitBehaviorService unitBehaviorService;
         CobExecutionService cobExecutionService;
 
+        std::shared_ptr<Sprite> minimap;
+        float minimapScale;
+
         PlayerId localPlayerId;
 
         SceneTime sceneTime{0};
@@ -206,6 +209,8 @@ namespace rwe
             UnitDatabase&& unitDatabase,
             MeshService&& meshService,
             std::unique_ptr<GameNetworkService>&& gameNetworkService,
+            const std::shared_ptr<Sprite>& minimap,
+            float minimapScale,
             PlayerId localPlayerId);
 
         void init() override;
