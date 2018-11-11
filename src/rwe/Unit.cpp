@@ -254,8 +254,9 @@ namespace rwe
 
     std::optional<float> Unit::selectionIntersect(const Ray3f& ray) const
     {
+        auto inverseTransform = getInverseTransform();
         auto line = ray.toLine();
-        Line3f modelSpaceLine(line.start - position, line.end - position);
+        Line3f modelSpaceLine(inverseTransform * line.start, inverseTransform * line.end);
         auto v = selectionMesh.collisionMesh.intersectLine(modelSpaceLine);
         if (!v)
         {
@@ -392,5 +393,10 @@ namespace rwe
     Matrix4f Unit::getTransform() const
     {
         return Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
+    }
+
+    Matrix4f Unit::getInverseTransform() const
+    {
+        return Matrix4f::rotationY(-rotation) * Matrix4f::translation(-position);
     }
 }
