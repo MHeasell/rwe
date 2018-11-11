@@ -107,10 +107,44 @@ namespace rwe
         context.setViewport(0, 0, sceneContext.viewportService->width(), sceneContext.viewportService->height());
         context.disableDepthBuffer();
 
+        // draw minimap
         chromeUiRenderService.pushMatrix();
         chromeUiRenderService.multiplyMatrix(Matrix4f::scale(minimapScale));
         chromeUiRenderService.drawSprite(0.0f, 0.0f, *minimap);
         chromeUiRenderService.popMatrix();
+
+        // draw minimap viewport rectangle
+        {
+            auto cameraInverse = worldRenderService.getCamera().getInverseViewProjectionMatrix();
+            auto view = Matrix4f::rotationToAxes(
+                Vector3f(1.0f, 0.0f, 0.0f),
+                Vector3f(0.0f, 0.0f, 1.0f),
+                Vector3f(0.0f, -1.0f, 0.0f));
+            auto worldProjection = Matrix4f::orthographicProjection(
+                simulation.terrain.leftInWorldUnits(),
+                simulation.terrain.rightCutoffInWorldUnits(),
+                simulation.terrain.bottomCutoffInWorldUnits(),
+                simulation.terrain.topInWorldUnits(),
+                -1000.0f,
+                1000.0f);
+            auto minimapInverseProjection = Matrix4f::inverseOrthographicProjection(
+                0.0f,
+                minimap->bounds.width(),
+                minimap->bounds.height(),
+                0.0f,
+                -100.0f,
+                100.0f);
+            auto transform = Matrix4f::scale(minimapScale) * minimapInverseProjection * worldProjection * view * cameraInverse;
+            auto bottomLeft = transform * Vector3f(-1.0f, -1.0f, 0.0f);
+            auto topRight = transform * Vector3f(1.0f, 1.0f, 0.0f);
+
+            chromeUiRenderService.drawBoxOutline(
+                bottomLeft.x,
+                topRight.y,
+                topRight.x - bottomLeft.x,
+                bottomLeft.y - topRight.y,
+                Color(247, 227, 103));
+        }
 
         sceneContext.cursor->render(chromeUiRenderService);
         context.enableDepthBuffer();

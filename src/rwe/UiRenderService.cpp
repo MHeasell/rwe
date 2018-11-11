@@ -147,6 +147,8 @@ namespace rwe
 
     void UiRenderService::fillColor(float x, float y, float width, float height, Color color)
     {
+        assert(width >= 0.0f);
+        assert(height >= 0.0f);
 
         auto floatColor = Vector3f(color.r, color.g, color.b) / 255.0f;
         std::vector<GlColoredVertex> vertices{
@@ -220,5 +222,13 @@ namespace rwe
 
         fillColor(x, y, width, height, borderColor);
         fillColor(x + borderWidth, y + borderWidth, innerWidth, innerHeight, healthColor);
+    }
+
+    void UiRenderService::drawBoxOutline(float x, float y, float width, float height, Color color)
+    {
+        fillColor(x, y, width, 1.0f, color);
+        fillColor(x, y + 1.0f, 1.0f, height - 2.0f, color);
+        fillColor(x + width - 1.0f, y + 1.0f, 1.0f, height - 2.0f, color);
+        fillColor(x, y + height - 1.0f, width, 1.0f, color);
     }
 }
