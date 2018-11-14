@@ -126,7 +126,7 @@ namespace rwe
                 simulation.terrain.bottomCutoffInWorldUnits(),
                 simulation.terrain.topInWorldUnits(),
                 -1000.0f,
-                1000.0f);
+                1000.0f) * Matrix4f::cabinetProjection(0.0f, 0.5f);
             auto minimapInverseProjection = Matrix4f::inverseOrthographicProjection(
                 0.0f,
                 minimap->bounds.width(),
@@ -134,7 +134,9 @@ namespace rwe
                 0.0f,
                 -100.0f,
                 100.0f);
-            auto transform = Matrix4f::scale(minimapScale) * minimapInverseProjection * worldProjection * view * cameraInverse;
+            auto worldToMinimap = Matrix4f::scale(minimapScale) * minimapInverseProjection * worldProjection * view;
+
+            auto transform = worldToMinimap * cameraInverse;
             auto bottomLeft = transform * Vector3f(-1.0f, -1.0f, 0.0f);
             auto topRight = transform * Vector3f(1.0f, 1.0f, 0.0f);
 
