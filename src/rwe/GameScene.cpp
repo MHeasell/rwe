@@ -139,10 +139,10 @@ namespace rwe
             auto topRight = transform * Vector3f(1.0f, 1.0f, 0.0f);
 
             chromeUiRenderService.drawBoxOutline(
-                bottomLeft.x,
-                topRight.y,
-                topRight.x - bottomLeft.x,
-                bottomLeft.y - topRight.y,
+                std::round(bottomLeft.x),
+                std::round(topRight.y),
+                std::round(topRight.x - bottomLeft.x),
+                std::round(bottomLeft.y - topRight.y),
                 Color(247, 227, 103));
         }
 
