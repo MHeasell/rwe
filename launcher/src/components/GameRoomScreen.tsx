@@ -1,4 +1,4 @@
-import { Button, createStyles, Divider, FormControl, InputLabel, MenuItem, Select, TextField, Theme, Typography, WithStyles, withStyles } from "@material-ui/core";
+import { Button, createStyles, Divider, FormControl, InputLabel, MenuItem, Select, TextField, Theme, Typography, WithStyles, withStyles, RootRef } from "@material-ui/core";
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
@@ -89,8 +89,23 @@ interface GameRoomScreenProps extends GameRoomScreenStateProps, GameRoomScreenDi
 }
 
 class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps> {
+
+  private scrollAtBottom = true;
+  private chatDivRef = React.createRef<HTMLElement>();
+  private chatBottomRef = React.createRef<HTMLElement>();
+
   constructor(props: GameRoomScreenProps) {
     super(props);
+  }
+
+  componentWillUpdate() {
+    this.refreshScrollAtBottom();
+  }
+
+  componentDidUpdate(prevProps: GameRoomScreenProps) {
+    if (this.props.messages !== prevProps.messages) {
+      this.updateScroll();
+    }
   }
 
   render() {
@@ -123,9 +138,14 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps> {
             <Button onClick={this.props.onOpenSelectMapDialog} disabled={this.props.localPlayerId !== this.props.adminPlayerId}>Select Map</Button>
           </div>
           <Typography variant="h6" className="game-room-screen-messages-title">Messages</Typography>
-          <div className="game-room-screen-messages-panel">
-            {messageElements}
-          </div>
+          <RootRef rootRef={this.chatDivRef}>
+            <div className="game-room-screen-messages-panel">
+              {messageElements}
+              <RootRef rootRef={this.chatBottomRef}>
+                <div></div>
+              </RootRef>
+            </div>
+          </RootRef>
           <Divider />
           <MessageInput onSend={this.props.onSend} />
         </div>
@@ -149,6 +169,22 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps> {
           onClose={this.props.onCloseSelectMapDialog} />
       </div>
     );
+  }
+
+  private updateScroll() {
+    if (this.scrollAtBottom) {
+      this.chatBottomRef.current!.scrollIntoView();
+    }
+  }
+
+  private refreshScrollAtBottom() {
+    this.scrollAtBottom = this.isScrolledToBottom(this.chatDivRef.current!);
+  }
+
+  private isScrolledToBottom(elem: HTMLElement): boolean {
+    const scrollPos = elem.scrollTop;
+    const scrollBottom = elem.scrollHeight - elem.clientHeight;
+    return scrollBottom <= 0 || scrollPos === scrollBottom;
   }
 }
 
