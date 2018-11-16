@@ -71,6 +71,7 @@ namespace rwe
         PlayerId localPlayerId)
         : sceneContext(sceneContext),
           worldViewport(ViewportService(GuiSizeLeft, GuiSizeTop, sceneContext.viewportService->width() - GuiSizeLeft - GuiSizeRight, sceneContext.viewportService->height() - GuiSizeTop - GuiSizeBottom)),
+          minimapViewport(ViewportService(0, 0, GuiSizeLeft, GuiSizeLeft)),
           playerCommandService(std::move(playerCommandService)),
           worldRenderService(std::move(worldRenderService)),
           worldUiRenderService(std::move(worldUiRenderService)),
@@ -371,7 +372,14 @@ namespace rwe
                 auto normalCursor = boost::get<NormalCursorMode>(&cursorMode);
                 if (normalCursor != nullptr)
                 {
-                    normalCursor->selecting = true;
+                    if (isCursorOverMinimap())
+                    {
+                        normalCursor->state = NormalCursorMode::DraggingMinimap();
+                    }
+                    else if (isCursorOverWorld())
+                    {
+                        normalCursor->state = NormalCursorMode::Selecting();
+                    }
                 }
             }
         }
@@ -423,7 +431,7 @@ namespace rwe
             auto normalCursor = boost::get<NormalCursorMode>(&cursorMode);
             if (normalCursor != nullptr)
             {
-                if (normalCursor->selecting)
+                if (boost::get<NormalCursorMode::Selecting>(&normalCursor->state) != nullptr)
                 {
                     if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
                     {
@@ -438,6 +446,12 @@ namespace rwe
                     {
                         selectedUnit = std::nullopt;
                     }
+
+                    normalCursor->state = NormalCursorMode::Up();
+                }
+                else if (boost::get<NormalCursorMode::DraggingMinimap>(&normalCursor->state) != nullptr)
+                {
+                    normalCursor->state = NormalCursorMode::Up();
                 }
             }
         }
@@ -464,6 +478,49 @@ namespace rwe
         auto dz = std::clamp(directionZ * speed, mindz, maxdz);
 
         camera.translate(Vector3f(dx, 0.0f, dz));
+
+        // handle minimap dragging
+        if (auto cursor = boost::get<NormalCursorMode>(&cursorMode); cursor != nullptr)
+        {
+            if (boost::get<NormalCursorMode::DraggingMinimap>(&cursor->state) != nullptr) {
+                // ok, the cursor is dragging the minimap.
+                // work out where the cursor is on the minimap,
+                // convert that to the world, then set the camera's position to there
+                // (clamped to map bounds)
+
+                auto inverseView = Matrix4f::rotationToAxes(
+                    Vector3f(1.0f, 0.0f, 0.0f),
+                    Vector3f(0.0f, 0.0f, 1.0f),
+                    Vector3f(0.0f, -1.0f, 0.0f)).transposed();
+                auto worldInverseProjection = Matrix4f::inverseOrthographicProjection(
+                    simulation.terrain.leftInWorldUnits(),
+                    simulation.terrain.rightCutoffInWorldUnits(),
+                    simulation.terrain.bottomCutoffInWorldUnits(),
+                    simulation.terrain.topInWorldUnits(),
+                    -1000.0f,
+                    1000.0f) * Matrix4f::cabinetProjection(0.0f, 0.5f);
+                auto minimapProjection = Matrix4f::orthographicProjection(
+                    0.0f,
+                    minimap->bounds.width(),
+                    minimap->bounds.height(),
+                    0.0f,
+                    -100.0f,
+                    100.0f);
+                auto mousePos = getMousePosition();
+                auto minimapToWorld =
+                    inverseView * worldInverseProjection * minimapProjection * Matrix4f::scale(1.0f / minimapScale);
+                auto worldPos = minimapToWorld * Vector3f(mousePos.x, mousePos.y, 0.0f);
+                auto halfCameraWidth = camera.getWidth() / 2.0f;
+                auto halfCameraHeight = camera.getHeight() / 2.0f;
+                auto minWorldX = simulation.terrain.leftInWorldUnits() + halfCameraWidth;
+                auto maxWorldX = simulation.terrain.rightCutoffInWorldUnits() - halfCameraWidth;
+                auto minWorldZ = simulation.terrain.topInWorldUnits() + halfCameraHeight;
+                auto maxWorldZ = simulation.terrain.bottomCutoffInWorldUnits() - halfCameraHeight;
+                auto worldX = std::clamp(worldPos.x, minWorldX, maxWorldX);
+                auto worldZ = std::clamp(worldPos.z, minWorldZ, maxWorldZ);
+                camera.setPosition(Vector3f(worldX, camera.getRawPosition().y, worldZ));
+            }
+        }
 
         hoveredUnit = getUnitUnderCursor();
 
@@ -697,6 +754,21 @@ namespace rwe
     Vector2f GameScene::screenToWorldClipSpace(Point p) const
     {
         return worldViewport.toClipSpace(sceneContext.viewportService->toOtherViewport(worldViewport, p));
+    }
+
+    Vector2f GameScene::screenToMinimapClipSpace(Point p) const
+    {
+        return minimapViewport.toClipSpace(sceneContext.viewportService->toOtherViewport(minimapViewport, p));
+    }
+
+    bool GameScene::isCursorOverMinimap() const
+    {
+        return minimapViewport.contains(getMousePosition());
+    }
+
+    bool GameScene::isCursorOverWorld() const
+    {
+        return worldViewport.contains(getMousePosition());
     }
 
     Point GameScene::getMousePosition() const

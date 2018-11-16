@@ -53,9 +53,15 @@ namespace rwe
     struct AttackCursorMode
     {
     };
+
     struct NormalCursorMode
     {
-        bool selecting{false};
+        struct Selecting {};
+        struct DraggingMinimap {};
+        struct Up{};
+        using State = boost::variant<Selecting, DraggingMinimap, Up>;
+
+        State state{Up()};
     };
 
     using CursorMode = boost::variant<AttackCursorMode, NormalCursorMode>;
@@ -148,6 +154,7 @@ namespace rwe
         SceneContext sceneContext;
 
         ViewportService worldViewport;
+        ViewportService minimapViewport;
 
         std::unique_ptr<PlayerCommandService> playerCommandService;
 
@@ -277,6 +284,12 @@ namespace rwe
         std::optional<UnitId> getUnitUnderCursor() const;
 
         Vector2f screenToWorldClipSpace(Point p) const;
+
+        Vector2f screenToMinimapClipSpace(Point p) const;
+
+        bool isCursorOverMinimap() const;
+
+        bool isCursorOverWorld() const;
 
         Point getMousePosition() const;
 

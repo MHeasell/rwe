@@ -29,13 +29,16 @@ namespace rwe
 
         Point toOtherViewport(const ViewportService& v, const Point& p);
 
-        unsigned int x() const;
+        int x() const;
 
-        unsigned int y() const;
+        int y() const;
 
         unsigned int width() const;
 
         unsigned int height() const;
+
+        bool contains(int x, int y) const;
+        bool contains(const Point& p) const;
     };
 }
 
