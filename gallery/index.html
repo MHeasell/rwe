@@ -1,0 +1,25 @@
+---
+layout: default
+title: Gallery
+---
+
+<p>
+  This gallery contains a collection of miscellaneous images
+  that were originally posted to the TAUniverse forum or Discord chat
+  to demonstrate progress on various features.
+  There are many more images in the progress update blog posts,
+  so do also look there to see more examples of the engine in action.
+</p>
+
+<div class="text-center">
+  {% for image in site.data.misc-images %}
+    <div class="d-inline-block img-thumbnail my-1">
+      <img src="blank.gif" data-echo="{{ image.url }}" width="{{ image.width }}" height="{{ image.height }}">
+    </div>
+  {% endfor %}
+</div>
+
+<script src="/echo.js"></script>
+<script>
+  echo.init();
+</script>

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -14,11 +13,28 @@
   {% endif %}
 </head>
 <body>
-  <div class="container">
+  <header class="container">
+    <h1 class="text-center">Robot War Engine</h1>
+    <ul class="nav justify-content-center site-nav">
+      <li class="nav-item">
+        <a class="nav-link" href="/">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/about/">About</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/gallery/">Gallery</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/blog/">Blog</a>
+      </li>
+    </ul>
+  </header>
+  <main class="container mt-3">
     {% if page.title %}
-      <h1>{{ page.title }}</h1>
+      <h2>{{ page.title }}</h2>
     {% endif %}
     {{ content }}
-  </div>
+  </main>
 </body>
 </html>

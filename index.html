@@ -1,41 +1,36 @@
 ---
 layout: default
 ---
-<h1>Robot War Engine</h1>
 <p>
-  Open-source real-time strategy game engine that is highly compatible with Total Annihilation data files.
+  Robot War Engine is an open-source real-time strategy game engine
+  that supports Total Annihilation data and mods.
+  Read more on our <a href="/about/">About page</a>
+  or view the <a href="https://github.com/MHeasell/rwe">project on Github</a>.
 </p>
 
+<h2>Development Status</h2>
+
+<p>RWE is currently incomplete, read the blog posts to find out about the latest progress.</p>
+
 <p>
-  For more information please visit
-  <a href="https://github.com/MHeasell/rwe">https://github.com/MHeasell/rwe</a>
+With TA data files, the Skirmish menu path works and you can load into the game,
+walk your commander around and fire your laser at other commanders until you both explode.
+You can also do this to other players on the internet,
+using the included launcher application to host or join a multiplayer game room.
+Work is currently focused on implementing the in-game UI.
 </p>
 
-<h2>Posts</h2>
+<h2>Latest Posts</h2>
 
-{% for post in site.posts limit:4 %}
+{% for post in site.posts limit:3 %}
   <article class="card my-3">
     <div class="card-body">
-      <h5><a href="{{ post.url }}">{{ post.title }}</a></h5>
-      {{ post.excerpt }}
-      <footer>
-        <a href="{{ post.url }}" class="btn btn-outline-primary btn-sm">Read More</a>
-      </footer>
+      <h3><a href="{{ post.url }}">{{ post.title }}</a></h3>
+      {{ post.content }}
     </div>
   </article>
 {% endfor %}
+
 <div class="my-3">
-  <a href="/blog/" class="btn btn-primary">See All Posts</a>
+  <a href="/blog/" class="btn btn-outline-primary">See All Posts</a>
 </div>
-
-<h3>Miscellaneous Images</h3>
-<div class="text-center">
-  {% for image in site.data.misc-images %}
-  <img class="img-fluid img-thumbnail" src="blank.gif" data-echo="{{ image.url }}" width="{{ image.width }}" height="{{ image.height }}">
-  {% endfor %}
-</div>
-
-<script src="echo.js"></script>
-<script>
-  echo.init();
-</script>
