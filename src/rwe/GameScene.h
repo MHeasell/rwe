@@ -279,6 +279,10 @@ namespace rwe
         void createLightSmoke(const Vector3f& position);
 
     private:
+        static Matrix4f worldToMinimapMatrix(const MapTerrain& terrain, const Rectangle2f& minimapRect);
+
+        static Matrix4f minimapToWorldMatrix(const MapTerrain& terrain, const Rectangle2f& minimapRect);
+
         void tryTickGame();
 
         std::optional<UnitId> getUnitUnderCursor() const;

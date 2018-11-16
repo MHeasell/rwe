@@ -114,25 +114,7 @@ namespace rwe
         // draw minimap viewport rectangle
         {
             auto cameraInverse = worldRenderService.getCamera().getInverseViewProjectionMatrix();
-            auto view = Matrix4f::rotationToAxes(
-                Vector3f(1.0f, 0.0f, 0.0f),
-                Vector3f(0.0f, 0.0f, 1.0f),
-                Vector3f(0.0f, -1.0f, 0.0f));
-            auto worldProjection = Matrix4f::orthographicProjection(
-                simulation.terrain.leftInWorldUnits(),
-                simulation.terrain.rightCutoffInWorldUnits(),
-                simulation.terrain.bottomCutoffInWorldUnits(),
-                simulation.terrain.topInWorldUnits(),
-                -1000.0f,
-                1000.0f) * Matrix4f::cabinetProjection(0.0f, 0.5f);
-            auto minimapInverseProjection = Matrix4f::inverseOrthographicProjection(
-                minimapRect.left(),
-                minimapRect.right(),
-                minimapRect.bottom(),
-                minimapRect.top(),
-                -100.0f,
-                100.0f);
-            auto worldToMinimap = minimapInverseProjection * worldProjection * view;
+            auto worldToMinimap = worldToMinimapMatrix(simulation.terrain, minimapRect);
 
             auto transform = worldToMinimap * cameraInverse;
             auto bottomLeft = transform * Vector3f(-1.0f, -1.0f, 0.0f);
@@ -485,26 +467,8 @@ namespace rwe
                 // convert that to the world, then set the camera's position to there
                 // (clamped to map bounds)
 
-                auto inverseView = Matrix4f::rotationToAxes(
-                    Vector3f(1.0f, 0.0f, 0.0f),
-                    Vector3f(0.0f, 0.0f, 1.0f),
-                    Vector3f(0.0f, -1.0f, 0.0f)).transposed();
-                auto worldInverseProjection = Matrix4f::inverseOrthographicProjection(
-                    simulation.terrain.leftInWorldUnits(),
-                    simulation.terrain.rightCutoffInWorldUnits(),
-                    simulation.terrain.bottomCutoffInWorldUnits(),
-                    simulation.terrain.topInWorldUnits(),
-                    -1000.0f,
-                    1000.0f) * Matrix4f::cabinetProjection(0.0f, 0.5f);
-                auto minimapProjection = Matrix4f::orthographicProjection(
-                    minimapRect.left(),
-                    minimapRect.right(),
-                    minimapRect.bottom(),
-                    minimapRect.top(),
-                    -100.0f,
-                    100.0f);
+                auto minimapToWorld = minimapToWorldMatrix(simulation.terrain, minimapRect);
                 auto mousePos = getMousePosition();
-                auto minimapToWorld = inverseView * worldInverseProjection * minimapProjection;
                 auto worldPos = minimapToWorld * Vector3f(mousePos.x, mousePos.y, 0.0f);
                 auto halfCameraWidth = camera.getWidth() / 2.0f;
                 auto halfCameraHeight = camera.getHeight() / 2.0f;
@@ -682,6 +646,52 @@ namespace rwe
     {
         // FIXME: should play on a position-aware channel
         sceneContext.audioService->playSound(sound);
+    }
+
+    Matrix4f GameScene::worldToMinimapMatrix(const MapTerrain& terrain, const Rectangle2f& minimapRect)
+    {
+        auto view = Matrix4f::rotationToAxes(
+            Vector3f(1.0f, 0.0f, 0.0f),
+            Vector3f(0.0f, 0.0f, 1.0f),
+            Vector3f(0.0f, -1.0f, 0.0f));
+        auto worldProjection = Matrix4f::orthographicProjection(
+            terrain.leftInWorldUnits(),
+            terrain.rightCutoffInWorldUnits(),
+            terrain.bottomCutoffInWorldUnits(),
+            terrain.topInWorldUnits(),
+            -1000.0f,
+            1000.0f) * Matrix4f::cabinetProjection(0.0f, 0.5f);
+        auto minimapInverseProjection = Matrix4f::inverseOrthographicProjection(
+            minimapRect.left(),
+            minimapRect.right(),
+            minimapRect.bottom(),
+            minimapRect.top(),
+            -100.0f,
+            100.0f);
+        return minimapInverseProjection * worldProjection * view;
+    }
+
+    Matrix4f GameScene::minimapToWorldMatrix(const MapTerrain& terrain, const Rectangle2f& minimapRect)
+    {
+        auto inverseView = Matrix4f::rotationToAxes(
+            Vector3f(1.0f, 0.0f, 0.0f),
+            Vector3f(0.0f, 0.0f, 1.0f),
+            Vector3f(0.0f, -1.0f, 0.0f)).transposed();
+        auto worldInverseProjection = Matrix4f::inverseOrthographicProjection(
+            terrain.leftInWorldUnits(),
+            terrain.rightCutoffInWorldUnits(),
+            terrain.bottomCutoffInWorldUnits(),
+            terrain.topInWorldUnits(),
+            -1000.0f,
+            1000.0f) * Matrix4f::cabinetProjection(0.0f, 0.5f);
+        auto minimapProjection = Matrix4f::orthographicProjection(
+            minimapRect.left(),
+            minimapRect.right(),
+            minimapRect.bottom(),
+            minimapRect.top(),
+            -100.0f,
+            100.0f);
+        return inverseView * worldInverseProjection * minimapProjection;
     }
 
     void GameScene::tryTickGame()
