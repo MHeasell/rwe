@@ -101,4 +101,17 @@ namespace rwe
         auto dY = std::max(0.0f, std::abs(toCenter.y) - extents.y);
         return (dX * dX) + (dY * dY);
     }
+
+    float Rectangle2f::getScaleToFit(const Rectangle2f& other) const
+    {
+        auto ratioX = extents.x / other.extents.x;
+        auto ratioY = extents.y / other.extents.y;
+        return std::min(ratioX, ratioY);
+    }
+
+    Rectangle2f Rectangle2f::scaleToFit(const Rectangle2f& other) const
+    {
+        auto scale = getScaleToFit(other);
+        return Rectangle2f(position, other.extents * scale);
+    }
 }

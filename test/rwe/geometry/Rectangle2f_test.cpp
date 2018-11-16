@@ -134,5 +134,48 @@ namespace rwe
                 REQUIRE(r.distanceSquared(Vector2f(6.0f, 10.0f)) == 2.0f); // bottomright
             }
         }
+
+        SECTION(".shrink")
+        {
+            SECTION("preserves identical rectangles")
+            {
+                auto a = Rectangle2f(2.0f, 3.0f, 4.0f, 5.0f);
+                auto b = Rectangle2f(2.0f, 3.0f, 4.0f, 5.0f);
+                auto r = Rectangle2f(2.0f, 3.0f, 4.0f, 5.0f);
+                REQUIRE(a.scaleToFit(b) == r);
+            }
+
+            SECTION("shrinks rectangles that are too wide to touch on X")
+            {
+                auto a = Rectangle2f(2.0f, 3.0f, 4.0f, 5.0f);
+                auto b = Rectangle2f(10.0f, 11.0f, 8.0f, 5.0f);
+                auto r = Rectangle2f(2.0f, 3.0f, 4.0f, 2.5f);
+                REQUIRE(a.scaleToFit(b) == r);
+            }
+
+            SECTION("shrinks rectangles that are too tall to touch on Y")
+            {
+                auto a = Rectangle2f(2.0f, 3.0f, 4.0f, 5.0f);
+                auto b = Rectangle2f(10.0f, 11.0f, 6.0f, 10.0f);
+                auto r = Rectangle2f(2.0f, 3.0f, 3.0f, 5.0f);
+                REQUIRE(a.scaleToFit(b) == r);
+            }
+
+            SECTION("enlarges small rectangles to touch on X")
+            {
+                auto a = Rectangle2f(2.0f, 3.0f, 4.0f, 5.0f);
+                auto b = Rectangle2f(10.0f, 11.0f, 2.0f, 1.0f);
+                auto r = Rectangle2f(2.0f, 3.0f, 4.0f, 2.0f);
+                REQUIRE(a.scaleToFit(b) == r);
+            }
+
+            SECTION("enlarges small rectangles to touch on Y")
+            {
+                auto a = Rectangle2f(2.0f, 3.0f, 4.0f, 5.0f);
+                auto b = Rectangle2f(10.0f, 11.0f, 1.0f, 2.0f);
+                auto r = Rectangle2f(2.0f, 3.0f, 2.5f, 5.0f);
+                REQUIRE(a.scaleToFit(b) == r);
+            }
+        }
     }
 }

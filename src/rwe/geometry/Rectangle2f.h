@@ -38,6 +38,21 @@ namespace rwe
         float height() const;
 
         float distanceSquared(const Vector2f& pos) const;
+
+        /**
+         * Returns the scale factor you would need to multiply
+         * the other rectangle's dimensions by
+         * in order for it to fit proportionally inside this one,
+         * touching the edges.
+         */
+        float getScaleToFit(const Rectangle2f& other) const;
+
+        /**
+         * Returns a copy of target rectangle
+         * positioned in the centre of this rectangle
+         * and scaled to fit proportionally exactly inside this rectangle.
+         */
+        Rectangle2f scaleToFit(const Rectangle2f& other) const;
     };
 }
 

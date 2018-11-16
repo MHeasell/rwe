@@ -49,6 +49,11 @@ namespace rwe
         popMatrix();
     }
 
+    void UiRenderService::drawSpriteAbs(const Rectangle2f& rect, const Sprite& sprite)
+    {
+        drawSpriteAbs(rect.left(), rect.top(), rect.width(), rect.height(), sprite);
+    }
+
     void UiRenderService::drawText(float x, float y, const std::string& text, const SpriteSeries& font)
     {
         auto it = utf8Begin(text);

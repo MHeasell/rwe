@@ -151,10 +151,11 @@ namespace rwe
          */
         static constexpr float CameraPanSpeed = 1000.0f;
 
+        static const Rectangle2f minimapViewport;
+
         SceneContext sceneContext;
 
         ViewportService worldViewport;
-        ViewportService minimapViewport;
 
         std::unique_ptr<PlayerCommandService> playerCommandService;
 
@@ -175,7 +176,7 @@ namespace rwe
         CobExecutionService cobExecutionService;
 
         std::shared_ptr<Sprite> minimap;
-        float minimapScale;
+        Rectangle2f minimapRect;
 
         PlayerId localPlayerId;
 
@@ -217,7 +218,6 @@ namespace rwe
             MeshService&& meshService,
             std::unique_ptr<GameNetworkService>&& gameNetworkService,
             const std::shared_ptr<Sprite>& minimap,
-            float minimapScale,
             PlayerId localPlayerId);
 
         void init() override;
@@ -284,8 +284,6 @@ namespace rwe
         std::optional<UnitId> getUnitUnderCursor() const;
 
         Vector2f screenToWorldClipSpace(Point p) const;
-
-        Vector2f screenToMinimapClipSpace(Point p) const;
 
         bool isCursorOverMinimap() const;
 

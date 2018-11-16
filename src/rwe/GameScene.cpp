@@ -55,6 +55,8 @@ namespace rwe
         }
     };
 
+    const Rectangle2f GameScene::minimapViewport = Rectangle2f::fromTopLeft(0.0f, 0.0f, GuiSizeLeft, GuiSizeLeft);
+
     GameScene::GameScene(
         const SceneContext& sceneContext,
         std::unique_ptr<PlayerCommandService>&& playerCommandService,
@@ -67,11 +69,9 @@ namespace rwe
         MeshService&& meshService,
         std::unique_ptr<GameNetworkService>&& gameNetworkService,
         const std::shared_ptr<Sprite>& minimap,
-        float minimapScale,
         PlayerId localPlayerId)
         : sceneContext(sceneContext),
           worldViewport(ViewportService(GuiSizeLeft, GuiSizeTop, sceneContext.viewportService->width() - GuiSizeLeft - GuiSizeRight, sceneContext.viewportService->height() - GuiSizeTop - GuiSizeBottom)),
-          minimapViewport(ViewportService(0, 0, GuiSizeLeft, GuiSizeLeft)),
           playerCommandService(std::move(playerCommandService)),
           worldRenderService(std::move(worldRenderService)),
           worldUiRenderService(std::move(worldUiRenderService)),
@@ -84,7 +84,7 @@ namespace rwe
           unitBehaviorService(this, &pathFindingService, &this->collisionService),
           cobExecutionService(),
           minimap(minimap),
-          minimapScale(minimapScale),
+          minimapRect(minimapViewport.scaleToFit(this->minimap->bounds)),
           localPlayerId(localPlayerId)
     {
     }
@@ -109,10 +109,7 @@ namespace rwe
         context.disableDepthBuffer();
 
         // draw minimap
-        chromeUiRenderService.pushMatrix();
-        chromeUiRenderService.multiplyMatrix(Matrix4f::scale(minimapScale));
-        chromeUiRenderService.drawSprite(0.0f, 0.0f, *minimap);
-        chromeUiRenderService.popMatrix();
+        chromeUiRenderService.drawSpriteAbs(minimapRect, *minimap);
 
         // draw minimap viewport rectangle
         {
@@ -129,13 +126,13 @@ namespace rwe
                 -1000.0f,
                 1000.0f) * Matrix4f::cabinetProjection(0.0f, 0.5f);
             auto minimapInverseProjection = Matrix4f::inverseOrthographicProjection(
-                0.0f,
-                minimap->bounds.width(),
-                minimap->bounds.height(),
-                0.0f,
+                minimapRect.left(),
+                minimapRect.right(),
+                minimapRect.bottom(),
+                minimapRect.top(),
                 -100.0f,
                 100.0f);
-            auto worldToMinimap = Matrix4f::scale(minimapScale) * minimapInverseProjection * worldProjection * view;
+            auto worldToMinimap = minimapInverseProjection * worldProjection * view;
 
             auto transform = worldToMinimap * cameraInverse;
             auto bottomLeft = transform * Vector3f(-1.0f, -1.0f, 0.0f);
@@ -500,15 +497,14 @@ namespace rwe
                     -1000.0f,
                     1000.0f) * Matrix4f::cabinetProjection(0.0f, 0.5f);
                 auto minimapProjection = Matrix4f::orthographicProjection(
-                    0.0f,
-                    minimap->bounds.width(),
-                    minimap->bounds.height(),
-                    0.0f,
+                    minimapRect.left(),
+                    minimapRect.right(),
+                    minimapRect.bottom(),
+                    minimapRect.top(),
                     -100.0f,
                     100.0f);
                 auto mousePos = getMousePosition();
-                auto minimapToWorld =
-                    inverseView * worldInverseProjection * minimapProjection * Matrix4f::scale(1.0f / minimapScale);
+                auto minimapToWorld = inverseView * worldInverseProjection * minimapProjection;
                 auto worldPos = minimapToWorld * Vector3f(mousePos.x, mousePos.y, 0.0f);
                 auto halfCameraWidth = camera.getWidth() / 2.0f;
                 auto halfCameraHeight = camera.getHeight() / 2.0f;
@@ -756,14 +752,10 @@ namespace rwe
         return worldViewport.toClipSpace(sceneContext.viewportService->toOtherViewport(worldViewport, p));
     }
 
-    Vector2f GameScene::screenToMinimapClipSpace(Point p) const
-    {
-        return minimapViewport.toClipSpace(sceneContext.viewportService->toOtherViewport(minimapViewport, p));
-    }
-
     bool GameScene::isCursorOverMinimap() const
     {
-        return minimapViewport.contains(getMousePosition());
+        auto mousePos = getMousePosition();
+        return minimapRect.contains(mousePos.x, mousePos.y);
     }
 
     bool GameScene::isCursorOverWorld() const
