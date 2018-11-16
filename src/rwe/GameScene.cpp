@@ -436,27 +436,51 @@ namespace rwe
         }
     }
 
+    Rectangle2f computeCameraConstraint(const MapTerrain& terrain, const CabinetCamera& camera)
+    {
+        auto cameraHalfWidth = camera.getWidth() / 2.0f;
+        auto cameraHalfHeight = camera.getHeight() / 2.0f;
+
+        auto top = terrain.topInWorldUnits() + cameraHalfHeight;
+        auto left = terrain.leftInWorldUnits() + cameraHalfWidth;
+        auto bottom = terrain.bottomCutoffInWorldUnits() - cameraHalfHeight;
+        auto right = terrain.rightCutoffInWorldUnits() - cameraHalfWidth;
+
+        if (left > right)
+        {
+            auto middle = (left + right) / 2.0f;
+            left = middle;
+            right = middle;
+        }
+
+        if (top > bottom)
+        {
+            auto middle = (top + bottom) / 2.0f;
+            top = middle;
+            bottom = middle;
+        }
+
+        return Rectangle2f::fromTLBR(top, left, bottom, right);
+    }
+
     void GameScene::update()
     {
-        const float speed = CameraPanSpeed * SecondsPerTick;
-        int directionX = (right ? 1 : 0) - (left ? 1 : 0);
-        int directionZ = (down ? 1 : 0) - (up ? 1 : 0);
-
         auto& camera = worldRenderService.getCamera();
-        auto left = camera.getRawPosition().x - (camera.getWidth() / 2.0f);
-        auto right = camera.getRawPosition().x + (camera.getWidth() / 2.0f);
-        auto top = camera.getRawPosition().z - (camera.getHeight() / 2.0f);
-        auto bottom = camera.getRawPosition().z + (camera.getHeight() / 2.0f);
+        auto cameraConstraint = computeCameraConstraint(simulation.terrain, camera);
 
-        auto mindx = simulation.terrain.leftInWorldUnits() - left;
-        auto maxdx = simulation.terrain.rightCutoffInWorldUnits() - right;
-        auto mindz = simulation.terrain.topInWorldUnits() - top;
-        auto maxdz = simulation.terrain.bottomCutoffInWorldUnits() - bottom;
+        // update camera position from keyboard arrows
+        {
+            const float speed = CameraPanSpeed * SecondsPerTick;
+            int directionX = (right ? 1 : 0) - (left ? 1 : 0);
+            int directionZ = (down ? 1 : 0) - (up ? 1 : 0);
 
-        auto dx = std::clamp(directionX * speed, mindx, maxdx);
-        auto dz = std::clamp(directionZ * speed, mindz, maxdz);
+            auto dx = directionX * speed;
+            auto dz = directionZ * speed;
+            auto& cameraPos = camera.getRawPosition();
+            auto newPos = cameraConstraint.clamp(Vector2f(cameraPos.x + dx, cameraPos.z + dz));
 
-        camera.translate(Vector3f(dx, 0.0f, dz));
+            camera.setPosition(Vector3f(newPos.x, cameraPos.y, newPos.y));
+        }
 
         // handle minimap dragging
         if (auto cursor = boost::get<NormalCursorMode>(&cursorMode); cursor != nullptr)
@@ -470,15 +494,8 @@ namespace rwe
                 auto minimapToWorld = minimapToWorldMatrix(simulation.terrain, minimapRect);
                 auto mousePos = getMousePosition();
                 auto worldPos = minimapToWorld * Vector3f(mousePos.x, mousePos.y, 0.0f);
-                auto halfCameraWidth = camera.getWidth() / 2.0f;
-                auto halfCameraHeight = camera.getHeight() / 2.0f;
-                auto minWorldX = simulation.terrain.leftInWorldUnits() + halfCameraWidth;
-                auto maxWorldX = simulation.terrain.rightCutoffInWorldUnits() - halfCameraWidth;
-                auto minWorldZ = simulation.terrain.topInWorldUnits() + halfCameraHeight;
-                auto maxWorldZ = simulation.terrain.bottomCutoffInWorldUnits() - halfCameraHeight;
-                auto worldX = std::clamp(worldPos.x, minWorldX, maxWorldX);
-                auto worldZ = std::clamp(worldPos.z, minWorldZ, maxWorldZ);
-                camera.setPosition(Vector3f(worldX, camera.getRawPosition().y, worldZ));
+                auto newCameraPos = cameraConstraint.clamp(Vector2f(worldPos.x, worldPos.z));
+                camera.setPosition(Vector3f(newCameraPos.x, camera.getRawPosition().y, newCameraPos.y));
             }
         }
 

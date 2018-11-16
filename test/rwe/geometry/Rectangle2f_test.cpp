@@ -177,5 +177,41 @@ namespace rwe
                 REQUIRE(a.scaleToFit(b) == r);
             }
         }
+
+        SECTION(".clamp")
+        {
+            SECTION("ignores points inside the rectangle")
+            {
+                auto r = Rectangle2f::fromTopLeft(2.0f, 3.0f, 4.0f, 5.0f);
+                auto v = Vector2f(3.0f, 4.0f);
+
+                auto u = Vector2f(3.0f, 4.0f);
+                REQUIRE(r.clamp(v) == u);
+            }
+
+            SECTION("clamps points to within the rectangle")
+            {
+                {
+                    auto r = Rectangle2f::fromTopLeft(2.0f, 3.0f, 4.0f, 5.0f);
+                    auto v = Vector2f(2.0f, 4.0f);
+                    auto u = Vector2f(2.0f, 4.0f);
+                    REQUIRE(r.clamp(v) == u);
+                }
+
+                {
+                    auto r = Rectangle2f::fromTopLeft(2.0f, 3.0f, 4.0f, 5.0f);
+                    auto v = Vector2f(1.0f, 1.0f);
+                    auto u = Vector2f(2.0f, 3.0f);
+                    REQUIRE(r.clamp(v) == u);
+                }
+
+                {
+                    auto r = Rectangle2f::fromTopLeft(2.0f, 3.0f, 4.0f, 5.0f);
+                    auto v = Vector2f(7.0f, 9.0f);
+                    auto u = Vector2f(6.0f, 8.0f);
+                    REQUIRE(r.clamp(v) == u);
+                }
+            }
+        }
     }
 }

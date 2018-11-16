@@ -114,4 +114,11 @@ namespace rwe
         auto scale = getScaleToFit(other);
         return Rectangle2f(position, other.extents * scale);
     }
+
+    Vector2f Rectangle2f::clamp(const Vector2f& v) const
+    {
+        return Vector2f(
+            std::clamp(v.x, left(), right()),
+            std::clamp(v.y, top(), bottom()));
+    }
 }

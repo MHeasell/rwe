@@ -53,6 +53,8 @@ namespace rwe
          * and scaled to fit proportionally exactly inside this rectangle.
          */
         Rectangle2f scaleToFit(const Rectangle2f& other) const;
+
+        Vector2f clamp(const Vector2f& v) const;
     };
 }
 
