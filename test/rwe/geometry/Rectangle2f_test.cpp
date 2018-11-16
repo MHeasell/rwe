@@ -135,7 +135,7 @@ namespace rwe
             }
         }
 
-        SECTION(".shrink")
+        SECTION(".scaleToFit")
         {
             SECTION("preserves identical rectangles")
             {
