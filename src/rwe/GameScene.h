@@ -177,6 +177,7 @@ namespace rwe
 
         std::shared_ptr<Sprite> minimap;
         std::shared_ptr<SpriteSeries> minimapDots;
+        std::shared_ptr<Sprite> minimapDotHighlight;
         Rectangle2f minimapRect;
 
         PlayerId localPlayerId;
@@ -220,6 +221,7 @@ namespace rwe
             std::unique_ptr<GameNetworkService>&& gameNetworkService,
             const std::shared_ptr<Sprite>& minimap,
             const std::shared_ptr<SpriteSeries>& minimapDots,
+            const std::shared_ptr<Sprite>& minimapDotHighlight,
             PlayerId localPlayerId);
 
         void init() override;

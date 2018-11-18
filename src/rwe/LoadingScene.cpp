@@ -196,6 +196,7 @@ namespace rwe
         {
             throw std::runtime_error("Incorrect number of frames in anims/FX.GAF radlogo");
         }
+        auto minimapDotHighlight = sceneContext.textureService->getGafEntry("anims/FX.GAF", "radlogohigh")->sprites.at(0);
 
         auto gameScene = std::make_unique<GameScene>(
             sceneContext,
@@ -210,6 +211,7 @@ namespace rwe
             std::move(gameNetworkService),
             minimap,
             minimapDots,
+            minimapDotHighlight,
             *localPlayerId);
 
         const auto& schema = ota.schemas.at(schemaIndex);

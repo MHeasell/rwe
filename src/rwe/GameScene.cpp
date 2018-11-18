@@ -70,6 +70,7 @@ namespace rwe
         std::unique_ptr<GameNetworkService>&& gameNetworkService,
         const std::shared_ptr<Sprite>& minimap,
         const std::shared_ptr<SpriteSeries>& minimapDots,
+        const std::shared_ptr<Sprite>& minimapDotHighlight,
         PlayerId localPlayerId)
         : sceneContext(sceneContext),
           worldViewport(ViewportService(GuiSizeLeft, GuiSizeTop, sceneContext.viewportService->width() - GuiSizeLeft - GuiSizeRight, sceneContext.viewportService->height() - GuiSizeTop - GuiSizeBottom)),
@@ -86,6 +87,7 @@ namespace rwe
           cobExecutionService(),
           minimap(minimap),
           minimapDots(minimapDots),
+          minimapDotHighlight(minimapDotHighlight),
           minimapRect(minimapViewport.scaleToFit(this->minimap->bounds)),
           localPlayerId(localPlayerId)
     {
@@ -124,6 +126,13 @@ namespace rwe
             auto colorIndex = getPlayer(ownerId).color;
             assert(colorIndex >= 0 && colorIndex < 10);
             chromeUiRenderService.drawSprite(std::floor(minimapPos.x), std::floor(minimapPos.y), *minimapDots->sprites[colorIndex]);
+        }
+        // highlight the minimap dot for the hovered unit
+        if (hoveredUnit)
+        {
+            const auto& unit = getUnit(*hoveredUnit);
+            auto minimapPos = worldToMinimap * unit.position;
+            chromeUiRenderService.drawSprite(std::floor(minimapPos.x), std::floor(minimapPos.y), *minimapDotHighlight);
         }
 
         // draw minimap viewport rectangle
