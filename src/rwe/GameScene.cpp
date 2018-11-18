@@ -69,6 +69,7 @@ namespace rwe
         MeshService&& meshService,
         std::unique_ptr<GameNetworkService>&& gameNetworkService,
         const std::shared_ptr<Sprite>& minimap,
+        const std::shared_ptr<SpriteSeries>& minimapDots,
         PlayerId localPlayerId)
         : sceneContext(sceneContext),
           worldViewport(ViewportService(GuiSizeLeft, GuiSizeTop, sceneContext.viewportService->width() - GuiSizeLeft - GuiSizeRight, sceneContext.viewportService->height() - GuiSizeTop - GuiSizeBottom)),
@@ -84,6 +85,7 @@ namespace rwe
           unitBehaviorService(this, &pathFindingService, &this->collisionService),
           cobExecutionService(),
           minimap(minimap),
+          minimapDots(minimapDots),
           minimapRect(minimapViewport.scaleToFit(this->minimap->bounds)),
           localPlayerId(localPlayerId)
     {
@@ -111,11 +113,21 @@ namespace rwe
         // draw minimap
         chromeUiRenderService.drawSpriteAbs(minimapRect, *minimap);
 
+        auto cameraInverse = worldRenderService.getCamera().getInverseViewProjectionMatrix();
+        auto worldToMinimap = worldToMinimapMatrix(simulation.terrain, minimapRect);
+
+        // draw minimap dots
+        for (const auto& unit : (simulation.units | boost::adaptors::map_values))
+        {
+            auto minimapPos = worldToMinimap * unit.position;
+            auto ownerId = unit.owner;
+            auto colorIndex = getPlayer(ownerId).color;
+            assert(colorIndex >= 0 && colorIndex < 10);
+            chromeUiRenderService.drawSprite(std::floor(minimapPos.x), std::floor(minimapPos.y), *minimapDots->sprites[colorIndex]);
+        }
+
         // draw minimap viewport rectangle
         {
-            auto cameraInverse = worldRenderService.getCamera().getInverseViewProjectionMatrix();
-            auto worldToMinimap = worldToMinimapMatrix(simulation.terrain, minimapRect);
-
             auto transform = worldToMinimap * cameraInverse;
             auto bottomLeft = transform * Vector3f(-1.0f, -1.0f, 0.0f);
             auto topRight = transform * Vector3f(1.0f, 1.0f, 0.0f);

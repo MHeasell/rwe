@@ -191,6 +191,12 @@ namespace rwe
         UiRenderService worldUiRenderService(sceneContext.graphics, sceneContext.shaders, worldUiCamera);
         UiRenderService chromeUiRenderService(sceneContext.graphics, sceneContext.shaders, chromeUiCamera);
 
+        auto minimapDots = sceneContext.textureService->getGafEntry("anims/FX.GAF", "radlogo");
+        if (minimapDots->sprites.size() != 10)
+        {
+            throw std::runtime_error("Incorrect number of frames in anims/FX.GAF radlogo");
+        }
+
         auto gameScene = std::make_unique<GameScene>(
             sceneContext,
             std::move(playerCommandService),
@@ -203,6 +209,7 @@ namespace rwe
             std::move(meshService),
             std::move(gameNetworkService),
             minimap,
+            minimapDots,
             *localPlayerId);
 
         const auto& schema = ota.schemas.at(schemaIndex);
