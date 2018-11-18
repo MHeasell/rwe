@@ -134,5 +134,84 @@ namespace rwe
                 REQUIRE(r.distanceSquared(Vector2f(6.0f, 10.0f)) == 2.0f); // bottomright
             }
         }
+
+        SECTION(".scaleToFit")
+        {
+            SECTION("preserves identical rectangles")
+            {
+                auto a = Rectangle2f(2.0f, 3.0f, 4.0f, 5.0f);
+                auto b = Rectangle2f(2.0f, 3.0f, 4.0f, 5.0f);
+                auto r = Rectangle2f(2.0f, 3.0f, 4.0f, 5.0f);
+                REQUIRE(a.scaleToFit(b) == r);
+            }
+
+            SECTION("shrinks rectangles that are too wide to touch on X")
+            {
+                auto a = Rectangle2f(2.0f, 3.0f, 4.0f, 5.0f);
+                auto b = Rectangle2f(10.0f, 11.0f, 8.0f, 5.0f);
+                auto r = Rectangle2f(2.0f, 3.0f, 4.0f, 2.5f);
+                REQUIRE(a.scaleToFit(b) == r);
+            }
+
+            SECTION("shrinks rectangles that are too tall to touch on Y")
+            {
+                auto a = Rectangle2f(2.0f, 3.0f, 4.0f, 5.0f);
+                auto b = Rectangle2f(10.0f, 11.0f, 6.0f, 10.0f);
+                auto r = Rectangle2f(2.0f, 3.0f, 3.0f, 5.0f);
+                REQUIRE(a.scaleToFit(b) == r);
+            }
+
+            SECTION("enlarges small rectangles to touch on X")
+            {
+                auto a = Rectangle2f(2.0f, 3.0f, 4.0f, 5.0f);
+                auto b = Rectangle2f(10.0f, 11.0f, 2.0f, 1.0f);
+                auto r = Rectangle2f(2.0f, 3.0f, 4.0f, 2.0f);
+                REQUIRE(a.scaleToFit(b) == r);
+            }
+
+            SECTION("enlarges small rectangles to touch on Y")
+            {
+                auto a = Rectangle2f(2.0f, 3.0f, 4.0f, 5.0f);
+                auto b = Rectangle2f(10.0f, 11.0f, 1.0f, 2.0f);
+                auto r = Rectangle2f(2.0f, 3.0f, 2.5f, 5.0f);
+                REQUIRE(a.scaleToFit(b) == r);
+            }
+        }
+
+        SECTION(".clamp")
+        {
+            SECTION("ignores points inside the rectangle")
+            {
+                auto r = Rectangle2f::fromTopLeft(2.0f, 3.0f, 4.0f, 5.0f);
+                auto v = Vector2f(3.0f, 4.0f);
+
+                auto u = Vector2f(3.0f, 4.0f);
+                REQUIRE(r.clamp(v) == u);
+            }
+
+            SECTION("clamps points to within the rectangle")
+            {
+                {
+                    auto r = Rectangle2f::fromTopLeft(2.0f, 3.0f, 4.0f, 5.0f);
+                    auto v = Vector2f(2.0f, 4.0f);
+                    auto u = Vector2f(2.0f, 4.0f);
+                    REQUIRE(r.clamp(v) == u);
+                }
+
+                {
+                    auto r = Rectangle2f::fromTopLeft(2.0f, 3.0f, 4.0f, 5.0f);
+                    auto v = Vector2f(1.0f, 1.0f);
+                    auto u = Vector2f(2.0f, 3.0f);
+                    REQUIRE(r.clamp(v) == u);
+                }
+
+                {
+                    auto r = Rectangle2f::fromTopLeft(2.0f, 3.0f, 4.0f, 5.0f);
+                    auto v = Vector2f(7.0f, 9.0f);
+                    auto u = Vector2f(6.0f, 8.0f);
+                    REQUIRE(r.clamp(v) == u);
+                }
+            }
+        }
     }
 }

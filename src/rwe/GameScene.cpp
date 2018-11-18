@@ -55,21 +55,29 @@ namespace rwe
         }
     };
 
+    const Rectangle2f GameScene::minimapViewport = Rectangle2f::fromTopLeft(0.0f, 0.0f, GuiSizeLeft, GuiSizeLeft);
+
     GameScene::GameScene(
         const SceneContext& sceneContext,
         std::unique_ptr<PlayerCommandService>&& playerCommandService,
-        RenderService&& renderService,
-        UiRenderService&& uiRenderService,
+        RenderService&& worldRenderService,
+        UiRenderService&& worldUiRenderService,
+        UiRenderService&& chromeUiRenderService,
         GameSimulation&& simulation,
         MovementClassCollisionService&& collisionService,
         UnitDatabase&& unitDatabase,
         MeshService&& meshService,
         std::unique_ptr<GameNetworkService>&& gameNetworkService,
+        const std::shared_ptr<Sprite>& minimap,
+        const std::shared_ptr<SpriteSeries>& minimapDots,
+        const std::shared_ptr<Sprite>& minimapDotHighlight,
         PlayerId localPlayerId)
         : sceneContext(sceneContext),
+          worldViewport(ViewportService(GuiSizeLeft, GuiSizeTop, sceneContext.viewportService->width() - GuiSizeLeft - GuiSizeRight, sceneContext.viewportService->height() - GuiSizeTop - GuiSizeBottom)),
           playerCommandService(std::move(playerCommandService)),
-          renderService(std::move(renderService)),
-          uiRenderService(std::move(uiRenderService)),
+          worldRenderService(std::move(worldRenderService)),
+          worldUiRenderService(std::move(worldUiRenderService)),
+          chromeUiRenderService(std::move(chromeUiRenderService)),
           simulation(std::move(simulation)),
           collisionService(std::move(collisionService)),
           unitFactory(sceneContext.textureService, std::move(unitDatabase), std::move(meshService), &this->collisionService, sceneContext.palette, sceneContext.guiPalette),
@@ -77,6 +85,10 @@ namespace rwe
           pathFindingService(&this->simulation, &this->collisionService),
           unitBehaviorService(this, &pathFindingService, &this->collisionService),
           cobExecutionService(),
+          minimap(minimap),
+          minimapDots(minimapDots),
+          minimapDotHighlight(minimapDotHighlight),
+          minimapRect(minimapViewport.scaleToFit(this->minimap->bounds)),
           localPlayerId(localPlayerId)
     {
     }
@@ -89,21 +101,75 @@ namespace rwe
 
     void GameScene::render(GraphicsContext& context)
     {
+        auto viewportPos = worldViewport.toOtherViewport(*sceneContext.viewportService, 0, worldViewport.height());
+        context.setViewport(
+            viewportPos.x,
+            sceneContext.viewportService->height() - viewportPos.y,
+            worldViewport.width(),
+            worldViewport.height());
+        renderWorld(context);
+
+        context.setViewport(0, 0, sceneContext.viewportService->width(), sceneContext.viewportService->height());
         context.disableDepthBuffer();
 
-        renderService.drawMapTerrain(simulation.terrain);
+        // draw minimap
+        chromeUiRenderService.drawSpriteAbs(minimapRect, *minimap);
 
-        renderService.drawFlatFeatureShadows(simulation.features | boost::adaptors::map_values);
-        renderService.drawFlatFeatures(simulation.features | boost::adaptors::map_values);
+        auto cameraInverse = worldRenderService.getCamera().getInverseViewProjectionMatrix();
+        auto worldToMinimap = worldToMinimapMatrix(simulation.terrain, minimapRect);
+
+        // draw minimap dots
+        for (const auto& unit : (simulation.units | boost::adaptors::map_values))
+        {
+            auto minimapPos = worldToMinimap * unit.position;
+            auto ownerId = unit.owner;
+            auto colorIndex = getPlayer(ownerId).color;
+            assert(colorIndex >= 0 && colorIndex < 10);
+            chromeUiRenderService.drawSprite(std::floor(minimapPos.x), std::floor(minimapPos.y), *minimapDots->sprites[colorIndex]);
+        }
+        // highlight the minimap dot for the hovered unit
+        if (hoveredUnit)
+        {
+            const auto& unit = getUnit(*hoveredUnit);
+            auto minimapPos = worldToMinimap * unit.position;
+            chromeUiRenderService.drawSprite(std::floor(minimapPos.x), std::floor(minimapPos.y), *minimapDotHighlight);
+        }
+
+        // draw minimap viewport rectangle
+        {
+            auto transform = worldToMinimap * cameraInverse;
+            auto bottomLeft = transform * Vector3f(-1.0f, -1.0f, 0.0f);
+            auto topRight = transform * Vector3f(1.0f, 1.0f, 0.0f);
+
+            chromeUiRenderService.drawBoxOutline(
+                std::round(bottomLeft.x),
+                std::round(topRight.y),
+                std::round(topRight.x - bottomLeft.x),
+                std::round(bottomLeft.y - topRight.y),
+                Color(247, 227, 103));
+        }
+
+        sceneContext.cursor->render(chromeUiRenderService);
+        context.enableDepthBuffer();
+    }
+
+    void GameScene::renderWorld(GraphicsContext& context)
+    {
+        context.disableDepthBuffer();
+
+        worldRenderService.drawMapTerrain(simulation.terrain);
+
+        worldRenderService.drawFlatFeatureShadows(simulation.features | boost::adaptors::map_values);
+        worldRenderService.drawFlatFeatures(simulation.features | boost::adaptors::map_values);
 
         if (occupiedGridVisible)
         {
-            renderService.drawOccupiedGrid(simulation.terrain, simulation.occupiedGrid);
+            worldRenderService.drawOccupiedGrid(simulation.terrain, simulation.occupiedGrid);
         }
 
         if (pathfindingVisualisationVisible)
         {
-            renderService.drawPathfindingVisualisation(simulation.terrain, pathFindingService.lastPathDebugInfo);
+            worldRenderService.drawPathfindingVisualisation(simulation.terrain, pathFindingService.lastPathDebugInfo);
         }
 
         if (selectedUnit && movementClassGridVisible)
@@ -112,42 +178,42 @@ namespace rwe
             if (unit.movementClass)
             {
                 const auto& grid = collisionService.getGrid(*unit.movementClass);
-                renderService.drawMovementClassCollisionGrid(simulation.terrain, grid);
+                worldRenderService.drawMovementClassCollisionGrid(simulation.terrain, grid);
             }
         }
 
         if (selectedUnit)
         {
-            renderService.drawSelectionRect(getUnit(*selectedUnit));
+            worldRenderService.drawSelectionRect(getUnit(*selectedUnit));
         }
 
-        renderService.drawUnitShadows(simulation.terrain, simulation.units | boost::adaptors::map_values);
+        worldRenderService.drawUnitShadows(simulation.terrain, simulation.units | boost::adaptors::map_values);
 
         context.enableDepthBuffer();
 
         auto seaLevel = simulation.terrain.getSeaLevel();
         for (const auto& unit : (simulation.units | boost::adaptors::map_values))
         {
-            renderService.drawUnit(unit, seaLevel);
+            worldRenderService.drawUnit(unit, seaLevel);
         }
 
-        renderService.drawLasers(simulation.lasers);
+        worldRenderService.drawLasers(simulation.lasers);
 
         context.disableDepthWrites();
 
         context.disableDepthTest();
-        renderService.drawStandingFeatureShadows(simulation.features | boost::adaptors::map_values);
+        worldRenderService.drawStandingFeatureShadows(simulation.features | boost::adaptors::map_values);
         context.enableDepthTest();
 
-        renderService.drawStandingFeatures(simulation.features | boost::adaptors::map_values);
+        worldRenderService.drawStandingFeatures(simulation.features | boost::adaptors::map_values);
 
         context.disableDepthTest();
-        renderService.drawExplosions(simulation.gameTime, simulation.explosions);
+        worldRenderService.drawExplosions(simulation.gameTime, simulation.explosions);
         context.enableDepthTest();
 
         context.enableDepthWrites();
 
-        // UI rendering
+        // in-world UI/overlay rendering
         context.disableDepthBuffer();
 
         if (healthBarsVisible)
@@ -160,14 +226,13 @@ namespace rwe
                     continue;
                 }
 
-                auto uiPos = uiRenderService.getCamera().getInverseViewProjectionMatrix()
-                    * renderService.getCamera().getViewProjectionMatrix()
+                auto uiPos = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
+                    * worldRenderService.getCamera().getViewProjectionMatrix()
                     * unit.position;
-                uiRenderService.drawHealthBar(uiPos.x, uiPos.y, static_cast<float>(unit.hitPoints) / static_cast<float>(unit.maxHitPoints));
+                worldUiRenderService.drawHealthBar(uiPos.x, uiPos.y, static_cast<float>(unit.hitPoints) / static_cast<float>(unit.maxHitPoints));
             }
         }
 
-        sceneContext.cursor->render(uiRenderService);
         context.enableDepthBuffer();
     }
 
@@ -307,7 +372,14 @@ namespace rwe
                 auto normalCursor = boost::get<NormalCursorMode>(&cursorMode);
                 if (normalCursor != nullptr)
                 {
-                    normalCursor->selecting = true;
+                    if (isCursorOverMinimap())
+                    {
+                        normalCursor->state = NormalCursorMode::DraggingMinimap();
+                    }
+                    else if (isCursorOverWorld())
+                    {
+                        normalCursor->state = NormalCursorMode::Selecting();
+                    }
                 }
             }
         }
@@ -359,7 +431,7 @@ namespace rwe
             auto normalCursor = boost::get<NormalCursorMode>(&cursorMode);
             if (normalCursor != nullptr)
             {
-                if (normalCursor->selecting)
+                if (boost::get<NormalCursorMode::Selecting>(&normalCursor->state) != nullptr)
                 {
                     if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
                     {
@@ -374,32 +446,79 @@ namespace rwe
                     {
                         selectedUnit = std::nullopt;
                     }
+
+                    normalCursor->state = NormalCursorMode::Up();
+                }
+                else if (boost::get<NormalCursorMode::DraggingMinimap>(&normalCursor->state) != nullptr)
+                {
+                    normalCursor->state = NormalCursorMode::Up();
                 }
             }
         }
     }
 
+    Rectangle2f computeCameraConstraint(const MapTerrain& terrain, const CabinetCamera& camera)
+    {
+        auto cameraHalfWidth = camera.getWidth() / 2.0f;
+        auto cameraHalfHeight = camera.getHeight() / 2.0f;
+
+        auto top = terrain.topInWorldUnits() + cameraHalfHeight;
+        auto left = terrain.leftInWorldUnits() + cameraHalfWidth;
+        auto bottom = terrain.bottomCutoffInWorldUnits() - cameraHalfHeight;
+        auto right = terrain.rightCutoffInWorldUnits() - cameraHalfWidth;
+
+        if (left > right)
+        {
+            auto middle = (left + right) / 2.0f;
+            left = middle;
+            right = middle;
+        }
+
+        if (top > bottom)
+        {
+            auto middle = (top + bottom) / 2.0f;
+            top = middle;
+            bottom = middle;
+        }
+
+        return Rectangle2f::fromTLBR(top, left, bottom, right);
+    }
+
     void GameScene::update()
     {
-        const float speed = CameraPanSpeed * SecondsPerTick;
-        int directionX = (right ? 1 : 0) - (left ? 1 : 0);
-        int directionZ = (down ? 1 : 0) - (up ? 1 : 0);
+        auto& camera = worldRenderService.getCamera();
+        auto cameraConstraint = computeCameraConstraint(simulation.terrain, camera);
 
-        auto& camera = renderService.getCamera();
-        auto left = camera.getRawPosition().x - (camera.getWidth() / 2.0f);
-        auto right = camera.getRawPosition().x + (camera.getWidth() / 2.0f);
-        auto top = camera.getRawPosition().z - (camera.getHeight() / 2.0f);
-        auto bottom = camera.getRawPosition().z + (camera.getHeight() / 2.0f);
+        // update camera position from keyboard arrows
+        {
+            const float speed = CameraPanSpeed * SecondsPerTick;
+            int directionX = (right ? 1 : 0) - (left ? 1 : 0);
+            int directionZ = (down ? 1 : 0) - (up ? 1 : 0);
 
-        auto mindx = simulation.terrain.leftInWorldUnits() - left;
-        auto maxdx = simulation.terrain.rightCutoffInWorldUnits() - right;
-        auto mindz = simulation.terrain.topInWorldUnits() - top;
-        auto maxdz = simulation.terrain.bottomCutoffInWorldUnits() - bottom;
+            auto dx = directionX * speed;
+            auto dz = directionZ * speed;
+            auto& cameraPos = camera.getRawPosition();
+            auto newPos = cameraConstraint.clamp(Vector2f(cameraPos.x + dx, cameraPos.z + dz));
 
-        auto dx = std::clamp(directionX * speed, mindx, maxdx);
-        auto dz = std::clamp(directionZ * speed, mindz, maxdz);
+            camera.setPosition(Vector3f(newPos.x, cameraPos.y, newPos.y));
+        }
 
-        camera.translate(Vector3f(dx, 0.0f, dz));
+        // handle minimap dragging
+        if (auto cursor = boost::get<NormalCursorMode>(&cursorMode); cursor != nullptr)
+        {
+            if (boost::get<NormalCursorMode::DraggingMinimap>(&cursor->state) != nullptr) {
+                // ok, the cursor is dragging the minimap.
+                // work out where the cursor is on the minimap,
+                // convert that to the world, then set the camera's position to there
+                // (clamped to map bounds)
+
+                auto minimapToWorld = minimapToWorldMatrix(simulation.terrain, minimapRect);
+                auto mousePos = getMousePosition();
+                auto worldPos = minimapToWorld * Vector3f(mousePos.x, mousePos.y, 0.0f);
+                auto newCameraPos = cameraConstraint.clamp(Vector2f(worldPos.x, worldPos.z));
+                camera.setPosition(Vector3f(newCameraPos.x, camera.getRawPosition().y, newCameraPos.y));
+            }
+        }
 
         hoveredUnit = getUnitUnderCursor();
 
@@ -496,7 +615,7 @@ namespace rwe
 
     void GameScene::setCameraPosition(const Vector3f& newPosition)
     {
-        renderService.getCamera().setPosition(newPosition);
+        worldRenderService.getCamera().setPosition(newPosition);
     }
 
     const MapTerrain& GameScene::getTerrain() const
@@ -567,6 +686,52 @@ namespace rwe
         sceneContext.audioService->playSound(sound);
     }
 
+    Matrix4f GameScene::worldToMinimapMatrix(const MapTerrain& terrain, const Rectangle2f& minimapRect)
+    {
+        auto view = Matrix4f::rotationToAxes(
+            Vector3f(1.0f, 0.0f, 0.0f),
+            Vector3f(0.0f, 0.0f, 1.0f),
+            Vector3f(0.0f, -1.0f, 0.0f));
+        auto worldProjection = Matrix4f::orthographicProjection(
+            terrain.leftInWorldUnits(),
+            terrain.rightCutoffInWorldUnits(),
+            terrain.bottomCutoffInWorldUnits(),
+            terrain.topInWorldUnits(),
+            -1000.0f,
+            1000.0f) * Matrix4f::cabinetProjection(0.0f, 0.5f);
+        auto minimapInverseProjection = Matrix4f::inverseOrthographicProjection(
+            minimapRect.left(),
+            minimapRect.right(),
+            minimapRect.bottom(),
+            minimapRect.top(),
+            -100.0f,
+            100.0f);
+        return minimapInverseProjection * worldProjection * view;
+    }
+
+    Matrix4f GameScene::minimapToWorldMatrix(const MapTerrain& terrain, const Rectangle2f& minimapRect)
+    {
+        auto inverseView = Matrix4f::rotationToAxes(
+            Vector3f(1.0f, 0.0f, 0.0f),
+            Vector3f(0.0f, 0.0f, 1.0f),
+            Vector3f(0.0f, -1.0f, 0.0f)).transposed();
+        auto worldInverseProjection = Matrix4f::inverseOrthographicProjection(
+            terrain.leftInWorldUnits(),
+            terrain.rightCutoffInWorldUnits(),
+            terrain.bottomCutoffInWorldUnits(),
+            terrain.topInWorldUnits(),
+            -1000.0f,
+            1000.0f) * Matrix4f::cabinetProjection(0.0f, 0.5f);
+        auto minimapProjection = Matrix4f::orthographicProjection(
+            minimapRect.left(),
+            minimapRect.right(),
+            minimapRect.bottom(),
+            minimapRect.top(),
+            -100.0f,
+            100.0f);
+        return inverseView * worldInverseProjection * minimapProjection;
+    }
+
     void GameScene::tryTickGame()
     {
         auto playerCommands = playerCommandService->tryPopCommands();
@@ -626,13 +791,24 @@ namespace rwe
 
     std::optional<UnitId> GameScene::getUnitUnderCursor() const
     {
-        auto ray = renderService.getCamera().screenToWorldRay(screenToClipSpace(getMousePosition()));
+        auto ray = worldRenderService.getCamera().screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
         return getFirstCollidingUnit(ray);
     }
 
-    Vector2f GameScene::screenToClipSpace(Point p) const
+    Vector2f GameScene::screenToWorldClipSpace(Point p) const
     {
-        return sceneContext.viewportService->toClipSpace(p);
+        return worldViewport.toClipSpace(sceneContext.viewportService->toOtherViewport(worldViewport, p));
+    }
+
+    bool GameScene::isCursorOverMinimap() const
+    {
+        auto mousePos = getMousePosition();
+        return minimapRect.contains(mousePos.x, mousePos.y);
+    }
+
+    bool GameScene::isCursorOverWorld() const
+    {
+        return worldViewport.contains(getMousePosition());
     }
 
     Point GameScene::getMousePosition() const
@@ -650,7 +826,7 @@ namespace rwe
 
     std::optional<Vector3f> GameScene::getMouseTerrainCoordinate() const
     {
-        auto ray = renderService.getCamera().screenToWorldRay(screenToClipSpace(getMousePosition()));
+        auto ray = worldRenderService.getCamera().screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
         return simulation.intersectLineWithTerrain(ray.toLine());
     }
 

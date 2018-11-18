@@ -185,6 +185,7 @@ namespace rwe
         void clearWeaponTargets();
 
         Matrix4f getTransform() const;
+        Matrix4f getInverseTransform() const;
     };
 }
 

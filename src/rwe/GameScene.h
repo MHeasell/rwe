@@ -53,9 +53,15 @@ namespace rwe
     struct AttackCursorMode
     {
     };
+
     struct NormalCursorMode
     {
-        bool selecting{false};
+        struct Selecting {};
+        struct DraggingMinimap {};
+        struct Up{};
+        using State = boost::variant<Selecting, DraggingMinimap, Up>;
+
+        State state{Up()};
     };
 
     using CursorMode = boost::variant<AttackCursorMode, NormalCursorMode>;
@@ -70,6 +76,11 @@ namespace rwe
     {
     public:
         static constexpr float SecondsPerTick = static_cast<float>(SceneManager::TickInterval) / 1000.0f;
+
+        static constexpr int GuiSizeLeft = 128;
+        static constexpr int GuiSizeRight = 0;
+        static constexpr int GuiSizeTop = 32;
+        static constexpr int GuiSizeBottom = 32;
 
         class UnitCommandDispacher : public boost::static_visitor<>
         {
@@ -140,12 +151,17 @@ namespace rwe
          */
         static constexpr float CameraPanSpeed = 1000.0f;
 
+        static const Rectangle2f minimapViewport;
+
         SceneContext sceneContext;
+
+        ViewportService worldViewport;
 
         std::unique_ptr<PlayerCommandService> playerCommandService;
 
-        RenderService renderService;
-        UiRenderService uiRenderService;
+        RenderService worldRenderService;
+        UiRenderService worldUiRenderService;
+        UiRenderService chromeUiRenderService;
 
         GameSimulation simulation;
 
@@ -158,6 +174,11 @@ namespace rwe
         PathFindingService pathFindingService;
         UnitBehaviorService unitBehaviorService;
         CobExecutionService cobExecutionService;
+
+        std::shared_ptr<Sprite> minimap;
+        std::shared_ptr<SpriteSeries> minimapDots;
+        std::shared_ptr<Sprite> minimapDotHighlight;
+        Rectangle2f minimapRect;
 
         PlayerId localPlayerId;
 
@@ -190,13 +211,17 @@ namespace rwe
         GameScene(
             const SceneContext& sceneContext,
             std::unique_ptr<PlayerCommandService>&& playerCommandService,
-            RenderService&& renderService,
-            UiRenderService&& uiRenderService,
+            RenderService&& worldRenderService,
+            UiRenderService&& worldUiRenderService,
+            UiRenderService&& chromeUiRenderService,
             GameSimulation&& simulation,
             MovementClassCollisionService&& collisionService,
             UnitDatabase&& unitDatabase,
             MeshService&& meshService,
             std::unique_ptr<GameNetworkService>&& gameNetworkService,
+            const std::shared_ptr<Sprite>& minimap,
+            const std::shared_ptr<SpriteSeries>& minimapDots,
+            const std::shared_ptr<Sprite>& minimapDotHighlight,
             PlayerId localPlayerId);
 
         void init() override;
@@ -258,11 +283,19 @@ namespace rwe
         void createLightSmoke(const Vector3f& position);
 
     private:
+        static Matrix4f worldToMinimapMatrix(const MapTerrain& terrain, const Rectangle2f& minimapRect);
+
+        static Matrix4f minimapToWorldMatrix(const MapTerrain& terrain, const Rectangle2f& minimapRect);
+
         void tryTickGame();
 
         std::optional<UnitId> getUnitUnderCursor() const;
 
-        Vector2f screenToClipSpace(Point p) const;
+        Vector2f screenToWorldClipSpace(Point p) const;
+
+        bool isCursorOverMinimap() const;
+
+        bool isCursorOverWorld() const;
 
         Point getMousePosition() const;
 
@@ -319,6 +352,8 @@ namespace rwe
         {
             actions.push_back(GameSceneTimeAction(sceneTime + interval, std::forward<T>(f)));
         }
+
+        void renderWorld(GraphicsContext& context);
     };
 }
 

@@ -31,6 +31,8 @@ namespace rwe
 
         void drawSpriteAbs(float x, float y, float width, float height, const Sprite& sprite);
 
+        void drawSpriteAbs(const Rectangle2f& rect, const Sprite& sprite);
+
         void drawText(float x, float y, const std::string& text, const SpriteSeries& font);
 
         void drawTextWrapped(Rectangle2f area, const std::string& text, const SpriteSeries& font);
@@ -63,6 +65,8 @@ namespace rwe
         void fillColor(float x, float y, float width, float height, Color color);
 
         void drawHealthBar(float x, float y, float percentFull);
+
+        void drawBoxOutline(float x, float y, float width, float height, Color color);
     };
 
     template <typename It>

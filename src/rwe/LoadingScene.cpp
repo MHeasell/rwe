@@ -112,10 +112,17 @@ namespace rwe
 
         auto simulation = createInitialSimulation(mapName, ota, schemaIndex);
 
-        CabinetCamera camera(sceneContext.viewportService->width(), sceneContext.viewportService->height());
-        camera.setPosition(Vector3f(0.0f, 0.0f, 0.0f));
+        auto minimap = sceneContext.textureService->getMinimap(mapName);
 
-        UiCamera uiCamera(sceneContext.viewportService->width(), sceneContext.viewportService->height());
+        auto worldViewportWidth = sceneContext.viewportService->width() - GameScene::GuiSizeLeft - GameScene::GuiSizeRight;
+        auto worldViewportHeight = sceneContext.viewportService->height() - GameScene::GuiSizeTop - GameScene::GuiSizeBottom;
+
+        CabinetCamera worldCamera(worldViewportWidth, worldViewportHeight);
+        worldCamera.setPosition(Vector3f(0.0f, 0.0f, 0.0f));
+
+        UiCamera worldUiCamera(worldViewportWidth, worldViewportHeight);
+
+        UiCamera chromeUiCamera(sceneContext.viewportService->width(), sceneContext.viewportService->height());
 
         auto meshService = MeshService::createMeshService(sceneContext.vfs, sceneContext.graphics, sceneContext.palette);
 
@@ -180,19 +187,31 @@ namespace rwe
         auto localEndpoint = *resolver.resolve(boost::asio::ip::udp::resolver::query(gameParameters.localNetworkInterface, gameParameters.localNetworkPort));
         auto gameNetworkService = std::make_unique<GameNetworkService>(localEndpoint, endpointInfos, playerCommandService.get());
 
-        RenderService renderService(sceneContext.graphics, sceneContext.shaders, camera);
-        UiRenderService uiRenderService(sceneContext.graphics, sceneContext.shaders, uiCamera);
+        RenderService worldRenderService(sceneContext.graphics, sceneContext.shaders, worldCamera);
+        UiRenderService worldUiRenderService(sceneContext.graphics, sceneContext.shaders, worldUiCamera);
+        UiRenderService chromeUiRenderService(sceneContext.graphics, sceneContext.shaders, chromeUiCamera);
+
+        auto minimapDots = sceneContext.textureService->getGafEntry("anims/FX.GAF", "radlogo");
+        if (minimapDots->sprites.size() != 10)
+        {
+            throw std::runtime_error("Incorrect number of frames in anims/FX.GAF radlogo");
+        }
+        auto minimapDotHighlight = sceneContext.textureService->getGafEntry("anims/FX.GAF", "radlogohigh")->sprites.at(0);
 
         auto gameScene = std::make_unique<GameScene>(
             sceneContext,
             std::move(playerCommandService),
-            std::move(renderService),
-            std::move(uiRenderService),
+            std::move(worldRenderService),
+            std::move(worldUiRenderService),
+            std::move(chromeUiRenderService),
             std::move(simulation),
             std::move(collisionService),
             std::move(unitDatabase),
             std::move(meshService),
             std::move(gameNetworkService),
+            minimap,
+            minimapDots,
+            minimapDotHighlight,
             *localPlayerId);
 
         const auto& schema = ota.schemas.at(schemaIndex);
