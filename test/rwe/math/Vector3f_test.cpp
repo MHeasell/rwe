@@ -270,4 +270,22 @@ namespace rwe
         Vector3f c(1.0f, 5.0f, 7.0f);
         REQUIRE(determinant(a, b, c) == -306.0f);
     }
+
+    TEST_CASE("xy")
+    {
+        SECTION("returns the X and Y components")
+        {
+            Vector3f v(1.0f, 2.0f, 3.0f);
+            REQUIRE(v.xy() == Vector2f(1.0f, 2.0f));
+        }
+    }
+
+    TEST_CASE("xz")
+    {
+        SECTION("returns the X and Z components")
+        {
+            Vector3f v(1.0f, 2.0f, 3.0f);
+            REQUIRE(v.xz() == Vector2f(1.0f, 3.0f));
+        }
+    }
 }

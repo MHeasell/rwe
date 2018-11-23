@@ -157,6 +157,16 @@ namespace rwe
         return angle * (det > 0.0f ? 1.0f : -1.0f);
     }
 
+    Vector2f Vector3f::xy() const
+    {
+        return Vector2f(x, y);
+    }
+
+    Vector2f Vector3f::xz() const
+    {
+        return Vector2f(x, z);
+    }
+
     std::ostream& operator<<(std::ostream& lhs, const Vector3f& rhs)
     {
         lhs << "(" << rhs.x << ", " << rhs.y << ", " << rhs.z << ")";
