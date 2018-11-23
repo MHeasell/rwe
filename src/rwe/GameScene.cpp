@@ -708,8 +708,8 @@ namespace rwe
             minimapRect.right(),
             minimapRect.bottom(),
             minimapRect.top(),
-            -100.0f,
-            100.0f);
+            -1.0f,
+            1.0f);
         return minimapInverseProjection * worldProjection * view;
     }
 
@@ -731,8 +731,8 @@ namespace rwe
             minimapRect.right(),
             minimapRect.bottom(),
             minimapRect.top(),
-            -100.0f,
-            100.0f);
+            -1.0f,
+            1.0f);
         return inverseView * worldInverseProjection * minimapProjection;
     }
 
@@ -864,8 +864,27 @@ namespace rwe
 
     std::optional<Vector3f> GameScene::getMouseTerrainCoordinate() const
     {
-        auto ray = worldRenderService.getCamera().screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
-        return simulation.intersectLineWithTerrain(ray.toLine());
+        if (isCursorOverMinimap())
+        {
+            auto transform = minimapToWorldMatrix(simulation.terrain, minimapRect);
+            auto mousePos = getMousePosition();
+            auto mouseX = static_cast<float>(mousePos.x) + 0.5f;
+            auto mouseY = static_cast<float>(mousePos.y) + 0.5f;
+
+            auto startPoint = transform * Vector3f(mouseX, mouseY, -1.0f);
+            auto endPoint = transform * Vector3f(mouseX, mouseY, 1.0f);
+            auto direction = endPoint - startPoint;
+            Ray3f ray(startPoint, direction);
+            return simulation.intersectLineWithTerrain(ray.toLine());
+        }
+
+        if (isCursorOverWorld())
+        {
+            auto ray = worldRenderService.getCamera().screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
+            return simulation.intersectLineWithTerrain(ray.toLine());
+        }
+
+        return std::nullopt;
     }
 
     void GameScene::localPlayerIssueUnitOrder(UnitId unitId, const UnitOrder& order)
