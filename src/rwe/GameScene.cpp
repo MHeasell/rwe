@@ -122,17 +122,21 @@ namespace rwe
         for (const auto& unit : (simulation.units | boost::adaptors::map_values))
         {
             auto minimapPos = worldToMinimap * unit.position;
+            minimapPos.x = std::round(minimapPos.x);
+            minimapPos.y = std::round(minimapPos.y);
             auto ownerId = unit.owner;
             auto colorIndex = getPlayer(ownerId).color;
             assert(colorIndex >= 0 && colorIndex < 10);
-            chromeUiRenderService.drawSprite(std::floor(minimapPos.x), std::floor(minimapPos.y), *minimapDots->sprites[colorIndex]);
+            chromeUiRenderService.drawSprite(minimapPos.x, minimapPos.y, *minimapDots->sprites[colorIndex]);
         }
         // highlight the minimap dot for the hovered unit
         if (hoveredUnit)
         {
             const auto& unit = getUnit(*hoveredUnit);
             auto minimapPos = worldToMinimap * unit.position;
-            chromeUiRenderService.drawSprite(std::floor(minimapPos.x), std::floor(minimapPos.y), *minimapDotHighlight);
+            minimapPos.x = std::round(minimapPos.x);
+            minimapPos.y = std::round(minimapPos.y);
+            chromeUiRenderService.drawSprite(minimapPos.x, minimapPos.y, *minimapDotHighlight);
         }
 
         // draw minimap viewport rectangle
@@ -791,8 +795,42 @@ namespace rwe
 
     std::optional<UnitId> GameScene::getUnitUnderCursor() const
     {
-        auto ray = worldRenderService.getCamera().screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
-        return getFirstCollidingUnit(ray);
+        if (isCursorOverMinimap())
+        {
+            auto mousePos = getMousePosition();
+
+            auto worldToMinimap = worldToMinimapMatrix(simulation.terrain, minimapRect);
+
+            for (const auto& [unitId, unit] : simulation.units)
+            {
+                // convert to minimap rect
+                auto minimapPos = worldToMinimap * unit.position;
+                minimapPos.x = std::round(minimapPos.x);
+                minimapPos.y = std::round(minimapPos.y);
+                auto ownerId = unit.owner;
+                auto colorIndex = getPlayer(ownerId).color;
+                assert(colorIndex >= 0 && colorIndex < 10);
+                const auto& sprite = *minimapDots->sprites[colorIndex];
+                auto bounds = sprite.bounds;
+
+                // test cursor against the rect
+                Vector2f mousePosFloat(static_cast<float>(mousePos.x) + 0.5f, static_cast<float>(mousePos.y) + 0.5f);
+                if (bounds.contains(mousePosFloat - minimapPos.xy()))
+                {
+                    return unitId;
+                }
+            }
+
+            return std::nullopt;
+        }
+
+        if (isCursorOverWorld())
+        {
+            auto ray = worldRenderService.getCamera().screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
+            return getFirstCollidingUnit(ray);
+        }
+
+        return std::nullopt;
     }
 
     Vector2f GameScene::screenToWorldClipSpace(Point p) const
