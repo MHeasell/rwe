@@ -122,8 +122,8 @@ namespace rwe
         for (const auto& unit : (simulation.units | boost::adaptors::map_values))
         {
             auto minimapPos = worldToMinimap * unit.position;
-            minimapPos.x = std::round(minimapPos.x);
-            minimapPos.y = std::round(minimapPos.y);
+            minimapPos.x = std::floor(minimapPos.x);
+            minimapPos.y = std::floor(minimapPos.y);
             auto ownerId = unit.owner;
             auto colorIndex = getPlayer(ownerId).color;
             assert(colorIndex >= 0 && colorIndex < 10);
@@ -134,8 +134,8 @@ namespace rwe
         {
             const auto& unit = getUnit(*hoveredUnit);
             auto minimapPos = worldToMinimap * unit.position;
-            minimapPos.x = std::round(minimapPos.x);
-            minimapPos.y = std::round(minimapPos.y);
+            minimapPos.x = std::floor(minimapPos.x);
+            minimapPos.y = std::floor(minimapPos.y);
             chromeUiRenderService.drawSprite(minimapPos.x, minimapPos.y, *minimapDotHighlight);
         }
 
@@ -518,7 +518,7 @@ namespace rwe
 
                 auto minimapToWorld = minimapToWorldMatrix(simulation.terrain, minimapRect);
                 auto mousePos = getMousePosition();
-                auto worldPos = minimapToWorld * Vector3f(mousePos.x, mousePos.y, 0.0f);
+                auto worldPos = minimapToWorld * Vector3f(static_cast<float>(mousePos.x) + 0.5f, static_cast<float>(mousePos.y) + 0.5, 0.0f);
                 auto newCameraPos = cameraConstraint.clamp(Vector2f(worldPos.x, worldPos.z));
                 camera.setPosition(Vector3f(newCameraPos.x, camera.getRawPosition().y, newCameraPos.y));
             }
@@ -805,8 +805,8 @@ namespace rwe
             {
                 // convert to minimap rect
                 auto minimapPos = worldToMinimap * unit.position;
-                minimapPos.x = std::round(minimapPos.x);
-                minimapPos.y = std::round(minimapPos.y);
+                minimapPos.x = std::floor(minimapPos.x);
+                minimapPos.y = std::floor(minimapPos.y);
                 auto ownerId = unit.owner;
                 auto colorIndex = getPlayer(ownerId).color;
                 assert(colorIndex >= 0 && colorIndex < 10);
