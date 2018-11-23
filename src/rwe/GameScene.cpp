@@ -719,13 +719,13 @@ namespace rwe
             Vector3f(1.0f, 0.0f, 0.0f),
             Vector3f(0.0f, 0.0f, 1.0f),
             Vector3f(0.0f, -1.0f, 0.0f)).transposed();
-        auto worldInverseProjection = Matrix4f::inverseOrthographicProjection(
+        auto worldInverseProjection = Matrix4f::cabinetProjection(0.0f, -0.5f) * Matrix4f::inverseOrthographicProjection(
             terrain.leftInWorldUnits(),
             terrain.rightCutoffInWorldUnits(),
             terrain.bottomCutoffInWorldUnits(),
             terrain.topInWorldUnits(),
             -1000.0f,
-            1000.0f) * Matrix4f::cabinetProjection(0.0f, 0.5f);
+            1000.0f);
         auto minimapProjection = Matrix4f::orthographicProjection(
             minimapRect.left(),
             minimapRect.right(),
