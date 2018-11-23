@@ -1,8 +1,8 @@
 #include "DirectoryFileSystem.h"
 
 #include <fstream>
-#include <sstream>
 #include <rwe/rwe_string.h>
+#include <sstream>
 
 namespace fs = boost::filesystem;
 

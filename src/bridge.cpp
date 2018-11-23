@@ -1,18 +1,18 @@
+#include <boost/filesystem.hpp>
+#include <boost/interprocess/streams/bufferstream.hpp>
 #include <iostream>
-#include <string>
+#include <nlohmann/json.hpp>
+#include <png++/png.hpp>
 #include <rwe/_3do.h>
 #include <rwe/fixed_point.h>
 #include <rwe/optional_io.h>
-#include <vector>
-#include <rwe/rwe_string.h>
-#include <rwe/vfs/CompositeVirtualFileSystem.h>
-#include <nlohmann/json.hpp>
-#include <rwe/tnt/TntArchive.h>
-#include <boost/interprocess/streams/bufferstream.hpp>
-#include <png++/png.hpp>
-#include <boost/filesystem.hpp>
 #include <rwe/ota.h>
+#include <rwe/rwe_string.h>
 #include <rwe/tdf.h>
+#include <rwe/tnt/TntArchive.h>
+#include <rwe/vfs/CompositeVirtualFileSystem.h>
+#include <string>
+#include <vector>
 
 namespace fs = boost::filesystem;
 
@@ -35,8 +35,7 @@ void writeError(const std::string& error)
 {
     json j = {
         {"result", "error"},
-        {"message", error}
-    };
+        {"message", error}};
     std::cout << j << std::endl;
 }
 
@@ -48,7 +47,8 @@ void writeSuccess()
     std::cout << j << std::endl;
 }
 
-void writeMapListSuccess(const std::vector<std::string>& names) {
+void writeMapListSuccess(const std::vector<std::string>& names)
+{
     json j = {
         {"result", "ok"},
         {"maps", names},
@@ -56,7 +56,8 @@ void writeMapListSuccess(const std::vector<std::string>& names) {
     std::cout << j << std::endl;
 }
 
-void writeGetMinimapSuccess(const std::string& outputFileName) {
+void writeGetMinimapSuccess(const std::string& outputFileName)
+{
     json j = {
         {"result", "ok"},
         {"path", outputFileName},
@@ -64,7 +65,8 @@ void writeGetMinimapSuccess(const std::string& outputFileName) {
     std::cout << j << std::endl;
 }
 
-void writeMapInfoSuccess(const rwe::OtaRecord& ota) {
+void writeMapInfoSuccess(const rwe::OtaRecord& ota)
+{
     json j = {
         {"result", "ok"},
         {"description", ota.missionDescription},

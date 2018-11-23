@@ -5,6 +5,7 @@
 #include <boost/asio/steady_timer.hpp> // not in asio.hpp in old boost versions
 #include <chrono>
 #include <deque>
+#include <future>
 #include <network.pb.h>
 #include <rwe/OpaqueId.h>
 #include <rwe/OpaqueUnit.h>
@@ -12,7 +13,6 @@
 #include <rwe/PlayerCommandService.h>
 #include <rwe/PlayerId.h>
 #include <rwe/rwe_time.h>
-#include <future>
 
 namespace rwe
 {

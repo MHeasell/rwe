@@ -56,9 +56,15 @@ namespace rwe
 
     struct NormalCursorMode
     {
-        struct Selecting {};
-        struct DraggingMinimap {};
-        struct Up{};
+        struct Selecting
+        {
+        };
+        struct DraggingMinimap
+        {
+        };
+        struct Up
+        {
+        };
         using State = boost::variant<Selecting, DraggingMinimap, Up>;
 
         State state{Up()};

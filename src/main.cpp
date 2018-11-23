@@ -367,7 +367,8 @@ namespace rwe
 
     std::optional<PlayerInfo> parsePlayerInfoFromArg(const std::string& playerString)
     {
-        if (playerString == "empty") {
+        if (playerString == "empty")
+        {
             return std::nullopt;
         }
 

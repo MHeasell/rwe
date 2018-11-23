@@ -1,5 +1,5 @@
 #include "GameNetworkService.h"
-#include "SceneManager.h"
+#include <rwe/SceneManager.h>
 #include <rwe/proto/serialization.h>
 #include <spdlog/spdlog.h>
 #include <thread>

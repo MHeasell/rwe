@@ -626,6 +626,7 @@ set(TEST_FILES
     test/rwe/SideData_test.cpp
     test/rwe/SimpleTdfAdapter_test.cpp
     test/rwe/TdfBlock_test.cpp
+    test/rwe/ViewportService_test.cpp
     test/rwe/camera/CabinetCamera_test.cpp
     test/rwe/cob/cob_util_test.cpp
     test/rwe/geometry/BoundingBox3f_test.cpp
@@ -644,7 +645,6 @@ set(TEST_FILES
     test/rwe/rc_gen_optional.h
     test/rwe/rwe_string_test.cpp
     test/rwe/util_test.cpp
-    test/rwe/ViewportService_test.cpp
     )
 
 add_executable(rwe_test test/main.cpp ${TEST_FILES})

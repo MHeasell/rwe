@@ -1,8 +1,8 @@
 #include "GameScene.h"
 #include <boost/range/adaptor/map.hpp>
 #include <rwe/Mesh.h>
-#include <unordered_set>
 #include <spdlog/spdlog.h>
+#include <unordered_set>
 
 namespace rwe
 {
@@ -510,7 +510,8 @@ namespace rwe
         // handle minimap dragging
         if (auto cursor = boost::get<NormalCursorMode>(&cursorMode); cursor != nullptr)
         {
-            if (boost::get<NormalCursorMode::DraggingMinimap>(&cursor->state) != nullptr) {
+            if (boost::get<NormalCursorMode::DraggingMinimap>(&cursor->state) != nullptr)
+            {
                 // ok, the cursor is dragging the minimap.
                 // work out where the cursor is on the minimap,
                 // convert that to the world, then set the camera's position to there
@@ -696,13 +697,15 @@ namespace rwe
             Vector3f(1.0f, 0.0f, 0.0f),
             Vector3f(0.0f, 0.0f, 1.0f),
             Vector3f(0.0f, -1.0f, 0.0f));
-        auto worldProjection = Matrix4f::orthographicProjection(
+        auto cabinet = Matrix4f::cabinetProjection(0.0f, 0.5f);
+        auto orthographic = Matrix4f::orthographicProjection(
             terrain.leftInWorldUnits(),
             terrain.rightCutoffInWorldUnits(),
             terrain.bottomCutoffInWorldUnits(),
             terrain.topInWorldUnits(),
             -1000.0f,
-            1000.0f) * Matrix4f::cabinetProjection(0.0f, 0.5f);
+            1000.0f);
+        auto worldProjection = orthographic * cabinet;
         auto minimapInverseProjection = Matrix4f::inverseOrthographicProjection(
             minimapRect.left(),
             minimapRect.right(),
@@ -715,17 +718,20 @@ namespace rwe
 
     Matrix4f GameScene::minimapToWorldMatrix(const MapTerrain& terrain, const Rectangle2f& minimapRect)
     {
-        auto inverseView = Matrix4f::rotationToAxes(
+        auto view = Matrix4f::rotationToAxes(
             Vector3f(1.0f, 0.0f, 0.0f),
             Vector3f(0.0f, 0.0f, 1.0f),
-            Vector3f(0.0f, -1.0f, 0.0f)).transposed();
-        auto worldInverseProjection = Matrix4f::cabinetProjection(0.0f, -0.5f) * Matrix4f::inverseOrthographicProjection(
+            Vector3f(0.0f, -1.0f, 0.0f));
+        auto inverseView = view.transposed();
+        auto inverseCabinet = Matrix4f::cabinetProjection(0.0f, -0.5f);
+        auto inverseOrthographic = Matrix4f::inverseOrthographicProjection(
             terrain.leftInWorldUnits(),
             terrain.rightCutoffInWorldUnits(),
             terrain.bottomCutoffInWorldUnits(),
             terrain.topInWorldUnits(),
             -1000.0f,
             1000.0f);
+        auto worldInverseProjection = inverseCabinet * inverseOrthographic;
         auto minimapProjection = Matrix4f::orthographicProjection(
             minimapRect.left(),
             minimapRect.right(),
