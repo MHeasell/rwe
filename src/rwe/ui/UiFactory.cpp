@@ -3,7 +3,6 @@
 
 #include <memory>
 #include <rwe/MainMenuScene.h>
-#include <rwe/config.h>
 #include <rwe/rwe_string.h>
 #include <rwe/ui/UiComponent.h>
 
@@ -174,15 +173,7 @@ namespace rwe
             entry.text.value_or(""),
             font);
 
-        if (guiName == "MAINMENU")
-        {
-            if (entry.common.name == "DebugString")
-            {
-                label->setText(ProjectNameVersion);
-                label->setAlignment(UiLabel::Alignment::Center);
-            }
-        }
-        else if (guiName == "SELMAP")
+        if (guiName == "SELMAP")
         {
             if (entry.common.name == "DESCRIPTION")
             {

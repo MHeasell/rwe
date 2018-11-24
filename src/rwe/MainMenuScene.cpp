@@ -1,6 +1,7 @@
 #include "MainMenuScene.h"
 #include <rwe/LoadingScene.h>
 #include <rwe/MainMenuModel.h>
+#include <rwe/config.h>
 #include <rwe/ota.h>
 #include <rwe/tdf.h>
 
@@ -161,6 +162,11 @@ namespace rwe
         }
 
         auto panel = uiFactory.panelFromGuiFile("MAINMENU", "FrontendX", *parsedGui);
+        if (auto debugStrLabel = panel->find<UiLabel>("DebugString"))
+        {
+            debugStrLabel->get().setText(ProjectNameVersion);
+            debugStrLabel->get().setAlignment(UiLabel::Alignment::Center);
+        }
         goToMenu(std::move(panel));
     }
 

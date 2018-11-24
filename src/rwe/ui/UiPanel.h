@@ -59,6 +59,32 @@ namespace rwe
         void setFocus(std::size_t controlIndex);
 
         void clearFocus();
+
+        template <typename T>
+        std::optional<std::reference_wrapper<const T>> find(const std::string& name) const
+        {
+            static_assert(std::is_base_of_v<UiComponent, T>);
+            auto it = std::find_if(children.begin(), children.end(), [&name](const auto& x) {
+                return dynamic_cast<const T*>(x.get()) != nullptr && x->getName() == name;
+            });
+            if (it == children.end())
+            {
+                return std::nullopt;
+            }
+            return dynamic_cast<const T&>(**it);
+        }
+
+        template <typename T>
+        std::optional<std::reference_wrapper<T>> find(const std::string& name)
+        {
+            auto component = static_cast<const UiPanel*>(this)->find<T>(name);
+            if (!component)
+            {
+                return std::nullopt;
+            }
+
+            return const_cast<T&>(component->get());
+        }
     };
 }
 
