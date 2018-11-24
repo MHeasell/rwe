@@ -112,6 +112,14 @@ namespace rwe
         context.setViewport(0, 0, sceneContext.viewportService->width(), sceneContext.viewportService->height());
         context.disableDepthBuffer();
 
+        renderMinimap(context);
+
+        sceneContext.cursor->render(chromeUiRenderService);
+        context.enableDepthBuffer();
+    }
+
+    void GameScene::renderMinimap(GraphicsContext& context)
+    {
         // draw minimap
         chromeUiRenderService.drawSpriteAbs(minimapRect, *minimap);
 
@@ -152,9 +160,6 @@ namespace rwe
                 std::round(bottomLeft.y - topRight.y),
                 Color(247, 227, 103));
         }
-
-        sceneContext.cursor->render(chromeUiRenderService);
-        context.enableDepthBuffer();
     }
 
     void GameScene::renderWorld(GraphicsContext& context)

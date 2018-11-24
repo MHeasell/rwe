@@ -359,6 +359,8 @@ namespace rwe
             actions.push_back(GameSceneTimeAction(sceneTime + interval, std::forward<T>(f)));
         }
 
+        void renderMinimap(GraphicsContext& context);
+
         void renderWorld(GraphicsContext& context);
     };
 }
