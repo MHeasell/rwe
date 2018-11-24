@@ -275,6 +275,36 @@ namespace rwe
         }
 
         auto panel = uiFactory.panelFromGuiFile("SELMAP", "DSelectmap2", *parsedGui);
+
+        if (auto descriptionLabel = panel->find<UiLabel>("DESCRIPTION"))
+        {
+            auto sub = model.candidateSelectedMap.subscribe([&l = descriptionLabel->get()](const auto& selectedMap) {
+                if (selectedMap)
+                {
+                    l.setText(selectedMap->description);
+                }
+                else
+                {
+                    l.setText("");
+                }
+            });
+            descriptionLabel->get().addSubscription(std::move(sub));
+        }
+        if (auto sizeLabel = panel->find<UiLabel>("SIZE"))
+        {
+            auto sub = model.candidateSelectedMap.subscribe([&l = sizeLabel->get()](const auto& selectedMap) {
+                if (selectedMap)
+                {
+                    l.setText(selectedMap->size);
+                }
+                else
+                {
+                    l.setText("");
+                }
+            });
+            sizeLabel->get().addSubscription(std::move(sub));
+        }
+
         openDialog(std::move(panel));
     }
 

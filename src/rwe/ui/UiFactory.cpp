@@ -173,38 +173,7 @@ namespace rwe
             entry.text.value_or(""),
             font);
 
-        if (guiName == "SELMAP")
-        {
-            if (entry.common.name == "DESCRIPTION")
-            {
-                auto sub = model->candidateSelectedMap.subscribe([l = label.get()](const auto& selectedMap) {
-                    if (selectedMap)
-                    {
-                        l->setText(selectedMap->description);
-                    }
-                    else
-                    {
-                        l->setText("");
-                    }
-                });
-                label->addSubscription(std::move(sub));
-            }
-            else if (entry.common.name == "SIZE")
-            {
-                auto sub = model->candidateSelectedMap.subscribe([l = label.get()](const auto& selectedMap) {
-                    if (selectedMap)
-                    {
-                        l->setText(selectedMap->size);
-                    }
-                    else
-                    {
-                        l->setText("");
-                    }
-                });
-                label->addSubscription(std::move(sub));
-            }
-        }
-        else if (guiName == "SKIRMISH")
+        if (guiName == "SKIRMISH")
         {
             if (entry.common.name == "MapName")
             {
