@@ -173,24 +173,6 @@ namespace rwe
             entry.text.value_or(""),
             font);
 
-        if (guiName == "SKIRMISH")
-        {
-            if (entry.common.name == "MapName")
-            {
-                auto sub = model->selectedMap.subscribe([l = label.get()](const auto& selectedMap) {
-                    if (selectedMap)
-                    {
-                        l->setText(selectedMap->name);
-                    }
-                    else
-                    {
-                        l->setText("");
-                    }
-                });
-                label->addSubscription(std::move(sub));
-            }
-        }
-
         return label;
     }
 

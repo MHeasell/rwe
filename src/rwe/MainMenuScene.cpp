@@ -256,6 +256,21 @@ namespace rwe
         }
 
         auto panel = uiFactory.panelFromGuiFile("SKIRMISH", "Skirmsetup4x", *parsedGui);
+        if (auto mapLabel = panel->find<UiLabel>("MapName"))
+        {
+            auto sub = model.selectedMap.subscribe([&l = mapLabel->get()](const auto& selectedMap) {
+                if (selectedMap)
+                {
+                    l.setText(selectedMap->name);
+                }
+                else
+                {
+                    l.setText("");
+                }
+            });
+            mapLabel->get().addSubscription(std::move(sub));
+        }
+
         goToMenu(std::move(panel));
     }
 
