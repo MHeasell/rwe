@@ -186,7 +186,7 @@ namespace rwe
 
         if (linesCount >= itemCount)
         {
-            return 100.0f;
+            return 1.0f;
         }
 
         return static_cast<float>(linesCount) / static_cast<float>(itemCount);
