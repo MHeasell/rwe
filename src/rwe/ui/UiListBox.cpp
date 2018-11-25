@@ -31,6 +31,7 @@ namespace rwe
     void UiListBox::appendItem(std::string item)
     {
         items.push_back(std::move(item));
+        itemsChangedSubject.next(true);
     }
 
     void UiListBox::mouseDown(MouseButtonEvent event)
@@ -72,6 +73,16 @@ namespace rwe
     const Observable<std::optional<unsigned int>>& UiListBox::selectedIndex() const
     {
         return selectedIndexSubject;
+    }
+
+    Observable<bool>& UiListBox::itemsChanged()
+    {
+        return itemsChangedSubject;
+    }
+
+    const Observable<bool>& UiListBox::itemsChanged() const
+    {
+        return itemsChangedSubject;
     }
 
     const std::vector<std::string>& UiListBox::getItems()

@@ -358,6 +358,10 @@ namespace rwe
                     ScrollPositionMessage m{listBox->getViewportPercent(), listBox->getScrollPercent()};
                     c->scrollMessage(guiName, listBox->getGroup(), listBox->getName(), m);
                 });
+                listBox->itemsChanged().subscribe([listBox, c = controller, guiName](const auto& /*nothing*/) {
+                    ScrollPositionMessage m{listBox->getViewportPercent(), listBox->getScrollPercent()};
+                    c->scrollMessage(guiName, listBox->getGroup(), listBox->getName(), m);
+                });
             }
 
             auto scrollBar = dynamic_cast<UiScrollBar*>(c.get());

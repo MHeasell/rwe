@@ -43,6 +43,7 @@ namespace rwe
 
     private:
         std::vector<std::string> items;
+        Subject<bool> itemsChangedSubject;
         std::shared_ptr<SpriteSeries> font;
         BehaviorSubject<std::optional<unsigned int>> selectedIndexSubject;
         BehaviorSubject<unsigned int> scrollPositionSubject{0};
@@ -66,6 +67,10 @@ namespace rwe
         Observable<std::optional<unsigned int>>& selectedIndex();
 
         const Observable<std::optional<unsigned int>>& selectedIndex() const;
+
+        Observable<bool>& itemsChanged();
+
+        const Observable<bool>& itemsChanged() const;
 
         Observable<unsigned int>& scrollPosition();
 
