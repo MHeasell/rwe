@@ -246,38 +246,6 @@ namespace rwe
             entry.common.height,
             font);
 
-        if (entry.common.name == "MAPNAMES")
-        {
-            auto mapNames = getMapNames();
-            for (const auto& e : mapNames)
-            {
-                listBox->appendItem(e);
-            }
-
-            auto sub = model->selectedMap.subscribe([l = listBox.get()](const auto& selectedMap) {
-                if (selectedMap)
-                {
-                    l->setSelectedItem(selectedMap->name);
-                }
-                else
-                {
-                    l->clearSelectedItem();
-                }
-            });
-            listBox->addSubscription(std::move(sub));
-
-            listBox->selectedIndex().subscribe([l = listBox.get(), c = controller](const auto& selectedMap) {
-                if (selectedMap)
-                {
-                    c->setCandidateSelectedMap(l->getItems()[*selectedMap]);
-                }
-                else
-                {
-                    c->clearCandidateSelectedMap();
-                }
-            });
-        }
-
         return listBox;
     }
 

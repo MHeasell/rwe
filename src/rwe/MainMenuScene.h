@@ -127,6 +127,8 @@ namespace rwe
         UiPanel& topPanel();
 
         Point toScaledCoordinates(int x, int y) const;
+
+        std::vector<std::string> getMapNames();
     };
 }
 

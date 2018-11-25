@@ -320,6 +320,38 @@ namespace rwe
             sizeLabel->get().addSubscription(std::move(sub));
         }
 
+        if (auto listBox = panel->find<UiListBox>("MAPNAMES"))
+        {
+            auto mapNames = getMapNames();
+            for (const auto& e : mapNames)
+            {
+                listBox->get().appendItem(e);
+            }
+
+            auto sub = model.selectedMap.subscribe([&l = listBox->get()](const auto& selectedMap) {
+                if (selectedMap)
+                {
+                    l.setSelectedItem(selectedMap->name);
+                }
+                else
+                {
+                    l.clearSelectedItem();
+                }
+            });
+            listBox->get().addSubscription(std::move(sub));
+
+            listBox->get().selectedIndex().subscribe([&l = listBox->get(), &c = *this](const auto& selectedMap) {
+                if (selectedMap)
+                {
+                    c.setCandidateSelectedMap(l.getItems()[*selectedMap]);
+                }
+                else
+                {
+                    c.clearCandidateSelectedMap();
+                }
+            });
+        }
+
         openDialog(std::move(panel));
     }
 
@@ -616,5 +648,18 @@ namespace rwe
     {
         auto clip = scaledUiRenderService.getCamera().screenToWorldRay(sceneContext.viewportService->toClipSpace(x, y));
         return Point(static_cast<int>(clip.origin.x), static_cast<int>(clip.origin.y));
+    }
+
+    std::vector<std::string> MainMenuScene::getMapNames()
+    {
+        auto mapNames = sceneContext.vfs->getFileNames("maps", ".ota");
+
+        for (auto& e : mapNames)
+        {
+            // chop off the extension
+            e.resize(e.size() - 4);
+        }
+
+        return mapNames;
     }
 }
