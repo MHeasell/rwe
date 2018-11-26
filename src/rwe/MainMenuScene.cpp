@@ -2,10 +2,10 @@
 #include <rwe/LoadingScene.h>
 #include <rwe/MainMenuModel.h>
 #include <rwe/config.h>
+#include <rwe/gui.h>
 #include <rwe/ota.h>
 #include <rwe/tdf.h>
-
-#include <rwe/gui.h>
+#include <rwe/ui/UiSurface.h>
 
 namespace rwe
 {
@@ -350,6 +350,21 @@ namespace rwe
                     c.clearCandidateSelectedMap();
                 }
             });
+        }
+
+        if (auto surface = panel->find<UiSurface>("MAPPIC"))
+        {
+            auto sub = model.candidateSelectedMap.subscribe([&s = surface->get()](const auto& info) {
+                if (info)
+                {
+                    s.setBackground(info->minimap);
+                }
+                else
+                {
+                    s.clearBackground();
+                }
+            });
+            surface->get().addSubscription(std::move(sub));
         }
 
         openDialog(std::move(panel));

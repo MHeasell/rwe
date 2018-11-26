@@ -391,21 +391,6 @@ namespace rwe
             entry.common.width,
             entry.common.height);
 
-        if (guiName == "SELMAP")
-        {
-            auto sub = model->candidateSelectedMap.subscribe([s = surface.get()](const auto& info) {
-                if (info)
-                {
-                    s->setBackground(info->minimap);
-                }
-                else
-                {
-                    s->clearBackground();
-                }
-            });
-            surface->addSubscription(std::move(sub));
-        }
-
         return surface;
     }
 
