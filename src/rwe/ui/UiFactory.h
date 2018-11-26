@@ -61,8 +61,6 @@ namespace rwe
         void attachPlayerSelectionComponents(const std::string& guiName, UiPanel& panel);
 
         void attachDetailedPlayerSelectionComponents(const std::string& guiName, UiPanel& panel, int i);
-
-        std::vector<std::string> getMapNames();
     };
 }
 

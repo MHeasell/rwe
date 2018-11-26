@@ -713,17 +713,4 @@ namespace rwe
             panel.appendChild(std::move(b));
         }
     }
-
-    std::vector<std::string> UiFactory::getMapNames()
-    {
-        auto mapNames = vfs->getFileNames("maps", ".ota");
-
-        for (auto& e : mapNames)
-        {
-            // chop off the extension
-            e.resize(e.size() - 4);
-        }
-
-        return mapNames;
-    }
 }
