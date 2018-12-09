@@ -25,6 +25,18 @@ namespace rwe
         : UiComponent(posX, posY, sizeX, sizeY),
           sprites(std::move(sprites))
     {
+        scrollChanged().subscribe([this](float scrollPercent) {
+            ScrollPositionMessage m{getScrollBarPercent(), scrollPercent};
+            messagesSubject.next(m);
+        });
+
+        scrollUp().subscribe([this](const auto& /*msg*/) {
+            messagesSubject.next(ScrollUpMessage());
+        });
+
+        scrollDown().subscribe([this](const auto& /*msg*/) {
+            messagesSubject.next(ScrollDownMessage());
+        });
     }
 
     void UiScrollBar::drawScrollBackground(UiRenderService& graphics, float x, float y, float height) const

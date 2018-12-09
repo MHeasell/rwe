@@ -38,6 +38,12 @@ namespace rwe
             {
                 listBox->scrollDown();
             }
+
+            template <typename T>
+            void operator()(const T& /*msg*/) const
+            {
+                // do nothing
+            }
         };
 
 

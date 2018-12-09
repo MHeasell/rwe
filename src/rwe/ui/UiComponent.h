@@ -4,6 +4,8 @@
 #include <memory>
 #include <rwe/UiRenderService.h>
 #include <rwe/events.h>
+#include <rwe/observable/Observable.h>
+#include <rwe/observable/Subject.h>
 #include <rwe/observable/Subscription.h>
 #include <vector>
 
@@ -20,6 +22,8 @@ namespace rwe
 
         std::string name;
         unsigned int group{0};
+
+        Subject<const ControlMessage&> messagesSubject;
 
     private:
         int lastMouseX{0};
@@ -90,6 +94,9 @@ namespace rwe
 
         unsigned int getGroup() const;
         void setGroup(unsigned int newGroup);
+
+        Observable<const ControlMessage&>& messages();
+        const Observable<const ControlMessage&>& messages() const;
     };
 }
 

@@ -49,6 +49,7 @@ namespace rwe
             panelEntry.common.width,
             panelEntry.common.height,
             texture);
+        panel->setName(name);
 
         // load panel components
         for (std::size_t i = 1; i < entries.size(); ++i)
@@ -68,18 +69,11 @@ namespace rwe
             attachPlayerSelectionComponents(name, *panel);
         }
 
-        attachDefaultEventHandlers(name, *panel);
-
         // set the default focused control
         if (panelEntry.defaultFocus)
         {
             const auto& focusName = *panelEntry.defaultFocus;
-            const auto& children = panel->getChildren();
-            auto it = std::find_if(children.begin(), children.end(), [&focusName](const auto& c) { return c->getName() == focusName; });
-            if (it != children.end())
-            {
-                panel->setFocus(it - children.begin());
-            }
+            panel->setFocusByName(focusName);
         }
 
         return panel;
@@ -339,48 +333,6 @@ namespace rwe
         }
 
         return audioService->loadSound(*soundName);
-    }
-
-    void UiFactory::attachDefaultEventHandlers(const std::string& guiName, UiPanel& panel)
-    {
-        auto messageSub = model->groupMessages.subscribe([&panel](const auto& msg) {
-            panel.uiMessage(msg);
-        });
-        panel.addSubscription(std::move(messageSub));
-
-
-        for (auto& c : panel.getChildren())
-        {
-            auto listBox = dynamic_cast<UiListBox*>(c.get());
-            if (listBox)
-            {
-                listBox->scrollPosition().subscribe([listBox, c = controller, guiName](const auto& /*scrollPos*/) {
-                    ScrollPositionMessage m{listBox->getViewportPercent(), listBox->getScrollPercent()};
-                    c->scrollMessage(guiName, listBox->getGroup(), listBox->getName(), m);
-                });
-                listBox->itemsChanged().subscribe([listBox, c = controller, guiName](const auto& /*nothing*/) {
-                    ScrollPositionMessage m{listBox->getViewportPercent(), listBox->getScrollPercent()};
-                    c->scrollMessage(guiName, listBox->getGroup(), listBox->getName(), m);
-                });
-            }
-
-            auto scrollBar = dynamic_cast<UiScrollBar*>(c.get());
-            if (scrollBar)
-            {
-                scrollBar->scrollChanged().subscribe([scrollBar, c = controller, guiName](float scrollPercent) {
-                    ScrollPositionMessage m{scrollBar->getScrollBarPercent(), scrollPercent};
-                    c->scrollMessage(guiName, scrollBar->getGroup(), scrollBar->getName(), m);
-                });
-
-                scrollBar->scrollUp().subscribe([scrollBar, c = controller, guiName](const auto& /*msg*/) {
-                    c->scrollUpMessage(guiName, scrollBar->getGroup(), scrollBar->getName());
-                });
-
-                scrollBar->scrollDown().subscribe([scrollBar, c = controller, guiName](const auto& /*msg*/) {
-                    c->scrollDownMessage(guiName, scrollBar->getGroup(), scrollBar->getName());
-                });
-            }
-        }
     }
 
     std::unique_ptr<UiComponent> UiFactory::surfaceFromGuiEntry(const std::string& guiName, const GuiEntry& entry)

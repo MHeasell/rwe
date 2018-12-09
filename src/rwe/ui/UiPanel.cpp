@@ -3,7 +3,6 @@
 
 namespace rwe
 {
-
     UiPanel::UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<Sprite> background)
         : UiComponent(posX, posY, sizeX, sizeY),
           background(std::move(background))
@@ -128,7 +127,12 @@ namespace rwe
 
     void UiPanel::appendChild(std::unique_ptr<UiComponent>&& c)
     {
-        children.push_back(std::move(c));
+        auto& component = children.emplace_back(std::move(c));
+        component->messages().subscribe([this, &cc = *component](const auto& message) {
+            GroupMessage groupMessage(this->name, cc.getGroup(), cc.getName(), message);
+            this->uiMessage(groupMessage);
+            this->groupMessagesSubject.next(groupMessage);
+        });
     }
 
     void UiPanel::setFocus(std::size_t controlIndex)
@@ -202,5 +206,25 @@ namespace rwe
                 children.erase(--(it.base()));
             }
         }
+    }
+
+    void UiPanel::setFocusByName(const std::string& name)
+    {
+        const auto& children = getChildren();
+        auto it = std::find_if(children.begin(), children.end(), [&name](const auto& c) { return c->getName() == name; });
+        if (it != children.end())
+        {
+            setFocus(it - children.begin());
+        }
+    }
+
+    Observable<GroupMessage>& UiPanel::groupMessages()
+    {
+        return groupMessagesSubject;
+    }
+
+    const Observable<GroupMessage>& UiPanel::groupMessages() const
+    {
+        return groupMessagesSubject;
     }
 }

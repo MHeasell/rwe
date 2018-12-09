@@ -55,4 +55,14 @@ namespace rwe
     {
         group = newGroup;
     }
+
+    Observable<const ControlMessage&>& UiComponent::messages()
+    {
+        return messagesSubject;
+    }
+
+    const Observable<const ControlMessage&>& UiComponent::messages() const
+    {
+        return messagesSubject;
+    }
 }

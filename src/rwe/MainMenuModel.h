@@ -56,8 +56,6 @@ namespace rwe
         };
 
     public:
-        Subject<GroupMessage> groupMessages;
-
         Subject<int> teamChanges;
 
         BehaviorSubject<std::optional<SelectedMapInfo>> selectedMap;

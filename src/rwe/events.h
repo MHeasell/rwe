@@ -58,12 +58,20 @@ namespace rwe
     {
     };
 
+    struct ActivateMessage
+    {
+    };
+
+    using ControlMessage = boost::variant<ScrollPositionMessage, ScrollUpMessage, ScrollDownMessage, ActivateMessage>;
+
     struct GroupMessage
     {
         std::string topic;
         unsigned int group;
         std::string controlName;
-        boost::variant<ScrollPositionMessage, ScrollUpMessage, ScrollDownMessage> message;
+        ControlMessage message;
+
+        GroupMessage(const std::string& topic, unsigned int group, const std::string& controlName, const ControlMessage& message);
 
         GroupMessage(const std::string& topic, unsigned int group, const std::string& controlName, const ScrollPositionMessage& message);
 

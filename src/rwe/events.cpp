@@ -22,6 +22,15 @@ namespace rwe
         const std::string& topic,
         unsigned int group,
         const std::string& controlName,
+        const ControlMessage& message)
+        : topic(topic), group(group), controlName(controlName), message(message)
+    {
+    }
+
+    GroupMessage::GroupMessage(
+        const std::string& topic,
+        unsigned int group,
+        const std::string& controlName,
         const ScrollPositionMessage& message)
         : topic(topic), group(group), controlName(controlName), message(message)
     {

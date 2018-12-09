@@ -113,7 +113,13 @@ namespace rwe
 
     void MainMenuScene::goToMenu(std::unique_ptr<UiPanel>&& panel)
     {
-        panelStack.push_back(std::move(panel));
+        auto& p = panelStack.emplace_back(std::move(panel));
+        p->groupMessages().subscribe([this](const auto& msg) {
+            if (auto activate = boost::get<ActivateMessage>(&msg.message); activate != nullptr)
+            {
+                message(msg.topic, msg.controlName);
+            }
+        });
     }
 
     void MainMenuScene::openDialog(std::unique_ptr<UiPanel>&& panel)
@@ -409,28 +415,6 @@ namespace rwe
     void MainMenuScene::clearCandidateSelectedMap()
     {
         model.candidateSelectedMap.next(std::nullopt);
-    }
-
-    void MainMenuScene::scrollUpMessage(const std::string& topic, unsigned int group, const std::string& name)
-    {
-        ScrollUpMessage m;
-        model.groupMessages.next(GroupMessage(topic, group, name, m));
-    }
-
-    void MainMenuScene::scrollDownMessage(const std::string& topic, unsigned int group, const std::string& name)
-    {
-        ScrollDownMessage m;
-        model.groupMessages.next(GroupMessage(topic, group, name, m));
-    }
-
-    void MainMenuScene::scrollMessage(
-        const std::string& topic,
-        unsigned int group,
-        const std::string& name,
-        const ScrollPositionMessage& message)
-    {
-        GroupMessage gm(topic, group, name, message);
-        model.groupMessages.next(gm);
     }
 
     void MainMenuScene::incrementPlayerMetal(int playerIndex)

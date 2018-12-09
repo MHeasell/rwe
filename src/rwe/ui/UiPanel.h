@@ -5,6 +5,7 @@
 #include <optional>
 #include <rwe/GraphicsContext.h>
 #include <rwe/TextureHandle.h>
+#include <rwe/observable/Subject.h>
 #include <rwe/ui/UiComponent.h>
 
 namespace rwe
@@ -15,6 +16,7 @@ namespace rwe
         std::shared_ptr<Sprite> background;
         std::vector<std::unique_ptr<UiComponent>> children;
         std::optional<UiComponent*> focusedChild{std::nullopt};
+        Subject<GroupMessage> groupMessagesSubject;
 
     public:
         UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<Sprite> background);
@@ -59,6 +61,12 @@ namespace rwe
         void setFocus(std::size_t controlIndex);
 
         void clearFocus();
+
+        void setFocusByName(const std::string& name);
+
+        Observable<GroupMessage>& groupMessages();
+
+        const Observable<GroupMessage>& groupMessages() const;
 
         template <typename T>
         std::optional<std::reference_wrapper<const T>> find(const std::string& name) const
