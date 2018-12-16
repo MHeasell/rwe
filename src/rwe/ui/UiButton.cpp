@@ -41,7 +41,7 @@ namespace rwe
                     s = ButtonClickEvent::Source::MiddleMouseButton;
                     break;
             }
-            clickSubject.next({s});
+            activateButton({s});
         }
 
         armed = false;
@@ -76,7 +76,7 @@ namespace rwe
     {
         if (event.keyCode == SDLK_RETURN || event.keyCode == SDLK_SPACE)
         {
-            clickSubject.next({ButtonClickEvent::Source::Keyboard});
+            activateButton({ButtonClickEvent::Source::Keyboard});
         }
     }
 
@@ -93,5 +93,11 @@ namespace rwe
     void UiButton::setLabel(std::string&& newLabel)
     {
         label = std::move(newLabel);
+    }
+
+    void UiButton::activateButton(const ButtonClickEvent& event)
+    {
+        clickSubject.next(event);
+        messagesSubject.next(ActivateMessage());
     }
 }

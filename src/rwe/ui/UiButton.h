@@ -52,6 +52,9 @@ namespace rwe
         void setLabel(const std::string& newLabel);
 
         void setLabel(std::string&& newLabel);
+
+    private:
+        void activateButton(const ButtonClickEvent& event);
     };
 }
 

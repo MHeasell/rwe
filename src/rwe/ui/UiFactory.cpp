@@ -148,10 +148,6 @@ namespace rwe
             });
         }
 
-        button->onClick().subscribe([c = controller, guiName, name = entry.common.name](const auto& /*param*/) {
-            c->message(guiName, name);
-        });
-
         return button;
     }
 
@@ -201,10 +197,6 @@ namespace rwe
                 as->playSound(s);
             });
         }
-
-        button->onClick().subscribe([c = controller, guiName, name = entry.common.name](const auto& /*param*/) {
-            c->message(guiName, name);
-        });
 
         return button;
     }
