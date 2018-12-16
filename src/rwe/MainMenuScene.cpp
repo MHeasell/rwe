@@ -124,7 +124,13 @@ namespace rwe
 
     void MainMenuScene::openDialog(std::unique_ptr<UiPanel>&& panel)
     {
-        dialogStack.push_back(std::move(panel));
+        auto& p = dialogStack.emplace_back(std::move(panel));
+        p->groupMessages().subscribe([this](const auto& msg) {
+            if (auto activate = boost::get<ActivateMessage>(&msg.message); activate != nullptr)
+            {
+                message(msg.topic, msg.controlName, *activate);
+            }
+        });
     }
 
     UiPanel& MainMenuScene::topPanel()
