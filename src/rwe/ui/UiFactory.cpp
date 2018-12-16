@@ -361,16 +361,13 @@ namespace rwe
                 }
                 auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
                 auto b = std::make_unique<UiButton>(45, rowStart, width, height, *graphics, "Player", font);
+                b->setName("PLAYER" + std::to_string(i));
                 if (sound)
                 {
                     b->onClick().subscribe([as = audioService, s = *sound](const auto& /*param*/) {
                         as->playSound(s);
                     });
                 }
-
-                b->onClick().subscribe([c = controller, i](const auto& /*param*/) {
-                    c->togglePlayer(i);
-                });
 
                 auto sub = model->players[i].type.subscribe([b = b.get(), &panel, this, guiName, i](MainMenuModel::PlayerSettings::Type type) {
                     switch (type)

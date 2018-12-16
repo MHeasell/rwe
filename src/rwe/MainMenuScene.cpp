@@ -216,6 +216,46 @@ namespace rwe
             {
                 startGame();
             }
+            else if (message == "PLAYER0")
+            {
+                togglePlayer(0);
+            }
+            else if (message == "PLAYER1")
+            {
+                togglePlayer(1);
+            }
+            else if (message == "PLAYER2")
+            {
+                togglePlayer(2);
+            }
+            else if (message == "PLAYER3")
+            {
+                togglePlayer(3);
+            }
+            else if (message == "PLAYER4")
+            {
+                togglePlayer(4);
+            }
+            else if (message == "PLAYER5")
+            {
+                togglePlayer(5);
+            }
+            else if (message == "PLAYER6")
+            {
+                togglePlayer(6);
+            }
+            else if (message == "PLAYER7")
+            {
+                togglePlayer(7);
+            }
+            else if (message == "PLAYER8")
+            {
+                togglePlayer(8);
+            }
+            else if (message == "PLAYER9")
+            {
+                togglePlayer(9);
+            }
         }
         else if (topic == "SELMAP")
         {
