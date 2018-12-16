@@ -34,7 +34,7 @@ namespace rwe
     void utf8TrimRight(std::string& str);
     void utf8Trim(std::string& str);
 
-    bool startsWith(const std::string& str, const std::string& end);
+    bool startsWith(const std::string& str, const std::string& prefix);
     bool endsWith(const std::string& str, const std::string& end);
 
     std::string latin1ToUtf8(const std::string& str);
