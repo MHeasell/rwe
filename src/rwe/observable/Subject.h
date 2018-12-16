@@ -51,17 +51,6 @@ namespace rwe
 
         std::vector<Subscriber> subscribers;
 
-        void unsubscribe(SubscriberId id)
-        {
-            auto it = std::find_if(subscribers.begin(), subscribers.end(), [id](const Subscriber& s) { return s.id == id; });
-            if (it == subscribers.end())
-            {
-                return;
-            }
-
-            subscribers.erase(it);
-        }
-
     public:
         void next(const T& newValue)
         {
@@ -85,6 +74,18 @@ namespace rwe
             subscribers.push_back({id, std::move(onNext)});
 
             return std::unique_ptr<Subscription>(new ConcreteSubscription(this, id));
+        }
+
+    private:
+        void unsubscribe(SubscriberId id)
+        {
+            auto it = std::find_if(subscribers.begin(), subscribers.end(), [id](const Subscriber& s) { return s.id == id; });
+            if (it == subscribers.end())
+            {
+                return;
+            }
+
+            subscribers.erase(it);
         }
     };
 }
