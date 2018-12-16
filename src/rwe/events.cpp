@@ -47,4 +47,15 @@ namespace rwe
         : topic(topic), group(group), controlName(controlName), message(message)
     {
     }
+
+    ActivateMessage::Type sourceToType(const ButtonClickEvent::Source& s)
+    {
+        switch (s)
+        {
+            case ButtonClickEvent::Source::RightMouseButton:
+                return ActivateMessage::Type::Secondary;
+            default:
+                return ActivateMessage::Type::Primary;
+        }
+    }
 }

@@ -98,6 +98,6 @@ namespace rwe
     void UiButton::activateButton(const ButtonClickEvent& event)
     {
         clickSubject.next(event);
-        messagesSubject.next(ActivateMessage());
+        messagesSubject.next(ActivateMessage{sourceToType(event.source)});
     }
 }

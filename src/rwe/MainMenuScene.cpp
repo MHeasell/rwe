@@ -117,7 +117,7 @@ namespace rwe
         p->groupMessages().subscribe([this](const auto& msg) {
             if (auto activate = boost::get<ActivateMessage>(&msg.message); activate != nullptr)
             {
-                message(msg.topic, msg.controlName);
+                message(msg.topic, msg.controlName, *activate);
             }
         });
     }
@@ -181,7 +181,21 @@ namespace rwe
         sceneContext.sceneManager->requestExit();
     }
 
-    void MainMenuScene::message(const std::string& topic, const std::string& message)
+    std::optional<int> matchesPlayer(const std::string& format, const std::string& input)
+    {
+        // FIXME: this should probably be a regex match instead of this crude brute-force search
+        for (int i = 0; i < 10; ++i)
+        {
+            if (input == fmt::format(format, i))
+            {
+                return i;
+            }
+        }
+
+        return std::nullopt;
+    }
+
+    void MainMenuScene::message(const std::string& topic, const std::string& message, const ActivateMessage& details)
     {
         if (message == "PrevMenu" || message == "PREVMENU")
         {
@@ -216,45 +230,59 @@ namespace rwe
             {
                 startGame();
             }
-            else if (message == "PLAYER0")
+            else if (auto num = matchesPlayer("PLAYER{0}", message))
             {
-                togglePlayer(0);
+                togglePlayer(*num);
             }
-            else if (message == "PLAYER1")
+            else if (auto num = matchesPlayer("PLAYER{0}_side", message))
             {
-                togglePlayer(1);
+                togglePlayerSide(*num);
             }
-            else if (message == "PLAYER2")
+            else if (auto num = matchesPlayer("PLAYER{0}_color", message))
             {
-                togglePlayer(2);
+                switch (details.type)
+                {
+                    case ActivateMessage::Type::Primary:
+                        cyclePlayerColor(*num);
+                        break;
+                    case ActivateMessage::Type::Secondary:
+                        reverseCyclePlayerColor(*num);
+                        break;
+                    default:
+                        throw std::logic_error("Invalid activation type");
+                }
             }
-            else if (message == "PLAYER3")
+            else if (auto num = matchesPlayer("PLAYER{0}_team", message))
             {
-                togglePlayer(3);
+                cyclePlayerTeam(*num);
             }
-            else if (message == "PLAYER4")
+            else if (auto num = matchesPlayer("PLAYER{0}_metal", message))
             {
-                togglePlayer(4);
+                switch (details.type)
+                {
+                    case ActivateMessage::Type::Primary:
+                        incrementPlayerMetal(*num);
+                        break;
+                    case ActivateMessage::Type::Secondary:
+                        decrementPlayerMetal(*num);
+                        break;
+                    default:
+                        throw std::logic_error("Invalid activation type");
+                }
             }
-            else if (message == "PLAYER5")
+            else if (auto num = matchesPlayer("PLAYER{0}_energy", message))
             {
-                togglePlayer(5);
-            }
-            else if (message == "PLAYER6")
-            {
-                togglePlayer(6);
-            }
-            else if (message == "PLAYER7")
-            {
-                togglePlayer(7);
-            }
-            else if (message == "PLAYER8")
-            {
-                togglePlayer(8);
-            }
-            else if (message == "PLAYER9")
-            {
-                togglePlayer(9);
+                switch (details.type)
+                {
+                    case ActivateMessage::Type::Primary:
+                        incrementPlayerEnergy(*num);
+                        break;
+                    case ActivateMessage::Type::Secondary:
+                        decrementPlayerEnergy(*num);
+                        break;
+                    default:
+                        throw std::logic_error("Invalid activation type");
+                }
             }
         }
         else if (topic == "SELMAP")

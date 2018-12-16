@@ -112,7 +112,7 @@ namespace rwe
         }
 
         clickSubject.next(event);
-        messagesSubject.next(ActivateMessage());
+        messagesSubject.next(ActivateMessage{sourceToType(event.source)});
     }
 
     void UiStagedButton::setStage(unsigned int newStage)

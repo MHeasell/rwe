@@ -60,6 +60,13 @@ namespace rwe
 
     struct ActivateMessage
     {
+        enum class Type
+        {
+            Primary,
+            Secondary
+        };
+
+        Type type{Type::Primary};
     };
 
     using ControlMessage = boost::variant<ScrollPositionMessage, ScrollUpMessage, ScrollDownMessage, ActivateMessage>;
@@ -92,6 +99,8 @@ namespace rwe
         };
         Source source;
     };
+
+    ActivateMessage::Type sourceToType(const ButtonClickEvent::Source& s);
 }
 
 #endif

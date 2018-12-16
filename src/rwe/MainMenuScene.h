@@ -85,7 +85,7 @@ namespace rwe
 
         void exit();
 
-        void message(const std::string& topic, const std::string& message);
+        void message(const std::string& topic, const std::string& message, const ActivateMessage& details);
 
         void setCandidateSelectedMap(const std::string& mapName);
 

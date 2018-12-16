@@ -425,10 +425,6 @@ namespace rwe
                 });
             }
 
-            b->onClick().subscribe([c = controller, i](const auto& /*param*/) {
-                c->togglePlayerSide(i);
-            });
-
             auto sub = model->players[i].side.subscribe([b = b.get()](MainMenuModel::PlayerSettings::Side side) {
                 switch (side)
                 {
@@ -470,18 +466,6 @@ namespace rwe
                 });
             }
 
-            b->onClick().subscribe([c = controller, i](const auto& event) {
-                switch (event.source)
-                {
-                    case ButtonClickEvent::Source::RightMouseButton:
-                        c->reverseCyclePlayerColor(i);
-                        break;
-                    default:
-                        c->cyclePlayerColor(i);
-                        break;
-                }
-            });
-
             auto sub = model->players[i].colorIndex.subscribe([b = b.get()](unsigned int index) {
                 b->setStage(index);
             });
@@ -518,10 +502,6 @@ namespace rwe
                     as->playSound(s);
                 });
             }
-
-            b->onClick().subscribe([c = controller, i](const auto& /*param*/) {
-                c->cyclePlayerTeam(i);
-            });
 
             auto sub = model->players[i].teamIndex.subscribe([b = b.get(), m = model](auto index) {
                 if (!index)
@@ -579,18 +559,6 @@ namespace rwe
                 });
             }
 
-            b->onClick().subscribe([b = b.get(), c = controller, i](const auto& event) {
-                switch (event.source)
-                {
-                    case ButtonClickEvent::Source::RightMouseButton:
-                        c->decrementPlayerMetal(i);
-                        break;
-                    default:
-                        c->incrementPlayerMetal(i);
-                        break;
-                }
-            });
-
             auto sub = model->players[i].metal.subscribe([b = b.get()](int newMetal) {
                 b->setLabel(std::to_string(newMetal));
             });
@@ -618,18 +586,6 @@ namespace rwe
                     as->playSound(s);
                 });
             }
-
-            b->onClick().subscribe([b = b.get(), c = controller, i](const auto& event) {
-                switch (event.source)
-                {
-                    case ButtonClickEvent::Source::RightMouseButton:
-                        c->decrementPlayerEnergy(i);
-                        break;
-                    default:
-                        c->incrementPlayerEnergy(i);
-                        break;
-                }
-            });
 
             auto sub = model->players[i].energy.subscribe([b = b.get()](int newEnergy) {
                 b->setLabel(std::to_string(newEnergy));
