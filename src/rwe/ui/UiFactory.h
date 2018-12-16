@@ -16,8 +16,6 @@
 
 namespace rwe
 {
-    class MainMenuScene;
-
     class UiFactory
     {
     private:
@@ -26,10 +24,9 @@ namespace rwe
         TdfBlock* soundLookup;
         AbstractVirtualFileSystem* vfs;
         MainMenuModel* model;
-        MainMenuScene* controller;
 
     public:
-        UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs, MainMenuModel* model, MainMenuScene* controller);
+        UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs, MainMenuModel* model);
 
         std::unique_ptr<UiPanel> panelFromGuiFile(const std::string& name, const std::string& background, const std::vector<GuiEntry>& entries);
 

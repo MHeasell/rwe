@@ -8,8 +8,8 @@
 
 namespace rwe
 {
-    UiFactory::UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs, MainMenuModel* model, MainMenuScene* controller)
-        : textureService(textureService), audioService(audioService), soundLookup(soundLookup), vfs(vfs), model(model), controller(controller)
+    UiFactory::UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs, MainMenuModel* model)
+        : textureService(textureService), audioService(audioService), soundLookup(soundLookup), vfs(vfs), model(model)
     {
     }
 
