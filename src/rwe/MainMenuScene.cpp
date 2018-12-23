@@ -351,6 +351,8 @@ namespace rwe
             mapLabel->get().addSubscription(std::move(sub));
         }
 
+        attachPlayerSelectionComponents("SKIRMISH", *panel);
+
         goToMenu(std::move(panel));
     }
 
@@ -735,4 +737,186 @@ namespace rwe
 
         return mapNames;
     }
+
+    void MainMenuScene::attachPlayerSelectionComponents(const std::string& guiName, UiPanel& panel)
+    {
+        unsigned int tableStart = 78;
+        unsigned int rowHeight = 20;
+
+        for (int i = 0; i < 10; ++i)
+        {
+            unsigned int rowStart = tableStart + (i * rowHeight);
+
+            {
+                // player name button
+                unsigned int width = 112;
+                unsigned int height = 20;
+
+                auto b = uiFactory.createButton(45, rowStart, width, height, guiName, "skirmname", "Player");
+                b->setName("PLAYER" + std::to_string(i));
+
+                auto sub = model.players[i].type.subscribe([b = b.get(), &panel, this, guiName, i](MainMenuModel::PlayerSettings::Type type) {
+                    switch (type)
+                    {
+                        case MainMenuModel::PlayerSettings::Type::Open:
+                            panel.removeChildrenWithPrefix("PLAYER" + std::to_string(i) + "_");
+                            b->setLabel("Open");
+                            break;
+                        case MainMenuModel::PlayerSettings::Type::Human:
+                            b->setLabel("Player");
+                            panel.removeChildrenWithPrefix("PLAYER" + std::to_string(i) + "_");
+                            attachDetailedPlayerSelectionComponents(guiName, panel, i);
+                            break;
+                        case MainMenuModel::PlayerSettings::Type::Computer:
+                            b->setLabel("Computer");
+                            panel.removeChildrenWithPrefix("PLAYER" + std::to_string(i) + "_");
+                            attachDetailedPlayerSelectionComponents(guiName, panel, i);
+                            break;
+                    }
+                });
+                b->addSubscription(std::move(sub));
+
+                panel.appendChild(std::move(b));
+            }
+        }
+    }
+
+    void MainMenuScene::attachDetailedPlayerSelectionComponents(const std::string& guiName, UiPanel& panel, int i)
+    {
+        unsigned int tableStart = 78;
+        unsigned int rowHeight = 20;
+
+        unsigned int rowStart = tableStart + (i * rowHeight);
+
+        {
+            // side button
+            unsigned int width = 44;
+            unsigned int height = 20;
+
+            auto b = uiFactory.createStagedButton(163, rowStart, width, height, guiName, "SIDEx", std::vector<std::string>(2));
+            b->setName("PLAYER" + std::to_string(i) + "_side");
+            b->autoChangeStage = false;
+
+            auto sub = model.players[i].side.subscribe([b = b.get()](MainMenuModel::PlayerSettings::Side side) {
+                switch (side)
+                {
+                    case MainMenuModel::PlayerSettings::Side::Arm:
+                        b->setStage(0);
+                        break;
+                    case MainMenuModel::PlayerSettings::Side::Core:
+                        b->setStage(1);
+                        break;
+                }
+            });
+            b->addSubscription(std::move(sub));
+
+            panel.appendChild(std::move(b));
+        }
+
+        {
+            // color
+            unsigned int width = 19;
+            unsigned int height = 19;
+
+            auto graphics = sceneContext.textureService->getGafEntry("anims/LOGOS.GAF", "32xlogos");
+
+            auto b = uiFactory.createButton(214, rowStart, width, height, guiName, "logo", "");
+            b->setName("PLAYER" + std::to_string(i) + "_color");
+
+            auto sub = model.players[i].colorIndex.subscribe([b = b.get(), graphics](unsigned int index) {
+                b->setNormalSprite(graphics->sprites[index]);
+                b->setPressedSprite(graphics->sprites[index]);
+            });
+            b->addSubscription(std::move(sub));
+
+            panel.appendChild(std::move(b));
+        }
+
+        {
+            // ally
+            unsigned int width = 38;
+            unsigned int height = 20;
+
+            auto graphics = sceneContext.textureService->getGuiTexture(guiName, "TEAMICONSx");
+            if (!graphics)
+            {
+                throw std::runtime_error("Failed to load TEAMICONSx");
+            }
+
+            auto b = uiFactory.createButton(241, rowStart, width, height, guiName, "team", "");
+            b->setName("PLAYER" + std::to_string(i) + "_team");
+
+            auto sub = model.players[i].teamIndex.subscribe([b = b.get(), &m = model, g = *graphics](auto index) {
+                if (!index)
+                {
+                    b->setNormalSprite(g->sprites[10]);
+                    b->setPressedSprite(g->sprites[10]);
+                    return;
+                }
+
+                auto stage = (*index) * 2;
+                if (!m.isTeamShared(*index))
+                {
+                    ++stage;
+                }
+
+                b->setNormalSprite(g->sprites[stage]);
+                b->setPressedSprite(g->sprites[stage]);
+            });
+            b->addSubscription(std::move(sub));
+
+            auto teamSub = model.teamChanges.subscribe([b = b.get(), &m = model, g = *graphics, i](auto index) {
+                if (index == m.players[i].teamIndex.getValue())
+                {
+                    auto stage = index * 2;
+                    if (m.isTeamShared(index))
+                    {
+                        b->setNormalSprite(g->sprites[stage]);
+                        b->setPressedSprite(g->sprites[stage]);
+                    }
+                    else
+                    {
+                        b->setNormalSprite(g->sprites[stage + 1]);
+                        b->setPressedSprite(g->sprites[stage + 1]);
+                    }
+                }
+            });
+            b->addSubscription(std::move(teamSub));
+
+            panel.appendChild(std::move(b));
+        }
+
+        {
+            // metal
+            unsigned int width = 46;
+            unsigned int height = 20;
+
+            auto b = uiFactory.createButton(286, rowStart, width, height, guiName, "skirmmet", "");
+            b->setName("PLAYER" + std::to_string(i) + "_metal");
+
+            auto sub = model.players[i].metal.subscribe([b = b.get()](int newMetal) {
+                b->setLabel(std::to_string(newMetal));
+            });
+            b->addSubscription(std::move(sub));
+
+            panel.appendChild(std::move(b));
+        }
+
+        {
+            // energy
+            unsigned int width = 46;
+            unsigned int height = 20;
+
+            auto b = uiFactory.createButton(337, rowStart, width, height, guiName, "skirmmet", "");
+            b->setName("PLAYER" + std::to_string(i) + "_energy");
+
+            auto sub = model.players[i].energy.subscribe([b = b.get()](int newEnergy) {
+                b->setLabel(std::to_string(newEnergy));
+            });
+            b->addSubscription(std::move(sub));
+
+            panel.appendChild(std::move(b));
+        }
+    }
+
 }

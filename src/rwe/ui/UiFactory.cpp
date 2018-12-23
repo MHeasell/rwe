@@ -64,11 +64,6 @@ namespace rwe
             panel->appendChild(std::move(elem));
         }
 
-        if (name == "SKIRMISH")
-        {
-            attachPlayerSelectionComponents(name, *panel);
-        }
-
         // set the default focused control
         if (panelEntry.defaultFocus)
         {
@@ -77,6 +72,64 @@ namespace rwe
         }
 
         return panel;
+    }
+
+    std::unique_ptr<UiButton>
+    UiFactory::createButton(int x, int y, int width, int height, const std::string& guiName, const std::string& name, const std::string& label)
+    {
+        // hack for SINGLE.GUI buttons
+        if (width == 118 && height == 18)
+        {
+            width = 120;
+            height = 20;
+        }
+
+
+        auto graphics = textureService->getGuiTexture(guiName, name);
+        if (!graphics)
+        {
+            graphics = getDefaultButtonGraphics(guiName, width, height);
+        }
+
+        auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
+
+        auto button = std::make_unique<UiButton>(x, y, width, height, *graphics, label, font);
+
+        auto sound = deduceButtonSound(guiName, name, width, height);
+
+        if (sound)
+        {
+            button->onClick().subscribe([as = audioService, s = std::move(*sound)](const auto& /*param*/) {
+                as->playSound(s);
+            });
+        }
+
+        return button;
+    }
+
+    std::unique_ptr<UiStagedButton>
+    UiFactory::createStagedButton(int x, int y, int width, int height, const std::string& guiName, const std::string& name, const std::vector<std::string>& labels)
+    {
+        auto graphics = textureService->getGuiTexture(guiName, name);
+        if (!graphics)
+        {
+            graphics = getDefaultStagedButtonGraphics(guiName, labels.size());
+        }
+
+        auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
+
+        auto button = std::make_unique<UiStagedButton>(x, y, width, height, *graphics, labels, font);
+
+        auto sound = deduceButtonSound(guiName, name, width, height);
+
+        if (sound)
+        {
+            button->onClick().subscribe([as = audioService, s = std::move(*sound)](const auto& /*param*/) {
+                as->playSound(s);
+            });
+        }
+
+        return button;
     }
 
     std::unique_ptr<UiComponent> UiFactory::componentFromGuiEntry(const std::string& guiName, const GuiEntry& entry)
@@ -110,45 +163,15 @@ namespace rwe
 
     std::unique_ptr<UiButton> UiFactory::buttonFromGuiEntry(const std::string& guiName, const GuiEntry& entry)
     {
-        // hack for SINGLE.GUI buttons
-        int width = entry.common.width;
-        int height = entry.common.height;
-        if (width == 118 && height == 18)
-        {
-            width = 120;
-            height = 20;
-        }
-
-
-        auto graphics = textureService->getGuiTexture(guiName, entry.common.name);
-        if (!graphics)
-        {
-            graphics = getDefaultButtonGraphics(guiName, width, height);
-        }
-
         auto text = entry.text ? *(entry.text) : std::string("");
-
-        auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
-
-        auto button = std::make_unique<UiButton>(
-            entry.common.xpos,
-            entry.common.ypos,
-            width,
-            height,
-            *graphics,
-            text,
-            font);
-
-        auto sound = deduceButtonSound(guiName, entry);
-
-        if (sound)
-        {
-            button->onClick().subscribe([as = audioService, s = std::move(*sound)](const auto& /*param*/) {
-                as->playSound(s);
-            });
-        }
-
-        return button;
+        return createButton(
+                entry.common.xpos,
+                entry.common.ypos,
+                entry.common.width,
+                entry.common.height,
+                guiName,
+                entry.common.name,
+                text);
     }
 
     std::unique_ptr<UiLabel> UiFactory::labelFromGuiEntry(const std::string& guiName, const GuiEntry& entry)
@@ -170,35 +193,15 @@ namespace rwe
         const std::string& guiName,
         const GuiEntry& entry)
     {
-        auto graphics = textureService->getGuiTexture(guiName, entry.common.name);
-        if (!graphics)
-        {
-            graphics = getDefaultStagedButtonGraphics(guiName, *entry.stages);
-        }
-
         auto labels = entry.text ? utf8Split(*entry.text, '|') : std::vector<std::string>();
-
-        auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
-
-        auto button = std::make_unique<UiStagedButton>(
-            entry.common.xpos,
-            entry.common.ypos,
-            entry.common.width,
-            entry.common.height,
-            *graphics,
-            labels,
-            font);
-
-        auto sound = deduceButtonSound(guiName, entry);
-
-        if (sound)
-        {
-            button->onClick().subscribe([as = audioService, s = std::move(*sound)](const auto& /*param*/) {
-                as->playSound(s);
-            });
-        }
-
-        return button;
+        return createStagedButton(
+                entry.common.xpos,
+                entry.common.ypos,
+                entry.common.width,
+                entry.common.height,
+                guiName,
+                entry.common.name,
+                labels);
     }
 
     std::shared_ptr<SpriteSeries> UiFactory::getDefaultStagedButtonGraphics(const std::string& guiName, int stages)
@@ -237,12 +240,17 @@ namespace rwe
 
     std::optional<AudioService::SoundHandle> UiFactory::deduceButtonSound(const std::string& guiName, const GuiEntry& entry)
     {
-        auto sound = getButtonSound(entry.common.name);
-        if (!sound && (entry.common.name == "PrevMenu" || entry.common.name == "PREVMENU"))
+        return deduceButtonSound(guiName, entry.common.name, entry.common.width, entry.common.height);
+    }
+
+    std::optional<AudioService::SoundHandle> UiFactory::deduceButtonSound(const std::string& guiName, const std::string& name, int width, int height)
+    {
+        auto sound = getButtonSound(name);
+        if (!sound && (name == "PrevMenu" || name == "PREVMENU"))
         {
             sound = getButtonSound("PREVIOUS");
         }
-        if (!sound && entry.common.name == "Start")
+        if (!sound && name == "Start")
         {
             sound = getButtonSound("BIGBUTTON");
         }
@@ -254,7 +262,7 @@ namespace rwe
         {
             sound = getButtonSound("SMALLBUTTON");
         }
-        if (!sound && entry.common.width == 96 && entry.common.height == 20)
+        if (!sound && width == 96 && height == 20)
         {
             sound = getButtonSound("BIGBUTTON");
         }
@@ -336,252 +344,5 @@ namespace rwe
             entry.common.height);
 
         return surface;
-    }
-
-    void UiFactory::attachPlayerSelectionComponents(const std::string& guiName, UiPanel& panel)
-    {
-        unsigned int tableStart = 78;
-        unsigned int rowHeight = 20;
-
-        auto sound = getButtonSound(guiName);
-
-        for (int i = 0; i < 10; ++i)
-        {
-            unsigned int rowStart = tableStart + (i * rowHeight);
-
-            {
-                // player name button
-                unsigned int width = 112;
-                unsigned int height = 20;
-
-                auto graphics = textureService->getGuiTexture(guiName, "skirmname");
-                if (!graphics)
-                {
-                    graphics = getDefaultButtonGraphics(guiName, width, height);
-                }
-                auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
-                auto b = std::make_unique<UiButton>(45, rowStart, width, height, *graphics, "Player", font);
-                b->setName("PLAYER" + std::to_string(i));
-                if (sound)
-                {
-                    b->onClick().subscribe([as = audioService, s = *sound](const auto& /*param*/) {
-                        as->playSound(s);
-                    });
-                }
-
-                auto sub = model->players[i].type.subscribe([b = b.get(), &panel, this, guiName, i](MainMenuModel::PlayerSettings::Type type) {
-                    switch (type)
-                    {
-                        case MainMenuModel::PlayerSettings::Type::Open:
-                            panel.removeChildrenWithPrefix("PLAYER" + std::to_string(i) + "_");
-                            b->setLabel("Open");
-                            break;
-                        case MainMenuModel::PlayerSettings::Type::Human:
-                            b->setLabel("Player");
-                            panel.removeChildrenWithPrefix("PLAYER" + std::to_string(i) + "_");
-                            attachDetailedPlayerSelectionComponents(guiName, panel, i);
-                            break;
-                        case MainMenuModel::PlayerSettings::Type::Computer:
-                            b->setLabel("Computer");
-                            panel.removeChildrenWithPrefix("PLAYER" + std::to_string(i) + "_");
-                            attachDetailedPlayerSelectionComponents(guiName, panel, i);
-                            break;
-                    }
-                });
-                b->addSubscription(std::move(sub));
-
-                panel.appendChild(std::move(b));
-            }
-        }
-    }
-
-    void UiFactory::attachDetailedPlayerSelectionComponents(const std::string& guiName, UiPanel& panel, int i)
-    {
-        unsigned int tableStart = 78;
-        unsigned int rowHeight = 20;
-
-        auto sound = getButtonSound(guiName);
-
-        unsigned int rowStart = tableStart + (i * rowHeight);
-
-        {
-            // side button
-            unsigned int width = 44;
-            unsigned int height = 20;
-
-            auto graphics = textureService->getGuiTexture(guiName, "SIDEx");
-            if (!graphics)
-            {
-                graphics = getDefaultButtonGraphics(guiName, width, height);
-            }
-            auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
-            auto b = std::make_unique<UiStagedButton>(163, rowStart, width, height, *graphics, std::vector<std::string>(2), font);
-            b->setName("PLAYER" + std::to_string(i) + "_side");
-            b->autoChangeStage = false;
-            if (sound)
-            {
-                b->onClick().subscribe([as = audioService, s = *sound](const auto& /*param*/) {
-                    as->playSound(s);
-                });
-            }
-
-            auto sub = model->players[i].side.subscribe([b = b.get()](MainMenuModel::PlayerSettings::Side side) {
-                switch (side)
-                {
-                    case MainMenuModel::PlayerSettings::Side::Arm:
-                        b->setStage(0);
-                        break;
-                    case MainMenuModel::PlayerSettings::Side::Core:
-                        b->setStage(1);
-                        break;
-                }
-            });
-            b->addSubscription(std::move(sub));
-
-            panel.appendChild(std::move(b));
-        }
-
-        {
-            // color
-            unsigned int width = 19;
-            unsigned int height = 19;
-
-            auto graphics = textureService->getGafEntry("anims/LOGOS.GAF", "32xlogos");
-
-            auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
-            auto b = std::make_unique<UiButton>(214, rowStart, width, height, graphics->sprites[0], graphics->sprites[0], std::string(), font);
-            b->setName("PLAYER" + std::to_string(i) + "_color");
-            if (sound)
-            {
-                b->onClick().subscribe([as = audioService, s = *sound](const auto& /*param*/) {
-                    as->playSound(s);
-                });
-            }
-
-            auto sub = model->players[i].colorIndex.subscribe([b = b.get(), graphics](unsigned int index) {
-                b->setNormalSprite(graphics->sprites[index]);
-                b->setPressedSprite(graphics->sprites[index]);
-            });
-            b->addSubscription(std::move(sub));
-
-            panel.appendChild(std::move(b));
-        }
-
-        {
-            // ally
-            unsigned int width = 38;
-            unsigned int height = 20;
-
-            auto graphics = textureService->getGuiTexture(guiName, "TEAMICONSx");
-            if (!graphics)
-            {
-                graphics = getDefaultButtonGraphics(guiName, width, height);
-            }
-
-            auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
-            auto b = std::make_unique<UiButton>(241, rowStart, width, height, (*graphics)->sprites[10], (*graphics)->sprites[10], std::string(), font);
-            b->setName("PLAYER" + std::to_string(i) + "_team");
-            if (sound)
-            {
-                b->onClick().subscribe([as = audioService, s = *sound](const auto& /*param*/) {
-                    as->playSound(s);
-                });
-            }
-
-            auto sub = model->players[i].teamIndex.subscribe([b = b.get(), m = model, g = *graphics](auto index) {
-                if (!index)
-                {
-                    b->setNormalSprite(g->sprites[10]);
-                    b->setPressedSprite(g->sprites[10]);
-                    return;
-                }
-
-                auto stage = (*index) * 2;
-                if (!m->isTeamShared(*index))
-                {
-                    ++stage;
-                }
-
-                b->setNormalSprite(g->sprites[stage]);
-                b->setPressedSprite(g->sprites[stage]);
-            });
-            b->addSubscription(std::move(sub));
-
-            auto teamSub = model->teamChanges.subscribe([b = b.get(), m = model, g = *graphics, i](auto index) {
-                if (index == m->players[i].teamIndex.getValue())
-                {
-                    auto stage = index * 2;
-                    if (m->isTeamShared(index))
-                    {
-                        b->setNormalSprite(g->sprites[stage]);
-                        b->setPressedSprite(g->sprites[stage]);
-                    }
-                    else
-                    {
-                        b->setNormalSprite(g->sprites[stage + 1]);
-                        b->setPressedSprite(g->sprites[stage + 1]);
-                    }
-                }
-            });
-            b->addSubscription(std::move(teamSub));
-
-            panel.appendChild(std::move(b));
-        }
-
-        {
-            // metal
-            unsigned int width = 46;
-            unsigned int height = 20;
-
-            auto graphics = textureService->getGuiTexture(guiName, "skirmmet");
-            if (!graphics)
-            {
-                graphics = getDefaultButtonGraphics(guiName, width, height);
-            }
-            auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
-            auto b = std::make_unique<UiButton>(286, rowStart, width, height, *graphics, "1000", font);
-            b->setName("PLAYER" + std::to_string(i) + "_metal");
-            if (sound)
-            {
-                b->onClick().subscribe([as = audioService, s = *sound](const auto& /*param*/) {
-                    as->playSound(s);
-                });
-            }
-
-            auto sub = model->players[i].metal.subscribe([b = b.get()](int newMetal) {
-                b->setLabel(std::to_string(newMetal));
-            });
-            b->addSubscription(std::move(sub));
-
-            panel.appendChild(std::move(b));
-        }
-
-        {
-            // energy
-            unsigned int width = 46;
-            unsigned int height = 20;
-
-            auto graphics = textureService->getGuiTexture(guiName, "skirmmet");
-            if (!graphics)
-            {
-                graphics = getDefaultButtonGraphics(guiName, width, height);
-            }
-            auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
-            auto b = std::make_unique<UiButton>(337, rowStart, width, height, *graphics, "1000", font);
-            b->setName("PLAYER" + std::to_string(i) + "_energy");
-            if (sound)
-            {
-                b->onClick().subscribe([as = audioService, s = *sound](const auto& /*param*/) {
-                    as->playSound(s);
-                });
-            }
-
-            auto sub = model->players[i].energy.subscribe([b = b.get()](int newEnergy) {
-                b->setLabel(std::to_string(newEnergy));
-            });
-            b->addSubscription(std::move(sub));
-
-            panel.appendChild(std::move(b));
-        }
     }
 }

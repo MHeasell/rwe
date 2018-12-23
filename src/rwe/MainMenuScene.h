@@ -123,6 +123,10 @@ namespace rwe
         Point toScaledCoordinates(int x, int y) const;
 
         std::vector<std::string> getMapNames();
+
+        void attachPlayerSelectionComponents(const std::string& guiName, UiPanel& panel);
+
+        void attachDetailedPlayerSelectionComponents(const std::string& guiName, UiPanel& panel, int i);
     };
 }
 
