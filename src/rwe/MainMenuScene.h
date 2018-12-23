@@ -45,9 +45,6 @@ namespace rwe
             float width,
             float height);
 
-        // "this" is passed to the owned UiFactory instance,
-        // and this would not be correctly updated
-        // if we were copied or moved.
         MainMenuScene(const MainMenuScene&) = delete;
         MainMenuScene& operator=(const MainMenuScene&) = delete;
         MainMenuScene(MainMenuScene&&) = delete;
