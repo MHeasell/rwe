@@ -18,6 +18,20 @@ namespace fs = boost::filesystem;
 
 using json = nlohmann::json;
 
+bool hasMultiplayerSchema(rwe::AbstractVirtualFileSystem& vfs, const std::string& mapName)
+{
+    auto otaRaw = vfs.readFile(std::string("maps/").append(mapName).append(".ota"));
+    if (!otaRaw)
+    {
+        throw std::runtime_error("Failed to read OTA file");
+    }
+
+    std::string otaStr(otaRaw->begin(), otaRaw->end());
+    auto ota = parseOta(rwe::parseTdfFromString(otaStr));
+
+    return std::any_of(ota.schemas.begin(), ota.schemas.end(), [](const auto& s) { return rwe::startsWith(rwe::toUpper(s.type), "NETWORK"); });
+}
+
 std::vector<std::string> getMapNames(rwe::AbstractVirtualFileSystem& vfs)
 {
     auto mapNames = vfs.getFileNames("maps", ".ota");
@@ -27,6 +41,9 @@ std::vector<std::string> getMapNames(rwe::AbstractVirtualFileSystem& vfs)
         // chop off the extension
         e.resize(e.size() - 4);
     }
+
+    // Keep only maps that have a multiplayer schema
+    mapNames.erase(std::remove_if(mapNames.begin(), mapNames.end(), [&vfs](const auto& e){ return !hasMultiplayerSchema(vfs, e); }), mapNames.end());
 
     return mapNames;
 }

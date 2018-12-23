@@ -735,6 +735,9 @@ namespace rwe
             e.resize(e.size() - 4);
         }
 
+        // Keep only maps that have a multiplayer schema
+        mapNames.erase(std::remove_if(mapNames.begin(), mapNames.end(), [this](const auto& e){ return !hasMultiplayerSchema(e); }), mapNames.end());
+
         return mapNames;
     }
 
@@ -919,4 +922,17 @@ namespace rwe
         }
     }
 
+    bool MainMenuScene::hasMultiplayerSchema(const std::string& mapName)
+    {
+        auto otaRaw = sceneContext.vfs->readFile(std::string("maps/").append(mapName).append(".ota"));
+        if (!otaRaw)
+        {
+            throw std::runtime_error("Failed to read OTA file");
+        }
+
+        std::string otaStr(otaRaw->begin(), otaRaw->end());
+        auto ota = parseOta(parseTdfFromString(otaStr));
+
+        return std::any_of(ota.schemas.begin(), ota.schemas.end(), [](const auto& s) { return startsWith(toUpper(s.type), "NETWORK"); });
+    }
 }
