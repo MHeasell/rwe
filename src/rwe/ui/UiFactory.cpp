@@ -447,18 +447,10 @@ namespace rwe
             unsigned int height = 19;
 
             auto graphics = textureService->getGafEntry("anims/LOGOS.GAF", "32xlogos");
-            auto copiedGraphics = std::make_shared<SpriteSeries>(*graphics);
-            auto defaultSeries = textureService->getDefaultSpriteSeries();
-
-            for (int j = 0; j < 3; ++j)
-            {
-                copiedGraphics->sprites.push_back(defaultSeries->sprites.front());
-            }
 
             auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
-            auto b = std::make_unique<UiStagedButton>(214, rowStart, width, height, copiedGraphics, std::vector<std::string>(10), font);
+            auto b = std::make_unique<UiButton>(214, rowStart, width, height, graphics->sprites[0], graphics->sprites[0], std::string(), font);
             b->setName("PLAYER" + std::to_string(i) + "_color");
-            b->autoChangeStage = false;
             if (sound)
             {
                 b->onClick().subscribe([as = audioService, s = *sound](const auto& /*param*/) {
@@ -466,8 +458,9 @@ namespace rwe
                 });
             }
 
-            auto sub = model->players[i].colorIndex.subscribe([b = b.get()](unsigned int index) {
-                b->setStage(index);
+            auto sub = model->players[i].colorIndex.subscribe([b = b.get(), graphics](unsigned int index) {
+                b->setNormalSprite(graphics->sprites[index]);
+                b->setPressedSprite(graphics->sprites[index]);
             });
             b->addSubscription(std::move(sub));
 
@@ -485,17 +478,9 @@ namespace rwe
                 graphics = getDefaultButtonGraphics(guiName, width, height);
             }
 
-            auto copiedGraphics = std::make_shared<SpriteSeries>(**graphics);
-            auto defaultSeries = textureService->getDefaultSpriteSeries();
-
-            copiedGraphics->sprites.push_back((*graphics)->sprites.back());
-            copiedGraphics->sprites.push_back(defaultSeries->sprites.front());
-
             auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
-            auto b = std::make_unique<UiStagedButton>(241, rowStart, width, height, copiedGraphics, std::vector<std::string>(11), font);
+            auto b = std::make_unique<UiButton>(241, rowStart, width, height, (*graphics)->sprites[10], (*graphics)->sprites[10], std::string(), font);
             b->setName("PLAYER" + std::to_string(i) + "_team");
-            b->autoChangeStage = false;
-            b->setStage(10); // blank button
             if (sound)
             {
                 b->onClick().subscribe([as = audioService, s = *sound](const auto& /*param*/) {
@@ -503,10 +488,11 @@ namespace rwe
                 });
             }
 
-            auto sub = model->players[i].teamIndex.subscribe([b = b.get(), m = model](auto index) {
+            auto sub = model->players[i].teamIndex.subscribe([b = b.get(), m = model, g = *graphics](auto index) {
                 if (!index)
                 {
-                    b->setStage(10);
+                    b->setNormalSprite(g->sprites[10]);
+                    b->setPressedSprite(g->sprites[10]);
                     return;
                 }
 
@@ -516,21 +502,24 @@ namespace rwe
                     ++stage;
                 }
 
-                b->setStage(stage);
+                b->setNormalSprite(g->sprites[stage]);
+                b->setPressedSprite(g->sprites[stage]);
             });
             b->addSubscription(std::move(sub));
 
-            auto teamSub = model->teamChanges.subscribe([b = b.get(), m = model, i](auto index) {
+            auto teamSub = model->teamChanges.subscribe([b = b.get(), m = model, g = *graphics, i](auto index) {
                 if (index == m->players[i].teamIndex.getValue())
                 {
                     auto stage = index * 2;
                     if (m->isTeamShared(index))
                     {
-                        b->setStage(stage);
+                        b->setNormalSprite(g->sprites[stage]);
+                        b->setPressedSprite(g->sprites[stage]);
                     }
                     else
                     {
-                        b->setStage(stage + 1);
+                        b->setNormalSprite(g->sprites[stage + 1]);
+                        b->setPressedSprite(g->sprites[stage + 1]);
                     }
                 }
             });

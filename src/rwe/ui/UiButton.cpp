@@ -2,15 +2,19 @@
 
 namespace rwe
 {
-    UiButton::UiButton(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<SpriteSeries> _spriteSeries, std::string _label, std::shared_ptr<SpriteSeries> labelFont)
-        : UiComponent(posX, posY, sizeX, sizeY), spriteSeries(std::move(_spriteSeries)), label(std::move(_label)), labelFont(std::move(labelFont))
+    UiButton::UiButton(int posX, int posY, unsigned int sizeX, unsigned int sizeY, const std::shared_ptr<SpriteSeries>& sprites, std::string _label, std::shared_ptr<SpriteSeries> labelFont)
+            : UiComponent(posX, posY, sizeX, sizeY), normalSprite(sprites->sprites.at(0)), pressedSprite(sprites->sprites.at(1)), label(std::move(_label)), labelFont(std::move(labelFont))
     {
-        assert(spriteSeries->sprites.size() >= 2);
+    }
+
+    UiButton::UiButton(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<Sprite> _normalSprite, std::shared_ptr<Sprite> _pressedSprite, std::string _label, std::shared_ptr<SpriteSeries> labelFont)
+        : UiComponent(posX, posY, sizeX, sizeY), normalSprite(std::move(_normalSprite)), pressedSprite(std::move(_pressedSprite)), label(std::move(_label)), labelFont(std::move(labelFont))
+    {
     }
 
     void UiButton::render(UiRenderService& graphics) const
     {
-        const auto& sprite = pressed ? *spriteSeries->sprites[1] : *spriteSeries->sprites[0];
+        const auto& sprite = pressed ? *pressedSprite : *normalSprite;
 
         graphics.drawSpriteAbs(posX, posY, sizeX, sizeY, sprite);
         float textX = posX + (sizeX / 2.0f);
@@ -93,6 +97,16 @@ namespace rwe
     void UiButton::setLabel(std::string&& newLabel)
     {
         label = std::move(newLabel);
+    }
+
+    void UiButton::setNormalSprite(const std::shared_ptr<Sprite>& sprite)
+    {
+        normalSprite = sprite;
+    }
+
+    void UiButton::setPressedSprite(const std::shared_ptr<Sprite>& sprite)
+    {
+        pressedSprite = sprite;
     }
 
     void UiButton::activateButton(const ButtonClickEvent& event)
