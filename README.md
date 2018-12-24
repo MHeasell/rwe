@@ -171,7 +171,13 @@ Install some TA data files (.hpi, .ufo, .ccx, rev31.gp3, etc.)
 to your local data directory:
 
     mkdir -p $HOME/.rwe/Data
-    cp /path/to/totala1.hpi /path/to/totala2.hpi $HOME/.rwe/Data
+    cp /path/to/totala/*.hpi $HOME/.rwe/Data
+    cp /path/to/totala/*.ufo $HOME/.rwe/Data
+    cp /path/to/totala/*.ccx $HOME/.rwe/Data
+    cp /path/to/totala/*.gpf $HOME/.rwe/Data
+    cp /path/to/totala/*.gp3 $HOME/.rwe/Data
+
+Alternatively you can symlink `.rwe/Data` to your TA directory.
 
 Finally, launch RWE from the top-level project directory:
 
