@@ -17,6 +17,7 @@
 #include <rwe/tnt/TntArchive.h>
 #include <rwe/ui/UiLightBar.h>
 #include <rwe/ui/UiPanel.h>
+#include <rwe/ui/UiFactory.h>
 
 namespace rwe
 {
@@ -96,10 +97,13 @@ namespace rwe
 
         LoadingNetworkService networkService;
 
+        UiFactory uiFactory;
+
     public:
         LoadingScene(
             const SceneContext& sceneContext,
             MapFeatureService* featureService,
+            TdfBlock* audioLookup,
             AudioService::LoopToken&& bgm,
             GameParameters gameParameters);
 

@@ -74,6 +74,72 @@ namespace rwe
         return panel;
     }
 
+    std::unique_ptr<UiPanel> UiFactory::panelFromGuiFile(const std::string& name)
+    {
+        auto entries = vfs->readGuiOrThrow("guis/" + name + ".GUI");
+
+        // first entry sets up the panel
+        assert(entries.size() > 0);
+        const auto& panelEntry = entries[0];
+
+        std::optional<std::shared_ptr<SpriteSeries>> background;
+        if (panelEntry.panel)
+        {
+            background = textureService->getGuiTexture(name, *panelEntry.panel);
+        }
+        std::optional<std::shared_ptr<Sprite>> backgroundSprite;
+        if (background)
+        {
+            backgroundSprite = (*background)->sprites.at(0);
+        }
+
+        // Adjust x and y pos such that the bottom and right edges of the panel
+        // do not go over the edge of the screen.
+        auto rightBound = panelEntry.common.xpos + panelEntry.common.width;
+        int xPos = panelEntry.common.xpos;
+        if (rightBound > 640)
+        {
+            xPos -= rightBound - 640;
+        }
+
+        auto bottomBound = panelEntry.common.ypos + panelEntry.common.height;
+        int yPos = panelEntry.common.ypos;
+        if (bottomBound > 480)
+        {
+            yPos -= bottomBound - 480;
+        }
+
+        auto panel = std::make_unique<UiPanel>(
+                xPos,
+                yPos,
+                panelEntry.common.width,
+                panelEntry.common.height,
+                backgroundSprite);
+        panel->setName(name);
+
+        // load panel components
+        for (std::size_t i = 1; i < entries.size(); ++i)
+        {
+            auto& entry = entries[i];
+
+            auto elem = componentFromGuiEntry(name, entry);
+
+            elem->setName(entry.common.name);
+            elem->setGroup(entry.common.assoc);
+
+            panel->appendChild(std::move(elem));
+        }
+
+        // set the default focused control
+        if (panelEntry.defaultFocus)
+        {
+            const auto& focusName = *panelEntry.defaultFocus;
+            panel->setFocusByName(focusName);
+        }
+
+        return panel;
+    }
+
     std::unique_ptr<UiButton>
     UiFactory::createButton(int x, int y, int width, int height, const std::string& guiName, const std::string& name, const std::string& label)
     {

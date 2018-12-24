@@ -9,6 +9,8 @@ namespace rwe
     TdfBlock parseTdf(ConstUtf8Iterator& begin, ConstUtf8Iterator& end);
 
     TdfBlock parseTdfFromString(const std::string& input);
+
+    TdfBlock parseTdfFromBytes(const std::vector<char>& bytes);
 }
 
 #endif

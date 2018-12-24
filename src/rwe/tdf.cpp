@@ -24,4 +24,10 @@ namespace rwe
 
         return parser.parse(cUtf8Begin(input), cUtf8End(input));
     }
+
+    TdfBlock parseTdfFromBytes(const std::vector<char>& bytes)
+    {
+        std::string tdfString(bytes.data(), bytes.size());
+        return parseTdfFromString(tdfString);
+    }
 }

@@ -3,9 +3,20 @@
 
 namespace rwe
 {
+    UiPanel::UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY)
+            : UiComponent(posX, posY, sizeX, sizeY)
+    {
+    }
+
     UiPanel::UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<Sprite> background)
         : UiComponent(posX, posY, sizeX, sizeY),
           background(std::move(background))
+    {
+    }
+
+    UiPanel::UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::optional<std::shared_ptr<Sprite>> background)
+            : UiComponent(posX, posY, sizeX, sizeY),
+              background(background)
     {
     }
 
@@ -32,7 +43,10 @@ namespace rwe
 
     void UiPanel::render(UiRenderService& graphics) const
     {
-        graphics.drawSpriteAbs(posX, posY, sizeX, sizeY, *background);
+        if (background)
+        {
+            graphics.drawSpriteAbs(posX, posY, sizeX, sizeY, **background);
+        }
 
         graphics.pushMatrix();
         graphics.multiplyMatrix(Matrix4f::translation(Vector3f(posX, posY, 0.0f)));

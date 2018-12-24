@@ -18,6 +18,7 @@ namespace rwe
     LoadingScene::LoadingScene(
         const SceneContext& sceneContext,
         MapFeatureService* featureService,
+        TdfBlock* audioLookup,
         AudioService::LoopToken&& bgm,
         GameParameters gameParameters)
         : sceneContext(sceneContext),
@@ -25,7 +26,8 @@ namespace rwe
           scaledUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(640.0, 480.0f)),
           nativeUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(sceneContext.viewportService->width(), sceneContext.viewportService->height())),
           bgm(std::move(bgm)),
-          gameParameters(std::move(gameParameters))
+          gameParameters(std::move(gameParameters)),
+          uiFactory(sceneContext.textureService, sceneContext.audioService, audioLookup, sceneContext.vfs)
     {
     }
 
@@ -198,6 +200,8 @@ namespace rwe
         }
         auto minimapDotHighlight = sceneContext.textureService->getGafEntry("anims/FX.GAF", "radlogohigh")->sprites.at(0);
 
+        auto ordersPanel = uiFactory.panelFromGuiFile("ARMGEN");
+
         auto gameScene = std::make_unique<GameScene>(
             sceneContext,
             std::move(playerCommandService),
@@ -212,6 +216,7 @@ namespace rwe
             minimap,
             minimapDots,
             minimapDotHighlight,
+            std::move(ordersPanel),
             *localPlayerId);
 
         const auto& schema = ota.schemas.at(schemaIndex);

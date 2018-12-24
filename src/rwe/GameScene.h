@@ -26,6 +26,7 @@
 #include <rwe/UnitDatabase.h>
 #include <rwe/UnitFactory.h>
 #include <rwe/UnitId.h>
+#include <rwe/ui/UiPanel.h>
 #include <rwe/ViewportService.h>
 #include <rwe/camera/UiCamera.h>
 #include <rwe/cob/CobExecutionService.h>
@@ -184,6 +185,9 @@ namespace rwe
         std::shared_ptr<Sprite> minimap;
         std::shared_ptr<SpriteSeries> minimapDots;
         std::shared_ptr<Sprite> minimapDotHighlight;
+
+        std::unique_ptr<UiPanel> ordersPanel;
+
         Rectangle2f minimapRect;
 
         PlayerId localPlayerId;
@@ -228,6 +232,7 @@ namespace rwe
             const std::shared_ptr<Sprite>& minimap,
             const std::shared_ptr<SpriteSeries>& minimapDots,
             const std::shared_ptr<Sprite>& minimapDotHighlight,
+            std::unique_ptr<UiPanel>&& ordersPanel,
             PlayerId localPlayerId);
 
         void init() override;

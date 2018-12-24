@@ -463,6 +463,7 @@ set(SOURCE_FILES
     src/rwe/util.cpp
     src/rwe/util.h
     src/rwe/vfs/AbstractVirtualFileSystem.h
+    src/rwe/vfs/AbstractVirtualFilesSystem.cpp
     src/rwe/vfs/CompositeVirtualFileSystem.cpp
     src/rwe/vfs/CompositeVirtualFileSystem.h
     src/rwe/vfs/DirectoryFileSystem.cpp

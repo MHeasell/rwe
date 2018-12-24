@@ -13,13 +13,15 @@ namespace rwe
     class UiPanel : public UiComponent
     {
     private:
-        std::shared_ptr<Sprite> background;
+        std::optional<std::shared_ptr<Sprite>> background;
         std::vector<std::unique_ptr<UiComponent>> children;
         std::optional<UiComponent*> focusedChild{std::nullopt};
         Subject<GroupMessage> groupMessagesSubject;
 
     public:
+        UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY);
         UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<Sprite> background);
+        UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::optional<std::shared_ptr<Sprite>> background);
 
         UiPanel(const UiPanel&) = delete;
         UiPanel& operator=(const UiPanel&) = delete;

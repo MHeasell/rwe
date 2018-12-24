@@ -713,6 +713,7 @@ namespace rwe
         auto scene = std::make_unique<LoadingScene>(
             sceneContext,
             featureService,
+            soundLookup,
             std::move(bgm),
             params);
 

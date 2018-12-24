@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <rwe/optional_util.h>
+#include <rwe/tdf.h>
 #include <rwe/tdf/TdfBlock.h>
 #include <stdexcept>
 
@@ -75,8 +76,19 @@ namespace rwe
         g.common.ypos = common->expectInt("ypos");
         g.common.width = common->expectInt("width");
         g.common.height = common->expectInt("height");
-        g.common.attribs = common->expectInt("attribs");
-        g.common.colorf = common->expectInt("colorf");
+
+        // "attribs" and "colorf" should be present in all gadgets,
+        // but ARMGEN.GUI contains a gadget whose "attribs" property
+        // is missing a semicolon.
+        // This causes the parser to consume the next property, "colorf",
+        // as the value of "attribs", making both invalid.
+        // We explicitly provide defaults here to get around that issue.
+        // Probably we should provide default values
+        // for all the keys here, but I don't want to go through the effort
+        // of deciding on reasonable defaults.
+        g.common.attribs = common->extractInt("attribs").value_or(0);
+        g.common.colorf = common->extractInt("colorf").value_or(0);
+
         g.common.colorb = common->expectInt("colorb");
         g.common.textureNumber = common->expectInt("texturenumber");
         g.common.fontNumber = common->expectInt("fontnumber");
@@ -132,6 +144,11 @@ namespace rwe
         }
 
         return entries;
+    }
+
+    std::optional<std::vector<GuiEntry>> parseGuiFromBytes(const std::vector<char>& bytes)
+    {
+        return parseGui(parseTdfFromBytes(bytes));
     }
 
     bool GuiEntry::operator==(const GuiEntry& rhs) const

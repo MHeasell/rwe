@@ -281,6 +281,7 @@ namespace rwe
             auto scene = std::make_unique<LoadingScene>(
                 sceneContext,
                 &featureService,
+                &allSoundTdf,
                 AudioService::LoopToken(),
                 *gameParameters);
             sceneManager.setNextScene(std::move(scene));

@@ -71,6 +71,7 @@ namespace rwe
         const std::shared_ptr<Sprite>& minimap,
         const std::shared_ptr<SpriteSeries>& minimapDots,
         const std::shared_ptr<Sprite>& minimapDotHighlight,
+        std::unique_ptr<UiPanel>&& ordersPanel,
         PlayerId localPlayerId)
         : sceneContext(sceneContext),
           worldViewport(ViewportService(GuiSizeLeft, GuiSizeTop, sceneContext.viewportService->width() - GuiSizeLeft - GuiSizeRight, sceneContext.viewportService->height() - GuiSizeTop - GuiSizeBottom)),
@@ -89,6 +90,7 @@ namespace rwe
           minimapDots(minimapDots),
           minimapDotHighlight(minimapDotHighlight),
           minimapRect(minimapViewport.scaleToFit(this->minimap->bounds)),
+          ordersPanel(std::move(ordersPanel)),
           localPlayerId(localPlayerId)
     {
     }
@@ -113,6 +115,8 @@ namespace rwe
         context.disableDepthBuffer();
 
         renderMinimap(context);
+
+        ordersPanel->render(chromeUiRenderService);
 
         sceneContext.cursor->render(chromeUiRenderService);
         context.enableDepthBuffer();
