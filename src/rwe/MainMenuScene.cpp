@@ -843,6 +843,10 @@ namespace rwe
             auto graphics = sceneContext.textureService->getGuiTexture(guiName, "TEAMICONSx");
             if (!graphics)
             {
+                graphics = sceneContext.textureService->getGuiTexture(guiName, "ally icons");
+            }
+            if (!graphics)
+            {
                 throw std::runtime_error("Failed to load TEAMICONSx");
             }
 
