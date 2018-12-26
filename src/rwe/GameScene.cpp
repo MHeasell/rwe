@@ -251,6 +251,8 @@ namespace rwe
 
     void GameScene::onKeyDown(const SDL_Keysym& keysym)
     {
+        ordersPanel->keyDown(KeyEvent(keysym.sym));
+
         if (keysym.sym == SDLK_UP)
         {
             up = true;
@@ -316,6 +318,8 @@ namespace rwe
 
     void GameScene::onKeyUp(const SDL_Keysym& keysym)
     {
+        ordersPanel->keyUp(KeyEvent(keysym.sym));
+
         if (keysym.sym == SDLK_UP)
         {
             up = false;
@@ -344,6 +348,8 @@ namespace rwe
 
     void GameScene::onMouseDown(MouseButtonEvent event)
     {
+        ordersPanel->mouseDown(event);
+
         if (event.button == MouseButtonEvent::MouseButton::Left)
         {
             if (boost::get<AttackCursorMode>(&cursorMode) != nullptr)
@@ -439,6 +445,8 @@ namespace rwe
 
     void GameScene::onMouseUp(MouseButtonEvent event)
     {
+        ordersPanel->mouseUp(event);
+
         if (event.button == MouseButtonEvent::MouseButton::Left)
         {
             auto normalCursor = boost::get<NormalCursorMode>(&cursorMode);
@@ -468,6 +476,16 @@ namespace rwe
                 }
             }
         }
+    }
+
+    void GameScene::onMouseMove(MouseMoveEvent event)
+    {
+        ordersPanel->mouseMove(event);
+    }
+
+    void GameScene::onMouseWheel(MouseWheelEvent event)
+    {
+        ordersPanel->mouseWheel(event);
     }
 
     Rectangle2f computeCameraConstraint(const MapTerrain& terrain, const CabinetCamera& camera)

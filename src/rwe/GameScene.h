@@ -247,6 +247,10 @@ namespace rwe
 
         void onMouseUp(MouseButtonEvent event) override;
 
+        void onMouseMove(MouseMoveEvent event) override;
+
+        void onMouseWheel(MouseWheelEvent event) override;
+
         void update() override;
 
         void spawnUnit(const std::string& unitType, PlayerId owner, const Vector3f& position);
