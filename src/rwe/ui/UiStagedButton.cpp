@@ -4,22 +4,28 @@ namespace rwe
 {
     void UiStagedButton::render(UiRenderService& graphics) const
     {
-        auto spriteCount = spriteSeries->sprites.size();
-
-        assert(spriteCount >= 3);
-        auto pressedSprite = spriteCount - 2;
-
-        assert(currentStage < spriteCount);
-        auto stageSprite = currentStage;
-
-        auto spriteIndex = pressed ? pressedSprite : stageSprite;
-        const auto& sprite = *spriteSeries->sprites[spriteIndex];
+        const auto& sprite = pressed ? *pressedSprite : *stages[currentStage].sprite;
 
         graphics.drawSpriteAbs(posX, posY, sizeX, sizeY, sprite);
 
         float textX = posX + 6.0f;
         float textY = posY + (sizeY / 2.0f) + 6.0f;
-        graphics.drawText(textX, pressed ? textY + 1.0f : textY, labels[currentStage], *labelFont);
+        if (pressed)
+        {
+            textY += 1.0f;
+        }
+        const auto& label = stages[currentStage].label;
+        switch(textAlign)
+        {
+            case TextAlign::Left:
+                graphics.drawText(textX, textY, label, *labelFont);
+                break;
+            case TextAlign::Center:
+                graphics.drawTextCentered(textX, textY, label, *labelFont);
+                break;
+            default:
+                throw std::logic_error("Invalid TextAlign value");
+        }
     }
 
     UiStagedButton::UiStagedButton(
@@ -27,17 +33,17 @@ namespace rwe
         int posY,
         unsigned int sizeX,
         unsigned int sizeY,
-        std::shared_ptr<SpriteSeries> _spriteSeries,
-        std::vector<std::string> _labels,
-        std::shared_ptr<SpriteSeries> _labelFont)
+        std::vector<StageInfo> stages,
+        std::shared_ptr<Sprite> pressedSprite,
+        std::shared_ptr<SpriteSeries> labelFont)
         : UiComponent(posX, posY, sizeX, sizeY),
-          spriteSeries(std::move(_spriteSeries)),
-          labels(std::move(_labels)),
-          labelFont(std::move(_labelFont))
+          stages(std::move(stages)),
+          pressedSprite(std::move(pressedSprite)),
+          labelFont(std::move(labelFont))
     {
-        if (labels.size() != spriteSeries->sprites.size() - 3)
+        if (this->stages.empty())
         {
-            throw std::logic_error("Number of labels does not match number of sprites");
+            throw std::logic_error("No stages provided for staged button");
         }
     }
 
@@ -107,7 +113,7 @@ namespace rwe
     {
         if (autoChangeStage)
         {
-            auto stageCount = spriteSeries->sprites.size() - 3;
+            auto stageCount = stages.size();
             currentStage = (currentStage + 1) % stageCount;
         }
 
@@ -117,7 +123,7 @@ namespace rwe
 
     void UiStagedButton::setStage(unsigned int newStage)
     {
-        if (newStage >= spriteSeries->sprites.size() - 3)
+        if (newStage >= stages.size())
         {
             throw std::logic_error("New stage is not in range");
         }

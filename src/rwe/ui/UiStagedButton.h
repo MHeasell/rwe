@@ -9,10 +9,27 @@ namespace rwe
 {
     class UiStagedButton : public UiComponent
     {
+    public:
+        struct StageInfo
+        {
+            std::shared_ptr<Sprite> sprite;
+            std::string label;
+
+            StageInfo(const std::shared_ptr<Sprite>& sprite, const std::string& label) : sprite(sprite), label(label)
+            {
+            }
+        };
+        enum TextAlign
+        {
+            Left,
+            Center,
+        };
     private:
-        std::shared_ptr<SpriteSeries> spriteSeries;
-        std::vector<std::string> labels;
+        std::vector<StageInfo> stages;
+        std::shared_ptr<Sprite> pressedSprite;
         std::shared_ptr<SpriteSeries> labelFont;
+
+        TextAlign textAlign{TextAlign::Left};
 
         /** True if the button is currently pressed down. */
         bool pressed{false};
@@ -34,9 +51,9 @@ namespace rwe
             int posY,
             unsigned int sizeX,
             unsigned int sizeY,
-            std::shared_ptr<SpriteSeries> _spriteSeries,
-            std::vector<std::string> _labels,
-            std::shared_ptr<SpriteSeries> _labelFont);
+            std::vector<StageInfo> stages,
+            std::shared_ptr<Sprite> pressedSprite,
+            std::shared_ptr<SpriteSeries> labelFont);
 
         void render(UiRenderService& graphics) const override;
 
@@ -57,6 +74,8 @@ namespace rwe
         void setStage(unsigned int newStage);
 
         bool autoChangeStage{true};
+
+        void setTextAlign(TextAlign align);
 
     private:
         void activateButton(const ButtonClickEvent& event);

@@ -797,7 +797,7 @@ namespace rwe
             unsigned int width = 44;
             unsigned int height = 20;
 
-            auto b = uiFactory.createStagedButton(163, rowStart, width, height, guiName, "SIDEx", std::vector<std::string>(2));
+            auto b = uiFactory.createStagedButton(163, rowStart, width, height, guiName, "SIDEx", std::vector<std::string>(2), 2);
             b->setName("PLAYER" + std::to_string(i) + "_side");
             b->autoChangeStage = false;
 

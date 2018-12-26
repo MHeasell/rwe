@@ -33,7 +33,7 @@ namespace rwe
 
         std::unique_ptr<UiButton> createButton(int x, int y, int width, int height, const std::string& guiName, const std::string& name, const std::string& label);
 
-        std::unique_ptr<UiStagedButton> createStagedButton(int x, int y, int width, int height, const std::string& guiName, const std::string& name, const std::vector<std::string>& labels);
+        std::unique_ptr<UiStagedButton> createStagedButton(int x, int y, int width, int height, const std::string& guiName, const std::string& name, const std::vector<std::string>& labels, unsigned int stages);
 
     private:
         std::unique_ptr<UiComponent> componentFromGuiEntry(const std::string& guiName, const GuiEntry& entry);
