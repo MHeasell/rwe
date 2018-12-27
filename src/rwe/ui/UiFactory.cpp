@@ -140,7 +140,7 @@ namespace rwe
         return panel;
     }
 
-    std::unique_ptr<UiButton>
+    std::unique_ptr<UiStagedButton>
     UiFactory::createButton(int x, int y, int width, int height, const std::string& guiName, const std::string& name, const std::string& label)
     {
         // hack for SINGLE.GUI buttons
@@ -157,9 +157,19 @@ namespace rwe
             graphics = getDefaultButtonGraphics(guiName, width, height);
         }
 
+        if ((*graphics)->sprites.size() < 2)
+        {
+            throw std::runtime_error("Not enough sprites in anim for button");
+        }
+
+        const auto& sprite = (*graphics)->sprites[0];
+        const auto& pressedSprite = (*graphics)->sprites[1];
+
         auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
 
-        auto button = std::make_unique<UiButton>(x, y, width, height, *graphics, label, font);
+        std::vector<UiStagedButton::StageInfo> stages{UiStagedButton::StageInfo(sprite, label)};
+
+        auto button = std::make_unique<UiStagedButton>(x, y, width, height, stages, pressedSprite, font);
 
         auto sound = deduceButtonSound(guiName, name, width, height);
 
@@ -169,6 +179,8 @@ namespace rwe
                 as->playSound(s);
             });
         }
+
+        button->setTextAlign(UiStagedButton::TextAlign::Center);
 
         return button;
     }
@@ -242,7 +254,7 @@ namespace rwe
         }
     }
 
-    std::unique_ptr<UiButton> UiFactory::buttonFromGuiEntry(const std::string& guiName, const GuiEntry& entry)
+    std::unique_ptr<UiStagedButton> UiFactory::buttonFromGuiEntry(const std::string& guiName, const GuiEntry& entry)
     {
         auto text = entry.text ? *(entry.text) : std::string("");
         return createButton(

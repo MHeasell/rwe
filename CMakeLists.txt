@@ -440,8 +440,6 @@ set(SOURCE_FILES
     src/rwe/tdf/TdfParser.h
     src/rwe/tnt/TntArchive.cpp
     src/rwe/tnt/TntArchive.h
-    src/rwe/ui/UiButton.cpp
-    src/rwe/ui/UiButton.h
     src/rwe/ui/UiComponent.cpp
     src/rwe/ui/UiComponent.h
     src/rwe/ui/UiFactory.cpp

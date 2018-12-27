@@ -5,7 +5,6 @@
 #include <rwe/MainMenuModel.h>
 #include <rwe/TextureService.h>
 #include <rwe/gui.h>
-#include <rwe/ui/UiButton.h>
 #include <rwe/ui/UiLabel.h>
 #include <rwe/ui/UiListBox.h>
 #include <rwe/ui/UiPanel.h>
@@ -31,14 +30,14 @@ namespace rwe
 
         std::unique_ptr<UiPanel> panelFromGuiFile(const std::string& name);
 
-        std::unique_ptr<UiButton> createButton(int x, int y, int width, int height, const std::string& guiName, const std::string& name, const std::string& label);
+        std::unique_ptr<UiStagedButton> createButton(int x, int y, int width, int height, const std::string& guiName, const std::string& name, const std::string& label);
 
         std::unique_ptr<UiStagedButton> createStagedButton(int x, int y, int width, int height, const std::string& guiName, const std::string& name, const std::vector<std::string>& labels, unsigned int stages);
 
     private:
         std::unique_ptr<UiComponent> componentFromGuiEntry(const std::string& guiName, const GuiEntry& entry);
 
-        std::unique_ptr<UiButton> buttonFromGuiEntry(const std::string& guiName, const GuiEntry& entry);
+        std::unique_ptr<UiStagedButton> buttonFromGuiEntry(const std::string& guiName, const GuiEntry& entry);
 
         std::unique_ptr<UiStagedButton> stagedButtonFromGuiEntry(const std::string& guiName, const GuiEntry& entry);
 

@@ -77,6 +77,12 @@ namespace rwe
 
         void setTextAlign(TextAlign align);
 
+        void setLabel(const std::string& label);
+
+        void setNormalSprite(const std::shared_ptr<Sprite>& sprite);
+
+        void setPressedSprite(const std::shared_ptr<Sprite>& sprite);
+
     private:
         void activateButton(const ButtonClickEvent& event);
     };

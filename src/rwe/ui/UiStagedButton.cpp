@@ -8,21 +8,35 @@ namespace rwe
 
         graphics.drawSpriteAbs(posX, posY, sizeX, sizeY, sprite);
 
-        float textX = posX + 6.0f;
-        float textY = posY + (sizeY / 2.0f) + 6.0f;
-        if (pressed)
-        {
-            textY += 1.0f;
-        }
         const auto& label = stages[currentStage].label;
-        switch(textAlign)
+        switch (textAlign)
         {
             case TextAlign::Left:
+            {
+                float textX = posX + 6.0f;
+                float textY = posY + (sizeY / 2.0f) + 6.0f;
+                if (pressed)
+                {
+                    textY += 1.0f;
+                }
                 graphics.drawText(textX, textY, label, *labelFont);
                 break;
+            }
             case TextAlign::Center:
+            {
+                float textX = posX + (sizeX / 2.0f);
+                float textY = posY + (sizeY / 2.0f);
+                if (pressed)
+                {
+                    textY += 1.0f;
+                }
+                if (pressed)
+                {
+                    textY += 1.0f;
+                }
                 graphics.drawTextCentered(textX, textY, label, *labelFont);
                 break;
+            }
             default:
                 throw std::logic_error("Invalid TextAlign value");
         }
@@ -128,5 +142,25 @@ namespace rwe
             throw std::logic_error("New stage is not in range");
         }
         currentStage = newStage;
+    }
+
+    void UiStagedButton::setTextAlign(UiStagedButton::TextAlign align)
+    {
+        textAlign = align;
+    }
+
+    void UiStagedButton::setLabel(const std::string& label)
+    {
+        stages[currentStage].label = label;
+    }
+
+    void UiStagedButton::setNormalSprite(const std::shared_ptr<Sprite>& sprite)
+    {
+        stages[currentStage].sprite = sprite;
+    }
+
+    void UiStagedButton::setPressedSprite(const std::shared_ptr<Sprite>& sprite)
+    {
+        pressedSprite = sprite;
     }
 }
