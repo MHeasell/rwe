@@ -1,5 +1,5 @@
 #include <rwe/gui.h>
-#include "AbstractVirtualFileSystem.h"
+#include <rwe/vfs/AbstractVirtualFileSystem.h>
 
 namespace rwe
 {
@@ -13,13 +13,13 @@ namespace rwe
         return *bytes;
     }
 
-     std::vector<GuiEntry> AbstractVirtualFileSystem::readGuiOrThrow(const std::string& filename) const
-     {
-         auto parsedGui = parseGuiFromBytes(readFileOrThrow(filename));
-         if (!parsedGui)
-         {
-             throw std::runtime_error("Failed to parse GUI file: " + filename);
-         }
-         return *parsedGui;
-     }
+    std::vector<GuiEntry> AbstractVirtualFileSystem::readGuiOrThrow(const std::string& filename) const
+    {
+        auto parsedGui = parseGuiFromBytes(readFileOrThrow(filename));
+        if (!parsedGui)
+        {
+            throw std::runtime_error("Failed to parse GUI file: " + filename);
+        }
+        return *parsedGui;
+    }
 }

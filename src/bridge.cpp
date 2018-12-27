@@ -43,7 +43,7 @@ std::vector<std::string> getMapNames(rwe::AbstractVirtualFileSystem& vfs)
     }
 
     // Keep only maps that have a multiplayer schema
-    mapNames.erase(std::remove_if(mapNames.begin(), mapNames.end(), [&vfs](const auto& e){ return !hasMultiplayerSchema(vfs, e); }), mapNames.end());
+    mapNames.erase(std::remove_if(mapNames.begin(), mapNames.end(), [&vfs](const auto& e) { return !hasMultiplayerSchema(vfs, e); }), mapNames.end());
 
     return mapNames;
 }

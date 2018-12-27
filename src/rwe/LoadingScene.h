@@ -15,9 +15,9 @@
 #include <rwe/ViewportService.h>
 #include <rwe/ota.h>
 #include <rwe/tnt/TntArchive.h>
+#include <rwe/ui/UiFactory.h>
 #include <rwe/ui/UiLightBar.h>
 #include <rwe/ui/UiPanel.h>
-#include <rwe/ui/UiFactory.h>
 
 namespace rwe
 {

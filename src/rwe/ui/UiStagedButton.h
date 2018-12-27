@@ -24,6 +24,7 @@ namespace rwe
             Left,
             Center,
         };
+
     private:
         std::vector<StageInfo> stages;
         std::shared_ptr<Sprite> pressedSprite;

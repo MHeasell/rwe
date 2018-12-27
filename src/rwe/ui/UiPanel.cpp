@@ -4,7 +4,7 @@
 namespace rwe
 {
     UiPanel::UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY)
-            : UiComponent(posX, posY, sizeX, sizeY)
+        : UiComponent(posX, posY, sizeX, sizeY)
     {
     }
 
@@ -15,8 +15,8 @@ namespace rwe
     }
 
     UiPanel::UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::optional<std::shared_ptr<Sprite>> background)
-            : UiComponent(posX, posY, sizeX, sizeY),
-              background(background)
+        : UiComponent(posX, posY, sizeX, sizeY),
+          background(background)
     {
     }
 

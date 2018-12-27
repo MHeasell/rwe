@@ -2,9 +2,9 @@
 #define RWE_VIRTUALFILESYSTEM_H
 
 #include <optional>
+#include <rwe/gui.h>
 #include <string>
 #include <vector>
-#include <rwe/gui.h>
 
 namespace rwe
 {

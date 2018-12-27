@@ -737,7 +737,7 @@ namespace rwe
         }
 
         // Keep only maps that have a multiplayer schema
-        mapNames.erase(std::remove_if(mapNames.begin(), mapNames.end(), [this](const auto& e){ return !hasMultiplayerSchema(e); }), mapNames.end());
+        mapNames.erase(std::remove_if(mapNames.begin(), mapNames.end(), [this](const auto& e) { return !hasMultiplayerSchema(e); }), mapNames.end());
 
         return mapNames;
     }

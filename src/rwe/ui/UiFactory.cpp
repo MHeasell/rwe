@@ -110,11 +110,11 @@ namespace rwe
         }
 
         auto panel = std::make_unique<UiPanel>(
-                xPos,
-                yPos,
-                panelEntry.common.width,
-                panelEntry.common.height,
-                backgroundSprite);
+            xPos,
+            yPos,
+            panelEntry.common.width,
+            panelEntry.common.height,
+            backgroundSprite);
         panel->setName(name);
 
         // load panel components
@@ -258,13 +258,13 @@ namespace rwe
     {
         auto text = entry.text ? *(entry.text) : std::string("");
         return createButton(
-                entry.common.xpos,
-                entry.common.ypos,
-                entry.common.width,
-                entry.common.height,
-                guiName,
-                entry.common.name,
-                text);
+            entry.common.xpos,
+            entry.common.ypos,
+            entry.common.width,
+            entry.common.height,
+            guiName,
+            entry.common.name,
+            text);
     }
 
     std::unique_ptr<UiLabel> UiFactory::labelFromGuiEntry(const std::string& guiName, const GuiEntry& entry)
@@ -288,14 +288,14 @@ namespace rwe
     {
         auto labels = entry.text ? utf8Split(*entry.text, '|') : std::vector<std::string>();
         return createStagedButton(
-                entry.common.xpos,
-                entry.common.ypos,
-                entry.common.width,
-                entry.common.height,
-                guiName,
-                entry.common.name,
-                labels,
-                entry.stages.value());
+            entry.common.xpos,
+            entry.common.ypos,
+            entry.common.width,
+            entry.common.height,
+            guiName,
+            entry.common.name,
+            labels,
+            entry.stages.value());
     }
 
     std::shared_ptr<SpriteSeries> UiFactory::getDefaultStagedButtonGraphics(const std::string& guiName, int stages)

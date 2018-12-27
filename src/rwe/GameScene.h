@@ -26,11 +26,11 @@
 #include <rwe/UnitDatabase.h>
 #include <rwe/UnitFactory.h>
 #include <rwe/UnitId.h>
-#include <rwe/ui/UiPanel.h>
 #include <rwe/ViewportService.h>
 #include <rwe/camera/UiCamera.h>
 #include <rwe/cob/CobExecutionService.h>
 #include <rwe/pathfinding/PathFindingService.h>
+#include <rwe/ui/UiPanel.h>
 
 namespace rwe
 {
