@@ -150,26 +150,17 @@ namespace rwe
             height = 20;
         }
 
+        auto sprites = getButtonGraphics(guiName, name, width, height);
 
-        auto graphics = textureService->getGuiTexture(guiName, name);
-        if (!graphics)
+        std::vector<UiStagedButton::StageInfo> stages;
+        for (const auto& s : sprites.normal)
         {
-            graphics = getDefaultButtonGraphics(guiName, width, height);
+            stages.emplace_back(s, label);
         }
-
-        if ((*graphics)->sprites.size() < 2)
-        {
-            throw std::runtime_error("Not enough sprites in anim for button");
-        }
-
-        const auto& sprite = (*graphics)->sprites[0];
-        const auto& pressedSprite = (*graphics)->sprites[1];
 
         auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
 
-        std::vector<UiStagedButton::StageInfo> stages{UiStagedButton::StageInfo(sprite, label)};
-
-        auto button = std::make_unique<UiStagedButton>(x, y, width, height, stages, pressedSprite, font);
+        auto button = std::make_unique<UiStagedButton>(x, y, width, height, stages, sprites.pressed, font);
 
         auto sound = deduceButtonSound(guiName, name, width, height);
 
@@ -188,30 +179,22 @@ namespace rwe
     std::unique_ptr<UiStagedButton>
     UiFactory::createStagedButton(int x, int y, int width, int height, const std::string& guiName, const std::string& name, const std::vector<std::string>& labels, unsigned int stages)
     {
-        auto graphics = textureService->getGuiTexture(guiName, name);
-        if (!graphics)
-        {
-            graphics = getDefaultStagedButtonGraphics(guiName, stages);
-        }
+        auto sprites = getStagedButtonGraphics(guiName, name, stages);
 
         auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
 
-        auto spriteCount = (*graphics)->sprites.size();
-        auto stageCount = spriteCount - 3;
-        if (stageCount != labels.size())
+        if (sprites.normal.size() != labels.size())
         {
             throw std::runtime_error("Number of labels does not match number of sprites");
         }
 
         std::vector<UiStagedButton::StageInfo> stageInfos;
-        for (unsigned int i = 0; i < stageCount; ++i)
+        for (unsigned int i = 0; i < sprites.normal.size(); ++i)
         {
-            stageInfos.emplace_back((*graphics)->sprites[i], labels[i]);
+            stageInfos.emplace_back(sprites.normal[i], labels[i]);
         }
 
-        const auto& pressedSprite = (*graphics)->sprites[spriteCount - 2];
-
-        auto button = std::make_unique<UiStagedButton>(x, y, width, height, stageInfos, pressedSprite, font);
+        auto button = std::make_unique<UiStagedButton>(x, y, width, height, stageInfos, sprites.pressed, font);
 
         auto sound = deduceButtonSound(guiName, name, width, height);
 
@@ -298,7 +281,7 @@ namespace rwe
             entry.stages.value());
     }
 
-    std::shared_ptr<SpriteSeries> UiFactory::getDefaultStagedButtonGraphics(const std::string& guiName, int stages)
+    std::shared_ptr<SpriteSeries> UiFactory::getDefaultStagedButtonGraphics(const std::string& guiName, unsigned int stages)
     {
         assert(stages >= 1 && stages <= 4);
         std::string entryName("stagebuttn");
@@ -401,9 +384,14 @@ namespace rwe
 
             if (it != (*sprites)->sprites.end())
             {
+                if ((*sprites)->sprites.end() - it < 3)
+                {
+                    throw std::runtime_error(
+                        "Not enough sprites in BUTTONS0 for button of size " + std::to_string(width) + ", " + std::to_string(height));
+                }
                 auto spritesView = std::make_shared<SpriteSeries>();
                 spritesView->sprites.push_back(*(it++));
-                assert(it != (*sprites)->sprites.end());
+                spritesView->sprites.push_back(*(it++));
                 spritesView->sprites.push_back(*(it++));
                 return spritesView;
             }
@@ -412,6 +400,7 @@ namespace rwe
         // default behaviour
         const auto& sprite = textureService->getDefaultSprite();
         auto series = std::make_shared<SpriteSeries>();
+        series->sprites.push_back(sprite);
         series->sprites.push_back(sprite);
         series->sprites.push_back(sprite);
         return series;
@@ -443,5 +432,74 @@ namespace rwe
             entry.common.height);
 
         return surface;
+    }
+
+    UiFactory::ButtonSprites UiFactory::getButtonGraphics(
+        const std::string& guiName,
+        const std::string& name,
+        int width,
+        int height)
+    {
+        auto graphics = textureService->getGuiTexture(guiName, name);
+        if (!graphics)
+        {
+            graphics = getDefaultButtonGraphics(guiName, width, height);
+        }
+
+        const auto& sprites = (*graphics)->sprites;
+        auto spriteCount = sprites.size();
+
+        auto defaultSprite = textureService->getDefaultSprite();
+        if (spriteCount == 0)
+        {
+            std::vector<std::shared_ptr<Sprite>> normalSprites{defaultSprite};
+            return ButtonSprites{normalSprites, defaultSprite, defaultSprite};
+        }
+
+        auto stageCount = spriteCount > 3 ? spriteCount - 2 : 1;
+
+        std::vector<std::shared_ptr<Sprite>> normalSprites;
+        for (unsigned int i = 0; i < stageCount; ++i)
+        {
+            normalSprites.push_back(sprites[i]);
+        }
+
+        const auto& pressedSprite = stageCount < spriteCount ? sprites[stageCount] : defaultSprite;
+        const auto& disabledSprite = stageCount + 1 < spriteCount ? sprites[stageCount + 1] : defaultSprite;
+
+        return UiFactory::ButtonSprites{normalSprites, pressedSprite, disabledSprite};
+    }
+
+    UiFactory::ButtonSprites UiFactory::getStagedButtonGraphics(const std::string& guiName, const std::string& name, unsigned int stages)
+    {
+        auto graphics = textureService->getGuiTexture(guiName, name);
+        if (!graphics)
+        {
+            graphics = getDefaultStagedButtonGraphics(guiName, stages);
+        }
+
+        auto defaultSprite = textureService->getDefaultSprite();
+
+        const auto& sprites = (*graphics)->sprites;
+        auto spriteCount = sprites.size();
+
+        auto stagesPresentCount = spriteCount > 2 ? spriteCount - 2 : 0;
+        auto stagesToCopyCount = std::min<unsigned int>(stages, stagesPresentCount);
+
+        std::vector<std::shared_ptr<Sprite>> normalSprites;
+        for (unsigned int i = 0; i < stagesToCopyCount; ++i)
+        {
+            normalSprites.push_back(sprites[i]);
+        }
+        for (unsigned int i = stagesToCopyCount; i < stages; ++i)
+        {
+            normalSprites.push_back(defaultSprite);
+        }
+        assert(normalSprites.size() == stages);
+
+        const auto& pressedSprite = stagesPresentCount < spriteCount ? sprites[stagesPresentCount] : defaultSprite;
+        const auto& disabledSprite = stagesPresentCount + 1 < spriteCount ? sprites[stagesPresentCount + 1] : defaultSprite;
+
+        return UiFactory::ButtonSprites{normalSprites, pressedSprite, disabledSprite};
     }
 }

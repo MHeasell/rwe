@@ -18,6 +18,14 @@ namespace rwe
     class UiFactory
     {
     private:
+        struct ButtonSprites
+        {
+            std::vector<std::shared_ptr<Sprite>> normal;
+            std::shared_ptr<Sprite> pressed;
+            std::shared_ptr<Sprite> disabled;
+        };
+
+    private:
         TextureService* textureService;
         AudioService* audioService;
         TdfBlock* soundLookup;
@@ -55,9 +63,13 @@ namespace rwe
 
         std::optional<AudioService::SoundHandle> deduceButtonSound(const std::string& guiName, const std::string& name, int width, int height);
 
-        std::shared_ptr<SpriteSeries> getDefaultStagedButtonGraphics(const std::string& guiName, int stages);
+        std::shared_ptr<SpriteSeries> getDefaultStagedButtonGraphics(const std::string& guiName, unsigned int stages);
 
         std::unique_ptr<UiComponent> surfaceFromGuiEntry(const std::string& guiName, const GuiEntry& entry);
+
+        ButtonSprites getButtonGraphics(const std::string& guiName, const std::string& name, int width, int height);
+
+        ButtonSprites getStagedButtonGraphics(const std::string& guiName, const std::string& name, unsigned int stages);
     };
 }
 
