@@ -177,6 +177,42 @@ namespace rwe
     }
 
     std::unique_ptr<UiStagedButton>
+    UiFactory::createBasicButton(int x, int y, int width, int height, const std::string& guiName, const std::string& name, const std::string& label)
+    {
+        // hack for SINGLE.GUI buttons
+        if (width == 118 && height == 18)
+        {
+            width = 120;
+            height = 20;
+        }
+
+        auto sprites = getBasicButtonGraphics(guiName, name, width, height);
+
+        std::vector<UiStagedButton::StageInfo> stages;
+        for (const auto& s : sprites.normal)
+        {
+            stages.emplace_back(s, label);
+        }
+
+        auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
+
+        auto button = std::make_unique<UiStagedButton>(x, y, width, height, stages, sprites.pressed, font);
+
+        auto sound = deduceButtonSound(guiName, name, width, height);
+
+        if (sound)
+        {
+            button->onClick().subscribe([as = audioService, s = std::move(*sound)](const auto& /*param*/) {
+                as->playSound(s);
+            });
+        }
+
+        button->setTextAlign(UiStagedButton::TextAlign::Center);
+
+        return button;
+    }
+
+    std::unique_ptr<UiStagedButton>
     UiFactory::createStagedButton(int x, int y, int width, int height, const std::string& guiName, const std::string& name, const std::vector<std::string>& labels, unsigned int stages)
     {
         auto sprites = getStagedButtonGraphics(guiName, name, stages);
@@ -468,6 +504,30 @@ namespace rwe
         const auto& disabledSprite = stageCount + 1 < spriteCount ? sprites[stageCount + 1] : defaultSprite;
 
         return UiFactory::ButtonSprites{normalSprites, pressedSprite, disabledSprite};
+    }
+
+    UiFactory::ButtonSprites UiFactory::getBasicButtonGraphics(
+            const std::string& guiName,
+            const std::string& name,
+            int width,
+            int height)
+    {
+        auto graphics = textureService->getGuiTexture(guiName, name);
+        if (!graphics)
+        {
+            graphics = getDefaultButtonGraphics(guiName, width, height);
+        }
+
+        const auto& sprites = (*graphics)->sprites;
+        auto spriteCount = sprites.size();
+
+        auto defaultSprite = textureService->getDefaultSprite();
+
+        const auto& normalSprite = spriteCount > 0 ? sprites[0] : defaultSprite;
+        const auto& pressedSprite = spriteCount > 1 ? sprites[1] : defaultSprite;
+        const auto& disabledSprite = spriteCount > 2 ? sprites[2] : defaultSprite;
+
+        return UiFactory::ButtonSprites{std::vector<std::shared_ptr<Sprite>>{normalSprite}, pressedSprite, disabledSprite};
     }
 
     UiFactory::ButtonSprites UiFactory::getStagedButtonGraphics(const std::string& guiName, const std::string& name, unsigned int stages)

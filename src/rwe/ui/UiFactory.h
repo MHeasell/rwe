@@ -40,6 +40,8 @@ namespace rwe
 
         std::unique_ptr<UiStagedButton> createButton(int x, int y, int width, int height, const std::string& guiName, const std::string& name, const std::string& label);
 
+        std::unique_ptr<UiStagedButton> createBasicButton(int x, int y, int width, int height, const std::string& guiName, const std::string& name, const std::string& label);
+
         std::unique_ptr<UiStagedButton> createStagedButton(int x, int y, int width, int height, const std::string& guiName, const std::string& name, const std::vector<std::string>& labels, unsigned int stages);
 
     private:
@@ -68,6 +70,8 @@ namespace rwe
         std::unique_ptr<UiComponent> surfaceFromGuiEntry(const std::string& guiName, const GuiEntry& entry);
 
         ButtonSprites getButtonGraphics(const std::string& guiName, const std::string& name, int width, int height);
+
+        ButtonSprites getBasicButtonGraphics(const std::string& guiName, const std::string& name, int width, int height);
 
         ButtonSprites getStagedButtonGraphics(const std::string& guiName, const std::string& name, unsigned int stages);
     };

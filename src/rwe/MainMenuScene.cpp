@@ -756,7 +756,7 @@ namespace rwe
                 unsigned int width = 112;
                 unsigned int height = 20;
 
-                auto b = uiFactory.createButton(45, rowStart, width, height, guiName, "skirmname", "Player");
+                auto b = uiFactory.createBasicButton(45, rowStart, width, height, guiName, "skirmname", "Player");
                 b->setName("PLAYER" + std::to_string(i));
 
                 auto sub = model.players[i].type.subscribe([b = b.get(), &panel, this, guiName, i](MainMenuModel::PlayerSettings::Type type) {
