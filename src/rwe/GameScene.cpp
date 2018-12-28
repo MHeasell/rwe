@@ -119,7 +119,10 @@ namespace rwe
 
         renderMinimap(context);
 
-        ordersPanel->render(chromeUiRenderService);
+        if (selectedUnit)
+        {
+            ordersPanel->render(chromeUiRenderService);
+        }
 
         sceneContext.cursor->render(chromeUiRenderService);
         context.enableDepthBuffer();
