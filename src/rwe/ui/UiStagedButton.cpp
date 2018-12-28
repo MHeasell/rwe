@@ -2,6 +2,22 @@
 
 namespace rwe
 {
+    ButtonClickEvent::Source mouseButtonToSource(MouseButtonEvent::MouseButton btn)
+    {
+        switch (btn)
+        {
+            case MouseButtonEvent::MouseButton::Left:
+                return ButtonClickEvent::Source::LeftMouseButton;
+            case MouseButtonEvent::MouseButton::Right:
+                return ButtonClickEvent::Source::RightMouseButton;
+            case MouseButtonEvent::MouseButton::Middle:
+                return ButtonClickEvent::Source::MiddleMouseButton;
+                break;
+            default:
+                throw std::logic_error("Unknown mouse button value");
+        }
+    }
+
     void UiStagedButton::render(UiRenderService& graphics) const
     {
         const auto& sprite = pressed ? *pressedSprite : *stages[currentStage].sprite;
@@ -61,53 +77,67 @@ namespace rwe
         }
     }
 
-    void UiStagedButton::mouseDown(MouseButtonEvent)
+    void UiStagedButton::mouseDown(MouseButtonEvent event)
     {
-        armed = true;
-        pressed = true;
+        switch (activateOn)
+        {
+            case ActivateMode::MouseDown:
+                activateButton({(mouseButtonToSource(event.button))});
+                break;
+            case ActivateMode::MouseUp:
+                armed = true;
+                pressed = true;
+            default:
+                throw std::logic_error("Invalid ActivateMode");
+        }
     }
 
     void UiStagedButton::mouseUp(MouseButtonEvent event)
     {
-        if (armed && pressed)
+        switch (activateOn)
         {
-            ButtonClickEvent::Source s;
-            switch (event.button)
-            {
-                case MouseButtonEvent::MouseButton::Left:
-                    s = ButtonClickEvent::Source::LeftMouseButton;
-                    break;
-                case MouseButtonEvent::MouseButton::Right:
-                    s = ButtonClickEvent::Source::RightMouseButton;
-                    break;
-                case MouseButtonEvent::MouseButton::Middle:
-                    s = ButtonClickEvent::Source::MiddleMouseButton;
-                    break;
-            }
-            activateButton({s});
-        }
+            case ActivateMode::MouseDown:
+                break;
+            case ActivateMode::MouseUp:
+                if (armed && pressed)
+                {
+                    activateButton({(mouseButtonToSource(event.button))});
+                }
 
-        armed = false;
-        pressed = false;
+                armed = false;
+                pressed = false;
+                break;
+            default:
+                throw std::logic_error("Invalid ActivateMode");
+        }
     }
 
     void UiStagedButton::mouseEnter()
     {
-        if (armed)
+        if (activateOn == ActivateMode::MouseUp)
         {
-            pressed = true;
+            if (armed)
+            {
+                pressed = true;
+            }
         }
     }
 
     void UiStagedButton::mouseLeave()
     {
-        pressed = false;
+        if (activateOn == ActivateMode::MouseUp)
+        {
+            pressed = false;
+        }
     }
 
     void UiStagedButton::unfocus()
     {
-        armed = false;
-        pressed = false;
+        if (activateOn == ActivateMode::MouseUp)
+        {
+            armed = false;
+            pressed = false;
+        }
     }
 
     Observable<ButtonClickEvent>& UiStagedButton::onClick()
@@ -162,5 +192,15 @@ namespace rwe
     void UiStagedButton::setPressedSprite(const std::shared_ptr<Sprite>& sprite)
     {
         pressedSprite = sprite;
+    }
+
+    void UiStagedButton::setPressed(bool _pressed)
+    {
+        pressed = _pressed;
+    }
+
+    void UiStagedButton::setActivateMode(rwe::UiStagedButton::ActivateMode mode)
+    {
+        activateOn = mode;
     }
 }

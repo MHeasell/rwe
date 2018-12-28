@@ -201,6 +201,10 @@ namespace rwe
         auto minimapDotHighlight = sceneContext.textureService->getGafEntry("anims/FX.GAF", "radlogohigh")->sprites.at(0);
 
         auto ordersPanel = uiFactory.panelFromGuiFile("ARMGEN");
+        ordersPanel->forAll<UiStagedButton>([](auto& b){
+            b.setActivateMode(UiStagedButton::ActivateMode::MouseDown);
+            b.autoChangeStage = false;
+        });
 
         auto gameScene = std::make_unique<GameScene>(
             sceneContext,

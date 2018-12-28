@@ -3,6 +3,7 @@
 #include <rwe/Mesh.h>
 #include <spdlog/spdlog.h>
 #include <unordered_set>
+#include <rwe/ui/UiStagedButton.h>
 
 namespace rwe
 {
@@ -99,6 +100,8 @@ namespace rwe
     {
         sceneContext.audioService->reserveChannels(reservedChannelsCount);
         gameNetworkService->start();
+
+        attachOrdersMenuEventHandlers();
     }
 
     void GameScene::render(GraphicsContext& context)
@@ -1332,6 +1335,38 @@ namespace rwe
             for (const auto& c : p.second)
             {
                 boost::apply_visitor(dispatcher, c);
+            }
+        }
+    }
+
+    void GameScene::attachOrdersMenuEventHandlers()
+    {
+        if (auto p = ordersPanel->find<UiStagedButton>("ARMATTACK"))
+        {
+            cursorMode.subscribe([&p = p->get()](const auto& v) {
+                p.setPressed(boost::get<AttackCursorMode>(&v) != nullptr);
+            });
+        }
+
+        ordersPanel->groupMessages().subscribe([this](const auto& msg){
+            if (boost::get<ActivateMessage>(&msg.message) != nullptr)
+            {
+                onMessage(msg.controlName);
+            }
+        });
+    }
+
+    void GameScene::onMessage(const std::string& message)
+    {
+        if (message == "ARMATTACK")
+        {
+            if (boost::get<AttackCursorMode>(&cursorMode.getValue()))
+            {
+                cursorMode.next(NormalCursorMode());
+            }
+            else
+            {
+                cursorMode.next(AttackCursorMode());
             }
         }
     }

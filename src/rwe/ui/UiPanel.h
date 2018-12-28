@@ -95,6 +95,19 @@ namespace rwe
 
             return const_cast<T&>(component->get());
         }
+
+        template <typename T>
+        void forAll(const std::function<void(T&)>& f)
+        {
+            static_assert(std::is_base_of_v<UiComponent, T>);
+            for (auto& c : children)
+            {
+                if (auto cc = dynamic_cast<T*>(c.get()); cc != nullptr)
+                {
+                    f(*cc);
+                }
+            }
+        }
     };
 }
 

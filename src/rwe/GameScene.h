@@ -379,6 +379,10 @@ namespace rwe
         void renderMinimap(GraphicsContext& context);
 
         void renderWorld(GraphicsContext& context);
+
+        void attachOrdersMenuEventHandlers();
+
+        void onMessage(const std::string& message);
     };
 }
 

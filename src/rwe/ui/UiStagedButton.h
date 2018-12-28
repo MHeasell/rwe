@@ -25,6 +25,12 @@ namespace rwe
             Center,
         };
 
+        enum ActivateMode
+        {
+            MouseDown,
+            MouseUp,
+        };
+
     private:
         std::vector<StageInfo> stages;
         std::shared_ptr<Sprite> pressedSprite;
@@ -42,6 +48,8 @@ namespace rwe
          */
         bool armed{false};
 
+        ActivateMode activateOn{ActivateMode::MouseDown};
+
         unsigned int currentStage{0};
 
         Subject<ButtonClickEvent> clickSubject;
@@ -58,7 +66,7 @@ namespace rwe
 
         void render(UiRenderService& graphics) const override;
 
-        void mouseDown(MouseButtonEvent /*event*/) override;
+        void mouseDown(MouseButtonEvent event) override;
 
         void mouseUp(MouseButtonEvent event) override;
 
@@ -83,6 +91,10 @@ namespace rwe
         void setNormalSprite(const std::shared_ptr<Sprite>& sprite);
 
         void setPressedSprite(const std::shared_ptr<Sprite>& sprite);
+
+        void setPressed(bool _pressed);
+
+        void setActivateMode(ActivateMode mode);
 
     private:
         void activateButton(const ButtonClickEvent& event);
