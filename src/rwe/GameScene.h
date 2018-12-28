@@ -193,10 +193,9 @@ namespace rwe
         std::shared_ptr<Sprite> minimap;
         std::shared_ptr<SpriteSeries> minimapDots;
         std::shared_ptr<Sprite> minimapDotHighlight;
+        Rectangle2f minimapRect;
 
         std::unique_ptr<UiPanel> ordersPanel;
-
-        Rectangle2f minimapRect;
 
         PlayerId localPlayerId;
 
