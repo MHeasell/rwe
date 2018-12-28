@@ -439,7 +439,7 @@ int main(int argc, char* argv[])
                 ("map", po::value<std::string>(), "If given, launches straight into a game on the given map")
                 ("interface", po::value<std::string>()->default_value("0.0.0.0"), "Network interface to bind to")
                 ("port", po::value<std::string>()->default_value("1337"), "Network port to bind to")
-                ("player", po::value<std::vector<std::string>>(), "type:side:color");
+                ("player", po::value<std::vector<std::string>>(), "type;side;color");
             // clang-format on
 
             po::variables_map vm;
