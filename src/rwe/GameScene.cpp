@@ -273,13 +273,13 @@ namespace rwe
         {
             if (selectedUnit)
             {
-                if (boost::get<AttackCursorMode>(&cursorMode) != nullptr)
+                if (boost::get<AttackCursorMode>(&cursorMode.getValue()) != nullptr)
                 {
-                    cursorMode = NormalCursorMode();
+                    cursorMode.next(NormalCursorMode());
                 }
                 else
                 {
-                    cursorMode = AttackCursorMode();
+                    cursorMode.next(AttackCursorMode());
                 }
             }
         }
@@ -352,7 +352,7 @@ namespace rwe
 
         if (event.button == MouseButtonEvent::MouseButton::Left)
         {
-            if (boost::get<AttackCursorMode>(&cursorMode) != nullptr)
+            if (boost::get<AttackCursorMode>(&cursorMode.getValue()) != nullptr)
             {
                 if (selectedUnit)
                 {
@@ -365,7 +365,7 @@ namespace rwe
                         else
                         {
                             localPlayerIssueUnitOrder(*selectedUnit, AttackOrder(*hoveredUnit));
-                            cursorMode = NormalCursorMode();
+                            cursorMode.next(NormalCursorMode());
                         }
                     }
                     else
@@ -380,7 +380,7 @@ namespace rwe
                             else
                             {
                                 localPlayerIssueUnitOrder(*selectedUnit, AttackOrder(*coord));
-                                cursorMode = NormalCursorMode();
+                                cursorMode.next(NormalCursorMode());
                             }
                         }
                     }
@@ -388,27 +388,27 @@ namespace rwe
             }
             else
             {
-                auto normalCursor = boost::get<NormalCursorMode>(&cursorMode);
+                auto normalCursor = boost::get<NormalCursorMode>(&cursorMode.getValue());
                 if (normalCursor != nullptr)
                 {
                     if (isCursorOverMinimap())
                     {
-                        normalCursor->state = NormalCursorMode::DraggingMinimap();
+                        cursorMode.next(NormalCursorMode{NormalCursorMode::State::DraggingMinimap});
                     }
                     else if (isCursorOverWorld())
                     {
-                        normalCursor->state = NormalCursorMode::Selecting();
+                        cursorMode.next(NormalCursorMode{NormalCursorMode::State::Selecting});
                     }
                 }
             }
         }
         else if (event.button == MouseButtonEvent::MouseButton::Right)
         {
-            if (boost::get<AttackCursorMode>(&cursorMode) != nullptr)
+            if (boost::get<AttackCursorMode>(&cursorMode.getValue()) != nullptr)
             {
-                cursorMode = NormalCursorMode();
+                cursorMode.next(NormalCursorMode());
             }
-            else if (boost::get<NormalCursorMode>(&cursorMode) != nullptr)
+            else if (boost::get<NormalCursorMode>(&cursorMode.getValue()) != nullptr)
             {
                 if (selectedUnit)
                 {
@@ -449,10 +449,10 @@ namespace rwe
 
         if (event.button == MouseButtonEvent::MouseButton::Left)
         {
-            auto normalCursor = boost::get<NormalCursorMode>(&cursorMode);
+            auto normalCursor = boost::get<NormalCursorMode>(&cursorMode.getValue());
             if (normalCursor != nullptr)
             {
-                if (boost::get<NormalCursorMode::Selecting>(&normalCursor->state) != nullptr)
+                if (normalCursor->state == NormalCursorMode::State::Selecting)
                 {
                     if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
                     {
@@ -468,11 +468,11 @@ namespace rwe
                         selectedUnit = std::nullopt;
                     }
 
-                    normalCursor->state = NormalCursorMode::Up();
+                    cursorMode.next(NormalCursorMode{NormalCursorMode::State::Up});
                 }
-                else if (boost::get<NormalCursorMode::DraggingMinimap>(&normalCursor->state) != nullptr)
+                else if (normalCursor->state == NormalCursorMode::State::DraggingMinimap)
                 {
-                    normalCursor->state = NormalCursorMode::Up();
+                    cursorMode.next(NormalCursorMode{NormalCursorMode::State::Up});
                 }
             }
         }
@@ -535,9 +535,9 @@ namespace rwe
         }
 
         // handle minimap dragging
-        if (auto cursor = boost::get<NormalCursorMode>(&cursorMode); cursor != nullptr)
+        if (auto cursor = boost::get<NormalCursorMode>(&cursorMode.getValue()); cursor != nullptr)
         {
-            if (boost::get<NormalCursorMode::DraggingMinimap>(&cursor->state) != nullptr)
+            if (cursor->state == NormalCursorMode::State::DraggingMinimap)
             {
                 // ok, the cursor is dragging the minimap.
                 // work out where the cursor is on the minimap,
@@ -554,11 +554,11 @@ namespace rwe
 
         hoveredUnit = getUnitUnderCursor();
 
-        if (boost::get<AttackCursorMode>(&cursorMode) != nullptr)
+        if (boost::get<AttackCursorMode>(&cursorMode.getValue()) != nullptr)
         {
             sceneContext.cursor->useAttackCursor();
         }
-        else if (boost::get<NormalCursorMode>(&cursorMode) != nullptr)
+        else if (boost::get<NormalCursorMode>(&cursorMode.getValue()) != nullptr)
         {
             if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
             {

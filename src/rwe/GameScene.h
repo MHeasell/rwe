@@ -31,6 +31,7 @@
 #include <rwe/cob/CobExecutionService.h>
 #include <rwe/pathfinding/PathFindingService.h>
 #include <rwe/ui/UiPanel.h>
+#include <rwe/observable/BehaviorSubject.h>
 
 namespace rwe
 {
@@ -53,22 +54,29 @@ namespace rwe
 
     struct AttackCursorMode
     {
+        bool operator==(const AttackCursorMode& /*rhs*/) const { return true; }
+        bool operator!=(const AttackCursorMode& /*rhs*/) const { return false; }
     };
 
     struct NormalCursorMode
     {
-        struct Selecting
-        {
+        enum class State {
+            Selecting,
+            DraggingMinimap,
+            Up,
         };
-        struct DraggingMinimap
-        {
-        };
-        struct Up
-        {
-        };
-        using State = boost::variant<Selecting, DraggingMinimap, Up>;
 
-        State state{Up()};
+        State state{State::Up};
+
+        bool operator==(const NormalCursorMode& rhs) const
+        {
+            return state == rhs.state;
+        }
+
+        bool operator!=(const NormalCursorMode& rhs) const
+        {
+            return !(rhs == *this);
+        }
     };
 
     using CursorMode = boost::variant<AttackCursorMode, NormalCursorMode>;
@@ -211,7 +219,7 @@ namespace rwe
 
         bool healthBarsVisible{false};
 
-        CursorMode cursorMode{NormalCursorMode()};
+        BehaviorSubject<CursorMode> cursorMode{NormalCursorMode()};
 
         std::deque<std::optional<GameSceneTimeAction>> actions;
 
