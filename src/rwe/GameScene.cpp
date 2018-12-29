@@ -560,7 +560,12 @@ namespace rwe
 
         hoveredUnit = getUnitUnderCursor();
 
-        if (boost::get<AttackCursorMode>(&cursorMode.getValue()) != nullptr)
+        if (!isCursorOverMinimap() && !isCursorOverWorld())
+        {
+            // The cursor is outside the world, so over UI elements.
+            sceneContext.cursor->useNormalCursor();
+        }
+        else if (boost::get<AttackCursorMode>(&cursorMode.getValue()) != nullptr)
         {
             sceneContext.cursor->useAttackCursor();
         }
