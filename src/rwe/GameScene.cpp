@@ -7,6 +7,11 @@
 
 namespace rwe
 {
+    bool operator!=(const CursorMode& lhs, const CursorMode& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
     class LaserCollisionVisitor : public boost::static_visitor<bool>
     {
     private:

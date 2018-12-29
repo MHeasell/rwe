@@ -80,6 +80,11 @@ namespace rwe
     };
 
     using CursorMode = boost::variant<AttackCursorMode, NormalCursorMode>;
+    // != not automatically defined in boost::variant before 1.58:
+    // https://www.boost.org/users/history/version_1_58_0.html
+    // https://svn.boost.org/trac10/ticket/8620
+    // https://svn.boost.org/trac10/ticket/10811
+    bool operator!=(const CursorMode& lhs, const CursorMode& rhs);
 
     enum class ImpactType
     {
