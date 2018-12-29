@@ -82,12 +82,12 @@ namespace rwe
         assert(entries.size() > 0);
         const auto& panelEntry = entries[0];
         auto panel = createPanel(
-                panelEntry.common.xpos,
-                panelEntry.common.ypos,
-                panelEntry.common.width,
-                panelEntry.common.height,
-                name,
-                panelEntry.panel);
+            panelEntry.common.xpos,
+            panelEntry.common.ypos,
+            panelEntry.common.width,
+            panelEntry.common.height,
+            name,
+            panelEntry.panel);
 
         // load panel components
         for (std::size_t i = 1; i < entries.size(); ++i)
@@ -514,10 +514,10 @@ namespace rwe
     }
 
     UiFactory::ButtonSprites UiFactory::getBasicButtonGraphics(
-            const std::string& guiName,
-            const std::string& name,
-            int width,
-            int height)
+        const std::string& guiName,
+        const std::string& name,
+        int width,
+        int height)
     {
         auto graphics = textureService->getGuiTexture(guiName, name);
         if (!graphics)

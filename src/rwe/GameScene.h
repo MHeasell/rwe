@@ -1,6 +1,7 @@
 #ifndef RWE_GAMESCENE_H
 #define RWE_GAMESCENE_H
 
+#include <boost/version.hpp>
 #include <deque>
 #include <functional>
 #include <optional>
@@ -10,6 +11,7 @@
 #include <rwe/DiscreteRect.h>
 #include <rwe/GameNetworkService.h>
 #include <rwe/GameSimulation.h>
+#include <rwe/InGameSoundsInfo.h>
 #include <rwe/MeshService.h>
 #include <rwe/OccupiedGrid.h>
 #include <rwe/PlayerCommand.h>
@@ -29,11 +31,9 @@
 #include <rwe/ViewportService.h>
 #include <rwe/camera/UiCamera.h>
 #include <rwe/cob/CobExecutionService.h>
+#include <rwe/observable/BehaviorSubject.h>
 #include <rwe/pathfinding/PathFindingService.h>
 #include <rwe/ui/UiPanel.h>
-#include <rwe/observable/BehaviorSubject.h>
-#include <boost/version.hpp>
-#include <rwe/InGameSoundsInfo.h>
 
 namespace rwe
 {
@@ -68,7 +68,8 @@ namespace rwe
 
     struct NormalCursorMode
     {
-        enum class State {
+        enum class State
+        {
             Selecting,
             DraggingMinimap,
             Up,
