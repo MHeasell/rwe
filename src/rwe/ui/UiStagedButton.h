@@ -48,7 +48,7 @@ namespace rwe
          */
         bool armed{false};
 
-        ActivateMode activateOn{ActivateMode::MouseDown};
+        ActivateMode activateOn{ActivateMode::MouseUp};
 
         unsigned int currentStage{0};
 
