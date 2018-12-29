@@ -33,6 +33,7 @@ namespace rwe
                 float textY = posY + (sizeY / 2.0f) + 6.0f;
                 if (pressed)
                 {
+                    textX += 1.0f;
                     textY += 1.0f;
                 }
                 graphics.drawText(textX, textY, label, *labelFont);
@@ -44,10 +45,7 @@ namespace rwe
                 float textY = posY + (sizeY / 2.0f);
                 if (pressed)
                 {
-                    textY += 1.0f;
-                }
-                if (pressed)
-                {
+                    textX += 1.0f;
                     textY += 1.0f;
                 }
                 graphics.drawTextCentered(textX, textY, label, *labelFont);
