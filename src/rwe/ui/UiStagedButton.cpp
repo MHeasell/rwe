@@ -87,6 +87,7 @@ namespace rwe
             case ActivateMode::MouseUp:
                 armed = true;
                 pressed = true;
+                break;
             default:
                 throw std::logic_error("Invalid ActivateMode");
         }
