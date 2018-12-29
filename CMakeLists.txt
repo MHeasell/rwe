@@ -244,6 +244,8 @@ set(SOURCE_FILES
     src/rwe/GridRegion.h
     src/rwe/Hpi.cpp
     src/rwe/Hpi.h
+    src/rwe/InGameSoundsInfo.cpp
+    src/rwe/InGameSoundsInfo.h
     src/rwe/LaserProjectile.cpp
     src/rwe/LaserProjectile.h
     src/rwe/LoadingNetworkService.cpp

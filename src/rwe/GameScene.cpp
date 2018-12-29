@@ -81,6 +81,7 @@ namespace rwe
         const std::shared_ptr<Sprite>& minimapDotHighlight,
         std::unique_ptr<UiPanel>&& neutralPanel,
         std::unique_ptr<UiPanel>&& ordersPanel,
+        InGameSoundsInfo sounds,
         PlayerId localPlayerId)
         : sceneContext(sceneContext),
           worldViewport(ViewportService(GuiSizeLeft, GuiSizeTop, sceneContext.viewportService->width() - GuiSizeLeft - GuiSizeRight, sceneContext.viewportService->height() - GuiSizeTop - GuiSizeBottom)),
@@ -101,6 +102,7 @@ namespace rwe
           minimapRect(minimapViewport.scaleToFit(this->minimap->bounds)),
           neutralPanel(std::move(neutralPanel)),
           ordersPanel(std::move(ordersPanel)),
+          sounds(std::move(sounds)),
           localPlayerId(localPlayerId)
     {
     }
@@ -1425,6 +1427,11 @@ namespace rwe
     {
         if (message == "ARMATTACK")
         {
+            if (sounds.specialOrders)
+            {
+                sceneContext.audioService->playSound(*sounds.specialOrders);
+            }
+
             if (boost::get<AttackCursorMode>(&cursorMode.getValue()))
             {
                 cursorMode.next(NormalCursorMode());
@@ -1436,6 +1443,11 @@ namespace rwe
         }
         else if (message == "ARMMOVE")
         {
+            if (sounds.specialOrders)
+            {
+                sceneContext.audioService->playSound(*sounds.specialOrders);
+            }
+
             if (boost::get<MoveCursorMode>(&cursorMode.getValue()))
             {
                 cursorMode.next(NormalCursorMode());

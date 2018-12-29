@@ -89,6 +89,8 @@ namespace rwe
         UiRenderService scaledUiRenderService;
         UiRenderService nativeUiRenderService;
 
+        TdfBlock* audioLookup;
+
         AudioService::LoopToken bgm;
 
         GameParameters gameParameters;
@@ -137,6 +139,8 @@ namespace rwe
         void preloadSound(UnitDatabase& db, const std::string& soundName);
 
         void preloadSound(UnitDatabase& db, const std::optional<std::string>& soundName);
+
+        std::optional<AudioService::SoundHandle> lookUpSound(const std::string& key);
     };
 }
 

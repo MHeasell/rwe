@@ -25,6 +25,7 @@ namespace rwe
           featureService(featureService),
           scaledUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(640.0, 480.0f)),
           nativeUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(sceneContext.viewportService->width(), sceneContext.viewportService->height())),
+          audioLookup(audioLookup),
           bgm(std::move(bgm)),
           gameParameters(std::move(gameParameters)),
           uiFactory(sceneContext.textureService, sceneContext.audioService, audioLookup, sceneContext.vfs)
@@ -207,6 +208,10 @@ namespace rwe
             b.autoChangeStage = false;
         });
 
+        InGameSoundsInfo sounds;
+        sounds.immediateOrders = lookUpSound("IMMEDIATEORDERS");
+        sounds.specialOrders = lookUpSound("SPECIALORDERS");
+
         auto gameScene = std::make_unique<GameScene>(
             sceneContext,
             std::move(playerCommandService),
@@ -223,6 +228,7 @@ namespace rwe
             minimapDotHighlight,
             std::move(neutralPanel),
             std::move(ordersPanel),
+            std::move(sounds),
             *localPlayerId);
 
         const auto& schema = ota.schemas.at(schemaIndex);
@@ -645,5 +651,22 @@ namespace rwe
         }
 
         db.addSound(soundName, *sound);
+    }
+
+    std::optional<AudioService::SoundHandle> LoadingScene::lookUpSound(const std::string& key)
+    {
+        auto soundBlock = audioLookup->findBlock(key);
+        if (!soundBlock)
+        {
+            return std::nullopt;
+        }
+
+        auto soundName = soundBlock->get().findValue("sound");
+        if (!soundName)
+        {
+            return std::nullopt;
+        }
+
+        return sceneContext.audioService->loadSound(*soundName);
     }
 }

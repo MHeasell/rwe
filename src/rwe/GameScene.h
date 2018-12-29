@@ -33,6 +33,7 @@
 #include <rwe/ui/UiPanel.h>
 #include <rwe/observable/BehaviorSubject.h>
 #include <boost/version.hpp>
+#include <rwe/InGameSoundsInfo.h>
 
 namespace rwe
 {
@@ -213,6 +214,8 @@ namespace rwe
         std::unique_ptr<UiPanel> neutralPanel;
         std::unique_ptr<UiPanel> ordersPanel;
 
+        InGameSoundsInfo sounds;
+
         PlayerId localPlayerId;
 
         SceneTime sceneTime{0};
@@ -257,6 +260,7 @@ namespace rwe
             const std::shared_ptr<Sprite>& minimapDotHighlight,
             std::unique_ptr<UiPanel>&& neutralPanel,
             std::unique_ptr<UiPanel>&& ordersPanel,
+            InGameSoundsInfo sounds,
             PlayerId localPlayerId);
 
         void init() override;
