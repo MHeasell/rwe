@@ -79,6 +79,7 @@ namespace rwe
         const std::shared_ptr<Sprite>& minimap,
         const std::shared_ptr<SpriteSeries>& minimapDots,
         const std::shared_ptr<Sprite>& minimapDotHighlight,
+        std::unique_ptr<UiPanel>&& neutralPanel,
         std::unique_ptr<UiPanel>&& ordersPanel,
         PlayerId localPlayerId)
         : sceneContext(sceneContext),
@@ -98,6 +99,7 @@ namespace rwe
           minimapDots(minimapDots),
           minimapDotHighlight(minimapDotHighlight),
           minimapRect(minimapViewport.scaleToFit(this->minimap->bounds)),
+          neutralPanel(std::move(neutralPanel)),
           ordersPanel(std::move(ordersPanel)),
           localPlayerId(localPlayerId)
     {
@@ -129,6 +131,10 @@ namespace rwe
         if (selectedUnit)
         {
             ordersPanel->render(chromeUiRenderService);
+        }
+        else
+        {
+            neutralPanel->render(chromeUiRenderService);
         }
 
         sceneContext.cursor->render(chromeUiRenderService);

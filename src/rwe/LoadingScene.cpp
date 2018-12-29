@@ -201,6 +201,7 @@ namespace rwe
         auto minimapDotHighlight = sceneContext.textureService->getGafEntry("anims/FX.GAF", "radlogohigh")->sprites.at(0);
 
         auto ordersPanel = uiFactory.panelFromGuiFile("ARMGEN");
+        auto neutralPanel = uiFactory.createPanel(0, 128, 128, 352, "", "ARMPAN2");
         ordersPanel->forAll<UiStagedButton>([](auto& b){
             b.setActivateMode(UiStagedButton::ActivateMode::MouseDown);
             b.autoChangeStage = false;
@@ -220,6 +221,7 @@ namespace rwe
             minimap,
             minimapDots,
             minimapDotHighlight,
+            std::move(neutralPanel),
             std::move(ordersPanel),
             *localPlayerId);
 

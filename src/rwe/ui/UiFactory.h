@@ -38,6 +38,9 @@ namespace rwe
 
         std::unique_ptr<UiPanel> panelFromGuiFile(const std::string& name);
 
+        std::unique_ptr<UiPanel> createPanel(int x, int y, int width, int height, const std::string& name);
+        std::unique_ptr<UiPanel> createPanel(int x, int y, int width, int height, const std::string& name, const std::optional<std::string>& background);
+
         std::unique_ptr<UiStagedButton> createButton(int x, int y, int width, int height, const std::string& guiName, const std::string& name, const std::string& label);
 
         std::unique_ptr<UiStagedButton> createBasicButton(int x, int y, int width, int height, const std::string& guiName, const std::string& name, const std::string& label);

@@ -204,6 +204,7 @@ namespace rwe
         std::shared_ptr<Sprite> minimapDotHighlight;
         Rectangle2f minimapRect;
 
+        std::unique_ptr<UiPanel> neutralPanel;
         std::unique_ptr<UiPanel> ordersPanel;
 
         PlayerId localPlayerId;
@@ -248,6 +249,7 @@ namespace rwe
             const std::shared_ptr<Sprite>& minimap,
             const std::shared_ptr<SpriteSeries>& minimapDots,
             const std::shared_ptr<Sprite>& minimapDotHighlight,
+            std::unique_ptr<UiPanel>&& neutralPanel,
             std::unique_ptr<UiPanel>&& ordersPanel,
             PlayerId localPlayerId);
 

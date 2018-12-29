@@ -81,41 +81,13 @@ namespace rwe
         // first entry sets up the panel
         assert(entries.size() > 0);
         const auto& panelEntry = entries[0];
-
-        std::optional<std::shared_ptr<SpriteSeries>> background;
-        if (panelEntry.panel)
-        {
-            background = textureService->getGuiTexture(name, *panelEntry.panel);
-        }
-        std::optional<std::shared_ptr<Sprite>> backgroundSprite;
-        if (background)
-        {
-            backgroundSprite = (*background)->sprites.at(0);
-        }
-
-        // Adjust x and y pos such that the bottom and right edges of the panel
-        // do not go over the edge of the screen.
-        auto rightBound = panelEntry.common.xpos + panelEntry.common.width;
-        int xPos = panelEntry.common.xpos;
-        if (rightBound > 640)
-        {
-            xPos -= rightBound - 640;
-        }
-
-        auto bottomBound = panelEntry.common.ypos + panelEntry.common.height;
-        int yPos = panelEntry.common.ypos;
-        if (bottomBound > 480)
-        {
-            yPos -= bottomBound - 480;
-        }
-
-        auto panel = std::make_unique<UiPanel>(
-            xPos,
-            yPos,
-            panelEntry.common.width,
-            panelEntry.common.height,
-            backgroundSprite);
-        panel->setName(name);
+        auto panel = createPanel(
+                panelEntry.common.xpos,
+                panelEntry.common.ypos,
+                panelEntry.common.width,
+                panelEntry.common.height,
+                name,
+                panelEntry.panel);
 
         // load panel components
         for (std::size_t i = 1; i < entries.size(); ++i)
@@ -137,6 +109,41 @@ namespace rwe
             panel->setFocusByName(focusName);
         }
 
+        return panel;
+    }
+
+    std::unique_ptr<UiPanel> UiFactory::createPanel(int x, int y, int width, int height, const std::string& name)
+    {
+        return createPanel(x, y, width, height, name, std::nullopt);
+    }
+
+    std::unique_ptr<UiPanel> UiFactory::createPanel(int x, int y, int width, int height, const std::string& name, const std::optional<std::string>& background)
+    {
+        std::optional<std::shared_ptr<Sprite>> backgroundSprite;
+        if (background)
+        {
+            if (auto backgroundSpriteSeries = textureService->getGuiTexture(name, *background))
+            {
+                backgroundSprite = (*backgroundSpriteSeries)->sprites.at(0);
+            }
+        }
+
+        // Adjust x and y pos such that the bottom and right edges of the panel
+        // do not go over the edge of the screen.
+        auto rightBound = x + width;
+        if (rightBound > 640)
+        {
+            x -= rightBound - 640;
+        }
+
+        auto bottomBound = y + height;
+        if (bottomBound > 480)
+        {
+            y -= bottomBound - 480;
+        }
+
+        auto panel = std::make_unique<UiPanel>(x, y, width, height, backgroundSprite);
+        panel->setName(name);
         return panel;
     }
 
