@@ -7,10 +7,12 @@
 
 namespace rwe
 {
+#if BOOST_VERSION < 105800
     bool operator!=(const CursorMode& lhs, const CursorMode& rhs)
     {
         return !(lhs == rhs);
     }
+#endif
 
     class LaserCollisionVisitor : public boost::static_visitor<bool>
     {

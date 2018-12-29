@@ -32,6 +32,7 @@
 #include <rwe/pathfinding/PathFindingService.h>
 #include <rwe/ui/UiPanel.h>
 #include <rwe/observable/BehaviorSubject.h>
+#include <boost/version.hpp>
 
 namespace rwe
 {
@@ -80,11 +81,14 @@ namespace rwe
     };
 
     using CursorMode = boost::variant<AttackCursorMode, NormalCursorMode>;
+
+#if BOOST_VERSION < 105800
     // != not automatically defined in boost::variant before 1.58:
     // https://www.boost.org/users/history/version_1_58_0.html
     // https://svn.boost.org/trac10/ticket/8620
     // https://svn.boost.org/trac10/ticket/10811
     bool operator!=(const CursorMode& lhs, const CursorMode& rhs);
+#endif
 
     enum class ImpactType
     {
