@@ -19,6 +19,7 @@ namespace rwe
         std::shared_ptr<SpriteSeries> _normalCursor;
         std::shared_ptr<SpriteSeries> _selectCursor;
         std::shared_ptr<SpriteSeries> _attackCursor;
+        std::shared_ptr<SpriteSeries> _moveCursor;
         std::shared_ptr<SpriteSeries> _redCursor;
 
         SpriteSeries* currentCursor;
@@ -30,6 +31,7 @@ namespace rwe
             std::shared_ptr<SpriteSeries> normalCursor,
             std::shared_ptr<SpriteSeries> selectCursor,
             std::shared_ptr<SpriteSeries> attackCursor,
+            std::shared_ptr<SpriteSeries> moveCursor,
             std::shared_ptr<SpriteSeries> redCursor);
 
         void useNormalCursor();
@@ -37,6 +39,8 @@ namespace rwe
         void useSelectCursor();
 
         void useAttackCursor();
+
+        void useMoveCursor();
 
         void useRedCursor();
 

@@ -237,6 +237,7 @@ namespace rwe
             textureService.getGafEntry("anims/CURSORS.GAF", "cursornormal"),
             textureService.getGafEntry("anims/CURSORS.GAF", "cursorselect"),
             textureService.getGafEntry("anims/CURSORS.GAF", "cursorattack"),
+            textureService.getGafEntry("anims/CURSORS.GAF", "cursormove"),
             textureService.getGafEntry("anims/CURSORS.GAF", "cursorred"));
 
         sdlContext->showCursor(SDL_DISABLE);

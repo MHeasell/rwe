@@ -8,12 +8,14 @@ namespace rwe
         std::shared_ptr<SpriteSeries> normalCursor,
         std::shared_ptr<SpriteSeries> selectCursor,
         std::shared_ptr<SpriteSeries> attackCursor,
+        std::shared_ptr<SpriteSeries> moveCursor,
         std::shared_ptr<SpriteSeries> redCursor)
         : sdlContext(sdlContext),
           timeService(timeService),
           _normalCursor(std::move(normalCursor)),
           _selectCursor(std::move(selectCursor)),
           _attackCursor(std::move(attackCursor)),
+          _moveCursor(std::move(moveCursor)),
           _redCursor(std::move(redCursor)),
           currentCursor(_normalCursor.get())
     {
@@ -32,6 +34,11 @@ namespace rwe
     void CursorService::useAttackCursor()
     {
         currentCursor = _attackCursor.get();
+    }
+
+    void CursorService::useMoveCursor()
+    {
+        currentCursor = _moveCursor.get();
     }
 
     void CursorService::useRedCursor()

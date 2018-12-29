@@ -59,6 +59,12 @@ namespace rwe
         bool operator!=(const AttackCursorMode& /*rhs*/) const { return false; }
     };
 
+    struct MoveCursorMode
+    {
+        bool operator==(const MoveCursorMode& /*rhs*/) const { return true; }
+        bool operator!=(const MoveCursorMode& /*rhs*/) const { return false; }
+    };
+
     struct NormalCursorMode
     {
         enum class State {
@@ -80,7 +86,7 @@ namespace rwe
         }
     };
 
-    using CursorMode = boost::variant<AttackCursorMode, NormalCursorMode>;
+    using CursorMode = boost::variant<AttackCursorMode, MoveCursorMode, NormalCursorMode>;
 
 #if BOOST_VERSION < 105800
     // != not automatically defined in boost::variant before 1.58:

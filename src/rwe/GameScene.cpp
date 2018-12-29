@@ -302,6 +302,20 @@ namespace rwe
                 }
             }
         }
+        else if (keysym.sym == SDLK_m)
+        {
+            if (selectedUnit)
+            {
+                if (boost::get<MoveCursorMode>(&cursorMode.getValue()) != nullptr)
+                {
+                    cursorMode.next(NormalCursorMode());
+                }
+                else
+                {
+                    cursorMode.next(MoveCursorMode());
+                }
+            }
+        }
         else if (keysym.sym == SDLK_s)
         {
             if (selectedUnit)
@@ -405,25 +419,44 @@ namespace rwe
                     }
                 }
             }
-            else
+            else if (boost::get<MoveCursorMode>(&cursorMode.getValue()) != nullptr)
             {
-                auto normalCursor = boost::get<NormalCursorMode>(&cursorMode.getValue());
-                if (normalCursor != nullptr)
+                if (selectedUnit)
                 {
-                    if (isCursorOverMinimap())
+                    auto coord = getMouseTerrainCoordinate();
+                    if (coord)
                     {
-                        cursorMode.next(NormalCursorMode{NormalCursorMode::State::DraggingMinimap});
+                        if (isShiftDown())
+                        {
+                            localPlayerEnqueueUnitOrder(*selectedUnit, MoveOrder(*coord));
+                        }
+                        else
+                        {
+                            localPlayerIssueUnitOrder(*selectedUnit, MoveOrder(*coord));
+                            cursorMode.next(NormalCursorMode());
+                        }
                     }
-                    else if (isCursorOverWorld())
-                    {
-                        cursorMode.next(NormalCursorMode{NormalCursorMode::State::Selecting});
-                    }
+                }
+            }
+            else if (auto normalCursor = boost::get<NormalCursorMode>(&cursorMode.getValue()); normalCursor != nullptr)
+            {
+                if (isCursorOverMinimap())
+                {
+                    cursorMode.next(NormalCursorMode{NormalCursorMode::State::DraggingMinimap});
+                }
+                else if (isCursorOverWorld())
+                {
+                    cursorMode.next(NormalCursorMode{NormalCursorMode::State::Selecting});
                 }
             }
         }
         else if (event.button == MouseButtonEvent::MouseButton::Right)
         {
             if (boost::get<AttackCursorMode>(&cursorMode.getValue()) != nullptr)
+            {
+                cursorMode.next(NormalCursorMode());
+            }
+            else if (boost::get<MoveCursorMode>(&cursorMode.getValue()) != nullptr)
             {
                 cursorMode.next(NormalCursorMode());
             }
@@ -581,6 +614,10 @@ namespace rwe
         else if (boost::get<AttackCursorMode>(&cursorMode.getValue()) != nullptr)
         {
             sceneContext.cursor->useAttackCursor();
+        }
+        else if (boost::get<MoveCursorMode>(&cursorMode.getValue()) != nullptr)
+        {
+            sceneContext.cursor->useMoveCursor();
         }
         else if (boost::get<NormalCursorMode>(&cursorMode.getValue()) != nullptr)
         {
@@ -1369,6 +1406,13 @@ namespace rwe
             });
         }
 
+        if (auto p = ordersPanel->find<UiStagedButton>("ARMMOVE"))
+        {
+            cursorMode.subscribe([&p = p->get()](const auto& v) {
+                p.setPressed(boost::get<MoveCursorMode>(&v) != nullptr);
+            });
+        }
+
         ordersPanel->groupMessages().subscribe([this](const auto& msg){
             if (boost::get<ActivateMessage>(&msg.message) != nullptr)
             {
@@ -1388,6 +1432,17 @@ namespace rwe
             else
             {
                 cursorMode.next(AttackCursorMode());
+            }
+        }
+        else if (message == "ARMMOVE")
+        {
+            if (boost::get<MoveCursorMode>(&cursorMode.getValue()))
+            {
+                cursorMode.next(NormalCursorMode());
+            }
+            else
+            {
+                cursorMode.next(MoveCursorMode());
             }
         }
     }
