@@ -26,6 +26,16 @@ namespace rwe
         PictureBox = 12
     };
 
+    struct GuiButtonAttrib
+    {
+        static constexpr unsigned int LabelDisplayLeft = 1;
+        static constexpr unsigned int LabelDisplayCenter = 2;
+
+        static constexpr unsigned int BehaviorRadio = 16;
+        static constexpr unsigned int BehaviorToggle = 64;
+        static constexpr unsigned int BehaviorCycle = 256;
+    };
+
     const int GuiScrollHorizontalAttrib = 1;
     const int GuiScrollVerticalAttrib = 2;
 

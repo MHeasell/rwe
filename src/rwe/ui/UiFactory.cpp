@@ -178,8 +178,6 @@ namespace rwe
             });
         }
 
-        button->setTextAlign(UiStagedButton::TextAlign::Center);
-
         return button;
     }
 
@@ -214,8 +212,6 @@ namespace rwe
             });
         }
 
-        button->setTextAlign(UiStagedButton::TextAlign::Center);
-
         return button;
     }
 
@@ -238,6 +234,13 @@ namespace rwe
         }
 
         auto button = std::make_unique<UiStagedButton>(x, y, width, height, stageInfos, sprites.pressed, font);
+
+        // staged buttons always display labels aligned left,
+        // they don't care about text alignment attribs.
+        button->setTextAlign(UiStagedButton::TextAlign::Left);
+
+        // staged buttons always use staged mode
+        button->setBehaviorMode(UiStagedButton::BehaviorMode::Staged);
 
         auto sound = deduceButtonSound(guiName, name, width, height);
 
@@ -283,7 +286,7 @@ namespace rwe
     std::unique_ptr<UiStagedButton> UiFactory::buttonFromGuiEntry(const std::string& guiName, const GuiEntry& entry)
     {
         auto text = entry.text ? *(entry.text) : std::string("");
-        return createButton(
+        auto button = createButton(
             entry.common.xpos,
             entry.common.ypos,
             entry.common.width,
@@ -291,6 +294,30 @@ namespace rwe
             guiName,
             entry.common.name,
             text);
+
+        if (entry.common.attribs & GuiButtonAttrib::LabelDisplayLeft)
+        {
+            button->setTextAlign(UiStagedButton::TextAlign::Left);
+        }
+        else if (entry.common.attribs & GuiButtonAttrib::LabelDisplayCenter)
+        {
+            button->setTextAlign(UiStagedButton::TextAlign::Center);
+        }
+
+        if (entry.common.attribs & GuiButtonAttrib::BehaviorRadio)
+        {
+            button->setBehaviorMode(UiStagedButton::BehaviorMode::Radio);
+        }
+        else if (entry.common.attribs & GuiButtonAttrib::BehaviorToggle)
+        {
+            button->setBehaviorMode(UiStagedButton::BehaviorMode::Toggle);
+        }
+        else if (entry.common.attribs & GuiButtonAttrib::BehaviorCycle)
+        {
+            button->setBehaviorMode(UiStagedButton::BehaviorMode::Cycle);
+        }
+
+        return button;
     }
 
     std::unique_ptr<UiLabel> UiFactory::labelFromGuiEntry(const std::string& guiName, const GuiEntry& entry)

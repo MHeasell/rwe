@@ -758,6 +758,7 @@ namespace rwe
 
                 auto b = uiFactory.createBasicButton(45, rowStart, width, height, guiName, "skirmname", "Player");
                 b->setName("PLAYER" + std::to_string(i));
+                b->setTextAlign(UiStagedButton::TextAlign::Center);
 
                 auto sub = model.players[i].type.subscribe([b = b.get(), &panel, this, guiName, i](MainMenuModel::PlayerSettings::Type type) {
                     switch (type)
@@ -799,7 +800,6 @@ namespace rwe
 
             auto b = uiFactory.createStagedButton(163, rowStart, width, height, guiName, "SIDEx", std::vector<std::string>(2), 2);
             b->setName("PLAYER" + std::to_string(i) + "_side");
-            b->autoChangeStage = false;
 
             auto sub = model.players[i].side.subscribe([b = b.get()](MainMenuModel::PlayerSettings::Side side) {
                 switch (side)
@@ -901,6 +901,7 @@ namespace rwe
 
             auto b = uiFactory.createButton(286, rowStart, width, height, guiName, "skirmmet", "");
             b->setName("PLAYER" + std::to_string(i) + "_metal");
+            b->setTextAlign(UiStagedButton::TextAlign::Center);
 
             auto sub = model.players[i].metal.subscribe([b = b.get()](int newMetal) {
                 b->setLabel(std::to_string(newMetal));
@@ -917,6 +918,7 @@ namespace rwe
 
             auto b = uiFactory.createButton(337, rowStart, width, height, guiName, "skirmmet", "");
             b->setName("PLAYER" + std::to_string(i) + "_energy");
+            b->setTextAlign(UiStagedButton::TextAlign::Center);
 
             auto sub = model.players[i].energy.subscribe([b = b.get()](int newEnergy) {
                 b->setLabel(std::to_string(newEnergy));

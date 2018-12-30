@@ -1404,14 +1404,14 @@ namespace rwe
         if (auto p = ordersPanel->find<UiStagedButton>("ARMATTACK"))
         {
             cursorMode.subscribe([&p = p->get()](const auto& v) {
-                p.setPressed(boost::get<AttackCursorMode>(&v) != nullptr);
+                p.setToggledOn(boost::get<AttackCursorMode>(&v) != nullptr);
             });
         }
 
         if (auto p = ordersPanel->find<UiStagedButton>("ARMMOVE"))
         {
             cursorMode.subscribe([&p = p->get()](const auto& v) {
-                p.setPressed(boost::get<MoveCursorMode>(&v) != nullptr);
+                p.setToggledOn(boost::get<MoveCursorMode>(&v) != nullptr);
             });
         }
 

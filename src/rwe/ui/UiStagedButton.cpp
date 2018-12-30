@@ -20,13 +20,15 @@ namespace rwe
 
     void UiStagedButton::render(UiRenderService& graphics) const
     {
-        const auto& sprite = pressed ? *pressedSprite : *stages[currentStage].sprite;
+        const auto& sprite = pressed || toggledOn ? *pressedSprite : *stages[currentStage].sprite;
 
         graphics.drawSpriteAbs(posX, posY, sizeX, sizeY, sprite);
 
         const auto& label = stages[currentStage].label;
         switch (textAlign)
         {
+            case TextAlign::Hidden:
+                break;
             case TextAlign::Left:
             {
                 float textX = posX + 6.0f;
@@ -77,12 +79,19 @@ namespace rwe
 
     void UiStagedButton::mouseDown(MouseButtonEvent event)
     {
-        switch (activateOn)
+        switch (behaviorMode)
         {
-            case ActivateMode::MouseDown:
+            case BehaviorMode::Radio:
+                pressed = true;
                 activateButton({(mouseButtonToSource(event.button))});
                 break;
-            case ActivateMode::MouseUp:
+            case BehaviorMode::Cycle:
+                nextStage();
+                activateButton({(mouseButtonToSource(event.button))});
+                break;
+            case BehaviorMode::Toggle:
+            case BehaviorMode::Button:
+            case BehaviorMode::Staged:
                 armed = true;
                 pressed = true;
                 break;
@@ -93,18 +102,36 @@ namespace rwe
 
     void UiStagedButton::mouseUp(MouseButtonEvent event)
     {
-        switch (activateOn)
+        switch (behaviorMode)
         {
-            case ActivateMode::MouseDown:
+            case BehaviorMode::Radio:
+            case BehaviorMode::Cycle:
                 break;
-            case ActivateMode::MouseUp:
-                if (armed && pressed)
+            case BehaviorMode::Button:
+                armed = false;
+                if (pressed)
                 {
+                    pressed = false;
                     activateButton({(mouseButtonToSource(event.button))});
                 }
-
+                break;
+            case BehaviorMode::Toggle:
                 armed = false;
-                pressed = false;
+                if (pressed)
+                {
+                    pressed = false;
+                    toggledOn = !toggledOn;
+                    activateButton({(mouseButtonToSource(event.button))});
+                }
+                break;
+            case BehaviorMode::Staged:
+                armed = false;
+                if (pressed)
+                {
+                    pressed = false;
+                    nextStage();
+                    activateButton({(mouseButtonToSource(event.button))});
+                }
                 break;
             default:
                 throw std::logic_error("Invalid ActivateMode");
@@ -113,29 +140,47 @@ namespace rwe
 
     void UiStagedButton::mouseEnter()
     {
-        if (activateOn == ActivateMode::MouseUp)
+        switch (behaviorMode)
         {
-            if (armed)
-            {
-                pressed = true;
-            }
+            case BehaviorMode::Button:
+            case BehaviorMode::Toggle:
+            case BehaviorMode::Staged:
+                if (armed)
+                {
+                    pressed = true;
+                }
+                break;
+            default:
+                break;
         }
     }
 
     void UiStagedButton::mouseLeave()
     {
-        if (activateOn == ActivateMode::MouseUp)
+        switch (behaviorMode)
         {
-            pressed = false;
+            case BehaviorMode::Button:
+            case BehaviorMode::Toggle:
+            case BehaviorMode::Staged:
+                pressed = false;
+                break;
+            default:
+                break;
         }
     }
 
     void UiStagedButton::unfocus()
     {
-        if (activateOn == ActivateMode::MouseUp)
+        switch (behaviorMode)
         {
-            armed = false;
-            pressed = false;
+            case BehaviorMode::Button:
+            case BehaviorMode::Toggle:
+            case BehaviorMode::Staged:
+                armed = false;
+                pressed = false;
+                break;
+            default:
+                break;
         }
     }
 
@@ -154,12 +199,6 @@ namespace rwe
 
     void UiStagedButton::activateButton(const ButtonClickEvent& event)
     {
-        if (autoChangeStage)
-        {
-            auto stageCount = stages.size();
-            currentStage = (currentStage + 1) % stageCount;
-        }
-
         clickSubject.next(event);
         messagesSubject.next(ActivateMessage{sourceToType(event.source)});
     }
@@ -193,13 +232,19 @@ namespace rwe
         pressedSprite = sprite;
     }
 
-    void UiStagedButton::setPressed(bool _pressed)
+    void UiStagedButton::setToggledOn(bool _toggledOn)
     {
-        pressed = _pressed;
+        toggledOn = _toggledOn;
     }
 
-    void UiStagedButton::setActivateMode(rwe::UiStagedButton::ActivateMode mode)
+    void UiStagedButton::setBehaviorMode(BehaviorMode mode)
     {
-        activateOn = mode;
+        behaviorMode = mode;
+    }
+
+    void UiStagedButton::nextStage()
+    {
+        auto stageCount = stages.size();
+        currentStage = (currentStage + 1) % stageCount;
     }
 }

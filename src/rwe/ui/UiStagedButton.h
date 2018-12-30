@@ -19,16 +19,20 @@ namespace rwe
             {
             }
         };
-        enum TextAlign
+        enum class TextAlign
         {
+            Hidden,
             Left,
             Center,
         };
 
-        enum ActivateMode
+        enum class BehaviorMode
         {
-            MouseDown,
-            MouseUp,
+            Button,
+            Toggle,
+            Radio,
+            Cycle,
+            Staged,
         };
 
     private:
@@ -36,7 +40,7 @@ namespace rwe
         std::shared_ptr<Sprite> pressedSprite;
         std::shared_ptr<SpriteSeries> labelFont;
 
-        TextAlign textAlign{TextAlign::Left};
+        TextAlign textAlign{TextAlign::Hidden};
 
         /** True if the button is currently pressed down. */
         bool pressed{false};
@@ -48,7 +52,10 @@ namespace rwe
          */
         bool armed{false};
 
-        ActivateMode activateOn{ActivateMode::MouseUp};
+        /** True if the button is a toggle and is toggled on. */
+        bool toggledOn{false};
+
+        BehaviorMode behaviorMode{BehaviorMode::Button};
 
         unsigned int currentStage{0};
 
@@ -92,12 +99,14 @@ namespace rwe
 
         void setPressedSprite(const std::shared_ptr<Sprite>& sprite);
 
-        void setPressed(bool _pressed);
+        void setToggledOn(bool _toggledOn);
 
-        void setActivateMode(ActivateMode mode);
+        void setBehaviorMode(BehaviorMode mode);
 
     private:
         void activateButton(const ButtonClickEvent& event);
+
+        void nextStage();
     };
 }
 

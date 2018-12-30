@@ -203,10 +203,6 @@ namespace rwe
 
         auto ordersPanel = uiFactory.panelFromGuiFile("ARMGEN");
         auto neutralPanel = uiFactory.createPanel(0, 128, 128, 352, "", "ARMPAN2");
-        ordersPanel->forAll<UiStagedButton>([](auto& b) {
-            b.setActivateMode(UiStagedButton::ActivateMode::MouseDown);
-            b.autoChangeStage = false;
-        });
 
         InGameSoundsInfo sounds;
         sounds.immediateOrders = lookUpSound("IMMEDIATEORDERS");
