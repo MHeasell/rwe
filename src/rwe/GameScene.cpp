@@ -1457,5 +1457,18 @@ namespace rwe
                 cursorMode.next(MoveCursorMode());
             }
         }
+        else if (message == "ARMSTOP")
+        {
+            if (sounds.immediateOrders)
+            {
+                sceneContext.audioService->playSound(*sounds.immediateOrders);
+            }
+
+            if (selectedUnit)
+            {
+                cursorMode.next(NormalCursorMode());
+                localPlayerStopUnit(*selectedUnit);
+            }
+        }
     }
 }
