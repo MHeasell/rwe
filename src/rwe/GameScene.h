@@ -244,6 +244,8 @@ namespace rwe
 
         std::vector<PlayerCommand> localPlayerCommandBuffer;
 
+        BehaviorSubject<Unit::FireOrders> fireOrders{Unit::FireOrders::HoldFire};
+
     public:
         GameScene(
             const SceneContext& sceneContext,

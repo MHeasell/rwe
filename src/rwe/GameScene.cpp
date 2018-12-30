@@ -511,6 +511,7 @@ namespace rwe
                     if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
                     {
                         selectedUnit = hoveredUnit;
+                        fireOrders.next(getUnit(*hoveredUnit).fireOrders);
                         const auto& selectionSound = getUnit(*hoveredUnit).selectionSound;
                         if (selectionSound)
                         {
@@ -1415,6 +1416,26 @@ namespace rwe
             });
         }
 
+        if (auto p = ordersPanel->find<UiStagedButton>("ARMFIREORD"))
+        {
+            fireOrders.subscribe([&p = p->get()](const auto& v) {
+                switch (v)
+                {
+                    case Unit::FireOrders::HoldFire:
+                        p.setStage(0);
+                        break;
+                    case Unit::FireOrders::ReturnFire:
+                        p.setStage(1);
+                        break;
+                    case Unit::FireOrders::FireAtWill:
+                        p.setStage(2);
+                        break;
+                    default:
+                        throw std::logic_error("Invalid FireOrders value");
+                }
+            });
+        }
+
         ordersPanel->groupMessages().subscribe([this](const auto& msg){
             if (boost::get<ActivateMessage>(&msg.message) != nullptr)
             {
@@ -1468,6 +1489,31 @@ namespace rwe
             {
                 cursorMode.next(NormalCursorMode());
                 localPlayerStopUnit(*selectedUnit);
+            }
+        }
+        else if (message == "ARMFIREORD")
+        {
+            if (selectedUnit)
+            {
+                if (sounds.setFireOrders)
+                {
+                    sceneContext.audioService->playSound(*sounds.setFireOrders);
+                }
+
+                auto& u = getUnit(*selectedUnit);
+                switch (u.fireOrders)
+                {
+                    case Unit::FireOrders::HoldFire:
+                        u.fireOrders = Unit::FireOrders::ReturnFire;
+                        break;
+                    case Unit::FireOrders::ReturnFire:
+                        u.fireOrders = Unit::FireOrders::FireAtWill;
+                        break;
+                    case Unit::FireOrders::FireAtWill:
+                        u.fireOrders = Unit::FireOrders::HoldFire;
+                        break;
+                }
+                fireOrders.next(u.fireOrders);
             }
         }
     }

@@ -9,6 +9,7 @@ namespace rwe
     {
         std::optional<AudioService::SoundHandle> immediateOrders;
         std::optional<AudioService::SoundHandle> specialOrders;
+        std::optional<AudioService::SoundHandle> setFireOrders;
     };
 }
 

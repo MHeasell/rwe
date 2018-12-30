@@ -222,7 +222,7 @@ namespace rwe
         if (auto idleState = boost::get<UnitWeaponStateIdle>(&weapon->state); idleState != nullptr)
         {
             // attempt to acquire a target
-            if (!weapon->commandFire)
+            if (!weapon->commandFire && unit.fireOrders == Unit::FireOrders::FireAtWill)
             {
                 for (const auto& entry : scene->getSimulation().units)
                 {
@@ -246,6 +246,31 @@ namespace rwe
         }
         else if (auto aimingState = boost::get<UnitWeaponStateAttacking>(&weapon->state); aimingState != nullptr)
         {
+            // If we are not fire-at-will, the target is a unit,
+            // and we don't have an explicit order to attack that unit,
+            // drop the target.
+            // This can happen if we acquired the target ourselves while in fire-at-will,
+            // but then the player switched us to another firing mode.
+            if (unit.fireOrders != Unit::FireOrders::FireAtWill)
+            {
+                if (auto targetUnit = boost::get<UnitId>(&aimingState->target); targetUnit != nullptr)
+                {
+                    if (unit.orders.empty())
+                    {
+                        unit.clearWeaponTarget(weaponIndex);
+                        return;
+                    }
+                    else if (auto attackOrder = boost::get<AttackOrder>(&unit.orders.front()); attackOrder != nullptr)
+                    {
+                        if (auto attackTarget = boost::get<UnitId>(&attackOrder->target); attackTarget == nullptr || *attackTarget != *targetUnit)
+                        {
+                            unit.clearWeaponTarget(weaponIndex);
+                            return;
+                        }
+                    }
+                }
+            }
+
             GetTargetPositionVisitor targetPositionVisitor(this);
             auto targetPosition = boost::apply_visitor(targetPositionVisitor, aimingState->target);
 

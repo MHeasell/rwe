@@ -53,6 +53,13 @@ namespace rwe
     class Unit
     {
     public:
+        enum class FireOrders
+        {
+            HoldFire,
+            ReturnFire,
+            FireAtWill,
+        };
+
         std::string unitType;
         UnitMesh mesh;
         Vector3f position;
@@ -136,6 +143,8 @@ namespace rwe
         bool canAttack;
 
         std::optional<UnitWeapon> explosionWeapon;
+
+        FireOrders fireOrders{FireOrders::FireAtWill};
 
         static float toRotation(const Vector3f& direction);
 
