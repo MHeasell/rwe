@@ -201,8 +201,10 @@ namespace rwe
         }
         auto minimapDotHighlight = sceneContext.textureService->getGafEntry("anims/FX.GAF", "radlogohigh")->sprites.at(0);
 
-        auto ordersPanel = uiFactory.panelFromGuiFile("ARMGEN");
-        auto neutralPanel = uiFactory.createPanel(0, 128, 128, 352, "", "ARMPAN2");
+        const auto& localPlayerSideData = getSideData(gameParameters.players[localPlayerId->value]->side);
+        const auto& localPlayerSidePrefix = localPlayerSideData.namePrefix;
+        auto ordersPanel = uiFactory.panelFromGuiFile(localPlayerSidePrefix + "GEN");
+        auto neutralPanel = uiFactory.createPanel(0, 128, 128, 352, "", localPlayerSidePrefix + "PAN2");
 
         InGameSoundsInfo sounds;
         sounds.immediateOrders = lookUpSound("IMMEDIATEORDERS");

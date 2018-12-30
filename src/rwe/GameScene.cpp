@@ -1402,21 +1402,21 @@ namespace rwe
 
     void GameScene::attachOrdersMenuEventHandlers()
     {
-        if (auto p = ordersPanel->find<UiStagedButton>("ARMATTACK"))
+        if (auto p = findWithSidePrefix<UiStagedButton>(*ordersPanel, "ATTACK"))
         {
             cursorMode.subscribe([&p = p->get()](const auto& v) {
                 p.setToggledOn(boost::get<AttackCursorMode>(&v) != nullptr);
             });
         }
 
-        if (auto p = ordersPanel->find<UiStagedButton>("ARMMOVE"))
+        if (auto p = findWithSidePrefix<UiStagedButton>(*ordersPanel, "MOVE"))
         {
             cursorMode.subscribe([&p = p->get()](const auto& v) {
                 p.setToggledOn(boost::get<MoveCursorMode>(&v) != nullptr);
             });
         }
 
-        if (auto p = ordersPanel->find<UiStagedButton>("ARMFIREORD"))
+        if (auto p = findWithSidePrefix<UiStagedButton>(*ordersPanel, "FIREORD"))
         {
             fireOrders.subscribe([&p = p->get()](const auto& v) {
                 switch (v)
@@ -1446,7 +1446,7 @@ namespace rwe
 
     void GameScene::onMessage(const std::string& message)
     {
-        if (message == "ARMATTACK")
+        if (matchesWithSidePrefix("ATTACK", message))
         {
             if (sounds.specialOrders)
             {
@@ -1462,7 +1462,7 @@ namespace rwe
                 cursorMode.next(AttackCursorMode());
             }
         }
-        else if (message == "ARMMOVE")
+        else if (matchesWithSidePrefix("MOVE", message))
         {
             if (sounds.specialOrders)
             {
@@ -1478,7 +1478,7 @@ namespace rwe
                 cursorMode.next(MoveCursorMode());
             }
         }
-        else if (message == "ARMSTOP")
+        else if (matchesWithSidePrefix("STOP", message))
         {
             if (sounds.immediateOrders)
             {
@@ -1491,7 +1491,7 @@ namespace rwe
                 localPlayerStopUnit(*selectedUnit);
             }
         }
-        else if (message == "ARMFIREORD")
+        else if (matchesWithSidePrefix("FIREORD", message))
         {
             if (selectedUnit)
             {
@@ -1516,5 +1516,18 @@ namespace rwe
                 fireOrders.next(u.fireOrders);
             }
         }
+    }
+
+    bool GameScene::matchesWithSidePrefix(const std::string& suffix, const std::string& value) const
+    {
+        for (const auto& side : (*sceneContext.sideData | boost::adaptors::map_values))
+        {
+            if (side.namePrefix + suffix == value)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
