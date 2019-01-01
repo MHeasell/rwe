@@ -17,6 +17,7 @@
 #include <rwe/geometry/BoundingBox3f.h>
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/pathfinding/UnitPath.h>
+#include <rwe/UnitFireOrders.h>
 
 namespace rwe
 {
@@ -53,13 +54,6 @@ namespace rwe
     class Unit
     {
     public:
-        enum class FireOrders
-        {
-            HoldFire,
-            ReturnFire,
-            FireAtWill,
-        };
-
         std::string unitType;
         UnitMesh mesh;
         Vector3f position;
@@ -144,7 +138,7 @@ namespace rwe
 
         std::optional<UnitWeapon> explosionWeapon;
 
-        FireOrders fireOrders{FireOrders::FireAtWill};
+        UnitFireOrders fireOrders{UnitFireOrders::FireAtWill};
 
         static float toRotation(const Vector3f& direction);
 

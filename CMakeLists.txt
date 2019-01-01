@@ -331,6 +331,7 @@ set(SOURCE_FILES
     src/rwe/UnitFactory.h
     src/rwe/UnitFbi.cpp
     src/rwe/UnitFbi.h
+    src/rwe/UnitFireOrders.h
     src/rwe/UnitId.h
     src/rwe/UnitMesh.cpp
     src/rwe/UnitMesh.h

@@ -1013,6 +1013,11 @@ namespace rwe
         }
     }
 
+    void GameScene::localPlayerSetFireOrders(UnitId unitId, UnitFireOrders orders)
+    {
+        localPlayerCommandBuffer.push_back(PlayerUnitCommand(unitId, PlayerUnitCommand::SetFireOrders{orders}));
+    }
+
     void GameScene::issueUnitOrder(UnitId unitId, const UnitOrder& order)
     {
         auto& unit = getUnit(unitId);
@@ -1030,6 +1035,17 @@ namespace rwe
     {
         auto& unit = getUnit(unitId);
         unit.clearOrders();
+    }
+
+    void GameScene::setFireOrders(UnitId unitId, UnitFireOrders orders)
+    {
+        auto& unit = getUnit(unitId);
+        unit.fireOrders = orders;
+
+        if (selectedUnit && *selectedUnit == unitId)
+        {
+            fireOrders.next(orders);
+        }
     }
 
     bool GameScene::isShiftDown() const
@@ -1421,13 +1437,13 @@ namespace rwe
             fireOrders.subscribe([&p = p->get()](const auto& v) {
                 switch (v)
                 {
-                    case Unit::FireOrders::HoldFire:
+                    case UnitFireOrders::HoldFire:
                         p.setStage(0);
                         break;
-                    case Unit::FireOrders::ReturnFire:
+                    case UnitFireOrders::ReturnFire:
                         p.setStage(1);
                         break;
-                    case Unit::FireOrders::FireAtWill:
+                    case UnitFireOrders::FireAtWill:
                         p.setStage(2);
                         break;
                     default:
@@ -1442,6 +1458,21 @@ namespace rwe
                 onMessage(msg.controlName);
             }
         });
+    }
+
+    UnitFireOrders nextFireOrders(UnitFireOrders orders)
+    {
+        switch (orders)
+        {
+            case UnitFireOrders::HoldFire:
+                return UnitFireOrders::ReturnFire;
+            case UnitFireOrders::ReturnFire:
+                return UnitFireOrders::FireAtWill;
+            case UnitFireOrders::FireAtWill:
+                return UnitFireOrders::HoldFire;
+            default:
+                throw std::logic_error("Invalid UnitFireOrders value");
+        }
     }
 
     void GameScene::onMessage(const std::string& message)
@@ -1501,19 +1532,8 @@ namespace rwe
                 }
 
                 auto& u = getUnit(*selectedUnit);
-                switch (u.fireOrders)
-                {
-                    case Unit::FireOrders::HoldFire:
-                        u.fireOrders = Unit::FireOrders::ReturnFire;
-                        break;
-                    case Unit::FireOrders::ReturnFire:
-                        u.fireOrders = Unit::FireOrders::FireAtWill;
-                        break;
-                    case Unit::FireOrders::FireAtWill:
-                        u.fireOrders = Unit::FireOrders::HoldFire;
-                        break;
-                }
-                fireOrders.next(u.fireOrders);
+                auto newFireOrders = nextFireOrders(u.fireOrders);
+                localPlayerSetFireOrders(*selectedUnit, newFireOrders);
             }
         }
     }

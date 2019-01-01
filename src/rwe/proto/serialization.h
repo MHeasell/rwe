@@ -3,6 +3,7 @@
 
 #include <network.pb.h>
 #include <rwe/PlayerCommand.h>
+#include <rwe/UnitFireOrders.h>
 #include <vector>
 
 namespace rwe
@@ -10,6 +11,8 @@ namespace rwe
     void serializeVector(const Vector3f& v, proto::Vector3f& out);
 
     proto::PlayerUnitCommand::IssueOrder::IssueKind serializeIssueKind(const PlayerUnitCommand::IssueOrder::IssueKind& kind);
+
+    proto::PlayerUnitCommand::SetFireOrders::FireOrders serializeFireOrders(const UnitFireOrders& orders);
 
     void serializePlayerCommand(const PlayerCommand& command, proto::PlayerCommand& out);
 
@@ -22,6 +25,8 @@ namespace rwe
     PlayerUnitCommand::IssueOrder deserializeIssueOrder(const proto::PlayerUnitCommand::IssueOrder& cmd);
 
     PlayerUnitCommand::IssueOrder::IssueKind deserializeIssueKind(const proto::PlayerUnitCommand::IssueOrder::IssueKind& kind);
+
+    UnitFireOrders deserializeFireOrders(const proto::PlayerUnitCommand::SetFireOrders::FireOrders& orders);
 
     UnitOrder deserializeUnitOrder(const proto::PlayerUnitCommand::IssueOrder& cmd);
 

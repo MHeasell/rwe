@@ -145,6 +145,11 @@ namespace rwe
             {
                 scene->stopUnit(unit);
             }
+
+            void operator()(const PlayerUnitCommand::SetFireOrders& c)
+            {
+                scene->setFireOrders(unit, c.orders);
+            }
         };
 
         class PlayerCommandDispatcher : public boost::static_visitor<>
@@ -245,7 +250,7 @@ namespace rwe
 
         std::vector<PlayerCommand> localPlayerCommandBuffer;
 
-        BehaviorSubject<Unit::FireOrders> fireOrders{Unit::FireOrders::HoldFire};
+        BehaviorSubject<UnitFireOrders> fireOrders{UnitFireOrders::HoldFire};
 
     public:
         GameScene(
@@ -356,11 +361,15 @@ namespace rwe
 
         void localPlayerStopUnit(UnitId unitId);
 
+        void localPlayerSetFireOrders(UnitId unitId, UnitFireOrders orders);
+
         void issueUnitOrder(UnitId unitId, const UnitOrder& order);
 
         void enqueueUnitOrder(UnitId unitId, const UnitOrder& order);
 
         void stopUnit(UnitId unitId);
+
+        void setFireOrders(UnitId unitId, UnitFireOrders orders);
 
         bool isShiftDown() const;
 

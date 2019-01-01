@@ -222,7 +222,7 @@ namespace rwe
         if (auto idleState = boost::get<UnitWeaponStateIdle>(&weapon->state); idleState != nullptr)
         {
             // attempt to acquire a target
-            if (!weapon->commandFire && unit.fireOrders == Unit::FireOrders::FireAtWill)
+            if (!weapon->commandFire && unit.fireOrders == UnitFireOrders::FireAtWill)
             {
                 for (const auto& entry : scene->getSimulation().units)
                 {
@@ -251,7 +251,7 @@ namespace rwe
             // drop the target.
             // This can happen if we acquired the target ourselves while in fire-at-will,
             // but then the player switched us to another firing mode.
-            if (unit.fireOrders != Unit::FireOrders::FireAtWill)
+            if (unit.fireOrders != UnitFireOrders::FireAtWill)
             {
                 if (auto targetUnit = boost::get<UnitId>(&aimingState->target); targetUnit != nullptr)
                 {

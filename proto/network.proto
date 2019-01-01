@@ -56,11 +56,24 @@ message PlayerUnitCommand
     {
     }
 
+    message SetFireOrders
+    {
+        enum FireOrders
+        {
+            HoldFire = 0;
+            ReturnFire = 1;
+            FireAtWill = 2;
+        }
+
+        required FireOrders orders = 1;
+    }
+
     required int32 unit = 1;
 
     oneof command {
         IssueOrder order = 2;
         Stop stop = 3;
+        SetFireOrders set_fire_orders = 4;
     }
 }
 

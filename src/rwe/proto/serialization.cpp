@@ -67,6 +67,12 @@ namespace rwe
         {
             cmd->mutable_stop();
         }
+
+        void operator()(const PlayerUnitCommand::SetFireOrders& c)
+        {
+            auto& out = *cmd->mutable_set_fire_orders();
+            out.set_orders(serializeFireOrders(c.orders));
+        }
     };
 
     class WritePlayerCommandVisitor : public boost::static_visitor<>
@@ -115,6 +121,21 @@ namespace rwe
                 return proto::PlayerUnitCommand::IssueOrder::Queued;
             default:
                 throw std::logic_error("Invalid IssueKind value");
+        }
+    }
+
+    proto::PlayerUnitCommand::SetFireOrders::FireOrders serializeFireOrders(const UnitFireOrders& orders)
+    {
+        switch (orders)
+        {
+            case UnitFireOrders::HoldFire:
+                return proto::PlayerUnitCommand::SetFireOrders::HoldFire;
+            case UnitFireOrders::ReturnFire:
+                return proto::PlayerUnitCommand::SetFireOrders::ReturnFire;
+            case UnitFireOrders::FireAtWill:
+                return proto::PlayerUnitCommand::SetFireOrders::FireAtWill;
+            default:
+                throw std::logic_error("Invalid UnitFireOrders value");
         }
     }
 
@@ -168,6 +189,11 @@ namespace rwe
             return PlayerUnitCommand(UnitId(cmd.unit()), PlayerUnitCommand::Stop());
         }
 
+        if (cmd.has_set_fire_orders())
+        {
+            return PlayerUnitCommand(UnitId(cmd.unit()), PlayerUnitCommand::SetFireOrders{deserializeFireOrders(cmd.set_fire_orders().orders())});
+        }
+
         throw std::runtime_error("Failed to deserialize unit command");
     }
 
@@ -187,6 +213,21 @@ namespace rwe
                 return PlayerUnitCommand::IssueOrder::IssueKind::Queued;
             default:
                 throw std::runtime_error("Failed to deserialize issue kind");
+        }
+    }
+
+    UnitFireOrders deserializeFireOrders(const proto::PlayerUnitCommand::SetFireOrders::FireOrders& orders)
+    {
+        switch (orders)
+        {
+            case proto::PlayerUnitCommand::SetFireOrders::HoldFire:
+                return UnitFireOrders::HoldFire;
+            case proto::PlayerUnitCommand::SetFireOrders::ReturnFire:
+                return UnitFireOrders::ReturnFire;
+            case proto::PlayerUnitCommand::SetFireOrders::FireAtWill:
+                return UnitFireOrders::FireAtWill;
+            default:
+                throw std::runtime_error("Failed to deserialize fire orders");
         }
     }
 

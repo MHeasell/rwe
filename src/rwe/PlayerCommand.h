@@ -5,6 +5,7 @@
 #include <rwe/SceneTime.h>
 #include <rwe/UnitId.h>
 #include <rwe/UnitOrder.h>
+#include <rwe/UnitFireOrders.h>
 
 namespace rwe
 {
@@ -29,7 +30,12 @@ namespace rwe
         {
         };
 
-        using Command = boost::variant<IssueOrder, Stop>;
+        struct SetFireOrders
+        {
+            UnitFireOrders orders;
+        };
+
+        using Command = boost::variant<IssueOrder, Stop, SetFireOrders>;
 
         UnitId unit;
         Command command;
