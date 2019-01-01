@@ -3,9 +3,9 @@
 
 #include <boost/variant.hpp>
 #include <rwe/SceneTime.h>
+#include <rwe/UnitFireOrders.h>
 #include <rwe/UnitId.h>
 #include <rwe/UnitOrder.h>
-#include <rwe/UnitFireOrders.h>
 
 namespace rwe
 {

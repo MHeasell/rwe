@@ -1,6 +1,7 @@
 #ifndef RWE_GAMESCENE_H
 #define RWE_GAMESCENE_H
 
+#include <boost/range/adaptor/map.hpp>
 #include <boost/version.hpp>
 #include <deque>
 #include <functional>
@@ -34,7 +35,6 @@
 #include <rwe/observable/BehaviorSubject.h>
 #include <rwe/pathfinding/PathFindingService.h>
 #include <rwe/ui/UiPanel.h>
-#include <boost/range/adaptor/map.hpp>
 
 namespace rwe
 {

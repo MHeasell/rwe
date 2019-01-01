@@ -10,6 +10,7 @@
 #include <rwe/MovementClassId.h>
 #include <rwe/PlayerId.h>
 #include <rwe/SelectionMesh.h>
+#include <rwe/UnitFireOrders.h>
 #include <rwe/UnitMesh.h>
 #include <rwe/UnitOrder.h>
 #include <rwe/UnitWeapon.h>
@@ -17,7 +18,6 @@
 #include <rwe/geometry/BoundingBox3f.h>
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/pathfinding/UnitPath.h>
-#include <rwe/UnitFireOrders.h>
 
 namespace rwe
 {

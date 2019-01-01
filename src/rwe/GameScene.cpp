@@ -1,9 +1,9 @@
 #include "GameScene.h"
 #include <boost/range/adaptor/map.hpp>
 #include <rwe/Mesh.h>
+#include <rwe/ui/UiStagedButton.h>
 #include <spdlog/spdlog.h>
 #include <unordered_set>
-#include <rwe/ui/UiStagedButton.h>
 
 namespace rwe
 {
@@ -1452,7 +1452,7 @@ namespace rwe
             });
         }
 
-        ordersPanel->groupMessages().subscribe([this](const auto& msg){
+        ordersPanel->groupMessages().subscribe([this](const auto& msg) {
             if (boost::get<ActivateMessage>(&msg.message) != nullptr)
             {
                 onMessage(msg.controlName);
