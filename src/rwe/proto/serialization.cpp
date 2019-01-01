@@ -114,7 +114,7 @@ namespace rwe
             case PlayerUnitCommand::IssueOrder::IssueKind::Queued:
                 return proto::PlayerUnitCommand::IssueOrder::Queued;
             default:
-                throw std::runtime_error("Failed to deserialize issue kind");
+                throw std::logic_error("Invalid IssueKind value");
         }
     }
 
