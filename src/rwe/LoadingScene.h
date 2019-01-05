@@ -141,6 +141,8 @@ namespace rwe
         void preloadSound(UnitDatabase& db, const std::optional<std::string>& soundName);
 
         std::optional<AudioService::SoundHandle> lookUpSound(const std::string& key);
+
+        std::optional<std::vector<std::vector<GuiEntry>>> loadBuilderGui(const std::string& unitName);
     };
 }
 

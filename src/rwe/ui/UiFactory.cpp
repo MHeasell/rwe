@@ -94,7 +94,11 @@ namespace rwe
     std::unique_ptr<UiPanel> UiFactory::panelFromGuiFile(const std::string& name)
     {
         auto entries = vfs->readGuiOrThrow("guis/" + name + ".GUI");
+        return panelFromGuiFile(name, entries);
+    }
 
+    std::unique_ptr<UiPanel> UiFactory::panelFromGuiFile(const std::string& name, const std::vector<GuiEntry>& entries)
+    {
         // first entry sets up the panel
         assert(entries.size() > 0);
         const auto& panelEntry = entries[0];

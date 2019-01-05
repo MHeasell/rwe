@@ -31,6 +31,7 @@ namespace rwe
         GamePlayerType type;
         unsigned int color;
         GamePlayerStatus status;
+        std::string side;
     };
 
     struct PathRequest

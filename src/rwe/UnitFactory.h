@@ -32,6 +32,8 @@ namespace rwe
     public:
         Unit createUnit(const std::string& unitType, PlayerId owner, unsigned int colorIndex, const Vector3f& position);
 
+        std::optional<std::reference_wrapper<const std::vector<GuiEntry>>> getBuilderGui(const std::string& unitType, unsigned int page);
+
     private:
         UnitWeapon createWeapon(const std::string& weaponType);
 

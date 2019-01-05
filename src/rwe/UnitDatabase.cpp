@@ -111,6 +111,23 @@ namespace rwe
         movementClassMap.insert({className, std::move(movementClass)});
     }
 
+    std::optional<std::reference_wrapper<const std::vector<std::vector<GuiEntry>>>>
+    UnitDatabase::tryGetBuilderGui(const std::string& unitName) const
+    {
+        auto it = builderGuisMap.find(unitName);
+        if (it == builderGuisMap.end())
+        {
+            return std::nullopt;
+        }
+
+        return it->second;
+    }
+
+    void UnitDatabase::addBuilderGui(const std::string& unitName, std::vector<std::vector<GuiEntry>>&& gui)
+    {
+        builderGuisMap.insert({unitName, std::move(gui)});
+    }
+
     UnitDatabase::MovementClassIterator UnitDatabase::movementClassBegin() const
     {
         return movementClassMap.begin();

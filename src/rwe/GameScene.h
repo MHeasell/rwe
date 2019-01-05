@@ -35,6 +35,7 @@
 #include <rwe/observable/BehaviorSubject.h>
 #include <rwe/pathfinding/PathFindingService.h>
 #include <rwe/ui/UiPanel.h>
+#include <rwe/ui/UiFactory.h>
 
 namespace rwe
 {
@@ -218,8 +219,7 @@ namespace rwe
         std::shared_ptr<Sprite> minimapDotHighlight;
         Rectangle2f minimapRect;
 
-        std::unique_ptr<UiPanel> neutralPanel;
-        std::unique_ptr<UiPanel> ordersPanel;
+        std::unique_ptr<UiPanel> currentPanel;
 
         InGameSoundsInfo sounds;
 
@@ -252,6 +252,9 @@ namespace rwe
 
         BehaviorSubject<UnitFireOrders> fireOrders{UnitFireOrders::HoldFire};
 
+        TdfBlock* audioLookup;
+        UiFactory uiFactory;
+
     public:
         GameScene(
             const SceneContext& sceneContext,
@@ -267,10 +270,9 @@ namespace rwe
             const std::shared_ptr<Sprite>& minimap,
             const std::shared_ptr<SpriteSeries>& minimapDots,
             const std::shared_ptr<Sprite>& minimapDotHighlight,
-            std::unique_ptr<UiPanel>&& neutralPanel,
-            std::unique_ptr<UiPanel>&& ordersPanel,
             InGameSoundsInfo sounds,
-            PlayerId localPlayerId);
+            PlayerId localPlayerId,
+            TdfBlock* audioLookup);
 
         void init() override;
 

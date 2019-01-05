@@ -161,7 +161,7 @@ namespace rwe
             if (params)
             {
                 auto playerType = boost::apply_visitor(IsComputerVisitor(), params->controller) ? GamePlayerType::Computer : GamePlayerType::Human;
-                GamePlayerInfo gpi{playerType, params->color, GamePlayerStatus::Alive};
+                GamePlayerInfo gpi{playerType, params->color, GamePlayerStatus::Alive, params->side};
                 auto playerId = simulation.addPlayer(gpi);
                 gamePlayers[i] = playerId;
                 playerCommandService->registerPlayer(playerId);
@@ -201,12 +201,6 @@ namespace rwe
         }
         auto minimapDotHighlight = sceneContext.textureService->getGafEntry("anims/FX.GAF", "radlogohigh")->sprites.at(0);
 
-        const auto& localPlayerSideData = getSideData(gameParameters.players[localPlayerId->value]->side);
-        const auto& localPlayerSidePrefix = localPlayerSideData.namePrefix;
-        auto ordersPanel = uiFactory.panelFromGuiFile(localPlayerSidePrefix + "GEN");
-
-        auto neutralPanel = uiFactory.panelFromGuiFile(localPlayerSidePrefix + "MAIN2");
-
         InGameSoundsInfo sounds;
         sounds.immediateOrders = lookUpSound("IMMEDIATEORDERS");
         sounds.specialOrders = lookUpSound("SPECIALORDERS");
@@ -226,10 +220,9 @@ namespace rwe
             minimap,
             minimapDots,
             minimapDotHighlight,
-            std::move(neutralPanel),
-            std::move(ordersPanel),
             std::move(sounds),
-            *localPlayerId);
+            *localPlayerId,
+            audioLookup);
 
         const auto& schema = ota.schemas.at(schemaIndex);
 
@@ -604,6 +597,19 @@ namespace rwe
                 std::string fbiString(bytes->data(), bytes->size());
                 auto fbi = parseUnitFbi(parseTdfFromString(fbiString));
 
+                // if it's a builder, also attempt to read its gui pages
+                if (fbi.builder)
+                {
+                    auto guiPages = loadBuilderGui(fbi.unitName);
+                    if (guiPages)
+                    {
+                        db.addBuilderGui(fbi.unitName, std::move(*guiPages));
+                    }
+
+                    // TODO: if no gui defined, attempt to build it dynamically?
+                    // Need a database of download.tdf mappings first...
+                }
+
                 db.addUnitInfo(fbi.unitName, fbi);
             }
         }
@@ -668,5 +674,26 @@ namespace rwe
         }
 
         return sceneContext.audioService->loadSound(*soundName);
+    }
+
+    std::optional<std::vector<std::vector<GuiEntry>>> LoadingScene::loadBuilderGui(const std::string& unitName)
+    {
+        std::vector<std::vector<GuiEntry>> entries;
+        for (int i = 1; auto rawGui = sceneContext.vfs->readFile("guis/" + unitName + std::to_string(i) + ".GUI"); ++i)
+        {
+            auto parsedGui = parseGuiFromBytes(*rawGui);
+            if (!parsedGui)
+            {
+                throw std::runtime_error("Failed to parse unit builder GUI: " + unitName + std::to_string(i));
+            }
+            entries.push_back(std::move(*parsedGui));
+        }
+
+        if (entries.empty())
+        {
+            return std::nullopt;
+        }
+
+        return entries;
     }
 }

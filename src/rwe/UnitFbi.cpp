@@ -50,6 +50,8 @@ namespace rwe
 
         tdf.readOrDefault("ExplodeAs", u.explodeAs);
 
+        tdf.readOrDefault("Builder", u.builder);
+
         return u;
     }
 }

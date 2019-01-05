@@ -79,10 +79,9 @@ namespace rwe
         const std::shared_ptr<Sprite>& minimap,
         const std::shared_ptr<SpriteSeries>& minimapDots,
         const std::shared_ptr<Sprite>& minimapDotHighlight,
-        std::unique_ptr<UiPanel>&& neutralPanel,
-        std::unique_ptr<UiPanel>&& ordersPanel,
         InGameSoundsInfo sounds,
-        PlayerId localPlayerId)
+        PlayerId localPlayerId,
+        TdfBlock* audioLookup)
         : sceneContext(sceneContext),
           worldViewport(ViewportService(GuiSizeLeft, GuiSizeTop, sceneContext.viewportService->width() - GuiSizeLeft - GuiSizeRight, sceneContext.viewportService->height() - GuiSizeTop - GuiSizeBottom)),
           playerCommandService(std::move(playerCommandService)),
@@ -100,15 +99,17 @@ namespace rwe
           minimapDots(minimapDots),
           minimapDotHighlight(minimapDotHighlight),
           minimapRect(minimapViewport.scaleToFit(this->minimap->bounds)),
-          neutralPanel(std::move(neutralPanel)),
-          ordersPanel(std::move(ordersPanel)),
           sounds(std::move(sounds)),
-          localPlayerId(localPlayerId)
+          localPlayerId(localPlayerId),
+          audioLookup(audioLookup),
+          uiFactory(sceneContext.textureService, sceneContext.audioService, audioLookup, sceneContext.vfs, sceneContext.viewportService->width(), sceneContext.viewportService->height())
     {
     }
 
     void GameScene::init()
     {
+        const auto& localPlayer = getPlayer(localPlayerId);
+        currentPanel = uiFactory.panelFromGuiFile(localPlayer.side + "MAIN2");
         sceneContext.audioService->reserveChannels(reservedChannelsCount);
         gameNetworkService->start();
 
@@ -130,14 +131,7 @@ namespace rwe
 
         renderMinimap(context);
 
-        if (selectedUnit)
-        {
-            ordersPanel->render(chromeUiRenderService);
-        }
-        else
-        {
-            neutralPanel->render(chromeUiRenderService);
-        }
+        currentPanel->render(chromeUiRenderService);
 
         sceneContext.cursor->render(chromeUiRenderService);
         context.enableDepthBuffer();
@@ -272,7 +266,7 @@ namespace rwe
 
     void GameScene::onKeyDown(const SDL_Keysym& keysym)
     {
-        ordersPanel->keyDown(KeyEvent(keysym.sym));
+        currentPanel->keyDown(KeyEvent(keysym.sym));
 
         if (keysym.sym == SDLK_UP)
         {
@@ -318,7 +312,7 @@ namespace rwe
 
     void GameScene::onKeyUp(const SDL_Keysym& keysym)
     {
-        ordersPanel->keyUp(KeyEvent(keysym.sym));
+        currentPanel->keyUp(KeyEvent(keysym.sym));
 
         if (keysym.sym == SDLK_UP)
         {
@@ -348,7 +342,7 @@ namespace rwe
 
     void GameScene::onMouseDown(MouseButtonEvent event)
     {
-        ordersPanel->mouseDown(event);
+        currentPanel->mouseDown(event);
 
         if (event.button == MouseButtonEvent::MouseButton::Left)
         {
@@ -464,7 +458,7 @@ namespace rwe
 
     void GameScene::onMouseUp(MouseButtonEvent event)
     {
-        ordersPanel->mouseUp(event);
+        currentPanel->mouseUp(event);
 
         if (event.button == MouseButtonEvent::MouseButton::Left)
         {
@@ -494,12 +488,12 @@ namespace rwe
 
     void GameScene::onMouseMove(MouseMoveEvent event)
     {
-        ordersPanel->mouseMove(event);
+        currentPanel->mouseMove(event);
     }
 
     void GameScene::onMouseWheel(MouseWheelEvent event)
     {
-        ordersPanel->mouseWheel(event);
+        currentPanel->mouseWheel(event);
     }
 
     Rectangle2f computeCameraConstraint(const MapTerrain& terrain, const CabinetCamera& camera)
@@ -1375,21 +1369,21 @@ namespace rwe
 
     void GameScene::attachOrdersMenuEventHandlers()
     {
-        if (auto p = findWithSidePrefix<UiStagedButton>(*ordersPanel, "ATTACK"))
+        if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "ATTACK"))
         {
             cursorMode.subscribe([&p = p->get()](const auto& v) {
                 p.setToggledOn(boost::get<AttackCursorMode>(&v) != nullptr);
             });
         }
 
-        if (auto p = findWithSidePrefix<UiStagedButton>(*ordersPanel, "MOVE"))
+        if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "MOVE"))
         {
             cursorMode.subscribe([&p = p->get()](const auto& v) {
                 p.setToggledOn(boost::get<MoveCursorMode>(&v) != nullptr);
             });
         }
 
-        if (auto p = findWithSidePrefix<UiStagedButton>(*ordersPanel, "FIREORD"))
+        if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "FIREORD"))
         {
             fireOrders.subscribe([&p = p->get()](const auto& v) {
                 switch (v)
@@ -1409,7 +1403,7 @@ namespace rwe
             });
         }
 
-        ordersPanel->groupMessages().subscribe([this](const auto& msg) {
+        currentPanel->groupMessages().subscribe([this](const auto& msg) {
             if (boost::get<ActivateMessage>(&msg.message) != nullptr)
             {
                 onMessage(msg.controlName);
@@ -1518,18 +1512,31 @@ namespace rwe
         {
             playSoundOnSelectChannel(*selectionSound);
         }
+
+        auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, 0);
+        if (buildPanelDefinition)
+        {
+            currentPanel = uiFactory.panelFromGuiFile(unit.unitType + "1", *buildPanelDefinition);
+        }
+        else
+        {
+            const auto& side = getPlayer(localPlayerId).side;
+            currentPanel = uiFactory.panelFromGuiFile(side + "GEN");
+        }
     }
 
     void GameScene::deselectUnit(const UnitId& unitId)
     {
         if (selectedUnit && *selectedUnit == unitId)
         {
-            selectedUnit = std::nullopt;
+            clearUnitSelection();
         }
     }
 
     void GameScene::clearUnitSelection()
     {
         selectedUnit = std::nullopt;
+        const auto& side = getPlayer(localPlayerId).side;
+        currentPanel = uiFactory.panelFromGuiFile(side + "MAIN2");
     }
 }

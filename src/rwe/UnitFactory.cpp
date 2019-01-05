@@ -143,6 +143,24 @@ namespace rwe
         return unit;
     }
 
+    std::optional<std::reference_wrapper<const std::vector<GuiEntry>>> UnitFactory::getBuilderGui(const std::string& unitType, unsigned int page)
+    {
+        const auto& pages = unitDatabase.tryGetBuilderGui(unitType);
+        if (!pages)
+        {
+            return std::nullopt;
+        }
+
+        const auto& unwrappedPages = pages->get();
+
+        if (page >= unwrappedPages.size())
+        {
+            return std::nullopt;
+        }
+
+        return unwrappedPages[page];
+    }
+
     UnitWeapon UnitFactory::createWeapon(const std::string& weaponType)
     {
         const auto& tdf = unitDatabase.getWeapon(weaponType);

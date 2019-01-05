@@ -28,6 +28,8 @@ namespace rwe
 
         std::unordered_map<std::string, AudioService::SoundHandle> soundMap;
 
+        std::unordered_map<std::string, std::vector<std::vector<GuiEntry>>> builderGuisMap;
+
     public:
         const UnitFbi& getUnitInfo(const std::string& unitName) const;
 
@@ -54,6 +56,10 @@ namespace rwe
         std::optional<AudioService::SoundHandle> tryGetSoundHandle(const std::string& sound);
 
         void addSound(const std::string& soundName, const AudioService::SoundHandle& sound);
+
+        std::optional<std::reference_wrapper<const std::vector<std::vector<GuiEntry>>>> tryGetBuilderGui(const std::string& unitName) const;
+
+        void addBuilderGui(const std::string& unitName, std::vector<std::vector<GuiEntry>>&& gui);
 
         MovementClassIterator movementClassBegin() const;
 
