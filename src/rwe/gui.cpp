@@ -70,12 +70,12 @@ namespace rwe
         auto common = &commonOption->get();
 
         g.common.id = expectGuiElementType(*common, "id");
-        g.common.assoc = common->expectInt("assoc");
+        g.common.assoc = common->extractInt("assoc").value_or(0);
         g.common.name = common->expectString("name");
-        g.common.xpos = common->expectInt("xpos");
-        g.common.ypos = common->expectInt("ypos");
-        g.common.width = common->expectInt("width");
-        g.common.height = common->expectInt("height");
+        g.common.xpos = common->extractInt("xpos").value_or(0);
+        g.common.ypos = common->extractInt("ypos").value_or(0);
+        g.common.width = common->extractInt("width").value_or(0);
+        g.common.height = common->extractInt("height").value_or(0);
 
         // "attribs" and "colorf" should be present in all gadgets,
         // but ARMGEN.GUI contains a gadget whose "attribs" property
@@ -89,11 +89,11 @@ namespace rwe
         g.common.attribs = common->extractInt("attribs").value_or(0);
         g.common.colorf = common->extractInt("colorf").value_or(0);
 
-        g.common.colorb = common->expectInt("colorb");
-        g.common.textureNumber = common->expectInt("texturenumber");
-        g.common.fontNumber = common->expectInt("fontnumber");
-        g.common.active = common->expectBool("active");
-        g.common.commonAttribs = common->expectInt("commonattribs");
+        g.common.colorb = common->extractInt("colorb").value_or(0);
+        g.common.textureNumber = common->extractInt("texturenumber").value_or(0);
+        g.common.fontNumber = common->extractInt("fontnumber").value_or(0);
+        g.common.active = common->extractBool("active").value_or(false);
+        g.common.commonAttribs = common->extractInt("commonattribs").value_or(0);
         g.common.help = refToCopy(common->findValue("help"));
 
         g.panel = refToCopy(e.findValue("panel"));
