@@ -183,3 +183,97 @@ Finally, launch RWE from the top-level project directory:
 
     cd /path/to/rwe
     build/rwe
+
+## The Launcher
+
+The launcher application provides the multiplayer lobby for RWE.
+
+### Motivation
+
+Multiplayer is implemented via a separate application
+rather than by recreating the original in-game multiplayer lobby
+for the following reasons.
+
+In the future, the goal is to improve the multiplayer lobby experience
+beyond what is supported by the orignal TA multiplayer lobby.
+The RWE launcher will eventually support managing installed mods,
+and will ensure that all players in a multiplayer game
+have the same mods enabled before RWE is launched.
+It is impractical to achieve this with an implementation
+of the original multiplayer lobby inside RWE
+because RWE is primarily driven by the supplied game data,
+and this data dictates the design and layout of screens,
+as well as what screens are even available.
+An interface that manages mods must exist and work
+independently of any individual mod's game data.
+In this context, original TA data is also a mod
+that may or may not be available.
+
+The engine codebase is already quite large and unwieldy.
+It is written in C++ for performance,
+but this does not provide a great development experience.
+The multiplayer lobby is not performance-critical,
+and given what we want to accomplish in future,
+it seems more practical to use a different platform
+that provides a better developer experience
+and is more suited to building traditional GUI applications.
+
+### Technology Choices
+
+The launcher is an Electron application written in TypeScript
+with React and Redux.
+
+### How to Build and Run for Development
+
+First go to the launcher directory and install the required npm modules.
+
+    cd path/to/rwe/launcher
+    npm install
+
+Then start the webpack dev server
+
+    npm run server
+
+The server will start up and stay running until interrupted.
+It serves the compiled application code during development
+and provides hot-reloading.
+
+Open another terminal session for the next step,
+launching the application itself.
+
+For development, you will need to set the `RWE_HOME` environment variable
+to a directory containing the `rwe` and `rwe_bridge` programs.
+
+    export RWE_HOME=/my/installed/rwe/dir
+
+Now you can start the application.
+
+    npm start
+
+The application window should now appear.
+
+The launcher expects to talk to a master server
+that manages the list of publicly available games.
+In development, the launcher will try to connect
+to a master server instance running on the local machine.
+To start a master server instance locally,
+open another terminal session and run the following:
+
+    npm run master-server
+
+The master server will start up and stay running until interrupted.
+Any running launcher instances should automatically connect
+to the master server.
+
+### How To Package
+
+For releases, the launcher must be bundled up
+as a complete Electron application.
+To do this, run the following:
+
+    npm run package
+
+The built application will be written out to a subdirectory
+whose name depends on the target platform.
+For example, for 64-bit Windows the directory name is
+`rwe-launcher-win32-x64`.
