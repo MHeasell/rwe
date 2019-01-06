@@ -436,7 +436,7 @@ int main(int argc, char* argv[])
             // clang-format off
             desc.add_options()
                 ("help", "produce help message")
-                ("data-path", po::value<std::string>(), "Overrides the location to search for game data")
+                ("data-path", po::value<std::vector<std::string>>(), "Sets the location(s) to search for game data")
                 ("map", po::value<std::string>(), "If given, launches straight into a game on the given map")
                 ("interface", po::value<std::string>()->default_value("0.0.0.0"), "Network interface to bind to")
                 ("port", po::value<std::string>()->default_value("1337"), "Network port to bind to")
@@ -478,7 +478,7 @@ int main(int argc, char* argv[])
 
             if (vm.count("data-path"))
             {
-                auto paths = vm["data-path"].as<std::vector<std::string>>();
+                const auto& paths = vm["data-path"].as<std::vector<std::string>>();
                 gameDataPaths.insert(gameDataPaths.end(), paths.begin(), paths.end());
             }
             else
