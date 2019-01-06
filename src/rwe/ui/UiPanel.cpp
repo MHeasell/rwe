@@ -92,22 +92,18 @@ namespace rwe
 
     void UiPanel::keyDown(KeyEvent event)
     {
-        if (!focusedChild)
+        for (auto& e : children)
         {
-            return;
+            e->keyDown(event);
         }
-
-        (*focusedChild)->keyDown(event);
     }
 
     void UiPanel::keyUp(KeyEvent event)
     {
-        if (!focusedChild)
+        for (auto& e : children)
         {
-            return;
+            e->keyUp(event);
         }
-
-        (*focusedChild)->keyUp(event);
     }
 
     void UiPanel::mouseMove(MouseMoveEvent event)

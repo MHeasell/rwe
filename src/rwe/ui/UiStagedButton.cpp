@@ -82,11 +82,7 @@ namespace rwe
         switch (behaviorMode)
         {
             case BehaviorMode::Radio:
-                pressed = true;
-                activateButton({(mouseButtonToSource(event.button))});
-                break;
             case BehaviorMode::Cycle:
-                nextStage();
                 activateButton({(mouseButtonToSource(event.button))});
                 break;
             case BehaviorMode::Toggle:
@@ -96,7 +92,7 @@ namespace rwe
                 pressed = true;
                 break;
             default:
-                throw std::logic_error("Invalid ActivateMode");
+                throw std::logic_error("Invalid BehaviorMode");
         }
     }
 
@@ -108,33 +104,17 @@ namespace rwe
             case BehaviorMode::Cycle:
                 break;
             case BehaviorMode::Button:
-                armed = false;
-                if (pressed)
-                {
-                    pressed = false;
-                    activateButton({(mouseButtonToSource(event.button))});
-                }
-                break;
             case BehaviorMode::Toggle:
-                armed = false;
-                if (pressed)
-                {
-                    pressed = false;
-                    toggledOn = !toggledOn;
-                    activateButton({(mouseButtonToSource(event.button))});
-                }
-                break;
             case BehaviorMode::Staged:
                 armed = false;
                 if (pressed)
                 {
                     pressed = false;
-                    nextStage();
                     activateButton({(mouseButtonToSource(event.button))});
                 }
                 break;
             default:
-                throw std::logic_error("Invalid ActivateMode");
+                throw std::logic_error("Invalid BehaviorMode");
         }
     }
 
@@ -191,7 +171,7 @@ namespace rwe
 
     void UiStagedButton::keyDown(KeyEvent event)
     {
-        if (event.keyCode == SDLK_SPACE)
+        if (event.keyCode == SDLK_SPACE || (quickKey && event.keyCode == quickKey))
         {
             activateButton({ButtonClickEvent::Source::Keyboard});
         }
@@ -199,6 +179,24 @@ namespace rwe
 
     void UiStagedButton::activateButton(const ButtonClickEvent& event)
     {
+        switch (behaviorMode)
+        {
+            case BehaviorMode::Radio:
+                toggledOn = true;
+                break;
+            case BehaviorMode::Cycle:
+                nextStage();
+                break;
+            case BehaviorMode::Toggle:
+                toggledOn = !toggledOn;
+                break;
+            case BehaviorMode::Button:
+            case BehaviorMode::Staged:
+                break;
+            default:
+                throw std::logic_error("Invalid BehaviorMode");
+        }
+
         clickSubject.next(event);
         messagesSubject.next(ActivateMessage{sourceToType(event.source)});
     }
@@ -240,6 +238,11 @@ namespace rwe
     void UiStagedButton::setBehaviorMode(BehaviorMode mode)
     {
         behaviorMode = mode;
+    }
+
+    void UiStagedButton::setQuickKey(int quickKey)
+    {
+        this->quickKey = quickKey;
     }
 
     void UiStagedButton::nextStage()

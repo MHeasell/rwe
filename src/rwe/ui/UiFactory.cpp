@@ -8,6 +8,23 @@
 
 namespace rwe
 {
+    /**
+     * Converts a quickkey value into the equivalent SDL key code.
+     *
+     * Quickkey values represent letters with their uppercase ASCII value,
+     * but SDL keycodes use the lowercase value.
+     */
+    int convertQuickKeyToSdlk(int quickKey)
+    {
+        if (quickKey >= 65 && quickKey <= 132) // is uppercase ASCII
+        {
+            // set bit 6 ON to shift to lowercase ASCII
+            return quickKey | 0x20;
+        }
+
+        return quickKey;
+    }
+
     UiFactory::UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs)
         : textureService(textureService), audioService(audioService), soundLookup(soundLookup), vfs(vfs)
     {
@@ -317,6 +334,11 @@ namespace rwe
             button->setBehaviorMode(UiStagedButton::BehaviorMode::Cycle);
         }
 
+        if (entry.quickKey)
+        {
+            button->setQuickKey(convertQuickKeyToSdlk(*entry.quickKey));
+        }
+
         return button;
     }
 
@@ -340,7 +362,7 @@ namespace rwe
         const GuiEntry& entry)
     {
         auto labels = entry.text ? utf8Split(*entry.text, '|') : std::vector<std::string>();
-        return createStagedButton(
+        auto button = createStagedButton(
             entry.common.xpos,
             entry.common.ypos,
             entry.common.width,
@@ -349,6 +371,13 @@ namespace rwe
             entry.common.name,
             labels,
             entry.stages.value());
+
+        if (entry.quickKey)
+        {
+            button->setQuickKey(convertQuickKeyToSdlk(*entry.quickKey));
+        }
+
+        return button;
     }
 
     std::shared_ptr<SpriteSeries> UiFactory::getDefaultStagedButtonGraphics(const std::string& guiName, unsigned int stages)

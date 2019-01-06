@@ -42,6 +42,8 @@ namespace rwe
 
         TextAlign textAlign{TextAlign::Hidden};
 
+        std::optional<int> quickKey;
+
         /** True if the button is currently pressed down. */
         bool pressed{false};
 
@@ -102,6 +104,8 @@ namespace rwe
         void setToggledOn(bool _toggledOn);
 
         void setBehaviorMode(BehaviorMode mode);
+
+        void setQuickKey(int quickKey);
 
     private:
         void activateButton(const ButtonClickEvent& event);

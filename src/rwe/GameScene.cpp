@@ -290,41 +290,6 @@ namespace rwe
         {
             right = true;
         }
-        else if (keysym.sym == SDLK_a)
-        {
-            if (selectedUnit)
-            {
-                if (boost::get<AttackCursorMode>(&cursorMode.getValue()) != nullptr)
-                {
-                    cursorMode.next(NormalCursorMode());
-                }
-                else
-                {
-                    cursorMode.next(AttackCursorMode());
-                }
-            }
-        }
-        else if (keysym.sym == SDLK_m)
-        {
-            if (selectedUnit)
-            {
-                if (boost::get<MoveCursorMode>(&cursorMode.getValue()) != nullptr)
-                {
-                    cursorMode.next(NormalCursorMode());
-                }
-                else
-                {
-                    cursorMode.next(MoveCursorMode());
-                }
-            }
-        }
-        else if (keysym.sym == SDLK_s)
-        {
-            if (selectedUnit)
-            {
-                localPlayerStopUnit(*selectedUnit);
-            }
-        }
         else if (keysym.sym == SDLK_LSHIFT)
         {
             leftShiftDown = true;
