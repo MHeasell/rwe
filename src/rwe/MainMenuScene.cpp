@@ -21,7 +21,7 @@ namespace rwe
           scaledUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(640.0f, 480.0f)),
           nativeUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(width, height)),
           model(),
-          uiFactory(sceneContext.textureService, sceneContext.audioService, soundLookup, sceneContext.vfs),
+          uiFactory(sceneContext.textureService, sceneContext.audioService, soundLookup, sceneContext.vfs, 640, 480),
           panelStack(),
           dialogStack(),
           bgm()

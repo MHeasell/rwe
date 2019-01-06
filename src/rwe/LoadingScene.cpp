@@ -28,7 +28,7 @@ namespace rwe
           audioLookup(audioLookup),
           bgm(std::move(bgm)),
           gameParameters(std::move(gameParameters)),
-          uiFactory(sceneContext.textureService, sceneContext.audioService, audioLookup, sceneContext.vfs)
+          uiFactory(sceneContext.textureService, sceneContext.audioService, audioLookup, sceneContext.vfs, sceneContext.viewportService->width(), sceneContext.viewportService->height())
     {
     }
 
@@ -204,7 +204,17 @@ namespace rwe
         const auto& localPlayerSideData = getSideData(gameParameters.players[localPlayerId->value]->side);
         const auto& localPlayerSidePrefix = localPlayerSideData.namePrefix;
         auto ordersPanel = uiFactory.panelFromGuiFile(localPlayerSidePrefix + "GEN");
-        auto neutralPanel = uiFactory.createPanel(0, 128, 128, 352, "", localPlayerSidePrefix + "PAN2");
+
+        std::shared_ptr<Sprite> neutralPanel;
+        auto neutralPanelSpriteSeries = sceneContext.textureService->getGuiTexture("", localPlayerSidePrefix + "PAN2");
+        if (neutralPanelSpriteSeries)
+        {
+            neutralPanel = (*neutralPanelSpriteSeries)->sprites.at(0);
+        }
+        else
+        {
+            neutralPanel = sceneContext.textureService->getDefaultSprite();
+        }
 
         InGameSoundsInfo sounds;
         sounds.immediateOrders = lookUpSound("IMMEDIATEORDERS");
@@ -225,7 +235,7 @@ namespace rwe
             minimap,
             minimapDots,
             minimapDotHighlight,
-            std::move(neutralPanel),
+            neutralPanel,
             std::move(ordersPanel),
             std::move(sounds),
             *localPlayerId);

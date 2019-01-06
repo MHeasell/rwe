@@ -31,8 +31,11 @@ namespace rwe
         TdfBlock* soundLookup;
         AbstractVirtualFileSystem* vfs;
 
+        int screenWidth;
+        int screenHeight;
+
     public:
-        UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs);
+        UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs, int screenWidth, int screenHeight);
 
         std::unique_ptr<UiPanel> panelFromGuiFile(const std::string& name, const std::string& background, const std::vector<GuiEntry>& entries);
 

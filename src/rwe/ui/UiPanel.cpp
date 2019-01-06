@@ -45,7 +45,7 @@ namespace rwe
     {
         if (background)
         {
-            graphics.drawSpriteAbs(posX, posY, sizeX, sizeY, **background);
+            graphics.drawSpriteAbs(posX, posY, **background);
         }
 
         graphics.pushMatrix();

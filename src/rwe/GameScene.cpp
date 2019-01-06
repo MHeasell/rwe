@@ -79,7 +79,7 @@ namespace rwe
         const std::shared_ptr<Sprite>& minimap,
         const std::shared_ptr<SpriteSeries>& minimapDots,
         const std::shared_ptr<Sprite>& minimapDotHighlight,
-        std::unique_ptr<UiPanel>&& neutralPanel,
+        const std::shared_ptr<Sprite>& neutralPanel,
         std::unique_ptr<UiPanel>&& ordersPanel,
         InGameSoundsInfo sounds,
         PlayerId localPlayerId)
@@ -100,7 +100,7 @@ namespace rwe
           minimapDots(minimapDots),
           minimapDotHighlight(minimapDotHighlight),
           minimapRect(minimapViewport.scaleToFit(this->minimap->bounds)),
-          neutralPanel(std::move(neutralPanel)),
+          neutralPanel(neutralPanel),
           ordersPanel(std::move(ordersPanel)),
           sounds(std::move(sounds)),
           localPlayerId(localPlayerId)
@@ -136,7 +136,7 @@ namespace rwe
         }
         else
         {
-            neutralPanel->render(chromeUiRenderService);
+            chromeUiRenderService.drawSpriteAbs(0.0f, 128.0f, *neutralPanel);
         }
 
         sceneContext.cursor->render(chromeUiRenderService);

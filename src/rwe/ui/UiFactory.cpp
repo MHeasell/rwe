@@ -25,8 +25,8 @@ namespace rwe
         return quickKey;
     }
 
-    UiFactory::UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs)
-        : textureService(textureService), audioService(audioService), soundLookup(soundLookup), vfs(vfs)
+    UiFactory::UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs, int screenWidth, int screenHeight)
+        : textureService(textureService), audioService(audioService), soundLookup(soundLookup), vfs(vfs), screenWidth(screenWidth), screenHeight(screenHeight)
     {
     }
 
@@ -148,15 +148,15 @@ namespace rwe
         // Adjust x and y pos such that the bottom and right edges of the panel
         // do not go over the edge of the screen.
         auto rightBound = x + width;
-        if (rightBound > 640)
+        if (rightBound > screenWidth)
         {
-            x -= rightBound - 640;
+            x -= rightBound - screenWidth;
         }
 
         auto bottomBound = y + height;
-        if (bottomBound > 480)
+        if (bottomBound > screenHeight)
         {
-            y -= bottomBound - 480;
+            y -= bottomBound - screenHeight;
         }
 
         auto panel = std::make_unique<UiPanel>(x, y, width, height, backgroundSprite);
