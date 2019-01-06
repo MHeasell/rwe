@@ -419,6 +419,12 @@ namespace rwe
 
         bool matchesWithSidePrefix(const std::string& suffix, const std::string& value) const;
 
+        void selectUnit(const UnitId& unitId);
+
+        void deselectUnit(const UnitId& unitId);
+
+        void clearUnitSelection();
+
         template <typename T>
         std::optional<std::reference_wrapper<T>> findWithSidePrefix(UiPanel& p, const std::string& name)
         {

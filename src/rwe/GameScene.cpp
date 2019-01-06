@@ -475,17 +475,11 @@ namespace rwe
                 {
                     if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
                     {
-                        selectedUnit = hoveredUnit;
-                        fireOrders.next(getUnit(*hoveredUnit).fireOrders);
-                        const auto& selectionSound = getUnit(*hoveredUnit).selectionSound;
-                        if (selectionSound)
-                        {
-                            playSoundOnSelectChannel(*selectionSound);
-                        }
+                        selectUnit(*hoveredUnit);
                     }
                     else
                     {
-                        selectedUnit = std::nullopt;
+                        clearUnitSelection();
                     }
 
                     cursorMode.next(NormalCursorMode{NormalCursorMode::State::Up});
@@ -1282,10 +1276,8 @@ namespace rwe
             const auto& unit = it->second;
             if (unit.isDead())
             {
-                if (selectedUnit && *selectedUnit == it->first)
-                {
-                    selectedUnit = std::nullopt;
-                }
+                deselectUnit(it->first);
+
                 if (hoveredUnit && *hoveredUnit == it->first)
                 {
                     hoveredUnit = std::nullopt;
@@ -1514,5 +1506,30 @@ namespace rwe
         }
 
         return false;
+    }
+
+    void GameScene::selectUnit(const UnitId& unitId)
+    {
+        selectedUnit = unitId;
+        const auto& unit = getUnit(unitId);
+        fireOrders.next(unit.fireOrders);
+        const auto& selectionSound = unit.selectionSound;
+        if (selectionSound)
+        {
+            playSoundOnSelectChannel(*selectionSound);
+        }
+    }
+
+    void GameScene::deselectUnit(const UnitId& unitId)
+    {
+        if (selectedUnit && *selectedUnit == unitId)
+        {
+            selectedUnit = std::nullopt;
+        }
+    }
+
+    void GameScene::clearUnitSelection()
+    {
+        selectedUnit = std::nullopt;
     }
 }
