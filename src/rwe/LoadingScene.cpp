@@ -205,16 +205,7 @@ namespace rwe
         const auto& localPlayerSidePrefix = localPlayerSideData.namePrefix;
         auto ordersPanel = uiFactory.panelFromGuiFile(localPlayerSidePrefix + "GEN");
 
-        std::shared_ptr<Sprite> neutralPanel;
-        auto neutralPanelSpriteSeries = sceneContext.textureService->getGuiTexture("", localPlayerSidePrefix + "PAN2");
-        if (neutralPanelSpriteSeries)
-        {
-            neutralPanel = (*neutralPanelSpriteSeries)->sprites.at(0);
-        }
-        else
-        {
-            neutralPanel = sceneContext.textureService->getDefaultSprite();
-        }
+        auto neutralPanel = uiFactory.panelFromGuiFile(localPlayerSidePrefix + "MAIN2");
 
         InGameSoundsInfo sounds;
         sounds.immediateOrders = lookUpSound("IMMEDIATEORDERS");
@@ -235,7 +226,7 @@ namespace rwe
             minimap,
             minimapDots,
             minimapDotHighlight,
-            neutralPanel,
+            std::move(neutralPanel),
             std::move(ordersPanel),
             std::move(sounds),
             *localPlayerId);
