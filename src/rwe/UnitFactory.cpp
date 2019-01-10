@@ -145,7 +145,7 @@ namespace rwe
         return unit;
     }
 
-    std::optional<std::reference_wrapper<const std::vector<GuiEntry>>> UnitFactory::getBuilderGui(const std::string& unitType, unsigned int page)
+    std::optional<std::reference_wrapper<const std::vector<GuiEntry>>> UnitFactory::getBuilderGui(const std::string& unitType, unsigned int page) const
     {
         const auto& pages = unitDatabase.tryGetBuilderGui(unitType);
         if (!pages)
