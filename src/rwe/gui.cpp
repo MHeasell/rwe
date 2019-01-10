@@ -123,24 +123,19 @@ namespace rwe
         return g;
     }
 
-    std::optional<std::vector<GuiEntry>> parseGui(const TdfBlock& tdf)
+    std::optional<std::vector<GuiEntry>> parseGui(const std::vector<TdfBlock>& tdf)
     {
         std::vector<GuiEntry> entries;
 
-        int i = 0;
-        auto block = tdf.findBlock("GADGET" + std::to_string(i));
-        while (block)
+        for (const auto& block : tdf)
         {
-            auto guiEntry = parseGuiEntry(*block);
+            auto guiEntry = parseGuiEntry(block);
             if (!guiEntry)
             {
                 return std::nullopt;
             }
 
             entries.push_back(*guiEntry);
-
-            i += 1;
-            block = tdf.findBlock("GADGET" + std::to_string(i));
         }
 
         return entries;
@@ -148,7 +143,7 @@ namespace rwe
 
     std::optional<std::vector<GuiEntry>> parseGuiFromBytes(const std::vector<char>& bytes)
     {
-        return parseGui(parseTdfFromBytes(bytes));
+        return parseGui(parseListTdfFromBytes(bytes));
     }
 
     bool GuiEntry::operator==(const GuiEntry& rhs) const

@@ -172,7 +172,7 @@ namespace rwe
 
             std::vector<GuiEntry> expected{gadget0, gadget1};
 
-            auto gui = parseGui(parseTdfFromString(input));
+            auto gui = parseGui(parseListTdfFromString(input));
             if (!gui)
             {
                 FAIL();

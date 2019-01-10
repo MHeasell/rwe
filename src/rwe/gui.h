@@ -136,7 +136,7 @@ namespace rwe
     };
 
 
-    std::optional<std::vector<GuiEntry>> parseGui(const TdfBlock& tdf);
+    std::optional<std::vector<GuiEntry>> parseGui(const std::vector<TdfBlock>& tdf);
     std::optional<std::vector<GuiEntry>> parseGuiFromBytes(const std::vector<char>& bytes);
 }
 

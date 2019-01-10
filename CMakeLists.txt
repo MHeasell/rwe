@@ -435,6 +435,8 @@ set(SOURCE_FILES
     src/rwe/rwe_time.h
     src/rwe/tdf.cpp
     src/rwe/tdf.h
+    src/rwe/tdf/ListTdfAdapter.cpp
+    src/rwe/tdf/ListTdfAdapter.h
     src/rwe/tdf/SimpleTdfAdapter.cpp
     src/rwe/tdf/SimpleTdfAdapter.h
     src/rwe/tdf/TdfBlock.cpp
@@ -630,6 +632,7 @@ set(TEST_FILES
     test/rwe/EightWayDirection_test.cpp
     test/rwe/FeatureDefinition_test.cpp
     test/rwe/Grid_test.cpp
+    test/rwe/ListTdfAdapter_test.cpp
     test/rwe/MinHeap_test.cpp
     test/rwe/Point_test.cpp
     test/rwe/Result_test.cpp

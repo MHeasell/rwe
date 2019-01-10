@@ -10,7 +10,11 @@ namespace rwe
 
     TdfBlock parseTdfFromString(const std::string& input);
 
+    std::vector<TdfBlock> parseListTdfFromString(const std::string& input);
+
     TdfBlock parseTdfFromBytes(const std::vector<char>& bytes);
+
+    std::vector<TdfBlock> parseListTdfFromBytes(const std::vector<char>& bytes);
 }
 
 #endif

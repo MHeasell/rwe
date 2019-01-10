@@ -1,5 +1,6 @@
 #include "tdf.h"
 
+#include <rwe/tdf/ListTdfAdapter.h>
 #include <rwe/tdf/SimpleTdfAdapter.h>
 
 namespace rwe
@@ -25,9 +26,30 @@ namespace rwe
         return parser.parse(cUtf8Begin(input), cUtf8End(input));
     }
 
+    std::vector<TdfBlock> parseListTdfFromString(const std::string& input)
+    {
+        TdfParser<ConstUtf8Iterator, std::vector<TdfBlock>> parser(new ListTdfAdapter);
+
+        // TA files typically use legacy ISO-8859-1 encoding (latin1)
+        // so fall back to that if the input isn't valid UTF8.
+        if (!utf8::is_valid(input.begin(), input.end()))
+        {
+            auto convertedInput = latin1ToUtf8(input);
+            return parser.parse(cUtf8Begin(convertedInput), cUtf8End(convertedInput));
+        }
+
+        return parser.parse(cUtf8Begin(input), cUtf8End(input));
+    }
+
     TdfBlock parseTdfFromBytes(const std::vector<char>& bytes)
     {
         std::string tdfString(bytes.data(), bytes.size());
         return parseTdfFromString(tdfString);
+    }
+
+    std::vector<TdfBlock> parseListTdfFromBytes(const std::vector<char>& bytes)
+    {
+        std::string tdfString(bytes.data(), bytes.size());
+        return parseListTdfFromString(tdfString);
     }
 }

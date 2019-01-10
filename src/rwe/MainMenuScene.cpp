@@ -166,8 +166,7 @@ namespace rwe
             throw std::runtime_error("Couldn't read MAINMENU.GUI");
         }
 
-        std::string gui(mainMenuGuiRaw->data(), mainMenuGuiRaw->size());
-        auto parsedGui = parseGui(parseTdfFromString(gui));
+        auto parsedGui = parseGuiFromBytes(*mainMenuGuiRaw);
         if (!parsedGui)
         {
             throw std::runtime_error("Failed to parse GUI file");
@@ -309,8 +308,7 @@ namespace rwe
             throw std::runtime_error("Couldn't read SINGLE.GUI");
         }
 
-        std::string gui(mainMenuGuiRaw->data(), mainMenuGuiRaw->size());
-        auto parsedGui = parseGui(parseTdfFromString(gui));
+        auto parsedGui = parseGuiFromBytes(*mainMenuGuiRaw);
         if (!parsedGui)
         {
             throw std::runtime_error("Failed to parse GUI file");
@@ -328,8 +326,7 @@ namespace rwe
             throw std::runtime_error("Couldn't read SKIRMISH.GUI");
         }
 
-        std::string gui(mainMenuGuiRaw->data(), mainMenuGuiRaw->size());
-        auto parsedGui = parseGui(parseTdfFromString(gui));
+        auto parsedGui = parseGuiFromBytes(*mainMenuGuiRaw);
         if (!parsedGui)
         {
             throw std::runtime_error("Failed to parse GUI file");
@@ -364,8 +361,7 @@ namespace rwe
             throw std::runtime_error("Couldn't read SELMAP.GUI");
         }
 
-        std::string gui(guiRaw->data(), guiRaw->size());
-        auto parsedGui = parseGui(parseTdfFromString(gui));
+        auto parsedGui = parseGuiFromBytes(*guiRaw);
         if (!parsedGui)
         {
             throw std::runtime_error("Failed to parse GUI file");
