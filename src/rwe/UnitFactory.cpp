@@ -163,6 +163,17 @@ namespace rwe
         return unwrappedPages[page];
     }
 
+    unsigned int UnitFactory::getBuildPageCount(const std::string& unitType) const
+    {
+        const auto& pages = unitDatabase.tryGetBuilderGui(unitType);
+        if (!pages)
+        {
+            return 0;
+        }
+
+        return pages->get().size();
+    }
+
     UnitWeapon UnitFactory::createWeapon(const std::string& weaponType)
     {
         const auto& tdf = unitDatabase.getWeapon(weaponType);

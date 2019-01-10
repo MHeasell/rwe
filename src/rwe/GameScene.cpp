@@ -109,11 +109,12 @@ namespace rwe
     void GameScene::init()
     {
         const auto& localPlayer = getPlayer(localPlayerId);
-        currentPanel = uiFactory.panelFromGuiFile(localPlayer.side + "MAIN2");
+
+        setNextPanel(uiFactory.panelFromGuiFile(localPlayer.side + "MAIN2"));
+
         sceneContext.audioService->reserveChannels(reservedChannelsCount);
         gameNetworkService->start();
 
-        attachOrdersMenuEventHandlers();
     }
 
     void GameScene::render(GraphicsContext& context)
@@ -632,6 +633,14 @@ namespace rwe
                     playerCommandService->pushCommands(id, std::vector<PlayerCommand>());
                 }
             }
+        }
+
+        // If we are waiting to swap in a new unit GUI panel, do that now
+        if (nextPanel)
+        {
+            currentPanel = std::move(*nextPanel);
+            nextPanel = std::nullopt;
+            attachOrdersMenuEventHandlers();
         }
 
         auto averageSceneTime = gameNetworkService->estimateAvergeSceneTime(sceneTime);
@@ -1495,6 +1504,44 @@ namespace rwe
                 localPlayerSetFireOrders(*selectedUnit, newFireOrders);
             }
         }
+        else if (matchesWithSidePrefix("NEXT", message))
+        {
+            if (selectedUnit)
+            {
+                if (sounds.nextBuildMenu)
+                {
+                    sceneContext.audioService->playSound(*sounds.nextBuildMenu);
+                }
+
+                const auto& unit = getUnit(*selectedUnit);
+                auto& guiInfo = unitGuiInfos.at(*selectedUnit);
+                auto pages = unitFactory.getBuildPageCount(unit.unitType);
+                guiInfo.currentBuildPage = (guiInfo.currentBuildPage + 1) % pages;
+
+                auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);
+                setNextPanel(uiFactory.panelFromGuiFile(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition));
+            }
+        }
+        else if (matchesWithSidePrefix("PREV", message))
+        {
+            if (selectedUnit)
+            {
+                if (sounds.nextBuildMenu)
+                {
+                    sceneContext.audioService->playSound(*sounds.nextBuildMenu);
+                }
+
+                const auto& unit = getUnit(*selectedUnit);
+                auto& guiInfo = unitGuiInfos.at(*selectedUnit);
+                auto pages = unitFactory.getBuildPageCount(unit.unitType);
+                assert(pages != 0);
+                guiInfo.currentBuildPage = guiInfo.currentBuildPage == 0 ? pages - 1 : guiInfo.currentBuildPage - 1;
+
+                auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);
+                setNextPanel(uiFactory.panelFromGuiFile(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition));
+            }
+        }
+
     }
 
     bool GameScene::matchesWithSidePrefix(const std::string& suffix, const std::string& value) const
@@ -1525,12 +1572,12 @@ namespace rwe
         auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);
         if (guiInfo.section == UnitGuiInfo::Section::Build && buildPanelDefinition)
         {
-            currentPanel = uiFactory.panelFromGuiFile(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition);
+            setNextPanel(uiFactory.panelFromGuiFile(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition));
         }
         else
         {
             const auto& side = getPlayer(localPlayerId).side;
-            currentPanel = uiFactory.panelFromGuiFile(side + "GEN");
+            setNextPanel(uiFactory.panelFromGuiFile(side + "GEN"));
         }
     }
 
@@ -1546,7 +1593,7 @@ namespace rwe
     {
         selectedUnit = std::nullopt;
         const auto& side = getPlayer(localPlayerId).side;
-        currentPanel = uiFactory.panelFromGuiFile(side + "MAIN2");
+        setNextPanel(uiFactory.panelFromGuiFile(side + "MAIN2"));
     }
 
     const UnitGuiInfo& GameScene::getGuiInfo(const UnitId& unitId) const
@@ -1557,5 +1604,10 @@ namespace rwe
             throw std::logic_error("Gui info not found for unit " + std::to_string(unitId.value));
         }
         return it->second;
+    }
+
+    void GameScene::setNextPanel(std::unique_ptr<UiPanel>&& panel)
+    {
+        nextPanel = std::move(panel);
     }
 }

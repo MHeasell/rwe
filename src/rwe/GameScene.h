@@ -115,7 +115,7 @@ namespace rwe
         };
 
         Section section;
-        int currentBuildPage;
+        unsigned int currentBuildPage;
     };
 
     class GameScene : public SceneManager::Scene
@@ -232,6 +232,7 @@ namespace rwe
         Rectangle2f minimapRect;
 
         std::unique_ptr<UiPanel> currentPanel;
+        std::optional<std::unique_ptr<UiPanel>> nextPanel;
 
         InGameSoundsInfo sounds;
 
@@ -442,6 +443,8 @@ namespace rwe
         void clearUnitSelection();
 
         const UnitGuiInfo& getGuiInfo(const UnitId& unitId) const;
+
+        void setNextPanel(std::unique_ptr<UiPanel>&& panel);
 
         template <typename T>
         std::optional<std::reference_wrapper<T>> findWithSidePrefix(UiPanel& p, const std::string& name)

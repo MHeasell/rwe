@@ -34,6 +34,9 @@ namespace rwe
 
         std::optional<std::reference_wrapper<const std::vector<GuiEntry>>> getBuilderGui(const std::string& unitType, unsigned int page) const;
 
+        /** If the unit has no build gui, this will be zero. */
+        unsigned int getBuildPageCount(const std::string& unitType) const;
+
     private:
         UnitWeapon createWeapon(const std::string& weaponType);
 

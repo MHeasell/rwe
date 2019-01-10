@@ -205,6 +205,7 @@ namespace rwe
         sounds.immediateOrders = lookUpSound("IMMEDIATEORDERS");
         sounds.specialOrders = lookUpSound("SPECIALORDERS");
         sounds.setFireOrders = lookUpSound("SETFIREORDERS");
+        sounds.nextBuildMenu = lookUpSound("NEXTBUILDMENU");
 
         auto gameScene = std::make_unique<GameScene>(
             sceneContext,
