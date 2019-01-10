@@ -1387,21 +1387,21 @@ namespace rwe
     {
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "ATTACK"))
         {
-            cursorMode.subscribe([&p = p->get()](const auto& v) {
+            p->get().addSubscription(cursorMode.subscribe([&p = p->get()](const auto& v) {
                 p.setToggledOn(boost::get<AttackCursorMode>(&v) != nullptr);
-            });
+            }));
         }
 
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "MOVE"))
         {
-            cursorMode.subscribe([&p = p->get()](const auto& v) {
+            p->get().addSubscription(cursorMode.subscribe([&p = p->get()](const auto& v) {
                 p.setToggledOn(boost::get<MoveCursorMode>(&v) != nullptr);
-            });
+            }));
         }
 
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "FIREORD"))
         {
-            fireOrders.subscribe([&p = p->get()](const auto& v) {
+            p->get().addSubscription(fireOrders.subscribe([&p = p->get()](const auto& v) {
                 switch (v)
                 {
                     case UnitFireOrders::HoldFire:
@@ -1416,7 +1416,7 @@ namespace rwe
                     default:
                         throw std::logic_error("Invalid FireOrders value");
                 }
-            });
+            }));
         }
 
         currentPanel->groupMessages().subscribe([this](const auto& msg) {
