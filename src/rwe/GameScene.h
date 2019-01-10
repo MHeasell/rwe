@@ -106,6 +106,18 @@ namespace rwe
         Water
     };
 
+    struct UnitGuiInfo
+    {
+        enum class Section
+        {
+            Build,
+            Orders,
+        };
+
+        Section section;
+        int currentBuildPage;
+    };
+
     class GameScene : public SceneManager::Scene
     {
     public:
@@ -254,6 +266,8 @@ namespace rwe
 
         TdfBlock* audioLookup;
         UiFactory uiFactory;
+
+        std::unordered_map<UnitId, UnitGuiInfo> unitGuiInfos;
 
     public:
         GameScene(
@@ -426,6 +440,8 @@ namespace rwe
         void deselectUnit(const UnitId& unitId);
 
         void clearUnitSelection();
+
+        const UnitGuiInfo& getGuiInfo(const UnitId& unitId) const;
 
         template <typename T>
         std::optional<std::reference_wrapper<T>> findWithSidePrefix(UiPanel& p, const std::string& name)

@@ -659,7 +659,14 @@ namespace rwe
         auto unit = unitFactory.createUnit(unitType, owner, simulation.getPlayer(owner).color, position);
 
         // TODO: if we failed to add the unit throw some warning
-        simulation.tryAddUnit(std::move(unit));
+        auto unitId = simulation.tryAddUnit(std::move(unit));
+
+        if (unitId)
+        {
+            const auto& insertedUnit = getUnit(*unitId);
+            // initialise local-player-specific UI data
+            unitGuiInfos.insert_or_assign(*unitId, UnitGuiInfo{insertedUnit.builder ? UnitGuiInfo::Section::Build : UnitGuiInfo::Section::Orders, 0});
+        }
     }
 
     void GameScene::setCameraPosition(const Vector3f& newPosition)
@@ -1282,6 +1289,7 @@ namespace rwe
                 assert(!!footprintRegion);
                 simulation.occupiedGrid.grid.setArea(*footprintRegion, OccupiedNone());
 
+                unitGuiInfos.erase(it->first);
                 it = simulation.units.erase(it);
             }
             else
@@ -1513,10 +1521,11 @@ namespace rwe
             playSoundOnSelectChannel(*selectionSound);
         }
 
-        auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, 0);
-        if (buildPanelDefinition)
+        const auto& guiInfo = getGuiInfo(unitId);
+        auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);
+        if (guiInfo.section == UnitGuiInfo::Section::Build && buildPanelDefinition)
         {
-            currentPanel = uiFactory.panelFromGuiFile(unit.unitType + "1", *buildPanelDefinition);
+            currentPanel = uiFactory.panelFromGuiFile(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition);
         }
         else
         {
@@ -1538,5 +1547,15 @@ namespace rwe
         selectedUnit = std::nullopt;
         const auto& side = getPlayer(localPlayerId).side;
         currentPanel = uiFactory.panelFromGuiFile(side + "MAIN2");
+    }
+
+    const UnitGuiInfo& GameScene::getGuiInfo(const UnitId& unitId) const
+    {
+        auto it = unitGuiInfos.find(unitId);
+        if (it == unitGuiInfos.end())
+        {
+            throw std::logic_error("Gui info not found for unit " + std::to_string(unitId.value));
+        }
+        return it->second;
     }
 }

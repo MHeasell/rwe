@@ -66,7 +66,7 @@ namespace rwe
         return id;
     }
 
-    bool GameSimulation::tryAddUnit(Unit&& unit)
+    std::optional<UnitId> GameSimulation::tryAddUnit(Unit&& unit)
     {
         auto unitId = nextUnitId;
 
@@ -74,7 +74,7 @@ namespace rwe
         auto footprintRect = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
         if (isCollisionAt(footprintRect, unitId))
         {
-            return false;
+            return std::nullopt;
         }
 
         auto footprintRegion = occupiedGrid.grid.tryToRegion(footprintRect);
@@ -86,7 +86,7 @@ namespace rwe
 
         nextUnitId = UnitId(nextUnitId.value + 1);
 
-        return true;
+        return unitId;
     }
 
     DiscreteRect GameSimulation::computeFootprintRegion(const Vector3f& position, unsigned int footprintX, unsigned int footprintZ) const

@@ -79,6 +79,8 @@ namespace rwe
         unit.maxHitPoints = fbi.maxDamage;
         unit.hitPoints = fbi.maxDamage;
 
+        unit.builder = fbi.builder;
+
         if (movementClassOption)
         {
             auto movementClass = &movementClassOption->get();

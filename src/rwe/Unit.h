@@ -140,6 +140,8 @@ namespace rwe
 
         UnitFireOrders fireOrders{UnitFireOrders::FireAtWill};
 
+        bool builder;
+
         static float toRotation(const Vector3f& direction);
 
         static Vector3f toDirection(float rotation);
