@@ -108,9 +108,8 @@ namespace rwe
 
     void GameScene::init()
     {
-        const auto& localPlayer = getPlayer(localPlayerId);
-
-        setNextPanel(uiFactory.panelFromGuiFile(localPlayer.side + "MAIN2"));
+        const auto& sidePrefix = sceneContext.sideData->at(getPlayer(localPlayerId).side).namePrefix;
+        setNextPanel(uiFactory.panelFromGuiFile(sidePrefix + "MAIN2"));
 
         sceneContext.audioService->reserveChannels(reservedChannelsCount);
         gameNetworkService->start();
@@ -1576,8 +1575,8 @@ namespace rwe
         }
         else
         {
-            const auto& side = getPlayer(localPlayerId).side;
-            setNextPanel(uiFactory.panelFromGuiFile(side + "GEN"));
+            const auto& sidePrefix = sceneContext.sideData->at(getPlayer(localPlayerId).side).namePrefix;
+            setNextPanel(uiFactory.panelFromGuiFile(sidePrefix + "GEN"));
         }
     }
 
@@ -1592,8 +1591,8 @@ namespace rwe
     void GameScene::clearUnitSelection()
     {
         selectedUnit = std::nullopt;
-        const auto& side = getPlayer(localPlayerId).side;
-        setNextPanel(uiFactory.panelFromGuiFile(side + "MAIN2"));
+        const auto& sidePrefix = sceneContext.sideData->at(getPlayer(localPlayerId).side).namePrefix;
+        setNextPanel(uiFactory.panelFromGuiFile(sidePrefix + "MAIN2"));
     }
 
     const UnitGuiInfo& GameScene::getGuiInfo(const UnitId& unitId) const
