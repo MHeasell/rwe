@@ -198,5 +198,34 @@ namespace rwe
             auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
             REQUIRE(result == expected);
         }
+
+        SECTION("copes with empty statements")
+        {
+            // seen in V maps pack. Empty space followed by semicolon.
+            std::string input = R"TDF(
+[GlobalHeader]
+	{
+	missionname=[V] A Better Fate;
+	missiondescription=13 x 8. W:+2-19. Improved version of Slated Fate;
+	planet=Slate;
+	missionhint=; ;
+	brief=17Brief.txt;
+	narration=20x20 32mb 2 and 4 player or up to 4, 2 man teams;
+	glamour=ARM01.pcx;
+	}
+            )TDF";
+
+            auto expected = makeTdfBlock({{"GlobalHeader", makeTdfBlock({
+                {"missionname", "[V] A Better Fate"},
+                {"missiondescription", "13 x 8. W:+2-19. Improved version of Slated Fate"},
+                {"planet", "Slate"},
+                {"missionhint", ""},
+                {"brief", "17Brief.txt"},
+                {"narration", "20x20 32m 2 and 4 player or up to 4, 2 man teams"},
+                {"glamour", "ARM01.pcx"}
+            })}});
+
+            auto result = parser.parse(cUtf8Begin(input), cUtf8End(input));
+        }
     }
 }

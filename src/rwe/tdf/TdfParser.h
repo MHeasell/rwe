@@ -190,6 +190,14 @@ namespace rwe
                 {
                     block();
                 }
+                else if (peek() == ';')
+                {
+                    // Empty statement (i.e. terminator that terminates nothing).
+                    // Strictly this isn't really valid
+                    // but some files in the wild do have this
+                    // and we need cope with them.
+                    expect(';');
+                }
                 else
                 {
                     property();
