@@ -109,7 +109,7 @@ namespace rwe
     void GameScene::init()
     {
         const auto& sidePrefix = sceneContext.sideData->at(getPlayer(localPlayerId).side).namePrefix;
-        setNextPanel(uiFactory.panelFromGuiFile(sidePrefix + "MAIN2"));
+        currentPanel = uiFactory.panelFromGuiFile(sidePrefix + "MAIN2");
 
         sceneContext.audioService->reserveChannels(reservedChannelsCount);
         gameNetworkService->start();
