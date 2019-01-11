@@ -90,7 +90,22 @@ namespace rwe
         }
     };
 
-    using CursorMode = boost::variant<AttackCursorMode, MoveCursorMode, NormalCursorMode>;
+    struct BuildCursorMode
+    {
+        std::string unitType;
+
+        bool operator==(const BuildCursorMode& rhs) const
+        {
+            return unitType == rhs.unitType;
+        }
+
+        bool operator!=(const BuildCursorMode& rhs) const
+        {
+            return !(rhs == *this);
+        }
+    };
+
+    using CursorMode = boost::variant<AttackCursorMode, MoveCursorMode, BuildCursorMode, NormalCursorMode>;
 
 #if BOOST_VERSION < 105800
     // != not automatically defined in boost::variant before 1.58:

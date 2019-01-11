@@ -174,6 +174,12 @@ namespace rwe
         return pages->get().size();
     }
 
+    Point UnitFactory::getUnitFootprint(const std::string& unitType) const
+    {
+        const auto& fbi = unitDatabase.getUnitInfo(unitType);
+        return Point(fbi.footprintX, fbi.footprintZ);
+    }
+
     UnitWeapon UnitFactory::createWeapon(const std::string& weaponType)
     {
         const auto& tdf = unitDatabase.getWeapon(weaponType);

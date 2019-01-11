@@ -261,6 +261,35 @@ namespace rwe
             }
         }
 
+        if (auto buildCursor = boost::get<BuildCursorMode>(&cursorMode.getValue()); buildCursor != nullptr)
+        {
+            auto footprint = unitFactory.getUnitFootprint(buildCursor->unitType);
+            auto width = footprint.x * MapTerrain::HeightTileWidthInWorldUnits;
+            auto height = footprint.y * MapTerrain::HeightTileHeightInWorldUnits;
+            auto xOffset = width / 2;
+            auto yOffset = height / 2;
+
+            if (isCursorOverWorld())
+            {
+                auto ray = worldRenderService.getCamera().screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
+                auto intersect = simulation.intersectLineWithTerrain(ray.toLine());
+
+                if (intersect)
+                {
+                    auto terrainHeight = simulation.terrain.getHeightAt(intersect->x, intersect->z);
+                    intersect->x -= xOffset;
+                    intersect->z -= yOffset;
+                    auto topLeft = simulation.terrain.worldToHeightmapCoordinateNearest(*intersect);
+                    auto topLeftWorld = simulation.terrain.heightmapIndexToWorldCorner(topLeft);
+                    topLeftWorld.y = terrainHeight;
+                    auto topLeftUi = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
+                                     * worldRenderService.getCamera().getViewProjectionMatrix()
+                                     * topLeftWorld;
+                    worldUiRenderService.drawBoxOutline(topLeftUi.x, topLeftUi.y, width, height, Color(0, 255, 0));
+                }
+            }
+        }
+
         if (cursorTerrainDotVisible)
         {
             // draw a dot where we think the cursor intersects terrain
@@ -426,6 +455,10 @@ namespace rwe
                     }
                 }
             }
+            else if (auto buildCursor = boost::get<BuildCursorMode>(&cursorMode.getValue()); buildCursor != nullptr)
+            {
+                cursorMode.next(NormalCursorMode());
+            }
             else if (auto normalCursor = boost::get<NormalCursorMode>(&cursorMode.getValue()); normalCursor != nullptr)
             {
                 if (isCursorOverMinimap())
@@ -445,6 +478,10 @@ namespace rwe
                 cursorMode.next(NormalCursorMode());
             }
             else if (boost::get<MoveCursorMode>(&cursorMode.getValue()) != nullptr)
+            {
+                cursorMode.next(NormalCursorMode());
+            }
+            else if (boost::get<BuildCursorMode>(&cursorMode.getValue()))
             {
                 cursorMode.next(NormalCursorMode());
             }
@@ -601,6 +638,10 @@ namespace rwe
         else if (boost::get<MoveCursorMode>(&cursorMode.getValue()) != nullptr)
         {
             sceneContext.cursor->useMoveCursor();
+        }
+        else if (boost::get<BuildCursorMode>(&cursorMode.getValue()) != nullptr)
+        {
+            sceneContext.cursor->useNormalCursor();
         }
         else if (boost::get<NormalCursorMode>(&cursorMode.getValue()) != nullptr)
         {
@@ -1599,6 +1640,10 @@ namespace rwe
                 const auto& sidePrefix = sceneContext.sideData->at(getPlayer(localPlayerId).side).namePrefix;
                 setNextPanel(uiFactory.panelFromGuiFile(sidePrefix + "GEN"));
             }
+        }
+        else if (message == "ARMSOLAR")
+        {
+            cursorMode.next(BuildCursorMode{"ARMSOLAR"});
         }
     }
 
