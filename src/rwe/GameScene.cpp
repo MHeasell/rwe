@@ -272,7 +272,15 @@ namespace rwe
                     worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
                     * worldRenderService.getCamera().getViewProjectionMatrix()
                     * (*intersect);
-                worldUiRenderService.fillColor(cursorTerrainPos.x - 2, cursorTerrainPos.y - 2, 4, 4, Color(255, 0, 255));
+                worldUiRenderService.fillColor(cursorTerrainPos.x - 2, cursorTerrainPos.y - 2, 4, 4, Color(0, 0, 255));
+
+                intersect->y = simulation.terrain.getHeightAt(intersect->x, intersect->z);
+
+                auto heightTestedTerrainPos =
+                    worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
+                    * worldRenderService.getCamera().getViewProjectionMatrix()
+                    * (*intersect);
+                worldUiRenderService.fillColor(heightTestedTerrainPos.x - 2, heightTestedTerrainPos.y - 2, 4, 4, Color(255, 0, 0));
             }
         }
 
