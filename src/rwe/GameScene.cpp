@@ -263,25 +263,25 @@ namespace rwe
 
         if (auto buildCursor = boost::get<BuildCursorMode>(&cursorMode.getValue()); buildCursor != nullptr)
         {
-            auto footprint = unitFactory.getUnitFootprint(buildCursor->unitType);
-            auto width = footprint.x * MapTerrain::HeightTileWidthInWorldUnits;
-            auto height = footprint.y * MapTerrain::HeightTileHeightInWorldUnits;
-            auto xOffset = width / 2;
-            auto yOffset = height / 2;
-
+            // draw build ghost rectangle
             if (isCursorOverWorld())
             {
+                auto footprint = unitFactory.getUnitFootprint(buildCursor->unitType);
+                auto width = footprint.x * MapTerrain::HeightTileWidthInWorldUnits;
+                auto height = footprint.y * MapTerrain::HeightTileHeightInWorldUnits;
+                auto xOffset = width / 2;
+                auto yOffset = height / 2;
+
                 auto ray = worldRenderService.getCamera().screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
                 auto intersect = simulation.intersectLineWithTerrain(ray.toLine());
 
                 if (intersect)
                 {
-                    auto terrainHeight = simulation.terrain.getHeightAt(intersect->x, intersect->z);
                     intersect->x -= xOffset;
                     intersect->z -= yOffset;
                     auto topLeft = simulation.terrain.worldToHeightmapCoordinateNearest(*intersect);
                     auto topLeftWorld = simulation.terrain.heightmapIndexToWorldCorner(topLeft);
-                    topLeftWorld.y = terrainHeight;
+                    topLeftWorld.y = simulation.terrain.getHeightAt(topLeftWorld.x + xOffset, topLeftWorld.z + yOffset);
                     auto topLeftUi = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
                                      * worldRenderService.getCamera().getViewProjectionMatrix()
                                      * topLeftWorld;
