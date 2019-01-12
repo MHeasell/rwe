@@ -40,4 +40,15 @@ namespace rwe
             REQUIRE(roundUpToPowerOfTwo(2'000'000'000) == 2'147'483'648);
         }
     }
+
+    TEST_CASE("sameSign")
+    {
+        REQUIRE(sameSign(1.0f, 2.0f));
+        REQUIRE(sameSign(-1.0f, -2.0f));
+
+        REQUIRE(!sameSign(1.0f, -2.0f));
+
+        REQUIRE(sameSign(0.0f, 1.0f));
+        REQUIRE(sameSign(0.0f, -1.0f));
+    }
 }

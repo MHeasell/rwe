@@ -19,7 +19,12 @@ namespace rwe
 
     bool sameSign(float a, float b)
     {
-        return (a * b) >= 0.0f;
+        return (a >= 0.0f && b >= 0.0f) || (a <= 0.0f && b <= 0.0f);
+    }
+
+    bool sameSign(float a, float b, float c)
+    {
+        return (a >= 0.0f && b >= 0.0f && c >= 0.0f) || (a <= 0.0f && b <= 0.0f && c <= 0.0f);
     }
 
     float wrap(float min, float max, float value)

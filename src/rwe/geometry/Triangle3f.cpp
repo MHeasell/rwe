@@ -33,13 +33,8 @@ namespace rwe
 
         float u = scalarTriple(pq, pc, pb);
         float v = scalarTriple(pq, pa, pc);
-        if (!sameSign(u, v))
-        {
-            return std::nullopt;
-        }
-
         float w = scalarTriple(pq, pb, pa);
-        if (!sameSign(v, w))
+        if (!sameSign(u, v, w))
         {
             return std::nullopt;
         }

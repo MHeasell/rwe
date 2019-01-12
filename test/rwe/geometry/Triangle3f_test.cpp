@@ -239,6 +239,18 @@ namespace rwe
             auto intersect = tri.intersectLine(Vector3f(-1.0f, -1.000001f, 10.0f), Vector3f(-1.0f, -1.000001f, -10.0f));
             REQUIRE(!intersect);
         }
+
+
+        SECTION("correctly works out that this arbitrary triangle and line don't intersect")
+        {
+            // Example taken from a real case observed during gameplay.
+            Triangle3f tri(
+                Vector3f(2192, 84, -688),
+                Vector3f(2184, 84.5, -696),
+                Vector3f(2192, 86, -704));
+            auto intersect = tri.intersectLine(Vector3f(2192, 1000, -689), Vector3f(2192, -1000, -1689));
+            REQUIRE(!intersect);
+        }
     }
 
     TEST_CASE("Triangle3f::toPlane")

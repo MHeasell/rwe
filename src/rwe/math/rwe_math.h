@@ -29,9 +29,14 @@ namespace rwe
     int wrap(int min, int max, int value);
 
     /**
-     * Returns true if a and b both have the same sign.
+     * Returns true if a and b both have the same sign, ignoring zeroes.
      */
     bool sameSign(float a, float b);
+
+    /**
+     * Returns true if a, b and c all have the same sign, ignoring zeroes.
+     */
+    bool sameSign(float a, float b, float c);
 
     unsigned int roundUpToPowerOfTwo(unsigned int v);
 
