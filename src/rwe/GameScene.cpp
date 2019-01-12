@@ -1643,6 +1643,11 @@ namespace rwe
         }
         else if (message == "ARMSOLAR")
         {
+            if (sounds.addBuild)
+            {
+                sceneContext.audioService->playSound(*sounds.addBuild);
+            }
+
             cursorMode.next(BuildCursorMode{"ARMSOLAR"});
         }
     }
