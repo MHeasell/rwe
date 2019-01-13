@@ -79,46 +79,9 @@ namespace rwe
             // process move orders
             if (auto moveOrder = boost::get<MoveOrder>(&order); moveOrder != nullptr)
             {
-                if (auto idleState = boost::get<IdleState>(&unit.behaviourState); idleState != nullptr)
+                if (handleMoveOrder(unitId, *moveOrder))
                 {
-                    // request a path to follow
-                    scene->getSimulation().requestPath(unitId);
-                    const auto& destination = moveOrder->destination;
-                    unit.behaviourState = MovingState{destination, std::nullopt, true};
-                }
-                else if (auto movingState = boost::get<MovingState>(&unit.behaviourState); movingState != nullptr)
-                {
-                    // if we are colliding, request a new path
-                    if (unit.inCollision && !movingState->pathRequested)
-                    {
-                        auto& sim = scene->getSimulation();
-
-                        // only request a new path if we don't have one yet,
-                        // or we've already had our current one for a bit
-                        if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTimeDelta(60))
-                        {
-                            sim.requestPath(unitId);
-                            movingState->pathRequested = true;
-                        }
-                    }
-
-                    // if a path is available, attempt to follow it
-                    auto& pathToFollow = movingState->path;
-                    if (pathToFollow)
-                    {
-                        if (followPath(unit, *pathToFollow))
-                        {
-                            // we finished following the path,
-                            // order complete
-                            unit.orders.pop_front();
-                            unit.behaviourState = IdleState();
-
-                            if (unit.arrivedSound)
-                            {
-                                scene->playSoundOnSelectChannel(*unit.arrivedSound);
-                            }
-                        }
-                    }
+                    unit.orders.pop_front();
                 }
             }
             else if (auto attackOrder = boost::get<AttackOrder>(&order); attackOrder != nullptr)
@@ -630,6 +593,56 @@ namespace rwe
         }
 
         return getSweetSpot(id);
+    }
+
+    bool UnitBehaviorService::handleMoveOrder(UnitId unitId, const MoveOrder& moveOrder)
+    {
+        auto& unit = scene->getSimulation().getUnit(unitId);
+
+        if (auto idleState = boost::get<IdleState>(&unit.behaviourState); idleState != nullptr)
+        {
+            // request a path to follow
+            scene->getSimulation().requestPath(unitId);
+            const auto& destination = moveOrder.destination;
+            unit.behaviourState = MovingState{destination, std::nullopt, true};
+        }
+        else if (auto movingState = boost::get<MovingState>(&unit.behaviourState); movingState != nullptr)
+        {
+            // if we are colliding, request a new path
+            if (unit.inCollision && !movingState->pathRequested)
+            {
+                auto& sim = scene->getSimulation();
+
+                // only request a new path if we don't have one yet,
+                // or we've already had our current one for a bit
+                if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTimeDelta(60))
+                {
+                    sim.requestPath(unitId);
+                    movingState->pathRequested = true;
+                }
+            }
+
+            // if a path is available, attempt to follow it
+            auto& pathToFollow = movingState->path;
+            if (pathToFollow)
+            {
+                if (followPath(unit, *pathToFollow))
+                {
+                    // we finished following the path,
+                    // order complete
+                    unit.behaviourState = IdleState();
+
+                    if (unit.arrivedSound)
+                    {
+                        scene->playSoundOnSelectChannel(*unit.arrivedSound);
+                    }
+
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     bool UnitBehaviorService::handleAttackOrder(UnitId unitId, const AttackOrder& attackOrder)

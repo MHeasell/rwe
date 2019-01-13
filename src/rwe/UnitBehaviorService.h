@@ -27,6 +27,9 @@ namespace rwe
         std::optional<Vector3f> tryGetSweetSpot(UnitId id);
 
         /** Returns true if the order has been completed. */
+        bool handleMoveOrder(UnitId unitId, const MoveOrder& moveOrder);
+
+        /** Returns true if the order has been completed. */
         bool handleAttackOrder(UnitId unitId, const AttackOrder& attackOrder);
 
     private:
