@@ -13,6 +13,26 @@ namespace rwe
     class UnitBehaviorService
     {
     private:
+        class HandleUnitOrderVisitor : boost::static_visitor<bool>
+        {
+        private:
+            UnitBehaviorService* svc;
+            UnitId u;
+
+        public:
+            HandleUnitOrderVisitor(UnitBehaviorService* svc, UnitId u): svc(svc), u(u) {}
+
+            bool operator()(const MoveOrder& o)
+            {
+                return svc->handleMoveOrder(u, o);
+            }
+
+            bool operator()(const AttackOrder& o)
+            {
+                return svc->handleAttackOrder(u, o);
+            }
+        };
+    private:
         GameScene* scene;
         PathFindingService* pathFindingService;
         MovementClassCollisionService* collisionService;

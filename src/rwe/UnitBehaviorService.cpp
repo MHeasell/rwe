@@ -77,19 +77,10 @@ namespace rwe
             const auto& order = unit.orders.front();
 
             // process move orders
-            if (auto moveOrder = boost::get<MoveOrder>(&order); moveOrder != nullptr)
+            HandleUnitOrderVisitor v(this, unitId);
+            if (boost::apply_visitor(v, order))
             {
-                if (handleMoveOrder(unitId, *moveOrder))
-                {
-                    unit.orders.pop_front();
-                }
-            }
-            else if (auto attackOrder = boost::get<AttackOrder>(&order); attackOrder != nullptr)
-            {
-                if (handleAttackOrder(unitId, *attackOrder))
-                {
-                    unit.orders.pop_front();
-                }
+                unit.orders.pop_front();
             }
         }
 
