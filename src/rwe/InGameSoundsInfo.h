@@ -12,6 +12,9 @@ namespace rwe
         std::optional<AudioService::SoundHandle> setFireOrders;
 
         std::optional<AudioService::SoundHandle> nextBuildMenu;
+
+        std::optional<AudioService::SoundHandle> buildButton;
+        std::optional<AudioService::SoundHandle> ordersButton;
     };
 }
 

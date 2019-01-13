@@ -1567,7 +1567,39 @@ namespace rwe
                 setNextPanel(uiFactory.panelFromGuiFile(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition));
             }
         }
+        else if (matchesWithSidePrefix("BUILD", message))
+        {
+            if (selectedUnit)
+            {
+                if (sounds.buildButton)
+                {
+                    sceneContext.audioService->playSound(*sounds.buildButton);
+                }
 
+                const auto& unit = getUnit(*selectedUnit);
+                auto& guiInfo = unitGuiInfos.at(*selectedUnit);
+                guiInfo.section = UnitGuiInfo::Section::Build;
+
+                auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);
+                setNextPanel(uiFactory.panelFromGuiFile(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition));
+            }
+        }
+        else if (matchesWithSidePrefix("ORDERS", message))
+        {
+            if (selectedUnit)
+            {
+                if (sounds.ordersButton)
+                {
+                    sceneContext.audioService->playSound(*sounds.ordersButton);
+                }
+
+                auto& guiInfo = unitGuiInfos.at(*selectedUnit);
+                guiInfo.section = UnitGuiInfo::Section::Orders;
+
+                const auto& sidePrefix = sceneContext.sideData->at(getPlayer(localPlayerId).side).namePrefix;
+                setNextPanel(uiFactory.panelFromGuiFile(sidePrefix + "GEN"));
+            }
+        }
     }
 
     bool GameScene::matchesWithSidePrefix(const std::string& suffix, const std::string& value) const
