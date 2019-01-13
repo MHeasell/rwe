@@ -13,7 +13,7 @@ namespace rwe
     class UnitBehaviorService
     {
     private:
-        class HandleUnitOrderVisitor : boost::static_visitor<bool>
+        class HandleUnitOrderVisitor : public boost::static_visitor<bool>
         {
         private:
             UnitBehaviorService* svc;
