@@ -254,6 +254,7 @@ namespace rwe
         bool occupiedGridVisible{false};
         bool pathfindingVisualisationVisible{false};
         bool movementClassGridVisible{false};
+        bool cursorTerrainDotVisible{false};
 
         bool healthBarsVisible{false};
 

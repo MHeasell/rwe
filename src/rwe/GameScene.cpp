@@ -261,6 +261,21 @@ namespace rwe
             }
         }
 
+        if (cursorTerrainDotVisible)
+        {
+            // draw a dot where we think the cursor intersects terrain
+            auto ray = worldRenderService.getCamera().screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
+            auto intersect = simulation.intersectLineWithTerrain(ray.toLine());
+            if (intersect)
+            {
+                auto cursorTerrainPos =
+                    worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
+                    * worldRenderService.getCamera().getViewProjectionMatrix()
+                    * (*intersect);
+                worldUiRenderService.fillColor(cursorTerrainPos.x - 2, cursorTerrainPos.y - 2, 4, 4, Color(255, 0, 255));
+            }
+        }
+
         context.enableDepthBuffer();
     }
 
@@ -291,6 +306,10 @@ namespace rwe
         else if (keysym.sym == SDLK_RSHIFT)
         {
             rightShiftDown = true;
+        }
+        else if (keysym.sym == SDLK_F8)
+        {
+            cursorTerrainDotVisible = !cursorTerrainDotVisible;
         }
         else if (keysym.sym == SDLK_F9)
         {
