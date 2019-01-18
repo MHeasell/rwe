@@ -31,6 +31,11 @@ namespace rwe
             {
                 return svc->handleAttackOrder(u, o);
             }
+
+            bool operator()(const BuildOrder& o)
+            {
+                return svc->handleBuildOrder(u, o);
+            }
         };
     private:
         GameScene* scene;
@@ -51,6 +56,9 @@ namespace rwe
 
         /** Returns true if the order has been completed. */
         bool handleAttackOrder(UnitId unitId, const AttackOrder& attackOrder);
+
+        /** Returns true if the order has been completed. */
+        bool handleBuildOrder(UnitId unitId, const BuildOrder& buildOrder);
 
     private:
         static std::pair<float, float> computeHeadingAndPitch(float rotation, const Vector3f& from, const Vector3f& to);

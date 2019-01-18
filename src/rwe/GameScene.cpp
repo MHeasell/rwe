@@ -457,7 +457,22 @@ namespace rwe
             }
             else if (auto buildCursor = boost::get<BuildCursorMode>(&cursorMode.getValue()); buildCursor != nullptr)
             {
-                cursorMode.next(NormalCursorMode());
+                if (selectedUnit)
+                {
+                    auto coord = getMouseTerrainCoordinate();
+                    if (coord)
+                    {
+                        if (isShiftDown())
+                        {
+                            localPlayerEnqueueUnitOrder(*selectedUnit, BuildOrder(buildCursor->unitType, *coord));
+                        }
+                        else
+                        {
+                            localPlayerIssueUnitOrder(*selectedUnit, BuildOrder(buildCursor->unitType, *coord));
+                            cursorMode.next(NormalCursorMode());
+                        }
+                    }
+                }
             }
             else if (auto normalCursor = boost::get<NormalCursorMode>(&cursorMode.getValue()); normalCursor != nullptr)
             {

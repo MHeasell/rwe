@@ -716,6 +716,11 @@ namespace rwe
         return false;
     }
 
+    bool UnitBehaviorService::handleBuildOrder(UnitId unitId, const BuildOrder& buildOrder)
+    {
+        return true;
+    }
+
     Vector3f UnitBehaviorService::getPiecePosition(UnitId id, unsigned int pieceId)
     {
         auto& unit = scene->getSimulation().getUnit(id);
