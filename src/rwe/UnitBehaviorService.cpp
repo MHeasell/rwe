@@ -738,7 +738,7 @@ namespace rwe
         {
             if (unit.position.distanceSquared(buildOrder.position) <= buildDistanceSquared)
             {
-                // TODO: create unit to be built now?
+                scene->spawnUnit(buildOrder.unitType, unit.owner, buildOrder.position);
 
                 auto nanoFromPosition = getNanoPoint(unitId);
                 auto headingAndPitch = computeHeadingAndPitch(unit.rotation, nanoFromPosition, buildOrder.position);
