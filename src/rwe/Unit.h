@@ -43,7 +43,17 @@ namespace rwe
     {
     };
 
-    using UnitState = boost::variant<IdleState, MovingState>;
+    /** We are in this state while the "unfolding" animation plays to prep for building */
+    struct StartBuildingState
+    {
+        const CobThread* thread;
+    };
+
+    struct BuildingState
+    {
+    };
+
+    using UnitState = boost::variant<IdleState, MovingState, StartBuildingState, BuildingState>;
 
     UnitOrder createMoveOrder(const Vector3f& destination);
 

@@ -718,7 +718,98 @@ namespace rwe
 
     bool UnitBehaviorService::handleBuildOrder(UnitId unitId, const BuildOrder& buildOrder)
     {
-        return true;
+        auto& unit = scene->getSimulation().getUnit(unitId);
+
+        auto buildDistanceSquared = 60 * 60;
+
+        if (auto idleState = boost::get<IdleState>(&unit.behaviourState); idleState != nullptr)
+        {
+            // if we're out of build range, drive into range
+            // TODO: check if this range should be from center or from edge
+            if (unit.position.distanceSquared(buildOrder.position) > buildDistanceSquared)
+            {
+                // request a path to follow
+                scene->getSimulation().requestPath(unitId);
+                // FIXME: we should probably be moving to rect edge, not center
+                unit.behaviourState = MovingState{buildOrder.position, std::nullopt, true};
+            }
+        }
+        else if (auto movingState = boost::get<MovingState>(&unit.behaviourState); movingState != nullptr)
+        {
+            if (unit.position.distanceSquared(buildOrder.position) <= buildDistanceSquared)
+            {
+                // TODO: create unit to be built now?
+
+                auto nanoFromPosition = getNanoPoint(unitId);
+                auto headingAndPitch = computeHeadingAndPitch(unit.rotation, nanoFromPosition, buildOrder.position);
+                auto heading = headingAndPitch.first;
+                auto pitch = headingAndPitch.second;
+
+                auto threadId = unit.cobEnvironment->createThread("StartBuilding", {toTaAngle(RadiansAngle(heading)).value, toTaAngle(RadiansAngle(pitch)).value});
+                if (threadId)
+                {
+                    unit.behaviourState = StartBuildingState();
+                }
+                else
+                {
+                    // we couldn't launch a start build script (there isn't one),
+                    // just go straight to building
+                    // TODO: start emitting nanolate effect
+                    unit.behaviourState = BuildingState();
+                }
+            }
+            else
+            {
+                // if we are colliding, request a new path
+                if (unit.inCollision && !movingState->pathRequested)
+                {
+                    auto& sim = scene->getSimulation();
+
+                    // only request a new path if we don't have one yet,
+                    // or we've already had our current one for a bit
+                    if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTimeDelta(60))
+                    {
+                        sim.requestPath(unitId);
+                        movingState->pathRequested = true;
+                    }
+                }
+
+                // if a path is available, attempt to follow it
+                auto& pathToFollow = movingState->path;
+                if (pathToFollow)
+                {
+                    if (followPath(unit, *pathToFollow))
+                    {
+                        // we finished following the path,
+                        // go back to idle
+                        unit.behaviourState = IdleState();
+                    }
+                }
+            }
+        }
+        else if (auto startBuildingState = boost::get<StartBuildingState>(&unit.behaviourState); startBuildingState != nullptr)
+        {
+            auto returnValue = unit.cobEnvironment->tryReapThread(startBuildingState->thread);
+            if (returnValue)
+            {
+                // we successfully reaped, move to building
+                // TODO: start emitting nanolathe particles, probably
+                unit.behaviourState = BuildingState();
+            }
+        }
+
+        return false;
+    }
+
+    Vector3f UnitBehaviorService::getNanoPoint(UnitId id)
+    {
+        auto pieceId = runCobQuery(id, "QueryNanoPiece");
+        if (!pieceId)
+        {
+            return scene->getSimulation().getUnit(id).position;
+        }
+
+        return getPiecePosition(id, *pieceId);
     }
 
     Vector3f UnitBehaviorService::getPiecePosition(UnitId id, unsigned int pieceId)

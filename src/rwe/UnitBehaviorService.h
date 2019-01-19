@@ -87,6 +87,8 @@ namespace rwe
 
         Vector3f getFiringPoint(UnitId id, unsigned int weaponIndex);
 
+        Vector3f getNanoPoint(UnitId id);
+
         Vector3f getPiecePosition(UnitId id, unsigned int pieceId);
     };
 }
