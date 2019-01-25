@@ -814,7 +814,10 @@ namespace rwe
                 return toFixedPoint(result);
             }
             case CobValueId::BuildPercentLeft:
-                return 0; // TODO
+            {
+                const auto& unit = sim->getUnit(unitId);
+                return unit.getBuildPercentLeft();
+            }
             case CobValueId::YardOpen:
                 return false; // TODO
             case CobValueId::BuggerOff:

@@ -323,7 +323,9 @@ namespace rwe
 
         void update() override;
 
-        void spawnUnit(const std::string& unitType, PlayerId owner, const Vector3f& position);
+        std::optional<UnitId> spawnUnit(const std::string& unitType, PlayerId owner, const Vector3f& position);
+
+        void spawnCompletedUnit(const std::string& unitType, PlayerId owner, const Vector3f& position);
 
         void setCameraPosition(const Vector3f& newPosition);
 

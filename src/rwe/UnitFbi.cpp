@@ -52,6 +52,8 @@ namespace rwe
 
         tdf.readOrDefault("Builder", u.builder);
 
+        tdf.readOrDefault("BuildTime", u.buildTime);
+
         return u;
     }
 }

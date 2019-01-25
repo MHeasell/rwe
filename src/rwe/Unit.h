@@ -64,6 +64,12 @@ namespace rwe
     class Unit
     {
     public:
+        enum class LifeState
+        {
+            Alive,
+            Dead,
+        };
+    public:
         std::string unitType;
         UnitMesh mesh;
         Vector3f position;
@@ -130,8 +136,10 @@ namespace rwe
         /** If true, the unit is considered a commander for victory conditions. */
         bool commander;
 
-        unsigned int hitPoints;
+        unsigned int hitPoints{0};
         unsigned int maxHitPoints;
+
+        LifeState lifeState{LifeState::Alive};
 
         std::deque<UnitOrder> orders;
         UnitState behaviourState;
@@ -152,11 +160,17 @@ namespace rwe
 
         bool builder;
 
+        unsigned int buildTime;
+
+        unsigned int buildTimeCompleted{0};
+
         static float toRotation(const Vector3f& direction);
 
         static Vector3f toDirection(float rotation);
 
         Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, SelectionMesh&& selectionMesh);
+
+        unsigned int getBuildPercentLeft() const;
 
         bool isCommander() const;
 
@@ -189,6 +203,8 @@ namespace rwe
         bool isDead() const;
 
         void markAsDead();
+
+        void finishBuilding();
 
         void clearOrders();
 

@@ -259,7 +259,7 @@ namespace rwe
             }
 
             const auto& sideData = getSideData(player->side);
-            gameScene->spawnUnit(sideData.commander, *gamePlayers[i], worldStartPos);
+            gameScene->spawnCompletedUnit(sideData.commander, *gamePlayers[i], worldStartPos);
         }
 
         if (!humanStartPos)

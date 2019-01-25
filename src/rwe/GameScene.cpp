@@ -752,7 +752,7 @@ namespace rwe
         }
     }
 
-    void GameScene::spawnUnit(const std::string& unitType, PlayerId owner, const Vector3f& position)
+    std::optional<UnitId> GameScene::spawnUnit(const std::string& unitType, PlayerId owner, const Vector3f& position)
     {
         auto unit = unitFactory.createUnit(unitType, owner, simulation.getPlayer(owner).color, position);
 
@@ -764,6 +764,20 @@ namespace rwe
             const auto& insertedUnit = getUnit(*unitId);
             // initialise local-player-specific UI data
             unitGuiInfos.insert_or_assign(*unitId, UnitGuiInfo{insertedUnit.builder ? UnitGuiInfo::Section::Build : UnitGuiInfo::Section::Orders, 0});
+        }
+
+        return unitId;
+    }
+
+    void GameScene::spawnCompletedUnit(const std::string& unitType, PlayerId owner, const Vector3f& position)
+    {
+        auto unitId = spawnUnit(unitType, owner, position);
+        if (unitId)
+        {
+            auto& unit = getUnit(*unitId);
+            // units start as unbuilt nanoframes,
+            // we we need to convert it immediately into a completed unit.
+            unit.finishBuilding();
         }
     }
 

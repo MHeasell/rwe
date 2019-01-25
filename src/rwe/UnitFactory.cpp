@@ -77,9 +77,12 @@ namespace rwe
         unit.commander = fbi.commander;
 
         unit.maxHitPoints = fbi.maxDamage;
-        unit.hitPoints = fbi.maxDamage;
 
         unit.builder = fbi.builder;
+
+        // Build time is per second, assuming 30 ticks per second.
+        // However, we use 60 ticks per second, so we multiply by 2 here.
+        unit.buildTime = fbi.buildTime * 2;
 
         if (movementClassOption)
         {
