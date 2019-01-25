@@ -39,9 +39,19 @@ namespace rwe
     {
     }
 
+    bool Unit::isBeingBuilt() const
+    {
+        return buildTimeCompleted < buildTime;
+    }
+
     unsigned int Unit::getBuildPercentLeft() const
     {
         return 100u - ((buildTimeCompleted * 100u) / buildTime);
+    }
+
+    float Unit::getPreciseCompletePercent() const
+    {
+        return static_cast<float>(buildTimeCompleted) / static_cast<float>(buildTime);
     }
 
     bool Unit::isCommander() const

@@ -170,7 +170,11 @@ namespace rwe
 
         Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, SelectionMesh&& selectionMesh);
 
+        bool isBeingBuilt() const;
+
         unsigned int getBuildPercentLeft() const;
+
+        float getPreciseCompletePercent() const;
 
         bool isCommander() const;
 

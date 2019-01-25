@@ -52,6 +52,7 @@ namespace rwe
         void drawUnit(const Unit& unit, float seaLevel);
         void drawUnitShadow(const Unit& unit, float groundHeight);
         void drawUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel);
+        void drawBuildingUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, float percentComplete);
         void drawSelectionRect(const Unit& unit);
         void drawOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid);
         void drawMovementClassCollisionGrid(const MapTerrain& terrain, const Grid<char>& movementClassGrid);
