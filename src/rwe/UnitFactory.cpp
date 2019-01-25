@@ -180,6 +180,11 @@ namespace rwe
         return Point(fbi.footprintX, fbi.footprintZ);
     }
 
+    bool UnitFactory::isValidUnitType(const std::string& unitType) const
+    {
+        return unitDatabase.hasUnitInfo(unitType);
+    }
+
     UnitWeapon UnitFactory::createWeapon(const std::string& weaponType)
     {
         const auto& tdf = unitDatabase.getWeapon(weaponType);

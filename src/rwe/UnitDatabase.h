@@ -31,6 +31,8 @@ namespace rwe
         std::unordered_map<std::string, std::vector<std::vector<GuiEntry>>> builderGuisMap;
 
     public:
+        bool hasUnitInfo(const std::string& unitName) const;
+
         const UnitFbi& getUnitInfo(const std::string& unitName) const;
 
         void addUnitInfo(const std::string& unitName, const UnitFbi& info);

@@ -39,6 +39,8 @@ namespace rwe
 
         Point getUnitFootprint(const std::string& unitType) const;
 
+        bool isValidUnitType(const std::string& unitType) const;
+
     private:
         UnitWeapon createWeapon(const std::string& weaponType);
 

@@ -1656,14 +1656,14 @@ namespace rwe
                 setNextPanel(uiFactory.panelFromGuiFile(sidePrefix + "GEN"));
             }
         }
-        else if (message == "ARMSOLAR")
+        else if (unitFactory.isValidUnitType(message))
         {
             if (sounds.addBuild)
             {
                 sceneContext.audioService->playSound(*sounds.addBuild);
             }
 
-            cursorMode.next(BuildCursorMode{"ARMSOLAR"});
+            cursorMode.next(BuildCursorMode{message});
         }
     }
 
