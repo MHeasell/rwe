@@ -254,6 +254,13 @@ namespace rwe
                     continue;
                 }
 
+                if (unit.hitPoints == 0)
+                {
+                    // Do not show health bar when the unit has zero health.
+                    // This can happen when the unit is still a freshly created nanoframe.
+                    continue;
+                }
+
                 auto uiPos = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
                     * worldRenderService.getCamera().getViewProjectionMatrix()
                     * unit.position;
