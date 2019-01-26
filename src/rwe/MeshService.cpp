@@ -319,8 +319,7 @@ namespace rwe
 
     SelectionMesh MeshService::selectionMeshFrom3do(const _3do::Object& o)
     {
-        assert(!!o.selectionPrimitiveIndex);
-        auto index = *o.selectionPrimitiveIndex;
+        auto index = o.selectionPrimitiveIndex.value_or(0u);
         auto p = o.primitives.at(index);
 
         assert(p.vertices.size() == 4);
