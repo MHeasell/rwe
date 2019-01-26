@@ -43,6 +43,7 @@ namespace rwe
         s.unitBuild.seaLevel = graphics.getUniformLocation(s.unitBuild.handle.get(), "seaLevel");
         s.unitBuild.shade = graphics.getUniformLocation(s.unitBuild.handle.get(), "shade");
         s.unitBuild.percentComplete = graphics.getUniformLocation(s.unitBuild.handle.get(), "percentComplete");
+        s.unitBuild.time = graphics.getUniformLocation(s.unitBuild.handle.get(), "time");
 
         return s;
     }

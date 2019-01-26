@@ -47,6 +47,7 @@ namespace rwe
         UniformLocation seaLevel;
         UniformLocation shade;
         UniformLocation percentComplete;
+        UniformLocation time;
     };
 
     class ShaderService

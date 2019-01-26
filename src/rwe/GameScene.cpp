@@ -222,7 +222,7 @@ namespace rwe
         auto seaLevel = simulation.terrain.getSeaLevel();
         for (const auto& unit : (simulation.units | boost::adaptors::map_values))
         {
-            worldRenderService.drawUnit(unit, seaLevel);
+            worldRenderService.drawUnit(unit, seaLevel, simulation.gameTime.value);
         }
 
         worldRenderService.drawLasers(simulation.lasers);

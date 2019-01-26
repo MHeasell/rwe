@@ -52,11 +52,11 @@ namespace rwe
         graphics->drawLineLoop(unit.selectionMesh.visualMesh);
     }
 
-    void RenderService::drawUnit(const Unit& unit, float seaLevel)
+    void RenderService::drawUnit(const Unit& unit, float seaLevel, float time)
     {
         if (unit.isBeingBuilt())
         {
-            drawBuildingUnitMesh(unit.mesh, unit.getTransform(), seaLevel, unit.getPreciseCompletePercent(), unit.position.y);
+            drawBuildingUnitMesh(unit.mesh, unit.getTransform(), seaLevel, unit.getPreciseCompletePercent(), unit.position.y, time);
         }
         else
         {
@@ -100,7 +100,7 @@ namespace rwe
         }
     }
 
-    void RenderService::drawBuildingUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY)
+    void RenderService::drawBuildingUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time)
     {
         auto matrix = modelMatrix * mesh.getTransform();
 
@@ -120,13 +120,14 @@ namespace rwe
                 graphics->setUniformFloat(buildShader.seaLevel, seaLevel);
                 graphics->setUniformBool(buildShader.shade, mesh.shaded);
                 graphics->setUniformFloat(buildShader.percentComplete, percentComplete);
+                graphics->setUniformFloat(buildShader.time, time);
                 graphics->drawTriangles(mesh.mesh->texturedVertices);
             }
         }
 
         for (const auto& c : mesh.children)
         {
-            drawBuildingUnitMesh(c, matrix, seaLevel, percentComplete, unitY);
+            drawBuildingUnitMesh(c, matrix, seaLevel, percentComplete, unitY, time);
         }
     }
 
