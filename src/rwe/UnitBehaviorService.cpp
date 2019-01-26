@@ -808,6 +808,7 @@ namespace rwe
             if (!scene->getSimulation().unitExists(buildingState->targetUnit))
             {
                 // the unit has gone away (maybe it was killed?), give up
+                unit.cobEnvironment->createThread("StopBuilding");
                 unit.behaviourState = IdleState();
                 return true;
             }
@@ -816,6 +817,7 @@ namespace rwe
             if (targetUnit.isDead())
             {
                 // the target is dead, give up
+                unit.cobEnvironment->createThread("StopBuilding");
                 unit.behaviourState = IdleState();
                 return true;
             }
@@ -824,6 +826,7 @@ namespace rwe
             {
                 // the target does not need to be built anymore.
                 // Probably because it's finished -- we did it!
+                unit.cobEnvironment->createThread("StopBuilding");
                 unit.behaviourState = IdleState();
                 return true;
             }
