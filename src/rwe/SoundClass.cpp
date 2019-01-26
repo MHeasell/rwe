@@ -7,10 +7,17 @@ namespace rwe
         SoundClass s;
 
         s.select1 = block.findValue("select1");
+        s.unitComplete = block.findValue("unitcomplete");
         s.ok1 = block.findValue("ok1");
         s.arrived1 = block.findValue("arrived1");
         s.cant1 = block.findValue("cant1");
         s.underAttack = block.findValue("underattack");
+        s.build = block.findValue("build");
+        s.repair = block.findValue("repair");
+        s.working = block.findValue("working");
+        s.cloak = block.findValue("cloak");
+        s.uncloak = block.findValue("uncloak");
+        s.capture = block.findValue("capture");
         s.count5 = block.findValue("count5");
         s.count4 = block.findValue("count4");
         s.count3 = block.findValue("count3");

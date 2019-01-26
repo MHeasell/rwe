@@ -530,10 +530,17 @@ namespace rwe
             {
                 const auto& c = s.second;
                 preloadSound(db, c.select1);
+                preloadSound(db, c.unitComplete);
                 preloadSound(db, c.ok1);
                 preloadSound(db, c.arrived1);
                 preloadSound(db, c.cant1);
                 preloadSound(db, c.underAttack);
+                preloadSound(db, c.build);
+                preloadSound(db, c.repair);
+                preloadSound(db, c.working);
+                preloadSound(db, c.cloak);
+                preloadSound(db, c.uncloak);
+                preloadSound(db, c.capture);
                 preloadSound(db, c.count5);
                 preloadSound(db, c.count4);
                 preloadSound(db, c.count3);

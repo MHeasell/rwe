@@ -746,6 +746,11 @@ namespace rwe
                     return true;
                 }
 
+                if (unit.buildSound)
+                {
+                    scene->playSoundOnSelectChannel(*unit.buildSound);
+                }
+
                 auto nanoFromPosition = getNanoPoint(unitId);
                 auto headingAndPitch = computeHeadingAndPitch(unit.rotation, nanoFromPosition, buildOrder.position);
                 auto heading = headingAndPitch.first;

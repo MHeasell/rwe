@@ -149,6 +149,10 @@ namespace rwe
         {
             unit.arrivedSound = unitDatabase.tryGetSoundHandle(*(soundClass.arrived1));
         }
+        if (soundClass.build)
+        {
+            unit.buildSound = unitDatabase.tryGetSoundHandle(*soundClass.build);
+        }
 
         return unit;
     }
