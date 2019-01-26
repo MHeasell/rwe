@@ -17,6 +17,7 @@ namespace rwe
         std::optional<AudioService::SoundHandle> ordersButton;
 
         std::optional<AudioService::SoundHandle> addBuild;
+        std::optional<AudioService::SoundHandle> okToBuild;
     };
 }
 

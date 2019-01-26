@@ -1061,10 +1061,20 @@ namespace rwe
         auto kind = PlayerUnitCommand::IssueOrder::IssueKind::Immediate;
         localPlayerCommandBuffer.push_back(PlayerUnitCommand(unitId, PlayerUnitCommand::IssueOrder(order, kind)));
 
-        const auto& unit = getUnit(unitId);
-        if (unit.okSound)
+        if (boost::get<BuildOrder>(&order) != nullptr)
         {
-            playSoundOnSelectChannel(*(unit.okSound));
+            if (sounds.okToBuild)
+            {
+                playSoundOnSelectChannel(*sounds.okToBuild);
+            }
+        }
+        else
+        {
+            const auto& unit = getUnit(unitId);
+            if (unit.okSound)
+            {
+                playSoundOnSelectChannel(*(unit.okSound));
+            }
         }
     }
 
@@ -1072,6 +1082,14 @@ namespace rwe
     {
         auto kind = PlayerUnitCommand::IssueOrder::IssueKind::Queued;
         localPlayerCommandBuffer.push_back(PlayerUnitCommand(unitId, PlayerUnitCommand::IssueOrder(order, kind)));
+
+        if (boost::get<BuildOrder>(&order) != nullptr)
+        {
+            if (sounds.okToBuild)
+            {
+                playSoundOnSelectChannel(*sounds.okToBuild);
+            }
+        }
     }
 
     void GameScene::localPlayerStopUnit(UnitId unitId)

@@ -209,6 +209,7 @@ namespace rwe
         sounds.buildButton = lookUpSound("BUILDBUTTON");
         sounds.ordersButton = lookUpSound("ORDERSBUTTON");
         sounds.addBuild = lookUpSound("ADDBUILD");
+        sounds.okToBuild = lookUpSound("OKTOBUILD");
 
         auto gameScene = std::make_unique<GameScene>(
             sceneContext,
