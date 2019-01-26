@@ -43,6 +43,7 @@ namespace rwe
         ShaderProgramHandle handle;
         UniformLocation mvpMatrix;
         UniformLocation modelMatrix;
+        UniformLocation unitY;
         UniformLocation seaLevel;
         UniformLocation shade;
         UniformLocation percentComplete;

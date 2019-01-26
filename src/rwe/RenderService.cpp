@@ -56,7 +56,7 @@ namespace rwe
     {
         if (unit.isBeingBuilt())
         {
-            drawBuildingUnitMesh(unit.mesh, unit.getTransform(), seaLevel, unit.getPreciseCompletePercent());
+            drawBuildingUnitMesh(unit.mesh, unit.getTransform(), seaLevel, unit.getPreciseCompletePercent(), unit.position.y);
         }
         else
         {
@@ -100,7 +100,7 @@ namespace rwe
         }
     }
 
-    void RenderService::drawBuildingUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, float percentComplete)
+    void RenderService::drawBuildingUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY)
     {
         auto matrix = modelMatrix * mesh.getTransform();
 
@@ -116,6 +116,7 @@ namespace rwe
                 graphics->bindTexture(mesh.mesh->texture.get());
                 graphics->setUniformMatrix(buildShader.mvpMatrix, mvpMatrix);
                 graphics->setUniformMatrix(buildShader.modelMatrix, matrix);
+                graphics->setUniformFloat(buildShader.unitY, unitY);
                 graphics->setUniformFloat(buildShader.seaLevel, seaLevel);
                 graphics->setUniformBool(buildShader.shade, mesh.shaded);
                 graphics->setUniformFloat(buildShader.percentComplete, percentComplete);
@@ -125,7 +126,7 @@ namespace rwe
 
         for (const auto& c : mesh.children)
         {
-            drawBuildingUnitMesh(c, matrix, seaLevel, percentComplete);
+            drawBuildingUnitMesh(c, matrix, seaLevel, percentComplete, unitY);
         }
     }
 
