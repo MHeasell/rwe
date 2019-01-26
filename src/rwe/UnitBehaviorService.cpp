@@ -733,6 +733,7 @@ namespace rwe
                 // FIXME: we should probably be moving to rect edge, not center
                 unit.behaviourState = MovingState{buildOrder.position, std::nullopt, true};
             }
+            // FIXME: should go straight to building state if we are already in range
         }
         else if (auto movingState = boost::get<MovingState>(&unit.behaviourState); movingState != nullptr)
         {
