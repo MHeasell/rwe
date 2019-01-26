@@ -738,7 +738,13 @@ namespace rwe
         {
             if (unit.position.distanceSquared(buildOrder.position) <= buildDistanceSquared)
             {
-                scene->spawnUnit(buildOrder.unitType, unit.owner, buildOrder.position);
+                auto targetUnitId = scene->spawnUnit(buildOrder.unitType, unit.owner, buildOrder.position);
+                if (!targetUnitId)
+                {
+                    // we failed to create the unit -- give up
+                    unit.behaviourState = IdleState();
+                    return true;
+                }
 
                 auto nanoFromPosition = getNanoPoint(unitId);
                 auto headingAndPitch = computeHeadingAndPitch(unit.rotation, nanoFromPosition, buildOrder.position);
@@ -748,14 +754,14 @@ namespace rwe
                 auto threadId = unit.cobEnvironment->createThread("StartBuilding", {toTaAngle(RadiansAngle(heading)).value, toTaAngle(RadiansAngle(pitch)).value});
                 if (threadId)
                 {
-                    unit.behaviourState = StartBuildingState();
+                    unit.behaviourState = StartBuildingState{*targetUnitId, *threadId};
                 }
                 else
                 {
                     // we couldn't launch a start build script (there isn't one),
                     // just go straight to building
                     // TODO: start emitting nanolate effect
-                    unit.behaviourState = BuildingState();
+                    unit.behaviourState = BuildingState{*targetUnitId};
                 }
             }
             else
@@ -794,8 +800,35 @@ namespace rwe
             {
                 // we successfully reaped, move to building
                 // TODO: start emitting nanolathe particles, probably
-                unit.behaviourState = BuildingState();
+                unit.behaviourState = BuildingState{startBuildingState->targetUnit};
             }
+        }
+        else if (auto buildingState = boost::get<BuildingState>(&unit.behaviourState); buildingState != nullptr)
+        {
+            if (!scene->getSimulation().unitExists(buildingState->targetUnit))
+            {
+                // the unit has gone away (maybe it was killed?), give up
+                unit.behaviourState = IdleState();
+                return true;
+            }
+
+            auto& targetUnit = scene->getSimulation().getUnit(buildingState->targetUnit);
+            if (targetUnit.isDead())
+            {
+                // the target is dead, give up
+                unit.behaviourState = IdleState();
+                return true;
+            }
+
+            if (!targetUnit.isBeingBuilt())
+            {
+                // the target does not need to be built anymore.
+                // Probably because it's finished -- we did it!
+                unit.behaviourState = IdleState();
+                return true;
+            }
+
+            targetUnit.addBuildProgress(unit.workerTimePerTick);
         }
 
         return false;

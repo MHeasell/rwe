@@ -46,11 +46,13 @@ namespace rwe
     /** We are in this state while the "unfolding" animation plays to prep for building */
     struct StartBuildingState
     {
+        UnitId targetUnit;
         const CobThread* thread;
     };
 
     struct BuildingState
     {
+        UnitId targetUnit;
     };
 
     using UnitState = boost::variant<IdleState, MovingState, StartBuildingState, BuildingState>;
@@ -164,6 +166,8 @@ namespace rwe
 
         unsigned int buildTimeCompleted{0};
 
+        unsigned int workerTimePerTick;
+
         static float toRotation(const Vector3f& direction);
 
         static Vector3f toDirection(float rotation);
@@ -175,6 +179,8 @@ namespace rwe
         unsigned int getBuildPercentLeft() const;
 
         float getPreciseCompletePercent() const;
+
+        void addBuildProgress(unsigned int buildTimeContribution);
 
         bool isCommander() const;
 

@@ -84,6 +84,11 @@ namespace rwe
         // However, we use 60 ticks per second, so we multiply by 2 here.
         unit.buildTime = fbi.buildTime * 2;
 
+        // Worker time is per second, assuming 30 ticks per second.
+        // We already scaled up build time to compensate so we are fine
+        // to divide by 30 here to get per-tick time, even though we run at 60fps.
+        unit.workerTimePerTick = fbi.workerTime / 30;
+
         if (movementClassOption)
         {
             auto movementClass = &movementClassOption->get();
