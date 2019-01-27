@@ -56,6 +56,9 @@ namespace rwe
 
         tdf.readOrDefault("WorkerTime", u.workerTime);
 
+        tdf.readOrDefault("onoffable", u.onOffable);
+        tdf.readOrDefault("ActivateWhenBuilt", u.activateWhenBuilt);
+
         return u;
     }
 }

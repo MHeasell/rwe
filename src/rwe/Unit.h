@@ -169,6 +169,11 @@ namespace rwe
 
         unsigned int workerTimePerTick;
 
+        bool onOffable;
+        bool activateWhenBuilt;
+
+        bool activated{false};
+
         static float toRotation(const Vector3f& direction);
 
         static Vector3f toDirection(float rotation);
@@ -230,6 +235,10 @@ namespace rwe
         Matrix4f getInverseTransform() const;
 
         bool isSelectableBy(PlayerId player) const;
+
+        void activate();
+
+        void deactivate();
     };
 }
 

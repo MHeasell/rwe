@@ -79,6 +79,14 @@ namespace rwe
         {
             hitPoints += deltaHp;
         }
+
+        if (buildTimeCompleted == buildTime)
+        {
+            if (activateWhenBuilt)
+            {
+                activate();
+            }
+        }
     }
 
     bool Unit::isCommander() const
@@ -452,5 +460,17 @@ namespace rwe
     bool Unit::isSelectableBy(rwe::PlayerId player) const
     {
         return !isDead() && isOwnedBy(player) && !isBeingBuilt();
+    }
+
+    void Unit::activate()
+    {
+        activated = true;
+        cobEnvironment->createThread("Activate");
+    }
+
+    void Unit::deactivate()
+    {
+        activated = false;
+        cobEnvironment->createThread("Deactivate");
     }
 }

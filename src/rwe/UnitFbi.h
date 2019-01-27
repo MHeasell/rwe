@@ -43,6 +43,9 @@ namespace rwe
         unsigned int buildTime;
 
         unsigned int workerTime;
+
+        bool onOffable;
+        bool activateWhenBuilt;
     };
 
     UnitFbi parseUnitInfoBlock(const TdfBlock& tdf);

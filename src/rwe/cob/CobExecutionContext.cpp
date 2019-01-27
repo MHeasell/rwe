@@ -715,7 +715,10 @@ namespace rwe
         switch (valueId)
         {
             case CobValueId::Activation:
-                return false; // TODO
+            {
+                const auto& unit = sim->getUnit(unitId);
+                return unit.activated;
+            }
             case CobValueId::StandingFireOrders:
                 return 0; // TODO
             case CobValueId::StandingMoveOrders:
@@ -868,7 +871,18 @@ namespace rwe
         switch (valueId)
         {
             case CobValueId::Activation:
-                return; // TODO
+            {
+                auto& unit = sim->getUnit(unitId);
+                if (value)
+                {
+                    unit.activate();
+                }
+                else
+                {
+                    unit.deactivate();
+                }
+                return;
+            }
             case CobValueId::StandingMoveOrders:
                 return; // TODO
             case CobValueId::StandingFireOrders:
