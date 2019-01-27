@@ -448,4 +448,9 @@ namespace rwe
     {
         return Matrix4f::rotationY(-rotation) * Matrix4f::translation(-position);
     }
+
+    bool Unit::isSelectableBy(rwe::PlayerId player) const
+    {
+        return !isDead() && isOwnedBy(player) && !isBeingBuilt();
+    }
 }

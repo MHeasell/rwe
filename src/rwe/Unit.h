@@ -228,6 +228,8 @@ namespace rwe
 
         Matrix4f getTransform() const;
         Matrix4f getInverseTransform() const;
+
+        bool isSelectableBy(PlayerId player) const;
     };
 }
 

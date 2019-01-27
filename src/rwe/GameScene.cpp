@@ -556,7 +556,7 @@ namespace rwe
             {
                 if (normalCursor->state == NormalCursorMode::State::Selecting)
                 {
-                    if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
+                    if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
                     {
                         selectUnit(*hoveredUnit);
                     }
@@ -670,7 +670,7 @@ namespace rwe
         }
         else if (boost::get<NormalCursorMode>(&cursorMode.getValue()) != nullptr)
         {
-            if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
+            if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
             {
                 sceneContext.cursor->useSelectCursor();
             }
