@@ -40,6 +40,9 @@ namespace rwe
         std::string explodeAs;
 
         bool builder;
+        unsigned int buildTime;
+
+        unsigned int workerTime;
     };
 
     UnitFbi parseUnitInfoBlock(const TdfBlock& tdf);

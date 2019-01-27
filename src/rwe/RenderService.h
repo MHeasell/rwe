@@ -49,9 +49,10 @@ namespace rwe
         CabinetCamera& getCamera();
         const CabinetCamera& getCamera() const;
 
-        void drawUnit(const Unit& unit, float seaLevel);
+        void drawUnit(const Unit& unit, float seaLevel, float time);
         void drawUnitShadow(const Unit& unit, float groundHeight);
         void drawUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel);
+        void drawBuildingUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time);
         void drawSelectionRect(const Unit& unit);
         void drawOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid);
         void drawMovementClassCollisionGrid(const MapTerrain& terrain, const Grid<char>& movementClassGrid);

@@ -22,7 +22,14 @@ namespace rwe
         explicit AttackOrder(const Vector3f& target) : target(target) {}
     };
 
-    using UnitOrder = boost::variant<MoveOrder, AttackOrder>;
+    struct BuildOrder
+    {
+        std::string unitType;
+        Vector3f position;
+        BuildOrder(const std::string& unitType, const Vector3f& position) : unitType(unitType), position(position) {}
+    };
+
+    using UnitOrder = boost::variant<MoveOrder, AttackOrder, BuildOrder>;
 }
 
 #endif

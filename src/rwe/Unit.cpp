@@ -39,6 +39,48 @@ namespace rwe
     {
     }
 
+    bool Unit::isBeingBuilt() const
+    {
+        return buildTimeCompleted < buildTime;
+    }
+
+    unsigned int Unit::getBuildPercentLeft() const
+    {
+        return 100u - ((buildTimeCompleted * 100u) / buildTime);
+    }
+
+    float Unit::getPreciseCompletePercent() const
+    {
+        return static_cast<float>(buildTimeCompleted) / static_cast<float>(buildTime);
+    }
+
+    void Unit::addBuildProgress(unsigned int buildTimeContribution)
+    {
+        auto remainingBuildTime = buildTime - buildTimeCompleted;
+        if (buildTimeContribution > remainingBuildTime)
+        {
+            buildTimeContribution = remainingBuildTime;
+        }
+
+        auto oldProgressHp = (buildTimeCompleted * maxHitPoints) / buildTime;
+
+        buildTimeCompleted += buildTimeContribution;
+
+        auto newProgressHp = (buildTimeCompleted * maxHitPoints) / buildTime;
+
+        auto deltaHp = newProgressHp - oldProgressHp;
+
+        // add HP up to the maximum
+        if (hitPoints + deltaHp >= maxHitPoints)
+        {
+            hitPoints = maxHitPoints;
+        }
+        else
+        {
+            hitPoints += deltaHp;
+        }
+    }
+
     bool Unit::isCommander() const
     {
         return commander;
@@ -273,12 +315,19 @@ namespace rwe
 
     bool Unit::isDead() const
     {
-        return hitPoints == 0;
+        return lifeState == LifeState::Dead;
     }
 
     void Unit::markAsDead()
     {
-        hitPoints = 0;
+        lifeState = LifeState::Dead;
+    }
+
+    void Unit::finishBuilding()
+    {
+        // FIXME: ignores damage taken during building
+        hitPoints = maxHitPoints;
+        buildTimeCompleted = buildTime;
     }
 
     void Unit::clearOrders()
@@ -398,5 +447,10 @@ namespace rwe
     Matrix4f Unit::getInverseTransform() const
     {
         return Matrix4f::rotationY(-rotation) * Matrix4f::translation(-position);
+    }
+
+    bool Unit::isSelectableBy(rwe::PlayerId player) const
+    {
+        return !isDead() && isOwnedBy(player) && !isBeingBuilt();
     }
 }

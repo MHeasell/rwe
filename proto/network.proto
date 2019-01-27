@@ -34,6 +34,12 @@ message AttackOrder
     }
 }
 
+message BuildOrder
+{
+    required string unit_type = 1;
+    required Vector3f position = 2;
+}
+
 message PlayerUnitCommand
 {
     message IssueOrder
@@ -49,6 +55,7 @@ message PlayerUnitCommand
         {
             MoveOrder move = 2;
             AttackOrder attack = 3;
+            BuildOrder build = 4;
         }
     }
 

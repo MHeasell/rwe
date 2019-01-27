@@ -3,6 +3,10 @@
 
 namespace rwe
 {
+    bool UnitDatabase::hasUnitInfo(const std::string& unitName) const
+    {
+        return map.find(toUpper(unitName)) != map.end();
+    }
 
     const UnitFbi& UnitDatabase::getUnitInfo(const std::string& unitName) const
     {

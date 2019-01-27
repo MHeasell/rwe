@@ -5,6 +5,7 @@
 #include <rwe/UnitOrder.h>
 #include <rwe/math/Vector3f.h>
 #include <rwe/pathfinding/PathFindingService.h>
+#include <rwe/UnitFactory.h>
 
 namespace rwe
 {
@@ -13,12 +14,42 @@ namespace rwe
     class UnitBehaviorService
     {
     private:
+        class HandleUnitOrderVisitor : public boost::static_visitor<bool>
+        {
+        private:
+            UnitBehaviorService* svc;
+            UnitId u;
+
+        public:
+            HandleUnitOrderVisitor(UnitBehaviorService* svc, UnitId u): svc(svc), u(u) {}
+
+            bool operator()(const MoveOrder& o)
+            {
+                return svc->handleMoveOrder(u, o);
+            }
+
+            bool operator()(const AttackOrder& o)
+            {
+                return svc->handleAttackOrder(u, o);
+            }
+
+            bool operator()(const BuildOrder& o)
+            {
+                return svc->handleBuildOrder(u, o);
+            }
+        };
+    private:
         GameScene* scene;
         PathFindingService* pathFindingService;
         MovementClassCollisionService* collisionService;
+        UnitFactory* unitFactory;
 
     public:
-        UnitBehaviorService(GameScene* scene, PathFindingService* pathFindingService, MovementClassCollisionService* collisionService);
+        UnitBehaviorService(
+            GameScene* scene,
+            PathFindingService* pathFindingService,
+            MovementClassCollisionService* collisionService,
+            UnitFactory* unitFactory);
 
         void update(UnitId unitId);
 
@@ -27,7 +58,13 @@ namespace rwe
         std::optional<Vector3f> tryGetSweetSpot(UnitId id);
 
         /** Returns true if the order has been completed. */
+        bool handleMoveOrder(UnitId unitId, const MoveOrder& moveOrder);
+
+        /** Returns true if the order has been completed. */
         bool handleAttackOrder(UnitId unitId, const AttackOrder& attackOrder);
+
+        /** Returns true if the order has been completed. */
+        bool handleBuildOrder(UnitId unitId, const BuildOrder& buildOrder);
 
     private:
         static std::pair<float, float> computeHeadingAndPitch(float rotation, const Vector3f& from, const Vector3f& to);
@@ -55,6 +92,8 @@ namespace rwe
         Vector3f getAimingPoint(UnitId id, unsigned int weaponIndex);
 
         Vector3f getFiringPoint(UnitId id, unsigned int weaponIndex);
+
+        Vector3f getNanoPoint(UnitId id);
 
         Vector3f getPiecePosition(UnitId id, unsigned int pieceId);
     };

@@ -43,7 +43,19 @@ namespace rwe
     {
     };
 
-    using UnitState = boost::variant<IdleState, MovingState>;
+    /** We are in this state while the "unfolding" animation plays to prep for building */
+    struct StartBuildingState
+    {
+        UnitId targetUnit;
+        const CobThread* thread;
+    };
+
+    struct BuildingState
+    {
+        UnitId targetUnit;
+    };
+
+    using UnitState = boost::variant<IdleState, MovingState, StartBuildingState, BuildingState>;
 
     UnitOrder createMoveOrder(const Vector3f& destination);
 
@@ -54,6 +66,12 @@ namespace rwe
     class Unit
     {
     public:
+        enum class LifeState
+        {
+            Alive,
+            Dead,
+        };
+    public:
         std::string unitType;
         UnitMesh mesh;
         Vector3f position;
@@ -62,6 +80,7 @@ namespace rwe
         std::optional<AudioService::SoundHandle> selectionSound;
         std::optional<AudioService::SoundHandle> okSound;
         std::optional<AudioService::SoundHandle> arrivedSound;
+        std::optional<AudioService::SoundHandle> buildSound;
         PlayerId owner;
 
         /**
@@ -120,8 +139,10 @@ namespace rwe
         /** If true, the unit is considered a commander for victory conditions. */
         bool commander;
 
-        unsigned int hitPoints;
+        unsigned int hitPoints{0};
         unsigned int maxHitPoints;
+
+        LifeState lifeState{LifeState::Alive};
 
         std::deque<UnitOrder> orders;
         UnitState behaviourState;
@@ -142,11 +163,25 @@ namespace rwe
 
         bool builder;
 
+        unsigned int buildTime;
+
+        unsigned int buildTimeCompleted{0};
+
+        unsigned int workerTimePerTick;
+
         static float toRotation(const Vector3f& direction);
 
         static Vector3f toDirection(float rotation);
 
         Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, SelectionMesh&& selectionMesh);
+
+        bool isBeingBuilt() const;
+
+        unsigned int getBuildPercentLeft() const;
+
+        float getPreciseCompletePercent() const;
+
+        void addBuildProgress(unsigned int buildTimeContribution);
 
         bool isCommander() const;
 
@@ -180,6 +215,8 @@ namespace rwe
 
         void markAsDead();
 
+        void finishBuilding();
+
         void clearOrders();
 
         void addOrder(const UnitOrder& order);
@@ -191,6 +228,8 @@ namespace rwe
 
         Matrix4f getTransform() const;
         Matrix4f getInverseTransform() const;
+
+        bool isSelectableBy(PlayerId player) const;
     };
 }
 

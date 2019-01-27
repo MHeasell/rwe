@@ -90,7 +90,22 @@ namespace rwe
         }
     };
 
-    using CursorMode = boost::variant<AttackCursorMode, MoveCursorMode, NormalCursorMode>;
+    struct BuildCursorMode
+    {
+        std::string unitType;
+
+        bool operator==(const BuildCursorMode& rhs) const
+        {
+            return unitType == rhs.unitType;
+        }
+
+        bool operator!=(const BuildCursorMode& rhs) const
+        {
+            return !(rhs == *this);
+        }
+    };
+
+    using CursorMode = boost::variant<AttackCursorMode, MoveCursorMode, BuildCursorMode, NormalCursorMode>;
 
 #if BOOST_VERSION < 105800
     // != not automatically defined in boost::variant before 1.58:
@@ -308,7 +323,9 @@ namespace rwe
 
         void update() override;
 
-        void spawnUnit(const std::string& unitType, PlayerId owner, const Vector3f& position);
+        std::optional<UnitId> spawnUnit(const std::string& unitType, PlayerId owner, const Vector3f& position);
+
+        void spawnCompletedUnit(const std::string& unitType, PlayerId owner, const Vector3f& position);
 
         void setCameraPosition(const Vector3f& newPosition);
 
@@ -446,6 +463,8 @@ namespace rwe
         const UnitGuiInfo& getGuiInfo(const UnitId& unitId) const;
 
         void setNextPanel(std::unique_ptr<UiPanel>&& panel);
+
+        Vector3f snapToBuildPosition(const std::string& unitType, const Vector3f& pos) const;
 
         template <typename T>
         std::optional<std::reference_wrapper<T>> findWithSidePrefix(UiPanel& p, const std::string& name)

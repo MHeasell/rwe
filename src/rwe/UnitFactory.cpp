@@ -77,9 +77,17 @@ namespace rwe
         unit.commander = fbi.commander;
 
         unit.maxHitPoints = fbi.maxDamage;
-        unit.hitPoints = fbi.maxDamage;
 
         unit.builder = fbi.builder;
+
+        // Build time is per second, assuming 30 ticks per second.
+        // However, we use 60 ticks per second, so we multiply by 2 here.
+        unit.buildTime = fbi.buildTime * 2;
+
+        // Worker time is per second, assuming 30 ticks per second.
+        // We already scaled up build time to compensate so we are fine
+        // to divide by 30 here to get per-tick time, even though we run at 60fps.
+        unit.workerTimePerTick = fbi.workerTime / 30;
 
         if (movementClassOption)
         {
@@ -141,6 +149,10 @@ namespace rwe
         {
             unit.arrivedSound = unitDatabase.tryGetSoundHandle(*(soundClass.arrived1));
         }
+        if (soundClass.build)
+        {
+            unit.buildSound = unitDatabase.tryGetSoundHandle(*soundClass.build);
+        }
 
         return unit;
     }
@@ -172,6 +184,17 @@ namespace rwe
         }
 
         return pages->get().size();
+    }
+
+    Point UnitFactory::getUnitFootprint(const std::string& unitType) const
+    {
+        const auto& fbi = unitDatabase.getUnitInfo(unitType);
+        return Point(fbi.footprintX, fbi.footprintZ);
+    }
+
+    bool UnitFactory::isValidUnitType(const std::string& unitType) const
+    {
+        return unitDatabase.hasUnitInfo(unitType);
     }
 
     UnitWeapon UnitFactory::createWeapon(const std::string& weaponType)

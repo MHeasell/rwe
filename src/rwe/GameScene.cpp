@@ -93,7 +93,7 @@ namespace rwe
           unitFactory(sceneContext.textureService, std::move(unitDatabase), std::move(meshService), &this->collisionService, sceneContext.palette, sceneContext.guiPalette),
           gameNetworkService(std::move(gameNetworkService)),
           pathFindingService(&this->simulation, &this->collisionService),
-          unitBehaviorService(this, &pathFindingService, &this->collisionService),
+          unitBehaviorService(this, &pathFindingService, &this->collisionService, &this->unitFactory),
           cobExecutionService(),
           minimap(minimap),
           minimapDots(minimapDots),
@@ -222,7 +222,7 @@ namespace rwe
         auto seaLevel = simulation.terrain.getSeaLevel();
         for (const auto& unit : (simulation.units | boost::adaptors::map_values))
         {
-            worldRenderService.drawUnit(unit, seaLevel);
+            worldRenderService.drawUnit(unit, seaLevel, simulation.gameTime.value);
         }
 
         worldRenderService.drawLasers(simulation.lasers);
@@ -254,10 +254,48 @@ namespace rwe
                     continue;
                 }
 
+                if (unit.hitPoints == 0)
+                {
+                    // Do not show health bar when the unit has zero health.
+                    // This can happen when the unit is still a freshly created nanoframe.
+                    continue;
+                }
+
                 auto uiPos = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
                     * worldRenderService.getCamera().getViewProjectionMatrix()
                     * unit.position;
                 worldUiRenderService.drawHealthBar(uiPos.x, uiPos.y, static_cast<float>(unit.hitPoints) / static_cast<float>(unit.maxHitPoints));
+            }
+        }
+
+        if (auto buildCursor = boost::get<BuildCursorMode>(&cursorMode.getValue()); buildCursor != nullptr)
+        {
+            // draw build ghost rectangle
+            if (isCursorOverWorld())
+            {
+
+                auto ray = worldRenderService.getCamera().screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
+                auto intersect = simulation.intersectLineWithTerrain(ray.toLine());
+
+                if (intersect)
+                {
+                    auto footprint = unitFactory.getUnitFootprint(buildCursor->unitType);
+                    auto buildPos = snapToBuildPosition(buildCursor->unitType, *intersect);
+                    Vector3f topLeftWorld(
+                        buildPos.x - ((footprint.x * MapTerrain::HeightTileWidthInWorldUnits) / 2.0f),
+                        buildPos.y,
+                        buildPos.z - ((footprint.y * MapTerrain::HeightTileHeightInWorldUnits) / 2.0f));
+
+                    auto topLeftUi = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
+                                     * worldRenderService.getCamera().getViewProjectionMatrix()
+                                     * topLeftWorld;
+                    worldUiRenderService.drawBoxOutline(
+                        topLeftUi.x,
+                        topLeftUi.y,
+                        footprint.x * MapTerrain::HeightTileWidthInWorldUnits,
+                        footprint.y * MapTerrain::HeightTileHeightInWorldUnits,
+                        Color(0, 255, 0));
+                }
             }
         }
 
@@ -426,6 +464,26 @@ namespace rwe
                     }
                 }
             }
+            else if (auto buildCursor = boost::get<BuildCursorMode>(&cursorMode.getValue()); buildCursor != nullptr)
+            {
+                if (selectedUnit)
+                {
+                    auto coord = getMouseTerrainCoordinate();
+                    if (coord)
+                    {
+                        auto buildPos = snapToBuildPosition(buildCursor->unitType, *coord);
+                        if (isShiftDown())
+                        {
+                            localPlayerEnqueueUnitOrder(*selectedUnit, BuildOrder(buildCursor->unitType, buildPos));
+                        }
+                        else
+                        {
+                            localPlayerIssueUnitOrder(*selectedUnit, BuildOrder(buildCursor->unitType, buildPos));
+                            cursorMode.next(NormalCursorMode());
+                        }
+                    }
+                }
+            }
             else if (auto normalCursor = boost::get<NormalCursorMode>(&cursorMode.getValue()); normalCursor != nullptr)
             {
                 if (isCursorOverMinimap())
@@ -445,6 +503,10 @@ namespace rwe
                 cursorMode.next(NormalCursorMode());
             }
             else if (boost::get<MoveCursorMode>(&cursorMode.getValue()) != nullptr)
+            {
+                cursorMode.next(NormalCursorMode());
+            }
+            else if (boost::get<BuildCursorMode>(&cursorMode.getValue()))
             {
                 cursorMode.next(NormalCursorMode());
             }
@@ -494,7 +556,7 @@ namespace rwe
             {
                 if (normalCursor->state == NormalCursorMode::State::Selecting)
                 {
-                    if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
+                    if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
                     {
                         selectUnit(*hoveredUnit);
                     }
@@ -602,9 +664,13 @@ namespace rwe
         {
             sceneContext.cursor->useMoveCursor();
         }
+        else if (boost::get<BuildCursorMode>(&cursorMode.getValue()) != nullptr)
+        {
+            sceneContext.cursor->useNormalCursor();
+        }
         else if (boost::get<NormalCursorMode>(&cursorMode.getValue()) != nullptr)
         {
-            if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
+            if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
             {
                 sceneContext.cursor->useSelectCursor();
             }
@@ -689,7 +755,7 @@ namespace rwe
         }
     }
 
-    void GameScene::spawnUnit(const std::string& unitType, PlayerId owner, const Vector3f& position)
+    std::optional<UnitId> GameScene::spawnUnit(const std::string& unitType, PlayerId owner, const Vector3f& position)
     {
         auto unit = unitFactory.createUnit(unitType, owner, simulation.getPlayer(owner).color, position);
 
@@ -701,6 +767,20 @@ namespace rwe
             const auto& insertedUnit = getUnit(*unitId);
             // initialise local-player-specific UI data
             unitGuiInfos.insert_or_assign(*unitId, UnitGuiInfo{insertedUnit.builder ? UnitGuiInfo::Section::Build : UnitGuiInfo::Section::Orders, 0});
+        }
+
+        return unitId;
+    }
+
+    void GameScene::spawnCompletedUnit(const std::string& unitType, PlayerId owner, const Vector3f& position)
+    {
+        auto unitId = spawnUnit(unitType, owner, position);
+        if (unitId)
+        {
+            auto& unit = getUnit(*unitId);
+            // units start as unbuilt nanoframes,
+            // we we need to convert it immediately into a completed unit.
+            unit.finishBuilding();
         }
     }
 
@@ -984,10 +1064,20 @@ namespace rwe
         auto kind = PlayerUnitCommand::IssueOrder::IssueKind::Immediate;
         localPlayerCommandBuffer.push_back(PlayerUnitCommand(unitId, PlayerUnitCommand::IssueOrder(order, kind)));
 
-        const auto& unit = getUnit(unitId);
-        if (unit.okSound)
+        if (boost::get<BuildOrder>(&order) != nullptr)
         {
-            playSoundOnSelectChannel(*(unit.okSound));
+            if (sounds.okToBuild)
+            {
+                playSoundOnSelectChannel(*sounds.okToBuild);
+            }
+        }
+        else
+        {
+            const auto& unit = getUnit(unitId);
+            if (unit.okSound)
+            {
+                playSoundOnSelectChannel(*(unit.okSound));
+            }
         }
     }
 
@@ -995,6 +1085,14 @@ namespace rwe
     {
         auto kind = PlayerUnitCommand::IssueOrder::IssueKind::Queued;
         localPlayerCommandBuffer.push_back(PlayerUnitCommand(unitId, PlayerUnitCommand::IssueOrder(order, kind)));
+
+        if (boost::get<BuildOrder>(&order) != nullptr)
+        {
+            if (sounds.okToBuild)
+            {
+                playSoundOnSelectChannel(*sounds.okToBuild);
+            }
+        }
     }
 
     void GameScene::localPlayerStopUnit(UnitId unitId)
@@ -1600,6 +1698,15 @@ namespace rwe
                 setNextPanel(uiFactory.panelFromGuiFile(sidePrefix + "GEN"));
             }
         }
+        else if (unitFactory.isValidUnitType(message))
+        {
+            if (sounds.addBuild)
+            {
+                sceneContext.audioService->playSound(*sounds.addBuild);
+            }
+
+            cursorMode.next(BuildCursorMode{message});
+        }
     }
 
     bool GameScene::matchesWithSidePrefix(const std::string& suffix, const std::string& value) const
@@ -1667,5 +1774,17 @@ namespace rwe
     void GameScene::setNextPanel(std::unique_ptr<UiPanel>&& panel)
     {
         nextPanel = std::move(panel);
+    }
+
+    Vector3f GameScene::snapToBuildPosition(const std::string& unitType, const rwe::Vector3f& pos) const
+    {
+        auto footprint = unitFactory.getUnitFootprint(unitType);
+        auto footprintRect = computeFootprintRegion(pos, footprint.x, footprint.y);
+        auto topLeftWorld = simulation.terrain.heightmapIndexToWorldCorner(footprintRect.x, footprintRect.y);
+
+        auto x = topLeftWorld.x + (footprintRect.width * MapTerrain::HeightTileWidthInWorldUnits) / 2.0f;
+        auto z = topLeftWorld.z + (footprintRect.height * MapTerrain::HeightTileHeightInWorldUnits) / 2.0f;
+        auto y = simulation.terrain.getHeightAt(x, z);
+        return Vector3f(x, y, z);
     }
 }

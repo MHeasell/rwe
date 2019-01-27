@@ -44,6 +44,14 @@ namespace rwe
             WriteAttackTargetVisitor visitor(out);
             boost::apply_visitor(visitor, o.target);
         }
+
+        void operator()(const BuildOrder& o)
+        {
+            auto& out = *cmd->mutable_build();
+            out.set_unit_type(o.unitType);
+            auto& pos = *out.mutable_position();
+            serializeVector(o.position, pos);
+        }
     };
 
     class WriteUnitCommandVisitor : public boost::static_visitor<>
@@ -253,6 +261,12 @@ namespace rwe
             }
 
             throw std::runtime_error("Failed to deserlialize attack order");
+        }
+
+        if (cmd.has_build())
+        {
+            const auto& build = cmd.build();
+            return BuildOrder(build.unit_type(), deserializeVector(build.position()));
         }
 
         throw std::runtime_error("Failed to deserlialize unit order");

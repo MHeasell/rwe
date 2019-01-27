@@ -24,8 +24,12 @@ namespace rwe
         return anticlockwiseCircle.contains(Vector2f(dest.x, dest.z)) || clockwiseCircle.contains(Vector2f(dest.x, dest.z));
     }
 
-    UnitBehaviorService::UnitBehaviorService(GameScene* scene, PathFindingService* pathFindingService, MovementClassCollisionService* collisionService)
-        : scene(scene), pathFindingService(pathFindingService), collisionService(collisionService)
+    UnitBehaviorService::UnitBehaviorService(
+        GameScene* scene,
+        PathFindingService* pathFindingService,
+        MovementClassCollisionService* collisionService,
+        UnitFactory* unitFactory)
+        : scene(scene), pathFindingService(pathFindingService), collisionService(collisionService), unitFactory(unitFactory)
     {
     }
 
@@ -77,56 +81,10 @@ namespace rwe
             const auto& order = unit.orders.front();
 
             // process move orders
-            if (auto moveOrder = boost::get<MoveOrder>(&order); moveOrder != nullptr)
+            HandleUnitOrderVisitor v(this, unitId);
+            if (boost::apply_visitor(v, order))
             {
-                if (auto idleState = boost::get<IdleState>(&unit.behaviourState); idleState != nullptr)
-                {
-                    // request a path to follow
-                    scene->getSimulation().requestPath(unitId);
-                    const auto& destination = moveOrder->destination;
-                    unit.behaviourState = MovingState{destination, std::nullopt, true};
-                }
-                else if (auto movingState = boost::get<MovingState>(&unit.behaviourState); movingState != nullptr)
-                {
-                    // if we are colliding, request a new path
-                    if (unit.inCollision && !movingState->pathRequested)
-                    {
-                        auto& sim = scene->getSimulation();
-
-                        // only request a new path if we don't have one yet,
-                        // or we've already had our current one for a bit
-                        if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTimeDelta(60))
-                        {
-                            sim.requestPath(unitId);
-                            movingState->pathRequested = true;
-                        }
-                    }
-
-                    // if a path is available, attempt to follow it
-                    auto& pathToFollow = movingState->path;
-                    if (pathToFollow)
-                    {
-                        if (followPath(unit, *pathToFollow))
-                        {
-                            // we finished following the path,
-                            // order complete
-                            unit.orders.pop_front();
-                            unit.behaviourState = IdleState();
-
-                            if (unit.arrivedSound)
-                            {
-                                scene->playSoundOnSelectChannel(*unit.arrivedSound);
-                            }
-                        }
-                    }
-                }
-            }
-            else if (auto attackOrder = boost::get<AttackOrder>(&order); attackOrder != nullptr)
-            {
-                if (handleAttackOrder(unitId, *attackOrder))
-                {
-                    unit.orders.pop_front();
-                }
+                unit.orders.pop_front();
             }
         }
 
@@ -632,6 +590,56 @@ namespace rwe
         return getSweetSpot(id);
     }
 
+    bool UnitBehaviorService::handleMoveOrder(UnitId unitId, const MoveOrder& moveOrder)
+    {
+        auto& unit = scene->getSimulation().getUnit(unitId);
+
+        if (auto idleState = boost::get<IdleState>(&unit.behaviourState); idleState != nullptr)
+        {
+            // request a path to follow
+            scene->getSimulation().requestPath(unitId);
+            const auto& destination = moveOrder.destination;
+            unit.behaviourState = MovingState{destination, std::nullopt, true};
+        }
+        else if (auto movingState = boost::get<MovingState>(&unit.behaviourState); movingState != nullptr)
+        {
+            // if we are colliding, request a new path
+            if (unit.inCollision && !movingState->pathRequested)
+            {
+                auto& sim = scene->getSimulation();
+
+                // only request a new path if we don't have one yet,
+                // or we've already had our current one for a bit
+                if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTimeDelta(60))
+                {
+                    sim.requestPath(unitId);
+                    movingState->pathRequested = true;
+                }
+            }
+
+            // if a path is available, attempt to follow it
+            auto& pathToFollow = movingState->path;
+            if (pathToFollow)
+            {
+                if (followPath(unit, *pathToFollow))
+                {
+                    // we finished following the path,
+                    // order complete
+                    unit.behaviourState = IdleState();
+
+                    if (unit.arrivedSound)
+                    {
+                        scene->playSoundOnSelectChannel(*unit.arrivedSound);
+                    }
+
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     bool UnitBehaviorService::handleAttackOrder(UnitId unitId, const AttackOrder& attackOrder)
     {
         auto& unit = scene->getSimulation().getUnit(unitId);
@@ -710,6 +718,128 @@ namespace rwe
         }
 
         return false;
+    }
+
+    bool UnitBehaviorService::handleBuildOrder(UnitId unitId, const BuildOrder& buildOrder)
+    {
+        auto& unit = scene->getSimulation().getUnit(unitId);
+
+        if (auto idleState = boost::get<IdleState>(&unit.behaviourState); idleState != nullptr)
+        {
+            // request a path to get to the build site
+            auto footprint = unitFactory->getUnitFootprint(buildOrder.unitType);
+            auto footprintRect = scene->computeFootprintRegion(buildOrder.position, footprint.x, footprint.y);
+            scene->getSimulation().requestPath(unitId);
+            unit.behaviourState = MovingState{footprintRect, std::nullopt, true};
+        }
+        else if (auto movingState = boost::get<MovingState>(&unit.behaviourState); movingState != nullptr)
+        {
+            // if we are colliding, request a new path
+            if (unit.inCollision && !movingState->pathRequested)
+            {
+                auto& sim = scene->getSimulation();
+
+                // only request a new path if we don't have one yet,
+                // or we've already had our current one for a bit
+                if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTimeDelta(60))
+                {
+                    sim.requestPath(unitId);
+                    movingState->pathRequested = true;
+                }
+            }
+
+            // if a path is available, attempt to follow it
+            auto& pathToFollow = movingState->path;
+            if (pathToFollow)
+            {
+                if (followPath(unit, *pathToFollow))
+                {
+                    auto targetUnitId = scene->spawnUnit(buildOrder.unitType, unit.owner, buildOrder.position);
+                    if (!targetUnitId)
+                    {
+                        // we failed to create the unit -- give up
+                        unit.behaviourState = IdleState();
+                        return true;
+                    }
+
+                    if (unit.buildSound)
+                    {
+                        scene->playSoundOnSelectChannel(*unit.buildSound);
+                    }
+
+                    auto nanoFromPosition = getNanoPoint(unitId);
+                    auto headingAndPitch = computeHeadingAndPitch(unit.rotation, nanoFromPosition, buildOrder.position);
+                    auto heading = headingAndPitch.first;
+                    auto pitch = headingAndPitch.second;
+
+                    auto threadId = unit.cobEnvironment->createThread("StartBuilding", {toTaAngle(RadiansAngle(heading)).value, toTaAngle(RadiansAngle(pitch)).value});
+                    if (threadId)
+                    {
+                        unit.behaviourState = StartBuildingState{*targetUnitId, *threadId};
+                    }
+                    else
+                    {
+                        // we couldn't launch a start build script (there isn't one),
+                        // just go straight to building
+                        // TODO: start emitting nanolate effect
+                        unit.behaviourState = BuildingState{*targetUnitId};
+                    }
+                }
+            }
+        }
+        else if (auto startBuildingState = boost::get<StartBuildingState>(&unit.behaviourState); startBuildingState != nullptr)
+        {
+            auto returnValue = unit.cobEnvironment->tryReapThread(startBuildingState->thread);
+            if (returnValue)
+            {
+                // we successfully reaped, move to building
+                // TODO: start emitting nanolathe particles, probably
+                unit.behaviourState = BuildingState{startBuildingState->targetUnit};
+            }
+        }
+        else if (auto buildingState = boost::get<BuildingState>(&unit.behaviourState); buildingState != nullptr)
+        {
+            if (!scene->getSimulation().unitExists(buildingState->targetUnit))
+            {
+                // the unit has gone away (maybe it was killed?), give up
+                unit.cobEnvironment->createThread("StopBuilding");
+                unit.behaviourState = IdleState();
+                return true;
+            }
+
+            auto& targetUnit = scene->getSimulation().getUnit(buildingState->targetUnit);
+            if (targetUnit.isDead())
+            {
+                // the target is dead, give up
+                unit.cobEnvironment->createThread("StopBuilding");
+                unit.behaviourState = IdleState();
+                return true;
+            }
+
+            if (!targetUnit.isBeingBuilt())
+            {
+                // the target does not need to be built anymore.
+                // Probably because it's finished -- we did it!
+                unit.cobEnvironment->createThread("StopBuilding");
+                unit.behaviourState = IdleState();
+                return true;
+            }
+
+            targetUnit.addBuildProgress(unit.workerTimePerTick);
+        }
+
+        return false;
+    }
+
+    Vector3f UnitBehaviorService::getNanoPoint(UnitId id)
+    {
+        auto pieceId = runCobQuery(id, "QueryNanoPiece");
+        if (!pieceId)
+        {
+            return scene->getSimulation().getUnit(id).position;
+        }
+
+        return getPiecePosition(id, *pieceId);
     }
 
     Vector3f UnitBehaviorService::getPiecePosition(UnitId id, unsigned int pieceId)

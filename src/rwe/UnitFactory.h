@@ -37,6 +37,10 @@ namespace rwe
         /** If the unit has no build gui, this will be zero. */
         unsigned int getBuildPageCount(const std::string& unitType) const;
 
+        Point getUnitFootprint(const std::string& unitType) const;
+
+        bool isValidUnitType(const std::string& unitType) const;
+
     private:
         UnitWeapon createWeapon(const std::string& weaponType);
 

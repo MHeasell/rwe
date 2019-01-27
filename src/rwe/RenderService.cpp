@@ -52,9 +52,16 @@ namespace rwe
         graphics->drawLineLoop(unit.selectionMesh.visualMesh);
     }
 
-    void RenderService::drawUnit(const Unit& unit, float seaLevel)
+    void RenderService::drawUnit(const Unit& unit, float seaLevel, float time)
     {
-        drawUnitMesh(unit.mesh, unit.getTransform(), seaLevel);
+        if (unit.isBeingBuilt())
+        {
+            drawBuildingUnitMesh(unit.mesh, unit.getTransform(), seaLevel, unit.getPreciseCompletePercent(), unit.position.y, time);
+        }
+        else
+        {
+            drawUnitMesh(unit.mesh, unit.getTransform(), seaLevel);
+        }
     }
 
     void RenderService::drawUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel)
@@ -90,6 +97,37 @@ namespace rwe
         for (const auto& c : mesh.children)
         {
             drawUnitMesh(c, matrix, seaLevel);
+        }
+    }
+
+    void RenderService::drawBuildingUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time)
+    {
+        auto matrix = modelMatrix * mesh.getTransform();
+
+        if (mesh.visible)
+        {
+            auto mvpMatrix = camera.getViewProjectionMatrix() * matrix;
+
+            // TODO: draw colored vertices
+
+            {
+                const auto& buildShader = shaders->unitBuild;
+                graphics->bindShader(buildShader.handle.get());
+                graphics->bindTexture(mesh.mesh->texture.get());
+                graphics->setUniformMatrix(buildShader.mvpMatrix, mvpMatrix);
+                graphics->setUniformMatrix(buildShader.modelMatrix, matrix);
+                graphics->setUniformFloat(buildShader.unitY, unitY);
+                graphics->setUniformFloat(buildShader.seaLevel, seaLevel);
+                graphics->setUniformBool(buildShader.shade, mesh.shaded);
+                graphics->setUniformFloat(buildShader.percentComplete, percentComplete);
+                graphics->setUniformFloat(buildShader.time, time);
+                graphics->drawTriangles(mesh.mesh->texturedVertices);
+            }
+        }
+
+        for (const auto& c : mesh.children)
+        {
+            drawBuildingUnitMesh(c, matrix, seaLevel, percentComplete, unitY, time);
         }
     }
 
