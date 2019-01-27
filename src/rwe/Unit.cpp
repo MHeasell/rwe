@@ -59,11 +59,25 @@ namespace rwe
         auto remainingBuildTime = buildTime - buildTimeCompleted;
         if (buildTimeContribution > remainingBuildTime)
         {
-            buildTimeCompleted = buildTime;
+            buildTimeContribution = remainingBuildTime;
+        }
+
+        auto oldProgressHp = (buildTimeCompleted * maxHitPoints) / buildTime;
+
+        buildTimeCompleted += buildTimeContribution;
+
+        auto newProgressHp = (buildTimeCompleted * maxHitPoints) / buildTime;
+
+        auto deltaHp = newProgressHp - oldProgressHp;
+
+        // add HP up to the maximum
+        if (hitPoints + deltaHp >= maxHitPoints)
+        {
+            hitPoints = maxHitPoints;
         }
         else
         {
-            buildTimeCompleted += buildTimeContribution;
+            hitPoints += deltaHp;
         }
     }
 
