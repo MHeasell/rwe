@@ -17,24 +17,24 @@ const vec3 normalTint = vec3(1.0, 1.0, 1.0);
 const vec3 lightDirection = normalize(vec3(-1.0, 4.0, 1.0));
 
 const float band1EndPercent = 0.05;
-const float band1Speed = 900.0;
-const float band1Thickness = 4.0;
+const float band1Speed = 2000.0;
+const float band1Thickness = 10.0;
 
 const float band2EndPercent = 0.15;
-const float band2Speed = 900.0;
-const float band2Thickness = 4.0;
+const float band2Speed = 2000.0;
+const float band2Thickness = 10.0;
 
 const float mainFillStartPercent = 0.2;
-const float mainFillSpeed = 900.0;
-const float mainFillLeadThickness = 4.0;
+const float mainFillSpeed = 2000.0;
+const float mainFillLeadThickness = 10.0;
 
 const float textureFillStartPercent = 0.7;
-const float textureFillSpeed = 900.0;
-const float textureFillLeadThickness = 4.0;
+const float textureFillSpeed = 2000.0;
+const float textureFillLeadThickness = 10.0;
 
 const float band3EndPercent = 0.95;
-const float band3Speed = 900.0;
-const float band3Thickness = 4.0;
+const float band3Speed = 2000.0;
+const float band3Thickness = 10.0;
 
 vec3 shadeNormal()
 {
@@ -101,16 +101,18 @@ void main(void)
 
     float time2 = time / 15.0;
 
+    float lightIntensity = (0.5 * clamp(dot(worldNormal, lightDirection), 0.0, 1.0)) + 0.5;
+
     if (shadingMethod == 3) {
         color = vec4(shadeNormal(), 1.0);
     }
     else if (shadingMethod == 0)
         color.a = 0;
     else if (shadingMethod == 1) {
-        color.g = (0.5*sin(time2))+0.5;
+        color.g = ((0.5*sin(time2))+0.5) * lightIntensity;
     }
     else if (shadingMethod == 2) {
-        color.g = (0.5*cos(time2))+0.5;
+        color.g = ((0.5*cos(time2))+0.5) * lightIntensity;
     }
 
     outColor = color;
