@@ -75,22 +75,26 @@ namespace rwe
         unit.targetAngle = unit.rotation;
         unit.targetSpeed = 0.0f;
 
-        // check our orders
-        if (!unit.orders.empty())
+        // Run unit and weapon AI
+        if (!unit.isBeingBuilt())
         {
-            const auto& order = unit.orders.front();
-
-            // process move orders
-            HandleUnitOrderVisitor v(this, unitId);
-            if (boost::apply_visitor(v, order))
+            // check our orders
+            if (!unit.orders.empty())
             {
-                unit.orders.pop_front();
-            }
-        }
+                const auto& order = unit.orders.front();
 
-        for (unsigned int i = 0; i < unit.weapons.size(); ++i)
-        {
-            updateWeapon(unitId, i);
+                // process move orders
+                HandleUnitOrderVisitor v(this, unitId);
+                if (boost::apply_visitor(v, order))
+                {
+                    unit.orders.pop_front();
+                }
+            }
+
+            for (unsigned int i = 0; i < unit.weapons.size(); ++i)
+            {
+                updateWeapon(unitId, i);
+            }
         }
 
         applyUnitSteering(unitId);
