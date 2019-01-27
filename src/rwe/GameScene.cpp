@@ -93,7 +93,7 @@ namespace rwe
           unitFactory(sceneContext.textureService, std::move(unitDatabase), std::move(meshService), &this->collisionService, sceneContext.palette, sceneContext.guiPalette),
           gameNetworkService(std::move(gameNetworkService)),
           pathFindingService(&this->simulation, &this->collisionService),
-          unitBehaviorService(this, &pathFindingService, &this->collisionService),
+          unitBehaviorService(this, &pathFindingService, &this->collisionService, &this->unitFactory),
           cobExecutionService(),
           minimap(minimap),
           minimapDots(minimapDots),

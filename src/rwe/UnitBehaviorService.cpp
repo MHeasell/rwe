@@ -24,8 +24,12 @@ namespace rwe
         return anticlockwiseCircle.contains(Vector2f(dest.x, dest.z)) || clockwiseCircle.contains(Vector2f(dest.x, dest.z));
     }
 
-    UnitBehaviorService::UnitBehaviorService(GameScene* scene, PathFindingService* pathFindingService, MovementClassCollisionService* collisionService)
-        : scene(scene), pathFindingService(pathFindingService), collisionService(collisionService)
+    UnitBehaviorService::UnitBehaviorService(
+        GameScene* scene,
+        PathFindingService* pathFindingService,
+        MovementClassCollisionService* collisionService,
+        UnitFactory* unitFactory)
+        : scene(scene), pathFindingService(pathFindingService), collisionService(collisionService), unitFactory(unitFactory)
     {
     }
 
@@ -720,81 +724,65 @@ namespace rwe
     {
         auto& unit = scene->getSimulation().getUnit(unitId);
 
-        auto buildDistanceSquared = 60 * 60;
-
         if (auto idleState = boost::get<IdleState>(&unit.behaviourState); idleState != nullptr)
         {
-            // if we're out of build range, drive into range
-            // TODO: check if this range should be from center or from edge
-            if (unit.position.distanceSquared(buildOrder.position) > buildDistanceSquared)
-            {
-                // request a path to follow
-                scene->getSimulation().requestPath(unitId);
-                // FIXME: we should probably be moving to rect edge, not center
-                unit.behaviourState = MovingState{buildOrder.position, std::nullopt, true};
-            }
-            // FIXME: should go straight to building state if we are already in range
+            // request a path to get to the build site
+            auto footprint = unitFactory->getUnitFootprint(buildOrder.unitType);
+            auto footprintRect = scene->computeFootprintRegion(buildOrder.position, footprint.x, footprint.y);
+            scene->getSimulation().requestPath(unitId);
+            unit.behaviourState = MovingState{footprintRect, std::nullopt, true};
         }
         else if (auto movingState = boost::get<MovingState>(&unit.behaviourState); movingState != nullptr)
         {
-            if (unit.position.distanceSquared(buildOrder.position) <= buildDistanceSquared)
+            // if we are colliding, request a new path
+            if (unit.inCollision && !movingState->pathRequested)
             {
-                auto targetUnitId = scene->spawnUnit(buildOrder.unitType, unit.owner, buildOrder.position);
-                if (!targetUnitId)
-                {
-                    // we failed to create the unit -- give up
-                    unit.behaviourState = IdleState();
-                    return true;
-                }
+                auto& sim = scene->getSimulation();
 
-                if (unit.buildSound)
+                // only request a new path if we don't have one yet,
+                // or we've already had our current one for a bit
+                if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTimeDelta(60))
                 {
-                    scene->playSoundOnSelectChannel(*unit.buildSound);
-                }
-
-                auto nanoFromPosition = getNanoPoint(unitId);
-                auto headingAndPitch = computeHeadingAndPitch(unit.rotation, nanoFromPosition, buildOrder.position);
-                auto heading = headingAndPitch.first;
-                auto pitch = headingAndPitch.second;
-
-                auto threadId = unit.cobEnvironment->createThread("StartBuilding", {toTaAngle(RadiansAngle(heading)).value, toTaAngle(RadiansAngle(pitch)).value});
-                if (threadId)
-                {
-                    unit.behaviourState = StartBuildingState{*targetUnitId, *threadId};
-                }
-                else
-                {
-                    // we couldn't launch a start build script (there isn't one),
-                    // just go straight to building
-                    // TODO: start emitting nanolate effect
-                    unit.behaviourState = BuildingState{*targetUnitId};
+                    sim.requestPath(unitId);
+                    movingState->pathRequested = true;
                 }
             }
-            else
+
+            // if a path is available, attempt to follow it
+            auto& pathToFollow = movingState->path;
+            if (pathToFollow)
             {
-                // if we are colliding, request a new path
-                if (unit.inCollision && !movingState->pathRequested)
+                if (followPath(unit, *pathToFollow))
                 {
-                    auto& sim = scene->getSimulation();
-
-                    // only request a new path if we don't have one yet,
-                    // or we've already had our current one for a bit
-                    if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTimeDelta(60))
+                    auto targetUnitId = scene->spawnUnit(buildOrder.unitType, unit.owner, buildOrder.position);
+                    if (!targetUnitId)
                     {
-                        sim.requestPath(unitId);
-                        movingState->pathRequested = true;
-                    }
-                }
-
-                // if a path is available, attempt to follow it
-                auto& pathToFollow = movingState->path;
-                if (pathToFollow)
-                {
-                    if (followPath(unit, *pathToFollow))
-                    {
-                        // we finished following the path,
-                        // go back to idle
+                        // we failed to create the unit -- give up
                         unit.behaviourState = IdleState();
+                        return true;
+                    }
+
+                    if (unit.buildSound)
+                    {
+                        scene->playSoundOnSelectChannel(*unit.buildSound);
+                    }
+
+                    auto nanoFromPosition = getNanoPoint(unitId);
+                    auto headingAndPitch = computeHeadingAndPitch(unit.rotation, nanoFromPosition, buildOrder.position);
+                    auto heading = headingAndPitch.first;
+                    auto pitch = headingAndPitch.second;
+
+                    auto threadId = unit.cobEnvironment->createThread("StartBuilding", {toTaAngle(RadiansAngle(heading)).value, toTaAngle(RadiansAngle(pitch)).value});
+                    if (threadId)
+                    {
+                        unit.behaviourState = StartBuildingState{*targetUnitId, *threadId};
+                    }
+                    else
+                    {
+                        // we couldn't launch a start build script (there isn't one),
+                        // just go straight to building
+                        // TODO: start emitting nanolate effect
+                        unit.behaviourState = BuildingState{*targetUnitId};
                     }
                 }
             }

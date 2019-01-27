@@ -5,6 +5,7 @@
 #include <rwe/UnitOrder.h>
 #include <rwe/math/Vector3f.h>
 #include <rwe/pathfinding/PathFindingService.h>
+#include <rwe/UnitFactory.h>
 
 namespace rwe
 {
@@ -41,9 +42,14 @@ namespace rwe
         GameScene* scene;
         PathFindingService* pathFindingService;
         MovementClassCollisionService* collisionService;
+        UnitFactory* unitFactory;
 
     public:
-        UnitBehaviorService(GameScene* scene, PathFindingService* pathFindingService, MovementClassCollisionService* collisionService);
+        UnitBehaviorService(
+            GameScene* scene,
+            PathFindingService* pathFindingService,
+            MovementClassCollisionService* collisionService,
+            UnitFactory* unitFactory);
 
         void update(UnitId unitId);
 
