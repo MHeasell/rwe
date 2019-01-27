@@ -1,4 +1,5 @@
 #include "CobExecutionContext.h"
+#include <rwe/GameScene.h>
 #include <rwe/SceneManager.h>
 #include <rwe/cob/CobConstants.h>
 #include <rwe/cob/CobOpCode.h>
@@ -8,10 +9,11 @@
 namespace rwe
 {
     CobExecutionContext::CobExecutionContext(
+        GameScene* scene,
         GameSimulation* sim,
         CobEnvironment* env,
         CobThread* thread,
-        UnitId unitId) : sim(sim), env(env), thread(thread), unitId(unitId)
+        UnitId unitId) : scene(scene), sim(sim), env(env), thread(thread), unitId(unitId)
     {
     }
 
@@ -872,14 +874,13 @@ namespace rwe
         {
             case CobValueId::Activation:
             {
-                auto& unit = sim->getUnit(unitId);
                 if (value)
                 {
-                    unit.activate();
+                    scene->activateUnit(unitId);
                 }
                 else
                 {
-                    unit.deactivate();
+                    scene->deactivateUnit(unitId);
                 }
                 return;
             }

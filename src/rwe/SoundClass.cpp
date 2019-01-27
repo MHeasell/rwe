@@ -8,6 +8,8 @@ namespace rwe
 
         s.select1 = block.findValue("select1");
         s.unitComplete = block.findValue("unitcomplete");
+        s.activate = block.findValue("activate");
+        s.deactivate = block.findValue("deactivate");
         s.ok1 = block.findValue("ok1");
         s.arrived1 = block.findValue("arrived1");
         s.cant1 = block.findValue("cant1");

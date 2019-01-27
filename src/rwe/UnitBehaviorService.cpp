@@ -533,7 +533,7 @@ namespace rwe
         {
             return std::nullopt;
         }
-        CobExecutionContext context(&scene->getSimulation(), unit.cobEnvironment.get(), &*thread, id);
+        CobExecutionContext context(scene, &scene->getSimulation(), unit.cobEnvironment.get(), &*thread, id);
         auto status = context.execute();
         if (boost::get<CobEnvironment::FinishedStatus>(&status) == nullptr)
         {
@@ -831,6 +831,10 @@ namespace rwe
                 if (targetUnit.completeSound)
                 {
                     scene->playSoundOnSelectChannel(*targetUnit.completeSound);
+                }
+                if (targetUnit.activateWhenBuilt)
+                {
+                    scene->activateUnit(buildingState->targetUnit);
                 }
             }
         }

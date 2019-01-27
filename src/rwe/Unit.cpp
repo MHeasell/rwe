@@ -80,17 +80,7 @@ namespace rwe
             hitPoints += deltaHp;
         }
 
-        if (buildTimeCompleted == buildTime)
-        {
-            if (activateWhenBuilt)
-            {
-                activate();
-            }
-
-            return true;
-        }
-
-        return false;
+        return buildTimeCompleted == buildTime;
     }
 
     bool Unit::isCommander() const

@@ -5,10 +5,12 @@
 
 namespace rwe
 {
+    class GameScene;
+
     class CobExecutionService
     {
     public:
-        void run(GameSimulation& simulation, UnitId unitId);
+        void run(GameScene& scene, GameSimulation& simulation, UnitId unitId);
     };
 }
 

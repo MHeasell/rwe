@@ -160,6 +160,14 @@ namespace rwe
         {
             unit.completeSound = unitDatabase.tryGetSoundHandle(*soundClass.unitComplete);
         }
+        if (soundClass.activate)
+        {
+            unit.activateSound = unitDatabase.tryGetSoundHandle(*soundClass.activate);
+        }
+        if (soundClass.deactivate)
+        {
+            unit.deactivateSound = unitDatabase.tryGetSoundHandle(*soundClass.deactivate);
+        }
 
         return unit;
     }

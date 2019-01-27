@@ -531,6 +531,8 @@ namespace rwe
                 const auto& c = s.second;
                 preloadSound(db, c.select1);
                 preloadSound(db, c.unitComplete);
+                preloadSound(db, c.activate);
+                preloadSound(db, c.deactivate);
                 preloadSound(db, c.ok1);
                 preloadSound(db, c.arrived1);
                 preloadSound(db, c.cant1);

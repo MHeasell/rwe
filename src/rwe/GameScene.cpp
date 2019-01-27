@@ -936,7 +936,7 @@ namespace rwe
 
             unit.mesh.update(SecondsPerTick);
 
-            cobExecutionService.run(simulation, unitId);
+            cobExecutionService.run(*this, simulation, unitId);
         }
 
         updateLasers();
@@ -1401,6 +1401,26 @@ namespace rwe
     void GameScene::createLightSmoke(const Vector3f& position)
     {
         simulation.spawnSmoke(position, sceneContext.textureService->getGafEntry("anims/FX.GAF", "smoke 1"));
+    }
+
+    void GameScene::activateUnit(UnitId unitId)
+    {
+        auto& unit = getUnit(unitId);
+        unit.activate();
+        if (unit.activateSound)
+        {
+            playUnitSound(unitId, *unit.activateSound);
+        }
+    }
+
+    void GameScene::deactivateUnit(UnitId unitId)
+    {
+        auto& unit = getUnit(unitId);
+        unit.deactivate();
+        if (unit.deactivateSound)
+        {
+            playUnitSound(unitId, *unit.deactivateSound);
+        }
     }
 
     void GameScene::deleteDeadUnits()

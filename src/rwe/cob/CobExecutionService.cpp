@@ -1,4 +1,5 @@
 #include "CobExecutionService.h"
+#include <rwe/GameScene.h>
 #include <rwe/cob/CobExecutionContext.h>
 
 namespace rwe
@@ -60,7 +61,7 @@ namespace rwe
         }
     };
 
-    void CobExecutionService::run(GameSimulation& simulation, UnitId unitId)
+    void CobExecutionService::run(GameScene& scene, GameSimulation& simulation, UnitId unitId)
     {
         auto& unit = simulation.getUnit(unitId);
         auto& env = *unit.cobEnvironment;
@@ -103,7 +104,7 @@ namespace rwe
             auto thread = env.readyQueue.front();
             env.readyQueue.pop_front();
 
-            CobExecutionContext context(&simulation, &env, thread, unitId);
+            CobExecutionContext context(&scene, &simulation, &env, thread, unitId);
 
             auto status = context.execute();
 

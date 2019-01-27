@@ -82,6 +82,8 @@ namespace rwe
         std::optional<AudioService::SoundHandle> arrivedSound;
         std::optional<AudioService::SoundHandle> buildSound;
         std::optional<AudioService::SoundHandle> completeSound;
+        std::optional<AudioService::SoundHandle> activateSound;
+        std::optional<AudioService::SoundHandle> deactivateSound;
         PlayerId owner;
 
         /**

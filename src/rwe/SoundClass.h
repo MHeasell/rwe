@@ -11,6 +11,8 @@ namespace rwe
     {
         std::optional<std::string> select1;
         std::optional<std::string> unitComplete;
+        std::optional<std::string> activate;
+        std::optional<std::string> deactivate;
         std::optional<std::string> ok1;
         std::optional<std::string> arrived1;
         std::optional<std::string> cant1;

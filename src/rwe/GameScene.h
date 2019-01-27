@@ -369,6 +369,9 @@ namespace rwe
 
         void createLightSmoke(const Vector3f& position);
 
+        void activateUnit(UnitId unitId);
+        void deactivateUnit(UnitId unitId);
+
     private:
         static Matrix4f worldToMinimapMatrix(const MapTerrain& terrain, const Rectangle2f& minimapRect);
 
