@@ -54,7 +54,7 @@ namespace rwe
         return static_cast<float>(buildTimeCompleted) / static_cast<float>(buildTime);
     }
 
-    void Unit::addBuildProgress(unsigned int buildTimeContribution)
+    bool Unit::addBuildProgress(unsigned int buildTimeContribution)
     {
         auto remainingBuildTime = buildTime - buildTimeCompleted;
         if (buildTimeContribution > remainingBuildTime)
@@ -86,7 +86,11 @@ namespace rwe
             {
                 activate();
             }
+
+            return true;
         }
+
+        return false;
     }
 
     bool Unit::isCommander() const

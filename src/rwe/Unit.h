@@ -81,6 +81,7 @@ namespace rwe
         std::optional<AudioService::SoundHandle> okSound;
         std::optional<AudioService::SoundHandle> arrivedSound;
         std::optional<AudioService::SoundHandle> buildSound;
+        std::optional<AudioService::SoundHandle> completeSound;
         PlayerId owner;
 
         /**
@@ -186,7 +187,10 @@ namespace rwe
 
         float getPreciseCompletePercent() const;
 
-        void addBuildProgress(unsigned int buildTimeContribution);
+        /**
+         * Returns true if the unit has finished being built.
+         */
+        bool addBuildProgress(unsigned int buildTimeContribution);
 
         bool isCommander() const;
 

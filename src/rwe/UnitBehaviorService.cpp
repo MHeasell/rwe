@@ -825,7 +825,14 @@ namespace rwe
                 return true;
             }
 
-            targetUnit.addBuildProgress(unit.workerTimePerTick);
+            if (targetUnit.addBuildProgress(unit.workerTimePerTick))
+            {
+                // play sound when the unit is completed
+                if (targetUnit.completeSound)
+                {
+                    scene->playSoundOnSelectChannel(*targetUnit.completeSound);
+                }
+            }
         }
 
         return false;
