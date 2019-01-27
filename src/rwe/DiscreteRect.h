@@ -40,12 +40,21 @@ namespace rwe
         bool isInteriorPerimeter(int px, int py) const;
 
         /**
+         * Returns true if the top-left of the grid cell represented
+         * by the input coordinates touches the line drawn
+         * by the rectangle's perimeter in between cells.
+         */
+        bool topLeftTouchesPerimeter(int px, int py) const;
+
+        /**
          * Returns the octile distance from the given coordinates
          * to the nearest coordinates that are adjacent to the rectangle.
          */
         OctileDistance octileDistanceToPerimeter(int px, int py) const;
 
         OctileDistance octileDistanceToInterior(int px, int py) const;
+
+        OctileDistance octileDistanceToTopLeftTouching(int px, int py) const;
 
         DiscreteRect expand(unsigned int amount) const;
 

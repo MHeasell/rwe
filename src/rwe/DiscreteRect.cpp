@@ -4,15 +4,25 @@ namespace rwe
 {
     bool DiscreteRect::isAdjacentTo(int px, int py) const
     {
-        return expand(1).isInteriorPerimeter(px, py);
+        return DiscreteRect(x - 1, y - 1, width + 1, height + 1).topLeftTouchesPerimeter(px, py);
     }
 
     bool DiscreteRect::isInteriorPerimeter(int px, int py) const
     {
+        if (width == 0 || height == 0)
+        {
+            return false;
+        }
+
+        return DiscreteRect(x, y, width - 1, height - 1).topLeftTouchesPerimeter(px, py);
+    }
+
+    bool DiscreteRect::topLeftTouchesPerimeter(int px, int py) const
+    {
         int minX = x;
-        int maxX = x + width - 1;
+        int maxX = x + width;
         int minY = y;
-        int maxY = y + height - 1;
+        int maxY = y + height;
 
         if (py == minY || py == maxY)
         {
@@ -35,15 +45,25 @@ namespace rwe
 
     OctileDistance DiscreteRect::octileDistanceToPerimeter(int px, int py) const
     {
-        return expand(1).octileDistanceToInterior(px, py);
+        return DiscreteRect(x - 1, y - 1, width + 1, height + 1).octileDistanceToTopLeftTouching(px, py);
     }
 
     OctileDistance DiscreteRect::octileDistanceToInterior(int px, int py) const
     {
+        if (width == 0 || height == 0)
+        {
+            throw std::logic_error("Rectangle has no interior");
+        }
+
+        return DiscreteRect(x, y, width - 1, height - 1).octileDistanceToTopLeftTouching(px, py);
+    }
+
+    OctileDistance DiscreteRect::octileDistanceToTopLeftTouching(int px, int py) const
+    {
         int minX = x;
-        int maxX = x + width - 1;
+        int maxX = x + width;
         int minY = y;
-        int maxY = y + height - 1;
+        int maxY = y + height;
 
         // point is left of the rectangle
         if (px <= minX)
