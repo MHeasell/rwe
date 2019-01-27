@@ -1111,6 +1111,11 @@ namespace rwe
         localPlayerCommandBuffer.push_back(PlayerUnitCommand(unitId, PlayerUnitCommand::SetFireOrders{orders}));
     }
 
+    void GameScene::localPlayerSetOnOff(UnitId unitId, bool on)
+    {
+        localPlayerCommandBuffer.push_back(PlayerUnitCommand(unitId, PlayerUnitCommand::SetOnOff{on}));
+    }
+
     void GameScene::issueUnitOrder(UnitId unitId, const UnitOrder& order)
     {
         auto& unit = getUnit(unitId);
@@ -1407,9 +1412,15 @@ namespace rwe
     {
         auto& unit = getUnit(unitId);
         unit.activate();
+
         if (unit.activateSound)
         {
             playUnitSound(unitId, *unit.activateSound);
+        }
+
+        if (selectedUnit && *selectedUnit == unitId)
+        {
+            onOff.next(true);
         }
     }
 
@@ -1417,9 +1428,15 @@ namespace rwe
     {
         auto& unit = getUnit(unitId);
         unit.deactivate();
+
         if (unit.deactivateSound)
         {
             playUnitSound(unitId, *unit.deactivateSound);
+        }
+
+        if (selectedUnit && *selectedUnit == unitId)
+        {
+            onOff.next(false);
         }
     }
 
@@ -1564,6 +1581,13 @@ namespace rwe
             }));
         }
 
+        if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "ONOFF"))
+        {
+            p->get().addSubscription(onOff.subscribe([&p = p->get()](const auto& v) {
+                p.setStage(v ? 1 : 0);
+            }));
+        }
+
         currentPanel->groupMessages().subscribe([this](const auto& msg) {
             if (boost::get<ActivateMessage>(&msg.message) != nullptr)
             {
@@ -1647,6 +1671,16 @@ namespace rwe
                 auto newFireOrders = nextFireOrders(u.fireOrders);
                 localPlayerSetFireOrders(*selectedUnit, newFireOrders);
             }
+        }
+        else if (matchesWithSidePrefix("ONOFF", message))
+        {
+            if (selectedUnit)
+            {
+                auto& u = getUnit(*selectedUnit);
+                auto newOnOff = !u.activated;
+                localPlayerSetOnOff(*selectedUnit, newOnOff);
+            }
+
         }
         else if (matchesWithSidePrefix("NEXT", message))
         {
@@ -1747,6 +1781,7 @@ namespace rwe
         selectedUnit = unitId;
         const auto& unit = getUnit(unitId);
         fireOrders.next(unit.fireOrders);
+        onOff.next(unit.activated);
         const auto& selectionSound = unit.selectionSound;
         if (selectionSound)
         {

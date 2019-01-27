@@ -75,12 +75,18 @@ message PlayerUnitCommand
         required FireOrders orders = 1;
     }
 
+    message SetOnOff
+    {
+        required bool isOn = 1;
+    }
+
     required int32 unit = 1;
 
     oneof command {
         IssueOrder order = 2;
         Stop stop = 3;
         SetFireOrders set_fire_orders = 4;
+        SetOnOff set_on_off = 5;
     }
 }
 

@@ -35,7 +35,12 @@ namespace rwe
             UnitFireOrders orders;
         };
 
-        using Command = boost::variant<IssueOrder, Stop, SetFireOrders>;
+        struct SetOnOff
+        {
+            bool on;
+        };
+
+        using Command = boost::variant<IssueOrder, Stop, SetFireOrders, SetOnOff>;
 
         UnitId unit;
         Command command;

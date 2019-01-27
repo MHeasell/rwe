@@ -81,6 +81,12 @@ namespace rwe
             auto& out = *cmd->mutable_set_fire_orders();
             out.set_orders(serializeFireOrders(c.orders));
         }
+
+        void operator()(const PlayerUnitCommand::SetOnOff& c)
+        {
+            auto& out = *cmd->mutable_set_on_off();
+            out.set_ison(c.on);
+        }
     };
 
     class WritePlayerCommandVisitor : public boost::static_visitor<>
@@ -200,6 +206,11 @@ namespace rwe
         if (cmd.has_set_fire_orders())
         {
             return PlayerUnitCommand(UnitId(cmd.unit()), PlayerUnitCommand::SetFireOrders{deserializeFireOrders(cmd.set_fire_orders().orders())});
+        }
+
+        if (cmd.has_set_on_off())
+        {
+            return PlayerUnitCommand(UnitId(cmd.unit()), PlayerUnitCommand::SetOnOff{cmd.set_on_off().ison()});
         }
 
         throw std::runtime_error("Failed to deserialize unit command");

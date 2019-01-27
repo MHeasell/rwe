@@ -178,6 +178,18 @@ namespace rwe
             {
                 scene->setFireOrders(unit, c.orders);
             }
+
+            void operator()(const PlayerUnitCommand::SetOnOff& c)
+            {
+                if (c.on)
+                {
+                    scene->activateUnit(unit);
+                }
+                else
+                {
+                    scene->deactivateUnit(unit);
+                }
+            }
         };
 
         class PlayerCommandDispatcher : public boost::static_visitor<>
@@ -280,6 +292,7 @@ namespace rwe
         std::vector<PlayerCommand> localPlayerCommandBuffer;
 
         BehaviorSubject<UnitFireOrders> fireOrders{UnitFireOrders::HoldFire};
+        BehaviorSubject<bool> onOff{false};
 
         TdfBlock* audioLookup;
         UiFactory uiFactory;
@@ -400,6 +413,8 @@ namespace rwe
         void localPlayerStopUnit(UnitId unitId);
 
         void localPlayerSetFireOrders(UnitId unitId, UnitFireOrders orders);
+
+        void localPlayerSetOnOff(UnitId unitId, bool on);
 
         void issueUnitOrder(UnitId unitId, const UnitOrder& order);
 
