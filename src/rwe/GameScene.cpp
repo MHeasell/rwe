@@ -273,26 +273,28 @@ namespace rwe
             // draw build ghost rectangle
             if (isCursorOverWorld())
             {
-                auto footprint = unitFactory.getUnitFootprint(buildCursor->unitType);
-                auto width = footprint.x * MapTerrain::HeightTileWidthInWorldUnits;
-                auto height = footprint.y * MapTerrain::HeightTileHeightInWorldUnits;
-                auto xOffset = width / 2;
-                auto yOffset = height / 2;
 
                 auto ray = worldRenderService.getCamera().screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
                 auto intersect = simulation.intersectLineWithTerrain(ray.toLine());
 
                 if (intersect)
                 {
-                    intersect->x -= xOffset;
-                    intersect->z -= yOffset;
-                    auto topLeft = simulation.terrain.worldToHeightmapCoordinateNearest(*intersect);
-                    auto topLeftWorld = simulation.terrain.heightmapIndexToWorldCorner(topLeft);
-                    topLeftWorld.y = simulation.terrain.getHeightAt(topLeftWorld.x + xOffset, topLeftWorld.z + yOffset);
+                    auto footprint = unitFactory.getUnitFootprint(buildCursor->unitType);
+                    auto buildPos = snapToBuildPosition(buildCursor->unitType, *intersect);
+                    Vector3f topLeftWorld(
+                        buildPos.x - ((footprint.x * MapTerrain::HeightTileWidthInWorldUnits) / 2.0f),
+                        buildPos.y,
+                        buildPos.z - ((footprint.y * MapTerrain::HeightTileHeightInWorldUnits) / 2.0f));
+
                     auto topLeftUi = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
                                      * worldRenderService.getCamera().getViewProjectionMatrix()
                                      * topLeftWorld;
-                    worldUiRenderService.drawBoxOutline(topLeftUi.x, topLeftUi.y, width, height, Color(0, 255, 0));
+                    worldUiRenderService.drawBoxOutline(
+                        topLeftUi.x,
+                        topLeftUi.y,
+                        footprint.x * MapTerrain::HeightTileWidthInWorldUnits,
+                        footprint.y * MapTerrain::HeightTileHeightInWorldUnits,
+                        Color(0, 255, 0));
                 }
             }
         }
@@ -469,13 +471,14 @@ namespace rwe
                     auto coord = getMouseTerrainCoordinate();
                     if (coord)
                     {
+                        auto buildPos = snapToBuildPosition(buildCursor->unitType, *coord);
                         if (isShiftDown())
                         {
-                            localPlayerEnqueueUnitOrder(*selectedUnit, BuildOrder(buildCursor->unitType, *coord));
+                            localPlayerEnqueueUnitOrder(*selectedUnit, BuildOrder(buildCursor->unitType, buildPos));
                         }
                         else
                         {
-                            localPlayerIssueUnitOrder(*selectedUnit, BuildOrder(buildCursor->unitType, *coord));
+                            localPlayerIssueUnitOrder(*selectedUnit, BuildOrder(buildCursor->unitType, buildPos));
                             cursorMode.next(NormalCursorMode());
                         }
                     }
@@ -1771,5 +1774,17 @@ namespace rwe
     void GameScene::setNextPanel(std::unique_ptr<UiPanel>&& panel)
     {
         nextPanel = std::move(panel);
+    }
+
+    Vector3f GameScene::snapToBuildPosition(const std::string& unitType, const rwe::Vector3f& pos) const
+    {
+        auto footprint = unitFactory.getUnitFootprint(unitType);
+        auto footprintRect = computeFootprintRegion(pos, footprint.x, footprint.y);
+        auto topLeftWorld = simulation.terrain.heightmapIndexToWorldCorner(footprintRect.x, footprintRect.y);
+
+        auto x = topLeftWorld.x + (footprintRect.width * MapTerrain::HeightTileWidthInWorldUnits) / 2.0f;
+        auto z = topLeftWorld.z + (footprintRect.height * MapTerrain::HeightTileHeightInWorldUnits) / 2.0f;
+        auto y = simulation.terrain.getHeightAt(x, z);
+        return Vector3f(x, y, z);
     }
 }

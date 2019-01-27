@@ -464,6 +464,8 @@ namespace rwe
 
         void setNextPanel(std::unique_ptr<UiPanel>&& panel);
 
+        Vector3f snapToBuildPosition(const std::string& unitType, const Vector3f& pos) const;
+
         template <typename T>
         std::optional<std::reference_wrapper<T>> findWithSidePrefix(UiPanel& p, const std::string& name)
         {
