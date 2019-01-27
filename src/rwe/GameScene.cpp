@@ -1676,6 +1676,11 @@ namespace rwe
         {
             if (selectedUnit)
             {
+                if (sounds.immediateOrders)
+                {
+                    sceneContext.audioService->playSound(*sounds.immediateOrders);
+                }
+
                 auto& u = getUnit(*selectedUnit);
                 auto newOnOff = !u.activated;
                 localPlayerSetOnOff(*selectedUnit, newOnOff);
