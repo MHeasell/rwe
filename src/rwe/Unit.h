@@ -7,6 +7,7 @@
 #include <optional>
 #include <rwe/AudioService.h>
 #include <rwe/DiscreteRect.h>
+#include <rwe/MovementClass.h>
 #include <rwe/MovementClassId.h>
 #include <rwe/PlayerId.h>
 #include <rwe/SelectionMesh.h>
@@ -18,7 +19,6 @@
 #include <rwe/geometry/BoundingBox3f.h>
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/pathfinding/UnitPath.h>
-#include <rwe/MovementClass.h>
 
 namespace rwe
 {
@@ -72,6 +72,7 @@ namespace rwe
             Alive,
             Dead,
         };
+
     public:
         std::string unitType;
         UnitMesh mesh;

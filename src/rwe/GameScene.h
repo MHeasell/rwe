@@ -34,8 +34,8 @@
 #include <rwe/cob/CobExecutionService.h>
 #include <rwe/observable/BehaviorSubject.h>
 #include <rwe/pathfinding/PathFindingService.h>
-#include <rwe/ui/UiPanel.h>
 #include <rwe/ui/UiFactory.h>
+#include <rwe/ui/UiPanel.h>
 
 namespace rwe
 {

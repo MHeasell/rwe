@@ -113,7 +113,6 @@ namespace rwe
 
         sceneContext.audioService->reserveChannels(reservedChannelsCount);
         gameNetworkService->start();
-
     }
 
     void GameScene::render(GraphicsContext& context)
@@ -287,8 +286,8 @@ namespace rwe
                         buildPos.z - ((footprint.y * MapTerrain::HeightTileHeightInWorldUnits) / 2.0f));
 
                     auto topLeftUi = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
-                                     * worldRenderService.getCamera().getViewProjectionMatrix()
-                                     * topLeftWorld;
+                        * worldRenderService.getCamera().getViewProjectionMatrix()
+                        * topLeftWorld;
                     worldUiRenderService.drawBoxOutline(
                         topLeftUi.x,
                         topLeftUi.y,
@@ -306,16 +305,14 @@ namespace rwe
             auto intersect = simulation.intersectLineWithTerrain(ray.toLine());
             if (intersect)
             {
-                auto cursorTerrainPos =
-                    worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
+                auto cursorTerrainPos = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
                     * worldRenderService.getCamera().getViewProjectionMatrix()
                     * (*intersect);
                 worldUiRenderService.fillColor(cursorTerrainPos.x - 2, cursorTerrainPos.y - 2, 4, 4, Color(0, 0, 255));
 
                 intersect->y = simulation.terrain.getHeightAt(intersect->x, intersect->z);
 
-                auto heightTestedTerrainPos =
-                    worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
+                auto heightTestedTerrainPos = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
                     * worldRenderService.getCamera().getViewProjectionMatrix()
                     * (*intersect);
                 worldUiRenderService.fillColor(heightTestedTerrainPos.x - 2, heightTestedTerrainPos.y - 2, 4, 4, Color(255, 0, 0));
@@ -1549,21 +1546,21 @@ namespace rwe
     {
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "ATTACK"))
         {
-            p->get().addSubscription(cursorMode.subscribe([&p = p->get()](const auto& v) {
+            p->get().addSubscription(cursorMode.subscribe([& p = p->get()](const auto& v) {
                 p.setToggledOn(boost::get<AttackCursorMode>(&v) != nullptr);
             }));
         }
 
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "MOVE"))
         {
-            p->get().addSubscription(cursorMode.subscribe([&p = p->get()](const auto& v) {
+            p->get().addSubscription(cursorMode.subscribe([& p = p->get()](const auto& v) {
                 p.setToggledOn(boost::get<MoveCursorMode>(&v) != nullptr);
             }));
         }
 
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "FIREORD"))
         {
-            p->get().addSubscription(fireOrders.subscribe([&p = p->get()](const auto& v) {
+            p->get().addSubscription(fireOrders.subscribe([& p = p->get()](const auto& v) {
                 switch (v)
                 {
                     case UnitFireOrders::HoldFire:
@@ -1583,7 +1580,7 @@ namespace rwe
 
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "ONOFF"))
         {
-            p->get().addSubscription(onOff.subscribe([&p = p->get()](const auto& v) {
+            p->get().addSubscription(onOff.subscribe([& p = p->get()](const auto& v) {
                 p.setStage(v ? 1 : 0);
             }));
         }
@@ -1685,7 +1682,6 @@ namespace rwe
                 auto newOnOff = !u.activated;
                 localPlayerSetOnOff(*selectedUnit, newOnOff);
             }
-
         }
         else if (matchesWithSidePrefix("NEXT", message))
         {

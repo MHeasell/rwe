@@ -1,11 +1,11 @@
 #ifndef RWE_UNITBEHAVIORSERVICE_H
 #define RWE_UNITBEHAVIORSERVICE_H
 
+#include <rwe/UnitFactory.h>
 #include <rwe/UnitId.h>
 #include <rwe/UnitOrder.h>
 #include <rwe/math/Vector3f.h>
 #include <rwe/pathfinding/PathFindingService.h>
-#include <rwe/UnitFactory.h>
 
 namespace rwe
 {
@@ -21,7 +21,7 @@ namespace rwe
             UnitId u;
 
         public:
-            HandleUnitOrderVisitor(UnitBehaviorService* svc, UnitId u): svc(svc), u(u) {}
+            HandleUnitOrderVisitor(UnitBehaviorService* svc, UnitId u) : svc(svc), u(u) {}
 
             bool operator()(const MoveOrder& o)
             {
@@ -38,6 +38,7 @@ namespace rwe
                 return svc->handleBuildOrder(u, o);
             }
         };
+
     private:
         GameScene* scene;
         PathFindingService* pathFindingService;
