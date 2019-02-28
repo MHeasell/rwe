@@ -3,6 +3,7 @@
 #include <rwe/cob/CobExecutionContext.h>
 #include <rwe/geometry/Circle2f.h>
 #include <rwe/math/rwe_math.h>
+#include <rwe/movement.h>
 
 namespace rwe
 {
