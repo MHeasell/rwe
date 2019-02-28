@@ -444,15 +444,7 @@ namespace rwe
         // Unlike for pathfinding, TA doesn't care about the unit's actual movement class for collision checks,
         // it only cares about the attributes defined directly on the unit.
         // Jam these into an ad-hoc movement class to pass into our walkability check.
-        MovementClass mc;
-        mc.minWaterDepth = unit.minWaterDepth;
-        mc.maxWaterDepth = unit.maxWaterDepth;
-        mc.maxSlope = unit.maxSlope;
-        mc.maxWaterSlope = unit.maxWaterSlope;
-        mc.footprintX = unit.footprintX;
-        mc.footprintZ = unit.footprintZ;
-
-        if (!isGridPointWalkable(sim.terrain, mc, newFootprintRegion.x, newFootprintRegion.y))
+        if (!isGridPointWalkable(sim.terrain, unit.getAdHocMovementClass(), newFootprintRegion.x, newFootprintRegion.y))
         {
             return false;
         }

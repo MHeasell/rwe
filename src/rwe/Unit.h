@@ -18,6 +18,7 @@
 #include <rwe/geometry/BoundingBox3f.h>
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/pathfinding/UnitPath.h>
+#include <rwe/MovementClass.h>
 
 namespace rwe
 {
@@ -245,6 +246,8 @@ namespace rwe
         void activate();
 
         void deactivate();
+
+        MovementClass getAdHocMovementClass() const;
     };
 }
 

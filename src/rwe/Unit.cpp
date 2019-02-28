@@ -467,4 +467,16 @@ namespace rwe
         activated = false;
         cobEnvironment->createThread("Deactivate");
     }
+
+    MovementClass Unit::getAdHocMovementClass() const
+    {
+        MovementClass mc;
+        mc.minWaterDepth = minWaterDepth;
+        mc.maxWaterDepth = maxWaterDepth;
+        mc.maxSlope = maxSlope;
+        mc.maxWaterSlope = maxWaterSlope;
+        mc.footprintX = footprintX;
+        mc.footprintZ = footprintZ;
+        return mc;
+    }
 }
