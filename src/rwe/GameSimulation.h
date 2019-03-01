@@ -93,7 +93,16 @@ namespace rwe
          */
         std::optional<UnitId> tryAddUnit(Unit&& unit);
 
+        /**
+         * Returns true if a unit with the given movementclass attributes
+         * could be built at given location on the map -- i.e. it is valid terrain
+         * for the unit and it is not occupied by something else.
+         */
+        bool canBeBuiltAt(const MovementClass& mc, unsigned int x, unsigned int y) const;
+
         DiscreteRect computeFootprintRegion(const Vector3f& position, unsigned int footprintX, unsigned int footprintZ) const;
+
+        bool isCollisionAt(const DiscreteRect& rect) const;
 
         bool isCollisionAt(const DiscreteRect& rect, UnitId self) const;
 

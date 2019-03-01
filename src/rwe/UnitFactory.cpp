@@ -207,6 +207,20 @@ namespace rwe
         return Point(fbi.footprintX, fbi.footprintZ);
     }
 
+    MovementClass UnitFactory::getAdHocMovementClass(const std::string& unitType) const
+    {
+        const auto& fbi = unitDatabase.getUnitInfo(unitType);
+
+        MovementClass mc;
+        mc.minWaterDepth = fbi.minWaterDepth;
+        mc.maxWaterDepth = fbi.maxWaterDepth;
+        mc.maxSlope = fbi.maxSlope;
+        mc.maxWaterSlope = fbi.maxWaterSlope;
+        mc.footprintX = fbi.footprintX;
+        mc.footprintZ = fbi.footprintZ;
+        return mc;
+    }
+
     bool UnitFactory::isValidUnitType(const std::string& unitType) const
     {
         return unitDatabase.hasUnitInfo(unitType);

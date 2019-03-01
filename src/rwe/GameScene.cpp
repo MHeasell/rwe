@@ -285,6 +285,20 @@ namespace rwe
                         buildPos.y,
                         buildPos.z - ((footprint.y * MapTerrain::HeightTileHeightInWorldUnits) / 2.0f));
 
+                    // Figure out color for the box.
+                    // Green if the position is valid, red otherwise.
+                    // This all kind of sucks right now, lots of logic is redundant
+                    // with snapToBuildPosition
+                    Color color;
+                    {
+                        auto mc = unitFactory.getAdHocMovementClass(buildCursor->unitType);
+                        const auto& unitType = buildCursor->unitType;
+                        const auto& pos = *intersect;
+                        auto footprint = unitFactory.getUnitFootprint(unitType);
+                        auto footprintRect = computeFootprintRegion(pos, footprint.x, footprint.y);
+                        color = simulation.canBeBuiltAt(mc, footprintRect.x, footprintRect.y) ? Color(0, 255, 0) : Color(255, 0, 0);
+                    }
+
                     auto topLeftUi = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
                         * worldRenderService.getCamera().getViewProjectionMatrix()
                         * topLeftWorld;
@@ -293,7 +307,7 @@ namespace rwe
                         topLeftUi.y,
                         footprint.x * MapTerrain::HeightTileWidthInWorldUnits,
                         footprint.y * MapTerrain::HeightTileHeightInWorldUnits,
-                        Color(0, 255, 0));
+                        color);
                 }
             }
         }

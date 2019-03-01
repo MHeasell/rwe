@@ -1,5 +1,7 @@
 #include "GameSimulation.h"
 
+#include <rwe/movement.h>
+
 namespace rwe
 {
     bool PathRequest::operator==(const PathRequest& rhs) const
@@ -29,6 +31,23 @@ namespace rwe
         bool operator()(const OccupiedUnit& u) const
         {
             return u.id != unitId;
+        }
+        bool operator()(const OccupiedFeature&) const
+        {
+            return true;
+        }
+    };
+
+    class IsCollisionSimpleVisitor : public boost::static_visitor<bool>
+    {
+    public:
+        bool operator()(const OccupiedNone&) const
+        {
+            return false;
+        }
+        bool operator()(const OccupiedUnit&) const
+        {
+            return true;
         }
         bool operator()(const OccupiedFeature&) const
         {
@@ -89,6 +108,21 @@ namespace rwe
         return unitId;
     }
 
+    bool GameSimulation::canBeBuiltAt(const rwe::MovementClass& mc, unsigned int x, unsigned int y) const
+    {
+        if (!isGridPointWalkable(terrain, mc, x, y))
+        {
+            return false;
+        }
+
+        if (isCollisionAt(DiscreteRect(x, y, mc.footprintX, mc.footprintZ)))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     DiscreteRect GameSimulation::computeFootprintRegion(const Vector3f& position, unsigned int footprintX, unsigned int footprintZ) const
     {
         auto halfFootprintX = static_cast<float>(footprintX) * MapTerrain::HeightTileWidthInWorldUnits / 2.0f;
@@ -101,6 +135,28 @@ namespace rwe
         auto cell = terrain.worldToHeightmapCoordinateNearest(topLeft);
 
         return DiscreteRect(cell.x, cell.y, footprintX, footprintZ);
+    }
+
+    bool GameSimulation::isCollisionAt(const DiscreteRect& rect) const
+    {
+        auto region = occupiedGrid.grid.tryToRegion(rect);
+        if (!region)
+        {
+            return true;
+        }
+
+        for (unsigned int dy = 0; dy < region->height; ++dy)
+        {
+            for (unsigned int dx = 0; dx < region->width; ++dx)
+            {
+                const auto& cell = occupiedGrid.grid.get(region->x + dx, region->y + dy);
+                if (boost::apply_visitor(IsCollisionSimpleVisitor(), cell))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     bool GameSimulation::isCollisionAt(const DiscreteRect& rect, UnitId self) const
