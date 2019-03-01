@@ -133,6 +133,12 @@ namespace rwe
         unsigned int currentBuildPage;
     };
 
+    struct HoverBuildInfo
+    {
+        DiscreteRect rect;
+        bool isValid;
+    };
+
     class GameScene : public SceneManager::Scene
     {
     public:
@@ -277,6 +283,8 @@ namespace rwe
 
         std::optional<UnitId> hoveredUnit;
         std::optional<UnitId> selectedUnit;
+
+        std::optional<HoverBuildInfo> hoverBuildInfo;
 
         bool occupiedGridVisible{false};
         bool pathfindingVisualisationVisible{false};
@@ -481,8 +489,6 @@ namespace rwe
         const UnitGuiInfo& getGuiInfo(const UnitId& unitId) const;
 
         void setNextPanel(std::unique_ptr<UiPanel>&& panel);
-
-        Vector3f snapToBuildPosition(const std::string& unitType, const Vector3f& pos) const;
 
         template <typename T>
         std::optional<std::reference_wrapper<T>> findWithSidePrefix(UiPanel& p, const std::string& name)

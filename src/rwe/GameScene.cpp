@@ -267,49 +267,25 @@ namespace rwe
             }
         }
 
-        if (auto buildCursor = boost::get<BuildCursorMode>(&cursorMode.getValue()); buildCursor != nullptr)
+        // Draw build box outline when a unit is selected to be built
+        if (hoverBuildInfo)
         {
-            // draw build ghost rectangle
-            if (isCursorOverWorld())
-            {
+            Color color = hoverBuildInfo->isValid ? Color(0, 255, 0) : Color(255, 0, 0);
 
-                auto ray = worldRenderService.getCamera().screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
-                auto intersect = simulation.intersectLineWithTerrain(ray.toLine());
+            auto topLeftWorld = simulation.terrain.heightmapIndexToWorldCorner(hoverBuildInfo->rect.x, hoverBuildInfo->rect.y);
+            topLeftWorld.y = simulation.terrain.getHeightAt(
+                topLeftWorld.x + ((hoverBuildInfo->rect.width * MapTerrain::HeightTileWidthInWorldUnits) / 2.0f),
+                topLeftWorld.z + ((hoverBuildInfo->rect.height * MapTerrain::HeightTileHeightInWorldUnits) / 2.0f));
 
-                if (intersect)
-                {
-                    auto footprint = unitFactory.getUnitFootprint(buildCursor->unitType);
-                    auto buildPos = snapToBuildPosition(buildCursor->unitType, *intersect);
-                    Vector3f topLeftWorld(
-                        buildPos.x - ((footprint.x * MapTerrain::HeightTileWidthInWorldUnits) / 2.0f),
-                        buildPos.y,
-                        buildPos.z - ((footprint.y * MapTerrain::HeightTileHeightInWorldUnits) / 2.0f));
-
-                    // Figure out color for the box.
-                    // Green if the position is valid, red otherwise.
-                    // This all kind of sucks right now, lots of logic is redundant
-                    // with snapToBuildPosition
-                    Color color;
-                    {
-                        auto mc = unitFactory.getAdHocMovementClass(buildCursor->unitType);
-                        const auto& unitType = buildCursor->unitType;
-                        const auto& pos = *intersect;
-                        auto footprint = unitFactory.getUnitFootprint(unitType);
-                        auto footprintRect = computeFootprintRegion(pos, footprint.x, footprint.y);
-                        color = simulation.canBeBuiltAt(mc, footprintRect.x, footprintRect.y) ? Color(0, 255, 0) : Color(255, 0, 0);
-                    }
-
-                    auto topLeftUi = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
-                        * worldRenderService.getCamera().getViewProjectionMatrix()
-                        * topLeftWorld;
-                    worldUiRenderService.drawBoxOutline(
-                        topLeftUi.x,
-                        topLeftUi.y,
-                        footprint.x * MapTerrain::HeightTileWidthInWorldUnits,
-                        footprint.y * MapTerrain::HeightTileHeightInWorldUnits,
-                        color);
-                }
-            }
+            auto topLeftUi = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
+                             * worldRenderService.getCamera().getViewProjectionMatrix()
+                             * topLeftWorld;
+            worldUiRenderService.drawBoxOutline(
+                topLeftUi.x,
+                topLeftUi.y,
+                hoverBuildInfo->rect.width * MapTerrain::HeightTileWidthInWorldUnits,
+                hoverBuildInfo->rect.height * MapTerrain::HeightTileHeightInWorldUnits,
+                color);
         }
 
         if (cursorTerrainDotVisible)
@@ -479,18 +455,34 @@ namespace rwe
             {
                 if (selectedUnit)
                 {
-                    auto coord = getMouseTerrainCoordinate();
-                    if (coord)
+                    if (hoverBuildInfo)
                     {
-                        auto buildPos = snapToBuildPosition(buildCursor->unitType, *coord);
-                        if (isShiftDown())
+                        if (hoverBuildInfo->isValid)
                         {
-                            localPlayerEnqueueUnitOrder(*selectedUnit, BuildOrder(buildCursor->unitType, buildPos));
+                            auto topLeftWorld = simulation.terrain.heightmapIndexToWorldCorner(hoverBuildInfo->rect.x,
+                                                                                               hoverBuildInfo->rect.y);
+                            auto x = topLeftWorld.x +
+                                     ((hoverBuildInfo->rect.width * MapTerrain::HeightTileWidthInWorldUnits) / 2.0f);
+                            auto z = topLeftWorld.z +
+                                     ((hoverBuildInfo->rect.height * MapTerrain::HeightTileHeightInWorldUnits) / 2.0f);
+                            auto y = simulation.terrain.getHeightAt(x, z);
+                            Vector3f buildPos(x, y, z);
+                            if (isShiftDown())
+                            {
+                                localPlayerEnqueueUnitOrder(*selectedUnit, BuildOrder(buildCursor->unitType, buildPos));
+                            }
+                            else
+                            {
+                                localPlayerIssueUnitOrder(*selectedUnit, BuildOrder(buildCursor->unitType, buildPos));
+                                cursorMode.next(NormalCursorMode());
+                            }
                         }
                         else
                         {
-                            localPlayerIssueUnitOrder(*selectedUnit, BuildOrder(buildCursor->unitType, buildPos));
-                            cursorMode.next(NormalCursorMode());
+                            if (sounds.notOkToBuild)
+                            {
+                                playSoundOnSelectChannel(*sounds.notOkToBuild);
+                            }
                         }
                     }
                 }
@@ -661,6 +653,31 @@ namespace rwe
         }
 
         hoveredUnit = getUnitUnderCursor();
+
+        if (auto buildCursor = boost::get<BuildCursorMode>(&cursorMode.getValue()); buildCursor != nullptr && isCursorOverWorld())
+        {
+            auto ray = worldRenderService.getCamera().screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
+            auto intersect = simulation.intersectLineWithTerrain(ray.toLine());
+
+            if (intersect)
+            {
+                auto mc = unitFactory.getAdHocMovementClass(buildCursor->unitType);
+                const auto& unitType = buildCursor->unitType;
+                const auto& pos = *intersect;
+                auto footprint = unitFactory.getUnitFootprint(unitType);
+                auto footprintRect = computeFootprintRegion(pos, footprint.x, footprint.y);
+                auto isValid = simulation.canBeBuiltAt(mc, footprintRect.x, footprintRect.y);
+                hoverBuildInfo = HoverBuildInfo{footprintRect, isValid};
+            }
+            else
+            {
+                hoverBuildInfo = std::nullopt;
+            }
+        }
+        else
+        {
+            hoverBuildInfo = std::nullopt;
+        }
 
         if (!isCursorOverMinimap() && !isCursorOverWorld())
         {
@@ -1844,17 +1861,5 @@ namespace rwe
     void GameScene::setNextPanel(std::unique_ptr<UiPanel>&& panel)
     {
         nextPanel = std::move(panel);
-    }
-
-    Vector3f GameScene::snapToBuildPosition(const std::string& unitType, const rwe::Vector3f& pos) const
-    {
-        auto footprint = unitFactory.getUnitFootprint(unitType);
-        auto footprintRect = computeFootprintRegion(pos, footprint.x, footprint.y);
-        auto topLeftWorld = simulation.terrain.heightmapIndexToWorldCorner(footprintRect.x, footprintRect.y);
-
-        auto x = topLeftWorld.x + (footprintRect.width * MapTerrain::HeightTileWidthInWorldUnits) / 2.0f;
-        auto z = topLeftWorld.z + (footprintRect.height * MapTerrain::HeightTileHeightInWorldUnits) / 2.0f;
-        auto y = simulation.terrain.getHeightAt(x, z);
-        return Vector3f(x, y, z);
     }
 }
