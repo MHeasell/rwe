@@ -117,13 +117,15 @@ namespace rwe
 
     void GameScene::render(GraphicsContext& context)
     {
+        const auto& localSideData = sceneContext.sideData->at(getPlayer(localPlayerId).side);
+
         context.setViewport(0, 0, sceneContext.viewportService->width(), sceneContext.viewportService->height());
         context.disableDepthBuffer();
 
         renderMinimap(context);
 
         // render top bar
-        const auto& intGafName = sceneContext.sideData->at(getPlayer(localPlayerId).side).intGaf;
+        const auto& intGafName = localSideData.intGaf;
         auto topPanelBackground = sceneContext.textureService->tryGetGafEntry("anims/" + intGafName + ".GAF", "PANELTOP");
         auto bottomPanelBackground = sceneContext.textureService->tryGetGafEntry("anims/" + intGafName + ".GAF", "PANELBOT");
         float topXBuffer = GuiSizeLeft;
@@ -147,8 +149,24 @@ namespace rwe
         if (logos)
         {
             auto playerColorIndex = getPlayer(localPlayerId).color;
-            const auto& rect = sceneContext.sideData->at(getPlayer(localPlayerId).side).logo;
+            const auto& rect = localSideData.logo;
             chromeUiRenderService.drawSpriteAbs(rect.x1, rect.y1, rect.width(), rect.height(), *(*logos)->sprites.at(playerColorIndex));
+        }
+
+        // draw energy bar
+        {
+            const auto& rect = localSideData.energyBar;
+            const auto& colorIndex = localSideData.energyColor;
+            const auto& color = sceneContext.palette->at(colorIndex);
+            chromeUiRenderService.fillColor(rect.x1, rect.y1, rect.width(), rect.height(), color);
+        }
+
+        // draw metal bar
+        {
+            const auto& rect = localSideData.metalBar;
+            const auto& colorIndex = localSideData.metalColor;
+            const auto& color = sceneContext.palette->at(colorIndex);
+            chromeUiRenderService.fillColor(rect.x1, rect.y1, rect.width(), rect.height(), color);
         }
 
         // render bottom bar
