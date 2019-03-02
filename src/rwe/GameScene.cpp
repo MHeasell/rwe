@@ -130,6 +130,14 @@ namespace rwe
 
         renderMinimap(context);
 
+        // render top bar
+        auto logos = sceneContext.textureService->tryGetGafEntry("textures/LOGOS.GAF", "32xlogos");
+        if (logos)
+        {
+            auto playerColorIndex = getPlayer(localPlayerId).color;
+            chromeUiRenderService.drawSpriteAbs(GuiSizeLeft + 4.0f, 5.0f, 20.0f, 20.0f, *(*logos)->sprites.at(playerColorIndex));
+        }
+
         currentPanel->render(chromeUiRenderService);
 
         sceneContext.cursor->render(chromeUiRenderService);
