@@ -37,6 +37,11 @@ namespace rwe
 
         unsigned int height() const;
 
+        int top() const { return _y; }
+        int bottom() const { return _y + static_cast<int>(_height); }
+        int left() const { return _x; }
+        int right() const { return _x + static_cast<int>(_width); }
+
         bool contains(int x, int y) const;
         bool contains(const Point& p) const;
     };

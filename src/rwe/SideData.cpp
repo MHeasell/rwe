@@ -5,6 +5,10 @@ namespace rwe
     SideDataRect::SideDataRect(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2)
         : x1(x1), y1(y1), x2(x2), y2(y2)
     {
+        if (x1 > x2 || y1 > y2)
+        {
+            throw std::runtime_error("SideDataRect initialized with invalid bounds");
+        }
     }
 
     bool SideDataRect::operator==(const SideDataRect& rhs) const
@@ -15,6 +19,16 @@ namespace rwe
     bool SideDataRect::operator!=(const SideDataRect& rhs) const
     {
         return !(rhs == *this);
+    }
+
+    unsigned int SideDataRect::width() const
+    {
+        return x2 - x1;
+    }
+
+    unsigned int SideDataRect::height() const
+    {
+        return y2 - y1;
     }
 
     SideDataRect parseSideDataRect(const TdfBlock& t)

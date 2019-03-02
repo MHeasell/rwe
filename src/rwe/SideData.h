@@ -19,6 +19,9 @@ namespace rwe
         bool operator==(const SideDataRect& rhs) const;
 
         bool operator!=(const SideDataRect& rhs) const;
+
+        unsigned int width() const;
+        unsigned int height() const;
     };
 
     struct SideData

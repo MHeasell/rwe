@@ -117,6 +117,55 @@ namespace rwe
 
     void GameScene::render(GraphicsContext& context)
     {
+        context.setViewport(0, 0, sceneContext.viewportService->width(), sceneContext.viewportService->height());
+        context.disableDepthBuffer();
+
+        renderMinimap(context);
+
+        // render top bar
+        const auto& intGafName = sceneContext.sideData->at(getPlayer(localPlayerId).side).intGaf;
+        auto topPanelBackground = sceneContext.textureService->tryGetGafEntry("anims/" + intGafName + ".GAF", "PANELTOP");
+        auto bottomPanelBackground = sceneContext.textureService->tryGetGafEntry("anims/" + intGafName + ".GAF", "PANELBOT");
+        float topXBuffer = GuiSizeLeft;
+        if (topPanelBackground)
+        {
+            const auto& sprite = *(*topPanelBackground)->sprites.at(0);
+            chromeUiRenderService.drawSpriteAbs(topXBuffer, 0, sprite);
+            topXBuffer += sprite.bounds.width();
+        }
+        if (bottomPanelBackground)
+        {
+            while (topXBuffer < sceneContext.viewportService->width())
+            {
+                const auto& sprite = *(*bottomPanelBackground)->sprites.at(0);
+                chromeUiRenderService.drawSpriteAbs(topXBuffer, 0.0f, sprite);
+                topXBuffer += sprite.bounds.width();
+            }
+        }
+
+        auto logos = sceneContext.textureService->tryGetGafEntry("textures/LOGOS.GAF", "32xlogos");
+        if (logos)
+        {
+            auto playerColorIndex = getPlayer(localPlayerId).color;
+            const auto& rect = sceneContext.sideData->at(getPlayer(localPlayerId).side).logo;
+            chromeUiRenderService.drawSpriteAbs(rect.x1, rect.y1, rect.width(), rect.height(), *(*logos)->sprites.at(playerColorIndex));
+        }
+
+        // render bottom bar
+        float bottomXBuffer = GuiSizeLeft;
+        if (bottomPanelBackground)
+        {
+            while (bottomXBuffer < sceneContext.viewportService->width())
+            {
+                const auto& sprite = *(*bottomPanelBackground)->sprites.at(0);
+                chromeUiRenderService.drawSpriteAbs(bottomXBuffer, worldViewport.bottom(), sprite);
+                bottomXBuffer += sprite.bounds.width();
+            }
+        }
+
+        currentPanel->render(chromeUiRenderService);
+        context.enableDepthBuffer();
+
         auto viewportPos = worldViewport.toOtherViewport(*sceneContext.viewportService, 0, worldViewport.height());
         context.setViewport(
             viewportPos.x,
@@ -127,19 +176,6 @@ namespace rwe
 
         context.setViewport(0, 0, sceneContext.viewportService->width(), sceneContext.viewportService->height());
         context.disableDepthBuffer();
-
-        renderMinimap(context);
-
-        // render top bar
-        auto logos = sceneContext.textureService->tryGetGafEntry("textures/LOGOS.GAF", "32xlogos");
-        if (logos)
-        {
-            auto playerColorIndex = getPlayer(localPlayerId).color;
-            chromeUiRenderService.drawSpriteAbs(GuiSizeLeft + 4.0f, 5.0f, 20.0f, 20.0f, *(*logos)->sprites.at(playerColorIndex));
-        }
-
-        currentPanel->render(chromeUiRenderService);
-
         sceneContext.cursor->render(chromeUiRenderService);
         context.enableDepthBuffer();
     }
