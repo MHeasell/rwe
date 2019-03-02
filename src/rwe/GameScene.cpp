@@ -149,24 +149,24 @@ namespace rwe
         if (logos)
         {
             auto playerColorIndex = getPlayer(localPlayerId).color;
-            const auto& rect = localSideData.logo;
-            chromeUiRenderService.drawSpriteAbs(rect.x1, rect.y1, rect.width(), rect.height(), *(*logos)->sprites.at(playerColorIndex));
+            const auto& rect = localSideData.logo.toDiscreteRect();
+            chromeUiRenderService.drawSpriteAbs(rect.x, rect.y, rect.width, rect.height, *(*logos)->sprites.at(playerColorIndex));
         }
 
         // draw energy bar
         {
-            const auto& rect = localSideData.energyBar;
+            const auto& rect = localSideData.energyBar.toDiscreteRect();
             const auto& colorIndex = localSideData.energyColor;
             const auto& color = sceneContext.palette->at(colorIndex);
-            chromeUiRenderService.fillColor(rect.x1, rect.y1, rect.width(), rect.height(), color);
+            chromeUiRenderService.fillColor(rect.x, rect.y, rect.width, rect.height, color);
         }
 
         // draw metal bar
         {
-            const auto& rect = localSideData.metalBar;
+            const auto& rect = localSideData.metalBar.toDiscreteRect();
             const auto& colorIndex = localSideData.metalColor;
             const auto& color = sceneContext.palette->at(colorIndex);
-            chromeUiRenderService.fillColor(rect.x1, rect.y1, rect.width(), rect.height(), color);
+            chromeUiRenderService.fillColor(rect.x, rect.y, rect.width, rect.height, color);
         }
 
         // render bottom bar

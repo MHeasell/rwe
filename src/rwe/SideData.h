@@ -3,6 +3,7 @@
 
 #include <rwe/tdf/TdfBlock.h>
 #include <string>
+#include "DiscreteRect.h"
 
 namespace rwe
 {
@@ -20,8 +21,7 @@ namespace rwe
 
         bool operator!=(const SideDataRect& rhs) const;
 
-        unsigned int width() const;
-        unsigned int height() const;
+        DiscreteRect toDiscreteRect() const;
     };
 
     struct SideData

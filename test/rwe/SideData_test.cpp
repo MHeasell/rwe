@@ -166,4 +166,16 @@ namespace rwe
             REQUIRE(s.reload3 == SideDataRect(132, 470, 148, 478));
         }
     }
+
+    TEST_CASE("SideDataRect")
+    {
+        SECTION(".toDiscreteRect")
+        {
+            SECTION("converts to a DiscreteRect")
+            {
+                REQUIRE(SideDataRect(1, 2, 3, 4).toDiscreteRect() == DiscreteRect(1, 2, 2, 2));
+                REQUIRE(SideDataRect(3, 4, 1, 2).toDiscreteRect() == DiscreteRect(1, 2, 2, 2));
+            }
+        }
+    }
 }
