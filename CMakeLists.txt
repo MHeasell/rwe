@@ -222,6 +222,8 @@ set(SOURCE_FILES
     src/rwe/FeatureDefinition.cpp
     src/rwe/FeatureDefinition.h
     src/rwe/FeatureId.h
+    src/rwe/Fnt.cpp
+    src/rwe/Fnt.h
     src/rwe/Gaf.cpp
     src/rwe/Gaf.h
     src/rwe/GameNetworkService.cpp
@@ -608,6 +610,15 @@ target_link_libraries(3do_test librwe)
 
 add_executable(cob_test src/cob_test.cpp)
 target_link_libraries(cob_test librwe)
+
+add_executable(fnt_test src/fnt_test.cpp)
+target_link_libraries(fnt_test librwe)
+target_link_libraries(fnt_test ${PNG_LIBRARIES})
+target_include_directories(fnt_test PUBLIC ${PNG_INCLUDE_DIRS})
+target_include_directories(fnt_test PUBLIC libs/png++-0.2.9)
+if(WIN32)
+    target_compile_definitions(fnt_test PRIVATE __STDC_LIB_EXT1__=1)
+endif()
 
 add_executable(texture_test src/texture_test.cpp)
 target_link_libraries(texture_test librwe)
