@@ -340,8 +340,8 @@ namespace rwe
                 topLeftWorld.z + ((hoverBuildInfo->rect.height * MapTerrain::HeightTileHeightInWorldUnits) / 2.0f));
 
             auto topLeftUi = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
-                             * worldRenderService.getCamera().getViewProjectionMatrix()
-                             * topLeftWorld;
+                * worldRenderService.getCamera().getViewProjectionMatrix()
+                * topLeftWorld;
             worldUiRenderService.drawBoxOutline(
                 topLeftUi.x,
                 topLeftUi.y,
@@ -522,11 +522,9 @@ namespace rwe
                         if (hoverBuildInfo->isValid)
                         {
                             auto topLeftWorld = simulation.terrain.heightmapIndexToWorldCorner(hoverBuildInfo->rect.x,
-                                                                                               hoverBuildInfo->rect.y);
-                            auto x = topLeftWorld.x +
-                                     ((hoverBuildInfo->rect.width * MapTerrain::HeightTileWidthInWorldUnits) / 2.0f);
-                            auto z = topLeftWorld.z +
-                                     ((hoverBuildInfo->rect.height * MapTerrain::HeightTileHeightInWorldUnits) / 2.0f);
+                                hoverBuildInfo->rect.y);
+                            auto x = topLeftWorld.x + ((hoverBuildInfo->rect.width * MapTerrain::HeightTileWidthInWorldUnits) / 2.0f);
+                            auto z = topLeftWorld.z + ((hoverBuildInfo->rect.height * MapTerrain::HeightTileHeightInWorldUnits) / 2.0f);
                             auto y = simulation.terrain.getHeightAt(x, z);
                             Vector3f buildPos(x, y, z);
                             if (isShiftDown())

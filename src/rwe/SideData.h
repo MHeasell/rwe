@@ -1,9 +1,9 @@
 #ifndef RWE_SIDEDATA_H
 #define RWE_SIDEDATA_H
 
+#include <rwe/DiscreteRect.h>
 #include <rwe/tdf/TdfBlock.h>
 #include <string>
-#include "DiscreteRect.h"
 
 namespace rwe
 {
