@@ -212,6 +212,8 @@ namespace rwe
         sounds.okToBuild = lookUpSound("OKTOBUILD");
         sounds.notOkToBuild = lookUpSound("NOTOKTOBUILD");
 
+        auto consoleFont = sceneContext.textureService->getFont("fonts/CONSOLE.FNT");
+
         auto gameScene = std::make_unique<GameScene>(
             sceneContext,
             std::move(playerCommandService),
@@ -227,6 +229,7 @@ namespace rwe
             minimapDots,
             minimapDotHighlight,
             std::move(sounds),
+            consoleFont,
             *localPlayerId,
             audioLookup);
 

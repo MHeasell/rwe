@@ -1,4 +1,5 @@
 #include "TextureService.h"
+#include "Fnt.h"
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include <rwe/Gaf.h>
 #include <rwe/pcx.h>
@@ -263,6 +264,53 @@ namespace rwe
     std::shared_ptr<Sprite> TextureService::getDefaultSprite()
     {
         return defaultSpriteSeries->sprites[0];
+    }
+
+    std::shared_ptr<SpriteSeries> TextureService::getFont(const std::string& fontName)
+    {
+        auto fntBytes = fileSystem->readFile(fontName);
+        if (!fntBytes)
+        {
+            throw std::runtime_error("font not found!");
+        }
+
+        boost::interprocess::bufferstream fntStream(fntBytes->data(), fntBytes->size());
+        FntArchive fnt(&fntStream);
+
+        auto series = std::make_shared<SpriteSeries>();
+
+        for (unsigned int i = 0; i < 256; ++i)
+        {
+            std::vector<char> glyphBits(512);
+            auto bytesRead = fnt.extract(i, glyphBits.data());
+
+            auto width = bytesRead / 2;
+
+            std::vector<Color> rgbGlyph;
+            rgbGlyph.reserve(bytesRead * 8);
+            for (unsigned int j = 0; j < bytesRead; ++j)
+            {
+                auto byte = static_cast<unsigned char>(glyphBits[j]);
+                for (unsigned int k = 0; k < 8; ++k)
+                {
+                    rgbGlyph.push_back(byte & (128u >> k) ? Color(255, 255, 255) : Color(0, 0, 0));
+                }
+            }
+
+            // read data might have been ragged at the end,
+            // the last font in the file is often missing the last byte or two.
+            rgbGlyph.resize(width * fnt.glyphHeight());
+
+            SharedTextureHandle texture(graphics->createTexture(width, fnt.glyphHeight(), rgbGlyph));
+            auto sprite = std::make_shared<Sprite>(graphics->createSprite(
+                Rectangle2f::fromTopLeft(0.0f, 0.0f, width, fnt.glyphHeight()),
+                Rectangle2f::fromTopLeft(0.0f, 0.0f, 1.0f, 1.0f),
+                texture));
+
+            series->sprites.push_back(sprite);
+        }
+
+        return series;
     }
 
     TextureService::TextureInfo::TextureInfo(unsigned int width, unsigned int height, const SharedTextureHandle& handle)

@@ -47,6 +47,7 @@ namespace rwe
         std::shared_ptr<SpriteSeries> getDefaultSpriteSeries();
         std::shared_ptr<Sprite> getDefaultSprite();
         std::shared_ptr<Sprite> getMinimap(const std::string& mapName);
+        std::shared_ptr<SpriteSeries> getFont(const std::string& fontName);
 
     private:
         std::optional<std::shared_ptr<SpriteSeries>> getGafEntryInternal(const std::string& gafName, const std::string& entryName);
