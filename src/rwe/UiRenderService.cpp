@@ -107,6 +107,12 @@ namespace rwe
         drawText(std::round(x - halfWidth), std::round(y + halfHeight), text, font);
     }
 
+    void UiRenderService::drawTextAlignRight(float x, float y, const std::string& text, const SpriteSeries& font)
+    {
+        auto width = getTextWidth(text, font);
+        drawText(x - width, y, text, font);
+    }
+
     void UiRenderService::drawTextWrapped(Rectangle2f area, const std::string& text, const SpriteSeries& font)
     {
         float x = 0.0f;

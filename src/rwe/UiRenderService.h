@@ -39,6 +39,8 @@ namespace rwe
 
         void drawTextCentered(float x, float y, const std::string& text, const SpriteSeries& font);
 
+        void drawTextAlignRight(float x, float y, const std::string& text, const SpriteSeries& font);
+
         float getTextWidth(const std::string& text, const SpriteSeries& font);
 
         void pushMatrix();

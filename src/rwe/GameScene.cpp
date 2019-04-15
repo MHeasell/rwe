@@ -168,7 +168,7 @@ namespace rwe
         }
         {
             const auto& rect = localSideData.energyMax.toDiscreteRect();
-            chromeUiRenderService.drawText(rect.x, rect.y, "1000", *consoleFont);
+            chromeUiRenderService.drawTextAlignRight(rect.x, rect.y, "1000", *consoleFont);
         }
         {
             const auto& rect = localSideData.energyNum.toDiscreteRect();
@@ -196,7 +196,7 @@ namespace rwe
         }
         {
             const auto& rect = localSideData.metalMax.toDiscreteRect();
-            chromeUiRenderService.drawText(rect.x, rect.y, "1000", *consoleFont);
+            chromeUiRenderService.drawTextAlignRight(rect.x, rect.y, "1000", *consoleFont);
         }
         {
             const auto& rect = localSideData.metalNum.toDiscreteRect();
