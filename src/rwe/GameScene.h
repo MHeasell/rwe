@@ -269,7 +269,7 @@ namespace rwe
 
         InGameSoundsInfo sounds;
 
-        std::shared_ptr<SpriteSeries> consoleFont;
+        std::shared_ptr<SpriteSeries> guiFont;
 
         PlayerId localPlayerId;
 
@@ -325,7 +325,7 @@ namespace rwe
             const std::shared_ptr<SpriteSeries>& minimapDots,
             const std::shared_ptr<Sprite>& minimapDotHighlight,
             InGameSoundsInfo sounds,
-            const std::shared_ptr<SpriteSeries>& consoleFont,
+            const std::shared_ptr<SpriteSeries>& guiFont,
             PlayerId localPlayerId,
             TdfBlock* audioLookup);
 

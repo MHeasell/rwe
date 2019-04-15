@@ -80,7 +80,7 @@ namespace rwe
         const std::shared_ptr<SpriteSeries>& minimapDots,
         const std::shared_ptr<Sprite>& minimapDotHighlight,
         InGameSoundsInfo sounds,
-        const std::shared_ptr<SpriteSeries>& consoleFont,
+        const std::shared_ptr<SpriteSeries>& guiFont,
         PlayerId localPlayerId,
         TdfBlock* audioLookup)
         : sceneContext(sceneContext),
@@ -101,7 +101,7 @@ namespace rwe
           minimapDotHighlight(minimapDotHighlight),
           minimapRect(minimapViewport.scaleToFit(this->minimap->bounds)),
           sounds(std::move(sounds)),
-          consoleFont(consoleFont),
+          guiFont(guiFont),
           localPlayerId(localPlayerId),
           audioLookup(audioLookup),
           uiFactory(sceneContext.textureService, sceneContext.audioService, audioLookup, sceneContext.vfs, sceneContext.viewportService->width(), sceneContext.viewportService->height())
@@ -164,23 +164,23 @@ namespace rwe
         }
         {
             const auto& rect = localSideData.energy0.toDiscreteRect();
-            chromeUiRenderService.drawText(rect.x, rect.y, "0", *consoleFont);
+            chromeUiRenderService.drawText(rect.x, rect.y, "0", *guiFont);
         }
         {
             const auto& rect = localSideData.energyMax.toDiscreteRect();
-            chromeUiRenderService.drawTextAlignRight(rect.x, rect.y, "1000", *consoleFont);
+            chromeUiRenderService.drawTextAlignRight(rect.x, rect.y, "1000", *guiFont);
         }
         {
             const auto& rect = localSideData.energyNum.toDiscreteRect();
-            chromeUiRenderService.drawText(rect.x, rect.y, "1000", *consoleFont);
+            chromeUiRenderService.drawText(rect.x, rect.y, "1000", *guiFont);
         }
         {
             const auto& rect = localSideData.energyProduced.toDiscreteRect();
-            chromeUiRenderService.drawText(rect.x, rect.y, "25", *consoleFont, Color(83, 223, 79));
+            chromeUiRenderService.drawText(rect.x, rect.y, "25", *guiFont, Color(83, 223, 79));
         }
         {
             const auto& rect = localSideData.energyConsumed.toDiscreteRect();
-            chromeUiRenderService.drawText(rect.x, rect.y, "3", *consoleFont, Color(255, 71, 0));
+            chromeUiRenderService.drawText(rect.x, rect.y, "3", *guiFont, Color(255, 71, 0));
         }
 
         // draw metal bar
@@ -192,23 +192,23 @@ namespace rwe
         }
         {
             const auto& rect = localSideData.metal0.toDiscreteRect();
-            chromeUiRenderService.drawText(rect.x, rect.y, "0", *consoleFont);
+            chromeUiRenderService.drawText(rect.x, rect.y, "0", *guiFont);
         }
         {
             const auto& rect = localSideData.metalMax.toDiscreteRect();
-            chromeUiRenderService.drawTextAlignRight(rect.x, rect.y, "1000", *consoleFont);
+            chromeUiRenderService.drawTextAlignRight(rect.x, rect.y, "1000", *guiFont);
         }
         {
             const auto& rect = localSideData.metalNum.toDiscreteRect();
-            chromeUiRenderService.drawText(rect.x, rect.y, "1000", *consoleFont);
+            chromeUiRenderService.drawText(rect.x, rect.y, "1000", *guiFont);
         }
         {
             const auto& rect = localSideData.metalProduced.toDiscreteRect();
-            chromeUiRenderService.drawText(rect.x, rect.y, "1.0", *consoleFont, Color(83, 223, 79));
+            chromeUiRenderService.drawText(rect.x, rect.y, "1.0", *guiFont, Color(83, 223, 79));
         }
         {
             const auto& rect = localSideData.metalConsumed.toDiscreteRect();
-            chromeUiRenderService.drawText(rect.x, rect.y, "0.0", *consoleFont, Color(255, 71, 0));
+            chromeUiRenderService.drawText(rect.x, rect.y, "0.0", *guiFont, Color(255, 71, 0));
         }
 
         // render bottom bar
