@@ -293,7 +293,7 @@ namespace rwe
                 auto byte = static_cast<unsigned char>(glyphBits[j]);
                 for (unsigned int k = 0; k < 8; ++k)
                 {
-                    rgbGlyph.push_back(byte & (128u >> k) ? Color(255, 255, 255) : Color(0, 0, 0));
+                    rgbGlyph.push_back(byte & (128u >> k) ? Color(255, 255, 255) : Color(0, 0, 0, 0));
                 }
             }
 
