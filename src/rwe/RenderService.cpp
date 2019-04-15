@@ -520,7 +520,7 @@ namespace rwe
             const auto& shader = shaders->basicTexture;
             graphics->bindTexture(sprite.mesh.texture.get());
             graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * modelMatrix);
-            graphics->setUniformFloat(shader.alpha, alpha);
+            graphics->setUniformVec4(shader.tint, 1.0f, 1.0f, 1.0f, alpha);
             graphics->drawTriangles(sprite.mesh.mesh);
         }
     }
@@ -547,7 +547,7 @@ namespace rwe
         const auto& shader = shaders->basicTexture;
         graphics->bindTexture(sprite.mesh.texture.get());
         graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * modelMatrix);
-        graphics->setUniformFloat(shader.alpha, alpha);
+        graphics->setUniformVec4(shader.tint, 1.0f, 1.0f, 1.0f, alpha);
         graphics->drawTriangles(sprite.mesh.mesh);
     }
 
@@ -572,7 +572,7 @@ namespace rwe
         const auto& shader = shaders->basicTexture;
         graphics->bindTexture(sprite.mesh.texture.get());
         graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * modelMatrix);
-        graphics->setUniformFloat(shader.alpha, alpha);
+        graphics->setUniformVec4(shader.tint, 1.0f, 1.0f, 1.0f, alpha);
         graphics->drawTriangles(sprite.mesh.mesh);
     }
 

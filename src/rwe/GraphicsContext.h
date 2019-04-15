@@ -168,6 +168,7 @@ namespace rwe
         UniformLocation getUniformLocation(ShaderProgramIdentifier shader, const std::string& name);
 
         void setUniformFloat(UniformLocation location, float value);
+        void setUniformVec4(UniformLocation location, float a, float b, float c, float d);
         void setUniformMatrix(UniformLocation location, const Matrix4f& matrix);
         void setUniformBool(UniformLocation location, bool value);
 

@@ -176,11 +176,11 @@ namespace rwe
         }
         {
             const auto& rect = localSideData.energyProduced.toDiscreteRect();
-            chromeUiRenderService.drawText(rect.x, rect.y, "25", *consoleFont);
+            chromeUiRenderService.drawText(rect.x, rect.y, "25", *consoleFont, Color(83, 223, 79));
         }
         {
             const auto& rect = localSideData.energyConsumed.toDiscreteRect();
-            chromeUiRenderService.drawText(rect.x, rect.y, "3", *consoleFont);
+            chromeUiRenderService.drawText(rect.x, rect.y, "3", *consoleFont, Color(255, 71, 0));
         }
 
         // draw metal bar
@@ -204,11 +204,11 @@ namespace rwe
         }
         {
             const auto& rect = localSideData.metalProduced.toDiscreteRect();
-            chromeUiRenderService.drawText(rect.x, rect.y, "1.0", *consoleFont);
+            chromeUiRenderService.drawText(rect.x, rect.y, "1.0", *consoleFont, Color(83, 223, 79));
         }
         {
             const auto& rect = localSideData.metalConsumed.toDiscreteRect();
-            chromeUiRenderService.drawText(rect.x, rect.y, "0.0", *consoleFont);
+            chromeUiRenderService.drawText(rect.x, rect.y, "0.0", *consoleFont, Color(255, 71, 0));
         }
 
         // render bottom bar
