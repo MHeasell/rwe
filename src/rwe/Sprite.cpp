@@ -2,7 +2,7 @@
 
 namespace rwe
 {
-    Sprite::Sprite(const Rectangle2f& bounds, SharedTextureHandle texture, GlMesh&& mesh)
+    Sprite::Sprite(const Rectangle2f& bounds, SharedTextureHandle texture, std::shared_ptr<GlMesh> mesh)
         : bounds(bounds), texture(std::move(texture)), mesh(std::move(mesh))
     {
     }

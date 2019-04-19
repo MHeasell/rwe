@@ -1,6 +1,7 @@
 #ifndef RWE_SPRITE_H
 #define RWE_SPRITE_H
 
+#include <memory>
 #include <rwe/GlMesh.h>
 #include <rwe/TextureHandle.h>
 #include <rwe/geometry/Rectangle2f.h>
@@ -12,9 +13,9 @@ namespace rwe
     {
         Rectangle2f bounds;
         SharedTextureHandle texture;
-        GlMesh mesh;
+        std::shared_ptr<GlMesh> mesh;
 
-        Sprite(const Rectangle2f& bounds, SharedTextureHandle texture, GlMesh&& mesh);
+        Sprite(const Rectangle2f& bounds, SharedTextureHandle texture, std::shared_ptr<GlMesh> mesh);
 
         Matrix4f getTransform() const;
     };

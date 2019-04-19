@@ -521,7 +521,7 @@ namespace rwe
             graphics->bindTexture(sprite.texture.get());
             graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * modelMatrix);
             graphics->setUniformVec4(shader.tint, 1.0f, 1.0f, 1.0f, alpha);
-            graphics->drawTriangles(sprite.mesh);
+            graphics->drawTriangles(*sprite.mesh);
         }
     }
 
@@ -549,7 +549,7 @@ namespace rwe
         graphics->bindTexture(sprite.texture.get());
         graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * modelMatrix);
         graphics->setUniformVec4(shader.tint, 1.0f, 1.0f, 1.0f, alpha);
-        graphics->drawTriangles(sprite.mesh);
+        graphics->drawTriangles(*sprite.mesh);
     }
 
     void RenderService::drawFeatureInternal(const MapFeature& feature)
@@ -574,7 +574,7 @@ namespace rwe
         graphics->bindTexture(sprite.texture.get());
         graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * modelMatrix);
         graphics->setUniformVec4(shader.tint, 1.0f, 1.0f, 1.0f, alpha);
-        graphics->drawTriangles(sprite.mesh);
+        graphics->drawTriangles(*sprite.mesh);
     }
 
     void

@@ -465,7 +465,7 @@ namespace rwe
         const Rectangle2f& textureRegion,
         const SharedTextureHandle& texture)
     {
-        return Sprite(bounds, texture, createUnitTexturedQuad(textureRegion));
+        return Sprite(bounds, texture, std::make_shared<GlMesh>(createUnitTexturedQuad(textureRegion)));
     }
 
     GlMesh GraphicsContext::createUnitTexturedQuad(const Rectangle2f& textureRegion)
