@@ -178,6 +178,8 @@ namespace rwe
 
         Sprite createSprite(const Rectangle2f& bounds, const Rectangle2f& textureRegion, const SharedTextureHandle& texture);
 
+        GlMesh createUnitTexturedQuad(const Rectangle2f& textureRegion);
+
         void setViewport(int x, int y, int width, int height);
 
     private:

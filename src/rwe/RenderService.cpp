@@ -515,7 +515,7 @@ namespace rwe
             // to correct for TA camera distortion.
             Matrix4f conversionMatrix = Matrix4f::scale(Vector3f(1.0f, -2.0f, 1.0f));
 
-            auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix;
+            auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix * sprite.getTransform();
 
             const auto& shader = shaders->basicTexture;
             graphics->bindTexture(sprite.mesh.texture.get());
@@ -542,7 +542,8 @@ namespace rwe
         // Convert to a world-space flat position.
         auto modelMatrix = Matrix4f::translation(snappedPosition)
             * Matrix4f::rotationX(-Pif / 2.0f)
-            * Matrix4f::scale(Vector3f(1.0f, -1.0f, 1.0f));
+            * Matrix4f::scale(Vector3f(1.0f, -1.0f, 1.0f))
+            * sprite.getTransform();
 
         const auto& shader = shaders->basicTexture;
         graphics->bindTexture(sprite.mesh.texture.get());
@@ -567,7 +568,7 @@ namespace rwe
             ? Matrix4f::scale(Vector3f(1.0f, -2.0f, 1.0f))
             : Matrix4f::rotationX(-Pif / 2.0f) * Matrix4f::scale(Vector3f(1.0f, -1.0f, 1.0f));
 
-        auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix;
+        auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix * sprite.getTransform();
 
         const auto& shader = shaders->basicTexture;
         graphics->bindTexture(sprite.mesh.texture.get());

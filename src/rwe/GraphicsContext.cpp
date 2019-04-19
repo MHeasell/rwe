@@ -465,20 +465,24 @@ namespace rwe
         const Rectangle2f& textureRegion,
         const SharedTextureHandle& texture)
     {
-        std::vector<GlTexturedVertex> vertices{
-            {{bounds.left(), bounds.top(), 0.0f}, {textureRegion.left(), textureRegion.top()}},
-            {{bounds.left(), bounds.bottom(), 0.0f}, {textureRegion.left(), textureRegion.bottom()}},
-            {{bounds.right(), bounds.bottom(), 0.0f}, {textureRegion.right(), textureRegion.bottom()}},
+        return Sprite(bounds, GlTexturedMesh(texture, createUnitTexturedQuad(textureRegion)));
+    }
 
-            {{bounds.right(), bounds.bottom(), 0.0f}, {textureRegion.right(), textureRegion.bottom()}},
-            {{bounds.right(), bounds.top(), 0.0f}, {textureRegion.right(), textureRegion.top()}},
-            {{bounds.left(), bounds.top(), 0.0f}, {textureRegion.left(), textureRegion.top()}},
+    GlMesh GraphicsContext::createUnitTexturedQuad(const Rectangle2f& textureRegion)
+    {
+        std::vector<GlTexturedVertex> vertices{
+            // clang-format off
+            {{-1.0f, -1.0f, 0.0f}, {textureRegion.left(), textureRegion.top()}},
+            {{-1.0f,  1.0f, 0.0f}, {textureRegion.left(), textureRegion.bottom()}},
+            {{ 1.0f,  1.0f, 0.0f}, {textureRegion.right(), textureRegion.bottom()}},
+
+            {{ 1.0f,  1.0, 0.0f}, {textureRegion.right(), textureRegion.bottom()}},
+            {{ 1.0f, -1.0f, 0.0f}, {textureRegion.right(), textureRegion.top()}},
+            {{-1.0f, -1.0f, 0.0f}, {textureRegion.left(), textureRegion.top()}},
+            // clang-format on
         };
 
-        auto mesh = createTexturedMesh(vertices, GL_STATIC_DRAW);
-        GlTexturedMesh texturedMesh(texture, std::move(mesh));
-
-        return Sprite(bounds, std::move(texturedMesh));
+        return createTexturedMesh(vertices, GL_STATIC_DRAW);
     }
 
     void GraphicsContext::enableStencilBuffer()

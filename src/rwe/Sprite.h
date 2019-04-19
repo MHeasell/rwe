@@ -3,6 +3,7 @@
 
 #include <rwe/GlTexturedMesh.h>
 #include <rwe/geometry/Rectangle2f.h>
+#include <rwe/math/Matrix4f.h>
 
 namespace rwe
 {
@@ -12,6 +13,8 @@ namespace rwe
         GlTexturedMesh mesh;
 
         Sprite(const Rectangle2f& bounds, GlTexturedMesh&& mesh);
+
+        Matrix4f getTransform() const;
     };
 }
 
