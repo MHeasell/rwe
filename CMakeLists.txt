@@ -237,8 +237,6 @@ set(SOURCE_FILES
     src/rwe/GlIdentifier.h
     src/rwe/GlMesh.cpp
     src/rwe/GlMesh.h
-    src/rwe/GlTexturedMesh.cpp
-    src/rwe/GlTexturedMesh.h
     src/rwe/GraphicsContext.cpp
     src/rwe/GraphicsContext.h
     src/rwe/Grid.h

@@ -35,9 +35,9 @@ namespace rwe
         graphics->bindShader(shader.handle.get());
         graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * matrix);
         graphics->setUniformVec4(shader.tint, tint.r / 255.0f, tint.g / 255.0f, tint.b / 255.0f, tint.a / 255.0f);
-        graphics->bindTexture(sprite.mesh.texture.get());
+        graphics->bindTexture(sprite.texture.get());
 
-        graphics->drawTriangles(sprite.mesh.mesh);
+        graphics->drawTriangles(sprite.mesh);
     }
 
     void UiRenderService::drawSpriteAbs(float x, float y, const Sprite& sprite)

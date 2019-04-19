@@ -2,7 +2,8 @@
 
 namespace rwe
 {
-    Sprite::Sprite(const Rectangle2f& bounds, GlTexturedMesh&& mesh) : bounds(bounds), mesh(std::move(mesh))
+    Sprite::Sprite(const Rectangle2f& bounds, SharedTextureHandle texture, GlMesh&& mesh)
+        : bounds(bounds), texture(std::move(texture)), mesh(std::move(mesh))
     {
     }
 

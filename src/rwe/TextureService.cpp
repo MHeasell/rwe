@@ -174,7 +174,7 @@ namespace rwe
 
     SharedTextureHandle TextureService::getDefaultTexture()
     {
-        return defaultSpriteSeries->sprites[0]->mesh.texture;
+        return defaultSpriteSeries->sprites[0]->texture;
     }
 
     std::shared_ptr<Sprite> TextureService::getBitmapRegion(const std::string& bitmapName, int x, int y, int width, int height)

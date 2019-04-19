@@ -518,10 +518,10 @@ namespace rwe
             auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix * sprite.getTransform();
 
             const auto& shader = shaders->basicTexture;
-            graphics->bindTexture(sprite.mesh.texture.get());
+            graphics->bindTexture(sprite.texture.get());
             graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * modelMatrix);
             graphics->setUniformVec4(shader.tint, 1.0f, 1.0f, 1.0f, alpha);
-            graphics->drawTriangles(sprite.mesh.mesh);
+            graphics->drawTriangles(sprite.mesh);
         }
     }
 
@@ -546,10 +546,10 @@ namespace rwe
             * sprite.getTransform();
 
         const auto& shader = shaders->basicTexture;
-        graphics->bindTexture(sprite.mesh.texture.get());
+        graphics->bindTexture(sprite.texture.get());
         graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * modelMatrix);
         graphics->setUniformVec4(shader.tint, 1.0f, 1.0f, 1.0f, alpha);
-        graphics->drawTriangles(sprite.mesh.mesh);
+        graphics->drawTriangles(sprite.mesh);
     }
 
     void RenderService::drawFeatureInternal(const MapFeature& feature)
@@ -571,10 +571,10 @@ namespace rwe
         auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix * sprite.getTransform();
 
         const auto& shader = shaders->basicTexture;
-        graphics->bindTexture(sprite.mesh.texture.get());
+        graphics->bindTexture(sprite.texture.get());
         graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * modelMatrix);
         graphics->setUniformVec4(shader.tint, 1.0f, 1.0f, 1.0f, alpha);
-        graphics->drawTriangles(sprite.mesh.mesh);
+        graphics->drawTriangles(sprite.mesh);
     }
 
     void
