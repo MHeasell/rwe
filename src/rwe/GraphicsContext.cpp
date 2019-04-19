@@ -424,6 +424,11 @@ namespace rwe
         glUniform1f(location.value, value);
     }
 
+    void GraphicsContext::setUniformVec4(UniformLocation location, float a, float b, float c, float d)
+    {
+        glUniform4f(location.value, a, b, c, d);
+    }
+
     void GraphicsContext::setUniformMatrix(UniformLocation location, const Matrix4f& matrix)
     {
         glUniformMatrix4fv(location.value, 1, GL_FALSE, matrix.data);

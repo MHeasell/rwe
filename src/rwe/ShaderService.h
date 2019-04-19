@@ -17,7 +17,7 @@ namespace rwe
     {
         ShaderProgramHandle handle;
         UniformLocation mvpMatrix;
-        UniformLocation alpha;
+        UniformLocation tint;
     };
 
     struct UnitTextureShader

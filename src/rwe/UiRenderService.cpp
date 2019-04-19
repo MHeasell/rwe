@@ -21,12 +21,17 @@ namespace rwe
 
     void UiRenderService::drawSprite(float x, float y, const Sprite& sprite)
     {
+        drawSprite(x, y, sprite, Color(255, 255, 255));
+    }
+
+    void UiRenderService::drawSprite(float x, float y, const Sprite& sprite, const Color& tint)
+    {
         auto matrix = matrixStack.top() * Matrix4f::translation(Vector3f(x, y, 0.0f));
 
         const auto& shader = shaders->basicTexture;
         graphics->bindShader(shader.handle.get());
         graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * matrix);
-        graphics->setUniformFloat(shader.alpha, 1.0f);
+        graphics->setUniformVec4(shader.tint, tint.r / 255.0f, tint.g / 255.0f, tint.b / 255.0f, tint.a / 255.0f);
         graphics->bindTexture(sprite.mesh.texture.get());
 
         graphics->drawTriangles(sprite.mesh.mesh);
@@ -56,6 +61,11 @@ namespace rwe
 
     void UiRenderService::drawText(float x, float y, const std::string& text, const SpriteSeries& font)
     {
+        drawText(x, y, text, font, Color(255, 255, 255));
+    }
+
+    void UiRenderService::drawText(float x, float y, const std::string& text, const SpriteSeries& font, const Color& tint)
+    {
         auto it = utf8Begin(text);
         auto end = utf8End(text);
         for (; it != end; ++it)
@@ -70,7 +80,7 @@ namespace rwe
 
             if (ch != ' ')
             {
-                drawSprite(x, y, sprite);
+                drawSprite(x, y, sprite, tint);
             }
 
             x += sprite.bounds.right();
@@ -105,6 +115,17 @@ namespace rwe
         float halfHeight = 5.0f;
 
         drawText(std::round(x - halfWidth), std::round(y + halfHeight), text, font);
+    }
+
+    void UiRenderService::drawTextAlignRight(float x, float y, const std::string& text, const SpriteSeries& font)
+    {
+        drawTextAlignRight(x, y, text, font, Color(255, 255, 255));
+    }
+
+    void UiRenderService::drawTextAlignRight(float x, float y, const std::string& text, const SpriteSeries& font, const Color& tint)
+    {
+        auto width = getTextWidth(text, font);
+        drawText(x - width, y, text, font, tint);
     }
 
     void UiRenderService::drawTextWrapped(Rectangle2f area, const std::string& text, const SpriteSeries& font)

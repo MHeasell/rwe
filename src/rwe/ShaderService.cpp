@@ -22,7 +22,7 @@ namespace rwe
 
         s.basicTexture.handle = loadShader(graphics, "shaders/basicTexture.vert", "shaders/basicTexture.frag", texturedVertexAttribs);
         s.basicTexture.mvpMatrix = graphics.getUniformLocation(s.basicTexture.handle.get(), "mvpMatrix");
-        s.basicTexture.alpha = graphics.getUniformLocation(s.basicTexture.handle.get(), "alpha");
+        s.basicTexture.tint = graphics.getUniformLocation(s.basicTexture.handle.get(), "tint");
 
         s.unitColor.handle = loadShader(graphics, "shaders/unitColor.vert", "shaders/unitColor.frag", coloredVertexAttribs);
         s.unitColor.mvpMatrix = graphics.getUniformLocation(s.unitColor.handle.get(), "mvpMatrix");

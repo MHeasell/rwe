@@ -26,6 +26,8 @@ namespace rwe
 
         void drawSprite(float x, float y, const Sprite& sprite);
 
+        void drawSprite(float x, float y, const Sprite& sprite, const Color& tint);
+
         /** Draws the sprite, ignoring its internal x and y offset. */
         void drawSpriteAbs(float x, float y, const Sprite& sprite);
 
@@ -34,10 +36,14 @@ namespace rwe
         void drawSpriteAbs(const Rectangle2f& rect, const Sprite& sprite);
 
         void drawText(float x, float y, const std::string& text, const SpriteSeries& font);
+        void drawText(float x, float y, const std::string& text, const SpriteSeries& font, const Color& tint);
 
         void drawTextWrapped(Rectangle2f area, const std::string& text, const SpriteSeries& font);
 
         void drawTextCentered(float x, float y, const std::string& text, const SpriteSeries& font);
+
+        void drawTextAlignRight(float x, float y, const std::string& text, const SpriteSeries& font);
+        void drawTextAlignRight(float x, float y, const std::string& text, const SpriteSeries& font, const Color& tint);
 
         float getTextWidth(const std::string& text, const SpriteSeries& font);
 

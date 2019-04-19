@@ -45,7 +45,7 @@ namespace rwe
             maxY = y1;
         }
 
-        return DiscreteRect(minX, minY, maxX - minX, maxY - minY);
+        return DiscreteRect(minX, minY, maxX - minX + 1, maxY - minY + 1);
     }
 
     SideDataRect parseSideDataRect(const TdfBlock& t)

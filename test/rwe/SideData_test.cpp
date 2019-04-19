@@ -173,8 +173,8 @@ namespace rwe
         {
             SECTION("converts to a DiscreteRect")
             {
-                REQUIRE(SideDataRect(1, 2, 3, 4).toDiscreteRect() == DiscreteRect(1, 2, 2, 2));
-                REQUIRE(SideDataRect(3, 4, 1, 2).toDiscreteRect() == DiscreteRect(1, 2, 2, 2));
+                REQUIRE(SideDataRect(1, 2, 3, 4).toDiscreteRect() == DiscreteRect(1, 2, 3, 3));
+                REQUIRE(SideDataRect(3, 4, 1, 2).toDiscreteRect() == DiscreteRect(1, 2, 3, 3));
             }
         }
     }
