@@ -819,13 +819,20 @@ namespace rwe
             unsigned int height = 19;
 
             auto graphics = sceneContext.textureService->getGafEntry("anims/LOGOS.GAF", "32xlogos");
+            auto newSprites = std::make_shared<SpriteSeries>();
+            newSprites->sprites.reserve(graphics->sprites.size());
+
+            std::transform(graphics->sprites.begin(), graphics->sprites.end(), std::back_inserter(newSprites->sprites), [width, height](const auto& sprite){
+                auto bounds = Rectangle2f::fromTopLeft(0.0f, 0.0f, width, height);
+                return std::make_shared<Sprite>(bounds, sprite->texture, sprite->mesh);
+            });
 
             auto b = uiFactory.createButton(214, rowStart, width, height, guiName, "logo", "");
             b->setName("PLAYER" + std::to_string(i) + "_color");
 
-            auto sub = model.players[i].colorIndex.subscribe([b = b.get(), graphics](unsigned int index) {
-                b->setNormalSprite(graphics->sprites[index]);
-                b->setPressedSprite(graphics->sprites[index]);
+            auto sub = model.players[i].colorIndex.subscribe([b = b.get(), newSprites](unsigned int index) {
+                b->setNormalSprite(newSprites->sprites[index]);
+                b->setPressedSprite(newSprites->sprites[index]);
             });
             b->addSubscription(std::move(sub));
 

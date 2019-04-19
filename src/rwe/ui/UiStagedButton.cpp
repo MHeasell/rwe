@@ -22,7 +22,7 @@ namespace rwe
     {
         const auto& sprite = pressed || toggledOn ? *pressedSprite : *stages[currentStage].sprite;
 
-        graphics.drawSpriteAbs(posX, posY, sizeX, sizeY, sprite);
+        graphics.drawSpriteAbs(posX, posY, sprite);
 
         const auto& label = stages[currentStage].label;
         switch (textAlign)
