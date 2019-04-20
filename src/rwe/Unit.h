@@ -7,6 +7,8 @@
 #include <optional>
 #include <rwe/AudioService.h>
 #include <rwe/DiscreteRect.h>
+#include <rwe/Energy.h>
+#include <rwe/Metal.h>
 #include <rwe/MovementClass.h>
 #include <rwe/MovementClassId.h>
 #include <rwe/PlayerId.h>
@@ -169,8 +171,8 @@ namespace rwe
         bool builder;
 
         unsigned int buildTime;
-        unsigned int energyCost;
-        unsigned int metalCost;
+        Energy energyCost;
+        Metal metalCost;
 
         unsigned int buildTimeCompleted{0};
 
@@ -196,8 +198,8 @@ namespace rwe
         struct BuildCostInfo
         {
             unsigned int workerTime;
-            unsigned int energyCost;
-            unsigned int metalCost;
+            Energy energyCost;
+            Metal metalCost;
         };
 
         BuildCostInfo getBuildCostInfo(unsigned int buildTimeContribution);

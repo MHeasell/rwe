@@ -1,6 +1,8 @@
 #ifndef RWE_UNITFBI_H
 #define RWE_UNITFBI_H
 
+#include <rwe/Energy.h>
+#include <rwe/Metal.h>
 #include <rwe/tdf/TdfBlock.h>
 #include <string>
 
@@ -41,8 +43,8 @@ namespace rwe
 
         bool builder;
         unsigned int buildTime;
-        unsigned int buildCostEnergy;
-        unsigned int buildCostMetal;
+        Energy buildCostEnergy;
+        Metal buildCostMetal;
 
         unsigned int workerTime;
 

@@ -823,10 +823,10 @@ namespace rwe
             }
 
             auto& player = scene->getSimulation().getPlayer(unit.owner);
-            player.desiredMetalConsumptionBuffer += static_cast<float>(targetUnit.metalCost) * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime);
-            player.desiredEnergyConsumptionBuffer += static_cast<float>(targetUnit.energyCost) * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime);
+            player.desiredMetalConsumptionBuffer += Metal(targetUnit.metalCost.value * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime));
+            player.desiredEnergyConsumptionBuffer += Energy(targetUnit.energyCost.value * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime));
 
-            if ((targetUnit.metalCost > 0 && player.metalStalled) || (targetUnit.energyCost > 0 && player.energyStalled))
+            if ((targetUnit.metalCost > Metal(0) && player.metalStalled) || (targetUnit.energyCost > Energy(0) && player.energyStalled))
             {
                 // we don't have resources available to build -- wait
                 return false;

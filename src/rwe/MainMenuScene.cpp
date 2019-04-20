@@ -4,6 +4,7 @@
 #include <rwe/config.h>
 #include <rwe/gui.h>
 #include <rwe/ota.h>
+#include <rwe/resource_io.h>
 #include <rwe/tdf.h>
 #include <rwe/ui/UiSurface.h>
 
@@ -493,13 +494,13 @@ namespace rwe
     {
         auto& player = model.players[playerIndex];
 
-        if (player.metal.getValue() == 200)
+        if (player.metal.getValue() == Metal(200))
         {
-            player.metal.next(500);
+            player.metal.next(Metal(500));
         }
-        else if (player.metal.getValue() < 10000)
+        else if (player.metal.getValue() < Metal(10000))
         {
-            player.metal.next(player.metal.getValue() + 500);
+            player.metal.next(player.metal.getValue() + Metal(500));
         }
     }
 
@@ -507,13 +508,13 @@ namespace rwe
     {
         auto& player = model.players[playerIndex];
 
-        if (player.metal.getValue() > 500)
+        if (player.metal.getValue() > Metal(500))
         {
-            player.metal.next(player.metal.getValue() - 500);
+            player.metal.next(player.metal.getValue() - Metal(500));
         }
-        else if (player.metal.getValue() == 500)
+        else if (player.metal.getValue() == Metal(500))
         {
-            player.metal.next(200);
+            player.metal.next(Metal(200));
         }
     }
 
@@ -521,13 +522,13 @@ namespace rwe
     {
         auto& player = model.players[playerIndex];
 
-        if (player.energy.getValue() == 200)
+        if (player.energy.getValue() == Energy(200))
         {
-            player.energy.next(500);
+            player.energy.next(Energy(500));
         }
-        else if (player.energy.getValue() < 10000)
+        else if (player.energy.getValue() < Energy(10000))
         {
-            player.energy.next(player.energy.getValue() + 500);
+            player.energy.next(player.energy.getValue() + Energy(500));
         }
     }
 
@@ -535,13 +536,13 @@ namespace rwe
     {
         auto& player = model.players[playerIndex];
 
-        if (player.energy.getValue() > 500)
+        if (player.energy.getValue() > Energy(500))
         {
-            player.energy.next(player.energy.getValue() - 500);
+            player.energy.next(player.energy.getValue() - Energy(500));
         }
-        else if (player.energy.getValue() == 500)
+        else if (player.energy.getValue() == Energy(500))
         {
-            player.energy.next(200);
+            player.energy.next(Energy(200));
         }
     }
 
@@ -906,8 +907,8 @@ namespace rwe
             b->setName("PLAYER" + std::to_string(i) + "_metal");
             b->setTextAlign(UiStagedButton::TextAlign::Center);
 
-            auto sub = model.players[i].metal.subscribe([b = b.get()](int newMetal) {
-                b->setLabel(std::to_string(newMetal));
+            auto sub = model.players[i].metal.subscribe([b = b.get()](const auto& newMetal) {
+                b->setLabel(formatResource(newMetal));
             });
             b->addSubscription(std::move(sub));
 
@@ -923,8 +924,8 @@ namespace rwe
             b->setName("PLAYER" + std::to_string(i) + "_energy");
             b->setTextAlign(UiStagedButton::TextAlign::Center);
 
-            auto sub = model.players[i].energy.subscribe([b = b.get()](int newEnergy) {
-                b->setLabel(std::to_string(newEnergy));
+            auto sub = model.players[i].energy.subscribe([b = b.get()](const auto& newEnergy) {
+                b->setLabel(formatResource(newEnergy));
             });
             b->addSubscription(std::move(sub));
 

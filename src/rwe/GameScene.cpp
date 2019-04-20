@@ -1,10 +1,9 @@
 #include "GameScene.h"
 #include <boost/range/adaptor/map.hpp>
-#include <iomanip>
 #include <rwe/Mesh.h>
+#include <rwe/resource_io.h>
 #include <rwe/ui/UiStagedButton.h>
 #include <spdlog/spdlog.h>
-#include <sstream>
 #include <unordered_set>
 
 namespace rwe
@@ -161,23 +160,23 @@ namespace rwe
         {
             const auto& rect = localSideData.energyBar.toDiscreteRect();
             const auto& localPlayer = getPlayer(localPlayerId);
-            auto rectWidth = (rect.width * std::max(0, localPlayer.energy)) / localPlayer.maxEnergy;
+            auto rectWidth = (rect.width * std::max(Energy(0), localPlayer.energy).value) / localPlayer.maxEnergy.value;
             const auto& colorIndex = localSideData.energyColor;
             const auto& color = sceneContext.palette->at(colorIndex);
             chromeUiRenderService.fillColor(rect.x, rect.y, rectWidth, rect.height, color);
         }
         {
             const auto& rect = localSideData.energy0.toDiscreteRect();
-            chromeUiRenderService.drawText(rect.x, rect.y, "0", *guiFont);
+            chromeUiRenderService.drawText(rect.x, rect.y, formatResource(Energy(0)), *guiFont);
         }
         {
             const auto& rect = localSideData.energyMax.toDiscreteRect();
-            auto text = std::to_string(getPlayer(localPlayerId).maxEnergy);
+            auto text = formatResource(getPlayer(localPlayerId).maxEnergy);
             chromeUiRenderService.drawTextAlignRight(rect.x, rect.y, text, *guiFont);
         }
         {
             const auto& rect = localSideData.energyNum.toDiscreteRect();
-            auto text = std::to_string(std::max(0, getPlayer(localPlayerId).energy));
+            auto text = formatResource(std::max(Energy(0), getPlayer(localPlayerId).energy));
             chromeUiRenderService.drawText(rect.x, rect.y, text, *guiFont);
         }
         {
@@ -186,16 +185,15 @@ namespace rwe
         }
         {
             const auto& rect = localSideData.energyConsumed.toDiscreteRect();
-            std::stringstream ss;
-            ss << std::fixed << std::setprecision(0) << getPlayer(localPlayerId).previousDesiredEnergyConsumptionBuffer;
-            chromeUiRenderService.drawText(rect.x, rect.y, ss.str(), *guiFont, Color(255, 71, 0));
+            auto text = formatResourceDelta(getPlayer(localPlayerId).previousDesiredEnergyConsumptionBuffer);
+            chromeUiRenderService.drawText(rect.x, rect.y, text, *guiFont, Color(255, 71, 0));
         }
 
         // draw metal bar
         {
             const auto& rect = localSideData.metalBar.toDiscreteRect();
             const auto& localPlayer = getPlayer(localPlayerId);
-            auto rectWidth = (rect.width * std::max(0, localPlayer.metal)) / localPlayer.maxMetal;
+            auto rectWidth = (rect.width * std::max(Metal(0), localPlayer.metal).value) / localPlayer.maxMetal.value;
             const auto& colorIndex = localSideData.metalColor;
             const auto& color = sceneContext.palette->at(colorIndex);
             chromeUiRenderService.fillColor(rect.x, rect.y, rectWidth, rect.height, color);
@@ -206,12 +204,12 @@ namespace rwe
         }
         {
             const auto& rect = localSideData.metalMax.toDiscreteRect();
-            auto text = std::to_string(getPlayer(localPlayerId).maxMetal);
+            auto text = formatResource(getPlayer(localPlayerId).maxMetal);
             chromeUiRenderService.drawTextAlignRight(rect.x, rect.y, text, *guiFont);
         }
         {
             const auto& rect = localSideData.metalNum.toDiscreteRect();
-            auto text = std::to_string(std::max(0, getPlayer(localPlayerId).metal));
+            auto text = formatResource(std::max(Metal(0), getPlayer(localPlayerId).metal));
             chromeUiRenderService.drawText(rect.x, rect.y, text, *guiFont);
         }
         {
@@ -220,9 +218,8 @@ namespace rwe
         }
         {
             const auto& rect = localSideData.metalConsumed.toDiscreteRect();
-            std::stringstream ss;
-            ss << std::fixed << std::setprecision(1) << getPlayer(localPlayerId).previousDesiredMetalConsumptionBuffer;
-            chromeUiRenderService.drawText(rect.x, rect.y, ss.str(), *guiFont, Color(255, 71, 0));
+            auto text = formatResourceDelta(getPlayer(localPlayerId).previousDesiredMetalConsumptionBuffer);
+            chromeUiRenderService.drawText(rect.x, rect.y, text, *guiFont, Color(255, 71, 0));
         }
 
         // render bottom bar
@@ -1073,10 +1070,10 @@ namespace rwe
         {
             for (auto& player : simulation.players)
             {
-                if (player.metal > 0)
+                if (player.metal > Metal(0))
                 {
                     player.metal -= player.actualMetalConsumptionBuffer;
-                    player.actualMetalConsumptionBuffer = 0;
+                    player.actualMetalConsumptionBuffer = Metal(0);
                     player.metalStalled = false;
                 }
                 else
@@ -1085,12 +1082,12 @@ namespace rwe
                 }
 
                 player.previousDesiredMetalConsumptionBuffer = player.desiredMetalConsumptionBuffer;
-                player.desiredMetalConsumptionBuffer = 0;
+                player.desiredMetalConsumptionBuffer = Metal(0);
 
-                if (player.energy > 0)
+                if (player.energy > Energy(0))
                 {
                     player.energy -= player.actualEnergyConsumptionBuffer;
-                    player.actualEnergyConsumptionBuffer = 0;
+                    player.actualEnergyConsumptionBuffer = Energy(0);
                     player.energyStalled = false;
                 }
                 else
@@ -1099,7 +1096,7 @@ namespace rwe
                 }
 
                 player.previousDesiredEnergyConsumptionBuffer = player.desiredEnergyConsumptionBuffer;
-                player.desiredEnergyConsumptionBuffer = 0;
+                player.desiredEnergyConsumptionBuffer = Energy(0);
             }
         }
 

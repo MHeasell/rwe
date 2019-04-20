@@ -62,13 +62,13 @@ namespace rwe
             buildTimeContribution = remainingBuildTime;
         }
 
-        auto oldProgressEnergy = (buildTimeCompleted * energyCost) / buildTime;
-        auto oldProgressMetal = (buildTimeCompleted * metalCost) / buildTime;
+        auto oldProgressEnergy = Energy((buildTimeCompleted * energyCost.value) / buildTime);
+        auto oldProgressMetal = Metal((buildTimeCompleted * metalCost.value) / buildTime);
 
         auto newBuildTimeCompleted = buildTimeCompleted + buildTimeContribution;
 
-        auto newProgressEnergy = (newBuildTimeCompleted * energyCost) / buildTime;
-        auto newProgressMetal = (newBuildTimeCompleted * metalCost) / buildTime;
+        auto newProgressEnergy = Energy((newBuildTimeCompleted * energyCost.value) / buildTime);
+        auto newProgressMetal = Metal((newBuildTimeCompleted * metalCost.value) / buildTime);
 
         auto deltaEnergy = newProgressEnergy - oldProgressEnergy;
         auto deltaMetal = newProgressMetal - oldProgressMetal;

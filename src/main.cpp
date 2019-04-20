@@ -5,9 +5,11 @@
 #include <memory>
 #include <rwe/AudioService.h>
 #include <rwe/ColorPalette.h>
+#include <rwe/Energy.h>
 #include <rwe/GraphicsContext.h>
 #include <rwe/LoadingScene.h>
 #include <rwe/MainMenuScene.h>
+#include <rwe/Metal.h>
 #include <rwe/OpenGlVersion.h>
 #include <rwe/Result.h>
 #include <rwe/SceneContext.h>
@@ -384,7 +386,7 @@ namespace rwe
         auto side = parseSideFromString(components[1]);
         auto color = parseColorFromString(components[2]);
 
-        return PlayerInfo{controller, side, color, 1000, 1000};
+        return PlayerInfo{controller, side, color, Metal(1000), Energy(1000)};
     }
 }
 

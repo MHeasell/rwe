@@ -4,9 +4,11 @@
 #include <memory>
 #include <rwe/AudioService.h>
 #include <rwe/CursorService.h>
+#include <rwe/Energy.h>
 #include <rwe/GameScene.h>
 #include <rwe/LoadingNetworkService.h>
 #include <rwe/MapFeatureService.h>
+#include <rwe/Metal.h>
 #include <rwe/SceneContext.h>
 #include <rwe/SceneManager.h>
 #include <rwe/SideData.h>
@@ -65,8 +67,8 @@ namespace rwe
         std::string side;
         unsigned int color;
 
-        int metal;
-        int energy;
+        Metal metal;
+        Energy energy;
     };
 
     struct GameParameters

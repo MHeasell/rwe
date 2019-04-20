@@ -4,6 +4,8 @@
 #include <array>
 #include <boost/variant.hpp>
 #include <optional>
+#include <rwe/Energy.h>
+#include <rwe/Metal.h>
 #include <rwe/Sprite.h>
 #include <rwe/events.h>
 #include <rwe/observable/BehaviorSubject.h>
@@ -51,8 +53,8 @@ namespace rwe
             BehaviorSubject<Side> side;
             BehaviorSubject<unsigned int> colorIndex;
             BehaviorSubject<std::optional<int>> teamIndex;
-            BehaviorSubject<int> metal;
-            BehaviorSubject<int> energy;
+            BehaviorSubject<Metal> metal;
+            BehaviorSubject<Energy> energy;
         };
 
     public:
@@ -63,16 +65,16 @@ namespace rwe
         BehaviorSubject<std::optional<SelectedMapInfo>> candidateSelectedMap;
 
         std::array<PlayerSettings, 10> players{{
-            {PlayerSettings::Type::Human, PlayerSettings::Side::Arm, 0, std::optional<int>(std::nullopt), 1000, 1000},
-            {PlayerSettings::Type::Computer, PlayerSettings::Side::Core, 1, std::optional<int>(std::nullopt), 1000, 1000},
-            {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 2, std::optional<int>(std::nullopt), 1000, 1000},
-            {PlayerSettings::Type::Open, PlayerSettings::Side::Core, 3, std::optional<int>(std::nullopt), 1000, 1000},
-            {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 4, std::optional<int>(std::nullopt), 1000, 1000},
-            {PlayerSettings::Type::Open, PlayerSettings::Side::Core, 5, std::optional<int>(std::nullopt), 1000, 1000},
-            {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 6, std::optional<int>(std::nullopt), 1000, 1000},
-            {PlayerSettings::Type::Open, PlayerSettings::Side::Core, 7, std::optional<int>(std::nullopt), 1000, 1000},
-            {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 8, std::optional<int>(std::nullopt), 1000, 1000},
-            {PlayerSettings::Type::Open, PlayerSettings::Side::Core, 9, std::optional<int>(std::nullopt), 1000, 1000},
+            {PlayerSettings::Type::Human, PlayerSettings::Side::Arm, 0, std::optional<int>(std::nullopt), Metal(1000), Energy(1000)},
+            {PlayerSettings::Type::Computer, PlayerSettings::Side::Core, 1, std::optional<int>(std::nullopt), Metal(1000), Energy(1000)},
+            {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 2, std::optional<int>(std::nullopt), Metal(1000), Energy(1000)},
+            {PlayerSettings::Type::Open, PlayerSettings::Side::Core, 3, std::optional<int>(std::nullopt), Metal(1000), Energy(1000)},
+            {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 4, std::optional<int>(std::nullopt), Metal(1000), Energy(1000)},
+            {PlayerSettings::Type::Open, PlayerSettings::Side::Core, 5, std::optional<int>(std::nullopt), Metal(1000), Energy(1000)},
+            {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 6, std::optional<int>(std::nullopt), Metal(1000), Energy(1000)},
+            {PlayerSettings::Type::Open, PlayerSettings::Side::Core, 7, std::optional<int>(std::nullopt), Metal(1000), Energy(1000)},
+            {PlayerSettings::Type::Open, PlayerSettings::Side::Arm, 8, std::optional<int>(std::nullopt), Metal(1000), Energy(1000)},
+            {PlayerSettings::Type::Open, PlayerSettings::Side::Core, 9, std::optional<int>(std::nullopt), Metal(1000), Energy(1000)},
         }};
 
         /**

@@ -217,6 +217,7 @@ set(SOURCE_FILES
     src/rwe/DiscreteRect.h
     src/rwe/EightWayDirection.cpp
     src/rwe/EightWayDirection.h
+    src/rwe/Energy.h
     src/rwe/Explosion.cpp
     src/rwe/Explosion.h
     src/rwe/FeatureDefinition.cpp
@@ -266,6 +267,7 @@ set(SOURCE_FILES
     src/rwe/Mesh.h
     src/rwe/MeshService.cpp
     src/rwe/MeshService.h
+    src/rwe/Metal.h
     src/rwe/MinHeap.h
     src/rwe/MovementClass.cpp
     src/rwe/MovementClass.h
@@ -276,6 +278,7 @@ set(SOURCE_FILES
     src/rwe/OccupiedGrid.h
     src/rwe/OpaqueId.h
     src/rwe/OpaqueUnit.h
+    src/rwe/OpaqueUnit_io.h
     src/rwe/OpenGlVersion.h
     src/rwe/PlayerCommand.h
     src/rwe/PlayerCommandService.cpp
@@ -431,6 +434,8 @@ set(SOURCE_FILES
     src/rwe/pcx.h
     src/rwe/proto/serialization.cpp
     src/rwe/proto/serialization.h
+    src/rwe/resource_io.cpp
+    src/rwe/resource_io.h
     src/rwe/rwe_string.cpp
     src/rwe/rwe_string.h
     src/rwe/rwe_time.cpp

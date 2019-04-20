@@ -33,23 +33,23 @@ namespace rwe
         GamePlayerStatus status;
         std::string side;
 
-        int metal;
-        int maxMetal;
+        Metal metal;
+        Metal maxMetal;
 
-        int energy;
-        int maxEnergy;
+        Energy energy;
+        Energy maxEnergy;
 
         bool metalStalled{false};
         bool energyStalled{false};
 
-        float desiredMetalConsumptionBuffer{0};
-        float desiredEnergyConsumptionBuffer{0};
+        Metal desiredMetalConsumptionBuffer{0};
+        Energy desiredEnergyConsumptionBuffer{0};
 
-        float previousDesiredMetalConsumptionBuffer{0};
-        float previousDesiredEnergyConsumptionBuffer{0};
+        Metal previousDesiredMetalConsumptionBuffer{0};
+        Energy previousDesiredEnergyConsumptionBuffer{0};
 
-        int actualMetalConsumptionBuffer{0};
-        int actualEnergyConsumptionBuffer{0};
+        Metal actualMetalConsumptionBuffer{0};
+        Energy actualEnergyConsumptionBuffer{0};
     };
 
     struct PathRequest
