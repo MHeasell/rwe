@@ -158,9 +158,11 @@ namespace rwe
         // draw energy bar
         {
             const auto& rect = localSideData.energyBar.toDiscreteRect();
+            const auto& localPlayer = getPlayer(localPlayerId);
+            auto rectWidth = (rect.width * localPlayer.maxEnergy) / localPlayer.energy;
             const auto& colorIndex = localSideData.energyColor;
             const auto& color = sceneContext.palette->at(colorIndex);
-            chromeUiRenderService.fillColor(rect.x, rect.y, rect.width, rect.height, color);
+            chromeUiRenderService.fillColor(rect.x, rect.y, rectWidth, rect.height, color);
         }
         {
             const auto& rect = localSideData.energy0.toDiscreteRect();
@@ -188,9 +190,11 @@ namespace rwe
         // draw metal bar
         {
             const auto& rect = localSideData.metalBar.toDiscreteRect();
+            const auto& localPlayer = getPlayer(localPlayerId);
+            auto rectWidth = (rect.width * localPlayer.maxMetal) / localPlayer.metal;
             const auto& colorIndex = localSideData.metalColor;
             const auto& color = sceneContext.palette->at(colorIndex);
-            chromeUiRenderService.fillColor(rect.x, rect.y, rect.width, rect.height, color);
+            chromeUiRenderService.fillColor(rect.x, rect.y, rectWidth, rect.height, color);
         }
         {
             const auto& rect = localSideData.metal0.toDiscreteRect();
