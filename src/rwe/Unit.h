@@ -197,9 +197,9 @@ namespace rwe
             /** True if the unit has finished being built. */
             bool complete;
             /** The energy cost of the actual contribution. */
-            int energyCost;
+            unsigned int energyCost;
             /** The metal cost of the actual contribution. */
-            int metalCost;
+            unsigned int metalCost;
         };
 
         BuildProgressResult addBuildProgress(unsigned int buildTimeContribution);
