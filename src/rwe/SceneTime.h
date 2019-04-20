@@ -7,9 +7,6 @@ namespace rwe
 {
     struct SceneTimeTag;
     using SceneTime = OpaqueUnit<unsigned int, SceneTimeTag>;
-    using SceneTimeDelta = OpaqueUnitDelta<unsigned int, SceneTimeTag>;
-
-    SceneTime nextSceneTime(SceneTime time);
 }
 
 #endif

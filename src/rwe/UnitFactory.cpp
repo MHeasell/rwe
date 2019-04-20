@@ -246,7 +246,7 @@ namespace rwe
         weapon.endSmoke = tdf.endSmoke;
         if (tdf.smokeTrail)
         {
-            weapon.smokeTrail = GameTimeDelta(static_cast<unsigned int>(tdf.smokeDelay * 60.0f));
+            weapon.smokeTrail = GameTime(static_cast<unsigned int>(tdf.smokeDelay * 60.0f));
         }
         if (!tdf.soundStart.empty())
         {

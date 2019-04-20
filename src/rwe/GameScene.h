@@ -468,7 +468,7 @@ namespace rwe
         void processPlayerCommands(const std::vector<std::pair<PlayerId, std::vector<PlayerCommand>>>& commands);
 
         template <typename T>
-        void delay(SceneTimeDelta interval, T&& f)
+        void delay(SceneTime interval, T&& f)
         {
             actions.push_back(GameSceneTimeAction(sceneTime + interval, std::forward<T>(f)));
         }

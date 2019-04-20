@@ -6,9 +6,6 @@
 namespace rwe
 {
     template <typename T, typename Tag>
-    struct OpaqueUnitDelta;
-
-    template <typename T, typename Tag>
     struct OpaqueUnit : public OpaqueId<T, Tag>
     {
         OpaqueUnit() = default;
@@ -18,28 +15,13 @@ namespace rwe
         bool operator>(OpaqueUnit<T, Tag> b) const { return this->value > b.value; }
         bool operator<=(OpaqueUnit<T, Tag> b) const { return this->value <= b.value; }
         bool operator>=(OpaqueUnit<T, Tag> b) const { return this->value >= b.value; }
+
+        OpaqueUnit<T, Tag> operator+(const OpaqueUnit<T, Tag>& b) const { return OpaqueUnit<T, Tag>(this->value + b.value); };
+        OpaqueUnit<T, Tag>& operator+=(const OpaqueUnit<T, Tag>& b) { this->value += b.value; return *this; };
+        OpaqueUnit<T, Tag> operator-(const OpaqueUnit<T, Tag>& b) const { return OpaqueUnit<T, Tag>(this->value - b.value); };
+        OpaqueUnit<T, Tag>& operator-=(const OpaqueUnit<T, Tag>& b) { this->value -= b.value; return *this; };
+        OpaqueUnit<T, Tag> operator%(const OpaqueUnit<T, Tag>& b) const { return OpaqueUnit<T, Tag>(this->value % b.value); };
     };
-
-    template <typename T, typename Tag>
-    struct OpaqueUnitDelta : public OpaqueId<T, Tag>
-    {
-        OpaqueUnitDelta() = default;
-        explicit OpaqueUnitDelta(T value) : OpaqueId<T, Tag>(value) {}
-
-        bool operator<(OpaqueUnitDelta<T, Tag> b) const { return this->value < b.value; }
-        bool operator>(OpaqueUnitDelta<T, Tag> b) const { return this->value > b.value; }
-        bool operator<=(OpaqueUnitDelta<T, Tag> b) const { return this->value <= b.value; }
-        bool operator>=(OpaqueUnitDelta<T, Tag> b) const { return this->value >= b.value; }
-    };
-
-    template <typename T, typename Tag>
-    OpaqueUnit<T, Tag> operator+(OpaqueUnit<T, Tag> a, OpaqueUnitDelta<T, Tag> b) { return OpaqueUnit<T, Tag>(a.value + b.value); };
-
-    template <typename T, typename Tag>
-    OpaqueUnit<T, Tag> operator-(OpaqueUnit<T, Tag> a, OpaqueUnitDelta<T, Tag> b) { return OpaqueUnit<T, Tag>(a.value - b.value); };
-
-    template <typename T, typename Tag>
-    OpaqueUnitDelta<T, Tag> operator-(OpaqueUnit<T, Tag> a, OpaqueUnit<T, Tag> b) { return OpaqueUnitDelta<T, Tag>(a.value - b.value); };
 }
 
 namespace std

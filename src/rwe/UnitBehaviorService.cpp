@@ -607,7 +607,7 @@ namespace rwe
 
                 // only request a new path if we don't have one yet,
                 // or we've already had our current one for a bit
-                if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTimeDelta(60))
+                if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTime(60))
                 {
                     sim.requestPath(unitId);
                     movingState->pathRequested = true;
@@ -692,7 +692,7 @@ namespace rwe
 
                         // only request a new path if we don't have one yet,
                         // or we've already had our current one for a bit
-                        if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTimeDelta(60))
+                        if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTime(60))
                         {
                             sim.requestPath(unitId);
                             movingState->pathRequested = true;
@@ -738,7 +738,7 @@ namespace rwe
 
                 // only request a new path if we don't have one yet,
                 // or we've already had our current one for a bit
-                if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTimeDelta(60))
+                if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTime(60))
                 {
                     sim.requestPath(unitId);
                     movingState->pathRequested = true;

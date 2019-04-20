@@ -7,11 +7,8 @@ namespace rwe
 {
     struct GameTimeTag;
     using GameTime = OpaqueUnit<unsigned int, GameTimeTag>;
-    using GameTimeDelta = OpaqueUnitDelta<unsigned int, GameTimeTag>;
 
-    GameTime nextGameTime(GameTime time);
-
-    GameTimeDelta deltaSecondsToTicks(float seconds);
+    GameTime deltaSecondsToTicks(float seconds);
 }
 
 #endif

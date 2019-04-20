@@ -883,16 +883,16 @@ namespace rwe
 
         // allow skipping sim frames every so often to get back down to average.
         // We tolerate X frames of drift in either direction to cope with noisiness in the estimation.
-        const unsigned int frameTolerance = 3;
-        const unsigned int frameCheckInterval = 5;
-        auto highSceneTime = averageSceneTime + SceneTimeDelta(frameTolerance);
-        auto lowSceneTime = averageSceneTime.value <= frameTolerance ? SceneTime{0} : averageSceneTime - SceneTimeDelta(frameTolerance);
-        if (sceneTime.value % frameCheckInterval != 0 || sceneTime <= highSceneTime)
+        const SceneTime frameTolerance(3);
+        const SceneTime frameCheckInterval(5);
+        auto highSceneTime = averageSceneTime + frameTolerance;
+        auto lowSceneTime = averageSceneTime <= frameTolerance ? SceneTime{0} : averageSceneTime - frameTolerance;
+        if (sceneTime % frameCheckInterval != SceneTime(0) || sceneTime <= highSceneTime)
         {
             tryTickGame();
 
             // simulate an extra frame to catch up every so often
-            if (sceneTime.value % frameCheckInterval == 0 && sceneTime < lowSceneTime)
+            if (sceneTime % frameCheckInterval == SceneTime(0) && sceneTime < lowSceneTime)
             {
                 tryTickGame();
             }
@@ -1061,15 +1061,15 @@ namespace rwe
             return;
         }
 
-        sceneTime = nextSceneTime(sceneTime);
-        simulation.gameTime = nextGameTime(simulation.gameTime);
+        sceneTime += SceneTime(1);
+        simulation.gameTime += GameTime(1);
 
         processActions();
 
         processPlayerCommands(*playerCommands);
 
         // run resource updates once per second
-        if (simulation.gameTime.value % 60 == 0)
+        if (simulation.gameTime % GameTime(60) == GameTime(0))
         {
             for (auto& player : simulation.players)
             {
@@ -1134,11 +1134,11 @@ namespace rwe
         auto winStatus = simulation.computeWinStatus();
         if (auto wonStatus = boost::get<WinStatusWon>(&winStatus); wonStatus != nullptr)
         {
-            delay(SceneTimeDelta(5 * 60), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
+            delay(SceneTime(5 * 60), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
         }
         else if (auto drawStatus = boost::get<WinStatusDraw>(&winStatus); drawStatus != nullptr)
         {
-            delay(SceneTimeDelta(5 * 60), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
+            delay(SceneTime(5 * 60), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
         }
 
         deleteDeadUnits();

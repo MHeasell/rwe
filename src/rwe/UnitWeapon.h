@@ -47,7 +47,7 @@ namespace rwe
         bool startSmoke;
         bool endSmoke;
 
-        std::optional<GameTimeDelta> smokeTrail;
+        std::optional<GameTime> smokeTrail;
 
         std::optional<AudioService::SoundHandle> soundStart;
         std::optional<AudioService::SoundHandle> soundHit;

@@ -2,13 +2,8 @@
 
 namespace rwe
 {
-    GameTime nextGameTime(GameTime time)
+    GameTime deltaSecondsToTicks(float seconds)
     {
-        return GameTime(time.value + 1);
-    }
-
-    GameTimeDelta deltaSecondsToTicks(float seconds)
-    {
-        return GameTimeDelta(seconds * 60.0f);
+        return GameTime(seconds * 60.0f);
     }
 }
