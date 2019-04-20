@@ -39,12 +39,17 @@ namespace rwe
         int energy;
         int maxEnergy;
 
-        /**
-         * True if the player's units are permitted to build.
-         * i.e. they had enough resources to continue building
-         * when the value was last checked.
-         */
-        bool canBuild{true};
+        bool metalStalled{false};
+        bool energyStalled{false};
+
+        float desiredMetalConsumptionBuffer{0};
+        float desiredEnergyConsumptionBuffer{0};
+
+        float previousDesiredMetalConsumptionBuffer{0};
+        float previousDesiredEnergyConsumptionBuffer{0};
+
+        int actualMetalConsumptionBuffer{0};
+        int actualEnergyConsumptionBuffer{0};
     };
 
     struct PathRequest

@@ -823,17 +823,20 @@ namespace rwe
             }
 
             auto& player = scene->getSimulation().getPlayer(unit.owner);
-            if (!player.canBuild)
+            player.desiredMetalConsumptionBuffer += static_cast<float>(targetUnit.metalCost) * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime);
+            player.desiredEnergyConsumptionBuffer += static_cast<float>(targetUnit.energyCost) * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime);
+
+            if ((targetUnit.metalCost > 0 && player.metalStalled) || (targetUnit.energyCost > 0 && player.energyStalled))
             {
                 // we don't have resources available to build -- wait
                 return false;
             }
 
-            auto buildResult = targetUnit.addBuildProgress(unit.workerTimePerTick);
-            player.metal -= buildResult.metalCost;
-            player.energy -= buildResult.energyCost;
+            auto costs = targetUnit.getBuildCostInfo(unit.workerTimePerTick);
+            player.actualMetalConsumptionBuffer += costs.metalCost;
+            player.actualEnergyConsumptionBuffer += costs.energyCost;
 
-            if (buildResult.complete)
+            if (targetUnit.addBuildProgress(unit.workerTimePerTick))
             {
                 // play sound when the unit is completed
                 if (targetUnit.completeSound)

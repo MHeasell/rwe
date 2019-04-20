@@ -1,8 +1,10 @@
 #include "GameScene.h"
 #include <boost/range/adaptor/map.hpp>
+#include <iomanip>
 #include <rwe/Mesh.h>
 #include <rwe/ui/UiStagedButton.h>
 #include <spdlog/spdlog.h>
+#include <sstream>
 #include <unordered_set>
 
 namespace rwe
@@ -184,7 +186,9 @@ namespace rwe
         }
         {
             const auto& rect = localSideData.energyConsumed.toDiscreteRect();
-            chromeUiRenderService.drawText(rect.x, rect.y, "3", *guiFont, Color(255, 71, 0));
+            std::stringstream ss;
+            ss << std::fixed << std::setprecision(0) << getPlayer(localPlayerId).previousDesiredEnergyConsumptionBuffer;
+            chromeUiRenderService.drawText(rect.x, rect.y, ss.str(), *guiFont, Color(255, 71, 0));
         }
 
         // draw metal bar
@@ -216,7 +220,9 @@ namespace rwe
         }
         {
             const auto& rect = localSideData.metalConsumed.toDiscreteRect();
-            chromeUiRenderService.drawText(rect.x, rect.y, "0.0", *guiFont, Color(255, 71, 0));
+            std::stringstream ss;
+            ss << std::fixed << std::setprecision(1) << getPlayer(localPlayerId).previousDesiredMetalConsumptionBuffer;
+            chromeUiRenderService.drawText(rect.x, rect.y, ss.str(), *guiFont, Color(255, 71, 0));
         }
 
         // render bottom bar
@@ -1067,7 +1073,33 @@ namespace rwe
         {
             for (auto& player : simulation.players)
             {
-                player.canBuild = player.metal > 0 && player.energy > 0;
+                if (player.metal > 0)
+                {
+                    player.metal -= player.actualMetalConsumptionBuffer;
+                    player.actualMetalConsumptionBuffer = 0;
+                    player.metalStalled = false;
+                }
+                else
+                {
+                    player.metalStalled = true;
+                }
+
+                player.previousDesiredMetalConsumptionBuffer = player.desiredMetalConsumptionBuffer;
+                player.desiredMetalConsumptionBuffer = 0;
+
+                if (player.energy > 0)
+                {
+                    player.energy -= player.actualEnergyConsumptionBuffer;
+                    player.actualEnergyConsumptionBuffer = 0;
+                    player.energyStalled = false;
+                }
+                else
+                {
+                    player.energyStalled = true;
+                }
+
+                player.previousDesiredEnergyConsumptionBuffer = player.desiredEnergyConsumptionBuffer;
+                player.desiredEnergyConsumptionBuffer = 0;
             }
         }
 

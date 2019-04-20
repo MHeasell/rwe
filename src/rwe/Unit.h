@@ -193,16 +193,16 @@ namespace rwe
 
         float getPreciseCompletePercent() const;
 
-        struct BuildProgressResult {
-            /** True if the unit has finished being built. */
-            bool complete;
-            /** The energy cost of the actual contribution. */
+        struct BuildCostInfo
+        {
+            unsigned int workerTime;
             unsigned int energyCost;
-            /** The metal cost of the actual contribution. */
             unsigned int metalCost;
         };
 
-        BuildProgressResult addBuildProgress(unsigned int buildTimeContribution);
+        BuildCostInfo getBuildCostInfo(unsigned int buildTimeContribution);
+
+        bool addBuildProgress(unsigned int buildTimeContribution);
 
         bool isCommander() const;
 
