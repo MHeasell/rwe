@@ -823,7 +823,7 @@ namespace rwe
             auto newSprites = std::make_shared<SpriteSeries>();
             newSprites->sprites.reserve(graphics->sprites.size());
 
-            std::transform(graphics->sprites.begin(), graphics->sprites.end(), std::back_inserter(newSprites->sprites), [width, height](const auto& sprite){
+            std::transform(graphics->sprites.begin(), graphics->sprites.end(), std::back_inserter(newSprites->sprites), [width, height](const auto& sprite) {
                 auto bounds = Rectangle2f::fromTopLeft(0.0f, 0.0f, width, height);
                 return std::make_shared<Sprite>(bounds, sprite->texture, sprite->mesh);
             });

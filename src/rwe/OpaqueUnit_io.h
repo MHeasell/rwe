@@ -1,8 +1,8 @@
 #ifndef RWE_OPAQUEUNIT_IO_H
 #define RWE_OPAQUEUNIT_IO_H
 
-#include <rwe/OpaqueUnit.h>
 #include <iostream>
+#include <rwe/OpaqueUnit.h>
 
 namespace rwe
 {

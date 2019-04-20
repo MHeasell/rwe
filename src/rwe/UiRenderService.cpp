@@ -26,8 +26,7 @@ namespace rwe
 
     void UiRenderService::drawSprite(float x, float y, const Sprite& sprite, const Color& tint)
     {
-        auto matrix =
-            matrixStack.top()
+        auto matrix = matrixStack.top()
             * Matrix4f::translation(Vector3f(x, y, 0.0f))
             * sprite.getTransform();
 
