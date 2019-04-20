@@ -159,7 +159,7 @@ namespace rwe
         {
             const auto& rect = localSideData.energyBar.toDiscreteRect();
             const auto& localPlayer = getPlayer(localPlayerId);
-            auto rectWidth = (rect.width * localPlayer.maxEnergy) / localPlayer.energy;
+            auto rectWidth = (rect.width * std::max(0, localPlayer.energy)) / localPlayer.maxEnergy;
             const auto& colorIndex = localSideData.energyColor;
             const auto& color = sceneContext.palette->at(colorIndex);
             chromeUiRenderService.fillColor(rect.x, rect.y, rectWidth, rect.height, color);
@@ -175,7 +175,7 @@ namespace rwe
         }
         {
             const auto& rect = localSideData.energyNum.toDiscreteRect();
-            auto text = std::to_string(getPlayer(localPlayerId).energy);
+            auto text = std::to_string(std::max(0, getPlayer(localPlayerId).energy));
             chromeUiRenderService.drawText(rect.x, rect.y, text, *guiFont);
         }
         {
@@ -191,7 +191,7 @@ namespace rwe
         {
             const auto& rect = localSideData.metalBar.toDiscreteRect();
             const auto& localPlayer = getPlayer(localPlayerId);
-            auto rectWidth = (rect.width * localPlayer.maxMetal) / localPlayer.metal;
+            auto rectWidth = (rect.width * std::max(0, localPlayer.metal)) / localPlayer.maxMetal;
             const auto& colorIndex = localSideData.metalColor;
             const auto& color = sceneContext.palette->at(colorIndex);
             chromeUiRenderService.fillColor(rect.x, rect.y, rectWidth, rect.height, color);
@@ -207,7 +207,7 @@ namespace rwe
         }
         {
             const auto& rect = localSideData.metalNum.toDiscreteRect();
-            auto text = std::to_string(getPlayer(localPlayerId).metal);
+            auto text = std::to_string(std::max(0, getPlayer(localPlayerId).metal));
             chromeUiRenderService.drawText(rect.x, rect.y, text, *guiFont);
         }
         {
