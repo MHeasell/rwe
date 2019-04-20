@@ -54,7 +54,7 @@ namespace rwe
         return static_cast<float>(buildTimeCompleted) / static_cast<float>(buildTime);
     }
 
-    bool Unit::addBuildProgress(unsigned int buildTimeContribution)
+    Unit::BuildProgressResult Unit::addBuildProgress(unsigned int buildTimeContribution)
     {
         auto remainingBuildTime = buildTime - buildTimeCompleted;
         if (buildTimeContribution > remainingBuildTime)
@@ -63,12 +63,18 @@ namespace rwe
         }
 
         auto oldProgressHp = (buildTimeCompleted * maxHitPoints) / buildTime;
+        auto oldProgressEnergy = (buildTimeCompleted * energyCost) / buildTime;
+        auto oldProgressMetal = (buildTimeCompleted * metalCost) / buildTime;
 
         buildTimeCompleted += buildTimeContribution;
 
         auto newProgressHp = (buildTimeCompleted * maxHitPoints) / buildTime;
+        auto newProgressEnergy = (buildTimeCompleted * energyCost) / buildTime;
+        auto newProgressMetal = (buildTimeCompleted * metalCost) / buildTime;
 
         auto deltaHp = newProgressHp - oldProgressHp;
+        auto deltaEnergy = newProgressEnergy - oldProgressEnergy;
+        auto deltaMetal = newProgressMetal - oldProgressMetal;
 
         // add HP up to the maximum
         if (hitPoints + deltaHp >= maxHitPoints)
@@ -80,7 +86,7 @@ namespace rwe
             hitPoints += deltaHp;
         }
 
-        return buildTimeCompleted == buildTime;
+        return BuildProgressResult{buildTimeCompleted == buildTime, deltaEnergy, deltaMetal};
     }
 
     bool Unit::isCommander() const

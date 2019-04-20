@@ -1062,6 +1062,15 @@ namespace rwe
 
         processPlayerCommands(*playerCommands);
 
+        // run resource updates once per second
+        if (simulation.gameTime.value % 60 == 0)
+        {
+            for (auto& player : simulation.players)
+            {
+                player.canBuild = player.metal > 0 && player.energy > 0;
+            }
+        }
+
         pathFindingService.update();
 
         // run unit scripts

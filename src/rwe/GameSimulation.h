@@ -38,6 +38,13 @@ namespace rwe
 
         int energy;
         int maxEnergy;
+
+        /**
+         * True if the player's units are permitted to build.
+         * i.e. they had enough resources to continue building
+         * when the value was last checked.
+         */
+        bool canBuild{true};
     };
 
     struct PathRequest

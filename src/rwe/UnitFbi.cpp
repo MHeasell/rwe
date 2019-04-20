@@ -53,6 +53,8 @@ namespace rwe
         tdf.readOrDefault("Builder", u.builder);
 
         tdf.readOrDefault("BuildTime", u.buildTime);
+        tdf.readOrDefault("BuildCostEnergy", u.buildCostEnergy);
+        tdf.readOrDefault("BuildCostMetal", u.buildCostMetal);
 
         tdf.readOrDefault("WorkerTime", u.workerTime);
 

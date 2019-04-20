@@ -41,6 +41,8 @@ namespace rwe
 
         bool builder;
         unsigned int buildTime;
+        unsigned int buildCostEnergy;
+        unsigned int buildCostMetal;
 
         unsigned int workerTime;
 

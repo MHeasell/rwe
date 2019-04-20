@@ -822,7 +822,18 @@ namespace rwe
                 return true;
             }
 
-            if (targetUnit.addBuildProgress(unit.workerTimePerTick))
+            auto& player = scene->getSimulation().getPlayer(unit.owner);
+            if (!player.canBuild)
+            {
+                // we don't have resources available to build -- wait
+                return false;
+            }
+
+            auto buildResult = targetUnit.addBuildProgress(unit.workerTimePerTick);
+            player.metal -= buildResult.metalCost;
+            player.energy -= buildResult.energyCost;
+
+            if (buildResult.complete)
             {
                 // play sound when the unit is completed
                 if (targetUnit.completeSound)

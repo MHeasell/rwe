@@ -169,6 +169,8 @@ namespace rwe
         bool builder;
 
         unsigned int buildTime;
+        unsigned int energyCost;
+        unsigned int metalCost;
 
         unsigned int buildTimeCompleted{0};
 
@@ -191,10 +193,16 @@ namespace rwe
 
         float getPreciseCompletePercent() const;
 
-        /**
-         * Returns true if the unit has finished being built.
-         */
-        bool addBuildProgress(unsigned int buildTimeContribution);
+        struct BuildProgressResult {
+            /** True if the unit has finished being built. */
+            bool complete;
+            /** The energy cost of the actual contribution. */
+            int energyCost;
+            /** The metal cost of the actual contribution. */
+            int metalCost;
+        };
+
+        BuildProgressResult addBuildProgress(unsigned int buildTimeContribution);
 
         bool isCommander() const;
 
@@ -249,6 +257,8 @@ namespace rwe
         void deactivate();
 
         MovementClass getAdHocMovementClass() const;
+
+        unsigned int getDesiredMetalConsumption() const;
     };
 }
 

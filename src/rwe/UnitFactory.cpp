@@ -83,6 +83,8 @@ namespace rwe
         // Build time is per second, assuming 30 ticks per second.
         // However, we use 60 ticks per second, so we multiply by 2 here.
         unit.buildTime = fbi.buildTime * 2;
+        unit.energyCost = fbi.buildCostEnergy;
+        unit.metalCost = fbi.buildCostMetal;
 
         // Worker time is per second, assuming 30 ticks per second.
         // We already scaled up build time to compensate so we are fine
