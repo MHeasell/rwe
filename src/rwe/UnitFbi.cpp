@@ -62,6 +62,13 @@ namespace rwe
         tdf.readOrDefault("onoffable", u.onOffable);
         tdf.readOrDefault("ActivateWhenBuilt", u.activateWhenBuilt);
 
+        tdf.readOrDefault("EnergyMake", u.energyMake);
+        tdf.readOrDefault("MetalMake", u.metalMake);
+        tdf.readOrDefault("EnergyUse", u.energyUse);
+        tdf.readOrDefault("MetalUse", u.metalUse);
+
+        tdf.readOrDefault("MakesMetal", u.makesMetal);
+
         return u;
     }
 }

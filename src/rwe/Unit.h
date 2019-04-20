@@ -181,7 +181,14 @@ namespace rwe
         bool onOffable;
         bool activateWhenBuilt;
 
+        Energy energyUse;
+        Metal metalUse;
+
+        Energy energyMake;
+        Metal metalMake;
+
         bool activated{false};
+        bool isSufficientlyPowered{false};
 
         static float toRotation(const Vector3f& direction);
 

@@ -50,6 +50,13 @@ namespace rwe
 
         bool onOffable;
         bool activateWhenBuilt;
+
+        Energy energyMake;
+        Metal metalMake;
+        Energy energyUse;
+        Metal metalUse;
+
+        Metal makesMetal;
     };
 
     UnitFbi parseUnitInfoBlock(const TdfBlock& tdf);

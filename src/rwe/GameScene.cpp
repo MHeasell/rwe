@@ -181,7 +181,8 @@ namespace rwe
         }
         {
             const auto& rect = localSideData.energyProduced.toDiscreteRect();
-            chromeUiRenderService.drawText(rect.x, rect.y, "25", *guiFont, Color(83, 223, 79));
+            auto text = formatResourceDelta(getPlayer(localPlayerId).energyProductionBuffer);
+            chromeUiRenderService.drawText(rect.x, rect.y, text, *guiFont, Color(83, 223, 79));
         }
         {
             const auto& rect = localSideData.energyConsumed.toDiscreteRect();
@@ -214,7 +215,8 @@ namespace rwe
         }
         {
             const auto& rect = localSideData.metalProduced.toDiscreteRect();
-            chromeUiRenderService.drawText(rect.x, rect.y, "1.0", *guiFont, Color(83, 223, 79));
+            auto text = formatResourceDelta(getPlayer(localPlayerId).metalProductionBuffer);
+            chromeUiRenderService.drawText(rect.x, rect.y, text, *guiFont, Color(83, 223, 79));
         }
         {
             const auto& rect = localSideData.metalConsumed.toDiscreteRect();
@@ -1070,6 +1072,11 @@ namespace rwe
         {
             for (auto& player : simulation.players)
             {
+                player.metal = std::min(player.maxMetal, player.metal + player.metalProductionBuffer);
+                player.metalProductionBuffer = Metal(0);
+                player.energy = std::min(player.maxEnergy, player.energy + player.energyProductionBuffer);
+                player.energyProductionBuffer = Energy(0);
+
                 if (player.metal > Metal(0))
                 {
                     player.metal -= player.actualMetalConsumptionBuffer;
@@ -1097,6 +1104,22 @@ namespace rwe
 
                 player.previousDesiredEnergyConsumptionBuffer = player.desiredEnergyConsumptionBuffer;
                 player.desiredEnergyConsumptionBuffer = Energy(0);
+            }
+
+            for (auto& entry : simulation.units)
+            {
+                auto& unit = entry.second;
+                auto& player = simulation.getPlayer(unit.owner);
+
+                player.addEnergyDelta(unit.energyMake);
+                player.addMetalDelta(unit.metalMake);
+
+                if (unit.activated)
+                {
+                    auto gotEnergy = player.addEnergyDelta(-unit.energyUse);
+                    auto gotMetal = player.addMetalDelta(-unit.metalUse);
+                    unit.isSufficientlyPowered = gotEnergy && gotMetal;
+                }
             }
         }
 

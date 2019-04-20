@@ -4,6 +4,42 @@
 
 namespace rwe
 {
+    bool GamePlayerInfo::addEnergyDelta(const Energy& energy)
+    {
+        if (energy >= Energy(0))
+        {
+            energyProductionBuffer += energy;
+            return true;
+        }
+
+        desiredEnergyConsumptionBuffer -= energy;
+        if (energyStalled)
+        {
+            return false;
+        }
+
+        actualEnergyConsumptionBuffer -= energy;
+        return true;
+    }
+
+    bool GamePlayerInfo::addMetalDelta(const Metal& metal)
+    {
+        if (metal >= Metal(0))
+        {
+            metalProductionBuffer += metal;
+            return true;
+        }
+
+        desiredMetalConsumptionBuffer -= metal;
+        if (metalStalled)
+        {
+            return false;
+        }
+
+        actualMetalConsumptionBuffer -= metal;
+        return true;
+    }
+
     bool PathRequest::operator==(const PathRequest& rhs) const
     {
         return unitId == rhs.unitId;

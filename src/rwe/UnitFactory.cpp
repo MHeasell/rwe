@@ -94,6 +94,12 @@ namespace rwe
         unit.onOffable = fbi.onOffable;
         unit.activateWhenBuilt = fbi.activateWhenBuilt;
 
+        unit.energyMake = fbi.energyMake;
+        unit.energyUse = fbi.energyUse;
+
+        unit.metalMake = fbi.metalMake;
+        unit.metalUse = fbi.metalUse - fbi.makesMetal;
+
         if (movementClassOption)
         {
             auto movementClass = &movementClassOption->get();

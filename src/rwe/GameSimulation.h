@@ -50,6 +50,12 @@ namespace rwe
 
         Metal actualMetalConsumptionBuffer{0};
         Energy actualEnergyConsumptionBuffer{0};
+
+        Metal metalProductionBuffer{0};
+        Energy energyProductionBuffer{0};
+
+        bool addEnergyDelta(const Energy& energy);
+        bool addMetalDelta(const Metal& energy);
     };
 
     struct PathRequest
