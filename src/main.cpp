@@ -384,7 +384,7 @@ namespace rwe
         auto side = parseSideFromString(components[1]);
         auto color = parseColorFromString(components[2]);
 
-        return PlayerInfo{controller, side, color};
+        return PlayerInfo{controller, side, color, 1000, 1000};
     }
 }
 
