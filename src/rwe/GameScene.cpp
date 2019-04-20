@@ -168,11 +168,13 @@ namespace rwe
         }
         {
             const auto& rect = localSideData.energyMax.toDiscreteRect();
-            chromeUiRenderService.drawTextAlignRight(rect.x, rect.y, "1000", *guiFont);
+            auto text = std::to_string(getPlayer(localPlayerId).maxEnergy);
+            chromeUiRenderService.drawTextAlignRight(rect.x, rect.y, text, *guiFont);
         }
         {
             const auto& rect = localSideData.energyNum.toDiscreteRect();
-            chromeUiRenderService.drawText(rect.x, rect.y, "1000", *guiFont);
+            auto text = std::to_string(getPlayer(localPlayerId).energy);
+            chromeUiRenderService.drawText(rect.x, rect.y, text, *guiFont);
         }
         {
             const auto& rect = localSideData.energyProduced.toDiscreteRect();
@@ -196,11 +198,13 @@ namespace rwe
         }
         {
             const auto& rect = localSideData.metalMax.toDiscreteRect();
-            chromeUiRenderService.drawTextAlignRight(rect.x, rect.y, "1000", *guiFont);
+            auto text = std::to_string(getPlayer(localPlayerId).maxMetal);
+            chromeUiRenderService.drawTextAlignRight(rect.x, rect.y, text, *guiFont);
         }
         {
             const auto& rect = localSideData.metalNum.toDiscreteRect();
-            chromeUiRenderService.drawText(rect.x, rect.y, "1000", *guiFont);
+            auto text = std::to_string(getPlayer(localPlayerId).metal);
+            chromeUiRenderService.drawText(rect.x, rect.y, text, *guiFont);
         }
         {
             const auto& rect = localSideData.metalProduced.toDiscreteRect();

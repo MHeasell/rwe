@@ -32,6 +32,12 @@ namespace rwe
         unsigned int color;
         GamePlayerStatus status;
         std::string side;
+
+        int metal;
+        int maxMetal;
+
+        int energy;
+        int maxEnergy;
     };
 
     struct PathRequest

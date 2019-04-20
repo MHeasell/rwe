@@ -64,6 +64,9 @@ namespace rwe
         PlayerControllerType controller;
         std::string side;
         unsigned int color;
+
+        int metal;
+        int energy;
     };
 
     struct GameParameters
