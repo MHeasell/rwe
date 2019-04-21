@@ -852,7 +852,8 @@ namespace rwe
             case CobValueId::UnitBuildPercentLeft:
             {
                 auto targetUnitId = UnitId(arg1);
-                return 0; // TODO
+                const auto& unit = sim->getUnit(targetUnitId);
+                return unit.getBuildPercentLeft();
             }
             case CobValueId::UnitAllied:
             {
