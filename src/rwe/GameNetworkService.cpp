@@ -272,14 +272,14 @@ namespace rwe
             return;
         }
 
-        auto firstRelevantCommandIndex = endpoint.nextCommandToReceive - firstCommandNumber;
+        auto firstRelevantCommandIndex = (endpoint.nextCommandToReceive - firstCommandNumber).value;
 
         // if the packet is relevant (contains new information), process it
-        if (firstRelevantCommandIndex.value < message.command_set_size())
+        if (firstRelevantCommandIndex < static_cast<unsigned int>(message.command_set_size()))
         {
             endpoint.lastReceiveTime = receiveTime;
 
-            for (int i = firstRelevantCommandIndex.value; i < message.command_set_size(); ++i)
+            for (int i = firstRelevantCommandIndex; i < message.command_set_size(); ++i)
             {
                 auto commandSet = deserializeCommandSet(message.command_set(i));
                 playerCommandService->pushCommands(endpoint.playerId, commandSet);
