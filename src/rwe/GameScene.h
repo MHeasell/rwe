@@ -463,8 +463,6 @@ namespace rwe
 
         void processActions();
 
-        bool hasPlayerCommands() const;
-
         void processPlayerCommands(const std::vector<std::pair<PlayerId, std::vector<PlayerCommand>>>& commands);
 
         template <typename T>
