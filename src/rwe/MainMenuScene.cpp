@@ -35,7 +35,7 @@ namespace rwe
         goToMainMenu();
     }
 
-    void MainMenuScene::render(GraphicsContext& context)
+    void MainMenuScene::render()
     {
         panelStack.back()->render(scaledUiRenderService);
 

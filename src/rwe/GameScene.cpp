@@ -118,14 +118,14 @@ namespace rwe
         gameNetworkService->start();
     }
 
-    void GameScene::render(GraphicsContext& context)
+    void GameScene::render()
     {
         const auto& localSideData = sceneContext.sideData->at(getPlayer(localPlayerId).side);
 
-        context.setViewport(0, 0, sceneContext.viewportService->width(), sceneContext.viewportService->height());
-        context.disableDepthBuffer();
+        sceneContext.graphics->setViewport(0, 0, sceneContext.viewportService->width(), sceneContext.viewportService->height());
+        sceneContext.graphics->disableDepthBuffer();
 
-        renderMinimap(context);
+        renderMinimap();
 
         // render top bar
         const auto& intGafName = localSideData.intGaf;
@@ -237,23 +237,23 @@ namespace rwe
         }
 
         currentPanel->render(chromeUiRenderService);
-        context.enableDepthBuffer();
+        sceneContext.graphics->enableDepthBuffer();
 
         auto viewportPos = worldViewport.toOtherViewport(*sceneContext.viewportService, 0, worldViewport.height());
-        context.setViewport(
+        sceneContext.graphics->setViewport(
             viewportPos.x,
             sceneContext.viewportService->height() - viewportPos.y,
             worldViewport.width(),
             worldViewport.height());
-        renderWorld(context);
+        renderWorld();
 
-        context.setViewport(0, 0, sceneContext.viewportService->width(), sceneContext.viewportService->height());
-        context.disableDepthBuffer();
+        sceneContext.graphics->setViewport(0, 0, sceneContext.viewportService->width(), sceneContext.viewportService->height());
+        sceneContext.graphics->disableDepthBuffer();
         sceneContext.cursor->render(chromeUiRenderService);
-        context.enableDepthBuffer();
+        sceneContext.graphics->enableDepthBuffer();
     }
 
-    void GameScene::renderMinimap(GraphicsContext& context)
+    void GameScene::renderMinimap()
     {
         // draw minimap
         chromeUiRenderService.drawSpriteAbs(minimapRect, *minimap);
@@ -297,9 +297,9 @@ namespace rwe
         }
     }
 
-    void GameScene::renderWorld(GraphicsContext& context)
+    void GameScene::renderWorld()
     {
-        context.disableDepthBuffer();
+        sceneContext.graphics->disableDepthBuffer();
 
         worldRenderService.drawMapTerrain(simulation.terrain);
 
@@ -333,7 +333,7 @@ namespace rwe
 
         worldRenderService.drawUnitShadows(simulation.terrain, simulation.units | boost::adaptors::map_values);
 
-        context.enableDepthBuffer();
+        sceneContext.graphics->enableDepthBuffer();
 
         auto seaLevel = simulation.terrain.getSeaLevel();
         for (const auto& unit : (simulation.units | boost::adaptors::map_values))
@@ -343,22 +343,22 @@ namespace rwe
 
         worldRenderService.drawLasers(simulation.lasers);
 
-        context.disableDepthWrites();
+        sceneContext.graphics->disableDepthWrites();
 
-        context.disableDepthTest();
+        sceneContext.graphics->disableDepthTest();
         worldRenderService.drawStandingFeatureShadows(simulation.features | boost::adaptors::map_values);
-        context.enableDepthTest();
+        sceneContext.graphics->enableDepthTest();
 
         worldRenderService.drawStandingFeatures(simulation.features | boost::adaptors::map_values);
 
-        context.disableDepthTest();
+        sceneContext.graphics->disableDepthTest();
         worldRenderService.drawExplosions(simulation.gameTime, simulation.explosions);
-        context.enableDepthTest();
+        sceneContext.graphics->enableDepthTest();
 
-        context.enableDepthWrites();
+        sceneContext.graphics->enableDepthWrites();
 
         // in-world UI/overlay rendering
-        context.disableDepthBuffer();
+        sceneContext.graphics->disableDepthBuffer();
 
         if (healthBarsVisible)
         {
@@ -426,7 +426,7 @@ namespace rwe
             }
         }
 
-        context.enableDepthBuffer();
+        sceneContext.graphics->enableDepthBuffer();
     }
 
     void GameScene::onKeyDown(const SDL_Keysym& keysym)

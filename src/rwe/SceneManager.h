@@ -21,7 +21,7 @@ namespace rwe
 
             virtual void init() {}
 
-            virtual void render(GraphicsContext& /*graphics*/) {}
+            virtual void render() {}
 
             virtual void onKeyDown(const SDL_Keysym& /*key*/) {}
 

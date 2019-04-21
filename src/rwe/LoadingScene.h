@@ -116,7 +116,7 @@ namespace rwe
 
         void init() override;
 
-        void render(GraphicsContext& context) override;
+        void render() override;
 
     private:
         static unsigned int computeMidpointHeight(const Grid<unsigned char>& heightmap, std::size_t x, std::size_t y);

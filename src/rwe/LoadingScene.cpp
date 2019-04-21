@@ -96,7 +96,7 @@ namespace rwe
         networkService.waitForAllToBeReady();
     }
 
-    void LoadingScene::render(GraphicsContext& context)
+    void LoadingScene::render()
     {
         panel->render(scaledUiRenderService);
         sceneContext.cursor->render(nativeUiRenderService);

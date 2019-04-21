@@ -52,7 +52,7 @@ namespace rwe
 
         void init() override;
 
-        void render(GraphicsContext& context) override;
+        void render() override;
 
         void onMouseDown(MouseButtonEvent event) override;
 

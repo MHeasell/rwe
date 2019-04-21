@@ -331,7 +331,7 @@ namespace rwe
 
         void init() override;
 
-        void render(GraphicsContext& context) override;
+        void render() override;
 
         void onKeyDown(const SDL_Keysym& keysym) override;
 
@@ -473,9 +473,9 @@ namespace rwe
             actions.push_back(GameSceneTimeAction(sceneTime + interval, std::forward<T>(f)));
         }
 
-        void renderMinimap(GraphicsContext& context);
+        void renderMinimap();
 
-        void renderWorld(GraphicsContext& context);
+        void renderWorld();
 
         void attachOrdersMenuEventHandlers();
 

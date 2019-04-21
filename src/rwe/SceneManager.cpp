@@ -107,7 +107,7 @@ namespace rwe
             currentScene->update();
 
             graphics->clear();
-            currentScene->render(*graphics);
+            currentScene->render();
             sdl->glSwapWindow(window);
 
             auto finishTime = timeService->getTicks();
