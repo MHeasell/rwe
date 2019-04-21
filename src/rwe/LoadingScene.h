@@ -9,6 +9,7 @@
 #include <rwe/LoadingNetworkService.h>
 #include <rwe/MapFeatureService.h>
 #include <rwe/Metal.h>
+#include <rwe/PlayerColorIndex.h>
 #include <rwe/SceneContext.h>
 #include <rwe/SceneManager.h>
 #include <rwe/SideData.h>
@@ -65,7 +66,7 @@ namespace rwe
     {
         PlayerControllerType controller;
         std::string side;
-        unsigned int color;
+        PlayerColorIndex color;
 
         Metal metal;
         Energy energy;

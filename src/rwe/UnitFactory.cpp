@@ -31,7 +31,7 @@ namespace rwe
     Unit UnitFactory::createUnit(
         const std::string& unitType,
         PlayerId owner,
-        unsigned int colorIndex,
+        const PlayerColorIndex& colorIndex,
         const Vector3f& position)
     {
         const auto& fbi = unitDatabase.getUnitInfo(unitType);

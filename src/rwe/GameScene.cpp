@@ -153,7 +153,7 @@ namespace rwe
         {
             auto playerColorIndex = getPlayer(localPlayerId).color;
             const auto& rect = localSideData.logo.toDiscreteRect();
-            chromeUiRenderService.drawSpriteAbs(rect.x, rect.y, rect.width, rect.height, *(*logos)->sprites.at(playerColorIndex));
+            chromeUiRenderService.drawSpriteAbs(rect.x, rect.y, rect.width, rect.height, *(*logos)->sprites.at(playerColorIndex.value));
         }
 
         // draw energy bar
@@ -269,8 +269,7 @@ namespace rwe
             minimapPos.y = std::floor(minimapPos.y);
             auto ownerId = unit.owner;
             auto colorIndex = getPlayer(ownerId).color;
-            assert(colorIndex >= 0 && colorIndex < 10);
-            chromeUiRenderService.drawSprite(minimapPos.x, minimapPos.y, *minimapDots->sprites[colorIndex]);
+            chromeUiRenderService.drawSprite(minimapPos.x, minimapPos.y, *minimapDots->sprites[colorIndex.value]);
         }
         // highlight the minimap dot for the hovered unit
         if (hoveredUnit)
@@ -1180,8 +1179,7 @@ namespace rwe
                 minimapPos.y = std::floor(minimapPos.y);
                 auto ownerId = unit.owner;
                 auto colorIndex = getPlayer(ownerId).color;
-                assert(colorIndex >= 0 && colorIndex < 10);
-                const auto& sprite = *minimapDots->sprites[colorIndex];
+                const auto& sprite = *minimapDots->sprites[colorIndex.value];
                 auto bounds = sprite.bounds;
 
                 // test cursor against the rect

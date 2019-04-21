@@ -11,6 +11,7 @@
 #include <rwe/MainMenuScene.h>
 #include <rwe/Metal.h>
 #include <rwe/OpenGlVersion.h>
+#include <rwe/PlayerColorIndex.h>
 #include <rwe/Result.h>
 #include <rwe/SceneContext.h>
 #include <rwe/SceneManager.h>
@@ -353,7 +354,7 @@ namespace rwe
         throw std::runtime_error("Unknown side string");
     }
 
-    unsigned int parseColorFromString(const std::string& colorString)
+    PlayerColorIndex parseColorFromString(const std::string& colorString)
     {
         std::stringstream s(colorString);
         unsigned int i;
@@ -366,7 +367,7 @@ namespace rwe
         {
             throw std::runtime_error("Invalid player colour string");
         }
-        return i;
+        return PlayerColorIndex(i);
     }
 
     std::optional<PlayerInfo> parsePlayerInfoFromArg(const std::string& playerString)

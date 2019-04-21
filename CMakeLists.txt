@@ -280,6 +280,8 @@ set(SOURCE_FILES
     src/rwe/OpaqueUnit.h
     src/rwe/OpaqueUnit_io.h
     src/rwe/OpenGlVersion.h
+    src/rwe/PlayerColorIndex.cpp
+    src/rwe/PlayerColorIndex.h
     src/rwe/PlayerCommand.h
     src/rwe/PlayerCommandService.cpp
     src/rwe/PlayerCommandService.h

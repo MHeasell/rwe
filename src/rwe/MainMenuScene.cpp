@@ -608,7 +608,7 @@ namespace rwe
         auto currentColor = player.colorIndex.getValue();
         for (unsigned int i = 1; i < 10; ++i)
         {
-            auto newColor = (currentColor + i) % 10;
+            auto newColor = PlayerColorIndex((currentColor.value + i) % 10);
             if (!model.isColorInUse(newColor))
             {
                 player.colorIndex.next(newColor);
@@ -623,7 +623,7 @@ namespace rwe
         auto currentColor = player.colorIndex.getValue();
         for (unsigned int i = 9; i >= 1; --i)
         {
-            auto newColor = (currentColor + i) % 10;
+            auto newColor = PlayerColorIndex((currentColor.value + i) % 10);
             if (!model.isColorInUse(newColor))
             {
                 player.colorIndex.next(newColor);
@@ -831,9 +831,9 @@ namespace rwe
             auto b = uiFactory.createButton(214, rowStart, width, height, guiName, "logo", "");
             b->setName("PLAYER" + std::to_string(i) + "_color");
 
-            auto sub = model.players[i].colorIndex.subscribe([b = b.get(), newSprites](unsigned int index) {
-                b->setNormalSprite(newSprites->sprites[index]);
-                b->setPressedSprite(newSprites->sprites[index]);
+            auto sub = model.players[i].colorIndex.subscribe([b = b.get(), newSprites](const auto& index) {
+                b->setNormalSprite(newSprites->sprites[index.value]);
+                b->setPressedSprite(newSprites->sprites[index.value]);
             });
             b->addSubscription(std::move(sub));
 

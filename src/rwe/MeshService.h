@@ -3,6 +3,7 @@
 
 #include <boost/functional/hash.hpp>
 #include <memory>
+#include <rwe/PlayerColorIndex.h>
 #include <rwe/TextureService.h>
 #include <rwe/UnitMesh.h>
 #include <rwe/_3do.h>
@@ -69,15 +70,15 @@ namespace rwe
             float height;
         };
 
-        UnitMeshInfo loadUnitMesh(const std::string& name, unsigned int teamColor);
+        UnitMeshInfo loadUnitMesh(const std::string& name, const PlayerColorIndex& teamColor);
 
     private:
         SharedTextureHandle getMeshTextureAtlas();
-        Rectangle2f getTextureRegion(const std::string& name, unsigned int teamColor);
+        Rectangle2f getTextureRegion(const std::string& name, const PlayerColorIndex& teamColor);
 
-        Mesh meshFrom3do(const _3do::Object& o, unsigned int teamColor);
+        Mesh meshFrom3do(const _3do::Object& o, const PlayerColorIndex& teamColor);
 
-        InnerUnitMeshInfo unitMeshFrom3do(const _3do::Object& o, unsigned int teamColor);
+        InnerUnitMeshInfo unitMeshFrom3do(const _3do::Object& o, const PlayerColorIndex& teamColor);
 
         SelectionMesh selectionMeshFrom3do(const _3do::Object& o);
 

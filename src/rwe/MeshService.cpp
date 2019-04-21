@@ -166,7 +166,7 @@ namespace rwe
     {
     }
 
-    Mesh MeshService::meshFrom3do(const _3do::Object& o, unsigned int teamColor)
+    Mesh MeshService::meshFrom3do(const _3do::Object& o, const PlayerColorIndex& teamColor)
     {
         Mesh m;
         m.texture = getMeshTextureAtlas();
@@ -242,7 +242,7 @@ namespace rwe
         return std::max(getHeight(mesh.faces), getHeight(mesh.colorFaces));
     }
 
-    MeshService::InnerUnitMeshInfo MeshService::unitMeshFrom3do(const _3do::Object& o, unsigned int teamColor)
+    MeshService::InnerUnitMeshInfo MeshService::unitMeshFrom3do(const _3do::Object& o, const PlayerColorIndex& teamColor)
     {
         UnitMesh m;
         m.origin = vertexToVector(_3do::Vertex(o.x, o.y, o.z));
@@ -267,7 +267,7 @@ namespace rwe
         return InnerUnitMeshInfo{std::move(m), height};
     }
 
-    MeshService::UnitMeshInfo MeshService::loadUnitMesh(const std::string& name, unsigned int teamColor)
+    MeshService::UnitMeshInfo MeshService::loadUnitMesh(const std::string& name, const PlayerColorIndex& teamColor)
     {
         auto bytes = vfs->readFile("objects3d/" + name + ".3do");
         if (!bytes)
@@ -288,7 +288,7 @@ namespace rwe
         return atlas;
     }
 
-    Rectangle2f MeshService::getTextureRegion(const std::string& name, unsigned int teamColor)
+    Rectangle2f MeshService::getTextureRegion(const std::string& name, const PlayerColorIndex& teamColor)
     {
         auto attrsIt = textureAttributesMap.find(name);
         if (attrsIt == textureAttributesMap.end())
@@ -304,7 +304,7 @@ namespace rwe
         unsigned int frameNumber = 0;
         if (attrs.isTeamDependent)
         {
-            frameNumber = teamColor;
+            frameNumber = teamColor.value;
         }
 
         FrameId frameId(name, frameNumber);

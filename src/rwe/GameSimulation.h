@@ -8,6 +8,7 @@
 #include <rwe/MapFeature.h>
 #include <rwe/MapTerrain.h>
 #include <rwe/OccupiedGrid.h>
+#include <rwe/PlayerColorIndex.h>
 #include <rwe/PlayerId.h>
 #include <rwe/Unit.h>
 #include <unordered_map>
@@ -29,7 +30,7 @@ namespace rwe
     struct GamePlayerInfo
     {
         GamePlayerType type;
-        unsigned int color;
+        PlayerColorIndex color;
         GamePlayerStatus status;
         std::string side;
 
