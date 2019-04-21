@@ -76,8 +76,6 @@ namespace rwe
     {
         std::promise<float> result;
         ioContext.post([this, &result]() {
-            auto time = getTimestamp();
-
             auto maxRtt = 0.0f;
             for (const auto& e : endpoints)
             {
