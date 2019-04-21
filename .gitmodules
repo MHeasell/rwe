@@ -10,6 +10,3 @@
 [submodule "libs/json"]
 	path = libs/json
 	url = https://github.com/nlohmann/json.git
-[submodule "libs/cnl"]
-	path = libs/cnl
-	url = https://github.com/johnmcfarlane/cnl.git
