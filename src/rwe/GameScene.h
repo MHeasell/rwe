@@ -468,7 +468,7 @@ namespace rwe
         template <typename T>
         void delay(SceneTime interval, T&& f)
         {
-            actions.push_back(GameSceneTimeAction(sceneTime + interval, std::forward<T>(f)));
+            actions.emplace_back(GameSceneTimeAction(sceneTime + interval, std::forward<T>(f)));
         }
 
         void renderMinimap();
