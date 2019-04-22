@@ -32,6 +32,7 @@ set(RC_ENABLE_BOOST ON CACHE BOOL "Enables Boost support in RapidCheck" FORCE)
 add_subdirectory("libs/rapidcheck")
 
 set(JSON_BuildTests OFF CACHE INTERNAL "")
+set(JSON_Install OFF CACHE INTERNAL "")
 add_subdirectory("libs/json")
 
 function(find_windows_dll var dll)
