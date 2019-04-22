@@ -26,7 +26,8 @@ pacman -Sq --needed --noconfirm \
     mingw-w64-x86_64-glew \
     mingw-w64-x86_64-smpeg2 \
     mingw-w64-x86_64-zlib \
-    mingw-w64-x86_64-libpng
+    mingw-w64-x86_64-libpng \
+    mingw-w64-x86_64-readline # need up update manually for SDL2_mixer dep
 
 # Build protobuf
 pushd libs
