@@ -266,8 +266,6 @@ namespace rwe
         void deactivate();
 
         MovementClass getAdHocMovementClass() const;
-
-        unsigned int getDesiredMetalConsumption() const;
     };
 }
 
