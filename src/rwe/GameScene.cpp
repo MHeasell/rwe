@@ -166,28 +166,28 @@ namespace rwe
             chromeUiRenderService.fillColor(rect.x, rect.y, rectWidth, rect.height, color);
         }
         {
-            const auto& rect = localSideData.energy0.toDiscreteRect();
-            chromeUiRenderService.drawText(rect.x, rect.y, formatResource(Energy(0)), *guiFont);
+            const auto& rect = localSideData.energy0;
+            chromeUiRenderService.drawText(rect.x1, rect.y1, formatResource(Energy(0)), *guiFont);
         }
         {
-            const auto& rect = localSideData.energyMax.toDiscreteRect();
+            const auto& rect = localSideData.energyMax;
             auto text = formatResource(getPlayer(localPlayerId).maxEnergy);
-            chromeUiRenderService.drawTextAlignRight(rect.x, rect.y, text, *guiFont);
+            chromeUiRenderService.drawTextAlignRight(rect.x1, rect.y1, text, *guiFont);
         }
         {
-            const auto& rect = localSideData.energyNum.toDiscreteRect();
+            const auto& rect = localSideData.energyNum;
             auto text = formatResource(std::max(Energy(0), getPlayer(localPlayerId).energy));
-            chromeUiRenderService.drawText(rect.x, rect.y, text, *guiFont);
+            chromeUiRenderService.drawText(rect.x1, rect.y1, text, *guiFont);
         }
         {
-            const auto& rect = localSideData.energyProduced.toDiscreteRect();
+            const auto& rect = localSideData.energyProduced;
             auto text = formatResourceDelta(getPlayer(localPlayerId).energyProductionBuffer);
-            chromeUiRenderService.drawText(rect.x, rect.y, text, *guiFont, Color(83, 223, 79));
+            chromeUiRenderService.drawText(rect.x1, rect.y1, text, *guiFont, Color(83, 223, 79));
         }
         {
-            const auto& rect = localSideData.energyConsumed.toDiscreteRect();
+            const auto& rect = localSideData.energyConsumed;
             auto text = formatResourceDelta(getPlayer(localPlayerId).previousDesiredEnergyConsumptionBuffer);
-            chromeUiRenderService.drawText(rect.x, rect.y, text, *guiFont, Color(255, 71, 0));
+            chromeUiRenderService.drawText(rect.x1, rect.y1, text, *guiFont, Color(255, 71, 0));
         }
 
         // draw metal bar
@@ -200,28 +200,28 @@ namespace rwe
             chromeUiRenderService.fillColor(rect.x, rect.y, rectWidth, rect.height, color);
         }
         {
-            const auto& rect = localSideData.metal0.toDiscreteRect();
-            chromeUiRenderService.drawText(rect.x, rect.y, "0", *guiFont);
+            const auto& rect = localSideData.metal0;
+            chromeUiRenderService.drawText(rect.x1, rect.y1, "0", *guiFont);
         }
         {
-            const auto& rect = localSideData.metalMax.toDiscreteRect();
+            const auto& rect = localSideData.metalMax;
             auto text = formatResource(getPlayer(localPlayerId).maxMetal);
-            chromeUiRenderService.drawTextAlignRight(rect.x, rect.y, text, *guiFont);
+            chromeUiRenderService.drawTextAlignRight(rect.x1, rect.y1, text, *guiFont);
         }
         {
-            const auto& rect = localSideData.metalNum.toDiscreteRect();
+            const auto& rect = localSideData.metalNum;
             auto text = formatResource(std::max(Metal(0), getPlayer(localPlayerId).metal));
-            chromeUiRenderService.drawText(rect.x, rect.y, text, *guiFont);
+            chromeUiRenderService.drawText(rect.x1, rect.y1, text, *guiFont);
         }
         {
-            const auto& rect = localSideData.metalProduced.toDiscreteRect();
+            const auto& rect = localSideData.metalProduced;
             auto text = formatResourceDelta(getPlayer(localPlayerId).metalProductionBuffer);
-            chromeUiRenderService.drawText(rect.x, rect.y, text, *guiFont, Color(83, 223, 79));
+            chromeUiRenderService.drawText(rect.x1, rect.y1, text, *guiFont, Color(83, 223, 79));
         }
         {
-            const auto& rect = localSideData.metalConsumed.toDiscreteRect();
+            const auto& rect = localSideData.metalConsumed;
             auto text = formatResourceDelta(getPlayer(localPlayerId).previousDesiredMetalConsumptionBuffer);
-            chromeUiRenderService.drawText(rect.x, rect.y, text, *guiFont, Color(255, 71, 0));
+            chromeUiRenderService.drawText(rect.x1, rect.y1, text, *guiFont, Color(255, 71, 0));
         }
 
         // render bottom bar
