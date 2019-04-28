@@ -119,6 +119,14 @@ namespace rwe
         drawText(std::round(x - halfWidth), std::round(y + halfHeight), text, font);
     }
 
+    void UiRenderService::drawTextCenteredX(float x, float y, const std::string& text, const rwe::SpriteSeries& font)
+    {
+        float width = getTextWidth(text, font);
+        float halfWidth = width / 2.0f;
+
+        drawText(std::round(x - halfWidth), y, text, font);
+    }
+
     void UiRenderService::drawTextAlignRight(float x, float y, const std::string& text, const SpriteSeries& font)
     {
         drawTextAlignRight(x, y, text, font, Color(255, 255, 255));
@@ -250,6 +258,14 @@ namespace rwe
 
         fillColor(x, y, width, height, borderColor);
         fillColor(x + borderWidth, y + borderWidth, innerWidth, innerHeight, healthColor);
+    }
+
+    void UiRenderService::drawHealthBar2(float x, float y, float width, float height, float percentFull)
+    {
+        assert(percentFull >= 0.0f && percentFull <= 1.0f);
+        float healthWidth = width * percentFull;
+        fillColor(x, y, healthWidth, height, Color(83, 223, 79));
+        fillColor(x + healthWidth, y, width - healthWidth, height, Color(171, 23, 0));
     }
 
     void UiRenderService::drawBoxOutline(float x, float y, float width, float height, Color color)

@@ -76,6 +76,7 @@ namespace rwe
         };
 
     public:
+        std::string name;
         std::string unitType;
         UnitMesh mesh;
         Vector3f position;

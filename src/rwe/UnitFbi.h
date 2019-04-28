@@ -15,6 +15,8 @@ namespace rwe
         std::string soundCategory;
         std::string movementClass;
 
+        std::string name;
+
         float turnRate;
         float maxVelocity;
         float acceleration;

@@ -53,6 +53,7 @@ namespace rwe
         auto cobEnv = std::make_unique<CobEnvironment>(&script);
         cobEnv->createThread("Create", std::vector<int>());
         Unit unit(meshInfo.mesh, std::move(cobEnv), std::move(meshInfo.selectionMesh));
+        unit.name = fbi.name;
         unit.unitType = toUpper(unitType);
         unit.owner = owner;
         unit.position = position;

@@ -42,6 +42,8 @@ namespace rwe
 
         void drawTextCentered(float x, float y, const std::string& text, const SpriteSeries& font);
 
+        void drawTextCenteredX(float x, float y, const std::string& text, const SpriteSeries& font);
+
         void drawTextAlignRight(float x, float y, const std::string& text, const SpriteSeries& font);
         void drawTextAlignRight(float x, float y, const std::string& text, const SpriteSeries& font, const Color& tint);
 
@@ -71,6 +73,8 @@ namespace rwe
         void fillColor(float x, float y, float width, float height, Color color);
 
         void drawHealthBar(float x, float y, float percentFull);
+
+        void drawHealthBar2(float x, float y, float width, float height, float percentFull);
 
         void drawBoxOutline(float x, float y, float width, float height, Color color);
     };
