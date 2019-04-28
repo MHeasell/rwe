@@ -71,6 +71,8 @@ namespace rwe
 
         tdf.readOrDefault("MakesMetal", u.makesMetal);
 
+        tdf.readOrDefault("HideDamage", u.hideDamage, false);
+
         return u;
     }
 }

@@ -252,6 +252,7 @@ namespace rwe
                 chromeUiRenderService.drawTextCenteredX(rect.x1, extraBottom + rect.y1, unit.name, *guiFont);
             }
 
+            if (unit.isOwnedBy(localPlayerId) || !unit.hideDamage)
             {
                 const auto& rect = localSideData.damageBar.toDiscreteRect();
                 chromeUiRenderService.drawHealthBar2(rect.x, extraBottom + rect.y, rect.width, rect.height, static_cast<float>(unit.hitPoints) / static_cast<float>(unit.maxHitPoints));

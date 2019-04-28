@@ -191,6 +191,8 @@ namespace rwe
         bool activated{false};
         bool isSufficientlyPowered{false};
 
+        bool hideDamage{false};
+
         static float toRotation(const Vector3f& direction);
 
         static Vector3f toDirection(float rotation);

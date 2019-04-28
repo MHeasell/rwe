@@ -59,6 +59,8 @@ namespace rwe
         Metal metalUse;
 
         Metal makesMetal;
+
+        bool hideDamage;
     };
 
     UnitFbi parseUnitInfoBlock(const TdfBlock& tdf);

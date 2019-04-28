@@ -101,6 +101,8 @@ namespace rwe
         unit.metalMake = fbi.metalMake;
         unit.metalUse = fbi.metalUse - fbi.makesMetal;
 
+        unit.hideDamage = fbi.hideDamage;
+
         if (movementClassOption)
         {
             auto movementClass = &movementClassOption->get();
