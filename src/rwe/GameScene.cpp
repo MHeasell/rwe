@@ -258,30 +258,33 @@ namespace rwe
                 chromeUiRenderService.drawHealthBar2(rect.x, extraBottom + rect.y, rect.width, rect.height, static_cast<float>(unit.hitPoints) / static_cast<float>(unit.maxHitPoints));
             }
 
+            if (unit.isOwnedBy(localPlayerId))
             {
-                const auto& rect = localSideData.unitMetalMake;
-                auto text = "+0.0";
-                chromeUiRenderService.drawText(rect.x1, extraBottom + rect.y1, text, *guiFont, Color(83, 223, 79));
-            }
-            {
-                const auto& rect = localSideData.unitMetalUse;
-                auto text = "-0.0";
-                chromeUiRenderService.drawText(rect.x1, extraBottom + rect.y1, text, *guiFont, Color(255, 71, 0));
-            }
-            {
-                const auto& rect = localSideData.unitEnergyMake;
-                auto text = "+0";
-                chromeUiRenderService.drawText(rect.x1, extraBottom + rect.y1, text, *guiFont, Color(83, 223, 79));
-            }
-            {
-                const auto& rect = localSideData.unitEnergyUse;
-                auto text = "-0";
-                chromeUiRenderService.drawText(rect.x1, extraBottom + rect.y1, text, *guiFont, Color(255, 71, 0));
-            }
-            {
-                const auto& rect = localSideData.missionText;
-                auto text = "Standby";
-                chromeUiRenderService.drawTextCenteredX(rect.x1, extraBottom + rect.y1, text, *guiFont);
+                {
+                    const auto& rect = localSideData.unitMetalMake;
+                    auto text = "+0.0";
+                    chromeUiRenderService.drawText(rect.x1, extraBottom + rect.y1, text, *guiFont, Color(83, 223, 79));
+                }
+                {
+                    const auto& rect = localSideData.unitMetalUse;
+                    auto text = "-0.0";
+                    chromeUiRenderService.drawText(rect.x1, extraBottom + rect.y1, text, *guiFont, Color(255, 71, 0));
+                }
+                {
+                    const auto& rect = localSideData.unitEnergyMake;
+                    auto text = "+0";
+                    chromeUiRenderService.drawText(rect.x1, extraBottom + rect.y1, text, *guiFont, Color(83, 223, 79));
+                }
+                {
+                    const auto& rect = localSideData.unitEnergyUse;
+                    auto text = "-0";
+                    chromeUiRenderService.drawText(rect.x1, extraBottom + rect.y1, text, *guiFont, Color(255, 71, 0));
+                }
+                {
+                    const auto& rect = localSideData.missionText;
+                    auto text = "Standby";
+                    chromeUiRenderService.drawTextCenteredX(rect.x1, extraBottom + rect.y1, text, *guiFont);
+                }
             }
         }
 
