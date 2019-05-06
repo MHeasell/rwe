@@ -249,7 +249,9 @@ namespace rwe
 
             {
                 const auto& rect = localSideData.unitName;
-                chromeUiRenderService.drawTextCenteredX(rect.x1, extraBottom + rect.y1, unit.name, *guiFont);
+                const auto& playerName = getPlayer(unit.owner).name;
+                const auto& text = unit.showPlayerName && playerName ? *playerName : unit.name;
+                chromeUiRenderService.drawTextCenteredX(rect.x1, extraBottom + rect.y1, text, *guiFont);
             }
 
             if (unit.isOwnedBy(localPlayerId) || !unit.hideDamage)

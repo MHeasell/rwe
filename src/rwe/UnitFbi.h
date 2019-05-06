@@ -61,6 +61,7 @@ namespace rwe
         Metal makesMetal;
 
         bool hideDamage;
+        bool showPlayerName;
     };
 
     UnitFbi parseUnitInfoBlock(const TdfBlock& tdf);

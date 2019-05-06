@@ -161,7 +161,7 @@ namespace rwe
             if (params)
             {
                 auto playerType = boost::apply_visitor(IsComputerVisitor(), params->controller) ? GamePlayerType::Computer : GamePlayerType::Human;
-                GamePlayerInfo gpi{playerType, params->color, GamePlayerStatus::Alive, params->side, params->metal, params->metal, params->energy, params->energy};
+                GamePlayerInfo gpi{params->name, playerType, params->color, GamePlayerStatus::Alive, params->side, params->metal, params->metal, params->energy, params->energy};
                 auto playerId = simulation.addPlayer(gpi);
                 gamePlayers[i] = playerId;
                 playerCommandService->registerPlayer(playerId);

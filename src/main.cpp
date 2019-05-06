@@ -378,16 +378,17 @@ namespace rwe
         }
 
         auto components = rwe::utf8Split(playerString, ';');
-        if (components.size() != 3)
+        if (components.size() != 4)
         {
             throw std::runtime_error("Invalid player arg");
         }
 
-        auto controller = parseControllerFromString(components[0]);
-        auto side = parseSideFromString(components[1]);
-        auto color = parseColorFromString(components[2]);
+        auto name = components[0];
+        auto controller = parseControllerFromString(components[1]);
+        auto side = parseSideFromString(components[2]);
+        auto color = parseColorFromString(components[3]);
 
-        return PlayerInfo{controller, side, color, Metal(1000), Energy(1000)};
+        return PlayerInfo{name, controller, side, color, Metal(1000), Energy(1000)};
     }
 }
 

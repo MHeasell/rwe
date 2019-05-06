@@ -26,12 +26,14 @@ namespace rwe
 {
     struct PlayerControllerTypeHuman
     {
+        std::string name;
     };
     struct PlayerControllerTypeComputer
     {
     };
     struct PlayerControllerTypeNetwork
     {
+        std::string name;
         std::string host;
         std::string port;
     };
@@ -64,6 +66,7 @@ namespace rwe
 
     struct PlayerInfo
     {
+        std::optional<std::string> name;
         PlayerControllerType controller;
         std::string side;
         PlayerColorIndex color;

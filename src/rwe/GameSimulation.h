@@ -29,6 +29,7 @@ namespace rwe
 
     struct GamePlayerInfo
     {
+        std::optional<std::string> name;
         GamePlayerType type;
         PlayerColorIndex color;
         GamePlayerStatus status;

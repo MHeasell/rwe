@@ -102,6 +102,7 @@ namespace rwe
         unit.metalUse = fbi.metalUse - fbi.makesMetal;
 
         unit.hideDamage = fbi.hideDamage;
+        unit.showPlayerName = fbi.showPlayerName;
 
         if (movementClassOption)
         {
