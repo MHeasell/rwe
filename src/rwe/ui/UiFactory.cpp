@@ -346,7 +346,7 @@ namespace rwe
         return button;
     }
 
-    std::unique_ptr<UiLabel> UiFactory::labelFromGuiEntry(const std::string& guiName, const GuiEntry& entry)
+    std::unique_ptr<UiLabel> UiFactory::labelFromGuiEntry(const std::string& /*guiName*/, const GuiEntry& entry)
     {
         auto font = textureService->getGafEntry("anims/hattfont12.gaf", "Haettenschweiler (120)");
 
@@ -526,7 +526,7 @@ namespace rwe
         return audioService->loadSound(*soundName);
     }
 
-    std::unique_ptr<UiComponent> UiFactory::surfaceFromGuiEntry(const std::string& guiName, const GuiEntry& entry)
+    std::unique_ptr<UiComponent> UiFactory::surfaceFromGuiEntry(const std::string& /*guiName*/, const GuiEntry& entry)
     {
         auto surface = std::make_unique<UiSurface>(
             entry.common.xpos,
