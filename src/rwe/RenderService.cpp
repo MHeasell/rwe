@@ -3,7 +3,7 @@
 
 namespace rwe
 {
-    class IsOccupiedVisitor : public boost::static_visitor<bool>
+    class IsOccupiedVisitor
     {
     public:
         bool operator()(const OccupiedNone&) const
@@ -178,7 +178,7 @@ namespace rwe
                 lines.emplace_back(pos, rightPos);
                 lines.emplace_back(pos, downPos);
 
-                if (boost::apply_visitor(IsOccupiedVisitor(), occupiedGrid.grid.get(x, y)))
+                if (std::visit(IsOccupiedVisitor(), occupiedGrid.grid.get(x, y)))
                 {
                     auto downRightPos = terrain.heightmapIndexToWorldCorner(x + 1, y + 1);
                     downRightPos.y = terrain.getHeightMap().get(x + 1, y + 1);

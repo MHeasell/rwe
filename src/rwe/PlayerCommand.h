@@ -1,11 +1,11 @@
 #ifndef RWE_PLAYERCOMMAND_H
 #define RWE_PLAYERCOMMAND_H
 
-#include <boost/variant.hpp>
 #include <rwe/SceneTime.h>
 #include <rwe/UnitFireOrders.h>
 #include <rwe/UnitId.h>
 #include <rwe/UnitOrder.h>
+#include <variant>
 
 namespace rwe
 {
@@ -40,7 +40,7 @@ namespace rwe
             bool on;
         };
 
-        using Command = boost::variant<IssueOrder, Stop, SetFireOrders, SetOnOff>;
+        using Command = std::variant<IssueOrder, Stop, SetFireOrders, SetOnOff>;
 
         UnitId unit;
         Command command;
@@ -58,7 +58,7 @@ namespace rwe
     {
     };
 
-    using PlayerCommand = boost::variant<PlayerUnitCommand, PlayerPauseGameCommand, PlayerUnpauseGameCommand>;
+    using PlayerCommand = std::variant<PlayerUnitCommand, PlayerPauseGameCommand, PlayerUnpauseGameCommand>;
 }
 
 #endif

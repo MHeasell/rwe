@@ -8,14 +8,7 @@
 
 namespace rwe
 {
-#if BOOST_VERSION < 105800
-    bool operator!=(const CursorMode& lhs, const CursorMode& rhs)
-    {
-        return !(lhs == rhs);
-    }
-#endif
-
-    class LaserCollisionVisitor : public boost::static_visitor<bool>
+    class LaserCollisionVisitor
     {
     private:
         const GameScene* scene;
@@ -568,7 +561,7 @@ namespace rwe
 
         if (event.button == MouseButtonEvent::MouseButton::Left)
         {
-            if (boost::get<AttackCursorMode>(&cursorMode.getValue()) != nullptr)
+            if (std::get_if<AttackCursorMode>(&cursorMode.getValue()) != nullptr)
             {
                 if (selectedUnit)
                 {
@@ -602,7 +595,7 @@ namespace rwe
                     }
                 }
             }
-            else if (boost::get<MoveCursorMode>(&cursorMode.getValue()) != nullptr)
+            else if (std::get_if<MoveCursorMode>(&cursorMode.getValue()) != nullptr)
             {
                 if (selectedUnit)
                 {
@@ -621,7 +614,7 @@ namespace rwe
                     }
                 }
             }
-            else if (auto buildCursor = boost::get<BuildCursorMode>(&cursorMode.getValue()); buildCursor != nullptr)
+            else if (auto buildCursor = std::get_if<BuildCursorMode>(&cursorMode.getValue()); buildCursor != nullptr)
             {
                 if (selectedUnit)
                 {
@@ -655,7 +648,7 @@ namespace rwe
                     }
                 }
             }
-            else if (auto normalCursor = boost::get<NormalCursorMode>(&cursorMode.getValue()); normalCursor != nullptr)
+            else if (auto normalCursor = std::get_if<NormalCursorMode>(&cursorMode.getValue()); normalCursor != nullptr)
             {
                 if (isCursorOverMinimap())
                 {
@@ -669,19 +662,19 @@ namespace rwe
         }
         else if (event.button == MouseButtonEvent::MouseButton::Right)
         {
-            if (boost::get<AttackCursorMode>(&cursorMode.getValue()) != nullptr)
+            if (std::get_if<AttackCursorMode>(&cursorMode.getValue()) != nullptr)
             {
                 cursorMode.next(NormalCursorMode());
             }
-            else if (boost::get<MoveCursorMode>(&cursorMode.getValue()) != nullptr)
+            else if (std::get_if<MoveCursorMode>(&cursorMode.getValue()) != nullptr)
             {
                 cursorMode.next(NormalCursorMode());
             }
-            else if (boost::get<BuildCursorMode>(&cursorMode.getValue()))
+            else if (std::get_if<BuildCursorMode>(&cursorMode.getValue()))
             {
                 cursorMode.next(NormalCursorMode());
             }
-            else if (boost::get<NormalCursorMode>(&cursorMode.getValue()) != nullptr)
+            else if (std::get_if<NormalCursorMode>(&cursorMode.getValue()) != nullptr)
             {
                 if (selectedUnit)
                 {
@@ -722,7 +715,7 @@ namespace rwe
 
         if (event.button == MouseButtonEvent::MouseButton::Left)
         {
-            auto normalCursor = boost::get<NormalCursorMode>(&cursorMode.getValue());
+            auto normalCursor = std::get_if<NormalCursorMode>(&cursorMode.getValue());
             if (normalCursor != nullptr)
             {
                 if (normalCursor->state == NormalCursorMode::State::Selecting)
@@ -803,7 +796,7 @@ namespace rwe
         }
 
         // handle minimap dragging
-        if (auto cursor = boost::get<NormalCursorMode>(&cursorMode.getValue()); cursor != nullptr)
+        if (auto cursor = std::get_if<NormalCursorMode>(&cursorMode.getValue()); cursor != nullptr)
         {
             if (cursor->state == NormalCursorMode::State::DraggingMinimap)
             {
@@ -822,7 +815,7 @@ namespace rwe
 
         hoveredUnit = getUnitUnderCursor();
 
-        if (auto buildCursor = boost::get<BuildCursorMode>(&cursorMode.getValue()); buildCursor != nullptr && isCursorOverWorld())
+        if (auto buildCursor = std::get_if<BuildCursorMode>(&cursorMode.getValue()); buildCursor != nullptr && isCursorOverWorld())
         {
             auto ray = worldRenderService.getCamera().screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
             auto intersect = simulation.intersectLineWithTerrain(ray.toLine());
@@ -852,19 +845,19 @@ namespace rwe
             // The cursor is outside the world, so over UI elements.
             sceneContext.cursor->useNormalCursor();
         }
-        else if (boost::get<AttackCursorMode>(&cursorMode.getValue()) != nullptr)
+        else if (std::get_if<AttackCursorMode>(&cursorMode.getValue()) != nullptr)
         {
             sceneContext.cursor->useAttackCursor();
         }
-        else if (boost::get<MoveCursorMode>(&cursorMode.getValue()) != nullptr)
+        else if (std::get_if<MoveCursorMode>(&cursorMode.getValue()) != nullptr)
         {
             sceneContext.cursor->useMoveCursor();
         }
-        else if (boost::get<BuildCursorMode>(&cursorMode.getValue()) != nullptr)
+        else if (std::get_if<BuildCursorMode>(&cursorMode.getValue()) != nullptr)
         {
             sceneContext.cursor->useNormalCursor();
         }
-        else if (boost::get<NormalCursorMode>(&cursorMode.getValue()) != nullptr)
+        else if (std::get_if<NormalCursorMode>(&cursorMode.getValue()) != nullptr)
         {
             if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
             {
@@ -1204,11 +1197,11 @@ namespace rwe
         }
 
         auto winStatus = simulation.computeWinStatus();
-        if (auto wonStatus = boost::get<WinStatusWon>(&winStatus); wonStatus != nullptr)
+        if (auto wonStatus = std::get_if<WinStatusWon>(&winStatus); wonStatus != nullptr)
         {
             delay(SceneTime(5 * 60), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
         }
-        else if (auto drawStatus = boost::get<WinStatusDraw>(&winStatus); drawStatus != nullptr)
+        else if (auto drawStatus = std::get_if<WinStatusDraw>(&winStatus); drawStatus != nullptr)
         {
             delay(SceneTime(5 * 60), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
         }
@@ -1314,7 +1307,7 @@ namespace rwe
         auto kind = PlayerUnitCommand::IssueOrder::IssueKind::Immediate;
         localPlayerCommandBuffer.push_back(PlayerUnitCommand(unitId, PlayerUnitCommand::IssueOrder(order, kind)));
 
-        if (boost::get<BuildOrder>(&order) != nullptr)
+        if (std::get_if<BuildOrder>(&order) != nullptr)
         {
             if (sounds.okToBuild)
             {
@@ -1336,7 +1329,7 @@ namespace rwe
         auto kind = PlayerUnitCommand::IssueOrder::IssueKind::Queued;
         localPlayerCommandBuffer.push_back(PlayerUnitCommand(unitId, PlayerUnitCommand::IssueOrder(order, kind)));
 
-        if (boost::get<BuildOrder>(&order) != nullptr)
+        if (std::get_if<BuildOrder>(&order) != nullptr)
         {
             if (sounds.okToBuild)
             {
@@ -1491,7 +1484,7 @@ namespace rwe
                 auto cellValue = simulation.occupiedGrid.grid.tryGet(heightMapPos);
                 if (cellValue)
                 {
-                    auto collides = boost::apply_visitor(LaserCollisionVisitor(this, &laser), cellValue->get());
+                    auto collides = std::visit(LaserCollisionVisitor(this, &laser), cellValue->get());
                     if (collides)
                     {
                         doLaserImpact(laser, ImpactType::Normal);
@@ -1602,7 +1595,7 @@ namespace rwe
 
                 // check if a unit (or feature) is there
                 auto occupiedType = simulation.occupiedGrid.grid.get(x, y);
-                auto u = boost::get<OccupiedUnit>(&occupiedType);
+                auto u = std::get_if<OccupiedUnit>(&occupiedType);
                 if (u == nullptr)
                 {
                     continue;
@@ -1790,7 +1783,7 @@ namespace rwe
             PlayerCommandDispatcher dispatcher(this, p.first);
             for (const auto& c : p.second)
             {
-                boost::apply_visitor(dispatcher, c);
+                std::visit(dispatcher, c);
             }
         }
     }
@@ -1800,14 +1793,14 @@ namespace rwe
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "ATTACK"))
         {
             p->get().addSubscription(cursorMode.subscribe([& p = p->get()](const auto& v) {
-                p.setToggledOn(boost::get<AttackCursorMode>(&v) != nullptr);
+                p.setToggledOn(std::get_if<AttackCursorMode>(&v) != nullptr);
             }));
         }
 
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "MOVE"))
         {
             p->get().addSubscription(cursorMode.subscribe([& p = p->get()](const auto& v) {
-                p.setToggledOn(boost::get<MoveCursorMode>(&v) != nullptr);
+                p.setToggledOn(std::get_if<MoveCursorMode>(&v) != nullptr);
             }));
         }
 
@@ -1839,7 +1832,7 @@ namespace rwe
         }
 
         currentPanel->groupMessages().subscribe([this](const auto& msg) {
-            if (boost::get<ActivateMessage>(&msg.message) != nullptr)
+            if (std::get_if<ActivateMessage>(&msg.message) != nullptr)
             {
                 onMessage(msg.controlName);
             }
@@ -1870,7 +1863,7 @@ namespace rwe
                 sceneContext.audioService->playSound(*sounds.specialOrders);
             }
 
-            if (boost::get<AttackCursorMode>(&cursorMode.getValue()))
+            if (std::get_if<AttackCursorMode>(&cursorMode.getValue()))
             {
                 cursorMode.next(NormalCursorMode());
             }
@@ -1886,7 +1879,7 @@ namespace rwe
                 sceneContext.audioService->playSound(*sounds.specialOrders);
             }
 
-            if (boost::get<MoveCursorMode>(&cursorMode.getValue()))
+            if (std::get_if<MoveCursorMode>(&cursorMode.getValue()))
             {
                 cursorMode.next(NormalCursorMode());
             }

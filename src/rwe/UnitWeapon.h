@@ -1,13 +1,13 @@
 #ifndef RWE_UNITWEAPON_H
 #define RWE_UNITWEAPON_H
 
-#include <boost/variant.hpp>
 #include <rwe/AudioService.h>
 #include <rwe/GameTime.h>
 #include <rwe/SpriteSeries.h>
 #include <rwe/UnitId.h>
 #include <rwe/cob/CobThread.h>
 #include <rwe/math/Vector3f.h>
+#include <variant>
 
 namespace rwe
 {
@@ -15,7 +15,7 @@ namespace rwe
     {
     };
 
-    using UnitWeaponAttackTarget = boost::variant<UnitId, Vector3f>;
+    using UnitWeaponAttackTarget = std::variant<UnitId, Vector3f>;
 
     struct UnitWeaponStateAttacking
     {
@@ -36,7 +36,7 @@ namespace rwe
         }
     };
 
-    using UnitWeaponState = boost::variant<UnitWeaponStateIdle, UnitWeaponStateAttacking>;
+    using UnitWeaponState = std::variant<UnitWeaponStateIdle, UnitWeaponStateAttacking>;
 
     struct UnitWeapon
     {

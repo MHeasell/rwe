@@ -1,10 +1,10 @@
 #ifndef RWE_BOXTREE_H
 #define RWE_BOXTREE_H
 
-#include <boost/variant.hpp>
 #include <memory>
 #include <optional>
 #include <rwe/Grid.h>
+#include <variant>
 #include <vector>
 
 namespace rwe
@@ -44,7 +44,7 @@ namespace rwe
         unsigned int width;
         unsigned int height;
 
-        using Union = boost::variant<BoxTreeSplit<T>, BoxTreeLeaf<T>>;
+        using Union = std::variant<BoxTreeSplit<T>, BoxTreeLeaf<T>>;
 
         Union value;
 
@@ -172,7 +172,7 @@ namespace rwe
 
         // insert into the node
         // (it's guaranteed to be a leaf)
-        BoxTreeLeaf<T>& leaf = boost::get<BoxTreeLeaf<T>>(node->value);
+        BoxTreeLeaf<T>& leaf = std::get<BoxTreeLeaf<T>>(node->value);
         if (node->width == itemWidth && node->height == itemHeight)
         {
             leaf.value = item;
@@ -237,7 +237,7 @@ namespace rwe
             return std::nullopt;
         }
 
-        auto leaf = boost::get<BoxTreeLeaf<T>>(&value);
+        auto leaf = std::get_if<BoxTreeLeaf<T>>(&value);
         if (leaf != nullptr)
         {
             if (leaf->value)
@@ -250,7 +250,7 @@ namespace rwe
         }
 
         // we must be a split, search both children
-        auto split = boost::get<BoxTreeSplit<T>>(&value);
+        auto split = std::get_if<BoxTreeSplit<T>>(&value);
         auto left = split->leftChild->findNode(itemWidth, itemHeight);
         if (left)
         {
@@ -263,7 +263,7 @@ namespace rwe
     template <typename T>
     std::vector<BoxPackInfoEntry<T>> BoxTreeNode<T>::walk()
     {
-        auto leaf = boost::get<BoxTreeLeaf<T>>(&value);
+        auto leaf = std::get_if<BoxTreeLeaf<T>>(&value);
         if (leaf != nullptr)
         {
             if (leaf->value)
@@ -274,7 +274,7 @@ namespace rwe
             return std::vector<BoxPackInfoEntry<T>>();
         }
 
-        auto split = boost::get<BoxTreeSplit<T>>(&value);
+        auto split = std::get_if<BoxTreeSplit<T>>(&value);
         auto vec = split->leftChild->walk();
         auto rightVec = split->rightChild->walk();
         switch (split->axis)

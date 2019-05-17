@@ -105,15 +105,7 @@ namespace rwe
         }
     };
 
-    using CursorMode = boost::variant<AttackCursorMode, MoveCursorMode, BuildCursorMode, NormalCursorMode>;
-
-#if BOOST_VERSION < 105800
-    // != not automatically defined in boost::variant before 1.58:
-    // https://www.boost.org/users/history/version_1_58_0.html
-    // https://svn.boost.org/trac10/ticket/8620
-    // https://svn.boost.org/trac10/ticket/10811
-    bool operator!=(const CursorMode& lhs, const CursorMode& rhs);
-#endif
+    using CursorMode = std::variant<AttackCursorMode, MoveCursorMode, BuildCursorMode, NormalCursorMode>;
 
     enum class ImpactType
     {
@@ -149,7 +141,7 @@ namespace rwe
         static constexpr int GuiSizeTop = 32;
         static constexpr int GuiSizeBottom = 32;
 
-        class UnitCommandDispacher : public boost::static_visitor<>
+        class UnitCommandDispacher
         {
         private:
             GameScene* scene;
@@ -198,7 +190,7 @@ namespace rwe
             }
         };
 
-        class PlayerCommandDispatcher : public boost::static_visitor<>
+        class PlayerCommandDispatcher
         {
         private:
             GameScene* scene;
@@ -212,7 +204,7 @@ namespace rwe
             void operator()(const PlayerUnitCommand& c)
             {
                 UnitCommandDispacher dispatcher(scene, playerId, c.unit);
-                boost::apply_visitor(dispatcher, c.command);
+                std::visit(dispatcher, c.command);
             }
             void operator()(const PlayerPauseGameCommand&)
             {

@@ -4,7 +4,7 @@
 
 namespace rwe
 {
-    class BlockCheckVisitor : public boost::static_visitor<bool>
+    class BlockCheckVisitor
     {
     private:
         GameSimulation* simulation;
@@ -35,7 +35,7 @@ namespace rwe
         }
     };
 
-    class ThreadRescheduleVisitor : public boost::static_visitor<>
+    class ThreadRescheduleVisitor
     {
     private:
         CobEnvironment* const env;
@@ -84,7 +84,7 @@ namespace rwe
             const auto& pair = *it;
             const auto& status = pair.first;
 
-            auto isUnblocked = boost::apply_visitor(BlockCheckVisitor(&simulation, &env, unitId), status.condition);
+            auto isUnblocked = std::visit(BlockCheckVisitor(&simulation, &env, unitId), status.condition);
             if (isUnblocked)
             {
                 env.readyQueue.push_back(pair.second);
@@ -108,7 +108,7 @@ namespace rwe
 
             auto status = context.execute();
 
-            boost::apply_visitor(ThreadRescheduleVisitor(&env, thread), status);
+            std::visit(ThreadRescheduleVisitor(&env, thread), status);
         }
 
         assert(env.isNotCorrupt());

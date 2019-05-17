@@ -30,7 +30,7 @@ namespace rwe
             return;
         }
 
-        if (auto turnOp = boost::get<UnitMesh::TurnOperation>(&*op); turnOp != nullptr)
+        if (auto turnOp = std::get_if<UnitMesh::TurnOperation>(&*op); turnOp != nullptr)
         {
             auto remaining = turnOp->targetAngle - RadiansAngle(currentAngle);
 
@@ -47,7 +47,7 @@ namespace rwe
             return;
         }
 
-        if (auto spinOp = boost::get<UnitMesh::SpinOperation>(&*op); spinOp != nullptr)
+        if (auto spinOp = std::get_if<UnitMesh::SpinOperation>(&*op); spinOp != nullptr)
         {
             auto frameAccel = spinOp->acceleration * dt;
             auto remaining = spinOp->targetSpeed - spinOp->currentSpeed;
@@ -65,7 +65,7 @@ namespace rwe
             return;
         }
 
-        if (auto stopSpinOp = boost::get<UnitMesh::StopSpinOperation>(&*op); stopSpinOp != nullptr)
+        if (auto stopSpinOp = std::get_if<UnitMesh::StopSpinOperation>(&*op); stopSpinOp != nullptr)
         {
             auto frameDecel = stopSpinOp->deceleration * dt;
             if (std::abs(stopSpinOp->currentSpeed) <= frameDecel)

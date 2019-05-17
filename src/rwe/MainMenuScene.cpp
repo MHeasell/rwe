@@ -116,7 +116,7 @@ namespace rwe
     {
         auto& p = panelStack.emplace_back(std::move(panel));
         p->groupMessages().subscribe([this](const auto& msg) {
-            if (auto activate = boost::get<ActivateMessage>(&msg.message); activate != nullptr)
+            if (auto activate = std::get_if<ActivateMessage>(&msg.message); activate != nullptr)
             {
                 message(msg.topic, msg.controlName, *activate);
             }
@@ -127,7 +127,7 @@ namespace rwe
     {
         auto& p = dialogStack.emplace_back(std::move(panel));
         p->groupMessages().subscribe([this](const auto& msg) {
-            if (auto activate = boost::get<ActivateMessage>(&msg.message); activate != nullptr)
+            if (auto activate = std::get_if<ActivateMessage>(&msg.message); activate != nullptr)
             {
                 message(msg.topic, msg.controlName, *activate);
             }

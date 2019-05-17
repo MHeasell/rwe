@@ -1,12 +1,12 @@
 #ifndef RWE_COBENVIRONMENT_H
 #define RWE_COBENVIRONMENT_H
 
-#include <boost/variant.hpp>
 #include <memory>
 #include <rwe/Cob.h>
 #include <rwe/GameTime.h>
 #include <rwe/UnitId.h>
 #include <rwe/cob/CobThread.h>
+#include <variant>
 #include <vector>
 
 
@@ -48,7 +48,7 @@ namespace rwe
                 }
             };
 
-            using Condition = boost::variant<Move, Turn, Sleep>;
+            using Condition = std::variant<Move, Turn, Sleep>;
 
             Condition condition;
 
@@ -69,7 +69,7 @@ namespace rwe
             unsigned int signal;
         };
 
-        using Status = boost::variant<SignalStatus, BlockedStatus, FinishedStatus>;
+        using Status = std::variant<SignalStatus, BlockedStatus, FinishedStatus>;
 
     public:
         const CobScript* const _script;

@@ -27,11 +27,11 @@ void printFile(unsigned int indent, const std::string& name, const rwe::HpiArchi
 
 void printEntry(unsigned int indent, const rwe::HpiArchive::DirectoryEntry& e)
 {
-    if (const auto f = boost::get<rwe::HpiArchive::File>(&e.data))
+    if (const auto f = std::get_if<rwe::HpiArchive::File>(&e.data))
     {
         printFile(indent, e.name, *f);
     }
-    else if (const auto d = boost::get<rwe::HpiArchive::Directory>(&e.data))
+    else if (const auto d = std::get_if<rwe::HpiArchive::Directory>(&e.data))
     {
         printDir(indent, e.name, *d);
     }
@@ -112,7 +112,7 @@ int extractCommand(const std::string& hpiPath, const std::string& filePath, cons
 
 void extractRecursive(rwe::HpiArchive& archive, const rwe::HpiArchive::DirectoryEntry& entry, const fs::path& outDir)
 {
-    if (auto d = boost::get<rwe::HpiArchive::Directory>(&entry.data); d != nullptr)
+    if (auto d = std::get_if<rwe::HpiArchive::Directory>(&entry.data); d != nullptr)
     {
         auto innerDir = outDir;
         innerDir /= entry.name;
@@ -126,7 +126,7 @@ void extractRecursive(rwe::HpiArchive& archive, const rwe::HpiArchive::Directory
         return;
     }
 
-    if (auto f = boost::get<rwe::HpiArchive::File>(&entry.data); f != nullptr)
+    if (auto f = std::get_if<rwe::HpiArchive::File>(&entry.data); f != nullptr)
     {
         auto innerFile = outDir;
         innerFile /= entry.name;

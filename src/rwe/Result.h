@@ -1,7 +1,7 @@
 #ifndef RWE_RESULT_H
 #define RWE_RESULT_H
 
-#include <boost/variant.hpp>
+#include <variant>
 
 namespace rwe
 {
@@ -48,7 +48,7 @@ namespace rwe
     class Result
     {
     private:
-        boost::variant<result::Ok<T>, result::Err<E>> value;
+        std::variant<result::Ok<T>, result::Err<E>> value;
 
     public:
         Result(const result::Ok<T>& ok) : value(ok) {}
@@ -59,32 +59,32 @@ namespace rwe
 
         bool isOk() const
         {
-            return boost::get<result::Ok<T>>(&value) != nullptr;
+            return std::get_if<result::Ok<T>>(&value) != nullptr;
         }
 
         bool isErr() const
         {
-            return boost::get<result::Err<E>>(&value) != nullptr;
+            return std::get_if<result::Err<E>>(&value) != nullptr;
         }
 
         const T& get() const
         {
-            return boost::get<result::Ok<T>>(value).value;
+            return std::get<result::Ok<T>>(value).value;
         }
 
         T& get()
         {
-            return boost::get<result::Ok<T>>(value).value;
+            return std::get<result::Ok<T>>(value).value;
         }
 
         const E& getErr() const
         {
-            return boost::get<result::Err<E>>(value).value;
+            return std::get<result::Err<E>>(value).value;
         }
 
         E& getErr()
         {
-            return boost::get<result::Err<E>>(value).value;
+            return std::get<result::Err<E>>(value).value;
         }
 
         operator bool() const

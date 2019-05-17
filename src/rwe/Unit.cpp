@@ -238,7 +238,7 @@ namespace rwe
         {
             return;
         }
-        auto spinOp = boost::get<UnitMesh::SpinOperation>(&*existingOp);
+        auto spinOp = std::get_if<UnitMesh::SpinOperation>(&*existingOp);
         if (spinOp == nullptr)
         {
             return;
@@ -368,7 +368,7 @@ namespace rwe
         orders.push_back(order);
     }
 
-    class TargetIsUnitVisitor : public boost::static_visitor<bool>
+    class TargetIsUnitVisitor
     {
     private:
         UnitId unit;
@@ -379,7 +379,7 @@ namespace rwe
         bool operator()(const Vector3f&) const { return false; }
     };
 
-    class IsAttackingUnitVisitor : public boost::static_visitor<bool>
+    class IsAttackingUnitVisitor
     {
     private:
         UnitId unit;
@@ -387,11 +387,11 @@ namespace rwe
     public:
         IsAttackingUnitVisitor(const UnitId& unit) : unit(unit) {}
         bool operator()(const UnitWeaponStateIdle&) const { return false; }
-        bool operator()(const UnitWeaponStateAttacking& state) const { return boost::apply_visitor(TargetIsUnitVisitor(unit), state.target); }
+        bool operator()(const UnitWeaponStateAttacking& state) const { return std::visit(TargetIsUnitVisitor(unit), state.target); }
     };
 
 
-    class TargetIsPositionVisitor : public boost::static_visitor<bool>
+    class TargetIsPositionVisitor
     {
     private:
         Vector3f position;
@@ -402,7 +402,7 @@ namespace rwe
         bool operator()(const Vector3f& target) const { return target == position; }
     };
 
-    class IsAttackingPositionVisitor : public boost::static_visitor<bool>
+    class IsAttackingPositionVisitor
     {
     private:
         Vector3f position;
@@ -410,7 +410,7 @@ namespace rwe
     public:
         IsAttackingPositionVisitor(const Vector3f& position) : position(position) {}
         bool operator()(const UnitWeaponStateIdle&) const { return false; }
-        bool operator()(const UnitWeaponStateAttacking& state) const { return boost::apply_visitor(TargetIsPositionVisitor(position), state.target); }
+        bool operator()(const UnitWeaponStateAttacking& state) const { return std::visit(TargetIsPositionVisitor(position), state.target); }
     };
 
     void Unit::setWeaponTarget(unsigned int weaponIndex, UnitId target)
@@ -421,7 +421,7 @@ namespace rwe
             return;
         }
 
-        if (!boost::apply_visitor(IsAttackingUnitVisitor(target), weapon->state))
+        if (!std::visit(IsAttackingUnitVisitor(target), weapon->state))
         {
             clearWeaponTarget(weaponIndex);
             weapon->state = UnitWeaponStateAttacking(target);
@@ -436,7 +436,7 @@ namespace rwe
             return;
         }
 
-        if (!boost::apply_visitor(IsAttackingPositionVisitor(target), weapon->state))
+        if (!std::visit(IsAttackingPositionVisitor(target), weapon->state))
         {
             clearWeaponTarget(weaponIndex);
             weapon->state = UnitWeaponStateAttacking(target);

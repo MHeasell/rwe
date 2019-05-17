@@ -76,7 +76,7 @@ namespace rwe
 
         for (const auto& e : directory.entries)
         {
-            auto innerEntries = boost::apply_visitor(HpiRecursiveFilenamesVisitor(this, &e.name, &extension), e.data);
+            auto innerEntries = std::visit(HpiRecursiveFilenamesVisitor(this, &e.name, &extension), e.data);
             std::move(innerEntries.begin(), innerEntries.end(), std::back_inserter(v));
         }
 

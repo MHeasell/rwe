@@ -17,7 +17,7 @@ namespace rwe
     class PathFindingService
     {
     private:
-        class FindPathVisitor : public boost::static_visitor<UnitPath>
+        class FindPathVisitor
         {
         private:
             PathFindingService* svc;

@@ -1,7 +1,6 @@
 #ifndef RWE_UNITMESH_H
 #define RWE_UNITMESH_H
 
-#include <boost/variant.hpp>
 #include <memory>
 #include <optional>
 #include <rwe/RadiansAngle.h>
@@ -9,6 +8,7 @@
 #include <rwe/math/Matrix4f.h>
 #include <rwe/math/Vector3f.h>
 #include <string>
+#include <variant>
 #include <vector>
 
 
@@ -58,7 +58,7 @@ namespace rwe
             }
         };
 
-        using TurnOperationUnion = boost::variant<TurnOperation, SpinOperation, StopSpinOperation>;
+        using TurnOperationUnion = std::variant<TurnOperation, SpinOperation, StopSpinOperation>;
 
         std::string name;
         Vector3f origin;

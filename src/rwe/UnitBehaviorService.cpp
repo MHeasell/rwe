@@ -34,7 +34,7 @@ namespace rwe
     {
     }
 
-    class GetTargetPositionVisitor : public boost::static_visitor<std::optional<Vector3f>>
+    class GetTargetPositionVisitor
     {
     private:
         UnitBehaviorService* service;
@@ -50,7 +50,7 @@ namespace rwe
         }
     };
 
-    class AttackTargetToMovingStateGoalVisitor : public boost::static_visitor<MovingStateGoal>
+    class AttackTargetToMovingStateGoalVisitor
     {
     private:
         const GameScene* scene;
@@ -86,7 +86,7 @@ namespace rwe
 
                 // process move orders
                 HandleUnitOrderVisitor v(this, unitId);
-                if (boost::apply_visitor(v, order))
+                if (std::visit(v, order))
                 {
                     unit.orders.pop_front();
                 }
@@ -182,7 +182,7 @@ namespace rwe
             return;
         }
 
-        if (auto idleState = boost::get<UnitWeaponStateIdle>(&weapon->state); idleState != nullptr)
+        if (auto idleState = std::get_if<UnitWeaponStateIdle>(&weapon->state); idleState != nullptr)
         {
             // attempt to acquire a target
             if (!weapon->commandFire && unit.fireOrders == UnitFireOrders::FireAtWill)
@@ -207,7 +207,7 @@ namespace rwe
                 }
             }
         }
-        else if (auto aimingState = boost::get<UnitWeaponStateAttacking>(&weapon->state); aimingState != nullptr)
+        else if (auto aimingState = std::get_if<UnitWeaponStateAttacking>(&weapon->state); aimingState != nullptr)
         {
             // If we are not fire-at-will, the target is a unit,
             // and we don't have an explicit order to attack that unit,
@@ -216,16 +216,16 @@ namespace rwe
             // but then the player switched us to another firing mode.
             if (unit.fireOrders != UnitFireOrders::FireAtWill)
             {
-                if (auto targetUnit = boost::get<UnitId>(&aimingState->target); targetUnit != nullptr)
+                if (auto targetUnit = std::get_if<UnitId>(&aimingState->target); targetUnit != nullptr)
                 {
                     if (unit.orders.empty())
                     {
                         unit.clearWeaponTarget(weaponIndex);
                         return;
                     }
-                    else if (auto attackOrder = boost::get<AttackOrder>(&unit.orders.front()); attackOrder != nullptr)
+                    else if (auto attackOrder = std::get_if<AttackOrder>(&unit.orders.front()); attackOrder != nullptr)
                     {
-                        if (auto attackTarget = boost::get<UnitId>(&attackOrder->target); attackTarget == nullptr || *attackTarget != *targetUnit)
+                        if (auto attackTarget = std::get_if<UnitId>(&attackOrder->target); attackTarget == nullptr || *attackTarget != *targetUnit)
                         {
                             unit.clearWeaponTarget(weaponIndex);
                             return;
@@ -235,7 +235,7 @@ namespace rwe
             }
 
             GetTargetPositionVisitor targetPositionVisitor(this);
-            auto targetPosition = boost::apply_visitor(targetPositionVisitor, aimingState->target);
+            auto targetPosition = std::visit(targetPositionVisitor, aimingState->target);
 
             if (!targetPosition || unit.position.distanceSquared(*targetPosition) > weapon->maxRange * weapon->maxRange)
             {
@@ -275,7 +275,7 @@ namespace rwe
                     {
                         // aiming was successful, check the target again for drift
                         GetTargetPositionVisitor targetPositionVisitor(this);
-                        auto targetPosition = boost::apply_visitor(targetPositionVisitor, aimingState->target);
+                        auto targetPosition = std::visit(targetPositionVisitor, aimingState->target);
                         auto aimFromPosition = getAimingPoint(id, weaponIndex);
 
                         auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, *targetPosition);
@@ -532,7 +532,7 @@ namespace rwe
         }
         CobExecutionContext context(scene, &scene->getSimulation(), unit.cobEnvironment.get(), &*thread, id);
         auto status = context.execute();
-        if (boost::get<CobEnvironment::FinishedStatus>(&status) == nullptr)
+        if (std::get_if<CobEnvironment::FinishedStatus>(&status) == nullptr)
         {
             throw std::runtime_error("Synchronous cob query thread blocked before completion");
         }
@@ -591,14 +591,14 @@ namespace rwe
     {
         auto& unit = scene->getSimulation().getUnit(unitId);
 
-        if (auto idleState = boost::get<IdleState>(&unit.behaviourState); idleState != nullptr)
+        if (auto idleState = std::get_if<IdleState>(&unit.behaviourState); idleState != nullptr)
         {
             // request a path to follow
             scene->getSimulation().requestPath(unitId);
             const auto& destination = moveOrder.destination;
             unit.behaviourState = MovingState{destination, std::nullopt, true};
         }
-        else if (auto movingState = boost::get<MovingState>(&unit.behaviourState); movingState != nullptr)
+        else if (auto movingState = std::get_if<MovingState>(&unit.behaviourState); movingState != nullptr)
         {
             // if we are colliding, request a new path
             if (unit.inCollision && !movingState->pathRequested)
@@ -648,7 +648,7 @@ namespace rwe
         else
         {
             GetTargetPositionVisitor targetPositionVisitor(this);
-            auto targetPosition = boost::apply_visitor(targetPositionVisitor, attackOrder.target);
+            auto targetPosition = std::visit(targetPositionVisitor, attackOrder.target);
             if (!targetPosition)
             {
                 // target has gone away, throw away this order
@@ -656,14 +656,14 @@ namespace rwe
             }
 
             auto maxRangeSquared = unit.weapons[0]->maxRange * unit.weapons[0]->maxRange;
-            if (auto idleState = boost::get<IdleState>(&unit.behaviourState); idleState != nullptr)
+            if (auto idleState = std::get_if<IdleState>(&unit.behaviourState); idleState != nullptr)
             {
                 // if we're out of range, drive into range
                 if (unit.position.distanceSquared(*targetPosition) > maxRangeSquared)
                 {
                     // request a path to follow
                     scene->getSimulation().requestPath(unitId);
-                    auto destination = boost::apply_visitor(AttackTargetToMovingStateGoalVisitor(scene), attackOrder.target);
+                    auto destination = std::visit(AttackTargetToMovingStateGoalVisitor(scene), attackOrder.target);
                     unit.behaviourState = MovingState{destination, std::nullopt, true};
                 }
                 else
@@ -675,7 +675,7 @@ namespace rwe
                     }
                 }
             }
-            else if (auto movingState = boost::get<MovingState>(&unit.behaviourState); movingState != nullptr)
+            else if (auto movingState = std::get_if<MovingState>(&unit.behaviourState); movingState != nullptr)
             {
                 if (unit.position.distanceSquared(*targetPosition) <= maxRangeSquared)
                 {
@@ -721,7 +721,7 @@ namespace rwe
     {
         auto& unit = scene->getSimulation().getUnit(unitId);
 
-        if (auto idleState = boost::get<IdleState>(&unit.behaviourState); idleState != nullptr)
+        if (auto idleState = std::get_if<IdleState>(&unit.behaviourState); idleState != nullptr)
         {
             // request a path to get to the build site
             auto footprint = unitFactory->getUnitFootprint(buildOrder.unitType);
@@ -729,7 +729,7 @@ namespace rwe
             scene->getSimulation().requestPath(unitId);
             unit.behaviourState = MovingState{footprintRect, std::nullopt, true};
         }
-        else if (auto movingState = boost::get<MovingState>(&unit.behaviourState); movingState != nullptr)
+        else if (auto movingState = std::get_if<MovingState>(&unit.behaviourState); movingState != nullptr)
         {
             // if we are colliding, request a new path
             if (unit.inCollision && !movingState->pathRequested)
@@ -784,7 +784,7 @@ namespace rwe
                 }
             }
         }
-        else if (auto startBuildingState = boost::get<StartBuildingState>(&unit.behaviourState); startBuildingState != nullptr)
+        else if (auto startBuildingState = std::get_if<StartBuildingState>(&unit.behaviourState); startBuildingState != nullptr)
         {
             auto returnValue = unit.cobEnvironment->tryReapThread(startBuildingState->thread);
             if (returnValue)
@@ -794,7 +794,7 @@ namespace rwe
                 unit.behaviourState = BuildingState{startBuildingState->targetUnit};
             }
         }
-        else if (auto buildingState = boost::get<BuildingState>(&unit.behaviourState); buildingState != nullptr)
+        else if (auto buildingState = std::get_if<BuildingState>(&unit.behaviourState); buildingState != nullptr)
         {
             if (!scene->getSimulation().unitExists(buildingState->targetUnit))
             {

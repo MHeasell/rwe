@@ -2,7 +2,6 @@
 #define RWE_MAINMENUMODEL_H
 
 #include <array>
-#include <boost/variant.hpp>
 #include <optional>
 #include <rwe/Energy.h>
 #include <rwe/Metal.h>
@@ -11,6 +10,7 @@
 #include <rwe/events.h>
 #include <rwe/observable/BehaviorSubject.h>
 #include <string>
+#include <variant>
 
 namespace rwe
 {

@@ -1,8 +1,8 @@
 #ifndef RWE_EVENTS_H
 #define RWE_EVENTS_H
 
-#include <boost/variant.hpp>
 #include <string>
+#include <variant>
 
 namespace rwe
 {
@@ -69,7 +69,7 @@ namespace rwe
         Type type{Type::Primary};
     };
 
-    using ControlMessage = boost::variant<ScrollPositionMessage, ScrollUpMessage, ScrollDownMessage, ActivateMessage>;
+    using ControlMessage = std::variant<ScrollPositionMessage, ScrollUpMessage, ScrollDownMessage, ActivateMessage>;
 
     struct GroupMessage
     {

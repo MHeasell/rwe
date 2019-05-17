@@ -1,10 +1,10 @@
 #ifndef RWE_OCCUPIEDGRID_H
 #define RWE_OCCUPIEDGRID_H
 
-#include <boost/variant.hpp>
 #include <rwe/FeatureId.h>
 #include <rwe/Grid.h>
 #include <rwe/UnitId.h>
+#include <variant>
 
 namespace rwe
 {
@@ -37,7 +37,7 @@ namespace rwe
         bool operator!=(const OccupiedNone&) const { return true; }
     };
 
-    using OccupiedType = boost::variant<OccupiedUnit, OccupiedFeature, OccupiedNone>;
+    using OccupiedType = std::variant<OccupiedUnit, OccupiedFeature, OccupiedNone>;
 
     struct OccupiedGrid
     {

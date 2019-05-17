@@ -13,7 +13,7 @@ namespace rwe
     class UiListBox : public UiComponent
     {
     private:
-        class ListBoxUiMessageVisitor : public boost::static_visitor<>
+        class ListBoxUiMessageVisitor
         {
         private:
             UiListBox* listBox;

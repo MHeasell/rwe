@@ -36,9 +36,9 @@ namespace rwe
         std::string port;
     };
 
-    using PlayerControllerType = boost::variant<PlayerControllerTypeHuman, PlayerControllerTypeComputer, PlayerControllerTypeNetwork>;
+    using PlayerControllerType = std::variant<PlayerControllerTypeHuman, PlayerControllerTypeComputer, PlayerControllerTypeNetwork>;
 
-    class IsHumanVisitor : public boost::static_visitor<bool>
+    class IsHumanVisitor
     {
     public:
         bool operator()(const PlayerControllerTypeHuman&) const { return true; }
@@ -46,7 +46,7 @@ namespace rwe
         bool operator()(const PlayerControllerTypeNetwork&) const { return false; }
     };
 
-    class IsComputerVisitor : public boost::static_visitor<bool>
+    class IsComputerVisitor
     {
     public:
         bool operator()(const PlayerControllerTypeHuman&) const { return false; }
@@ -54,7 +54,7 @@ namespace rwe
         bool operator()(const PlayerControllerTypeNetwork&) const { return false; }
     };
 
-    class GetNetworkAddressVisitor : public boost::static_visitor<std::optional<std::pair<std::reference_wrapper<const std::string>, std::reference_wrapper<const std::string>>>>
+    class GetNetworkAddressVisitor
     {
     public:
         std::optional<std::pair<std::reference_wrapper<const std::string>, std::reference_wrapper<const std::string>>> operator()(const PlayerControllerTypeHuman&) const { return std::nullopt; }

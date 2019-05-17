@@ -379,7 +379,7 @@ namespace rwe
         }
     }
 
-    struct FileToOptionalVisitor : public boost::static_visitor<std::optional<std::reference_wrapper<const HpiArchive::File>>>
+    struct FileToOptionalVisitor
     {
         std::optional<std::reference_wrapper<const HpiArchive::File>> operator()(const HpiArchive::File& f) const
         {
@@ -406,10 +406,10 @@ namespace rwe
             return std::nullopt;
         }
 
-        return boost::apply_visitor(FileToOptionalVisitor(), it->data);
+        return std::visit(FileToOptionalVisitor(), it->data);
     }
 
-    struct DirToOptionalVisitor : public boost::static_visitor<std::optional<std::reference_wrapper<const HpiArchive::Directory>>>
+    struct DirToOptionalVisitor
     {
         std::optional<std::reference_wrapper<const HpiArchive::Directory>> operator()(const HpiArchive::File& /*f*/) const
         {
@@ -445,7 +445,7 @@ namespace rwe
                 return std::nullopt;
             }
 
-            auto foundDir = boost::apply_visitor(DirToOptionalVisitor(), it->data);
+            auto foundDir = std::visit(DirToOptionalVisitor(), it->data);
             if (!foundDir)
             {
                 return std::nullopt;
@@ -481,7 +481,7 @@ namespace rwe
                 return std::nullopt;
             }
 
-            auto foundDir = boost::apply_visitor(DirToOptionalVisitor(), it->data);
+            auto foundDir = std::visit(DirToOptionalVisitor(), it->data);
             if (!foundDir)
             {
                 return std::nullopt;

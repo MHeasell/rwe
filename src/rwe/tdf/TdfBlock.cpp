@@ -23,7 +23,7 @@ namespace rwe
         return val != 0;
     }
 
-    class EqualityVisitor : public boost::static_visitor<bool>
+    class EqualityVisitor
     {
     private:
         const TdfPropertyValue::ValueType* other;
@@ -32,7 +32,7 @@ namespace rwe
         explicit EqualityVisitor(const TdfPropertyValue::ValueType* other) : other(other) {}
         bool operator()(const std::string& s) const
         {
-            auto rhs = boost::get<std::string>(other);
+            auto rhs = std::get_if<std::string>(other);
             if (!rhs)
             {
                 return false;
@@ -43,7 +43,7 @@ namespace rwe
 
         bool operator()(const TdfBlock& b) const
         {
-            auto rhs = boost::get<TdfBlock>(other);
+            auto rhs = std::get_if<TdfBlock>(other);
             if (!rhs)
             {
                 return false;
@@ -202,7 +202,7 @@ namespace rwe
         return *pair.first->second;
     }
 
-    struct MakeBlockVisitor : public boost::static_visitor<>
+    struct MakeBlockVisitor
     {
         TdfBlock* block;
         const std::string* name;
@@ -227,13 +227,13 @@ namespace rwe
         TdfBlock block;
         for (const auto& item : list)
         {
-            boost::apply_visitor(MakeBlockVisitor(&block, &item.first), item.second);
+            std::visit(MakeBlockVisitor(&block, &item.first), item.second);
         }
         return block;
     }
 
     bool TdfPropertyValue::operator==(const TdfPropertyValue& rhs) const
     {
-        return boost::apply_visitor(EqualityVisitor(&rhs.value), value);
+        return std::visit(EqualityVisitor(&rhs.value), value);
     }
 }

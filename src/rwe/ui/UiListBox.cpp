@@ -223,7 +223,7 @@ namespace rwe
             return;
         }
 
-        boost::apply_visitor(ListBoxUiMessageVisitor(this), message.message);
+        std::visit(ListBoxUiMessageVisitor(this), message.message);
     }
 
     void UiListBox::scrollUp()

@@ -82,7 +82,7 @@ namespace rwe
     struct WinStatusUndecided
     {
     };
-    using WinStatus = boost::variant<WinStatusWon, WinStatusDraw, WinStatusUndecided>;
+    using WinStatus = std::variant<WinStatusWon, WinStatusDraw, WinStatusUndecided>;
 
     struct GameSimulation
     {

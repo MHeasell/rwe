@@ -78,7 +78,7 @@ namespace rwe
             {
                 continue;
             }
-            const auto address = boost::apply_visitor(GetNetworkAddressVisitor(), p->controller);
+            const auto address = std::visit(GetNetworkAddressVisitor(), p->controller);
             if (!address)
             {
                 continue;
@@ -160,13 +160,13 @@ namespace rwe
             const auto& params = gameParameters.players[i];
             if (params)
             {
-                auto playerType = boost::apply_visitor(IsComputerVisitor(), params->controller) ? GamePlayerType::Computer : GamePlayerType::Human;
+                auto playerType = std::visit(IsComputerVisitor(), params->controller) ? GamePlayerType::Computer : GamePlayerType::Human;
                 GamePlayerInfo gpi{params->name, playerType, params->color, GamePlayerStatus::Alive, params->side, params->metal, params->metal, params->energy, params->energy};
                 auto playerId = simulation.addPlayer(gpi);
                 gamePlayers[i] = playerId;
                 playerCommandService->registerPlayer(playerId);
 
-                if (boost::apply_visitor(IsHumanVisitor(), params->controller))
+                if (std::visit(IsHumanVisitor(), params->controller))
                 {
                     if (localPlayerId)
                     {
@@ -176,7 +176,7 @@ namespace rwe
                     localPlayerId = gamePlayers[i];
                 }
 
-                if (auto networkInfo = boost::get<PlayerControllerTypeNetwork>(&params->controller); networkInfo != nullptr)
+                if (auto networkInfo = std::get_if<PlayerControllerTypeNetwork>(&params->controller); networkInfo != nullptr)
                 {
                     endpointInfos.emplace_back(playerId, *resolver.resolve(boost::asio::ip::udp::resolver::query(networkInfo->host, networkInfo->port)));
                 }

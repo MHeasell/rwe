@@ -1,7 +1,6 @@
 #ifndef RWE_TDFBLOCK_H
 #define RWE_TDFBLOCK_H
 
-#include <boost/variant.hpp>
 #include <functional>
 #include <initializer_list>
 #include <memory>
@@ -10,6 +9,7 @@
 #include <sstream>
 #include <string>
 #include <unordered_map>
+#include <variant>
 #include <vector>
 
 namespace rwe
@@ -142,7 +142,7 @@ namespace rwe
 
     struct TdfPropertyValue
     {
-        using ValueType = boost::variant<TdfBlock, std::string>;
+        using ValueType = std::variant<TdfBlock, std::string>;
         ValueType value;
 
         TdfPropertyValue(const std::string& s) : value(s) {}

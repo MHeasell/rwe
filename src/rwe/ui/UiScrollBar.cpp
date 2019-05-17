@@ -216,7 +216,7 @@ namespace rwe
             return;
         }
 
-        auto scrollMessage = boost::get<ScrollPositionMessage>(&(message.message));
+        auto scrollMessage = std::get_if<ScrollPositionMessage>(&(message.message));
         if (!scrollMessage)
         {
             return;

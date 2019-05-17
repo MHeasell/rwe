@@ -10,7 +10,7 @@ namespace rwe
     class HpiFileSystem final : public AbstractVirtualFileSystem
     {
     private:
-        class HpiRecursiveFilenamesVisitor : public boost::static_visitor<std::vector<std::string>>
+        class HpiRecursiveFilenamesVisitor
         {
         private:
             HpiFileSystem* fs;

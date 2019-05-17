@@ -3,7 +3,7 @@
 
 namespace rwe
 {
-    class WriteAttackTargetVisitor : public boost::static_visitor<>
+    class WriteAttackTargetVisitor
     {
     private:
         proto::AttackOrder* cmd;
@@ -23,7 +23,7 @@ namespace rwe
         }
     };
 
-    class WriteUnitOrderVisitor : public boost::static_visitor<>
+    class WriteUnitOrderVisitor
     {
     private:
         proto::PlayerUnitCommand::IssueOrder* cmd;
@@ -42,7 +42,7 @@ namespace rwe
         {
             auto& out = *cmd->mutable_attack();
             WriteAttackTargetVisitor visitor(out);
-            boost::apply_visitor(visitor, o.target);
+            std::visit(visitor, o.target);
         }
 
         void operator()(const BuildOrder& o)
@@ -54,7 +54,7 @@ namespace rwe
         }
     };
 
-    class WriteUnitCommandVisitor : public boost::static_visitor<>
+    class WriteUnitCommandVisitor
     {
     private:
         proto::PlayerUnitCommand* cmd;
@@ -68,7 +68,7 @@ namespace rwe
             auto& out = *cmd->mutable_order();
             out.set_issue_kind(serializeIssueKind(c.issueKind));
             WriteUnitOrderVisitor visitor(out);
-            boost::apply_visitor(visitor, c.order);
+            std::visit(visitor, c.order);
         }
 
         void operator()(const PlayerUnitCommand::Stop&)
@@ -89,7 +89,7 @@ namespace rwe
         }
     };
 
-    class WritePlayerCommandVisitor : public boost::static_visitor<>
+    class WritePlayerCommandVisitor
     {
     private:
         proto::PlayerCommand* cmd;
@@ -103,7 +103,7 @@ namespace rwe
             auto& out = *cmd->mutable_unit_command();
             out.set_unit(c.unit.value);
             WriteUnitCommandVisitor visitor(out);
-            boost::apply_visitor(visitor, c.command);
+            std::visit(visitor, c.command);
         }
 
         void operator()(const PlayerPauseGameCommand&)
@@ -156,7 +156,7 @@ namespace rwe
     void serializePlayerCommand(const PlayerCommand& command, proto::PlayerCommand& out)
     {
         WritePlayerCommandVisitor visitor(out);
-        boost::apply_visitor(visitor, command);
+        std::visit(visitor, command);
     }
 
     std::vector<PlayerCommand> deserializeCommandSet(const proto::GameUpdateMessage_PlayerCommandSet& set)

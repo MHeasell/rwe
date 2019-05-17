@@ -1,11 +1,11 @@
 #ifndef RWE_HPI_H
 #define RWE_HPI_H
 
-#include <boost/variant.hpp>
 #include <cstdint>
 #include <functional>
 #include <istream>
 #include <optional>
+#include <variant>
 #include <vector>
 
 namespace rwe
@@ -123,7 +123,7 @@ namespace rwe
         struct DirectoryEntry
         {
             std::string name;
-            boost::variant<File, Directory> data;
+            std::variant<File, Directory> data;
         };
 
     private:

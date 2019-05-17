@@ -1,7 +1,6 @@
 #ifndef RWE_UNIT_H
 #define RWE_UNIT_H
 
-#include <boost/variant.hpp>
 #include <deque>
 #include <memory>
 #include <optional>
@@ -21,6 +20,7 @@
 #include <rwe/geometry/BoundingBox3f.h>
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/pathfinding/UnitPath.h>
+#include <variant>
 
 namespace rwe
 {
@@ -33,7 +33,7 @@ namespace rwe
             : path(std::move(path)), pathCreationTime(creationTime), currentWaypoint(this->path.waypoints.begin()) {}
     };
 
-    using MovingStateGoal = boost::variant<Vector3f, DiscreteRect>;
+    using MovingStateGoal = std::variant<Vector3f, DiscreteRect>;
 
     struct MovingState
     {
@@ -58,7 +58,7 @@ namespace rwe
         UnitId targetUnit;
     };
 
-    using UnitState = boost::variant<IdleState, MovingState, StartBuildingState, BuildingState>;
+    using UnitState = std::variant<IdleState, MovingState, StartBuildingState, BuildingState>;
 
     UnitOrder createMoveOrder(const Vector3f& destination);
 

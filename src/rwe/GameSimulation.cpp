@@ -72,7 +72,7 @@ namespace rwe
         return !(rhs == *this);
     }
 
-    class IsCollisionVisitor : public boost::static_visitor<bool>
+    class IsCollisionVisitor
     {
     private:
         UnitId unitId;
@@ -96,7 +96,7 @@ namespace rwe
         }
     };
 
-    class IsCollisionSimpleVisitor : public boost::static_visitor<bool>
+    class IsCollisionSimpleVisitor
     {
     public:
         bool operator()(const OccupiedNone&) const
@@ -208,7 +208,7 @@ namespace rwe
             for (unsigned int dx = 0; dx < region->width; ++dx)
             {
                 const auto& cell = occupiedGrid.grid.get(region->x + dx, region->y + dy);
-                if (boost::apply_visitor(IsCollisionSimpleVisitor(), cell))
+                if (std::visit(IsCollisionSimpleVisitor(), cell))
                 {
                     return true;
                 }
@@ -230,7 +230,7 @@ namespace rwe
             for (unsigned int dx = 0; dx < region->width; ++dx)
             {
                 const auto& cell = occupiedGrid.grid.get(region->x + dx, region->y + dy);
-                if (boost::apply_visitor(IsCollisionVisitor(self), cell))
+                if (std::visit(IsCollisionVisitor(self), cell))
                 {
                     return true;
                 }
