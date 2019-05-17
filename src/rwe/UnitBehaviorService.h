@@ -14,32 +14,6 @@ namespace rwe
     class UnitBehaviorService
     {
     private:
-        class HandleUnitOrderVisitor
-        {
-        private:
-            UnitBehaviorService* svc;
-            UnitId u;
-
-        public:
-            HandleUnitOrderVisitor(UnitBehaviorService* svc, UnitId u) : svc(svc), u(u) {}
-
-            bool operator()(const MoveOrder& o)
-            {
-                return svc->handleMoveOrder(u, o);
-            }
-
-            bool operator()(const AttackOrder& o)
-            {
-                return svc->handleAttackOrder(u, o);
-            }
-
-            bool operator()(const BuildOrder& o)
-            {
-                return svc->handleBuildOrder(u, o);
-            }
-        };
-
-    private:
         GameScene* scene;
         PathFindingService* pathFindingService;
         MovementClassCollisionService* collisionService;
@@ -58,6 +32,12 @@ namespace rwe
         Vector3f getSweetSpot(UnitId id);
         std::optional<Vector3f> tryGetSweetSpot(UnitId id);
 
+    private:
+        static std::pair<float, float> computeHeadingAndPitch(float rotation, const Vector3f& from, const Vector3f& to);
+
+        /** Returns true if the order has been completed. */
+        bool handleOrder(UnitId unitId, const UnitOrder& moveOrder);
+
         /** Returns true if the order has been completed. */
         bool handleMoveOrder(UnitId unitId, const MoveOrder& moveOrder);
 
@@ -66,9 +46,6 @@ namespace rwe
 
         /** Returns true if the order has been completed. */
         bool handleBuildOrder(UnitId unitId, const BuildOrder& buildOrder);
-
-    private:
-        static std::pair<float, float> computeHeadingAndPitch(float rotation, const Vector3f& from, const Vector3f& to);
 
         bool followPath(Unit& unit, PathFollowingInfo& path);
 

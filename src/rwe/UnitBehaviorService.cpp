@@ -4,6 +4,7 @@
 #include <rwe/geometry/Circle2f.h>
 #include <rwe/math/rwe_math.h>
 #include <rwe/movement.h>
+#include <rwe/overloaded.h>
 
 namespace rwe
 {
@@ -85,8 +86,7 @@ namespace rwe
                 const auto& order = unit.orders.front();
 
                 // process move orders
-                HandleUnitOrderVisitor v(this, unitId);
-                if (std::visit(v, order))
+                if (handleOrder(unitId, order))
                 {
                     unit.orders.pop_front();
                 }
@@ -585,6 +585,22 @@ namespace rwe
         }
 
         return getSweetSpot(id);
+    }
+
+    bool UnitBehaviorService::handleOrder(UnitId unitId, const UnitOrder& order)
+    {
+        return std::visit(
+            overloaded{
+                [this, unitId](const MoveOrder& o) {
+                    return handleMoveOrder(unitId, o);
+                },
+                [this, unitId](const AttackOrder& o) {
+                    return handleAttackOrder(unitId, o);
+                },
+                [this, unitId](const BuildOrder& o) {
+                    return handleBuildOrder(unitId, o);
+                }},
+            order);
     }
 
     bool UnitBehaviorService::handleMoveOrder(UnitId unitId, const MoveOrder& moveOrder)
