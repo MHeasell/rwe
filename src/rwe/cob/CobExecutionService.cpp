@@ -5,32 +5,6 @@
 
 namespace rwe
 {
-    class ThreadRescheduleVisitor
-    {
-    private:
-        CobEnvironment* const env;
-        CobThread* const thread;
-
-    public:
-        ThreadRescheduleVisitor(CobEnvironment* env, CobThread* thread) : env(env), thread(thread)
-        {
-        }
-
-        void operator()(const CobEnvironment::BlockedStatus& status) const
-        {
-            env->blockedQueue.emplace_back(status, thread);
-        }
-        void operator()(const CobEnvironment::FinishedStatus&) const
-        {
-            env->finishedQueue.emplace_back(thread);
-        }
-        void operator()(const CobEnvironment::SignalStatus& status) const
-        {
-            env->readyQueue.emplace_front(thread);
-            env->sendSignal(status.signal);
-        }
-    };
-
     void CobExecutionService::run(GameScene& scene, GameSimulation& simulation, UnitId unitId)
     {
         auto& unit = simulation.getUnit(unitId);
@@ -92,7 +66,19 @@ namespace rwe
 
             auto status = context.execute();
 
-            std::visit(ThreadRescheduleVisitor(&env, thread), status);
+            std::visit(
+                overloaded{
+                    [&env, thread](const CobEnvironment::BlockedStatus& status) {
+                        env.blockedQueue.emplace_back(status, thread);
+                    },
+                    [&env, thread](const CobEnvironment::FinishedStatus&) {
+                        env.finishedQueue.emplace_back(thread);
+                    },
+                    [&env, thread](const CobEnvironment::SignalStatus& status) {
+                        env.readyQueue.emplace_front(thread);
+                        env.sendSignal(status.signal);
+                    }},
+                status);
         }
 
         assert(env.isNotCorrupt());
