@@ -1,40 +1,10 @@
 #include "CobExecutionService.h"
 #include <rwe/GameScene.h>
 #include <rwe/cob/CobExecutionContext.h>
+#include <rwe/overloaded.h>
 
 namespace rwe
 {
-    class BlockCheckVisitor
-    {
-    private:
-        GameSimulation* simulation;
-        CobEnvironment* env;
-        UnitId unitId;
-
-    public:
-        BlockCheckVisitor(GameSimulation* simulation, CobEnvironment* env, UnitId unitId)
-            : simulation(simulation), env(env), unitId(unitId)
-        {
-        }
-
-        bool operator()(const CobEnvironment::BlockedStatus::Move& condition) const
-        {
-            const auto& pieceName = env->_script->pieces.at(condition.object);
-            return !simulation->isPieceMoving(unitId, pieceName, condition.axis);
-        }
-
-        bool operator()(const CobEnvironment::BlockedStatus::Turn& condition) const
-        {
-            const auto& pieceName = env->_script->pieces.at(condition.object);
-            return !simulation->isPieceTurning(unitId, pieceName, condition.axis);
-        }
-
-        bool operator()(const CobEnvironment::BlockedStatus::Sleep& condition) const
-        {
-            return simulation->gameTime >= condition.wakeUpTime;
-        }
-    };
-
     class ThreadRescheduleVisitor
     {
     private:
@@ -84,7 +54,21 @@ namespace rwe
             const auto& pair = *it;
             const auto& status = pair.first;
 
-            auto isUnblocked = std::visit(BlockCheckVisitor(&simulation, &env, unitId), status.condition);
+            auto isUnblocked = std::visit(
+                overloaded{
+                    [&env, &simulation, unitId](const CobEnvironment::BlockedStatus::Move& condition) {
+                        const auto& pieceName = env._script->pieces.at(condition.object);
+                        return !simulation.isPieceMoving(unitId, pieceName, condition.axis);
+                    },
+                    [&env, &simulation, unitId](const CobEnvironment::BlockedStatus::Turn& condition) {
+                        const auto& pieceName = env._script->pieces.at(condition.object);
+                        return !simulation.isPieceTurning(unitId, pieceName, condition.axis);
+                    },
+                    [&simulation](const CobEnvironment::BlockedStatus::Sleep& condition) {
+                        return simulation.gameTime >= condition.wakeUpTime;
+                    }},
+                status.condition);
+
             if (isUnblocked)
             {
                 env.readyQueue.push_back(pair.second);

@@ -416,6 +416,7 @@ set(SOURCE_FILES
     src/rwe/optional_util.h
     src/rwe/ota.cpp
     src/rwe/ota.h
+    src/rwe/overloaded.h
     src/rwe/pathfinding/AStarPathFinder.h
     src/rwe/pathfinding/AbstractUnitPathFinder.cpp
     src/rwe/pathfinding/AbstractUnitPathFinder.h
