@@ -3,6 +3,7 @@
 #include <iostream>
 #include <memory>
 #include <rwe/Hpi.h>
+#include <rwe/overloaded.h>
 #include <string>
 
 namespace fs = boost::filesystem;
@@ -27,14 +28,15 @@ void printFile(unsigned int indent, const std::string& name, const rwe::HpiArchi
 
 void printEntry(unsigned int indent, const rwe::HpiArchive::DirectoryEntry& e)
 {
-    if (const auto f = std::get_if<rwe::HpiArchive::File>(&e.data))
-    {
-        printFile(indent, e.name, *f);
-    }
-    else if (const auto d = std::get_if<rwe::HpiArchive::Directory>(&e.data))
-    {
-        printDir(indent, e.name, *d);
-    }
+    std::visit(
+        overloaded{
+            [&](const rwe::HpiArchive::File& f) {
+                printFile(indent, e.name, f);
+            },
+            [&](const rwe::HpiArchive::Directory& d) {
+                printDir(indent, e.name, d);
+            }},
+        e.data);
 }
 
 void printDir(unsigned int indent, const std::string& name, const rwe::HpiArchive::Directory& d)
@@ -112,30 +114,27 @@ int extractCommand(const std::string& hpiPath, const std::string& filePath, cons
 
 void extractRecursive(rwe::HpiArchive& archive, const rwe::HpiArchive::DirectoryEntry& entry, const fs::path& outDir)
 {
-    if (auto d = std::get_if<rwe::HpiArchive::Directory>(&entry.data); d != nullptr)
-    {
-        auto innerDir = outDir;
-        innerDir /= entry.name;
-        fs::create_directory(innerDir);
+    std::visit(
+        overloaded{
+            [&](const rwe::HpiArchive::Directory& d) {
+                auto innerDir = outDir;
+                innerDir /= entry.name;
+                fs::create_directory(innerDir);
 
-        for (const auto& e : d->entries)
-        {
-            extractRecursive(archive, e, innerDir);
-        }
-
-        return;
-    }
-
-    if (auto f = std::get_if<rwe::HpiArchive::File>(&entry.data); f != nullptr)
-    {
-        auto innerFile = outDir;
-        innerFile /= entry.name;
-        auto buf = std::make_unique<char[]>(f->size);
-        archive.extract(*f, buf.get());
-        std::ofstream out(innerFile.string(), std::ios::binary);
-        out.write(buf.get(), f->size);
-        return;
-    }
+                for (const auto& e : d.entries)
+                {
+                    extractRecursive(archive, e, innerDir);
+                }
+            },
+            [&](const rwe::HpiArchive::File& f) {
+                auto innerFile = outDir;
+                innerFile /= entry.name;
+                auto buf = std::make_unique<char[]>(f.size);
+                archive.extract(f, buf.get());
+                std::ofstream out(innerFile.string(), std::ios::binary);
+                out.write(buf.get(), f.size);
+            }
+        }, entry.data);
 }
 
 int extractAllCommand(const std::string& hpiPath, const std::string& destinationPath)
