@@ -1,5 +1,6 @@
 #include "Hpi.h"
 
+#include <algorithm>
 #include <memory>
 #include <optional>
 #include <rwe/rwe_string.h>
