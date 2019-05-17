@@ -194,6 +194,13 @@ namespace rwe
         bool hideDamage{false};
         bool showPlayerName{false};
 
+        Energy energyProductionBuffer{0};
+        Metal metalProductionBuffer{0};
+        Energy previousEnergyConsumptionBuffer{0};
+        Metal previousMetalConsumptionBuffer{0};
+        Energy energyConsumptionBuffer{0};
+        Metal metalConsumptionBuffer{0};
+
         static float toRotation(const Vector3f& direction);
 
         static Vector3f toDirection(float rotation);
@@ -270,6 +277,16 @@ namespace rwe
         void deactivate();
 
         MovementClass getAdHocMovementClass() const;
+
+        Metal getMetalMake() const;
+        Energy getEnergyMake() const;
+        Metal getMetalUse() const;
+        Energy getEnergyUse() const;
+
+        void addEnergyDelta(const Energy& energy);
+        void addMetalDelta(const Metal& metal);
+
+        void resetResourceBuffers();
     };
 }
 

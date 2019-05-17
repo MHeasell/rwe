@@ -4,40 +4,62 @@
 
 namespace rwe
 {
-    bool GamePlayerInfo::addEnergyDelta(const Energy& energy)
+    bool GamePlayerInfo::addResourceDelta(const Energy& apparentEnergy, const Metal& apparentMetal, const Energy& actualEnergy, const Metal& actualMetal)
+    {
+        if (recordAndCheckDesire(apparentEnergy) && recordAndCheckDesire(apparentMetal))
+        {
+            acceptResource(actualEnergy);
+            acceptResource(actualMetal);
+            return true;
+        }
+
+        return false;
+    }
+
+    bool GamePlayerInfo::recordAndCheckDesire(const rwe::Energy& energy)
     {
         if (energy >= Energy(0))
         {
-            energyProductionBuffer += energy;
             return true;
         }
 
         desiredEnergyConsumptionBuffer -= energy;
-        if (energyStalled)
-        {
-            return false;
-        }
-
-        actualEnergyConsumptionBuffer -= energy;
-        return true;
+        return !energyStalled;
     }
 
-    bool GamePlayerInfo::addMetalDelta(const Metal& metal)
+    bool GamePlayerInfo::recordAndCheckDesire(const rwe::Metal& metal)
     {
         if (metal >= Metal(0))
         {
-            metalProductionBuffer += metal;
             return true;
         }
 
         desiredMetalConsumptionBuffer -= metal;
-        if (metalStalled)
-        {
-            return false;
-        }
+        return !metalStalled;
+    }
 
-        actualMetalConsumptionBuffer -= metal;
-        return true;
+    void GamePlayerInfo::acceptResource(const rwe::Energy& energy)
+    {
+        if (energy >= Energy(0))
+        {
+            energyProductionBuffer += energy;
+        }
+        else
+        {
+            actualEnergyConsumptionBuffer -= energy;
+        }
+    }
+
+    void GamePlayerInfo::acceptResource(const rwe::Metal& metal)
+    {
+        if (metal >= Metal(0))
+        {
+            metalProductionBuffer += metal;
+        }
+        else
+        {
+            actualMetalConsumptionBuffer -= metal;
+        }
     }
 
     bool PathRequest::operator==(const PathRequest& rhs) const
@@ -504,5 +526,20 @@ namespace rwe
 
         // no players are alive, the game is a draw
         return WinStatusDraw();
+    }
+
+    bool GameSimulation::addResourceDelta(const UnitId& unitId, const Energy& energy, const Metal& metal)
+    {
+        return addResourceDelta(unitId, energy, metal, energy, metal);
+    }
+
+    bool GameSimulation::addResourceDelta(const UnitId& unitId, const Energy& apparentEnergy, const Metal& apparentMetal, const Energy& actualEnergy, const Metal& actualMetal)
+    {
+        auto& unit = getUnit(unitId);
+        auto& player = getPlayer(unit.owner);
+
+        unit.addEnergyDelta(apparentEnergy);
+        unit.addMetalDelta(apparentMetal);
+        return player.addResourceDelta(apparentEnergy, apparentMetal, actualEnergy, actualMetal);
     }
 }

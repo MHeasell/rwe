@@ -822,19 +822,20 @@ namespace rwe
                 return true;
             }
 
-            auto& player = scene->getSimulation().getPlayer(unit.owner);
-            player.desiredMetalConsumptionBuffer += Metal(targetUnit.metalCost.value * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime));
-            player.desiredEnergyConsumptionBuffer += Energy(targetUnit.energyCost.value * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime));
+            auto& sim = scene->getSimulation();
+            auto costs = targetUnit.getBuildCostInfo(unit.workerTimePerTick);
+            auto gotResources = sim.addResourceDelta(
+                unitId,
+                -Energy(targetUnit.energyCost.value * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime)),
+                -Metal(targetUnit.metalCost.value * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime)),
+                -costs.energyCost,
+                -costs.metalCost);
 
-            if ((targetUnit.metalCost > Metal(0) && player.metalStalled) || (targetUnit.energyCost > Energy(0) && player.energyStalled))
+            if (!gotResources)
             {
                 // we don't have resources available to build -- wait
                 return false;
             }
-
-            auto costs = targetUnit.getBuildCostInfo(unit.workerTimePerTick);
-            player.actualMetalConsumptionBuffer += costs.metalCost;
-            player.actualEnergyConsumptionBuffer += costs.energyCost;
 
             if (targetUnit.addBuildProgress(unit.workerTimePerTick))
             {

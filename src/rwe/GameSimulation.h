@@ -56,8 +56,11 @@ namespace rwe
         Metal metalProductionBuffer{0};
         Energy energyProductionBuffer{0};
 
-        bool addEnergyDelta(const Energy& energy);
-        bool addMetalDelta(const Metal& energy);
+        bool addResourceDelta(const Energy& apparentEnergy, const Metal& apparentMetal, const Energy& actualEnergy, const Metal& actualMetal);
+        bool recordAndCheckDesire(const Energy& energy);
+        bool recordAndCheckDesire(const Metal& metal);
+        void acceptResource(const Energy& energy);
+        void acceptResource(const Metal& metal);
     };
 
     struct PathRequest
@@ -189,6 +192,9 @@ namespace rwe
         void spawnSmoke(const Vector3f& position, const std::shared_ptr<SpriteSeries>& animation);
 
         WinStatus computeWinStatus() const;
+
+        bool addResourceDelta(const UnitId& unitId, const Energy& apparentEnergy, const Metal& apparentMetal, const Energy& actualEnergy, const Metal& actualMetal);
+        bool addResourceDelta(const UnitId& unitId, const Energy& energy, const Metal& metal);
     };
 }
 

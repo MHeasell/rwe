@@ -501,4 +501,58 @@ namespace rwe
         mc.footprintZ = footprintZ;
         return mc;
     }
+
+    Metal Unit::getMetalMake() const
+    {
+        return metalProductionBuffer;
+    }
+
+    Energy Unit::getEnergyMake() const
+    {
+        return energyProductionBuffer;
+    }
+
+    Metal Unit::getMetalUse() const
+    {
+        return previousMetalConsumptionBuffer;
+    }
+
+    Energy Unit::getEnergyUse() const
+    {
+        return previousEnergyConsumptionBuffer;
+    }
+
+    void Unit::addMetalDelta(const Metal& metal)
+    {
+        if (metal >= Metal(0))
+        {
+            metalProductionBuffer += metal;
+        }
+        else
+        {
+            metalConsumptionBuffer -= metal;
+        }
+    }
+
+    void Unit::addEnergyDelta(const Energy& energy)
+    {
+        if (energy >= Energy(0))
+        {
+            energyProductionBuffer += energy;
+        }
+        else
+        {
+            energyConsumptionBuffer -= energy;
+        }
+    }
+
+    void Unit::resetResourceBuffers()
+    {
+        energyProductionBuffer = Energy(0);
+        metalProductionBuffer = Metal(0);
+        previousEnergyConsumptionBuffer = energyConsumptionBuffer;
+        previousMetalConsumptionBuffer = metalConsumptionBuffer;
+        energyConsumptionBuffer = Energy(0);
+        metalConsumptionBuffer = Metal(0);
+    }
 }

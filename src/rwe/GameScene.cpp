@@ -264,22 +264,22 @@ namespace rwe
             {
                 {
                     const auto& rect = localSideData.unitMetalMake;
-                    auto text = "+0.0";
+                    auto text = "+" + formatResourceDelta(unit.getMetalMake());
                     chromeUiRenderService.drawText(rect.x1, extraBottom + rect.y1, text, *guiFont, Color(83, 223, 79));
                 }
                 {
                     const auto& rect = localSideData.unitMetalUse;
-                    auto text = "-0.0";
+                    auto text = "-" + formatResourceDelta(unit.getMetalUse());
                     chromeUiRenderService.drawText(rect.x1, extraBottom + rect.y1, text, *guiFont, Color(255, 71, 0));
                 }
                 {
                     const auto& rect = localSideData.unitEnergyMake;
-                    auto text = "+0";
+                    auto text = "+" + formatResourceDelta(unit.getEnergyMake());
                     chromeUiRenderService.drawText(rect.x1, extraBottom + rect.y1, text, *guiFont, Color(83, 223, 79));
                 }
                 {
                     const auto& rect = localSideData.unitEnergyUse;
-                    auto text = "-0";
+                    auto text = "-" + formatResourceDelta(unit.getEnergyUse());
                     chromeUiRenderService.drawText(rect.x1, extraBottom + rect.y1, text, *guiFont, Color(255, 71, 0));
                 }
                 {
@@ -1161,17 +1161,16 @@ namespace rwe
 
             for (auto& entry : simulation.units)
             {
+                const auto& unitId = entry.first;
                 auto& unit = entry.second;
-                auto& player = simulation.getPlayer(unit.owner);
 
-                player.addEnergyDelta(unit.energyMake);
-                player.addMetalDelta(unit.metalMake);
+                unit.resetResourceBuffers();
+
+                simulation.addResourceDelta(unitId, unit.energyMake, unit.metalMake);
 
                 if (unit.activated)
                 {
-                    auto gotEnergy = player.addEnergyDelta(-unit.energyUse);
-                    auto gotMetal = player.addMetalDelta(-unit.metalUse);
-                    unit.isSufficientlyPowered = gotEnergy && gotMetal;
+                    unit.isSufficientlyPowered = simulation.addResourceDelta(unitId, -unit.energyUse, -unit.metalUse);
                 }
             }
         }
