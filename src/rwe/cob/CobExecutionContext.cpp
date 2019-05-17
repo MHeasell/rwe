@@ -444,15 +444,15 @@ namespace rwe
 
     void CobExecutionContext::explode()
     {
-        /*auto object = */nextInstruction();
-        /*auto explosionType = */pop();
+        /*auto object = */ nextInstruction();
+        /*auto explosionType = */ pop();
         // TODO: this
     }
 
     void CobExecutionContext::emitSmoke()
     {
-        /*auto piece = */nextInstruction();
-        /*auto smokeType = */pop();
+        /*auto piece = */ nextInstruction();
+        /*auto smokeType = */ pop();
         // TODO: this
     }
 
@@ -494,14 +494,14 @@ namespace rwe
 
     void CobExecutionContext::attachUnit()
     {
-        /*auto piece = */pop();
-        /*auto unit = */pop();
+        /*auto piece = */ pop();
+        /*auto unit = */ pop();
         // TODO: this
     }
 
     void CobExecutionContext::detachUnit()
     {
-        /*auto unit = */pop();
+        /*auto unit = */ pop();
         // TODO: this
     }
 
