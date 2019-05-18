@@ -1,4 +1,5 @@
 #include "GameScene.h"
+#include "overloaded.h"
 #include <boost/range/adaptor/map.hpp>
 #include <rwe/Mesh.h>
 #include <rwe/resource_io.h>
@@ -561,151 +562,149 @@ namespace rwe
 
         if (event.button == MouseButtonEvent::MouseButton::Left)
         {
-            if (std::get_if<AttackCursorMode>(&cursorMode.getValue()) != nullptr)
-            {
-                if (selectedUnit)
-                {
-                    if (hoveredUnit)
-                    {
-                        if (isShiftDown())
+            std::visit(
+                overloaded{
+                    [&](const AttackCursorMode&) {
+                        if (selectedUnit)
                         {
-                            localPlayerEnqueueUnitOrder(*selectedUnit, AttackOrder(*hoveredUnit));
-                        }
-                        else
-                        {
-                            localPlayerIssueUnitOrder(*selectedUnit, AttackOrder(*hoveredUnit));
-                            cursorMode.next(NormalCursorMode());
-                        }
-                    }
-                    else
-                    {
-                        auto coord = getMouseTerrainCoordinate();
-                        if (coord)
-                        {
-                            if (isShiftDown())
+                            if (hoveredUnit)
                             {
-                                localPlayerEnqueueUnitOrder(*selectedUnit, AttackOrder(*coord));
+                                if (isShiftDown())
+                                {
+                                    localPlayerEnqueueUnitOrder(*selectedUnit, AttackOrder(*hoveredUnit));
+                                }
+                                else
+                                {
+                                    localPlayerIssueUnitOrder(*selectedUnit, AttackOrder(*hoveredUnit));
+                                    cursorMode.next(NormalCursorMode());
+                                }
                             }
                             else
                             {
-                                localPlayerIssueUnitOrder(*selectedUnit, AttackOrder(*coord));
-                                cursorMode.next(NormalCursorMode());
+                                auto coord = getMouseTerrainCoordinate();
+                                if (coord)
+                                {
+                                    if (isShiftDown())
+                                    {
+                                        localPlayerEnqueueUnitOrder(*selectedUnit, AttackOrder(*coord));
+                                    }
+                                    else
+                                    {
+                                        localPlayerIssueUnitOrder(*selectedUnit, AttackOrder(*coord));
+                                        cursorMode.next(NormalCursorMode());
+                                    }
+                                }
                             }
                         }
-                    }
-                }
-            }
-            else if (std::get_if<MoveCursorMode>(&cursorMode.getValue()) != nullptr)
-            {
-                if (selectedUnit)
-                {
-                    auto coord = getMouseTerrainCoordinate();
-                    if (coord)
-                    {
-                        if (isShiftDown())
+                    },
+                    [&](const MoveCursorMode&) {
+                        if (selectedUnit)
                         {
-                            localPlayerEnqueueUnitOrder(*selectedUnit, MoveOrder(*coord));
-                        }
-                        else
-                        {
-                            localPlayerIssueUnitOrder(*selectedUnit, MoveOrder(*coord));
-                            cursorMode.next(NormalCursorMode());
-                        }
-                    }
-                }
-            }
-            else if (auto buildCursor = std::get_if<BuildCursorMode>(&cursorMode.getValue()); buildCursor != nullptr)
-            {
-                if (selectedUnit)
-                {
-                    if (hoverBuildInfo)
-                    {
-                        if (hoverBuildInfo->isValid)
-                        {
-                            auto topLeftWorld = simulation.terrain.heightmapIndexToWorldCorner(hoverBuildInfo->rect.x,
-                                hoverBuildInfo->rect.y);
-                            auto x = topLeftWorld.x + ((hoverBuildInfo->rect.width * MapTerrain::HeightTileWidthInWorldUnits) / 2.0f);
-                            auto z = topLeftWorld.z + ((hoverBuildInfo->rect.height * MapTerrain::HeightTileHeightInWorldUnits) / 2.0f);
-                            auto y = simulation.terrain.getHeightAt(x, z);
-                            Vector3f buildPos(x, y, z);
-                            if (isShiftDown())
+                            auto coord = getMouseTerrainCoordinate();
+                            if (coord)
                             {
-                                localPlayerEnqueueUnitOrder(*selectedUnit, BuildOrder(buildCursor->unitType, buildPos));
-                            }
-                            else
-                            {
-                                localPlayerIssueUnitOrder(*selectedUnit, BuildOrder(buildCursor->unitType, buildPos));
-                                cursorMode.next(NormalCursorMode());
+                                if (isShiftDown())
+                                {
+                                    localPlayerEnqueueUnitOrder(*selectedUnit, MoveOrder(*coord));
+                                }
+                                else
+                                {
+                                    localPlayerIssueUnitOrder(*selectedUnit, MoveOrder(*coord));
+                                    cursorMode.next(NormalCursorMode());
+                                }
                             }
                         }
-                        else
+                    },
+                    [&](const BuildCursorMode& buildCursor) {
+                        if (selectedUnit)
                         {
-                            if (sounds.notOkToBuild)
+                            if (hoverBuildInfo)
                             {
-                                playSoundOnSelectChannel(*sounds.notOkToBuild);
+                                if (hoverBuildInfo->isValid)
+                                {
+                                    auto topLeftWorld = simulation.terrain.heightmapIndexToWorldCorner(hoverBuildInfo->rect.x,
+                                        hoverBuildInfo->rect.y);
+                                    auto x = topLeftWorld.x + ((hoverBuildInfo->rect.width * MapTerrain::HeightTileWidthInWorldUnits) / 2.0f);
+                                    auto z = topLeftWorld.z + ((hoverBuildInfo->rect.height * MapTerrain::HeightTileHeightInWorldUnits) / 2.0f);
+                                    auto y = simulation.terrain.getHeightAt(x, z);
+                                    Vector3f buildPos(x, y, z);
+                                    if (isShiftDown())
+                                    {
+                                        localPlayerEnqueueUnitOrder(*selectedUnit, BuildOrder(buildCursor.unitType, buildPos));
+                                    }
+                                    else
+                                    {
+                                        localPlayerIssueUnitOrder(*selectedUnit, BuildOrder(buildCursor.unitType, buildPos));
+                                        cursorMode.next(NormalCursorMode());
+                                    }
+                                }
+                                else
+                                {
+                                    if (sounds.notOkToBuild)
+                                    {
+                                        playSoundOnSelectChannel(*sounds.notOkToBuild);
+                                    }
+                                }
                             }
                         }
-                    }
-                }
-            }
-            else if (auto normalCursor = std::get_if<NormalCursorMode>(&cursorMode.getValue()); normalCursor != nullptr)
-            {
-                if (isCursorOverMinimap())
-                {
-                    cursorMode.next(NormalCursorMode{NormalCursorMode::State::DraggingMinimap});
-                }
-                else if (isCursorOverWorld())
-                {
-                    cursorMode.next(NormalCursorMode{NormalCursorMode::State::Selecting});
-                }
-            }
+                    },
+                    [&](const NormalCursorMode&) {
+                        if (isCursorOverMinimap())
+                        {
+                            cursorMode.next(NormalCursorMode{NormalCursorMode::State::DraggingMinimap});
+                        }
+                        else if (isCursorOverWorld())
+                        {
+                            cursorMode.next(NormalCursorMode{NormalCursorMode::State::Selecting});
+                        }
+                    }},
+                cursorMode.getValue());
         }
         else if (event.button == MouseButtonEvent::MouseButton::Right)
         {
-            if (std::get_if<AttackCursorMode>(&cursorMode.getValue()) != nullptr)
-            {
-                cursorMode.next(NormalCursorMode());
-            }
-            else if (std::get_if<MoveCursorMode>(&cursorMode.getValue()) != nullptr)
-            {
-                cursorMode.next(NormalCursorMode());
-            }
-            else if (std::get_if<BuildCursorMode>(&cursorMode.getValue()))
-            {
-                cursorMode.next(NormalCursorMode());
-            }
-            else if (std::get_if<NormalCursorMode>(&cursorMode.getValue()) != nullptr)
-            {
-                if (selectedUnit)
-                {
-                    if (hoveredUnit && isEnemy(*hoveredUnit))
-                    {
-                        if (isShiftDown())
+            std::visit(
+                overloaded{
+                    [&](const AttackCursorMode&) {
+                        cursorMode.next(NormalCursorMode());
+                    },
+                    [&](const MoveCursorMode&) {
+                        cursorMode.next(NormalCursorMode());
+                    },
+                    [&](const BuildCursorMode&) {
+                        cursorMode.next(NormalCursorMode());
+                    },
+                    [&](const NormalCursorMode&) {
+                        if (selectedUnit)
                         {
-                            localPlayerEnqueueUnitOrder(*selectedUnit, AttackOrder(*hoveredUnit));
-                        }
-                        else
-                        {
-                            localPlayerIssueUnitOrder(*selectedUnit, AttackOrder(*hoveredUnit));
-                        }
-                    }
-                    else
-                    {
-                        auto coord = getMouseTerrainCoordinate();
-                        if (coord)
-                        {
-                            if (isShiftDown())
+                            if (hoveredUnit && isEnemy(*hoveredUnit))
                             {
-                                localPlayerEnqueueUnitOrder(*selectedUnit, MoveOrder(*coord));
+                                if (isShiftDown())
+                                {
+                                    localPlayerEnqueueUnitOrder(*selectedUnit, AttackOrder(*hoveredUnit));
+                                }
+                                else
+                                {
+                                    localPlayerIssueUnitOrder(*selectedUnit, AttackOrder(*hoveredUnit));
+                                }
                             }
                             else
                             {
-                                localPlayerIssueUnitOrder(*selectedUnit, MoveOrder(*coord));
+                                auto coord = getMouseTerrainCoordinate();
+                                if (coord)
+                                {
+                                    if (isShiftDown())
+                                    {
+                                        localPlayerEnqueueUnitOrder(*selectedUnit, MoveOrder(*coord));
+                                    }
+                                    else
+                                    {
+                                        localPlayerIssueUnitOrder(*selectedUnit, MoveOrder(*coord));
+                                    }
+                                }
                             }
                         }
-                    }
-                }
-            }
+                    }},
+                cursorMode.getValue());
         }
     }
 
@@ -715,27 +714,32 @@ namespace rwe
 
         if (event.button == MouseButtonEvent::MouseButton::Left)
         {
-            auto normalCursor = std::get_if<NormalCursorMode>(&cursorMode.getValue());
-            if (normalCursor != nullptr)
-            {
-                if (normalCursor->state == NormalCursorMode::State::Selecting)
-                {
-                    if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
-                    {
-                        selectUnit(*hoveredUnit);
-                    }
-                    else
-                    {
-                        clearUnitSelection();
-                    }
+            std::visit(
+                overloaded{
+                    [&](const NormalCursorMode& normalCursor) {
+                        if (normalCursor.state == NormalCursorMode::State::Selecting)
+                        {
+                            if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
+                            {
+                                selectUnit(*hoveredUnit);
+                            }
+                            else
+                            {
+                                clearUnitSelection();
+                            }
 
-                    cursorMode.next(NormalCursorMode{NormalCursorMode::State::Up});
-                }
-                else if (normalCursor->state == NormalCursorMode::State::DraggingMinimap)
-                {
-                    cursorMode.next(NormalCursorMode{NormalCursorMode::State::Up});
-                }
-            }
+                            cursorMode.next(NormalCursorMode{NormalCursorMode::State::Up});
+                        }
+                        else if (normalCursor.state == NormalCursorMode::State::DraggingMinimap)
+                        {
+                            cursorMode.next(NormalCursorMode{NormalCursorMode::State::Up});
+                        }
+                    },
+                    [&](const auto&) {
+                        // do nothing
+                    }
+                },
+                cursorMode.getValue());
         }
     }
 
@@ -845,32 +849,34 @@ namespace rwe
             // The cursor is outside the world, so over UI elements.
             sceneContext.cursor->useNormalCursor();
         }
-        else if (std::get_if<AttackCursorMode>(&cursorMode.getValue()) != nullptr)
-        {
-            sceneContext.cursor->useAttackCursor();
-        }
-        else if (std::get_if<MoveCursorMode>(&cursorMode.getValue()) != nullptr)
-        {
-            sceneContext.cursor->useMoveCursor();
-        }
-        else if (std::get_if<BuildCursorMode>(&cursorMode.getValue()) != nullptr)
-        {
-            sceneContext.cursor->useNormalCursor();
-        }
-        else if (std::get_if<NormalCursorMode>(&cursorMode.getValue()) != nullptr)
-        {
-            if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
-            {
-                sceneContext.cursor->useSelectCursor();
-            }
-            else if (selectedUnit && getUnit(*selectedUnit).canAttack && hoveredUnit && isEnemy(*hoveredUnit))
-            {
-                sceneContext.cursor->useRedCursor();
-            }
-            else
-            {
-                sceneContext.cursor->useNormalCursor();
-            }
+        else {
+            std::visit(
+                overloaded{
+                    [&](const AttackCursorMode&) {
+                        sceneContext.cursor->useAttackCursor();
+                    },
+                    [&](const MoveCursorMode&) {
+                        sceneContext.cursor->useMoveCursor();
+                    },
+                    [&](const BuildCursorMode&) {
+                        sceneContext.cursor->useNormalCursor();
+                    },
+                    [&](const NormalCursorMode&) {
+                        if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
+                        {
+                            sceneContext.cursor->useSelectCursor();
+                        }
+                        else if (selectedUnit && getUnit(*selectedUnit).canAttack && hoveredUnit && isEnemy(*hoveredUnit))
+                        {
+                            sceneContext.cursor->useRedCursor();
+                        }
+                        else
+                        {
+                            sceneContext.cursor->useNormalCursor();
+                        }
+                    }
+                },
+                cursorMode.getValue());
         }
 
         auto maxRtt = std::clamp(gameNetworkService->getMaxAverageRttMillis(), 16.0f, 2000.0f);
@@ -1197,14 +1203,19 @@ namespace rwe
         }
 
         auto winStatus = simulation.computeWinStatus();
-        if (auto wonStatus = std::get_if<WinStatusWon>(&winStatus); wonStatus != nullptr)
-        {
-            delay(SceneTime(5 * 60), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
-        }
-        else if (auto drawStatus = std::get_if<WinStatusDraw>(&winStatus); drawStatus != nullptr)
-        {
-            delay(SceneTime(5 * 60), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
-        }
+        std::visit(
+            overloaded{
+                [&](const WinStatusWon&) {
+                    delay(SceneTime(5 * 60), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
+                },
+                [&](const WinStatusDraw&) {
+                    delay(SceneTime(5 * 60), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
+                },
+                [&](const WinStatusUndecided&) {
+                    // do nothing, game still in progress
+                }
+            },
+            winStatus);
 
         deleteDeadUnits();
     }
@@ -1307,7 +1318,7 @@ namespace rwe
         auto kind = PlayerUnitCommand::IssueOrder::IssueKind::Immediate;
         localPlayerCommandBuffer.push_back(PlayerUnitCommand(unitId, PlayerUnitCommand::IssueOrder(order, kind)));
 
-        if (std::get_if<BuildOrder>(&order) != nullptr)
+        if (std::holds_alternative<BuildOrder>(order))
         {
             if (sounds.okToBuild)
             {
@@ -1329,7 +1340,7 @@ namespace rwe
         auto kind = PlayerUnitCommand::IssueOrder::IssueKind::Queued;
         localPlayerCommandBuffer.push_back(PlayerUnitCommand(unitId, PlayerUnitCommand::IssueOrder(order, kind)));
 
-        if (std::get_if<BuildOrder>(&order) != nullptr)
+        if (std::holds_alternative<BuildOrder>(order))
         {
             if (sounds.okToBuild)
             {
@@ -1793,14 +1804,14 @@ namespace rwe
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "ATTACK"))
         {
             p->get().addSubscription(cursorMode.subscribe([& p = p->get()](const auto& v) {
-                p.setToggledOn(std::get_if<AttackCursorMode>(&v) != nullptr);
+                p.setToggledOn(std::holds_alternative<AttackCursorMode>(v));
             }));
         }
 
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "MOVE"))
         {
             p->get().addSubscription(cursorMode.subscribe([& p = p->get()](const auto& v) {
-                p.setToggledOn(std::get_if<MoveCursorMode>(&v) != nullptr);
+                p.setToggledOn(std::holds_alternative<MoveCursorMode>(v));
             }));
         }
 
@@ -1832,7 +1843,7 @@ namespace rwe
         }
 
         currentPanel->groupMessages().subscribe([this](const auto& msg) {
-            if (std::get_if<ActivateMessage>(&msg.message) != nullptr)
+            if (std::holds_alternative<ActivateMessage>(msg.message))
             {
                 onMessage(msg.controlName);
             }
@@ -1863,7 +1874,7 @@ namespace rwe
                 sceneContext.audioService->playSound(*sounds.specialOrders);
             }
 
-            if (std::get_if<AttackCursorMode>(&cursorMode.getValue()))
+            if (std::holds_alternative<AttackCursorMode>(cursorMode.getValue()))
             {
                 cursorMode.next(NormalCursorMode());
             }
@@ -1879,7 +1890,7 @@ namespace rwe
                 sceneContext.audioService->playSound(*sounds.specialOrders);
             }
 
-            if (std::get_if<MoveCursorMode>(&cursorMode.getValue()))
+            if (std::holds_alternative<MoveCursorMode>(cursorMode.getValue()))
             {
                 cursorMode.next(NormalCursorMode());
             }
