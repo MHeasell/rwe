@@ -1,7 +1,7 @@
 #include "GameScene.h"
-#include "overloaded.h"
 #include <boost/range/adaptor/map.hpp>
 #include <rwe/Mesh.h>
+#include <rwe/overloaded.h>
 #include <rwe/resource_io.h>
 #include <rwe/ui/UiStagedButton.h>
 #include <spdlog/spdlog.h>
@@ -9,54 +9,44 @@
 
 namespace rwe
 {
-    class LaserCollisionVisitor
+    bool laserCollides(const GameSimulation& sim, const LaserProjectile& laser, const OccupiedType& cellValue)
     {
-    private:
-        const GameScene* scene;
-        const std::optional<LaserProjectile>* laserPtr;
+        return std::visit(
+            overloaded{
+                [&](const OccupiedUnit& v) {
+                    const auto& unit = sim.getUnit(v.id);
 
-    public:
-        LaserCollisionVisitor(const GameScene* scene, const std::optional<LaserProjectile>* laserPtr)
-            : scene(scene), laserPtr(laserPtr)
-        {
-        }
+                    if (unit.isOwnedBy(laser.owner))
+                    {
+                        return false;
+                    }
 
-        bool operator()(const OccupiedUnit& v) const
-        {
-            auto& laser = *laserPtr;
-            const auto& unit = scene->getSimulation().getUnit(v.id);
+                    // ignore if the laser is above or below the unit
+                    if (laser.position.y < unit.position.y || laser.position.y > unit.position.y + unit.height)
+                    {
+                        return false;
+                    }
 
-            if (unit.isOwnedBy(laser->owner))
-            {
-                return false;
-            }
+                    return true;
+                },
+                [&](const OccupiedFeature& v) {
+                    const auto& feature = sim.getFeature(v.id);
 
-            // ignore if the laser is above or below the unit
-            if (laser->position.y < unit.position.y || laser->position.y > unit.position.y + unit.height)
-            {
-                return false;
-            }
+                    // ignore if the laser is above or below the feature
+                    if (laser.position.y < feature.position.y || laser.position.y > feature.position.y + feature.height)
+                    {
+                        return false;
+                    }
 
-            return true;
-        }
-        bool operator()(const OccupiedFeature& v) const
-        {
-            auto& laser = *laserPtr;
-            const auto& feature = scene->getSimulation().getFeature(v.id);
+                    return true;
+                },
 
-            // ignore if the laser is above or below the feature
-            if (laser->position.y < feature.position.y || laser->position.y > feature.position.y + feature.height)
-            {
-                return false;
-            }
-
-            return true;
-        }
-        bool operator()(const OccupiedNone&) const
-        {
-            return false;
-        }
-    };
+                [&](const OccupiedNone&) {
+                    return false;
+                }
+                },
+            cellValue);
+    }
 
     const Rectangle2f GameScene::minimapViewport = Rectangle2f::fromTopLeft(0.0f, 0.0f, GuiSizeLeft, GuiSizeLeft);
 
@@ -1495,7 +1485,7 @@ namespace rwe
                 auto cellValue = simulation.occupiedGrid.grid.tryGet(heightMapPos);
                 if (cellValue)
                 {
-                    auto collides = std::visit(LaserCollisionVisitor(this, &laser), cellValue->get());
+                    auto collides = laserCollides(simulation, *laser, cellValue->get());
                     if (collides)
                     {
                         doLaserImpact(laser, ImpactType::Normal);
