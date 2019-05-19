@@ -32,6 +32,7 @@ namespace rwe
         static constexpr unsigned int LabelDisplayCenter = 2;
 
         static constexpr unsigned int BehaviorRadio = 16;
+        static constexpr unsigned int BehaviorBuildButton = 32;
         static constexpr unsigned int BehaviorToggle = 64;
         static constexpr unsigned int BehaviorCycle = 256;
     };

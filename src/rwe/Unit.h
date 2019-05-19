@@ -293,6 +293,10 @@ namespace rwe
         void resetResourceBuffers();
 
         void modifyBuildQueue(const std::string& buildUnitType, int count);
+
+        std::unordered_map<std::string, int> getBuildQueueTotals() const;
+
+        int getBuildQueueTotal(const std::string& unitType) const;
     };
 }
 

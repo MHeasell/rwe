@@ -1354,6 +1354,9 @@ namespace rwe
     void GameScene::localPlayerModifyBuildQueue(UnitId unitId, const std::string& unitType, int count)
     {
         localPlayerCommandBuffer.push_back(PlayerUnitCommand(unitId, PlayerUnitCommand::ModifyBuildQueue{count, unitType}));
+
+        updateUnconfirmedBuildQueueDelta(unitId, unitType, count);
+        refreshBuildGuiTotal(unitId, unitType);
     }
 
     void GameScene::issueUnitOrder(UnitId unitId, const UnitOrder& order)
@@ -1684,6 +1687,9 @@ namespace rwe
     {
         auto& unit = getUnit(unitId);
         unit.modifyBuildQueue(unitType, count);
+
+        updateUnconfirmedBuildQueueDelta(unitId, unitType, -count);
+        refreshBuildGuiTotal(unitId, unitType);
     }
 
     void GameScene::deleteDeadUnits()
@@ -2054,7 +2060,17 @@ namespace rwe
         auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);
         if (guiInfo.section == UnitGuiInfo::Section::Build && buildPanelDefinition)
         {
-            setNextPanel(uiFactory.panelFromGuiFile(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition));
+            auto panel = uiFactory.panelFromGuiFile(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition);
+            auto totals = unit.getBuildQueueTotals();
+            for (const auto& e : totals)
+            {
+                auto button = panel->find<UiStagedButton>(e.first);
+                if (button)
+                {
+                    button->get().setLabel("+" + std::to_string(e.second));
+                }
+            }
+            setNextPanel(std::move(panel));
         }
         else
         {
@@ -2091,5 +2107,65 @@ namespace rwe
     void GameScene::setNextPanel(std::unique_ptr<UiPanel>&& panel)
     {
         nextPanel = std::move(panel);
+    }
+
+    void GameScene::refreshBuildGuiTotal(UnitId unitId, const std::string& unitType)
+    {
+        if (selectedUnit == unitId)
+        {
+            const auto& unit = getUnit(*selectedUnit);
+            auto total = unit.getBuildQueueTotal(unitType) + getUnconfirmedBuildQueueCount(unitId, unitType);
+            auto button = currentPanel->find<UiStagedButton>(unitType);
+            if (button)
+            {
+                button->get().setLabel(total > 0 ? "+" + std::to_string(total) : "");
+            }
+        }
+    }
+
+    void GameScene::updateUnconfirmedBuildQueueDelta(UnitId unitId, const std::string& unitType, int count)
+    {
+        auto it = unconfirmedBuildQueueDelta.find(unitId);
+        if (it == unconfirmedBuildQueueDelta.end())
+        {
+            unconfirmedBuildQueueDelta.emplace(unitId, std::unordered_map<std::string, int>{{unitType, count}});
+        }
+        else
+        {
+            auto it2 = it->second.find(unitType);
+            if (it2 == it->second.end())
+            {
+                it->second.emplace(unitType, count);
+            }
+            else
+            {
+                int newTotal = it2->second + count;
+                if (newTotal != 0)
+                {
+                    it2->second = newTotal;
+                }
+                else
+                {
+                    it->second.erase(it2);
+                }
+            }
+        }
+    }
+
+    int GameScene::getUnconfirmedBuildQueueCount(UnitId unitId, const std::string& unitType) const
+    {
+        auto it = unconfirmedBuildQueueDelta.find(unitId);
+        if (it == unconfirmedBuildQueueDelta.end())
+        {
+            return 0;
+        }
+
+        auto it2 = it->second.find(unitType);
+        if (it2 == it->second.end())
+        {
+            return 0;
+        }
+
+        return it2->second;
     }
 }

@@ -27,4 +27,22 @@ namespace rwe
             ++it;
         }
     }
+
+    std::unordered_map<std::string, int> getBuildQueueTotalsStatic(const std::vector<std::pair<std::string, int>>& buildQueue)
+    {
+        std::unordered_map<std::string, int> map;
+        for (const auto& e : buildQueue)
+        {
+            auto it = map.find(e.first);
+            if (it == map.end())
+            {
+                map.insert(e);
+                continue;
+            }
+
+            it->second += e.second;
+        }
+
+        return map;
+    }
 }

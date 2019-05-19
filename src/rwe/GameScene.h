@@ -306,6 +306,8 @@ namespace rwe
 
         std::unordered_map<UnitId, UnitGuiInfo> unitGuiInfos;
 
+        std::unordered_map<UnitId, std::unordered_map<std::string, int>> unconfirmedBuildQueueDelta;
+
     public:
         GameScene(
             const SceneContext& sceneContext,
@@ -491,6 +493,12 @@ namespace rwe
         const UnitGuiInfo& getGuiInfo(const UnitId& unitId) const;
 
         void setNextPanel(std::unique_ptr<UiPanel>&& panel);
+
+        void refreshBuildGuiTotal(UnitId unitId, const std::string& unitType);
+
+        void updateUnconfirmedBuildQueueDelta(UnitId unitId, const std::string& unitType, int count);
+
+        int getUnconfirmedBuildQueueCount(UnitId unitId, const std::string& unitType) const;
 
         template <typename T>
         std::optional<std::reference_wrapper<T>> findWithSidePrefix(UiPanel& p, const std::string& name)

@@ -53,6 +53,18 @@ namespace rwe
                 graphics.drawTextCentered(textX, textY, label, *labelFont);
                 break;
             }
+            case TextAlign::BottomCenter:
+            {
+                float textX = posX + (sizeX / 2.0f);
+                float textY = posY + sizeY - 7;
+                if (pressed)
+                {
+                    textX += 1.0f;
+                    textY += 1.0f;
+                }
+                graphics.drawTextCenteredX(textX, textY, label, *labelFont);
+                break;
+            }
             default:
                 throw std::logic_error("Invalid TextAlign value");
         }

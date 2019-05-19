@@ -567,4 +567,22 @@ namespace rwe
 
         removeFromBuildQueue(buildQueue, buildUnitType, -count);
     }
+
+    std::unordered_map<std::string, int> Unit::getBuildQueueTotals() const
+    {
+        return getBuildQueueTotalsStatic(buildQueue);
+    }
+
+    int Unit::getBuildQueueTotal(const std::string& unitType) const
+    {
+        int sum = 0;
+        for (const auto e : buildQueue)
+        {
+            if (e.first == unitType)
+            {
+                sum += e.second;
+            }
+        }
+        return sum;
+    }
 }

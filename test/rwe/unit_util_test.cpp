@@ -103,4 +103,24 @@ namespace rwe
             REQUIRE(buildQueue == expected);
         }
     }
+
+    TEST_CASE("getBuildQueueTotalsStatic")
+    {
+        SECTION("gets totals from build queue")
+        {
+            std::vector<std::pair<std::string, int>> buildQueue{
+                std::pair{"ARMPW", 1},
+                std::pair{"ARMPW", 5},
+                std::pair{"ARMCK", 7},
+                std::pair{"ARMPW", 3}
+            };
+
+            std::unordered_map<std::string, int> expected{
+                {"ARMPW", 9},
+                {"ARMCK", 7}
+            };
+
+            REQUIRE(getBuildQueueTotalsStatic(buildQueue) == expected);
+        }
+    }
 }

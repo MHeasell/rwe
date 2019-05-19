@@ -329,6 +329,10 @@ namespace rwe
         {
             button->setBehaviorMode(UiStagedButton::BehaviorMode::Radio);
         }
+        else if (entry.common.attribs & GuiButtonAttrib::BehaviorBuildButton)
+        {
+            button->setTextAlign(UiStagedButton::TextAlign::BottomCenter);
+        }
         else if (entry.common.attribs & GuiButtonAttrib::BehaviorToggle)
         {
             button->setBehaviorMode(UiStagedButton::BehaviorMode::Toggle);
