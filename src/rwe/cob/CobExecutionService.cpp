@@ -28,20 +28,19 @@ namespace rwe
             const auto& pair = *it;
             const auto& status = pair.first;
 
-            auto isUnblocked = std::visit(
-                overloaded{
-                    [&env, &simulation, unitId](const CobEnvironment::BlockedStatus::Move& condition) {
-                        const auto& pieceName = env._script->pieces.at(condition.object);
-                        return !simulation.isPieceMoving(unitId, pieceName, condition.axis);
-                    },
-                    [&env, &simulation, unitId](const CobEnvironment::BlockedStatus::Turn& condition) {
-                        const auto& pieceName = env._script->pieces.at(condition.object);
-                        return !simulation.isPieceTurning(unitId, pieceName, condition.axis);
-                    },
-                    [&simulation](const CobEnvironment::BlockedStatus::Sleep& condition) {
-                        return simulation.gameTime >= condition.wakeUpTime;
-                    }},
-                status.condition);
+            auto isUnblocked = match(
+                status.condition,
+                [&env, &simulation, unitId](const CobEnvironment::BlockedStatus::Move& condition) {
+                    const auto& pieceName = env._script->pieces.at(condition.object);
+                    return !simulation.isPieceMoving(unitId, pieceName, condition.axis);
+                },
+                [&env, &simulation, unitId](const CobEnvironment::BlockedStatus::Turn& condition) {
+                    const auto& pieceName = env._script->pieces.at(condition.object);
+                    return !simulation.isPieceTurning(unitId, pieceName, condition.axis);
+                },
+                [&simulation](const CobEnvironment::BlockedStatus::Sleep& condition) {
+                    return simulation.gameTime >= condition.wakeUpTime;
+                });
 
             if (isUnblocked)
             {
@@ -64,21 +63,18 @@ namespace rwe
 
             CobExecutionContext context(&scene, &simulation, &env, thread, unitId);
 
-            auto status = context.execute();
-
-            std::visit(
-                overloaded{
-                    [&env, thread](const CobEnvironment::BlockedStatus& status) {
-                        env.blockedQueue.emplace_back(status, thread);
-                    },
-                    [&env, thread](const CobEnvironment::FinishedStatus&) {
-                        env.finishedQueue.emplace_back(thread);
-                    },
-                    [&env, thread](const CobEnvironment::SignalStatus& status) {
-                        env.readyQueue.emplace_front(thread);
-                        env.sendSignal(status.signal);
-                    }},
-                status);
+            match(
+                context.execute(),
+                [&env, thread](const CobEnvironment::BlockedStatus& status) {
+                    env.blockedQueue.emplace_back(status, thread);
+                },
+                [&env, thread](const CobEnvironment::FinishedStatus&) {
+                    env.finishedQueue.emplace_back(thread);
+                },
+                [&env, thread](const CobEnvironment::SignalStatus& status) {
+                    env.readyQueue.emplace_front(thread);
+                    env.sendSignal(status.signal);
+                });
         }
 
         assert(env.isNotCorrupt());

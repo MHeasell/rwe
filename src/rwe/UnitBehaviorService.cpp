@@ -589,18 +589,17 @@ namespace rwe
 
     bool UnitBehaviorService::handleOrder(UnitId unitId, const UnitOrder& order)
     {
-        return std::visit(
-            overloaded{
-                [this, unitId](const MoveOrder& o) {
-                    return handleMoveOrder(unitId, o);
-                },
-                [this, unitId](const AttackOrder& o) {
-                    return handleAttackOrder(unitId, o);
-                },
-                [this, unitId](const BuildOrder& o) {
-                    return handleBuildOrder(unitId, o);
-                }},
-            order);
+        return match(
+            order,
+            [this, unitId](const MoveOrder& o) {
+                return handleMoveOrder(unitId, o);
+            },
+            [this, unitId](const AttackOrder& o) {
+                return handleAttackOrder(unitId, o);
+            },
+            [this, unitId](const BuildOrder& o) {
+                return handleBuildOrder(unitId, o);
+            });
     }
 
     bool UnitBehaviorService::handleMoveOrder(UnitId unitId, const MoveOrder& moveOrder)
