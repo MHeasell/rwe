@@ -71,6 +71,13 @@ namespace rwe
             std::visit(visitor, c.order);
         }
 
+        void operator()(const PlayerUnitCommand::ModifyBuildQueue& c)
+        {
+            auto& out = *cmd->mutable_modify_build_queue();
+            out.set_count(c.count);
+            out.set_unit_type(c.unitType);
+        }
+
         void operator()(const PlayerUnitCommand::Stop&)
         {
             cmd->mutable_stop();
@@ -196,6 +203,12 @@ namespace rwe
         if (cmd.has_order())
         {
             return PlayerUnitCommand(UnitId(cmd.unit()), deserializeIssueOrder(cmd.order()));
+        }
+
+        if (cmd.has_modify_build_queue())
+        {
+            const auto& mod = cmd.modify_build_queue();
+            return PlayerUnitCommand(UnitId(cmd.unit()), PlayerUnitCommand::ModifyBuildQueue{mod.count(), mod.unit_type()});
         }
 
         if (cmd.has_stop())

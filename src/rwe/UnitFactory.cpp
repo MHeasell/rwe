@@ -104,6 +104,8 @@ namespace rwe
         unit.hideDamage = fbi.hideDamage;
         unit.showPlayerName = fbi.showPlayerName;
 
+        unit.isMobile = fbi.bmCode;
+
         if (movementClassOption)
         {
             auto movementClass = &movementClassOption->get();

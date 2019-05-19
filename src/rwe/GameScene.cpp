@@ -1351,6 +1351,11 @@ namespace rwe
         localPlayerCommandBuffer.push_back(PlayerUnitCommand(unitId, PlayerUnitCommand::SetOnOff{on}));
     }
 
+    void GameScene::localPlayerModifyBuildQueue(UnitId unitId, const std::string& unitType, int count)
+    {
+        localPlayerCommandBuffer.push_back(PlayerUnitCommand(unitId, PlayerUnitCommand::ModifyBuildQueue{count, unitType}));
+    }
+
     void GameScene::issueUnitOrder(UnitId unitId, const UnitOrder& order)
     {
         auto& unit = getUnit(unitId);
@@ -1675,6 +1680,12 @@ namespace rwe
         }
     }
 
+    void GameScene::modifyBuildQueue(UnitId unitId, const std::string& unitType, int count)
+    {
+        auto& unit = getUnit(unitId);
+        unit.modifyBuildQueue(unitType, count);
+    }
+
     void GameScene::deleteDeadUnits()
     {
         for (auto it = simulation.units.begin(); it != simulation.units.end();)
@@ -1824,9 +1835,9 @@ namespace rwe
         }
 
         currentPanel->groupMessages().subscribe([this](const auto& msg) {
-            if (std::holds_alternative<ActivateMessage>(msg.message))
+            if (auto activateMessage = std::get_if<ActivateMessage>(&msg.message); activateMessage != nullptr)
             {
-                onMessage(msg.controlName);
+                onMessage(msg.controlName, activateMessage->type);
             }
         });
     }
@@ -1846,7 +1857,7 @@ namespace rwe
         }
     }
 
-    void GameScene::onMessage(const std::string& message)
+    void GameScene::onMessage(const std::string& message, ActivateMessage::Type type)
     {
         if (matchesWithSidePrefix("ATTACK", message))
         {
@@ -1998,7 +2009,19 @@ namespace rwe
                 sceneContext.audioService->playSound(*sounds.addBuild);
             }
 
-            cursorMode.next(BuildCursorMode{message});
+            if (selectedUnit)
+            {
+                const auto& unit = getUnit(*selectedUnit);
+                if (unit.isMobile)
+                {
+                    cursorMode.next(BuildCursorMode{message});
+                }
+                else
+                {
+                    int count = (isShiftDown() ? 5 : 1) * (type == ActivateMessage::Type::Primary ? 1 : -1);
+                    localPlayerModifyBuildQueue(*selectedUnit, message, count);
+                }
+            }
         }
     }
 

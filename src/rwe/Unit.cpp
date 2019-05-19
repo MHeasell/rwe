@@ -2,6 +2,7 @@
 #include <rwe/GameScene.h>
 #include <rwe/geometry/Plane3f.h>
 #include <rwe/math/rwe_math.h>
+#include <rwe/unit_util.h>
 
 namespace rwe
 {
@@ -554,5 +555,16 @@ namespace rwe
         previousMetalConsumptionBuffer = metalConsumptionBuffer;
         energyConsumptionBuffer = Energy(0);
         metalConsumptionBuffer = Metal(0);
+    }
+
+    void Unit::modifyBuildQueue(const std::string& buildUnitType, int count)
+    {
+        if (count > 0)
+        {
+            buildQueue.emplace_back(buildUnitType, count);
+            return;
+        }
+
+        removeFromBuildQueue(buildQueue, buildUnitType, -count);
     }
 }

@@ -201,6 +201,10 @@ namespace rwe
         Energy energyConsumptionBuffer{0};
         Metal metalConsumptionBuffer{0};
 
+        bool isMobile;
+
+        std::vector<std::pair<std::string, int>> buildQueue;
+
         static float toRotation(const Vector3f& direction);
 
         static Vector3f toDirection(float rotation);
@@ -287,6 +291,8 @@ namespace rwe
         void addMetalDelta(const Metal& metal);
 
         void resetResourceBuffers();
+
+        void modifyBuildQueue(const std::string& buildUnitType, int count);
     };
 }
 
