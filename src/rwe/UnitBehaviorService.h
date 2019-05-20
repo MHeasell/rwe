@@ -47,6 +47,10 @@ namespace rwe
         /** Returns true if the order has been completed. */
         bool handleBuildOrder(UnitId unitId, const BuildOrder& buildOrder);
 
+        bool handleBuild(UnitId unitId, const std::string& unitType);
+
+        void clearBuild(UnitId unitId);
+
         bool followPath(Unit& unit, PathFollowingInfo& path);
 
         void updateWeapon(UnitId id, unsigned int weaponIndex);

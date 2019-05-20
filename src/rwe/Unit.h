@@ -53,6 +53,18 @@ namespace rwe
 
     using UnitState = std::variant<IdleState, MovingState, BuildingState>;
 
+    struct FactoryStateIdle
+    {
+    };
+
+    struct FactoryStateBuilding
+    {
+//        std::optional<UnitId> targetUnit;
+        bool isUnitInProgress{false};
+    };
+
+    using FactoryState = std::variant<FactoryStateIdle, FactoryStateBuilding>;
+
     UnitOrder createMoveOrder(const Vector3f& destination);
 
     UnitOrder createAttackOrder(UnitId target);
@@ -149,6 +161,7 @@ namespace rwe
         UnitState behaviourState;
 
         bool inBuildStance{false};
+        bool yardOpen{false};
 
         /**
          * True if the unit attempted to move last frame
@@ -198,7 +211,8 @@ namespace rwe
 
         bool isMobile;
 
-        std::vector<std::pair<std::string, int>> buildQueue;
+        std::deque<std::pair<std::string, int>> buildQueue;
+        FactoryState factoryState;
 
         static float toRotation(const Vector3f& direction);
 

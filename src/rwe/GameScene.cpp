@@ -1697,6 +1697,12 @@ namespace rwe
         getUnit(unitId).inBuildStance = value;
     }
 
+    void GameScene::setYardOpen(UnitId unitId, bool value)
+    {
+        // TODO: actually attempt to set yard open in collision stuff
+        getUnit(unitId).yardOpen = value;
+    }
+
     void GameScene::deleteDeadUnits()
     {
         for (auto it = simulation.units.begin(); it != simulation.units.end();)

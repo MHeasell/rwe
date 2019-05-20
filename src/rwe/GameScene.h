@@ -399,6 +399,8 @@ namespace rwe
 
         void setBuildStance(UnitId unitId, bool value);
 
+        void setYardOpen(UnitId unitId, bool value);
+
     private:
         static Matrix4f worldToMinimapMatrix(const MapTerrain& terrain, const Rectangle2f& minimapRect);
 

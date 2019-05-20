@@ -2,16 +2,16 @@
 
 namespace rwe
 {
-    void removeFromBuildQueue(std::vector<std::pair<std::string, int>>& buildQueue, const std::string& buildUnitType, int count)
+    void removeFromBuildQueue(std::deque<std::pair<std::string, int>>& buildQueue, const std::string& buildUnitType, int count)
     {
-        auto it = buildQueue.rbegin();
-        auto end = buildQueue.rend();
-        while (count > 0 && it != end)
+        auto it = buildQueue.end();
+        while (count > 0 && it != buildQueue.begin())
         {
+            --it;
+
             auto& elem = *it;
             if (elem.first != buildUnitType)
             {
-                ++it;
                 continue;
             }
 
@@ -21,14 +21,12 @@ namespace rwe
                 break;
             }
 
-            buildQueue.erase(it.base());
             count -= elem.second;
-
-            ++it;
+            it = buildQueue.erase(it);
         }
     }
 
-    std::unordered_map<std::string, int> getBuildQueueTotalsStatic(const std::vector<std::pair<std::string, int>>& buildQueue)
+    std::unordered_map<std::string, int> getBuildQueueTotalsStatic(const std::deque<std::pair<std::string, int>>& buildQueue)
     {
         std::unordered_map<std::string, int> map;
         for (const auto& e : buildQueue)

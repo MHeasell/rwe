@@ -80,6 +80,27 @@ namespace rwe
         // Run unit and weapon AI
         if (!unit.isBeingBuilt())
         {
+            // check our build queue
+            if (!unit.buildQueue.empty())
+            {
+                auto& entry = unit.buildQueue.front();
+                if (handleBuild(unitId, entry.first))
+                {
+                    if (entry.second > 1)
+                    {
+                        --entry.second;
+                    }
+                    else
+                    {
+                        unit.buildQueue.pop_front();
+                    }
+                }
+            }
+            else
+            {
+                clearBuild(unitId);
+            }
+
             // check our orders
             if (!unit.orders.empty())
             {
@@ -853,6 +874,51 @@ namespace rwe
         }
 
         return false;
+    }
+
+    bool UnitBehaviorService::handleBuild(UnitId unitId, const std::string& unitType)
+    {
+        auto& unit = scene->getSimulation().getUnit(unitId);
+
+        return match(
+            unit.factoryState,
+            [&](const FactoryStateIdle&) {
+                scene->activateUnit(unitId);
+                unit.factoryState = FactoryStateBuilding();
+                return false;
+            },
+            [&](FactoryStateBuilding& state) {
+                if (!unit.inBuildStance)
+                {
+                    return false;
+                }
+
+                if (!state.isUnitInProgress)
+                {
+                    unit.cobEnvironment->createThread("StartBuilding");
+                    state.isUnitInProgress = true;
+                }
+
+                return false;
+            });
+    }
+
+    void UnitBehaviorService::clearBuild(UnitId unitId)
+    {
+        auto& unit = scene->getSimulation().getUnit(unitId);
+
+        match(unit.factoryState,
+            [&](const FactoryStateIdle&) {
+                // do nothing
+            },
+            [&](const FactoryStateBuilding& state) {
+                if (state.isUnitInProgress)
+                {
+                    unit.cobEnvironment->createThread("StopBuilding");
+                }
+                scene->deactivateUnit(unitId);
+                unit.factoryState = FactoryStateIdle();
+            });
     }
 
     Vector3f UnitBehaviorService::getNanoPoint(UnitId id)
