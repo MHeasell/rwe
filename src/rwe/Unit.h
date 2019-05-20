@@ -46,19 +46,12 @@ namespace rwe
     {
     };
 
-    /** We are in this state while the "unfolding" animation plays to prep for building */
-    struct StartBuildingState
-    {
-        UnitId targetUnit;
-        const CobThread* thread;
-    };
-
     struct BuildingState
     {
         UnitId targetUnit;
     };
 
-    using UnitState = std::variant<IdleState, MovingState, StartBuildingState, BuildingState>;
+    using UnitState = std::variant<IdleState, MovingState, BuildingState>;
 
     UnitOrder createMoveOrder(const Vector3f& destination);
 
@@ -154,6 +147,8 @@ namespace rwe
 
         std::deque<UnitOrder> orders;
         UnitState behaviourState;
+
+        bool inBuildStance{false};
 
         /**
          * True if the unit attempted to move last frame

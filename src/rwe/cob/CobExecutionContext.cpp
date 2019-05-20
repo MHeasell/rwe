@@ -731,7 +731,10 @@ namespace rwe
                 return unit.hitPoints / unit.maxHitPoints;
             }
             case CobValueId::InBuildStance:
-                return false; // TODO
+            {
+                const auto& unit = sim->getUnit(unitId);
+                return unit.inBuildStance;
+            }
             case CobValueId::Busy:
                 return false; // TODO
             case CobValueId::PieceXZ:
@@ -890,7 +893,9 @@ namespace rwe
             case CobValueId::StandingFireOrders:
                 return; // TODO
             case CobValueId::InBuildStance:
-                return; // TODO
+            {
+                scene->setBuildStance(unitId, value != 0);
+            }
             case CobValueId::Busy:
                 return; // TODO
             case CobValueId::YardOpen:

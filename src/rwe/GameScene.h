@@ -397,6 +397,8 @@ namespace rwe
 
         void modifyBuildQueue(UnitId unitId, const std::string& unitType, int count);
 
+        void setBuildStance(UnitId unitId, bool value);
+
     private:
         static Matrix4f worldToMinimapMatrix(const MapTerrain& terrain, const Rectangle2f& minimapRect);
 

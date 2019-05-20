@@ -1692,6 +1692,11 @@ namespace rwe
         refreshBuildGuiTotal(unitId, unitType);
     }
 
+    void GameScene::setBuildStance(UnitId unitId, bool value)
+    {
+        getUnit(unitId).inBuildStance = value;
+    }
+
     void GameScene::deleteDeadUnits()
     {
         for (auto it = simulation.units.begin(); it != simulation.units.end();)

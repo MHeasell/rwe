@@ -784,29 +784,9 @@ namespace rwe
                     auto heading = headingAndPitch.first;
                     auto pitch = headingAndPitch.second;
 
-                    auto threadId = unit.cobEnvironment->createThread("StartBuilding", {toTaAngle(RadiansAngle(heading)).value, toTaAngle(RadiansAngle(pitch)).value});
-                    if (threadId)
-                    {
-                        unit.behaviourState = StartBuildingState{*targetUnitId, *threadId};
-                    }
-                    else
-                    {
-                        // we couldn't launch a start build script (there isn't one),
-                        // just go straight to building
-                        // TODO: start emitting nanolate effect
-                        unit.behaviourState = BuildingState{*targetUnitId};
-                    }
+                    unit.cobEnvironment->createThread("StartBuilding", {toTaAngle(RadiansAngle(heading)).value, toTaAngle(RadiansAngle(pitch)).value});
+                    unit.behaviourState = BuildingState{*targetUnitId};
                 }
-            }
-        }
-        else if (auto startBuildingState = std::get_if<StartBuildingState>(&unit.behaviourState); startBuildingState != nullptr)
-        {
-            auto returnValue = unit.cobEnvironment->tryReapThread(startBuildingState->thread);
-            if (returnValue)
-            {
-                // we successfully reaped, move to building
-                // TODO: start emitting nanolathe particles, probably
-                unit.behaviourState = BuildingState{startBuildingState->targetUnit};
             }
         }
         else if (auto buildingState = std::get_if<BuildingState>(&unit.behaviourState); buildingState != nullptr)
@@ -835,6 +815,12 @@ namespace rwe
                 unit.cobEnvironment->createThread("StopBuilding");
                 unit.behaviourState = IdleState();
                 return true;
+            }
+
+            if (!unit.inBuildStance)
+            {
+                // We are not in the correct stance to build the unit yet, wait.
+                return false;
             }
 
             auto& sim = scene->getSimulation();
