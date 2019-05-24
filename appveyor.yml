@@ -17,6 +17,7 @@ configuration:
 
 environment:
   APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+  nodejs_version: "10"
   matrix:
     - RWE_COMPILER: MSVC
     - RWE_COMPILER: MSYS
