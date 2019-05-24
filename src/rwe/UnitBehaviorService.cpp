@@ -893,10 +893,72 @@ namespace rwe
                     return false;
                 }
 
-                if (!state.isUnitInProgress)
+                auto& sim = scene->getSimulation();
+
+                auto buildPieceInfo = getBuildPieceInfo(unitId);
+                buildPieceInfo.position.y = sim.terrain.getHeightAt(buildPieceInfo.position.x, buildPieceInfo.position.z);
+                if (!state.targetUnit)
                 {
-                    unit.cobEnvironment->createThread("StartBuilding");
-                    state.isUnitInProgress = true;
+                    state.targetUnit = scene->spawnUnit(unitType, unit.owner, buildPieceInfo.position);
+                    if (state.targetUnit)
+                    {
+                        unit.cobEnvironment->createThread("StartBuilding");
+                    }
+
+                    return false;
+                }
+
+                auto& targetUnit = scene->getSimulation().getUnit(*state.targetUnit);
+                if (targetUnit.isDead())
+                {
+                    unit.cobEnvironment->createThread("StopBuilding");
+                    unit.factoryState = FactoryStateIdle();
+                    return true;
+                }
+
+                if (!targetUnit.isBeingBuilt())
+                {
+                    unit.cobEnvironment->createThread("StopBuilding");
+                    unit.factoryState = FactoryStateIdle();
+                    return true;
+                }
+
+                if (targetUnit.unitType != unitType)
+                {
+                    scene->quietlyKillUnit(*state.targetUnit);
+                    unit.cobEnvironment->createThread("StopBuilding");
+                    unit.factoryState = FactoryStateIdle();
+                    return true;
+                }
+
+                targetUnit.position = buildPieceInfo.position;
+                targetUnit.rotation = buildPieceInfo.rotation;
+
+                auto costs = targetUnit.getBuildCostInfo(unit.workerTimePerTick);
+                auto gotResources = sim.addResourceDelta(
+                    unitId,
+                    -Energy(targetUnit.energyCost.value * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime)),
+                    -Metal(targetUnit.metalCost.value * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime)),
+                    -costs.energyCost,
+                    -costs.metalCost);
+
+                if (!gotResources)
+                {
+                    // we don't have resources available to build -- wait
+                    return false;
+                }
+
+                if (targetUnit.addBuildProgress(unit.workerTimePerTick))
+                {
+                    // play sound when the unit is completed
+                    if (targetUnit.completeSound)
+                    {
+                        scene->playSoundOnSelectChannel(*targetUnit.completeSound);
+                    }
+                    if (targetUnit.activateWhenBuilt)
+                    {
+                        scene->activateUnit(*state.targetUnit);
+                    }
                 }
 
                 return false;
@@ -912,8 +974,9 @@ namespace rwe
                 // do nothing
             },
             [&](const FactoryStateBuilding& state) {
-                if (state.isUnitInProgress)
+                if (state.targetUnit)
                 {
+                    scene->quietlyKillUnit(*state.targetUnit);
                     unit.cobEnvironment->createThread("StopBuilding");
                 }
                 scene->deactivateUnit(unitId);
@@ -944,5 +1007,51 @@ namespace rwe
         }
 
         return unit.getTransform() * (*pieceTransform) * Vector3f(0.0f, 0.0f, 0.0f);
+    }
+
+    float UnitBehaviorService::getPieceXZRotation(UnitId id, unsigned int pieceId)
+    {
+        auto& unit = scene->getSimulation().getUnit(id);
+
+        const auto& pieceName = unit.cobEnvironment->_script->pieces.at(pieceId);
+        auto pieceTransform = unit.mesh.getPieceTransform(pieceName);
+        if (!pieceTransform)
+        {
+            throw std::logic_error("Failed to find piece offset");
+        }
+
+        auto mat = unit.getTransform() * (*pieceTransform);
+
+        // hackily strip the translation bits out...
+        mat.data[3] = 0.0f;
+        mat.data[7] = 0.0f;
+        mat.data[11] = 0.0f;
+
+        mat.data[12] = 0.0f;
+        mat.data[13] = 0.0f;
+        mat.data[14] = 0.0f;
+        mat.data[15] = 1.0f;
+
+        auto rotatedVec = mat * Vector3f(0.0f, 0.0f, 1.0f);
+        auto a = Vector2f(0.0f, 1.0f);
+        auto b = Vector2f(rotatedVec.x, rotatedVec.z);
+        if (b.lengthSquared() == 0.0f)
+        {
+            return 0.0f;
+        }
+
+        return std::atan2((a.x * b.y) - (a.y * b.x), a.dot(b));
+    }
+
+    UnitBehaviorService::BuildPieceInfo UnitBehaviorService::getBuildPieceInfo(UnitId id)
+    {
+        auto pieceId = runCobQuery(id, "QueryBuildInfo");
+        if (!pieceId)
+        {
+            const auto& unit = scene->getSimulation().getUnit(id);
+            return BuildPieceInfo{unit.position, unit.rotation};
+        }
+
+        return BuildPieceInfo{getPiecePosition(id, *pieceId), getPieceXZRotation(id, *pieceId)};
     }
 }

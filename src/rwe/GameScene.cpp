@@ -1757,6 +1757,13 @@ namespace rwe
         }
     }
 
+    void GameScene::quietlyKillUnit(UnitId unitId)
+    {
+        auto& unit = simulation.getUnit(unitId);
+
+        unit.markAsDead();
+    }
+
     void GameScene::killPlayer(PlayerId playerId)
     {
         simulation.getPlayer(playerId).status = GamePlayerStatus::Dead;

@@ -59,8 +59,7 @@ namespace rwe
 
     struct FactoryStateBuilding
     {
-//        std::optional<UnitId> targetUnit;
-        bool isUnitInProgress{false};
+        std::optional<UnitId> targetUnit;
     };
 
     using FactoryState = std::variant<FactoryStateIdle, FactoryStateBuilding>;

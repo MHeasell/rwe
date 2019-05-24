@@ -401,6 +401,8 @@ namespace rwe
 
         void setYardOpen(UnitId unitId, bool value);
 
+        void quietlyKillUnit(UnitId unitId);
+
     private:
         static Matrix4f worldToMinimapMatrix(const MapTerrain& terrain, const Rectangle2f& minimapRect);
 
