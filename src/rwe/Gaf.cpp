@@ -1,18 +1,11 @@
 #include "Gaf.h"
 #include <algorithm>
 #include <memory>
+#include <rwe/io_utils.h>
 #include <rwe/rwe_string.h>
 
 namespace rwe
 {
-    template <typename T>
-    T readRaw(std::istream& stream)
-    {
-        T val;
-        stream.read(reinterpret_cast<char*>(&val), sizeof(T));
-        return val;
-    }
-
     void decompressRow(std::istream& stream, char* buffer, std::size_t rowLength, char transparencyIndex)
     {
         auto compressedRowLength = readRaw<uint16_t>(stream);

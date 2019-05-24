@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <memory>
 #include <optional>
+#include <rwe/io_utils.h>
 #include <rwe/rwe_string.h>
 
 #include <zlib.h>
@@ -43,14 +44,6 @@ namespace rwe
     unsigned char transformKey(unsigned char key)
     {
         return (key << 2) | (key >> 6);
-    }
-
-    template <typename T>
-    T readRaw(std::istream& stream)
-    {
-        T val;
-        stream.read(reinterpret_cast<char*>(&val), sizeof(T));
-        return val;
     }
 
     template <typename T>
