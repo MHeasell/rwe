@@ -41,4 +41,4 @@ install:
   - nvm install 10
   - cd launcher && npm install && cd ..
 
-script: nvm use 10 && cd launcher && npm run package && cd ../libs && ./build-protobuf.sh && cd .. && mkdir build && cd build && cmake .. && make -j 2 && ./rwe_test
+script: ./travis.bash
