@@ -26,5 +26,4 @@ matrix:
   fast_finish: true
 
 cache:
-  - launcher\node_modules
   - libs\_protobuf-install

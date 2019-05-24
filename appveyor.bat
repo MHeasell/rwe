@@ -4,7 +4,7 @@ echo node version || goto :error
 CALL node --version || goto :error
 echo npm version || goto :error
 CALL npm --version || goto :error
-CALL npm install || goto :error
+CALL npm ci || goto :error
 CALL npm run package || goto :error
 cd .. || goto :error
 

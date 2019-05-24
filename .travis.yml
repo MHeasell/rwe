@@ -27,7 +27,6 @@ addons:
 
 cache:
   directories:
-    - launcher/node_modules
     - libs/_protobuf-install
 
 env:
@@ -39,6 +38,6 @@ before_install:
 
 install:
   - nvm install 10
-  - cd launcher && npm install && cd ..
+  - cd launcher && npm ci && cd ..
 
 script: ./travis.bash
