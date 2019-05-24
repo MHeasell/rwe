@@ -1,6 +1,7 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, List, ListItem, ListItemText, Typography, createStyles, Theme, WithStyles, withStyles, RootRef } from "@material-ui/core";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, ListItem, ListItemText, Typography, createStyles, Theme, WithStyles, withStyles, RootRef } from "@material-ui/core";
 import * as React from "react";
 import { SelectedMapDetails } from "../state";
+import { FixedSizeList as List } from "react-window";
 
 const styles = (theme: Theme) => createStyles({
 
@@ -40,10 +41,6 @@ class MapSelectDialog extends React.Component<MapSelectDialogProps> {
   }
 
   render() {
-    const mapItems = this.props.maps
-      ? this.toMapDialogItems(this.props.maps, this.props.selectedMap)
-      : <Typography>Maps not yet loaded</Typography>;
-
     const mapImage = this.props.minimapSrc
       ? <img src={this.props.minimapSrc} className="map-dialog-minimap" />
       : <React.Fragment />;
@@ -61,9 +58,7 @@ class MapSelectDialog extends React.Component<MapSelectDialogProps> {
             <div className="map-dialog-left">
               <RootRef rootRef={this.listRef}>
                 <div className="map-dialog-list">
-                  <List dense>
-                    {mapItems}
-                  </List>
+                  {this.renderMaps()}
                 </div>
               </RootRef>
             </div>
@@ -86,23 +81,35 @@ class MapSelectDialog extends React.Component<MapSelectDialogProps> {
     );
   }
 
-  private toMapDialogItems(maps: string[], selectedMap?: string) {
-    return maps.map(name => {
-      if (name === selectedMap) {
-        return (
-          <RootRef rootRef={this.selectedElementRef} key={name}>
-            <ListItem button selected={name === selectedMap} onClick={() => this.props.onSelect(name)}>
-              <ListItemText primary={name}></ListItemText>
-            </ListItem>
-          </RootRef>
-        );
-      }
+  private renderMaps() {
+    if (!this.props.maps) {
+      return <Typography>Maps not yet loaded</Typography>;
+    }
+
+    const Row = ({ index, style }: { index: number, style: React.CSSProperties }) => this.toMapDialogItem(this.props.maps![index], this.props.selectedMap, style);
+
+    return (
+      <List height={320} width={292} itemSize={35} itemCount={this.props.maps.length}>
+        {Row}
+      </List>
+    );
+  }
+
+  private toMapDialogItem(name: string, selectedMap: string | undefined, style: any) {
+    if (name === selectedMap) {
       return (
-        <ListItem button key={name} selected={name === selectedMap} onClick={() => this.props.onSelect(name)}>
-          <ListItemText primary={name}></ListItemText>
-        </ListItem>
+        <RootRef rootRef={this.selectedElementRef} key={name}>
+          <ListItem dense style={style} button selected={name === selectedMap} onClick={() => this.props.onSelect(name)}>
+            <ListItemText primary={name}></ListItemText>
+          </ListItem>
+        </RootRef>
       );
-    });
+    }
+    return (
+      <ListItem dense style={style} button key={name} selected={name === selectedMap} onClick={() => this.props.onSelect(name)}>
+        <ListItemText primary={name}></ListItemText>
+      </ListItem>
+    );
   }
 
   private scrollToSelectedItem() {
