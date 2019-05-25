@@ -1,5 +1,6 @@
 {
   "rules": {
+    "ordered-imports": true,
     "class-name": true,
     "comment-format": [
       true,

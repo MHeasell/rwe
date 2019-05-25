@@ -1,7 +1,7 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, ListItem, ListItemText, Typography, createStyles, Theme, WithStyles, withStyles, RootRef } from "@material-ui/core";
+import { Button, createStyles, Dialog, DialogActions, DialogContent, DialogTitle, ListItem, ListItemText, RootRef, Theme, Typography, WithStyles, withStyles } from "@material-ui/core";
 import * as React from "react";
-import { SelectedMapDetails } from "../state";
 import { FixedSizeList as List } from "react-window";
+import { SelectedMapDetails } from "../state";
 
 const styles = (theme: Theme) => createStyles({
 
