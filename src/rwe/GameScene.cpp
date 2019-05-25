@@ -1481,7 +1481,7 @@ namespace rwe
             {
                 // detect collision with something's footprint
                 auto heightMapPos = simulation.terrain.worldToHeightmapCoordinate(laser->position);
-                auto cellValue = simulation.occupiedGrid.grid.tryGet(heightMapPos);
+                auto cellValue = simulation.occupiedGrid.tryGet(heightMapPos);
                 if (cellValue)
                 {
                     auto collides = laserCollides(simulation, *laser, cellValue->get());
@@ -1594,7 +1594,7 @@ namespace rwe
                 }
 
                 // check if a unit (or feature) is there
-                auto occupiedType = simulation.occupiedGrid.grid.get(x, y);
+                auto occupiedType = simulation.occupiedGrid.get(x, y);
                 auto u = std::get_if<OccupiedUnit>(&occupiedType);
                 if (u == nullptr)
                 {
@@ -1718,9 +1718,9 @@ namespace rwe
                 }
 
                 auto footprintRect = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
-                auto footprintRegion = simulation.occupiedGrid.grid.tryToRegion(footprintRect);
+                auto footprintRegion = simulation.occupiedGrid.tryToRegion(footprintRect);
                 assert(!!footprintRegion);
-                simulation.occupiedGrid.grid.setArea(*footprintRegion, OccupiedNone());
+                simulation.occupiedGrid.setArea(*footprintRegion, OccupiedNone());
 
                 unitGuiInfos.erase(it->first);
                 it = simulation.units.erase(it);

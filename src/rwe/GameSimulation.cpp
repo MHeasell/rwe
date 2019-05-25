@@ -92,7 +92,7 @@ namespace rwe
 
     GameSimulation::GameSimulation(MapTerrain&& terrain)
         : terrain(std::move(terrain)),
-          occupiedGrid(this->terrain.getHeightMap().getWidth(), this->terrain.getHeightMap().getHeight())
+          occupiedGrid(this->terrain.getHeightMap().getWidth(), this->terrain.getHeightMap().getHeight(), OccupiedNone())
     {
     }
 
@@ -107,7 +107,7 @@ namespace rwe
         if (f.isBlocking)
         {
             auto footprintRegion = computeFootprintRegion(f.position, f.footprintX, f.footprintZ);
-            occupiedGrid.grid.setArea(occupiedGrid.grid.clipRegion(footprintRegion), OccupiedFeature(featureId));
+            occupiedGrid.setArea(occupiedGrid.clipRegion(footprintRegion), OccupiedFeature(featureId));
         }
 
         return featureId;
@@ -131,10 +131,10 @@ namespace rwe
             return std::nullopt;
         }
 
-        auto footprintRegion = occupiedGrid.grid.tryToRegion(footprintRect);
+        auto footprintRegion = occupiedGrid.tryToRegion(footprintRect);
         assert(!!footprintRegion);
 
-        occupiedGrid.grid.setArea(*footprintRegion, OccupiedUnit(unitId));
+        occupiedGrid.setArea(*footprintRegion, OccupiedUnit(unitId));
 
         units.insert_or_assign(unitId, std::move(unit));
 
@@ -174,7 +174,7 @@ namespace rwe
 
     bool GameSimulation::isCollisionAt(const DiscreteRect& rect) const
     {
-        auto region = occupiedGrid.grid.tryToRegion(rect);
+        auto region = occupiedGrid.tryToRegion(rect);
         if (!region)
         {
             return true;
@@ -184,7 +184,7 @@ namespace rwe
         {
             for (unsigned int dx = 0; dx < region->width; ++dx)
             {
-                const auto& cell = occupiedGrid.grid.get(region->x + dx, region->y + dy);
+                const auto& cell = occupiedGrid.get(region->x + dx, region->y + dy);
                 if (std::visit(IsCollisionSimpleVisitor(), cell))
                 {
                     return true;
@@ -196,7 +196,7 @@ namespace rwe
 
     bool GameSimulation::isCollisionAt(const DiscreteRect& rect, UnitId self) const
     {
-        auto region = occupiedGrid.grid.tryToRegion(rect);
+        auto region = occupiedGrid.tryToRegion(rect);
         if (!region)
         {
             return true;
@@ -206,7 +206,7 @@ namespace rwe
         {
             for (unsigned int dx = 0; dx < region->width; ++dx)
             {
-                const auto& cell = occupiedGrid.grid.get(region->x + dx, region->y + dy);
+                const auto& cell = occupiedGrid.get(region->x + dx, region->y + dy);
                 auto inCollision = match(
                     cell,
                     [&](const OccupiedNone&) { return false; },
@@ -378,13 +378,13 @@ namespace rwe
 
     void GameSimulation::moveUnitOccupiedArea(const DiscreteRect& oldRect, const DiscreteRect& newRect, UnitId unitId)
     {
-        auto oldRegion = occupiedGrid.grid.tryToRegion(oldRect);
+        auto oldRegion = occupiedGrid.tryToRegion(oldRect);
         assert(!!oldRegion);
-        auto newRegion = occupiedGrid.grid.tryToRegion(newRect);
+        auto newRegion = occupiedGrid.tryToRegion(newRect);
         assert(!!newRegion);
 
-        occupiedGrid.grid.setArea(*oldRegion, OccupiedNone());
-        occupiedGrid.grid.setArea(*newRegion, OccupiedUnit(unitId));
+        occupiedGrid.setArea(*oldRegion, OccupiedNone());
+        occupiedGrid.setArea(*newRegion, OccupiedUnit(unitId));
     }
 
     void GameSimulation::requestPath(UnitId unitId)

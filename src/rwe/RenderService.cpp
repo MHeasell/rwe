@@ -178,7 +178,7 @@ namespace rwe
                 lines.emplace_back(pos, rightPos);
                 lines.emplace_back(pos, downPos);
 
-                if (std::visit(IsOccupiedVisitor(), occupiedGrid.grid.get(x, y)))
+                if (std::visit(IsOccupiedVisitor(), occupiedGrid.get(x, y)))
                 {
                     auto downRightPos = terrain.heightmapIndexToWorldCorner(x + 1, y + 1);
                     downRightPos.y = terrain.getHeightMap().get(x + 1, y + 1);

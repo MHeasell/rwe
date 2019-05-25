@@ -39,12 +39,7 @@ namespace rwe
 
     using OccupiedType = std::variant<OccupiedUnit, OccupiedFeature, OccupiedNone>;
 
-    struct OccupiedGrid
-    {
-        Grid<OccupiedType> grid;
-
-        OccupiedGrid(std::size_t width, std::size_t height);
-    };
+    using OccupiedGrid = Grid<OccupiedType>;
 }
 
 #endif
