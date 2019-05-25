@@ -7,6 +7,7 @@
 #include <rwe/AudioService.h>
 #include <rwe/DiscreteRect.h>
 #include <rwe/Energy.h>
+#include <rwe/Grid.h>
 #include <rwe/Metal.h>
 #include <rwe/MovementClass.h>
 #include <rwe/MovementClassId.h>
@@ -69,6 +70,21 @@ namespace rwe
     UnitOrder createAttackOrder(UnitId target);
 
     UnitOrder createAttackGroundOrder(const Vector3f& target);
+
+    enum class YardMapCell
+    {
+        GroundPassableWhenOpen,
+        WaterPassableWhenOpen,
+        GroundNoFeature,
+        GroundGeoPassableWhenOpen,
+        Geo,
+        Ground,
+        GroundPassableWhenClosed,
+        Water,
+        GroundPassable,
+        WaterPassable,
+        Passable
+    };
 
     class Unit
     {
@@ -161,6 +177,8 @@ namespace rwe
 
         bool inBuildStance{false};
         bool yardOpen{false};
+
+        Grid<YardMapCell> yardMap;
 
         /**
          * True if the unit attempted to move last frame

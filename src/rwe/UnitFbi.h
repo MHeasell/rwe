@@ -62,6 +62,8 @@ namespace rwe
 
         bool hideDamage;
         bool showPlayerName;
+
+        std::string yardMap;
     };
 
     UnitFbi parseUnitInfoBlock(const TdfBlock& tdf);

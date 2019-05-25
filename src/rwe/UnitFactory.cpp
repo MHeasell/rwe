@@ -28,6 +28,49 @@ namespace rwe
         }
     }
 
+    std::optional<YardMapCell> parseYardMapCell(char c)
+    {
+        switch (c)
+        {
+            case 'c': return YardMapCell::GroundGeoPassableWhenOpen;
+            case 'C': return YardMapCell::WaterPassableWhenOpen;
+            case 'f': return YardMapCell::GroundNoFeature;
+            case 'g': return YardMapCell::GroundGeoPassableWhenOpen;
+            case 'G': return YardMapCell::Geo;
+            case 'o': return YardMapCell::Ground;
+            case 'O': return YardMapCell::GroundPassableWhenClosed;
+            case 'w': return YardMapCell::Water;
+            case 'y': return YardMapCell::GroundPassable;
+            case 'Y': return YardMapCell::WaterPassable;
+            case '.': return YardMapCell::Passable;
+            case ' ': return std::nullopt;
+            case '\r': return std::nullopt;
+            case '\n': return std::nullopt;
+            case '\t': return std::nullopt;
+            default: return YardMapCell::Ground;
+        }
+    }
+    std::vector<YardMapCell> parseYardMapCells(const std::string& yardMap)
+    {
+        std::vector<YardMapCell> cells;
+        for (const auto& c : yardMap)
+        {
+            auto cell = parseYardMapCell(c);
+            if (cell)
+            {
+                cells.push_back(*cell);
+            }
+        }
+        return cells;
+    }
+
+    Grid<YardMapCell> parseYardMap(unsigned int width, unsigned int height, const std::string& yardMap)
+    {
+        auto cells = parseYardMapCells(yardMap);
+        cells.resize(width * height, YardMapCell::Ground);
+        return Grid<YardMapCell>(width, height, std::move(cells));
+    }
+
     Unit UnitFactory::createUnit(
         const std::string& unitType,
         PlayerId owner,
@@ -134,6 +177,8 @@ namespace rwe
             unit.minWaterDepth = fbi.minWaterDepth;
             unit.maxWaterDepth = fbi.maxWaterDepth;
         }
+
+        unit.yardMap = parseYardMap(unit.footprintX, unit.footprintZ, fbi.yardMap);
 
         // add weapons
         if (!fbi.weapon1.empty())
