@@ -1,4 +1,5 @@
 #include "GameSimulation.h"
+#include <rwe/overloaded.h>
 
 #include <rwe/movement.h>
 
@@ -71,30 +72,6 @@ namespace rwe
     {
         return !(rhs == *this);
     }
-
-    class IsCollisionVisitor
-    {
-    private:
-        UnitId unitId;
-
-    public:
-        explicit IsCollisionVisitor(const UnitId& unitId) : unitId(unitId)
-        {
-        }
-
-        bool operator()(const OccupiedNone&) const
-        {
-            return false;
-        }
-        bool operator()(const OccupiedUnit& u) const
-        {
-            return u.id != unitId;
-        }
-        bool operator()(const OccupiedFeature&) const
-        {
-            return true;
-        }
-    };
 
     class IsCollisionSimpleVisitor
     {
@@ -230,7 +207,12 @@ namespace rwe
             for (unsigned int dx = 0; dx < region->width; ++dx)
             {
                 const auto& cell = occupiedGrid.grid.get(region->x + dx, region->y + dy);
-                if (std::visit(IsCollisionVisitor(self), cell))
+                auto inCollision = match(
+                    cell,
+                    [&](const OccupiedNone&) { return false; },
+                    [&](const OccupiedUnit& u) { return u.id != self; },
+                    [&](const OccupiedFeature&) { return true; });
+                if (inCollision)
                 {
                     return true;
                 }
