@@ -135,7 +135,7 @@ namespace rwe
 
         bool isCollisionAt(const DiscreteRect& rect, UnitId self) const;
 
-        bool isAdjacentToObstacle(const DiscreteRect& rect, UnitId self) const;
+        bool isAdjacentToObstacle(const DiscreteRect& rect) const;
 
         void showObject(UnitId unitId, const std::string& name);
 

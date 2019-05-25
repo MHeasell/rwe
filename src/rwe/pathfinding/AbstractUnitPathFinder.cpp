@@ -62,7 +62,7 @@ namespace rwe
     bool AbstractUnitPathFinder::isRoughTerrain(const Point& p) const
     {
         DiscreteRect rect(p.x, p.y, footprintX, footprintZ);
-        return simulation->isAdjacentToObstacle(rect, self);
+        return simulation->isAdjacentToObstacle(rect);
     }
 
     Point AbstractUnitPathFinder::step(const Point& p, Direction d) const

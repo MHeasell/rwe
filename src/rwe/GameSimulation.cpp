@@ -221,10 +221,16 @@ namespace rwe
         return false;
     }
 
-    bool GameSimulation::isAdjacentToObstacle(const DiscreteRect& rect, UnitId self) const
+    bool GameSimulation::isAdjacentToObstacle(const DiscreteRect& rect) const
     {
-        DiscreteRect expandedRect(rect.x - 1, rect.y - 1, rect.width + 2, rect.height + 2);
-        return isCollisionAt(expandedRect, self);
+        DiscreteRect top(rect.x - 1, rect.y - 1, rect.width + 2, 1);
+        DiscreteRect bottom(rect.x - 1, rect.y + rect.width, rect.width + 2, 1);
+        DiscreteRect left(rect.x - 1, rect.y, 1, rect.height);
+        DiscreteRect right(rect.x + rect.width, rect.y, 1, rect.height);
+        return isCollisionAt(top)
+            || isCollisionAt(bottom)
+            || isCollisionAt(left)
+            || isCollisionAt(right);
     }
 
     void GameSimulation::showObject(UnitId unitId, const std::string& name)
