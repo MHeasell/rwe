@@ -86,6 +86,8 @@ namespace rwe
         Passable
     };
 
+    bool isPassable(YardMapCell cell, bool yardMapOpen);
+
     class Unit
     {
     public:

@@ -25,6 +25,25 @@ namespace rwe
         return AttackOrder(target);
     }
 
+    bool isPassable(YardMapCell cell, bool yardMapOpen)
+    {
+        switch (cell)
+        {
+            case YardMapCell::GroundPassableWhenOpen: return yardMapOpen;
+            case YardMapCell::WaterPassableWhenOpen: return yardMapOpen;
+            case YardMapCell::GroundNoFeature: return false;
+            case YardMapCell::GroundGeoPassableWhenOpen: return yardMapOpen;
+            case YardMapCell::Geo: return false;
+            case YardMapCell::Ground: return false;
+            case YardMapCell::GroundPassableWhenClosed: return !yardMapOpen;
+            case YardMapCell::Water: return false;
+            case YardMapCell::GroundPassable: return true;
+            case YardMapCell::WaterPassable: return true;
+            case YardMapCell::Passable: return true;
+            default: throw std::logic_error("Unknown cell type");
+        }
+    }
+
     float Unit::toRotation(const Vector3f& direction)
     {
         return Vector3f(0.0f, 0.0f, 1.0f).angleTo(direction, Vector3f(0.0f, 1.0f, 0.0f));
