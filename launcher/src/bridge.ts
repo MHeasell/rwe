@@ -80,7 +80,7 @@ export class RweBridge {
     this.proc = spawn(bridgeExe, undefined, { cwd: rweHome });
 
     this.rl = readline.createInterface({
-      input: this.proc.stdout,
+      input: this.proc.stdout!,
     });
 
     this.rl.on("line", line => this.onReceiveLine(line));
@@ -141,6 +141,6 @@ export class RweBridge {
   private writeCommand(cmd: BridgeCommand) {
     const str = JSON.stringify(cmd);
     console.log(`BRIDGE: sending: ${str}`);
-    this.proc.stdin.write(`${str}\n`);
+    this.proc.stdin!.write(`${str}\n`);
   }
 }

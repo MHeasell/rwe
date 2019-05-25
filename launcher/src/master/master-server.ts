@@ -13,7 +13,7 @@ const argv = yargs
 
 const host = argv.host;
 const port = argv.port;
-const reverseProxy = argv.reverseProxy;
+const reverseProxy = argv["reverse-proxy"];
 
 console.log(`Running on host ${host}`);
 console.log(`Running on port ${port}`);

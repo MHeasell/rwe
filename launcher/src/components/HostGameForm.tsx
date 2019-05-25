@@ -13,17 +13,17 @@ interface HostGameFormDispatchProps {
 
 const styles = (theme: Theme) => createStyles({
   cancelButton: {
-    "margin-left": theme.spacing.unit,
+    "margin-left": theme.spacing(1),
   },
   nameInput: {
     "flex-grow": 1,
   },
   descriptionInput: {
-    "margin-top": theme.spacing.unit,
+    "margin-top": theme.spacing(1),
     "flex-grow": 1,
   },
   playersInput: {
-    "margin-top": theme.spacing.unit,
+    "margin-top": theme.spacing(1),
     "flex-grow": 0,
   },
 });

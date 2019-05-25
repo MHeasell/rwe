@@ -47,6 +47,9 @@ module.exports = {
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".json"],
+    alias: {
+      "react-dom": "@hot-loader/react-dom",
+    },
   },
   output: {
     filename: "renderer.js",

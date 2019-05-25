@@ -8,7 +8,7 @@ import { canHostGame, canJoinSelectedGame, canLaunchRwe, State } from "../state"
 
 const styles = (theme: Theme) => createStyles({
   joinGameButton: {
-    "margin-left": theme.spacing.unit,
+    "margin-left": theme.spacing(1),
   },
 });
 

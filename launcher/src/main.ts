@@ -28,11 +28,16 @@ function createWindow() {
   const windowOptions: BrowserWindowConstructorOptions = {
     height: 600,
     width: 800,
+    webPreferences: {
+      // Enabling node integration is safe
+      // because we only ever run local, trusted code.
+      nodeIntegration: true,
+    },
   };
   // disable web security in development, to permit accessing local files
   // even though the page is served from a remote URL
   if (development) {
-    windowOptions.webPreferences = { webSecurity: false };
+    windowOptions.webPreferences!.webSecurity = false;
   }
   mainWindow = new BrowserWindow(windowOptions);
 
