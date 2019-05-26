@@ -915,6 +915,7 @@ namespace rwe
                 if (targetUnit.isDead())
                 {
                     unit.cobEnvironment->createThread("StopBuilding");
+                    scene->deactivateUnit(unitId);
                     unit.factoryState = FactoryStateIdle();
                     return true;
                 }
@@ -922,6 +923,7 @@ namespace rwe
                 if (!targetUnit.isBeingBuilt())
                 {
                     unit.cobEnvironment->createThread("StopBuilding");
+                    scene->deactivateUnit(unitId);
                     unit.factoryState = FactoryStateIdle();
                     return true;
                 }
@@ -930,6 +932,7 @@ namespace rwe
                 {
                     scene->quietlyKillUnit(*state.targetUnit);
                     unit.cobEnvironment->createThread("StopBuilding");
+                    scene->deactivateUnit(unitId);
                     unit.factoryState = FactoryStateIdle();
                     return true;
                 }
