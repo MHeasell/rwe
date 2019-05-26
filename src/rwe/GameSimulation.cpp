@@ -73,23 +73,6 @@ namespace rwe
         return !(rhs == *this);
     }
 
-    class IsCollisionSimpleVisitor
-    {
-    public:
-        bool operator()(const OccupiedNone&) const
-        {
-            return false;
-        }
-        bool operator()(const OccupiedUnit&) const
-        {
-            return true;
-        }
-        bool operator()(const OccupiedFeature&) const
-        {
-            return true;
-        }
-    };
-
     GameSimulation::GameSimulation(MapTerrain&& terrain)
         : terrain(std::move(terrain)),
           occupiedGrid(this->terrain.getHeightMap().getWidth(), this->terrain.getHeightMap().getHeight(), OccupiedNone())
@@ -185,7 +168,12 @@ namespace rwe
             for (unsigned int dx = 0; dx < region->width; ++dx)
             {
                 const auto& cell = occupiedGrid.get(region->x + dx, region->y + dy);
-                if (std::visit(IsCollisionSimpleVisitor(), cell))
+                auto isColliding = match(
+                    cell,
+                    [](const OccupiedNone&) { return false; },
+                    [](const OccupiedUnit&) { return true; },
+                    [](const OccupiedFeature&) { return true; });
+                if (isColliding)
                 {
                     return true;
                 }
