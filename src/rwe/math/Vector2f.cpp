@@ -83,19 +83,14 @@ namespace rwe
         return (x * rhs.x) + (y * rhs.y);
     }
 
+    float Vector2f::det(const Vector2f& rhs) const
+    {
+        return (x * rhs.y) - (y * rhs.x);
+    }
+
     float Vector2f::angleTo(const Vector2f& rhs) const
     {
-        Vector3f a(x, y, 0.0f);
-        Vector3f b(rhs.x, rhs.y, 0.0f);
-        auto c = a.cross(b);
-
-        auto cosAngle = dot(rhs) / (length() * rhs.length());
-        // acos is only defined between -1 and 1
-        // but float rounding error can nudge us over.
-        // clamp to prevent this from causing problems.
-        auto angle = std::acos(std::clamp(cosAngle, -1.0f, 1.0f));
-
-        return angle * (c.z > 0.0f ? 1.0f : -1.0f);
+        return std::atan2(det(rhs), dot(rhs));
     }
 
     bool Vector2f::operator==(const Vector2f& rhs) const
