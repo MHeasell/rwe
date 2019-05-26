@@ -180,7 +180,7 @@ namespace rwe
         bool inBuildStance{false};
         bool yardOpen{false};
 
-        Grid<YardMapCell> yardMap;
+        std::optional<Grid<YardMapCell>> yardMap;
 
         /**
          * True if the unit attempted to move last frame

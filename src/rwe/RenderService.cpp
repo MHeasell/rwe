@@ -161,6 +161,7 @@ namespace rwe
         std::vector<Line3f> lines;
 
         std::vector<Triangle3f> tris;
+        std::vector<Triangle3f> redTris;
 
         for (int y = topLeftCell.y; y <= bottomRightCell.y; ++y)
         {
@@ -178,13 +179,23 @@ namespace rwe
                 lines.emplace_back(pos, rightPos);
                 lines.emplace_back(pos, downPos);
 
-                if (std::visit(IsOccupiedVisitor(), occupiedGrid.get(x, y)))
+                const auto& cell = occupiedGrid.get(x, y);
+                if (std::visit(IsOccupiedVisitor(), cell.occupiedType) || (cell.buildingCell && !cell.buildingCell->passable))
                 {
                     auto downRightPos = terrain.heightmapIndexToWorldCorner(x + 1, y + 1);
                     downRightPos.y = terrain.getHeightMap().get(x + 1, y + 1);
 
                     tris.emplace_back(pos, downPos, downRightPos);
                     tris.emplace_back(pos, downRightPos, rightPos);
+                }
+
+                if (cell.buildingCell && cell.buildingCell->passable)
+                {
+                    auto downRightPos = terrain.heightmapIndexToWorldCorner(x + 1, y + 1);
+                    downRightPos.y = terrain.getHeightMap().get(x + 1, y + 1);
+
+                    redTris.emplace_back(pos, downPos, downRightPos);
+                    redTris.emplace_back(pos, downRightPos, rightPos);
                 }
             }
         }
@@ -199,6 +210,9 @@ namespace rwe
 
         auto triMesh = createTemporaryTriMesh(tris);
         graphics->drawTriangles(triMesh);
+
+        auto redTriMesh = createTemporaryTriMesh(redTris, Vector3f(1.0f, 0.0f, 0.0f));
+        graphics->drawTriangles(redTriMesh);
     }
 
     void RenderService::drawMovementClassCollisionGrid(
@@ -327,21 +341,23 @@ namespace rwe
 
     GlMesh RenderService::createTemporaryTriMesh(const std::vector<Triangle3f>& tris)
     {
+        return createTemporaryTriMesh(tris, Vector3f(1.0f, 1.0f, 1.0f));
+    }
+
+    GlMesh RenderService::createTemporaryTriMesh(const std::vector<Triangle3f>& tris, const Vector3f& color)
+    {
         std::vector<GlColoredVertex> buffer;
         buffer.reserve(tris.size() * 3); // 3 verts per triangle
 
-        Vector3f white(1.0f, 1.0f, 1.0f);
-
         for (const auto& l : tris)
         {
-            buffer.emplace_back(l.a, white);
-            buffer.emplace_back(l.b, white);
-            buffer.emplace_back(l.c, white);
+            buffer.emplace_back(l.a, color);
+            buffer.emplace_back(l.b, color);
+            buffer.emplace_back(l.c, color);
         }
 
         return graphics->createColoredMesh(buffer, GL_STREAM_DRAW);
     }
-
 
     void RenderService::drawMapTerrain(const MapTerrain& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
     {

@@ -75,7 +75,7 @@ namespace rwe
 
     GameSimulation::GameSimulation(MapTerrain&& terrain)
         : terrain(std::move(terrain)),
-          occupiedGrid(this->terrain.getHeightMap().getWidth(), this->terrain.getHeightMap().getHeight(), OccupiedNone())
+          occupiedGrid(this->terrain.getHeightMap().getWidth(), this->terrain.getHeightMap().getHeight(), OccupiedCell())
     {
     }
 
@@ -90,7 +90,7 @@ namespace rwe
         if (f.isBlocking)
         {
             auto footprintRegion = computeFootprintRegion(f.position, f.footprintX, f.footprintZ);
-            occupiedGrid.setArea(occupiedGrid.clipRegion(footprintRegion), OccupiedFeature(featureId));
+            occupiedGrid.forInArea(occupiedGrid.clipRegion(footprintRegion), [featureId](auto& cell) { cell.occupiedType = OccupiedFeature(featureId); });
         }
 
         return featureId;
@@ -117,7 +117,17 @@ namespace rwe
         auto footprintRegion = occupiedGrid.tryToRegion(footprintRect);
         assert(!!footprintRegion);
 
-        occupiedGrid.setArea(*footprintRegion, OccupiedUnit(unitId));
+        if (unit.isMobile)
+        {
+            occupiedGrid.forInArea(*footprintRegion, [unitId](auto& cell) { cell.occupiedType = OccupiedUnit(unitId); });
+        }
+        else
+        {
+            assert(!!unit.yardMap);
+            occupiedGrid.mergeIn(footprintRegion->x, footprintRegion->y, *unit.yardMap, [&](auto& cell, const auto& yardMapCell) {
+                cell.buildingCell = BuildingOccupiedCell{unitId, isPassable(yardMapCell, unit.yardOpen)};
+            });
+        }
 
         units.insert_or_assign(unitId, std::move(unit));
 
@@ -169,11 +179,16 @@ namespace rwe
             {
                 const auto& cell = occupiedGrid.get(region->x + dx, region->y + dy);
                 auto isColliding = match(
-                    cell,
+                    cell.occupiedType,
                     [](const OccupiedNone&) { return false; },
                     [](const OccupiedUnit&) { return true; },
                     [](const OccupiedFeature&) { return true; });
                 if (isColliding)
+                {
+                    return true;
+                }
+
+                if (cell.buildingCell && !cell.buildingCell->passable)
                 {
                     return true;
                 }
@@ -190,23 +205,46 @@ namespace rwe
             return true;
         }
 
-        for (unsigned int dy = 0; dy < region->height; ++dy)
-        {
-            for (unsigned int dx = 0; dx < region->width; ++dx)
-            {
-                const auto& cell = occupiedGrid.get(region->x + dx, region->y + dy);
-                auto inCollision = match(
-                    cell,
-                    [&](const OccupiedNone&) { return false; },
-                    [&](const OccupiedUnit& u) { return u.id != self; },
-                    [&](const OccupiedFeature&) { return true; });
-                if (inCollision)
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return occupiedGrid.anyInArea(*region, [&](const auto& cell) {
+          auto inCollision = match(
+              cell.occupiedType,
+              [&](const OccupiedNone&) { return false; },
+              [&](const OccupiedUnit& u) { return u.id != self; },
+              [&](const OccupiedFeature&) { return true; });
+          if (inCollision)
+          {
+              return true;
+          }
+
+          if (cell.buildingCell && cell.buildingCell->unit != self && !cell.buildingCell->passable)
+          {
+              return true;
+          }
+
+          return false;
+        });
+    }
+
+    bool GameSimulation::isYardmapBlocked(unsigned int x, unsigned int y, const Grid<YardMapCell>& yardMap, bool open) const
+    {
+        return occupiedGrid.anyInArea2(x, y, yardMap, [&](const auto& cell, const auto& yardMapCell) {
+          if (isPassable(yardMapCell, open))
+          {
+              return false;
+          }
+
+          auto inCollision = match(
+              cell.occupiedType,
+              [&](const OccupiedNone&) { return false; },
+              [&](const OccupiedUnit&) { return true; },
+              [&](const OccupiedFeature&) { return true; });
+          if (inCollision)
+          {
+              return true;
+          }
+
+          return false;
+        });
     }
 
     bool GameSimulation::isAdjacentToObstacle(const DiscreteRect& rect) const
@@ -371,8 +409,8 @@ namespace rwe
         auto newRegion = occupiedGrid.tryToRegion(newRect);
         assert(!!newRegion);
 
-        occupiedGrid.setArea(*oldRegion, OccupiedNone());
-        occupiedGrid.setArea(*newRegion, OccupiedUnit(unitId));
+        occupiedGrid.forInArea(*oldRegion, [](auto& cell) { cell.occupiedType = OccupiedNone(); });
+        occupiedGrid.forInArea(*newRegion, [unitId](auto& cell) { cell.occupiedType = OccupiedUnit(unitId); });
     }
 
     void GameSimulation::requestPath(UnitId unitId)
@@ -517,5 +555,27 @@ namespace rwe
         unit.addEnergyDelta(apparentEnergy);
         unit.addMetalDelta(apparentMetal);
         return player.addResourceDelta(apparentEnergy, apparentMetal, actualEnergy, actualMetal);
+    }
+
+    bool GameSimulation::trySetYardOpen(const UnitId& unitId, bool open)
+    {
+        auto& unit = getUnit(unitId);
+        auto footprintRect = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+        auto footprintRegion = occupiedGrid.tryToRegion(footprintRect);
+        assert(!!footprintRegion);
+
+        assert(!!unit.yardMap);
+        if (isYardmapBlocked(footprintRegion->x, footprintRegion->y, *unit.yardMap, open))
+        {
+            return false;
+        }
+
+        occupiedGrid.mergeIn(footprintRegion->x, footprintRegion->y, *unit.yardMap, [&](auto& cell, const auto& yardMapCell) {
+            cell.buildingCell = BuildingOccupiedCell{unitId, isPassable(yardMapCell, open)};
+        });
+
+        unit.yardOpen = open;
+
+        return true;
     }
 }

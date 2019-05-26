@@ -9,10 +9,10 @@
 
 namespace rwe
 {
-    bool laserCollides(const GameSimulation& sim, const LaserProjectile& laser, const OccupiedType& cellValue)
+    bool laserCollides(const GameSimulation& sim, const LaserProjectile& laser, const OccupiedCell& cellValue)
     {
-        return match(
-            cellValue,
+        auto collidesWithOccupiedCell = match(
+            cellValue.occupiedType,
             [&](const OccupiedUnit& v) {
                 const auto& unit = sim.getUnit(v.id);
 
@@ -44,6 +44,31 @@ namespace rwe
             [&](const OccupiedNone&) {
                 return false;
             });
+
+        if (collidesWithOccupiedCell)
+        {
+            return true;
+        }
+
+        if (cellValue.buildingCell && !cellValue.buildingCell->passable)
+        {
+            const auto& unit = sim.getUnit(cellValue.buildingCell->unit);
+
+            if (unit.isOwnedBy(laser.owner))
+            {
+                return false;
+            }
+
+            // ignore if the laser is above or below the unit
+            if (laser.position.y < unit.position.y || laser.position.y > unit.position.y + unit.height)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     const Rectangle2f GameScene::minimapViewport = Rectangle2f::fromTopLeft(0.0f, 0.0f, GuiSizeLeft, GuiSizeLeft);
@@ -1595,20 +1620,27 @@ namespace rwe
 
                 // check if a unit (or feature) is there
                 auto occupiedType = simulation.occupiedGrid.get(x, y);
-                auto u = std::get_if<OccupiedUnit>(&occupiedType);
-                if (u == nullptr)
+                auto u = match(
+                    occupiedType.occupiedType,
+                    [&](const OccupiedUnit& u) { return std::optional(u.id); },
+                    [&](const auto&) { return std::optional<UnitId>(); });
+                if (!u && occupiedType.buildingCell && !occupiedType.buildingCell->passable)
+                {
+                    u = occupiedType.buildingCell->unit;
+                }
+                if (!u)
                 {
                     continue;
                 }
 
                 // check if the unit was seen/mark as seen
-                auto pair = seenUnits.insert(u->id);
+                auto pair = seenUnits.insert(*u);
                 if (!pair.second) // the unit was already present
                 {
                     continue;
                 }
 
-                const auto& unit = simulation.getUnit(u->id);
+                const auto& unit = simulation.getUnit(*u);
 
                 // skip dead units
                 if (unit.isDead())
@@ -1628,7 +1660,7 @@ namespace rwe
                 auto damageScale = std::clamp(1.0f - (std::sqrt(unitDistanceSquared) / radius), 0.0f, 1.0f);
                 auto rawDamage = laser.getDamage(unit.unitType);
                 auto scaledDamage = static_cast<unsigned int>(static_cast<float>(rawDamage) * damageScale);
-                applyDamage(u->id, scaledDamage);
+                applyDamage(*u, scaledDamage);
             }
         }
     }
@@ -1699,8 +1731,7 @@ namespace rwe
 
     void GameScene::setYardOpen(UnitId unitId, bool value)
     {
-        // TODO: actually attempt to set yard open in collision stuff
-        getUnit(unitId).yardOpen = value;
+        simulation.trySetYardOpen(unitId, value);
     }
 
     void GameScene::deleteDeadUnits()
@@ -1720,7 +1751,22 @@ namespace rwe
                 auto footprintRect = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
                 auto footprintRegion = simulation.occupiedGrid.tryToRegion(footprintRect);
                 assert(!!footprintRegion);
-                simulation.occupiedGrid.setArea(*footprintRegion, OccupiedNone());
+                if (unit.isMobile)
+                {
+                    simulation.occupiedGrid.forInArea(*footprintRegion, [](auto& cell) {
+                      cell.occupiedType = OccupiedNone();
+                    });
+                }
+                else
+                {
+                    simulation.occupiedGrid.forInArea(*footprintRegion, [&](auto& cell) {
+                        if (cell.buildingCell && cell.buildingCell->unit == it->first)
+                        {
+                            cell.buildingCell = BuildingOccupiedCell();
+                        }
+                    });
+                }
+
 
                 unitGuiInfos.erase(it->first);
                 it = simulation.units.erase(it);

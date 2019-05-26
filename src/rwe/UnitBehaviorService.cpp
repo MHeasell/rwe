@@ -119,18 +119,21 @@ namespace rwe
             }
         }
 
-        applyUnitSteering(unitId);
-
-        if (unit.currentSpeed > 0.0f && previousSpeed == 0.0f)
+        if (unit.isMobile)
         {
-            unit.cobEnvironment->createThread("StartMoving");
-        }
-        else if (unit.currentSpeed == 0.0f && previousSpeed > 0.0f)
-        {
-            unit.cobEnvironment->createThread("StopMoving");
-        }
+            applyUnitSteering(unitId);
 
-        updateUnitPosition(unitId);
+            if (unit.currentSpeed > 0.0f && previousSpeed == 0.0f)
+            {
+                unit.cobEnvironment->createThread("StartMoving");
+            }
+            else if (unit.currentSpeed == 0.0f && previousSpeed > 0.0f)
+            {
+                unit.cobEnvironment->createThread("StopMoving");
+            }
+
+            updateUnitPosition(unitId);
+        }
     }
 
     std::pair<float, float> UnitBehaviorService::computeHeadingAndPitch(float rotation, const Vector3f& from, const Vector3f& to)

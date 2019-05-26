@@ -72,6 +72,18 @@ namespace rwe
 
         void setArea(const GridRegion& region, const T& value);
 
+        template <typename Func>
+        bool anyInArea(const GridRegion& region, Func f) const;
+
+        template <typename Func>
+        void forInArea(const GridRegion& region, Func f);
+
+        template <typename U, typename BinaryFunc>
+        void mergeIn(unsigned int x, unsigned int y, const Grid<U>& g, BinaryFunc f);
+
+        template <typename U, typename BinaryFunc>
+        bool anyInArea2(unsigned int x, unsigned int y, const Grid<U>& g, BinaryFunc f) const;
+
         /**
          * Returns true if the given rect is completely contained by the grid.
          */
@@ -271,6 +283,80 @@ namespace rwe
     void Grid<T>::setArea(const GridRegion& region, const T& value)
     {
         setArea(region.x, region.y, region.width, region.height, value);
+    }
+
+    template <typename T>
+    template <typename Func>
+    void Grid<T>::forInArea(const GridRegion& region, Func f)
+    {
+        assert(region.x + region.width <= this->width);
+        assert(region.y + region.height <= this->height);
+
+        for (std::size_t dy = 0; dy < region.height; ++dy)
+        {
+            for (std::size_t dx = 0; dx < region.width; ++dx)
+            {
+                f(get(region.x + dx, region.y + dy));
+            }
+        }
+    }
+
+    template <typename T>
+    template <typename Func>
+    bool Grid<T>::anyInArea(const GridRegion& region, Func f) const
+    {
+        assert(region.x + region.width <= this->width);
+        assert(region.y + region.height <= this->height);
+
+        for (std::size_t dy = 0; dy < region.height; ++dy)
+        {
+            for (std::size_t dx = 0; dx < region.width; ++dx)
+            {
+                if (f(get(region.x + dx, region.y + dy)))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    template <typename T>
+    template <typename U, typename BinaryFunc>
+    bool Grid<T>::anyInArea2(unsigned int x, unsigned int y, const Grid<U>& g, BinaryFunc f) const
+    {
+        assert(x + g.getWidth() <= this->width);
+        assert(y + g.getHeight() <= this->height);
+
+        for (std::size_t dy = 0; dy < g.getHeight(); ++dy)
+        {
+            for (std::size_t dx = 0; dx < g.getWidth(); ++dx)
+            {
+                if (f(get(x + dx, y + dy), g.get(dx, dy)))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    template <typename T>
+    template <typename U, typename BinaryFunc>
+    void Grid<T>::mergeIn(unsigned int x, unsigned int y, const Grid<U>& g, BinaryFunc f)
+    {
+        assert(x + g.getWidth() <= this->width);
+        assert(y + g.getHeight() <= this->height);
+
+        for (std::size_t dy = 0; dy < g.getHeight(); ++dy)
+        {
+            for (std::size_t dx = 0; dx < g.getWidth(); ++dx)
+            {
+                f(get(x + dx, y + dy), g.get(dx, dy));
+            }
+        }
     }
 
     template <typename T>
