@@ -2,6 +2,7 @@
 #include <rwe/GameScene.h>
 #include <rwe/geometry/Plane3f.h>
 #include <rwe/math/rwe_math.h>
+#include <rwe/unit_util.h>
 
 namespace rwe
 {
@@ -22,6 +23,25 @@ namespace rwe
     UnitOrder createAttackGroundOrder(const Vector3f& target)
     {
         return AttackOrder(target);
+    }
+
+    bool isPassable(YardMapCell cell, bool yardMapOpen)
+    {
+        switch (cell)
+        {
+            case YardMapCell::GroundPassableWhenOpen: return yardMapOpen;
+            case YardMapCell::WaterPassableWhenOpen: return yardMapOpen;
+            case YardMapCell::GroundNoFeature: return false;
+            case YardMapCell::GroundGeoPassableWhenOpen: return yardMapOpen;
+            case YardMapCell::Geo: return false;
+            case YardMapCell::Ground: return false;
+            case YardMapCell::GroundPassableWhenClosed: return !yardMapOpen;
+            case YardMapCell::Water: return false;
+            case YardMapCell::GroundPassable: return true;
+            case YardMapCell::WaterPassable: return true;
+            case YardMapCell::Passable: return true;
+            default: throw std::logic_error("Unknown cell type");
+        }
     }
 
     float Unit::toRotation(const Vector3f& direction)
@@ -554,5 +574,34 @@ namespace rwe
         previousMetalConsumptionBuffer = metalConsumptionBuffer;
         energyConsumptionBuffer = Energy(0);
         metalConsumptionBuffer = Metal(0);
+    }
+
+    void Unit::modifyBuildQueue(const std::string& buildUnitType, int count)
+    {
+        if (count > 0)
+        {
+            buildQueue.emplace_back(buildUnitType, count);
+            return;
+        }
+
+        removeFromBuildQueue(buildQueue, buildUnitType, -count);
+    }
+
+    std::unordered_map<std::string, int> Unit::getBuildQueueTotals() const
+    {
+        return getBuildQueueTotalsStatic(buildQueue);
+    }
+
+    int Unit::getBuildQueueTotal(const std::string& unitType) const
+    {
+        int sum = 0;
+        for (const auto e : buildQueue)
+        {
+            if (e.first == unitType)
+            {
+                sum += e.second;
+            }
+        }
+        return sum;
     }
 }

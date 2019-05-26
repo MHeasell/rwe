@@ -33,6 +33,12 @@ namespace rwe
         float dot(const Vector2f& rhs) const;
 
         /**
+         * Computes the determinant of the two vectors
+         * as though they were columns of a 2x2 matrix.
+         */
+        float det(const Vector2f& rhs) const;
+
+        /**
          * Returns the angle that you would need to rotate this vector by anticlockwise
          * in order to reach the angle of the given vector.
          * The range of the return value is -PI <= v < PI.

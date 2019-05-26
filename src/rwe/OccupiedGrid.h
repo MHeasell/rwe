@@ -37,14 +37,21 @@ namespace rwe
         bool operator!=(const OccupiedNone&) const { return true; }
     };
 
-    using OccupiedType = std::variant<OccupiedUnit, OccupiedFeature, OccupiedNone>;
+    using OccupiedType = std::variant<OccupiedNone, OccupiedUnit, OccupiedFeature>;
 
-    struct OccupiedGrid
+    struct BuildingOccupiedCell
     {
-        Grid<OccupiedType> grid;
-
-        OccupiedGrid(std::size_t width, std::size_t height);
+        UnitId unit;
+        bool passable;
     };
+
+    struct OccupiedCell
+    {
+        OccupiedType occupiedType;
+        std::optional<BuildingOccupiedCell> buildingCell;
+    };
+
+    using OccupiedGrid = Grid<OccupiedCell>;
 }
 
 #endif

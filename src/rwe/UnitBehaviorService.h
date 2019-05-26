@@ -47,6 +47,10 @@ namespace rwe
         /** Returns true if the order has been completed. */
         bool handleBuildOrder(UnitId unitId, const BuildOrder& buildOrder);
 
+        bool handleBuild(UnitId unitId, const std::string& unitType);
+
+        void clearBuild(UnitId unitId);
+
         bool followPath(Unit& unit, PathFollowingInfo& path);
 
         void updateWeapon(UnitId id, unsigned int weaponIndex);
@@ -74,6 +78,16 @@ namespace rwe
         Vector3f getNanoPoint(UnitId id);
 
         Vector3f getPiecePosition(UnitId id, unsigned int pieceId);
+
+        float getPieceXZRotation(UnitId id, unsigned int pieceId);
+
+        struct BuildPieceInfo
+        {
+            Vector3f position;
+            float rotation;
+        };
+
+        BuildPieceInfo getBuildPieceInfo(UnitId id);
     };
 }
 

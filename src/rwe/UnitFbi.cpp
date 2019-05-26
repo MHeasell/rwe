@@ -74,6 +74,8 @@ namespace rwe
         tdf.readOrDefault("HideDamage", u.hideDamage, false);
         tdf.readOrDefault("ShowPlayerName", u.showPlayerName, false);
 
+        tdf.readOrDefault("YardMap", u.yardMap);
+
         return u;
     }
 }

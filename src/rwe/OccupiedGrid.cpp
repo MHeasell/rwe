@@ -17,8 +17,6 @@ namespace rwe
         return !(rhs == *this);
     }
 
-    OccupiedGrid::OccupiedGrid(std::size_t width, std::size_t height) : grid(width, height, OccupiedType(OccupiedNone())) {}
-
     OccupiedFeature::OccupiedFeature(const FeatureId& id) : id(id)
     {
     }

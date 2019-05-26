@@ -167,6 +167,11 @@ namespace rwe
                 }
             }
 
+            void operator()(const PlayerUnitCommand::ModifyBuildQueue& c)
+            {
+                scene->modifyBuildQueue(unit, c.unitType, c.count);
+            }
+
             void operator()(const PlayerUnitCommand::Stop&)
             {
                 scene->stopUnit(unit);
@@ -301,6 +306,8 @@ namespace rwe
 
         std::unordered_map<UnitId, UnitGuiInfo> unitGuiInfos;
 
+        std::unordered_map<UnitId, std::unordered_map<std::string, int>> unconfirmedBuildQueueDelta;
+
     public:
         GameScene(
             const SceneContext& sceneContext,
@@ -388,6 +395,14 @@ namespace rwe
         void activateUnit(UnitId unitId);
         void deactivateUnit(UnitId unitId);
 
+        void modifyBuildQueue(UnitId unitId, const std::string& unitType, int count);
+
+        void setBuildStance(UnitId unitId, bool value);
+
+        void setYardOpen(UnitId unitId, bool value);
+
+        void quietlyKillUnit(UnitId unitId);
+
     private:
         static Matrix4f worldToMinimapMatrix(const MapTerrain& terrain, const Rectangle2f& minimapRect);
 
@@ -418,6 +433,8 @@ namespace rwe
         void localPlayerSetFireOrders(UnitId unitId, UnitFireOrders orders);
 
         void localPlayerSetOnOff(UnitId unitId, bool on);
+
+        void localPlayerModifyBuildQueue(UnitId unitId, const std::string& unitType, int count);
 
         void issueUnitOrder(UnitId unitId, const UnitOrder& order);
 
@@ -469,7 +486,7 @@ namespace rwe
 
         void attachOrdersMenuEventHandlers();
 
-        void onMessage(const std::string& message);
+        void onMessage(const std::string& message, ActivateMessage::Type mode);
 
         bool matchesWithSidePrefix(const std::string& suffix, const std::string& value) const;
 
@@ -482,6 +499,12 @@ namespace rwe
         const UnitGuiInfo& getGuiInfo(const UnitId& unitId) const;
 
         void setNextPanel(std::unique_ptr<UiPanel>&& panel);
+
+        void refreshBuildGuiTotal(UnitId unitId, const std::string& unitType);
+
+        void updateUnconfirmedBuildQueueDelta(UnitId unitId, const std::string& unitType, int count);
+
+        int getUnconfirmedBuildQueueCount(UnitId unitId, const std::string& unitType) const;
 
         template <typename T>
         std::optional<std::reference_wrapper<T>> findWithSidePrefix(UiPanel& p, const std::string& name)

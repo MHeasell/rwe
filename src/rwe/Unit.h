@@ -7,6 +7,7 @@
 #include <rwe/AudioService.h>
 #include <rwe/DiscreteRect.h>
 #include <rwe/Energy.h>
+#include <rwe/Grid.h>
 #include <rwe/Metal.h>
 #include <rwe/MovementClass.h>
 #include <rwe/MovementClassId.h>
@@ -46,25 +47,46 @@ namespace rwe
     {
     };
 
-    /** We are in this state while the "unfolding" animation plays to prep for building */
-    struct StartBuildingState
-    {
-        UnitId targetUnit;
-        const CobThread* thread;
-    };
-
     struct BuildingState
     {
         UnitId targetUnit;
     };
 
-    using UnitState = std::variant<IdleState, MovingState, StartBuildingState, BuildingState>;
+    using UnitState = std::variant<IdleState, MovingState, BuildingState>;
+
+    struct FactoryStateIdle
+    {
+    };
+
+    struct FactoryStateBuilding
+    {
+        std::optional<UnitId> targetUnit;
+    };
+
+    using FactoryState = std::variant<FactoryStateIdle, FactoryStateBuilding>;
 
     UnitOrder createMoveOrder(const Vector3f& destination);
 
     UnitOrder createAttackOrder(UnitId target);
 
     UnitOrder createAttackGroundOrder(const Vector3f& target);
+
+    enum class YardMapCell
+    {
+        GroundPassableWhenOpen,
+        WaterPassableWhenOpen,
+        GroundNoFeature,
+        GroundGeoPassableWhenOpen,
+        Geo,
+        Ground,
+        GroundPassableWhenClosed,
+        Water,
+        GroundPassable,
+        WaterPassable,
+        Passable
+    };
+
+    bool isPassable(YardMapCell cell, bool yardMapOpen);
 
     class Unit
     {
@@ -155,6 +177,11 @@ namespace rwe
         std::deque<UnitOrder> orders;
         UnitState behaviourState;
 
+        bool inBuildStance{false};
+        bool yardOpen{false};
+
+        std::optional<Grid<YardMapCell>> yardMap;
+
         /**
          * True if the unit attempted to move last frame
          * and its movement was limited (or prevented entirely) by a collision.
@@ -200,6 +227,11 @@ namespace rwe
         Metal previousMetalConsumptionBuffer{0};
         Energy energyConsumptionBuffer{0};
         Metal metalConsumptionBuffer{0};
+
+        bool isMobile;
+
+        std::deque<std::pair<std::string, int>> buildQueue;
+        FactoryState factoryState;
 
         static float toRotation(const Vector3f& direction);
 
@@ -287,6 +319,12 @@ namespace rwe
         void addMetalDelta(const Metal& metal);
 
         void resetResourceBuffers();
+
+        void modifyBuildQueue(const std::string& buildUnitType, int count);
+
+        std::unordered_map<std::string, int> getBuildQueueTotals() const;
+
+        int getBuildQueueTotal(const std::string& unitType) const;
     };
 }
 

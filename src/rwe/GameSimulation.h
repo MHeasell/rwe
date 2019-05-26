@@ -135,7 +135,9 @@ namespace rwe
 
         bool isCollisionAt(const DiscreteRect& rect, UnitId self) const;
 
-        bool isAdjacentToObstacle(const DiscreteRect& rect, UnitId self) const;
+        bool isYardmapBlocked(unsigned int x, unsigned int y, const Grid<YardMapCell>& yardMap, bool open) const;
+
+        bool isAdjacentToObstacle(const DiscreteRect& rect) const;
 
         void showObject(UnitId unitId, const std::string& name);
 
@@ -195,6 +197,8 @@ namespace rwe
 
         bool addResourceDelta(const UnitId& unitId, const Energy& apparentEnergy, const Metal& apparentMetal, const Energy& actualEnergy, const Metal& actualMetal);
         bool addResourceDelta(const UnitId& unitId, const Energy& energy, const Metal& metal);
+
+        bool trySetYardOpen(const UnitId& unitId, bool open);
     };
 }
 

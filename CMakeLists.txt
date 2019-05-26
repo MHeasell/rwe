@@ -475,6 +475,8 @@ set(SOURCE_FILES
     src/rwe/ui/UiStagedButton.h
     src/rwe/ui/UiSurface.cpp
     src/rwe/ui/UiSurface.h
+    src/rwe/unit_util.cpp
+    src/rwe/unit_util.h
     src/rwe/util.cpp
     src/rwe/util.h
     src/rwe/vfs/AbstractVirtualFileSystem.h
@@ -678,6 +680,7 @@ set(TEST_FILES
     test/rwe/pathfinding/pathfinding_utils_test.cpp
     test/rwe/rc_gen_optional.h
     test/rwe/rwe_string_test.cpp
+    test/rwe/unit_util_test.cpp
     test/rwe/util_test.cpp
     )
 

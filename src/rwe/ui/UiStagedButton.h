@@ -24,6 +24,7 @@ namespace rwe
             Hidden,
             Left,
             Center,
+            BottomCenter,
         };
 
         enum class BehaviorMode

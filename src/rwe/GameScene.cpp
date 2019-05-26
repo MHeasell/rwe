@@ -9,10 +9,10 @@
 
 namespace rwe
 {
-    bool laserCollides(const GameSimulation& sim, const LaserProjectile& laser, const OccupiedType& cellValue)
+    bool laserCollides(const GameSimulation& sim, const LaserProjectile& laser, const OccupiedCell& cellValue)
     {
-        return match(
-            cellValue,
+        auto collidesWithOccupiedCell = match(
+            cellValue.occupiedType,
             [&](const OccupiedUnit& v) {
                 const auto& unit = sim.getUnit(v.id);
 
@@ -44,6 +44,31 @@ namespace rwe
             [&](const OccupiedNone&) {
                 return false;
             });
+
+        if (collidesWithOccupiedCell)
+        {
+            return true;
+        }
+
+        if (cellValue.buildingCell && !cellValue.buildingCell->passable)
+        {
+            const auto& unit = sim.getUnit(cellValue.buildingCell->unit);
+
+            if (unit.isOwnedBy(laser.owner))
+            {
+                return false;
+            }
+
+            // ignore if the laser is above or below the unit
+            if (laser.position.y < unit.position.y || laser.position.y > unit.position.y + unit.height)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     const Rectangle2f GameScene::minimapViewport = Rectangle2f::fromTopLeft(0.0f, 0.0f, GuiSizeLeft, GuiSizeLeft);
@@ -1351,6 +1376,14 @@ namespace rwe
         localPlayerCommandBuffer.push_back(PlayerUnitCommand(unitId, PlayerUnitCommand::SetOnOff{on}));
     }
 
+    void GameScene::localPlayerModifyBuildQueue(UnitId unitId, const std::string& unitType, int count)
+    {
+        localPlayerCommandBuffer.push_back(PlayerUnitCommand(unitId, PlayerUnitCommand::ModifyBuildQueue{count, unitType}));
+
+        updateUnconfirmedBuildQueueDelta(unitId, unitType, count);
+        refreshBuildGuiTotal(unitId, unitType);
+    }
+
     void GameScene::issueUnitOrder(UnitId unitId, const UnitOrder& order)
     {
         auto& unit = getUnit(unitId);
@@ -1473,7 +1506,7 @@ namespace rwe
             {
                 // detect collision with something's footprint
                 auto heightMapPos = simulation.terrain.worldToHeightmapCoordinate(laser->position);
-                auto cellValue = simulation.occupiedGrid.grid.tryGet(heightMapPos);
+                auto cellValue = simulation.occupiedGrid.tryGet(heightMapPos);
                 if (cellValue)
                 {
                     auto collides = laserCollides(simulation, *laser, cellValue->get());
@@ -1586,21 +1619,28 @@ namespace rwe
                 }
 
                 // check if a unit (or feature) is there
-                auto occupiedType = simulation.occupiedGrid.grid.get(x, y);
-                auto u = std::get_if<OccupiedUnit>(&occupiedType);
-                if (u == nullptr)
+                auto occupiedType = simulation.occupiedGrid.get(x, y);
+                auto u = match(
+                    occupiedType.occupiedType,
+                    [&](const OccupiedUnit& u) { return std::optional(u.id); },
+                    [&](const auto&) { return std::optional<UnitId>(); });
+                if (!u && occupiedType.buildingCell && !occupiedType.buildingCell->passable)
+                {
+                    u = occupiedType.buildingCell->unit;
+                }
+                if (!u)
                 {
                     continue;
                 }
 
                 // check if the unit was seen/mark as seen
-                auto pair = seenUnits.insert(u->id);
+                auto pair = seenUnits.insert(*u);
                 if (!pair.second) // the unit was already present
                 {
                     continue;
                 }
 
-                const auto& unit = simulation.getUnit(u->id);
+                const auto& unit = simulation.getUnit(*u);
 
                 // skip dead units
                 if (unit.isDead())
@@ -1620,7 +1660,7 @@ namespace rwe
                 auto damageScale = std::clamp(1.0f - (std::sqrt(unitDistanceSquared) / radius), 0.0f, 1.0f);
                 auto rawDamage = laser.getDamage(unit.unitType);
                 auto scaledDamage = static_cast<unsigned int>(static_cast<float>(rawDamage) * damageScale);
-                applyDamage(u->id, scaledDamage);
+                applyDamage(*u, scaledDamage);
             }
         }
     }
@@ -1675,6 +1715,25 @@ namespace rwe
         }
     }
 
+    void GameScene::modifyBuildQueue(UnitId unitId, const std::string& unitType, int count)
+    {
+        auto& unit = getUnit(unitId);
+        unit.modifyBuildQueue(unitType, count);
+
+        updateUnconfirmedBuildQueueDelta(unitId, unitType, -count);
+        refreshBuildGuiTotal(unitId, unitType);
+    }
+
+    void GameScene::setBuildStance(UnitId unitId, bool value)
+    {
+        getUnit(unitId).inBuildStance = value;
+    }
+
+    void GameScene::setYardOpen(UnitId unitId, bool value)
+    {
+        simulation.trySetYardOpen(unitId, value);
+    }
+
     void GameScene::deleteDeadUnits()
     {
         for (auto it = simulation.units.begin(); it != simulation.units.end();)
@@ -1690,9 +1749,24 @@ namespace rwe
                 }
 
                 auto footprintRect = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
-                auto footprintRegion = simulation.occupiedGrid.grid.tryToRegion(footprintRect);
+                auto footprintRegion = simulation.occupiedGrid.tryToRegion(footprintRect);
                 assert(!!footprintRegion);
-                simulation.occupiedGrid.grid.setArea(*footprintRegion, OccupiedNone());
+                if (unit.isMobile)
+                {
+                    simulation.occupiedGrid.forInArea(*footprintRegion, [](auto& cell) {
+                      cell.occupiedType = OccupiedNone();
+                    });
+                }
+                else
+                {
+                    simulation.occupiedGrid.forInArea(*footprintRegion, [&](auto& cell) {
+                        if (cell.buildingCell && cell.buildingCell->unit == it->first)
+                        {
+                            cell.buildingCell = BuildingOccupiedCell();
+                        }
+                    });
+                }
+
 
                 unitGuiInfos.erase(it->first);
                 it = simulation.units.erase(it);
@@ -1727,6 +1801,13 @@ namespace rwe
             std::optional<LaserProjectile> projectile = simulation.createProjectileFromWeapon(unit.owner, *unit.explosionWeapon, unit.position, Vector3f(0.0f, -1.0f, 0.0f));
             doLaserImpact(projectile, impactType);
         }
+    }
+
+    void GameScene::quietlyKillUnit(UnitId unitId)
+    {
+        auto& unit = simulation.getUnit(unitId);
+
+        unit.markAsDead();
     }
 
     void GameScene::killPlayer(PlayerId playerId)
@@ -1824,9 +1905,9 @@ namespace rwe
         }
 
         currentPanel->groupMessages().subscribe([this](const auto& msg) {
-            if (std::holds_alternative<ActivateMessage>(msg.message))
+            if (auto activateMessage = std::get_if<ActivateMessage>(&msg.message); activateMessage != nullptr)
             {
-                onMessage(msg.controlName);
+                onMessage(msg.controlName, activateMessage->type);
             }
         });
     }
@@ -1846,7 +1927,7 @@ namespace rwe
         }
     }
 
-    void GameScene::onMessage(const std::string& message)
+    void GameScene::onMessage(const std::string& message, ActivateMessage::Type type)
     {
         if (matchesWithSidePrefix("ATTACK", message))
         {
@@ -1998,7 +2079,19 @@ namespace rwe
                 sceneContext.audioService->playSound(*sounds.addBuild);
             }
 
-            cursorMode.next(BuildCursorMode{message});
+            if (selectedUnit)
+            {
+                const auto& unit = getUnit(*selectedUnit);
+                if (unit.isMobile)
+                {
+                    cursorMode.next(BuildCursorMode{message});
+                }
+                else
+                {
+                    int count = (isShiftDown() ? 5 : 1) * (type == ActivateMessage::Type::Primary ? 1 : -1);
+                    localPlayerModifyBuildQueue(*selectedUnit, message, count);
+                }
+            }
         }
     }
 
@@ -2031,7 +2124,17 @@ namespace rwe
         auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);
         if (guiInfo.section == UnitGuiInfo::Section::Build && buildPanelDefinition)
         {
-            setNextPanel(uiFactory.panelFromGuiFile(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition));
+            auto panel = uiFactory.panelFromGuiFile(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition);
+            auto totals = unit.getBuildQueueTotals();
+            for (const auto& e : totals)
+            {
+                auto button = panel->find<UiStagedButton>(e.first);
+                if (button)
+                {
+                    button->get().setLabel("+" + std::to_string(e.second));
+                }
+            }
+            setNextPanel(std::move(panel));
         }
         else
         {
@@ -2068,5 +2171,65 @@ namespace rwe
     void GameScene::setNextPanel(std::unique_ptr<UiPanel>&& panel)
     {
         nextPanel = std::move(panel);
+    }
+
+    void GameScene::refreshBuildGuiTotal(UnitId unitId, const std::string& unitType)
+    {
+        if (selectedUnit == unitId)
+        {
+            const auto& unit = getUnit(*selectedUnit);
+            auto total = unit.getBuildQueueTotal(unitType) + getUnconfirmedBuildQueueCount(unitId, unitType);
+            auto button = currentPanel->find<UiStagedButton>(unitType);
+            if (button)
+            {
+                button->get().setLabel(total > 0 ? "+" + std::to_string(total) : "");
+            }
+        }
+    }
+
+    void GameScene::updateUnconfirmedBuildQueueDelta(UnitId unitId, const std::string& unitType, int count)
+    {
+        auto it = unconfirmedBuildQueueDelta.find(unitId);
+        if (it == unconfirmedBuildQueueDelta.end())
+        {
+            unconfirmedBuildQueueDelta.emplace(unitId, std::unordered_map<std::string, int>{{unitType, count}});
+        }
+        else
+        {
+            auto it2 = it->second.find(unitType);
+            if (it2 == it->second.end())
+            {
+                it->second.emplace(unitType, count);
+            }
+            else
+            {
+                int newTotal = it2->second + count;
+                if (newTotal != 0)
+                {
+                    it2->second = newTotal;
+                }
+                else
+                {
+                    it->second.erase(it2);
+                }
+            }
+        }
+    }
+
+    int GameScene::getUnconfirmedBuildQueueCount(UnitId unitId, const std::string& unitType) const
+    {
+        auto it = unconfirmedBuildQueueDelta.find(unitId);
+        if (it == unconfirmedBuildQueueDelta.end())
+        {
+            return 0;
+        }
+
+        auto it2 = it->second.find(unitType);
+        if (it2 == it->second.end())
+        {
+            return 0;
+        }
+
+        return it2->second;
     }
 }

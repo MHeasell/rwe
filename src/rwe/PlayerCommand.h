@@ -26,6 +26,12 @@ namespace rwe
             }
         };
 
+        struct ModifyBuildQueue
+        {
+            int count;
+            std::string unitType;
+        };
+
         struct Stop
         {
         };
@@ -40,7 +46,7 @@ namespace rwe
             bool on;
         };
 
-        using Command = std::variant<IssueOrder, Stop, SetFireOrders, SetOnOff>;
+        using Command = std::variant<IssueOrder, ModifyBuildQueue, Stop, SetFireOrders, SetOnOff>;
 
         UnitId unit;
         Command command;

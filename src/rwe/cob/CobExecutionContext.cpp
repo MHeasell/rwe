@@ -731,7 +731,10 @@ namespace rwe
                 return unit.hitPoints / unit.maxHitPoints;
             }
             case CobValueId::InBuildStance:
-                return false; // TODO
+            {
+                const auto& unit = sim->getUnit(unitId);
+                return unit.inBuildStance;
+            }
             case CobValueId::Busy:
                 return false; // TODO
             case CobValueId::PieceXZ:
@@ -824,7 +827,10 @@ namespace rwe
                 return unit.getBuildPercentLeft();
             }
             case CobValueId::YardOpen:
-                return false; // TODO
+            {
+                const auto& unit = sim->getUnit(unitId);
+                return unit.yardOpen;
+            }
             case CobValueId::BuggerOff:
                 return false; // TODO
             case CobValueId::Armored:
@@ -890,11 +896,17 @@ namespace rwe
             case CobValueId::StandingFireOrders:
                 return; // TODO
             case CobValueId::InBuildStance:
-                return; // TODO
+            {
+                scene->setBuildStance(unitId, value != 0);
+                return;
+            }
             case CobValueId::Busy:
                 return; // TODO
             case CobValueId::YardOpen:
-                return; // TODO
+            {
+                scene->setYardOpen(unitId, value != 0);
+                return;
+            }
             case CobValueId::BuggerOff:
                 return; // TODO
             case CobValueId::Armored:

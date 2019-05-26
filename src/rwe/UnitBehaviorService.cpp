@@ -80,6 +80,27 @@ namespace rwe
         // Run unit and weapon AI
         if (!unit.isBeingBuilt())
         {
+            // check our build queue
+            if (!unit.buildQueue.empty())
+            {
+                auto& entry = unit.buildQueue.front();
+                if (handleBuild(unitId, entry.first))
+                {
+                    if (entry.second > 1)
+                    {
+                        --entry.second;
+                    }
+                    else
+                    {
+                        unit.buildQueue.pop_front();
+                    }
+                }
+            }
+            else
+            {
+                clearBuild(unitId);
+            }
+
             // check our orders
             if (!unit.orders.empty())
             {
@@ -98,18 +119,21 @@ namespace rwe
             }
         }
 
-        applyUnitSteering(unitId);
-
-        if (unit.currentSpeed > 0.0f && previousSpeed == 0.0f)
+        if (unit.isMobile)
         {
-            unit.cobEnvironment->createThread("StartMoving");
-        }
-        else if (unit.currentSpeed == 0.0f && previousSpeed > 0.0f)
-        {
-            unit.cobEnvironment->createThread("StopMoving");
-        }
+            applyUnitSteering(unitId);
 
-        updateUnitPosition(unitId);
+            if (unit.currentSpeed > 0.0f && previousSpeed == 0.0f)
+            {
+                unit.cobEnvironment->createThread("StartMoving");
+            }
+            else if (unit.currentSpeed == 0.0f && previousSpeed > 0.0f)
+            {
+                unit.cobEnvironment->createThread("StopMoving");
+            }
+
+            updateUnitPosition(unitId);
+        }
     }
 
     std::pair<float, float> UnitBehaviorService::computeHeadingAndPitch(float rotation, const Vector3f& from, const Vector3f& to)
@@ -784,29 +808,9 @@ namespace rwe
                     auto heading = headingAndPitch.first;
                     auto pitch = headingAndPitch.second;
 
-                    auto threadId = unit.cobEnvironment->createThread("StartBuilding", {toTaAngle(RadiansAngle(heading)).value, toTaAngle(RadiansAngle(pitch)).value});
-                    if (threadId)
-                    {
-                        unit.behaviourState = StartBuildingState{*targetUnitId, *threadId};
-                    }
-                    else
-                    {
-                        // we couldn't launch a start build script (there isn't one),
-                        // just go straight to building
-                        // TODO: start emitting nanolate effect
-                        unit.behaviourState = BuildingState{*targetUnitId};
-                    }
+                    unit.cobEnvironment->createThread("StartBuilding", {toTaAngle(RadiansAngle(heading)).value, toTaAngle(RadiansAngle(pitch)).value});
+                    unit.behaviourState = BuildingState{*targetUnitId};
                 }
-            }
-        }
-        else if (auto startBuildingState = std::get_if<StartBuildingState>(&unit.behaviourState); startBuildingState != nullptr)
-        {
-            auto returnValue = unit.cobEnvironment->tryReapThread(startBuildingState->thread);
-            if (returnValue)
-            {
-                // we successfully reaped, move to building
-                // TODO: start emitting nanolathe particles, probably
-                unit.behaviourState = BuildingState{startBuildingState->targetUnit};
             }
         }
         else if (auto buildingState = std::get_if<BuildingState>(&unit.behaviourState); buildingState != nullptr)
@@ -835,6 +839,12 @@ namespace rwe
                 unit.cobEnvironment->createThread("StopBuilding");
                 unit.behaviourState = IdleState();
                 return true;
+            }
+
+            if (!unit.inBuildStance)
+            {
+                // We are not in the correct stance to build the unit yet, wait.
+                return false;
             }
 
             auto& sim = scene->getSimulation();
@@ -869,6 +879,114 @@ namespace rwe
         return false;
     }
 
+    bool UnitBehaviorService::handleBuild(UnitId unitId, const std::string& unitType)
+    {
+        auto& unit = scene->getSimulation().getUnit(unitId);
+
+        return match(
+            unit.factoryState,
+            [&](const FactoryStateIdle&) {
+                scene->activateUnit(unitId);
+                unit.factoryState = FactoryStateBuilding();
+                return false;
+            },
+            [&](FactoryStateBuilding& state) {
+                if (!unit.inBuildStance)
+                {
+                    return false;
+                }
+
+                auto& sim = scene->getSimulation();
+
+                auto buildPieceInfo = getBuildPieceInfo(unitId);
+                buildPieceInfo.position.y = sim.terrain.getHeightAt(buildPieceInfo.position.x, buildPieceInfo.position.z);
+                if (!state.targetUnit)
+                {
+                    state.targetUnit = scene->spawnUnit(unitType, unit.owner, buildPieceInfo.position);
+                    if (state.targetUnit)
+                    {
+                        unit.cobEnvironment->createThread("StartBuilding");
+                    }
+
+                    return false;
+                }
+
+                auto& targetUnit = scene->getSimulation().getUnit(*state.targetUnit);
+                if (targetUnit.isDead())
+                {
+                    unit.cobEnvironment->createThread("StopBuilding");
+                    unit.factoryState = FactoryStateIdle();
+                    return true;
+                }
+
+                if (!targetUnit.isBeingBuilt())
+                {
+                    unit.cobEnvironment->createThread("StopBuilding");
+                    unit.factoryState = FactoryStateIdle();
+                    return true;
+                }
+
+                if (targetUnit.unitType != unitType)
+                {
+                    scene->quietlyKillUnit(*state.targetUnit);
+                    unit.cobEnvironment->createThread("StopBuilding");
+                    unit.factoryState = FactoryStateIdle();
+                    return true;
+                }
+
+                tryApplyMovementToPosition(unitId, buildPieceInfo.position);
+                targetUnit.rotation = buildPieceInfo.rotation;
+
+                auto costs = targetUnit.getBuildCostInfo(unit.workerTimePerTick);
+                auto gotResources = sim.addResourceDelta(
+                    unitId,
+                    -Energy(targetUnit.energyCost.value * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime)),
+                    -Metal(targetUnit.metalCost.value * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime)),
+                    -costs.energyCost,
+                    -costs.metalCost);
+
+                if (!gotResources)
+                {
+                    // we don't have resources available to build -- wait
+                    return false;
+                }
+
+                if (targetUnit.addBuildProgress(unit.workerTimePerTick))
+                {
+                    // play sound when the unit is completed
+                    if (targetUnit.completeSound)
+                    {
+                        scene->playSoundOnSelectChannel(*targetUnit.completeSound);
+                    }
+                    if (targetUnit.activateWhenBuilt)
+                    {
+                        scene->activateUnit(*state.targetUnit);
+                    }
+                }
+
+                return false;
+            });
+    }
+
+    void UnitBehaviorService::clearBuild(UnitId unitId)
+    {
+        auto& unit = scene->getSimulation().getUnit(unitId);
+
+        match(unit.factoryState,
+            [&](const FactoryStateIdle&) {
+                // do nothing
+            },
+            [&](const FactoryStateBuilding& state) {
+                if (state.targetUnit)
+                {
+                    scene->quietlyKillUnit(*state.targetUnit);
+                    unit.cobEnvironment->createThread("StopBuilding");
+                }
+                scene->deactivateUnit(unitId);
+                unit.factoryState = FactoryStateIdle();
+            });
+    }
+
     Vector3f UnitBehaviorService::getNanoPoint(UnitId id)
     {
         auto pieceId = runCobQuery(id, "QueryNanoPiece");
@@ -892,5 +1010,43 @@ namespace rwe
         }
 
         return unit.getTransform() * (*pieceTransform) * Vector3f(0.0f, 0.0f, 0.0f);
+    }
+
+    float UnitBehaviorService::getPieceXZRotation(UnitId id, unsigned int pieceId)
+    {
+        auto& unit = scene->getSimulation().getUnit(id);
+
+        const auto& pieceName = unit.cobEnvironment->_script->pieces.at(pieceId);
+        auto pieceTransform = unit.mesh.getPieceTransform(pieceName);
+        if (!pieceTransform)
+        {
+            throw std::logic_error("Failed to find piece offset");
+        }
+
+        auto mat = unit.getTransform() * (*pieceTransform);
+
+        auto a = Vector2f(0.0f, 1.0f);
+        auto b = mat.mult3x3(Vector3f(0.0f, 0.0f, 1.0f)).xz();
+        if (b.lengthSquared() == 0.0f)
+        {
+            return 0.0f;
+        }
+
+        // angleTo is computed in a space where Y points up,
+        // but in our XZ space (Z is our Y here), Z points down.
+        // This means we need to negate (and rewrap) the rotation value.
+        return wrap(-Pif, Pif, -a.angleTo(b));
+    }
+
+    UnitBehaviorService::BuildPieceInfo UnitBehaviorService::getBuildPieceInfo(UnitId id)
+    {
+        auto pieceId = runCobQuery(id, "QueryBuildInfo");
+        if (!pieceId)
+        {
+            const auto& unit = scene->getSimulation().getUnit(id);
+            return BuildPieceInfo{unit.position, unit.rotation};
+        }
+
+        return BuildPieceInfo{getPiecePosition(id, *pieceId), getPieceXZRotation(id, *pieceId)};
     }
 }

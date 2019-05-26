@@ -269,6 +269,18 @@ namespace rwe
         return m;
     }
 
+    Vector3f Matrix4f::mult3x3(const Vector3f& v) const{
+        Vector3f r;
+
+        // clang-format off
+        r.x = (data[0] * v.x) + (data[4] * v.y) + (data[ 8] * v.z);
+        r.y = (data[1] * v.x) + (data[5] * v.y) + (data[ 9] * v.z);
+        r.z = (data[2] * v.x) + (data[6] * v.y) + (data[10] * v.z);
+        // clang-format on
+
+        return r;
+    }
+
     Matrix4f Matrix4f::rotationX(float angle)
     {
         Matrix4f m;

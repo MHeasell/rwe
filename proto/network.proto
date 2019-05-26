@@ -59,6 +59,12 @@ message PlayerUnitCommand
         }
     }
 
+    message ModifyBuildQueue
+    {
+        required int32 count = 1;
+        required string unit_type = 2;
+    }
+
     message Stop
     {
     }
@@ -87,6 +93,7 @@ message PlayerUnitCommand
         Stop stop = 3;
         SetFireOrders set_fire_orders = 4;
         SetOnOff set_on_off = 5;
+        ModifyBuildQueue modify_build_queue = 6;
     }
 }
 

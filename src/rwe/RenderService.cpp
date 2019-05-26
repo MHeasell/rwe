@@ -161,6 +161,8 @@ namespace rwe
         std::vector<Line3f> lines;
 
         std::vector<Triangle3f> tris;
+        std::vector<Triangle3f> buildingTris;
+        std::vector<Triangle3f> passableBuildingTris;
 
         for (int y = topLeftCell.y; y <= bottomRightCell.y; ++y)
         {
@@ -178,13 +180,42 @@ namespace rwe
                 lines.emplace_back(pos, rightPos);
                 lines.emplace_back(pos, downPos);
 
-                if (std::visit(IsOccupiedVisitor(), occupiedGrid.grid.get(x, y)))
+                const auto& cell = occupiedGrid.get(x, y);
+                if (std::visit(IsOccupiedVisitor(), cell.occupiedType))
                 {
                     auto downRightPos = terrain.heightmapIndexToWorldCorner(x + 1, y + 1);
                     downRightPos.y = terrain.getHeightMap().get(x + 1, y + 1);
 
                     tris.emplace_back(pos, downPos, downRightPos);
                     tris.emplace_back(pos, downRightPos, rightPos);
+                }
+
+                const auto insetAmount = 4.0f;
+
+                if (cell.buildingCell && !cell.buildingCell->passable)
+                {
+                    auto topLeftPos = pos + Vector3f(insetAmount, 0.0f, insetAmount);
+                    auto topRightPos = rightPos + Vector3f(-insetAmount, 0.0f, insetAmount);
+                    auto bottomLeftPos = downPos + Vector3f(insetAmount, 0.0f, -insetAmount);
+                    auto downRightPos = terrain.heightmapIndexToWorldCorner(x + 1, y + 1);
+                    downRightPos.y = terrain.getHeightMap().get(x + 1, y + 1);
+                    downRightPos += Vector3f(-insetAmount, 0.0f, -insetAmount);
+
+                    buildingTris.emplace_back(topLeftPos, bottomLeftPos, downRightPos);
+                    buildingTris.emplace_back(topLeftPos, downRightPos, topRightPos);
+                }
+
+                if (cell.buildingCell && cell.buildingCell->passable)
+                {
+                    auto topLeftPos = pos + Vector3f(insetAmount, 0.0f, insetAmount);
+                    auto topRightPos = rightPos + Vector3f(-insetAmount, 0.0f, insetAmount);
+                    auto bottomLeftPos = downPos + Vector3f(insetAmount, 0.0f, -insetAmount);
+                    auto downRightPos = terrain.heightmapIndexToWorldCorner(x + 1, y + 1);
+                    downRightPos.y = terrain.getHeightMap().get(x + 1, y + 1);
+                    downRightPos += Vector3f(-insetAmount, 0.0f, -insetAmount);
+
+                    passableBuildingTris.emplace_back(topLeftPos, bottomLeftPos, downRightPos);
+                    passableBuildingTris.emplace_back(topLeftPos, downRightPos, topRightPos);
                 }
             }
         }
@@ -199,6 +230,12 @@ namespace rwe
 
         auto triMesh = createTemporaryTriMesh(tris);
         graphics->drawTriangles(triMesh);
+
+        auto buildingTriMesh = createTemporaryTriMesh(buildingTris, Vector3f(1.0f, 0.0f, 0.0f));
+        graphics->drawTriangles(buildingTriMesh);
+
+        auto passableBuildingTriMesh = createTemporaryTriMesh(passableBuildingTris, Vector3f(0.0f, 1.0f, 0.0f));
+        graphics->drawTriangles(passableBuildingTriMesh);
     }
 
     void RenderService::drawMovementClassCollisionGrid(
@@ -327,21 +364,23 @@ namespace rwe
 
     GlMesh RenderService::createTemporaryTriMesh(const std::vector<Triangle3f>& tris)
     {
+        return createTemporaryTriMesh(tris, Vector3f(1.0f, 1.0f, 1.0f));
+    }
+
+    GlMesh RenderService::createTemporaryTriMesh(const std::vector<Triangle3f>& tris, const Vector3f& color)
+    {
         std::vector<GlColoredVertex> buffer;
         buffer.reserve(tris.size() * 3); // 3 verts per triangle
 
-        Vector3f white(1.0f, 1.0f, 1.0f);
-
         for (const auto& l : tris)
         {
-            buffer.emplace_back(l.a, white);
-            buffer.emplace_back(l.b, white);
-            buffer.emplace_back(l.c, white);
+            buffer.emplace_back(l.a, color);
+            buffer.emplace_back(l.b, color);
+            buffer.emplace_back(l.c, color);
         }
 
         return graphics->createColoredMesh(buffer, GL_STREAM_DRAW);
     }
-
 
     void RenderService::drawMapTerrain(const MapTerrain& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
     {

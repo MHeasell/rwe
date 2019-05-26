@@ -121,6 +121,7 @@ namespace rwe
         GlMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines, const Color& color);
 
         GlMesh createTemporaryTriMesh(const std::vector<Triangle3f>& tris);
+        GlMesh createTemporaryTriMesh(const std::vector<Triangle3f>& tris, const Vector3f& color);
 
         void drawTerrainArrow(const MapTerrain& terrain, const Point& start, const Point& end, const Color& color);
 
