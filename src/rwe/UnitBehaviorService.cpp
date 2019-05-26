@@ -1032,7 +1032,10 @@ namespace rwe
             return 0.0f;
         }
 
-        return std::atan2(a.dot(b), (a.x * b.y) - (a.y * b.x));
+        // angleTo is computed in a space where Y points up,
+        // but in our XZ space (Z is our Y here), Z points down.
+        // This means we need to negate (and rewrap) the rotation value.
+        return wrap(-Pif, Pif, -a.angleTo(b));
     }
 
     UnitBehaviorService::BuildPieceInfo UnitBehaviorService::getBuildPieceInfo(UnitId id)
