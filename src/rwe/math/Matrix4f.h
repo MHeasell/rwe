@@ -35,6 +35,11 @@ namespace rwe
         float data[16];
 
         Matrix4f transposed() const;
+
+        /**
+         * Multiplies the upper-left 3x3 portion of this matrix by the given vector.
+         */
+        Vector3f mult3x3(const Vector3f& v) const;
     };
 
     Matrix4f operator*(const Matrix4f& a, const Matrix4f& b);

@@ -1025,19 +1025,8 @@ namespace rwe
 
         auto mat = unit.getTransform() * (*pieceTransform);
 
-        // hackily strip the translation bits out...
-        mat.data[3] = 0.0f;
-        mat.data[7] = 0.0f;
-        mat.data[11] = 0.0f;
-
-        mat.data[12] = 0.0f;
-        mat.data[13] = 0.0f;
-        mat.data[14] = 0.0f;
-        mat.data[15] = 1.0f;
-
-        auto rotatedVec = mat * Vector3f(0.0f, 0.0f, 1.0f);
         auto a = Vector2f(0.0f, 1.0f);
-        auto b = Vector2f(rotatedVec.x, rotatedVec.z);
+        auto b = mat.mult3x3(Vector3f(0.0f, 0.0f, 1.0f)).xz();
         if (b.lengthSquared() == 0.0f)
         {
             return 0.0f;
