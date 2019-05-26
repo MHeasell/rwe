@@ -578,4 +578,33 @@ namespace rwe
 
         return true;
     }
+
+    void GameSimulation::emitBuggerOff(const UnitId& unitId)
+    {
+        auto& unit = getUnit(unitId);
+        auto footprintRect = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+        auto footprintRegion = occupiedGrid.tryToRegion(footprintRect);
+        assert(!!footprintRegion);
+
+        occupiedGrid.forInArea(*footprintRegion, [&](const auto& e) {
+            auto unitId = match(
+                e.occupiedType,
+                [&](const OccupiedUnit& u) { return std::optional(u.id); },
+                [&](const auto&) { return std::optional<UnitId>(); });
+
+            if (unitId)
+            {
+                tellToBuggerOff(*unitId, footprintRect);
+            }
+        });
+    }
+
+    void GameSimulation::tellToBuggerOff(const UnitId& unitId, const DiscreteRect& rect)
+    {
+        auto& unit = getUnit(unitId);
+        if (unit.orders.empty())
+        {
+            unit.addOrder(BuggerOffOrder(rect));
+        }
+    }
 }

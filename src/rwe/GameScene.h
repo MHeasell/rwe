@@ -403,6 +403,8 @@ namespace rwe
 
         void quietlyKillUnit(UnitId unitId);
 
+        void setBuggerOff(UnitId unitId, bool value);
+
     private:
         static Matrix4f worldToMinimapMatrix(const MapTerrain& terrain, const Rectangle2f& minimapRect);
 

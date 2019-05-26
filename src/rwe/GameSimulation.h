@@ -199,6 +199,10 @@ namespace rwe
         bool addResourceDelta(const UnitId& unitId, const Energy& energy, const Metal& metal);
 
         bool trySetYardOpen(const UnitId& unitId, bool open);
+
+        void emitBuggerOff(const UnitId& unitId);
+
+        void tellToBuggerOff(const UnitId& unitId, const DiscreteRect& rect);
     };
 }
 

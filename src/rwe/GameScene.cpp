@@ -1744,6 +1744,14 @@ namespace rwe
         simulation.trySetYardOpen(unitId, value);
     }
 
+    void GameScene::setBuggerOff(UnitId unitId, bool value)
+    {
+        if (value)
+        {
+            simulation.emitBuggerOff(unitId);
+        }
+    }
+
     void GameScene::deleteDeadUnits()
     {
         for (auto it = simulation.units.begin(); it != simulation.units.end();)

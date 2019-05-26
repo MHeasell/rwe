@@ -908,7 +908,10 @@ namespace rwe
                 return;
             }
             case CobValueId::BuggerOff:
-                return; // TODO
+            {
+                scene->setBuggerOff(unitId, value != 0);
+                return;
+            }
             case CobValueId::Armored:
                 return; // TODO
             default:
