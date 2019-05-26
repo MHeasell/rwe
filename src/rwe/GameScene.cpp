@@ -1183,7 +1183,10 @@ namespace rwe
 
                 unit.resetResourceBuffers();
 
-                simulation.addResourceDelta(unitId, unit.energyMake, unit.metalMake);
+                if (!unit.isBeingBuilt())
+                {
+                    simulation.addResourceDelta(unitId, unit.energyMake, unit.metalMake);
+                }
 
                 if (unit.activated)
                 {
