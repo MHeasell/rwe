@@ -1043,7 +1043,7 @@ namespace rwe
             return 0.0f;
         }
 
-        return std::atan2((a.x * b.y) - (a.y * b.x), a.dot(b));
+        return std::atan2(a.dot(b), (a.x * b.y) - (a.y * b.x));
     }
 
     UnitBehaviorService::BuildPieceInfo UnitBehaviorService::getBuildPieceInfo(UnitId id)
