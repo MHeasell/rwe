@@ -161,7 +161,8 @@ namespace rwe
         std::vector<Line3f> lines;
 
         std::vector<Triangle3f> tris;
-        std::vector<Triangle3f> redTris;
+        std::vector<Triangle3f> buildingTris;
+        std::vector<Triangle3f> passableBuildingTris;
 
         for (int y = topLeftCell.y; y <= bottomRightCell.y; ++y)
         {
@@ -180,7 +181,7 @@ namespace rwe
                 lines.emplace_back(pos, downPos);
 
                 const auto& cell = occupiedGrid.get(x, y);
-                if (std::visit(IsOccupiedVisitor(), cell.occupiedType) || (cell.buildingCell && !cell.buildingCell->passable))
+                if (std::visit(IsOccupiedVisitor(), cell.occupiedType))
                 {
                     auto downRightPos = terrain.heightmapIndexToWorldCorner(x + 1, y + 1);
                     downRightPos.y = terrain.getHeightMap().get(x + 1, y + 1);
@@ -189,13 +190,32 @@ namespace rwe
                     tris.emplace_back(pos, downRightPos, rightPos);
                 }
 
-                if (cell.buildingCell && cell.buildingCell->passable)
+                const auto insetAmount = 4.0f;
+
+                if (cell.buildingCell && !cell.buildingCell->passable)
                 {
+                    auto topLeftPos = pos + Vector3f(insetAmount, 0.0f, insetAmount);
+                    auto topRightPos = rightPos + Vector3f(-insetAmount, 0.0f, insetAmount);
+                    auto bottomLeftPos = downPos + Vector3f(insetAmount, 0.0f, -insetAmount);
                     auto downRightPos = terrain.heightmapIndexToWorldCorner(x + 1, y + 1);
                     downRightPos.y = terrain.getHeightMap().get(x + 1, y + 1);
+                    downRightPos += Vector3f(-insetAmount, 0.0f, -insetAmount);
 
-                    redTris.emplace_back(pos, downPos, downRightPos);
-                    redTris.emplace_back(pos, downRightPos, rightPos);
+                    buildingTris.emplace_back(topLeftPos, bottomLeftPos, downRightPos);
+                    buildingTris.emplace_back(topLeftPos, downRightPos, topRightPos);
+                }
+
+                if (cell.buildingCell && cell.buildingCell->passable)
+                {
+                    auto topLeftPos = pos + Vector3f(insetAmount, 0.0f, insetAmount);
+                    auto topRightPos = rightPos + Vector3f(-insetAmount, 0.0f, insetAmount);
+                    auto bottomLeftPos = downPos + Vector3f(insetAmount, 0.0f, -insetAmount);
+                    auto downRightPos = terrain.heightmapIndexToWorldCorner(x + 1, y + 1);
+                    downRightPos.y = terrain.getHeightMap().get(x + 1, y + 1);
+                    downRightPos += Vector3f(-insetAmount, 0.0f, -insetAmount);
+
+                    passableBuildingTris.emplace_back(topLeftPos, bottomLeftPos, downRightPos);
+                    passableBuildingTris.emplace_back(topLeftPos, downRightPos, topRightPos);
                 }
             }
         }
@@ -211,8 +231,11 @@ namespace rwe
         auto triMesh = createTemporaryTriMesh(tris);
         graphics->drawTriangles(triMesh);
 
-        auto redTriMesh = createTemporaryTriMesh(redTris, Vector3f(1.0f, 0.0f, 0.0f));
-        graphics->drawTriangles(redTriMesh);
+        auto buildingTriMesh = createTemporaryTriMesh(buildingTris, Vector3f(1.0f, 0.0f, 0.0f));
+        graphics->drawTriangles(buildingTriMesh);
+
+        auto passableBuildingTriMesh = createTemporaryTriMesh(passableBuildingTris, Vector3f(0.0f, 1.0f, 0.0f));
+        graphics->drawTriangles(passableBuildingTriMesh);
     }
 
     void RenderService::drawMovementClassCollisionGrid(
