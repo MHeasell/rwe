@@ -956,6 +956,16 @@ namespace rwe
                 }
 
                 auto& targetUnit = scene->getSimulation().getUnit(*state.targetUnit);
+                if (targetUnit.unitType != unitType)
+                {
+                    if (targetUnit.isBeingBuilt() && !targetUnit.isDead())
+                    {
+                        scene->quietlyKillUnit(*state.targetUnit);
+                    }
+                    state.targetUnit = std::nullopt;
+                    return false;
+                }
+
                 if (targetUnit.isDead())
                 {
                     unit.cobEnvironment->createThread("StopBuilding");
@@ -971,15 +981,6 @@ namespace rwe
                         auto footprintRect = scene->computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
                         targetUnit.addOrder(BuggerOffOrder(footprintRect));
                     }
-                    unit.cobEnvironment->createThread("StopBuilding");
-                    scene->deactivateUnit(unitId);
-                    unit.factoryState = FactoryStateIdle();
-                    return true;
-                }
-
-                if (targetUnit.unitType != unitType)
-                {
-                    scene->quietlyKillUnit(*state.targetUnit);
                     unit.cobEnvironment->createThread("StopBuilding");
                     scene->deactivateUnit(unitId);
                     unit.factoryState = FactoryStateIdle();
