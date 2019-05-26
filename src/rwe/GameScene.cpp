@@ -1132,9 +1132,9 @@ namespace rwe
         {
             for (auto& player : simulation.players)
             {
-                player.metal = std::min(player.maxMetal, player.metal + player.metalProductionBuffer);
+                player.metal += player.metalProductionBuffer;
                 player.metalProductionBuffer = Metal(0);
-                player.energy = std::min(player.maxEnergy, player.energy + player.energyProductionBuffer);
+                player.energy += player.energyProductionBuffer;
                 player.energyProductionBuffer = Energy(0);
 
                 if (player.metal > Metal(0))
@@ -1164,6 +1164,16 @@ namespace rwe
 
                 player.previousDesiredEnergyConsumptionBuffer = player.desiredEnergyConsumptionBuffer;
                 player.desiredEnergyConsumptionBuffer = Energy(0);
+
+                if (player.metal > player.maxMetal)
+                {
+                    player.metal =  player.maxMetal;
+                }
+
+                if (player.energy > player.maxEnergy)
+                {
+                    player.energy = player.maxEnergy;
+                }
             }
 
             for (auto& entry : simulation.units)
