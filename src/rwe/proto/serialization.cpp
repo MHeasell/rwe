@@ -52,6 +52,11 @@ namespace rwe
             auto& pos = *out.mutable_position();
             serializeVector(o.position, pos);
         }
+
+        void operator()(const BuggerOffOrder&)
+        {
+            throw std::logic_error("Cannot serialize BuggerOffOrder");
+        }
     };
 
     class WriteUnitCommandVisitor

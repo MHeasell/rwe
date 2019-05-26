@@ -1,6 +1,7 @@
 #ifndef RWE_UNITORDER_H
 #define RWE_UNITORDER_H
 
+#include <rwe/DiscreteRect.h>
 #include <rwe/UnitId.h>
 #include <rwe/math/Vector3f.h>
 #include <variant>
@@ -29,7 +30,13 @@ namespace rwe
         BuildOrder(const std::string& unitType, const Vector3f& position) : unitType(unitType), position(position) {}
     };
 
-    using UnitOrder = std::variant<MoveOrder, AttackOrder, BuildOrder>;
+    struct BuggerOffOrder
+    {
+        DiscreteRect rect;
+        explicit BuggerOffOrder(const DiscreteRect& r) : rect(r) {}
+    };
+
+    using UnitOrder = std::variant<MoveOrder, AttackOrder, BuildOrder, BuggerOffOrder>;
 }
 
 #endif

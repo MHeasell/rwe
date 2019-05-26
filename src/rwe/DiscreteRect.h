@@ -58,6 +58,8 @@ namespace rwe
 
         DiscreteRect expand(unsigned int amount) const;
 
+        DiscreteRect expand(unsigned int dx, unsigned int dy) const;
+
         /**
          * Returns the intersection of this rectangle and the given rectangle.
          * If the two rectangles do not intersect, returns None.

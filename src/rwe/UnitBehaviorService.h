@@ -47,6 +47,9 @@ namespace rwe
         /** Returns true if the order has been completed. */
         bool handleBuildOrder(UnitId unitId, const BuildOrder& buildOrder);
 
+        /** Returns true if the order has been completed. */
+        bool handleBuggerOffOrder(UnitId unitId, const BuggerOffOrder& buggerOffOrder);
+
         bool handleBuild(UnitId unitId, const std::string& unitType);
 
         void clearBuild(UnitId unitId);

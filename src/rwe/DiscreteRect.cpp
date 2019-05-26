@@ -136,7 +136,12 @@ namespace rwe
 
     DiscreteRect DiscreteRect::expand(unsigned int amount) const
     {
-        return DiscreteRect(x - amount, y - amount, width + (2 * amount), height + (2 * amount));
+        return expand(amount, amount);
+    }
+
+    DiscreteRect DiscreteRect::expand(unsigned int dx, unsigned int dy) const
+    {
+        return DiscreteRect(x - dx, y - dy, width + (2 * dx), height + (2 * dy));
     }
 
     std::optional<DiscreteRect> DiscreteRect::intersection(const DiscreteRect& rhs) const

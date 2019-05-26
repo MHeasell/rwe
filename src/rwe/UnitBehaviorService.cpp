@@ -623,6 +623,9 @@ namespace rwe
             },
             [this, unitId](const BuildOrder& o) {
                 return handleBuildOrder(unitId, o);
+            },
+            [this, unitId](const BuggerOffOrder& o) {
+                return handleBuggerOffOrder(unitId, o);
             });
     }
 
@@ -879,6 +882,47 @@ namespace rwe
         return false;
     }
 
+    bool UnitBehaviorService::handleBuggerOffOrder(UnitId unitId, const BuggerOffOrder& buggerOffOrder)
+    {
+        auto& unit = scene->getSimulation().getUnit(unitId);
+        if (auto idleState = std::get_if<IdleState>(&unit.behaviourState); idleState != nullptr)
+        {
+            // request a path to get to the build site
+            auto destRect = buggerOffOrder.rect.expand((unit.footprintX * 3) - 4, (unit.footprintZ * 3) - 4);
+            scene->getSimulation().requestPath(unitId);
+            unit.behaviourState = MovingState{destRect, std::nullopt, true};
+        }
+        else if (auto movingState = std::get_if<MovingState>(&unit.behaviourState); movingState != nullptr)
+        {
+            // if we are colliding, request a new path
+            if (unit.inCollision && !movingState->pathRequested)
+            {
+                auto& sim = scene->getSimulation();
+
+                // only request a new path if we don't have one yet,
+                // or we've already had our current one for a bit
+                if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTime(60))
+                {
+                    sim.requestPath(unitId);
+                    movingState->pathRequested = true;
+                }
+            }
+
+            // if a path is available, attempt to follow it
+            auto& pathToFollow = movingState->path;
+            if (pathToFollow)
+            {
+                if (followPath(unit, *pathToFollow))
+                {
+                    unit.behaviourState = IdleState();
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     bool UnitBehaviorService::handleBuild(UnitId unitId, const std::string& unitType)
     {
         auto& unit = scene->getSimulation().getUnit(unitId);
@@ -922,6 +966,11 @@ namespace rwe
 
                 if (!targetUnit.isBeingBuilt())
                 {
+                    if (targetUnit.orders.empty())
+                    {
+                        auto footprintRect = scene->computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+                        targetUnit.addOrder(BuggerOffOrder(footprintRect));
+                    }
                     unit.cobEnvironment->createThread("StopBuilding");
                     scene->deactivateUnit(unitId);
                     unit.factoryState = FactoryStateIdle();
