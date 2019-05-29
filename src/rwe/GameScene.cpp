@@ -2038,7 +2038,7 @@ namespace rwe
                 guiInfo.currentBuildPage = (guiInfo.currentBuildPage + 1) % pages;
 
                 auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);
-                setNextPanel(uiFactory.panelFromGuiFile(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition));
+                setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
             }
         }
         else if (matchesWithSidePrefix("PREV", message))
@@ -2057,7 +2057,7 @@ namespace rwe
                 guiInfo.currentBuildPage = guiInfo.currentBuildPage == 0 ? pages - 1 : guiInfo.currentBuildPage - 1;
 
                 auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);
-                setNextPanel(uiFactory.panelFromGuiFile(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition));
+                setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
             }
         }
         else if (matchesWithSidePrefix("BUILD", message))
@@ -2074,7 +2074,7 @@ namespace rwe
                 guiInfo.section = UnitGuiInfo::Section::Build;
 
                 auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);
-                setNextPanel(uiFactory.panelFromGuiFile(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition));
+                setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
             }
         }
         else if (matchesWithSidePrefix("ORDERS", message))
@@ -2145,17 +2145,7 @@ namespace rwe
         auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);
         if (guiInfo.section == UnitGuiInfo::Section::Build && buildPanelDefinition)
         {
-            auto panel = uiFactory.panelFromGuiFile(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition);
-            auto totals = unit.getBuildQueueTotals();
-            for (const auto& e : totals)
-            {
-                auto button = panel->find<UiStagedButton>(e.first);
-                if (button)
-                {
-                    button->get().setLabel("+" + std::to_string(e.second));
-                }
-            }
-            setNextPanel(std::move(panel));
+            setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
         }
         else
         {
@@ -2252,5 +2242,20 @@ namespace rwe
         }
 
         return it2->second;
+    }
+
+    std::unique_ptr<UiPanel> GameScene::createBuildPanel(const std::string& guiName, const std::vector<GuiEntry>& buildPanelDefinition, const std::unordered_map<std::string, int>& totals)
+    {
+        auto panel = uiFactory.panelFromGuiFile(guiName, buildPanelDefinition);
+        for (const auto& e : totals)
+        {
+            auto button = panel->find<UiStagedButton>(e.first);
+            if (button)
+            {
+                button->get().setLabel("+" + std::to_string(e.second));
+            }
+        }
+
+        return panel;
     }
 }

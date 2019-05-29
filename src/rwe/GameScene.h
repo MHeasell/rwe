@@ -508,6 +508,8 @@ namespace rwe
 
         int getUnconfirmedBuildQueueCount(UnitId unitId, const std::string& unitType) const;
 
+        std::unique_ptr<UiPanel> createBuildPanel(const std::string& guiname, const std::vector<GuiEntry>& panelDefinition, const std::unordered_map<std::string, int>& totals);
+
         template <typename T>
         std::optional<std::reference_wrapper<T>> findWithSidePrefix(UiPanel& p, const std::string& name)
         {
