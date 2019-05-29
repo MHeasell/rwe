@@ -139,6 +139,11 @@ namespace rwe
     std::pair<float, float> UnitBehaviorService::computeHeadingAndPitch(float rotation, const Vector3f& from, const Vector3f& to)
     {
         auto aimVector = to - from;
+        if (aimVector.lengthSquared() == 0.0f)
+        {
+            aimVector = Unit::toDirection(rotation);
+        }
+
         Vector3f aimVectorXZ(aimVector.x, 0.0f, aimVector.z);
 
         auto heading = Unit::toRotation(aimVectorXZ);
