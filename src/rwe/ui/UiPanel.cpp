@@ -201,21 +201,12 @@ namespace rwe
 
     void UiPanel::removeChildrenWithPrefix(const std::string& prefix)
     {
-        auto it = children.rbegin();
-        auto end = children.rend();
-
-        for (; it != end; ++it)
-        {
-            if (startsWith((*it)->getName(), prefix))
-            {
-                if (focusedChild && focusedChild == it->get())
-                {
-                    focusedChild = std::nullopt;
-                }
-
-                children.erase(--(it.base()));
-            }
-        }
+        children.erase(
+            std::remove_if(
+                children.begin(),
+                children.end(),
+                [&prefix](const auto& e) { return startsWith(e->getName(), prefix); }),
+            children.end());
     }
 
     void UiPanel::setFocusByName(const std::string& name)
