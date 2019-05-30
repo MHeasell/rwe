@@ -81,7 +81,7 @@ If the script completes successfully you should have a `libs/_msvc` folder conta
 Now open Visual Studio 2017, go to `File > Open > CMake...`
 and select the `CMakeLists.txt` in the `rwe` folder.
 Choose `x64-Debug` in the build configuration dropdown.
-Finally, go to `CMake > Debug from Install Folder > rwe.exe`
+Finally, go to `CMake > Debug from Build Folder > rwe.exe`
 to build and launch RWE.
 
 ### Windows with MSYS2
