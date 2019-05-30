@@ -579,8 +579,13 @@ target_link_libraries(librwe ${Protobuf_LIBRARIES})
 target_include_directories(librwe PUBLIC ${Protobuf_INCLUDE_DIRS})
 target_include_directories(librwe PUBLIC ${CMAKE_CURRENT_BINARY_DIR}) # for generated headers
 
+add_custom_target(rwe_shaders)
+add_custom_command(TARGET rwe_shaders PRE_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/shaders" "${PROJECT_BINARY_DIR}/shaders")
+
 add_executable(rwe src/main.cpp)
 target_link_libraries(rwe librwe)
+add_dependencies(rwe rwe_shaders)
 
 add_executable(hpi_test src/hpi_test.cpp)
 target_link_libraries(hpi_test librwe)
