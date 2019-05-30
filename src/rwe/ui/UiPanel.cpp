@@ -211,7 +211,6 @@ namespace rwe
 
     void UiPanel::setFocusByName(const std::string& name)
     {
-        const auto& children = getChildren();
         auto it = std::find_if(children.begin(), children.end(), [&name](const auto& c) { return c->getName() == name; });
         if (it != children.end())
         {
