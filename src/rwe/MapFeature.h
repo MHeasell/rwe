@@ -19,6 +19,8 @@ namespace rwe
         int footprintZ;
         float height;
         bool isBlocking;
+        bool isIndestructible;
+        unsigned int metal;
 
         bool isStanding() const;
     };

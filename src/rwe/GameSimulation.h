@@ -92,6 +92,8 @@ namespace rwe
 
         OccupiedGrid occupiedGrid;
 
+        Grid<unsigned char> metalGrid;
+
         std::vector<GamePlayerInfo> players;
 
         std::unordered_map<FeatureId, MapFeature> features;
@@ -110,7 +112,7 @@ namespace rwe
 
         GameTime gameTime{0};
 
-        explicit GameSimulation(MapTerrain&& terrain);
+        explicit GameSimulation(MapTerrain&& terrain, unsigned char surfaceMetal);
 
         FeatureId addFeature(MapFeature&& newFeature);
 

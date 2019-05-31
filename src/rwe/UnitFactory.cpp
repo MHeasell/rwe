@@ -144,6 +144,8 @@ namespace rwe
         unit.metalMake = fbi.metalMake;
         unit.metalUse = fbi.metalUse - fbi.makesMetal;
 
+        unit.extractsMetal = fbi.extractsMetal;
+
         unit.hideDamage = fbi.hideDamage;
         unit.showPlayerName = fbi.showPlayerName;
 

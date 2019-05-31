@@ -303,7 +303,9 @@ namespace rwe
             std::move(heightGrid),
             tnt.getHeader().seaLevel);
 
-        GameSimulation simulation(std::move(terrain));
+        const auto& schema = ota.schemas.at(schemaIndex);
+
+        GameSimulation simulation(std::move(terrain), schema.surfaceMetal);
 
         auto featureTemplates = getFeatures(tnt);
 
@@ -326,8 +328,6 @@ namespace rwe
                 }
             }
         }
-
-        const auto& schema = ota.schemas.at(schemaIndex);
 
         // add features from the OTA schema
         for (const auto& f : schema.features)
@@ -439,6 +439,8 @@ namespace rwe
         f.footprintZ = definition.footprintZ;
         f.height = definition.height;
         f.isBlocking = definition.blocking;
+        f.isIndestructible = definition.indestructible;
+        f.metal = definition.metal;
         f.position = pos;
         f.transparentAnimation = definition.animTrans;
         f.transparentShadow = definition.shadTrans;

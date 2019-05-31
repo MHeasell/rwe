@@ -59,6 +59,7 @@ namespace rwe
         Metal metalUse;
 
         Metal makesMetal;
+        Metal extractsMetal;
 
         bool hideDamage;
         bool showPlayerName;

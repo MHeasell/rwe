@@ -233,6 +233,8 @@ namespace rwe
         std::deque<std::pair<std::string, int>> buildQueue;
         FactoryState factoryState;
 
+        Metal extractsMetal;
+
         static float toRotation(const Vector3f& direction);
 
         static Vector3f toDirection(float rotation);

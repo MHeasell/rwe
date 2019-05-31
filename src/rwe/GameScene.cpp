@@ -1,5 +1,6 @@
 #include "GameScene.h"
 #include <boost/range/adaptor/map.hpp>
+#include <functional>
 #include <rwe/Mesh.h>
 #include <rwe/overloaded.h>
 #include <rwe/resource_io.h>
@@ -1190,6 +1191,17 @@ namespace rwe
 
                 if (unit.activated)
                 {
+                    if (unit.isSufficientlyPowered)
+                    {
+                        // extract metal
+                        if (unit.extractsMetal != Metal(0))
+                        {
+                            auto footprint = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+                            auto metalValue = simulation.metalGrid.accumulateArea(simulation.metalGrid.clipRegion(footprint), 0u, std::plus<>());
+                            simulation.addResourceDelta(unitId, Energy(0), Metal(metalValue * unit.extractsMetal.value));
+                        }
+                    }
+
                     unit.isSufficientlyPowered = simulation.addResourceDelta(unitId, -unit.energyUse, -unit.metalUse);
                 }
             }

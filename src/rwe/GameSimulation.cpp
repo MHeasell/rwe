@@ -73,9 +73,10 @@ namespace rwe
         return !(rhs == *this);
     }
 
-    GameSimulation::GameSimulation(MapTerrain&& terrain)
+    GameSimulation::GameSimulation(MapTerrain&& terrain, unsigned char surfaceMetal)
         : terrain(std::move(terrain)),
-          occupiedGrid(this->terrain.getHeightMap().getWidth(), this->terrain.getHeightMap().getHeight(), OccupiedCell())
+          occupiedGrid(this->terrain.getHeightMap().getWidth(), this->terrain.getHeightMap().getHeight(), OccupiedCell()),
+          metalGrid(this->terrain.getHeightMap().getWidth(), this->terrain.getHeightMap().getHeight(), surfaceMetal)
     {
     }
 
@@ -91,6 +92,12 @@ namespace rwe
         {
             auto footprintRegion = computeFootprintRegion(f.position, f.footprintX, f.footprintZ);
             occupiedGrid.forInArea(occupiedGrid.clipRegion(footprintRegion), [featureId](auto& cell) { cell.occupiedType = OccupiedFeature(featureId); });
+        }
+
+        if (!f.isBlocking && f.isIndestructible && f.metal)
+        {
+            auto footprintRegion = computeFootprintRegion(f.position, f.footprintX, f.footprintZ);
+            metalGrid.setArea(metalGrid.clipRegion(footprintRegion), f.metal);
         }
 
         return featureId;

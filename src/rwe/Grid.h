@@ -84,6 +84,9 @@ namespace rwe
         template <typename U, typename BinaryFunc>
         bool anyInArea2(unsigned int x, unsigned int y, const Grid<U>& g, BinaryFunc f) const;
 
+        template <typename U, typename BinaryFunc>
+        U accumulateArea(const GridRegion& region, U initialValue, BinaryFunc f) const;
+
         /**
          * Returns true if the given rect is completely contained by the grid.
          */
@@ -341,6 +344,24 @@ namespace rwe
         }
 
         return false;
+    }
+
+    template <typename T>
+    template <typename U, typename BinaryFunc>
+    U Grid<T>::accumulateArea(const GridRegion& region, U initialValue, BinaryFunc f) const
+    {
+        assert(region.x + region.width <= this->width);
+        assert(region.y + region.height <= this->height);
+
+        for (std::size_t dy = 0; dy < region.height; ++dy)
+        {
+            for (std::size_t dx = 0; dx < region.width; ++dx)
+            {
+                initialValue = f(initialValue, get(region.x + dx, region.y + dy));
+            }
+        }
+
+        return initialValue;
     }
 
     template <typename T>
