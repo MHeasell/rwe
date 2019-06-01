@@ -961,16 +961,24 @@ namespace rwe
 
     std::optional<UnitId> GameScene::spawnUnit(const std::string& unitType, PlayerId owner, const Vector3f& position)
     {
-        auto unit = unitFactory.createUnit(unitType, owner, simulation.getPlayer(owner).color, position);
-
         // TODO: if we failed to add the unit throw some warning
-        auto unitId = simulation.tryAddUnit(std::move(unit));
+        auto unitId = simulation.tryAddUnit(
+            unitFactory.createUnit(unitType, owner, simulation.getPlayer(owner).color, position));
 
         if (unitId)
         {
-            const auto& insertedUnit = getUnit(*unitId);
+            const auto& unit = getUnit(*unitId);
+
+            // set speed for metal extractors
+            if (unit.extractsMetal != Metal(0))
+            {
+                auto footprint = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+                auto metalValue = simulation.metalGrid.accumulateArea(simulation.metalGrid.clipRegion(footprint), 0u, std::plus<>());
+                unit.cobEnvironment->createThread("SetSpeed", {static_cast<int>(metalValue)});
+            }
+
             // initialise local-player-specific UI data
-            unitGuiInfos.insert_or_assign(*unitId, UnitGuiInfo{insertedUnit.builder ? UnitGuiInfo::Section::Build : UnitGuiInfo::Section::Orders, 0});
+            unitGuiInfos.insert_or_assign(*unitId, UnitGuiInfo{unit.builder ? UnitGuiInfo::Section::Build : UnitGuiInfo::Section::Orders, 0});
         }
 
         return unitId;
