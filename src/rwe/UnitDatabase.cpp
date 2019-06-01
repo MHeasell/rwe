@@ -56,6 +56,19 @@ namespace rwe
         weaponMap.insert({toUpper(weaponName), std::move(weapon)});
     }
 
+    const SoundClass defaultSoundClass = SoundClass();
+
+    const SoundClass& UnitDatabase::getSoundClassOrDefault(const std::string& className) const
+    {
+        auto it = soundClassMap.find(className);
+        if (it == soundClassMap.end())
+        {
+            return defaultSoundClass;
+        }
+
+        return it->second;
+    }
+
     const SoundClass& UnitDatabase::getSoundClass(const std::string& className) const
     {
         auto it = soundClassMap.find(className);

@@ -45,6 +45,8 @@ namespace rwe
 
         void addWeapon(const std::string& name, WeaponTdf&& weapon);
 
+        const SoundClass& getSoundClassOrDefault(const std::string& className) const;
+
         const SoundClass& getSoundClass(const std::string& className) const;
 
         void addSoundClass(const std::string& className, SoundClass&& soundClass);

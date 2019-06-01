@@ -78,7 +78,7 @@ namespace rwe
         const Vector3f& position)
     {
         const auto& fbi = unitDatabase.getUnitInfo(unitType);
-        const auto& soundClass = unitDatabase.getSoundClass(fbi.soundCategory);
+        const auto& soundClass = unitDatabase.getSoundClassOrDefault(fbi.soundCategory);
         std::optional<std::reference_wrapper<const MovementClass>> movementClassOption;
         if (!fbi.movementClass.empty())
         {
