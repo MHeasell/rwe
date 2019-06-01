@@ -269,7 +269,8 @@ namespace rwe
         return m;
     }
 
-    Vector3f Matrix4f::mult3x3(const Vector3f& v) const{
+    Vector3f Matrix4f::mult3x3(const Vector3f& v) const
+    {
         Vector3f r;
 
         // clang-format off

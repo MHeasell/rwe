@@ -1,8 +1,8 @@
 #ifndef RWE_UNIT_UTIL_H
 #define RWE_UNIT_UTIL_H
 
-#include <string>
 #include <deque>
+#include <string>
 #include <unordered_map>
 
 namespace rwe

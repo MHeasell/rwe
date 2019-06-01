@@ -1176,7 +1176,7 @@ namespace rwe
 
                 if (player.metal > player.maxMetal)
                 {
-                    player.metal =  player.maxMetal;
+                    player.metal = player.maxMetal;
                 }
 
                 if (player.energy > player.maxEnergy)
@@ -1795,7 +1795,7 @@ namespace rwe
                 if (unit.isMobile)
                 {
                     simulation.occupiedGrid.forInArea(*footprintRegion, [](auto& cell) {
-                      cell.occupiedType = OccupiedNone();
+                        cell.occupiedType = OccupiedNone();
                     });
                 }
                 else

@@ -213,44 +213,44 @@ namespace rwe
         }
 
         return occupiedGrid.anyInArea(*region, [&](const auto& cell) {
-          auto inCollision = match(
-              cell.occupiedType,
-              [&](const OccupiedNone&) { return false; },
-              [&](const OccupiedUnit& u) { return u.id != self; },
-              [&](const OccupiedFeature&) { return true; });
-          if (inCollision)
-          {
-              return true;
-          }
+            auto inCollision = match(
+                cell.occupiedType,
+                [&](const OccupiedNone&) { return false; },
+                [&](const OccupiedUnit& u) { return u.id != self; },
+                [&](const OccupiedFeature&) { return true; });
+            if (inCollision)
+            {
+                return true;
+            }
 
-          if (cell.buildingCell && cell.buildingCell->unit != self && !cell.buildingCell->passable)
-          {
-              return true;
-          }
+            if (cell.buildingCell && cell.buildingCell->unit != self && !cell.buildingCell->passable)
+            {
+                return true;
+            }
 
-          return false;
+            return false;
         });
     }
 
     bool GameSimulation::isYardmapBlocked(unsigned int x, unsigned int y, const Grid<YardMapCell>& yardMap, bool open) const
     {
         return occupiedGrid.anyInArea2(x, y, yardMap, [&](const auto& cell, const auto& yardMapCell) {
-          if (isPassable(yardMapCell, open))
-          {
-              return false;
-          }
+            if (isPassable(yardMapCell, open))
+            {
+                return false;
+            }
 
-          auto inCollision = match(
-              cell.occupiedType,
-              [&](const OccupiedNone&) { return false; },
-              [&](const OccupiedUnit&) { return true; },
-              [&](const OccupiedFeature&) { return true; });
-          if (inCollision)
-          {
-              return true;
-          }
+            auto inCollision = match(
+                cell.occupiedType,
+                [&](const OccupiedNone&) { return false; },
+                [&](const OccupiedUnit&) { return true; },
+                [&](const OccupiedFeature&) { return true; });
+            if (inCollision)
+            {
+                return true;
+            }
 
-          return false;
+            return false;
         });
     }
 

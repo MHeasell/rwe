@@ -32,22 +32,38 @@ namespace rwe
     {
         switch (c)
         {
-            case 'c': return YardMapCell::GroundGeoPassableWhenOpen;
-            case 'C': return YardMapCell::WaterPassableWhenOpen;
-            case 'f': return YardMapCell::GroundNoFeature;
-            case 'g': return YardMapCell::GroundGeoPassableWhenOpen;
-            case 'G': return YardMapCell::Geo;
-            case 'o': return YardMapCell::Ground;
-            case 'O': return YardMapCell::GroundPassableWhenClosed;
-            case 'w': return YardMapCell::Water;
-            case 'y': return YardMapCell::GroundPassable;
-            case 'Y': return YardMapCell::WaterPassable;
-            case '.': return YardMapCell::Passable;
-            case ' ': return std::nullopt;
-            case '\r': return std::nullopt;
-            case '\n': return std::nullopt;
-            case '\t': return std::nullopt;
-            default: return YardMapCell::Ground;
+            case 'c':
+                return YardMapCell::GroundGeoPassableWhenOpen;
+            case 'C':
+                return YardMapCell::WaterPassableWhenOpen;
+            case 'f':
+                return YardMapCell::GroundNoFeature;
+            case 'g':
+                return YardMapCell::GroundGeoPassableWhenOpen;
+            case 'G':
+                return YardMapCell::Geo;
+            case 'o':
+                return YardMapCell::Ground;
+            case 'O':
+                return YardMapCell::GroundPassableWhenClosed;
+            case 'w':
+                return YardMapCell::Water;
+            case 'y':
+                return YardMapCell::GroundPassable;
+            case 'Y':
+                return YardMapCell::WaterPassable;
+            case '.':
+                return YardMapCell::Passable;
+            case ' ':
+                return std::nullopt;
+            case '\r':
+                return std::nullopt;
+            case '\n':
+                return std::nullopt;
+            case '\t':
+                return std::nullopt;
+            default:
+                return YardMapCell::Ground;
         }
     }
     std::vector<YardMapCell> parseYardMapCells(const std::string& yardMap)
