@@ -243,8 +243,6 @@ set(SOURCE_FILES
     src/rwe/GraphicsContext.cpp
     src/rwe/GraphicsContext.h
     src/rwe/Grid.h
-    src/rwe/GridRegion.cpp
-    src/rwe/GridRegion.h
     src/rwe/Hpi.cpp
     src/rwe/Hpi.h
     src/rwe/InGameSoundsInfo.cpp

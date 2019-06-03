@@ -5,7 +5,6 @@
 #include <functional>
 #include <optional>
 #include <rwe/DiscreteRect.h>
-#include <rwe/GridRegion.h>
 #include <stdexcept>
 #include <vector>
 
@@ -29,6 +28,18 @@ namespace rwe
         {
             return !(rhs == *this);
         }
+    };
+
+    struct GridRegion
+    {
+        unsigned int x;
+        unsigned int y;
+        unsigned int width;
+        unsigned int height;
+
+        GridRegion() = default;
+        GridRegion(unsigned int x, unsigned int y, unsigned int width, unsigned int height)
+            : x(x), y(y), width(width), height(height) {}
     };
 
     template <typename T>
@@ -248,9 +259,9 @@ namespace rwe
         bool contains(const DiscreteRect& rect) const
         {
             return rect.x >= 0
-                   && rect.y >= 0
-                   && static_cast<unsigned int>(rect.x) + rect.width <= width
-                   && static_cast<unsigned int>(rect.y) + rect.height <= height;
+                && rect.y >= 0
+                && static_cast<unsigned int>(rect.x) + rect.width <= width
+                && static_cast<unsigned int>(rect.y) + rect.height <= height;
         }
 
         /**
