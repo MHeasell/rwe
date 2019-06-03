@@ -135,6 +135,8 @@ namespace rwe
 
         bool isCollisionAt(const DiscreteRect& rect) const;
 
+        bool isCollisionAt(const GridRegion& region) const;
+
         bool isCollisionAt(const DiscreteRect& rect, UnitId self) const;
 
         bool isYardmapBlocked(unsigned int x, unsigned int y, const Grid<YardMapCell>& yardMap, bool open) const;

@@ -32,14 +32,69 @@ namespace rwe
 
     struct GridRegion
     {
-        unsigned int x;
-        unsigned int y;
-        unsigned int width;
-        unsigned int height;
+        static GridRegion fromCoordinates(GridCoordinates p1, GridCoordinates p2)
+        {
+            auto x = std::minmax(p1.x, p2.x);
+            auto y = std::minmax(p1.y, p2.y);
+            return GridRegion(x.first, y.first, x.second - x.first + 1, y.second - y.first + 1);
+        }
+
+        std::size_t x;
+        std::size_t y;
+        std::size_t width;
+        std::size_t height;
 
         GridRegion() = default;
         GridRegion(unsigned int x, unsigned int y, unsigned int width, unsigned int height)
             : x(x), y(y), width(width), height(height) {}
+
+        template <typename Func>
+        void forEach(Func f) const
+        {
+            for (std::size_t dy = 0; dy < height; ++dy)
+            {
+                for (std::size_t dx = 0; dx < width; ++dx)
+                {
+                    f(GridCoordinates(x + dx, y + dy));
+                }
+            }
+        }
+
+        template <typename Func>
+        void forEach(Func f)
+        {
+            for (std::size_t dy = 0; dy < height; ++dy)
+            {
+                for (std::size_t dx = 0; dx < width; ++dx)
+                {
+                    f(GridCoordinates(x + dx, y + dy));
+                }
+            }
+        }
+
+        template <typename Func>
+        bool any(Func f) const
+        {
+            for (std::size_t dy = 0; dy < height; ++dy)
+            {
+                for (std::size_t dx = 0; dx < width; ++dx)
+                {
+                    if (f(GridCoordinates(x + dx, y + dy)))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        template <typename U, typename BinaryFunc>
+        U accumulate(U initialValue, BinaryFunc f) const
+        {
+            forEach([&](const auto& c) { initialValue = f(initialValue, c); });
+            return initialValue;
+        }
     };
 
     template <typename T>
@@ -75,6 +130,16 @@ namespace rwe
             return data[toIndex(x, y)];
         }
 
+        T& get(const GridCoordinates& coords)
+        {
+            return data[toIndex(coords)];
+        }
+
+        const T& get(const GridCoordinates& coords) const
+        {
+            return data[toIndex(coords)];
+        }
+
         void set(std::size_t x, std::size_t y, const T& value)
         {
             data[toIndex(x, y)] = value;
@@ -83,6 +148,23 @@ namespace rwe
         void set(std::size_t x, std::size_t y, T&& value)
         {
             data[toIndex(x, y)] = std::move(value);
+        }
+
+        void set(const GridCoordinates& coords, const T& value)
+        {
+            data[toIndex(coords)] = value;
+        }
+
+        void set(const GridCoordinates& coords, T&& value)
+        {
+            data[toIndex(coords)] = std::move(value);
+        }
+
+        void set(const GridRegion& region, const T& value)
+        {
+            assert(region.x + region.width <= width);
+            assert(region.y + region.height <= height);
+            region.forEach([&](const auto& c) { set(c, value); });
         }
 
         bool operator==(const Grid& rhs) const
@@ -99,6 +181,12 @@ namespace rwe
         {
             assert(x < width && y < height);
             return (y * width) + x;
+        }
+
+        std::size_t toIndex(const GridCoordinates& coords) const
+        {
+            assert(coords.x < width && coords.y < height);
+            return (coords.y * width) + coords.x;
         }
 
         std::size_t getWidth() const
@@ -131,7 +219,12 @@ namespace rwe
             return data;
         }
 
-        void replaceArea(std::size_t x, std::size_t y, const Grid<T>& replacement)
+        GridRegion getRegion() const
+        {
+            return GridRegion(0, 0, width, height);
+        }
+
+        void replace(std::size_t x, std::size_t y, const Grid<T>& replacement)
         {
             if (x + replacement.getWidth() > getWidth() || y + replacement.getHeight() > getHeight())
             {
@@ -147,110 +240,64 @@ namespace rwe
             }
         }
 
-        void setArea(std::size_t x, std::size_t y, std::size_t width, std::size_t height, const T& value)
+        template <typename Func>
+        bool any(const GridRegion& region, Func f) const
         {
-            assert(x + width <= this->width);
-            assert(y + height <= this->height);
-
-            for (std::size_t dy = 0; dy < height; ++dy)
-            {
-                for (std::size_t dx = 0; dx < width; ++dx)
-                {
-                    set(x + dx, y + dy, value);
-                }
-            }
-        }
-
-        void setArea(const GridRegion& region, const T& value)
-        {
-            setArea(region.x, region.y, region.width, region.height, value);
+            assert(region.x + region.width <= width);
+            assert(region.y + region.height <= height);
+            return region.any([&](const auto& c) { return f(get(c)); });
         }
 
         template <typename Func>
-        bool anyInArea(const GridRegion& region, Func f) const
+        bool anyIndexed(Func f) const
         {
-            assert(region.x + region.width <= this->width);
-            assert(region.y + region.height <= this->height);
+            return getRegion().any([&](const auto& c) { return f(c, get(c)); });
+        }
 
-            for (std::size_t dy = 0; dy < region.height; ++dy)
-            {
-                for (std::size_t dx = 0; dx < region.width; ++dx)
-                {
-                    if (f(get(region.x + dx, region.y + dy)))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
+        template <typename U, typename BinaryFunc>
+        bool any2(unsigned int x, unsigned int y, const Grid<U>& g, BinaryFunc f) const
+        {
+            assert(x + g.getWidth() <= this->width);
+            assert(y + g.getHeight() <= this->height);
+            return g.anyIndexed([&](const auto& c, const auto& v) { return f(get(GridCoordinates(x + c.x, y + c.y)), v); });
         }
 
         template <typename Func>
-        void forInArea(const GridRegion& region, Func f)
+        void forEach(const GridRegion& region, Func f)
         {
-            assert(region.x + region.width <= this->width);
-            assert(region.y + region.height <= this->height);
-
-            for (std::size_t dy = 0; dy < region.height; ++dy)
-            {
-                for (std::size_t dx = 0; dx < region.width; ++dx)
-                {
-                    f(get(region.x + dx, region.y + dy));
-                }
-            }
+            assert(region.x + region.width <= width);
+            assert(region.y + region.height <= height);
+            region.forEach([&](const auto& c) { f(get(c)); });
         }
 
         template <typename U, typename BinaryFunc>
-        void mergeIn(unsigned int x, unsigned int y, const Grid<U>& g, BinaryFunc f)
+        void forEach2(unsigned int x, unsigned int y, const Grid<U>& g, BinaryFunc f)
         {
             assert(x + g.getWidth() <= this->width);
             assert(y + g.getHeight() <= this->height);
-
-            for (std::size_t dy = 0; dy < g.getHeight(); ++dy)
-            {
-                for (std::size_t dx = 0; dx < g.getWidth(); ++dx)
-                {
-                    f(get(x + dx, y + dy), g.get(dx, dy));
-                }
-            }
+            g.forEachIndexed([&](const auto& c, const auto& v) { f(get(GridCoordinates(x + c.x, y + c.y)), v); });
         }
 
-        template <typename U, typename BinaryFunc>
-        bool anyInArea2(unsigned int x, unsigned int y, const Grid<U>& g, BinaryFunc f) const
+        template <typename Func>
+        void forEachIndexed(Func f) const
         {
-            assert(x + g.getWidth() <= this->width);
-            assert(y + g.getHeight() <= this->height);
+            getRegion().forEach([&](const auto& c) { f(c, get(c)); });
+        }
 
-            for (std::size_t dy = 0; dy < g.getHeight(); ++dy)
-            {
-                for (std::size_t dx = 0; dx < g.getWidth(); ++dx)
-                {
-                    if (f(get(x + dx, y + dy), g.get(dx, dy)))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
+        template <typename Func>
+        void forEachIndexed(Func f)
+        {
+            getRegion().forEach([&](const auto& c) { f(c, get(c)); });
         }
 
         template <typename U, typename BinaryFunc>
-        U accumulateArea(const GridRegion& region, U initialValue, BinaryFunc f) const
+        U accumulate(const GridRegion& region, U initialValue, BinaryFunc f) const
         {
             assert(region.x + region.width <= this->width);
             assert(region.y + region.height <= this->height);
-
-            for (std::size_t dy = 0; dy < region.height; ++dy)
-            {
-                for (std::size_t dx = 0; dx < region.width; ++dx)
-                {
-                    initialValue = f(initialValue, get(region.x + dx, region.y + dy));
-                }
-            }
-
-            return initialValue;
+            return region.accumulate(
+                initialValue,
+                [&](const auto& v, const auto& c) { return f(v, get(c)); });
         }
 
         /**
@@ -327,21 +374,15 @@ namespace rwe
             return get(x1, y1);
         }
 
-        template <typename U>
-        void transformAndReplaceArea(std::size_t x, std::size_t y, const Grid<U>& replacement, const std::function<T(const U&)>& transformation)
+        template <typename U, typename Func>
+        void transformAndReplace(std::size_t x, std::size_t y, const Grid<U>& replacement, Func f)
         {
             if (x + replacement.getWidth() > getWidth() || y + replacement.getHeight() > getHeight())
             {
                 throw std::logic_error("replacement goes out of bounds");
             }
 
-            for (std::size_t dy = 0; dy < replacement.getHeight(); ++dy)
-            {
-                for (std::size_t dx = 0; dx < replacement.getWidth(); ++dx)
-                {
-                    set(x + dx, y + dy, transformation(replacement.get(dx, dy)));
-                }
-            }
+            replacement.forEachIndexed([&](const auto& c, const auto& v) { set(x + c.x, y + c.y, f(v)); });
         }
 
         /**

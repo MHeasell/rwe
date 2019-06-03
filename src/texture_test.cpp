@@ -153,7 +153,7 @@ namespace rwe
 
             atlasMap.insert({id, bounds});
 
-            atlas.transformAndReplaceArea<char>(e.x, e.y, e.value->data, [palette](char v) {
+            atlas.transformAndReplace<char>(e.x, e.y, e.value->data, [palette](char v) {
                 return (*palette)[static_cast<unsigned char>(v)];
             });
         }

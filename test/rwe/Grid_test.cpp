@@ -1,6 +1,6 @@
 #include <catch.hpp>
-#include <rwe/Grid.h>
 #include <optional>
+#include <rwe/Grid.h>
 
 namespace rwe
 {
@@ -66,14 +66,14 @@ namespace rwe
             }
         }
 
-        SECTION(".replaceArea")
+        SECTION(".replace")
         {
             SECTION("Copies the given grid into this one")
             {
                 Grid<int> g(3, 4, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12});
                 Grid<int> g2(2, 3, {60, 61, 62, 63, 64, 65});
 
-                g.replaceArea(1, 0, g2);
+                g.replace(1, 0, g2);
 
                 REQUIRE(g.get(0, 0) == 1);
                 REQUIRE(g.get(1, 0) == 60);
@@ -93,24 +93,24 @@ namespace rwe
             {
                 Grid<int> g(3, 4);
                 Grid<int> g2(2, 1);
-                REQUIRE_THROWS(g.replaceArea(2, 0, g2));
+                REQUIRE_THROWS(g.replace(2, 0, g2));
             }
 
             SECTION("Throws if the new grid goes over max y")
             {
                 Grid<int> g(3, 4);
                 Grid<int> g2(1, 3);
-                REQUIRE_THROWS(g.replaceArea(0, 2, g2));
+                REQUIRE_THROWS(g.replace(0, 2, g2));
             }
         }
-        SECTION(".transformAndReplaceArea")
+        SECTION(".transformAndReplace")
         {
             SECTION("Works with a transformation function")
             {
                 Grid<int> g(3, 4, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12});
                 Grid<std::string> g2(2, 3, {"60", "61", "62", "63", "64", "65"});
 
-                g.transformAndReplaceArea<std::string>(1, 0, g2, [](const std::string& x) { return std::stoi(x); });
+                g.transformAndReplace<std::string>(1, 0, g2, [](const std::string& x) { return std::stoi(x); });
 
                 REQUIRE(g.get(0, 0) == 1);
                 REQUIRE(g.get(1, 0) == 60);
@@ -130,24 +130,24 @@ namespace rwe
             {
                 Grid<int> g(3, 4);
                 Grid<int> g2(2, 1);
-                REQUIRE_THROWS(g.transformAndReplaceArea<int>(2, 0, g2, [](int i) { return i; }));
+                REQUIRE_THROWS(g.transformAndReplace<int>(2, 0, g2, [](int i) { return i; }));
             }
 
             SECTION("Throws if the new grid goes over max y")
             {
                 Grid<int> g(3, 4);
                 Grid<int> g2(1, 3);
-                REQUIRE_THROWS(g.transformAndReplaceArea<int>(0, 2, g2, [](int i) { return i; }));
+                REQUIRE_THROWS(g.transformAndReplace<int>(0, 2, g2, [](int i) { return i; }));
             }
         }
 
-        SECTION(".setArea")
+        SECTION(".set")
         {
             SECTION("Sets the given area to the given value")
             {
                 Grid<int> g(3, 4, 5);
 
-                g.setArea(0, 1, 3, 2, 8);
+                g.set(GridRegion(0, 1, 3, 2), 8);
 
                 REQUIRE(g.get(0, 0) == 5);
                 REQUIRE(g.get(1, 0) == 5);
@@ -200,14 +200,14 @@ namespace rwe
             {
                 Grid<int> g(3, 2);
                 REQUIRE(g.clampToCoords(Point(-1, 1)) == GridCoordinates(0, 1)); // left
-                REQUIRE(g.clampToCoords(Point(3, 1)) == GridCoordinates(2, 1)); // right
+                REQUIRE(g.clampToCoords(Point(3, 1)) == GridCoordinates(2, 1));  // right
                 REQUIRE(g.clampToCoords(Point(2, -1)) == GridCoordinates(2, 0)); // up
-                REQUIRE(g.clampToCoords(Point(2, 2)) == GridCoordinates(2, 1)); // down
+                REQUIRE(g.clampToCoords(Point(2, 2)) == GridCoordinates(2, 1));  // down
 
                 REQUIRE(g.clampToCoords(Point(-1, -1)) == GridCoordinates(0, 0)); // topleft
-                REQUIRE(g.clampToCoords(Point(3, -1)) == GridCoordinates(2, 0)); // topright
-                REQUIRE(g.clampToCoords(Point(-1, 2)) == GridCoordinates(0, 1)); // bottomleft
-                REQUIRE(g.clampToCoords(Point(3, 2)) == GridCoordinates(2, 1)); // bottomright
+                REQUIRE(g.clampToCoords(Point(3, -1)) == GridCoordinates(2, 0));  // topright
+                REQUIRE(g.clampToCoords(Point(-1, 2)) == GridCoordinates(0, 1));  // bottomleft
+                REQUIRE(g.clampToCoords(Point(3, 2)) == GridCoordinates(2, 1));   // bottomright
             }
         }
     }

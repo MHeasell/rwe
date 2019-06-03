@@ -973,7 +973,7 @@ namespace rwe
             if (unit.extractsMetal != Metal(0))
             {
                 auto footprint = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
-                auto metalValue = simulation.metalGrid.accumulateArea(simulation.metalGrid.clipRegion(footprint), 0u, std::plus<>());
+                auto metalValue = simulation.metalGrid.accumulate(simulation.metalGrid.clipRegion(footprint), 0u, std::plus<>());
                 unit.cobEnvironment->createThread("SetSpeed", {static_cast<int>(metalValue)});
             }
 
@@ -1205,7 +1205,7 @@ namespace rwe
                         if (unit.extractsMetal != Metal(0))
                         {
                             auto footprint = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
-                            auto metalValue = simulation.metalGrid.accumulateArea(simulation.metalGrid.clipRegion(footprint), 0u, std::plus<>());
+                            auto metalValue = simulation.metalGrid.accumulate(simulation.metalGrid.clipRegion(footprint), 0u, std::plus<>());
                             simulation.addResourceDelta(unitId, Energy(0), Metal(metalValue * unit.extractsMetal.value));
                         }
                     }
@@ -1635,67 +1635,65 @@ namespace rwe
 
         std::unordered_set<UnitId> seenUnits;
 
+        auto region = GridRegion::fromCoordinates(minCell, maxCell);
+
         // for each cell
-        for (std::size_t y = minCell.y; y <= maxCell.y; ++y)
-        {
-            for (std::size_t x = minCell.x; x <= maxCell.x; ++x)
+        region.forEach([&](const auto& coords) {
+            // check if it's in range
+            auto cellCenter = simulation.terrain.heightmapIndexToWorldCenter(coords.x, coords.y);
+            Rectangle2f cellRectangle(
+                Vector2f(cellCenter.x, cellCenter.z),
+                Vector2f(MapTerrain::HeightTileWidthInWorldUnits / 2.0f, MapTerrain::HeightTileHeightInWorldUnits / 2.0f));
+            auto cellDistanceSquared = cellRectangle.distanceSquared(Vector2f(position.x, position.z));
+            if (cellDistanceSquared > radiusSquared)
             {
-                // check if it's in range
-                auto cellCenter = simulation.terrain.heightmapIndexToWorldCenter(x, y);
-                Rectangle2f cellRectangle(
-                    Vector2f(cellCenter.x, cellCenter.z),
-                    Vector2f(MapTerrain::HeightTileWidthInWorldUnits / 2.0f, MapTerrain::HeightTileHeightInWorldUnits / 2.0f));
-                auto cellDistanceSquared = cellRectangle.distanceSquared(Vector2f(position.x, position.z));
-                if (cellDistanceSquared > radiusSquared)
-                {
-                    continue;
-                }
-
-                // check if a unit (or feature) is there
-                auto occupiedType = simulation.occupiedGrid.get(x, y);
-                auto u = match(
-                    occupiedType.occupiedType,
-                    [&](const OccupiedUnit& u) { return std::optional(u.id); },
-                    [&](const auto&) { return std::optional<UnitId>(); });
-                if (!u && occupiedType.buildingCell && !occupiedType.buildingCell->passable)
-                {
-                    u = occupiedType.buildingCell->unit;
-                }
-                if (!u)
-                {
-                    continue;
-                }
-
-                // check if the unit was seen/mark as seen
-                auto pair = seenUnits.insert(*u);
-                if (!pair.second) // the unit was already present
-                {
-                    continue;
-                }
-
-                const auto& unit = simulation.getUnit(*u);
-
-                // skip dead units
-                if (unit.isDead())
-                {
-                    continue;
-                }
-
-                // add in the third dimension component to distance,
-                // check if we are still in range
-                auto unitDistanceSquared = createBoundingBox(unit).distanceSquared(position);
-                if (unitDistanceSquared > radiusSquared)
-                {
-                    continue;
-                }
-
-                // apply appropriate damage
-                auto damageScale = std::clamp(1.0f - (std::sqrt(unitDistanceSquared) / radius), 0.0f, 1.0f);
-                auto rawDamage = laser.getDamage(unit.unitType);
-                auto scaledDamage = static_cast<unsigned int>(static_cast<float>(rawDamage) * damageScale);
-                applyDamage(*u, scaledDamage);
+                return;
             }
-        }
+
+            // check if a unit (or feature) is there
+            auto occupiedType = simulation.occupiedGrid.get(coords);
+            auto u = match(
+                occupiedType.occupiedType,
+                [&](const OccupiedUnit& u) { return std::optional(u.id); },
+                [&](const auto&) { return std::optional<UnitId>(); });
+            if (!u && occupiedType.buildingCell && !occupiedType.buildingCell->passable)
+            {
+                u = occupiedType.buildingCell->unit;
+            }
+            if (!u)
+            {
+                return;
+            }
+
+            // check if the unit was seen/mark as seen
+            auto pair = seenUnits.insert(*u);
+            if (!pair.second) // the unit was already present
+            {
+                return;
+            }
+
+            const auto& unit = simulation.getUnit(*u);
+
+            // skip dead units
+            if (unit.isDead())
+            {
+                return;
+            }
+
+            // add in the third dimension component to distance,
+            // check if we are still in range
+            auto unitDistanceSquared = createBoundingBox(unit).distanceSquared(position);
+            if (unitDistanceSquared > radiusSquared)
+            {
+                return;
+            }
+
+            // apply appropriate damage
+            auto damageScale = std::clamp(1.0f - (std::sqrt(unitDistanceSquared) / radius), 0.0f, 1.0f);
+            auto rawDamage = laser.getDamage(unit.unitType);
+            auto scaledDamage = static_cast<unsigned int>(static_cast<float>(rawDamage) * damageScale);
+            applyDamage(*u, scaledDamage);
+        });
     }
 
     void GameScene::applyDamage(UnitId unitId, unsigned int damagePoints)
@@ -1794,13 +1792,13 @@ namespace rwe
                 assert(!!footprintRegion);
                 if (unit.isMobile)
                 {
-                    simulation.occupiedGrid.forInArea(*footprintRegion, [](auto& cell) {
+                    simulation.occupiedGrid.forEach(*footprintRegion, [](auto& cell) {
                         cell.occupiedType = OccupiedNone();
                     });
                 }
                 else
                 {
-                    simulation.occupiedGrid.forInArea(*footprintRegion, [&](auto& cell) {
+                    simulation.occupiedGrid.forEach(*footprintRegion, [&](auto& cell) {
                         if (cell.buildingCell && cell.buildingCell->unit == it->first)
                         {
                             cell.buildingCell = BuildingOccupiedCell();
