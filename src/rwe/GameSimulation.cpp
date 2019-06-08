@@ -145,12 +145,12 @@ namespace rwe
 
     bool GameSimulation::canBeBuiltAt(const rwe::MovementClass& mc, unsigned int x, unsigned int y) const
     {
-        if (!isGridPointWalkable(terrain, mc, x, y))
+        if (isCollisionAt(DiscreteRect(x, y, mc.footprintX, mc.footprintZ)))
         {
             return false;
         }
 
-        if (isCollisionAt(DiscreteRect(x, y, mc.footprintX, mc.footprintZ)))
+        if (!isGridPointWalkable(terrain, mc, x, y))
         {
             return false;
         }
