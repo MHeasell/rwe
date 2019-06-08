@@ -1,4 +1,5 @@
 #include "PlayerColorIndex.h"
+#include <stdexcept>
 
 namespace rwe
 {
