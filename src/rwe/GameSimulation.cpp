@@ -75,8 +75,8 @@ namespace rwe
 
     GameSimulation::GameSimulation(MapTerrain&& terrain, unsigned char surfaceMetal)
         : terrain(std::move(terrain)),
-          occupiedGrid(this->terrain.getHeightMap().getWidth(), this->terrain.getHeightMap().getHeight(), OccupiedCell()),
-          metalGrid(this->terrain.getHeightMap().getWidth(), this->terrain.getHeightMap().getHeight(), surfaceMetal)
+          occupiedGrid(this->terrain.getHeightMap().getWidth() - 1, this->terrain.getHeightMap().getHeight() - 1, OccupiedCell()),
+          metalGrid(this->terrain.getHeightMap().getWidth() - 1, this->terrain.getHeightMap().getHeight() - 1, surfaceMetal)
     {
     }
 

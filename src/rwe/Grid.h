@@ -106,6 +106,14 @@ namespace rwe
         std::vector<T> data;
 
     public:
+        template <typename Func>
+        static Grid<T> from(std::size_t width, std::size_t height, Func f)
+        {
+            Grid<T> g(width, height);
+            g.fill(f);
+            return g;
+        }
+
         Grid() : width(0), height(0) {}
 
         Grid(std::size_t width, std::size_t height)
@@ -298,6 +306,12 @@ namespace rwe
             return region.accumulate(
                 initialValue,
                 [&](const auto& v, const auto& c) { return f(v, get(c)); });
+        }
+
+        template <typename Func>
+        void fill(Func f)
+        {
+            getRegion().forEach([&](const auto& c) { set(c, f(c)); });
         }
 
         /**

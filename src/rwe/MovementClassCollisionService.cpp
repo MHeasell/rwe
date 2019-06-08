@@ -61,24 +61,17 @@ namespace rwe
 
     Grid<char> computeWalkableGrid(const GameSimulation& sim, const MovementClass& movementClass)
     {
-        const auto& terrain = sim.terrain;
-
-        const auto width = terrain.getHeightMap().getWidth();
-        const auto height = terrain.getHeightMap().getHeight();
-
-        Grid<char> walkableGrid(width, height, false);
-
         const auto footprintX = movementClass.footprintX;
         const auto footprintY = movementClass.footprintZ;
 
-        for (unsigned int y = 0; y < height - footprintY - 1; ++y)
-        {
-            for (unsigned int x = 0; x < width - footprintX - 1; ++x)
-            {
-                walkableGrid.set(x, y, isGridPointWalkable(terrain, movementClass, x, y));
-            }
-        }
+        const auto& terrain = sim.terrain;
 
-        return walkableGrid;
+        const auto width = terrain.getHeightMap().getWidth() - footprintX;
+        const auto height = terrain.getHeightMap().getHeight() - footprintY;
+
+        return Grid<char>::from(
+            width,
+            height,
+            [&](const auto& c) { return isGridPointWalkable(terrain, movementClass, c.x, c.y); });
     }
 }
