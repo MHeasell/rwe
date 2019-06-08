@@ -466,6 +466,27 @@ namespace rwe
                 color);
         }
 
+        // Draw bandbox selection rectangle
+        if (auto normalCursorMode = std::get_if<NormalCursorMode>(&cursorMode.getValue()))
+        {
+            if  (auto selectingState = std::get_if<NormalCursorMode::SelectingState>(&normalCursorMode->state))
+            {
+                const auto& start = selectingState->startPosition;
+                const auto& camera = worldRenderService.getCamera();
+                const auto cameraPosition = camera.getPosition();
+                Point cameraRelativeStart(start.x - cameraPosition.x, start.y - cameraPosition.z);
+
+                auto worldViewportPos = sceneContext.viewportService->toOtherViewport(worldViewport, getMousePosition());
+                auto rect = DiscreteRect::fromPoints(cameraRelativeStart, worldViewportPos);
+
+                worldUiRenderService.drawBoxOutline(rect.x, rect.y, rect.width, rect.height, Color(255, 255, 255));
+                if (rect.width > 2 && rect.height > 2)
+                {
+                    worldUiRenderService.drawBoxOutline(rect.x + 1, rect.y + 1, rect.width - 2, rect.height - 2, Color(0, 0, 0));
+                }
+            }
+        }
+
         if (cursorTerrainDotVisible)
         {
             // draw a dot where we think the cursor intersects terrain
@@ -665,11 +686,15 @@ namespace rwe
                 [&](const NormalCursorMode&) {
                     if (isCursorOverMinimap())
                     {
-                        cursorMode.next(NormalCursorMode{NormalCursorMode::State::DraggingMinimap});
+                        cursorMode.next(NormalCursorMode{NormalCursorMode::DraggingMinimapState()});
                     }
                     else if (isCursorOverWorld())
                     {
-                        cursorMode.next(NormalCursorMode{NormalCursorMode::State::Selecting});
+                        Point p(event.x, event.y);
+                        auto worldViewportPos = sceneContext.viewportService->toOtherViewport(worldViewport, p);
+                        const auto cameraPosition = worldRenderService.getCamera().getPosition();
+                        Point originRelativePos(cameraPosition.x + worldViewportPos.x, cameraPosition.z + worldViewportPos.y);
+                        cursorMode.next(NormalCursorMode{NormalCursorMode::SelectingState(originRelativePos)});
                     }
                 });
         }
@@ -729,23 +754,25 @@ namespace rwe
             match(
                 cursorMode.getValue(),
                 [&](const NormalCursorMode& normalCursor) {
-                    if (normalCursor.state == NormalCursorMode::State::Selecting)
-                    {
-                        if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
-                        {
-                            selectUnit(*hoveredUnit);
-                        }
-                        else
-                        {
-                            clearUnitSelection();
-                        }
+                    match(
+                        normalCursor.state,
+                        [&](const NormalCursorMode::SelectingState&) {
+                            if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
+                            {
+                                selectUnit(*hoveredUnit);
+                            }
+                            else
+                            {
+                                clearUnitSelection();
+                            }
 
-                        cursorMode.next(NormalCursorMode{NormalCursorMode::State::Up});
-                    }
-                    else if (normalCursor.state == NormalCursorMode::State::DraggingMinimap)
-                    {
-                        cursorMode.next(NormalCursorMode{NormalCursorMode::State::Up});
-                    }
+                            cursorMode.next(NormalCursorMode{NormalCursorMode::UpState()});
+                        },
+                        [&](const NormalCursorMode::DraggingMinimapState&) {
+                            cursorMode.next(NormalCursorMode{NormalCursorMode::UpState()});
+                        },
+                        [&](const NormalCursorMode::UpState&) {
+                        });
                 },
                 [&](const auto&) {
                     // do nothing
@@ -812,7 +839,7 @@ namespace rwe
         // handle minimap dragging
         if (auto cursor = std::get_if<NormalCursorMode>(&cursorMode.getValue()); cursor != nullptr)
         {
-            if (cursor->state == NormalCursorMode::State::DraggingMinimap)
+            if (std::holds_alternative<NormalCursorMode::DraggingMinimapState>(cursor->state))
             {
                 // ok, the cursor is dragging the minimap.
                 // work out where the cursor is on the minimap,

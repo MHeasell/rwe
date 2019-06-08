@@ -36,6 +36,7 @@
 #include <rwe/pathfinding/PathFindingService.h>
 #include <rwe/ui/UiFactory.h>
 #include <rwe/ui/UiPanel.h>
+#include <variant>
 
 namespace rwe
 {
@@ -70,14 +71,33 @@ namespace rwe
 
     struct NormalCursorMode
     {
-        enum class State
+        struct SelectingState
         {
-            Selecting,
-            DraggingMinimap,
-            Up,
+            Point startPosition;
+            SelectingState(const Point& startPosition) : startPosition(startPosition) {}
+            SelectingState(int x, int y) : startPosition(x, y) {}
+            bool operator==(const SelectingState& rhs) const
+            {
+                return startPosition == rhs.startPosition;
+            }
+            bool operator!=(const SelectingState& rhs) const
+            {
+                return !(rhs == *this);
+            }
         };
+        struct DraggingMinimapState
+        {
+            bool operator==(const DraggingMinimapState& /*rhs*/) const { return true; }
+            bool operator!=(const DraggingMinimapState& /*rhs*/) const { return false; }
+        };
+        struct UpState
+        {
+            bool operator==(const UpState& /*rhs*/) const { return true; }
+            bool operator!=(const UpState& /*rhs*/) const { return false; }
+        };
+        using State = std::variant<SelectingState, DraggingMinimapState, UpState>;
 
-        State state{State::Up};
+        State state{UpState()};
 
         bool operator==(const NormalCursorMode& rhs) const
         {

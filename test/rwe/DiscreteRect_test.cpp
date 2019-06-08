@@ -202,5 +202,20 @@ namespace rwe
                 REQUIRE(a.intersection(b) == std::nullopt);
             }
         }
+
+        SECTION("::fromPoints")
+        {
+            SECTION("creates a rect from internal points")
+            {
+                auto actual = DiscreteRect::fromPoints(Point(1, 2), Point(5, 4));
+                REQUIRE(actual == DiscreteRect(1, 2, 5, 3));
+            }
+
+            SECTION("works when points are flipped")
+            {
+                auto actual = DiscreteRect::fromPoints(Point(5, 4), Point(1, 2));
+                REQUIRE(actual == DiscreteRect(1, 2, 5, 3));
+            }
+        }
     }
 }

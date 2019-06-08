@@ -1,7 +1,15 @@
 #include "DiscreteRect.h"
+#include <algorithm>
 
 namespace rwe
 {
+    DiscreteRect DiscreteRect::fromPoints(const Point& p1, const Point& p2)
+    {
+        auto x = std::minmax(p1.x, p2.x);
+        auto y = std::minmax(p1.y, p2.y);
+        return DiscreteRect(x.first, y.first, x.second - x.first + 1, y.second - y.first + 1);
+    }
+
     bool DiscreteRect::isAdjacentTo(int px, int py) const
     {
         return DiscreteRect(x - 1, y - 1, width + 1, height + 1).topLeftTouchesPerimeter(px, py);

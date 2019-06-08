@@ -10,6 +10,8 @@ namespace rwe
 {
     struct DiscreteRect
     {
+        static DiscreteRect fromPoints(const Point& p1, const Point& p2);
+
         int x;
         int y;
         unsigned int width;
