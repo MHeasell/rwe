@@ -487,7 +487,7 @@ set(SOURCE_FILES
     src/rwe/vfs/HpiFileSystem.h
     )
 
-if (WIN32)
+if(WIN32)
     add_definitions(-DRWE_PLATFORM_WINDOWS)
 else()
     add_definitions(-DRWE_PLATFORM_LINUX)
@@ -547,7 +547,7 @@ target_copy_file(librwe ${JPEG_DLL})
 target_copy_file(librwe ${MPG_DLL})
 target_copy_file(librwe ${OGG_DLL})
 target_copy_file(librwe ${TIFF_DLL})
-if (WIN32 AND NOT MSVC)
+if(WIN32 AND NOT MSVC)
     target_copy_file(librwe ${LZMA_DLL}) # MSYS2 libtiff depends on liblzma
     target_copy_file(librwe ${ZSTD_DLL}) # MSYS2 libtiff depends on zstd
     target_copy_file(librwe ${FLUIDSYNTH_DLL}) # MSYS2 SDL2_mixer depends on fluidsynth
@@ -579,7 +579,7 @@ target_include_directories(librwe PUBLIC ${CMAKE_CURRENT_BINARY_DIR}) # for gene
 
 add_custom_target(rwe_shaders)
 add_custom_command(TARGET rwe_shaders PRE_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/shaders" "${PROJECT_BINARY_DIR}/shaders")
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/shaders" "${PROJECT_BINARY_DIR}/shaders")
 
 add_executable(rwe src/main.cpp)
 target_link_libraries(rwe librwe)
