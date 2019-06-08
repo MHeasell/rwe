@@ -1,4 +1,5 @@
 #include "MovementClassCollisionService.h"
+#include <rwe/collection_util.h>
 #include <rwe/movement.h>
 
 namespace rwe
@@ -14,49 +15,17 @@ namespace rwe
 
     std::optional<MovementClassId> MovementClassCollisionService::resolveMovementClass(const std::string& name)
     {
-        auto it = movementClassNameMap.find(name);
-        if (it == movementClassNameMap.end())
-        {
-            return std::nullopt;
-        }
-
-        return it->second;
+        return tryFindValue(movementClassNameMap, name);
     }
 
     bool MovementClassCollisionService::isWalkable(MovementClassId movementClass, const Point& position) const
     {
-        if (position.x < 0 || position.y < 0)
-        {
-            return false;
-        }
-
-        auto x = static_cast<unsigned int>(position.x);
-        auto y = static_cast<unsigned int>(position.y);
-
-        const auto& map = walkableGrids.find(movementClass);
-        if (map == walkableGrids.end())
-        {
-            throw std::logic_error("Grid for movement class not found");
-        }
-
-        const auto& grid = map->second;
-        if (x >= grid.getWidth() || y >= grid.getHeight())
-        {
-            return false;
-        }
-
-        return grid.get(x, y);
+        return walkableGrids.at(movementClass).tryGetValue(position).value_or(false);
     }
 
     const Grid<char>& MovementClassCollisionService::getGrid(MovementClassId movementClass) const
     {
-        auto it = walkableGrids.find(movementClass);
-        if (it == walkableGrids.end())
-        {
-            throw std::runtime_error("Failed to find movement class grid");
-        }
-
-        return it->second;
+        return walkableGrids.at(movementClass);
     }
 
     Grid<char> computeWalkableGrid(const GameSimulation& sim, const MovementClass& movementClass)

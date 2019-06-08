@@ -372,6 +372,7 @@ set(SOURCE_FILES
     src/rwe/cob/CobValueId.h
     src/rwe/cob/cob_util.cpp
     src/rwe/cob/cob_util.h
+    src/rwe/collection_util.h
     src/rwe/events.cpp
     src/rwe/events.h
     src/rwe/fixed_point.cpp

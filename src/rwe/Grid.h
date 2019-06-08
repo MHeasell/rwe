@@ -388,6 +388,16 @@ namespace rwe
             return get(x1, y1);
         }
 
+        std::optional<T> tryGetValue(const Point& p) const
+        {
+            auto val = tryGet(p);
+            if (val)
+            {
+                return val->get();
+            }
+            return std::nullopt;
+        }
+
         template <typename U, typename Func>
         void transformAndReplace(std::size_t x, std::size_t y, const Grid<U>& replacement, Func f)
         {
