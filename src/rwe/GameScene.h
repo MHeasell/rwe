@@ -518,13 +518,15 @@ namespace rwe
          */
         std::optional<UnitId> getSingleSelectedUnit() const;
 
+        void selectUnitsInBandbox(const DiscreteRect& box);
+
         void selectUnit(const UnitId& unitId);
+
+        void replaceUnitSelection(const std::vector<UnitId>& units);
 
         void deselectUnit(const UnitId& unitId);
 
         void clearUnitSelection();
-
-        void selectUnitsInBandbox(const DiscreteRect& box);
 
         void onSelectedUnitsChanged();
 

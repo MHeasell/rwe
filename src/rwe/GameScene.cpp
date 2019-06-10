@@ -2194,9 +2194,31 @@ namespace rwe
             : std::nullopt;
     }
 
+    void GameScene::selectUnitsInBandbox(const DiscreteRect& box)
+    {
+        std::vector<UnitId> units;
+        for (const auto& e : simulation.units)
+        {
+            if (e.second.isSelectableBy(localPlayerId))
+            {
+                units.emplace_back(e.first);
+            }
+        }
+
+        replaceUnitSelection(units);
+    }
+
     void GameScene::selectUnit(const UnitId& unitId)
     {
         selectedUnits.insert(unitId);
+
+        const auto& unit = getUnit(unitId);
+        const auto& selectionSound = unit.selectionSound;
+        if (selectionSound)
+        {
+            playSoundOnSelectChannel(*selectionSound);
+        }
+
         onSelectedUnitsChanged();
     }
 
@@ -2212,15 +2234,26 @@ namespace rwe
         onSelectedUnitsChanged();
     }
 
-    void GameScene::selectUnitsInBandbox(const DiscreteRect& box)
+    void GameScene::replaceUnitSelection(const std::vector<UnitId>& units)
     {
         selectedUnits.clear();
-        for (const auto& e : simulation.units)
+        for (const auto& unitId : units)
         {
-            if (e.second.isOwnedBy(localPlayerId))
+            selectedUnits.insert(unitId);
+        }
+
+        if (units.size() == 1)
+        {
+            const auto& unit = getUnit(units.front());
+            const auto& selectionSound = unit.selectionSound;
+            if (selectionSound)
             {
-                selectedUnits.insert(e.first);
+                playSoundOnSelectChannel(*selectionSound);
             }
+        }
+        else if (units.size() > 0)
+        {
+            playSoundOnSelectChannel(*sounds.selectMultipleUnits);
         }
 
         onSelectedUnitsChanged();
@@ -2238,11 +2271,6 @@ namespace rwe
             const auto& unit = getUnit(*unitId);
             fireOrders.next(unit.fireOrders);
             onOff.next(unit.activated);
-            const auto& selectionSound = unit.selectionSound;
-            if (selectionSound)
-            {
-                playSoundOnSelectChannel(*selectionSound);
-            }
 
             const auto& guiInfo = getGuiInfo(*unitId);
             auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);

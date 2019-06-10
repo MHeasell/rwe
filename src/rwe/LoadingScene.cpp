@@ -211,6 +211,7 @@ namespace rwe
         sounds.addBuild = lookUpSound("ADDBUILD");
         sounds.okToBuild = lookUpSound("OKTOBUILD");
         sounds.notOkToBuild = lookUpSound("NOTOKTOBUILD");
+        sounds.selectMultipleUnits = lookUpSound("SelectMultipleUnits");
 
         auto consoleFont = sceneContext.textureService->getFont("fonts/CONSOLE.FNT");
 
