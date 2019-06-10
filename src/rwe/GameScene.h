@@ -520,7 +520,7 @@ namespace rwe
 
         void selectUnitsInBandbox(const DiscreteRect& box);
 
-        void selectUnit(const UnitId& unitId);
+        void replaceUnitSelection(const UnitId& unitId);
 
         void replaceUnitSelection(const std::vector<UnitId>& units);
 

@@ -766,7 +766,7 @@ namespace rwe
                             {
                                 if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
                                 {
-                                    selectUnit(*hoveredUnit);
+                                    replaceUnitSelection(*hoveredUnit);
                                 }
                                 else
                                 {
@@ -2208,8 +2208,9 @@ namespace rwe
         replaceUnitSelection(units);
     }
 
-    void GameScene::selectUnit(const UnitId& unitId)
+    void GameScene::replaceUnitSelection(const UnitId& unitId)
     {
+        selectedUnits.clear();
         selectedUnits.insert(unitId);
 
         const auto& unit = getUnit(unitId);
