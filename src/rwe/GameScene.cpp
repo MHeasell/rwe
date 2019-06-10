@@ -377,7 +377,7 @@ namespace rwe
             worldRenderService.drawPathfindingVisualisation(simulation.terrain, pathFindingService.lastPathDebugInfo);
         }
 
-        if (selectedUnit && movementClassGridVisible)
+        if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && movementClassGridVisible)
         {
             const auto& unit = simulation.getUnit(*selectedUnit);
             if (unit.movementClass)
@@ -387,9 +387,9 @@ namespace rwe
             }
         }
 
-        if (selectedUnit)
+        for (const auto& selectedUnitId : selectedUnits)
         {
-            worldRenderService.drawSelectionRect(getUnit(*selectedUnit));
+            worldRenderService.drawSelectionRect(getUnit(selectedUnitId));
         }
 
         worldRenderService.drawUnitShadows(simulation.terrain, simulation.units | boost::adaptors::map_values);
@@ -469,7 +469,7 @@ namespace rwe
         // Draw bandbox selection rectangle
         if (auto normalCursorMode = std::get_if<NormalCursorMode>(&cursorMode.getValue()))
         {
-            if  (auto selectingState = std::get_if<NormalCursorMode::SelectingState>(&normalCursorMode->state))
+            if (auto selectingState = std::get_if<NormalCursorMode::SelectingState>(&normalCursorMode->state))
             {
                 const auto& start = selectingState->startPosition;
                 const auto& camera = worldRenderService.getCamera();
@@ -600,17 +600,17 @@ namespace rwe
             match(
                 cursorMode.getValue(),
                 [&](const AttackCursorMode&) {
-                    if (selectedUnit)
+                    for (const auto& selectedUnit : selectedUnits)
                     {
                         if (hoveredUnit)
                         {
                             if (isShiftDown())
                             {
-                                localPlayerEnqueueUnitOrder(*selectedUnit, AttackOrder(*hoveredUnit));
+                                localPlayerEnqueueUnitOrder(selectedUnit, AttackOrder(*hoveredUnit));
                             }
                             else
                             {
-                                localPlayerIssueUnitOrder(*selectedUnit, AttackOrder(*hoveredUnit));
+                                localPlayerIssueUnitOrder(selectedUnit, AttackOrder(*hoveredUnit));
                                 cursorMode.next(NormalCursorMode());
                             }
                         }
@@ -621,11 +621,11 @@ namespace rwe
                             {
                                 if (isShiftDown())
                                 {
-                                    localPlayerEnqueueUnitOrder(*selectedUnit, AttackOrder(*coord));
+                                    localPlayerEnqueueUnitOrder(selectedUnit, AttackOrder(*coord));
                                 }
                                 else
                                 {
-                                    localPlayerIssueUnitOrder(*selectedUnit, AttackOrder(*coord));
+                                    localPlayerIssueUnitOrder(selectedUnit, AttackOrder(*coord));
                                     cursorMode.next(NormalCursorMode());
                                 }
                             }
@@ -633,25 +633,25 @@ namespace rwe
                     }
                 },
                 [&](const MoveCursorMode&) {
-                    if (selectedUnit)
+                    for (const auto& selectedUnit : selectedUnits)
                     {
                         auto coord = getMouseTerrainCoordinate();
                         if (coord)
                         {
                             if (isShiftDown())
                             {
-                                localPlayerEnqueueUnitOrder(*selectedUnit, MoveOrder(*coord));
+                                localPlayerEnqueueUnitOrder(selectedUnit, MoveOrder(*coord));
                             }
                             else
                             {
-                                localPlayerIssueUnitOrder(*selectedUnit, MoveOrder(*coord));
+                                localPlayerIssueUnitOrder(selectedUnit, MoveOrder(*coord));
                                 cursorMode.next(NormalCursorMode());
                             }
                         }
                     }
                 },
                 [&](const BuildCursorMode& buildCursor) {
-                    if (selectedUnit)
+                    if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit)
                     {
                         if (hoverBuildInfo)
                         {
@@ -712,17 +712,17 @@ namespace rwe
                     cursorMode.next(NormalCursorMode());
                 },
                 [&](const NormalCursorMode&) {
-                    if (selectedUnit)
+                    for (const auto& selectedUnit : selectedUnits)
                     {
                         if (hoveredUnit && isEnemy(*hoveredUnit))
                         {
                             if (isShiftDown())
                             {
-                                localPlayerEnqueueUnitOrder(*selectedUnit, AttackOrder(*hoveredUnit));
+                                localPlayerEnqueueUnitOrder(selectedUnit, AttackOrder(*hoveredUnit));
                             }
                             else
                             {
-                                localPlayerIssueUnitOrder(*selectedUnit, AttackOrder(*hoveredUnit));
+                                localPlayerIssueUnitOrder(selectedUnit, AttackOrder(*hoveredUnit));
                             }
                         }
                         else
@@ -732,11 +732,11 @@ namespace rwe
                             {
                                 if (isShiftDown())
                                 {
-                                    localPlayerEnqueueUnitOrder(*selectedUnit, MoveOrder(*coord));
+                                    localPlayerEnqueueUnitOrder(selectedUnit, MoveOrder(*coord));
                                 }
                                 else
                                 {
-                                    localPlayerIssueUnitOrder(*selectedUnit, MoveOrder(*coord));
+                                    localPlayerIssueUnitOrder(selectedUnit, MoveOrder(*coord));
                                 }
                             }
                         }
@@ -756,14 +756,26 @@ namespace rwe
                 [&](const NormalCursorMode& normalCursor) {
                     match(
                         normalCursor.state,
-                        [&](const NormalCursorMode::SelectingState&) {
-                            if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
+                        [&](const NormalCursorMode::SelectingState& state) {
+                            Point p(event.x, event.y);
+                            auto worldViewportPos = sceneContext.viewportService->toOtherViewport(worldViewport, p);
+                            const auto cameraPosition = worldRenderService.getCamera().getPosition();
+                            Point originRelativePos(cameraPosition.x + worldViewportPos.x, cameraPosition.z + worldViewportPos.y);
+
+                            if (state.startPosition == originRelativePos)
                             {
-                                selectUnit(*hoveredUnit);
+                                if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
+                                {
+                                    selectUnit(*hoveredUnit);
+                                }
+                                else
+                                {
+                                    clearUnitSelection();
+                                }
                             }
                             else
                             {
-                                clearUnitSelection();
+                                selectUnitsInBandbox(DiscreteRect::fromPoints(state.startPosition, originRelativePos));
                             }
 
                             cursorMode.next(NormalCursorMode{NormalCursorMode::UpState()});
@@ -904,7 +916,7 @@ namespace rwe
                     {
                         sceneContext.cursor->useSelectCursor();
                     }
-                    else if (selectedUnit && getUnit(*selectedUnit).canAttack && hoveredUnit && isEnemy(*hoveredUnit))
+                    else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).canAttack; }) && hoveredUnit && isEnemy(*hoveredUnit))
                     {
                         sceneContext.cursor->useRedCursor();
                     }
@@ -1468,7 +1480,7 @@ namespace rwe
         auto& unit = getUnit(unitId);
         unit.fireOrders = orders;
 
-        if (selectedUnit && *selectedUnit == unitId)
+        if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && *selectedUnit == unitId)
         {
             fireOrders.next(orders);
         }
@@ -1751,7 +1763,7 @@ namespace rwe
             playUnitSound(unitId, *unit.activateSound);
         }
 
-        if (selectedUnit && *selectedUnit == unitId)
+        if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && *selectedUnit == unitId)
         {
             onOff.next(true);
         }
@@ -1767,7 +1779,7 @@ namespace rwe
             playUnitSound(unitId, *unit.deactivateSound);
         }
 
-        if (selectedUnit && *selectedUnit == unitId)
+        if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && *selectedUnit == unitId)
         {
             onOff.next(false);
         }
@@ -2034,43 +2046,44 @@ namespace rwe
                 sceneContext.audioService->playSound(*sounds.immediateOrders);
             }
 
-            if (selectedUnit)
+            for (const auto& selectedUnit : selectedUnits)
             {
                 cursorMode.next(NormalCursorMode());
-                localPlayerStopUnit(*selectedUnit);
+                localPlayerStopUnit(selectedUnit);
             }
         }
         else if (matchesWithSidePrefix("FIREORD", message))
         {
-            if (selectedUnit)
+            if (sounds.setFireOrders)
             {
-                if (sounds.setFireOrders)
-                {
-                    sceneContext.audioService->playSound(*sounds.setFireOrders);
-                }
+                sceneContext.audioService->playSound(*sounds.setFireOrders);
+            }
 
-                auto& u = getUnit(*selectedUnit);
+            for (const auto& selectedUnit : selectedUnits)
+            {
+                // FIXME: should set all to a consistent single fire order rather than advancing all
+                auto& u = getUnit(selectedUnit);
                 auto newFireOrders = nextFireOrders(u.fireOrders);
-                localPlayerSetFireOrders(*selectedUnit, newFireOrders);
+                localPlayerSetFireOrders(selectedUnit, newFireOrders);
             }
         }
         else if (matchesWithSidePrefix("ONOFF", message))
         {
-            if (selectedUnit)
+            if (sounds.immediateOrders)
             {
-                if (sounds.immediateOrders)
-                {
-                    sceneContext.audioService->playSound(*sounds.immediateOrders);
-                }
+                sceneContext.audioService->playSound(*sounds.immediateOrders);
+            }
 
-                auto& u = getUnit(*selectedUnit);
+            for (const auto& selectedUnit : selectedUnits)
+            {
+                auto& u = getUnit(selectedUnit);
                 auto newOnOff = !u.activated;
-                localPlayerSetOnOff(*selectedUnit, newOnOff);
+                localPlayerSetOnOff(selectedUnit, newOnOff);
             }
         }
         else if (matchesWithSidePrefix("NEXT", message))
         {
-            if (selectedUnit)
+            if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit)
             {
                 if (sounds.nextBuildMenu)
                 {
@@ -2088,7 +2101,7 @@ namespace rwe
         }
         else if (matchesWithSidePrefix("PREV", message))
         {
-            if (selectedUnit)
+            if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit)
             {
                 if (sounds.nextBuildMenu)
                 {
@@ -2107,7 +2120,7 @@ namespace rwe
         }
         else if (matchesWithSidePrefix("BUILD", message))
         {
-            if (selectedUnit)
+            if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit)
             {
                 if (sounds.buildButton)
                 {
@@ -2124,7 +2137,7 @@ namespace rwe
         }
         else if (matchesWithSidePrefix("ORDERS", message))
         {
-            if (selectedUnit)
+            if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit)
             {
                 if (sounds.ordersButton)
                 {
@@ -2145,7 +2158,7 @@ namespace rwe
                 sceneContext.audioService->playSound(*sounds.addBuild);
             }
 
-            if (selectedUnit)
+            if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit)
             {
                 const auto& unit = getUnit(*selectedUnit);
                 if (unit.isMobile)
@@ -2174,44 +2187,80 @@ namespace rwe
         return false;
     }
 
+    std::optional<UnitId> GameScene::getSingleSelectedUnit() const
+    {
+        return selectedUnits.size() == 1
+            ? std::make_optional(*selectedUnits.begin())
+            : std::nullopt;
+    }
+
     void GameScene::selectUnit(const UnitId& unitId)
     {
-        selectedUnit = unitId;
-        const auto& unit = getUnit(unitId);
-        fireOrders.next(unit.fireOrders);
-        onOff.next(unit.activated);
-        const auto& selectionSound = unit.selectionSound;
-        if (selectionSound)
+        selectedUnits.insert(unitId);
+        onSelectedUnitsChanged();
+    }
+
+    void GameScene::deselectUnit(const UnitId& unitId)
+    {
+        selectedUnits.erase(unitId);
+        onSelectedUnitsChanged();
+    }
+
+    void GameScene::clearUnitSelection()
+    {
+        selectedUnits.clear();
+        onSelectedUnitsChanged();
+    }
+
+    void GameScene::selectUnitsInBandbox(const DiscreteRect& box)
+    {
+        selectedUnits.clear();
+        for (const auto& e : simulation.units)
         {
-            playSoundOnSelectChannel(*selectionSound);
+            if (e.second.isOwnedBy(localPlayerId))
+            {
+                selectedUnits.insert(e.first);
+            }
         }
 
-        const auto& guiInfo = getGuiInfo(unitId);
-        auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);
-        if (guiInfo.section == UnitGuiInfo::Section::Build && buildPanelDefinition)
+        onSelectedUnitsChanged();
+    }
+
+    void GameScene::onSelectedUnitsChanged()
+    {
+        if (selectedUnits.empty())
         {
-            setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
+            const auto& sidePrefix = sceneContext.sideData->at(getPlayer(localPlayerId).side).namePrefix;
+            setNextPanel(uiFactory.panelFromGuiFile(sidePrefix + "MAIN2"));
+        }
+        else if (auto unitId = getSingleSelectedUnit(); unitId)
+        {
+            const auto& unit = getUnit(*unitId);
+            fireOrders.next(unit.fireOrders);
+            onOff.next(unit.activated);
+            const auto& selectionSound = unit.selectionSound;
+            if (selectionSound)
+            {
+                playSoundOnSelectChannel(*selectionSound);
+            }
+
+            const auto& guiInfo = getGuiInfo(*unitId);
+            auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);
+            if (guiInfo.section == UnitGuiInfo::Section::Build && buildPanelDefinition)
+            {
+                setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
+            }
+            else
+            {
+                const auto& sidePrefix = sceneContext.sideData->at(getPlayer(localPlayerId).side).namePrefix;
+                setNextPanel(uiFactory.panelFromGuiFile(sidePrefix + "GEN"));
+            }
         }
         else
         {
             const auto& sidePrefix = sceneContext.sideData->at(getPlayer(localPlayerId).side).namePrefix;
             setNextPanel(uiFactory.panelFromGuiFile(sidePrefix + "GEN"));
         }
-    }
-
-    void GameScene::deselectUnit(const UnitId& unitId)
-    {
-        if (selectedUnit && *selectedUnit == unitId)
-        {
-            clearUnitSelection();
-        }
-    }
-
-    void GameScene::clearUnitSelection()
-    {
-        selectedUnit = std::nullopt;
-        const auto& sidePrefix = sceneContext.sideData->at(getPlayer(localPlayerId).side).namePrefix;
-        setNextPanel(uiFactory.panelFromGuiFile(sidePrefix + "MAIN2"));
     }
 
     const UnitGuiInfo& GameScene::getGuiInfo(const UnitId& unitId) const
@@ -2231,7 +2280,7 @@ namespace rwe
 
     void GameScene::refreshBuildGuiTotal(UnitId unitId, const std::string& unitType)
     {
-        if (selectedUnit == unitId)
+        if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit == unitId)
         {
             const auto& unit = getUnit(*selectedUnit);
             auto total = unit.getBuildQueueTotal(unitType) + getUnconfirmedBuildQueueCount(unitId, unitType);

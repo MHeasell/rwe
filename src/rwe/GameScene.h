@@ -301,7 +301,7 @@ namespace rwe
         bool rightShiftDown{false};
 
         std::optional<UnitId> hoveredUnit;
-        std::optional<UnitId> selectedUnit;
+        std::unordered_set<UnitId> selectedUnits;
 
         std::optional<HoverBuildInfo> hoverBuildInfo;
 
@@ -512,11 +512,21 @@ namespace rwe
 
         bool matchesWithSidePrefix(const std::string& suffix, const std::string& value) const;
 
+        /**
+         * If there is exactly one unit selected, returns the unit ID.
+         * Otherwise, returns nothing.
+         */
+        std::optional<UnitId> getSingleSelectedUnit() const;
+
         void selectUnit(const UnitId& unitId);
 
         void deselectUnit(const UnitId& unitId);
 
         void clearUnitSelection();
+
+        void selectUnitsInBandbox(const DiscreteRect& box);
+
+        void onSelectedUnitsChanged();
 
         const UnitGuiInfo& getGuiInfo(const UnitId& unitId) const;
 
