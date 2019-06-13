@@ -170,4 +170,13 @@ namespace rwe
 
         return DiscreteRect(left, top, static_cast<unsigned int>(intersectWidth), static_cast<unsigned int>(intersectHeight));
     }
+
+    DiscreteRect DiscreteRect::translate(int dx, int dy) const{
+        return DiscreteRect(x + dx, y + dy, width, height);
+    }
+
+    bool DiscreteRect::contains(const Point& p) const
+    {
+        return p.x >= x && p.y >= y && p.x < (x + static_cast<int>(width)) && p.y < (y + static_cast<int>(height));
+    }
 }

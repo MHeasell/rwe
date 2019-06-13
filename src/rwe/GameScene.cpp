@@ -2196,13 +2196,28 @@ namespace rwe
 
     void GameScene::selectUnitsInBandbox(const DiscreteRect& box)
     {
+        const auto& camera = worldRenderService.getCamera();
+        const auto cameraPos = camera.getPosition();
+        auto cameraBox = box.translate(-cameraPos.x, -cameraPos.z);
+        const auto& matrix = camera.getViewProjectionMatrix();
         std::vector<UnitId> units;
+
         for (const auto& e : simulation.units)
         {
-            if (e.second.isSelectableBy(localPlayerId))
+            if (!e.second.isSelectableBy(localPlayerId))
             {
-                units.emplace_back(e.first);
+                continue;
             }
+
+            const auto& worldPos = e.second.position;
+            auto clipPos = matrix * worldPos;
+            Point viewportPos = worldViewport.toViewportSpace(clipPos.x, clipPos.y);
+            if (!cameraBox.contains(viewportPos))
+            {
+                continue;
+            }
+
+            units.emplace_back(e.first);
         }
 
         replaceUnitSelection(units);

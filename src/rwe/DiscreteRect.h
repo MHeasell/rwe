@@ -62,6 +62,10 @@ namespace rwe
 
         DiscreteRect expand(unsigned int dx, unsigned int dy) const;
 
+        DiscreteRect translate(int dx, int dy) const;
+
+        bool contains(const Point& p) const;
+
         /**
          * Returns the intersection of this rectangle and the given rectangle.
          * If the two rectangles do not intersect, returns None.
