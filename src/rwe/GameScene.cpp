@@ -2127,7 +2127,10 @@ namespace rwe
                 guiInfo.currentBuildPage = (guiInfo.currentBuildPage + 1) % pages;
 
                 auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);
-                setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
+                if (buildPanelDefinition)
+                {
+                    setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
+                }
             }
         }
         else if (matchesWithSidePrefix("PREV", message))
@@ -2146,7 +2149,10 @@ namespace rwe
                 guiInfo.currentBuildPage = guiInfo.currentBuildPage == 0 ? pages - 1 : guiInfo.currentBuildPage - 1;
 
                 auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);
-                setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
+                if (buildPanelDefinition)
+                {
+                    setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
+                }
             }
         }
         else if (matchesWithSidePrefix("BUILD", message))
@@ -2163,7 +2169,10 @@ namespace rwe
                 guiInfo.section = UnitGuiInfo::Section::Build;
 
                 auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);
-                setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
+                if (buildPanelDefinition)
+                {
+                    setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
+                }
             }
         }
         else if (matchesWithSidePrefix("ORDERS", message))
