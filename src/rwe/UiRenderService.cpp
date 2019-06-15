@@ -270,9 +270,23 @@ namespace rwe
 
     void UiRenderService::drawBoxOutline(float x, float y, float width, float height, Color color)
     {
+        assert(width >= 0.0f);
+        assert(height >= 0.0f);
+
+        if (width < 1.0f || height < 1.0f)
+        {
+            return;
+        }
+
         fillColor(x, y, width, 1.0f, color);
-        fillColor(x, y + 1.0f, 1.0f, height - 2.0f, color);
-        fillColor(x + width - 1.0f, y + 1.0f, 1.0f, height - 2.0f, color);
-        fillColor(x, y + height - 1.0f, width, 1.0f, color);
+        if (height > 1.0f)
+        {
+            fillColor(x, y + height - 1.0f, width, 1.0f, color);
+        }
+        if (height > 2.0f)
+        {
+            fillColor(x, y + 1.0f, 1.0f, height - 2.0f, color);
+            fillColor(x + width - 1.0f, y + 1.0f, 1.0f, height - 2.0f, color);
+        }
     }
 }

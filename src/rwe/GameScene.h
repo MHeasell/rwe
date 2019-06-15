@@ -36,6 +36,7 @@
 #include <rwe/pathfinding/PathFindingService.h>
 #include <rwe/ui/UiFactory.h>
 #include <rwe/ui/UiPanel.h>
+#include <variant>
 
 namespace rwe
 {
@@ -70,14 +71,33 @@ namespace rwe
 
     struct NormalCursorMode
     {
-        enum class State
+        struct SelectingState
         {
-            Selecting,
-            DraggingMinimap,
-            Up,
+            Point startPosition;
+            SelectingState(const Point& startPosition) : startPosition(startPosition) {}
+            SelectingState(int x, int y) : startPosition(x, y) {}
+            bool operator==(const SelectingState& rhs) const
+            {
+                return startPosition == rhs.startPosition;
+            }
+            bool operator!=(const SelectingState& rhs) const
+            {
+                return !(rhs == *this);
+            }
         };
+        struct DraggingMinimapState
+        {
+            bool operator==(const DraggingMinimapState& /*rhs*/) const { return true; }
+            bool operator!=(const DraggingMinimapState& /*rhs*/) const { return false; }
+        };
+        struct UpState
+        {
+            bool operator==(const UpState& /*rhs*/) const { return true; }
+            bool operator!=(const UpState& /*rhs*/) const { return false; }
+        };
+        using State = std::variant<SelectingState, DraggingMinimapState, UpState>;
 
-        State state{State::Up};
+        State state{UpState()};
 
         bool operator==(const NormalCursorMode& rhs) const
         {
@@ -281,7 +301,7 @@ namespace rwe
         bool rightShiftDown{false};
 
         std::optional<UnitId> hoveredUnit;
-        std::optional<UnitId> selectedUnit;
+        std::unordered_set<UnitId> selectedUnits;
 
         std::optional<HoverBuildInfo> hoverBuildInfo;
 
@@ -452,6 +472,10 @@ namespace rwe
 
         const Unit& getUnit(UnitId id) const;
 
+        std::optional<std::reference_wrapper<Unit>> tryGetUnit(UnitId id);
+
+        std::optional<std::reference_wrapper<const Unit>> tryGetUnit(UnitId id) const;
+
         const GamePlayerInfo& getPlayer(PlayerId player) const;
 
         bool isEnemy(UnitId id) const;
@@ -492,11 +516,23 @@ namespace rwe
 
         bool matchesWithSidePrefix(const std::string& suffix, const std::string& value) const;
 
-        void selectUnit(const UnitId& unitId);
+        /**
+         * If there is exactly one unit selected, returns the unit ID.
+         * Otherwise, returns nothing.
+         */
+        std::optional<UnitId> getSingleSelectedUnit() const;
+
+        void selectUnitsInBandbox(const DiscreteRect& box);
+
+        void replaceUnitSelection(const UnitId& unitId);
+
+        void replaceUnitSelection(const std::vector<UnitId>& units);
 
         void deselectUnit(const UnitId& unitId);
 
         void clearUnitSelection();
+
+        void onSelectedUnitsChanged();
 
         const UnitGuiInfo& getGuiInfo(const UnitId& unitId) const;
 

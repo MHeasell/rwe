@@ -10,6 +10,8 @@ namespace rwe
 {
     struct DiscreteRect
     {
+        static DiscreteRect fromPoints(const Point& p1, const Point& p2);
+
         int x;
         int y;
         unsigned int width;
@@ -59,6 +61,10 @@ namespace rwe
         DiscreteRect expand(unsigned int amount) const;
 
         DiscreteRect expand(unsigned int dx, unsigned int dy) const;
+
+        DiscreteRect translate(int dx, int dy) const;
+
+        bool contains(const Point& p) const;
 
         /**
          * Returns the intersection of this rectangle and the given rectangle.

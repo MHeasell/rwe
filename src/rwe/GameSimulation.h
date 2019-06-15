@@ -155,6 +155,10 @@ namespace rwe
 
         const Unit& getUnit(UnitId id) const;
 
+        std::optional<std::reference_wrapper<Unit>> tryGetUnit(UnitId id);
+
+        std::optional<std::reference_wrapper<const Unit>> tryGetUnit(UnitId id) const;
+
         bool unitExists(UnitId id) const;
 
         MapFeature& getFeature(FeatureId id);

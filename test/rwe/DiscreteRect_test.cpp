@@ -202,5 +202,45 @@ namespace rwe
                 REQUIRE(a.intersection(b) == std::nullopt);
             }
         }
+
+        SECTION("::fromPoints")
+        {
+            SECTION("creates a rect from internal points")
+            {
+                auto actual = DiscreteRect::fromPoints(Point(1, 2), Point(5, 4));
+                REQUIRE(actual == DiscreteRect(1, 2, 5, 3));
+            }
+
+            SECTION("works when points are flipped")
+            {
+                auto actual = DiscreteRect::fromPoints(Point(5, 4), Point(1, 2));
+                REQUIRE(actual == DiscreteRect(1, 2, 5, 3));
+            }
+        }
+
+        SECTION(".contains")
+        {
+            SECTION("returns true when point is in the rectangle")
+            {
+                REQUIRE(!DiscreteRect(2, 3, 4, 5).contains(Point(1, 3)));
+                REQUIRE(DiscreteRect(2, 3, 4, 5).contains(Point(2, 3)));
+                REQUIRE(DiscreteRect(2, 3, 4, 5).contains(Point(5, 3)));
+                REQUIRE(!DiscreteRect(2, 3, 4, 5).contains(Point(6, 3)));
+
+                REQUIRE(!DiscreteRect(2, 3, 4, 5).contains(Point(2, 2)));
+                REQUIRE(DiscreteRect(2, 3, 4, 5).contains(Point(2, 3)));
+                REQUIRE(DiscreteRect(2, 3, 4, 5).contains(Point(2, 7)));
+                REQUIRE(!DiscreteRect(2, 3, 4, 5).contains(Point(2, 8)));
+            }
+        }
+
+        SECTION(".translate")
+        {
+            SECTION("translates the rectangle")
+            {
+                REQUIRE(DiscreteRect(2, 3, 4, 5).translate(3, 6) == DiscreteRect(5, 9, 4, 5));
+                REQUIRE(DiscreteRect(2, 3, 4, 5).translate(-1, -3) == DiscreteRect(1, 0, 4, 5));
+            }
+        }
     }
 }

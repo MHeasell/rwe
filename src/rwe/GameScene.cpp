@@ -377,7 +377,7 @@ namespace rwe
             worldRenderService.drawPathfindingVisualisation(simulation.terrain, pathFindingService.lastPathDebugInfo);
         }
 
-        if (selectedUnit && movementClassGridVisible)
+        if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && movementClassGridVisible)
         {
             const auto& unit = simulation.getUnit(*selectedUnit);
             if (unit.movementClass)
@@ -387,9 +387,9 @@ namespace rwe
             }
         }
 
-        if (selectedUnit)
+        for (const auto& selectedUnitId : selectedUnits)
         {
-            worldRenderService.drawSelectionRect(getUnit(*selectedUnit));
+            worldRenderService.drawSelectionRect(getUnit(selectedUnitId));
         }
 
         worldRenderService.drawUnitShadows(simulation.terrain, simulation.units | boost::adaptors::map_values);
@@ -464,6 +464,27 @@ namespace rwe
                 hoverBuildInfo->rect.width * MapTerrain::HeightTileWidthInWorldUnits,
                 hoverBuildInfo->rect.height * MapTerrain::HeightTileHeightInWorldUnits,
                 color);
+        }
+
+        // Draw bandbox selection rectangle
+        if (auto normalCursorMode = std::get_if<NormalCursorMode>(&cursorMode.getValue()))
+        {
+            if (auto selectingState = std::get_if<NormalCursorMode::SelectingState>(&normalCursorMode->state))
+            {
+                const auto& start = selectingState->startPosition;
+                const auto& camera = worldRenderService.getCamera();
+                const auto cameraPosition = camera.getPosition();
+                Point cameraRelativeStart(start.x - cameraPosition.x, start.y - cameraPosition.z);
+
+                auto worldViewportPos = sceneContext.viewportService->toOtherViewport(worldViewport, getMousePosition());
+                auto rect = DiscreteRect::fromPoints(cameraRelativeStart, worldViewportPos);
+
+                worldUiRenderService.drawBoxOutline(rect.x, rect.y, rect.width, rect.height, Color(255, 255, 255));
+                if (rect.width > 2 && rect.height > 2)
+                {
+                    worldUiRenderService.drawBoxOutline(rect.x + 1, rect.y + 1, rect.width - 2, rect.height - 2, Color(0, 0, 0));
+                }
+            }
         }
 
         if (cursorTerrainDotVisible)
@@ -579,17 +600,17 @@ namespace rwe
             match(
                 cursorMode.getValue(),
                 [&](const AttackCursorMode&) {
-                    if (selectedUnit)
+                    for (const auto& selectedUnit : selectedUnits)
                     {
                         if (hoveredUnit)
                         {
                             if (isShiftDown())
                             {
-                                localPlayerEnqueueUnitOrder(*selectedUnit, AttackOrder(*hoveredUnit));
+                                localPlayerEnqueueUnitOrder(selectedUnit, AttackOrder(*hoveredUnit));
                             }
                             else
                             {
-                                localPlayerIssueUnitOrder(*selectedUnit, AttackOrder(*hoveredUnit));
+                                localPlayerIssueUnitOrder(selectedUnit, AttackOrder(*hoveredUnit));
                                 cursorMode.next(NormalCursorMode());
                             }
                         }
@@ -600,11 +621,11 @@ namespace rwe
                             {
                                 if (isShiftDown())
                                 {
-                                    localPlayerEnqueueUnitOrder(*selectedUnit, AttackOrder(*coord));
+                                    localPlayerEnqueueUnitOrder(selectedUnit, AttackOrder(*coord));
                                 }
                                 else
                                 {
-                                    localPlayerIssueUnitOrder(*selectedUnit, AttackOrder(*coord));
+                                    localPlayerIssueUnitOrder(selectedUnit, AttackOrder(*coord));
                                     cursorMode.next(NormalCursorMode());
                                 }
                             }
@@ -612,25 +633,25 @@ namespace rwe
                     }
                 },
                 [&](const MoveCursorMode&) {
-                    if (selectedUnit)
+                    for (const auto& selectedUnit : selectedUnits)
                     {
                         auto coord = getMouseTerrainCoordinate();
                         if (coord)
                         {
                             if (isShiftDown())
                             {
-                                localPlayerEnqueueUnitOrder(*selectedUnit, MoveOrder(*coord));
+                                localPlayerEnqueueUnitOrder(selectedUnit, MoveOrder(*coord));
                             }
                             else
                             {
-                                localPlayerIssueUnitOrder(*selectedUnit, MoveOrder(*coord));
+                                localPlayerIssueUnitOrder(selectedUnit, MoveOrder(*coord));
                                 cursorMode.next(NormalCursorMode());
                             }
                         }
                     }
                 },
                 [&](const BuildCursorMode& buildCursor) {
-                    if (selectedUnit)
+                    if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit)
                     {
                         if (hoverBuildInfo)
                         {
@@ -665,11 +686,15 @@ namespace rwe
                 [&](const NormalCursorMode&) {
                     if (isCursorOverMinimap())
                     {
-                        cursorMode.next(NormalCursorMode{NormalCursorMode::State::DraggingMinimap});
+                        cursorMode.next(NormalCursorMode{NormalCursorMode::DraggingMinimapState()});
                     }
                     else if (isCursorOverWorld())
                     {
-                        cursorMode.next(NormalCursorMode{NormalCursorMode::State::Selecting});
+                        Point p(event.x, event.y);
+                        auto worldViewportPos = sceneContext.viewportService->toOtherViewport(worldViewport, p);
+                        const auto cameraPosition = worldRenderService.getCamera().getPosition();
+                        Point originRelativePos(cameraPosition.x + worldViewportPos.x, cameraPosition.z + worldViewportPos.y);
+                        cursorMode.next(NormalCursorMode{NormalCursorMode::SelectingState(originRelativePos)});
                     }
                 });
         }
@@ -687,17 +712,17 @@ namespace rwe
                     cursorMode.next(NormalCursorMode());
                 },
                 [&](const NormalCursorMode&) {
-                    if (selectedUnit)
+                    for (const auto& selectedUnit : selectedUnits)
                     {
                         if (hoveredUnit && isEnemy(*hoveredUnit))
                         {
                             if (isShiftDown())
                             {
-                                localPlayerEnqueueUnitOrder(*selectedUnit, AttackOrder(*hoveredUnit));
+                                localPlayerEnqueueUnitOrder(selectedUnit, AttackOrder(*hoveredUnit));
                             }
                             else
                             {
-                                localPlayerIssueUnitOrder(*selectedUnit, AttackOrder(*hoveredUnit));
+                                localPlayerIssueUnitOrder(selectedUnit, AttackOrder(*hoveredUnit));
                             }
                         }
                         else
@@ -707,11 +732,11 @@ namespace rwe
                             {
                                 if (isShiftDown())
                                 {
-                                    localPlayerEnqueueUnitOrder(*selectedUnit, MoveOrder(*coord));
+                                    localPlayerEnqueueUnitOrder(selectedUnit, MoveOrder(*coord));
                                 }
                                 else
                                 {
-                                    localPlayerIssueUnitOrder(*selectedUnit, MoveOrder(*coord));
+                                    localPlayerIssueUnitOrder(selectedUnit, MoveOrder(*coord));
                                 }
                             }
                         }
@@ -729,23 +754,37 @@ namespace rwe
             match(
                 cursorMode.getValue(),
                 [&](const NormalCursorMode& normalCursor) {
-                    if (normalCursor.state == NormalCursorMode::State::Selecting)
-                    {
-                        if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
-                        {
-                            selectUnit(*hoveredUnit);
-                        }
-                        else
-                        {
-                            clearUnitSelection();
-                        }
+                    match(
+                        normalCursor.state,
+                        [&](const NormalCursorMode::SelectingState& state) {
+                            Point p(event.x, event.y);
+                            auto worldViewportPos = sceneContext.viewportService->toOtherViewport(worldViewport, p);
+                            const auto cameraPosition = worldRenderService.getCamera().getPosition();
+                            Point originRelativePos(cameraPosition.x + worldViewportPos.x, cameraPosition.z + worldViewportPos.y);
 
-                        cursorMode.next(NormalCursorMode{NormalCursorMode::State::Up});
-                    }
-                    else if (normalCursor.state == NormalCursorMode::State::DraggingMinimap)
-                    {
-                        cursorMode.next(NormalCursorMode{NormalCursorMode::State::Up});
-                    }
+                            if (state.startPosition == originRelativePos)
+                            {
+                                if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
+                                {
+                                    replaceUnitSelection(*hoveredUnit);
+                                }
+                                else
+                                {
+                                    clearUnitSelection();
+                                }
+                            }
+                            else
+                            {
+                                selectUnitsInBandbox(DiscreteRect::fromPoints(state.startPosition, originRelativePos));
+                            }
+
+                            cursorMode.next(NormalCursorMode{NormalCursorMode::UpState()});
+                        },
+                        [&](const NormalCursorMode::DraggingMinimapState&) {
+                            cursorMode.next(NormalCursorMode{NormalCursorMode::UpState()});
+                        },
+                        [&](const NormalCursorMode::UpState&) {
+                        });
                 },
                 [&](const auto&) {
                     // do nothing
@@ -812,7 +851,7 @@ namespace rwe
         // handle minimap dragging
         if (auto cursor = std::get_if<NormalCursorMode>(&cursorMode.getValue()); cursor != nullptr)
         {
-            if (cursor->state == NormalCursorMode::State::DraggingMinimap)
+            if (std::holds_alternative<NormalCursorMode::DraggingMinimapState>(cursor->state))
             {
                 // ok, the cursor is dragging the minimap.
                 // work out where the cursor is on the minimap,
@@ -877,7 +916,7 @@ namespace rwe
                     {
                         sceneContext.cursor->useSelectCursor();
                     }
-                    else if (selectedUnit && getUnit(*selectedUnit).canAttack && hoveredUnit && isEnemy(*hoveredUnit))
+                    else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).canAttack; }) && hoveredUnit && isEnemy(*hoveredUnit))
                     {
                         sceneContext.cursor->useRedCursor();
                     }
@@ -1419,31 +1458,43 @@ namespace rwe
 
     void GameScene::issueUnitOrder(UnitId unitId, const UnitOrder& order)
     {
-        auto& unit = getUnit(unitId);
-        unit.clearOrders();
-        unit.addOrder(order);
+        auto unit = tryGetUnit(unitId);
+        if (unit)
+        {
+            unit->get().clearOrders();
+            unit->get().addOrder(order);
+        }
     }
 
     void GameScene::enqueueUnitOrder(UnitId unitId, const UnitOrder& order)
     {
-        auto& unit = getUnit(unitId);
-        unit.addOrder(order);
+        auto unit = tryGetUnit(unitId);
+        if (unit)
+        {
+            unit->get().addOrder(order);
+        }
     }
 
     void GameScene::stopUnit(UnitId unitId)
     {
-        auto& unit = getUnit(unitId);
-        unit.clearOrders();
+        auto unit = tryGetUnit(unitId);
+        if (unit)
+        {
+            unit->get().clearOrders();
+        }
     }
 
     void GameScene::setFireOrders(UnitId unitId, UnitFireOrders orders)
     {
-        auto& unit = getUnit(unitId);
-        unit.fireOrders = orders;
-
-        if (selectedUnit && *selectedUnit == unitId)
+        auto unit = tryGetUnit(unitId);
+        if (unit)
         {
-            fireOrders.next(orders);
+            unit->get().fireOrders = orders;
+
+            if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && *selectedUnit == unitId)
+            {
+                fireOrders.next(orders);
+            }
         }
     }
 
@@ -1460,6 +1511,16 @@ namespace rwe
     const Unit& GameScene::getUnit(UnitId id) const
     {
         return simulation.getUnit(id);
+    }
+
+    std::optional<std::reference_wrapper<Unit>> GameScene::tryGetUnit(UnitId id)
+    {
+        return simulation.tryGetUnit(id);
+    }
+
+    std::optional<std::reference_wrapper<const Unit>> GameScene::tryGetUnit(UnitId id) const
+    {
+        return simulation.tryGetUnit(id);
     }
 
     const GamePlayerInfo& GameScene::getPlayer(PlayerId player) const
@@ -1716,43 +1777,52 @@ namespace rwe
 
     void GameScene::activateUnit(UnitId unitId)
     {
-        auto& unit = getUnit(unitId);
-        unit.activate();
-
-        if (unit.activateSound)
+        auto unit = tryGetUnit(unitId);
+        if (unit)
         {
-            playUnitSound(unitId, *unit.activateSound);
-        }
+            unit->get().activate();
 
-        if (selectedUnit && *selectedUnit == unitId)
-        {
-            onOff.next(true);
+            if (unit->get().activateSound)
+            {
+                playUnitSound(unitId, *unit->get().activateSound);
+            }
+
+            if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && *selectedUnit == unitId)
+            {
+                onOff.next(true);
+            }
         }
     }
 
     void GameScene::deactivateUnit(UnitId unitId)
     {
-        auto& unit = getUnit(unitId);
-        unit.deactivate();
-
-        if (unit.deactivateSound)
+        auto unit = tryGetUnit(unitId);
+        if (unit)
         {
-            playUnitSound(unitId, *unit.deactivateSound);
-        }
+            unit->get().deactivate();
 
-        if (selectedUnit && *selectedUnit == unitId)
-        {
-            onOff.next(false);
+            if (unit->get().deactivateSound)
+            {
+                playUnitSound(unitId, *unit->get().deactivateSound);
+            }
+
+            if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && *selectedUnit == unitId)
+            {
+                onOff.next(false);
+            }
         }
     }
 
     void GameScene::modifyBuildQueue(UnitId unitId, const std::string& unitType, int count)
     {
-        auto& unit = getUnit(unitId);
-        unit.modifyBuildQueue(unitType, count);
+        auto unit = tryGetUnit(unitId);
+        if (unit)
+        {
+            unit->get().modifyBuildQueue(unitType, count);
 
-        updateUnconfirmedBuildQueueDelta(unitId, unitType, -count);
-        refreshBuildGuiTotal(unitId, unitType);
+            updateUnconfirmedBuildQueueDelta(unitId, unitType, -count);
+            refreshBuildGuiTotal(unitId, unitType);
+        }
     }
 
     void GameScene::setBuildStance(UnitId unitId, bool value)
@@ -2007,43 +2077,44 @@ namespace rwe
                 sceneContext.audioService->playSound(*sounds.immediateOrders);
             }
 
-            if (selectedUnit)
+            for (const auto& selectedUnit : selectedUnits)
             {
                 cursorMode.next(NormalCursorMode());
-                localPlayerStopUnit(*selectedUnit);
+                localPlayerStopUnit(selectedUnit);
             }
         }
         else if (matchesWithSidePrefix("FIREORD", message))
         {
-            if (selectedUnit)
+            if (sounds.setFireOrders)
             {
-                if (sounds.setFireOrders)
-                {
-                    sceneContext.audioService->playSound(*sounds.setFireOrders);
-                }
+                sceneContext.audioService->playSound(*sounds.setFireOrders);
+            }
 
-                auto& u = getUnit(*selectedUnit);
+            for (const auto& selectedUnit : selectedUnits)
+            {
+                // FIXME: should set all to a consistent single fire order rather than advancing all
+                auto& u = getUnit(selectedUnit);
                 auto newFireOrders = nextFireOrders(u.fireOrders);
-                localPlayerSetFireOrders(*selectedUnit, newFireOrders);
+                localPlayerSetFireOrders(selectedUnit, newFireOrders);
             }
         }
         else if (matchesWithSidePrefix("ONOFF", message))
         {
-            if (selectedUnit)
+            if (sounds.immediateOrders)
             {
-                if (sounds.immediateOrders)
-                {
-                    sceneContext.audioService->playSound(*sounds.immediateOrders);
-                }
+                sceneContext.audioService->playSound(*sounds.immediateOrders);
+            }
 
-                auto& u = getUnit(*selectedUnit);
+            for (const auto& selectedUnit : selectedUnits)
+            {
+                auto& u = getUnit(selectedUnit);
                 auto newOnOff = !u.activated;
-                localPlayerSetOnOff(*selectedUnit, newOnOff);
+                localPlayerSetOnOff(selectedUnit, newOnOff);
             }
         }
         else if (matchesWithSidePrefix("NEXT", message))
         {
-            if (selectedUnit)
+            if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit)
             {
                 if (sounds.nextBuildMenu)
                 {
@@ -2056,12 +2127,15 @@ namespace rwe
                 guiInfo.currentBuildPage = (guiInfo.currentBuildPage + 1) % pages;
 
                 auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);
-                setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
+                if (buildPanelDefinition)
+                {
+                    setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
+                }
             }
         }
         else if (matchesWithSidePrefix("PREV", message))
         {
-            if (selectedUnit)
+            if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit)
             {
                 if (sounds.nextBuildMenu)
                 {
@@ -2075,12 +2149,15 @@ namespace rwe
                 guiInfo.currentBuildPage = guiInfo.currentBuildPage == 0 ? pages - 1 : guiInfo.currentBuildPage - 1;
 
                 auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);
-                setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
+                if (buildPanelDefinition)
+                {
+                    setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
+                }
             }
         }
         else if (matchesWithSidePrefix("BUILD", message))
         {
-            if (selectedUnit)
+            if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit)
             {
                 if (sounds.buildButton)
                 {
@@ -2092,12 +2169,15 @@ namespace rwe
                 guiInfo.section = UnitGuiInfo::Section::Build;
 
                 auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);
-                setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
+                if (buildPanelDefinition)
+                {
+                    setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
+                }
             }
         }
         else if (matchesWithSidePrefix("ORDERS", message))
         {
-            if (selectedUnit)
+            if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit)
             {
                 if (sounds.ordersButton)
                 {
@@ -2118,7 +2198,7 @@ namespace rwe
                 sceneContext.audioService->playSound(*sounds.addBuild);
             }
 
-            if (selectedUnit)
+            if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit)
             {
                 const auto& unit = getUnit(*selectedUnit);
                 if (unit.isMobile)
@@ -2147,44 +2227,124 @@ namespace rwe
         return false;
     }
 
-    void GameScene::selectUnit(const UnitId& unitId)
+    std::optional<UnitId> GameScene::getSingleSelectedUnit() const
     {
-        selectedUnit = unitId;
+        return selectedUnits.size() == 1
+            ? std::make_optional(*selectedUnits.begin())
+            : std::nullopt;
+    }
+
+    void GameScene::selectUnitsInBandbox(const DiscreteRect& box)
+    {
+        const auto& camera = worldRenderService.getCamera();
+        const auto cameraPos = camera.getPosition();
+        auto cameraBox = box.translate(-cameraPos.x, -cameraPos.z);
+        const auto& matrix = camera.getViewProjectionMatrix();
+        std::vector<UnitId> units;
+
+        for (const auto& e : simulation.units)
+        {
+            if (!e.second.isSelectableBy(localPlayerId))
+            {
+                continue;
+            }
+
+            const auto& worldPos = e.second.position;
+            auto clipPos = matrix * worldPos;
+            Point viewportPos = worldViewport.toViewportSpace(clipPos.x, clipPos.y);
+            if (!cameraBox.contains(viewportPos))
+            {
+                continue;
+            }
+
+            units.emplace_back(e.first);
+        }
+
+        replaceUnitSelection(units);
+    }
+
+    void GameScene::replaceUnitSelection(const UnitId& unitId)
+    {
+        selectedUnits.clear();
+        selectedUnits.insert(unitId);
+
         const auto& unit = getUnit(unitId);
-        fireOrders.next(unit.fireOrders);
-        onOff.next(unit.activated);
         const auto& selectionSound = unit.selectionSound;
         if (selectionSound)
         {
             playSoundOnSelectChannel(*selectionSound);
         }
 
-        const auto& guiInfo = getGuiInfo(unitId);
-        auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);
-        if (guiInfo.section == UnitGuiInfo::Section::Build && buildPanelDefinition)
+        onSelectedUnitsChanged();
+    }
+
+    void GameScene::deselectUnit(const UnitId& unitId)
+    {
+        selectedUnits.erase(unitId);
+        onSelectedUnitsChanged();
+    }
+
+    void GameScene::clearUnitSelection()
+    {
+        selectedUnits.clear();
+        onSelectedUnitsChanged();
+    }
+
+    void GameScene::replaceUnitSelection(const std::vector<UnitId>& units)
+    {
+        selectedUnits.clear();
+        for (const auto& unitId : units)
         {
-            setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
+            selectedUnits.insert(unitId);
+        }
+
+        if (units.size() == 1)
+        {
+            const auto& unit = getUnit(units.front());
+            const auto& selectionSound = unit.selectionSound;
+            if (selectionSound)
+            {
+                playSoundOnSelectChannel(*selectionSound);
+            }
+        }
+        else if (units.size() > 0)
+        {
+            playSoundOnSelectChannel(*sounds.selectMultipleUnits);
+        }
+
+        onSelectedUnitsChanged();
+    }
+
+    void GameScene::onSelectedUnitsChanged()
+    {
+        if (selectedUnits.empty())
+        {
+            const auto& sidePrefix = sceneContext.sideData->at(getPlayer(localPlayerId).side).namePrefix;
+            setNextPanel(uiFactory.panelFromGuiFile(sidePrefix + "MAIN2"));
+        }
+        else if (auto unitId = getSingleSelectedUnit(); unitId)
+        {
+            const auto& unit = getUnit(*unitId);
+            fireOrders.next(unit.fireOrders);
+            onOff.next(unit.activated);
+
+            const auto& guiInfo = getGuiInfo(*unitId);
+            auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);
+            if (guiInfo.section == UnitGuiInfo::Section::Build && buildPanelDefinition)
+            {
+                setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
+            }
+            else
+            {
+                const auto& sidePrefix = sceneContext.sideData->at(getPlayer(localPlayerId).side).namePrefix;
+                setNextPanel(uiFactory.panelFromGuiFile(sidePrefix + "GEN"));
+            }
         }
         else
         {
             const auto& sidePrefix = sceneContext.sideData->at(getPlayer(localPlayerId).side).namePrefix;
             setNextPanel(uiFactory.panelFromGuiFile(sidePrefix + "GEN"));
         }
-    }
-
-    void GameScene::deselectUnit(const UnitId& unitId)
-    {
-        if (selectedUnit && *selectedUnit == unitId)
-        {
-            clearUnitSelection();
-        }
-    }
-
-    void GameScene::clearUnitSelection()
-    {
-        selectedUnit = std::nullopt;
-        const auto& sidePrefix = sceneContext.sideData->at(getPlayer(localPlayerId).side).namePrefix;
-        setNextPanel(uiFactory.panelFromGuiFile(sidePrefix + "MAIN2"));
     }
 
     const UnitGuiInfo& GameScene::getGuiInfo(const UnitId& unitId) const
@@ -2204,7 +2364,7 @@ namespace rwe
 
     void GameScene::refreshBuildGuiTotal(UnitId unitId, const std::string& unitType)
     {
-        if (selectedUnit == unitId)
+        if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit == unitId)
         {
             const auto& unit = getUnit(*selectedUnit);
             auto total = unit.getBuildQueueTotal(unitType) + getUnconfirmedBuildQueueCount(unitId, unitType);
