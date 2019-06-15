@@ -472,6 +472,10 @@ namespace rwe
 
         const Unit& getUnit(UnitId id) const;
 
+        std::optional<std::reference_wrapper<Unit>> tryGetUnit(UnitId id);
+
+        std::optional<std::reference_wrapper<const Unit>> tryGetUnit(UnitId id) const;
+
         const GamePlayerInfo& getPlayer(PlayerId player) const;
 
         bool isEnemy(UnitId id) const;

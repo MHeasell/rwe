@@ -1,4 +1,5 @@
 #include "GameSimulation.h"
+#include "collection_util.h"
 #include <rwe/overloaded.h>
 
 #include <rwe/movement.h>
@@ -315,6 +316,16 @@ namespace rwe
         auto it = units.find(id);
         assert(it != units.end());
         return it->second;
+    }
+
+    std::optional<std::reference_wrapper<Unit>> GameSimulation::tryGetUnit(UnitId id)
+    {
+        return tryFind(units, id);
+    }
+
+    std::optional<std::reference_wrapper<const Unit>> GameSimulation::tryGetUnit(UnitId id) const
+    {
+        return tryFind(units, id);
     }
 
     bool GameSimulation::unitExists(UnitId id) const

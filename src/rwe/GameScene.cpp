@@ -1458,31 +1458,43 @@ namespace rwe
 
     void GameScene::issueUnitOrder(UnitId unitId, const UnitOrder& order)
     {
-        auto& unit = getUnit(unitId);
-        unit.clearOrders();
-        unit.addOrder(order);
+        auto unit = tryGetUnit(unitId);
+        if (unit)
+        {
+            unit->get().clearOrders();
+            unit->get().addOrder(order);
+        }
     }
 
     void GameScene::enqueueUnitOrder(UnitId unitId, const UnitOrder& order)
     {
-        auto& unit = getUnit(unitId);
-        unit.addOrder(order);
+        auto unit = tryGetUnit(unitId);
+        if (unit)
+        {
+            unit->get().addOrder(order);
+        }
     }
 
     void GameScene::stopUnit(UnitId unitId)
     {
-        auto& unit = getUnit(unitId);
-        unit.clearOrders();
+        auto unit = tryGetUnit(unitId);
+        if (unit)
+        {
+            unit->get().clearOrders();
+        }
     }
 
     void GameScene::setFireOrders(UnitId unitId, UnitFireOrders orders)
     {
-        auto& unit = getUnit(unitId);
-        unit.fireOrders = orders;
-
-        if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && *selectedUnit == unitId)
+        auto unit = tryGetUnit(unitId);
+        if (unit)
         {
-            fireOrders.next(orders);
+            unit->get().fireOrders = orders;
+
+            if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && *selectedUnit == unitId)
+            {
+                fireOrders.next(orders);
+            }
         }
     }
 
@@ -1499,6 +1511,16 @@ namespace rwe
     const Unit& GameScene::getUnit(UnitId id) const
     {
         return simulation.getUnit(id);
+    }
+
+    std::optional<std::reference_wrapper<Unit>> GameScene::tryGetUnit(UnitId id)
+    {
+        return simulation.tryGetUnit(id);
+    }
+
+    std::optional<std::reference_wrapper<const Unit>> GameScene::tryGetUnit(UnitId id) const
+    {
+        return simulation.tryGetUnit(id);
     }
 
     const GamePlayerInfo& GameScene::getPlayer(PlayerId player) const
@@ -1755,43 +1777,52 @@ namespace rwe
 
     void GameScene::activateUnit(UnitId unitId)
     {
-        auto& unit = getUnit(unitId);
-        unit.activate();
-
-        if (unit.activateSound)
+        auto unit = tryGetUnit(unitId);
+        if (unit)
         {
-            playUnitSound(unitId, *unit.activateSound);
-        }
+            unit->get().activate();
 
-        if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && *selectedUnit == unitId)
-        {
-            onOff.next(true);
+            if (unit->get().activateSound)
+            {
+                playUnitSound(unitId, *unit->get().activateSound);
+            }
+
+            if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && *selectedUnit == unitId)
+            {
+                onOff.next(true);
+            }
         }
     }
 
     void GameScene::deactivateUnit(UnitId unitId)
     {
-        auto& unit = getUnit(unitId);
-        unit.deactivate();
-
-        if (unit.deactivateSound)
+        auto unit = tryGetUnit(unitId);
+        if (unit)
         {
-            playUnitSound(unitId, *unit.deactivateSound);
-        }
+            unit->get().deactivate();
 
-        if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && *selectedUnit == unitId)
-        {
-            onOff.next(false);
+            if (unit->get().deactivateSound)
+            {
+                playUnitSound(unitId, *unit->get().deactivateSound);
+            }
+
+            if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && *selectedUnit == unitId)
+            {
+                onOff.next(false);
+            }
         }
     }
 
     void GameScene::modifyBuildQueue(UnitId unitId, const std::string& unitType, int count)
     {
-        auto& unit = getUnit(unitId);
-        unit.modifyBuildQueue(unitType, count);
+        auto unit = tryGetUnit(unitId);
+        if (unit)
+        {
+            unit->get().modifyBuildQueue(unitType, count);
 
-        updateUnconfirmedBuildQueueDelta(unitId, unitType, -count);
-        refreshBuildGuiTotal(unitId, unitType);
+            updateUnconfirmedBuildQueueDelta(unitId, unitType, -count);
+            refreshBuildGuiTotal(unitId, unitType);
+        }
     }
 
     void GameScene::setBuildStance(UnitId unitId, bool value)
