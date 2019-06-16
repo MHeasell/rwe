@@ -1,6 +1,8 @@
 #include "GameNetworkService.h"
+#include <rwe/OpaqueUnit_io.h>
 #include <rwe/SceneManager.h>
 #include <rwe/proto/serialization.h>
+#include <spdlog/fmt/ostr.h>
 #include <spdlog/spdlog.h>
 #include <thread>
 
@@ -240,6 +242,14 @@ namespace rwe
         spdlog::get("rwe")->debug("Received ack to {0} and {1} commands starting at {2}", message.next_command_set_to_receive(), message.command_set_size(), message.next_command_set_to_send());
 
         SequenceNumber newNextCommandToSend(message.next_command_set_to_receive());
+        if (newNextCommandToSend.value > endpoint.nextCommandToSend.value + endpoint.sendBuffer.size())
+        {
+            spdlog::get("rwe")->error(
+                "Remote acked up to {0}, but we are at {1} and command buffer contains {2} elements",
+                newNextCommandToSend,
+                endpoint.nextCommandToSend,
+                endpoint.sendBuffer.size());
+        }
         while (newNextCommandToSend > endpoint.nextCommandToSend && !endpoint.sendBuffer.empty())
         {
             endpoint.sendBuffer.pop_front();
