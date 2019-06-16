@@ -51,6 +51,7 @@ namespace rwe
             auto time = getTimestamp();
 
             auto accum = localSceneTime.value;
+            auto count = 1;
             for (const auto& e : endpoints)
             {
                 if (!e.lastKnownSceneTime)
@@ -63,8 +64,9 @@ namespace rwe
 
                 auto peerSceneTime = e.lastKnownSceneTime->first.value + extraFrames;
                 accum += peerSceneTime;
+                count += 1;
             }
-            auto finalValue = accum / (endpoints.size() + 1);
+            auto finalValue = accum / count;
 
             result.set_value(finalValue);
         });
