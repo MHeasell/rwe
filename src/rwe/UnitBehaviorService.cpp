@@ -221,6 +221,11 @@ namespace rwe
                     auto otherUnitId = entry.first;
                     const auto& otherUnit = entry.second;
 
+                    if (otherUnit.isDead())
+                    {
+                        continue;
+                    }
+
                     if (otherUnit.isOwnedBy(unit.owner))
                     {
                         continue;
