@@ -200,7 +200,7 @@ namespace rwe
         socket.send_to(boost::asio::buffer(messageBuffer.data(), message.ByteSize()), endpoint.endpoint);
 
         auto nextSequenceNumber = SequenceNumber(endpoint.nextCommandToSend.value + (endpoint.sendBuffer.size()));
-        if (endpoint.sendTimes.empty() || endpoint.sendTimes.front().first < nextSequenceNumber)
+        if (endpoint.sendTimes.empty() || endpoint.sendTimes.back().first < nextSequenceNumber)
         {
             endpoint.sendTimes.emplace_back(nextSequenceNumber, sendTime);
         }
