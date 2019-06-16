@@ -1871,7 +1871,7 @@ namespace rwe
                     simulation.occupiedGrid.forEach(*footprintRegion, [&](auto& cell) {
                         if (cell.buildingCell && cell.buildingCell->unit == it->first)
                         {
-                            cell.buildingCell = BuildingOccupiedCell();
+                            cell.buildingCell = std::nullopt;
                         }
                     });
                 }
