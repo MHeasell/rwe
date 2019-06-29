@@ -682,6 +682,7 @@ set(TEST_FILES
     test/rwe/math/Vector2f_test.cpp
     test/rwe/math/Vector3f_test.cpp
     test/rwe/math/rwe_math_test.cpp
+    test/rwe/network_util_test.cpp
     test/rwe/ota_test.cpp
     test/rwe/pathfinding/pathfinding_utils_test.cpp
     test/rwe/rc_gen_optional.h
