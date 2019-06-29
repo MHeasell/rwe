@@ -1,5 +1,5 @@
 #include "GameSimulation.h"
-#include "collection_util.h"
+#include <rwe/collection_util.h>
 #include <rwe/overloaded.h>
 
 #include <rwe/movement.h>

@@ -171,7 +171,8 @@ namespace rwe
         return DiscreteRect(left, top, static_cast<unsigned int>(intersectWidth), static_cast<unsigned int>(intersectHeight));
     }
 
-    DiscreteRect DiscreteRect::translate(int dx, int dy) const{
+    DiscreteRect DiscreteRect::translate(int dx, int dy) const
+    {
         return DiscreteRect(x + dx, y + dy, width, height);
     }
 
