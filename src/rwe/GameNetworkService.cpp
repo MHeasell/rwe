@@ -1,6 +1,7 @@
 #include "GameNetworkService.h"
 #include <rwe/OpaqueUnit_io.h>
 #include <rwe/SceneManager.h>
+#include <rwe/network_util.h>
 #include <rwe/proto/serialization.h>
 #include <spdlog/fmt/ostr.h>
 #include <spdlog/spdlog.h>
@@ -206,11 +207,6 @@ namespace rwe
         {
             endpoint.sendTimes.emplace_back(nextSequenceNumber, sendTime);
         }
-    }
-
-    float ema(float val, float average, float alpha)
-    {
-        return (alpha * val) + ((1.0f - alpha) * average);
     }
 
     void GameNetworkService::receive(std::size_t receivedBytes)

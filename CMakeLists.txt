@@ -407,6 +407,8 @@ set(SOURCE_FILES
     src/rwe/math/rwe_math.h
     src/rwe/movement.cpp
     src/rwe/movement.h
+    src/rwe/network_util.cpp
+    src/rwe/network_util.h
     src/rwe/observable/BehaviorSubject.h
     src/rwe/observable/Observable.h
     src/rwe/observable/Subject.h
