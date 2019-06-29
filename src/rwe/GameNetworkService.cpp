@@ -1,4 +1,5 @@
 #include "GameNetworkService.h"
+#include <boost/range/adaptors.hpp>
 #include <rwe/OpaqueUnit_io.h>
 #include <rwe/SceneManager.h>
 #include <rwe/network_util.h>
@@ -52,25 +53,11 @@ namespace rwe
         std::promise<unsigned int> result;
         ioContext.post([this, localSceneTime, &result]() {
             auto time = getTimestamp();
+            auto otherTimes = endpoints
+                | boost::adaptors::filtered([](const auto& e) { return !!e.lastKnownSceneTime; })
+                | boost::adaptors::transformed([](const auto& e) { return *e.lastKnownSceneTime; });
 
-            auto accum = localSceneTime.value;
-            auto count = 1;
-            for (const auto& e : endpoints)
-            {
-                if (!e.lastKnownSceneTime)
-                {
-                    continue;
-                }
-
-                auto elapsedTimeMillis = std::chrono::duration_cast<std::chrono::milliseconds>(time - e.lastKnownSceneTime->second).count();
-                auto extraFrames = elapsedTimeMillis / 16;
-
-                auto peerSceneTime = e.lastKnownSceneTime->first.value + extraFrames;
-                accum += peerSceneTime;
-                count += 1;
-            }
-            auto finalValue = accum / count;
-
+            auto finalValue = estimateAverageSceneTimeStatic(localSceneTime, otherTimes, time);
             result.set_value(finalValue);
         });
 
