@@ -440,6 +440,7 @@ set(SOURCE_FILES
     src/rwe/pcx.h
     src/rwe/proto/serialization.cpp
     src/rwe/proto/serialization.h
+    src/rwe/range_util.h
     src/rwe/resource_io.cpp
     src/rwe/resource_io.h
     src/rwe/rwe_string.cpp

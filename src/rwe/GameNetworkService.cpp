@@ -4,6 +4,7 @@
 #include <rwe/SceneManager.h>
 #include <rwe/network_util.h>
 #include <rwe/proto/serialization.h>
+#include <rwe/range_util.h>
 #include <spdlog/fmt/ostr.h>
 #include <spdlog/spdlog.h>
 #include <thread>
@@ -53,9 +54,7 @@ namespace rwe
         std::promise<unsigned int> result;
         ioContext.post([this, localSceneTime, &result]() {
             auto time = getTimestamp();
-            auto otherTimes = endpoints
-                | boost::adaptors::filtered([](const auto& e) { return !!e.lastKnownSceneTime; })
-                | boost::adaptors::transformed([](const auto& e) { return *e.lastKnownSceneTime; });
+            auto otherTimes = choose(endpoints, [](const auto& e) { return e.lastKnownSceneTime; });
 
             auto finalValue = estimateAverageSceneTimeStatic(localSceneTime, otherTimes, time);
             result.set_value(finalValue);
