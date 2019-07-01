@@ -1,13 +1,13 @@
 AccessModifierOffset: -4
-AlignAfterOpenBracket: false
-AlignConsecutiveDeclarations: false
-AlignConsecutiveAssignments: false
-AlignOperands: false
+AlignAfterOpenBracket: true
+AlignConsecutiveDeclarations: true
+AlignConsecutiveAssignments: true
+AlignOperands: true
 BinPackArguments: false
 BinPackParameters: false
 BreakBeforeBinaryOperators: true
 BreakBeforeBraces: Allman  # always break
-ColumnLimit: 0
+ColumnLimit: 120
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 DerivePointerAlignment: false
 IndentCaseLabels: true

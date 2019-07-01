@@ -37,6 +37,8 @@ namespace rwe
 
         AudioService::LoopToken bgm;
 
+        std::vector<std::string> cachedMapNames;
+
     public:
         MainMenuScene(
             const SceneContext& sceneContext,

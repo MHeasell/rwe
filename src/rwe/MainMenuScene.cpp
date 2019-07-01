@@ -350,6 +350,7 @@ namespace rwe
         }
 
         attachPlayerSelectionComponents("SKIRMISH", *panel);
+        getMapNames();
 
         goToMenu(std::move(panel));
     }
@@ -725,18 +726,22 @@ namespace rwe
 
     std::vector<std::string> MainMenuScene::getMapNames()
     {
-        auto mapNames = sceneContext.vfs->getFileNames("maps", ".ota");
-
-        for (auto& e : mapNames)
+        if (cachedMapNames.empty())
         {
-            // chop off the extension
-            e.resize(e.size() - 4);
+            auto mapNames = sceneContext.vfs->getFileNames("maps", ".ota");
+
+            for (auto& e : mapNames)
+            {
+                // chop off the extension
+                e.resize(e.size() - 4);
+            }
+
+            // Keep only maps that have a multiplayer schema
+            mapNames.erase(std::remove_if(mapNames.begin(), mapNames.end(), [this](const auto& e) { return !hasMultiplayerSchema(e); }), mapNames.end());
+            cachedMapNames = mapNames;
         }
 
-        // Keep only maps that have a multiplayer schema
-        mapNames.erase(std::remove_if(mapNames.begin(), mapNames.end(), [this](const auto& e) { return !hasMultiplayerSchema(e); }), mapNames.end());
-
-        return mapNames;
+        return cachedMapNames;
     }
 
     void MainMenuScene::attachPlayerSelectionComponents(const std::string& guiName, UiPanel& panel)

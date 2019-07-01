@@ -187,6 +187,8 @@ namespace rwe
 
         std::optional<UnitId> getFirstCollidingUnit(const Ray3f& ray) const;
 
+        std::optional<UnitId> getClosestUnit(const Vector3f &position, float epsilon = 0.5f) const;
+
         std::optional<Vector3f> intersectLineWithTerrain(const Line3f& line) const;
 
         void moveUnitOccupiedArea(const DiscreteRect& oldRect, const DiscreteRect& newRect, UnitId unitId);

@@ -76,6 +76,11 @@ namespace rwe
         return buildTimeCompleted < buildTime;
     }
 
+    bool Unit::isDamaged() const
+    {
+        return hitPoints < maxHitPoints;
+    }
+
     unsigned int Unit::getBuildPercentLeft() const
     {
         return 100u - ((buildTimeCompleted * 100u) / buildTime);
@@ -607,7 +612,7 @@ namespace rwe
     int Unit::getBuildQueueTotal(const std::string& unitType) const
     {
         int sum = 0;
-        for (const auto e : buildQueue)
+        for (const auto& e : buildQueue)
         {
             if (e.first == unitType)
             {

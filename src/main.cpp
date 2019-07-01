@@ -235,14 +235,9 @@ namespace rwe
 
         logger.info("Loading cursors");
         CursorService cursor(
-            sdlContext,
-            &timeService,
-            textureService.getGafEntry("anims/CURSORS.GAF", "cursornormal"),
-            textureService.getGafEntry("anims/CURSORS.GAF", "cursorselect"),
-            textureService.getGafEntry("anims/CURSORS.GAF", "cursorattack"),
-            textureService.getGafEntry("anims/CURSORS.GAF", "cursormove"),
-            textureService.getGafEntry("anims/CURSORS.GAF", "cursorred"));
-
+            *sdlContext,
+            timeService,
+            textureService);
         sdlContext->showCursor(SDL_DISABLE);
 
         logger.info("Loading side data");
@@ -397,14 +392,11 @@ auto createLogger(const fs::path& logDir)
     for (int i = 0; i < 3; ++i)
     {
         fs::path logPath(logDir);
-        if (i == 0)
+        if (!fs::exists(logPath))
         {
-            logPath /= "rwe.log";
+            fs::create_directory(logPath);
         }
-        else
-        {
-            logPath /= "rwe" + std::to_string(i) + ".log";
-        }
+        logPath /= "rwe" + i == 0 ? "" : std::to_string(i) + ".log";
 
         try
         {
@@ -412,6 +404,7 @@ auto createLogger(const fs::path& logDir)
         }
         catch (const spdlog::spdlog_ex& ex)
         {
+            std::cout << ex.what() << std::endl;
         }
     }
 

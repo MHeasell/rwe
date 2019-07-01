@@ -1,10 +1,12 @@
 #ifndef RWE_CURSORSERVICE_H
 #define RWE_CURSORSERVICE_H
 
+#include <array>
 #include <memory>
 #include <rwe/GraphicsContext.h>
 #include <rwe/SdlContextManager.h>
 #include <rwe/SpriteSeries.h>
+#include <rwe/TextureService.h>
 #include <rwe/UiRenderService.h>
 #include <rwe/rwe_time.h>
 
@@ -12,39 +14,49 @@ namespace rwe
 {
     class CursorService
     {
-    private:
-        SdlContext* sdlContext;
-        TimeService* timeService;
-
-        std::shared_ptr<SpriteSeries> _normalCursor;
-        std::shared_ptr<SpriteSeries> _selectCursor;
-        std::shared_ptr<SpriteSeries> _attackCursor;
-        std::shared_ptr<SpriteSeries> _moveCursor;
-        std::shared_ptr<SpriteSeries> _redCursor;
-
-        SpriteSeries* currentCursor;
-
     public:
+        enum Type
+        {
+            move,
+            grn,
+            select,
+            red,
+            load,
+            revive,
+            defend,
+            patrol,
+            protect,
+            repair,
+            attack,
+            normal,
+            pickup,
+            airstrike,
+            teleport,
+            reclamate,
+            findsite,
+            unload,
+            hourglass,
+            toofar,
+            __count
+        };
+
         CursorService(
-            SdlContext* sdlContext,
-            TimeService* timeService,
-            std::shared_ptr<SpriteSeries> normalCursor,
-            std::shared_ptr<SpriteSeries> selectCursor,
-            std::shared_ptr<SpriteSeries> attackCursor,
-            std::shared_ptr<SpriteSeries> moveCursor,
-            std::shared_ptr<SpriteSeries> redCursor);
+            SdlContext&     sdlContext,
+            TimeService&    timeService,
+            TextureService& textureService);
 
-        void useNormalCursor();
-
-        void useSelectCursor();
-
-        void useAttackCursor();
-
-        void useMoveCursor();
-
-        void useRedCursor();
+        void useCursor(Type cursor);
 
         void render(UiRenderService& renderer) const;
+
+    private:
+        SdlContext&     _sdlContext;
+        TimeService&    _timeService;
+        TextureService& _textureService;
+
+        std::array<std::shared_ptr<SpriteSeries>, Type::__count> _cursors;
+
+        size_t _currentCursor;
     };
 }
 
