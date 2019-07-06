@@ -34,6 +34,11 @@ message AttackOrder
     }
 }
 
+message RepairOrder
+{
+    required int32 unit = 1;
+}
+
 message BuildOrder
 {
     required string unit_type = 1;
@@ -56,6 +61,7 @@ message PlayerUnitCommand
             MoveOrder move = 2;
             AttackOrder attack = 3;
             BuildOrder build = 4;
+            RepairOrder repair = 5;
         }
     }
 

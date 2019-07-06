@@ -95,6 +95,7 @@ namespace rwe
         {
             Alive,
             Dead,
+            InProgress
         };
 
     public:
@@ -172,7 +173,7 @@ namespace rwe
         unsigned int hitPoints{0};
         unsigned int maxHitPoints;
 
-        LifeState lifeState{LifeState::Alive};
+        LifeState lifeState{LifeState::InProgress};
 
         std::deque<UnitOrder> orders;
         UnitState             behaviourState;
@@ -260,6 +261,8 @@ namespace rwe
         BuildCostInfo getBuildCostInfo(unsigned int buildTimeContribution);
 
         bool addBuildProgress(unsigned int buildTimeContribution);
+
+        bool addRepairProgress(unsigned int repairTimeContribution);
 
         bool isCommander() const;
 

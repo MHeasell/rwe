@@ -45,6 +45,11 @@ namespace rwe
             std::visit(visitor, o.target);
         }
 
+        void operator()(const RepairOrder& o){
+            auto& out = *cmd->mutable_repair();
+            out.set_unit(o.target.value);
+        }
+
         void operator()(const BuildOrder& o)
         {
             auto& out = *cmd->mutable_build();

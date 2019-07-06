@@ -57,6 +57,12 @@ namespace rwe
         }
     };
 
+    struct RepairCursorMode
+    {
+        bool operator==(const RepairCursorMode& /*rhs*/) const { return true; }
+        bool operator!=(const RepairCursorMode& /*rhs*/) const { return false; }
+    };
+
     struct AttackCursorMode
     {
         bool operator==(const AttackCursorMode& /*rhs*/) const { return true; }
@@ -107,7 +113,7 @@ namespace rwe
         bool operator!=(const BuildCursorMode& rhs) const { return !(rhs == *this); }
     };
 
-    using CursorMode = std::variant<NormalCursorMode, AttackCursorMode, MoveCursorMode, BuildCursorMode>;
+    using CursorMode = std::variant<NormalCursorMode, AttackCursorMode, RepairCursorMode, MoveCursorMode, BuildCursorMode>;
 
     enum class ImpactType
     {
@@ -287,7 +293,6 @@ namespace rwe
         bool healthBarsVisible{false};
 
         BehaviorSubject<CursorMode> cursorMode;
-        CursorMode                  selectedCursorMode;
 
         std::deque<std::optional<GameSceneTimeAction>> actions;
 

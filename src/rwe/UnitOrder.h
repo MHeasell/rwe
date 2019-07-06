@@ -23,6 +23,12 @@ namespace rwe
         explicit AttackOrder(const Vector3f& target) : target(target) {}
     };
 
+    struct RepairOrder
+    {
+        UnitId target;
+        explicit RepairOrder(UnitId target) : target(target) {}
+    };
+
     struct BuildOrder
     {
         std::string unitType;
@@ -36,7 +42,7 @@ namespace rwe
         explicit BuggerOffOrder(const DiscreteRect& r) : rect(r) {}
     };
 
-    using UnitOrder = std::variant<MoveOrder, AttackOrder, BuildOrder, BuggerOffOrder>;
+    using UnitOrder = std::variant<MoveOrder, AttackOrder,RepairOrder, BuildOrder, BuggerOffOrder>;
 }
 
 #endif

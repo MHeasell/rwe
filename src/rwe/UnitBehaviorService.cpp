@@ -19,19 +19,23 @@ namespace rwe
         auto turnRadius = speed / turnRate;
 
         auto anticlockwiseCircleAngle = currentDirection + (Pif / 2.0f);
-        auto clockwiseCircleAngle = currentDirection - (Pif / 2.0f);
-        auto anticlockwiseCircle = Circle2f(turnRadius, Vector2fFromLengthAndAngle(turnRadius, anticlockwiseCircleAngle));
+        auto clockwiseCircleAngle     = currentDirection - (Pif / 2.0f);
+        auto anticlockwiseCircle
+            = Circle2f(turnRadius, Vector2fFromLengthAndAngle(turnRadius, anticlockwiseCircleAngle));
         auto clockwiseCircle = Circle2f(turnRadius, Vector2fFromLengthAndAngle(turnRadius, clockwiseCircleAngle));
 
-        return anticlockwiseCircle.contains(Vector2f(dest.x, dest.z)) || clockwiseCircle.contains(Vector2f(dest.x, dest.z));
+        return anticlockwiseCircle.contains(Vector2f(dest.x, dest.z))
+               || clockwiseCircle.contains(Vector2f(dest.x, dest.z));
     }
 
-    UnitBehaviorService::UnitBehaviorService(
-        GameScene* scene,
-        PathFindingService* pathFindingService,
-        MovementClassCollisionService* collisionService,
-        UnitFactory* unitFactory)
-        : scene(scene), pathFindingService(pathFindingService), collisionService(collisionService), unitFactory(unitFactory)
+    UnitBehaviorService::UnitBehaviorService(GameScene*                     scene,
+                                             PathFindingService*            pathFindingService,
+                                             MovementClassCollisionService* collisionService,
+                                             UnitFactory*                   unitFactory)
+        : scene(scene),
+          pathFindingService(pathFindingService),
+          collisionService(collisionService),
+          unitFactory(unitFactory)
     {
     }
 
@@ -45,10 +49,7 @@ namespace rwe
 
         std::optional<Vector3f> operator()(const Vector3f& target) { return target; }
 
-        std::optional<Vector3f> operator()(UnitId id)
-        {
-            return service->tryGetSweetSpot(id);
-        }
+        std::optional<Vector3f> operator()(UnitId id) { return service->tryGetSweetSpot(id); }
     };
 
     class AttackTargetToMovingStateGoalVisitor
@@ -136,7 +137,8 @@ namespace rwe
         }
     }
 
-    std::pair<float, float> UnitBehaviorService::computeHeadingAndPitch(float rotation, const Vector3f& from, const Vector3f& to)
+    std::pair<float, float>
+    UnitBehaviorService::computeHeadingAndPitch(float rotation, const Vector3f& from, const Vector3f& to)
     {
         auto aimVector = to - from;
         if (aimVector.lengthSquared() == 0.0f)
@@ -147,10 +149,10 @@ namespace rwe
         Vector3f aimVectorXZ(aimVector.x, 0.0f, aimVector.z);
 
         auto heading = Unit::toRotation(aimVectorXZ);
-        heading = wrap(-Pif, Pif, heading - rotation);
+        heading      = wrap(-Pif, Pif, heading - rotation);
 
         auto pitchNormal = aimVectorXZ.cross(Vector3f(0.0f, 1.0f, 0.0f));
-        auto pitch = aimVectorXZ.angleTo(aimVector, pitchNormal);
+        auto pitch       = aimVectorXZ.angleTo(aimVector, pitchNormal);
 
         return {heading, pitch};
     }
@@ -158,9 +160,9 @@ namespace rwe
     bool UnitBehaviorService::followPath(Unit& unit, PathFollowingInfo& path)
     {
         const auto& destination = *path.currentWaypoint;
-        Vector3f xzPosition(unit.position.x, 0.0f, unit.position.z);
-        Vector3f xzDestination(destination.x, 0.0f, destination.z);
-        auto distanceSquared = xzPosition.distanceSquared(xzDestination);
+        Vector3f    xzPosition(unit.position.x, 0.0f, unit.position.z);
+        Vector3f    xzDestination(destination.x, 0.0f, destination.z);
+        auto        distanceSquared = xzPosition.distanceSquared(xzDestination);
 
         auto isFinalDestination = path.currentWaypoint == (path.path.waypoints.end() - 1);
 
@@ -204,7 +206,7 @@ namespace rwe
 
     void UnitBehaviorService::updateWeapon(UnitId id, unsigned int weaponIndex)
     {
-        auto& unit = scene->getSimulation().getUnit(id);
+        auto& unit   = scene->getSimulation().getUnit(id);
         auto& weapon = unit.weapons[weaponIndex];
         if (!weapon)
         {
@@ -218,8 +220,8 @@ namespace rwe
             {
                 for (const auto& entry : scene->getSimulation().units)
                 {
-                    auto otherUnitId = entry.first;
-                    const auto& otherUnit = entry.second;
+                    auto        otherUnitId = entry.first;
+                    const auto& otherUnit   = entry.second;
 
                     if (otherUnit.isOwnedBy(unit.owner))
                     {
@@ -254,7 +256,8 @@ namespace rwe
                     }
                     else if (auto attackOrder = std::get_if<AttackOrder>(&unit.orders.front()); attackOrder != nullptr)
                     {
-                        if (auto attackTarget = std::get_if<UnitId>(&attackOrder->target); attackTarget == nullptr || *attackTarget != *targetUnit)
+                        if (auto attackTarget = std::get_if<UnitId>(&attackOrder->target);
+                            attackTarget == nullptr || *attackTarget != *targetUnit)
                         {
                             unit.clearWeaponTarget(weaponIndex);
                             return;
@@ -264,7 +267,7 @@ namespace rwe
             }
 
             GetTargetPositionVisitor targetPositionVisitor(this);
-            auto targetPosition = std::visit(targetPositionVisitor, aimingState->target);
+            auto                     targetPosition = std::visit(targetPositionVisitor, aimingState->target);
 
             if (!targetPosition || unit.position.distanceSquared(*targetPosition) > weapon->maxRange * weapon->maxRange)
             {
@@ -275,10 +278,12 @@ namespace rwe
                 auto aimFromPosition = getAimingPoint(id, weaponIndex);
 
                 auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, *targetPosition);
-                auto heading = headingAndPitch.first;
-                auto pitch = headingAndPitch.second;
+                auto heading         = headingAndPitch.first;
+                auto pitch           = headingAndPitch.second;
 
-                auto threadId = unit.cobEnvironment->createThread(getAimScriptName(weaponIndex), {toTaAngle(RadiansAngle(heading)).value, toTaAngle(RadiansAngle(pitch)).value});
+                auto threadId = unit.cobEnvironment->createThread(
+                    getAimScriptName(weaponIndex),
+                    {toTaAngle(RadiansAngle(heading)).value, toTaAngle(RadiansAngle(pitch)).value});
 
                 if (threadId)
                 {
@@ -293,8 +298,8 @@ namespace rwe
             }
             else
             {
-                const auto aimInfo = *aimingState->aimInfo;
-                auto returnValue = unit.cobEnvironment->tryReapThread(aimInfo.thread);
+                const auto aimInfo     = *aimingState->aimInfo;
+                auto       returnValue = unit.cobEnvironment->tryReapThread(aimInfo.thread);
                 if (returnValue)
                 {
                     // we successfully reaped, clear the thread.
@@ -304,15 +309,16 @@ namespace rwe
                     {
                         // aiming was successful, check the target again for drift
                         GetTargetPositionVisitor targetPositionVisitor(this);
-                        auto targetPosition = std::visit(targetPositionVisitor, aimingState->target);
+                        auto targetPosition  = std::visit(targetPositionVisitor, aimingState->target);
                         auto aimFromPosition = getAimingPoint(id, weaponIndex);
 
                         auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, *targetPosition);
-                        auto heading = headingAndPitch.first;
-                        auto pitch = headingAndPitch.second;
+                        auto heading         = headingAndPitch.first;
+                        auto pitch           = headingAndPitch.second;
 
                         // if the target is close enough, try to fire
-                        if (std::abs(heading - aimInfo.lastHeading) <= weapon->tolerance && std::abs(pitch - aimInfo.lastPitch) <= weapon->pitchTolerance)
+                        if (std::abs(heading - aimInfo.lastHeading) <= weapon->tolerance
+                            && std::abs(pitch - aimInfo.lastPitch) <= weapon->pitchTolerance)
                         {
                             tryFireWeapon(id, weaponIndex, *targetPosition);
                         }
@@ -324,7 +330,7 @@ namespace rwe
 
     void UnitBehaviorService::tryFireWeapon(UnitId id, unsigned int weaponIndex, const Vector3f& targetPosition)
     {
-        auto& unit = scene->getSimulation().getUnit(id);
+        auto& unit   = scene->getSimulation().getUnit(id);
         auto& weapon = unit.weapons[weaponIndex];
 
         if (!weapon)
@@ -340,7 +346,7 @@ namespace rwe
         }
 
         // spawn a projectile from the firing point
-        auto firingPoint = getFiringPoint(id, weaponIndex);
+        auto firingPoint  = getFiringPoint(id, weaponIndex);
         auto targetVector = targetPosition - firingPoint;
         if (weapon->startSmoke)
         {
@@ -429,7 +435,7 @@ namespace rwe
         if (unit.currentSpeed > 0.0f)
         {
             auto newPosition = unit.position + (direction * unit.currentSpeed);
-            newPosition.y = scene->getTerrain().getHeightAt(newPosition.x, newPosition.z);
+            newPosition.y    = scene->getTerrain().getHeightAt(newPosition.x, newPosition.z);
 
             if (!tryApplyMovementToPosition(unitId, newPosition))
             {
@@ -465,7 +471,7 @@ namespace rwe
 
     bool UnitBehaviorService::tryApplyMovementToPosition(UnitId id, const Vector3f& newPosition)
     {
-        auto& sim = scene->getSimulation();
+        auto& sim  = scene->getSimulation();
         auto& unit = sim.getUnit(id);
 
         // check for collision at the new position
@@ -553,14 +559,14 @@ namespace rwe
 
     std::optional<int> UnitBehaviorService::runCobQuery(UnitId id, const std::string& name)
     {
-        auto& unit = scene->getSimulation().getUnit(id);
-        auto thread = unit.cobEnvironment->createNonScheduledThread(name, {0});
+        auto& unit   = scene->getSimulation().getUnit(id);
+        auto  thread = unit.cobEnvironment->createNonScheduledThread(name, {0});
         if (!thread)
         {
             return std::nullopt;
         }
         CobExecutionContext context(scene, &scene->getSimulation(), unit.cobEnvironment.get(), &*thread, id);
-        auto status = context.execute();
+        auto                status = context.execute();
         if (std::get_if<CobEnvironment::FinishedStatus>(&status) == nullptr)
         {
             throw std::runtime_error("Synchronous cob query thread blocked before completion");
@@ -573,7 +579,7 @@ namespace rwe
     Vector3f UnitBehaviorService::getAimingPoint(UnitId id, unsigned int weaponIndex)
     {
         auto scriptName = getAimFromScriptName(weaponIndex);
-        auto pieceId = runCobQuery(id, scriptName);
+        auto pieceId    = runCobQuery(id, scriptName);
         if (!pieceId)
         {
             return getFiringPoint(id, weaponIndex);
@@ -586,7 +592,7 @@ namespace rwe
     {
 
         auto scriptName = getQueryScriptName(weaponIndex);
-        auto pieceId = runCobQuery(id, scriptName);
+        auto pieceId    = runCobQuery(id, scriptName);
         if (!pieceId)
         {
             return scene->getSimulation().getUnit(id).position;
@@ -620,18 +626,11 @@ namespace rwe
     {
         return match(
             order,
-            [this, unitId](const MoveOrder& o) {
-                return handleMoveOrder(unitId, o);
-            },
-            [this, unitId](const AttackOrder& o) {
-                return handleAttackOrder(unitId, o);
-            },
-            [this, unitId](const BuildOrder& o) {
-                return handleBuildOrder(unitId, o);
-            },
-            [this, unitId](const BuggerOffOrder& o) {
-                return handleBuggerOffOrder(unitId, o);
-            });
+            [this, unitId](const MoveOrder& o) { return handleMoveOrder(unitId, o); },
+            [this, unitId](const AttackOrder& o) { return handleAttackOrder(unitId, o); },
+            [this, unitId](const RepairOrder& o) { return handleRepairOrder(unitId, o); },
+            [this, unitId](const BuildOrder& o) { return handleBuildOrder(unitId, o); },
+            [this, unitId](const BuggerOffOrder& o) { return handleBuggerOffOrder(unitId, o); });
     }
 
     bool UnitBehaviorService::handleMoveOrder(UnitId unitId, const MoveOrder& moveOrder)
@@ -643,7 +642,7 @@ namespace rwe
             // request a path to follow
             scene->getSimulation().requestPath(unitId);
             const auto& destination = moveOrder.destination;
-            unit.behaviourState = MovingState{destination, std::nullopt, true};
+            unit.behaviourState     = MovingState{destination, std::nullopt, true};
         }
         else if (auto movingState = std::get_if<MovingState>(&unit.behaviourState); movingState != nullptr)
         {
@@ -695,7 +694,7 @@ namespace rwe
         else
         {
             GetTargetPositionVisitor targetPositionVisitor(this);
-            auto targetPosition = std::visit(targetPositionVisitor, attackOrder.target);
+            auto                     targetPosition = std::visit(targetPositionVisitor, attackOrder.target);
             if (!targetPosition)
             {
                 // target has gone away, throw away this order
@@ -710,7 +709,7 @@ namespace rwe
                 {
                     // request a path to follow
                     scene->getSimulation().requestPath(unitId);
-                    auto destination = std::visit(AttackTargetToMovingStateGoalVisitor(scene), attackOrder.target);
+                    auto destination    = std::visit(AttackTargetToMovingStateGoalVisitor(scene), attackOrder.target);
                     unit.behaviourState = MovingState{destination, std::nullopt, true};
                 }
                 else
@@ -764,6 +763,129 @@ namespace rwe
         return false;
     }
 
+    bool UnitBehaviorService::handleRepairOrder(UnitId unitId, const RepairOrder& repairOrder)
+    {
+        auto& unit         = scene->getSimulation().getUnit(unitId);
+        auto& repairTarget = scene->getSimulation().getUnit(repairOrder.target);
+
+        if (auto idleState = std::get_if<IdleState>(&unit.behaviourState); idleState != nullptr)
+        {
+            // request a path to get to the build site
+
+            auto footprint     = unitFactory->getUnitFootprint(repairTarget.unitType);
+            auto footprintRect = scene->computeFootprintRegion(repairTarget.position, footprint.x, footprint.y);
+            scene->getSimulation().requestPath(unitId);
+            unit.behaviourState = MovingState{footprintRect, std::nullopt, true};
+        }
+        else if (auto movingState = std::get_if<MovingState>(&unit.behaviourState); movingState != nullptr)
+        {
+            // if we are colliding, request a new path
+            if (unit.inCollision && !movingState->pathRequested)
+            {
+                auto& sim = scene->getSimulation();
+
+                // only request a new path if we don't have one yet,
+                // or we've already had our current one for a bit
+                if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTime(60))
+                {
+                    sim.requestPath(unitId);
+                    movingState->pathRequested = true;
+                }
+            }
+
+            // if a path is available, attempt to follow it
+            auto& pathToFollow = movingState->path;
+            if (pathToFollow)
+            {
+                if (followPath(unit, *pathToFollow))
+                {
+                    if (unit.buildSound)
+                    {
+                        scene->playSoundOnSelectChannel(*unit.buildSound);
+                    }
+
+                    auto nanoFromPosition = getNanoPoint(unitId);
+                    auto headingAndPitch
+                        = computeHeadingAndPitch(unit.rotation, nanoFromPosition, repairTarget.position);
+                    auto heading = headingAndPitch.first;
+                    auto pitch   = headingAndPitch.second;
+
+                    unit.cobEnvironment->createThread(
+                        "StartBuilding",
+                        {toTaAngle(RadiansAngle(heading)).value, toTaAngle(RadiansAngle(pitch)).value});
+                    unit.behaviourState = BuildingState{repairOrder.target};
+                }
+            }
+        }
+        else if (auto buildingState = std::get_if<BuildingState>(&unit.behaviourState); buildingState != nullptr)
+        {
+            if (!scene->getSimulation().unitExists(buildingState->targetUnit))
+            {
+                // the unit has gone away (maybe it was killed?), give up
+                unit.cobEnvironment->createThread("StopBuilding");
+                unit.behaviourState = IdleState();
+                return true;
+            }
+
+            auto& targetUnit = scene->getSimulation().getUnit(buildingState->targetUnit);
+            if (targetUnit.isDead())
+            {
+                // the target is dead, give up
+                unit.cobEnvironment->createThread("StopBuilding");
+                unit.behaviourState = IdleState();
+                return true;
+            }
+
+            if (!targetUnit.isDamaged())
+            {
+                // the target does not need to be repaired anymore.
+                // Probably because it's finished -- we did it!
+                unit.cobEnvironment->createThread("StopBuilding");
+                unit.behaviourState = IdleState();
+                return true;
+            }
+
+            if (!unit.inBuildStance)
+            {
+                // We are not in the correct stance to build the unit yet, wait.
+                return false;
+            }
+
+            auto& sim   = scene->getSimulation();
+            auto  costs = targetUnit.getBuildCostInfo(unit.workerTimePerTick);
+            auto  gotResources
+                = sim.addResourceDelta(unitId,
+                                       -Energy(targetUnit.energyCost.value * static_cast<float>(unit.workerTimePerTick)
+                                               / static_cast<float>(targetUnit.buildTime)),
+                                       -Metal(targetUnit.metalCost.value * static_cast<float>(unit.workerTimePerTick)
+                                              / static_cast<float>(targetUnit.buildTime)),
+                                       -costs.energyCost,
+                                       -costs.metalCost);
+
+            if (!gotResources)
+            {
+                // we don't have resources available to build -- wait
+                return false;
+            }
+
+            if (targetUnit.addRepairProgress(unit.workerTimePerTick))
+            {
+                // play sound when the unit is completed
+                if (targetUnit.completeSound)
+                {
+                    scene->playSoundOnSelectChannel(*targetUnit.completeSound);
+                }
+                if (targetUnit.activateWhenBuilt)
+                {
+                    scene->activateUnit(buildingState->targetUnit);
+                }
+            }
+        }
+
+        return false;
+    }
+
+
     bool UnitBehaviorService::handleBuildOrder(UnitId unitId, const BuildOrder& buildOrder)
     {
         auto& unit = scene->getSimulation().getUnit(unitId);
@@ -771,7 +893,7 @@ namespace rwe
         if (auto idleState = std::get_if<IdleState>(&unit.behaviourState); idleState != nullptr)
         {
             // request a path to get to the build site
-            auto footprint = unitFactory->getUnitFootprint(buildOrder.unitType);
+            auto footprint     = unitFactory->getUnitFootprint(buildOrder.unitType);
             auto footprintRect = scene->computeFootprintRegion(buildOrder.position, footprint.x, footprint.y);
             scene->getSimulation().requestPath(unitId);
             unit.behaviourState = MovingState{footprintRect, std::nullopt, true};
@@ -813,10 +935,12 @@ namespace rwe
 
                     auto nanoFromPosition = getNanoPoint(unitId);
                     auto headingAndPitch = computeHeadingAndPitch(unit.rotation, nanoFromPosition, buildOrder.position);
-                    auto heading = headingAndPitch.first;
-                    auto pitch = headingAndPitch.second;
+                    auto heading         = headingAndPitch.first;
+                    auto pitch           = headingAndPitch.second;
 
-                    unit.cobEnvironment->createThread("StartBuilding", {toTaAngle(RadiansAngle(heading)).value, toTaAngle(RadiansAngle(pitch)).value});
+                    unit.cobEnvironment->createThread(
+                        "StartBuilding",
+                        {toTaAngle(RadiansAngle(heading)).value, toTaAngle(RadiansAngle(pitch)).value});
                     unit.behaviourState = BuildingState{*targetUnitId};
                 }
             }
@@ -855,14 +979,16 @@ namespace rwe
                 return false;
             }
 
-            auto& sim = scene->getSimulation();
-            auto costs = targetUnit.getBuildCostInfo(unit.workerTimePerTick);
-            auto gotResources = sim.addResourceDelta(
-                unitId,
-                -Energy(targetUnit.energyCost.value * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime)),
-                -Metal(targetUnit.metalCost.value * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime)),
-                -costs.energyCost,
-                -costs.metalCost);
+            auto& sim   = scene->getSimulation();
+            auto  costs = targetUnit.getBuildCostInfo(unit.workerTimePerTick);
+            auto  gotResources
+                = sim.addResourceDelta(unitId,
+                                       -Energy(targetUnit.energyCost.value * static_cast<float>(unit.workerTimePerTick)
+                                               / static_cast<float>(targetUnit.buildTime)),
+                                       -Metal(targetUnit.metalCost.value * static_cast<float>(unit.workerTimePerTick)
+                                              / static_cast<float>(targetUnit.buildTime)),
+                                       -costs.energyCost,
+                                       -costs.metalCost);
 
             if (!gotResources)
             {
@@ -948,7 +1074,8 @@ namespace rwe
                 auto& sim = scene->getSimulation();
 
                 auto buildPieceInfo = getBuildPieceInfo(unitId);
-                buildPieceInfo.position.y = sim.terrain.getHeightAt(buildPieceInfo.position.x, buildPieceInfo.position.z);
+                buildPieceInfo.position.y
+                    = sim.terrain.getHeightAt(buildPieceInfo.position.x, buildPieceInfo.position.z);
                 if (!state.targetUnit)
                 {
                     state.targetUnit = scene->spawnUnit(unitType, unit.owner, buildPieceInfo.position);
@@ -983,7 +1110,8 @@ namespace rwe
                 {
                     if (targetUnit.orders.empty())
                     {
-                        auto footprintRect = scene->computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+                        auto footprintRect
+                            = scene->computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
                         targetUnit.addOrder(BuggerOffOrder(footprintRect));
                     }
                     unit.cobEnvironment->createThread("StopBuilding");
@@ -995,11 +1123,13 @@ namespace rwe
                 tryApplyMovementToPosition(unitId, buildPieceInfo.position);
                 targetUnit.rotation = buildPieceInfo.rotation;
 
-                auto costs = targetUnit.getBuildCostInfo(unit.workerTimePerTick);
+                auto costs        = targetUnit.getBuildCostInfo(unit.workerTimePerTick);
                 auto gotResources = sim.addResourceDelta(
                     unitId,
-                    -Energy(targetUnit.energyCost.value * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime)),
-                    -Metal(targetUnit.metalCost.value * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime)),
+                    -Energy(targetUnit.energyCost.value * static_cast<float>(unit.workerTimePerTick)
+                            / static_cast<float>(targetUnit.buildTime)),
+                    -Metal(targetUnit.metalCost.value * static_cast<float>(unit.workerTimePerTick)
+                           / static_cast<float>(targetUnit.buildTime)),
                     -costs.energyCost,
                     -costs.metalCost);
 
@@ -1030,7 +1160,8 @@ namespace rwe
     {
         auto& unit = scene->getSimulation().getUnit(unitId);
 
-        match(unit.factoryState,
+        match(
+            unit.factoryState,
             [&](const FactoryStateIdle&) {
                 // do nothing
             },
@@ -1060,8 +1191,8 @@ namespace rwe
     {
         auto& unit = scene->getSimulation().getUnit(id);
 
-        const auto& pieceName = unit.cobEnvironment->_script->pieces.at(pieceId);
-        auto pieceTransform = unit.mesh.getPieceTransform(pieceName);
+        const auto& pieceName      = unit.cobEnvironment->_script->pieces.at(pieceId);
+        auto        pieceTransform = unit.mesh.getPieceTransform(pieceName);
         if (!pieceTransform)
         {
             throw std::logic_error("Failed to find piece offset");
@@ -1074,8 +1205,8 @@ namespace rwe
     {
         auto& unit = scene->getSimulation().getUnit(id);
 
-        const auto& pieceName = unit.cobEnvironment->_script->pieces.at(pieceId);
-        auto pieceTransform = unit.mesh.getPieceTransform(pieceName);
+        const auto& pieceName      = unit.cobEnvironment->_script->pieces.at(pieceId);
+        auto        pieceTransform = unit.mesh.getPieceTransform(pieceName);
         if (!pieceTransform)
         {
             throw std::logic_error("Failed to find piece offset");

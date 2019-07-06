@@ -6,24 +6,13 @@
 
 namespace rwe
 {
-    MoveOrder::MoveOrder(const Vector3f& destination) : destination(destination)
-    {
-    }
+    MoveOrder::MoveOrder(const Vector3f& destination) : destination(destination) {}
 
-    UnitOrder createMoveOrder(const Vector3f& destination)
-    {
-        return MoveOrder(destination);
-    }
+    UnitOrder createMoveOrder(const Vector3f& destination) { return MoveOrder(destination); }
 
-    UnitOrder createAttackOrder(UnitId target)
-    {
-        return AttackOrder(target);
-    }
+    UnitOrder createAttackOrder(UnitId target) { return AttackOrder(target); }
 
-    UnitOrder createAttackGroundOrder(const Vector3f& target)
-    {
-        return AttackOrder(target);
-    }
+    UnitOrder createAttackGroundOrder(const Vector3f& target) { return AttackOrder(target); }
 
     bool isPassable(YardMapCell cell, bool yardMapOpen)
     {
@@ -61,30 +50,18 @@ namespace rwe
         return Vector3f(0.0f, 0.0f, 1.0f).angleTo(direction, Vector3f(0.0f, 1.0f, 0.0f));
     }
 
-    Vector3f Unit::toDirection(float rotation)
-    {
-        return Matrix4f::rotationY(rotation) * Vector3f(0.0f, 0.0f, 1.0f);
-    }
+    Vector3f Unit::toDirection(float rotation) { return Matrix4f::rotationY(rotation) * Vector3f(0.0f, 0.0f, 1.0f); }
 
     Unit::Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, SelectionMesh&& selectionMesh)
         : mesh(mesh), cobEnvironment(std::move(cobEnvironment)), selectionMesh(std::move(selectionMesh))
     {
     }
 
-    bool Unit::isBeingBuilt() const
-    {
-        return buildTimeCompleted < buildTime;
-    }
+    bool Unit::isBeingBuilt() const { return lifeState == LifeState::InProgress; }
 
-    bool Unit::isDamaged() const
-    {
-        return hitPoints < maxHitPoints;
-    }
+    bool Unit::isDamaged() const { return hitPoints < maxHitPoints; }
 
-    unsigned int Unit::getBuildPercentLeft() const
-    {
-        return 100u - ((buildTimeCompleted * 100u) / buildTime);
-    }
+    unsigned int Unit::getBuildPercentLeft() const { return 100u - ((buildTimeCompleted * 100u) / buildTime); }
 
     float Unit::getPreciseCompletePercent() const
     {
@@ -100,18 +77,28 @@ namespace rwe
         }
 
         auto oldProgressEnergy = Energy((buildTimeCompleted * energyCost.value) / buildTime);
-        auto oldProgressMetal = Metal((buildTimeCompleted * metalCost.value) / buildTime);
+        auto oldProgressMetal  = Metal((buildTimeCompleted * metalCost.value) / buildTime);
 
         auto newBuildTimeCompleted = buildTimeCompleted + buildTimeContribution;
 
         auto newProgressEnergy = Energy((newBuildTimeCompleted * energyCost.value) / buildTime);
-        auto newProgressMetal = Metal((newBuildTimeCompleted * metalCost.value) / buildTime);
+        auto newProgressMetal  = Metal((newBuildTimeCompleted * metalCost.value) / buildTime);
 
         auto deltaEnergy = newProgressEnergy - oldProgressEnergy;
-        auto deltaMetal = newProgressMetal - oldProgressMetal;
+        auto deltaMetal  = newProgressMetal - oldProgressMetal;
 
         return BuildCostInfo{buildTimeContribution, deltaEnergy, deltaMetal};
     }
+
+    bool Unit::addRepairProgress(unsigned int repairTimeContribution)
+    {
+        if (buildTimeCompleted == buildTime)
+        {
+            buildTimeCompleted = (hitPoints * buildTime) / maxHitPoints;
+        }
+        return addBuildProgress(repairTimeContribution);
+    }
+
 
     bool Unit::addBuildProgress(unsigned int buildTimeContribution)
     {
@@ -133,6 +120,7 @@ namespace rwe
         if (hitPoints + deltaHp >= maxHitPoints)
         {
             hitPoints = maxHitPoints;
+            lifeState = LifeState::Alive;
         }
         else
         {
@@ -142,10 +130,7 @@ namespace rwe
         return buildTimeCompleted == buildTime;
     }
 
-    bool Unit::isCommander() const
-    {
-        return commander;
-    }
+    bool Unit::isCommander() const { return commander; }
 
     void Unit::moveObject(const std::string& pieceName, Axis axis, float targetPosition, float speed)
     {
@@ -182,15 +167,15 @@ namespace rwe
         switch (axis)
         {
             case Axis::X:
-                piece->get().offset.x = targetPosition;
+                piece->get().offset.x       = targetPosition;
                 piece->get().xMoveOperation = std::nullopt;
                 break;
             case Axis::Y:
-                piece->get().offset.y = targetPosition;
+                piece->get().offset.y       = targetPosition;
                 piece->get().yMoveOperation = std::nullopt;
                 break;
             case Axis::Z:
-                piece->get().offset.z = targetPosition;
+                piece->get().offset.z       = targetPosition;
                 piece->get().zMoveOperation = std::nullopt;
                 break;
         }
@@ -231,15 +216,15 @@ namespace rwe
         switch (axis)
         {
             case Axis::X:
-                piece->get().rotation.x = targetAngle.value;
+                piece->get().rotation.x     = targetAngle.value;
                 piece->get().xTurnOperation = std::nullopt;
                 break;
             case Axis::Y:
-                piece->get().rotation.y = targetAngle.value;
+                piece->get().rotation.y     = targetAngle.value;
                 piece->get().yTurnOperation = std::nullopt;
                 break;
             case Axis::Z:
-                piece->get().rotation.z = targetAngle.value;
+                piece->get().rotation.z     = targetAngle.value;
                 piece->get().zTurnOperation = std::nullopt;
                 break;
         }
@@ -253,7 +238,8 @@ namespace rwe
             throw std::runtime_error("Invalid piece name: " + pieceName);
         }
 
-        UnitMesh::SpinOperation op(acceleration == 0.0f ? toRadians(speed) : 0.0f, toRadians(speed), toRadians(acceleration));
+        UnitMesh::SpinOperation op(
+            acceleration == 0.0f ? toRadians(speed) : 0.0f, toRadians(speed), toRadians(acceleration));
 
         switch (axis)
         {
@@ -357,10 +343,10 @@ namespace rwe
 
     std::optional<float> Unit::selectionIntersect(const Ray3f& ray) const
     {
-        auto inverseTransform = getInverseTransform();
-        auto line = ray.toLine();
+        auto   inverseTransform = getInverseTransform();
+        auto   line             = ray.toLine();
         Line3f modelSpaceLine(inverseTransform * line.start, inverseTransform * line.end);
-        auto v = selectionMesh.collisionMesh.intersectLine(modelSpaceLine);
+        auto   v = selectionMesh.collisionMesh.intersectLine(modelSpaceLine);
         if (!v)
         {
             return std::nullopt;
@@ -369,25 +355,17 @@ namespace rwe
         return ray.origin.distance(*v);
     }
 
-    bool Unit::isOwnedBy(PlayerId playerId) const
-    {
-        return owner == playerId;
-    }
+    bool Unit::isOwnedBy(PlayerId playerId) const { return owner == playerId; }
 
-    bool Unit::isDead() const
-    {
-        return lifeState == LifeState::Dead;
-    }
+    bool Unit::isDead() const { return lifeState == LifeState::Dead; }
 
-    void Unit::markAsDead()
-    {
-        lifeState = LifeState::Dead;
-    }
+    void Unit::markAsDead() { lifeState = LifeState::Dead; }
 
     void Unit::finishBuilding()
     {
         // FIXME: ignores damage taken during building
-        hitPoints = maxHitPoints;
+        lifeState          = LifeState::Alive;
+        hitPoints          = maxHitPoints;
         buildTimeCompleted = buildTime;
     }
 
@@ -400,10 +378,7 @@ namespace rwe
         clearWeaponTargets();
     }
 
-    void Unit::addOrder(const UnitOrder& order)
-    {
-        orders.push_back(order);
-    }
+    void Unit::addOrder(const UnitOrder& order) { orders.push_back(order); }
 
     class TargetIsUnitVisitor
     {
@@ -424,7 +399,10 @@ namespace rwe
     public:
         IsAttackingUnitVisitor(const UnitId& unit) : unit(unit) {}
         bool operator()(const UnitWeaponStateIdle&) const { return false; }
-        bool operator()(const UnitWeaponStateAttacking& state) const { return std::visit(TargetIsUnitVisitor(unit), state.target); }
+        bool operator()(const UnitWeaponStateAttacking& state) const
+        {
+            return std::visit(TargetIsUnitVisitor(unit), state.target);
+        }
     };
 
 
@@ -447,7 +425,10 @@ namespace rwe
     public:
         IsAttackingPositionVisitor(const Vector3f& position) : position(position) {}
         bool operator()(const UnitWeaponStateIdle&) const { return false; }
-        bool operator()(const UnitWeaponStateAttacking& state) const { return std::visit(TargetIsPositionVisitor(position), state.target); }
+        bool operator()(const UnitWeaponStateAttacking& state) const
+        {
+            return std::visit(TargetIsPositionVisitor(position), state.target);
+        }
     };
 
     void Unit::setWeaponTarget(unsigned int weaponIndex, UnitId target)
@@ -500,20 +481,14 @@ namespace rwe
         }
     }
 
-    Matrix4f Unit::getTransform() const
-    {
-        return Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
-    }
+    Matrix4f Unit::getTransform() const { return Matrix4f::translation(position) * Matrix4f::rotationY(rotation); }
 
     Matrix4f Unit::getInverseTransform() const
     {
         return Matrix4f::rotationY(-rotation) * Matrix4f::translation(-position);
     }
 
-    bool Unit::isSelectableBy(rwe::PlayerId player) const
-    {
-        return !isDead() && isOwnedBy(player) && !isBeingBuilt();
-    }
+    bool Unit::isSelectableBy(rwe::PlayerId player) const { return !isDead() && isOwnedBy(player) && !isBeingBuilt(); }
 
     void Unit::activate()
     {
@@ -532,32 +507,20 @@ namespace rwe
         MovementClass mc;
         mc.minWaterDepth = minWaterDepth;
         mc.maxWaterDepth = maxWaterDepth;
-        mc.maxSlope = maxSlope;
+        mc.maxSlope      = maxSlope;
         mc.maxWaterSlope = maxWaterSlope;
-        mc.footprintX = footprintX;
-        mc.footprintZ = footprintZ;
+        mc.footprintX    = footprintX;
+        mc.footprintZ    = footprintZ;
         return mc;
     }
 
-    Metal Unit::getMetalMake() const
-    {
-        return metalProductionBuffer;
-    }
+    Metal Unit::getMetalMake() const { return metalProductionBuffer; }
 
-    Energy Unit::getEnergyMake() const
-    {
-        return energyProductionBuffer;
-    }
+    Energy Unit::getEnergyMake() const { return energyProductionBuffer; }
 
-    Metal Unit::getMetalUse() const
-    {
-        return previousMetalConsumptionBuffer;
-    }
+    Metal Unit::getMetalUse() const { return previousMetalConsumptionBuffer; }
 
-    Energy Unit::getEnergyUse() const
-    {
-        return previousEnergyConsumptionBuffer;
-    }
+    Energy Unit::getEnergyUse() const { return previousEnergyConsumptionBuffer; }
 
     void Unit::addMetalDelta(const Metal& metal)
     {
@@ -585,12 +548,12 @@ namespace rwe
 
     void Unit::resetResourceBuffers()
     {
-        energyProductionBuffer = Energy(0);
-        metalProductionBuffer = Metal(0);
+        energyProductionBuffer          = Energy(0);
+        metalProductionBuffer           = Metal(0);
         previousEnergyConsumptionBuffer = energyConsumptionBuffer;
-        previousMetalConsumptionBuffer = metalConsumptionBuffer;
-        energyConsumptionBuffer = Energy(0);
-        metalConsumptionBuffer = Metal(0);
+        previousMetalConsumptionBuffer  = metalConsumptionBuffer;
+        energyConsumptionBuffer         = Energy(0);
+        metalConsumptionBuffer          = Metal(0);
     }
 
     void Unit::modifyBuildQueue(const std::string& buildUnitType, int count)

@@ -45,6 +45,9 @@ namespace rwe
         bool handleAttackOrder(UnitId unitId, const AttackOrder& attackOrder);
 
         /** Returns true if the order has been completed. */
+        bool handleRepairOrder(UnitId unitId, const RepairOrder &buildOrder);
+
+        /** Returns true if the order has been completed. */
         bool handleBuildOrder(UnitId unitId, const BuildOrder& buildOrder);
 
         /** Returns true if the order has been completed. */

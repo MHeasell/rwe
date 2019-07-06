@@ -719,6 +719,25 @@ namespace rwe
                                                 cameraPosition.z + worldViewportPos.y);
                         cursorMode.next(NormalCursorMode{NormalCursorMode::SelectingState(originRelativePos)});
                     }
+                },
+                [&](const RepairCursorMode&) {
+                    for (const auto& selectedUnit : selectedUnits)
+                    {
+                        match(
+                            elementOfInterest,
+                            [this, &selectedUnit](UnitId hoveredUnitId) {
+                                if (isShiftDown())
+                                {
+                                    localPlayerEnqueueUnitOrder(selectedUnit, RepairOrder(hoveredUnitId));
+                                }
+                                else
+                                {
+                                    localPlayerIssueUnitOrder(selectedUnit, RepairOrder(hoveredUnitId));
+                                    cursorMode.next(NormalCursorMode());
+                                }
+                            },
+                            [](auto) {});
+                    }
                 });
         }
         else if (event.button == MouseButtonEvent::MouseButton::Right)
@@ -728,6 +747,7 @@ namespace rwe
                 [&](const AttackCursorMode&) { cursorMode.next(NormalCursorMode()); },
                 [&](const MoveCursorMode&) { cursorMode.next(NormalCursorMode()); },
                 [&](const BuildCursorMode&) { cursorMode.next(NormalCursorMode()); },
+                [&](const RepairCursorMode&) { cursorMode.next(NormalCursorMode()); },
                 [&](const NormalCursorMode&) {
                     for (const auto& selectedUnit : selectedUnits)
                     {
@@ -735,6 +755,17 @@ namespace rwe
                         match(
                             elementOfInterest,
                             [this, &selectedUnit](const UnitId& id) {
+                                if (getUnit(selectedUnit).builder && getUnit(id).isDamaged())
+                                {
+                                    if (isShiftDown())
+                                    {
+                                        localPlayerEnqueueUnitOrder(selectedUnit, RepairOrder(id));
+                                    }
+                                    else
+                                    {
+                                        localPlayerIssueUnitOrder(selectedUnit, RepairOrder(id));
+                                    }
+                                }
                                 if (isEnemy(id))
                                 {
                                     if (isShiftDown())
@@ -921,12 +952,20 @@ namespace rwe
                 [&](const AttackCursorMode&) { sceneContext.cursor->useCursor(CursorService::Type::attack); },
                 [&](const MoveCursorMode&) { sceneContext.cursor->useCursor(CursorService::Type::move); },
                 [&](const BuildCursorMode&) { sceneContext.cursor->useCursor(CursorService::Type::normal); },
+                [&](const RepairCursorMode&) { sceneContext.cursor->useCursor(CursorService::Type::repair); },
                 [&](const NormalCursorMode&) {
                     match(
                         elementOfInterest,
                         [this](const UnitId hoveredUnitId) {
                             const auto& hoveredUnit = getUnit(hoveredUnitId);
-                            if (hoveredUnit.isSelectableBy(localPlayerId))
+                            if (std::any_of(selectedUnits.begin(),
+                                            selectedUnits.end(),
+                                            [&](const auto& id) { return getUnit(id).builder; })
+                                && hoveredUnit.isOwnedBy(localPlayerId) && hoveredUnit.isDamaged())
+                            {
+                                sceneContext.cursor->useCursor(CursorService::Type::repair);
+                            }
+                            else if (hoveredUnit.isSelectableBy(localPlayerId))
                             {
                                 sceneContext.cursor->useCursor(CursorService::Type::select);
                             }
@@ -937,19 +976,12 @@ namespace rwe
                             {
                                 sceneContext.cursor->useCursor(CursorService::Type::attack);
                             }
-                            else if (std::any_of(selectedUnits.begin(),
-                                                 selectedUnits.end(),
-                                                 [&](const auto& id) { return getUnit(id).builder; })
-                                     && hoveredUnit.isOwnedBy(localPlayerId) && hoveredUnit.isDamaged())
-                            {
-                                sceneContext.cursor->useCursor(CursorService::Type::repair);
-                            }
                             else
                             {
                                 sceneContext.cursor->useCursor(CursorService::Type::normal);
                             }
                         },
-                        [](auto) {});
+                        [this](auto) { sceneContext.cursor->useCursor(CursorService::Type::normal); });
                 });
         }
 
@@ -2030,13 +2062,29 @@ namespace rwe
                 sceneContext.audioService->playSound(*sounds.specialOrders);
             }
 
-            if (std::holds_alternative<AttackCursorMode>(selectedCursorMode))
+            if (std::holds_alternative<AttackCursorMode>(cursorMode.getValue()))
             {
-                selectedCursorMode = NormalCursorMode();
+                cursorMode.next(NormalCursorMode());
             }
             else
             {
-                selectedCursorMode = AttackCursorMode();
+                cursorMode.next(AttackCursorMode());
+            }
+        }
+        if (matchesWithSidePrefix("REPAIR", message))
+        {
+            if (sounds.specialOrders)
+            {
+                sceneContext.audioService->playSound(*sounds.specialOrders);
+            }
+
+            if (std::holds_alternative<RepairCursorMode>(cursorMode.getValue()))
+            {
+                cursorMode.next(NormalCursorMode());
+            }
+            else
+            {
+                cursorMode.next(RepairCursorMode());
             }
         }
         else if (matchesWithSidePrefix("MOVE", message))
@@ -2046,13 +2094,13 @@ namespace rwe
                 sceneContext.audioService->playSound(*sounds.specialOrders);
             }
 
-            if (std::holds_alternative<MoveCursorMode>(selectedCursorMode))
+            if (std::holds_alternative<MoveCursorMode>(cursorMode.getValue()))
             {
-                selectedCursorMode = NormalCursorMode();
+                cursorMode.next(NormalCursorMode());
             }
             else
             {
-                selectedCursorMode = MoveCursorMode();
+                cursorMode.next(MoveCursorMode());
             }
         }
         else if (matchesWithSidePrefix("STOP", message))
@@ -2064,7 +2112,7 @@ namespace rwe
 
             for (const auto& selectedUnit : selectedUnits)
             {
-                selectedCursorMode = NormalCursorMode();
+                cursorMode.next(NormalCursorMode());
                 localPlayerStopUnit(selectedUnit);
             }
         }
@@ -2195,7 +2243,7 @@ namespace rwe
                 const auto& unit = getUnit(*selectedUnit);
                 if (unit.isMobile)
                 {
-                    selectedCursorMode = BuildCursorMode{message};
+                    cursorMode.next(BuildCursorMode{message});
                 }
                 else
                 {
