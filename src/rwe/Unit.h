@@ -27,8 +27,8 @@ namespace rwe
 {
     struct PathFollowingInfo
     {
-        UnitPath                              path;
-        GameTime                              pathCreationTime;
+        UnitPath path;
+        GameTime pathCreationTime;
         std::vector<Vector3f>::const_iterator currentWaypoint;
         explicit PathFollowingInfo(UnitPath&& path, GameTime creationTime)
             : path(std::move(path)), pathCreationTime(creationTime), currentWaypoint(this->path.waypoints.begin()) {}
@@ -38,9 +38,9 @@ namespace rwe
 
     struct MovingState
     {
-        MovingStateGoal                  destination;
+        MovingStateGoal destination;
         std::optional<PathFollowingInfo> path;
-        bool                             pathRequested;
+        bool pathRequested;
     };
 
     struct IdleState
@@ -93,18 +93,18 @@ namespace rwe
     public:
         enum class LifeState
         {
+            Spawning,
             Alive,
             Dead,
-            InProgress
         };
 
     public:
-        std::string                              name;
-        std::string                              unitType;
-        UnitMesh                                 mesh;
-        Vector3f                                 position;
-        std::unique_ptr<CobEnvironment>          cobEnvironment;
-        SelectionMesh                            selectionMesh;
+        std::string name;
+        std::string unitType;
+        UnitMesh mesh;
+        Vector3f position;
+        std::unique_ptr<CobEnvironment> cobEnvironment;
+        SelectionMesh selectionMesh;
         std::optional<AudioService::SoundHandle> selectionSound;
         std::optional<AudioService::SoundHandle> okSound;
         std::optional<AudioService::SoundHandle> arrivedSound;
@@ -112,7 +112,7 @@ namespace rwe
         std::optional<AudioService::SoundHandle> completeSound;
         std::optional<AudioService::SoundHandle> activateSound;
         std::optional<AudioService::SoundHandle> deactivateSound;
-        PlayerId                                 owner;
+        PlayerId owner;
 
         /**
          * The height of the unit. Typically computed from the mesh.
@@ -173,10 +173,10 @@ namespace rwe
         unsigned int hitPoints{0};
         unsigned int maxHitPoints;
 
-        LifeState lifeState{LifeState::InProgress};
+        LifeState lifeState{LifeState::Spawning};
 
         std::deque<UnitOrder> orders;
-        UnitState             behaviourState;
+        UnitState behaviourState;
 
         bool inBuildStance{false};
         bool yardOpen{false};
@@ -200,8 +200,8 @@ namespace rwe
         bool builder;
 
         unsigned int buildTime;
-        Energy       energyCost;
-        Metal        metalCost;
+        Energy energyCost;
+        Metal metalCost;
 
         unsigned int buildTimeCompleted{0};
 
@@ -211,10 +211,10 @@ namespace rwe
         bool activateWhenBuilt;
 
         Energy energyUse;
-        Metal  metalUse;
+        Metal metalUse;
 
         Energy energyMake;
-        Metal  metalMake;
+        Metal metalMake;
 
         bool activated{false};
         bool isSufficientlyPowered{false};
@@ -223,16 +223,16 @@ namespace rwe
         bool showPlayerName{false};
 
         Energy energyProductionBuffer{0};
-        Metal  metalProductionBuffer{0};
+        Metal metalProductionBuffer{0};
         Energy previousEnergyConsumptionBuffer{0};
-        Metal  previousMetalConsumptionBuffer{0};
+        Metal previousMetalConsumptionBuffer{0};
         Energy energyConsumptionBuffer{0};
-        Metal  metalConsumptionBuffer{0};
+        Metal metalConsumptionBuffer{0};
 
         bool isMobile;
 
         std::deque<std::pair<std::string, int>> buildQueue;
-        FactoryState                            factoryState;
+        FactoryState factoryState;
 
         Metal extractsMetal;
 
@@ -246,7 +246,6 @@ namespace rwe
 
         bool isDamaged() const;
 
-
         unsigned int getBuildPercentLeft() const;
 
         float getPreciseCompletePercent() const;
@@ -254,8 +253,8 @@ namespace rwe
         struct BuildCostInfo
         {
             unsigned int workerTime;
-            Energy       energyCost;
-            Metal        metalCost;
+            Energy energyCost;
+            Metal metalCost;
         };
 
         BuildCostInfo getBuildCostInfo(unsigned int buildTimeContribution);
@@ -318,9 +317,9 @@ namespace rwe
 
         MovementClass getAdHocMovementClass() const;
 
-        Metal  getMetalMake() const;
+        Metal getMetalMake() const;
         Energy getEnergyMake() const;
-        Metal  getMetalUse() const;
+        Metal getMetalUse() const;
         Energy getEnergyUse() const;
 
         void addEnergyDelta(const Energy& energy);

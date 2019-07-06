@@ -43,7 +43,7 @@ namespace rwe
     struct GameSceneTimeAction
     {
         using Time = SceneTime;
-        Time                  triggerTime;
+        Time triggerTime;
         std::function<void()> callback;
 
         GameSceneTimeAction(Time triggerTime, const std::function<void()>& callback)
@@ -57,16 +57,16 @@ namespace rwe
         }
     };
 
-    struct RepairCursorMode
-    {
-        bool operator==(const RepairCursorMode& /*rhs*/) const { return true; }
-        bool operator!=(const RepairCursorMode& /*rhs*/) const { return false; }
-    };
-
     struct AttackCursorMode
     {
         bool operator==(const AttackCursorMode& /*rhs*/) const { return true; }
         bool operator!=(const AttackCursorMode& /*rhs*/) const { return false; }
+    };
+
+    struct RepairCursorMode
+    {
+        bool operator==(const RepairCursorMode& /*rhs*/) const { return true; }
+        bool operator!=(const RepairCursorMode& /*rhs*/) const { return false; }
     };
 
     struct MoveCursorMode
@@ -82,8 +82,14 @@ namespace rwe
             Point startPosition;
             SelectingState(const Point& startPosition) : startPosition(startPosition) {}
             SelectingState(int x, int y) : startPosition(x, y) {}
-            bool operator==(const SelectingState& rhs) const { return startPosition == rhs.startPosition; }
-            bool operator!=(const SelectingState& rhs) const { return !(rhs == *this); }
+            bool operator==(const SelectingState& rhs) const
+            {
+                return startPosition == rhs.startPosition;
+            }
+            bool operator!=(const SelectingState& rhs) const
+            {
+                return !(rhs == *this);
+            }
         };
         struct DraggingMinimapState
         {
@@ -99,21 +105,33 @@ namespace rwe
 
         State state{UpState()};
 
-        bool operator==(const NormalCursorMode& rhs) const { return state == rhs.state; }
+        bool operator==(const NormalCursorMode& rhs) const
+        {
+            return state == rhs.state;
+        }
 
-        bool operator!=(const NormalCursorMode& rhs) const { return !(rhs == *this); }
+        bool operator!=(const NormalCursorMode& rhs) const
+        {
+            return !(rhs == *this);
+        }
     };
 
     struct BuildCursorMode
     {
         std::string unitType;
 
-        bool operator==(const BuildCursorMode& rhs) const { return unitType == rhs.unitType; }
+        bool operator==(const BuildCursorMode& rhs) const
+        {
+            return unitType == rhs.unitType;
+        }
 
-        bool operator!=(const BuildCursorMode& rhs) const { return !(rhs == *this); }
+        bool operator!=(const BuildCursorMode& rhs) const
+        {
+            return !(rhs == *this);
+        }
     };
 
-    using CursorMode = std::variant<NormalCursorMode, AttackCursorMode, RepairCursorMode, MoveCursorMode, BuildCursorMode>;
+    using CursorMode = std::variant<AttackCursorMode, RepairCursorMode, MoveCursorMode, BuildCursorMode, NormalCursorMode>;
 
     enum class ImpactType
     {
@@ -129,14 +147,14 @@ namespace rwe
             Orders,
         };
 
-        Section      section;
+        Section section;
         unsigned int currentBuildPage;
     };
 
     struct HoverBuildInfo
     {
         DiscreteRect rect;
-        bool         isValid;
+        bool isValid;
     };
 
     class GameScene : public SceneManager::Scene
@@ -144,17 +162,17 @@ namespace rwe
     public:
         static constexpr float SecondsPerTick = static_cast<float>(SceneManager::TickInterval) / 1000.0f;
 
-        static constexpr int GuiSizeLeft   = 128;
-        static constexpr int GuiSizeRight  = 0;
-        static constexpr int GuiSizeTop    = 32;
+        static constexpr int GuiSizeLeft = 128;
+        static constexpr int GuiSizeRight = 0;
+        static constexpr int GuiSizeTop = 32;
         static constexpr int GuiSizeBottom = 32;
 
         class UnitCommandDispatcher
         {
         private:
             GameScene* scene;
-            PlayerId   player;
-            UnitId     unit;
+            PlayerId player;
+            UnitId unit;
 
         public:
             UnitCommandDispatcher(GameScene* scene, const PlayerId& player, const UnitId& unit)
@@ -180,9 +198,15 @@ namespace rwe
                 scene->modifyBuildQueue(unit, c.unitType, c.count);
             }
 
-            void operator()(const PlayerUnitCommand::Stop&) { scene->stopUnit(unit); }
+            void operator()(const PlayerUnitCommand::Stop&)
+            {
+                scene->stopUnit(unit);
+            }
 
-            void operator()(const PlayerUnitCommand::SetFireOrders& c) { scene->setFireOrders(unit, c.orders); }
+            void operator()(const PlayerUnitCommand::SetFireOrders& c)
+            {
+                scene->setFireOrders(unit, c.orders);
+            }
 
             void operator()(const PlayerUnitCommand::SetOnOff& c)
             {
@@ -201,10 +225,12 @@ namespace rwe
         {
         private:
             GameScene* scene;
-            PlayerId   playerId;
+            PlayerId playerId;
 
         public:
-            PlayerCommandDispatcher(GameScene* scene, PlayerId playerId) : scene(scene), playerId(playerId) {}
+            PlayerCommandDispatcher(GameScene* scene, PlayerId playerId) : scene(scene), playerId(playerId)
+            {
+            }
 
             void operator()(const PlayerUnitCommand& c)
             {
@@ -240,7 +266,7 @@ namespace rwe
 
         std::unique_ptr<PlayerCommandService> playerCommandService;
 
-        RenderService   worldRenderService;
+        RenderService worldRenderService;
         UiRenderService worldUiRenderService;
         UiRenderService chromeUiRenderService;
 
@@ -252,16 +278,16 @@ namespace rwe
 
         std::unique_ptr<GameNetworkService> gameNetworkService;
 
-        PathFindingService  pathFindingService;
+        PathFindingService pathFindingService;
         UnitBehaviorService unitBehaviorService;
         CobExecutionService cobExecutionService;
 
-        std::shared_ptr<Sprite>       minimap;
+        std::shared_ptr<Sprite> minimap;
         std::shared_ptr<SpriteSeries> minimapDots;
-        std::shared_ptr<Sprite>       minimapDotHighlight;
-        Rectangle2f                   minimapRect;
+        std::shared_ptr<Sprite> minimapDotHighlight;
+        Rectangle2f minimapRect;
 
-        std::unique_ptr<UiPanel>                currentPanel;
+        std::unique_ptr<UiPanel> currentPanel;
         std::optional<std::unique_ptr<UiPanel>> nextPanel;
 
         InGameSoundsInfo sounds;
@@ -281,7 +307,7 @@ namespace rwe
         bool rightShiftDown{false};
 
         std::variant<std::monostate, Vector3f, UnitId> elementOfInterest;
-        std::unordered_set<UnitId>                     selectedUnits;
+        std::unordered_set<UnitId> selectedUnits;
 
         std::optional<HoverBuildInfo> hoverBuildInfo;
 
@@ -292,14 +318,14 @@ namespace rwe
 
         bool healthBarsVisible{false};
 
-        BehaviorSubject<CursorMode> cursorMode;
+        BehaviorSubject<CursorMode> cursorMode{NormalCursorMode()};
 
         std::deque<std::optional<GameSceneTimeAction>> actions;
 
         std::vector<PlayerCommand> localPlayerCommandBuffer;
 
         BehaviorSubject<UnitFireOrders> fireOrders{UnitFireOrders::HoldFire};
-        BehaviorSubject<bool>           onOff{false};
+        BehaviorSubject<bool> onOff{false};
 
         TdfBlock* audioLookup;
         UiFactory uiFactory;
@@ -309,23 +335,24 @@ namespace rwe
         std::unordered_map<UnitId, std::unordered_map<std::string, int>> unconfirmedBuildQueueDelta;
 
     public:
-        GameScene(const SceneContext&                     sceneContext,
-                  std::unique_ptr<PlayerCommandService>&& playerCommandService,
-                  RenderService&&                         worldRenderService,
-                  UiRenderService&&                       worldUiRenderService,
-                  UiRenderService&&                       chromeUiRenderService,
-                  GameSimulation&&                        simulation,
-                  MovementClassCollisionService&&         collisionService,
-                  UnitDatabase&&                          unitDatabase,
-                  MeshService&&                           meshService,
-                  std::unique_ptr<GameNetworkService>&&   gameNetworkService,
-                  const std::shared_ptr<Sprite>&          minimap,
-                  const std::shared_ptr<SpriteSeries>&    minimapDots,
-                  const std::shared_ptr<Sprite>&          minimapDotHighlight,
-                  InGameSoundsInfo                        sounds,
-                  const std::shared_ptr<SpriteSeries>&    guiFont,
-                  PlayerId                                localPlayerId,
-                  TdfBlock*                               audioLookup);
+        GameScene(
+            const SceneContext& sceneContext,
+            std::unique_ptr<PlayerCommandService>&& playerCommandService,
+            RenderService&& worldRenderService,
+            UiRenderService&& worldUiRenderService,
+            UiRenderService&& chromeUiRenderService,
+            GameSimulation&& simulation,
+            MovementClassCollisionService&& collisionService,
+            UnitDatabase&& unitDatabase,
+            MeshService&& meshService,
+            std::unique_ptr<GameNetworkService>&& gameNetworkService,
+            const std::shared_ptr<Sprite>& minimap,
+            const std::shared_ptr<SpriteSeries>& minimapDots,
+            const std::shared_ptr<Sprite>& minimapDotHighlight,
+            InGameSoundsInfo sounds,
+            const std::shared_ptr<SpriteSeries>& guiFont,
+            PlayerId localPlayerId,
+            TdfBlock* audioLookup);
 
         void init() override;
 
@@ -379,8 +406,7 @@ namespace rwe
 
         void playSoundAt(const Vector3f& position, const AudioService::SoundHandle& sound);
 
-        DiscreteRect
-        computeFootprintRegion(const Vector3f& position, unsigned int footprintX, unsigned int footprintZ) const;
+        DiscreteRect computeFootprintRegion(const Vector3f& position, unsigned int footprintX, unsigned int footprintZ) const;
 
         void moveUnitOccupiedArea(const DiscreteRect& oldRect, const DiscreteRect& newRect, UnitId unitId);
 
@@ -482,7 +508,8 @@ namespace rwe
 
         void processPlayerCommands(const std::vector<std::pair<PlayerId, std::vector<PlayerCommand>>>& commands);
 
-        template <typename T> void delay(SceneTime interval, T&& f)
+        template <typename T>
+        void delay(SceneTime interval, T&& f)
         {
             actions.emplace_back(GameSceneTimeAction(sceneTime + interval, std::forward<T>(f)));
         }
@@ -525,9 +552,7 @@ namespace rwe
 
         int getUnconfirmedBuildQueueCount(UnitId unitId, const std::string& unitType) const;
 
-        std::unique_ptr<UiPanel> createBuildPanel(const std::string&                          guiname,
-                                                  const std::vector<GuiEntry>&                panelDefinition,
-                                                  const std::unordered_map<std::string, int>& totals);
+        std::unique_ptr<UiPanel> createBuildPanel(const std::string& guiname, const std::vector<GuiEntry>& panelDefinition, const std::unordered_map<std::string, int>& totals);
 
         template <typename T>
         std::optional<std::reference_wrapper<T>> findWithSidePrefix(UiPanel& p, const std::string& name)

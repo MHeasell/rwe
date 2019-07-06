@@ -6,10 +6,7 @@
 
 namespace rwe
 {
-    bool GamePlayerInfo::addResourceDelta(const Energy& apparentEnergy,
-                                          const Metal&  apparentMetal,
-                                          const Energy& actualEnergy,
-                                          const Metal&  actualMetal)
+    bool GamePlayerInfo::addResourceDelta(const Energy& apparentEnergy, const Metal& apparentMetal, const Energy& actualEnergy, const Metal& actualMetal)
     {
         if (recordAndCheckDesire(apparentEnergy) && recordAndCheckDesire(apparentMetal))
         {
@@ -67,33 +64,35 @@ namespace rwe
         }
     }
 
-    bool PathRequest::operator==(const PathRequest& rhs) const { return unitId == rhs.unitId; }
+    bool PathRequest::operator==(const PathRequest& rhs) const
+    {
+        return unitId == rhs.unitId;
+    }
 
-    bool PathRequest::operator!=(const PathRequest& rhs) const { return !(rhs == *this); }
+    bool PathRequest::operator!=(const PathRequest& rhs) const
+    {
+        return !(rhs == *this);
+    }
 
     GameSimulation::GameSimulation(MapTerrain&& terrain, unsigned char surfaceMetal)
         : terrain(std::move(terrain)),
-          occupiedGrid(this->terrain.getHeightMap().getWidth() - 1,
-                       this->terrain.getHeightMap().getHeight() - 1,
-                       OccupiedCell()),
-          metalGrid(
-              this->terrain.getHeightMap().getWidth() - 1, this->terrain.getHeightMap().getHeight() - 1, surfaceMetal)
+          occupiedGrid(this->terrain.getHeightMap().getWidth() - 1, this->terrain.getHeightMap().getHeight() - 1, OccupiedCell()),
+          metalGrid(this->terrain.getHeightMap().getWidth() - 1, this->terrain.getHeightMap().getHeight() - 1, surfaceMetal)
     {
     }
 
     FeatureId GameSimulation::addFeature(MapFeature&& newFeature)
     {
         auto featureId = nextFeatureId;
-        auto pair      = features.insert_or_assign(featureId, std::move(newFeature));
-        nextFeatureId  = FeatureId(nextFeatureId.value + 1);
+        auto pair = features.insert_or_assign(featureId, std::move(newFeature));
+        nextFeatureId = FeatureId(nextFeatureId.value + 1);
 
 
         auto& f = pair.first->second;
         if (f.isBlocking)
         {
             auto footprintRegion = computeFootprintRegion(f.position, f.footprintX, f.footprintZ);
-            occupiedGrid.forEach(occupiedGrid.clipRegion(footprintRegion),
-                                 [featureId](auto& cell) { cell.occupiedType = OccupiedFeature(featureId); });
+            occupiedGrid.forEach(occupiedGrid.clipRegion(footprintRegion), [featureId](auto& cell) { cell.occupiedType = OccupiedFeature(featureId); });
         }
 
         if (!f.isBlocking && f.isIndestructible && f.metal)
@@ -133,10 +132,9 @@ namespace rwe
         else
         {
             assert(!!unit.yardMap);
-            occupiedGrid.forEach2(
-                footprintRegion->x, footprintRegion->y, *unit.yardMap, [&](auto& cell, const auto& yardMapCell) {
-                    cell.buildingCell = BuildingOccupiedCell{unitId, isPassable(yardMapCell, unit.yardOpen)};
-                });
+            occupiedGrid.forEach2(footprintRegion->x, footprintRegion->y, *unit.yardMap, [&](auto& cell, const auto& yardMapCell) {
+                cell.buildingCell = BuildingOccupiedCell{unitId, isPassable(yardMapCell, unit.yardOpen)};
+            });
         }
 
         units.insert_or_assign(unitId, std::move(unit));
@@ -161,13 +159,14 @@ namespace rwe
         return true;
     }
 
-    DiscreteRect GameSimulation::computeFootprintRegion(const Vector3f& position,
-                                                        unsigned int    footprintX,
-                                                        unsigned int    footprintZ) const
+    DiscreteRect GameSimulation::computeFootprintRegion(const Vector3f& position, unsigned int footprintX, unsigned int footprintZ) const
     {
-        auto     halfFootprintX = static_cast<float>(footprintX) * MapTerrain::HeightTileWidthInWorldUnits / 2.0f;
-        auto     halfFootprintZ = static_cast<float>(footprintZ) * MapTerrain::HeightTileHeightInWorldUnits / 2.0f;
-        Vector3f topLeft(position.x - halfFootprintX, position.y, position.z - halfFootprintZ);
+        auto halfFootprintX = static_cast<float>(footprintX) * MapTerrain::HeightTileWidthInWorldUnits / 2.0f;
+        auto halfFootprintZ = static_cast<float>(footprintZ) * MapTerrain::HeightTileHeightInWorldUnits / 2.0f;
+        Vector3f topLeft(
+            position.x - halfFootprintX,
+            position.y,
+            position.z - halfFootprintZ);
 
         auto cell = terrain.worldToHeightmapCoordinateNearest(topLeft);
 
@@ -235,8 +234,7 @@ namespace rwe
         });
     }
 
-    bool
-    GameSimulation::isYardmapBlocked(unsigned int x, unsigned int y, const Grid<YardMapCell>& yardMap, bool open) const
+    bool GameSimulation::isYardmapBlocked(unsigned int x, unsigned int y, const Grid<YardMapCell>& yardMap, bool open) const
     {
         return occupiedGrid.any2(x, y, yardMap, [&](const auto& cell, const auto& yardMapCell) {
             if (isPassable(yardMapCell, open))
@@ -264,7 +262,10 @@ namespace rwe
         DiscreteRect bottom(rect.x - 1, rect.y + rect.width, rect.width + 2, 1);
         DiscreteRect left(rect.x - 1, rect.y, 1, rect.height);
         DiscreteRect right(rect.x + rect.width, rect.y, 1, rect.height);
-        return isCollisionAt(top) || isCollisionAt(bottom) || isCollisionAt(left) || isCollisionAt(right);
+        return isCollisionAt(top)
+            || isCollisionAt(bottom)
+            || isCollisionAt(left)
+            || isCollisionAt(right);
     }
 
     void GameSimulation::showObject(UnitId unitId, const std::string& name)
@@ -317,7 +318,10 @@ namespace rwe
         return it->second;
     }
 
-    std::optional<std::reference_wrapper<Unit>> GameSimulation::tryGetUnit(UnitId id) { return tryFind(units, id); }
+    std::optional<std::reference_wrapper<Unit>> GameSimulation::tryGetUnit(UnitId id)
+    {
+        return tryFind(units, id);
+    }
 
     std::optional<std::reference_wrapper<const Unit>> GameSimulation::tryGetUnit(UnitId id) const
     {
@@ -344,9 +348,15 @@ namespace rwe
         return it->second;
     }
 
-    GamePlayerInfo& GameSimulation::getPlayer(PlayerId player) { return players.at(player.value); }
+    GamePlayerInfo& GameSimulation::getPlayer(PlayerId player)
+    {
+        return players.at(player.value);
+    }
 
-    const GamePlayerInfo& GameSimulation::getPlayer(PlayerId player) const { return players.at(player.value); }
+    const GamePlayerInfo& GameSimulation::getPlayer(PlayerId player) const
+    {
+        return players.at(player.value);
+    }
 
     void GameSimulation::moveObject(UnitId unitId, const std::string& name, Axis axis, float position, float speed)
     {
@@ -406,18 +416,6 @@ namespace rwe
         return it;
     }
 
-    std::optional<UnitId> GameSimulation::getClosestUnit(const Vector3f& position, float epsilon) const
-    {
-        for (const auto& [id, unit] : units)
-        {
-            if (unit.position.distance(position) <= epsilon)
-            {
-                return id;
-            }
-        }
-        return {};
-    }
-
     std::optional<Vector3f> GameSimulation::intersectLineWithTerrain(const Line3f& line) const
     {
         return terrain.intersectLine(line);
@@ -451,28 +449,26 @@ namespace rwe
         pathRequests.push_back(PathRequest{unitId});
     }
 
-    LaserProjectile GameSimulation::createProjectileFromWeapon(PlayerId          owner,
-                                                               const UnitWeapon& weapon,
-                                                               const Vector3f&   position,
-                                                               const Vector3f&   direction)
+    LaserProjectile GameSimulation::createProjectileFromWeapon(
+        PlayerId owner, const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction)
     {
         LaserProjectile laser;
-        laser.owner    = owner;
+        laser.owner = owner;
         laser.position = position;
-        laser.origin   = position;
+        laser.origin = position;
         laser.velocity = direction * weapon.velocity;
         laser.duration = weapon.duration;
-        laser.color    = weapon.color;
-        laser.color2   = weapon.color2;
+        laser.color = weapon.color;
+        laser.color2 = weapon.color2;
 
-        laser.endSmoke   = weapon.endSmoke;
+        laser.endSmoke = weapon.endSmoke;
         laser.smokeTrail = weapon.smokeTrail;
-        laser.lastSmoke  = gameTime;
+        laser.lastSmoke = gameTime;
 
-        laser.soundHit   = weapon.soundHit;
+        laser.soundHit = weapon.soundHit;
         laser.soundWater = weapon.soundWater;
 
-        laser.explosion      = weapon.explosion;
+        laser.explosion = weapon.explosion;
         laser.waterExplosion = weapon.waterExplosion;
 
         laser.damage = weapon.damage;
@@ -482,10 +478,7 @@ namespace rwe
         return laser;
     }
 
-    void GameSimulation::spawnLaser(PlayerId          owner,
-                                    const UnitWeapon& weapon,
-                                    const Vector3f&   position,
-                                    const Vector3f&   direction)
+    void GameSimulation::spawnLaser(PlayerId owner, const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction)
     {
         auto laser = createProjectileFromWeapon(owner, weapon, position, direction);
 
@@ -503,7 +496,7 @@ namespace rwe
     void GameSimulation::spawnExplosion(const Vector3f& position, const std::shared_ptr<SpriteSeries>& animation)
     {
         Explosion exp;
-        exp.position  = position;
+        exp.position = position;
         exp.animation = animation;
         exp.startTime = gameTime;
 
@@ -521,10 +514,10 @@ namespace rwe
     void GameSimulation::spawnSmoke(const Vector3f& position, const std::shared_ptr<SpriteSeries>& animation)
     {
         Explosion exp;
-        exp.position  = position;
+        exp.position = position;
         exp.animation = animation;
         exp.startTime = gameTime;
-        exp.floats    = true;
+        exp.floats = true;
 
         auto it = std::find_if(explosions.begin(), explosions.end(), [](const auto& x) { return !x; });
         if (it == explosions.end())
@@ -573,13 +566,9 @@ namespace rwe
         return addResourceDelta(unitId, energy, metal, energy, metal);
     }
 
-    bool GameSimulation::addResourceDelta(const UnitId& unitId,
-                                          const Energy& apparentEnergy,
-                                          const Metal&  apparentMetal,
-                                          const Energy& actualEnergy,
-                                          const Metal&  actualMetal)
+    bool GameSimulation::addResourceDelta(const UnitId& unitId, const Energy& apparentEnergy, const Metal& apparentMetal, const Energy& actualEnergy, const Metal& actualMetal)
     {
-        auto& unit   = getUnit(unitId);
+        auto& unit = getUnit(unitId);
         auto& player = getPlayer(unit.owner);
 
         unit.addEnergyDelta(apparentEnergy);
@@ -589,9 +578,9 @@ namespace rwe
 
     bool GameSimulation::trySetYardOpen(const UnitId& unitId, bool open)
     {
-        auto& unit            = getUnit(unitId);
-        auto  footprintRect   = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
-        auto  footprintRegion = occupiedGrid.tryToRegion(footprintRect);
+        auto& unit = getUnit(unitId);
+        auto footprintRect = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+        auto footprintRegion = occupiedGrid.tryToRegion(footprintRect);
         assert(!!footprintRegion);
 
         assert(!!unit.yardMap);
@@ -600,10 +589,9 @@ namespace rwe
             return false;
         }
 
-        occupiedGrid.forEach2(
-            footprintRegion->x, footprintRegion->y, *unit.yardMap, [&](auto& cell, const auto& yardMapCell) {
-                cell.buildingCell = BuildingOccupiedCell{unitId, isPassable(yardMapCell, open)};
-            });
+        occupiedGrid.forEach2(footprintRegion->x, footprintRegion->y, *unit.yardMap, [&](auto& cell, const auto& yardMapCell) {
+            cell.buildingCell = BuildingOccupiedCell{unitId, isPassable(yardMapCell, open)};
+        });
 
         unit.yardOpen = open;
 
@@ -612,9 +600,9 @@ namespace rwe
 
     void GameSimulation::emitBuggerOff(const UnitId& unitId)
     {
-        auto& unit            = getUnit(unitId);
-        auto  footprintRect   = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
-        auto  footprintRegion = occupiedGrid.tryToRegion(footprintRect);
+        auto& unit = getUnit(unitId);
+        auto footprintRect = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+        auto footprintRegion = occupiedGrid.tryToRegion(footprintRect);
         assert(!!footprintRegion);
 
         occupiedGrid.forEach(*footprintRegion, [&](const auto& e) {
