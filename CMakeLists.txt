@@ -501,6 +501,7 @@ add_library(librwe STATIC ${SOURCE_FILES} ${PROTO_SOURCE_FILES} ${PROTO_HEADER_F
 set_target_properties(librwe PROPERTIES PREFIX "")
 if(MSVC)
     target_compile_options(librwe PUBLIC "/std:c++latest")
+    add_definitions(-D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS)
 else()
     target_compile_options(librwe PUBLIC "-Wall" "-Wextra")
 endif()
