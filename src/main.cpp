@@ -428,6 +428,8 @@ int main(int argc, char* argv[])
             throw std::runtime_error("Failed to determine local data path");
         }
 
+        fs::create_directories(*localDataPath);
+
         fs::path logPath(*localDataPath);
         auto logger = createLogger(logPath);
         logger->set_level(spdlog::level::debug);
