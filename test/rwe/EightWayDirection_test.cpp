@@ -81,21 +81,5 @@ namespace rwe
                 REQUIRE(directionDistance(Direction::NORTHEAST, Direction::WEST) == 3);
             }
         }
-
-        SECTION("directionFromRadians")
-        {
-            SECTION("converts an angle to a direction")
-            {
-                REQUIRE(directionFromRadians((0.0f / 4.0f) * Pif) == Direction::NORTH);
-                REQUIRE(directionFromRadians((1.0f / 4.0f) * Pif) == Direction::NORTHWEST);
-                REQUIRE(directionFromRadians((2.0f / 4.0f) * Pif) == Direction::WEST);
-                REQUIRE(directionFromRadians((3.0f / 4.0f) * Pif) == Direction::SOUTHWEST);
-                REQUIRE(directionFromRadians((4.0f / 4.0f) * Pif) == Direction::SOUTH);
-                REQUIRE(directionFromRadians((5.0f / 4.0f) * Pif) == Direction::SOUTHEAST);
-                REQUIRE(directionFromRadians((6.0f / 4.0f) * Pif) == Direction::EAST);
-                REQUIRE(directionFromRadians((7.0f / 4.0f) * Pif) == Direction::NORTHEAST);
-                REQUIRE(directionFromRadians((8.0f / 4.0f) * Pif) == Direction::NORTH);
-            }
-        }
     }
 }

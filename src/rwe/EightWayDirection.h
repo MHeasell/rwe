@@ -41,8 +41,6 @@ namespace rwe
     unsigned int directionToIndex(Direction d);
 
     unsigned int directionDistance(Direction a, Direction b);
-
-    Direction directionFromRadians(float r);
 }
 
 #endif
