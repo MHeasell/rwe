@@ -11,7 +11,7 @@ namespace std
 
 #include "rc_gen_optional.h"
 #include <boost/functional/hash.hpp>
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 #include <optional>
 #include <rapidcheck/boost.h>
 #include <rapidcheck/catch.h>

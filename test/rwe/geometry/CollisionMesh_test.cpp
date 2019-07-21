@@ -1,5 +1,5 @@
 #include <rwe/optional_io.h>
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 #include <rwe/geometry/Ray3f.h>
 #include <rwe/geometry/CollisionMesh.h>
 

@@ -1,5 +1,5 @@
 #include <rwe/optional_io.h>
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 #include <rwe/math/Vector3f.h>
 #include <sstream>
 #include <rwe/util.h>

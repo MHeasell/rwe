@@ -1,4 +1,4 @@
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 #include <rwe/SideData.h>
 #include <rwe/tdf.h>
 

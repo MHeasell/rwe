@@ -1,4 +1,4 @@
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 #include <rwe/tdf/SimpleTdfAdapter.h>
 
 #include <utf8.h>

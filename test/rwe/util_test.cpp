@@ -1,4 +1,4 @@
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 #include <rapidcheck.h>
 #include <rapidcheck/catch.h>
 #include <rwe/util.h>

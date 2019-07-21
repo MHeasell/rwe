@@ -1,4 +1,4 @@
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 #include <rwe/geometry/Rectangle2f.h>
 
 namespace rwe

@@ -1,4 +1,4 @@
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 #include <rwe/math/Vector2f.h>
 #include <rwe/util.h>
 

@@ -1,4 +1,4 @@
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 #include <rwe/DiscreteRect.h>
 #include <rwe/pathfinding/OctileDistance_io.h>
 
