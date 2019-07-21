@@ -693,7 +693,7 @@ set(TEST_FILES
     )
 
 add_executable(rwe_test test/main.cpp ${TEST_FILES})
-target_include_directories(rwe_test PRIVATE "libs/catch")
+target_link_libraries(rwe_test Catch2::Catch2)
 target_link_libraries(rwe_test rapidcheck_catch)
 target_link_libraries(rwe_test rapidcheck_boost)
 target_link_libraries(rwe_test librwe)
