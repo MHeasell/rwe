@@ -29,22 +29,30 @@ namespace rwe
 
     float wrap(float min, float max, float value)
     {
-        assert(min <= max);
+        assert(min < max);
+        if (value >= min && value < max)
+        {
+            return value;
+        }
+        return wrap(value - min, max - min) + min;
+    }
 
-        auto range = max - min;
-        auto offsetVal = value - min;
-        auto modVal = std::fmod((std::fmod(offsetVal, range) + range), range);
-        return modVal + min;
+    float wrap(float value, float max)
+    {
+        assert(max > 0.0f);
+        return std::fmod(std::fmod(value, max) + max, max);
     }
 
     int wrap(int min, int max, int value)
     {
-        assert(min <= max);
+        assert(min < max);
+        return wrap(value - min, max - min) + min;
+    }
 
-        auto range = max - min;
-        auto offsetVal = value - min;
-        auto modVal = ((offsetVal % range) + range) % range;
-        return modVal + min;
+    int wrap(int value, int max)
+    {
+        assert(max > 0);
+        return ((value % max) + max) % max;
     }
 
     unsigned int roundUpToPowerOfTwo(unsigned int v)
