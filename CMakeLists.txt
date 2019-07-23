@@ -229,7 +229,10 @@ set(SOURCE_FILES
     src/rwe/Fnt.h
     src/rwe/Gaf.cpp
     src/rwe/Gaf.h
+    src/rwe/GameHash.cpp
     src/rwe/GameHash.h
+    src/rwe/GameHash_util.cpp
+    src/rwe/GameHash_util.h
     src/rwe/GameNetworkService.cpp
     src/rwe/GameNetworkService.h
     src/rwe/GameScene.cpp
@@ -678,6 +681,7 @@ set(TEST_FILES
     test/rwe/DiscreteRect_test.cpp
     test/rwe/EightWayDirection_test.cpp
     test/rwe/FeatureDefinition_test.cpp
+    test/rwe/GameHash_util_test.cpp
     test/rwe/Grid_test.cpp
     test/rwe/ListTdfAdapter_test.cpp
     test/rwe/MinHeap_test.cpp

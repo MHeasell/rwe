@@ -2,7 +2,9 @@
 #include <rwe/collection_util.h>
 #include <rwe/overloaded.h>
 
+#include <rwe/GameHash_util.h>
 #include <rwe/movement.h>
+#include <type_traits>
 
 namespace rwe
 {
@@ -623,7 +625,6 @@ namespace rwe
 
     GameHash GameSimulation::computeHash() const
     {
-        // TODO: this
-        return GameHash(gameTime.value);
+        return computeHashOf(*this);
     }
 }
