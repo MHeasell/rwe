@@ -9,9 +9,9 @@ namespace rwe
     auto choose(Range r, Chooser c)
     {
         return r
-            | boost::adaptors::transformed([&](const auto& e) { return c(e); })
-            | boost::adaptors::filtered([](const auto& e) { return !!e; })
-            | boost::adaptors::transformed([&](const auto& e) { return *e; });
+            | boost::adaptors::transformed(c)
+            | boost::adaptors::filtered([](const auto& e) { return e.has_value(); })
+            | boost::adaptors::transformed([](const auto& e) { return *e; });
     }
 }
 
