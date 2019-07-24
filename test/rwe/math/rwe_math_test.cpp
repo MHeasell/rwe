@@ -54,8 +54,10 @@ namespace rwe
             });
             rc::prop("three-arg", []() {
                 auto value = *rc::gen::inRange(-100'000, 100'000);
-                auto minmax = std::minmax(*rc::gen::inRange(-100'000, 100'000), *rc::gen::inRange(-100'000, 100'000));
-                RC_PRE(minmax.first != minmax.second);
+                auto a = *rc::gen::inRange(-100'000, 100'000);
+                auto b = *rc::gen::inRange(-100'000, 100'000);
+                RC_PRE(a != b);
+                auto minmax = std::minmax(a, b);
                 RC_ASSERT(wrap(minmax.first, minmax.second, value) == wrap(static_cast<float>(minmax.first), static_cast<float>(minmax.second), static_cast<float>(value)));
             });
         }
