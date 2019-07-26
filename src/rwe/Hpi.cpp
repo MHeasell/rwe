@@ -459,9 +459,8 @@ namespace rwe
         const Directory* dir = &root();
 
         // traverse to the correct directory
-        for (auto cIt = components.cbegin(), cEnd = components.cend(); cIt != cEnd; ++cIt)
+        for (const auto& c : components)
         {
-            auto& c = *cIt;
             auto begin = dir->entries.begin();
             auto end = dir->entries.end();
             auto it = std::find_if(
