@@ -112,7 +112,6 @@ namespace rwe
           sounds(std::move(sounds)),
           guiFont(guiFont),
           localPlayerId(localPlayerId),
-          audioLookup(audioLookup),
           uiFactory(sceneContext.textureService, sceneContext.audioService, audioLookup, sceneContext.vfs, sceneContext.viewportService->width(), sceneContext.viewportService->height())
     {
     }

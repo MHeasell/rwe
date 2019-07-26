@@ -241,7 +241,6 @@ namespace rwe
         BehaviorSubject<UnitFireOrders> fireOrders{UnitFireOrders::HoldFire};
         BehaviorSubject<bool> onOff{false};
 
-        TdfBlock* audioLookup;
         UiFactory uiFactory;
 
         std::unordered_map<UnitId, UnitGuiInfo> unitGuiInfos;
