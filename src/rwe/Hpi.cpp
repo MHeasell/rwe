@@ -1,4 +1,5 @@
 #include "Hpi.h"
+#include "overloaded.h"
 
 #include <algorithm>
 #include <memory>
@@ -373,19 +374,6 @@ namespace rwe
         }
     }
 
-    struct FileToOptionalVisitor
-    {
-        std::optional<std::reference_wrapper<const HpiArchive::File>> operator()(const HpiArchive::File& f) const
-        {
-            return f;
-        }
-
-        std::optional<std::reference_wrapper<const HpiArchive::File>> operator()(const HpiArchive::Directory& /*d*/) const
-        {
-            return std::nullopt;
-        }
-    };
-
     std::optional<std::reference_wrapper<const HpiArchive::File>> findFileInner(const HpiArchive::Directory& dir, const std::string& name)
     {
         auto it = std::find_if(
@@ -400,21 +388,11 @@ namespace rwe
             return std::nullopt;
         }
 
-        return std::visit(FileToOptionalVisitor(), it->data);
+        return match(
+            it->data,
+            [&](const HpiArchive::Directory&) { return std::optional<std::reference_wrapper<const HpiArchive::File>>(); },
+            [&](const HpiArchive::File& f) { return std::make_optional(std::ref(f)); });
     }
-
-    struct DirToOptionalVisitor
-    {
-        std::optional<std::reference_wrapper<const HpiArchive::Directory>> operator()(const HpiArchive::File& /*f*/) const
-        {
-            return std::nullopt;
-        }
-
-        std::optional<std::reference_wrapper<const HpiArchive::Directory>> operator()(const HpiArchive::Directory& d) const
-        {
-            return d;
-        }
-    };
 
     std::optional<std::reference_wrapper<const HpiArchive::File>> HpiArchive::findFile(const std::string& path) const
     {
@@ -439,13 +417,13 @@ namespace rwe
                 return std::nullopt;
             }
 
-            auto foundDir = std::visit(DirToOptionalVisitor(), it->data);
+            auto foundDir = std::get_if<Directory>(&it->data);
             if (!foundDir)
             {
                 return std::nullopt;
             }
 
-            dir = &foundDir->get();
+            dir = foundDir;
         }
 
         // find the file in the directory
@@ -474,13 +452,13 @@ namespace rwe
                 return std::nullopt;
             }
 
-            auto foundDir = std::visit(DirToOptionalVisitor(), it->data);
+            auto foundDir = std::get_if<Directory>(&it->data);
             if (!foundDir)
             {
                 return std::nullopt;
             }
 
-            dir = &foundDir->get();
+            dir = foundDir;
         }
 
         return *dir;
