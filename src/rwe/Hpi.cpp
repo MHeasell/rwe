@@ -418,7 +418,7 @@ namespace rwe
 
     std::optional<std::reference_wrapper<const HpiArchive::File>> HpiArchive::findFile(const std::string& path) const
     {
-        auto components = split(path, {'/'});
+        auto components = split(path, '/');
 
         const Directory* dir = &root();
 
@@ -454,7 +454,7 @@ namespace rwe
 
     std::optional<std::reference_wrapper<const HpiArchive::Directory>> HpiArchive::findDirectory(const std::string& path) const
     {
-        auto components = split(path, {'/'});
+        auto components = split(path, '/');
 
         const Directory* dir = &root();
 
