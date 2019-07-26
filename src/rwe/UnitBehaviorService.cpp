@@ -28,10 +28,8 @@ namespace rwe
 
     UnitBehaviorService::UnitBehaviorService(
         GameScene* scene,
-        PathFindingService* pathFindingService,
-        MovementClassCollisionService* collisionService,
         UnitFactory* unitFactory)
-        : scene(scene), pathFindingService(pathFindingService), collisionService(collisionService), unitFactory(unitFactory)
+        : scene(scene), unitFactory(unitFactory)
     {
     }
 
