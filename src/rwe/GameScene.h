@@ -161,86 +161,6 @@ namespace rwe
         static constexpr int GuiSizeTop = 32;
         static constexpr int GuiSizeBottom = 32;
 
-        class UnitCommandDispacher
-        {
-        private:
-            GameScene* scene;
-            PlayerId player;
-            UnitId unit;
-
-        public:
-            UnitCommandDispacher(GameScene* scene, const PlayerId& player, const UnitId& unit)
-                : scene(scene), player(player), unit(unit)
-            {
-            }
-
-            void operator()(const PlayerUnitCommand::IssueOrder& c)
-            {
-                switch (c.issueKind)
-                {
-                    case PlayerUnitCommand::IssueOrder::IssueKind::Immediate:
-                        scene->issueUnitOrder(unit, c.order);
-                        break;
-                    case PlayerUnitCommand::IssueOrder::IssueKind::Queued:
-                        scene->enqueueUnitOrder(unit, c.order);
-                        break;
-                }
-            }
-
-            void operator()(const PlayerUnitCommand::ModifyBuildQueue& c)
-            {
-                scene->modifyBuildQueue(unit, c.unitType, c.count);
-            }
-
-            void operator()(const PlayerUnitCommand::Stop&)
-            {
-                scene->stopUnit(unit);
-            }
-
-            void operator()(const PlayerUnitCommand::SetFireOrders& c)
-            {
-                scene->setFireOrders(unit, c.orders);
-            }
-
-            void operator()(const PlayerUnitCommand::SetOnOff& c)
-            {
-                if (c.on)
-                {
-                    scene->activateUnit(unit);
-                }
-                else
-                {
-                    scene->deactivateUnit(unit);
-                }
-            }
-        };
-
-        class PlayerCommandDispatcher
-        {
-        private:
-            GameScene* scene;
-            PlayerId playerId;
-
-        public:
-            PlayerCommandDispatcher(GameScene* scene, PlayerId playerId) : scene(scene), playerId(playerId)
-            {
-            }
-
-            void operator()(const PlayerUnitCommand& c)
-            {
-                UnitCommandDispacher dispatcher(scene, playerId, c.unit);
-                std::visit(dispatcher, c.command);
-            }
-            void operator()(const PlayerPauseGameCommand&)
-            {
-                // TODO
-            }
-            void operator()(const PlayerUnpauseGameCommand&)
-            {
-                // TODO
-            }
-        };
-
     private:
         static const unsigned int UnitSelectChannel = 0;
 
@@ -499,6 +419,10 @@ namespace rwe
         void processActions();
 
         void processPlayerCommands(const std::vector<std::pair<PlayerId, std::vector<PlayerCommand>>>& commands);
+
+        void processPlayerCommand(const PlayerCommand& playerCommand);
+
+        void processUnitCommand(const PlayerUnitCommand& unitCommand);
 
         template <typename T>
         void delay(SceneTime interval, T&& f)

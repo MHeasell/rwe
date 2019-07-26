@@ -1960,12 +1960,11 @@ namespace rwe
 
     void GameScene::processPlayerCommands(const std::vector<std::pair<PlayerId, std::vector<PlayerCommand>>>& commands)
     {
-        for (const auto& p : commands)
+        for (const auto& [_, playerCommands] : commands)
         {
-            PlayerCommandDispatcher dispatcher(this, p.first);
-            for (const auto& c : p.second)
+            for (const auto& command : playerCommands)
             {
-                std::visit(dispatcher, c);
+                processPlayerCommand(command);
             }
         }
     }
@@ -2435,5 +2434,56 @@ namespace rwe
         }
 
         return panel;
+    }
+
+    void GameScene::processPlayerCommand(const PlayerCommand& playerCommand)
+    {
+        match(
+            playerCommand,
+            [&](const PlayerUnitCommand& c) {
+                processUnitCommand(c);
+            },
+            [](const PlayerPauseGameCommand&) {
+                // TODO
+            },
+            [](const PlayerUnpauseGameCommand&) {
+                // TODO
+            });
+    }
+
+    void GameScene::processUnitCommand(const PlayerUnitCommand& unitCommand)
+    {
+        match(
+            unitCommand.command,
+            [&](const PlayerUnitCommand::IssueOrder& c) {
+                switch (c.issueKind)
+                {
+                    case PlayerUnitCommand::IssueOrder::IssueKind::Immediate:
+                        issueUnitOrder(unitCommand.unit, c.order);
+                        break;
+                    case PlayerUnitCommand::IssueOrder::IssueKind::Queued:
+                        enqueueUnitOrder(unitCommand.unit, c.order);
+                        break;
+                }
+            },
+            [&](const PlayerUnitCommand::ModifyBuildQueue& c) {
+                modifyBuildQueue(unitCommand.unit, c.unitType, c.count);
+            },
+            [&](const PlayerUnitCommand::Stop&) {
+                stopUnit(unitCommand.unit);
+            },
+            [&](const PlayerUnitCommand::SetFireOrders& c) {
+                setFireOrders(unitCommand.unit, c.orders);
+            },
+            [&](const PlayerUnitCommand::SetOnOff& c) {
+                if (c.on)
+                {
+                    activateUnit(unitCommand.unit);
+                }
+                else
+                {
+                    deactivateUnit(unitCommand.unit);
+                }
+            });
     }
 }
