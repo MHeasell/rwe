@@ -82,6 +82,32 @@ To elaborate on the first point, implementation is guided by the following rules
 
 I aim to post a progress update at least once a month that explains what has been done and what the current goal is.
 
+#### TA looks so tiny on my screen. Will RWE fix this?
+
+TA looks small at high resolutions because everything
+occupies a fixed number of pixels on the screen.
+At higher resolutions the UI appears to get smaller
+and the game world appears to get zoomed out &mdash;
+in fact buttons in the UI and units in the game world
+still occupy the same number of pixels,
+but there are more pixels within the same space.
+
+It is planned that RWE will eventually support scaling
+for high resolution displays.
+This means that UI elements will appear bigger
+and the world will appear more zoomed in
+but you'll still enjoy the benefits from playing
+at a high resolution.
+Map terrain and most features (trees, rocks, etc.)
+are represented using pre-rendered images
+that will appear blurry when scaled up,
+as if you are playing on a lower resolution setting.
+However 3D models (units) will appear sharper,
+with more texture detail.
+
+One day in the future it may be possible
+for RWE to support higher resolution replacement art.
+
 #### Will you implement feature X?
 
 Following the principles above,
