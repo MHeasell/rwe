@@ -1033,7 +1033,8 @@ namespace rwe
     {
         auto& unit = scene->getSimulation().getUnit(unitId);
 
-        match(unit.factoryState,
+        match(
+            unit.factoryState,
             [&](const FactoryStateIdle&) {
                 // do nothing
             },

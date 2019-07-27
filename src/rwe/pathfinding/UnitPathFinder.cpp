@@ -11,12 +11,12 @@ namespace rwe
         unsigned int footprintZ,
         const Point& goal)
         : AbstractUnitPathFinder(
-              simulation,
-              collisionService,
-              self,
-              movementClass,
-              footprintX,
-              footprintZ),
+            simulation,
+            collisionService,
+            self,
+            movementClass,
+            footprintX,
+            footprintZ),
           goal(goal)
     {
     }
