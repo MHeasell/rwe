@@ -4,6 +4,7 @@
 #include <cassert>
 #include <deque>
 #include <functional>
+#include <optional>
 #include <rwe/OpaqueId.h>
 #include <rwe/overloaded.h>
 #include <utility>
