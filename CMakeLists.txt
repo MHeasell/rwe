@@ -344,6 +344,8 @@ set(SOURCE_FILES
     src/rwe/UnitWeapon.h
     src/rwe/VaoHandle.h
     src/rwe/VboHandle.h
+    src/rwe/VectorMap.cpp
+    src/rwe/VectorMap.h
     src/rwe/ViewportService.cpp
     src/rwe/ViewportService.h
     src/rwe/Weapon.h
@@ -674,6 +676,7 @@ set(TEST_FILES
     test/rwe/SideData_test.cpp
     test/rwe/SimpleTdfAdapter_test.cpp
     test/rwe/TdfBlock_test.cpp
+    test/rwe/VectorMap_test.cpp
     test/rwe/ViewportService_test.cpp
     test/rwe/camera/CabinetCamera_test.cpp
     test/rwe/cob/cob_util_test.cpp
