@@ -2,6 +2,7 @@
 #include <rwe/OpaqueId.h>
 #include <rwe/VectorMap.h>
 #include <rwe/optional_io.h>
+#include <rwe/OpaqueId_io.h>
 
 namespace rwe
 {
