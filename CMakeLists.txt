@@ -277,8 +277,8 @@ set(SOURCE_FILES
     src/rwe/OccupiedGrid.cpp
     src/rwe/OccupiedGrid.h
     src/rwe/OpaqueId.h
+    src/rwe/OpaqueId_io.h
     src/rwe/OpaqueUnit.h
-    src/rwe/OpaqueUnit_io.h
     src/rwe/OpenGlVersion.h
     src/rwe/PlayerColorIndex.cpp
     src/rwe/PlayerColorIndex.h

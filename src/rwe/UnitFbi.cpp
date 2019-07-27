@@ -1,5 +1,5 @@
 #include "UnitFbi.h"
-#include <rwe/OpaqueUnit_io.h>
+#include <rwe/OpaqueId_io.h>
 
 namespace rwe
 {

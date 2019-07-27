@@ -1,6 +1,6 @@
 #include "GameNetworkService.h"
 #include <boost/range/adaptors.hpp>
-#include <rwe/OpaqueUnit_io.h>
+#include <rwe/OpaqueId_io.h>
 #include <rwe/SceneManager.h>
 #include <rwe/network_util.h>
 #include <rwe/proto/serialization.h>
