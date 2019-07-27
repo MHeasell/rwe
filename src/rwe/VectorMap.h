@@ -123,7 +123,7 @@ namespace rwe
 
         void remove(Id id)
         {
-            auto [index, generation] = parseId(id);
+            auto index = extractIndex(id);
 
             if (index.value >= vec.size())
             {
@@ -143,7 +143,7 @@ namespace rwe
 
         std::optional<std::reference_wrapper<T>> tryGet(Id id)
         {
-            auto [index, _] = parseId(id);
+            auto index = extractIndex(id);
 
             auto& entry = vec[index.value];
             return match(
@@ -158,7 +158,7 @@ namespace rwe
 
         std::optional<std::reference_wrapper<const T>> tryGet(Id id) const
         {
-            auto [index, _] = parseId(id);
+            auto index = extractIndex(id);
 
             const auto& entry = vec[index.value];
             return match(
@@ -199,7 +199,7 @@ namespace rwe
 
         const_iterator find(Id id) const
         {
-            auto [index, generation] = parseId(id);
+            auto index = extractIndex(id);
             if (index.value >= vec.size())
             {
                 return end();
@@ -214,7 +214,7 @@ namespace rwe
 
         iterator find(Id id)
         {
-            auto [index, generation] = parseId(id);
+            auto index = extractIndex(id);
             if (index.value >= vec.size())
             {
                 return end();
@@ -228,10 +228,16 @@ namespace rwe
         }
 
     private:
+        static Index extractIndex(Id id)
+        {
+            return Index(id.value >> 8u);
+        }
+
         static std::pair<Index, Generation> parseId(Id id)
         {
-            return std::make_pair(Index(id.value >> 8u), Generation(id.value & 0xFFu));
+            return std::make_pair(extractIndex(id), Generation(id.value & 0xFFu));
         }
+
         static Id makeId(Index index)
         {
             return Id(index.value << 8u);
