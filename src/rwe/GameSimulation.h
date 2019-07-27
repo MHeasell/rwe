@@ -11,6 +11,7 @@
 #include <rwe/PlayerColorIndex.h>
 #include <rwe/PlayerId.h>
 #include <rwe/Unit.h>
+#include <rwe/VectorMap.h>
 #include <unordered_map>
 
 namespace rwe
@@ -96,13 +97,11 @@ namespace rwe
 
         std::vector<GamePlayerInfo> players;
 
-        std::unordered_map<FeatureId, MapFeature> features;
+        VectorMap<MapFeature, FeatureIdTag> features;
 
         UnitId nextUnitId{0};
 
-        FeatureId nextFeatureId{0};
-
-        std::unordered_map<UnitId, Unit> units;
+        VectorMap<Unit, UnitIdTag> units;
 
         std::vector<std::optional<LaserProjectile>> lasers;
 

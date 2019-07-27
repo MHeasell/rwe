@@ -83,12 +83,9 @@ namespace rwe
 
     FeatureId GameSimulation::addFeature(MapFeature&& newFeature)
     {
-        auto featureId = nextFeatureId;
-        auto pair = features.insert_or_assign(featureId, std::move(newFeature));
-        nextFeatureId = FeatureId(nextFeatureId.value + 1);
+        auto featureId = FeatureId(features.emplace(std::move(newFeature)));
 
-
-        auto& f = pair.first->second;
+        auto& f = features.tryGet(featureId)->get();
         if (f.isBlocking)
         {
             auto footprintRegion = computeFootprintRegion(f.position, f.footprintX, f.footprintZ);
@@ -113,33 +110,30 @@ namespace rwe
 
     std::optional<UnitId> GameSimulation::tryAddUnit(Unit&& unit)
     {
-        auto unitId = nextUnitId;
-
         // set footprint area as occupied by the unit
         auto footprintRect = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
-        if (isCollisionAt(footprintRect, unitId))
+        if (isCollisionAt(footprintRect))
         {
             return std::nullopt;
         }
 
+        auto unitId = units.emplace(std::move(unit));
+        const auto& insertedUnit = units.tryGet(unitId)->get();
+
         auto footprintRegion = occupiedGrid.tryToRegion(footprintRect);
         assert(!!footprintRegion);
 
-        if (unit.isMobile)
+        if (insertedUnit.isMobile)
         {
             occupiedGrid.forEach(*footprintRegion, [unitId](auto& cell) { cell.occupiedType = OccupiedUnit(unitId); });
         }
         else
         {
-            assert(!!unit.yardMap);
-            occupiedGrid.forEach2(footprintRegion->x, footprintRegion->y, *unit.yardMap, [&](auto& cell, const auto& yardMapCell) {
-                cell.buildingCell = BuildingOccupiedCell{unitId, isPassable(yardMapCell, unit.yardOpen)};
+            assert(!!insertedUnit.yardMap);
+            occupiedGrid.forEach2(footprintRegion->x, footprintRegion->y, *insertedUnit.yardMap, [&](auto& cell, const auto& yardMapCell) {
+                cell.buildingCell = BuildingOccupiedCell{unitId, isPassable(yardMapCell, insertedUnit.yardOpen)};
             });
         }
-
-        units.insert_or_assign(unitId, std::move(unit));
-
-        nextUnitId = UnitId(nextUnitId.value + 1);
 
         return unitId;
     }
