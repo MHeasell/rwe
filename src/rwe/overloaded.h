@@ -1,6 +1,8 @@
 #ifndef RWE_OVERLOADED_H
 #define RWE_OVERLOADED_H
 
+#include <variant>
+
 namespace rwe
 {
     template <typename... Ts>
