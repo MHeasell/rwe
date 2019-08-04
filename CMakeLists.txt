@@ -381,6 +381,8 @@ set(SOURCE_FILES
     src/rwe/cob/cob_util.cpp
     src/rwe/cob/cob_util.h
     src/rwe/collection_util.h
+    src/rwe/dump_util.cpp
+    src/rwe/dump_util.h
     src/rwe/events.cpp
     src/rwe/events.h
     src/rwe/fbi/FbiAnglePerTick.h
@@ -601,6 +603,8 @@ target_link_libraries(librwe ${Protobuf_LIBRARIES})
 target_include_directories(librwe PUBLIC ${Protobuf_INCLUDE_DIRS})
 target_include_directories(librwe PUBLIC ${CMAKE_CURRENT_BINARY_DIR}) # for generated headers
 
+target_link_libraries(librwe nlohmann_json::nlohmann_json)
+
 add_custom_target(rwe_shaders)
 add_custom_command(TARGET rwe_shaders PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/shaders" "${PROJECT_BINARY_DIR}/shaders")
@@ -694,6 +698,7 @@ set(TEST_FILES
     test/rwe/ViewportService_test.cpp
     test/rwe/camera/CabinetCamera_test.cpp
     test/rwe/cob/cob_util_test.cpp
+    test/rwe/dump_util_test.cpp
     test/rwe/geometry/BoundingBox3f_test.cpp
     test/rwe/geometry/CollisionMesh_test.cpp
     test/rwe/geometry/Plane3f_test.cpp
