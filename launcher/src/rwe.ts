@@ -19,6 +19,7 @@ export interface RweArgsPlayerRemote {
 export type RweArgsPlayerController = RweArgsPlayerHuman | RweArgsPlayerComputer | RweArgsPlayerRemote;
 
 export interface RweArgsPlayerInfo {
+  name: string;
   side: "ARM" | "CORE";
   color: number;
   controller: RweArgsPlayerController;
@@ -73,7 +74,7 @@ function serializeRweArgs(args: RweArgs): string[] {
     switch (p.state) {
       case "filled": {
         const controllerString = serializeRweController(p.controller);
-        out.push("--player", `${controllerString};${p.side};${p.color}`);
+        out.push("--player", `${p.name.replace(";", "_")};${controllerString};${p.side};${p.color}`);
         break;
       }
       case "empty": {

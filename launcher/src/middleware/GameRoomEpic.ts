@@ -63,6 +63,7 @@ function rweArgsFromGameRoom(game: GameRoom): RweArgs {
           ? { type: "human" }
           : { type: "remote", host: x.player.host, port: (6670 + i) };
         const a: RweArgsPlayerInfo = {
+          name: x.player.name,
           side: x.player.side,
           color: x.player.color,
           controller,
