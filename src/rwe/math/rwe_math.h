@@ -39,7 +39,12 @@ namespace rwe
     /**
      * Returns true if a, b and c all have the same sign, ignoring zeroes.
      */
-    bool sameSign(float a, float b, float c);
+    template <typename T>
+    bool sameSign(T a, T b, T c)
+    {
+        return (a >= T(0) && b >= T(0) && c >= T(0)) || (a <= T(0) && b <= T(0) && c <= T(0));
+    }
+
 
     unsigned int roundUpToPowerOfTwo(unsigned int v);
 

@@ -54,7 +54,7 @@ namespace rwe
 
     float Unit::toRotation(const Vector3f& direction)
     {
-        return Vector3f(0.0f, 0.0f, 1.0f).angleTo(direction, Vector3f(0.0f, 1.0f, 0.0f));
+        return angleTo(Vector3f(0.0f, 0.0f, 1.0f), direction, Vector3f(0.0f, 1.0f, 0.0f));
     }
 
     Vector3f Unit::toDirection(float rotation)

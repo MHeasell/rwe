@@ -116,7 +116,7 @@ namespace rwe
         heading = wrap(-Pif, Pif, heading - rotation);
 
         auto pitchNormal = aimVectorXZ.cross(Vector3f(0.0f, 1.0f, 0.0f));
-        auto pitch = aimVectorXZ.angleTo(aimVector, pitchNormal);
+        auto pitch = angleTo(aimVectorXZ, aimVector, pitchNormal);
 
         return {heading, pitch};
     }

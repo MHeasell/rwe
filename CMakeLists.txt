@@ -392,32 +392,33 @@ set(SOURCE_FILES
     src/rwe/fbi/UnitFbi.h
     src/rwe/fixed_point.cpp
     src/rwe/fixed_point.h
-    src/rwe/geometry/BoundingBox3f.cpp
     src/rwe/geometry/BoundingBox3f.h
-    src/rwe/geometry/Circle2f.cpp
+    src/rwe/geometry/BoundingBox3x.h
     src/rwe/geometry/Circle2f.h
+    src/rwe/geometry/Circle2x.h
     src/rwe/geometry/CollisionMesh.cpp
     src/rwe/geometry/CollisionMesh.h
-    src/rwe/geometry/Line3f.cpp
     src/rwe/geometry/Line3f.h
+    src/rwe/geometry/Line3x.h
     src/rwe/geometry/Plane3f.cpp
     src/rwe/geometry/Plane3f.h
-    src/rwe/geometry/Ray3f.cpp
+    src/rwe/geometry/Plane3x.h
     src/rwe/geometry/Ray3f.h
-    src/rwe/geometry/Rectangle2f.cpp
+    src/rwe/geometry/Ray3x.h
     src/rwe/geometry/Rectangle2f.h
-    src/rwe/geometry/Triangle3f.cpp
+    src/rwe/geometry/Rectangle2x.h
     src/rwe/geometry/Triangle3f.h
+    src/rwe/geometry/Triangle3x.h
     src/rwe/gui.cpp
     src/rwe/gui.h
     src/rwe/io_utils.cpp
     src/rwe/io_utils.h
-    src/rwe/math/Matrix4f.cpp
     src/rwe/math/Matrix4f.h
-    src/rwe/math/Vector2f.cpp
     src/rwe/math/Vector2f.h
+    src/rwe/math/Vector2x.h
     src/rwe/math/Vector3f.cpp
     src/rwe/math/Vector3f.h
+    src/rwe/math/Vector3x.h
     src/rwe/math/rwe_math.cpp
     src/rwe/math/rwe_math.h
     src/rwe/movement.cpp

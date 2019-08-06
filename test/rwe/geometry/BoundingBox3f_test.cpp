@@ -1,6 +1,7 @@
 #include <rwe/optional_io.h>
 #include <catch2/catch.hpp>
 #include <rwe/geometry/BoundingBox3f.h>
+#include <rwe/math/Vector3f.h>
 
 namespace rwe
 {

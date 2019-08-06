@@ -1,7 +1,9 @@
 #pragma once
 
+#include <rwe/geometry/Line3f.h>
 #include <rwe/geometry/Ray3f.h>
 #include <rwe/geometry/Triangle3f.h>
+#include <rwe/math/Vector3f.h>
 #include <vector>
 
 namespace rwe

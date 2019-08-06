@@ -1,17 +1,8 @@
 #pragma once
 
-#include <rwe/math/Vector2f.h>
+#include <rwe/geometry/Circle2x.h>
 
 namespace rwe
 {
-    struct Circle2f
-    {
-        float radius;
-        Vector2f position;
-
-        Circle2f() = default;
-        Circle2f(float radius, const Vector2f& position);
-
-        bool contains(const Vector2f& point) const;
-    };
+    using Circle2f = Circle2x<float>;
 }
