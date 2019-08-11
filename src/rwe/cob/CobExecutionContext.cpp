@@ -385,7 +385,7 @@ namespace rwe
             position = -position;
         }
         auto speed = popSpeed();
-        sim->moveObject(unitId, getObjectName(object), axis, position, speed);
+        sim->moveObject(unitId, getObjectName(object), axis, position.toFloat(), speed);
     }
 
     void CobExecutionContext::moveObjectNow()
@@ -397,7 +397,7 @@ namespace rwe
         {
             position = -position;
         }
-        sim->moveObjectNow(unitId, getObjectName(object), axis, position);
+        sim->moveObjectNow(unitId, getObjectName(object), axis, position.toFloat());
     }
 
     void CobExecutionContext::turnObject()
@@ -637,10 +637,9 @@ namespace rwe
         return v;
     }
 
-    float CobExecutionContext::popPosition()
+    CobPosition CobExecutionContext::popPosition()
     {
-        auto val = pop();
-        return static_cast<float>(val) / 65536.0f;
+        return CobPosition(pop());
     }
 
     float CobExecutionContext::popSpeed()
