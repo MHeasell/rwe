@@ -1,6 +1,7 @@
 #pragma once
 
 #include <rwe/GameSimulation.h>
+#include <rwe/cob/CobAngularSpeed.h>
 #include <rwe/cob/CobEnvironment.h>
 #include <rwe/cob/CobPosition.h>
 #include <rwe/cob/CobSpeed.h>
@@ -145,8 +146,7 @@ namespace rwe
         CobPosition popPosition();
         CobSpeed popSpeed();
         CobAngle popAngle();
-        float popAngularSpeed();
-        float popSignedAngularSpeed();
+        CobAngularSpeed popAngularSpeed();
         unsigned int popSignal();
         unsigned int popSignalMask();
         CobValueId popValueId();

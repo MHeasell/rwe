@@ -410,7 +410,7 @@ namespace rwe
             angle = -angle;
         }
         auto speed = popAngularSpeed();
-        sim->turnObject(unitId, getObjectName(object), axis, toRadians(angle), speed);
+        sim->turnObject(unitId, getObjectName(object), axis, toRadians(angle), speed.toFloat());
     }
 
     void CobExecutionContext::turnObjectNow()
@@ -429,9 +429,9 @@ namespace rwe
     {
         auto object = nextInstruction();
         auto axis = nextInstructionAsAxis();
-        auto targetSpeed = popSignedAngularSpeed();
+        auto targetSpeed = popAngularSpeed();
         auto acceleration = popAngularSpeed();
-        sim->spinObject(unitId, getObjectName(object), axis, targetSpeed, acceleration);
+        sim->spinObject(unitId, getObjectName(object), axis, targetSpeed.toFloat(), acceleration.toFloat());
     }
 
     void CobExecutionContext::stopSpinObject()
@@ -439,7 +439,7 @@ namespace rwe
         auto object = nextInstruction();
         auto axis = nextInstructionAsAxis();
         auto deceleration = popAngularSpeed();
-        sim->stopSpinObject(unitId, getObjectName(object), axis, deceleration);
+        sim->stopSpinObject(unitId, getObjectName(object), axis, deceleration.toFloat());
     }
 
     void CobExecutionContext::explode()
@@ -652,16 +652,9 @@ namespace rwe
         return CobAngle(pop());
     }
 
-    float CobExecutionContext::popAngularSpeed()
+    CobAngularSpeed CobExecutionContext::popAngularSpeed()
     {
-        auto val = static_cast<unsigned int>(pop());
-        return static_cast<float>(val) / 182.0f;
-    }
-
-    float CobExecutionContext::popSignedAngularSpeed()
-    {
-        auto val = pop();
-        return static_cast<float>(val) / 182.0f;
+        return CobAngularSpeed(pop());
     }
 
     unsigned int CobExecutionContext::popSignal()
