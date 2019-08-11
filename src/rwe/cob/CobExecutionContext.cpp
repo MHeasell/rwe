@@ -407,7 +407,7 @@ namespace rwe
         auto angle = popAngle();
         if (axis == Axis::Z) // flip z-axis rotations to match our right-handed coordinates
         {
-            angle = CobAngle(-angle.value);
+            angle = -angle;
         }
         auto speed = popAngularSpeed();
         sim->turnObject(unitId, getObjectName(object), axis, toRadians(angle), speed);
@@ -420,7 +420,7 @@ namespace rwe
         auto angle = popAngle();
         if (axis == Axis::Z) // flip z-axis rotations to match our right-handed coordinates
         {
-            angle = CobAngle(-angle.value);
+            angle = -angle;
         }
         sim->turnObjectNow(unitId, getObjectName(object), axis, toRadians(angle));
     }

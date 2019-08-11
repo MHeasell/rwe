@@ -1,9 +1,9 @@
 #pragma once
 
-#include <rwe/OpaqueId.h>
+#include <rwe/OpaqueUnit.h>
 
 namespace rwe
 {
     struct CobAngleTag;
-    using CobAngle = OpaqueId<uint16_t, CobAngleTag>;
+    using CobAngle = OpaqueUnit<uint16_t, CobAngleTag>;
 }
