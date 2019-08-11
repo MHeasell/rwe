@@ -371,6 +371,7 @@ set(SOURCE_FILES
     src/rwe/cob/CobFunction.h
     src/rwe/cob/CobOpCode.h
     src/rwe/cob/CobPosition.h
+    src/rwe/cob/CobSpeed.h
     src/rwe/cob/CobThread.cpp
     src/rwe/cob/CobThread.h
     src/rwe/cob/CobValueId.h

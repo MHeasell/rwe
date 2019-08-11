@@ -3,6 +3,7 @@
 #include <rwe/GameSimulation.h>
 #include <rwe/cob/CobEnvironment.h>
 #include <rwe/cob/CobPosition.h>
+#include <rwe/cob/CobSpeed.h>
 #include <rwe/cob/CobValueId.h>
 
 namespace rwe
@@ -142,7 +143,7 @@ namespace rwe
         int pop();
 
         CobPosition popPosition();
-        float popSpeed();
+        CobSpeed popSpeed();
         CobAngle popAngle();
         float popAngularSpeed();
         float popSignedAngularSpeed();
