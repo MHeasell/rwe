@@ -1,5 +1,4 @@
-#ifndef RWE_SOUNDCLASS_H
-#define RWE_SOUNDCLASS_H
+#pragma once
 
 #include <optional>
 #include <rwe/tdf/TdfBlock.h>
@@ -36,5 +35,3 @@ namespace rwe
 
     std::vector<std::pair<std::string, SoundClass>> parseSoundTdf(const TdfBlock& root);
 }
-
-#endif

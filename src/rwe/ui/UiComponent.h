@@ -1,5 +1,4 @@
-#ifndef RWE_UICOMPONENT_H
-#define RWE_UICOMPONENT_H
+#pragma once
 
 #include <memory>
 #include <rwe/UiRenderService.h>
@@ -99,5 +98,3 @@ namespace rwe
         const Observable<const ControlMessage&>& messages() const;
     };
 }
-
-#endif

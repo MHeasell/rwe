@@ -1,5 +1,4 @@
-#ifndef RWE_UNITFOOTPRINTPATHFINDER_H
-#define RWE_UNITFOOTPRINTPATHFINDER_H
+#pragma once
 
 #include <rwe/DiscreteRect.h>
 #include <rwe/EightWayDirection.h>
@@ -37,5 +36,3 @@ namespace rwe
         PathCost estimateCostToGoal(const Point& start) override;
     };
 }
-
-#endif

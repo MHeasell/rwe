@@ -1,5 +1,4 @@
-#ifndef RWE_IO_UTILS_H
-#define RWE_IO_UTILS_H
+#pragma once
 
 #include <cassert>
 #include <istream>
@@ -17,5 +16,3 @@ namespace rwe
 
     std::string readNullTerminatedString(std::istream& stream);
 }
-
-#endif

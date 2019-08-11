@@ -1,5 +1,4 @@
-#ifndef RWE_MATH_VECTOR3F_H
-#define RWE_MATH_VECTOR3F_H
+#pragma once
 
 #include <optional>
 #include <ostream>
@@ -84,5 +83,3 @@ namespace rwe
 
     float determinant(const Vector3f& a, const Vector3f& b, const Vector3f& c);
 }
-
-#endif

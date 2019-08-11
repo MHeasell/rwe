@@ -1,5 +1,4 @@
-#ifndef RWE_RADIANSANGLE_H
-#define RWE_RADIANSANGLE_H
+#pragma once
 
 #include <rwe/OpaqueId.h>
 
@@ -19,5 +18,3 @@ namespace rwe
         RadiansAngle operator-(RadiansAngle rhs);
     };
 }
-
-#endif

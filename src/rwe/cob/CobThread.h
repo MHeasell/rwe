@@ -1,5 +1,4 @@
-#ifndef RWE_COBTHREAD_H
-#define RWE_COBTHREAD_H
+#pragma once
 
 #include <rwe/cob/CobFunction.h>
 #include <rwe/util.h>
@@ -34,5 +33,3 @@ namespace rwe
         explicit CobThread(const std::string& name);
     };
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef RWE_UNITFBI_H
-#define RWE_UNITFBI_H
+#pragma once
 
 #include <rwe/Energy.h>
 #include <rwe/Metal.h>
@@ -71,5 +70,3 @@ namespace rwe
 
     UnitFbi parseUnitFbi(const TdfBlock& tdf);
 }
-
-#endif

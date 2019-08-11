@@ -1,5 +1,4 @@
-#ifndef RWE_PATHFINDING_UTILS_H
-#define RWE_PATHFINDING_UTILS_H
+#pragma once
 
 #include <rwe/DiscreteRect.h>
 #include <rwe/EightWayDirection.h>
@@ -53,5 +52,3 @@ namespace rwe
 
     OctileDistance octileDistance(const Point& a, const Point& b);
 }
-
-#endif

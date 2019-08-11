@@ -1,5 +1,4 @@
-#ifndef RWE_RESOURCE_IO_H
-#define RWE_RESOURCE_IO_H
+#pragma once
 
 #include <iomanip>
 #include <rwe/Energy.h>
@@ -17,5 +16,3 @@ namespace rwe
 
     std::string formatResourceDelta(const Energy& v);
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef RWE_OCCUPIEDGRID_H
-#define RWE_OCCUPIEDGRID_H
+#pragma once
 
 #include <rwe/FeatureId.h>
 #include <rwe/Grid.h>
@@ -53,5 +52,3 @@ namespace rwe
 
     using OccupiedGrid = Grid<OccupiedCell>;
 }
-
-#endif

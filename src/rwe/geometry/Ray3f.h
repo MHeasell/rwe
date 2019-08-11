@@ -1,5 +1,4 @@
-#ifndef RWE_GEOMETRY_RAY3F_H
-#define RWE_GEOMETRY_RAY3F_H
+#pragma once
 
 #include <rwe/geometry/Line3f.h>
 #include <rwe/math/Vector3f.h>
@@ -36,5 +35,3 @@ namespace rwe
         Line3f toLine() const;
     };
 }
-
-#endif

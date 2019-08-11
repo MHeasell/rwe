@@ -1,5 +1,4 @@
-#ifndef RWE_SCENECONTEXT_H
-#define RWE_SCENECONTEXT_H
+#pragma once
 
 #include <rwe/AudioService.h>
 #include <rwe/CursorService.h>
@@ -61,5 +60,3 @@ namespace rwe
         }
     };
 }
-
-#endif

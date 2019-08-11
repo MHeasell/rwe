@@ -1,5 +1,4 @@
-#ifndef RWE_UNITPATH_H
-#define RWE_UNITPATH_H
+#pragma once
 
 #include <rwe/math/Vector3f.h>
 
@@ -10,5 +9,3 @@ namespace rwe
         std::vector<Vector3f> waypoints;
     };
 }
-
-#endif

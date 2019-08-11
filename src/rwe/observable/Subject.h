@@ -1,5 +1,4 @@
-#ifndef RWE_SUBJECT_H
-#define RWE_SUBJECT_H
+#pragma once
 
 #include <algorithm>
 #include <functional>
@@ -89,5 +88,3 @@ namespace rwe
         }
     };
 }
-
-#endif

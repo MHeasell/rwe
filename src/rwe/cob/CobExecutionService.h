@@ -1,5 +1,4 @@
-#ifndef RWE_COBEXECUTIONSERVICE_H
-#define RWE_COBEXECUTIONSERVICE_H
+#pragma once
 
 #include <rwe/GameSimulation.h>
 
@@ -13,5 +12,3 @@ namespace rwe
         void run(GameScene& scene, GameSimulation& simulation, UnitId unitId);
     };
 }
-
-#endif

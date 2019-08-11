@@ -1,5 +1,4 @@
-#ifndef RWE_MOVEMENT_H
-#define RWE_MOVEMENT_H
+#pragma once
 
 #include <rwe/Grid.h>
 #include <rwe/MapTerrain.h>
@@ -22,5 +21,3 @@ namespace rwe
 
     bool isAreaUnderWater(const Grid<unsigned char>& heights, unsigned int waterLevel, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
 }
-
-#endif

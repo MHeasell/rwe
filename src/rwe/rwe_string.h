@@ -1,5 +1,4 @@
-#ifndef RWE_STRING_H
-#define RWE_STRING_H
+#pragma once
 
 #include <string>
 #include <vector>
@@ -39,5 +38,3 @@ namespace rwe
 
     std::string latin1ToUtf8(const std::string& str);
 }
-
-#endif

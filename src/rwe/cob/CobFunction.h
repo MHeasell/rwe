@@ -1,5 +1,4 @@
-#ifndef RWE_COBFUNCTION_H
-#define RWE_COBFUNCTION_H
+#pragma once
 
 #include <vector>
 
@@ -18,5 +17,3 @@ namespace rwe
         explicit CobFunction(unsigned int instructionIndex);
     };
 }
-
-#endif

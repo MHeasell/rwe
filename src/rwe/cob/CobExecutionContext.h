@@ -1,5 +1,4 @@
-#ifndef RWE_COBEXECUTIONCONTEXT_H
-#define RWE_COBEXECUTIONCONTEXT_H
+#pragma once
 
 #include <rwe/GameSimulation.h>
 #include <rwe/cob/CobEnvironment.h>
@@ -160,5 +159,3 @@ namespace rwe
         void setGetter(CobValueId valueId, int value);
     };
 }
-
-#endif

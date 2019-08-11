@@ -1,5 +1,4 @@
-#ifndef RWE_UNITFACTORY_H
-#define RWE_UNITFACTORY_H
+#pragma once
 
 #include <rwe/MeshService.h>
 #include <rwe/MovementClass.h>
@@ -49,5 +48,3 @@ namespace rwe
         Vector3f getLaserColor(unsigned int colorIndex);
     };
 }
-
-#endif

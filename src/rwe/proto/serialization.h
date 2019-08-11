@@ -1,5 +1,4 @@
-#ifndef RWE_SERIALIZATION_H
-#define RWE_SERIALIZATION_H
+#pragma once
 
 #include <network.pb.h>
 #include <rwe/PlayerCommand.h>
@@ -32,5 +31,3 @@ namespace rwe
 
     Vector3f deserializeVector(const proto::Vector3f& v);
 }
-
-#endif

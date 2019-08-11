@@ -1,5 +1,4 @@
-#ifndef RWE_UILABEL_H
-#define RWE_UILABEL_H
+#pragma once
 
 #include <rwe/ui/UiComponent.h>
 
@@ -29,5 +28,3 @@ namespace rwe
         void setAlignment(Alignment newAlignment);
     };
 }
-
-#endif

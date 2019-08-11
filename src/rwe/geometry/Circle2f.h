@@ -1,5 +1,4 @@
-#ifndef RWE_CIRCLE2F_H
-#define RWE_CIRCLE2F_H
+#pragma once
 
 #include <rwe/math/Vector2f.h>
 
@@ -16,5 +15,3 @@ namespace rwe
         bool contains(const Vector2f& point) const;
     };
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef RWE_PATHFINDINGSERVICE_H
-#define RWE_PATHFINDINGSERVICE_H
+#pragma once
 
 #include <deque>
 #include <rwe/GameSimulation.h>
@@ -57,5 +56,3 @@ namespace rwe
         DiscreteRect expandTopLeft(const DiscreteRect& rect, unsigned int width, unsigned int height);
     };
 }
-
-#endif

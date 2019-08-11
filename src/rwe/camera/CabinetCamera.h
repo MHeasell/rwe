@@ -1,5 +1,4 @@
-#ifndef RWE_CABINETCAMERA_H
-#define RWE_CABINETCAMERA_H
+#pragma once
 
 #include <rwe/camera/AbstractCamera.h>
 
@@ -51,5 +50,3 @@ namespace rwe
         void updateCachedMatrices();
     };
 }
-
-#endif

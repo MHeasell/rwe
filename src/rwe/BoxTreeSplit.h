@@ -1,5 +1,4 @@
-#ifndef RWE_BOXTREE_H
-#define RWE_BOXTREE_H
+#pragma once
 
 #include <memory>
 #include <optional>
@@ -347,5 +346,3 @@ namespace rwe
         return packGridsGeneric<Grid<T>*>(sprites, [](const auto& s) { return Size(s->getWidth(), s->getHeight()); });
     }
 }
-
-#endif

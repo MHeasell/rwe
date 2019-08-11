@@ -1,5 +1,4 @@
-#ifndef RWE_TEXTURESERVICE_H
-#define RWE_TEXTURESERVICE_H
+#pragma once
 
 #include <memory>
 #include <optional>
@@ -54,5 +53,3 @@ namespace rwe
         TextureInfo getBitmapInternal(const std::string& bitmapName);
     };
 }
-
-#endif

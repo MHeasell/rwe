@@ -1,5 +1,4 @@
-#ifndef RWE_MESH_H
-#define RWE_MESH_H
+#pragma once
 
 
 #include <array>
@@ -41,5 +40,3 @@ namespace rwe
         std::vector<Triangle> colorFaces;
     };
 }
-
-#endif

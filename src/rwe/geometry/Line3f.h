@@ -1,5 +1,4 @@
-#ifndef RWE_LINE3F_H
-#define RWE_LINE3F_H
+#pragma once
 
 #include <rwe/math/Vector3f.h>
 
@@ -13,5 +12,3 @@ namespace rwe
         Line3f(const Vector3f& start, const Vector3f& end);
     };
 }
-
-#endif

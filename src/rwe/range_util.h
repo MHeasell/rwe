@@ -1,5 +1,4 @@
-#ifndef RWE_RANGE_UTIL_H
-#define RWE_RANGE_UTIL_H
+#pragma once
 
 #include <boost/range/adaptors.hpp>
 
@@ -14,5 +13,3 @@ namespace rwe
             | boost::adaptors::transformed([](const auto& e) { return *e; });
     }
 }
-
-#endif

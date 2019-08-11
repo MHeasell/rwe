@@ -1,5 +1,4 @@
-#ifndef RWE_SCENEMANAGER_H
-#define RWE_SCENEMANAGER_H
+#pragma once
 
 #include <memory>
 #include <rwe/GraphicsContext.h>
@@ -59,5 +58,3 @@ namespace rwe
         void requestExit();
     };
 }
-
-#endif

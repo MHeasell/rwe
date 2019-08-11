@@ -1,5 +1,4 @@
-#ifndef RWE_WEAPON_H
-#define RWE_WEAPON_H
+#pragma once
 
 namespace rwe
 {
@@ -7,5 +6,3 @@ namespace rwe
     {
     };
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef RWE_RWE_TIME_H
-#define RWE_RWE_TIME_H
+#pragma once
 
 #include <chrono>
 
@@ -21,5 +20,3 @@ namespace rwe
         unsigned int getTicks();
     };
 }
-
-#endif

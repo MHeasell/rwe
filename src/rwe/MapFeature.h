@@ -1,5 +1,4 @@
-#ifndef RWE_MAPFEATURE_H
-#define RWE_MAPFEATURE_H
+#pragma once
 
 #include <memory>
 #include <optional>
@@ -25,5 +24,3 @@ namespace rwe
         bool isStanding() const;
     };
 }
-
-#endif

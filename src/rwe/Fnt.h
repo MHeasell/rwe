@@ -1,5 +1,4 @@
-#ifndef RWE_FNT_H
-#define RWE_FNT_H
+#pragma once
 
 #include <array>
 #include <cstdint>
@@ -39,5 +38,3 @@ namespace rwe
         unsigned int extract(unsigned int index, char* buffer);
     };
 }
-
-#endif

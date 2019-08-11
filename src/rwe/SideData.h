@@ -1,5 +1,4 @@
-#ifndef RWE_SIDEDATA_H
-#define RWE_SIDEDATA_H
+#pragma once
 
 #include <rwe/DiscreteRect.h>
 #include <rwe/tdf/TdfBlock.h>
@@ -75,5 +74,3 @@ namespace rwe
 
     std::vector<SideData> parseSidesFromSideData(const TdfBlock& tdf);
 }
-
-#endif

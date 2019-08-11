@@ -1,5 +1,4 @@
-#ifndef RWE_OTA_H
-#define RWE_OTA_H
+#pragma once
 
 #include <optional>
 #include <rwe/tdf/TdfBlock.h>
@@ -87,5 +86,3 @@ namespace rwe
 
     OtaSpecial parseOtaSpecial(const TdfBlock& tdf);
 }
-
-#endif

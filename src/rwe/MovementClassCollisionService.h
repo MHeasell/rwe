@@ -1,5 +1,4 @@
-#ifndef RWE_MOVEMENTCLASSCOLLISIONSERVICE_H
-#define RWE_MOVEMENTCLASSCOLLISIONSERVICE_H
+#pragma once
 
 #include <rwe/GameSimulation.h>
 #include <rwe/Grid.h>
@@ -31,5 +30,3 @@ namespace rwe
     Grid<char> computeWalkableGrid(const GameSimulation& sim, const MovementClass& movementClass);
 
 }
-
-#endif

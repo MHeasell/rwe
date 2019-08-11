@@ -1,5 +1,4 @@
-#ifndef RWE_VBOHANDLE_H
-#define RWE_VBOHANDLE_H
+#pragma once
 
 #include <GL/glew.h>
 #include <rwe/GlIdentifier.h>
@@ -24,5 +23,3 @@ namespace rwe
     using VboHandle = UniqueHandle<VboIdentifier, VboHandleDeleter>;
     using SharedVboHandle = SharedHandle<VboIdentifier, VboHandleDeleter>;
 }
-
-#endif

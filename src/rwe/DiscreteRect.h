@@ -1,5 +1,4 @@
-#ifndef RWE_DISCRETERECT_H
-#define RWE_DISCRETERECT_H
+#pragma once
 
 #include <boost/functional/hash.hpp>
 #include <optional>
@@ -90,4 +89,3 @@ namespace std
         }
     };
 }
-#endif

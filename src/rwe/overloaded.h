@@ -1,5 +1,4 @@
-#ifndef RWE_OVERLOADED_H
-#define RWE_OVERLOADED_H
+#pragma once
 
 #include <variant>
 
@@ -22,5 +21,3 @@ namespace rwe
             std::forward<Variant>(variant));
     }
 }
-
-#endif

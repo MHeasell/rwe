@@ -1,5 +1,4 @@
-#ifndef RWE_SHAREDHANDLE_H
-#define RWE_SHAREDHANDLE_H
+#pragma once
 
 #include <cassert>
 #include <rwe/UniqueHandle.h>
@@ -142,5 +141,3 @@ namespace rwe
         }
     };
 }
-
-#endif

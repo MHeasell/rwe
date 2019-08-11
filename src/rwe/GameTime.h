@@ -1,5 +1,4 @@
-#ifndef RWE_GAMETIME_H
-#define RWE_GAMETIME_H
+#pragma once
 
 #include <rwe/OpaqueUnit.h>
 
@@ -10,5 +9,3 @@ namespace rwe
 
     GameTime deltaSecondsToTicks(float seconds);
 }
-
-#endif

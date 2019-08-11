@@ -1,5 +1,4 @@
-#ifndef RWE_GEOMETRY_PLANE3F_H
-#define RWE_GEOMETRY_PLANE3F_H
+#pragma once
 
 #include <optional>
 #include <rwe/geometry/Ray3f.h>
@@ -61,5 +60,3 @@ namespace rwe
         bool isInFront(const Vector3f& p) const;
     };
 }
-
-#endif

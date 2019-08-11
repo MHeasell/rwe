@@ -1,5 +1,4 @@
-#ifndef RWE_MATH_RWE_MATH_H
-#define RWE_MATH_RWE_MATH_H
+#pragma once
 
 #include <rwe/Point.h>
 #include <rwe/math/Vector2f.h>
@@ -50,5 +49,3 @@ namespace rwe
 
     float distanceSquaredToRange(float min, float max, float pos);
 }
-
-#endif

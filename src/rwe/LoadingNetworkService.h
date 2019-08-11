@@ -1,5 +1,4 @@
-#ifndef RWE_LOADINGNETWORKSERVICE_H
-#define RWE_LOADINGNETWORKSERVICE_H
+#pragma once
 
 #include <array>
 #include <atomic>
@@ -67,5 +66,3 @@ namespace rwe
         void startListening();
     };
 }
-
-#endif

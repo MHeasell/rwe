@@ -1,5 +1,4 @@
-#ifndef RWE_COMPOSITEVIRTUALFILESYSTEM_H
-#define RWE_COMPOSITEVIRTUALFILESYSTEM_H
+#pragma once
 
 #include <boost/filesystem.hpp>
 #include <memory>
@@ -33,5 +32,3 @@ namespace rwe
     void addToVfs(CompositeVirtualFileSystem& vfs, const boost::filesystem::path& searchPath);
     CompositeVirtualFileSystem constructVfs(const boost::filesystem::path& searchPath);
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef RWE_TDF_H
-#define RWE_TDF_H
+#pragma once
 
 #include <rwe/rwe_string.h>
 #include <rwe/tdf/TdfBlock.h>
@@ -16,5 +15,3 @@ namespace rwe
 
     std::vector<TdfBlock> parseListTdfFromBytes(const std::vector<char>& bytes);
 }
-
-#endif

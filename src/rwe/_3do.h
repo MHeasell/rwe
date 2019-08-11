@@ -1,5 +1,4 @@
-#ifndef RWE_3DO_H
-#define RWE_3DO_H
+#pragma once
 
 #include <istream>
 #include <optional>
@@ -81,5 +80,3 @@ namespace rwe
 
     std::vector<_3do::Object> parse3doObjects(std::istream& stream, std::istream::pos_type offset);
 }
-
-#endif

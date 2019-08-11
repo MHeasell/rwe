@@ -1,5 +1,4 @@
-#ifndef RWE_UILIGHTBAR_H
-#define RWE_UILIGHTBAR_H
+#pragma once
 
 #include <memory>
 #include <rwe/ui/UiComponent.h>
@@ -23,5 +22,3 @@ namespace rwe
         void setPercentComplete(float percent);
     };
 }
-
-#endif

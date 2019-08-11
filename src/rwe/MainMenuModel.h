@@ -1,5 +1,4 @@
-#ifndef RWE_MAINMENUMODEL_H
-#define RWE_MAINMENUMODEL_H
+#pragma once
 
 #include <array>
 #include <optional>
@@ -94,5 +93,3 @@ namespace rwe
         std::optional<PlayerColorIndex> getFirstFreeColor() const;
     };
 }
-
-#endif

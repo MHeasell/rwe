@@ -1,5 +1,4 @@
-#ifndef RWE_RECTANGLE2F_H
-#define RWE_RECTANGLE2F_H
+#pragma once
 
 #include <rwe/math/Vector2f.h>
 
@@ -57,6 +56,3 @@ namespace rwe
         Vector2f clamp(const Vector2f& v) const;
     };
 }
-
-
-#endif

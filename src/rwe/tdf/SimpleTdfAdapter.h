@@ -1,5 +1,4 @@
-#ifndef RWE_SIMPLETDFADAPTER_H
-#define RWE_SIMPLETDFADAPTER_H
+#pragma once
 
 #include <rwe/tdf/TdfBlock.h>
 #include <rwe/tdf/TdfParser.h>
@@ -27,5 +26,3 @@ namespace rwe
         Result onDone() override;
     };
 }
-
-#endif

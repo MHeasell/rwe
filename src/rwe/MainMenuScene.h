@@ -1,5 +1,4 @@
-#ifndef RWE_MAINMENUSCENE_H
-#define RWE_MAINMENUSCENE_H
+#pragma once
 
 #include <memory>
 #include <rwe/AudioService.h>
@@ -128,5 +127,3 @@ namespace rwe
         bool hasMultiplayerSchema(const std::string& mapName);
     };
 }
-
-#endif

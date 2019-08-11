@@ -1,5 +1,4 @@
-#ifndef RWE_UNITDATABASE_H
-#define RWE_UNITDATABASE_H
+#pragma once
 
 #include <rwe/AudioService.h>
 #include <rwe/Cob.h>
@@ -70,5 +69,3 @@ namespace rwe
         MovementClassIterator movementClassEnd() const;
     };
 }
-
-#endif

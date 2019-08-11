@@ -1,5 +1,4 @@
-#ifndef RWE_COLLISIONMESH_H
-#define RWE_COLLISIONMESH_H
+#pragma once
 
 #include <rwe/geometry/Ray3f.h>
 #include <rwe/geometry/Triangle3f.h>
@@ -25,5 +24,3 @@ namespace rwe
         std::optional<Vector3f> intersectLine(const Line3f& line) const;
     };
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef RWE_EVENTS_H
-#define RWE_EVENTS_H
+#pragma once
 
 #include <string>
 #include <variant>
@@ -102,5 +101,3 @@ namespace rwe
 
     ActivateMessage::Type sourceToType(const ButtonClickEvent::Source& s);
 }
-
-#endif

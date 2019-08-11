@@ -1,5 +1,4 @@
-#ifndef RWE_GAMESCENE_H
-#define RWE_GAMESCENE_H
+#pragma once
 
 #include <boost/range/adaptor/map.hpp>
 #include <boost/version.hpp>
@@ -485,5 +484,3 @@ namespace rwe
         }
     };
 }
-
-#endif

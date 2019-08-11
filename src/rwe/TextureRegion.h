@@ -1,5 +1,4 @@
-#ifndef RWE_TEXTUREREGION_H
-#define RWE_TEXTUREREGION_H
+#pragma once
 
 #include <rwe/TextureHandle.h>
 #include <rwe/geometry/Rectangle2f.h>
@@ -18,5 +17,3 @@ namespace rwe
         bool operator!=(const TextureRegion& rhs) const;
     };
 }
-
-#endif

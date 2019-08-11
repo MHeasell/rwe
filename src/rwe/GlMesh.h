@@ -1,5 +1,4 @@
-#ifndef RWE_GLMESH_H
-#define RWE_GLMESH_H
+#pragma once
 
 #include <rwe/VaoHandle.h>
 #include <rwe/VboHandle.h>
@@ -15,5 +14,3 @@ namespace rwe
         GlMesh(VaoHandle&& vao, VboHandle&& vbo, unsigned int vertexCount);
     };
 }
-
-#endif

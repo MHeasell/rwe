@@ -1,5 +1,4 @@
-#ifndef RWE_UNITWEAPON_H
-#define RWE_UNITWEAPON_H
+#pragma once
 
 #include <rwe/AudioService.h>
 #include <rwe/GameTime.h>
@@ -83,5 +82,3 @@ namespace rwe
         UnitWeaponState state{UnitWeaponStateIdle()};
     };
 }
-
-#endif

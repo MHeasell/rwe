@@ -1,5 +1,4 @@
-#ifndef RWE_MESHSERVICE_H
-#define RWE_MESHSERVICE_H
+#pragma once
 
 #include <boost/functional/hash.hpp>
 #include <memory>
@@ -87,6 +86,3 @@ namespace rwe
         ShaderMesh convertMesh(const Mesh& mesh);
     };
 }
-
-
-#endif

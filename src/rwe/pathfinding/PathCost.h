@@ -1,5 +1,4 @@
-#ifndef RWE_PATHCOST_H
-#define RWE_PATHCOST_H
+#pragma once
 
 #include <rwe/pathfinding/OctileDistance.h>
 
@@ -28,5 +27,3 @@ namespace rwe
         PathCost operator+(const PathCost& rhs) const;
     };
 }
-
-#endif

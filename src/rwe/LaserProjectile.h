@@ -1,5 +1,4 @@
-#ifndef RWE_LASERPROJECTILE_H
-#define RWE_LASERPROJECTILE_H
+#pragma once
 
 #include <rwe/AudioService.h>
 #include <rwe/GameTime.h>
@@ -56,5 +55,3 @@ namespace rwe
         unsigned int getDamage(const std::string& unitType) const;
     };
 }
-
-#endif

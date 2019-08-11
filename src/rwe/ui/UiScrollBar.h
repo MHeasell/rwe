@@ -1,5 +1,4 @@
-#ifndef RWE_UISCROLLBAR_H
-#define RWE_UISCROLLBAR_H
+#pragma once
 
 #include <memory>
 #include <rwe/SpriteSeries.h>
@@ -107,5 +106,3 @@ namespace rwe
         float getEffectiveScrollBarPercent() const;
     };
 }
-
-#endif

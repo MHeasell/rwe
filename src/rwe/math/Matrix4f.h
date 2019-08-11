@@ -1,5 +1,4 @@
-#ifndef RWE_MATH_MATRIX4F_H
-#define RWE_MATH_MATRIX4F_H
+#pragma once
 
 #include <rwe/math/Vector3f.h>
 
@@ -60,5 +59,3 @@ namespace rwe
      */
     Vector3f operator*(const Matrix4f& a, const Vector3f& b);
 }
-
-#endif

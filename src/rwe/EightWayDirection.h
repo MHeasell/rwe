@@ -1,5 +1,4 @@
-#ifndef RWE_EIGHTWAYDIRECTION_H
-#define RWE_EIGHTWAYDIRECTION_H
+#pragma once
 
 #include <array>
 #include <rwe/Point.h>
@@ -42,5 +41,3 @@ namespace rwe
 
     unsigned int directionDistance(Direction a, Direction b);
 }
-
-#endif

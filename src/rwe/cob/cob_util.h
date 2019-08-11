@@ -1,5 +1,4 @@
-#ifndef RWE_COB_UTIL_H
-#define RWE_COB_UTIL_H
+#pragma once
 
 #include <cstdint>
 #include <utility>
@@ -12,5 +11,3 @@ namespace rwe
 
     int cobAtan(int a, int b);
 }
-
-#endif

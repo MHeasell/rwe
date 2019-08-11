@@ -1,5 +1,4 @@
-#ifndef RWE_GLIDENTIFIER_H
-#define RWE_GLIDENTIFIER_H
+#pragma once
 
 #include <GL/glew.h>
 #include <functional>
@@ -38,5 +37,3 @@ namespace std
         }
     };
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef RWE_UICAMERA_H
-#define RWE_UICAMERA_H
+#pragma once
 
 #include <rwe/camera/AbstractCamera.h>
 
@@ -25,5 +24,3 @@ namespace rwe
         const Matrix4f& getInverseViewProjectionMatrix() const override;
     };
 }
-
-#endif

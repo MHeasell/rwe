@@ -1,5 +1,4 @@
-#ifndef RWE_GEOMETRY_TRANGLE3F_H
-#define RWE_GEOMETRY_TRANGLE3F_H
+#pragma once
 
 #include <optional>
 #include <rwe/geometry/Plane3f.h>
@@ -67,5 +66,3 @@ namespace rwe
         Plane3f toPlane() const;
     };
 }
-
-#endif

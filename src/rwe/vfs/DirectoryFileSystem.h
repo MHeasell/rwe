@@ -1,5 +1,4 @@
-#ifndef RWE_DIRECTORYFILESYSTEM_H
-#define RWE_DIRECTORYFILESYSTEM_H
+#pragma once
 
 #include <rwe/vfs/AbstractVirtualFileSystem.h>
 
@@ -23,5 +22,3 @@ namespace rwe
         std::vector<std::string> getFileNamesRecursive(const std::string& directory, const std::string& extension) override;
     };
 }
-
-#endif

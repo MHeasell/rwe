@@ -1,5 +1,4 @@
-#ifndef RWE_SUBSCRIPTION_H
-#define RWE_SUBSCRIPTION_H
+#pragma once
 
 namespace rwe
 {
@@ -10,5 +9,3 @@ namespace rwe
         virtual void unsubscribe() = 0;
     };
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef RWE_GUI_H
-#define RWE_GUI_H
+#pragma once
 
 #include <optional>
 #include <rwe/tdf/TdfBlock.h>
@@ -140,5 +139,3 @@ namespace rwe
     std::optional<std::vector<GuiEntry>> parseGui(const std::vector<TdfBlock>& tdf);
     std::optional<std::vector<GuiEntry>> parseGuiFromBytes(const std::vector<char>& bytes);
 }
-
-#endif

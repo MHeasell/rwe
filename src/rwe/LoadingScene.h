@@ -1,5 +1,4 @@
-#ifndef RWE_LOADINGSCENE_H
-#define RWE_LOADINGSCENE_H
+#pragma once
 
 #include <memory>
 #include <rwe/AudioService.h>
@@ -152,5 +151,3 @@ namespace rwe
         std::optional<std::vector<std::vector<GuiEntry>>> loadBuilderGui(const std::string& unitName);
     };
 }
-
-#endif

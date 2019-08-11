@@ -1,5 +1,4 @@
-#ifndef RWE_OPAQUEID_H
-#define RWE_OPAQUEID_H
+#pragma once
 
 #include <functional>
 
@@ -38,5 +37,3 @@ namespace std
         }
     };
 }
-
-#endif

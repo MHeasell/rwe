@@ -1,5 +1,4 @@
-#ifndef RWE_NETWORK_UTIL_H
-#define RWE_NETWORK_UTIL_H
+#pragma once
 
 #include <rwe/SceneTime.h>
 #include <rwe/rwe_time.h>
@@ -26,5 +25,3 @@ namespace rwe
         return accum / count;
     }
 }
-
-#endif

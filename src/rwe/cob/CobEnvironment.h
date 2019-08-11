@@ -1,5 +1,4 @@
-#ifndef RWE_COBENVIRONMENT_H
-#define RWE_COBENVIRONMENT_H
+#pragma once
 
 #include <memory>
 #include <rwe/Cob.h>
@@ -136,5 +135,3 @@ namespace rwe
         bool isPresentInAQueue(const CobThread* thread) const;
     };
 }
-
-#endif

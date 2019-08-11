@@ -1,5 +1,4 @@
-#ifndef RWE_SDLCONTEXTMANAGER_H
-#define RWE_SDLCONTEXTMANAGER_H
+#pragma once
 
 #include <SDL.h>
 #include <SDL_mixer.h>
@@ -209,6 +208,3 @@ namespace rwe
         SdlImageContext sdlImageContext;
     };
 }
-
-
-#endif

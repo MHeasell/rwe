@@ -1,5 +1,4 @@
-#ifndef RWE_SHADERSERVICE_H
-#define RWE_SHADERSERVICE_H
+#pragma once
 
 #include <rwe/GraphicsContext.h>
 #include <unordered_map>
@@ -68,5 +67,3 @@ namespace rwe
         UnitBuildShader unitBuild;
     };
 }
-
-#endif

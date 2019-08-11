@@ -1,5 +1,4 @@
-#ifndef RWE_UNITBEHAVIORSERVICE_H
-#define RWE_UNITBEHAVIORSERVICE_H
+#pragma once
 
 #include <rwe/UnitFactory.h>
 #include <rwe/UnitId.h>
@@ -89,5 +88,3 @@ namespace rwe
         BuildPieceInfo getBuildPieceInfo(UnitId id);
     };
 }
-
-#endif

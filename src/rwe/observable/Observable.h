@@ -1,5 +1,4 @@
-#ifndef RWE_OBSERVABLE_H
-#define RWE_OBSERVABLE_H
+#pragma once
 
 #include <functional>
 #include <memory>
@@ -16,5 +15,3 @@ namespace rwe
         virtual std::unique_ptr<Subscription> subscribe(SubscriberCallback&& onNext) = 0;
     };
 }
-
-#endif

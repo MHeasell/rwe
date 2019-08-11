@@ -1,5 +1,4 @@
-#ifndef RWE_MAPTERRAIN_H
-#define RWE_MAPTERRAIN_H
+#pragma once
 
 #include <rwe/Grid.h>
 #include <rwe/Point.h>
@@ -92,5 +91,3 @@ namespace rwe
         bool isInHeightMapBounds(int x, int y) const;
     };
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef RWE_OPAQUEUNIT_H
-#define RWE_OPAQUEUNIT_H
+#pragma once
 
 #include <rwe/OpaqueId.h>
 
@@ -44,5 +43,3 @@ namespace std
         }
     };
 }
-
-#endif

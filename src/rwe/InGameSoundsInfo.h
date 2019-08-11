@@ -1,5 +1,4 @@
-#ifndef RWE_INGAMESOUNDSINFO_H
-#define RWE_INGAMESOUNDSINFO_H
+#pragma once
 
 #include <rwe/AudioService.h>
 
@@ -23,5 +22,3 @@ namespace rwe
         std::optional<AudioService::SoundHandle> selectMultipleUnits;
     };
 }
-
-#endif

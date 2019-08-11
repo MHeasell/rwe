@@ -1,5 +1,4 @@
-#ifndef RWE_GAF_H
-#define RWE_GAF_H
+#pragma once
 
 #include <cstdint>
 #include <functional>
@@ -131,5 +130,3 @@ namespace rwe
         Entry readEntry(std::istream& stream) const;
     };
 }
-
-#endif

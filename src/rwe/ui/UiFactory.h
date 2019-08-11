@@ -1,5 +1,4 @@
-#ifndef RWE_UIFACTORY_H
-#define RWE_UIFACTORY_H
+#pragma once
 
 #include <rwe/AudioService.h>
 #include <rwe/MainMenuModel.h>
@@ -84,6 +83,3 @@ namespace rwe
         ButtonSprites getStagedButtonGraphics(const std::string& guiName, const std::string& name, unsigned int stages);
     };
 }
-
-
-#endif

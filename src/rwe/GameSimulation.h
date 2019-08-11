@@ -1,5 +1,4 @@
-#ifndef RWE_GAMESIMULATION_H
-#define RWE_GAMESIMULATION_H
+#pragma once
 
 #include <rwe/Explosion.h>
 #include <rwe/FeatureId.h>
@@ -212,5 +211,3 @@ namespace rwe
         void tellToBuggerOff(const UnitId& unitId, const DiscreteRect& rect);
     };
 }
-
-#endif

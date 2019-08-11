@@ -1,5 +1,4 @@
-#ifndef RWE_TEXTUREHANDLE_H
-#define RWE_TEXTUREHANDLE_H
+#pragma once
 
 #include <GL/glew.h>
 #include <rwe/GlIdentifier.h>
@@ -24,5 +23,3 @@ namespace rwe
     using TextureHandle = UniqueHandle<TextureIdentifier, TextureHandleDeleter>;
     using SharedTextureHandle = SharedHandle<TextureIdentifier, TextureHandleDeleter>;
 }
-
-#endif

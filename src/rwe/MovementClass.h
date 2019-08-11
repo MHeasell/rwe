@@ -1,5 +1,4 @@
-#ifndef RWE_MOVEMENTCLASS_H
-#define RWE_MOVEMENTCLASS_H
+#pragma once
 
 #include <rwe/tdf/TdfBlock.h>
 #include <string>
@@ -21,5 +20,3 @@ namespace rwe
 
     std::vector<std::pair<std::string, MovementClass>> parseMovementTdf(const TdfBlock& root);
 }
-
-#endif

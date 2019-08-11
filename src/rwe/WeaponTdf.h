@@ -1,5 +1,4 @@
-#ifndef RWE_WEAPONTDF_H
-#define RWE_WEAPONTDF_H
+#pragma once
 
 #include <rwe/tdf/TdfBlock.h>
 #include <string>
@@ -122,5 +121,3 @@ namespace rwe
 
     std::vector<std::pair<std::string, WeaponTdf>> parseWeaponTdf(const TdfBlock& tdf);
 }
-
-#endif

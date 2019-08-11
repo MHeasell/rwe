@@ -1,5 +1,4 @@
-#ifndef RWE_RESULT_H
-#define RWE_RESULT_H
+#pragma once
 
 #include <variant>
 
@@ -103,5 +102,3 @@ namespace rwe
         }
     };
 }
-
-#endif

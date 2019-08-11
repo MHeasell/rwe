@@ -1,5 +1,4 @@
-#ifndef RWE_BEHAVIORSUBJECT_H
-#define RWE_BEHAVIORSUBJECT_H
+#pragma once
 
 #include <functional>
 #include <rwe/observable/Subject.h>
@@ -57,5 +56,3 @@ namespace rwe
         }
     };
 }
-
-#endif

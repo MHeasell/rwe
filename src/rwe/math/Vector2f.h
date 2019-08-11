@@ -1,5 +1,4 @@
-#ifndef RWE_MATH_VECTOR2F_H
-#define RWE_MATH_VECTOR2F_H
+#pragma once
 
 #include <ostream>
 
@@ -54,5 +53,3 @@ namespace rwe
 
     std::ostream& operator<<(std::ostream& lhs, const Vector2f& rhs);
 }
-
-#endif

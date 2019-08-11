@@ -1,5 +1,4 @@
-#ifndef RWE_PLAYERCOLORINDEX_H
-#define RWE_PLAYERCOLORINDEX_H
+#pragma once
 
 #include <rwe/OpaqueId.h>
 
@@ -11,5 +10,3 @@ namespace rwe
         explicit PlayerColorIndex(unsigned int value);
     };
 }
-
-#endif

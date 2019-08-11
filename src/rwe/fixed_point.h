@@ -1,5 +1,4 @@
-#ifndef RWE_FIXED_POINT_H
-#define RWE_FIXED_POINT_H
+#pragma once
 
 namespace rwe
 {
@@ -7,5 +6,3 @@ namespace rwe
 
     float fromFixedPoint(int val);
 }
-
-#endif

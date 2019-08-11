@@ -1,5 +1,4 @@
-#ifndef RWE_GEOMETRY_BOUNDINGBOX3F_H
-#define RWE_GEOMETRY_BOUNDINGBOX3F_H
+#pragma once
 
 #include <optional>
 #include <rwe/geometry/Ray3f.h>
@@ -38,5 +37,3 @@ namespace rwe
         float distanceSquared(const Vector3f& pos) const;
     };
 }
-
-#endif

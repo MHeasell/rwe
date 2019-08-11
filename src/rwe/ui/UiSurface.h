@@ -1,5 +1,4 @@
-#ifndef RWE_UISURFACE_H
-#define RWE_UISURFACE_H
+#pragma once
 
 #include <memory>
 #include <optional>
@@ -22,5 +21,3 @@ namespace rwe
         void clearBackground();
     };
 }
-
-#endif

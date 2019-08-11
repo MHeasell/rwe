@@ -1,5 +1,4 @@
-#ifndef RWE_OCTILEDISTANCE_H
-#define RWE_OCTILEDISTANCE_H
+#pragma once
 
 namespace rwe
 {
@@ -36,5 +35,3 @@ namespace rwe
         float asFloat() const;
     };
 }
-
-#endif

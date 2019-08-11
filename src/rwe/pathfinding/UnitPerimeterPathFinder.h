@@ -1,5 +1,4 @@
-#ifndef RWE_UNITPERIMETERPATHFINDER_H
-#define RWE_UNITPERIMETERPATHFINDER_H
+#pragma once
 
 #include <rwe/DiscreteRect.h>
 #include <rwe/pathfinding/AbstractUnitPathFinder.h>
@@ -32,5 +31,3 @@ namespace rwe
         PathCost estimateCostToGoal(const Point& start) override;
     };
 }
-
-#endif

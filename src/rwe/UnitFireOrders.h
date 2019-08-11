@@ -1,5 +1,4 @@
-#ifndef RWE_UNITFIREORDERS_H
-#define RWE_UNITFIREORDERS_H
+#pragma once
 
 namespace rwe
 {
@@ -10,5 +9,3 @@ namespace rwe
         FireAtWill,
     };
 }
-
-#endif

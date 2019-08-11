@@ -1,5 +1,4 @@
-#ifndef RWE_AUDIOSERVICE_H
-#define RWE_AUDIOSERVICE_H
+#pragma once
 
 #include <functional>
 #include <memory>
@@ -56,5 +55,3 @@ namespace rwe
         void haltChannel(int channel);
     };
 }
-
-#endif

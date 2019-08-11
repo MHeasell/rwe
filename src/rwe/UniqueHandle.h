@@ -1,5 +1,4 @@
-#ifndef RWE_UNIQUEHANDLE_H
-#define RWE_UNIQUEHANDLE_H
+#pragma once
 
 namespace rwe
 {
@@ -72,5 +71,3 @@ namespace rwe
         }
     };
 }
-
-#endif

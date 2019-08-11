@@ -1,5 +1,4 @@
-#ifndef RWE_OPAQUEID_IO_H
-#define RWE_OPAQUEID_IO_H
+#pragma once
 
 #include <iostream>
 #include <rwe/OpaqueId.h>
@@ -20,5 +19,3 @@ namespace rwe
         return is;
     }
 }
-
-#endif

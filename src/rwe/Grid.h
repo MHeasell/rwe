@@ -1,5 +1,4 @@
-#ifndef RWE_GRID_H
-#define RWE_GRID_H
+#pragma once
 
 #include <cassert>
 #include <functional>
@@ -431,5 +430,3 @@ namespace rwe
         }
     };
 }
-
-#endif

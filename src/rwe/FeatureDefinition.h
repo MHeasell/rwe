@@ -1,5 +1,4 @@
-#ifndef RWE_FEATUREDEFINITION_H
-#define RWE_FEATUREDEFINITION_H
+#pragma once
 
 #include <optional>
 #include <rwe/tdf/TdfBlock.h>
@@ -64,5 +63,3 @@ namespace rwe
         std::string featureDead;
     };
 }
-
-#endif

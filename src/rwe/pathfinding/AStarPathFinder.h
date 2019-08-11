@@ -1,5 +1,4 @@
-#ifndef RWE_ASTARPATHFINDER_H
-#define RWE_ASTARPATHFINDER_H
+#pragma once
 
 #include <deque>
 #include <optional>
@@ -116,5 +115,3 @@ namespace rwe
         }
     };
 }
-
-#endif

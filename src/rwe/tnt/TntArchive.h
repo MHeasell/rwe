@@ -1,5 +1,4 @@
-#ifndef RWE_TNTARCHIVE_H
-#define RWE_TNTARCHIVE_H
+#pragma once
 
 #include <cstdint>
 #include <fstream>
@@ -108,5 +107,3 @@ namespace rwe
         const TntHeader& getHeader() const;
     };
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef RWE_COLORPALETTE_H
-#define RWE_COLORPALETTE_H
+#pragma once
 
 #include <cstdint>
 #include <optional>
@@ -28,5 +27,3 @@ namespace rwe
 
     std::optional<ColorPalette> readPalette(std::vector<char>& vector);
 }
-
-#endif

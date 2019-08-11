@@ -1,5 +1,4 @@
-#ifndef RWE_UNIT_UTIL_H
-#define RWE_UNIT_UTIL_H
+#pragma once
 
 #include <deque>
 #include <string>
@@ -11,5 +10,3 @@ namespace rwe
 
     std::unordered_map<std::string, int> getBuildQueueTotalsStatic(const std::deque<std::pair<std::string, int>>& buildQueue);
 }
-
-#endif

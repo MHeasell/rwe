@@ -1,5 +1,4 @@
-#ifndef RWE_SPRITE_H
-#define RWE_SPRITE_H
+#pragma once
 
 #include <memory>
 #include <rwe/GlMesh.h>
@@ -20,6 +19,3 @@ namespace rwe
         Matrix4f getTransform() const;
     };
 }
-
-
-#endif

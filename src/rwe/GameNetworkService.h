@@ -1,5 +1,4 @@
-#ifndef RWE_GAMENETWORKSERVICE_H
-#define RWE_GAMENETWORKSERVICE_H
+#pragma once
 
 #include <boost/asio.hpp>
 #include <boost/asio/steady_timer.hpp> // not in asio.hpp in old boost versions
@@ -123,5 +122,3 @@ namespace rwe
         void receive(std::size_t receivedBytes);
     };
 }
-
-#endif

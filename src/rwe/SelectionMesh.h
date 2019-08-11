@@ -1,5 +1,4 @@
-#ifndef RWE_SELECTIONMESH_H
-#define RWE_SELECTIONMESH_H
+#pragma once
 
 #include <rwe/GlMesh.h>
 #include <rwe/VaoHandle.h>
@@ -14,5 +13,3 @@ namespace rwe
         GlMesh visualMesh;
     };
 }
-
-#endif

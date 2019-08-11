@@ -1,5 +1,4 @@
-#ifndef RWE_UIRENDERSERVICE_H
-#define RWE_UIRENDERSERVICE_H
+#pragma once
 
 #include <rwe/GraphicsContext.h>
 #include <rwe/ShaderService.h>
@@ -106,5 +105,3 @@ namespace rwe
         return std::find_if(it, end, [](int ch) { return ch == ' '; });
     }
 }
-
-#endif

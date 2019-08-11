@@ -1,5 +1,4 @@
-#ifndef RWE_COBOPCODE_H
-#define RWE_COBOPCODE_H
+#pragma once
 
 namespace rwe
 {
@@ -72,5 +71,3 @@ namespace rwe
         DROP_UNIT = 0x10084000,
     };
 }
-
-#endif

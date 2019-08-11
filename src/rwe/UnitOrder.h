@@ -1,5 +1,4 @@
-#ifndef RWE_UNITORDER_H
-#define RWE_UNITORDER_H
+#pragma once
 
 #include <rwe/DiscreteRect.h>
 #include <rwe/UnitId.h>
@@ -38,5 +37,3 @@ namespace rwe
 
     using UnitOrder = std::variant<MoveOrder, AttackOrder, BuildOrder, BuggerOffOrder>;
 }
-
-#endif

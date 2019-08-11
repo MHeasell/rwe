@@ -1,5 +1,4 @@
-#ifndef RWE_HPI_H
-#define RWE_HPI_H
+#pragma once
 
 #include <cstdint>
 #include <functional>
@@ -151,5 +150,3 @@ namespace rwe
 
     unsigned char transformKey(unsigned char key);
 }
-
-#endif

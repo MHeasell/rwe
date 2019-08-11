@@ -1,5 +1,4 @@
-#ifndef RWE_OPTIONAL_UTIL_H
-#define RWE_OPTIONAL_UTIL_H
+#pragma once
 
 #include <functional>
 #include <optional>
@@ -17,5 +16,3 @@ namespace rwe
         return opt->get();
     }
 }
-
-#endif

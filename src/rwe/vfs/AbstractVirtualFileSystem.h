@@ -1,5 +1,4 @@
-#ifndef RWE_VIRTUALFILESYSTEM_H
-#define RWE_VIRTUALFILESYSTEM_H
+#pragma once
 
 #include <optional>
 #include <rwe/gui.h>
@@ -20,5 +19,3 @@ namespace rwe
         std::vector<GuiEntry> readGuiOrThrow(const std::string& filename) const;
     };
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef RWE_UNIT_H
-#define RWE_UNIT_H
+#pragma once
 
 #include <deque>
 #include <memory>
@@ -329,5 +328,3 @@ namespace rwe
         int getBuildQueueTotal(const std::string& unitType) const;
     };
 }
-
-#endif

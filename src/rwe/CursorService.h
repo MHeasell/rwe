@@ -1,5 +1,4 @@
-#ifndef RWE_CURSORSERVICE_H
-#define RWE_CURSORSERVICE_H
+#pragma once
 
 #include <memory>
 #include <rwe/GraphicsContext.h>
@@ -47,5 +46,3 @@ namespace rwe
         void render(UiRenderService& renderer) const;
     };
 }
-
-#endif

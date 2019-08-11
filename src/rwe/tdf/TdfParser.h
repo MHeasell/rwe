@@ -1,5 +1,4 @@
-#ifndef RWE_TDFPARSER_H
-#define RWE_TDFPARSER_H
+#pragma once
 
 #include <memory>
 #include <optional>
@@ -422,5 +421,3 @@ namespace rwe
         }
     };
 }
-
-#endif

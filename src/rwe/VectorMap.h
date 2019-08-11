@@ -1,5 +1,4 @@
-#ifndef RWE_VECTORMAP_H
-#define RWE_VECTORMAP_H
+#pragma once
 
 #include <cassert>
 #include <deque>
@@ -261,5 +260,3 @@ namespace rwe
         }
     };
 }
-
-#endif

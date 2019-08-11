@@ -1,5 +1,4 @@
-#ifndef RWE_VAOHANDLE_H
-#define RWE_VAOHANDLE_H
+#pragma once
 
 #include <GL/glew.h>
 #include <rwe/GlIdentifier.h>
@@ -24,5 +23,3 @@ namespace rwe
     using VaoHandle = UniqueHandle<VaoIdentifier, VaoHandleDeleter>;
     using SharedVaoHandle = SharedHandle<VaoIdentifier, VaoHandleDeleter>;
 }
-
-#endif

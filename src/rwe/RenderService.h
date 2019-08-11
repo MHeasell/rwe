@@ -1,5 +1,4 @@
-#ifndef RWE_RENDERSERVICE_H
-#define RWE_RENDERSERVICE_H
+#pragma once
 
 #include <boost/iterator/filter_iterator.hpp>
 #include <rwe/Explosion.h>
@@ -187,5 +186,3 @@ namespace rwe
         }
     };
 }
-
-#endif

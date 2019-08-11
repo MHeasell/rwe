@@ -1,5 +1,4 @@
-#ifndef RWE_RC_GEN_OPTIONAL_H
-#define RWE_RC_GEN_OPTIONAL_H
+#pragma once
 
 #include <optional>
 #include <rapidcheck.h>
@@ -41,5 +40,3 @@ namespace rc
         }
     }
 }
-
-#endif

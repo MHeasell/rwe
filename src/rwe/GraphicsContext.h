@@ -1,5 +1,4 @@
-#ifndef RWE_GRAPHICSCONTEXT_H
-#define RWE_GRAPHICSCONTEXT_H
+#pragma once
 
 #include <GL/glew.h>
 #include <SDL.h>
@@ -204,5 +203,3 @@ namespace rwe
             ShaderProgramIdentifier shader);
     };
 }
-
-#endif

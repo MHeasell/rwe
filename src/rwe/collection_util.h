@@ -1,5 +1,4 @@
-#ifndef RWE_COLLECTION_UTIL_H
-#define RWE_COLLECTION_UTIL_H
+#pragma once
 
 #include <functional>
 #include <optional>
@@ -41,5 +40,3 @@ namespace rwe
         return std::nullopt;
     }
 }
-
-#endif

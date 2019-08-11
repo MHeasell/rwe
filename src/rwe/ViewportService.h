@@ -1,5 +1,4 @@
-#ifndef RWE_VIEWPORTSERVICE_H
-#define RWE_VIEWPORTSERVICE_H
+#pragma once
 
 #include <rwe/Point.h>
 #include <rwe/math/Vector2f.h>
@@ -46,5 +45,3 @@ namespace rwe
         bool contains(const Point& p) const;
     };
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef RWE_PCX_H
-#define RWE_PCX_H
+#pragma once
 
 #include <algorithm>
 #include <cstdint>
@@ -144,5 +143,3 @@ namespace rwe
         }
     };
 }
-
-#endif

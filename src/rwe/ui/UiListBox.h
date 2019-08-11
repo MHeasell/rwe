@@ -1,5 +1,4 @@
-#ifndef RWE_UILISTBOX_H
-#define RWE_UILISTBOX_H
+#pragma once
 
 #include <memory>
 #include <optional>
@@ -104,5 +103,3 @@ namespace rwe
         void scrollDown();
     };
 }
-
-#endif

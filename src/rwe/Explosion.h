@@ -1,5 +1,4 @@
-#ifndef RWE_EXPLOSION_H
-#define RWE_EXPLOSION_H
+#pragma once
 
 #include <memory>
 #include <rwe/GameTime.h>
@@ -22,5 +21,3 @@ namespace rwe
         bool isFinished(GameTime currentTime) const;
     };
 }
-
-#endif

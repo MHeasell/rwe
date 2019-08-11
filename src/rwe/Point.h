@@ -1,5 +1,4 @@
-#ifndef RWE_POINT_H
-#define RWE_POINT_H
+#pragma once
 
 #include <boost/functional/hash.hpp>
 
@@ -42,5 +41,3 @@ namespace rwe
 {
     std::size_t hash_value(const Point& p);
 }
-
-#endif

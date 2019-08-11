@@ -1,5 +1,4 @@
-#ifndef RWE_UISTAGEDBUTTON_H
-#define RWE_UISTAGEDBUTTON_H
+#pragma once
 
 #include <rwe/observable/Subject.h>
 #include <rwe/ui/UiComponent.h>
@@ -114,5 +113,3 @@ namespace rwe
         void nextStage();
     };
 }
-
-#endif

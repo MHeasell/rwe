@@ -1,5 +1,4 @@
-#ifndef RWE_SHADERHANDLE_H
-#define RWE_SHADERHANDLE_H
+#pragma once
 
 #include <GL/glew.h>
 #include <rwe/GlIdentifier.h>
@@ -24,5 +23,3 @@ namespace rwe
     using ShaderHandle = UniqueHandle<ShaderIdentifier, ShaderHandleDeleter>;
     using SharedShaderHandle = SharedHandle<ShaderIdentifier, ShaderHandleDeleter>;
 }
-
-#endif

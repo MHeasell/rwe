@@ -1,5 +1,4 @@
-#ifndef RWE_HPIFILESYSTEM_H
-#define RWE_HPIFILESYSTEM_H
+#pragma once
 
 #include <fstream>
 #include <rwe/Hpi.h>
@@ -44,5 +43,3 @@ namespace rwe
         std::vector<std::string> getFileNamesRecursiveInternal(const HpiArchive::Directory& directory, const std::string& extension);
     };
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef RWE_UNITMESH_H
-#define RWE_UNITMESH_H
+#pragma once
 
 #include <memory>
 #include <optional>
@@ -88,5 +87,3 @@ namespace rwe
         void update(float dt);
     };
 }
-
-#endif

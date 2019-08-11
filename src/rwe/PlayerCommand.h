@@ -1,5 +1,4 @@
-#ifndef RWE_PLAYERCOMMAND_H
-#define RWE_PLAYERCOMMAND_H
+#pragma once
 
 #include <rwe/SceneTime.h>
 #include <rwe/UnitFireOrders.h>
@@ -66,5 +65,3 @@ namespace rwe
 
     using PlayerCommand = std::variant<PlayerUnitCommand, PlayerPauseGameCommand, PlayerUnpauseGameCommand>;
 }
-
-#endif

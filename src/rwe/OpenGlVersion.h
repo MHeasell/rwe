@@ -1,5 +1,4 @@
-#ifndef RWE_OPENGLVERSION_H
-#define RWE_OPENGLVERSION_H
+#pragma once
 
 namespace rwe
 {
@@ -88,5 +87,3 @@ namespace rwe
         }
     };
 }
-
-#endif

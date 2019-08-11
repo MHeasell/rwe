@@ -1,5 +1,4 @@
-#ifndef RWE_TDFBLOCK_H
-#define RWE_TDFBLOCK_H
+#pragma once
 
 #include <functional>
 #include <initializer_list>
@@ -164,5 +163,3 @@ namespace rwe
 
     TdfBlock makeTdfBlock(std::vector<std::pair<std::string, TdfPropertyValue::ValueType>> list);
 }
-
-#endif

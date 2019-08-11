@@ -1,5 +1,4 @@
-#ifndef RWE_PLAYERCOMMANDSERVICE_H
-#define RWE_PLAYERCOMMANDSERVICE_H
+#pragma once
 
 #include <deque>
 #include <mutex>
@@ -27,5 +26,3 @@ namespace rwe
         void registerPlayer(PlayerId playerId);
     };
 }
-
-#endif

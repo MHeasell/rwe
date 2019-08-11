@@ -1,5 +1,4 @@
-#ifndef RWE_UIPANEL_H
-#define RWE_UIPANEL_H
+#pragma once
 
 #include <optional>
 #include <rwe/observable/Subject.h>
@@ -107,5 +106,3 @@ namespace rwe
         }
     };
 }
-
-#endif

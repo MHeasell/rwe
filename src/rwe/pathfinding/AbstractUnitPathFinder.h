@@ -1,5 +1,4 @@
-#ifndef RWE_ABSTRACTUNITPATHFINDER_H
-#define RWE_ABSTRACTUNITPATHFINDER_H
+#pragma once
 
 #include <rwe/DiscreteRect.h>
 #include <rwe/EightWayDirection.h>
@@ -49,5 +48,3 @@ namespace rwe
         std::vector<Point> getNeighbours(const Point& p);
     };
 }
-
-#endif

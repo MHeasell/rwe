@@ -1,5 +1,4 @@
-#ifndef RWE_COBVALUEID_H
-#define RWE_COBVALUEID_H
+#pragma once
 
 namespace rwe
 {
@@ -37,5 +36,3 @@ namespace rwe
         UnitAllied
     };
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef RWE_SHADERMESH_H
-#define RWE_SHADERMESH_H
+#pragma once
 
 #include <rwe/GlMesh.h>
 #include <rwe/TextureHandle.h>
@@ -21,5 +20,3 @@ namespace rwe
             GlMesh&& coloredVertices);
     };
 }
-
-#endif

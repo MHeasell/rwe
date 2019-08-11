@@ -1,5 +1,4 @@
-#ifndef RWE_UTIL_H
-#define RWE_UTIL_H
+#pragma once
 
 #include <boost/filesystem/path.hpp>
 #include <optional>
@@ -28,5 +27,3 @@ namespace rwe
 
     TaAngle toTaAngle(RadiansAngle angle);
 }
-
-#endif

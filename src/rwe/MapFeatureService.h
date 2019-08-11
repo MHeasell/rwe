@@ -1,5 +1,4 @@
-#ifndef RWE_MAPFEATURESERVICE_H
-#define RWE_MAPFEATURESERVICE_H
+#pragma once
 
 #include <rwe/FeatureDefinition.h>
 #include <rwe/vfs/AbstractVirtualFileSystem.h>
@@ -22,5 +21,3 @@ namespace rwe
         const FeatureDefinition& getFeatureDefinition(const std::string& featureName);
     };
 }
-
-#endif

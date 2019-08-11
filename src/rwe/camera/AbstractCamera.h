@@ -1,5 +1,4 @@
-#ifndef RWE_ABSTRACTCAMERA_H
-#define RWE_ABSTRACTCAMERA_H
+#pragma once
 
 #include <rwe/geometry/Ray3f.h>
 #include <rwe/math/Matrix4f.h>
@@ -37,5 +36,3 @@ namespace rwe
         Ray3f screenToWorldRay(const Vector2f& point) const;
     };
 }
-
-#endif

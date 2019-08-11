@@ -1,5 +1,4 @@
-#ifndef RWE_OPTIONAL_IO_H
-#define RWE_OPTIONAL_IO_H
+#pragma once
 
 #include <functional>
 #include <iostream>
@@ -29,5 +28,3 @@ namespace std
         return os;
     }
 }
-
-#endif

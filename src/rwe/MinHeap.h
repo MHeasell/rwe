@@ -1,5 +1,4 @@
-#ifndef RWE_MINHEAP_H
-#define RWE_MINHEAP_H
+#pragma once
 
 #include <algorithm>
 #include <cassert>
@@ -167,5 +166,3 @@ namespace rwe
         return MinHeap<K, V, KeySelector, LessThan>(keySelector, lessThan);
     };
 }
-
-#endif

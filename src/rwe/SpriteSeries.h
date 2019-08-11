@@ -1,5 +1,4 @@
-#ifndef RWE_SPRITESERIES_H
-#define RWE_SPRITESERIES_H
+#pragma once
 
 #include <memory>
 #include <rwe/Sprite.h>
@@ -12,6 +11,3 @@ namespace rwe
         std::vector<std::shared_ptr<Sprite>> sprites;
     };
 }
-
-
-#endif

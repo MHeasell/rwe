@@ -1,5 +1,4 @@
-#ifndef RWE_COB_H
-#define RWE_COB_H
+#pragma once
 
 #include <cstdint>
 #include <string>
@@ -40,5 +39,3 @@ namespace rwe
 
     CobScript parseCob(std::istream& stream);
 }
-
-#endif
