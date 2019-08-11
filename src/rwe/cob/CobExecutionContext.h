@@ -4,6 +4,7 @@
 #include <rwe/cob/CobAngularSpeed.h>
 #include <rwe/cob/CobEnvironment.h>
 #include <rwe/cob/CobPosition.h>
+#include <rwe/cob/CobSleepDuration.h>
 #include <rwe/cob/CobSpeed.h>
 #include <rwe/cob/CobValueId.h>
 
@@ -143,6 +144,7 @@ namespace rwe
         // non-commands
         int pop();
 
+        CobSleepDuration popSleepDuration();
         CobPosition popPosition();
         CobSpeed popSpeed();
         CobAngle popAngle();

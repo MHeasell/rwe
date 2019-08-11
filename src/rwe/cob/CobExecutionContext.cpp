@@ -158,12 +158,9 @@ namespace rwe
                 }
                 case OpCode::SLEEP:
                 {
-                    auto duration = pop();
-
-                    auto ticksToWait = GameTime(duration / SceneManager::TickInterval);
-                    auto currentTime = sim->gameTime;
-
-                    return CobEnvironment::BlockedStatus(CobEnvironment::BlockedStatus::Sleep(currentTime + ticksToWait));
+                    auto duration = popSleepDuration();
+                    auto wakeUpTime = sim->gameTime + duration.toGameTime();
+                    return CobEnvironment::BlockedStatus(CobEnvironment::BlockedStatus::Sleep(wakeUpTime));
                 }
 
                 case OpCode::CALL_SCRIPT:
@@ -635,6 +632,11 @@ namespace rwe
         auto v = thread->stack.top();
         thread->stack.pop();
         return v;
+    }
+
+    CobSleepDuration CobExecutionContext::popSleepDuration()
+    {
+        return CobSleepDuration(pop());
     }
 
     CobPosition CobExecutionContext::popPosition()
