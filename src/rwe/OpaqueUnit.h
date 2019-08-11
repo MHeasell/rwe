@@ -8,7 +8,7 @@ namespace rwe
     struct OpaqueUnit : public OpaqueId<T, Tag>
     {
         OpaqueUnit() = default;
-        explicit OpaqueUnit(T value) : OpaqueId<T, Tag>(value) {}
+        explicit constexpr OpaqueUnit(T value) : OpaqueId<T, Tag>(value) {}
 
         bool operator<(OpaqueUnit<T, Tag> b) const { return this->value < b.value; }
         bool operator>(OpaqueUnit<T, Tag> b) const { return this->value > b.value; }

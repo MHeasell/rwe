@@ -12,7 +12,7 @@ namespace rwe
         ValueType value;
 
         OpaqueId() = default;
-        explicit OpaqueId(ValueType value) : value(value) {}
+        explicit constexpr OpaqueId(ValueType value) : value(value) {}
 
         bool operator==(const OpaqueId& rhs) const
         {
