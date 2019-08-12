@@ -4,8 +4,8 @@
 #include <rwe/Cob.h>
 #include <rwe/MovementClass.h>
 #include <rwe/SoundClass.h>
-#include <rwe/UnitFbi.h>
 #include <rwe/WeaponTdf.h>
+#include <rwe/fbi/UnitFbi.h>
 
 namespace rwe
 {

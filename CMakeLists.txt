@@ -334,8 +334,6 @@ set(SOURCE_FILES
     src/rwe/UnitDatabase.h
     src/rwe/UnitFactory.cpp
     src/rwe/UnitFactory.h
-    src/rwe/UnitFbi.cpp
-    src/rwe/UnitFbi.h
     src/rwe/UnitFireOrders.h
     src/rwe/UnitId.h
     src/rwe/UnitMesh.cpp
@@ -382,6 +380,8 @@ set(SOURCE_FILES
     src/rwe/collection_util.h
     src/rwe/events.cpp
     src/rwe/events.h
+    src/rwe/fbi/UnitFbi.cpp
+    src/rwe/fbi/UnitFbi.h
     src/rwe/fixed_point.cpp
     src/rwe/fixed_point.h
     src/rwe/geometry/BoundingBox3f.cpp
