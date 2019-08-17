@@ -483,6 +483,8 @@ set(SOURCE_FILES
     src/rwe/unit_util.h
     src/rwe/util.cpp
     src/rwe/util.h
+    src/rwe/vertex_height.cpp
+    src/rwe/vertex_height.h
     src/rwe/vfs/AbstractVirtualFileSystem.h
     src/rwe/vfs/AbstractVirtualFilesSystem.cpp
     src/rwe/vfs/CompositeVirtualFileSystem.cpp
