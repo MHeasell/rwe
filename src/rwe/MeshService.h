@@ -63,12 +63,6 @@ namespace rwe
             float height;
         };
 
-        struct InnerUnitMeshInfo
-        {
-            UnitMesh mesh;
-            float height;
-        };
-
         UnitMeshInfo loadUnitMesh(const std::string& name, const PlayerColorIndex& teamColor);
 
     private:
@@ -77,7 +71,7 @@ namespace rwe
 
         Mesh meshFrom3do(const _3do::Object& o, const PlayerColorIndex& teamColor);
 
-        InnerUnitMeshInfo unitMeshFrom3do(const _3do::Object& o, const PlayerColorIndex& teamColor);
+        UnitMesh unitMeshFrom3do(const _3do::Object& o, const PlayerColorIndex& teamColor);
 
         SelectionMesh selectionMeshFrom3do(const _3do::Object& o);
 
