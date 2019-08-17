@@ -86,5 +86,9 @@ namespace rwe
         };
 
         BuildPieceInfo getBuildPieceInfo(UnitId id);
+
+        std::optional<Vector3f> getTargetPosition(const UnitWeaponAttackTarget& target);
+
+        MovingStateGoal attackTargetToMovingStateGoal(const AttackTarget& target);
     };
 }

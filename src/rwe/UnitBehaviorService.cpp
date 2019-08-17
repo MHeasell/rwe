@@ -33,38 +33,6 @@ namespace rwe
     {
     }
 
-    class GetTargetPositionVisitor
-    {
-    private:
-        UnitBehaviorService* service;
-
-    public:
-        explicit GetTargetPositionVisitor(UnitBehaviorService* service) : service(service) {}
-
-        std::optional<Vector3f> operator()(const Vector3f& target) { return target; }
-
-        std::optional<Vector3f> operator()(UnitId id)
-        {
-            return service->tryGetSweetSpot(id);
-        }
-    };
-
-    class AttackTargetToMovingStateGoalVisitor
-    {
-    private:
-        const GameScene* scene;
-
-    public:
-        explicit AttackTargetToMovingStateGoalVisitor(const GameScene* scene) : scene(scene) {}
-
-        MovingStateGoal operator()(const Vector3f& target) const { return target; }
-        MovingStateGoal operator()(UnitId unitId) const
-        {
-            const auto& targetUnit = scene->getSimulation().getUnit(unitId);
-            return scene->computeFootprintRegion(targetUnit.position, targetUnit.footprintX, targetUnit.footprintZ);
-        }
-    };
-
     void UnitBehaviorService::update(UnitId unitId)
     {
         auto& unit = scene->getSimulation().getUnit(unitId);
@@ -266,8 +234,7 @@ namespace rwe
                 }
             }
 
-            GetTargetPositionVisitor targetPositionVisitor(this);
-            auto targetPosition = std::visit(targetPositionVisitor, aimingState->target);
+            auto targetPosition = getTargetPosition(aimingState->target);
 
             if (!targetPosition || unit.position.distanceSquared(*targetPosition) > weapon->maxRange * weapon->maxRange)
             {
@@ -306,8 +273,7 @@ namespace rwe
                     if (*returnValue)
                     {
                         // aiming was successful, check the target again for drift
-                        GetTargetPositionVisitor targetPositionVisitor(this);
-                        auto targetPosition = std::visit(targetPositionVisitor, aimingState->target);
+                        auto targetPosition = getTargetPosition(aimingState->target);
                         auto aimFromPosition = getAimingPoint(id, weaponIndex);
 
                         auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, *targetPosition);
@@ -697,8 +663,7 @@ namespace rwe
         }
         else
         {
-            GetTargetPositionVisitor targetPositionVisitor(this);
-            auto targetPosition = std::visit(targetPositionVisitor, attackOrder.target);
+            auto targetPosition = getTargetPosition(attackOrder.target);
             if (!targetPosition)
             {
                 // target has gone away, throw away this order
@@ -713,7 +678,7 @@ namespace rwe
                 {
                     // request a path to follow
                     scene->getSimulation().requestPath(unitId);
-                    auto destination = std::visit(AttackTargetToMovingStateGoalVisitor(scene), attackOrder.target);
+                    auto destination = attackTargetToMovingStateGoal(attackOrder.target);
                     unit.behaviourState = MovingState{destination, std::nullopt, true};
                 }
                 else
@@ -1110,5 +1075,24 @@ namespace rwe
         }
 
         return BuildPieceInfo{getPiecePosition(id, *pieceId), getPieceXZRotation(id, *pieceId)};
+    }
+
+    std::optional<Vector3f> UnitBehaviorService::getTargetPosition(const UnitWeaponAttackTarget& target)
+    {
+        return match(
+            target,
+            [](const Vector3f& v) { return std::make_optional(v); },
+            [this](UnitId id) { return tryGetSweetSpot(id); });
+    }
+
+    MovingStateGoal UnitBehaviorService::attackTargetToMovingStateGoal(const AttackTarget& target)
+    {
+        return match(
+            target,
+            [](const Vector3f& target) { return MovingStateGoal(target); },
+            [this](UnitId unitId) {
+              const auto& targetUnit = scene->getSimulation().getUnit(unitId);
+              return MovingStateGoal(scene->computeFootprintRegion(targetUnit.position, targetUnit.footprintX, targetUnit.footprintZ));
+            });
     }
 }
