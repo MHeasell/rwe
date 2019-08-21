@@ -6,10 +6,6 @@
 
 namespace rwe
 {
-    MoveOrder::MoveOrder(const Vector3f& destination) : destination(destination)
-    {
-    }
-
     UnitOrder createMoveOrder(const Vector3f& destination)
     {
         return MoveOrder(destination);

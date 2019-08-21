@@ -10,7 +10,7 @@ namespace rwe
     struct MoveOrder
     {
         Vector3f destination;
-        explicit MoveOrder(const Vector3f& destination);
+        explicit MoveOrder(const Vector3f& destination) : destination(destination) {}
     };
 
     using AttackTarget = std::variant<UnitId, Vector3f>;
