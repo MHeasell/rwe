@@ -1,7 +1,9 @@
 #include "GameScene.h"
 #include <boost/range/adaptor/map.hpp>
+#include <fstream>
 #include <functional>
 #include <rwe/Mesh.h>
+#include <rwe/dump_util.h>
 #include <rwe/overloaded.h>
 #include <rwe/resource_io.h>
 #include <rwe/ui/UiStagedButton.h>
@@ -1162,6 +1164,10 @@ namespace rwe
     {
         if (!playerCommandService->checkHashes())
         {
+            std::ofstream dumpFile;
+            dumpFile.open("rwe-dump-" + std::to_string(std::rand()) + ".json");
+            dumpFile << dumpJson(simulation);
+            dumpFile.close();
             throw std::runtime_error("Desync detected");
         }
 
