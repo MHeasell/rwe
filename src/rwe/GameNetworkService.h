@@ -66,6 +66,7 @@ namespace rwe
         };
 
     private:
+        PlayerId localPlayerId;
         boost::asio::ip::udp::endpoint localEndpoint;
 
         std::thread networkThread;
@@ -85,7 +86,7 @@ namespace rwe
         SceneTime currentSceneTime{0};
 
     public:
-        GameNetworkService(const boost::asio::ip::udp::endpoint& localEndpoint, const std::vector<EndpointInfo>& endpoints, PlayerCommandService* playerCommandService);
+        GameNetworkService(PlayerId localPlayerId, const boost::asio::ip::udp::endpoint& localEndpoint, const std::vector<EndpointInfo>& endpoints, PlayerCommandService* playerCommandService);
 
         virtual ~GameNetworkService();
 

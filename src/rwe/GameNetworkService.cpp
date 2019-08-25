@@ -12,10 +12,12 @@
 namespace rwe
 {
     GameNetworkService::GameNetworkService(
+        PlayerId localPlayerId,
         const boost::asio::ip::udp::endpoint& localEndpoint,
         const std::vector<GameNetworkService::EndpointInfo>& endpoints,
         PlayerCommandService* playerCommandService)
-        : localEndpoint(localEndpoint),
+        : localPlayerId(localPlayerId),
+          localEndpoint(localEndpoint),
           resolver(ioContext),
           socket(ioContext),
           sendTimer(ioContext),
@@ -124,6 +126,7 @@ namespace rwe
     }
 
     proto::NetworkMessage createProtoMessage(
+        PlayerId playerId,
         SceneTime currentSceneTime,
         SequenceNumber nextCommandToSend,
         SequenceNumber nextCommandToReceive,
@@ -132,6 +135,7 @@ namespace rwe
     {
         proto::NetworkMessage outerMessage;
         auto& m = *outerMessage.mutable_game_update();
+        m.set_player_id(playerId.value);
         m.set_current_scene_time(currentSceneTime.value);
         m.set_next_command_set_to_send(nextCommandToSend.value);
         m.set_next_command_set_to_receive(nextCommandToReceive.value);
@@ -184,7 +188,7 @@ namespace rwe
             delay = std::chrono::duration_cast<std::chrono::milliseconds>(sendTime - *endpoint.lastReceiveTime);
         }
 
-        auto message = createProtoMessage(currentSceneTime, endpoint.nextCommandToSend, endpoint.nextCommandToReceive, delay, endpoint.sendBuffer);
+        auto message = createProtoMessage(localPlayerId, currentSceneTime, endpoint.nextCommandToSend, endpoint.nextCommandToReceive, delay, endpoint.sendBuffer);
         message.SerializeToArray(messageBuffer.data(), messageBuffer.size());
         socket.send_to(boost::asio::buffer(messageBuffer.data(), message.ByteSize()), endpoint.endpoint);
 
@@ -220,6 +224,12 @@ namespace rwe
         EndpointInfo& endpoint = *endpointIt;
 
         const auto& message = outerMessage.game_update();
+
+        if (message.player_id() != endpoint.playerId.value)
+        {
+            spdlog::get("rwe")->error("Player {} endpoint sent wrong player ID: {}", endpoint.playerId.value, message.player_id());
+            return;
+        }
 
         spdlog::get("rwe")->debug("Received ack to {0} and {1} commands starting at {2}", message.next_command_set_to_receive(), message.command_set_size(), message.next_command_set_to_send());
 

@@ -188,7 +188,7 @@ namespace rwe
         }
 
         auto localEndpoint = *resolver.resolve(boost::asio::ip::udp::resolver::query(gameParameters.localNetworkInterface, gameParameters.localNetworkPort));
-        auto gameNetworkService = std::make_unique<GameNetworkService>(localEndpoint, endpointInfos, playerCommandService.get());
+        auto gameNetworkService = std::make_unique<GameNetworkService>(*localPlayerId, localEndpoint, endpointInfos, playerCommandService.get());
 
         RenderService worldRenderService(sceneContext.graphics, sceneContext.shaders, worldCamera);
         UiRenderService worldUiRenderService(sceneContext.graphics, sceneContext.shaders, worldUiCamera);
