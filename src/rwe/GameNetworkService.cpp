@@ -115,7 +115,7 @@ namespace rwe
     {
         if (error)
         {
-            // TODO: error handling here
+            spdlog::get("rwe")->error("Boost error on receive: {}", error);
             listenForNextMessage();
             return;
         }
@@ -164,7 +164,7 @@ namespace rwe
         sendTimer.async_wait([this](const boost::system::error_code& error) {
             if (error)
             {
-                // TODO: log this
+                spdlog::get("rwe")->error("Boost error while waiting on timer: {}", error);
                 return;
             }
 
@@ -205,7 +205,12 @@ namespace rwe
     void GameNetworkService::receive(std::size_t receivedBytes)
     {
         auto receiveTime = getTimestamp();
-        spdlog::get("rwe")->debug("Received from endpoint: {0}:{1}", currentRemoteEndpoint.address().to_string(), currentRemoteEndpoint.port());
+        spdlog::get("rwe")->debug("Received {} bytes from endpoint: {}:{}", receivedBytes, currentRemoteEndpoint.address().to_string(), currentRemoteEndpoint.port());
+
+        if (receivedBytes == messageBuffer.size())
+        {
+            spdlog::get("rwe")->warn("Received {} bytes, which filled the entire message buffer!!", receivedBytes);
+        }
 
         auto endpointIt = std::find_if(endpoints.begin(), endpoints.end(), [this](const auto& e) { return currentRemoteEndpoint == e.endpoint; });
         if (endpointIt == endpoints.end())
