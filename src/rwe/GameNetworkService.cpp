@@ -126,6 +126,7 @@ namespace rwe
     }
 
     proto::NetworkMessage createProtoMessage(
+        int packetId,
         PlayerId playerId,
         SceneTime currentSceneTime,
         SequenceNumber nextCommandToSend,
@@ -135,6 +136,7 @@ namespace rwe
     {
         proto::NetworkMessage outerMessage;
         auto& m = *outerMessage.mutable_game_update();
+        m.set_packet_id(packetId);
         m.set_player_id(playerId.value);
         m.set_current_scene_time(currentSceneTime.value);
         m.set_next_command_set_to_send(nextCommandToSend.value);
@@ -180,7 +182,8 @@ namespace rwe
 
     void GameNetworkService::send(GameNetworkService::EndpointInfo& endpoint)
     {
-        spdlog::get("rwe")->debug("Sending to endpoint: {0}:{1}", endpoint.endpoint.address().to_string(), endpoint.endpoint.port());
+        auto packetId = uniform_dist(gen);
+        spdlog::get("rwe")->debug("Sending packet ID {} to endpoint: {}:{}", packetId, endpoint.endpoint.address().to_string(), endpoint.endpoint.port());
         std::chrono::milliseconds delay(0);
         auto sendTime = getTimestamp();
         if (endpoint.lastReceiveTime)
@@ -188,7 +191,7 @@ namespace rwe
             delay = std::chrono::duration_cast<std::chrono::milliseconds>(sendTime - *endpoint.lastReceiveTime);
         }
 
-        auto message = createProtoMessage(localPlayerId, currentSceneTime, endpoint.nextCommandToSend, endpoint.nextCommandToReceive, delay, endpoint.sendBuffer);
+        auto message = createProtoMessage(packetId, localPlayerId, currentSceneTime, endpoint.nextCommandToSend, endpoint.nextCommandToReceive, delay, endpoint.sendBuffer);
         message.SerializeToArray(messageBuffer.data(), messageBuffer.size());
         socket.send_to(boost::asio::buffer(messageBuffer.data(), message.ByteSize()), endpoint.endpoint);
 
@@ -225,6 +228,7 @@ namespace rwe
 
         const auto& message = outerMessage.game_update();
 
+        spdlog::get("rwe")->debug("Packet received with ID {}", message.packet_id());
         if (message.player_id() != endpoint.playerId.value)
         {
             spdlog::get("rwe")->error("Player {} endpoint sent wrong player ID: {}", endpoint.playerId.value, message.player_id());

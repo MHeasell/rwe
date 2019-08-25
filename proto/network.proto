@@ -127,6 +127,7 @@ message GameUpdateMessage
     required int32 current_scene_time = 4;
     repeated PlayerCommandSet command_set = 5;
     required uint32 player_id = 6;
+    required int32 packet_id = 7;
 }
 
 message NetworkMessage

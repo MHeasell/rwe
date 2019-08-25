@@ -6,6 +6,7 @@
 #include <deque>
 #include <future>
 #include <network.pb.h>
+#include <random>
 #include <rwe/OpaqueId.h>
 #include <rwe/OpaqueUnit.h>
 #include <rwe/PlayerCommand.h>
@@ -66,6 +67,9 @@ namespace rwe
         };
 
     private:
+        std::random_device rd;
+        std::default_random_engine gen{rd()};
+        std::uniform_int_distribution<int> uniform_dist{};
         PlayerId localPlayerId;
         boost::asio::ip::udp::endpoint localEndpoint;
 
