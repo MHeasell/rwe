@@ -60,7 +60,7 @@ namespace rwe
         {
             UnitMesh mesh;
             SelectionMesh selectionMesh;
-            float height;
+            SimScalar height;
         };
 
         UnitMeshInfo loadUnitMesh(const std::string& name, const PlayerColorIndex& teamColor);

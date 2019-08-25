@@ -5,6 +5,7 @@
 #include <rwe/_3do.h>
 #include <rwe/fixed_point.h>
 #include <rwe/geometry/CollisionMesh.h>
+#include <rwe/math/Vector3f.h>
 #include <rwe/math/rwe_math.h>
 #include <rwe/rwe_string.h>
 #include <rwe/vertex_height.h>
@@ -223,7 +224,10 @@ namespace rwe
     UnitMesh MeshService::unitMeshFrom3do(const _3do::Object& o, const PlayerColorIndex& teamColor)
     {
         UnitMesh m;
-        m.origin = vertexToVector(_3do::Vertex(o.x, o.y, o.z));
+        m.origin = Vector3x<SimScalar>(
+            simScalarFromFixed(o.x),
+            simScalarFromFixed(o.y),
+            -simScalarFromFixed(o.z)); // flip to convert from left-handed to right-handed
         m.name = o.name;
         auto mesh = meshFrom3do(o, teamColor);
         m.mesh = std::make_shared<ShaderMesh>(convertMesh(mesh));
@@ -250,7 +254,7 @@ namespace rwe
         auto selectionMesh = selectionMeshFrom3do(objects.front());
         auto unitMesh = unitMeshFrom3do(objects.front(), teamColor);
         auto unitHeight = findHighestVertex(objects.front()).y;
-        return UnitMeshInfo{std::move(unitMesh), std::move(selectionMesh), fromFixedPoint(unitHeight)};
+        return UnitMeshInfo{std::move(unitMesh), std::move(selectionMesh), simScalarFromFixed(unitHeight)};
     }
 
     SharedTextureHandle MeshService::getMeshTextureAtlas()

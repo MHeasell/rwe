@@ -264,9 +264,14 @@ namespace rwe
         /** Anti-clockwise rotation about the X axis. */
         static Matrix4x rotationX(Val angle)
         {
+            return rotationX(std::sin(angle), std::cos(angle));
+        }
+
+        static Matrix4x rotationX(Val sinAngle, Val cosAngle)
+        {
             Matrix4x m;
-            auto s = std::sin(angle);
-            auto c = std::cos(angle);
+            auto s = sinAngle;
+            auto c = cosAngle;
 
             m.data[0] = Val(1);
             m.data[1] = Val(0);
@@ -330,9 +335,14 @@ namespace rwe
         /** Anti-clockwise rotation about the Z axis. */
         static Matrix4x rotationZ(Val angle)
         {
+            return rotationZ(std::sin(angle), std::cos(angle));
+        }
+
+        static Matrix4x rotationZ(Val sinAngle, Val cosAngle)
+        {
             Matrix4x m;
-            auto s = std::sin(angle);
-            auto c = std::cos(angle);
+            auto s = sinAngle;
+            auto c = cosAngle;
 
             m.data[0] = c;
             m.data[1] = s;
@@ -360,6 +370,11 @@ namespace rwe
         static Matrix4x rotationXYZ(const Vector3x<Val>& angles)
         {
             return rotationZ(angles.z) * rotationY(angles.y) * rotationX(angles.x);
+        }
+
+        static Matrix4x rotationZXY(Val sinX, Val cosX, Val sinY, Val cosY, Val sinZ, Val cosZ)
+        {
+            return rotationY(sinY, cosY) * rotationX(sinX, cosX) * rotationZ(sinZ, cosZ);
         }
 
         static Matrix4x rotationZXY(const Vector3x<Val>& angles)

@@ -9,22 +9,22 @@ namespace rwe
     {
         SECTION("packs trivial positive values")
         {
-            float a = 5; // 0x0005
-            float b = 3; // 0x0003
+            auto a = 5_ss; // 0x0005
+            auto b = 3_ss; // 0x0003
             REQUIRE(packCoords(a, b) == 0x00050003);
         }
 
         SECTION("packs negative values")
         {
-            float a = -5; // 0xfffb
-            float b = -3; // 0xfffd
+            auto a = -5_ss; // 0xfffb
+            auto b = -3_ss; // 0xfffd
             REQUIRE(packCoords(a, b) == 0xfffbfffd);
         }
 
         SECTION("packs very low negative values")
         {
-            float a = -28675; // 0x8ffd
-            float b = -24412; // 0xa0a4
+            auto a = -28675_ss; // 0x8ffd
+            auto b = -24412_ss; // 0xa0a4
             REQUIRE(packCoords(a, b) == 0x8ffda0a4);
         }
     }
@@ -33,8 +33,8 @@ namespace rwe
     {
         rc::prop("pack followed by unpack is the identity", [](int16_t a, int16_t b) {
             // all int16 values can be represented exactly by floats
-            auto fA = static_cast<float>(a);
-            auto fB = static_cast<float>(b);
+            auto fA = SimScalar(a);
+            auto fB = SimScalar(b);
 
             auto result = unpackCoords(packCoords(fA, fB));
 

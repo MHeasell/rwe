@@ -14,15 +14,15 @@ namespace rwe
     {
     };
 
-    using UnitWeaponAttackTarget = std::variant<UnitId, Vector3f>;
+    using UnitWeaponAttackTarget = std::variant<UnitId, SimVector>;
 
     struct UnitWeaponStateAttacking
     {
         struct AimInfo
         {
             const CobThread* thread;
-            float lastHeading;
-            float lastPitch;
+            SimAngle lastHeading;
+            SimAngle lastPitch;
         };
 
         /** The target the weapon is currently trying to shoot at. */
@@ -39,9 +39,9 @@ namespace rwe
 
     struct UnitWeapon
     {
-        float maxRange;
+        SimScalar maxRange;
 
-        float reloadTime;
+        SimScalar reloadTime;
 
         bool startSmoke;
         bool endSmoke;
@@ -58,25 +58,25 @@ namespace rwe
         /** The game time at which the weapon next becomes ready to fire. */
         GameTime readyTime{0};
 
-        float tolerance;
+        SimAngle tolerance;
 
-        float pitchTolerance;
+        SimAngle pitchTolerance;
 
         Vector3f color;
         Vector3f color2;
 
         /** Projectile velocity in pixels/tick. */
-        float velocity;
+        SimScalar velocity;
 
         /** Beam duration in ticks. */
-        float duration;
+        SimScalar duration;
 
         /** If true, the weapon only fires on command and does not auto-target. */
         bool commandFire;
 
         std::unordered_map<std::string, unsigned int> damage;
 
-        float damageRadius;
+        SimScalar damageRadius;
 
         /** The internal state of the weapon. */
         UnitWeaponState state{UnitWeaponStateIdle()};

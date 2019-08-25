@@ -19,5 +19,15 @@ namespace rwe
         {
             return static_cast<float>(value) / 65536.0f;
         }
+
+        SimScalar toWorldDistance() const
+        {
+            return SimScalar(toFloat());
+        }
+
+        static CobPosition fromWorldDistance(SimScalar d)
+        {
+            return CobPosition(d.value * 65536.0f);
+        }
     };
 }

@@ -10,9 +10,9 @@ namespace rwe
         CobAngularSpeed() = default;
         explicit CobAngularSpeed(ValueType value) : OpaqueId(value) {}
 
-        float toFloat() const
+        SimScalar toSimScalar() const
         {
-            return static_cast<float>(value) * (360.0f / 65536.0f);
+            return SimScalar(value);
         }
     };
 }

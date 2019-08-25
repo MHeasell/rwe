@@ -4,6 +4,7 @@
 #include <optional>
 #include <rwe/RadiansAngle.h>
 #include <rwe/ShaderMesh.h>
+#include <rwe/SimAngle.h>
 #include <rwe/math/Matrix4f.h>
 #include <rwe/math/Vector3f.h>
 #include <string>
@@ -17,27 +18,27 @@ namespace rwe
     {
         struct MoveOperation
         {
-            float targetPosition;
-            float speed;
+            SimScalar targetPosition;
+            SimScalar speed;
 
-            MoveOperation(float targetPosition, float speed);
+            MoveOperation(SimScalar targetPosition, SimScalar speed);
         };
 
         struct TurnOperation
         {
-            RadiansAngle targetAngle;
-            float speed;
+            SimAngle targetAngle;
+            SimScalar speed;
 
-            TurnOperation(RadiansAngle targetAngle, float speed);
+            TurnOperation(SimAngle targetAngle, SimScalar speed);
         };
 
         struct SpinOperation
         {
-            float currentSpeed;
-            float targetSpeed;
-            float acceleration;
+            SimScalar currentSpeed;
+            SimScalar targetSpeed;
+            SimScalar acceleration;
 
-            SpinOperation(float currentSpeed, float targetSpeed, float acceleration)
+            SpinOperation(SimScalar currentSpeed, SimScalar targetSpeed, SimScalar acceleration)
                 : currentSpeed(currentSpeed),
                   targetSpeed(targetSpeed),
                   acceleration(acceleration)
@@ -47,10 +48,10 @@ namespace rwe
 
         struct StopSpinOperation
         {
-            float currentSpeed;
-            float deceleration;
+            SimScalar currentSpeed;
+            SimScalar deceleration;
 
-            StopSpinOperation(float currentSpeed, float deceleration)
+            StopSpinOperation(SimScalar currentSpeed, SimScalar deceleration)
                 : currentSpeed(currentSpeed),
                   deceleration(deceleration)
             {
@@ -60,13 +61,15 @@ namespace rwe
         using TurnOperationUnion = std::variant<TurnOperation, SpinOperation, StopSpinOperation>;
 
         std::string name;
-        Vector3f origin;
+        Vector3x<SimScalar> origin;
         std::shared_ptr<ShaderMesh> mesh;
         std::vector<UnitMesh> children;
         bool visible{true};
         bool shaded{true};
-        Vector3f offset{0.0f, 0.0f, 0.0f};
-        Vector3f rotation{0.0f, 0.0f, 0.0f};
+        Vector3x<SimScalar> offset{0_ss, 0_ss, 0_ss};
+        SimAngle rotationX{0};
+        SimAngle rotationY{0};
+        SimAngle rotationZ{0};
 
         std::optional<MoveOperation> xMoveOperation;
         std::optional<MoveOperation> yMoveOperation;
@@ -80,10 +83,10 @@ namespace rwe
 
         std::optional<std::reference_wrapper<UnitMesh>> find(const std::string& pieceName);
 
-        std::optional<Matrix4f> getPieceTransform(const std::string& pieceName) const;
+        std::optional<Matrix4x<SimScalar>> getPieceTransform(const std::string& pieceName) const;
 
-        Matrix4f getTransform() const;
+        Matrix4x<SimScalar> getTransform() const;
 
-        void update(float dt);
+        void update(SimScalar dt);
     };
 }

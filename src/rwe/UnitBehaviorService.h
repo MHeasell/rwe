@@ -1,9 +1,9 @@
 #pragma once
 
+#include <rwe/SimVector.h>
 #include <rwe/UnitFactory.h>
 #include <rwe/UnitId.h>
 #include <rwe/UnitOrder.h>
-#include <rwe/math/Vector3f.h>
 #include <rwe/pathfinding/PathFindingService.h>
 
 namespace rwe
@@ -24,11 +24,11 @@ namespace rwe
         void update(UnitId unitId);
 
         // FIXME: shouldn't really be public
-        Vector3f getSweetSpot(UnitId id);
-        std::optional<Vector3f> tryGetSweetSpot(UnitId id);
+        SimVector getSweetSpot(UnitId id);
+        std::optional<SimVector> tryGetSweetSpot(UnitId id);
 
     private:
-        static std::pair<float, float> computeHeadingAndPitch(float rotation, const Vector3f& from, const Vector3f& to);
+        static std::pair<SimAngle, SimAngle> computeHeadingAndPitch(SimAngle rotation, const SimVector& from, const SimVector& to);
 
         /** Returns true if the order has been completed. */
         bool handleOrder(UnitId unitId, const UnitOrder& moveOrder);
@@ -52,7 +52,7 @@ namespace rwe
         bool followPath(Unit& unit, PathFollowingInfo& path);
 
         void updateWeapon(UnitId id, unsigned int weaponIndex);
-        void tryFireWeapon(UnitId id, unsigned int weaponIndex, const Vector3f& targetPosition);
+        void tryFireWeapon(UnitId id, unsigned int weaponIndex, const SimVector& targetPosition);
 
         void applyUnitSteering(UnitId id);
         void updateUnitRotation(UnitId id);
@@ -60,7 +60,7 @@ namespace rwe
 
         void updateUnitPosition(UnitId unitId);
 
-        bool tryApplyMovementToPosition(UnitId id, const Vector3f& newPosition);
+        bool tryApplyMovementToPosition(UnitId id, const SimVector& newPosition);
 
         std::string getAimScriptName(unsigned int weaponIndex) const;
         std::string getAimFromScriptName(unsigned int weaponIndex) const;
@@ -69,25 +69,25 @@ namespace rwe
 
         std::optional<int> runCobQuery(UnitId id, const std::string& name);
 
-        Vector3f getAimingPoint(UnitId id, unsigned int weaponIndex);
+        SimVector getAimingPoint(UnitId id, unsigned int weaponIndex);
 
-        Vector3f getFiringPoint(UnitId id, unsigned int weaponIndex);
+        SimVector getFiringPoint(UnitId id, unsigned int weaponIndex);
 
-        Vector3f getNanoPoint(UnitId id);
+        SimVector getNanoPoint(UnitId id);
 
-        Vector3f getPiecePosition(UnitId id, unsigned int pieceId);
+        SimVector getPiecePosition(UnitId id, unsigned int pieceId);
 
-        float getPieceXZRotation(UnitId id, unsigned int pieceId);
+        SimAngle getPieceXZRotation(UnitId id, unsigned int pieceId);
 
         struct BuildPieceInfo
         {
-            Vector3f position;
-            float rotation;
+            SimVector position;
+            SimAngle rotation;
         };
 
         BuildPieceInfo getBuildPieceInfo(UnitId id);
 
-        std::optional<Vector3f> getTargetPosition(const UnitWeaponAttackTarget& target);
+        std::optional<SimVector> getTargetPosition(const UnitWeaponAttackTarget& target);
 
         MovingStateGoal attackTargetToMovingStateGoal(const AttackTarget& target);
     };

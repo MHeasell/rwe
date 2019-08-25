@@ -12,6 +12,9 @@
 #include <rwe/MovementClassId.h>
 #include <rwe/PlayerId.h>
 #include <rwe/SelectionMesh.h>
+#include <rwe/SimAngle.h>
+#include <rwe/SimScalar.h>
+#include <rwe/SimVector.h>
 #include <rwe/UnitFireOrders.h>
 #include <rwe/UnitMesh.h>
 #include <rwe/UnitOrder.h>
@@ -28,12 +31,12 @@ namespace rwe
     {
         UnitPath path;
         GameTime pathCreationTime;
-        std::vector<Vector3f>::const_iterator currentWaypoint;
+        std::vector<SimVector>::const_iterator currentWaypoint;
         explicit PathFollowingInfo(UnitPath&& path, GameTime creationTime)
             : path(std::move(path)), pathCreationTime(creationTime), currentWaypoint(this->path.waypoints.begin()) {}
     };
 
-    using MovingStateGoal = std::variant<Vector3f, DiscreteRect>;
+    using MovingStateGoal = std::variant<SimVector, DiscreteRect>;
 
     struct MovingState
     {
@@ -64,11 +67,11 @@ namespace rwe
 
     using FactoryState = std::variant<FactoryStateIdle, FactoryStateBuilding>;
 
-    UnitOrder createMoveOrder(const Vector3f& destination);
+    UnitOrder createMoveOrder(const SimVector& destination);
 
     UnitOrder createAttackOrder(UnitId target);
 
-    UnitOrder createAttackGroundOrder(const Vector3f& target);
+    UnitOrder createAttackGroundOrder(const SimVector& target);
 
     enum class YardMapCell
     {
@@ -100,7 +103,7 @@ namespace rwe
         std::string name;
         std::string unitType;
         UnitMesh mesh;
-        Vector3f position;
+        SimVector position;
         std::unique_ptr<CobEnvironment> cobEnvironment;
         SelectionMesh selectionMesh;
         std::optional<AudioService::SoundHandle> selectionSound;
@@ -115,46 +118,46 @@ namespace rwe
         /**
          * The height of the unit. Typically computed from the mesh.
          */
-        float height;
+        SimScalar height;
 
         /**
          * Anticlockwise rotation of the unit around the Y axis in radians.
          * The other two axes of rotation are normally determined
          * by the normal of the terrain the unit is standing on.
          */
-        float rotation{0.0f};
+        SimAngle rotation{0};
 
 
         /**
          * Rate at which the unit turns in rads/tick.
          */
-        float turnRate;
+        SimScalar turnRate;
 
         /**
          * Rate at which the unit is travelling forwards in game units/tick.
          */
-        float currentSpeed{0.0f};
+        SimScalar currentSpeed{0};
 
         /**
          * Maximum speed the unit can travel forwards in game units/tick.
          */
-        float maxSpeed;
+        SimScalar maxSpeed;
 
         /**
          * Speed at which the unit accelerates in game units/tick.
          */
-        float acceleration;
+        SimScalar acceleration;
 
         /**
          * Speed at which the unit brakes in game units/tick.
          */
-        float brakeRate;
+        SimScalar brakeRate;
 
         /** The angle we are trying to steer towards. */
-        float targetAngle{0.0f};
+        SimAngle targetAngle{0};
 
         /** The speed we are trying to accelerate/decelerate to */
-        float targetSpeed{0.0f};
+        SimScalar targetSpeed{0};
 
         std::optional<MovementClassId> movementClass;
 
@@ -234,9 +237,9 @@ namespace rwe
 
         Metal extractsMetal;
 
-        static float toRotation(const Vector3f& direction);
+        static SimAngle toRotation(const SimVector& direction);
 
-        static Vector3f toDirection(float rotation);
+        static SimVector toDirection(SimAngle rotation);
 
         Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, SelectionMesh&& selectionMesh);
 
@@ -259,17 +262,17 @@ namespace rwe
 
         bool isCommander() const;
 
-        void moveObject(const std::string& pieceName, Axis axis, float targetPosition, float speed);
+        void moveObject(const std::string& pieceName, Axis axis, SimScalar targetPosition, SimScalar speed);
 
-        void moveObjectNow(const std::string& pieceName, Axis axis, float targetPosition);
+        void moveObjectNow(const std::string& pieceName, Axis axis, SimScalar targetPosition);
 
-        void turnObject(const std::string& pieceName, Axis axis, RadiansAngle targetAngle, float speed);
+        void turnObject(const std::string& pieceName, Axis axis, SimAngle targetAngle, SimScalar speed);
 
-        void turnObjectNow(const std::string& pieceName, Axis axis, RadiansAngle targetAngle);
+        void turnObjectNow(const std::string& pieceName, Axis axis, SimAngle targetAngle);
 
-        void spinObject(const std::string& pieceName, Axis axis, float speed, float acceleration);
+        void spinObject(const std::string& pieceName, Axis axis, SimScalar speed, SimScalar acceleration);
 
-        void stopSpinObject(const std::string& pieceName, Axis axis, float deceleration);
+        void stopSpinObject(const std::string& pieceName, Axis axis, SimScalar deceleration);
 
         bool isMoveInProgress(const std::string& pieceName, Axis axis) const;
 
@@ -296,12 +299,12 @@ namespace rwe
         void addOrder(const UnitOrder& order);
 
         void setWeaponTarget(unsigned int weaponIndex, UnitId target);
-        void setWeaponTarget(unsigned int weaponIndex, const Vector3f& target);
+        void setWeaponTarget(unsigned int weaponIndex, const SimVector& target);
         void clearWeaponTarget(unsigned int weaponIndex);
         void clearWeaponTargets();
 
-        Matrix4f getTransform() const;
-        Matrix4f getInverseTransform() const;
+        Matrix4x<SimScalar> getTransform() const;
+        Matrix4x<SimScalar> getInverseTransform() const;
 
         bool isSelectableBy(PlayerId player) const;
 

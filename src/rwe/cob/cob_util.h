@@ -1,13 +1,14 @@
 #pragma once
 
 #include <cstdint>
+#include <rwe/SimScalar.h>
 #include <utility>
 
 namespace rwe
 {
-    uint32_t packCoords(float x, float z);
+    uint32_t packCoords(SimScalar x, SimScalar z);
 
-    std::pair<float, float> unpackCoords(uint32_t xz);
+    std::pair<SimScalar, SimScalar> unpackCoords(uint32_t xz);
 
     int cobAtan(int a, int b);
 }

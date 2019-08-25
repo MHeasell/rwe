@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <rwe/GameTime.h>
+#include <rwe/SimVector.h>
 #include <rwe/SpriteSeries.h>
 #include <rwe/math/Vector3f.h>
 
@@ -9,7 +10,7 @@ namespace rwe
 {
     struct Explosion
     {
-        Vector3f position;
+        SimVector position;
         std::shared_ptr<SpriteSeries> animation;
         GameTime startTime;
 

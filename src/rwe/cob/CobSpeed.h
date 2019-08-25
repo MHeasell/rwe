@@ -14,5 +14,10 @@ namespace rwe
         {
             return static_cast<float>(value) / 65536.0f;
         }
+
+        SimScalar toSimScalar() const
+        {
+            return SimScalar(toFloat());
+        }
     };
 }

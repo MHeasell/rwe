@@ -1,11 +1,11 @@
 #pragma once
 
-#include <rwe/math/Vector3f.h>
+#include <rwe/SimVector.h>
 
 namespace rwe
 {
     struct UnitPath
     {
-        std::vector<Vector3f> waypoints;
+        std::vector<SimVector> waypoints;
     };
 }

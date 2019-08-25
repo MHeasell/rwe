@@ -21,6 +21,7 @@
 #include <rwe/SceneContext.h>
 #include <rwe/SceneManager.h>
 #include <rwe/SceneTime.h>
+#include <rwe/SimScalar.h>
 #include <rwe/TextureService.h>
 #include <rwe/UiRenderService.h>
 #include <rwe/Unit.h>
@@ -153,7 +154,7 @@ namespace rwe
     class GameScene : public SceneManager::Scene
     {
     public:
-        static constexpr float SecondsPerTick = static_cast<float>(SceneManager::TickInterval) / 1000.0f;
+        static inline const SimScalar SecondsPerTick = SimScalar(SceneManager::TickInterval) / 1000_ss;
 
         static constexpr int GuiSizeLeft = 128;
         static constexpr int GuiSizeRight = 0;
@@ -286,9 +287,9 @@ namespace rwe
 
         void update() override;
 
-        std::optional<UnitId> spawnUnit(const std::string& unitType, PlayerId owner, const Vector3f& position);
+        std::optional<UnitId> spawnUnit(const std::string& unitType, PlayerId owner, const SimVector& position);
 
-        void spawnCompletedUnit(const std::string& unitType, PlayerId owner, const Vector3f& position);
+        void spawnCompletedUnit(const std::string& unitType, PlayerId owner, const SimVector& position);
 
         void setCameraPosition(const Vector3f& newPosition);
 
@@ -298,13 +299,13 @@ namespace rwe
 
         void hideObject(UnitId unitId, const std::string& name);
 
-        void moveObject(UnitId unitId, const std::string& name, Axis axis, float position, float speed);
+        void moveObject(UnitId unitId, const std::string& name, Axis axis, SimScalar position, SimScalar speed);
 
-        void moveObjectNow(UnitId unitId, const std::string& name, Axis axis, float position);
+        void moveObjectNow(UnitId unitId, const std::string& name, Axis axis, SimScalar position);
 
-        void turnObject(UnitId unitId, const std::string& name, Axis axis, RadiansAngle angle, float speed);
+        void turnObject(UnitId unitId, const std::string& name, Axis axis, SimAngle angle, SimScalar speed);
 
-        void turnObjectNow(UnitId unitId, const std::string& name, Axis axis, RadiansAngle angle);
+        void turnObjectNow(UnitId unitId, const std::string& name, Axis axis, SimAngle angle);
 
         bool isPieceMoving(UnitId unitId, const std::string& name, Axis axis) const;
 
@@ -320,7 +321,7 @@ namespace rwe
 
         void playSoundAt(const Vector3f& position, const AudioService::SoundHandle& sound);
 
-        DiscreteRect computeFootprintRegion(const Vector3f& position, unsigned int footprintX, unsigned int footprintZ) const;
+        DiscreteRect computeFootprintRegion(const SimVector& position, unsigned int footprintX, unsigned int footprintZ) const;
 
         void moveUnitOccupiedArea(const DiscreteRect& oldRect, const DiscreteRect& newRect, UnitId unitId);
 
@@ -330,7 +331,7 @@ namespace rwe
 
         void doLaserImpact(std::optional<LaserProjectile>& laser, ImpactType impactType);
 
-        void createLightSmoke(const Vector3f& position);
+        void createLightSmoke(const SimVector& position);
 
         void activateUnit(UnitId unitId);
         void deactivateUnit(UnitId unitId);
@@ -364,7 +365,7 @@ namespace rwe
 
         std::optional<UnitId> getFirstCollidingUnit(const Ray3f& ray) const;
 
-        std::optional<Vector3f> getMouseTerrainCoordinate() const;
+        std::optional<SimVector> getMouseTerrainCoordinate() const;
 
         void localPlayerIssueUnitOrder(UnitId unitId, const UnitOrder& order);
 
@@ -404,13 +405,13 @@ namespace rwe
 
         void updateExplosions();
 
-        void applyDamageInRadius(const Vector3f& position, float radius, const LaserProjectile& laser);
+        void applyDamageInRadius(const SimVector& position, SimScalar radius, const LaserProjectile& laser);
 
         void applyDamage(UnitId unitId, unsigned int damagePoints);
 
         void deleteDeadUnits();
 
-        BoundingBox3f createBoundingBox(const Unit& unit) const;
+        BoundingBox3x<SimScalar> createBoundingBox(const Unit& unit) const;
 
         void killUnit(UnitId unitId);
 

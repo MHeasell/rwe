@@ -9,7 +9,7 @@ namespace rwe
         std::vector<TextureRegion>&& tileGraphics,
         Grid<size_t>&& tiles,
         Grid<unsigned char>&& heights,
-        float seaLevel)
+        SimScalar seaLevel)
         : tileGraphics(std::move(tileGraphics)), tiles(std::move(tiles)), heights(std::move(heights)), seaLevel(seaLevel)
     {
     }
@@ -25,105 +25,105 @@ namespace rwe
         return tiles;
     }
 
-    Point MapTerrain::worldToTileCoordinate(const Vector3f& position) const
+    Point MapTerrain::worldToTileCoordinate(const SimVector& position) const
     {
         auto widthInWorldUnits = getWidthInWorldUnits();
         auto heightInWorldUnits = getHeightInWorldUnits();
 
-        auto newX = (position.x + (widthInWorldUnits / 2.0f)) / TileWidthInWorldUnits;
-        auto newY = (position.z + (heightInWorldUnits / 2.0f)) / TileHeightInWorldUnits;
+        auto newX = (position.x + (widthInWorldUnits / 2_ss)) / TileWidthInWorldUnits;
+        auto newY = (position.z + (heightInWorldUnits / 2_ss)) / TileHeightInWorldUnits;
 
-        return Point(static_cast<int>(newX), static_cast<int>(newY));
+        return Point(static_cast<int>(newX.value), static_cast<int>(newY.value));
     }
 
-    Vector3f MapTerrain::tileCoordinateToWorldCorner(int x, int y) const
+    SimVector MapTerrain::tileCoordinateToWorldCorner(int x, int y) const
     {
         auto widthInWorldUnits = getWidthInWorldUnits();
         auto heightInWorldUnits = getHeightInWorldUnits();
 
-        auto worldX = (x * TileWidthInWorldUnits) - (widthInWorldUnits / 2.0f);
-        auto worldY = (y * TileHeightInWorldUnits) - (heightInWorldUnits / 2.0f);
+        auto worldX = (SimScalar(x) * TileWidthInWorldUnits) - (widthInWorldUnits / 2_ss);
+        auto worldY = (SimScalar(y) * TileHeightInWorldUnits) - (heightInWorldUnits / 2_ss);
 
-        return Vector3f(worldX, 0.0f, worldY);
+        return SimVector(worldX, 0_ss, worldY);
     }
 
-    Point MapTerrain::worldToHeightmapCoordinate(const Vector3f& position) const
+    Point MapTerrain::worldToHeightmapCoordinate(const SimVector& position) const
     {
         auto heightPos = worldToHeightmapSpace(position);
-        return Point(static_cast<int>(heightPos.x), static_cast<int>(heightPos.z));
+        return Point(static_cast<int>(heightPos.x.value), static_cast<int>(heightPos.z.value));
     }
 
-    Point MapTerrain::worldToHeightmapCoordinateNearest(const Vector3f& position) const
+    Point MapTerrain::worldToHeightmapCoordinateNearest(const SimVector& position) const
     {
         auto heightPos = worldToHeightmapSpace(position);
-        return Point(static_cast<int>(std::round(heightPos.x)), static_cast<int>(std::round(heightPos.z)));
+        return Point(roundToInt(heightPos.x), roundToInt(heightPos.z));
     }
 
-    Vector3f MapTerrain::heightmapIndexToWorldCorner(int x, int y) const
+    SimVector MapTerrain::heightmapIndexToWorldCorner(int x, int y) const
     {
-        return heightmapToWorldSpace(Vector3f(x, 0.0f, y));
+        return heightmapToWorldSpace(SimVector(SimScalar(x), 0_ss, SimScalar(y)));
     }
 
-    Vector3f MapTerrain::heightmapIndexToWorldCorner(Point p) const
+    SimVector MapTerrain::heightmapIndexToWorldCorner(Point p) const
     {
         return heightmapIndexToWorldCorner(p.x, p.y);
     }
 
-    Vector3f MapTerrain::heightmapIndexToWorldCenter(int x, int y) const
+    SimVector MapTerrain::heightmapIndexToWorldCenter(int x, int y) const
     {
-        return heightmapToWorldSpace(Vector3f(static_cast<float>(x) + 0.5f, 0.0f, static_cast<float>(y) + 0.5f));
+        return heightmapToWorldSpace(SimVector(SimScalar(x) + 0.5_ssf, 0_ss, SimScalar(y) + 0.5_ssf));
     }
 
-    Vector3f MapTerrain::heightmapIndexToWorldCenter(std::size_t x, std::size_t y) const
+    SimVector MapTerrain::heightmapIndexToWorldCenter(std::size_t x, std::size_t y) const
     {
-        return heightmapToWorldSpace(Vector3f(static_cast<float>(x) + 0.5f, 0.0f, static_cast<float>(y) + 0.5f));
+        return heightmapToWorldSpace(SimVector(SimScalar(x) + 0.5_ssf, 0_ss, SimScalar(y) + 0.5_ssf));
     }
 
-    Vector3f MapTerrain::heightmapIndexToWorldCenter(Point p) const
+    SimVector MapTerrain::heightmapIndexToWorldCenter(Point p) const
     {
         return heightmapIndexToWorldCenter(p.x, p.y);
     }
 
-    Vector3f MapTerrain::worldToHeightmapSpace(const Vector3f& v) const
+    SimVector MapTerrain::worldToHeightmapSpace(const SimVector& v) const
     {
         auto widthInWorldUnits = getWidthInWorldUnits();
         auto heightInWorldUnits = getHeightInWorldUnits();
-        auto heightX = (v.x + (widthInWorldUnits / 2.0f)) / HeightTileWidthInWorldUnits;
-        auto heightZ = (v.z + (heightInWorldUnits / 2.0f)) / HeightTileHeightInWorldUnits;
+        auto heightX = (v.x + (widthInWorldUnits / 2_ss)) / HeightTileWidthInWorldUnits;
+        auto heightZ = (v.z + (heightInWorldUnits / 2_ss)) / HeightTileHeightInWorldUnits;
 
-        return Vector3f(heightX, v.y, heightZ);
+        return SimVector(heightX, v.y, heightZ);
     }
 
-    Vector3f MapTerrain::heightmapToWorldSpace(const Vector3f& v) const
+    SimVector MapTerrain::heightmapToWorldSpace(const SimVector& v) const
     {
         auto widthInWorldUnits = getWidthInWorldUnits();
         auto heightInWorldUnits = getHeightInWorldUnits();
-        auto worldX = (v.x * HeightTileWidthInWorldUnits) - (widthInWorldUnits / 2.0f);
-        auto worldZ = (v.z * HeightTileHeightInWorldUnits) - (heightInWorldUnits / 2.0f);
+        auto worldX = (v.x * HeightTileWidthInWorldUnits) - (widthInWorldUnits / 2_ss);
+        auto worldZ = (v.z * HeightTileHeightInWorldUnits) - (heightInWorldUnits / 2_ss);
 
-        return Vector3f(worldX, v.y, worldZ);
+        return SimVector(worldX, v.y, worldZ);
     }
 
-    float MapTerrain::leftInWorldUnits() const
+    SimScalar MapTerrain::leftInWorldUnits() const
     {
-        return -((static_cast<float>(tiles.getWidth()) / 2.0f) * TileWidthInWorldUnits);
+        return -((SimScalar(tiles.getWidth()) / 2_ss) * TileWidthInWorldUnits);
     }
 
-    float MapTerrain::rightCutoffInWorldUnits() const
+    SimScalar MapTerrain::rightCutoffInWorldUnits() const
     {
-        auto right = (static_cast<float>(tiles.getWidth()) / 2.0f) * TileWidthInWorldUnits;
+        auto right = (SimScalar(tiles.getWidth()) / 2_ss) * TileWidthInWorldUnits;
         return right - TileWidthInWorldUnits;
     }
 
-    float MapTerrain::topInWorldUnits() const
+    SimScalar MapTerrain::topInWorldUnits() const
     {
-        return -((static_cast<float>(tiles.getHeight()) / 2.0f) * TileHeightInWorldUnits);
+        return -((SimScalar(tiles.getHeight()) / 2_ss) * TileHeightInWorldUnits);
     }
 
-    float MapTerrain::bottomCutoffInWorldUnits() const
+    SimScalar MapTerrain::bottomCutoffInWorldUnits() const
     {
-        auto bottom = (static_cast<float>(tiles.getHeight()) / 2.0f) * TileHeightInWorldUnits;
-        return bottom - (TileHeightInWorldUnits * 4);
+        auto bottom = (SimScalar(tiles.getHeight()) / 2_ss) * TileHeightInWorldUnits;
+        return bottom - (TileHeightInWorldUnits * 4_ss);
     }
 
     const Grid<unsigned char>& MapTerrain::getHeightMap() const
@@ -131,61 +131,61 @@ namespace rwe
         return heights;
     }
 
-    float MapTerrain::getWidthInWorldUnits() const
+    SimScalar MapTerrain::getWidthInWorldUnits() const
     {
-        return tiles.getWidth() * TileWidthInWorldUnits;
+        return SimScalar(tiles.getWidth()) * TileWidthInWorldUnits;
     }
 
-    float MapTerrain::getHeightInWorldUnits() const
+    SimScalar MapTerrain::getHeightInWorldUnits() const
     {
-        return tiles.getHeight() * TileHeightInWorldUnits;
+        return SimScalar(tiles.getHeight()) * TileHeightInWorldUnits;
     }
 
-    Vector3f MapTerrain::topLeftCoordinateToWorld(const Vector3f& pos) const
+    SimVector MapTerrain::topLeftCoordinateToWorld(const SimVector& pos) const
     {
-        return Vector3f(
-            pos.x - (getWidthInWorldUnits() / 2.0f),
+        return SimVector(
+            pos.x - (getWidthInWorldUnits() / 2_ss),
             pos.y,
-            pos.z - (getHeightInWorldUnits() / 2.0f));
+            pos.z - (getHeightInWorldUnits() / 2_ss));
     }
 
-    float MapTerrain::getHeightAt(float x, float z) const
+    SimScalar MapTerrain::getHeightAt(SimScalar x, SimScalar z) const
     {
-        auto tilePos = worldToHeightmapCoordinate(Vector3f(x, 0.0f, z));
+        auto tilePos = worldToHeightmapCoordinate(SimVector(x, 0_ss, z));
         if (
             tilePos.x < 0
             || static_cast<std::size_t>(tilePos.x) >= heights.getWidth() - 1
             || tilePos.y < 0
             || static_cast<std::size_t>(tilePos.y) >= heights.getHeight() - 1)
         {
-            return 0.0f;
+            return 0_ss;
         }
 
-        Line3f line(Vector3f(x, MaxHeight, z), Vector3f(x, MinHeight, z));
+        Line3x<SimScalar> line(SimVector(x, MaxHeight, z), SimVector(x, MinHeight, z));
         auto pos = intersectLine(line);
         if (!pos)
         {
-            return 0.0f;
+            return 0_ss;
         }
         return pos->y;
     }
 
-    std::optional<Vector3f> MapTerrain::intersectLine(const Line3f& line) const
+    std::optional<SimVector> MapTerrain::intersectLine(const Line3x<SimScalar>& line) const
     {
         auto heightmapPosition = worldToHeightmapSpace(line.start);
-        Point startCell(static_cast<int>(heightmapPosition.x), static_cast<int>(heightmapPosition.z));
+        Point startCell(static_cast<int>(heightmapPosition.x.value), static_cast<int>(heightmapPosition.z.value));
 
-        auto ray = Ray3f::fromLine(line);
+        auto ray = Ray3x<SimScalar>::fromLine(line);
 
-        int xDirection = ray.direction.x > 0 ? 1 : -1;
-        int zDirection = ray.direction.z > 0 ? 1 : -1;
-        float xPlaneOffset = (HeightTileWidthInWorldUnits / 2.0f) * xDirection;
-        float zPlaneOffset = (HeightTileHeightInWorldUnits / 2.0f) * zDirection;
+        auto xDirection = ray.direction.x > 0_ss ? 1 : -1;
+        auto zDirection = ray.direction.z > 0_ss ? 1 : -1;
+        auto xPlaneOffset = (HeightTileWidthInWorldUnits / 2_ss) * SimScalar(xDirection);
+        auto zPlaneOffset = (HeightTileHeightInWorldUnits / 2_ss) * SimScalar(zDirection);
 
         while (true)
         {
-            auto neighbourX = (heightmapPosition.x - startCell.x) > 0.5 ? 1 : -1;
-            auto neighbourY = (heightmapPosition.z - startCell.y) > 0.5 ? 1 : -1;
+            auto neighbourX = (heightmapPosition.x - SimScalar(startCell.x)) > 0.5_ssf ? 1 : -1;
+            auto neighbourY = (heightmapPosition.z - SimScalar(startCell.y)) > 0.5_ssf ? 1 : -1;
 
             // Due to floating-point precision issues,
             // when the line passes very close to a cell boundary
@@ -232,54 +232,59 @@ namespace rwe
 
             auto cellPos = heightmapIndexToWorldCenter(startCell);
 
-            Plane3f xPlane(Vector3f(cellPos.x + xPlaneOffset, 0.0f, 0.0f), Vector3f(1.0f, 0.0f, 0.0f));
-            float xIntersect = xPlane.intersect(ray).value_or(std::numeric_limits<float>::infinity());
+            Plane3x<SimScalar> xPlane(SimVector(cellPos.x + xPlaneOffset, 0_ss, 0_ss), SimVector(1_ss, 0_ss, 0_ss));
+            auto xIntersect = xPlane.intersect(ray);
 
-            Plane3f zPlane(Vector3f(0.0f, 0.0f, cellPos.z + zPlaneOffset), Vector3f(0.0f, 0.0f, 1.0f));
-            float zIntersect = zPlane.intersect(ray).value_or(std::numeric_limits<float>::infinity());
+            Plane3x<SimScalar> zPlane(SimVector(0_ss, 0_ss, cellPos.z + zPlaneOffset), SimVector(0_ss, 0_ss, 1_ss));
+            auto zIntersect = zPlane.intersect(ray);
 
-            if (xIntersect < zIntersect)
+            if (!xIntersect && !zIntersect)
             {
-                if (xIntersect > 1.0f)
+                return std::nullopt;
+            }
+
+            if (xIntersect && (!zIntersect || *xIntersect < *zIntersect))
+            {
+                if (*xIntersect > 1_ss)
                 {
                     return std::nullopt;
                 }
 
                 startCell.x += xDirection;
-                heightmapPosition.x += xDirection;
+                heightmapPosition.x += SimScalar(xDirection);
             }
             else
             {
-                if (zIntersect > 1.0f)
+                if (*zIntersect > 1_ss)
                 {
                     return std::nullopt;
                 }
 
                 startCell.y += zDirection;
-                heightmapPosition.z += zDirection;
+                heightmapPosition.z += SimScalar(zDirection);
             }
         }
     }
 
-    std::optional<Vector3f> MapTerrain::intersectWithHeightmapCell(const Line3f& line, int x, int y) const
+    std::optional<SimVector> MapTerrain::intersectWithHeightmapCell(const Line3x<SimScalar>& line, int x, int y) const
     {
         auto posTopLeft = heightmapIndexToWorldCorner(x, y);
-        posTopLeft.y = heights.get(x, y);
+        posTopLeft.y = SimScalar(heights.get(x, y));
 
         auto posTopRight = heightmapIndexToWorldCorner(x + 1, y);
-        posTopRight.y = heights.get(x + 1, y);
+        posTopRight.y = SimScalar(heights.get(x + 1, y));
 
         auto posBottomLeft = heightmapIndexToWorldCorner(x, y + 1);
-        posBottomLeft.y = heights.get(x, y + 1);
+        posBottomLeft.y = SimScalar(heights.get(x, y + 1));
 
         auto posBottomRight = heightmapIndexToWorldCorner(x + 1, y + 1);
-        posBottomRight.y = heights.get(x + 1, y + 1);
+        posBottomRight.y = SimScalar(heights.get(x + 1, y + 1));
 
-        float midHeight = (posTopLeft.y + posTopRight.y + posBottomLeft.y + posBottomRight.y) / 4.0f;
+        auto midHeight = (posTopLeft.y + posTopRight.y + posBottomLeft.y + posBottomRight.y) / 4_ss;
         auto posMiddle = heightmapIndexToWorldCenter(x, y);
         posMiddle.y = midHeight;
 
-        Triangle3f left, bottom, right, top;
+        Triangle3x<SimScalar> left, bottom, right, top;
 
         // For robust collision testing under floating point arithmetic,
         // we ensure that the direction of any edge shared by two triangles
@@ -289,17 +294,17 @@ namespace rwe
         // will intersect at least one of the triangles.
         if (std::abs(y - x) % 2 == 0) // checkerboard pattern
         {
-            left = Triangle3f(posTopLeft, posMiddle, posBottomLeft);
-            bottom = Triangle3f(posBottomLeft, posBottomRight, posMiddle);
-            right = Triangle3f(posBottomRight, posMiddle, posTopRight);
-            top = Triangle3f(posTopRight, posTopLeft, posMiddle);
+            left = Triangle3x<SimScalar>(posTopLeft, posMiddle, posBottomLeft);
+            bottom = Triangle3x<SimScalar>(posBottomLeft, posBottomRight, posMiddle);
+            right = Triangle3x<SimScalar>(posBottomRight, posMiddle, posTopRight);
+            top = Triangle3x<SimScalar>(posTopRight, posTopLeft, posMiddle);
         }
         else
         {
-            left = Triangle3f(posTopLeft, posBottomLeft, posMiddle);
-            bottom = Triangle3f(posBottomLeft, posMiddle, posBottomRight);
-            right = Triangle3f(posBottomRight, posTopRight, posMiddle);
-            top = Triangle3f(posTopRight, posMiddle, posTopLeft);
+            left = Triangle3x<SimScalar>(posTopLeft, posBottomLeft, posMiddle);
+            bottom = Triangle3x<SimScalar>(posBottomLeft, posMiddle, posBottomRight);
+            right = Triangle3x<SimScalar>(posBottomRight, posTopRight, posMiddle);
+            top = Triangle3x<SimScalar>(posTopRight, posMiddle, posTopLeft);
         }
 
         auto result = left.intersectLine(line);
@@ -310,7 +315,7 @@ namespace rwe
         return result;
     }
 
-    float MapTerrain::getSeaLevel() const
+    SimScalar MapTerrain::getSeaLevel() const
     {
         return seaLevel;
     }

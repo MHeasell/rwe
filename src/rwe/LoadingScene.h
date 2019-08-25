@@ -12,6 +12,7 @@
 #include <rwe/SceneContext.h>
 #include <rwe/SceneManager.h>
 #include <rwe/SideData.h>
+#include <rwe/SimVector.h>
 #include <rwe/TextureService.h>
 #include <rwe/UnitDatabase.h>
 #include <rwe/ViewportService.h>
@@ -134,9 +135,9 @@ namespace rwe
 
         std::vector<FeatureDefinition> getFeatures(TntArchive& tnt);
 
-        MapFeature createFeature(const Vector3f& pos, const FeatureDefinition& definition);
+        MapFeature createFeature(const SimVector& pos, const FeatureDefinition& definition);
 
-        Vector3f computeFeaturePosition(const MapTerrain& terrain, const FeatureDefinition& featureDefinition, std::size_t x, std::size_t y) const;
+        SimVector computeFeaturePosition(const MapTerrain& terrain, const FeatureDefinition& featureDefinition, std::size_t x, std::size_t y) const;
 
         const SideData& getSideData(const std::string& side) const;
 

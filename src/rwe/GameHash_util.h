@@ -25,8 +25,6 @@ namespace rwe
 
     GameHash computeHashOf(const Unit& u);
 
-    GameHash computeHashOf(const Vector3f& v);
-
     GameHash computeHashOf(const LaserProjectile& laser);
 
     GameHash computeHashOf(const IdleState&);
@@ -42,10 +40,16 @@ namespace rwe
     template <typename... Ts>
     GameHash combineHashes(const Ts&... items);
 
+    template <typename Val>
+    GameHash computeHashOf(const Vector3x<Val>& v)
+    {
+        return combineHashes(v.x, v.y, v.z);
+    }
+
     template <typename T, typename Tag>
     GameHash computeHashOf(const OpaqueId<T, Tag>& id)
     {
-        return GameHash(id.value);
+        return computeHashOf(id.value);
     }
 
     template <typename T>

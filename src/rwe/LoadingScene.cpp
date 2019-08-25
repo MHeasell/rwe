@@ -236,7 +236,7 @@ namespace rwe
 
         const auto& schema = ota.schemas.at(schemaIndex);
 
-        std::optional<Vector3f> humanStartPos;
+        std::optional<SimVector> humanStartPos;
 
         for (unsigned int i = 0; i < gameParameters.players.size(); ++i)
         {
@@ -256,7 +256,7 @@ namespace rwe
             }
             const auto& startPos = *startPosIt;
 
-            auto worldStartPos = gameScene->getTerrain().topLeftCoordinateToWorld(Vector3f(startPos.xPos, 0.0f, startPos.zPos));
+            auto worldStartPos = gameScene->getTerrain().topLeftCoordinateToWorld(SimVector(SimScalar(startPos.xPos), 0_ss, SimScalar(startPos.zPos)));
             worldStartPos.y = gameScene->getTerrain().getHeightAt(worldStartPos.x, worldStartPos.z);
 
             if (*gamePlayers[i] == *localPlayerId)
@@ -273,7 +273,7 @@ namespace rwe
             throw std::runtime_error("No human player!");
         }
 
-        gameScene->setCameraPosition(Vector3f(humanStartPos->x, 0.0f, humanStartPos->z));
+        gameScene->setCameraPosition(Vector3f(simScalarToFloat(humanStartPos->x), 0.0f, simScalarToFloat(humanStartPos->z)));
 
         return gameScene;
     }
@@ -302,7 +302,7 @@ namespace rwe
             std::move(tileTextures),
             std::move(dataGrid),
             std::move(heightGrid),
-            tnt.getHeader().seaLevel);
+            SimScalar(tnt.getHeader().seaLevel));
 
         const auto& schema = ota.schemas.at(schemaIndex);
 
@@ -323,7 +323,7 @@ namespace rwe
                         break;
                     default:
                         const auto& featureTemplate = featureTemplates[e.feature];
-                        Vector3f pos = computeFeaturePosition(simulation.terrain, featureTemplate, x, y);
+                        auto pos = computeFeaturePosition(simulation.terrain, featureTemplate, x, y);
                         auto feature = createFeature(pos, featureTemplate);
                         simulation.addFeature(std::move(feature));
                 }
@@ -334,7 +334,7 @@ namespace rwe
         for (const auto& f : schema.features)
         {
             const auto& featureTemplate = featureService->getFeatureDefinition(f.featureName);
-            Vector3f pos = computeFeaturePosition(simulation.terrain, featureTemplate, f.xPos, f.zPos);
+            auto pos = computeFeaturePosition(simulation.terrain, featureTemplate, f.xPos, f.zPos);
             auto feature = createFeature(pos, featureTemplate);
             simulation.addFeature(std::move(feature));
         }
@@ -433,12 +433,12 @@ namespace rwe
         return features;
     }
 
-    MapFeature LoadingScene::createFeature(const Vector3f& pos, const FeatureDefinition& definition)
+    MapFeature LoadingScene::createFeature(const SimVector& pos, const FeatureDefinition& definition)
     {
         MapFeature f;
         f.footprintX = definition.footprintX;
         f.footprintZ = definition.footprintZ;
-        f.height = definition.height;
+        f.height = SimScalar(definition.height);
         f.isBlocking = definition.blocking;
         f.isIndestructible = definition.indestructible;
         f.metal = definition.metal;
@@ -478,7 +478,7 @@ namespace rwe
         return Grid<unsigned char>(attrs.getWidth(), attrs.getHeight(), std::move(data));
     }
 
-    Vector3f LoadingScene::computeFeaturePosition(
+    SimVector LoadingScene::computeFeaturePosition(
         const MapTerrain& terrain,
         const FeatureDefinition& featureDefinition,
         std::size_t x,
@@ -493,10 +493,10 @@ namespace rwe
         }
 
         auto position = terrain.heightmapIndexToWorldCorner(x, y);
-        position.y = height;
+        position.y = SimScalar(height);
 
-        position.x += (featureDefinition.footprintX * MapTerrain::HeightTileWidthInWorldUnits) / 2.0f;
-        position.z += (featureDefinition.footprintZ * MapTerrain::HeightTileHeightInWorldUnits) / 2.0f;
+        position.x += (SimScalar(featureDefinition.footprintX) * MapTerrain::HeightTileWidthInWorldUnits) / 2_ss;
+        position.z += (SimScalar(featureDefinition.footprintZ) * MapTerrain::HeightTileHeightInWorldUnits) / 2_ss;
 
         return position;
     }

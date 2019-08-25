@@ -91,7 +91,7 @@ namespace rwe
         const std::string& unitType,
         PlayerId owner,
         const PlayerColorIndex& colorIndex,
-        const Vector3f& position)
+        const SimVector& position)
     {
         const auto& fbi = unitDatabase.getUnitInfo(unitType);
         const auto& soundClass = unitDatabase.getSoundClassOrDefault(fbi.soundCategory);
@@ -121,16 +121,16 @@ namespace rwe
         if (fbi.bmCode) // unit is mobile
         {
             // spawn the unit facing the other way
-            unit.rotation = Pif;
+            unit.rotation = HalfTurn;
         }
 
         // These units are per-tick.
         // We divide by two here because TA ticks are 1/30 of a second,
         // where as ours are 1/60 of a second.
-        unit.turnRate = (fbi.turnRate.value / 2.0f) * (Pif / 32768.0f); // also convert to rads
-        unit.maxSpeed = fbi.maxVelocity.value / 2.0f;
-        unit.acceleration = fbi.acceleration.value / 2.0f;
-        unit.brakeRate = fbi.brakeRate.value / 2.0f;
+        unit.turnRate = toWorldAnglePerTick(fbi.turnRate);
+        unit.maxSpeed = SimScalar(fbi.maxVelocity.value / 2.0f);
+        unit.acceleration = SimScalar(fbi.acceleration.value / 2.0f);
+        unit.brakeRate = SimScalar(fbi.brakeRate.value / 2.0f);
 
         unit.canAttack = fbi.canAttack;
 
@@ -308,12 +308,12 @@ namespace rwe
         const auto& tdf = unitDatabase.getWeapon(weaponType);
         UnitWeapon weapon;
 
-        weapon.maxRange = tdf.range;
-        weapon.reloadTime = tdf.reloadTime;
-        weapon.tolerance = toleranceToRadians(tdf.tolerance);
-        weapon.pitchTolerance = toleranceToRadians(tdf.pitchTolerance);
-        weapon.velocity = static_cast<float>(tdf.weaponVelocity) / 60.0f;
-        weapon.duration = tdf.duration * 60.0f * 2.0f; // duration seems to match better if doubled
+        weapon.maxRange = SimScalar(tdf.range);
+        weapon.reloadTime = SimScalar(tdf.reloadTime);
+        weapon.tolerance = SimAngle(tdf.tolerance);
+        weapon.pitchTolerance = SimAngle(tdf.pitchTolerance);
+        weapon.velocity = SimScalar(static_cast<float>(tdf.weaponVelocity) / 60.0f);
+        weapon.duration = SimScalar(tdf.duration * 60.0f * 2.0f); // duration seems to match better if doubled
         weapon.color = getLaserColor(tdf.color);
         weapon.color2 = getLaserColor(tdf.color2);
         weapon.commandFire = tdf.commandFire;
@@ -349,7 +349,7 @@ namespace rwe
             weapon.damage.insert_or_assign(toUpper(p.first), p.second);
         }
 
-        weapon.damageRadius = static_cast<float>(tdf.areaOfEffect) / 2.0f;
+        weapon.damageRadius = SimScalar(static_cast<float>(tdf.areaOfEffect) / 2.0f);
 
         return weapon;
     }

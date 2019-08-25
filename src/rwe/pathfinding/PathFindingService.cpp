@@ -53,12 +53,12 @@ namespace rwe
         if (path.path.size() == 1)
         {
             // The path is trivial, we are already at the goal.
-            return UnitPath{std::vector<Vector3f>{unit.position}};
+            return UnitPath{std::vector<SimVector>{unit.position}};
         }
 
         auto simplifiedPath = runSimplifyPath(path.path);
 
-        std::vector<Vector3f> waypoints;
+        std::vector<SimVector> waypoints;
         for (auto it = ++simplifiedPath.cbegin(); it != simplifiedPath.cend(); ++it)
         {
             waypoints.push_back(getWorldCenter(DiscreteRect(it->x, it->y, unit.footprintX, unit.footprintZ)));
@@ -67,7 +67,7 @@ namespace rwe
         return UnitPath{std::move(waypoints)};
     }
 
-    UnitPath PathFindingService::findPath(UnitId unitId, const Vector3f& destination)
+    UnitPath PathFindingService::findPath(UnitId unitId, const SimVector& destination)
     {
         const auto& unit = simulation->getUnit(unitId);
 
@@ -89,12 +89,12 @@ namespace rwe
         if (path.path.size() == 1)
         {
             // The path is trivial, we are already at the goal.
-            return UnitPath{std::vector<Vector3f>{destination}};
+            return UnitPath{std::vector<SimVector>{destination}};
         }
 
         auto simplifiedPath = runSimplifyPath(path.path);
 
-        std::vector<Vector3f> waypoints;
+        std::vector<SimVector> waypoints;
         for (auto it = ++simplifiedPath.cbegin(); it != simplifiedPath.cend(); ++it)
         {
             waypoints.push_back(getWorldCenter(DiscreteRect(it->x, it->y, unit.footprintX, unit.footprintZ)));
@@ -104,14 +104,14 @@ namespace rwe
         return UnitPath{std::move(waypoints)};
     }
 
-    Vector3f PathFindingService::getWorldCenter(const DiscreteRect& rect)
+    SimVector PathFindingService::getWorldCenter(const DiscreteRect& rect)
     {
         auto corner = simulation->terrain.heightmapIndexToWorldCorner(rect.x, rect.y);
 
-        auto halfWorldWidth = (rect.width * MapTerrain::HeightTileWidthInWorldUnits) / 2.0f;
-        auto halfWorldHeight = (rect.height * MapTerrain::HeightTileHeightInWorldUnits) / 2.0f;
+        auto halfWorldWidth = (SimScalar(rect.width) * MapTerrain::HeightTileWidthInWorldUnits) / 2_ss;
+        auto halfWorldHeight = (SimScalar(rect.height) * MapTerrain::HeightTileHeightInWorldUnits) / 2_ss;
 
-        auto center = corner + Vector3f(halfWorldWidth, 0.0f, halfWorldHeight);
+        auto center = corner + SimVector(halfWorldWidth, 0_ss, halfWorldHeight);
         center.y = simulation->terrain.getHeightAt(center.x, center.z);
         return center;
     }

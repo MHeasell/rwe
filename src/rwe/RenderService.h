@@ -96,7 +96,7 @@ namespace rwe
             for (const Unit& unit : units)
             {
                 auto groundHeight = terrain.getHeightAt(unit.position.x, unit.position.z);
-                drawUnitShadow(unit, groundHeight);
+                drawUnitShadow(unit, simScalarToFloat(groundHeight));
             }
 
             graphics->useStencilBufferAsMask();

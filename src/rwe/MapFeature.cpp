@@ -2,7 +2,7 @@
 
 namespace rwe
 {
-    static const float StandingFeatureMinHeight = 10.0f;
+    static const SimScalar StandingFeatureMinHeight = 10_ss;
 
     bool MapFeature::isStanding() const
     {
