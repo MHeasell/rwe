@@ -2,6 +2,8 @@
 
 #include <rwe/Grid.h>
 #include <rwe/Point.h>
+#include <rwe/SimScalar.h>
+#include <rwe/SimVector.h>
 #include <rwe/TextureRegion.h>
 #include <rwe/camera/CabinetCamera.h>
 #include <rwe/geometry/Line3f.h>
@@ -12,14 +14,14 @@ namespace rwe
     class MapTerrain
     {
     public:
-        static constexpr float TileWidthInWorldUnits = 32.0f;
-        static constexpr float TileHeightInWorldUnits = 32.0f;
+        static constexpr SimScalar TileWidthInWorldUnits = 32_ss;
+        static constexpr SimScalar TileHeightInWorldUnits = 32_ss;
 
-        static constexpr float HeightTileWidthInWorldUnits = 16.0f;
-        static constexpr float HeightTileHeightInWorldUnits = 16.0f;
+        static constexpr SimScalar HeightTileWidthInWorldUnits = 16_ss;
+        static constexpr SimScalar HeightTileHeightInWorldUnits = 16_ss;
 
-        static constexpr float MaxHeight = 255.0f;
-        static constexpr float MinHeight = 0.0f;
+        static constexpr SimScalar MaxHeight = 255_ss;
+        static constexpr SimScalar MinHeight = 0_ss;
 
     private:
         std::vector<TextureRegion> tileGraphics;
@@ -28,38 +30,38 @@ namespace rwe
 
         Grid<unsigned char> heights;
 
-        float seaLevel;
+        SimScalar seaLevel;
 
     public:
         MapTerrain(
             std::vector<TextureRegion>&& tileGraphics,
             Grid<size_t>&& tiles,
             Grid<unsigned char>&& heights,
-            float seaLevel);
+            SimScalar seaLevel);
 
-        Point worldToTileCoordinate(const Vector3f& position) const;
+        Point worldToTileCoordinate(const SimVector& position) const;
 
-        Vector3f tileCoordinateToWorldCorner(int x, int y) const;
+        SimVector tileCoordinateToWorldCorner(int x, int y) const;
 
-        Point worldToHeightmapCoordinate(const Vector3f& position) const;
+        Point worldToHeightmapCoordinate(const SimVector& position) const;
 
-        Point worldToHeightmapCoordinateNearest(const Vector3f& position) const;
+        Point worldToHeightmapCoordinateNearest(const SimVector& position) const;
 
-        Vector3f heightmapIndexToWorldCorner(int x, int y) const;
+        SimVector heightmapIndexToWorldCorner(int x, int y) const;
 
-        Vector3f heightmapIndexToWorldCorner(Point p) const;
+        SimVector heightmapIndexToWorldCorner(Point p) const;
 
-        Vector3f heightmapIndexToWorldCenter(int x, int y) const;
+        SimVector heightmapIndexToWorldCenter(int x, int y) const;
 
-        Vector3f heightmapIndexToWorldCenter(std::size_t x, std::size_t y) const;
+        SimVector heightmapIndexToWorldCenter(std::size_t x, std::size_t y) const;
 
-        Vector3f heightmapIndexToWorldCenter(Point p) const;
+        SimVector heightmapIndexToWorldCenter(Point p) const;
 
-        Vector3f worldToHeightmapSpace(const Vector3f& v) const;
+        SimVector worldToHeightmapSpace(const SimVector& v) const;
 
-        Vector3f heightmapToWorldSpace(const Vector3f& v) const;
+        SimVector heightmapToWorldSpace(const SimVector& v) const;
 
-        Vector3f topLeftCoordinateToWorld(const Vector3f& position) const;
+        SimVector topLeftCoordinateToWorld(const SimVector& position) const;
 
         const TextureRegion& getTileTexture(std::size_t index) const;
 
@@ -67,25 +69,28 @@ namespace rwe
 
         const Grid<unsigned char>& getHeightMap() const;
 
-        float leftInWorldUnits() const;
-        float rightCutoffInWorldUnits() const;
-        float topInWorldUnits() const;
-        float bottomCutoffInWorldUnits() const;
+        SimScalar leftInWorldUnits() const;
+        SimScalar rightCutoffInWorldUnits() const;
+        SimScalar topInWorldUnits() const;
+        SimScalar bottomCutoffInWorldUnits() const;
 
-        float getWidthInWorldUnits() const;
-        float getHeightInWorldUnits() const;
+        SimScalar getWidthInWorldUnits() const;
+        SimScalar getHeightInWorldUnits() const;
+
+        SimScalar getHalfWidthInWorldUnits() const;
+        SimScalar getHalfHeightInWorldUnits() const;
 
         /**
          * Gets the height of the terrain at the given world coordinates.
          * If the input is outside the heightmap grid, returns 0.
          */
-        float getHeightAt(float x, float z) const;
+        SimScalar getHeightAt(SimScalar x, SimScalar z) const;
 
-        std::optional<Vector3f> intersectLine(const Line3f& line) const;
+        std::optional<SimVector> intersectLine(const Line3x<SimScalar>& line) const;
 
-        std::optional<Vector3f> intersectWithHeightmapCell(const Line3f& line, int x, int y) const;
+        std::optional<SimVector> intersectWithHeightmapCell(const Line3x<SimScalar>& line, int x, int y) const;
 
-        float getSeaLevel() const;
+        SimScalar getSeaLevel() const;
 
     private:
         bool isInHeightMapBounds(int x, int y) const;

@@ -2,7 +2,7 @@
 
 namespace rwe
 {
-    Vector3f LaserProjectile::getBackPosition() const
+    SimVector LaserProjectile::getBackPosition() const
     {
         auto durationVector = velocity * duration;
         if (durationVector.lengthSquared() < (position - origin).lengthSquared())

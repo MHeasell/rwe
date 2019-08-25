@@ -12,6 +12,11 @@
 
 namespace rwe
 {
+    Line3x<SimScalar> floatToSimLine(const Line3f& line)
+    {
+        return Line3x<SimScalar>(floatToSimVector(line.start), floatToSimVector(line.end));
+    }
+
     bool laserCollides(const GameSimulation& sim, const LaserProjectile& laser, const OccupiedCell& cellValue)
     {
         auto collidesWithOccupiedCell = match(
@@ -327,7 +332,7 @@ namespace rwe
         // draw minimap dots
         for (const auto& unit : (simulation.units | boost::adaptors::map_values))
         {
-            auto minimapPos = worldToMinimap * unit.position;
+            auto minimapPos = worldToMinimap * simVectorToFloat(unit.position);
             minimapPos.x = std::floor(minimapPos.x);
             minimapPos.y = std::floor(minimapPos.y);
             auto ownerId = unit.owner;
@@ -338,7 +343,7 @@ namespace rwe
         if (hoveredUnit)
         {
             const auto& unit = getUnit(*hoveredUnit);
-            auto minimapPos = worldToMinimap * unit.position;
+            auto minimapPos = worldToMinimap * simVectorToFloat(unit.position);
             minimapPos.x = std::floor(minimapPos.x);
             minimapPos.y = std::floor(minimapPos.y);
             chromeUiRenderService.drawSprite(minimapPos.x, minimapPos.y, *minimapDotHighlight);
@@ -400,7 +405,7 @@ namespace rwe
         auto seaLevel = simulation.terrain.getSeaLevel();
         for (const auto& unit : (simulation.units | boost::adaptors::map_values))
         {
-            worldRenderService.drawUnit(unit, seaLevel, simulation.gameTime.value);
+            worldRenderService.drawUnit(unit, simScalarToFloat(seaLevel), simulation.gameTime.value);
         }
 
         worldRenderService.drawLasers(simulation.lasers);
@@ -441,7 +446,7 @@ namespace rwe
 
                 auto uiPos = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
                     * worldRenderService.getCamera().getViewProjectionMatrix()
-                    * unit.position;
+                    * simVectorToFloat(unit.position);
                 worldUiRenderService.drawHealthBar(uiPos.x, uiPos.y, static_cast<float>(unit.hitPoints) / static_cast<float>(unit.maxHitPoints));
             }
         }
@@ -453,17 +458,17 @@ namespace rwe
 
             auto topLeftWorld = simulation.terrain.heightmapIndexToWorldCorner(hoverBuildInfo->rect.x, hoverBuildInfo->rect.y);
             topLeftWorld.y = simulation.terrain.getHeightAt(
-                topLeftWorld.x + ((hoverBuildInfo->rect.width * MapTerrain::HeightTileWidthInWorldUnits) / 2.0f),
-                topLeftWorld.z + ((hoverBuildInfo->rect.height * MapTerrain::HeightTileHeightInWorldUnits) / 2.0f));
+                topLeftWorld.x + ((SimScalar(hoverBuildInfo->rect.width) * MapTerrain::HeightTileWidthInWorldUnits) / 2_ss),
+                topLeftWorld.z + ((SimScalar(hoverBuildInfo->rect.height) * MapTerrain::HeightTileHeightInWorldUnits) / 2_ss));
 
             auto topLeftUi = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
                 * worldRenderService.getCamera().getViewProjectionMatrix()
-                * topLeftWorld;
+                * simVectorToFloat(topLeftWorld);
             worldUiRenderService.drawBoxOutline(
                 topLeftUi.x,
                 topLeftUi.y,
-                hoverBuildInfo->rect.width * MapTerrain::HeightTileWidthInWorldUnits,
-                hoverBuildInfo->rect.height * MapTerrain::HeightTileHeightInWorldUnits,
+                hoverBuildInfo->rect.width * simScalarToFloat(MapTerrain::HeightTileWidthInWorldUnits),
+                hoverBuildInfo->rect.height * simScalarToFloat(MapTerrain::HeightTileHeightInWorldUnits),
                 color);
         }
 
@@ -492,19 +497,19 @@ namespace rwe
         {
             // draw a dot where we think the cursor intersects terrain
             auto ray = worldRenderService.getCamera().screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
-            auto intersect = simulation.intersectLineWithTerrain(ray.toLine());
+            auto intersect = simulation.intersectLineWithTerrain(floatToSimLine(ray.toLine()));
             if (intersect)
             {
                 auto cursorTerrainPos = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
                     * worldRenderService.getCamera().getViewProjectionMatrix()
-                    * (*intersect);
+                    * simVectorToFloat(*intersect);
                 worldUiRenderService.fillColor(cursorTerrainPos.x - 2, cursorTerrainPos.y - 2, 4, 4, Color(0, 0, 255));
 
                 intersect->y = simulation.terrain.getHeightAt(intersect->x, intersect->z);
 
                 auto heightTestedTerrainPos = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
                     * worldRenderService.getCamera().getViewProjectionMatrix()
-                    * (*intersect);
+                    * simVectorToFloat(*intersect);
                 worldUiRenderService.fillColor(heightTestedTerrainPos.x - 2, heightTestedTerrainPos.y - 2, 4, 4, Color(255, 0, 0));
             }
         }
@@ -660,10 +665,10 @@ namespace rwe
                             {
                                 auto topLeftWorld = simulation.terrain.heightmapIndexToWorldCorner(hoverBuildInfo->rect.x,
                                     hoverBuildInfo->rect.y);
-                                auto x = topLeftWorld.x + ((hoverBuildInfo->rect.width * MapTerrain::HeightTileWidthInWorldUnits) / 2.0f);
-                                auto z = topLeftWorld.z + ((hoverBuildInfo->rect.height * MapTerrain::HeightTileHeightInWorldUnits) / 2.0f);
+                                auto x = topLeftWorld.x + ((SimScalar(hoverBuildInfo->rect.width) * MapTerrain::HeightTileWidthInWorldUnits) / 2_ss);
+                                auto z = topLeftWorld.z + ((SimScalar(hoverBuildInfo->rect.height) * MapTerrain::HeightTileHeightInWorldUnits) / 2_ss);
                                 auto y = simulation.terrain.getHeightAt(x, z);
-                                Vector3f buildPos(x, y, z);
+                                SimVector buildPos(x, y, z);
                                 if (isShiftDown())
                                 {
                                     localPlayerEnqueueUnitOrder(*selectedUnit, BuildOrder(buildCursor.unitType, buildPos));
@@ -808,10 +813,10 @@ namespace rwe
         auto cameraHalfWidth = camera.getWidth() / 2.0f;
         auto cameraHalfHeight = camera.getHeight() / 2.0f;
 
-        auto top = terrain.topInWorldUnits() + cameraHalfHeight;
-        auto left = terrain.leftInWorldUnits() + cameraHalfWidth;
-        auto bottom = terrain.bottomCutoffInWorldUnits() - cameraHalfHeight;
-        auto right = terrain.rightCutoffInWorldUnits() - cameraHalfWidth;
+        auto top = simScalarToFloat(terrain.topInWorldUnits()) + cameraHalfHeight;
+        auto left = simScalarToFloat(terrain.leftInWorldUnits()) + cameraHalfWidth;
+        auto bottom = simScalarToFloat(terrain.bottomCutoffInWorldUnits()) - cameraHalfHeight;
+        auto right = simScalarToFloat(terrain.rightCutoffInWorldUnits()) - cameraHalfWidth;
 
         if (left > right)
         {
@@ -837,7 +842,7 @@ namespace rwe
 
         // update camera position from keyboard arrows
         {
-            const float speed = CameraPanSpeed * SecondsPerTick;
+            const float speed = CameraPanSpeed * simScalarToFloat(SecondsPerTick);
             int directionX = (right ? 1 : 0) - (left ? 1 : 0);
             int directionZ = (down ? 1 : 0) - (up ? 1 : 0);
 
@@ -872,7 +877,7 @@ namespace rwe
         if (auto buildCursor = std::get_if<BuildCursorMode>(&cursorMode.getValue()); buildCursor != nullptr && isCursorOverWorld())
         {
             auto ray = worldRenderService.getCamera().screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
-            auto intersect = simulation.intersectLineWithTerrain(ray.toLine());
+            auto intersect = simulation.intersectLineWithTerrain(floatToSimLine(ray.toLine()));
 
             if (intersect)
             {
@@ -999,7 +1004,7 @@ namespace rwe
         }
     }
 
-    std::optional<UnitId> GameScene::spawnUnit(const std::string& unitType, PlayerId owner, const Vector3f& position)
+    std::optional<UnitId> GameScene::spawnUnit(const std::string& unitType, PlayerId owner, const SimVector& position)
     {
         // TODO: if we failed to add the unit throw some warning
         auto unitId = simulation.tryAddUnit(
@@ -1024,7 +1029,7 @@ namespace rwe
         return unitId;
     }
 
-    void GameScene::spawnCompletedUnit(const std::string& unitType, PlayerId owner, const Vector3f& position)
+    void GameScene::spawnCompletedUnit(const std::string& unitType, PlayerId owner, const SimVector& position)
     {
         auto unitId = spawnUnit(unitType, owner, position);
         if (unitId)
@@ -1057,22 +1062,22 @@ namespace rwe
     }
 
     void
-    GameScene::moveObject(UnitId unitId, const std::string& name, Axis axis, float position, float speed)
+    GameScene::moveObject(UnitId unitId, const std::string& name, Axis axis, SimScalar position, SimScalar speed)
     {
         simulation.moveObject(unitId, name, axis, position, speed);
     }
 
-    void GameScene::moveObjectNow(UnitId unitId, const std::string& name, Axis axis, float position)
+    void GameScene::moveObjectNow(UnitId unitId, const std::string& name, Axis axis, SimScalar position)
     {
         simulation.moveObjectNow(unitId, name, axis, position);
     }
 
-    void GameScene::turnObject(UnitId unitId, const std::string& name, Axis axis, RadiansAngle angle, float speed)
+    void GameScene::turnObject(UnitId unitId, const std::string& name, Axis axis, SimAngle angle, SimScalar speed)
     {
         simulation.turnObject(unitId, name, axis, angle, speed);
     }
 
-    void GameScene::turnObjectNow(UnitId unitId, const std::string& name, Axis axis, RadiansAngle angle)
+    void GameScene::turnObjectNow(UnitId unitId, const std::string& name, Axis axis, SimAngle angle)
     {
         simulation.turnObjectNow(unitId, name, axis, angle);
     }
@@ -1117,10 +1122,10 @@ namespace rwe
             Vector3f(0.0f, -1.0f, 0.0f));
         auto cabinet = Matrix4f::cabinetProjection(0.0f, 0.5f);
         auto orthographic = Matrix4f::orthographicProjection(
-            terrain.leftInWorldUnits(),
-            terrain.rightCutoffInWorldUnits(),
-            terrain.bottomCutoffInWorldUnits(),
-            terrain.topInWorldUnits(),
+            simScalarToFloat(terrain.leftInWorldUnits()),
+            simScalarToFloat(terrain.rightCutoffInWorldUnits()),
+            simScalarToFloat(terrain.bottomCutoffInWorldUnits()),
+            simScalarToFloat(terrain.topInWorldUnits()),
             -1000.0f,
             1000.0f);
         auto worldProjection = orthographic * cabinet;
@@ -1143,10 +1148,10 @@ namespace rwe
         auto inverseView = view.transposed();
         auto inverseCabinet = Matrix4f::cabinetProjection(0.0f, -0.5f);
         auto inverseOrthographic = Matrix4f::inverseOrthographicProjection(
-            terrain.leftInWorldUnits(),
-            terrain.rightCutoffInWorldUnits(),
-            terrain.bottomCutoffInWorldUnits(),
-            terrain.topInWorldUnits(),
+            simScalarToFloat(terrain.leftInWorldUnits()),
+            simScalarToFloat(terrain.rightCutoffInWorldUnits()),
+            simScalarToFloat(terrain.bottomCutoffInWorldUnits()),
+            simScalarToFloat(terrain.topInWorldUnits()),
             -1000.0f,
             1000.0f);
         auto worldInverseProjection = inverseCabinet * inverseOrthographic;
@@ -1323,7 +1328,7 @@ namespace rwe
             for (const auto& [unitId, unit] : simulation.units)
             {
                 // convert to minimap rect
-                auto minimapPos = worldToMinimap * unit.position;
+                auto minimapPos = worldToMinimap * simVectorToFloat(unit.position);
                 minimapPos.x = std::floor(minimapPos.x);
                 minimapPos.y = std::floor(minimapPos.y);
                 auto ownerId = unit.owner;
@@ -1380,7 +1385,7 @@ namespace rwe
         return simulation.getFirstCollidingUnit(ray);
     }
 
-    std::optional<Vector3f> GameScene::getMouseTerrainCoordinate() const
+    std::optional<SimVector> GameScene::getMouseTerrainCoordinate() const
     {
         if (isCursorOverMinimap())
         {
@@ -1393,13 +1398,13 @@ namespace rwe
             auto endPoint = transform * Vector3f(mouseX, mouseY, 1.0f);
             auto direction = endPoint - startPoint;
             Ray3f ray(startPoint, direction);
-            return simulation.intersectLineWithTerrain(ray.toLine());
+            return simulation.intersectLineWithTerrain(floatToSimLine(ray.toLine()));
         }
 
         if (isCursorOverWorld())
         {
             auto ray = worldRenderService.getCamera().screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
-            return simulation.intersectLineWithTerrain(ray.toLine());
+            return simulation.intersectLineWithTerrain(floatToSimLine(ray.toLine()));
         }
 
         return std::nullopt;
@@ -1543,7 +1548,7 @@ namespace rwe
     }
 
     DiscreteRect
-    GameScene::computeFootprintRegion(const Vector3f& position, unsigned int footprintX, unsigned int footprintZ) const
+    GameScene::computeFootprintRegion(const SimVector& position, unsigned int footprintX, unsigned int footprintZ) const
     {
         return simulation.computeFootprintRegion(position, footprintX, footprintZ);
     }
@@ -1647,7 +1652,7 @@ namespace rwe
             if (exp->floats)
             {
                 // TODO: drift with the wind
-                exp->position.y += 0.5f;
+                exp->position.y += 0.5_ssf;
             }
         }
     }
@@ -1660,7 +1665,7 @@ namespace rwe
             {
                 if (laser->soundHit)
                 {
-                    playSoundAt(laser->position, *laser->soundHit);
+                    playSoundAt(simVectorToFloat(laser->position), *laser->soundHit);
                 }
                 if (laser->explosion)
                 {
@@ -1676,7 +1681,7 @@ namespace rwe
             {
                 if (laser->soundWater)
                 {
-                    playSoundAt(laser->position, *laser->soundWater);
+                    playSoundAt(simVectorToFloat(laser->position), *laser->soundWater);
                 }
                 if (laser->waterExplosion)
                 {
@@ -1691,15 +1696,15 @@ namespace rwe
         laser = std::nullopt;
     }
 
-    void GameScene::applyDamageInRadius(const Vector3f& position, float radius, const LaserProjectile& laser)
+    void GameScene::applyDamageInRadius(const SimVector& position, SimScalar radius, const LaserProjectile& laser)
     {
         auto minX = position.x - radius;
         auto maxX = position.x + radius;
         auto minZ = position.z - radius;
         auto maxZ = position.z + radius;
 
-        auto minPoint = simulation.terrain.worldToHeightmapCoordinate(Vector3f(minX, position.y, minZ));
-        auto maxPoint = simulation.terrain.worldToHeightmapCoordinate(Vector3f(maxX, position.y, maxZ));
+        auto minPoint = simulation.terrain.worldToHeightmapCoordinate(SimVector(minX, position.y, minZ));
+        auto maxPoint = simulation.terrain.worldToHeightmapCoordinate(SimVector(maxX, position.y, maxZ));
         auto minCell = simulation.terrain.getHeightMap().clampToCoords(minPoint);
         auto maxCell = simulation.terrain.getHeightMap().clampToCoords(maxPoint);
 
@@ -1716,10 +1721,10 @@ namespace rwe
         region.forEach([&](const auto& coords) {
             // check if it's in range
             auto cellCenter = simulation.terrain.heightmapIndexToWorldCenter(coords.x, coords.y);
-            Rectangle2f cellRectangle(
-                Vector2f(cellCenter.x, cellCenter.z),
-                Vector2f(MapTerrain::HeightTileWidthInWorldUnits / 2.0f, MapTerrain::HeightTileHeightInWorldUnits / 2.0f));
-            auto cellDistanceSquared = cellRectangle.distanceSquared(Vector2f(position.x, position.z));
+            Rectangle2x<SimScalar> cellRectangle(
+                Vector2x<SimScalar>(cellCenter.x, cellCenter.z),
+                Vector2x<SimScalar>(MapTerrain::HeightTileWidthInWorldUnits / 2_ss, MapTerrain::HeightTileHeightInWorldUnits / 2_ss));
+            auto cellDistanceSquared = cellRectangle.distanceSquared(Vector2x<SimScalar>(position.x, position.z));
             if (cellDistanceSquared > radiusSquared)
             {
                 return;
@@ -1764,9 +1769,9 @@ namespace rwe
             }
 
             // apply appropriate damage
-            auto damageScale = std::clamp(1.0f - (std::sqrt(unitDistanceSquared) / radius), 0.0f, 1.0f);
+            auto damageScale = std::clamp(1_ss - (sqrt(unitDistanceSquared) / radius), 0_ss, 1_ss);
             auto rawDamage = laser.getDamage(unit.unitType);
-            auto scaledDamage = static_cast<unsigned int>(static_cast<float>(rawDamage) * damageScale);
+            auto scaledDamage = simScalarToUInt(SimScalar(rawDamage) * damageScale);
             applyDamage(*u, scaledDamage);
         });
     }
@@ -1784,7 +1789,7 @@ namespace rwe
         }
     }
 
-    void GameScene::createLightSmoke(const Vector3f& position)
+    void GameScene::createLightSmoke(const SimVector& position)
     {
         simulation.spawnSmoke(position, sceneContext.textureService->getGafEntry("anims/FX.GAF", "smoke 1"));
     }
@@ -1901,14 +1906,14 @@ namespace rwe
         }
     }
 
-    BoundingBox3f GameScene::createBoundingBox(const Unit& unit) const
+    BoundingBox3x<SimScalar> GameScene::createBoundingBox(const Unit& unit) const
     {
         auto footprint = simulation.computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
-        auto min = Vector3f(footprint.x, unit.position.y, footprint.y);
-        auto max = Vector3f(footprint.x + footprint.width, unit.position.y + unit.height, footprint.y + footprint.height);
+        auto min = SimVector(SimScalar(footprint.x), unit.position.y, SimScalar(footprint.y));
+        auto max = SimVector(SimScalar(footprint.x + footprint.width), unit.position.y + unit.height, SimScalar(footprint.y + footprint.height));
         auto worldMin = simulation.terrain.heightmapToWorldSpace(min);
         auto worldMax = simulation.terrain.heightmapToWorldSpace(max);
-        return BoundingBox3f::fromMinMax(worldMin, worldMax);
+        return BoundingBox3x<SimScalar>::fromMinMax(worldMin, worldMax);
     }
 
     void GameScene::killUnit(UnitId unitId)
@@ -1921,7 +1926,7 @@ namespace rwe
         if (unit.explosionWeapon)
         {
             auto impactType = unit.position.y < simulation.terrain.getSeaLevel() ? ImpactType::Water : ImpactType::Normal;
-            std::optional<LaserProjectile> projectile = simulation.createProjectileFromWeapon(unit.owner, *unit.explosionWeapon, unit.position, Vector3f(0.0f, -1.0f, 0.0f));
+            std::optional<LaserProjectile> projectile = simulation.createProjectileFromWeapon(unit.owner, *unit.explosionWeapon, unit.position, SimVector(0_ss, -1_ss, 0_ss));
             doLaserImpact(projectile, impactType);
         }
     }
@@ -2263,7 +2268,7 @@ namespace rwe
             }
 
             const auto& worldPos = e.second.position;
-            auto clipPos = matrix * worldPos;
+            auto clipPos = matrix * simVectorToFloat(worldPos);
             Point viewportPos = worldViewport.toViewportSpace(clipPos.x, clipPos.y);
             if (!cameraBox.contains(viewportPos))
             {

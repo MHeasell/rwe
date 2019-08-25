@@ -2,8 +2,8 @@
 
 #include <memory>
 #include <optional>
+#include <rwe/SimVector.h>
 #include <rwe/SpriteSeries.h>
-#include <rwe/math/Vector3f.h>
 
 namespace rwe
 {
@@ -13,10 +13,10 @@ namespace rwe
         bool transparentAnimation;
         std::optional<std::shared_ptr<SpriteSeries>> shadowAnimation;
         bool transparentShadow;
-        Vector3f position;
+        SimVector position;
         int footprintX;
         int footprintZ;
-        float height;
+        SimScalar height;
         bool isBlocking;
         bool isIndestructible;
         unsigned int metal;

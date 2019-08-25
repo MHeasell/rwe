@@ -98,7 +98,7 @@ namespace rwe
 
         Val length() const
         {
-            return std::sqrt(lengthSquared());
+            return sqrt(lengthSquared());
         }
 
         Val distanceSquared(const Vector3x& rhs) const

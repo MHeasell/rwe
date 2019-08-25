@@ -1,29 +1,28 @@
 #include "UnitBehaviorService.h"
 #include <rwe/GameScene.h>
 #include <rwe/cob/CobExecutionContext.h>
-#include <rwe/geometry/Circle2f.h>
+#include <rwe/geometry/Circle2x.h>
 #include <rwe/math/rwe_math.h>
 #include <rwe/movement.h>
 #include <rwe/overloaded.h>
 
 namespace rwe
 {
-    Vector2f Vector2fFromLengthAndAngle(float length, float angle)
+    Vector2x<SimScalar> Vector2xFromLengthAndAngle(SimScalar length, SimAngle angle)
     {
-        auto v = Matrix4f::rotationY(angle) * Vector3f(0.0f, 0.0f, length);
-        return Vector2f(v.x, v.z);
+        return Vector2x<SimScalar>(sin(angle), cos(angle)) * length;
     }
 
-    bool isWithinTurningCircle(const Vector3f& dest, float speed, float turnRate, float currentDirection)
+    bool isWithinTurningCircle(const SimVector& dest, SimScalar speed, SimScalar turnRate, SimAngle currentDirection)
     {
         auto turnRadius = speed / turnRate;
 
-        auto anticlockwiseCircleAngle = currentDirection + (Pif / 2.0f);
-        auto clockwiseCircleAngle = currentDirection - (Pif / 2.0f);
-        auto anticlockwiseCircle = Circle2f(turnRadius, Vector2fFromLengthAndAngle(turnRadius, anticlockwiseCircleAngle));
-        auto clockwiseCircle = Circle2f(turnRadius, Vector2fFromLengthAndAngle(turnRadius, clockwiseCircleAngle));
+        auto anticlockwiseCircleAngle = currentDirection + QuarterTurn;
+        auto clockwiseCircleAngle = currentDirection - QuarterTurn;
+        auto anticlockwiseCircle = Circle2x<SimScalar>(turnRadius, Vector2xFromLengthAndAngle(turnRadius, anticlockwiseCircleAngle));
+        auto clockwiseCircle = Circle2x<SimScalar>(turnRadius, Vector2xFromLengthAndAngle(turnRadius, clockwiseCircleAngle));
 
-        return anticlockwiseCircle.contains(Vector2f(dest.x, dest.z)) || clockwiseCircle.contains(Vector2f(dest.x, dest.z));
+        return anticlockwiseCircle.contains(dest.xz()) || clockwiseCircle.contains(dest.xz());
     }
 
     UnitBehaviorService::UnitBehaviorService(
@@ -37,11 +36,11 @@ namespace rwe
     {
         auto& unit = scene->getSimulation().getUnit(unitId);
 
-        float previousSpeed = unit.currentSpeed;
+        auto previousSpeed = unit.currentSpeed;
 
         // Clear steering targets.
         unit.targetAngle = unit.rotation;
-        unit.targetSpeed = 0.0f;
+        unit.targetSpeed = 0_ss;
 
         // Run unit and weapon AI
         if (!unit.isBeingBuilt())
@@ -89,11 +88,11 @@ namespace rwe
         {
             applyUnitSteering(unitId);
 
-            if (unit.currentSpeed > 0.0f && previousSpeed == 0.0f)
+            if (unit.currentSpeed > 0_ss && previousSpeed == 0_ss)
             {
                 unit.cobEnvironment->createThread("StartMoving");
             }
-            else if (unit.currentSpeed == 0.0f && previousSpeed > 0.0f)
+            else if (unit.currentSpeed == 0_ss && previousSpeed > 0_ss)
             {
                 unit.cobEnvironment->createThread("StopMoving");
             }
@@ -102,21 +101,20 @@ namespace rwe
         }
     }
 
-    std::pair<float, float> UnitBehaviorService::computeHeadingAndPitch(float rotation, const Vector3f& from, const Vector3f& to)
+    std::pair<SimAngle, SimAngle> UnitBehaviorService::computeHeadingAndPitch(SimAngle rotation, const SimVector& from, const SimVector& to)
     {
         auto aimVector = to - from;
-        if (aimVector.lengthSquared() == 0.0f)
+        if (aimVector.lengthSquared() == 0_ss)
         {
             aimVector = Unit::toDirection(rotation);
         }
 
-        Vector3f aimVectorXZ(aimVector.x, 0.0f, aimVector.z);
+        SimVector aimVectorXZ(aimVector.x, 0_ss, aimVector.z);
 
         auto heading = Unit::toRotation(aimVectorXZ);
-        heading = wrap(-Pif, Pif, heading - rotation);
+        heading = heading - rotation;
 
-        auto pitchNormal = aimVectorXZ.cross(Vector3f(0.0f, 1.0f, 0.0f));
-        auto pitch = angleTo(aimVectorXZ, aimVector, pitchNormal);
+        auto pitch = atan2(aimVector.y, aimVectorXZ.length());
 
         return {heading, pitch};
     }
@@ -124,13 +122,13 @@ namespace rwe
     bool UnitBehaviorService::followPath(Unit& unit, PathFollowingInfo& path)
     {
         const auto& destination = *path.currentWaypoint;
-        Vector3f xzPosition(unit.position.x, 0.0f, unit.position.z);
-        Vector3f xzDestination(destination.x, 0.0f, destination.z);
+        SimVector xzPosition(unit.position.x, 0_ss, unit.position.z);
+        SimVector xzDestination(destination.x, 0_ss, destination.z);
         auto distanceSquared = xzPosition.distanceSquared(xzDestination);
 
         auto isFinalDestination = path.currentWaypoint == (path.path.waypoints.end() - 1);
 
-        if (distanceSquared < (8.0f * 8.0f))
+        if (distanceSquared < (8_ss * 8_ss))
         {
             if (isFinalDestination)
             {
@@ -149,15 +147,15 @@ namespace rwe
 
             // drive at full speed until we need to brake
             // to turn or to arrive at the goal
-            auto brakingDistance = (unit.currentSpeed * unit.currentSpeed) / (2.0f * unit.brakeRate);
+            auto brakingDistance = (unit.currentSpeed * unit.currentSpeed) / (2_ss * unit.brakeRate);
 
             if (isWithinTurningCircle(xzDirection, unit.currentSpeed, unit.turnRate, unit.rotation))
             {
-                unit.targetSpeed = 0.0f;
+                unit.targetSpeed = 0_ss;
             }
             else if (isFinalDestination && distanceSquared <= (brakingDistance * brakingDistance))
             {
-                unit.targetSpeed = 0.0f;
+                unit.targetSpeed = 0_ss;
             }
             else
             {
@@ -248,7 +246,7 @@ namespace rwe
                 auto heading = headingAndPitch.first;
                 auto pitch = headingAndPitch.second;
 
-                auto threadId = unit.cobEnvironment->createThread(getAimScriptName(weaponIndex), {toCobAngle(RadiansAngle(heading)).value, toCobAngle(RadiansAngle(pitch)).value});
+                auto threadId = unit.cobEnvironment->createThread(getAimScriptName(weaponIndex), {toCobAngle(heading).value, toCobAngle(pitch).value});
 
                 if (threadId)
                 {
@@ -281,7 +279,7 @@ namespace rwe
                         auto pitch = headingAndPitch.second;
 
                         // if the target is close enough, try to fire
-                        if (std::abs(heading - aimInfo.lastHeading) <= weapon->tolerance && std::abs(pitch - aimInfo.lastPitch) <= weapon->pitchTolerance)
+                        if (angleBetweenIsLessOrEqual(heading, aimInfo.lastHeading, weapon->tolerance) && angleBetweenIsLessOrEqual(pitch, aimInfo.lastPitch, weapon->pitchTolerance))
                         {
                             tryFireWeapon(id, weaponIndex, *targetPosition);
                         }
@@ -291,7 +289,7 @@ namespace rwe
         }
     }
 
-    void UnitBehaviorService::tryFireWeapon(UnitId id, unsigned int weaponIndex, const Vector3f& targetPosition)
+    void UnitBehaviorService::tryFireWeapon(UnitId id, unsigned int weaponIndex, const SimVector& targetPosition)
     {
         auto& unit = scene->getSimulation().getUnit(id);
         auto& weapon = unit.weapons[weaponIndex];
@@ -336,18 +334,8 @@ namespace rwe
     void UnitBehaviorService::updateUnitRotation(UnitId id)
     {
         auto& unit = scene->getSimulation().getUnit(id);
-
-        auto angleDelta = wrap(-Pif, Pif, unit.targetAngle - unit.rotation);
-
-        auto turnRateThisFrame = unit.turnRate;
-        if (std::abs(angleDelta) <= turnRateThisFrame)
-        {
-            unit.rotation = unit.targetAngle;
-        }
-        else
-        {
-            unit.rotation = wrap(-Pif, Pif, unit.rotation + (turnRateThisFrame * (angleDelta > 0.0f ? 1.0f : -1.0f)));
-        }
+        auto turnRateThisFrame = SimAngle(unit.turnRate.value);
+        unit.rotation = turnTowards(unit.rotation, unit.targetAngle, turnRateThisFrame);
     }
 
     void UnitBehaviorService::updateUnitSpeed(UnitId id)
@@ -382,9 +370,9 @@ namespace rwe
         auto effectiveMaxSpeed = unit.maxSpeed;
         if (unit.position.y < scene->getTerrain().getSeaLevel())
         {
-            effectiveMaxSpeed /= 2.0f;
+            effectiveMaxSpeed /= 2_ss;
         }
-        unit.currentSpeed = std::clamp(unit.currentSpeed, 0.0f, effectiveMaxSpeed);
+        unit.currentSpeed = std::clamp(unit.currentSpeed, 0_ss, effectiveMaxSpeed);
     }
 
     void UnitBehaviorService::updateUnitPosition(UnitId unitId)
@@ -395,7 +383,7 @@ namespace rwe
 
         unit.inCollision = false;
 
-        if (unit.currentSpeed > 0.0f)
+        if (unit.currentSpeed > 0_ss)
         {
             auto newPosition = unit.position + (direction * unit.currentSpeed);
             newPosition.y = scene->getTerrain().getHeightAt(newPosition.x, newPosition.z);
@@ -406,11 +394,11 @@ namespace rwe
 
                 // if we failed to move, try in each axis separately
                 // to see if we can complete a "partial" movement
-                const Vector3f maskX(0.0f, 1.0f, 1.0f);
-                const Vector3f maskZ(1.0f, 1.0f, 0.0f);
+                const SimVector maskX(0_ss, 1_ss, 1_ss);
+                const SimVector maskZ(1_ss, 1_ss, 0_ss);
 
-                Vector3f newPos1;
-                Vector3f newPos2;
+                SimVector newPos1;
+                SimVector newPos2;
                 if (direction.x > direction.z)
                 {
                     newPos1 = unit.position + (direction * maskZ * unit.currentSpeed);
@@ -432,7 +420,7 @@ namespace rwe
         }
     }
 
-    bool UnitBehaviorService::tryApplyMovementToPosition(UnitId id, const Vector3f& newPosition)
+    bool UnitBehaviorService::tryApplyMovementToPosition(UnitId id, const SimVector& newPosition)
     {
         auto& sim = scene->getSimulation();
         auto& unit = sim.getUnit(id);
@@ -539,7 +527,7 @@ namespace rwe
         return result;
     }
 
-    Vector3f UnitBehaviorService::getAimingPoint(UnitId id, unsigned int weaponIndex)
+    SimVector UnitBehaviorService::getAimingPoint(UnitId id, unsigned int weaponIndex)
     {
         auto scriptName = getAimFromScriptName(weaponIndex);
         auto pieceId = runCobQuery(id, scriptName);
@@ -551,7 +539,7 @@ namespace rwe
         return getPiecePosition(id, *pieceId);
     }
 
-    Vector3f UnitBehaviorService::getFiringPoint(UnitId id, unsigned int weaponIndex)
+    SimVector UnitBehaviorService::getFiringPoint(UnitId id, unsigned int weaponIndex)
     {
 
         auto scriptName = getQueryScriptName(weaponIndex);
@@ -564,7 +552,7 @@ namespace rwe
         return getPiecePosition(id, *pieceId);
     }
 
-    Vector3f UnitBehaviorService::getSweetSpot(UnitId id)
+    SimVector UnitBehaviorService::getSweetSpot(UnitId id)
     {
         auto pieceId = runCobQuery(id, "SweetSpot");
         if (!pieceId)
@@ -575,7 +563,7 @@ namespace rwe
         return getPiecePosition(id, *pieceId);
     }
 
-    std::optional<Vector3f> UnitBehaviorService::tryGetSweetSpot(UnitId id)
+    std::optional<SimVector> UnitBehaviorService::tryGetSweetSpot(UnitId id)
     {
         if (!scene->getSimulation().unitExists(id))
         {
@@ -784,7 +772,7 @@ namespace rwe
                     auto heading = headingAndPitch.first;
                     auto pitch = headingAndPitch.second;
 
-                    unit.cobEnvironment->createThread("StartBuilding", {toCobAngle(RadiansAngle(heading)).value, toCobAngle(RadiansAngle(pitch)).value});
+                    unit.cobEnvironment->createThread("StartBuilding", {toCobAngle(heading).value, toCobAngle(pitch).value});
                     unit.behaviourState = BuildingState{*targetUnitId};
                 }
             }
@@ -1014,7 +1002,7 @@ namespace rwe
             });
     }
 
-    Vector3f UnitBehaviorService::getNanoPoint(UnitId id)
+    SimVector UnitBehaviorService::getNanoPoint(UnitId id)
     {
         auto pieceId = runCobQuery(id, "QueryNanoPiece");
         if (!pieceId)
@@ -1025,7 +1013,7 @@ namespace rwe
         return getPiecePosition(id, *pieceId);
     }
 
-    Vector3f UnitBehaviorService::getPiecePosition(UnitId id, unsigned int pieceId)
+    SimVector UnitBehaviorService::getPiecePosition(UnitId id, unsigned int pieceId)
     {
         auto& unit = scene->getSimulation().getUnit(id);
 
@@ -1036,10 +1024,15 @@ namespace rwe
             throw std::logic_error("Failed to find piece offset");
         }
 
-        return unit.getTransform() * (*pieceTransform) * Vector3f(0.0f, 0.0f, 0.0f);
+        return unit.getTransform() * (*pieceTransform) * SimVector(0_ss, 0_ss, 0_ss);
     }
 
-    float UnitBehaviorService::getPieceXZRotation(UnitId id, unsigned int pieceId)
+    SimAngle angleTo(const Vector2x<SimScalar>& lhs, const Vector2x<SimScalar>& rhs)
+    {
+        return atan2(lhs.det(rhs), lhs.dot(rhs));
+    }
+
+    SimAngle UnitBehaviorService::getPieceXZRotation(UnitId id, unsigned int pieceId)
     {
         auto& unit = scene->getSimulation().getUnit(id);
 
@@ -1052,17 +1045,17 @@ namespace rwe
 
         auto mat = unit.getTransform() * (*pieceTransform);
 
-        auto a = Vector2f(0.0f, 1.0f);
-        auto b = mat.mult3x3(Vector3f(0.0f, 0.0f, 1.0f)).xz();
-        if (b.lengthSquared() == 0.0f)
+        auto a = Vector2x<SimScalar>(0_ss, 1_ss);
+        auto b = mat.mult3x3(SimVector(0_ss, 0_ss, 1_ss)).xz();
+        if (b.lengthSquared() == 0_ss)
         {
-            return 0.0f;
+            return SimAngle(0);
         }
 
         // angleTo is computed in a space where Y points up,
         // but in our XZ space (Z is our Y here), Z points down.
         // This means we need to negate (and rewrap) the rotation value.
-        return wrap(-Pif, Pif, -a.angleTo(b));
+        return -angleTo(a, b);
     }
 
     UnitBehaviorService::BuildPieceInfo UnitBehaviorService::getBuildPieceInfo(UnitId id)
@@ -1077,11 +1070,11 @@ namespace rwe
         return BuildPieceInfo{getPiecePosition(id, *pieceId), getPieceXZRotation(id, *pieceId)};
     }
 
-    std::optional<Vector3f> UnitBehaviorService::getTargetPosition(const UnitWeaponAttackTarget& target)
+    std::optional<SimVector> UnitBehaviorService::getTargetPosition(const UnitWeaponAttackTarget& target)
     {
         return match(
             target,
-            [](const Vector3f& v) { return std::make_optional(v); },
+            [](const SimVector& v) { return std::make_optional(v); },
             [this](UnitId id) { return tryGetSweetSpot(id); });
     }
 
@@ -1089,7 +1082,7 @@ namespace rwe
     {
         return match(
             target,
-            [](const Vector3f& target) { return MovingStateGoal(target); },
+            [](const SimVector& target) { return MovingStateGoal(target); },
             [this](UnitId unitId) {
                 const auto& targetUnit = scene->getSimulation().getUnit(unitId);
                 return MovingStateGoal(scene->computeFootprintRegion(targetUnit.position, targetUnit.footprintX, targetUnit.footprintZ));

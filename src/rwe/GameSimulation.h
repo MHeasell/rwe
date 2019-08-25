@@ -130,7 +130,7 @@ namespace rwe
          */
         bool canBeBuiltAt(const MovementClass& mc, unsigned int x, unsigned int y) const;
 
-        DiscreteRect computeFootprintRegion(const Vector3f& position, unsigned int footprintX, unsigned int footprintZ) const;
+        DiscreteRect computeFootprintRegion(const SimVector& position, unsigned int footprintX, unsigned int footprintZ) const;
 
         bool isCollisionAt(const DiscreteRect& rect) const;
 
@@ -168,17 +168,17 @@ namespace rwe
 
         const GamePlayerInfo& getPlayer(PlayerId player) const;
 
-        void moveObject(UnitId unitId, const std::string& name, Axis axis, float position, float speed);
+        void moveObject(UnitId unitId, const std::string& name, Axis axis, SimScalar position, SimScalar speed);
 
-        void moveObjectNow(UnitId unitId, const std::string& name, Axis axis, float position);
+        void moveObjectNow(UnitId unitId, const std::string& name, Axis axis, SimScalar position);
 
-        void turnObject(UnitId unitId, const std::string& name, Axis axis, RadiansAngle angle, float speed);
+        void turnObject(UnitId unitId, const std::string& name, Axis axis, SimAngle angle, SimScalar speed);
 
-        void turnObjectNow(UnitId unitId, const std::string& name, Axis axis, RadiansAngle angle);
+        void turnObjectNow(UnitId unitId, const std::string& name, Axis axis, SimAngle angle);
 
-        void spinObject(UnitId unitId, const std::string& name, Axis axis, float speed, float acceleration);
+        void spinObject(UnitId unitId, const std::string& name, Axis axis, SimScalar speed, SimScalar acceleration);
 
-        void stopSpinObject(UnitId unitId, const std::string& name, Axis axis, float deceleration);
+        void stopSpinObject(UnitId unitId, const std::string& name, Axis axis, SimScalar deceleration);
 
         bool isPieceMoving(UnitId unitId, const std::string& name, Axis axis) const;
 
@@ -186,19 +186,19 @@ namespace rwe
 
         std::optional<UnitId> getFirstCollidingUnit(const Ray3f& ray) const;
 
-        std::optional<Vector3f> intersectLineWithTerrain(const Line3f& line) const;
+        std::optional<SimVector> intersectLineWithTerrain(const Line3x<SimScalar>& line) const;
 
         void moveUnitOccupiedArea(const DiscreteRect& oldRect, const DiscreteRect& newRect, UnitId unitId);
 
         void requestPath(UnitId unitId);
 
-        LaserProjectile createProjectileFromWeapon(PlayerId owner, const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction);
+        LaserProjectile createProjectileFromWeapon(PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction);
 
-        void spawnLaser(PlayerId owner, const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction);
+        void spawnLaser(PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction);
 
-        void spawnExplosion(const Vector3f& position, const std::shared_ptr<SpriteSeries>& animation);
+        void spawnExplosion(const SimVector& position, const std::shared_ptr<SpriteSeries>& animation);
 
-        void spawnSmoke(const Vector3f& position, const std::shared_ptr<SpriteSeries>& animation);
+        void spawnSmoke(const SimVector& position, const std::shared_ptr<SpriteSeries>& animation);
 
         WinStatus computeWinStatus() const;
 

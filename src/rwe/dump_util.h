@@ -27,6 +27,16 @@ namespace rwe
 
     nlohmann::json dumpJson(const Vector3f& v);
 
+    template <typename Val>
+    nlohmann::json dumpJson(const Vector3x<Val>& v)
+    {
+        return nlohmann::json{
+            {"x", dumpJson(v.x)},
+            {"y", dumpJson(v.y)},
+            {"z", dumpJson(v.z)},
+        };
+    }
+
     nlohmann::json dumpJson(const LaserProjectile& laser);
 
     nlohmann::json dumpJson(const IdleState&);

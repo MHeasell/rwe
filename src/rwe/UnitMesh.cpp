@@ -1,29 +1,31 @@
 #include "UnitMesh.h"
+#include <rwe/float_math.h>
+
 #include <rwe/math/Matrix4f.h>
 #include <rwe/math/rwe_math.h>
 #include <rwe/util.h>
 
 namespace rwe
 {
-    void applyMoveOperation(std::optional<UnitMesh::MoveOperation>& op, float& currentPos, float dt)
+    void applyMoveOperation(std::optional<UnitMesh::MoveOperation>& op, SimScalar& currentPos, SimScalar dt)
     {
         if (op)
         {
-            float remaining = op->targetPosition - currentPos;
-            float frameSpeed = op->speed * dt;
-            if (std::abs(remaining) <= frameSpeed)
+            auto remaining = op->targetPosition - currentPos;
+            auto frameSpeed = op->speed * dt;
+            if (abs(remaining) <= frameSpeed)
             {
                 currentPos = op->targetPosition;
                 op = std::nullopt;
             }
             else
             {
-                currentPos += frameSpeed * (remaining > 0.0f ? 1.0f : -1.0f);
+                currentPos += frameSpeed * (remaining > 0_ss ? 1_ss : -1_ss);
             }
         }
     }
 
-    void applyTurnOperation(std::optional<UnitMesh::TurnOperationUnion>& op, float& currentAngle, float dt)
+    void applyTurnOperation(std::optional<UnitMesh::TurnOperationUnion>& op, SimAngle& currentAngle, SimScalar dt)
     {
         if (!op)
         {
@@ -32,51 +34,60 @@ namespace rwe
 
         if (auto turnOp = std::get_if<UnitMesh::TurnOperation>(&*op); turnOp != nullptr)
         {
-            auto remaining = turnOp->targetAngle - RadiansAngle(currentAngle);
-
-            float frameSpeed = turnOp->speed * dt;
-            if (std::abs(remaining.value) <= frameSpeed)
+            auto frameSpeed = simAngleFromSimScalar(turnOp->speed * dt);
+            currentAngle = turnTowards(currentAngle, turnOp->targetAngle, frameSpeed);
+            if (currentAngle == turnOp->targetAngle)
             {
-                currentAngle = turnOp->targetAngle.value;
                 op = std::nullopt;
-                return;
             }
 
-            auto angleDelta = frameSpeed * (remaining.value > 0.0f ? 1.0f : -1.0f);
-            currentAngle = wrap(-Pif, Pif, currentAngle + angleDelta);
             return;
         }
 
         if (auto spinOp = std::get_if<UnitMesh::SpinOperation>(&*op); spinOp != nullptr)
         {
-            auto frameAccel = spinOp->acceleration / 2.0f;
+            auto frameAccel = spinOp->acceleration / 2_ss;
             auto remaining = spinOp->targetSpeed - spinOp->currentSpeed;
-            if (std::abs(remaining) <= frameAccel)
+            if (abs(remaining) <= frameAccel)
             {
                 spinOp->currentSpeed = spinOp->targetSpeed;
             }
             else
             {
-                spinOp->currentSpeed += frameAccel * (remaining > 0.0f ? 1.0f : -1.0f);
+                spinOp->currentSpeed += frameAccel * (remaining > 0_ss ? 1_ss : -1_ss);
             }
 
             auto frameSpeed = spinOp->currentSpeed * dt;
-            currentAngle = wrap(-Pif, Pif, currentAngle + frameSpeed);
+            if (frameSpeed > 0_ss)
+            {
+                currentAngle += SimAngle(frameSpeed.value);
+            }
+            else
+            {
+                currentAngle -= SimAngle(-frameSpeed.value);
+            }
             return;
         }
 
         if (auto stopSpinOp = std::get_if<UnitMesh::StopSpinOperation>(&*op); stopSpinOp != nullptr)
         {
-            auto frameDecel = stopSpinOp->deceleration / 2.0f;
-            if (std::abs(stopSpinOp->currentSpeed) <= frameDecel)
+            auto frameDecel = stopSpinOp->deceleration / 2_ss;
+            if (abs(stopSpinOp->currentSpeed) <= frameDecel)
             {
                 op = std::nullopt;
                 return;
             }
 
-            stopSpinOp->currentSpeed -= frameDecel * (stopSpinOp->currentSpeed > 0.0f ? 1.0f : -1.0f);
+            stopSpinOp->currentSpeed -= frameDecel * (stopSpinOp->currentSpeed > 0_ss ? 1_ss : -1_ss);
             auto frameSpeed = stopSpinOp->currentSpeed * dt;
-            currentAngle = wrap(-Pif, Pif, currentAngle + frameSpeed);
+            if (frameSpeed > 0_ss)
+            {
+                currentAngle += SimAngle(frameSpeed.value);
+            }
+            else
+            {
+                currentAngle -= SimAngle(-frameSpeed.value);
+            }
             return;
         }
     }
@@ -111,7 +122,7 @@ namespace rwe
         return std::ref(const_cast<UnitMesh&>(value->get()));
     }
 
-    std::optional<Matrix4f> UnitMesh::getPieceTransform(const std::string& pieceName) const
+    std::optional<Matrix4x<SimScalar>> UnitMesh::getPieceTransform(const std::string& pieceName) const
     {
         if (pieceName == name)
         {
@@ -130,21 +141,27 @@ namespace rwe
         return std::nullopt;
     }
 
-    Matrix4f UnitMesh::getTransform() const
+    Matrix4x<SimScalar> UnitMesh::getTransform() const
     {
-        Vector3f rotationVec(rotation.x, rotation.y, rotation.z);
-        return Matrix4f::translation(origin) * Matrix4f::translation(offset) * Matrix4f::rotationZXY(rotationVec);
+        return Matrix4x<SimScalar>::translation(origin + offset)
+            * Matrix4x<SimScalar>::rotationZXY(
+                sin(rotationX),
+                cos(rotationX),
+                sin(rotationY),
+                cos(rotationY),
+                sin(rotationZ),
+                cos(rotationZ));
     }
 
-    void UnitMesh::update(float dt)
+    void UnitMesh::update(SimScalar dt)
     {
         applyMoveOperation(xMoveOperation, offset.x, dt);
         applyMoveOperation(yMoveOperation, offset.y, dt);
         applyMoveOperation(zMoveOperation, offset.z, dt);
 
-        applyTurnOperation(xTurnOperation, rotation.x, dt);
-        applyTurnOperation(yTurnOperation, rotation.y, dt);
-        applyTurnOperation(zTurnOperation, rotation.z, dt);
+        applyTurnOperation(xTurnOperation, rotationX, dt);
+        applyTurnOperation(yTurnOperation, rotationY, dt);
+        applyTurnOperation(zTurnOperation, rotationZ, dt);
 
         for (auto& c : children)
         {
@@ -152,12 +169,12 @@ namespace rwe
         }
     }
 
-    UnitMesh::MoveOperation::MoveOperation(float targetPosition, float speed)
+    UnitMesh::MoveOperation::MoveOperation(SimScalar targetPosition, SimScalar speed)
         : targetPosition(targetPosition), speed(speed)
     {
     }
 
-    UnitMesh::TurnOperation::TurnOperation(RadiansAngle targetAngle, float speed)
+    UnitMesh::TurnOperation::TurnOperation(SimAngle targetAngle, SimScalar speed)
         : targetAngle(targetAngle), speed(speed)
     {
     }

@@ -382,7 +382,7 @@ namespace rwe
             position = -position;
         }
         auto speed = popSpeed();
-        sim->moveObject(unitId, getObjectName(object), axis, position.toFloat(), speed.toFloat());
+        sim->moveObject(unitId, getObjectName(object), axis, position.toWorldDistance(), speed.toSimScalar());
     }
 
     void CobExecutionContext::moveObjectNow()
@@ -394,7 +394,7 @@ namespace rwe
         {
             position = -position;
         }
-        sim->moveObjectNow(unitId, getObjectName(object), axis, position.toFloat());
+        sim->moveObjectNow(unitId, getObjectName(object), axis, position.toWorldDistance());
     }
 
     void CobExecutionContext::turnObject()
@@ -407,7 +407,7 @@ namespace rwe
             angle = -angle;
         }
         auto speed = popAngularSpeed();
-        sim->turnObject(unitId, getObjectName(object), axis, toRadians(angle), speed.toFloat());
+        sim->turnObject(unitId, getObjectName(object), axis, toWorldAngle(angle), speed.toSimScalar());
     }
 
     void CobExecutionContext::turnObjectNow()
@@ -419,7 +419,7 @@ namespace rwe
         {
             angle = -angle;
         }
-        sim->turnObjectNow(unitId, getObjectName(object), axis, toRadians(angle));
+        sim->turnObjectNow(unitId, getObjectName(object), axis, toWorldAngle(angle));
     }
 
     void CobExecutionContext::spinObject()
@@ -428,7 +428,7 @@ namespace rwe
         auto axis = nextInstructionAsAxis();
         auto targetSpeed = popAngularSpeed();
         auto acceleration = popAngularSpeed();
-        sim->spinObject(unitId, getObjectName(object), axis, targetSpeed.toFloat(), acceleration.toFloat());
+        sim->spinObject(unitId, getObjectName(object), axis, targetSpeed.toSimScalar(), acceleration.toSimScalar());
     }
 
     void CobExecutionContext::stopSpinObject()
@@ -436,7 +436,7 @@ namespace rwe
         auto object = nextInstruction();
         auto axis = nextInstructionAsAxis();
         auto deceleration = popAngularSpeed();
-        sim->stopSpinObject(unitId, getObjectName(object), axis, deceleration.toFloat());
+        sim->stopSpinObject(unitId, getObjectName(object), axis, deceleration.toSimScalar());
     }
 
     void CobExecutionContext::explode()
@@ -740,7 +740,7 @@ namespace rwe
                 {
                     throw std::runtime_error("Unknown piece " + pieceName);
                 }
-                auto pos = unit.getTransform() * (*pieceTransform) * Vector3f(0.0f, 0.0f, 0.0f);
+                auto pos = unit.getTransform() * (*pieceTransform) * SimVector(0_ss, 0_ss, 0_ss);
                 return packCoords(pos.x, pos.z);
             }
             case CobValueId::PieceY:
@@ -753,8 +753,8 @@ namespace rwe
                 {
                     throw std::runtime_error("Unknown piece " + pieceName);
                 }
-                const auto& pos = unit.getTransform() * (*pieceTransform) * Vector3f(0.0f, 0.0f, 0.0f);
-                return toFixedPoint(pos.y);
+                const auto& pos = unit.getTransform() * (*pieceTransform) * SimVector(0_ss, 0_ss, 0_ss);
+                return simScalarToFixed(pos.y);
             }
             case CobValueId::UnitXZ:
             {
@@ -766,12 +766,12 @@ namespace rwe
             {
                 auto targetUnitId = UnitId(arg1);
                 const auto& pos = sim->getUnit(targetUnitId).position;
-                return toFixedPoint(pos.y);
+                return simScalarToFixed(pos.y);
             }
             case CobValueId::UnitHeight:
             {
                 auto targetUnitId = UnitId(arg1);
-                return toFixedPoint(sim->getUnit(targetUnitId).height);
+                return simScalarToFixed(sim->getUnit(targetUnitId).height);
             }
             case CobValueId::XZAtan:
             {
@@ -785,16 +785,16 @@ namespace rwe
                 // However, in RWE, a unit with rotation 0 faces down, towards positive z.
                 // We therefore subtract a half turn to convert to what scripts expect.
                 // TODO: test whether this is also the case for buildings
-                auto correctedUnitRotation = unit.rotation - Pif;
-                auto result = RadiansAngle::fromUnwrappedAngle(std::atan2(pair.first, pair.second) - correctedUnitRotation);
+                auto correctedUnitRotation = unit.rotation - HalfTurn;
+                auto result = atan2(pair.first, pair.second) - correctedUnitRotation;
                 return static_cast<int>(toCobAngle(result).value);
             }
             case CobValueId::XZHypot:
             {
                 auto coords = arg1;
                 auto pair = unpackCoords(coords);
-                auto result = std::hypot(pair.first, pair.second);
-                return toFixedPoint(result);
+                auto result = hypot(pair.first, pair.second);
+                return CobPosition::fromWorldDistance(result).value;
             }
             case CobValueId::Atan:
             {
@@ -802,17 +802,17 @@ namespace rwe
             }
             case CobValueId::Hypot:
             {
-                auto a = fromFixedPoint(arg1);
-                auto b = fromFixedPoint(arg2);
-                auto result = std::hypot(a, b);
-                return toFixedPoint(result);
+                auto a = CobPosition(arg1);
+                auto b = CobPosition(arg2);
+                auto result = hypot(a.toWorldDistance(), b.toWorldDistance());
+                return CobPosition::fromWorldDistance(result).value;
             }
             case CobValueId::GroundHeight:
             {
                 auto coords = arg1;
                 auto pair = unpackCoords(coords);
                 auto result = sim->terrain.getHeightAt(pair.first, pair.second);
-                return toFixedPoint(result);
+                return simScalarToFixed(result);
             }
             case CobValueId::BuildPercentLeft:
             {

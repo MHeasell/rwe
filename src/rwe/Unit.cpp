@@ -2,11 +2,12 @@
 #include <rwe/GameScene.h>
 #include <rwe/geometry/Plane3f.h>
 #include <rwe/math/rwe_math.h>
+#include <rwe/matrix_util.h>
 #include <rwe/unit_util.h>
 
 namespace rwe
 {
-    UnitOrder createMoveOrder(const Vector3f& destination)
+    UnitOrder createMoveOrder(const SimVector& destination)
     {
         return MoveOrder(destination);
     }
@@ -16,7 +17,7 @@ namespace rwe
         return AttackOrder(target);
     }
 
-    UnitOrder createAttackGroundOrder(const Vector3f& target)
+    UnitOrder createAttackGroundOrder(const SimVector& target)
     {
         return AttackOrder(target);
     }
@@ -52,14 +53,14 @@ namespace rwe
         }
     }
 
-    float Unit::toRotation(const Vector3f& direction)
+    SimAngle Unit::toRotation(const SimVector& direction)
     {
-        return angleTo(Vector3f(0.0f, 0.0f, 1.0f), direction, Vector3f(0.0f, 1.0f, 0.0f));
+        return atan2(direction.x, direction.z);
     }
 
-    Vector3f Unit::toDirection(float rotation)
+    SimVector Unit::toDirection(SimAngle rotation)
     {
-        return Matrix4f::rotationY(rotation) * Vector3f(0.0f, 0.0f, 1.0f);
+        return SimVector(sin(rotation), 0_ss, cos(rotation));
     }
 
     Unit::Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, SelectionMesh&& selectionMesh)
@@ -138,7 +139,7 @@ namespace rwe
         return commander;
     }
 
-    void Unit::moveObject(const std::string& pieceName, Axis axis, float targetPosition, float speed)
+    void Unit::moveObject(const std::string& pieceName, Axis axis, SimScalar targetPosition, SimScalar speed)
     {
         auto piece = mesh.find(pieceName);
         if (!piece)
@@ -162,7 +163,7 @@ namespace rwe
         }
     }
 
-    void Unit::moveObjectNow(const std::string& pieceName, Axis axis, float targetPosition)
+    void Unit::moveObjectNow(const std::string& pieceName, Axis axis, SimScalar targetPosition)
     {
         auto piece = mesh.find(pieceName);
         if (!piece)
@@ -187,7 +188,7 @@ namespace rwe
         }
     }
 
-    void Unit::turnObject(const std::string& pieceName, Axis axis, RadiansAngle targetAngle, float speed)
+    void Unit::turnObject(const std::string& pieceName, Axis axis, SimAngle targetAngle, SimScalar speed)
     {
         auto piece = mesh.find(pieceName);
         if (!piece)
@@ -195,7 +196,7 @@ namespace rwe
             throw std::runtime_error("Invalid piece name: " + pieceName);
         }
 
-        UnitMesh::TurnOperation op(targetAngle, toRadians(speed));
+        UnitMesh::TurnOperation op(targetAngle, speed);
 
         switch (axis)
         {
@@ -211,7 +212,7 @@ namespace rwe
         }
     }
 
-    void Unit::turnObjectNow(const std::string& pieceName, Axis axis, RadiansAngle targetAngle)
+    void Unit::turnObjectNow(const std::string& pieceName, Axis axis, SimAngle targetAngle)
     {
         auto piece = mesh.find(pieceName);
         if (!piece)
@@ -222,21 +223,21 @@ namespace rwe
         switch (axis)
         {
             case Axis::X:
-                piece->get().rotation.x = targetAngle.value;
+                piece->get().rotationX = targetAngle;
                 piece->get().xTurnOperation = std::nullopt;
                 break;
             case Axis::Y:
-                piece->get().rotation.y = targetAngle.value;
+                piece->get().rotationY = targetAngle;
                 piece->get().yTurnOperation = std::nullopt;
                 break;
             case Axis::Z:
-                piece->get().rotation.z = targetAngle.value;
+                piece->get().rotationZ = targetAngle;
                 piece->get().zTurnOperation = std::nullopt;
                 break;
         }
     }
 
-    void Unit::spinObject(const std::string& pieceName, Axis axis, float speed, float acceleration)
+    void Unit::spinObject(const std::string& pieceName, Axis axis, SimScalar speed, SimScalar acceleration)
     {
         auto piece = mesh.find(pieceName);
         if (!piece)
@@ -244,7 +245,7 @@ namespace rwe
             throw std::runtime_error("Invalid piece name: " + pieceName);
         }
 
-        UnitMesh::SpinOperation op(acceleration == 0.0f ? toRadians(speed) : 0.0f, toRadians(speed), toRadians(acceleration));
+        UnitMesh::SpinOperation op(acceleration == 0_ss ? speed : 0_ss, speed, acceleration);
 
         switch (axis)
         {
@@ -260,7 +261,7 @@ namespace rwe
         }
     }
 
-    void setStopSpinOp(std::optional<UnitMesh::TurnOperationUnion>& existingOp, float deceleration)
+    void setStopSpinOp(std::optional<UnitMesh::TurnOperationUnion>& existingOp, SimScalar deceleration)
     {
         if (!existingOp)
         {
@@ -272,16 +273,16 @@ namespace rwe
             return;
         }
 
-        if (deceleration == 0.0f)
+        if (deceleration == 0_ss)
         {
             existingOp = std::nullopt;
             return;
         }
 
-        existingOp = UnitMesh::StopSpinOperation(spinOp->currentSpeed, toRadians(deceleration));
+        existingOp = UnitMesh::StopSpinOperation(spinOp->currentSpeed, deceleration);
     }
 
-    void Unit::stopSpinObject(const std::string& pieceName, Axis axis, float deceleration)
+    void Unit::stopSpinObject(const std::string& pieceName, Axis axis, SimScalar deceleration)
     {
 
         auto piece = mesh.find(pieceName);
@@ -348,7 +349,7 @@ namespace rwe
 
     std::optional<float> Unit::selectionIntersect(const Ray3f& ray) const
     {
-        auto inverseTransform = getInverseTransform();
+        auto inverseTransform = toFloatMatrix(getInverseTransform());
         auto line = ray.toLine();
         Line3f modelSpaceLine(inverseTransform * line.start, inverseTransform * line.end);
         auto v = selectionMesh.collisionMesh.intersectLine(modelSpaceLine);
@@ -404,7 +405,7 @@ namespace rwe
     public:
         TargetIsUnitVisitor(UnitId unit) : unit(unit) {}
         bool operator()(UnitId target) const { return unit == target; }
-        bool operator()(const Vector3f&) const { return false; }
+        bool operator()(const SimVector&) const { return false; }
     };
 
     class IsAttackingUnitVisitor
@@ -422,21 +423,21 @@ namespace rwe
     class TargetIsPositionVisitor
     {
     private:
-        Vector3f position;
+        SimVector position;
 
     public:
-        TargetIsPositionVisitor(const Vector3f& position) : position(position) {}
+        TargetIsPositionVisitor(const SimVector& position) : position(position) {}
         bool operator()(UnitId) const { return false; }
-        bool operator()(const Vector3f& target) const { return target == position; }
+        bool operator()(const SimVector& target) const { return target == position; }
     };
 
     class IsAttackingPositionVisitor
     {
     private:
-        Vector3f position;
+        SimVector position;
 
     public:
-        IsAttackingPositionVisitor(const Vector3f& position) : position(position) {}
+        IsAttackingPositionVisitor(const SimVector& position) : position(position) {}
         bool operator()(const UnitWeaponStateIdle&) const { return false; }
         bool operator()(const UnitWeaponStateAttacking& state) const { return std::visit(TargetIsPositionVisitor(position), state.target); }
     };
@@ -456,7 +457,7 @@ namespace rwe
         }
     }
 
-    void Unit::setWeaponTarget(unsigned int weaponIndex, const Vector3f& target)
+    void Unit::setWeaponTarget(unsigned int weaponIndex, const SimVector& target)
     {
         auto& weapon = weapons[weaponIndex];
         if (!weapon)
@@ -491,14 +492,14 @@ namespace rwe
         }
     }
 
-    Matrix4f Unit::getTransform() const
+    Matrix4x<SimScalar> Unit::getTransform() const
     {
-        return Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
+        return Matrix4x<SimScalar>::translation(position) * Matrix4x<SimScalar>::rotationY(sin(rotation), cos(rotation));
     }
 
-    Matrix4f Unit::getInverseTransform() const
+    Matrix4x<SimScalar> Unit::getInverseTransform() const
     {
-        return Matrix4f::rotationY(-rotation) * Matrix4f::translation(-position);
+        return Matrix4x<SimScalar>::rotationY(sin(-rotation), cos(-rotation)) * Matrix4x<SimScalar>::translation(-position);
     }
 
     bool Unit::isSelectableBy(rwe::PlayerId player) const

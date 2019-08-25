@@ -1,5 +1,6 @@
 #include "RenderService.h"
 #include <rwe/math/rwe_math.h>
+#include <rwe/matrix_util.h>
 
 namespace rwe
 {
@@ -39,11 +40,11 @@ namespace rwe
         // are aligned with the middle of pixels,
         // to prevent discontinuities in the drawn lines.
         Vector3f snappedPosition(
-            snapToInterval(unit.position.x, 1.0f) + 0.5f,
-            snapToInterval(unit.position.y, 2.0f),
-            snapToInterval(unit.position.z, 1.0f) + 0.5f);
+            snapToInterval(simScalarToFloat(unit.position.x), 1.0f) + 0.5f,
+            snapToInterval(simScalarToFloat(unit.position.y), 2.0f),
+            snapToInterval(simScalarToFloat(unit.position.z), 1.0f) + 0.5f);
 
-        auto matrix = Matrix4f::translation(snappedPosition) * Matrix4f::rotationY(unit.rotation);
+        auto matrix = Matrix4f::translation(snappedPosition) * Matrix4f::rotationY(toRadians(unit.rotation).value);
 
         const auto& shader = shaders->basicColor;
         graphics->bindShader(shader.handle.get());
@@ -56,17 +57,17 @@ namespace rwe
     {
         if (unit.isBeingBuilt())
         {
-            drawBuildingUnitMesh(unit.mesh, unit.getTransform(), seaLevel, unit.getPreciseCompletePercent(), unit.position.y, time);
+            drawBuildingUnitMesh(unit.mesh, toFloatMatrix(unit.getTransform()), seaLevel, unit.getPreciseCompletePercent(), simScalarToFloat(unit.position.y), time);
         }
         else
         {
-            drawUnitMesh(unit.mesh, unit.getTransform(), seaLevel);
+            drawUnitMesh(unit.mesh, toFloatMatrix(unit.getTransform()), seaLevel);
         }
     }
 
     void RenderService::drawUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel)
     {
-        auto matrix = modelMatrix * mesh.getTransform();
+        auto matrix = modelMatrix * toFloatMatrix(mesh.getTransform());
 
         if (mesh.visible)
         {
@@ -102,7 +103,7 @@ namespace rwe
 
     void RenderService::drawBuildingUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time)
     {
-        auto matrix = modelMatrix * mesh.getTransform();
+        auto matrix = modelMatrix * toFloatMatrix(mesh.getTransform());
 
         if (mesh.visible)
         {
@@ -146,11 +147,11 @@ namespace rwe
         assert(terrain.getHeightMap().getWidth() >= 2);
         assert(terrain.getHeightMap().getHeight() >= 2);
 
-        auto topLeftCell = terrain.worldToHeightmapCoordinate(Vector3f(left, 0.0f, top));
+        auto topLeftCell = terrain.worldToHeightmapCoordinate(floatToSimVector(Vector3f(left, 0.0f, top)));
         topLeftCell.x = std::clamp(topLeftCell.x, 0, static_cast<int>(occupiedGrid.getWidth() - 1));
         topLeftCell.y = std::clamp(topLeftCell.y, 0, static_cast<int>(occupiedGrid.getHeight() - 1));
 
-        auto bottomRightCell = terrain.worldToHeightmapCoordinate(Vector3f(right, 0.0f, bottom));
+        auto bottomRightCell = terrain.worldToHeightmapCoordinate(floatToSimVector(Vector3f(right, 0.0f, bottom)));
         bottomRightCell.y += 7; // compensate for height
         bottomRightCell.x = std::clamp(bottomRightCell.x, 0, static_cast<int>(occupiedGrid.getWidth() - 1));
         bottomRightCell.y = std::clamp(bottomRightCell.y, 0, static_cast<int>(occupiedGrid.getHeight() - 1));
@@ -168,13 +169,13 @@ namespace rwe
         {
             for (int x = topLeftCell.x; x <= bottomRightCell.x; ++x)
             {
-                auto pos = terrain.heightmapIndexToWorldCorner(x, y);
+                auto pos = simVectorToFloat(terrain.heightmapIndexToWorldCorner(x, y));
                 pos.y = terrain.getHeightMap().get(x, y);
 
-                auto rightPos = terrain.heightmapIndexToWorldCorner(x + 1, y);
+                auto rightPos = simVectorToFloat(terrain.heightmapIndexToWorldCorner(x + 1, y));
                 rightPos.y = terrain.getHeightMap().get(x + 1, y);
 
-                auto downPos = terrain.heightmapIndexToWorldCorner(x, y + 1);
+                auto downPos = simVectorToFloat(terrain.heightmapIndexToWorldCorner(x, y + 1));
                 downPos.y = terrain.getHeightMap().get(x, y + 1);
 
                 lines.emplace_back(pos, rightPos);
@@ -183,7 +184,7 @@ namespace rwe
                 const auto& cell = occupiedGrid.get(x, y);
                 if (std::visit(IsOccupiedVisitor(), cell.occupiedType))
                 {
-                    auto downRightPos = terrain.heightmapIndexToWorldCorner(x + 1, y + 1);
+                    auto downRightPos = simVectorToFloat(terrain.heightmapIndexToWorldCorner(x + 1, y + 1));
                     downRightPos.y = terrain.getHeightMap().get(x + 1, y + 1);
 
                     tris.emplace_back(pos, downPos, downRightPos);
@@ -197,7 +198,7 @@ namespace rwe
                     auto topLeftPos = pos + Vector3f(insetAmount, 0.0f, insetAmount);
                     auto topRightPos = rightPos + Vector3f(-insetAmount, 0.0f, insetAmount);
                     auto bottomLeftPos = downPos + Vector3f(insetAmount, 0.0f, -insetAmount);
-                    auto downRightPos = terrain.heightmapIndexToWorldCorner(x + 1, y + 1);
+                    auto downRightPos = simVectorToFloat(terrain.heightmapIndexToWorldCorner(x + 1, y + 1));
                     downRightPos.y = terrain.getHeightMap().get(x + 1, y + 1);
                     downRightPos += Vector3f(-insetAmount, 0.0f, -insetAmount);
 
@@ -210,7 +211,7 @@ namespace rwe
                     auto topLeftPos = pos + Vector3f(insetAmount, 0.0f, insetAmount);
                     auto topRightPos = rightPos + Vector3f(-insetAmount, 0.0f, insetAmount);
                     auto bottomLeftPos = downPos + Vector3f(insetAmount, 0.0f, -insetAmount);
-                    auto downRightPos = terrain.heightmapIndexToWorldCorner(x + 1, y + 1);
+                    auto downRightPos = simVectorToFloat(terrain.heightmapIndexToWorldCorner(x + 1, y + 1));
                     downRightPos.y = terrain.getHeightMap().get(x + 1, y + 1);
                     downRightPos += Vector3f(-insetAmount, 0.0f, -insetAmount);
 
@@ -255,11 +256,11 @@ namespace rwe
         assert(terrain.getHeightMap().getWidth() >= 2);
         assert(terrain.getHeightMap().getHeight() >= 2);
 
-        auto topLeftCell = terrain.worldToHeightmapCoordinate(Vector3f(left, 0.0f, top));
+        auto topLeftCell = terrain.worldToHeightmapCoordinate(floatToSimVector(Vector3f(left, 0.0f, top)));
         topLeftCell.x = std::clamp(topLeftCell.x, 0, static_cast<int>(terrain.getHeightMap().getWidth() - 2));
         topLeftCell.y = std::clamp(topLeftCell.y, 0, static_cast<int>(terrain.getHeightMap().getHeight() - 2));
 
-        auto bottomRightCell = terrain.worldToHeightmapCoordinate(Vector3f(right, 0.0f, bottom));
+        auto bottomRightCell = terrain.worldToHeightmapCoordinate(floatToSimVector(Vector3f(right, 0.0f, bottom)));
         bottomRightCell.y += 7; // compensate for height
         bottomRightCell.x = std::clamp(bottomRightCell.x, 0, static_cast<int>(terrain.getHeightMap().getWidth() - 2));
         bottomRightCell.y = std::clamp(bottomRightCell.y, 0, static_cast<int>(terrain.getHeightMap().getHeight() - 2));
@@ -275,13 +276,13 @@ namespace rwe
         {
             for (int x = topLeftCell.x; x <= bottomRightCell.x; ++x)
             {
-                auto pos = terrain.heightmapIndexToWorldCorner(x, y);
+                auto pos = simVectorToFloat(terrain.heightmapIndexToWorldCorner(x, y));
                 pos.y = terrain.getHeightMap().get(x, y);
 
-                auto rightPos = terrain.heightmapIndexToWorldCorner(x + 1, y);
+                auto rightPos = simVectorToFloat(terrain.heightmapIndexToWorldCorner(x + 1, y));
                 rightPos.y = terrain.getHeightMap().get(x + 1, y);
 
-                auto downPos = terrain.heightmapIndexToWorldCorner(x, y + 1);
+                auto downPos = simVectorToFloat(terrain.heightmapIndexToWorldCorner(x, y + 1));
                 downPos.y = terrain.getHeightMap().get(x, y + 1);
 
                 lines.emplace_back(pos, rightPos);
@@ -289,7 +290,7 @@ namespace rwe
 
                 if (!movementClassGrid.get(x, y))
                 {
-                    auto downRightPos = terrain.heightmapIndexToWorldCorner(x + 1, y + 1);
+                    auto downRightPos = simVectorToFloat(terrain.heightmapIndexToWorldCorner(x + 1, y + 1));
                     downRightPos.y = terrain.getHeightMap().get(x + 1, y + 1);
 
                     tris.emplace_back(pos, downPos, downRightPos);
@@ -411,16 +412,16 @@ namespace rwe
                 auto dy = p.second;
 
                 auto tileIndex = terrain.getTiles().get(x + dx, y + dy);
-                auto tilePosition = terrain.tileCoordinateToWorldCorner(x + dx, y + dy);
+                auto tilePosition = simVectorToFloat(terrain.tileCoordinateToWorldCorner(x + dx, y + dy));
 
                 const auto& tileTexture = terrain.getTileTexture(tileIndex);
 
                 vertices.emplace_back(Vector3f(tilePosition.x, 0.0f, tilePosition.z), tileTexture.region.topLeft());
-                vertices.emplace_back(Vector3f(tilePosition.x, 0.0f, tilePosition.z + MapTerrain::TileHeightInWorldUnits), tileTexture.region.bottomLeft());
-                vertices.emplace_back(Vector3f(tilePosition.x + MapTerrain::TileWidthInWorldUnits, 0.0f, tilePosition.z + MapTerrain::TileHeightInWorldUnits), tileTexture.region.bottomRight());
+                vertices.emplace_back(Vector3f(tilePosition.x, 0.0f, tilePosition.z + simScalarToFloat(MapTerrain::TileHeightInWorldUnits)), tileTexture.region.bottomLeft());
+                vertices.emplace_back(Vector3f(tilePosition.x + simScalarToFloat(MapTerrain::TileWidthInWorldUnits), 0.0f, tilePosition.z + simScalarToFloat(MapTerrain::TileHeightInWorldUnits)), tileTexture.region.bottomRight());
 
-                vertices.emplace_back(Vector3f(tilePosition.x + MapTerrain::TileWidthInWorldUnits, 0.0f, tilePosition.z + MapTerrain::TileHeightInWorldUnits), tileTexture.region.bottomRight());
-                vertices.emplace_back(Vector3f(tilePosition.x + MapTerrain::TileWidthInWorldUnits, 0.0f, tilePosition.z), tileTexture.region.topRight());
+                vertices.emplace_back(Vector3f(tilePosition.x + simScalarToFloat(MapTerrain::TileWidthInWorldUnits), 0.0f, tilePosition.z + simScalarToFloat(MapTerrain::TileHeightInWorldUnits)), tileTexture.region.bottomRight());
+                vertices.emplace_back(Vector3f(tilePosition.x + simScalarToFloat(MapTerrain::TileWidthInWorldUnits), 0.0f, tilePosition.z), tileTexture.region.topRight());
                 vertices.emplace_back(Vector3f(tilePosition.x, 0.0f, tilePosition.z), tileTexture.region.topLeft());
             }
 
@@ -434,8 +435,8 @@ namespace rwe
     void RenderService::drawMapTerrain(const MapTerrain& terrain)
     {
         Vector3f cameraExtents(camera.getWidth() / 2.0f, 0.0f, camera.getHeight() / 2.0f);
-        auto topLeft = terrain.worldToTileCoordinate(camera.getPosition() - cameraExtents);
-        auto bottomRight = terrain.worldToTileCoordinate(camera.getPosition() + cameraExtents);
+        auto topLeft = terrain.worldToTileCoordinate(floatToSimVector(camera.getPosition() - cameraExtents));
+        auto bottomRight = terrain.worldToTileCoordinate(floatToSimVector(camera.getPosition() + cameraExtents));
         auto x1 = static_cast<unsigned int>(std::clamp<int>(topLeft.x, 0, terrain.getTiles().getWidth() - 1));
         auto y1 = static_cast<unsigned int>(std::clamp<int>(topLeft.y, 0, terrain.getTiles().getHeight() - 1));
         auto x2 = static_cast<unsigned int>(std::clamp<int>(bottomRight.x, 0, terrain.getTiles().getWidth() - 1));
@@ -451,7 +452,7 @@ namespace rwe
             * Matrix4f::shearXZ(0.25f, -0.25f)
             * Matrix4f::translation(Vector3f(0.0f, -groundHeight, 0.0f));
 
-        auto matrix = Matrix4f::translation(unit.position) * Matrix4f::rotationY(unit.rotation);
+        auto matrix = Matrix4f::translation(simVectorToFloat(unit.position)) * Matrix4f::rotationY(toRadians(unit.rotation).value);
 
         drawUnitMesh(unit.mesh, shadowProjection * matrix, 0.0f);
     }
@@ -503,12 +504,13 @@ namespace rwe
                 continue;
             }
 
-            auto backPosition = laser->getBackPosition();
+            auto position = simVectorToFloat(laser->position);
+            auto backPosition = simVectorToFloat(laser->getBackPosition());
 
-            vertices.emplace_back(laser->position, laser->color);
+            vertices.emplace_back(position, laser->color);
             vertices.emplace_back(backPosition, laser->color);
 
-            vertices.emplace_back(laser->position + pixelOffset, laser->color2);
+            vertices.emplace_back(position + pixelOffset, laser->color2);
             vertices.emplace_back(backPosition + pixelOffset, laser->color2);
         }
 
@@ -538,7 +540,7 @@ namespace rwe
                 continue;
             }
 
-            const auto& position = exp->position;
+            auto position = simVectorToFloat(exp->position);
             auto frameIndex = exp->getFrameIndex(currentTime);
             const auto& sprite = *exp->animation->sprites[frameIndex];
 
@@ -571,7 +573,7 @@ namespace rwe
             return;
         }
 
-        const auto& position = feature.position;
+        auto position = simVectorToFloat(feature.position);
         const auto& sprite = *(*feature.shadowAnimation)->sprites[0];
 
         float alpha = feature.transparentShadow ? 0.5f : 1.0f;
@@ -593,7 +595,7 @@ namespace rwe
 
     void RenderService::drawFeatureInternal(const MapFeature& feature)
     {
-        const auto& position = feature.position;
+        auto position = simVectorToFloat(feature.position);
         const auto& sprite = *feature.animation->sprites[0];
 
         float alpha = feature.transparentAnimation ? 0.5f : 1.0f;
@@ -623,17 +625,19 @@ namespace rwe
 
         auto worldStart = terrain.heightmapIndexToWorldCenter(start);
         worldStart.y = terrain.getHeightAt(worldStart.x, worldStart.z);
+        auto worldStartF = simVectorToFloat(worldStart);
 
         auto worldEnd = terrain.heightmapIndexToWorldCenter(end);
         worldEnd.y = terrain.getHeightAt(worldEnd.x, worldEnd.z);
+        auto worldEndF = simVectorToFloat(worldEnd);
 
-        auto armTemplate = (worldStart - worldEnd).normalized() * 6.0f;
-        auto arm1 = Matrix4f::translation(worldEnd) * Matrix4f::rotationY(Pif / 6.0f) * armTemplate;
-        auto arm2 = Matrix4f::translation(worldEnd) * Matrix4f::rotationY(-Pif / 6.0f) * armTemplate;
+        auto armTemplate = (worldStartF - worldEndF).normalized() * 6.0f;
+        auto arm1 = Matrix4f::translation(worldEndF) * Matrix4f::rotationY(Pif / 6.0f) * armTemplate;
+        auto arm2 = Matrix4f::translation(worldEndF) * Matrix4f::rotationY(-Pif / 6.0f) * armTemplate;
 
-        lines.emplace_back(worldStart, worldEnd);
-        lines.emplace_back(worldEnd, arm1);
-        lines.emplace_back(worldEnd, arm2);
+        lines.emplace_back(worldStartF, worldEndF);
+        lines.emplace_back(worldEndF, arm1);
+        lines.emplace_back(worldEndF, arm2);
 
         graphics->drawLines(createTemporaryLinesMesh(lines, color));
     }

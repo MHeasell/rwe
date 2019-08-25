@@ -1,5 +1,5 @@
 #include "serialization.h"
-#include <stdexcept>
+
 
 namespace rwe
 {
@@ -11,7 +11,7 @@ namespace rwe
     public:
         explicit WriteAttackTargetVisitor(proto::AttackOrder& cmd) : cmd(&cmd) {}
 
-        void operator()(const Vector3f& v)
+        void operator()(const SimVector& v)
         {
             auto& out = *cmd->mutable_ground();
             serializeVector(v, out);
@@ -129,11 +129,11 @@ namespace rwe
         }
     };
 
-    void serializeVector(const Vector3f& v, proto::Vector3f& out)
+    void serializeVector(const SimVector& v, proto::SimVector& out)
     {
-        out.set_x(v.x);
-        out.set_y(v.y);
-        out.set_z(v.z);
+        out.set_x(simScalarToFloat(v.x));
+        out.set_y(simScalarToFloat(v.y));
+        out.set_z(simScalarToFloat(v.z));
     }
 
     proto::PlayerUnitCommand::IssueOrder::IssueKind
@@ -301,8 +301,8 @@ namespace rwe
         throw std::runtime_error("Failed to deserlialize unit order");
     }
 
-    Vector3f deserializeVector(const proto::Vector3f& v)
+    SimVector deserializeVector(const proto::SimVector& v)
     {
-        return Vector3f(v.x(), v.y(), v.z());
+        return SimVector(SimScalar(v.x()), SimScalar(v.y()), SimScalar(v.z()));
     }
 }

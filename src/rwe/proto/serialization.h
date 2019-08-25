@@ -7,7 +7,7 @@
 
 namespace rwe
 {
-    void serializeVector(const Vector3f& v, proto::Vector3f& out);
+    void serializeVector(const SimVector& v, proto::SimVector& out);
 
     proto::PlayerUnitCommand::IssueOrder::IssueKind serializeIssueKind(const PlayerUnitCommand::IssueOrder::IssueKind& kind);
 
@@ -29,5 +29,5 @@ namespace rwe
 
     UnitOrder deserializeUnitOrder(const proto::PlayerUnitCommand::IssueOrder& cmd);
 
-    Vector3f deserializeVector(const proto::Vector3f& v);
+    SimVector deserializeVector(const proto::SimVector& v);
 }

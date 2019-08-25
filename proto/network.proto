@@ -13,7 +13,7 @@ message LoadingStatusMessage
     required Status status = 1;
 }
 
-message Vector3f
+message SimVector
 {
     required float x = 1;
     required float y = 2;
@@ -22,7 +22,7 @@ message Vector3f
 
 message MoveOrder
 {
-    required Vector3f destination = 1;
+    required SimVector destination = 1;
 }
 
 message AttackOrder
@@ -30,14 +30,14 @@ message AttackOrder
     oneof target
     {
         int32 unit = 1;
-        Vector3f ground = 2;
+        SimVector ground = 2;
     }
 }
 
 message BuildOrder
 {
     required string unit_type = 1;
-    required Vector3f position = 2;
+    required SimVector position = 2;
 }
 
 message PlayerUnitCommand

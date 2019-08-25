@@ -6,18 +6,18 @@
 
 namespace rwe
 {
-    uint32_t packCoords(float x, float z)
+    uint32_t packCoords(SimScalar x, SimScalar z)
     {
-        auto intX = static_cast<int16_t>(x);
-        auto intZ = static_cast<int16_t>(z);
+        auto intX = static_cast<int16_t>(x.value);
+        auto intZ = static_cast<int16_t>(z.value);
         return (static_cast<uint32_t>(intX) << 16) | (static_cast<uint32_t>(intZ) & 0xffff);
     }
 
-    std::pair<float, float> unpackCoords(uint32_t xz)
+    std::pair<SimScalar, SimScalar> unpackCoords(uint32_t xz)
     {
         auto x = static_cast<int16_t>(xz >> 16);
         auto z = static_cast<int16_t>(xz & 0xffff);
-        return std::pair<float, float>(x, z);
+        return std::make_pair(SimScalar(x), SimScalar(z));
     }
 
     int cobAtan(int a, int b)

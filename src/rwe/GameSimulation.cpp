@@ -1,4 +1,5 @@
 #include "GameSimulation.h"
+#include <rwe/SimScalar.h>
 #include <rwe/collection_util.h>
 #include <rwe/overloaded.h>
 
@@ -155,11 +156,11 @@ namespace rwe
         return true;
     }
 
-    DiscreteRect GameSimulation::computeFootprintRegion(const Vector3f& position, unsigned int footprintX, unsigned int footprintZ) const
+    DiscreteRect GameSimulation::computeFootprintRegion(const SimVector& position, unsigned int footprintX, unsigned int footprintZ) const
     {
-        auto halfFootprintX = static_cast<float>(footprintX) * MapTerrain::HeightTileWidthInWorldUnits / 2.0f;
-        auto halfFootprintZ = static_cast<float>(footprintZ) * MapTerrain::HeightTileHeightInWorldUnits / 2.0f;
-        Vector3f topLeft(
+        auto halfFootprintX = SimScalar(footprintX * MapTerrain::HeightTileWidthInWorldUnits.value / 2);
+        auto halfFootprintZ = SimScalar(footprintZ * MapTerrain::HeightTileHeightInWorldUnits.value / 2);
+        SimVector topLeft(
             position.x - halfFootprintX,
             position.y,
             position.z - halfFootprintZ);
@@ -354,32 +355,32 @@ namespace rwe
         return players.at(player.value);
     }
 
-    void GameSimulation::moveObject(UnitId unitId, const std::string& name, Axis axis, float position, float speed)
+    void GameSimulation::moveObject(UnitId unitId, const std::string& name, Axis axis, SimScalar position, SimScalar speed)
     {
         getUnit(unitId).moveObject(name, axis, position, speed);
     }
 
-    void GameSimulation::moveObjectNow(UnitId unitId, const std::string& name, Axis axis, float position)
+    void GameSimulation::moveObjectNow(UnitId unitId, const std::string& name, Axis axis, SimScalar position)
     {
         getUnit(unitId).moveObjectNow(name, axis, position);
     }
 
-    void GameSimulation::turnObject(UnitId unitId, const std::string& name, Axis axis, RadiansAngle angle, float speed)
+    void GameSimulation::turnObject(UnitId unitId, const std::string& name, Axis axis, SimAngle angle, SimScalar speed)
     {
         getUnit(unitId).turnObject(name, axis, angle, speed);
     }
 
-    void GameSimulation::turnObjectNow(UnitId unitId, const std::string& name, Axis axis, RadiansAngle angle)
+    void GameSimulation::turnObjectNow(UnitId unitId, const std::string& name, Axis axis, SimAngle angle)
     {
         getUnit(unitId).turnObjectNow(name, axis, angle);
     }
 
-    void GameSimulation::spinObject(UnitId unitId, const std::string& name, Axis axis, float speed, float acceleration)
+    void GameSimulation::spinObject(UnitId unitId, const std::string& name, Axis axis, SimScalar speed, SimScalar acceleration)
     {
         getUnit(unitId).spinObject(name, axis, speed, acceleration);
     }
 
-    void GameSimulation::stopSpinObject(UnitId unitId, const std::string& name, Axis axis, float deceleration)
+    void GameSimulation::stopSpinObject(UnitId unitId, const std::string& name, Axis axis, SimScalar deceleration)
     {
         getUnit(unitId).stopSpinObject(name, axis, deceleration);
     }
@@ -412,7 +413,7 @@ namespace rwe
         return it;
     }
 
-    std::optional<Vector3f> GameSimulation::intersectLineWithTerrain(const Line3f& line) const
+    std::optional<SimVector> GameSimulation::intersectLineWithTerrain(const Line3x<SimScalar>& line) const
     {
         return terrain.intersectLine(line);
     }
@@ -432,7 +433,7 @@ namespace rwe
     {
         PathRequest request{unitId};
 
-        // If the unit is already in the queue for a path,
+        // If the unit iWorldAngles already in the queue for a path,
         // we'll assume that they no longer care about their old request
         // and that their new request is for some new path,
         // so we'll move them to the back of the queue for fairness.
@@ -446,7 +447,7 @@ namespace rwe
     }
 
     LaserProjectile GameSimulation::createProjectileFromWeapon(
-        PlayerId owner, const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction)
+        PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction)
     {
         LaserProjectile laser;
         laser.owner = owner;
@@ -474,7 +475,7 @@ namespace rwe
         return laser;
     }
 
-    void GameSimulation::spawnLaser(PlayerId owner, const UnitWeapon& weapon, const Vector3f& position, const Vector3f& direction)
+    void GameSimulation::spawnLaser(PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction)
     {
         auto laser = createProjectileFromWeapon(owner, weapon, position, direction);
 
@@ -489,7 +490,7 @@ namespace rwe
         }
     }
 
-    void GameSimulation::spawnExplosion(const Vector3f& position, const std::shared_ptr<SpriteSeries>& animation)
+    void GameSimulation::spawnExplosion(const SimVector& position, const std::shared_ptr<SpriteSeries>& animation)
     {
         Explosion exp;
         exp.position = position;
@@ -507,7 +508,7 @@ namespace rwe
         }
     }
 
-    void GameSimulation::spawnSmoke(const Vector3f& position, const std::shared_ptr<SpriteSeries>& animation)
+    void GameSimulation::spawnSmoke(const SimVector& position, const std::shared_ptr<SpriteSeries>& animation)
     {
         Explosion exp;
         exp.position = position;

@@ -3,9 +3,9 @@
 #include <rwe/AudioService.h>
 #include <rwe/GameTime.h>
 #include <rwe/PlayerId.h>
+#include <rwe/SimVector.h>
 #include <rwe/SpriteSeries.h>
-#include <rwe/geometry/Line3f.h>
-#include <rwe/math/Vector3f.h>
+#include <rwe/math/Vector3x.h>
 
 namespace rwe
 {
@@ -13,15 +13,15 @@ namespace rwe
     {
         PlayerId owner;
 
-        Vector3f position;
+        SimVector position;
 
-        Vector3f origin;
+        SimVector origin;
 
         /** Velocity in game pixels/tick */
-        Vector3f velocity;
+        SimVector velocity;
 
         /** Duration in ticks */
-        float duration;
+        SimScalar duration;
 
         Vector3f color;
         Vector3f color2;
@@ -48,9 +48,9 @@ namespace rwe
 
         std::unordered_map<std::string, unsigned int> damage;
 
-        float damageRadius;
+        SimScalar damageRadius;
 
-        Vector3f getBackPosition() const;
+        SimVector getBackPosition() const;
 
         unsigned int getDamage(const std::string& unitType) const;
     };

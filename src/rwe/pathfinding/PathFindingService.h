@@ -27,7 +27,7 @@ namespace rwe
             {
             }
 
-            UnitPath operator()(const Vector3f& pos) const
+            UnitPath operator()(const SimVector& pos) const
             {
                 return svc->findPath(unitId, pos);
             }
@@ -48,10 +48,10 @@ namespace rwe
         void update();
 
     private:
-        UnitPath findPath(UnitId unitId, const Vector3f& destination);
+        UnitPath findPath(UnitId unitId, const SimVector& destination);
         UnitPath findPath(UnitId unitId, const DiscreteRect& destination);
 
-        Vector3f getWorldCenter(const DiscreteRect& discreteRect);
+        SimVector getWorldCenter(const DiscreteRect& discreteRect);
 
         DiscreteRect expandTopLeft(const DiscreteRect& rect, unsigned int width, unsigned int height);
     };

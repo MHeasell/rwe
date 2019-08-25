@@ -280,6 +280,7 @@ set(SOURCE_FILES
     src/rwe/MovementClassId.h
     src/rwe/OccupiedGrid.cpp
     src/rwe/OccupiedGrid.h
+    src/rwe/OpaqueField.h
     src/rwe/OpaqueId.h
     src/rwe/OpaqueId_io.h
     src/rwe/OpaqueUnit.h
@@ -314,6 +315,11 @@ set(SOURCE_FILES
     src/rwe/SharedHandle.h
     src/rwe/SideData.cpp
     src/rwe/SideData.h
+    src/rwe/SimAngle.cpp
+    src/rwe/SimAngle.h
+    src/rwe/SimScalar.cpp
+    src/rwe/SimScalar.h
+    src/rwe/SimVector.h
     src/rwe/SoundClass.cpp
     src/rwe/SoundClass.h
     src/rwe/Sprite.cpp
@@ -392,6 +398,8 @@ set(SOURCE_FILES
     src/rwe/fbi/UnitFbi.h
     src/rwe/fixed_point.cpp
     src/rwe/fixed_point.h
+    src/rwe/float_math.cpp
+    src/rwe/float_math.h
     src/rwe/geometry/BoundingBox3f.h
     src/rwe/geometry/BoundingBox3x.h
     src/rwe/geometry/Circle2f.h
@@ -423,6 +431,8 @@ set(SOURCE_FILES
     src/rwe/math/Vector3x.h
     src/rwe/math/rwe_math.cpp
     src/rwe/math/rwe_math.h
+    src/rwe/matrix_util.cpp
+    src/rwe/matrix_util.h
     src/rwe/movement.cpp
     src/rwe/movement.h
     src/rwe/network_util.cpp
@@ -695,6 +705,8 @@ set(TEST_FILES
     test/rwe/Point_test.cpp
     test/rwe/Result_test.cpp
     test/rwe/SideData_test.cpp
+    test/rwe/SimAngle_test.cpp
+    test/rwe/SimVector_test.cpp
     test/rwe/SimpleTdfAdapter_test.cpp
     test/rwe/TdfBlock_test.cpp
     test/rwe/VectorMap_test.cpp
