@@ -392,30 +392,9 @@ namespace rwe
     }
 }
 
-auto createLogger(const fs::path& logDir)
+auto createLogger(const fs::path& logFile)
 {
-    for (int i = 0; i < 3; ++i)
-    {
-        fs::path logPath(logDir);
-        if (i == 0)
-        {
-            logPath /= "rwe.log";
-        }
-        else
-        {
-            logPath /= "rwe" + std::to_string(i) + ".log";
-        }
-
-        try
-        {
-            return spdlog::basic_logger_mt("rwe", logPath.string(), true);
-        }
-        catch (const spdlog::spdlog_ex& ex)
-        {
-        }
-    }
-
-    throw std::runtime_error("Failed to create logger");
+    return spdlog::basic_logger_mt("rwe", logFile.string(), true);
 }
 
 int main(int argc, char* argv[])
@@ -430,37 +409,37 @@ int main(int argc, char* argv[])
 
         fs::create_directories(*localDataPath);
 
-        fs::path logPath(*localDataPath);
+        po::options_description desc("Allowed options");
+
+        // clang-format off
+        desc.add_options()
+            ("help", "produce help message")
+            ("log", po::value<std::string>(), "Sets the log output file path")
+            ("width", po::value<unsigned int>()->default_value(800), "Sets the window width in pixels")
+            ("height", po::value<unsigned int>()->default_value(600), "Sets the window height in pixels")
+            ("data-path", po::value<std::vector<std::string>>(), "Sets the location(s) to search for game data")
+            ("map", po::value<std::string>(), "If given, launches straight into a game on the given map")
+            ("interface", po::value<std::string>()->default_value("0.0.0.0"), "Network interface to bind to")
+            ("port", po::value<std::string>()->default_value("1337"), "Network port to bind to")
+            ("player", po::value<std::vector<std::string>>(), "type;side;color");
+        // clang-format on
+
+        po::variables_map vm;
+        po::store(po::parse_command_line(argc, argv, desc), vm);
+        po::notify(vm);
+
+        if (vm.count("help"))
+        {
+            std::cout << desc << std::endl;
+            return 0;
+        }
+
+        auto logPath = vm.count("log") ? fs::path(vm["log"].as<std::string>()) : (*localDataPath / "rwe.log");
         auto logger = createLogger(logPath);
         logger->set_level(spdlog::level::debug);
         logger->flush_on(spdlog::level::debug); // always flush
 
-        try
-        {
-            po::options_description desc("Allowed options");
-
-            // clang-format off
-            desc.add_options()
-                ("help", "produce help message")
-                ("width", po::value<unsigned int>()->default_value(800), "Sets the window width in pixels")
-                ("height", po::value<unsigned int>()->default_value(600), "Sets the window height in pixels")
-                ("data-path", po::value<std::vector<std::string>>(), "Sets the location(s) to search for game data")
-                ("map", po::value<std::string>(), "If given, launches straight into a game on the given map")
-                ("interface", po::value<std::string>()->default_value("0.0.0.0"), "Network interface to bind to")
-                ("port", po::value<std::string>()->default_value("1337"), "Network port to bind to")
-                ("player", po::value<std::vector<std::string>>(), "type;side;color");
-            // clang-format on
-
-            po::variables_map vm;
-            po::store(po::parse_command_line(argc, argv, desc), vm);
-            po::notify(vm);
-
-            if (vm.count("help"))
-            {
-                std::cout << desc << std::endl;
-                return 0;
-            }
-
+        try {
             std::optional<rwe::GameParameters> gameParameters;
             if (vm.count("map"))
             {
