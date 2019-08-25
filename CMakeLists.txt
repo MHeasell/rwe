@@ -380,6 +380,9 @@ set(SOURCE_FILES
     src/rwe/collection_util.h
     src/rwe/events.cpp
     src/rwe/events.h
+    src/rwe/fbi/FbiAnglePerTick.h
+    src/rwe/fbi/FbiDistancePerTick.h
+    src/rwe/fbi/FbiDistancePerTickSquared.h
     src/rwe/fbi/UnitFbi.cpp
     src/rwe/fbi/UnitFbi.h
     src/rwe/fixed_point.cpp

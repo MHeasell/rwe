@@ -2,6 +2,9 @@
 
 #include <rwe/Energy.h>
 #include <rwe/Metal.h>
+#include <rwe/fbi/FbiAnglePerTick.h>
+#include <rwe/fbi/FbiDistancePerTick.h>
+#include <rwe/fbi/FbiDistancePerTickSquared.h>
 #include <rwe/tdf/TdfBlock.h>
 #include <string>
 
@@ -16,10 +19,10 @@ namespace rwe
 
         std::string name;
 
-        float turnRate;
-        float maxVelocity;
-        float acceleration;
-        float brakeRate;
+        FbiAnglePerTick turnRate;
+        FbiDistancePerTick maxVelocity;
+        FbiDistancePerTickSquared acceleration;
+        FbiDistancePerTickSquared brakeRate;
 
         unsigned int footprintX;
         unsigned int footprintZ;
