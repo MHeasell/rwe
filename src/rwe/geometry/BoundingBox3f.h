@@ -1,7 +1,5 @@
 #pragma once
 
-#include <optional>
-#include <rwe/geometry/Ray3f.h>
 #include <rwe/math/Vector3f.h>
 
 namespace rwe
@@ -9,13 +7,6 @@ namespace rwe
     /** An axis-aligned bounding box in 3D space */
     struct BoundingBox3f
     {
-        struct RayIntersect
-        {
-            float enter;
-            float exit;
-            RayIntersect(float enter, float exit) : enter(enter), exit(exit) {}
-        };
-
         static BoundingBox3f fromMinMax(const Vector3f& min, const Vector3f& max);
 
         /** The position of the center of the box. */
@@ -25,14 +16,6 @@ namespace rwe
         Vector3f extents;
 
         BoundingBox3f(const Vector3f& center, const Vector3f& extents);
-
-        /**
-         * Computes the intersection between the given ray and the bounding box.
-         * If the ray intersects, returns a result containing the distances
-         * at which the ray enters and exits the bounding box.
-         * Otherwise, returns a result indicating that the ray missed.
-         */
-        std::optional<RayIntersect> intersect(const Ray3f& ray) const;
 
         float distanceSquared(const Vector3f& pos) const;
     };
