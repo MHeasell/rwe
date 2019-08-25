@@ -413,6 +413,7 @@ set(SOURCE_FILES
     src/rwe/io_utils.cpp
     src/rwe/io_utils.h
     src/rwe/math/Matrix4f.h
+    src/rwe/math/Matrix4x.h
     src/rwe/math/Vector2f.h
     src/rwe/math/Vector2x.h
     src/rwe/math/Vector3f.cpp

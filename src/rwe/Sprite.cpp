@@ -1,4 +1,5 @@
 #include "Sprite.h"
+#include <rwe/math/Vector3f.h>
 
 namespace rwe
 {
