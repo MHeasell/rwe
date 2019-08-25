@@ -54,7 +54,7 @@ namespace rwe
         return v * (Pif / 180.0f);
     }
 
-    RadiansAngle toRadians(TaAngle angle)
+    RadiansAngle toRadians(CobAngle angle)
     {
         return RadiansAngle::fromUnwrappedAngle(static_cast<float>(angle.value) * (Pif / 32768.0f));
     }
@@ -64,8 +64,8 @@ namespace rwe
         return static_cast<float>(angle) * (Pif / 32768.0f);
     }
 
-    TaAngle toTaAngle(RadiansAngle angle)
+    CobAngle toCobAngle(RadiansAngle angle)
     {
-        return TaAngle(static_cast<uint16_t>(std::round(angle.value * (32768.0f / Pif))));
+        return CobAngle(static_cast<uint16_t>(std::round(angle.value * (32768.0f / Pif))));
     }
 }

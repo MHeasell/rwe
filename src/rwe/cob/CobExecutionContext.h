@@ -142,7 +142,7 @@ namespace rwe
 
         float popPosition();
         float popSpeed();
-        TaAngle popAngle();
+        CobAngle popAngle();
         float popAngularSpeed();
         float popSignedAngularSpeed();
         unsigned int popSignal();

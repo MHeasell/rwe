@@ -407,7 +407,7 @@ namespace rwe
         auto angle = popAngle();
         if (axis == Axis::Z) // flip z-axis rotations to match our right-handed coordinates
         {
-            angle = TaAngle(-angle.value);
+            angle = CobAngle(-angle.value);
         }
         auto speed = popAngularSpeed();
         sim->turnObject(unitId, getObjectName(object), axis, toRadians(angle), speed);
@@ -420,7 +420,7 @@ namespace rwe
         auto angle = popAngle();
         if (axis == Axis::Z) // flip z-axis rotations to match our right-handed coordinates
         {
-            angle = TaAngle(-angle.value);
+            angle = CobAngle(-angle.value);
         }
         sim->turnObjectNow(unitId, getObjectName(object), axis, toRadians(angle));
     }
@@ -649,9 +649,9 @@ namespace rwe
         return static_cast<float>(val) / 65536.0f;
     }
 
-    TaAngle CobExecutionContext::popAngle()
+    CobAngle CobExecutionContext::popAngle()
     {
-        return TaAngle(pop());
+        return CobAngle(pop());
     }
 
     float CobExecutionContext::popAngularSpeed()
@@ -794,7 +794,7 @@ namespace rwe
                 // TODO: test whether this is also the case for buildings
                 auto correctedUnitRotation = unit.rotation - Pif;
                 auto result = RadiansAngle::fromUnwrappedAngle(std::atan2(pair.first, pair.second) - correctedUnitRotation);
-                return static_cast<int>(toTaAngle(result).value);
+                return static_cast<int>(toCobAngle(result).value);
             }
             case CobValueId::XZHypot:
             {

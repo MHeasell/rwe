@@ -3,7 +3,7 @@
 #include <boost/filesystem/path.hpp>
 #include <optional>
 #include <rwe/RadiansAngle.h>
-#include <rwe/TaAngle.h>
+#include <rwe/cob/CobAngle.h>
 
 namespace rwe
 {
@@ -21,9 +21,9 @@ namespace rwe
 
     float toRadians(float v);
 
-    RadiansAngle toRadians(TaAngle angle);
+    RadiansAngle toRadians(CobAngle angle);
 
     float toleranceToRadians(unsigned int angle);
 
-    TaAngle toTaAngle(RadiansAngle angle);
+    CobAngle toCobAngle(RadiansAngle angle);
 }

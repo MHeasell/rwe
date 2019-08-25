@@ -317,7 +317,6 @@ set(SOURCE_FILES
     src/rwe/Sprite.h
     src/rwe/SpriteSeries.cpp
     src/rwe/SpriteSeries.h
-    src/rwe/TaAngle.h
     src/rwe/TextureHandle.h
     src/rwe/TextureRegion.cpp
     src/rwe/TextureRegion.h
@@ -360,6 +359,7 @@ set(SOURCE_FILES
     src/rwe/camera/CabinetCamera.h
     src/rwe/camera/UiCamera.cpp
     src/rwe/camera/UiCamera.h
+    src/rwe/cob/CobAngle.h
     src/rwe/cob/CobConstants.h
     src/rwe/cob/CobEnvironment.cpp
     src/rwe/cob/CobEnvironment.h

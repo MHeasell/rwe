@@ -23,6 +23,6 @@ namespace rwe
     int cobAtan(int a, int b)
     {
         auto result = RadiansAngle::fromUnwrappedAngle(std::atan2(fromFixedPoint(a), fromFixedPoint(b)));
-        return static_cast<int>(toTaAngle(result).value);
+        return static_cast<int>(toCobAngle(result).value);
     }
 }

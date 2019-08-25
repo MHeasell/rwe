@@ -248,7 +248,7 @@ namespace rwe
                 auto heading = headingAndPitch.first;
                 auto pitch = headingAndPitch.second;
 
-                auto threadId = unit.cobEnvironment->createThread(getAimScriptName(weaponIndex), {toTaAngle(RadiansAngle(heading)).value, toTaAngle(RadiansAngle(pitch)).value});
+                auto threadId = unit.cobEnvironment->createThread(getAimScriptName(weaponIndex), {toCobAngle(RadiansAngle(heading)).value, toCobAngle(RadiansAngle(pitch)).value});
 
                 if (threadId)
                 {
@@ -784,7 +784,7 @@ namespace rwe
                     auto heading = headingAndPitch.first;
                     auto pitch = headingAndPitch.second;
 
-                    unit.cobEnvironment->createThread("StartBuilding", {toTaAngle(RadiansAngle(heading)).value, toTaAngle(RadiansAngle(pitch)).value});
+                    unit.cobEnvironment->createThread("StartBuilding", {toCobAngle(RadiansAngle(heading)).value, toCobAngle(RadiansAngle(pitch)).value});
                     unit.behaviourState = BuildingState{*targetUnitId};
                 }
             }
