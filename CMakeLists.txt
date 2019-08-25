@@ -412,8 +412,10 @@ set(SOURCE_FILES
     src/rwe/gui.h
     src/rwe/io_utils.cpp
     src/rwe/io_utils.h
+    src/rwe/math/Bivector3x.h
     src/rwe/math/Matrix4f.cpp
     src/rwe/math/Matrix4f.h
+    src/rwe/math/Rotor.h
     src/rwe/math/Vector2f.cpp
     src/rwe/math/Vector2f.h
     src/rwe/math/Vector3f.cpp
