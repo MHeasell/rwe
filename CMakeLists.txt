@@ -400,7 +400,6 @@ set(SOURCE_FILES
     src/rwe/geometry/CollisionMesh.h
     src/rwe/geometry/Line3f.h
     src/rwe/geometry/Line3x.h
-    src/rwe/geometry/Plane3f.cpp
     src/rwe/geometry/Plane3f.h
     src/rwe/geometry/Plane3x.h
     src/rwe/geometry/Ray3f.h
