@@ -114,7 +114,7 @@ namespace rwe
         void normalize()
         {
             Val n = length();
-            if (n == 0.0f)
+            if (n == Val(0))
             {
                 throw std::logic_error("Attempted to normalize a zero-length vector");
             }
@@ -127,7 +127,7 @@ namespace rwe
         Vector3x normalized()
         {
             Val n = length();
-            if (n == 0.0f)
+            if (n == Val(0))
             {
                 throw std::logic_error("Attempted to normalize a zero-length vector");
             }
