@@ -1091,8 +1091,8 @@ namespace rwe
             target,
             [](const Vector3f& target) { return MovingStateGoal(target); },
             [this](UnitId unitId) {
-              const auto& targetUnit = scene->getSimulation().getUnit(unitId);
-              return MovingStateGoal(scene->computeFootprintRegion(targetUnit.position, targetUnit.footprintX, targetUnit.footprintZ));
+                const auto& targetUnit = scene->getSimulation().getUnit(unitId);
+                return MovingStateGoal(scene->computeFootprintRegion(targetUnit.position, targetUnit.footprintX, targetUnit.footprintZ));
             });
     }
 }

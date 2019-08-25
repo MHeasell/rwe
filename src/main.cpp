@@ -439,7 +439,8 @@ int main(int argc, char* argv[])
         logger->set_level(spdlog::level::debug);
         logger->flush_on(spdlog::level::debug); // always flush
 
-        try {
+        try
+        {
             std::optional<rwe::GameParameters> gameParameters;
             if (vm.count("map"))
             {
