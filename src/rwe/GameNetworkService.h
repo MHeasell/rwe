@@ -7,6 +7,8 @@
 #include <future>
 #include <network.pb.h>
 #include <random>
+#include <rwe/GameHash.h>
+#include <rwe/GameTime.h>
 #include <rwe/OpaqueId.h>
 #include <rwe/OpaqueUnit.h>
 #include <rwe/PlayerCommand.h>
@@ -31,6 +33,9 @@ namespace rwe
             SequenceNumber nextCommandToSend{0};
             SequenceNumber nextCommandToReceive{0};
 
+            GameTime nextHashToSend{0};
+            GameTime nextHashToReceive{0};
+
             /**
              * The time at which the last relevant update packet
              * was received from the remote peer.
@@ -46,6 +51,8 @@ namespace rwe
             std::optional<std::pair<SceneTime, Timestamp>> lastKnownSceneTime;
 
             std::deque<CommandSet> sendBuffer;
+
+            std::deque<GameHash> hashSendBuffer;
 
             /**
              * Records the time at which we first sent a packet
@@ -106,6 +113,8 @@ namespace rwe
          *                 after all the previously submitted commands.
          */
         void submitCommands(SceneTime currentSceneTime, const CommandSet& commands);
+
+        void submitGameHash(GameHash hash);
 
         SceneTime estimateAvergeSceneTime(SceneTime localSceneTime);
 

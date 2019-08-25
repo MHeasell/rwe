@@ -246,6 +246,8 @@ namespace rwe
 
         std::unordered_map<UnitId, std::unordered_map<std::string, int>> unconfirmedBuildQueueDelta;
 
+        std::vector<std::pair<GameTime, GameHash>> gameHashes;
+
     public:
         GameScene(
             const SceneContext& sceneContext,

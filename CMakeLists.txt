@@ -229,6 +229,7 @@ set(SOURCE_FILES
     src/rwe/Fnt.h
     src/rwe/Gaf.cpp
     src/rwe/Gaf.h
+    src/rwe/GameHash.h
     src/rwe/GameNetworkService.cpp
     src/rwe/GameNetworkService.h
     src/rwe/GameScene.cpp

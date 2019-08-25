@@ -620,4 +620,10 @@ namespace rwe
             unit.addOrder(BuggerOffOrder(rect));
         }
     }
+
+    GameHash GameSimulation::computeHash() const
+    {
+        // TODO: this
+        return GameHash(gameTime.value);
+    }
 }

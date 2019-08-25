@@ -1,5 +1,6 @@
 #include "GameNetworkService.h"
 #include <boost/range/adaptors.hpp>
+#include <rwe/GameHash.h>
 #include <rwe/OpaqueId_io.h>
 #include <rwe/SceneManager.h>
 #include <rwe/network_util.h>
@@ -47,6 +48,16 @@ namespace rwe
             for (auto& e : endpoints)
             {
                 e.sendBuffer.push_back(commands);
+            }
+        });
+    }
+
+    void GameNetworkService::submitGameHash(GameHash hash)
+    {
+        ioContext.post([this, hash]() {
+            for (auto& e : endpoints)
+            {
+                e.hashSendBuffer.push_back(hash);
             }
         });
     }
@@ -131,8 +142,11 @@ namespace rwe
         SceneTime currentSceneTime,
         SequenceNumber nextCommandToSend,
         SequenceNumber nextCommandToReceive,
+        GameTime nextHashToSend,
+        GameTime nextHashToReceive,
         std::chrono::milliseconds ackDelay,
-        const std::deque<GameNetworkService::CommandSet>& sendBuffer)
+        const std::deque<GameNetworkService::CommandSet>& sendBuffer,
+        const std::deque<GameHash>& gameHashBuffer)
     {
         proto::NetworkMessage outerMessage;
         auto& m = *outerMessage.mutable_game_update();
@@ -141,6 +155,8 @@ namespace rwe
         m.set_current_scene_time(currentSceneTime.value);
         m.set_next_command_set_to_send(nextCommandToSend.value);
         m.set_next_command_set_to_receive(nextCommandToReceive.value);
+        m.set_next_game_hash_to_send(nextHashToSend.value);
+        m.set_next_game_hash_to_receive(nextHashToReceive.value);
         m.set_ack_delay(ackDelay.count());
 
         for (const auto& set : sendBuffer)
@@ -152,6 +168,11 @@ namespace rwe
                 auto& cmdMessage = *setMessage.add_command();
                 serializePlayerCommand(cmd, cmdMessage);
             }
+        }
+
+        for (const auto& hash : gameHashBuffer)
+        {
+            m.add_game_hashes(hash.value);
         }
 
         return outerMessage;
@@ -191,7 +212,7 @@ namespace rwe
             delay = std::chrono::duration_cast<std::chrono::milliseconds>(sendTime - *endpoint.lastReceiveTime);
         }
 
-        auto message = createProtoMessage(packetId, localPlayerId, currentSceneTime, endpoint.nextCommandToSend, endpoint.nextCommandToReceive, delay, endpoint.sendBuffer);
+        auto message = createProtoMessage(packetId, localPlayerId, currentSceneTime, endpoint.nextCommandToSend, endpoint.nextCommandToReceive, endpoint.nextHashToSend, endpoint.nextHashToReceive, delay, endpoint.sendBuffer, endpoint.hashSendBuffer);
         message.SerializeToArray(messageBuffer.data(), messageBuffer.size());
         socket.send_to(boost::asio::buffer(messageBuffer.data(), message.ByteSize()), endpoint.endpoint);
 
@@ -298,6 +319,37 @@ namespace rwe
                 playerCommandService->pushCommands(endpoint.playerId, commandSet);
                 endpoint.nextCommandToReceive = SequenceNumber(endpoint.nextCommandToReceive.value + 1);
             }
+        }
+
+        GameTime newNextHashToSend(message.next_game_hash_to_receive());
+        if (newNextHashToSend > endpoint.nextHashToSend + GameTime(endpoint.hashSendBuffer.size()))
+        {
+            spdlog::get("rwe")->error(
+                "Remote acked up to {0}, but we are at {1} and hash buffer contains {2} elements",
+                newNextHashToSend,
+                endpoint.nextHashToSend,
+                endpoint.hashSendBuffer.size());
+        }
+        while (newNextHashToSend > endpoint.nextHashToSend && !endpoint.hashSendBuffer.empty())
+        {
+            endpoint.hashSendBuffer.pop_front();
+            endpoint.nextHashToSend += GameTime(1);
+        }
+
+        GameTime firstGameHashTime(message.next_game_hash_to_send());
+        if (firstGameHashTime > endpoint.nextHashToReceive)
+        {
+            // message starts with hashes too far in the future, ignore it.
+            // FIXME: this should probably be an error as it shouldn't ever happen
+            spdlog::get("rwe")->error("First game hash time in message was too high! Expecting no more than {0}, received {1}", endpoint.nextHashToReceive.value, firstGameHashTime.value);
+            return;
+        }
+
+        auto firstRelevantGameHashIndex = (endpoint.nextHashToReceive - firstGameHashTime).value;
+        for (int i = firstRelevantGameHashIndex; i < message.game_hashes_size(); ++i)
+        {
+            playerCommandService->pushHash(endpoint.playerId, GameHash(message.game_hashes(i)));
+            endpoint.nextHashToReceive += GameTime(1);
         }
     }
 }

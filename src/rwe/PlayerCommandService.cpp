@@ -27,8 +27,13 @@ namespace rwe
     void PlayerCommandService::pushCommands(PlayerId player, const std::vector<PlayerCommand>& commands)
     {
         std::scoped_lock<std::mutex> lock(mutex);
-
         commandBuffers.at(player).push_back(commands);
+    }
+
+    void PlayerCommandService::pushHash(PlayerId player, const GameHash& gameHash)
+    {
+        std::scoped_lock<std::mutex> lock(mutex);
+        gameTimeBuffers.at(player).push_back(gameHash);
     }
 
     void PlayerCommandService::registerPlayer(PlayerId playerId)
@@ -40,6 +45,8 @@ namespace rwe
         {
             throw std::logic_error("Player already registered");
         }
+
+        gameTimeBuffers.emplace(playerId, std::deque<GameHash>());
     }
 
     unsigned int PlayerCommandService::bufferedCommandCount(PlayerId player) const
@@ -47,5 +54,36 @@ namespace rwe
         std::scoped_lock<std::mutex> lock(mutex);
 
         return commandBuffers.at(player).size();
+    }
+
+    bool PlayerCommandService::checkHashes()
+    {
+        std::scoped_lock<std::mutex> lock(mutex);
+
+        while (!std::any_of(gameTimeBuffers.begin(), gameTimeBuffers.end(), [](const auto& p) { return p.second.empty(); }))
+        {
+            std::optional<GameHash> baseHash;
+            bool matching = true;
+            for (auto& p : gameTimeBuffers)
+            {
+                auto hash = p.second.front();
+                p.second.pop_front();
+
+                if (!baseHash)
+                {
+                    baseHash = hash;
+                    continue;
+                }
+
+                matching = matching && (*baseHash == hash);
+            }
+
+            if (!matching)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

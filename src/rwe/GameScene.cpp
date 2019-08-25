@@ -1160,6 +1160,11 @@ namespace rwe
 
     void GameScene::tryTickGame()
     {
+        if (!playerCommandService->checkHashes())
+        {
+            throw std::runtime_error("Desync detected");
+        }
+
         auto playerCommands = playerCommandService->tryPopCommands();
         if (!playerCommands)
         {
@@ -1295,6 +1300,10 @@ namespace rwe
             });
 
         deleteDeadUnits();
+
+        auto gameHash = simulation.computeHash();
+        playerCommandService->pushHash(localPlayerId, gameHash);
+        gameNetworkService->submitGameHash(gameHash);
     }
 
     std::optional<UnitId> GameScene::getUnitUnderCursor() const

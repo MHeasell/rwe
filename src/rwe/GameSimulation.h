@@ -2,6 +2,7 @@
 
 #include <rwe/Explosion.h>
 #include <rwe/FeatureId.h>
+#include <rwe/GameHash.h>
 #include <rwe/GameTime.h>
 #include <rwe/LaserProjectile.h>
 #include <rwe/MapFeature.h>
@@ -209,5 +210,7 @@ namespace rwe
         void emitBuggerOff(const UnitId& unitId);
 
         void tellToBuggerOff(const UnitId& unitId, const DiscreteRect& rect);
+
+        GameHash computeHash() const;
     };
 }
