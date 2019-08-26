@@ -75,7 +75,7 @@ export class RweBridge {
     if (!rweHome) {
       throw new Error("Cannot launch rwe_bridge, RWE_HOME is not defined");
     }
-    const bridgeExe = path.join(rweHome, "rwe_bridge.exe");
+    const bridgeExe = path.join(rweHome, "rwe_bridge" + (process.platform === "win32" ? ".exe" : ""));
 
     this.proc = spawn(bridgeExe, undefined, { cwd: rweHome });
 

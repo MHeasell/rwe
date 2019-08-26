@@ -100,11 +100,20 @@ const launchRweEpic = (action$: rx.Observable<AppAction>, state$: StateObservabl
 };
 
 function getDefaultDataPath() {
-  const appData = process.env["APPDATA"];
-  if (appData === undefined) {
-    throw new Error("Failed to find AppData path");
+  if (process.platform === "win32") {
+    const appData = process.env["APPDATA"];
+    if (appData === undefined) {
+      throw new Error("Failed to find AppData path");
+    }
+    return path.join(appData, "RWE", "Data");
   }
-  return path.join(appData, "RWE", "Data");
+  else {
+    const home = process.env["HOME"];
+    if (home === undefined) {
+      throw new Error("Failed to find home directory");
+    }
+    return path.join(home, ".rwe", "Data");
+  }
 }
 
 const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable<State>, deps: EpicDependencies): rx.Observable<AppAction> => {

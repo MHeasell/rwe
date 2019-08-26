@@ -114,7 +114,7 @@ export function execRwe(args?: RweArgs): Promise<any> {
       console.log("Launching RWE");
     }
     // FIXME: assumes windows
-    execFile(path.join(rweHome, "rwe.exe"), serializedArgs, { cwd: rweHome }, (error: (null | Error), stdout: any, stderr: any) => {
+    execFile(path.join(rweHome, "rwe" + (process.platform === "win32" ? ".exe" : "")), serializedArgs, { cwd: rweHome }, (error: (null | Error), stdout: any, stderr: any) => {
       if (error) {
         const exitCode = (error as any).code;
         reject(`RWE exited with exit code ${exitCode}: ${error.message}`);
