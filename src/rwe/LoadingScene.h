@@ -77,7 +77,6 @@ namespace rwe
         std::string mapName;
         unsigned int schemaIndex;
         std::array<std::optional<PlayerInfo>, 10> players;
-        std::string localNetworkInterface{"0.0.0.0"};
         std::string localNetworkPort{"1337"};
 
         GameParameters(const std::string& mapName, unsigned int schemaIndex);

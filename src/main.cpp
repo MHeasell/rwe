@@ -446,7 +446,6 @@ int main(int argc, char* argv[])
             ("height", po::value<unsigned int>()->default_value(600), "Sets the window height in pixels")
             ("data-path", po::value<std::vector<std::string>>(), "Sets the location(s) to search for game data")
             ("map", po::value<std::string>(), "If given, launches straight into a game on the given map")
-            ("interface", po::value<std::string>()->default_value("0.0.0.0"), "Network interface to bind to")
             ("port", po::value<std::string>()->default_value("1337"), "Network port to bind to")
             ("player", po::value<std::vector<std::string>>(), "type;side;color");
         // clang-format on
@@ -474,7 +473,6 @@ int main(int argc, char* argv[])
                 const auto& players = vm["player"].as<std::vector<std::string>>();
 
                 gameParameters = rwe::GameParameters{mapName, 0};
-                gameParameters->localNetworkInterface = vm["interface"].as<std::string>();
                 gameParameters->localNetworkPort = vm["port"].as<std::string>();
                 unsigned int playerIndex = 0;
                 if (players.size() > 10)

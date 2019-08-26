@@ -14,11 +14,11 @@ namespace rwe
 {
     GameNetworkService::GameNetworkService(
         PlayerId localPlayerId,
-        const boost::asio::ip::udp::endpoint& localEndpoint,
+        int port,
         const std::vector<GameNetworkService::EndpointInfo>& endpoints,
         PlayerCommandService* playerCommandService)
         : localPlayerId(localPlayerId),
-          localEndpoint(localEndpoint),
+          port(port),
           resolver(ioContext),
           socket(ioContext),
           sendTimer(ioContext),
@@ -99,8 +99,9 @@ namespace rwe
     {
         try
         {
-            socket.open(localEndpoint.protocol());
-            socket.bind(localEndpoint);
+            auto endpoint = boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v6(), port);
+            socket.open(endpoint.protocol());
+            socket.bind(endpoint);
 
             listenForNextMessage();
 
@@ -119,21 +120,10 @@ namespace rwe
         socket.async_receive_from(
             boost::asio::buffer(messageBuffer.data(), messageBuffer.size()),
             currentRemoteEndpoint,
-            std::bind(&GameNetworkService::onReceive, this, std::placeholders::_1, std::placeholders::_2));
-    }
-
-    void GameNetworkService::onReceive(const boost::system::error_code& error, std::size_t bytesTransferred)
-    {
-        if (error)
-        {
-            spdlog::get("rwe")->error("Boost error on receive: {}", error);
-            listenForNextMessage();
-            return;
-        }
-
-        receive(bytesTransferred);
-
-        listenForNextMessage();
+            [this](const auto& error, const auto& bytesTransferred) {
+              receive(error, bytesTransferred);
+              listenForNextMessage();
+            });
     }
 
     proto::NetworkMessage createProtoMessage(
@@ -223,8 +213,14 @@ namespace rwe
         }
     }
 
-    void GameNetworkService::receive(std::size_t receivedBytes)
+    void GameNetworkService::receive(const boost::system::error_code& error, std::size_t receivedBytes)
     {
+        if (error)
+        {
+            spdlog::get("rwe")->error("Boost error on receive: {}", error);
+            return;
+        }
+
         auto receiveTime = getTimestamp();
         spdlog::get("rwe")->debug("Received {} bytes from endpoint: {}:{}", receivedBytes, currentRemoteEndpoint.address().to_string(), currentRemoteEndpoint.port());
 

@@ -72,8 +72,9 @@ namespace rwe
         }
 
         // set up network
-        for (const auto& p : gameParameters.players)
+        for (int i = 0; i < gameParameters.players.size(); ++i)
         {
+            const auto& p = gameParameters.players[i];
             if (!p)
             {
                 continue;
@@ -84,9 +85,9 @@ namespace rwe
                 continue;
             }
 
-            networkService.addEndpoint(address->first, address->second);
+            networkService.addEndpoint(i, address->first, address->second);
         }
-        networkService.start(gameParameters.localNetworkInterface, gameParameters.localNetworkPort);
+        networkService.start(gameParameters.localNetworkPort);
 
         featureService->loadAllFeatureDefinitions();
         sceneContext.sceneManager->setNextScene(createGameScene(gameParameters.mapName, gameParameters.schemaIndex));
@@ -152,10 +153,7 @@ namespace rwe
         std::array<std::optional<PlayerId>, 10> gamePlayers;
         std::vector<GameNetworkService::EndpointInfo> endpointInfos;
 
-        boost::asio::io_service ioContext;
-        boost::asio::ip::udp::resolver resolver(ioContext);
-
-        for (int i = 0; i < 10; ++i)
+        for (int i = 0; i < gameParameters.players.size(); ++i)
         {
             const auto& params = gameParameters.players[i];
             if (params)
@@ -178,7 +176,7 @@ namespace rwe
 
                 if (auto networkInfo = std::get_if<PlayerControllerTypeNetwork>(&params->controller); networkInfo != nullptr)
                 {
-                    endpointInfos.emplace_back(playerId, *resolver.resolve(boost::asio::ip::udp::resolver::query(networkInfo->host, networkInfo->port)));
+                    endpointInfos.emplace_back(playerId, networkService.getEndpoint(i));
                 }
             }
         }
@@ -187,8 +185,7 @@ namespace rwe
             throw std::runtime_error("No local player!");
         }
 
-        auto localEndpoint = *resolver.resolve(boost::asio::ip::udp::resolver::query(gameParameters.localNetworkInterface, gameParameters.localNetworkPort));
-        auto gameNetworkService = std::make_unique<GameNetworkService>(*localPlayerId, localEndpoint, endpointInfos, playerCommandService.get());
+        auto gameNetworkService = std::make_unique<GameNetworkService>(*localPlayerId, std::stoi(gameParameters.localNetworkPort), endpointInfos, playerCommandService.get());
 
         RenderService worldRenderService(sceneContext.graphics, sceneContext.shaders, worldCamera);
         UiRenderService worldUiRenderService(sceneContext.graphics, sceneContext.shaders, worldUiCamera);

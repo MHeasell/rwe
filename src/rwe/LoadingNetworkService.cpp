@@ -17,12 +17,12 @@ namespace rwe
         }
     }
 
-    void LoadingNetworkService::addEndpoint(const std::string& host, const std::string& port)
+    void LoadingNetworkService::addEndpoint(int playerIndex, const std::string& host, const std::string& port)
     {
         std::scoped_lock<std::mutex> lock(mutex);
 
         // boost guarantees that resolve returns non-empty
-        remoteEndpoints.emplace_back(*resolver.resolve(boost::asio::ip::udp::resolver::query(host, port)), Status::Loading);
+        remoteEndpoints.emplace_back(playerIndex, *resolver.resolve(boost::asio::ip::udp::resolver::query(host, port)), Status::Loading);
     }
 
     void LoadingNetworkService::setDoneLoading()
@@ -36,7 +36,7 @@ namespace rwe
         std::scoped_lock<std::mutex> lock(mutex);
         for (const auto& p : remoteEndpoints)
         {
-            if (p.second != Status::Ready)
+            if (p.status != Status::Ready)
             {
                 return false;
             }
@@ -53,19 +53,19 @@ namespace rwe
         } while (!areAllClientsReady());
     }
 
-    void LoadingNetworkService::start(const std::string& host, const std::string& port)
+    void LoadingNetworkService::start(const std::string& port)
     {
-        networkThread = std::thread(&LoadingNetworkService::run, this, host, port);
+        networkThread = std::thread(&LoadingNetworkService::run, this, port);
     }
 
-    void LoadingNetworkService::run(const std::string& host, const std::string& port)
+    void LoadingNetworkService::run(const std::string& port)
     {
         try
         {
-            auto localEndpoint = *resolver.resolve(boost::asio::ip::udp::resolver::query(host, port));
-            spdlog::get("rwe")->debug("Binding to {0} {1}", localEndpoint.endpoint().address().to_string(), localEndpoint.endpoint().port());
-            socket.open(localEndpoint.endpoint().protocol());
-            socket.bind(localEndpoint);
+            spdlog::get("rwe")->debug("Opening listen socket on port {}", port);
+            auto endpoint = boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v6(), std::stoi(port));
+            socket.open(endpoint.protocol());
+            socket.bind(endpoint);
 
             startListening();
 
@@ -84,13 +84,12 @@ namespace rwe
         if (error)
         {
             spdlog::get("rwe")->error("Received network error from {0} port {1}: {2}", currentRemoteEndpoint.address().to_string(), currentRemoteEndpoint.port(), error.message());
-            startListening();
             return;
         }
 
         std::scoped_lock<std::mutex> lock(mutex);
         spdlog::get("rwe")->debug("Received network message from {0} {1}, size {2}", currentRemoteEndpoint.address().to_string(), currentRemoteEndpoint.port(), bytesTransferred);
-        auto it = std::find_if(remoteEndpoints.begin(), remoteEndpoints.end(), [this](const auto& p) { return p.first == currentRemoteEndpoint; });
+        auto it = std::find_if(remoteEndpoints.begin(), remoteEndpoints.end(), [this](const auto& p) { return p.endpoint == currentRemoteEndpoint; });
         if (it == remoteEndpoints.end())
         {
             // message from some unknown address, ignore
@@ -106,7 +105,7 @@ namespace rwe
         if (!message.has_loading_status())
         {
             spdlog::get("rwe")->debug("Sender is already in game!");
-            it->second = Status::Ready;
+            it->status = Status::Ready;
             return;
         }
 
@@ -114,17 +113,15 @@ namespace rwe
         {
             case proto::LoadingStatusMessage_Status_Loading:
                 spdlog::get("rwe")->debug("Sender is loading");
-                it->second = Status::Loading;
+                it->status = Status::Loading;
                 break;
             case proto::LoadingStatusMessage_Status_Ready:
                 spdlog::get("rwe")->debug("Sender is ready");
-                it->second = Status::Ready;
+                it->status = Status::Ready;
                 break;
             default:
                 throw std::logic_error("Unhandled loading status");
         }
-
-        startListening();
     }
 
     void LoadingNetworkService::notifyStatus()
@@ -155,8 +152,8 @@ namespace rwe
 
         for (const auto& p : remoteEndpoints)
         {
-            spdlog::get("rwe")->debug("Sending notification to {0} {1}, size {2}", p.first.address().to_string(), p.first.port(), outerMessage.ByteSize());
-            socket.send_to(boost::asio::buffer(messageBuffer.data(), outerMessage.ByteSize()), p.first);
+            spdlog::get("rwe")->debug("Sending notification to {0} {1}, size {2}", p.endpoint.address().to_string(), p.endpoint.port(), outerMessage.ByteSize());
+            socket.send_to(boost::asio::buffer(messageBuffer.data(), outerMessage.ByteSize()), p.endpoint);
         }
     }
 
@@ -180,6 +177,18 @@ namespace rwe
         socket.async_receive_from(
             boost::asio::buffer(messageBuffer.data(), messageBuffer.size()),
             currentRemoteEndpoint,
-            std::bind(&LoadingNetworkService::onReceive, this, std::placeholders::_1, std::placeholders::_2));
+            [this](const auto& error, const auto& bytesTransferred) {
+              onReceive(error, bytesTransferred);
+              startListening();
+            });
+    }
+    boost::asio::ip::udp::endpoint LoadingNetworkService::getEndpoint(int playerIndex)
+    {
+        auto it = std::find_if(remoteEndpoints.begin(), remoteEndpoints.end(), [&](const auto& e) { return e.playerIndex == playerIndex; });
+        if (it == remoteEndpoints.end())
+        {
+            throw std::runtime_error("Endpoint not found for index " + std::to_string(playerIndex));
+        }
+        return it->endpoint;
     }
 }

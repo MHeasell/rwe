@@ -78,7 +78,7 @@ namespace rwe
         std::default_random_engine gen{rd()};
         std::uniform_int_distribution<int> uniform_dist{};
         PlayerId localPlayerId;
-        boost::asio::ip::udp::endpoint localEndpoint;
+        int port;
 
         std::thread networkThread;
 
@@ -97,7 +97,7 @@ namespace rwe
         SceneTime currentSceneTime{0};
 
     public:
-        GameNetworkService(PlayerId localPlayerId, const boost::asio::ip::udp::endpoint& localEndpoint, const std::vector<EndpointInfo>& endpoints, PlayerCommandService* playerCommandService);
+        GameNetworkService(PlayerId localPlayerId, int port, const std::vector<EndpointInfo>& endpoints, PlayerCommandService* playerCommandService);
 
         virtual ~GameNetworkService();
 
@@ -125,14 +125,12 @@ namespace rwe
 
         void listenForNextMessage();
 
-        void onReceive(const boost::system::error_code& error, std::size_t bytesTransferred);
-
         void sendLoop();
 
         void sendToAll();
 
         void send(EndpointInfo& endpoint);
 
-        void receive(std::size_t receivedBytes);
+        void receive(const boost::system::error_code& error, std::size_t receivedBytes);
     };
 }

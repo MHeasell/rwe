@@ -23,13 +23,21 @@ namespace rwe
             Ready
         };
 
+        struct PlayerInfo
+        {
+            int playerIndex;
+            boost::asio::ip::udp::endpoint endpoint;
+            Status status;
+            PlayerInfo(int playerIndex, const boost::asio::ip::udp::endpoint& endpoint, Status status) : playerIndex(playerIndex), endpoint(endpoint), status(status) {}
+        };
+
     private:
         std::thread networkThread;
 
         // state shared between threads
         std::mutex mutex;
         Status loadingStatus{Status::Loading};
-        std::vector<std::pair<boost::asio::ip::udp::endpoint, Status>> remoteEndpoints;
+        std::vector<PlayerInfo> remoteEndpoints;
 
         // state owned by the worker thread
         boost::asio::io_service ioContext;
@@ -44,7 +52,9 @@ namespace rwe
 
         virtual ~LoadingNetworkService();
 
-        void addEndpoint(const std::string& host, const std::string& port);
+        void addEndpoint(int playerIndex, const std::string& host, const std::string& port);
+
+        boost::asio::ip::udp::endpoint getEndpoint(int playerIndex);
 
         void setDoneLoading();
 
@@ -52,10 +62,10 @@ namespace rwe
 
         void waitForAllToBeReady();
 
-        void start(const std::string& host, const std::string& port);
+        void start(const std::string& port);
 
     private:
-        void run(const std::string& host, const std::string& port);
+        void run(const std::string& port);
 
         void onReceive(const boost::system::error_code& error, std::size_t bytesTransferred);
 
