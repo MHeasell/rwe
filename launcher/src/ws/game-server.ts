@@ -1,8 +1,57 @@
 import * as crypto from "crypto";
 import * as rx from "rxjs";
-import { EmptyPlayerSlot } from "../state";
-import { assertNever, findAndMap, getAddr } from "../util";
+import { assertNever, choose, findAndMap, getAddr } from "../util";
 import * as protocol from "./protocol";
+
+type PlayerSide = "ARM" | "CORE";
+type PlayerColor = number;
+
+interface PlayerInfo {
+  id: number;
+  name: string;
+  host: string;
+  side: PlayerSide;
+  color: PlayerColor;
+  team?: number;
+  ready: boolean;
+}
+
+function toProtocolPlayerInfo(info: PlayerInfo): protocol.PlayerInfo {
+  return {
+    id: info.id,
+    name: info.name,
+    side: info.side,
+    color: info.color,
+    team: info.team,
+    ready: info.ready,
+  };
+}
+
+interface FilledPlayerSlot {
+  state: "filled";
+  player: PlayerInfo;
+}
+
+interface EmptyPlayerSlot {
+  state: "empty";
+}
+
+interface ClosedPlayerSlot {
+  state: "closed";
+}
+
+type PlayerSlot = EmptyPlayerSlot | ClosedPlayerSlot | FilledPlayerSlot;
+
+function toProtocolPlayerSlot(slot: PlayerSlot): protocol.PlayerSlot {
+  switch (slot.state) {
+    case "empty":
+    case "closed":
+      return slot;
+    case "filled":
+      return { state: "filled", player: toProtocolPlayerInfo(slot.player) };
+  }
+  assertNever(slot);
+}
 
 export interface AdminUnclaimed {
   state: "unclaimed";
@@ -19,7 +68,7 @@ export type AdminState = AdminUnclaimed | AdminClaimed;
 export interface Room {
   description: string;
   nextPlayerId: number;
-  players: protocol.PlayerSlot[];
+  players: PlayerSlot[];
   adminState: AdminState;
   mapName?: string;
 }
@@ -64,7 +113,7 @@ export class GameServer {
   createRoom(description: string, maxPlayers: number): GameCreatedInfo {
     const id = this.nextRoomId++;
     const adminKey = generateAdminKey();
-    const players: protocol.PlayerSlot[] = new Array(10);
+    const players: PlayerSlot[] = new Array(10);
     for (let i = 0; i < maxPlayers; ++i) {
       players[i] = { state: "empty" };
     }
@@ -154,7 +203,7 @@ export class GameServer {
         const handshakeResponse: protocol.HandshakeResponsePayload = {
           playerId: playerId,
           adminPlayerId: room.adminState.state === "claimed" ? room.adminState.adminPlayerId : undefined,
-          players: room.players,
+          players: room.players.map(x => toProtocolPlayerSlot(x)),
           mapName: room.mapName,
         };
         socket.emit(protocol.HandshakeResponse, handshakeResponse);
@@ -162,7 +211,6 @@ export class GameServer {
         const playerJoined: protocol.PlayerJoinedPayload = {
           playerId: playerId,
           name: data.name,
-          host: address,
         };
 
         this.sendToRoom(roomId, protocol.PlayerJoined, playerJoined);
@@ -339,7 +387,10 @@ export class GameServer {
       this.log(`Received start-game from ${playerId}, but not all open slots are filled and ready`);
       return;
     }
-    this.sendToRoom(roomId, protocol.StartGame);
+    const payload: protocol.StartGamePayload = {
+      addresses: choose(room.players, x => x.state === "filled" ? x : undefined).map(x => [x.player.id, x.player.host]),
+    };
+    this.sendToRoom(roomId, protocol.StartGame, payload);
   }
 
   private onDisconnected(roomId: number, playerId: number) {

@@ -96,7 +96,6 @@ function gameRoomReducer(room: GameRoom, action: AppAction): GameRoom {
         player: {
           id: action.payload.playerId,
           name: action.payload.name,
-          host: action.payload.host,
           side: "ARM",
           color: 0,
           team: 0,

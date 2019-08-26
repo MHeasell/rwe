@@ -4,7 +4,6 @@ type PlayerColor = number;
 export interface PlayerInfo {
   id: number;
   name: string;
-  host: string;
   side: PlayerSide;
   color: PlayerColor;
   team?: number;
@@ -59,7 +58,6 @@ export const PlayerJoined = "player-joined";
 export interface PlayerJoinedPayload {
   playerId: number;
   name: string;
-  host: string;
 }
 
 // Broadcast by the server to all clients when a player leaves
@@ -85,6 +83,9 @@ export const RequestStartGame = "request-start-game";
 
 // Broadcast by the server to all clients to announce the start of the game
 export const StartGame = "start-game";
+export interface StartGamePayload {
+  addresses: [number, string][];
+}
 
 
 export const ChangeSide = "change-side";

@@ -32,7 +32,6 @@ export type PlayerColor = number;
 export interface PlayerInfo {
   id: number;
   name: string;
-  host: string;
   side: PlayerSide;
   color: PlayerColor;
   team?: number;

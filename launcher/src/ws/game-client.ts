@@ -18,7 +18,7 @@ export class GameClientService {
   private readonly _onSlotClosed = new Subject<protocol.SlotClosedPayload>();
   private readonly _onPlayerReady = new Subject<protocol.PlayerReadyPayload>();
   private readonly _onMapChanged = new Subject<protocol.MapChangedPayload>();
-  private readonly _onStartGame = new Subject<void>();
+  private readonly _onStartGame = new Subject<protocol.StartGamePayload>();
 
   get onDisconnect(): Observable<void> { return this._onDisconnect; }
   get onHandshakeResponse(): Observable<protocol.HandshakeResponsePayload> { return this._onHandshakeResponse; }
@@ -32,7 +32,7 @@ export class GameClientService {
   get onSlotClosed(): Observable<protocol.SlotClosedPayload> { return this._onSlotClosed; }
   get onPlayerReady(): Observable<protocol.PlayerReadyPayload> { return this._onPlayerReady; }
   get onMapChanged(): Observable<protocol.MapChangedPayload> { return this._onMapChanged; }
-  get onStartGame(): Observable<void> { return this._onStartGame; }
+  get onStartGame(): Observable<protocol.StartGamePayload> { return this._onStartGame; }
 
   connectToServer(connectionString: string, gameId: number, playerName: string, adminKey?: string) {
     this.client = socketioClient(connectionString);
@@ -104,8 +104,8 @@ export class GameClientService {
       this._onMapChanged.next(data);
     });
 
-    this.client.on(protocol.StartGame, () => {
-      this._onStartGame.next();
+    this.client.on(protocol.StartGame, (data: protocol.StartGamePayload) => {
+      this._onStartGame.next(data);
     });
   }
 

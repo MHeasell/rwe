@@ -4,6 +4,7 @@ import * as rx from "rxjs";
 import * as rxop from "rxjs/operators";
 import { AppAction, closeSelectMapDialog, disconnectGame, gameEnded, LaunchRweAction, masterServerConnect, masterServerDisconnect, receiveChatMessage, receiveCreateGameResponse, ReceiveCreateGameResponseAction, receiveGameCreated, receiveGameDeleted, receiveGameUpdated, receiveHandshakeResponse, receiveMapChanged, receiveMapInfo, receiveMapList, receiveMinimap, receivePlayerChangedColor, receivePlayerChangedSide, receivePlayerChangedTeam, receivePlayerJoined, receivePlayerLeft, receivePlayerReady, receiveRooms, receiveSlotClosed, receiveSlotOpened, receiveStartGame } from "../actions";
 import { FilledPlayerSlot, GameRoom, getRoom, State } from "../state";
+import * as protocol from "../ws/protocol";
 
 import { GameClientService } from "../ws/game-client";
 
@@ -49,7 +50,7 @@ const masterClientEventsEpic = (action$: rx.Observable<AppAction>, state$: State
   );
 };
 
-function rweArgsFromGameRoom(game: GameRoom): RweArgs {
+function rweArgsFromGameRoom(game: GameRoom, startInfo: protocol.StartGamePayload): RweArgs {
   const playersArgs: RweArgsPlayerSlot[] = game.players.map((x, i) => {
     switch (x.state) {
       case "empty":
@@ -61,7 +62,7 @@ function rweArgsFromGameRoom(game: GameRoom): RweArgs {
         const controller: RweArgsPlayerController =
           x.player.id === game.localPlayerId
           ? { type: "human" }
-          : { type: "remote", host: x.player.host, port: (6670 + i) };
+          : { type: "remote", host: startInfo.addresses.find(([id, _]) => id === x.player.id)![1], port: (6670 + i) };
         const a: RweArgsPlayerInfo = {
           name: x.player.name,
           side: x.player.side,
@@ -197,7 +198,7 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
           const state = state$.value;
           const room = getRoom(state);
           if (!room) { break; }
-          return rx.from(execRwe(rweArgsFromGameRoom(room)))
+          return rx.from(execRwe(rweArgsFromGameRoom(room, action.payload)))
           .pipe(
             rxop.mapTo(undefined),
             rxop.catchError(e => rx.of(undefined)),

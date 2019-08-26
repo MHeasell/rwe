@@ -437,11 +437,13 @@ export function sendStartGame(): SendStartGameAction {
 
 export interface ReceiveStartGameAction {
   type: "RECEIVE_START_GAME";
+  payload: protocol.StartGamePayload;
 }
 
-export function receiveStartGame(): ReceiveStartGameAction {
+export function receiveStartGame(payload: protocol.StartGamePayload): ReceiveStartGameAction {
   return {
     type: "RECEIVE_START_GAME",
+    payload,
   };
 }
 
