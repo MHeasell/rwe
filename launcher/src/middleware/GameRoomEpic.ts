@@ -2,13 +2,14 @@ import * as path from "path";
 import { combineEpics, ofType, StateObservable } from "redux-observable";
 import * as rx from "rxjs";
 import * as rxop from "rxjs/operators";
-import { AppAction, closeSelectMapDialog, disconnectGame, gameEnded, LaunchRweAction, masterServerConnect, masterServerDisconnect, receiveChatMessage, receiveCreateGameResponse, ReceiveCreateGameResponseAction, receiveGameCreated, receiveGameDeleted, receiveGameUpdated, receiveHandshakeResponse, receiveMapChanged, receiveMapInfo, receiveMapList, receiveMinimap, receivePlayerChangedColor, receivePlayerChangedSide, receivePlayerChangedTeam, receivePlayerJoined, receivePlayerLeft, receivePlayerReady, receiveRooms, receiveSlotClosed, receiveSlotOpened, receiveStartGame } from "../actions";
+import { AppAction, closeSelectMapDialog, disconnectGame, gameEnded, LaunchRweAction, masterServerConnect, masterServerDisconnect, receiveChatMessage, receiveCreateGameResponse, ReceiveCreateGameResponseAction, receiveGameCreated, receiveGameDeleted, receiveGameUpdated, receiveHandshakeResponse, receiveMapChanged, receiveMapInfo, receiveMapList, receiveMinimap, receivePlayerChangedColor, receivePlayerChangedSide, receivePlayerChangedTeam, receivePlayerJoined, receivePlayerLeft, receivePlayerReady, receiveRooms, receiveSlotClosed, receiveSlotOpened, receiveStartGame, LeaveGameAction } from "../actions";
 import { FilledPlayerSlot, GameRoom, getRoom, State } from "../state";
 import * as protocol from "../ws/protocol";
 
 import { GameClientService } from "../ws/game-client";
 
 import { RweBridge } from "../bridge";
+import { getIpv4Address } from "../ip-lookup";
 import { MasterClientService } from "../master/master-client";
 import { execRwe, RweArgs, RweArgsEmptyPlayerSlot, RweArgsFilledPlayerSlot, RweArgsPlayerController, RweArgsPlayerInfo, RweArgsPlayerSlot } from "../rwe";
 import { assertNever, masterServer } from "../util";
@@ -131,17 +132,24 @@ const gameRoomEpic = (action$: rx.Observable<AppAction>, state$: StateObservable
             rxop.first(),
           ).subscribe(x => {
             deps.bridgeService.addDataPath(getDefaultDataPath());
-            clientService.connectToServer(`${masterServer()}/rooms`, x.payload.game_id, action.playerName, x.payload.admin_key);
+            getIpv4Address().then(clientAddress => {
+              clientService.connectToServer(`${masterServer()}/rooms`, x.payload.game_id, action.playerName, clientAddress, x.payload.admin_key);
+            });
           });
           break;
         }
         case "JOIN_SELECTED_GAME_CONFIRM": {
           const state = state$.value;
           if (state.selectedGameId === undefined) { break; }
+          const selectedGameId = state.selectedGameId;
           const connectionString = `${masterServer()}/rooms`;
           console.log(`connecting to ${connectionString}`);
           deps.bridgeService.addDataPath(getDefaultDataPath());
-          clientService.connectToServer(connectionString, state.selectedGameId, action.name);
+          rx.from(getIpv4Address()).pipe(
+            rxop.takeUntil(action$.pipe(ofType<AppAction, LeaveGameAction>("LEAVE_GAME"))))
+            .subscribe(clientAddress => {
+              clientService.connectToServer(connectionString, selectedGameId, action.name, clientAddress);
+            });
           break;
         }
         case "SEND_CHAT_MESSAGE": {

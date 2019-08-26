@@ -34,7 +34,7 @@ export class GameClientService {
   get onMapChanged(): Observable<protocol.MapChangedPayload> { return this._onMapChanged; }
   get onStartGame(): Observable<protocol.StartGamePayload> { return this._onStartGame; }
 
-  connectToServer(connectionString: string, gameId: number, playerName: string, adminKey?: string) {
+  connectToServer(connectionString: string, gameId: number, playerName: string, ipv4Address: string, adminKey?: string) {
     this.client = socketioClient(connectionString);
 
     this.client.on("connect", () => { this.log("Connected"); });
@@ -56,6 +56,7 @@ export class GameClientService {
     const handshakePayload: protocol.HandshakePayload = {
       gameId,
       name: playerName,
+      ipv4Address,
     };
     if (adminKey !== undefined) { handshakePayload.adminKey = adminKey; }
     this.client.emit(protocol.Handshake, handshakePayload);

@@ -30,6 +30,7 @@ export const Handshake = "handshake";
 export interface HandshakePayload {
   gameId: number;
   name: string;
+  ipv4Address: string;
   adminKey?: string;
 }
 
