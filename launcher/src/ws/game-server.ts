@@ -28,16 +28,6 @@ function generateAdminKey() {
   return crypto.randomBytes(16).toString("hex");
 }
 
-// This function is a dirty hack to extract an IPv4 address
-// out of an IPv4-mapped IPv6 address.
-function extractAddress(addr: string) {
-  const match = addr.match(/^::ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/);
-  if (match) {
-    return match[1];
-  }
-  return addr;
-}
-
 function findPlayer(players: protocol.PlayerSlot[], playerId: number): protocol.PlayerInfo | undefined {
   return findAndMap(players, x => x.state === "filled" && x.player.id === playerId ? x.player : undefined);
 }
@@ -117,7 +107,7 @@ export class GameServer {
 
   connect() {
     this.ns.on("connection", socket => {
-      const address = extractAddress(getAddr(socket, this.reverseProxy));
+      const address = getAddr(socket, this.reverseProxy);
       this.log(`Received connection from ${address}`);
       socket.on(protocol.Handshake, (data: protocol.HandshakePayload) => {
         this.log(`Received handshake from ${address} with name "${data.name}"`);
