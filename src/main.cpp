@@ -397,6 +397,32 @@ auto createLogger(const fs::path& logFile)
     return spdlog::basic_logger_mt("rwe", logFile.string(), true);
 }
 
+auto createLoggerInDir(const fs::path& logDir)
+{
+    for (int i = 0; i < 3; ++i)
+    {
+        fs::path logPath(logDir);
+        if (i == 0)
+        {
+            logPath /= "rwe.log";
+        }
+        else
+        {
+            logPath /= "rwe" + std::to_string(i) + ".log";
+        }
+
+        try
+        {
+            return spdlog::basic_logger_mt("rwe", logPath.string(), true);
+        }
+        catch (const spdlog::spdlog_ex& ex)
+        {
+        }
+    }
+
+    throw std::runtime_error("Failed to create logger");
+}
+
 int main(int argc, char* argv[])
 {
     try
@@ -434,8 +460,7 @@ int main(int argc, char* argv[])
             return 0;
         }
 
-        auto logPath = vm.count("log") ? fs::path(vm["log"].as<std::string>()) : (*localDataPath / "rwe.log");
-        auto logger = createLogger(logPath);
+        auto logger = vm.count("log") ? createLogger(fs::path(vm["log"].as<std::string>())) : createLoggerInDir(*localDataPath);
         logger->set_level(spdlog::level::debug);
         logger->flush_on(spdlog::level::debug); // always flush
 
