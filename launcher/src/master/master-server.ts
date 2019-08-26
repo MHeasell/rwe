@@ -6,7 +6,7 @@ import { GameServer, Room } from "../ws/game-server";
 import * as protocol from "./protocol";
 
 const argv = yargs
-.option("host", { alias: "h", default: "127.0.0.1" })
+.option("host", { alias: "h", default: undefined })
 .option("port", { alias: "p", default: 5000 })
 .option("reverse-proxy", { alias: "r", default: false })
 .argv;
