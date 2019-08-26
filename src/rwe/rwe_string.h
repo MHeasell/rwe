@@ -1,9 +1,9 @@
 #pragma once
 
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
-#include <optional>
 
 #include <utf8.h>
 

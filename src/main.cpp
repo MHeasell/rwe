@@ -20,6 +20,7 @@
 #include <rwe/ViewportService.h>
 #include <rwe/config.h>
 #include <rwe/gui.h>
+#include <rwe/ip_util.h>
 #include <rwe/rwe_time.h>
 #include <rwe/tdf.h>
 #include <rwe/ui/UiFactory.h>
@@ -333,12 +334,12 @@ namespace rwe
             {
                 throw std::runtime_error("Invalid network player string format");
             }
-            auto hostAndPort = utf8Split(components[1], ':');
-            if (hostAndPort.size() != 2)
+            auto hostAndPort = getHostAndPort(components[1]);
+            if (!hostAndPort)
             {
                 throw std::runtime_error("Invalid network player address format");
             }
-            return PlayerControllerTypeNetwork{hostAndPort[0], hostAndPort[1]};
+            return PlayerControllerTypeNetwork{hostAndPort->first, hostAndPort->second};
         }
 
         throw std::runtime_error("Unknown controller string");

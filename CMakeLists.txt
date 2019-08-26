@@ -412,6 +412,8 @@ set(SOURCE_FILES
     src/rwe/gui.h
     src/rwe/io_utils.cpp
     src/rwe/io_utils.h
+    src/rwe/ip_util.cpp
+    src/rwe/ip_util.h
     src/rwe/math/Matrix4f.h
     src/rwe/math/Matrix4x.h
     src/rwe/math/Vector2f.h
@@ -707,6 +709,7 @@ set(TEST_FILES
     test/rwe/geometry/Rectangle2f_test.cpp
     test/rwe/geometry/Triangle3f_test.cpp
     test/rwe/gui_test.cpp
+    test/rwe/ip_util_test.cpp
     test/rwe/math/Matrix4f_test.cpp
     test/rwe/math/Vector2f_test.cpp
     test/rwe/math/Vector3f_test.cpp
