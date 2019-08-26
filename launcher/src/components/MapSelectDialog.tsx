@@ -42,7 +42,7 @@ class MapSelectDialog extends React.Component<MapSelectDialogProps> {
 
   render() {
     const mapImage = this.props.minimapSrc
-      ? <img src={this.props.minimapSrc} className="map-dialog-minimap" />
+      ? <img src={`file://${this.props.minimapSrc}`} className="map-dialog-minimap" />
       : <React.Fragment />;
 
       const mapDescription = this.props.selectedMapDetails
