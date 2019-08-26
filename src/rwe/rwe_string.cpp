@@ -148,6 +148,30 @@ namespace rwe
         return true;
     }
 
+    bool endsWithUtf8(const std::string& str, const std::string& end)
+    {
+        if (str.size() < end.size())
+        {
+            return false;
+        }
+
+        auto it = utf8End(end);
+        auto begin = utf8Begin(end);
+
+        auto sIt = utf8End(str);
+        auto sBegin = utf8Begin(str);
+
+        while (it != begin && sIt != sBegin)
+        {
+            if (*(--it) != *(--sIt))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     bool startsWith(const std::string& str, const std::string& prefix)
     {
         if (str.size() < prefix.size())
@@ -188,5 +212,22 @@ namespace rwe
             }
         }
         return output;
+    }
+
+    std::optional<std::pair<std::string, std::string>> utf8SplitLast(const std::string& str, unsigned int codePoint)
+    {
+        auto it = utf8End(str);
+        auto begin = utf8Begin(str);
+        while (it != begin)
+        {
+            if (*--it == codePoint)
+            {
+                auto before = std::string(str.begin(), it.base());
+                auto after = std::string((++it).base(), str.end());
+                return std::make_pair(before, after);
+            }
+        }
+
+        return std::nullopt;
     }
 }

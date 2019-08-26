@@ -112,6 +112,30 @@ namespace rwe
         }
     }
 
+    TEST_CASE("endsWithUtf8")
+    {
+        SECTION("returns true if the string ends with the substring")
+        {
+            std::string s("foo.txt");
+            std::string e(".txt");
+            REQUIRE(endsWithUtf8(s, e));
+        }
+
+        SECTION("returns false otherwise")
+        {
+            std::string s("foottxt");
+            std::string e(".txt");
+            REQUIRE(!endsWithUtf8(s, e));
+        }
+
+        SECTION("returns false when the string is shorter")
+        {
+            std::string s("txt");
+            std::string e(".txt");
+            REQUIRE(!endsWithUtf8(s, e));
+        }
+    }
+
     TEST_CASE("startsWith")
     {
         SECTION("returns true if the string starts with the substring")
@@ -133,6 +157,15 @@ namespace rwe
             std::string s("foo");
             std::string p("fooo");
             REQUIRE(!startsWith(s, p));
+        }
+    }
+
+    TEST_CASE("utf8SplitLast")
+    {
+        SECTION("splits the last occurrence of a character")
+        {
+            REQUIRE(utf8SplitLast("foo.bar.baz", U'.').value() == std::make_pair(std::string("foo.bar"), std::string("baz")));
+            REQUIRE(!utf8SplitLast("foo:bar:baz", U'.'));
         }
     }
 }
