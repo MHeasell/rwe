@@ -436,6 +436,9 @@ int main(int argc, char* argv[])
 
         fs::create_directories(*localDataPath);
 
+        fs::path configFilePath(*localDataPath);
+        configFilePath /= "rwe.cfg";
+
         po::options_description desc("Allowed options");
 
         // clang-format off
@@ -452,6 +455,13 @@ int main(int argc, char* argv[])
 
         po::variables_map vm;
         po::store(po::parse_command_line(argc, argv, desc), vm);
+        {
+            std::ifstream configFileStream(configFilePath.string(), std::ios::binary);
+            if (configFileStream.is_open())
+            {
+                po::store(po::parse_config_file(configFileStream, desc), vm);
+            }
+        }
         po::notify(vm);
 
         if (vm.count("help"))
