@@ -10,6 +10,7 @@ interface PlayerInfo {
   id: number;
   name: string;
   host: string;
+  ipv4Address: string;
   side: PlayerSide;
   color: PlayerColor;
   team?: number;
@@ -81,6 +82,9 @@ function findPlayer(players: protocol.PlayerSlot[], playerId: number): protocol.
   return findAndMap(players, x => x.state === "filled" && x.player.id === playerId ? x.player : undefined);
 }
 
+function isIpv4Client(player: PlayerInfo): boolean {
+  return /^(::ffff:)?\d+\.\d+\.\d+\.\d+$/.test(player.host);
+}
 
 export interface GameCreatedInfo {
   gameId: number;
@@ -185,6 +189,7 @@ export class GameServer {
             id: playerId,
             name: data.name,
             host: address,
+            ipv4Address: data.ipv4Address,
             side: "ARM",
             color: 0,
             team: 0,
@@ -387,8 +392,12 @@ export class GameServer {
       this.log(`Received start-game from ${playerId}, but not all open slots are filled and ready`);
       return;
     }
+    const isIpv4Game = choose(room.players, x => x.state === "filled" ? x : undefined)
+      .some(x => isIpv4Client(x.player));
     const payload: protocol.StartGamePayload = {
-      addresses: choose(room.players, x => x.state === "filled" ? x : undefined).map(x => [x.player.id, x.player.host]),
+      addresses:
+        choose(room.players, x => x.state === "filled" ? x : undefined)
+          .map(x => [x.player.id, (isIpv4Game ? x.player.ipv4Address : x.player.host)]),
     };
     this.sendToRoom(roomId, protocol.StartGame, payload);
   }
