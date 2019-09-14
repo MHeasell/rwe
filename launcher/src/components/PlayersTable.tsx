@@ -77,7 +77,7 @@ export class PlayersTable extends React.Component<PlayersTableProps> {
     });
 
     return (
-      <Table>
+      <Table size="small">
         <TableHead>
           <TableRow>
             <TableCell>Player</TableCell>
