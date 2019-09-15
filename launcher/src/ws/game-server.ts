@@ -382,12 +382,13 @@ export class GameServer {
         );
         return;
       case "closed":
-      case "empty":
+      case "empty": {
         room.players[data.slotId] = { state: "empty" };
         const payload: protocol.SlotOpenedPayload = { slotId: data.slotId };
         this.sendToRoom(roomId, protocol.SlotOpened, payload);
         this._gameUpdated.next([roomId, room]);
         return;
+      }
       default:
         return assertNever(state);
     }
@@ -419,12 +420,13 @@ export class GameServer {
         );
         return;
       case "closed":
-      case "empty":
+      case "empty": {
         room.players[data.slotId] = { state: "closed" };
         const payload: protocol.SlotClosedPayload = { slotId: data.slotId };
         this.sendToRoom(roomId, protocol.SlotClosed, payload);
         this._gameUpdated.next([roomId, room]);
         return;
+      }
       default:
         return assertNever(state);
     }
