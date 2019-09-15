@@ -25,7 +25,7 @@ function mapStateToProps(state: State): ScreenContainerProps {
   return { screen: state.currentScreen };
 }
 
-const ConnectedScreenContainer = connect(mapStateToProps, undefined)(ScreenContainer);
+const ConnectedScreenContainer = connect(mapStateToProps)(ScreenContainer);
 
 function App() {
   return (
