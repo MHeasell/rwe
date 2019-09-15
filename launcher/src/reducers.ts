@@ -204,16 +204,6 @@ function gameRoomReducer(room: GameRoom, action: AppAction): GameRoom {
       });
       return { ...room, players: newPlayers };
     }
-    case "RECEIVE_PLAYER_CHANGED_COLOR": {
-      const newPlayers = room.players.map(x => {
-        if (x.state !== "filled" || x.player.id !== action.payload.playerId) {
-          return x;
-        }
-        const p = { ...x.player, color: action.payload.color };
-        return { ...x, player: p };
-      });
-      return { ...room, players: newPlayers };
-    }
     case "RECEIVE_PLAYER_READY": {
       const newPlayers = room.players.map(x => {
         if (x.state !== "filled" || x.player.id !== action.payload.playerId) {
