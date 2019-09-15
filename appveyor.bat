@@ -5,6 +5,7 @@ CALL node --version || goto :error
 echo npm version || goto :error
 CALL npm --version || goto :error
 CALL npm ci || goto :error
+CALL npm run lint || goto :error
 CALL npm run package || goto :error
 cd .. || goto :error
 
