@@ -1,5 +1,11 @@
 import { GetMapInfoResponse } from "./bridge";
-import { CreateGameResponsePayload, GameCreatedEventPayload, GameDeletedEventPayload, GameUpdatedEventPayload, GetGamesResponsePayload } from "./master/protocol";
+import {
+  CreateGameResponsePayload,
+  GameCreatedEventPayload,
+  GameDeletedEventPayload,
+  GameUpdatedEventPayload,
+  GetGamesResponsePayload,
+} from "./master/protocol";
 import { PlayerSide } from "./state";
 import * as protocol from "./ws/protocol";
 
@@ -30,7 +36,9 @@ export interface JoinSelectedGameConfirmAction {
   name: string;
 }
 
-export function joinSelectedGameConfirm(name: string): JoinSelectedGameConfirmAction {
+export function joinSelectedGameConfirm(
+  name: string
+): JoinSelectedGameConfirmAction {
   return {
     type: "JOIN_SELECTED_GAME_CONFIRM",
     name,
@@ -74,7 +82,11 @@ export interface HostGameFormConfirmAction {
   players: number;
 }
 
-export function hostGameFormConfirm(playerName: string, gameDescription: string, players: number): HostGameFormConfirmAction {
+export function hostGameFormConfirm(
+  playerName: string,
+  gameDescription: string,
+  players: number
+): HostGameFormConfirmAction {
   return {
     type: "HOST_GAME_FORM_CONFIRM",
     playerName,
@@ -128,7 +140,9 @@ export interface ReceiveRoomsAction {
   rooms: GetGamesResponsePayload;
 }
 
-export function receiveRooms(rooms: GetGamesResponsePayload): ReceiveRoomsAction {
+export function receiveRooms(
+  rooms: GetGamesResponsePayload
+): ReceiveRoomsAction {
   return {
     type: "RECEIVE_ROOMS",
     rooms,
@@ -140,7 +154,9 @@ export interface ReceiveCreateGameResponseAction {
   payload: CreateGameResponsePayload;
 }
 
-export function receiveCreateGameResponse(payload: CreateGameResponsePayload): ReceiveCreateGameResponseAction {
+export function receiveCreateGameResponse(
+  payload: CreateGameResponsePayload
+): ReceiveCreateGameResponseAction {
   return {
     type: "RECEIVE_CREATE_GAME_RESPONSE",
     payload,
@@ -152,7 +168,9 @@ export interface ReceiveGameCreatedAction {
   payload: GameCreatedEventPayload;
 }
 
-export function receiveGameCreated(payload: GameCreatedEventPayload): ReceiveGameCreatedAction {
+export function receiveGameCreated(
+  payload: GameCreatedEventPayload
+): ReceiveGameCreatedAction {
   return {
     type: "RECEIVE_GAME_CREATED",
     payload,
@@ -164,7 +182,9 @@ export interface ReceiveGameUpdatedAction {
   payload: GameUpdatedEventPayload;
 }
 
-export function receiveGameUpdated(payload: GameUpdatedEventPayload): ReceiveGameUpdatedAction {
+export function receiveGameUpdated(
+  payload: GameUpdatedEventPayload
+): ReceiveGameUpdatedAction {
   return {
     type: "RECEIVE_GAME_UPDATED",
     payload,
@@ -176,7 +196,9 @@ export interface ReceiveGameDeletedAction {
   payload: GameDeletedEventPayload;
 }
 
-export function receiveGameDeleted(payload: GameDeletedEventPayload): ReceiveGameDeletedAction {
+export function receiveGameDeleted(
+  payload: GameDeletedEventPayload
+): ReceiveGameDeletedAction {
   return {
     type: "RECEIVE_GAME_DELETED",
     payload,
@@ -188,7 +210,9 @@ export interface ReceiveChatMessageAction {
   payload: protocol.PlayerChatMessagePayload;
 }
 
-export function receiveChatMessage(payload: protocol.PlayerChatMessagePayload): ReceiveChatMessageAction {
+export function receiveChatMessage(
+  payload: protocol.PlayerChatMessagePayload
+): ReceiveChatMessageAction {
   return {
     type: "RECEIVE_CHAT_MESSAGE",
     payload,
@@ -212,7 +236,9 @@ export interface ReceivePlayerJoinedAction {
   payload: protocol.PlayerJoinedPayload;
 }
 
-export function receivePlayerJoined(payload: protocol.PlayerJoinedPayload): ReceivePlayerJoinedAction {
+export function receivePlayerJoined(
+  payload: protocol.PlayerJoinedPayload
+): ReceivePlayerJoinedAction {
   return {
     type: "RECEIVE_PLAYER_JOINED",
     payload,
@@ -224,7 +250,9 @@ export interface ReceivePlayerLeftAction {
   payload: protocol.PlayerLeftPayload;
 }
 
-export function receivePlayerLeft(payload: protocol.PlayerLeftPayload): ReceivePlayerLeftAction {
+export function receivePlayerLeft(
+  payload: protocol.PlayerLeftPayload
+): ReceivePlayerLeftAction {
   return {
     type: "RECEIVE_PLAYER_LEFT",
     payload,
@@ -236,7 +264,9 @@ export interface ReceiveHandshakeResponseAction {
   payload: protocol.HandshakeResponsePayload;
 }
 
-export function receiveHandshakeResponse(payload: protocol.HandshakeResponsePayload): ReceiveHandshakeResponseAction {
+export function receiveHandshakeResponse(
+  payload: protocol.HandshakeResponsePayload
+): ReceiveHandshakeResponseAction {
   return {
     type: "RECEIVE_HANDSHAKE_RESPONSE",
     payload,
@@ -248,7 +278,9 @@ export interface ReceivePlayerReadyAction {
   payload: protocol.PlayerReadyPayload;
 }
 
-export function receivePlayerReady(payload: protocol.PlayerReadyPayload): ReceivePlayerReadyAction {
+export function receivePlayerReady(
+  payload: protocol.PlayerReadyPayload
+): ReceivePlayerReadyAction {
   return {
     type: "RECEIVE_PLAYER_READY",
     payload,
@@ -260,7 +292,9 @@ export interface ReceivePlayerChangedSideAction {
   payload: protocol.PlayerChangedSidePayload;
 }
 
-export function receivePlayerChangedSide(payload: protocol.PlayerChangedSidePayload): ReceivePlayerChangedSideAction {
+export function receivePlayerChangedSide(
+  payload: protocol.PlayerChangedSidePayload
+): ReceivePlayerChangedSideAction {
   return {
     type: "RECEIVE_PLAYER_CHANGED_SIDE",
     payload,
@@ -272,7 +306,9 @@ export interface ReceivePlayerChangedTeamAction {
   payload: protocol.PlayerChangedTeamPayload;
 }
 
-export function receivePlayerChangedTeam(payload: protocol.PlayerChangedTeamPayload): ReceivePlayerChangedTeamAction {
+export function receivePlayerChangedTeam(
+  payload: protocol.PlayerChangedTeamPayload
+): ReceivePlayerChangedTeamAction {
   return {
     type: "RECEIVE_PLAYER_CHANGED_TEAM",
     payload,
@@ -284,7 +320,9 @@ export interface ReceivePlayerChangedColorAction {
   payload: protocol.PlayerChangedColorPayload;
 }
 
-export function receivePlayerChangedColor(payload: protocol.PlayerChangedColorPayload): ReceivePlayerChangedColorAction {
+export function receivePlayerChangedColor(
+  payload: protocol.PlayerChangedColorPayload
+): ReceivePlayerChangedColorAction {
   return {
     type: "RECEIVE_PLAYER_CHANGED_COLOR",
     payload,
@@ -328,7 +366,9 @@ export interface ReceiveSlotOpenedAction {
   payload: protocol.SlotOpenedPayload;
 }
 
-export function receiveSlotOpened(payload: protocol.SlotOpenedPayload): ReceiveSlotOpenedAction {
+export function receiveSlotOpened(
+  payload: protocol.SlotOpenedPayload
+): ReceiveSlotOpenedAction {
   return {
     type: "RECEIVE_SLOT_OPENED",
     payload,
@@ -340,7 +380,9 @@ export interface ReceiveSlotClosedAction {
   payload: protocol.SlotClosedPayload;
 }
 
-export function receiveSlotClosed(payload: protocol.SlotClosedPayload): ReceiveSlotClosedAction {
+export function receiveSlotClosed(
+  payload: protocol.SlotClosedPayload
+): ReceiveSlotClosedAction {
   return {
     type: "RECEIVE_SLOT_CLOSED",
     payload,
@@ -440,7 +482,9 @@ export interface ReceiveStartGameAction {
   payload: protocol.StartGamePayload;
 }
 
-export function receiveStartGame(payload: protocol.StartGamePayload): ReceiveStartGameAction {
+export function receiveStartGame(
+  payload: protocol.StartGamePayload
+): ReceiveStartGameAction {
   return {
     type: "RECEIVE_START_GAME",
     payload,
@@ -550,7 +594,9 @@ export interface ReceiveMapChangedAction {
   data: protocol.MapChangedPayload;
 }
 
-export function receiveMapChanged(data: protocol.MapChangedPayload): ReceiveMapChangedAction {
+export function receiveMapChanged(
+  data: protocol.MapChangedPayload
+): ReceiveMapChangedAction {
   return {
     type: "RECEIVE_MAP_CHANGED",
     data,

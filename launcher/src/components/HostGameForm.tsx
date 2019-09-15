@@ -1,4 +1,10 @@
-import { createStyles, MenuItem, Theme, WithStyles, withStyles } from "@material-ui/core";
+import {
+  createStyles,
+  MenuItem,
+  Theme,
+  WithStyles,
+  withStyles,
+} from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import * as React from "react";
@@ -7,29 +13,35 @@ import { Dispatch } from "redux";
 import { hostGameFormCancel, hostGameFormConfirm } from "../actions";
 
 interface HostGameFormDispatchProps {
-  onConfirm: (playerName: string, gameDescription: string, players: number) => void;
+  onConfirm: (
+    playerName: string,
+    gameDescription: string,
+    players: number
+  ) => void;
   onCancel: () => void;
 }
 
-const styles = (theme: Theme) => createStyles({
-  cancelButton: {
-    "margin-left": theme.spacing(1),
-  },
-  nameInput: {
-    "flex-grow": 1,
-  },
-  descriptionInput: {
-    "margin-top": theme.spacing(1),
-    "flex-grow": 1,
-  },
-  playersInput: {
-    "margin-top": theme.spacing(1),
-    "flex-grow": 0,
-  },
-});
+const styles = (theme: Theme) =>
+  createStyles({
+    cancelButton: {
+      "margin-left": theme.spacing(1),
+    },
+    nameInput: {
+      "flex-grow": 1,
+    },
+    descriptionInput: {
+      "margin-top": theme.spacing(1),
+      "flex-grow": 1,
+    },
+    playersInput: {
+      "margin-top": theme.spacing(1),
+      "flex-grow": 0,
+    },
+  });
 
-interface HostGameFormProps extends HostGameFormDispatchProps, WithStyles<typeof styles> {
-}
+interface HostGameFormProps
+  extends HostGameFormDispatchProps,
+    WithStyles<typeof styles> {}
 
 interface HostGameFormState {
   playerName: string;
@@ -37,13 +49,18 @@ interface HostGameFormState {
   players: number;
 }
 
-class UnconnectedHostGameForm extends React.Component<HostGameFormProps, HostGameFormState> {
+class UnconnectedHostGameForm extends React.Component<
+  HostGameFormProps,
+  HostGameFormState
+> {
   constructor(props: HostGameFormProps) {
     super(props);
     this.state = { playerName: "", gameDescription: "", players: 2 };
 
     this.handlePlayerNameChange = this.handlePlayerNameChange.bind(this);
-    this.handleGameDescriptionChange = this.handleGameDescriptionChange.bind(this);
+    this.handleGameDescriptionChange = this.handleGameDescriptionChange.bind(
+      this
+    );
     this.handlePlayersChange = this.handlePlayersChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -61,7 +78,11 @@ class UnconnectedHostGameForm extends React.Component<HostGameFormProps, HostGam
   }
   handleSubmit(event: React.SyntheticEvent<EventTarget>) {
     event.preventDefault();
-    this.props.onConfirm(this.state.playerName, this.state.gameDescription, this.state.players);
+    this.props.onConfirm(
+      this.state.playerName,
+      this.state.gameDescription,
+      this.state.players
+    );
   }
 
   render() {
@@ -70,16 +91,44 @@ class UnconnectedHostGameForm extends React.Component<HostGameFormProps, HostGam
       <div className="host-game-form-container">
         <form onSubmit={this.handleSubmit}>
           <div className="host-game-form-main-panel">
-            <TextField className={this.props.classes.nameInput} label="Your Name" value={this.state.playerName} onChange={this.handlePlayerNameChange} />
-            <TextField className={this.props.classes.descriptionInput} label="Game Description" value={this.state.gameDescription} onChange={this.handleGameDescriptionChange} />
-            <TextField className={this.props.classes.playersInput} select label="Players" value={this.state.players} onChange={this.handlePlayersChange}>
-              {playerCountList.map(i => <MenuItem key={i} value={i}>{i}</MenuItem>)}
+            <TextField
+              className={this.props.classes.nameInput}
+              label="Your Name"
+              value={this.state.playerName}
+              onChange={this.handlePlayerNameChange}
+            />
+            <TextField
+              className={this.props.classes.descriptionInput}
+              label="Game Description"
+              value={this.state.gameDescription}
+              onChange={this.handleGameDescriptionChange}
+            />
+            <TextField
+              className={this.props.classes.playersInput}
+              select
+              label="Players"
+              value={this.state.players}
+              onChange={this.handlePlayersChange}
+            >
+              {playerCountList.map(i => (
+                <MenuItem key={i} value={i}>
+                  {i}
+                </MenuItem>
+              ))}
             </TextField>
           </div>
 
           <div className="host-game-form-bottom-panel">
-            <Button type="submit" variant="contained" color="primary">Create Game Room</Button>
-            <Button variant="contained" className={this.props.classes.cancelButton} onClick={this.props.onCancel}>Cancel</Button>
+            <Button type="submit" variant="contained" color="primary">
+              Create Game Room
+            </Button>
+            <Button
+              variant="contained"
+              className={this.props.classes.cancelButton}
+              onClick={this.props.onCancel}
+            >
+              Cancel
+            </Button>
           </div>
         </form>
       </div>
@@ -89,9 +138,13 @@ class UnconnectedHostGameForm extends React.Component<HostGameFormProps, HostGam
 
 function mapDispatchToProps(dispatch: Dispatch): HostGameFormDispatchProps {
   return {
-    onConfirm: (playerName: string, gameDescription: string, players: number) => dispatch(hostGameFormConfirm(playerName, gameDescription, players)),
+    onConfirm: (playerName: string, gameDescription: string, players: number) =>
+      dispatch(hostGameFormConfirm(playerName, gameDescription, players)),
     onCancel: () => dispatch(hostGameFormCancel()),
   };
 }
 
-export default connect(undefined, mapDispatchToProps)(withStyles(styles)(UnconnectedHostGameForm));
+export default connect(
+  undefined,
+  mapDispatchToProps
+)(withStyles(styles)(UnconnectedHostGameForm));

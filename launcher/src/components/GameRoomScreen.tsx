@@ -1,9 +1,45 @@
-import { Button, createStyles, Divider, FormControl, InputLabel, MenuItem, Select, TextField, Theme, Typography, WithStyles, withStyles, RootRef } from "@material-ui/core";
+import {
+  Button,
+  createStyles,
+  Divider,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Theme,
+  Typography,
+  WithStyles,
+  withStyles,
+  RootRef,
+} from "@material-ui/core";
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import { changeColor, changeMap, changeSide, changeTeam, closeSelectMapDialog, closeSlot, dialogSelectMap, leaveGame, openSelectMapDialog, openSlot, sendChatMessage, sendStartGame, toggleReady } from "../actions";
-import { canStartGame, ChatMessage, getRoom, PlayerSide, PlayerSlot, State, SelectedMapDetails } from "../state";
+import {
+  changeColor,
+  changeMap,
+  changeSide,
+  changeTeam,
+  closeSelectMapDialog,
+  closeSlot,
+  dialogSelectMap,
+  leaveGame,
+  openSelectMapDialog,
+  openSlot,
+  sendChatMessage,
+  sendStartGame,
+  toggleReady,
+} from "../actions";
+import {
+  canStartGame,
+  ChatMessage,
+  getRoom,
+  PlayerSide,
+  PlayerSlot,
+  State,
+  SelectedMapDetails,
+} from "../state";
 import MapSelectDialog from "./MapSelectDialog";
 import MessageInput from "./MessageInput";
 import { PlayersTable } from "./PlayersTable";
@@ -82,14 +118,14 @@ interface GameRoomScreenDispatchProps {
   onChangeMap: () => void;
 }
 
-const styles = (theme: Theme) => createStyles({
-});
+const styles = (theme: Theme) => createStyles({});
 
-interface GameRoomScreenProps extends GameRoomScreenStateProps, GameRoomScreenDispatchProps, WithStyles<typeof styles> {
-}
+interface GameRoomScreenProps
+  extends GameRoomScreenStateProps,
+    GameRoomScreenDispatchProps,
+    WithStyles<typeof styles> {}
 
 class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps> {
-
   private scrollAtBottom = true;
   private chatDivRef = React.createRef<HTMLElement>();
   private chatBottomRef = React.createRef<HTMLElement>();
@@ -121,7 +157,9 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps> {
       <div className="game-room-screen-container">
         <div className="game-room-screen-left">
           <div className="game-room-players-panel">
-            <Typography variant="h6" className="game-room-players-title">Players</Typography>
+            <Typography variant="h6" className="game-room-players-title">
+              Players
+            </Typography>
             <PlayersTable
               rows={this.props.players}
               localPlayerId={this.props.localPlayerId}
@@ -131,13 +169,24 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps> {
               onChangeSide={this.props.onChangeSide}
               onChangeColor={this.props.onChangeColor}
               onChangeTeam={this.props.onChangeTeam}
-              onToggleReady={this.props.onToggleReady} />
+              onToggleReady={this.props.onToggleReady}
+            />
           </div>
           <div className="game-room-map-panel">
-            <TextField disabled value={this.props.mapName ? this.props.mapName : ""} />
-            <Button onClick={this.props.onOpenSelectMapDialog} disabled={this.props.localPlayerId !== this.props.adminPlayerId}>Select Map</Button>
+            <TextField
+              disabled
+              value={this.props.mapName ? this.props.mapName : ""}
+            />
+            <Button
+              onClick={this.props.onOpenSelectMapDialog}
+              disabled={this.props.localPlayerId !== this.props.adminPlayerId}
+            >
+              Select Map
+            </Button>
           </div>
-          <Typography variant="h6" className="game-room-screen-messages-title">Messages</Typography>
+          <Typography variant="h6" className="game-room-screen-messages-title">
+            Messages
+          </Typography>
           <RootRef rootRef={this.chatDivRef}>
             <div className="game-room-screen-messages-panel">
               {messageElements}
@@ -152,10 +201,20 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps> {
         <div className="game-room-screen-right">
           <GameSettingsPanel />
           <div>
-            <Button fullWidth onClick={this.props.onLeaveGame}>Leave Game</Button>
+            <Button fullWidth onClick={this.props.onLeaveGame}>
+              Leave Game
+            </Button>
           </div>
           <div>
-            <Button fullWidth variant="contained" color="primary" disabled={!this.props.startEnabled} onClick={this.props.onStartGame}>Start Game</Button>
+            <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              disabled={!this.props.startEnabled}
+              onClick={this.props.onStartGame}
+            >
+              Start Game
+            </Button>
           </div>
         </div>
         <MapSelectDialog
@@ -166,7 +225,8 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps> {
           selectedMapDetails={this.props.mapDialogMapInfo}
           onSelect={this.props.onDialogSelectMap}
           onConfirm={this.props.onChangeMap}
-          onClose={this.props.onCloseSelectMapDialog} />
+          onClose={this.props.onCloseSelectMapDialog}
+        />
       </div>
     );
   }
@@ -197,7 +257,9 @@ const emptyProps: GameRoomScreenStateProps = {
 
 function mapStateToProps(state: State): GameRoomScreenStateProps {
   const room = getRoom(state);
-  if (!room) { return emptyProps; }
+  if (!room) {
+    return emptyProps;
+  }
 
   const mapDialog = room.mapDialog;
 
@@ -210,9 +272,18 @@ function mapStateToProps(state: State): GameRoomScreenStateProps {
     mapName: room.mapName,
     mapDialogOpen: !!mapDialog,
     mapDialogMaps: mapDialog ? mapDialog.maps : undefined,
-    selectedMap: mapDialog && mapDialog.selectedMap ? mapDialog.selectedMap.name : undefined,
-    mapDialogMinimapPath: mapDialog && mapDialog.selectedMap ? mapDialog.selectedMap.minimap : undefined,
-    mapDialogMapInfo: mapDialog && mapDialog.selectedMap ? mapDialog.selectedMap.details : undefined,
+    selectedMap:
+      mapDialog && mapDialog.selectedMap
+        ? mapDialog.selectedMap.name
+        : undefined,
+    mapDialogMinimapPath:
+      mapDialog && mapDialog.selectedMap
+        ? mapDialog.selectedMap.minimap
+        : undefined,
+    mapDialogMapInfo:
+      mapDialog && mapDialog.selectedMap
+        ? mapDialog.selectedMap.details
+        : undefined,
   };
 }
 
@@ -234,4 +305,7 @@ function mapDispatchToProps(dispatch: Dispatch): GameRoomScreenDispatchProps {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(UnconnectedGameRoomScreen));
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(withStyles(styles)(UnconnectedGameRoomScreen));

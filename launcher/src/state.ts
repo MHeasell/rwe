@@ -21,10 +21,7 @@ export interface GameRoom {
   mapDialog?: MapDialogState;
 }
 
-export type AppScreen =
-  | HostFormScreen
-  | OverviewScreen
-  | GameRoomScreen;
+export type AppScreen = HostFormScreen | OverviewScreen | GameRoomScreen;
 
 export type PlayerSide = "ARM" | "CORE";
 export type PlayerColor = number;
@@ -76,8 +73,10 @@ export interface MapDialogState {
 }
 
 export function getRoom(state: State): GameRoom | undefined {
-  if (state.currentScreen.screen !== "game-room") { return undefined; }
-  return (state.currentScreen.room);
+  if (state.currentScreen.screen !== "game-room") {
+    return undefined;
+  }
+  return state.currentScreen.room;
 }
 
 export function canStartGame(room: GameRoom) {
@@ -94,9 +93,12 @@ export function canStartGame(room: GameRoom) {
 
   return room.players.every(x => {
     switch (x.state) {
-      case "filled": return x.player.ready;
-      case "closed": return true;
-      case "empty": return false;
+      case "filled":
+        return x.player.ready;
+      case "closed":
+        return true;
+      case "empty":
+        return false;
     }
   });
 }

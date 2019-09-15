@@ -1,4 +1,11 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, TextField } from "@material-ui/core";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  TextField,
+} from "@material-ui/core";
 import * as React from "react";
 
 interface PlayerNameDialogProps {
@@ -10,7 +17,10 @@ interface PlayerNameDialogState {
   name: string;
 }
 
-export class PlayerNameDialog extends React.Component<PlayerNameDialogProps, PlayerNameDialogState> {
+export class PlayerNameDialog extends React.Component<
+  PlayerNameDialogProps,
+  PlayerNameDialogState
+> {
   constructor(props: PlayerNameDialogProps) {
     super(props);
     this.state = { name: "" };
@@ -39,16 +49,16 @@ export class PlayerNameDialog extends React.Component<PlayerNameDialogProps, Pla
     return (
       <Dialog open={this.props.open} onClose={this.handleClose}>
         <form onSubmit={this.handleConfirm}>
-        <DialogContent>
-          <DialogContentText>
-            Enter your player name
-          </DialogContentText>
-          <TextField autoFocus label="name" onChange={this.handleChange} />
-        </DialogContent>
-        <DialogActions>
-          <Button color="primary" type="submit">Join</Button>
-          <Button onClick={this.handleClose}>Cancel</Button>
-        </DialogActions>
+          <DialogContent>
+            <DialogContentText>Enter your player name</DialogContentText>
+            <TextField autoFocus label="name" onChange={this.handleChange} />
+          </DialogContent>
+          <DialogActions>
+            <Button color="primary" type="submit">
+              Join
+            </Button>
+            <Button onClick={this.handleClose}>Cancel</Button>
+          </DialogActions>
         </form>
       </Dialog>
     );

@@ -78,8 +78,13 @@ function generateAdminKey() {
   return crypto.randomBytes(16).toString("hex");
 }
 
-function findPlayer(players: protocol.PlayerSlot[], playerId: number): protocol.PlayerInfo | undefined {
-  return findAndMap(players, x => x.state === "filled" && x.player.id === playerId ? x.player : undefined);
+function findPlayer(
+  players: protocol.PlayerSlot[],
+  playerId: number
+): protocol.PlayerInfo | undefined {
+  return findAndMap(players, x =>
+    x.state === "filled" && x.player.id === playerId ? x.player : undefined
+  );
 }
 
 function isIpv4Client(player: PlayerInfo): boolean {
@@ -101,14 +106,18 @@ export class GameServer {
   private _gameUpdated = new rx.Subject<[number, Room]>();
   private _gameDeleted = new rx.Subject<number>();
 
-  constructor (ns: SocketIO.Namespace, reverseProxy: boolean) {
+  constructor(ns: SocketIO.Namespace, reverseProxy: boolean) {
     this.ns = ns;
     this.reverseProxy = reverseProxy;
     this.connect();
   }
 
-  get gameUpdated(): rx.Observable<[number, Room]> { return this._gameUpdated; }
-  get gameDeleted(): rx.Observable<number> { return this._gameDeleted; }
+  get gameUpdated(): rx.Observable<[number, Room]> {
+    return this._gameUpdated;
+  }
+  get gameDeleted(): rx.Observable<number> {
+    return this._gameDeleted;
+  }
 
   getAllRooms() {
     return this.rooms.entries();
@@ -144,8 +153,12 @@ export class GameServer {
 
   getAdminKey(id: number) {
     const room = this.rooms.get(id);
-    if (!room) { return undefined; }
-    return room.adminState.state === "unclaimed" ? room.adminState.adminKey : undefined;
+    if (!room) {
+      return undefined;
+    }
+    return room.adminState.state === "unclaimed"
+      ? room.adminState.adminKey
+      : undefined;
   }
 
   getRoomInfo(id: number) {
@@ -154,7 +167,9 @@ export class GameServer {
 
   getNumberOfPlayers(id: number) {
     const room = this.rooms.get(id);
-    if (!room) { return undefined; }
+    if (!room) {
+      return undefined;
+    }
     return room.players.length;
   }
 
@@ -168,7 +183,9 @@ export class GameServer {
         const roomId = data.gameId;
         const room = this.rooms.get(roomId);
         if (!room) {
-          this.log(`Received handshake to connect to room ${data.gameId}, but room does not exist`);
+          this.log(
+            `Received handshake to connect to room ${data.gameId}, but room does not exist`
+          );
           socket.disconnect();
           return;
         }
@@ -207,7 +224,10 @@ export class GameServer {
 
         const handshakeResponse: protocol.HandshakeResponsePayload = {
           playerId: playerId,
-          adminPlayerId: room.adminState.state === "claimed" ? room.adminState.adminPlayerId : undefined,
+          adminPlayerId:
+            room.adminState.state === "claimed"
+              ? room.adminState.adminPlayerId
+              : undefined,
           players: room.players.map(x => toProtocolPlayerSlot(x)),
           mapName: room.mapName,
         };
@@ -273,47 +293,93 @@ export class GameServer {
     this.sendToRoom(roomId, protocol.PlayerChatMessage, payload);
   }
 
-  private onChangeSide(roomId: number, playerId: number, data: protocol.ChangeSidePayload) {
+  private onChangeSide(
+    roomId: number,
+    playerId: number,
+    data: protocol.ChangeSidePayload
+  ) {
     const room = this.rooms.get(roomId);
-    if (!room) { throw new Error("onChangeSide triggered for non-existent room"); }
+    if (!room) {
+      throw new Error("onChangeSide triggered for non-existent room");
+    }
     const player = findPlayer(room.players, playerId);
-    if (!player) { throw new Error(`Failed to find player ${playerId}`); }
+    if (!player) {
+      throw new Error(`Failed to find player ${playerId}`);
+    }
     player.side = data.side;
-    const payload: protocol.PlayerChangedSidePayload = { playerId, side: data.side };
+    const payload: protocol.PlayerChangedSidePayload = {
+      playerId,
+      side: data.side,
+    };
     this.sendToRoom(roomId, protocol.PlayerChangedSide, payload);
   }
 
-  private onChangeTeam(roomId: number, playerId: number, data: protocol.ChangeTeamPayload) {
+  private onChangeTeam(
+    roomId: number,
+    playerId: number,
+    data: protocol.ChangeTeamPayload
+  ) {
     const room = this.rooms.get(roomId);
-    if (!room) { throw new Error("onChangeTeam triggered for non-existent room"); }
+    if (!room) {
+      throw new Error("onChangeTeam triggered for non-existent room");
+    }
     const player = findPlayer(room.players, playerId);
-    if (!player) { throw new Error(`Failed to find player ${playerId}`); }
+    if (!player) {
+      throw new Error(`Failed to find player ${playerId}`);
+    }
     player.team = data.team;
-    const payload: protocol.PlayerChangedTeamPayload = { playerId, team: data.team };
+    const payload: protocol.PlayerChangedTeamPayload = {
+      playerId,
+      team: data.team,
+    };
     this.sendToRoom(roomId, protocol.PlayerChangedTeam, payload);
   }
 
-  private onChangeColor(roomId: number, playerId: number, data: protocol.ChangeColorPayload) {
+  private onChangeColor(
+    roomId: number,
+    playerId: number,
+    data: protocol.ChangeColorPayload
+  ) {
     const room = this.rooms.get(roomId);
-    if (!room) { throw new Error("onChangeSide triggered for non-existent room"); }
+    if (!room) {
+      throw new Error("onChangeSide triggered for non-existent room");
+    }
     const player = findPlayer(room.players, playerId);
-    if (!player) { throw new Error(`Failed to find player ${playerId}`); }
+    if (!player) {
+      throw new Error(`Failed to find player ${playerId}`);
+    }
     player.color = data.color;
-    const payload: protocol.PlayerChangedColorPayload = { playerId, color: data.color };
+    const payload: protocol.PlayerChangedColorPayload = {
+      playerId,
+      color: data.color,
+    };
     this.sendToRoom(roomId, protocol.PlayerChangedColor, payload);
   }
 
-  private onOpenSlot(roomId: number, playerId: number, data: protocol.OpenSlotPayload) {
+  private onOpenSlot(
+    roomId: number,
+    playerId: number,
+    data: protocol.OpenSlotPayload
+  ) {
     const room = this.rooms.get(roomId);
-    if (!room) { throw new Error("onOpenSlot triggered for non-existent room"); }
-    if (room.adminState.state !== "claimed" || room.adminState.adminPlayerId !== playerId) {
-      this.log(`Received open-slot from player ${playerId}, but that player is not admin!`);
+    if (!room) {
+      throw new Error("onOpenSlot triggered for non-existent room");
+    }
+    if (
+      room.adminState.state !== "claimed" ||
+      room.adminState.adminPlayerId !== playerId
+    ) {
+      this.log(
+        `Received open-slot from player ${playerId}, but that player is not admin!`
+      );
       return;
     }
     const state = room.players[data.slotId].state;
     switch (state) {
       case "filled":
-        this.log(`Player ${playerId} tried to open filled player slot ${data.slotId}`);
+        this.log(
+          `Player ${playerId} tried to open filled player slot ${data.slotId}`
+        );
         return;
       case "closed":
       case "empty":
@@ -322,21 +388,35 @@ export class GameServer {
         this.sendToRoom(roomId, protocol.SlotOpened, payload);
         this._gameUpdated.next([roomId, room]);
         return;
-      default: return assertNever(state);
+      default:
+        return assertNever(state);
     }
   }
 
-  private onCloseSlot(roomId: number, playerId: number, data: protocol.CloseSlotPayload) {
+  private onCloseSlot(
+    roomId: number,
+    playerId: number,
+    data: protocol.CloseSlotPayload
+  ) {
     const room = this.rooms.get(roomId);
-    if (!room) { throw new Error("onCloseSlot triggered for non-existent room"); }
-    if (room.adminState.state !== "claimed" || room.adminState.adminPlayerId !== playerId) {
-      this.log(`Received close-slot from player ${playerId}, but that player is not admin!`);
+    if (!room) {
+      throw new Error("onCloseSlot triggered for non-existent room");
+    }
+    if (
+      room.adminState.state !== "claimed" ||
+      room.adminState.adminPlayerId !== playerId
+    ) {
+      this.log(
+        `Received close-slot from player ${playerId}, but that player is not admin!`
+      );
       return;
     }
     const state = room.players[data.slotId].state;
     switch (state) {
       case "filled":
-        this.log(`Player ${playerId} tried to close filled player slot ${data.slotId}`);
+        this.log(
+          `Player ${playerId} tried to close filled player slot ${data.slotId}`
+        );
         return;
       case "closed":
       case "empty":
@@ -345,15 +425,27 @@ export class GameServer {
         this.sendToRoom(roomId, protocol.SlotClosed, payload);
         this._gameUpdated.next([roomId, room]);
         return;
-      default: return assertNever(state);
+      default:
+        return assertNever(state);
     }
   }
 
-  private onChangeMap(roomId: number, playerId: number, data: protocol.ChangeMapPayload) {
+  private onChangeMap(
+    roomId: number,
+    playerId: number,
+    data: protocol.ChangeMapPayload
+  ) {
     const room = this.rooms.get(roomId);
-    if (!room) { throw new Error("onChangeMap triggered for non-existent room"); }
-    if (room.adminState.state !== "claimed" || room.adminState.adminPlayerId !== playerId) {
-      this.log(`Received change-map from player ${playerId}, but that player is not admin!`);
+    if (!room) {
+      throw new Error("onChangeMap triggered for non-existent room");
+    }
+    if (
+      room.adminState.state !== "claimed" ||
+      room.adminState.adminPlayerId !== playerId
+    ) {
+      this.log(
+        `Received change-map from player ${playerId}, but that player is not admin!`
+      );
       return;
     }
     room.mapName = data.mapName;
@@ -363,9 +455,13 @@ export class GameServer {
 
   private onPlayerReady(roomId: number, playerId: number, value: boolean) {
     const room = this.rooms.get(roomId);
-    if (!room) { throw new Error("onPlayerReady triggered for non-existent room"); }
+    if (!room) {
+      throw new Error("onPlayerReady triggered for non-existent room");
+    }
     const player = findPlayer(room.players, playerId);
-    if (!player) { throw new Error(`Failed to find player ${playerId}`); }
+    if (!player) {
+      throw new Error(`Failed to find player ${playerId}`);
+    }
     player.ready = value;
     const payload: protocol.PlayerReadyPayload = { playerId, value };
     this.sendToRoom(roomId, protocol.PlayerReady, payload);
@@ -373,38 +469,60 @@ export class GameServer {
 
   private onPlayerRequestStartGame(roomId: number, playerId: number) {
     const room = this.rooms.get(roomId);
-    if (!room) { throw new Error("onPlayerRequestStartGame triggered for non-existent room"); }
-    if (room.adminState.state !== "claimed" || room.adminState.adminPlayerId !== playerId) {
-      this.log(`Received start-game from ${playerId}, but that player is not admin!`);
+    if (!room) {
+      throw new Error(
+        "onPlayerRequestStartGame triggered for non-existent room"
+      );
+    }
+    if (
+      room.adminState.state !== "claimed" ||
+      room.adminState.adminPlayerId !== playerId
+    ) {
+      this.log(
+        `Received start-game from ${playerId}, but that player is not admin!`
+      );
       return;
     }
     if (room.mapName === undefined) {
       this.log(`Received start-game from ${playerId}, but the map is not set`);
       return;
     }
-    if (!room.players.every(x => {
-      switch (x.state) {
-        case "filled": return x.player.ready;
-        case "closed": return true;
-        case "empty": return false;
-      }
-    })) {
-      this.log(`Received start-game from ${playerId}, but not all open slots are filled and ready`);
+    if (
+      !room.players.every(x => {
+        switch (x.state) {
+          case "filled":
+            return x.player.ready;
+          case "closed":
+            return true;
+          case "empty":
+            return false;
+        }
+      })
+    ) {
+      this.log(
+        `Received start-game from ${playerId}, but not all open slots are filled and ready`
+      );
       return;
     }
-    const isIpv4Game = choose(room.players, x => x.state === "filled" ? x : undefined)
-      .some(x => isIpv4Client(x.player));
+    const isIpv4Game = choose(room.players, x =>
+      x.state === "filled" ? x : undefined
+    ).some(x => isIpv4Client(x.player));
     const payload: protocol.StartGamePayload = {
-      addresses:
-        choose(room.players, x => x.state === "filled" ? x : undefined)
-          .map(x => [x.player.id, (isIpv4Game ? x.player.ipv4Address : x.player.host)]),
+      addresses: choose(room.players, x =>
+        x.state === "filled" ? x : undefined
+      ).map(x => [
+        x.player.id,
+        isIpv4Game ? x.player.ipv4Address : x.player.host,
+      ]),
     };
     this.sendToRoom(roomId, protocol.StartGame, payload);
   }
 
   private onDisconnected(roomId: number, playerId: number) {
     const room = this.rooms.get(roomId);
-    if (!room) { throw new Error("onDisconnected triggered for non-existent room"); }
+    if (!room) {
+      throw new Error("onDisconnected triggered for non-existent room");
+    }
     room.players = room.players.map(x => {
       if (x.state === "filled" && x.player.id === playerId) {
         const e: EmptyPlayerSlot = { state: "empty" };
@@ -422,9 +540,14 @@ export class GameServer {
       return;
     }
 
-    const firstPlayer = room.players[firstPlayerIndex] as protocol.FilledPlayerSlot;
+    const firstPlayer = room.players[
+      firstPlayerIndex
+    ] as protocol.FilledPlayerSlot;
 
-    if (room.adminState.state === "claimed" && room.adminState.adminPlayerId === playerId) {
+    if (
+      room.adminState.state === "claimed" &&
+      room.adminState.adminPlayerId === playerId
+    ) {
       room.adminState.adminPlayerId = firstPlayer.player.id;
       playerLeft.newAdminPlayerId = room.adminState.adminPlayerId;
     }

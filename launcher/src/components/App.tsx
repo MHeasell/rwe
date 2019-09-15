@@ -10,7 +10,7 @@ interface ScreenContainerProps {
   screen: AppScreen;
 }
 
-function ScreenContainer(props: ScreenContainerProps): JSX.Element  {
+function ScreenContainer(props: ScreenContainerProps): JSX.Element {
   switch (props.screen.screen) {
     case "overview":
       return <OverviewScreen />;
@@ -28,9 +28,7 @@ function mapStateToProps(state: State): ScreenContainerProps {
 const ConnectedScreenContainer = connect(mapStateToProps)(ScreenContainer);
 
 function App() {
-  return (
-    <ConnectedScreenContainer />
-  );
+  return <ConnectedScreenContainer />;
 }
 
 export default hot(module)(App);

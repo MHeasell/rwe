@@ -16,7 +16,10 @@ export interface RweArgsPlayerRemote {
   port: number;
 }
 
-export type RweArgsPlayerController = RweArgsPlayerHuman | RweArgsPlayerComputer | RweArgsPlayerRemote;
+export type RweArgsPlayerController =
+  | RweArgsPlayerHuman
+  | RweArgsPlayerComputer
+  | RweArgsPlayerRemote;
 
 export interface RweArgsPlayerInfo {
   name: string;
@@ -33,7 +36,9 @@ export interface RweArgsFilledPlayerSlot extends RweArgsPlayerInfo {
   state: "filled";
 }
 
-export type RweArgsPlayerSlot = RweArgsEmptyPlayerSlot | RweArgsFilledPlayerSlot;
+export type RweArgsPlayerSlot =
+  | RweArgsEmptyPlayerSlot
+  | RweArgsFilledPlayerSlot;
 
 export interface RweArgs {
   dataPath?: string;
@@ -74,14 +79,18 @@ function serializeRweArgs(args: RweArgs): string[] {
     switch (p.state) {
       case "filled": {
         const controllerString = serializeRweController(p.controller);
-        out.push("--player", `${p.name.replace(";", "_")};${controllerString};${p.side};${p.color}`);
+        out.push(
+          "--player",
+          `${p.name.replace(";", "_")};${controllerString};${p.side};${p.color}`
+        );
         break;
       }
       case "empty": {
         out.push("--player", "empty");
         break;
       }
-      default: assertNever(p);
+      default:
+        assertNever(p);
     }
   }
   return out;
@@ -108,20 +117,26 @@ export function execRwe(args?: RweArgs): Promise<any> {
 
   return new Promise((resolve, reject) => {
     if (serializedArgs) {
-      console.log("Launching RWE with args: " + serializedArgs.map(quoteArg).join(" "));
-    }
-    else {
+      console.log(
+        "Launching RWE with args: " + serializedArgs.map(quoteArg).join(" ")
+      );
+    } else {
       console.log("Launching RWE");
     }
     // FIXME: assumes windows
-    execFile(path.join(rweHome, "rwe" + (process.platform === "win32" ? ".exe" : "")), serializedArgs, { cwd: rweHome }, (error: (null | Error), stdout: any, stderr: any) => {
-      if (error) {
-        const exitCode = (error as any).code;
-        reject(`RWE exited with exit code ${exitCode}: ${error.message}`);
-        return;
-      }
+    execFile(
+      path.join(rweHome, "rwe" + (process.platform === "win32" ? ".exe" : "")),
+      serializedArgs,
+      { cwd: rweHome },
+      (error: null | Error, stdout: any, stderr: any) => {
+        if (error) {
+          const exitCode = (error as any).code;
+          reject(`RWE exited with exit code ${exitCode}: ${error.message}`);
+          return;
+        }
 
-      resolve();
-    });
+        resolve();
+      }
+    );
   });
 }

@@ -44,8 +44,7 @@ function createWindow() {
   // and load the index.html of the app.
   if (development) {
     mainWindow.loadURL("http://localhost:8080/index.html");
-  }
-  else {
+  } else {
     mainWindow.loadFile("index.html");
   }
 

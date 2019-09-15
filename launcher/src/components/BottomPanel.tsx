@@ -1,16 +1,27 @@
 import Button from "@material-ui/core/Button";
-import { createStyles, Theme, withStyles, WithStyles } from "@material-ui/core/styles";
+import {
+  createStyles,
+  Theme,
+  withStyles,
+  WithStyles,
+} from "@material-ui/core/styles";
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { hostGame, joinSelectedGame, launchRwe } from "../actions";
-import { canHostGame, canJoinSelectedGame, canLaunchRwe, State } from "../state";
+import {
+  canHostGame,
+  canJoinSelectedGame,
+  canLaunchRwe,
+  State,
+} from "../state";
 
-const styles = (theme: Theme) => createStyles({
-  joinGameButton: {
-    "margin-left": theme.spacing(1),
-  },
-});
+const styles = (theme: Theme) =>
+  createStyles({
+    joinGameButton: {
+      "margin-left": theme.spacing(1),
+    },
+  });
 
 interface BottomPanelStateProps {
   hostEnabled: boolean;
@@ -24,18 +35,42 @@ interface BottomPanelDispatchProps {
   onLaunchRwe: () => void;
 }
 
-interface UnstyledBottomPanelProps extends BottomPanelStateProps, BottomPanelDispatchProps {}
-interface BottomPanelProps extends UnstyledBottomPanelProps, WithStyles<typeof styles> {}
+interface UnstyledBottomPanelProps
+  extends BottomPanelStateProps,
+    BottomPanelDispatchProps {}
+interface BottomPanelProps
+  extends UnstyledBottomPanelProps,
+    WithStyles<typeof styles> {}
 
 const UnstyledBottomPanel = (props: BottomPanelProps) => {
   return (
     <div className="bottom-panel">
       <div className="bottom-panel-left">
-        <Button variant="contained" disabled={!props.hostEnabled} onClick={props.onHostGame}>Host Game</Button>
-        <Button variant="contained" color="primary" className={props.classes.joinGameButton} disabled={!props.joinEnabled} onClick={props.onJoinGame}>Join Game</Button>
+        <Button
+          variant="contained"
+          disabled={!props.hostEnabled}
+          onClick={props.onHostGame}
+        >
+          Host Game
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          className={props.classes.joinGameButton}
+          disabled={!props.joinEnabled}
+          onClick={props.onJoinGame}
+        >
+          Join Game
+        </Button>
       </div>
       <div className="bottom-panel-right">
-        <Button variant="contained" disabled={!props.launchEnabled} onClick={props.onLaunchRwe}>Launch RWE</Button>
+        <Button
+          variant="contained"
+          disabled={!props.launchEnabled}
+          onClick={props.onLaunchRwe}
+        >
+          Launch RWE
+        </Button>
       </div>
     </div>
   );
@@ -58,4 +93,7 @@ function mapDispatchToProps(dispatch: Dispatch): BottomPanelDispatchProps {
 }
 
 const UnconnectedBottomPanel = withStyles(styles)(UnstyledBottomPanel);
-export default connect(mapStateToProps, mapDispatchToProps)(UnconnectedBottomPanel);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(UnconnectedBottomPanel);

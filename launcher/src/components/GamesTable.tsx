@@ -1,5 +1,16 @@
-import { TableBody, TableCell, TableHead, TableRow, Typography } from "@material-ui/core";
-import { createStyles, Theme, withStyles, WithStyles } from "@material-ui/core/styles";
+import {
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@material-ui/core";
+import {
+  createStyles,
+  Theme,
+  withStyles,
+  WithStyles,
+} from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
 import * as React from "react";
 import { connect } from "react-redux";
@@ -23,38 +34,55 @@ interface GamesTableDispatchProps {
   onRowClick?: (id: number) => void;
 }
 
-const gamesTableStyles = (theme: Theme) => createStyles({
-  head: {
-    backgroundColor: "#fafafa",
-    position: "sticky",
-    top: 0,
-  },
-});
+const gamesTableStyles = (theme: Theme) =>
+  createStyles({
+    head: {
+      backgroundColor: "#fafafa",
+      position: "sticky",
+      top: 0,
+    },
+  });
 
-interface UnstyledGamesTableProps extends GamesTableStateProps, GamesTableDispatchProps { }
-interface GamesTableProps extends UnstyledGamesTableProps, WithStyles<typeof gamesTableStyles> { }
+interface UnstyledGamesTableProps
+  extends GamesTableStateProps,
+    GamesTableDispatchProps {}
+interface GamesTableProps
+  extends UnstyledGamesTableProps,
+    WithStyles<typeof gamesTableStyles> {}
 
 const UnstyledGamesTable = (props: GamesTableProps) => {
   const rows = props.games.map((g, i) => {
-    const onClick = () => { if (props.onRowClick) { props.onRowClick(g.id); }};
+    const onClick = () => {
+      if (props.onRowClick) {
+        props.onRowClick(g.id);
+      }
+    };
     return (
-      <TableRow key={g.id} selected={props.selectedIndex === i} onClick={onClick}>
+      <TableRow
+        key={g.id}
+        selected={props.selectedIndex === i}
+        onClick={onClick}
+      >
         <TableCell>{g.description}</TableCell>
-        <TableCell>{g.players} / {g.maxPlayers}</TableCell>
+        <TableCell>
+          {g.players} / {g.maxPlayers}
+        </TableCell>
       </TableRow>
     );
   });
 
-  const rowsOrMessage = props.games.length > 0 ? rows
-  : (
-    <TableRow>
-      <TableCell colSpan={2}>
-        <Typography align="center">
-          There are no online games being hosted right now.
-        </Typography>
-      </TableCell>
-    </TableRow>
-  );
+  const rowsOrMessage =
+    props.games.length > 0 ? (
+      rows
+    ) : (
+      <TableRow>
+        <TableCell colSpan={2}>
+          <Typography align="center">
+            There are no online games being hosted right now.
+          </Typography>
+        </TableCell>
+      </TableRow>
+    );
 
   return (
     <Table className="games-table">
@@ -64,9 +92,7 @@ const UnstyledGamesTable = (props: GamesTableProps) => {
           <TableCell className={props.classes.head}>Players</TableCell>
         </TableRow>
       </TableHead>
-      <TableBody>
-        {rowsOrMessage}
-      </TableBody>
+      <TableBody>{rowsOrMessage}</TableBody>
     </Table>
   );
 };
@@ -88,4 +114,7 @@ function mapDispatchToProps(dispatch: Dispatch): GamesTableDispatchProps {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(UnconnectedGamesTable);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(UnconnectedGamesTable);

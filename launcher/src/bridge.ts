@@ -56,7 +56,7 @@ interface CommandQueueItem {
 }
 
 type BridgeCommand =
-    AddDataPathCommand
+  | AddDataPathCommand
   | ClearDataPathsCommand
   | GetMapInfoCommand
   | GetMapListCommand
@@ -75,7 +75,10 @@ export class RweBridge {
     if (!rweHome) {
       throw new Error("Cannot launch rwe_bridge, RWE_HOME is not defined");
     }
-    const bridgeExe = path.join(rweHome, "rwe_bridge" + (process.platform === "win32" ? ".exe" : ""));
+    const bridgeExe = path.join(
+      rweHome,
+      "rwe_bridge" + (process.platform === "win32" ? ".exe" : "")
+    );
 
     this.proc = spawn(bridgeExe, undefined, { cwd: rweHome });
 
@@ -88,32 +91,42 @@ export class RweBridge {
 
   addDataPath(path: string): Promise<AddDataPathResponse> {
     const cmd: AddDataPathCommand = { command: "add-data-path", path };
-    return this.submitCommand(cmd).then(answer => JSON.parse(answer) as AddDataPathResponse);
+    return this.submitCommand(cmd).then(
+      answer => JSON.parse(answer) as AddDataPathResponse
+    );
   }
 
   clearDataPaths(): Promise<ClearDataPathsResponse> {
     const cmd: ClearDataPathsCommand = { command: "clear-data-paths" };
-    return this.submitCommand(cmd).then(answer => JSON.parse(answer) as ClearDataPathsResponse);
+    return this.submitCommand(cmd).then(
+      answer => JSON.parse(answer) as ClearDataPathsResponse
+    );
   }
 
   getMapInfo(mapName: string): Promise<GetMapInfoResponse> {
     const cmd: GetMapInfoCommand = { command: "map-info", map: mapName };
-    return this.submitCommand(cmd).then(answer => JSON.parse(answer) as GetMapInfoResponse);
+    return this.submitCommand(cmd).then(
+      answer => JSON.parse(answer) as GetMapInfoResponse
+    );
   }
 
   getMapList(): Promise<GetMapListResponse> {
     const cmd: GetMapListCommand = { command: "map-list" };
-    return this.submitCommand(cmd).then(answer => JSON.parse(answer) as GetMapListResponse);
+    return this.submitCommand(cmd).then(
+      answer => JSON.parse(answer) as GetMapListResponse
+    );
   }
 
   getMinimap(mapName: string): Promise<GetMinimapResponse> {
     const cmd: GetMinimapCommand = { command: "get-minimap", map: mapName };
-    return this.submitCommand(cmd).then(answer => JSON.parse(answer) as GetMinimapResponse);
+    return this.submitCommand(cmd).then(
+      answer => JSON.parse(answer) as GetMinimapResponse
+    );
   }
 
   private submitCommand(cmd: BridgeCommand): Promise<string> {
     return new Promise<string>((resolve, reject) => {
-      this.commandQueue.push({command: cmd, callback: resolve});
+      this.commandQueue.push({ command: cmd, callback: resolve });
       this.pumpCommands();
     });
   }
@@ -132,9 +145,13 @@ export class RweBridge {
   }
 
   private pumpCommands() {
-    if (this.inProgressCommand) { return; }
+    if (this.inProgressCommand) {
+      return;
+    }
     this.inProgressCommand = this.commandQueue.shift();
-    if (!this.inProgressCommand) { return; }
+    if (!this.inProgressCommand) {
+      return;
+    }
     this.writeCommand(this.inProgressCommand.command);
   }
 

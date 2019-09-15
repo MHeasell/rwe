@@ -11,7 +11,9 @@ import { PlayerNameDialog } from "./PlayerNameDialog";
 function MainPanel() {
   return (
     <div className="main-panel">
-      <Typography variant="h6" className="main-panel-title">Online Games</Typography>
+      <Typography variant="h6" className="main-panel-title">
+        Online Games
+      </Typography>
       <GamesTable />
     </div>
   );
@@ -46,7 +48,9 @@ interface OverviewScreenStateProps {
   dialogOpen: boolean;
 }
 
-interface OverviewScreenProps extends OverviewScreenDispatchProps, OverviewScreenStateProps {}
+interface OverviewScreenProps
+  extends OverviewScreenDispatchProps,
+    OverviewScreenStateProps {}
 
 function OverviewScreen(props: OverviewScreenProps) {
   return (
@@ -54,21 +58,38 @@ function OverviewScreen(props: OverviewScreenProps) {
       <ConnectionNotice connected={props.connected} />
       <MainPanel />
       <BottomPanel />
-      <PlayerNameDialog open={props.dialogOpen} onConfirm={props.onDialogConfirm} onClose={props.onDialogClose} />
+      <PlayerNameDialog
+        open={props.dialogOpen}
+        onConfirm={props.onDialogConfirm}
+        onClose={props.onDialogClose}
+      />
     </Paper>
   );
 }
 
 function mapStateToProps(state: State): OverviewScreenStateProps {
-  const dialogOpen = state.currentScreen.screen === "overview" ? state.currentScreen.dialogOpen : false;
-  return { connected: state.masterServerConnectionStatus === "connected", dialogOpen };
+  const dialogOpen =
+    state.currentScreen.screen === "overview"
+      ? state.currentScreen.dialogOpen
+      : false;
+  return {
+    connected: state.masterServerConnectionStatus === "connected",
+    dialogOpen,
+  };
 }
 
 function mapDispatchToProps(dispatch: Dispatch): OverviewScreenDispatchProps {
   return {
-    onDialogClose: () => { dispatch(joinSelectedGameCancel()); },
-    onDialogConfirm: (name: string) => { dispatch(joinSelectedGameConfirm(name)); },
+    onDialogClose: () => {
+      dispatch(joinSelectedGameCancel());
+    },
+    onDialogConfirm: (name: string) => {
+      dispatch(joinSelectedGameConfirm(name));
+    },
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(OverviewScreen);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(OverviewScreen);

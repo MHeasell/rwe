@@ -22,12 +22,25 @@ import { masterServer } from "./util";
 
 const masterClentService = new MasterClientService();
 masterClentService.connectToServer(`${masterServer()}/master`);
-const epicMiddleware = createEpicMiddleware<AppAction, AppAction, State, EpicDependencies>({
-  dependencies: { clientService: new GameClientService(), masterClentService, bridgeService: new RweBridge() },
+const epicMiddleware = createEpicMiddleware<
+  AppAction,
+  AppAction,
+  State,
+  EpicDependencies
+>({
+  dependencies: {
+    clientService: new GameClientService(),
+    masterClentService,
+    bridgeService: new RweBridge(),
+  },
 });
 
-const composeEnhancers = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-const store: Store<any> = createStore(rootReducer, composeEnhancers(applyMiddleware(epicMiddleware)));
+const composeEnhancers =
+  (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const store: Store<any> = createStore(
+  rootReducer,
+  composeEnhancers(applyMiddleware(epicMiddleware))
+);
 
 epicMiddleware.run(rootEpic);
 
@@ -38,4 +51,5 @@ ReactDOM.render(
       <App />
     </Provider>
   </React.Fragment>,
-  document.getElementById("app"));
+  document.getElementById("app")
+);

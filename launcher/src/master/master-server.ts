@@ -6,10 +6,9 @@ import { GameServer, Room } from "../ws/game-server";
 import * as protocol from "./protocol";
 
 const argv = yargs
-.option("host", { alias: "h", default: undefined })
-.option("port", { alias: "p", default: 5000 })
-.option("reverse-proxy", { alias: "r", default: false })
-.argv;
+  .option("host", { alias: "h", default: undefined })
+  .option("port", { alias: "p", default: 5000 })
+  .option("reverse-proxy", { alias: "r", default: false }).argv;
 
 const host = argv.host;
 const port = argv.port;
@@ -59,44 +58,52 @@ masterNamespace.on("connection", socket => {
   log(`Received connection from ${addr}`);
 
   {
-    const gamesList = Array.from(gameServer.getAllRooms())
-    .map(([roomId, room]) => {
-      return { id: roomId, game: roomToEntry(room) };
-    });
+    const gamesList = Array.from(gameServer.getAllRooms()).map(
+      ([roomId, room]) => {
+        return { id: roomId, game: roomToEntry(room) };
+      }
+    );
 
     const payload: protocol.GetGamesResponsePayload = { games: gamesList };
     socket.emit(protocol.GetGamesResponse, payload);
   }
 
   socket.on(protocol.GetGames, () => {
-    const gamesList = Array.from(gameServer.getAllRooms())
-    .map(([roomId, room]) => {
-      return { id: roomId, game: roomToEntry(room) };
-    });
+    const gamesList = Array.from(gameServer.getAllRooms()).map(
+      ([roomId, room]) => {
+        return { id: roomId, game: roomToEntry(room) };
+      }
+    );
 
     const payload: protocol.GetGamesResponsePayload = { games: gamesList };
     socket.emit(protocol.GetGamesResponse, payload);
   });
 
-  socket.on(protocol.CreateGameRequest, (data: protocol.CreateGameRequestPayload) => {
-    const gameInfo = gameServer.createRoom(data.description, data.max_players);
+  socket.on(
+    protocol.CreateGameRequest,
+    (data: protocol.CreateGameRequestPayload) => {
+      const gameInfo = gameServer.createRoom(
+        data.description,
+        data.max_players
+      );
 
-    const payload: protocol.CreateGameResponsePayload = {
-      game_id: gameInfo.gameId,
-      admin_key: gameInfo.adminKey,
-    };
-    socket.emit(protocol.CreateGameResponse, payload);
+      const payload: protocol.CreateGameResponsePayload = {
+        game_id: gameInfo.gameId,
+        admin_key: gameInfo.adminKey,
+      };
+      socket.emit(protocol.CreateGameResponse, payload);
 
-    const eventPayload: protocol.GameCreatedEventPayload = {
-      game_id: gameInfo.gameId,
-      game: {
-        description: data.description,
-        players: 0,
-        max_players: data.max_players,
-      },
-    };
-    masterNamespace.emit(protocol.GameCreatedEvent, eventPayload);
-  });
+      const eventPayload: protocol.GameCreatedEventPayload = {
+        game_id: gameInfo.gameId,
+        game: {
+          description: data.description,
+          players: 0,
+          max_players: data.max_players,
+        },
+      };
+      masterNamespace.emit(protocol.GameCreatedEvent, eventPayload);
+    }
+  );
 
   socket.on("disconnect", () => {
     log(`Client from ${addr} disconnected`);

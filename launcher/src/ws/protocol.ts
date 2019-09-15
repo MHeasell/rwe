@@ -88,7 +88,6 @@ export interface StartGamePayload {
   addresses: [number, string][];
 }
 
-
 export const ChangeSide = "change-side";
 export interface ChangeSidePayload {
   side: PlayerSide;
@@ -100,7 +99,6 @@ export interface PlayerChangedSidePayload {
   side: PlayerSide;
 }
 
-
 export const ChangeTeam = "change-team";
 export interface ChangeTeamPayload {
   team?: number;
@@ -111,7 +109,6 @@ export interface PlayerChangedTeamPayload {
   playerId: number;
   team?: number;
 }
-
 
 export const ChangeColor = "change-color";
 export interface ChangeColorPayload {

@@ -17,15 +17,20 @@ export function getAddr(socket: SocketIO.Socket, reverseProxy: boolean) {
   return socket.handshake.address;
 }
 
-export function findAndMap<T, R>(arr: T[], f: (x: T) => (R | undefined)): (R | undefined) {
+export function findAndMap<T, R>(
+  arr: T[],
+  f: (x: T) => R | undefined
+): R | undefined {
   for (const e of arr) {
     const v = f(e);
-    if (v !== undefined) { return v; }
+    if (v !== undefined) {
+      return v;
+    }
   }
   return undefined;
 }
 
-export function choose<T, R>(arr: T[], f: (x: T) => (R | undefined)): R[] {
+export function choose<T, R>(arr: T[], f: (x: T) => R | undefined): R[] {
   const out: R[] = [];
   for (const e of arr) {
     const v = f(e);
