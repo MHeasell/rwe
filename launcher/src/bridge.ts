@@ -68,8 +68,6 @@ export class RweBridge {
 
   private readonly commandQueue: CommandQueueItem[] = [];
 
-  private inProgressCommand?: CommandQueueItem;
-
   constructor() {
     const rweHome = process.env["RWE_HOME"];
     if (!rweHome) {
@@ -126,33 +124,28 @@ export class RweBridge {
 
   private submitCommand(cmd: BridgeCommand): Promise<string> {
     return new Promise<string>((resolve, reject) => {
+      if (this.commandQueue.length === 0) {
+        this.writeCommand(cmd);
+      }
       this.commandQueue.push({ command: cmd, callback: resolve });
-      this.pumpCommands();
     });
   }
 
   private onReceiveLine(line: string) {
     console.log(`BRIDGE: received: ${line}`);
 
-    if (!this.inProgressCommand) {
+    const item = this.commandQueue.shift();
+    if (!item) {
       console.warn("Received line when no command in progress!");
       return;
     }
 
-    this.inProgressCommand.callback(line);
-    this.inProgressCommand = undefined;
-    this.pumpCommands();
-  }
+    item.callback(line);
 
-  private pumpCommands() {
-    if (this.inProgressCommand) {
+    if (this.commandQueue.length === 0) {
       return;
     }
-    this.inProgressCommand = this.commandQueue.shift();
-    if (!this.inProgressCommand) {
-      return;
-    }
-    this.writeCommand(this.inProgressCommand.command);
+    this.writeCommand(this.commandQueue[0].command);
   }
 
   private writeCommand(cmd: BridgeCommand) {
