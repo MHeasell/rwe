@@ -126,7 +126,6 @@ interface GameRoomScreenProps
     WithStyles<typeof styles> {}
 
 class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps> {
-  private scrollAtBottom = true;
   private chatDivRef = React.createRef<HTMLElement>();
   private chatBottomRef = React.createRef<HTMLElement>();
 
@@ -134,13 +133,20 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps> {
     super(props);
   }
 
-  componentWillUpdate() {
-    this.refreshScrollAtBottom();
+  getSnapshotBeforeUpdate(prevProps: GameRoomScreenProps) {
+    if (prevProps.messages !== this.props.messages) {
+      return this.isScrolledToBottom(this.chatDivRef.current!);
+    }
+    return null;
   }
 
-  componentDidUpdate(prevProps: GameRoomScreenProps) {
-    if (this.props.messages !== prevProps.messages) {
-      this.updateScroll();
+  componentDidUpdate(
+    prevProps: GameRoomScreenProps,
+    _prevState: {},
+    snapshot: boolean | null
+  ) {
+    if (snapshot) {
+      this.scrollToBottomOfChat();
     }
   }
 
@@ -231,14 +237,8 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps> {
     );
   }
 
-  private updateScroll() {
-    if (this.scrollAtBottom) {
-      this.chatBottomRef.current!.scrollIntoView();
-    }
-  }
-
-  private refreshScrollAtBottom() {
-    this.scrollAtBottom = this.isScrolledToBottom(this.chatDivRef.current!);
+  private scrollToBottomOfChat() {
+    this.chatBottomRef.current!.scrollIntoView();
   }
 
   private isScrolledToBottom(elem: HTMLElement): boolean {
