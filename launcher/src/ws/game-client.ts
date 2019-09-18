@@ -28,6 +28,9 @@ export class GameClientService {
   >();
   private readonly _onSlotOpened = new Subject<protocol.SlotOpenedPayload>();
   private readonly _onSlotClosed = new Subject<protocol.SlotClosedPayload>();
+  private readonly _onActiveModsChanged = new Subject<
+    protocol.ActiveModsChangedPayload
+  >();
   private readonly _onPlayerReady = new Subject<protocol.PlayerReadyPayload>();
   private readonly _onMapChanged = new Subject<protocol.MapChangedPayload>();
   private readonly _onStartGame = new Subject<protocol.StartGamePayload>();
@@ -61,6 +64,9 @@ export class GameClientService {
   }
   get onSlotClosed(): Observable<protocol.SlotClosedPayload> {
     return this._onSlotClosed;
+  }
+  get onActiveModsChanged(): Observable<protocol.ActiveModsChangedPayload> {
+    return this._onActiveModsChanged;
   }
   get onPlayerReady(): Observable<protocol.PlayerReadyPayload> {
     return this._onPlayerReady;
@@ -178,6 +184,13 @@ export class GameClientService {
     });
 
     this.client.on(
+      protocol.ActiveModsChanged,
+      (data: protocol.ActiveModsChangedPayload) => {
+        this._onActiveModsChanged.next(data);
+      }
+    );
+
+    this.client.on(
       protocol.PlayerReady,
       (data: protocol.PlayerReadyPayload) => {
         this._onPlayerReady.next(data);
@@ -246,6 +259,14 @@ export class GameClientService {
     }
     const payload: protocol.CloseSlotPayload = { slotId };
     this.client.emit(protocol.CloseSlot, payload);
+  }
+
+  setActiveMods(mods: string[]) {
+    if (!this.client) {
+      return;
+    }
+    const payload: protocol.SetActiveModsPayload = { mods };
+    this.client.emit(protocol.SetActiveMods, payload);
   }
 
   setReadyState(value: boolean) {

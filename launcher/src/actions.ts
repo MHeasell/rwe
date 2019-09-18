@@ -545,6 +545,96 @@ export function openSelectMapDialog(): OpenSelectMapDialogAction {
   };
 }
 
+export interface OpenSelectModsDialogAction {
+  type: "OPEN_SELECT_MODS_DIALOG";
+}
+
+export function openSelectModsDialog(): OpenSelectModsDialogAction {
+  return {
+    type: "OPEN_SELECT_MODS_DIALOG",
+  };
+}
+
+export interface CloseSelectModsDialogAction {
+  type: "CLOSE_SELECT_MODS_DIALOG";
+}
+
+export function closeSelectModsDialog(): CloseSelectModsDialogAction {
+  return {
+    type: "CLOSE_SELECT_MODS_DIALOG",
+  };
+}
+
+export interface SetActiveModsAction {
+  type: "REQUEST_SET_ACTIVE_MODS";
+  mods: string[];
+}
+
+export function setActiveMods(mods: string[]): SetActiveModsAction {
+  return {
+    type: "REQUEST_SET_ACTIVE_MODS",
+    mods,
+  };
+}
+
+export interface ReceiveActiveModsChangedAction {
+  type: "RECEIVE_ACTIVE_MODS_CHANGED";
+  payload: protocol.ActiveModsChangedPayload;
+}
+
+export function receiveActiveModsChanged(
+  payload: protocol.ActiveModsChangedPayload
+): ReceiveActiveModsChangedAction {
+  return {
+    type: "RECEIVE_ACTIVE_MODS_CHANGED",
+    payload,
+  };
+}
+
+export interface SelectModAction {
+  type: "SELECT_MOD";
+  name: string;
+}
+
+export function selectMod(name: string): SelectModAction {
+  return {
+    type: "SELECT_MOD",
+    name,
+  };
+}
+
+export interface ToggleModAction {
+  type: "TOGGLE_MOD";
+  name: string;
+}
+
+export function toggleMod(name: string): ToggleModAction {
+  return {
+    type: "TOGGLE_MOD",
+    name,
+  };
+}
+
+export interface ModUpAction {
+  type: "MOD_UP";
+}
+
+export function modUp(): ModUpAction {
+  return {
+    type: "MOD_UP",
+  };
+}
+
+export interface ModDownAction {
+  type: "MOD_DOWN";
+}
+
+export function modDown(): ModDownAction {
+  return {
+    type: "MOD_DOWN",
+  };
+}
+
 export interface CloseSelectMapDialogAction {
   type: "CLOSE_SELECT_MAP_DIALOG";
 }
@@ -678,4 +768,12 @@ export type AppAction =
   | ReceiveMapChangedAction
   | DialogSelectMapAction
   | ReceiveMinimapAction
-  | ReceiveMapInfoAction;
+  | ReceiveMapInfoAction
+  | OpenSelectModsDialogAction
+  | CloseSelectModsDialogAction
+  | SelectModAction
+  | ToggleModAction
+  | ModUpAction
+  | ModDownAction
+  | SetActiveModsAction
+  | ReceiveActiveModsChangedAction;

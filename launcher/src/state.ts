@@ -19,6 +19,8 @@ export interface GameRoom {
   messages: ChatMessage[];
   mapName?: string;
   mapDialog?: MapDialogState;
+  modsDialog?: ModsDialogState;
+  activeMods: string[];
 }
 
 export type AppScreen = HostFormScreen | OverviewScreen | GameRoomScreen;
@@ -72,6 +74,11 @@ export interface MapDialogState {
   selectedMap?: SelectedMapInfo;
 }
 
+export interface ModsDialogState {
+  activeMods: string[];
+  selectedMod?: string;
+}
+
 export function getRoom(state: State): GameRoom | undefined {
   if (state.currentScreen.screen !== "game-room") {
     return undefined;
@@ -116,7 +123,13 @@ export function isFull(game: GameListEntry): boolean {
 
 export type MasterServerConnectionStatus = "connected" | "disconnected";
 
+export interface InstalledModInfo {
+  name: string;
+  path: string;
+}
+
 export interface State {
+  installedMods: InstalledModInfo[];
   games: GameListEntry[];
   selectedGameId?: number;
   currentScreen: AppScreen;

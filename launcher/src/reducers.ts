@@ -17,6 +17,11 @@ import {
 import { findAndMap } from "./util";
 
 const initialState: State = {
+  installedMods: [
+    { name: "ta", path: "/path/to/ta" },
+    { name: "tacc", path: "/path/to/tacc" },
+    { name: "tamax", path: "/path/to/tamax" },
+  ],
   games: [],
   currentScreen: { screen: "overview", dialogOpen: false },
   isRweRunning: false,
@@ -55,6 +60,7 @@ function gameRoomScreenReducer(
         adminPlayerId: action.payload.adminPlayerId,
         mapName: action.payload.mapName,
         messages: [],
+        activeMods: action.payload.activeMods,
       };
       return { ...screen, room };
     }
@@ -234,6 +240,9 @@ function gameRoomReducer(room: GameRoom, action: AppAction): GameRoom {
       });
       return { ...room, players: newPlayers };
     }
+    case "RECEIVE_ACTIVE_MODS_CHANGED": {
+      return { ...room, activeMods: action.payload.mods };
+    }
     case "OPEN_SELECT_MAP_DIALOG": {
       const selectedMapInfo = room.mapName ? { name: room.mapName } : undefined;
       return { ...room, mapDialog: { selectedMap: selectedMapInfo } };
@@ -296,6 +305,83 @@ function gameRoomReducer(room: GameRoom, action: AppAction): GameRoom {
       };
       const dialog = { ...room.mapDialog, selectedMap: selectedMapInfo };
       return { ...room, mapDialog: dialog };
+    }
+    case "OPEN_SELECT_MODS_DIALOG": {
+      return { ...room, modsDialog: { activeMods: room.activeMods } };
+    }
+    case "CLOSE_SELECT_MODS_DIALOG": {
+      return { ...room, modsDialog: undefined };
+    }
+    case "SELECT_MOD": {
+      if (!room.modsDialog) {
+        return room;
+      }
+      const dialog = { ...room.modsDialog, selectedMod: action.name };
+      return { ...room, modsDialog: dialog };
+    }
+    case "TOGGLE_MOD": {
+      if (!room.modsDialog) {
+        return room;
+      }
+      const newList = room.modsDialog.activeMods.includes(action.name)
+        ? room.modsDialog.activeMods.filter(x => x !== action.name)
+        : [...room.modsDialog.activeMods, action.name];
+
+      const dialog = { ...room.modsDialog, activeMods: newList };
+      return { ...room, modsDialog: dialog };
+    }
+    case "MOD_UP": {
+      if (!room.modsDialog) {
+        return room;
+      }
+      if (!room.modsDialog.selectedMod) {
+        return room;
+      }
+      const index = room.modsDialog.activeMods.indexOf(
+        room.modsDialog.selectedMod
+      );
+      if (index === -1) {
+        return room;
+      }
+      if (index === 0) {
+        return room;
+      }
+      const newList = [
+        ...room.modsDialog.activeMods.slice(0, index - 1),
+        room.modsDialog.activeMods[index],
+        room.modsDialog.activeMods[index - 1],
+        ...room.modsDialog.activeMods.slice(index + 1),
+      ];
+      const dialog = { ...room.modsDialog, activeMods: newList };
+      return { ...room, modsDialog: dialog };
+    }
+    case "MOD_DOWN": {
+      if (!room.modsDialog) {
+        return room;
+      }
+      if (!room.modsDialog.selectedMod) {
+        return room;
+      }
+      const index = room.modsDialog.activeMods.indexOf(
+        room.modsDialog.selectedMod
+      );
+      if (index === -1) {
+        return room;
+      }
+      if (index === room.modsDialog.activeMods.length - 1) {
+        return room;
+      }
+      const newList = [
+        ...room.modsDialog.activeMods.slice(0, index),
+        room.modsDialog.activeMods[index + 1],
+        room.modsDialog.activeMods[index],
+        ...room.modsDialog.activeMods.slice(index + 2),
+      ];
+      const dialog = { ...room.modsDialog, activeMods: newList };
+      return { ...room, modsDialog: dialog };
+    }
+    case "REQUEST_SET_ACTIVE_MODS": {
+      return { ...room, modsDialog: undefined };
     }
 
     default:

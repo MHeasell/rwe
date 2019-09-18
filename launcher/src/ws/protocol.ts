@@ -41,6 +41,7 @@ export interface HandshakeResponsePayload {
   adminPlayerId?: number;
   players: PlayerSlot[];
   mapName?: string;
+  activeMods: string[];
 }
 
 // Emitted by the client when the user sends a chat message
@@ -129,6 +130,16 @@ export interface OpenSlotPayload {
 export const CloseSlot = "close-slot";
 export interface CloseSlotPayload {
   slotId: number;
+}
+
+export const SetActiveMods = "set-active-mods";
+export interface SetActiveModsPayload {
+  mods: string[];
+}
+
+export const ActiveModsChanged = "active-mods-changed";
+export interface ActiveModsChangedPayload {
+  mods: string[];
 }
 
 export const SlotOpened = "slot-opened";

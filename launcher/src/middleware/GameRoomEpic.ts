@@ -32,6 +32,7 @@ import {
   receiveSlotOpened,
   receiveStartGame,
   LeaveGameAction,
+  receiveActiveModsChanged,
 } from "../actions";
 import { FilledPlayerSlot, GameRoom, getRoom, State } from "../state";
 import * as protocol from "../ws/protocol";
@@ -76,6 +77,7 @@ const gameClientEventsEpic = (
     ),
     clientService.onSlotOpened.pipe(rxop.map(receiveSlotOpened)),
     clientService.onSlotClosed.pipe(rxop.map(receiveSlotClosed)),
+    clientService.onActiveModsChanged.pipe(rxop.map(receiveActiveModsChanged)),
     clientService.onPlayerReady.pipe(rxop.map(receivePlayerReady)),
     clientService.onMapChanged.pipe(rxop.map(receiveMapChanged)),
     clientService.onStartGame.pipe(rxop.map(receiveStartGame))
@@ -264,6 +266,10 @@ const gameRoomEpic = (
         }
         case "CLOSE_SLOT": {
           clientService.closeSlot(action.slotId);
+          break;
+        }
+        case "REQUEST_SET_ACTIVE_MODS": {
+          clientService.setActiveMods(action.mods);
           break;
         }
         case "TOGGLE_READY": {
