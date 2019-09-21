@@ -35,7 +35,13 @@ import {
   receiveActiveModsChanged,
   receiveInstalledMods,
 } from "../actions";
-import { FilledPlayerSlot, GameRoom, getRoom, State } from "../state";
+import {
+  FilledPlayerSlot,
+  GameRoom,
+  getRoom,
+  State,
+  InstalledModInfo,
+} from "../state";
 import * as protocol from "../ws/protocol";
 
 import { GameClientService } from "../ws/game-client";
@@ -52,7 +58,7 @@ import {
   RweArgsPlayerInfo,
   RweArgsPlayerSlot,
 } from "../rwe";
-import { assertNever, masterServer, getInstalledMods } from "../util";
+import { assertNever, masterServer, getInstalledMods, choose } from "../util";
 
 export interface EpicDependencies {
   clientService: GameClientService;
@@ -103,6 +109,7 @@ const masterClientEventsEpic = (
 };
 
 function rweArgsFromGameRoom(
+  installedMods: InstalledModInfo[],
   game: GameRoom,
   startInfo: protocol.StartGamePayload
 ): RweArgs {
@@ -144,6 +151,9 @@ function rweArgsFromGameRoom(
     throw new Error("map is not set");
   }
   return {
+    dataPaths: choose(game.activeMods, name =>
+      installedMods.find(x => x.name === name)
+    ).map(x => x.path),
     map: game.mapName,
     port: 6670 + portOffset,
     players: playersArgs,
@@ -193,9 +203,6 @@ function getRweUserPath(): string {
   }
 }
 
-function getDefaultDataPath(): string {
-  return path.join(getRweUserPath(), "Data");
-}
 function getRweModsPath(): string {
   return path.join(getRweUserPath(), "mods");
 }
@@ -207,8 +214,6 @@ const gameRoomEpic = (
 ): rx.Observable<AppAction> => {
   const clientService = deps.clientService;
   const masterClientService = deps.masterClentService;
-
-  const dataPath = getDefaultDataPath();
 
   return action$.pipe(
     rxop.flatMap(action => {
@@ -226,7 +231,6 @@ const gameRoomEpic = (
               rxop.first()
             )
             .subscribe(x => {
-              deps.bridgeService.addDataPath(dataPath);
               getIpv4Address().then(clientAddress => {
                 clientService.connectToServer(
                   `${masterServer()}/rooms`,
@@ -247,7 +251,6 @@ const gameRoomEpic = (
           const selectedGameId = state.selectedGameId;
           const connectionString = `${masterServer()}/rooms`;
           console.log(`connecting to ${connectionString}`);
-          deps.bridgeService.addDataPath(dataPath);
           rx.from(getIpv4Address())
             .pipe(
               rxop.takeUntil(
@@ -292,6 +295,20 @@ const gameRoomEpic = (
           clientService.setActiveMods(action.mods);
           break;
         }
+        case "RECEIVE_ACTIVE_MODS_CHANGED": {
+          deps.bridgeService.clearDataPaths();
+          const installedMods = state$.value.installedMods;
+          if (!installedMods) {
+            break;
+          }
+          const resolvedMods = choose(action.payload.mods, x =>
+            installedMods.find(y => y.name === x)
+          );
+          for (const info of resolvedMods) {
+            deps.bridgeService.addDataPath(info.path);
+          }
+          break;
+        }
         case "TOGGLE_READY": {
           const state = state$.value;
           const room = getRoom(state);
@@ -327,11 +344,15 @@ const gameRoomEpic = (
         case "RECEIVE_START_GAME": {
           const state = state$.value;
           const room = getRoom(state);
-          if (!room) {
+          if (!room || !state.installedMods) {
             break;
           }
           return rx
-            .from(execRwe(rweArgsFromGameRoom(room, action.payload)))
+            .from(
+              execRwe(
+                rweArgsFromGameRoom(state.installedMods, room, action.payload)
+              )
+            )
             .pipe(
               rxop.mapTo(undefined),
               rxop.catchError(e => rx.of(undefined)),
