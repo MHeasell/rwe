@@ -101,7 +101,7 @@ function serializeRweArgs(args: RweArgs): string[] {
 // Don't use this for actual shell escaping, it's probably really insecure.
 function quoteArg(arg: string) {
   if (arg.match(/[ "'\\]/)) {
-    const escapedArg = arg.replace(/["\\]/, "\\$1");
+    const escapedArg = arg.replace(/(["\\])/g, "\\$1");
     return `"${escapedArg}"`;
   }
   return arg;
