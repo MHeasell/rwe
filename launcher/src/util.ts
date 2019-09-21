@@ -1,3 +1,6 @@
+import * as fs from "fs";
+import * as path from "path";
+
 export function masterServer() {
   if (process.env["RWE_MASTER_SERVER"]) {
     return process.env["RWE_MASTER_SERVER"];
@@ -43,4 +46,43 @@ export function choose<T, R>(arr: T[], f: (x: T) => R | undefined): R[] {
 
 export function assertNever(x: never): never {
   throw new Error(`Unexpected object: ${x}`);
+}
+
+export interface InstalledModResult {
+  name: string;
+  path: string;
+}
+export function getInstalledMods(baseDir: string): InstalledModResult[] {
+  const entries = fs
+    .readdirSync(baseDir, { withFileTypes: true })
+    .filter(e => e.isDirectory())
+    .map<InstalledModResult | undefined>(e => {
+      const modPath = path.join(baseDir, e.name);
+      const json = readRweModJson(path.join(modPath, "rwe_mod.json"));
+      if (!json) {
+        return undefined;
+      }
+      return {
+        name: json.shortname,
+        path: modPath,
+      };
+    });
+
+  return choose(entries, x => x);
+}
+
+export interface RweModJson {
+  shortname: string;
+  name: string;
+  author: string;
+}
+
+function readRweModJson(path: string): RweModJson | undefined {
+  let buffer: Buffer;
+  try {
+    buffer = fs.readFileSync(path);
+  } catch (err) {
+    return undefined;
+  }
+  return JSON.parse(buffer.toString());
 }

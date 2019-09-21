@@ -33,6 +33,7 @@ import {
   receiveStartGame,
   LeaveGameAction,
   receiveActiveModsChanged,
+  receiveInstalledMods,
 } from "../actions";
 import { FilledPlayerSlot, GameRoom, getRoom, State } from "../state";
 import * as protocol from "../ws/protocol";
@@ -51,7 +52,7 @@ import {
   RweArgsPlayerInfo,
   RweArgsPlayerSlot,
 } from "../rwe";
-import { assertNever, masterServer } from "../util";
+import { assertNever, masterServer, getInstalledMods } from "../util";
 
 export interface EpicDependencies {
   clientService: GameClientService;
@@ -166,20 +167,37 @@ const launchRweEpic = (
   );
 };
 
-function getDefaultDataPath() {
+const installedModsEpic = (
+  action$: rx.Observable<AppAction>,
+  state$: StateObservable<State>,
+  _: EpicDependencies
+): rx.Observable<AppAction> => {
+  const modsPath = getRweModsPath();
+  const installedMods = getInstalledMods(modsPath);
+  return rx.of<AppAction>(receiveInstalledMods(installedMods));
+};
+
+function getRweUserPath(): string {
   if (process.platform === "win32") {
     const appData = process.env["APPDATA"];
     if (appData === undefined) {
       throw new Error("Failed to find AppData path");
     }
-    return path.join(appData, "RWE", "Data");
+    return path.join(appData, "RWE");
   } else {
     const home = process.env["HOME"];
     if (home === undefined) {
       throw new Error("Failed to find home directory");
     }
-    return path.join(home, ".rwe", "Data");
+    return path.join(home, ".rwe");
   }
+}
+
+function getDefaultDataPath(): string {
+  return path.join(getRweUserPath(), "Data");
+}
+function getRweModsPath(): string {
+  return path.join(getRweUserPath(), "mods");
 }
 
 const gameRoomEpic = (
@@ -189,6 +207,8 @@ const gameRoomEpic = (
 ): rx.Observable<AppAction> => {
   const clientService = deps.clientService;
   const masterClientService = deps.masterClentService;
+
+  const dataPath = getDefaultDataPath();
 
   return action$.pipe(
     rxop.flatMap(action => {
@@ -206,7 +226,7 @@ const gameRoomEpic = (
               rxop.first()
             )
             .subscribe(x => {
-              deps.bridgeService.addDataPath(getDefaultDataPath());
+              deps.bridgeService.addDataPath(dataPath);
               getIpv4Address().then(clientAddress => {
                 clientService.connectToServer(
                   `${masterServer()}/rooms`,
@@ -227,7 +247,7 @@ const gameRoomEpic = (
           const selectedGameId = state.selectedGameId;
           const connectionString = `${masterServer()}/rooms`;
           console.log(`connecting to ${connectionString}`);
-          deps.bridgeService.addDataPath(getDefaultDataPath());
+          deps.bridgeService.addDataPath(dataPath);
           rx.from(getIpv4Address())
             .pipe(
               rxop.takeUntil(
@@ -410,5 +430,6 @@ export const rootEpic = combineEpics(
   gameClientEventsEpic,
   gameRoomEpic,
   launchRweEpic,
-  rweBridgeEpic
+  rweBridgeEpic,
+  installedModsEpic
 );

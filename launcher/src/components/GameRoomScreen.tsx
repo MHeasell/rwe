@@ -325,13 +325,14 @@ function mapStateToProps(state: State): GameRoomScreenStateProps {
         : undefined,
     modsDialogOpen: !!modsDialog,
     modsDialogRawMods: modsDialog ? modsDialog.activeMods : undefined,
-    modsDialogMods: modsDialog
-      ? combineToItems(
-          state.installedMods,
-          modsDialog.activeMods,
-          modsDialog.selectedMod
-        )
-      : undefined,
+    modsDialogMods:
+      modsDialog && state.installedMods
+        ? combineToItems(
+            state.installedMods,
+            modsDialog.activeMods,
+            modsDialog.selectedMod
+          )
+        : undefined,
   };
 }
 

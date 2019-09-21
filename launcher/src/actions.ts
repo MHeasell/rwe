@@ -6,7 +6,7 @@ import {
   GameUpdatedEventPayload,
   GetGamesResponsePayload,
 } from "./master/protocol";
-import { PlayerSide } from "./state";
+import { PlayerSide, InstalledModInfo } from "./state";
 import * as protocol from "./ws/protocol";
 
 export interface SelectGameAction {
@@ -717,6 +717,20 @@ export function receiveMapInfo(info: GetMapInfoResponse): ReceiveMapInfoAction {
   };
 }
 
+export interface ReceiveInstalledMods {
+  type: "RECEIVE_INSTALLED_MODS";
+  mods: InstalledModInfo[];
+}
+
+export function receiveInstalledMods(
+  mods: InstalledModInfo[]
+): ReceiveInstalledMods {
+  return {
+    type: "RECEIVE_INSTALLED_MODS",
+    mods,
+  };
+}
+
 export type AppAction =
   | SelectGameAction
   | JoinSelectedGameAction
@@ -776,4 +790,5 @@ export type AppAction =
   | ModUpAction
   | ModDownAction
   | SetActiveModsAction
-  | ReceiveActiveModsChangedAction;
+  | ReceiveActiveModsChangedAction
+  | ReceiveInstalledMods;

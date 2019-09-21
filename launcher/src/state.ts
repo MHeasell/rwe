@@ -129,7 +129,7 @@ export interface InstalledModInfo {
 }
 
 export interface State {
-  installedMods: InstalledModInfo[];
+  installedMods?: InstalledModInfo[];
   games: GameListEntry[];
   selectedGameId?: number;
   currentScreen: AppScreen;

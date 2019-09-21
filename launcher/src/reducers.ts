@@ -17,11 +17,6 @@ import {
 import { findAndMap } from "./util";
 
 const initialState: State = {
-  installedMods: [
-    { name: "ta", path: "/path/to/ta" },
-    { name: "tacc", path: "/path/to/tacc" },
-    { name: "tamax", path: "/path/to/tamax" },
-  ],
   games: [],
   currentScreen: { screen: "overview", dialogOpen: false },
   isRweRunning: false,
@@ -439,6 +434,8 @@ function games(state: State = initialState, action: AppAction): State {
       return { ...state, masterServerConnectionStatus: "connected" };
     case "MASTER_SERVER_DISCONNECT":
       return { ...state, masterServerConnectionStatus: "disconnected" };
+    case "RECEIVE_INSTALLED_MODS":
+      return { ...state, installedMods: action.mods };
     default: {
       const screen = currentScreenReducer(state.currentScreen, action);
       if (screen === state.currentScreen) {
