@@ -14,6 +14,7 @@ import {
   PlayerSlot,
   State,
   MapDialogState,
+  ModsDialogState,
 } from "./state";
 import { findAndMap } from "./util";
 
@@ -193,6 +194,88 @@ function mapDialogWrapperReducer(room: GameRoom, action: AppAction): GameRoom {
   }
 }
 
+function modDialogReducer(
+  modsDialog: ModsDialogState,
+  action: AppAction
+): ModsDialogState {
+  switch (action.type) {
+    case "SELECT_MOD": {
+      return { ...modsDialog, selectedMod: action.name };
+    }
+    case "TOGGLE_MOD": {
+      const newList = modsDialog.activeMods.includes(action.name)
+        ? modsDialog.activeMods.filter(x => x !== action.name)
+        : [...modsDialog.activeMods, action.name];
+
+      return { ...modsDialog, activeMods: newList };
+    }
+    case "MOD_UP": {
+      if (!modsDialog.selectedMod) {
+        return modsDialog;
+      }
+      const index = modsDialog.activeMods.indexOf(modsDialog.selectedMod);
+      if (index === -1) {
+        return modsDialog;
+      }
+      if (index === 0) {
+        return modsDialog;
+      }
+      const newList = [
+        ...modsDialog.activeMods.slice(0, index - 1),
+        modsDialog.activeMods[index],
+        modsDialog.activeMods[index - 1],
+        ...modsDialog.activeMods.slice(index + 1),
+      ];
+      return { ...modsDialog, activeMods: newList };
+    }
+    case "MOD_DOWN": {
+      if (!modsDialog.selectedMod) {
+        return modsDialog;
+      }
+      const index = modsDialog.activeMods.indexOf(modsDialog.selectedMod);
+      if (index === -1) {
+        return modsDialog;
+      }
+      if (index === modsDialog.activeMods.length - 1) {
+        return modsDialog;
+      }
+      const newList = [
+        ...modsDialog.activeMods.slice(0, index),
+        modsDialog.activeMods[index + 1],
+        modsDialog.activeMods[index],
+        ...modsDialog.activeMods.slice(index + 2),
+      ];
+      return { ...modsDialog, activeMods: newList };
+    }
+
+    default:
+      return modsDialog;
+  }
+}
+
+function modDialogWrapperReducer(room: GameRoom, action: AppAction): GameRoom {
+  switch (action.type) {
+    case "OPEN_SELECT_MODS_DIALOG": {
+      return { ...room, modsDialog: { activeMods: room.activeMods } };
+    }
+    case "CLOSE_SELECT_MODS_DIALOG": {
+      return { ...room, modsDialog: undefined };
+    }
+    case "REQUEST_SET_ACTIVE_MODS": {
+      return { ...room, modsDialog: undefined };
+    }
+    default: {
+      if (room.modsDialog) {
+        const modsDialog = modDialogReducer(room.modsDialog, action);
+        if (modsDialog !== room.modsDialog) {
+          return { ...room, modsDialog };
+        }
+      }
+      return room;
+    }
+  }
+}
+
 function gameRoomReducer(room: GameRoom, action: AppAction): GameRoom {
   switch (action.type) {
     case "RECEIVE_PLAYER_JOINED": {
@@ -310,86 +393,12 @@ function gameRoomReducer(room: GameRoom, action: AppAction): GameRoom {
     case "RECEIVE_MAP_CHANGED": {
       return { ...room, mapName: action.data.mapName };
     }
-    case "OPEN_SELECT_MODS_DIALOG": {
-      return { ...room, modsDialog: { activeMods: room.activeMods } };
-    }
-    case "CLOSE_SELECT_MODS_DIALOG": {
-      return { ...room, modsDialog: undefined };
-    }
-    case "SELECT_MOD": {
-      if (!room.modsDialog) {
-        return room;
-      }
-      const dialog = { ...room.modsDialog, selectedMod: action.name };
-      return { ...room, modsDialog: dialog };
-    }
-    case "TOGGLE_MOD": {
-      if (!room.modsDialog) {
-        return room;
-      }
-      const newList = room.modsDialog.activeMods.includes(action.name)
-        ? room.modsDialog.activeMods.filter(x => x !== action.name)
-        : [...room.modsDialog.activeMods, action.name];
-
-      const dialog = { ...room.modsDialog, activeMods: newList };
-      return { ...room, modsDialog: dialog };
-    }
-    case "MOD_UP": {
-      if (!room.modsDialog) {
-        return room;
-      }
-      if (!room.modsDialog.selectedMod) {
-        return room;
-      }
-      const index = room.modsDialog.activeMods.indexOf(
-        room.modsDialog.selectedMod
-      );
-      if (index === -1) {
-        return room;
-      }
-      if (index === 0) {
-        return room;
-      }
-      const newList = [
-        ...room.modsDialog.activeMods.slice(0, index - 1),
-        room.modsDialog.activeMods[index],
-        room.modsDialog.activeMods[index - 1],
-        ...room.modsDialog.activeMods.slice(index + 1),
-      ];
-      const dialog = { ...room.modsDialog, activeMods: newList };
-      return { ...room, modsDialog: dialog };
-    }
-    case "MOD_DOWN": {
-      if (!room.modsDialog) {
-        return room;
-      }
-      if (!room.modsDialog.selectedMod) {
-        return room;
-      }
-      const index = room.modsDialog.activeMods.indexOf(
-        room.modsDialog.selectedMod
-      );
-      if (index === -1) {
-        return room;
-      }
-      if (index === room.modsDialog.activeMods.length - 1) {
-        return room;
-      }
-      const newList = [
-        ...room.modsDialog.activeMods.slice(0, index),
-        room.modsDialog.activeMods[index + 1],
-        room.modsDialog.activeMods[index],
-        ...room.modsDialog.activeMods.slice(index + 2),
-      ];
-      const dialog = { ...room.modsDialog, activeMods: newList };
-      return { ...room, modsDialog: dialog };
-    }
-    case "REQUEST_SET_ACTIVE_MODS": {
-      return { ...room, modsDialog: undefined };
-    }
 
     default: {
-      return mapDialogWrapperReducer(room, action);
+      return modDialogWrapperReducer(
+        mapDialogWrapperReducer(room, action),
+        action
+      );
     }
   }
 }
