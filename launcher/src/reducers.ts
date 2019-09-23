@@ -172,6 +172,27 @@ function mapDialogReducer(
   }
 }
 
+function mapDialogWrapperReducer(room: GameRoom, action: AppAction): GameRoom {
+  switch (action.type) {
+    case "OPEN_SELECT_MAP_DIALOG": {
+      const selectedMapInfo = room.mapName ? { name: room.mapName } : undefined;
+      return { ...room, mapDialog: { selectedMap: selectedMapInfo } };
+    }
+    case "CLOSE_SELECT_MAP_DIALOG": {
+      return { ...room, mapDialog: undefined };
+    }
+    default: {
+      if (room.mapDialog) {
+        const mapDialog = mapDialogReducer(room.mapDialog, action);
+        if (mapDialog !== room.mapDialog) {
+          return { ...room, mapDialog };
+        }
+      }
+      return room;
+    }
+  }
+}
+
 function gameRoomReducer(room: GameRoom, action: AppAction): GameRoom {
   switch (action.type) {
     case "RECEIVE_PLAYER_JOINED": {
@@ -286,13 +307,6 @@ function gameRoomReducer(room: GameRoom, action: AppAction): GameRoom {
     case "RECEIVE_ACTIVE_MODS_CHANGED": {
       return { ...room, activeMods: action.payload.mods };
     }
-    case "OPEN_SELECT_MAP_DIALOG": {
-      const selectedMapInfo = room.mapName ? { name: room.mapName } : undefined;
-      return { ...room, mapDialog: { selectedMap: selectedMapInfo } };
-    }
-    case "CLOSE_SELECT_MAP_DIALOG": {
-      return { ...room, mapDialog: undefined };
-    }
     case "RECEIVE_MAP_CHANGED": {
       return { ...room, mapName: action.data.mapName };
     }
@@ -375,13 +389,7 @@ function gameRoomReducer(room: GameRoom, action: AppAction): GameRoom {
     }
 
     default: {
-      if (room.mapDialog) {
-        const mapDialog = mapDialogReducer(room.mapDialog, action);
-        if (mapDialog !== room.mapDialog) {
-          return { ...room, mapDialog };
-        }
-      }
-      return room;
+      return mapDialogWrapperReducer(room, action);
     }
   }
 }
