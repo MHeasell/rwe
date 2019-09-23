@@ -194,6 +194,42 @@ function mapDialogWrapperReducer(room: GameRoom, action: AppAction): GameRoom {
   }
 }
 
+function toggleItem<T>(arr: T[], item: T): T[] {
+  return arr.includes(item) ? arr.filter(x => x !== item) : [...arr, item];
+}
+
+function moveUp<T>(arr: T[], item: T): T[] {
+  const index = arr.indexOf(item);
+  if (index === -1) {
+    return arr;
+  }
+  if (index === 0) {
+    return arr;
+  }
+  return [
+    ...arr.slice(0, index - 1),
+    arr[index],
+    arr[index - 1],
+    ...arr.slice(index + 1),
+  ];
+}
+
+function moveDown<T>(arr: T[], item: T): T[] {
+  const index = arr.indexOf(item);
+  if (index === -1) {
+    return arr;
+  }
+  if (index === arr.length - 1) {
+    return arr;
+  }
+  return [
+    ...arr.slice(0, index),
+    arr[index + 1],
+    arr[index],
+    ...arr.slice(index + 2),
+  ];
+}
+
 function modDialogReducer(
   modsDialog: ModsDialogState,
   action: AppAction
@@ -203,48 +239,21 @@ function modDialogReducer(
       return { ...modsDialog, selectedMod: action.name };
     }
     case "TOGGLE_MOD": {
-      const newList = modsDialog.activeMods.includes(action.name)
-        ? modsDialog.activeMods.filter(x => x !== action.name)
-        : [...modsDialog.activeMods, action.name];
-
+      const newList = toggleItem(modsDialog.activeMods, action.name);
       return { ...modsDialog, activeMods: newList };
     }
     case "MOD_UP": {
       if (!modsDialog.selectedMod) {
         return modsDialog;
       }
-      const index = modsDialog.activeMods.indexOf(modsDialog.selectedMod);
-      if (index === -1) {
-        return modsDialog;
-      }
-      if (index === 0) {
-        return modsDialog;
-      }
-      const newList = [
-        ...modsDialog.activeMods.slice(0, index - 1),
-        modsDialog.activeMods[index],
-        modsDialog.activeMods[index - 1],
-        ...modsDialog.activeMods.slice(index + 1),
-      ];
+      const newList = moveUp(modsDialog.activeMods, modsDialog.selectedMod);
       return { ...modsDialog, activeMods: newList };
     }
     case "MOD_DOWN": {
       if (!modsDialog.selectedMod) {
         return modsDialog;
       }
-      const index = modsDialog.activeMods.indexOf(modsDialog.selectedMod);
-      if (index === -1) {
-        return modsDialog;
-      }
-      if (index === modsDialog.activeMods.length - 1) {
-        return modsDialog;
-      }
-      const newList = [
-        ...modsDialog.activeMods.slice(0, index),
-        modsDialog.activeMods[index + 1],
-        modsDialog.activeMods[index],
-        ...modsDialog.activeMods.slice(index + 2),
-      ];
+      const newList = moveDown(modsDialog.activeMods, modsDialog.selectedMod);
       return { ...modsDialog, activeMods: newList };
     }
 
