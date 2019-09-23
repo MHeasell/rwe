@@ -13,6 +13,7 @@ import {
   PlayerInfo,
   PlayerSlot,
   State,
+  MapDialogState,
 } from "./state";
 import { findAndMap } from "./util";
 
@@ -121,6 +122,53 @@ function currentScreenReducer(screen: AppScreen, action: AppAction): AppScreen {
       return overviewScreenReducer(screen, action);
     case "host-form":
       return hostFormReducer(screen, action);
+  }
+}
+
+function mapDialogReducer(
+  mapDialog: MapDialogState,
+  action: AppAction
+): MapDialogState {
+  switch (action.type) {
+    case "RECEIVE_MAP_LIST": {
+      return { ...mapDialog, maps: action.maps };
+    }
+    case "DIALOG_SELECT_MAP": {
+      if (
+        mapDialog.selectedMap &&
+        mapDialog.selectedMap.name === action.mapName
+      ) {
+        return mapDialog;
+      }
+      return {
+        ...mapDialog,
+        selectedMap: { name: action.mapName },
+      };
+    }
+    case "RECEIVE_MINIMAP": {
+      if (!mapDialog.selectedMap) {
+        return mapDialog;
+      }
+
+      const selectedMapInfo = {
+        ...mapDialog.selectedMap,
+        minimap: action.path,
+      };
+      return { ...mapDialog, selectedMap: selectedMapInfo };
+    }
+    case "RECEIVE_MAP_INFO": {
+      if (!mapDialog.selectedMap) {
+        return mapDialog;
+      }
+
+      const selectedMapInfo = {
+        ...mapDialog.selectedMap,
+        details: action.info,
+      };
+      return { ...mapDialog, selectedMap: selectedMapInfo };
+    }
+    default:
+      return mapDialog;
   }
 }
 
@@ -245,61 +293,8 @@ function gameRoomReducer(room: GameRoom, action: AppAction): GameRoom {
     case "CLOSE_SELECT_MAP_DIALOG": {
       return { ...room, mapDialog: undefined };
     }
-    case "RECEIVE_MAP_LIST": {
-      if (!room.mapDialog) {
-        return room;
-      }
-      const dialog = { ...room.mapDialog, maps: action.maps };
-      return { ...room, mapDialog: dialog };
-    }
-    case "DIALOG_SELECT_MAP": {
-      if (!room.mapDialog) {
-        return room;
-      }
-      if (
-        room.mapDialog.selectedMap &&
-        room.mapDialog.selectedMap.name === action.mapName
-      ) {
-        return room;
-      }
-      const dialog = {
-        ...room.mapDialog,
-        selectedMap: { name: action.mapName },
-      };
-      return { ...room, mapDialog: dialog };
-    }
     case "RECEIVE_MAP_CHANGED": {
       return { ...room, mapName: action.data.mapName };
-    }
-    case "RECEIVE_MINIMAP": {
-      if (!room.mapDialog) {
-        return room;
-      }
-      if (!room.mapDialog.selectedMap) {
-        return room;
-      }
-
-      const selectedMapInfo = {
-        ...room.mapDialog.selectedMap,
-        minimap: action.path,
-      };
-      const dialog = { ...room.mapDialog, selectedMap: selectedMapInfo };
-      return { ...room, mapDialog: dialog };
-    }
-    case "RECEIVE_MAP_INFO": {
-      if (!room.mapDialog) {
-        return room;
-      }
-      if (!room.mapDialog.selectedMap) {
-        return room;
-      }
-
-      const selectedMapInfo = {
-        ...room.mapDialog.selectedMap,
-        details: action.info,
-      };
-      const dialog = { ...room.mapDialog, selectedMap: selectedMapInfo };
-      return { ...room, mapDialog: dialog };
     }
     case "OPEN_SELECT_MODS_DIALOG": {
       return { ...room, modsDialog: { activeMods: room.activeMods } };
@@ -379,8 +374,15 @@ function gameRoomReducer(room: GameRoom, action: AppAction): GameRoom {
       return { ...room, modsDialog: undefined };
     }
 
-    default:
+    default: {
+      if (room.mapDialog) {
+        const mapDialog = mapDialogReducer(room.mapDialog, action);
+        if (mapDialog !== room.mapDialog) {
+          return { ...room, mapDialog };
+        }
+      }
       return room;
+    }
   }
 }
 
