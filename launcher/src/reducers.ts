@@ -16,7 +16,7 @@ import {
   MapDialogState,
   ModsDialogState,
 } from "./state";
-import { findAndMap } from "./util";
+import { findAndMap, toggleItem, moveUp, moveDown } from "./util";
 
 const initialState: State = {
   games: [],
@@ -192,42 +192,6 @@ function mapDialogWrapperReducer(room: GameRoom, action: AppAction): GameRoom {
       return room;
     }
   }
-}
-
-function toggleItem<T>(arr: T[], item: T): T[] {
-  return arr.includes(item) ? arr.filter(x => x !== item) : [...arr, item];
-}
-
-function moveUp<T>(arr: T[], item: T): T[] {
-  const index = arr.indexOf(item);
-  if (index === -1) {
-    return arr;
-  }
-  if (index === 0) {
-    return arr;
-  }
-  return [
-    ...arr.slice(0, index - 1),
-    arr[index],
-    arr[index - 1],
-    ...arr.slice(index + 1),
-  ];
-}
-
-function moveDown<T>(arr: T[], item: T): T[] {
-  const index = arr.indexOf(item);
-  if (index === -1) {
-    return arr;
-  }
-  if (index === arr.length - 1) {
-    return arr;
-  }
-  return [
-    ...arr.slice(0, index),
-    arr[index + 1],
-    arr[index],
-    ...arr.slice(index + 2),
-  ];
 }
 
 function modDialogReducer(
