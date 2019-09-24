@@ -639,27 +639,23 @@ export function receiveMapChanged(
   };
 }
 
-export interface ReceiveMinimapAction {
-  type: "RECEIVE_MINIMAP";
-  path: string;
-}
-
-export function receiveMinimap(path: string): ReceiveMinimapAction {
-  return {
-    type: "RECEIVE_MINIMAP",
-    path,
-  };
-}
-
-export interface ReceiveMapInfoAction {
-  type: "RECEIVE_MAP_INFO";
+export interface ReceiveCombinedMapInfoAction {
+  type: "RECEIVE_COMBINED_MAP_INFO";
+  name: string;
   info: GetMapInfoResponse;
+  minimapPath: string;
 }
 
-export function receiveMapInfo(info: GetMapInfoResponse): ReceiveMapInfoAction {
+export function receiveCombinedMapInfo(
+  name: string,
+  info: GetMapInfoResponse,
+  minimapPath: string
+): ReceiveCombinedMapInfoAction {
   return {
-    type: "RECEIVE_MAP_INFO",
+    type: "RECEIVE_COMBINED_MAP_INFO",
+    name,
     info,
+    minimapPath,
   };
 }
 
@@ -726,8 +722,7 @@ export type AppAction =
   | ReceiveMapListAction
   | ChangeMapAction
   | ReceiveMapChangedAction
-  | ReceiveMinimapAction
-  | ReceiveMapInfoAction
+  | ReceiveCombinedMapInfoAction
   | OpenSelectModsDialogAction
   | CloseSelectModsDialogAction
   | SetActiveModsAction

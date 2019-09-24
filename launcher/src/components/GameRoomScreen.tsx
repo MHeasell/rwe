@@ -42,7 +42,7 @@ import {
   State,
   InstalledModInfo,
 } from "../state";
-import MapSelectDialog from "./MapSelectDialog";
+import MapSelectDialog, { SelectedMapDetails } from "./MapSelectDialog";
 import MessageInput from "./MessageInput";
 import { PlayersTable } from "./PlayersTable";
 import {
@@ -50,7 +50,6 @@ import {
   Item as SelectModsDialogItem,
 } from "./SelectModsDialog";
 import { selectMod, toggleMod, modUp, modDown } from "../modsDialogActions";
-import { SelectedMapDetails } from "../mapsDialog";
 import { dialogSelectMap } from "../mapsDialogActions";
 
 function GameSettingsPanel() {
@@ -308,17 +307,14 @@ function mapStateToProps(state: State): GameRoomScreenStateProps {
     mapName: room.mapName,
     mapDialogOpen: !!mapDialog,
     mapDialogMaps: mapDialog ? mapDialog.maps : undefined,
-    selectedMap:
-      mapDialog && mapDialog.selectedMap
-        ? mapDialog.selectedMap.name
-        : undefined,
+    selectedMap: mapDialog ? mapDialog.selectedMap : undefined,
     mapDialogMinimapPath:
-      mapDialog && mapDialog.selectedMap
-        ? mapDialog.selectedMap.minimap
+      mapDialog && mapDialog.selectedMap && room.mapCache[mapDialog.selectedMap]
+        ? room.mapCache[mapDialog.selectedMap].minimap
         : undefined,
     mapDialogMapInfo:
-      mapDialog && mapDialog.selectedMap
-        ? mapDialog.selectedMap.details
+      mapDialog && mapDialog.selectedMap && room.mapCache[mapDialog.selectedMap]
+        ? room.mapCache[mapDialog.selectedMap]
         : undefined,
     modsDialogOpen: !!modsDialog,
     modsDialogRawMods: modsDialog ? modsDialog.activeMods : undefined,

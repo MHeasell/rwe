@@ -1,5 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
+import * as rx from "rxjs";
+import * as rxop from "rxjs/operators";
 
 export function masterServer() {
   if (process.env["RWE_MASTER_SERVER"]) {
@@ -121,4 +123,17 @@ export function moveDown<T>(arr: T[], item: T): T[] {
     arr[index],
     ...arr.slice(index + 2),
   ];
+}
+
+export function chooseOp<T, U>(
+  f: (arg: T) => U | undefined
+): rx.OperatorFunction<T, U> {
+  const selector = (x: T): rx.Observable<U> => {
+    const r = f(x);
+    if (r === undefined) {
+      return rx.empty();
+    }
+    return rx.of(r);
+  };
+  return rxop.concatMap(selector);
 }

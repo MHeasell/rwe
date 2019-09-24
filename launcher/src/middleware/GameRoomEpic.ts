@@ -2,6 +2,7 @@ import * as path from "path";
 import { combineEpics, ofType, StateObservable } from "redux-observable";
 import * as rx from "rxjs";
 import * as rxop from "rxjs/operators";
+import { createSelector } from "reselect";
 import {
   AppAction,
   closeSelectMapDialog,
@@ -18,9 +19,7 @@ import {
   receiveGameUpdated,
   receiveHandshakeResponse,
   receiveMapChanged,
-  receiveMapInfo,
   receiveMapList,
-  receiveMinimap,
   receivePlayerChangedColor,
   receivePlayerChangedSide,
   receivePlayerChangedTeam,
@@ -34,6 +33,7 @@ import {
   LeaveGameAction,
   receiveActiveModsChanged,
   receiveInstalledMods,
+  receiveCombinedMapInfo,
 } from "../actions";
 import {
   FilledPlayerSlot,
@@ -58,7 +58,13 @@ import {
   RweArgsPlayerInfo,
   RweArgsPlayerSlot,
 } from "../rwe";
-import { assertNever, masterServer, getInstalledMods, choose } from "../util";
+import {
+  assertNever,
+  masterServer,
+  getInstalledMods,
+  choose,
+  chooseOp,
+} from "../util";
 
 export interface EpicDependencies {
   clientService: GameClientService;
@@ -371,7 +377,7 @@ const gameRoomEpic = (
           if (!room.mapDialog.selectedMap) {
             break;
           }
-          clientService.changeMap(room.mapDialog.selectedMap.name);
+          clientService.changeMap(room.mapDialog.selectedMap);
           return rx.of<AppAction>(closeSelectMapDialog());
         }
       }
@@ -380,50 +386,52 @@ const gameRoomEpic = (
   );
 };
 
+function getSelectedMap(state: State) {
+  const room = getRoom(state);
+  return room && room.mapDialog ? room.mapDialog.selectedMap : undefined;
+}
+function getSelectedMapCacheEntry(state: State) {
+  const room = getRoom(state);
+  if (!room) {
+    return undefined;
+  }
+  return room.mapDialog && room.mapDialog.selectedMap
+    ? room.mapCache[room.mapDialog.selectedMap]
+    : undefined;
+}
+
+const mapNameAndCacheSelector = createSelector(
+  getSelectedMap,
+  getSelectedMapCacheEntry,
+  (mapName, cacheEntry) => [mapName, cacheEntry] as const
+);
+
 const rweBridgeEpic = (
   action$: rx.Observable<AppAction>,
   state$: StateObservable<State>,
   deps: EpicDependencies
 ): rx.Observable<AppAction> => {
   const selectedMap$ = state$.pipe(
-    rxop.map(state => {
-      const room = getRoom(state);
-      if (!room) {
-        return undefined;
-      }
-      if (!room.mapDialog) {
-        return undefined;
-      }
-      if (!room.mapDialog.selectedMap) {
-        return undefined;
-      }
-      return room.mapDialog.selectedMap.name;
-    }),
-    rxop.distinctUntilChanged()
+    rxop.map(mapNameAndCacheSelector),
+    chooseOp(([mapName, cacheEntry]) =>
+      mapName && !cacheEntry ? mapName : undefined
+    )
   );
 
   const mapInfoStream = selectedMap$.pipe(
     rxop.switchMap(
       (mapName): rx.Observable<AppAction> => {
-        if (mapName === undefined) {
-          return rx.empty();
-        }
-        return rx
-          .from(deps.bridgeService.getMapInfo(mapName))
-          .pipe(rxop.map(receiveMapInfo));
-      }
-    )
-  );
-
-  const minimapStream = selectedMap$.pipe(
-    rxop.switchMap(
-      (mapName): rx.Observable<AppAction> => {
-        if (mapName === undefined) {
-          return rx.empty();
-        }
-        return rx
-          .from(deps.bridgeService.getMinimap(mapName))
-          .pipe(rxop.map(x => receiveMinimap(x.path)));
+        const mapInfo$ = rx.from(deps.bridgeService.getMapInfo(mapName));
+        const minimap$ = rx.from(deps.bridgeService.getMinimap(mapName));
+        return rx.combineLatest([mapInfo$, minimap$]).pipe(
+          rxop.map(([infoResponse, minimapResponse]) => {
+            return receiveCombinedMapInfo(
+              mapName,
+              infoResponse,
+              minimapResponse.path
+            );
+          })
+        );
       }
     )
   );
@@ -443,7 +451,7 @@ const rweBridgeEpic = (
     )
   );
 
-  return rx.merge(mapInfoStream, minimapStream, actionPipe);
+  return rx.merge(mapInfoStream, actionPipe);
 };
 
 export const rootEpic = combineEpics(

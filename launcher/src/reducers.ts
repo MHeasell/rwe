@@ -13,6 +13,7 @@ import {
   PlayerInfo,
   PlayerSlot,
   State,
+  MapCacheValue,
 } from "./state";
 import { findAndMap } from "./util";
 import { modDialogReducer } from "./modsDialog";
@@ -58,6 +59,7 @@ function gameRoomScreenReducer(
         mapName: action.payload.mapName,
         messages: [],
         activeMods: action.payload.activeMods,
+        mapCache: {},
       };
       return { ...screen, room };
     }
@@ -129,8 +131,7 @@ function currentScreenReducer(screen: AppScreen, action: AppAction): AppScreen {
 function mapDialogWrapperReducer(room: GameRoom, action: AppAction): GameRoom {
   switch (action.type) {
     case "OPEN_SELECT_MAP_DIALOG": {
-      const selectedMapInfo = room.mapName ? { name: room.mapName } : undefined;
-      return { ...room, mapDialog: { selectedMap: selectedMapInfo } };
+      return { ...room, mapDialog: { selectedMap: room.mapName } };
     }
     case "CLOSE_SELECT_MAP_DIALOG": {
       return { ...room, mapDialog: undefined };
@@ -282,10 +283,19 @@ function gameRoomReducer(room: GameRoom, action: AppAction): GameRoom {
       return { ...room, players: newPlayers };
     }
     case "RECEIVE_ACTIVE_MODS_CHANGED": {
-      return { ...room, activeMods: action.payload.mods };
+      return { ...room, activeMods: action.payload.mods, mapCache: {} };
     }
     case "RECEIVE_MAP_CHANGED": {
       return { ...room, mapName: action.data.mapName };
+    }
+    case "RECEIVE_COMBINED_MAP_INFO": {
+      const entry: MapCacheValue = {
+        description: action.info.description,
+        memory: action.info.memory,
+        numberOfPlayers: action.info.numberOfPlayers,
+        minimap: action.minimapPath,
+      };
+      return { ...room, mapCache: { ...room.mapCache, [action.name]: entry } };
     }
 
     default: {

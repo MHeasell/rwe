@@ -15,6 +15,13 @@ export interface GameRoomScreen {
   room?: GameRoom;
 }
 
+export interface MapCacheValue {
+  description: string;
+  memory: string;
+  numberOfPlayers: string;
+  minimap?: string;
+}
+
 export interface GameRoom {
   localPlayerId?: number;
   adminPlayerId?: number;
@@ -24,6 +31,7 @@ export interface GameRoom {
   mapDialog?: MapDialogState;
   modsDialog?: ModsDialogState;
   activeMods: string[];
+  mapCache: { [key: string]: MapCacheValue };
 }
 
 export type AppScreen = HostFormScreen | OverviewScreen | GameRoomScreen;

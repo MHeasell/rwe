@@ -15,9 +15,14 @@ import {
 } from "@material-ui/core";
 import * as React from "react";
 import { FixedSizeList as List } from "react-window";
-import { SelectedMapDetails } from "../mapsDialog";
 
 const styles = (theme: Theme) => createStyles({});
+
+export interface SelectedMapDetails {
+  description: string;
+  memory: string;
+  numberOfPlayers: string;
+}
 
 export interface MapSelectDialogProps extends WithStyles<typeof styles> {
   open: boolean;
