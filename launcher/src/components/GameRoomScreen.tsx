@@ -23,7 +23,6 @@ import {
   changeTeam,
   closeSelectMapDialog,
   closeSlot,
-  dialogSelectMap,
   leaveGame,
   openSelectMapDialog,
   openSelectModsDialog,
@@ -41,7 +40,6 @@ import {
   PlayerSide,
   PlayerSlot,
   State,
-  SelectedMapDetails,
   InstalledModInfo,
 } from "../state";
 import MapSelectDialog from "./MapSelectDialog";
@@ -52,6 +50,8 @@ import {
   Item as SelectModsDialogItem,
 } from "./SelectModsDialog";
 import { selectMod, toggleMod, modUp, modDown } from "../modsDialogActions";
+import { SelectedMapDetails } from "../mapsDialog";
+import { dialogSelectMap } from "../mapsDialogActions";
 
 function GameSettingsPanel() {
   return (

@@ -15,7 +15,7 @@ import {
 } from "@material-ui/core";
 import * as React from "react";
 import { FixedSizeList as List } from "react-window";
-import { SelectedMapDetails } from "../state";
+import { SelectedMapDetails } from "../mapsDialog";
 
 const styles = (theme: Theme) => createStyles({});
 

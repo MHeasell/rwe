@@ -13,10 +13,10 @@ import {
   PlayerInfo,
   PlayerSlot,
   State,
-  MapDialogState,
 } from "./state";
 import { findAndMap } from "./util";
 import { modDialogReducer } from "./modsDialog";
+import { mapDialogReducer } from "./mapsDialog";
 
 const initialState: State = {
   games: [],
@@ -123,53 +123,6 @@ function currentScreenReducer(screen: AppScreen, action: AppAction): AppScreen {
       return overviewScreenReducer(screen, action);
     case "host-form":
       return hostFormReducer(screen, action);
-  }
-}
-
-function mapDialogReducer(
-  mapDialog: MapDialogState,
-  action: AppAction
-): MapDialogState {
-  switch (action.type) {
-    case "RECEIVE_MAP_LIST": {
-      return { ...mapDialog, maps: action.maps };
-    }
-    case "DIALOG_SELECT_MAP": {
-      if (
-        mapDialog.selectedMap &&
-        mapDialog.selectedMap.name === action.mapName
-      ) {
-        return mapDialog;
-      }
-      return {
-        ...mapDialog,
-        selectedMap: { name: action.mapName },
-      };
-    }
-    case "RECEIVE_MINIMAP": {
-      if (!mapDialog.selectedMap) {
-        return mapDialog;
-      }
-
-      const selectedMapInfo = {
-        ...mapDialog.selectedMap,
-        minimap: action.path,
-      };
-      return { ...mapDialog, selectedMap: selectedMapInfo };
-    }
-    case "RECEIVE_MAP_INFO": {
-      if (!mapDialog.selectedMap) {
-        return mapDialog;
-      }
-
-      const selectedMapInfo = {
-        ...mapDialog.selectedMap,
-        details: action.info,
-      };
-      return { ...mapDialog, selectedMap: selectedMapInfo };
-    }
-    default:
-      return mapDialog;
   }
 }
 

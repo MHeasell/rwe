@@ -1,4 +1,5 @@
 import { ModsDialogState } from "./modsDialog";
+import { MapDialogState } from "./mapsDialog";
 
 export interface OverviewScreen {
   screen: "overview";
@@ -58,23 +59,6 @@ export interface ClosedPlayerSlot {
 }
 
 export type PlayerSlot = EmptyPlayerSlot | ClosedPlayerSlot | FilledPlayerSlot;
-
-export interface SelectedMapDetails {
-  description: string;
-  memory: string;
-  numberOfPlayers: string;
-}
-
-export interface SelectedMapInfo {
-  name: string;
-  minimap?: string;
-  details?: SelectedMapDetails;
-}
-
-export interface MapDialogState {
-  maps?: string[];
-  selectedMap?: SelectedMapInfo;
-}
 
 export function getRoom(state: State): GameRoom | undefined {
   if (state.currentScreen.screen !== "game-room") {

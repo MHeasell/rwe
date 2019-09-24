@@ -9,6 +9,7 @@ import {
 import { PlayerSide, InstalledModInfo } from "./state";
 import * as protocol from "./ws/protocol";
 import { ModsDialogAction } from "./modsDialogActions";
+import { MapsDialogAction } from "./mapsDialogActions";
 
 export interface SelectGameAction {
   type: "SELECT_GAME";
@@ -624,18 +625,6 @@ export function changeMap(): ChangeMapAction {
   };
 }
 
-export interface DialogSelectMapAction {
-  type: "DIALOG_SELECT_MAP";
-  mapName: string;
-}
-
-export function dialogSelectMap(mapName: string): DialogSelectMapAction {
-  return {
-    type: "DIALOG_SELECT_MAP",
-    mapName,
-  };
-}
-
 export interface ReceiveMapChangedAction {
   type: "RECEIVE_MAP_CHANGED";
   data: protocol.MapChangedPayload;
@@ -737,7 +726,6 @@ export type AppAction =
   | ReceiveMapListAction
   | ChangeMapAction
   | ReceiveMapChangedAction
-  | DialogSelectMapAction
   | ReceiveMinimapAction
   | ReceiveMapInfoAction
   | OpenSelectModsDialogAction
@@ -745,4 +733,5 @@ export type AppAction =
   | SetActiveModsAction
   | ReceiveActiveModsChangedAction
   | ReceiveInstalledMods
-  | ModsDialogAction;
+  | ModsDialogAction
+  | MapsDialogAction;
