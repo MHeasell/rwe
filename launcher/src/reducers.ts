@@ -14,9 +14,9 @@ import {
   PlayerSlot,
   State,
   MapDialogState,
-  ModsDialogState,
 } from "./state";
-import { findAndMap, toggleItem, moveUp, moveDown } from "./util";
+import { findAndMap } from "./util";
+import { modDialogReducer } from "./modsDialog";
 
 const initialState: State = {
   games: [],
@@ -191,38 +191,6 @@ function mapDialogWrapperReducer(room: GameRoom, action: AppAction): GameRoom {
       }
       return room;
     }
-  }
-}
-
-function modDialogReducer(
-  modsDialog: ModsDialogState,
-  action: AppAction
-): ModsDialogState {
-  switch (action.type) {
-    case "SELECT_MOD": {
-      return { ...modsDialog, selectedMod: action.name };
-    }
-    case "TOGGLE_MOD": {
-      const newList = toggleItem(modsDialog.activeMods, action.name);
-      return { ...modsDialog, activeMods: newList };
-    }
-    case "MOD_UP": {
-      if (!modsDialog.selectedMod) {
-        return modsDialog;
-      }
-      const newList = moveUp(modsDialog.activeMods, modsDialog.selectedMod);
-      return { ...modsDialog, activeMods: newList };
-    }
-    case "MOD_DOWN": {
-      if (!modsDialog.selectedMod) {
-        return modsDialog;
-      }
-      const newList = moveDown(modsDialog.activeMods, modsDialog.selectedMod);
-      return { ...modsDialog, activeMods: newList };
-    }
-
-    default:
-      return modsDialog;
   }
 }
 

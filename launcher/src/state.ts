@@ -1,3 +1,5 @@
+import { ModsDialogState } from "./modsDialog";
+
 export interface OverviewScreen {
   screen: "overview";
   dialogOpen: boolean;
@@ -72,11 +74,6 @@ export interface SelectedMapInfo {
 export interface MapDialogState {
   maps?: string[];
   selectedMap?: SelectedMapInfo;
-}
-
-export interface ModsDialogState {
-  activeMods: string[];
-  selectedMod?: string;
 }
 
 export function getRoom(state: State): GameRoom | undefined {

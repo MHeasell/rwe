@@ -31,10 +31,6 @@ import {
   sendChatMessage,
   sendStartGame,
   toggleReady,
-  selectMod,
-  toggleMod,
-  modUp,
-  modDown,
   closeSelectModsDialog,
   setActiveMods,
 } from "../actions";
@@ -55,6 +51,7 @@ import {
   SelectModsDialog,
   Item as SelectModsDialogItem,
 } from "./SelectModsDialog";
+import { selectMod, toggleMod, modUp, modDown } from "../modsDialogActions";
 
 function GameSettingsPanel() {
   return (

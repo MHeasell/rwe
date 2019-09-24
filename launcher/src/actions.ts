@@ -8,6 +8,7 @@ import {
 } from "./master/protocol";
 import { PlayerSide, InstalledModInfo } from "./state";
 import * as protocol from "./ws/protocol";
+import { ModsDialogAction } from "./modsDialogActions";
 
 export interface SelectGameAction {
   type: "SELECT_GAME";
@@ -591,50 +592,6 @@ export function receiveActiveModsChanged(
   };
 }
 
-export interface SelectModAction {
-  type: "SELECT_MOD";
-  name: string;
-}
-
-export function selectMod(name: string): SelectModAction {
-  return {
-    type: "SELECT_MOD",
-    name,
-  };
-}
-
-export interface ToggleModAction {
-  type: "TOGGLE_MOD";
-  name: string;
-}
-
-export function toggleMod(name: string): ToggleModAction {
-  return {
-    type: "TOGGLE_MOD",
-    name,
-  };
-}
-
-export interface ModUpAction {
-  type: "MOD_UP";
-}
-
-export function modUp(): ModUpAction {
-  return {
-    type: "MOD_UP",
-  };
-}
-
-export interface ModDownAction {
-  type: "MOD_DOWN";
-}
-
-export function modDown(): ModDownAction {
-  return {
-    type: "MOD_DOWN",
-  };
-}
-
 export interface CloseSelectMapDialogAction {
   type: "CLOSE_SELECT_MAP_DIALOG";
 }
@@ -785,10 +742,7 @@ export type AppAction =
   | ReceiveMapInfoAction
   | OpenSelectModsDialogAction
   | CloseSelectModsDialogAction
-  | SelectModAction
-  | ToggleModAction
-  | ModUpAction
-  | ModDownAction
   | SetActiveModsAction
   | ReceiveActiveModsChangedAction
-  | ReceiveInstalledMods;
+  | ReceiveInstalledMods
+  | ModsDialogAction;
