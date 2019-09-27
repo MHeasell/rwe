@@ -10,7 +10,24 @@ module.exports = {
     rules: [
       {
         test: /\.tsx?$/,
-        use: "ts-loader",
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: [
+              [
+                "@babel/env",
+                {
+                  targets: {
+                    electron: "6.0.9",
+                    node: "12.4.0",
+                  },
+                },
+              ],
+              "@babel/typescript",
+            ],
+            plugins: ["@babel/proposal-class-properties"],
+          },
+        },
         exclude: /node_modules/,
       },
     ],

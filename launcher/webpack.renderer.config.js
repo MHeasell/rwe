@@ -11,29 +11,33 @@ module.exports = {
     rules: [
       {
         test: /\.tsx?$/,
-        use: [
-          {
-            loader: "babel-loader",
-            options: {
-              babelrc: false,
-              plugins: ["react-hot-loader/babel"]
-            },
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: [
+              [
+                "@babel/env",
+                {
+                  targets: {
+                    electron: "6.0.9",
+                    node: "12.4.0",
+                  },
+                },
+              ],
+              "@babel/react",
+              "@babel/typescript",
+            ],
+            plugins: [
+              "react-hot-loader/babel",
+              "@babel/proposal-class-properties",
+            ],
           },
-          {
-            loader: "ts-loader",
-            options: {
-              transpileOnly: true, // for HMR
-            },
-          },
-        ],
+        },
         exclude: /node_modules/,
       },
       {
         test: /\.css$/,
-        use: [
-          "style-loader",
-          "css-loader",
-        ],
+        use: ["style-loader", "css-loader"],
       },
       {
         test: /\.ttf$/,
