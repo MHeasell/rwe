@@ -5,6 +5,8 @@ set -euo pipefail
 cd launcher
 echo "nodejs version: $(node --version)"
 echo "npm version: $(npm --version)"
+npm ci
+npm run tsc
 npm run lint
 npm run package
 
