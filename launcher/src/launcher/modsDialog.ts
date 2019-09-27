@@ -1,4 +1,4 @@
-import { toggleItem, moveUp, moveDown } from "./util";
+import { toggleItem, moveUp, moveDown } from "../common/util";
 import { AppAction } from "./actions";
 
 export interface ModsDialogState {

@@ -1,6 +1,6 @@
 import { execFile } from "child_process";
 import * as path from "path";
-import { assertNever } from "./util";
+import { assertNever } from "../common/util";
 
 export interface RweArgsPlayerHuman {
   type: "human";

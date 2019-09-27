@@ -1,5 +1,5 @@
 import { AppAction } from "./actions";
-import { GetGamesResponseItem } from "./master/protocol";
+import { GetGamesResponseItem } from "../master-server/protocol";
 import {
   AppScreen,
   ChatMessage,
@@ -15,7 +15,7 @@ import {
   State,
   MapCacheValue,
 } from "./state";
-import { findAndMap } from "./util";
+import { findAndMap } from "../common/util";
 import { modDialogReducer } from "./modsDialog";
 import { mapDialogReducer } from "./mapsDialog";
 

@@ -1,6 +1,6 @@
 import { Observable, Subject } from "rxjs";
 import socketioClient from "socket.io-client";
-import { PlayerSide } from "../state";
+import { PlayerSide } from "../launcher/state";
 import * as protocol from "./protocol";
 
 export class GameClientService {

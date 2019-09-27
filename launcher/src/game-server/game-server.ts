@@ -1,6 +1,6 @@
 import * as crypto from "crypto";
 import * as rx from "rxjs";
-import { assertNever, choose, findAndMap, getAddr } from "../util";
+import { assertNever, choose, findAndMap, getAddr } from "../common/util";
 import * as protocol from "./protocol";
 
 type PlayerSide = "ARM" | "CORE";

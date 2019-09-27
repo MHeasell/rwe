@@ -5,9 +5,9 @@ import {
   GameDeletedEventPayload,
   GameUpdatedEventPayload,
   GetGamesResponsePayload,
-} from "./master/protocol";
+} from "../master-server/protocol";
 import { PlayerSide, InstalledModInfo } from "./state";
-import * as protocol from "./ws/protocol";
+import * as protocol from "../game-server/protocol";
 import { ModsDialogAction } from "./modsDialogActions";
 import { MapsDialogAction } from "./mapsDialogActions";
 

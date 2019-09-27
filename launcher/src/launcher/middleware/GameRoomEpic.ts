@@ -42,13 +42,13 @@ import {
   State,
   InstalledModInfo,
 } from "../state";
-import * as protocol from "../ws/protocol";
+import * as protocol from "../../game-server/protocol";
 
-import { GameClientService } from "../ws/game-client";
+import { GameClientService } from "../../game-server/game-client";
 
 import { RweBridge } from "../bridge";
-import { getIpv4Address } from "../ip-lookup";
-import { MasterClientService } from "../master/master-client";
+import { getIpv4Address } from "../../common/ip-lookup";
+import { MasterClientService } from "../../master-server/master-client";
 import {
   execRwe,
   RweArgs,
@@ -64,7 +64,7 @@ import {
   getInstalledMods,
   choose,
   chooseOp,
-} from "../util";
+} from "../../common/util";
 
 export interface EpicDependencies {
   clientService: GameClientService;
