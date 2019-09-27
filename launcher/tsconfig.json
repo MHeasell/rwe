@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "esnext",
     "module": "commonjs",
     "strict": true,
     "sourceMap": true,
-    "jsx": "react"
+    "jsx": "react",
+    "esModuleInterop": true,
+    "isolatedModules": true
   },
-  "include": [
-    "src/**/*"
-  ]
+  "include": ["src/**/*"]
 }

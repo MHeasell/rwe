@@ -1,5 +1,5 @@
 import { Observable, Subject } from "rxjs";
-import * as socketioClient from "socket.io-client";
+import socketioClient from "socket.io-client";
 import * as protocol from "./protocol";
 
 export class MasterClientService {

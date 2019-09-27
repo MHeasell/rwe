@@ -1,5 +1,5 @@
 import * as http from "http";
-import * as socketio from "socket.io";
+import socketio from "socket.io";
 import * as yargs from "yargs";
 import { getAddr } from "../util";
 import { GameServer, Room } from "../ws/game-server";

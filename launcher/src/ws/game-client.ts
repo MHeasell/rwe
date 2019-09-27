@@ -1,5 +1,5 @@
 import { Observable, Subject } from "rxjs";
-import * as socketioClient from "socket.io-client";
+import socketioClient from "socket.io-client";
 import { PlayerSide } from "../state";
 import * as protocol from "./protocol";
 
