@@ -18,6 +18,7 @@ import {
 import { findAndMap } from "../common/util";
 import { modDialogReducer } from "./modsDialog";
 import { mapDialogReducer } from "./mapsDialog";
+import { wizardReducer } from "./wizard";
 
 const initialState: State = {
   games: [],
@@ -168,6 +169,28 @@ function modDialogWrapperReducer(room: GameRoom, action: AppAction): GameRoom {
       }
       return room;
     }
+  }
+}
+
+function wizardWrapperReducer(state: State, action: AppAction): State {
+  switch (action.type) {
+    case "wizard/OPEN": {
+      return { ...state, wizard: { step: "welcome" } };
+    }
+    case "wizard/CLOSE": {
+      if (!state.wizard || state.wizard.step === "working") {
+        return state;
+      }
+      return { ...state, wizard: undefined };
+    }
+    default:
+      if (state.wizard) {
+        const wizard = wizardReducer(state.wizard, action);
+        if (wizard !== state.wizard) {
+          return { ...state, wizard };
+        }
+      }
+      return state;
   }
 }
 
@@ -360,13 +383,20 @@ function games(state: State = initialState, action: AppAction): State {
     case "RECEIVE_INSTALLED_MODS":
       return { ...state, installedMods: action.mods };
     default: {
-      const screen = currentScreenReducer(state.currentScreen, action);
-      if (screen === state.currentScreen) {
-        return state;
-      }
-      return { ...state, currentScreen: screen };
+      return wizardWrapperReducer(
+        currentScreenWrapperReducer(state, action),
+        action
+      );
     }
   }
+}
+
+function currentScreenWrapperReducer(state: State, action: AppAction): State {
+  const screen = currentScreenReducer(state.currentScreen, action);
+  if (screen === state.currentScreen) {
+    return state;
+  }
+  return { ...state, currentScreen: screen };
 }
 
 export default games;

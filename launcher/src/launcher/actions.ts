@@ -10,6 +10,7 @@ import { PlayerSide, InstalledModInfo } from "./state";
 import * as protocol from "../game-server/protocol";
 import { ModsDialogAction } from "./modsDialogActions";
 import { MapsDialogAction } from "./mapsDialogActions";
+import { WizardAction } from "./wizardActions";
 
 export interface SelectGameAction {
   type: "SELECT_GAME";
@@ -729,4 +730,5 @@ export type AppAction =
   | ReceiveActiveModsChangedAction
   | ReceiveInstalledMods
   | ModsDialogAction
-  | MapsDialogAction;
+  | MapsDialogAction
+  | WizardAction;

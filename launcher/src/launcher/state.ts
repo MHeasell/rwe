@@ -1,5 +1,6 @@
 import { ModsDialogState } from "./modsDialog";
 import { MapDialogState } from "./mapsDialog";
+import { WizardState } from "./wizard";
 
 export interface OverviewScreen {
   screen: "overview";
@@ -124,6 +125,7 @@ export interface State {
   currentScreen: AppScreen;
   isRweRunning: boolean;
   masterServerConnectionStatus: MasterServerConnectionStatus;
+  wizard?: WizardState;
 }
 
 export function canJoinSelectedGame(state: State): boolean {

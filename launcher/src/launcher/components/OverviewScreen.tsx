@@ -7,6 +7,9 @@ import { State } from "../state";
 import BottomPanel from "./BottomPanel";
 import GamesTable from "./GamesTable";
 import { PlayerNameDialog } from "./PlayerNameDialog";
+import { Wizard } from "./Wizard";
+import { next, close } from "../wizardActions";
+import { WizardState } from "../wizard";
 
 function MainPanel() {
   return (
@@ -41,11 +44,14 @@ function ConnectionNotice(props: ConnectionNoticeProps) {
 interface OverviewScreenDispatchProps {
   onDialogClose: () => void;
   onDialogConfirm: (name: string) => void;
+  onWizardNext: (path?: string) => void;
+  onWizardClose: () => void;
 }
 
 interface OverviewScreenStateProps {
   connected: boolean;
   dialogOpen: boolean;
+  wizardState?: WizardState;
 }
 
 interface OverviewScreenProps
@@ -54,16 +60,25 @@ interface OverviewScreenProps
 
 function OverviewScreen(props: OverviewScreenProps) {
   return (
-    <Paper className="app-container">
-      <ConnectionNotice connected={props.connected} />
-      <MainPanel />
-      <BottomPanel />
-      <PlayerNameDialog
-        open={props.dialogOpen}
-        onConfirm={props.onDialogConfirm}
-        onClose={props.onDialogClose}
-      />
-    </Paper>
+    <>
+      <Paper className="app-container">
+        <ConnectionNotice connected={props.connected} />
+        <MainPanel />
+        <BottomPanel />
+        <PlayerNameDialog
+          open={props.dialogOpen}
+          onConfirm={props.onDialogConfirm}
+          onClose={props.onDialogClose}
+        />
+      </Paper>
+      {props.wizardState && (
+        <Wizard
+          state={props.wizardState.step}
+          onNext={props.onWizardNext}
+          onClose={props.onWizardClose}
+        />
+      )}
+    </>
   );
 }
 
@@ -75,6 +90,7 @@ function mapStateToProps(state: State): OverviewScreenStateProps {
   return {
     connected: state.masterServerConnectionStatus === "connected",
     dialogOpen,
+    wizardState: state.wizard,
   };
 }
 
@@ -85,6 +101,12 @@ function mapDispatchToProps(dispatch: Dispatch): OverviewScreenDispatchProps {
     },
     onDialogConfirm: (name: string) => {
       dispatch(joinSelectedGameConfirm(name));
+    },
+    onWizardNext: (path?: string) => {
+      dispatch(next(path));
+    },
+    onWizardClose: () => {
+      dispatch(close());
     },
   };
 }

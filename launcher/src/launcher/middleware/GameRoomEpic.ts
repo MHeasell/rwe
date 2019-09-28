@@ -1,4 +1,3 @@
-import * as path from "path";
 import { combineEpics, ofType, StateObservable } from "redux-observable";
 import * as rx from "rxjs";
 import * as rxop from "rxjs/operators";
@@ -65,6 +64,8 @@ import {
   choose,
   chooseOp,
 } from "../../common/util";
+import { getRweModsPath } from "../util";
+import { wizardEpic } from "../wizardEpic";
 
 export interface EpicDependencies {
   clientService: GameClientService;
@@ -192,26 +193,6 @@ const installedModsEpic = (
   const installedMods = getInstalledMods(modsPath);
   return rx.of<AppAction>(receiveInstalledMods(installedMods));
 };
-
-function getRweUserPath(): string {
-  if (process.platform === "win32") {
-    const appData = process.env["APPDATA"];
-    if (appData === undefined) {
-      throw new Error("Failed to find AppData path");
-    }
-    return path.join(appData, "RWE");
-  } else {
-    const home = process.env["HOME"];
-    if (home === undefined) {
-      throw new Error("Failed to find home directory");
-    }
-    return path.join(home, ".rwe");
-  }
-}
-
-function getRweModsPath(): string {
-  return path.join(getRweUserPath(), "mods");
-}
 
 const gameRoomEpic = (
   action$: rx.Observable<AppAction>,
@@ -460,5 +441,6 @@ export const rootEpic = combineEpics(
   gameRoomEpic,
   launchRweEpic,
   rweBridgeEpic,
-  installedModsEpic
+  installedModsEpic,
+  wizardEpic
 );
