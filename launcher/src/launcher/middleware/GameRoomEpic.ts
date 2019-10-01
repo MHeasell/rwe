@@ -1,7 +1,7 @@
-import * as path from "path";
 import { combineEpics, ofType, StateObservable } from "redux-observable";
 import * as rx from "rxjs";
 import * as rxop from "rxjs/operators";
+import { createSelector } from "reselect";
 import {
   AppAction,
   closeSelectMapDialog,
@@ -18,9 +18,7 @@ import {
   receiveGameUpdated,
   receiveHandshakeResponse,
   receiveMapChanged,
-  receiveMapInfo,
   receiveMapList,
-  receiveMinimap,
   receivePlayerChangedColor,
   receivePlayerChangedSide,
   receivePlayerChangedTeam,
@@ -32,15 +30,24 @@ import {
   receiveSlotOpened,
   receiveStartGame,
   LeaveGameAction,
+  receiveActiveModsChanged,
+  receiveInstalledMods,
+  receiveCombinedMapInfo,
 } from "../actions";
-import { FilledPlayerSlot, GameRoom, getRoom, State } from "../state";
-import * as protocol from "../ws/protocol";
+import {
+  FilledPlayerSlot,
+  GameRoom,
+  getRoom,
+  State,
+  InstalledModInfo,
+} from "../state";
+import * as protocol from "../../game-server/protocol";
 
-import { GameClientService } from "../ws/game-client";
+import { GameClientService } from "../../game-server/game-client";
 
 import { RweBridge } from "../bridge";
-import { getIpv4Address } from "../ip-lookup";
-import { MasterClientService } from "../master/master-client";
+import { getIpv4Address } from "../../common/ip-lookup";
+import { MasterClientService } from "../../master-server/master-client";
 import {
   execRwe,
   RweArgs,
@@ -50,7 +57,11 @@ import {
   RweArgsPlayerInfo,
   RweArgsPlayerSlot,
 } from "../rwe";
-import { assertNever, masterServer } from "../util";
+import { assertNever, masterServer, choose } from "../../common/util";
+import { getRweModsPath } from "../util";
+import { wizardEpic } from "../wizardEpic";
+import { getInstalledMods } from "../../common/mods";
+import { chooseOp } from "../../common/rxutil";
 
 export interface EpicDependencies {
   clientService: GameClientService;
@@ -76,6 +87,7 @@ const gameClientEventsEpic = (
     ),
     clientService.onSlotOpened.pipe(rxop.map(receiveSlotOpened)),
     clientService.onSlotClosed.pipe(rxop.map(receiveSlotClosed)),
+    clientService.onActiveModsChanged.pipe(rxop.map(receiveActiveModsChanged)),
     clientService.onPlayerReady.pipe(rxop.map(receivePlayerReady)),
     clientService.onMapChanged.pipe(rxop.map(receiveMapChanged)),
     clientService.onStartGame.pipe(rxop.map(receiveStartGame))
@@ -100,6 +112,7 @@ const masterClientEventsEpic = (
 };
 
 function rweArgsFromGameRoom(
+  installedMods: InstalledModInfo[],
   game: GameRoom,
   startInfo: protocol.StartGamePayload
 ): RweArgs {
@@ -141,6 +154,9 @@ function rweArgsFromGameRoom(
     throw new Error("map is not set");
   }
   return {
+    dataPaths: choose(game.activeMods, name =>
+      installedMods.find(x => x.name === name)
+    ).map(x => x.path),
     map: game.mapName,
     port: 6670 + portOffset,
     players: playersArgs,
@@ -164,21 +180,15 @@ const launchRweEpic = (
   );
 };
 
-function getDefaultDataPath() {
-  if (process.platform === "win32") {
-    const appData = process.env["APPDATA"];
-    if (appData === undefined) {
-      throw new Error("Failed to find AppData path");
-    }
-    return path.join(appData, "RWE", "Data");
-  } else {
-    const home = process.env["HOME"];
-    if (home === undefined) {
-      throw new Error("Failed to find home directory");
-    }
-    return path.join(home, ".rwe", "Data");
-  }
-}
+const installedModsEpic = (
+  action$: rx.Observable<AppAction>,
+  state$: StateObservable<State>,
+  _: EpicDependencies
+): rx.Observable<AppAction> => {
+  const modsPath = getRweModsPath();
+  const installedMods = getInstalledMods(modsPath);
+  return rx.of<AppAction>(receiveInstalledMods(installedMods));
+};
 
 const gameRoomEpic = (
   action$: rx.Observable<AppAction>,
@@ -204,7 +214,6 @@ const gameRoomEpic = (
               rxop.first()
             )
             .subscribe(x => {
-              deps.bridgeService.addDataPath(getDefaultDataPath());
               getIpv4Address().then(clientAddress => {
                 clientService.connectToServer(
                   `${masterServer()}/rooms`,
@@ -225,7 +234,6 @@ const gameRoomEpic = (
           const selectedGameId = state.selectedGameId;
           const connectionString = `${masterServer()}/rooms`;
           console.log(`connecting to ${connectionString}`);
-          deps.bridgeService.addDataPath(getDefaultDataPath());
           rx.from(getIpv4Address())
             .pipe(
               rxop.takeUntil(
@@ -266,6 +274,24 @@ const gameRoomEpic = (
           clientService.closeSlot(action.slotId);
           break;
         }
+        case "REQUEST_SET_ACTIVE_MODS": {
+          clientService.setActiveMods(action.mods);
+          break;
+        }
+        case "RECEIVE_ACTIVE_MODS_CHANGED": {
+          deps.bridgeService.clearDataPaths();
+          const installedMods = state$.value.installedMods;
+          if (!installedMods) {
+            break;
+          }
+          const resolvedMods = choose(action.payload.mods, x =>
+            installedMods.find(y => y.name === x)
+          );
+          for (const info of resolvedMods) {
+            deps.bridgeService.addDataPath(info.path);
+          }
+          break;
+        }
         case "TOGGLE_READY": {
           const state = state$.value;
           const room = getRoom(state);
@@ -301,11 +327,15 @@ const gameRoomEpic = (
         case "RECEIVE_START_GAME": {
           const state = state$.value;
           const room = getRoom(state);
-          if (!room) {
+          if (!room || !state.installedMods) {
             break;
           }
           return rx
-            .from(execRwe(rweArgsFromGameRoom(room, action.payload)))
+            .from(
+              execRwe(
+                rweArgsFromGameRoom(state.installedMods, room, action.payload)
+              )
+            )
             .pipe(
               rxop.mapTo(undefined),
               rxop.catchError(e => rx.of(undefined)),
@@ -324,7 +354,7 @@ const gameRoomEpic = (
           if (!room.mapDialog.selectedMap) {
             break;
           }
-          clientService.changeMap(room.mapDialog.selectedMap.name);
+          clientService.changeMap(room.mapDialog.selectedMap);
           return rx.of<AppAction>(closeSelectMapDialog());
         }
       }
@@ -333,50 +363,52 @@ const gameRoomEpic = (
   );
 };
 
+function getSelectedMap(state: State) {
+  const room = getRoom(state);
+  return room && room.mapDialog ? room.mapDialog.selectedMap : undefined;
+}
+function getSelectedMapCacheEntry(state: State) {
+  const room = getRoom(state);
+  if (!room) {
+    return undefined;
+  }
+  return room.mapDialog && room.mapDialog.selectedMap
+    ? room.mapCache[room.mapDialog.selectedMap]
+    : undefined;
+}
+
+const mapNameAndCacheSelector = createSelector(
+  getSelectedMap,
+  getSelectedMapCacheEntry,
+  (mapName, cacheEntry) => [mapName, cacheEntry] as const
+);
+
 const rweBridgeEpic = (
   action$: rx.Observable<AppAction>,
   state$: StateObservable<State>,
   deps: EpicDependencies
 ): rx.Observable<AppAction> => {
   const selectedMap$ = state$.pipe(
-    rxop.map(state => {
-      const room = getRoom(state);
-      if (!room) {
-        return undefined;
-      }
-      if (!room.mapDialog) {
-        return undefined;
-      }
-      if (!room.mapDialog.selectedMap) {
-        return undefined;
-      }
-      return room.mapDialog.selectedMap.name;
-    }),
-    rxop.distinctUntilChanged()
+    rxop.map(mapNameAndCacheSelector),
+    chooseOp(([mapName, cacheEntry]) =>
+      mapName && !cacheEntry ? mapName : undefined
+    )
   );
 
   const mapInfoStream = selectedMap$.pipe(
     rxop.switchMap(
       (mapName): rx.Observable<AppAction> => {
-        if (mapName === undefined) {
-          return rx.empty();
-        }
-        return rx
-          .from(deps.bridgeService.getMapInfo(mapName))
-          .pipe(rxop.map(receiveMapInfo));
-      }
-    )
-  );
-
-  const minimapStream = selectedMap$.pipe(
-    rxop.switchMap(
-      (mapName): rx.Observable<AppAction> => {
-        if (mapName === undefined) {
-          return rx.empty();
-        }
-        return rx
-          .from(deps.bridgeService.getMinimap(mapName))
-          .pipe(rxop.map(x => receiveMinimap(x.path)));
+        const mapInfo$ = rx.from(deps.bridgeService.getMapInfo(mapName));
+        const minimap$ = rx.from(deps.bridgeService.getMinimap(mapName));
+        return rx.combineLatest([mapInfo$, minimap$]).pipe(
+          rxop.map(([infoResponse, minimapResponse]) => {
+            return receiveCombinedMapInfo(
+              mapName,
+              infoResponse,
+              minimapResponse.path
+            );
+          })
+        );
       }
     )
   );
@@ -396,7 +428,7 @@ const rweBridgeEpic = (
     )
   );
 
-  return rx.merge(mapInfoStream, minimapStream, actionPipe);
+  return rx.merge(mapInfoStream, actionPipe);
 };
 
 export const rootEpic = combineEpics(
@@ -404,5 +436,7 @@ export const rootEpic = combineEpics(
   gameClientEventsEpic,
   gameRoomEpic,
   launchRweEpic,
-  rweBridgeEpic
+  rweBridgeEpic,
+  installedModsEpic,
+  wizardEpic
 );

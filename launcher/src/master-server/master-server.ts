@@ -1,8 +1,8 @@
 import * as http from "http";
 import socketio from "socket.io";
 import * as yargs from "yargs";
-import { getAddr } from "../util";
-import { GameServer, Room } from "../ws/game-server";
+import { getAddr } from "../common/util";
+import { GameServer, Room } from "../game-server/game-server";
 import * as protocol from "./protocol";
 
 const argv = yargs

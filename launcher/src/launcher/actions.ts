@@ -5,9 +5,12 @@ import {
   GameDeletedEventPayload,
   GameUpdatedEventPayload,
   GetGamesResponsePayload,
-} from "./master/protocol";
-import { PlayerSide } from "./state";
-import * as protocol from "./ws/protocol";
+} from "../master-server/protocol";
+import { PlayerSide, InstalledModInfo } from "./state";
+import * as protocol from "../game-server/protocol";
+import { ModsDialogAction } from "./modsDialogActions";
+import { MapsDialogAction } from "./mapsDialogActions";
+import { WizardAction } from "./wizardActions";
 
 export interface SelectGameAction {
   type: "SELECT_GAME";
@@ -545,6 +548,52 @@ export function openSelectMapDialog(): OpenSelectMapDialogAction {
   };
 }
 
+export interface OpenSelectModsDialogAction {
+  type: "OPEN_SELECT_MODS_DIALOG";
+}
+
+export function openSelectModsDialog(): OpenSelectModsDialogAction {
+  return {
+    type: "OPEN_SELECT_MODS_DIALOG",
+  };
+}
+
+export interface CloseSelectModsDialogAction {
+  type: "CLOSE_SELECT_MODS_DIALOG";
+}
+
+export function closeSelectModsDialog(): CloseSelectModsDialogAction {
+  return {
+    type: "CLOSE_SELECT_MODS_DIALOG",
+  };
+}
+
+export interface SetActiveModsAction {
+  type: "REQUEST_SET_ACTIVE_MODS";
+  mods: string[];
+}
+
+export function setActiveMods(mods: string[]): SetActiveModsAction {
+  return {
+    type: "REQUEST_SET_ACTIVE_MODS",
+    mods,
+  };
+}
+
+export interface ReceiveActiveModsChangedAction {
+  type: "RECEIVE_ACTIVE_MODS_CHANGED";
+  payload: protocol.ActiveModsChangedPayload;
+}
+
+export function receiveActiveModsChanged(
+  payload: protocol.ActiveModsChangedPayload
+): ReceiveActiveModsChangedAction {
+  return {
+    type: "RECEIVE_ACTIVE_MODS_CHANGED",
+    payload,
+  };
+}
+
 export interface CloseSelectMapDialogAction {
   type: "CLOSE_SELECT_MAP_DIALOG";
 }
@@ -577,18 +626,6 @@ export function changeMap(): ChangeMapAction {
   };
 }
 
-export interface DialogSelectMapAction {
-  type: "DIALOG_SELECT_MAP";
-  mapName: string;
-}
-
-export function dialogSelectMap(mapName: string): DialogSelectMapAction {
-  return {
-    type: "DIALOG_SELECT_MAP",
-    mapName,
-  };
-}
-
 export interface ReceiveMapChangedAction {
   type: "RECEIVE_MAP_CHANGED";
   data: protocol.MapChangedPayload;
@@ -603,27 +640,37 @@ export function receiveMapChanged(
   };
 }
 
-export interface ReceiveMinimapAction {
-  type: "RECEIVE_MINIMAP";
-  path: string;
+export interface ReceiveCombinedMapInfoAction {
+  type: "RECEIVE_COMBINED_MAP_INFO";
+  name: string;
+  info: GetMapInfoResponse;
+  minimapPath: string;
 }
 
-export function receiveMinimap(path: string): ReceiveMinimapAction {
+export function receiveCombinedMapInfo(
+  name: string,
+  info: GetMapInfoResponse,
+  minimapPath: string
+): ReceiveCombinedMapInfoAction {
   return {
-    type: "RECEIVE_MINIMAP",
-    path,
+    type: "RECEIVE_COMBINED_MAP_INFO",
+    name,
+    info,
+    minimapPath,
   };
 }
 
-export interface ReceiveMapInfoAction {
-  type: "RECEIVE_MAP_INFO";
-  info: GetMapInfoResponse;
+export interface ReceiveInstalledMods {
+  type: "RECEIVE_INSTALLED_MODS";
+  mods: InstalledModInfo[];
 }
 
-export function receiveMapInfo(info: GetMapInfoResponse): ReceiveMapInfoAction {
+export function receiveInstalledMods(
+  mods: InstalledModInfo[]
+): ReceiveInstalledMods {
   return {
-    type: "RECEIVE_MAP_INFO",
-    info,
+    type: "RECEIVE_INSTALLED_MODS",
+    mods,
   };
 }
 
@@ -676,6 +723,12 @@ export type AppAction =
   | ReceiveMapListAction
   | ChangeMapAction
   | ReceiveMapChangedAction
-  | DialogSelectMapAction
-  | ReceiveMinimapAction
-  | ReceiveMapInfoAction;
+  | ReceiveCombinedMapInfoAction
+  | OpenSelectModsDialogAction
+  | CloseSelectModsDialogAction
+  | SetActiveModsAction
+  | ReceiveActiveModsChangedAction
+  | ReceiveInstalledMods
+  | ModsDialogAction
+  | MapsDialogAction
+  | WizardAction;

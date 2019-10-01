@@ -1,3 +1,7 @@
+import { ModsDialogState } from "./modsDialog";
+import { MapDialogState } from "./mapsDialog";
+import { WizardState } from "./wizard";
+
 export interface OverviewScreen {
   screen: "overview";
   dialogOpen: boolean;
@@ -12,6 +16,13 @@ export interface GameRoomScreen {
   room?: GameRoom;
 }
 
+export interface MapCacheValue {
+  description: string;
+  memory: string;
+  numberOfPlayers: string;
+  minimap?: string;
+}
+
 export interface GameRoom {
   localPlayerId?: number;
   adminPlayerId?: number;
@@ -19,6 +30,9 @@ export interface GameRoom {
   messages: ChatMessage[];
   mapName?: string;
   mapDialog?: MapDialogState;
+  modsDialog?: ModsDialogState;
+  activeMods: string[];
+  mapCache: { [key: string]: MapCacheValue };
 }
 
 export type AppScreen = HostFormScreen | OverviewScreen | GameRoomScreen;
@@ -54,23 +68,6 @@ export interface ClosedPlayerSlot {
 }
 
 export type PlayerSlot = EmptyPlayerSlot | ClosedPlayerSlot | FilledPlayerSlot;
-
-export interface SelectedMapDetails {
-  description: string;
-  memory: string;
-  numberOfPlayers: string;
-}
-
-export interface SelectedMapInfo {
-  name: string;
-  minimap?: string;
-  details?: SelectedMapDetails;
-}
-
-export interface MapDialogState {
-  maps?: string[];
-  selectedMap?: SelectedMapInfo;
-}
 
 export function getRoom(state: State): GameRoom | undefined {
   if (state.currentScreen.screen !== "game-room") {
@@ -116,12 +113,19 @@ export function isFull(game: GameListEntry): boolean {
 
 export type MasterServerConnectionStatus = "connected" | "disconnected";
 
+export interface InstalledModInfo {
+  name: string;
+  path: string;
+}
+
 export interface State {
+  installedMods?: InstalledModInfo[];
   games: GameListEntry[];
   selectedGameId?: number;
   currentScreen: AppScreen;
   isRweRunning: boolean;
   masterServerConnectionStatus: MasterServerConnectionStatus;
+  wizard?: WizardState;
 }
 
 export function canJoinSelectedGame(state: State): boolean {

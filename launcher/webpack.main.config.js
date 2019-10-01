@@ -3,7 +3,7 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = {
   mode: "development",
-  entry: "./src/main.ts",
+  entry: "./src/launcher/main.ts",
   target: "electron-main",
   devtool: "source-map",
   module: {

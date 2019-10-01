@@ -4,7 +4,7 @@ const webpack = require("webpack");
 
 module.exports = {
   mode: "development",
-  entry: "./src/renderer.tsx",
+  entry: "./src/launcher/renderer.tsx",
   target: "electron-renderer",
   devtool: "source-map",
   module: {

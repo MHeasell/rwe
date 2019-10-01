@@ -1,6 +1,6 @@
 import * as crypto from "crypto";
 import * as rx from "rxjs";
-import { assertNever, choose, findAndMap, getAddr } from "../util";
+import { assertNever, choose, findAndMap, getAddr } from "../common/util";
 import * as protocol from "./protocol";
 
 type PlayerSide = "ARM" | "CORE";
@@ -72,6 +72,7 @@ export interface Room {
   players: PlayerSlot[];
   adminState: AdminState;
   mapName?: string;
+  activeMods: string[];
 }
 
 function generateAdminKey() {
@@ -138,6 +139,7 @@ export class GameServer {
       nextPlayerId: 1,
       players,
       adminState: { state: "unclaimed", adminKey },
+      activeMods: [],
     });
 
     return { gameId: id, adminKey };
@@ -230,6 +232,7 @@ export class GameServer {
               : undefined,
           players: room.players.map(x => toProtocolPlayerSlot(x)),
           mapName: room.mapName,
+          activeMods: room.activeMods,
         };
         socket.emit(protocol.HandshakeResponse, handshakeResponse);
 
@@ -263,6 +266,12 @@ export class GameServer {
         socket.on(protocol.CloseSlot, (data: protocol.CloseSlotPayload) => {
           this.onCloseSlot(roomId, playerId, data);
         });
+        socket.on(
+          protocol.SetActiveMods,
+          (data: protocol.SetActiveModsPayload) => {
+            this.onSetActiveMods(roomId, playerId, data);
+          }
+        );
         socket.on(protocol.ChangeMap, (data: protocol.ChangeMapPayload) => {
           this.onChangeMap(roomId, playerId, data);
         });
@@ -430,6 +439,29 @@ export class GameServer {
       default:
         return assertNever(state);
     }
+  }
+
+  onSetActiveMods(
+    roomId: number,
+    playerId: number,
+    data: protocol.SetActiveModsPayload
+  ) {
+    const room = this.rooms.get(roomId);
+    if (!room) {
+      throw new Error("onCloseSlot triggered for non-existent room");
+    }
+    if (
+      room.adminState.state !== "claimed" ||
+      room.adminState.adminPlayerId !== playerId
+    ) {
+      this.log(
+        `Received close-slot from player ${playerId}, but that player is not admin!`
+      );
+      return;
+    }
+    const payload: protocol.ActiveModsChangedPayload = { mods: data.mods };
+    this.sendToRoom(roomId, protocol.ActiveModsChanged, payload);
+    room.activeMods = data.mods;
   }
 
   private onChangeMap(

@@ -13,12 +13,12 @@ import App from "./components/App";
 import { EpicDependencies, rootEpic } from "./middleware/GameRoomEpic";
 import rootReducer from "./reducers";
 import { State } from "./state";
-import { GameClientService } from "./ws/game-client";
+import { GameClientService } from "../game-server/game-client";
 
 import { RweBridge } from "./bridge";
-import { MasterClientService } from "./master/master-client";
+import { MasterClientService } from "../master-server/master-client";
 import "./style.css";
-import { masterServer } from "./util";
+import { masterServer } from "../common/util";
 
 const masterClentService = new MasterClientService();
 masterClentService.connectToServer(`${masterServer()}/master`);

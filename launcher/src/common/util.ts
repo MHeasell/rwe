@@ -44,3 +44,39 @@ export function choose<T, R>(arr: T[], f: (x: T) => R | undefined): R[] {
 export function assertNever(x: never): never {
   throw new Error(`Unexpected object: ${x}`);
 }
+
+export function toggleItem<T>(arr: T[], item: T): T[] {
+  return arr.includes(item) ? arr.filter(x => x !== item) : [...arr, item];
+}
+
+export function moveUp<T>(arr: T[], item: T): T[] {
+  const index = arr.indexOf(item);
+  if (index === -1) {
+    return arr;
+  }
+  if (index === 0) {
+    return arr;
+  }
+  return [
+    ...arr.slice(0, index - 1),
+    arr[index],
+    arr[index - 1],
+    ...arr.slice(index + 1),
+  ];
+}
+
+export function moveDown<T>(arr: T[], item: T): T[] {
+  const index = arr.indexOf(item);
+  if (index === -1) {
+    return arr;
+  }
+  if (index === arr.length - 1) {
+    return arr;
+  }
+  return [
+    ...arr.slice(0, index),
+    arr[index + 1],
+    arr[index],
+    ...arr.slice(index + 2),
+  ];
+}

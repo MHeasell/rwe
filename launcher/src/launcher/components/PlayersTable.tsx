@@ -11,7 +11,7 @@ import {
 import StarIcon from "@material-ui/icons/Grade";
 import * as React from "react";
 import { PlayerInfo, PlayerSide, PlayerSlot } from "../state";
-import { assertNever } from "../util";
+import { assertNever } from "../../common/util";
 
 type OpenStatus = "open" | "closed";
 const openStatuses: OpenStatus[] = ["open", "closed"];

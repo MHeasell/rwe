@@ -23,13 +23,15 @@ import {
   changeTeam,
   closeSelectMapDialog,
   closeSlot,
-  dialogSelectMap,
   leaveGame,
   openSelectMapDialog,
+  openSelectModsDialog,
   openSlot,
   sendChatMessage,
   sendStartGame,
   toggleReady,
+  closeSelectModsDialog,
+  setActiveMods,
 } from "../actions";
 import {
   canStartGame,
@@ -38,11 +40,17 @@ import {
   PlayerSide,
   PlayerSlot,
   State,
-  SelectedMapDetails,
+  InstalledModInfo,
 } from "../state";
-import MapSelectDialog from "./MapSelectDialog";
+import MapSelectDialog, { SelectedMapDetails } from "./MapSelectDialog";
 import MessageInput from "./MessageInput";
 import { PlayersTable } from "./PlayersTable";
+import {
+  SelectModsDialog,
+  Item as SelectModsDialogItem,
+} from "./SelectModsDialog";
+import { selectMod, toggleMod, modUp, modDown } from "../modsDialogActions";
+import { dialogSelectMap } from "../mapsDialogActions";
 
 function GameSettingsPanel() {
   return (
@@ -96,6 +104,11 @@ interface GameRoomScreenStateProps {
   startEnabled: boolean;
   mapName?: string;
   mapDialogOpen: boolean;
+  modsDialogOpen: boolean;
+  modsDialogRawMods?: string[];
+  modsDialogMods?: [SelectModsDialogItem[], SelectModsDialogItem[]];
+  modsDialogCanGoUp?: boolean;
+  modsDialogCanGoDown?: boolean;
   mapDialogMaps?: string[];
   mapDialogMinimapPath?: string;
   mapDialogMapInfo?: SelectedMapDetails;
@@ -113,9 +126,16 @@ interface GameRoomScreenDispatchProps {
   onToggleReady: () => void;
   onStartGame: () => void;
   onOpenSelectMapDialog: () => void;
+  onOpenSelectModsDialog: () => void;
   onCloseSelectMapDialog: () => void;
   onDialogSelectMap: (mapName: string) => void;
   onChangeMap: () => void;
+  onSelectMod: (name: string) => void;
+  onToggleMod: (name: string) => void;
+  onModUp: () => void;
+  onModDown: () => void;
+  onCloseSelectModDialog: () => void;
+  onChangeMods: (mods: string[]) => void;
 }
 
 const styles = (theme: Theme) => createStyles({});
@@ -189,6 +209,9 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps> {
             >
               Select Map
             </Button>
+            <Button onClick={this.props.onOpenSelectModsDialog}>
+              Select Mods
+            </Button>
           </div>
           <Typography variant="h6" className="game-room-screen-messages-title">
             Messages
@@ -233,6 +256,16 @@ class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps> {
           onConfirm={this.props.onChangeMap}
           onClose={this.props.onCloseSelectMapDialog}
         />
+        <SelectModsDialog
+          open={this.props.modsDialogOpen}
+          items={this.props.modsDialogMods}
+          onSelectMod={this.props.onSelectMod}
+          onToggleMod={this.props.onToggleMod}
+          onModUp={this.props.onModUp}
+          onModDown={this.props.onModDown}
+          onOk={() => this.props.onChangeMods(this.props.modsDialogRawMods!)}
+          onCancel={this.props.onCloseSelectModDialog}
+        />
       </div>
     );
   }
@@ -253,6 +286,7 @@ const emptyProps: GameRoomScreenStateProps = {
   messages: [],
   startEnabled: false,
   mapDialogOpen: false,
+  modsDialogOpen: false,
 };
 
 function mapStateToProps(state: State): GameRoomScreenStateProps {
@@ -262,6 +296,7 @@ function mapStateToProps(state: State): GameRoomScreenStateProps {
   }
 
   const mapDialog = room.mapDialog;
+  const modsDialog = room.modsDialog;
 
   return {
     localPlayerId: room.localPlayerId,
@@ -272,19 +307,48 @@ function mapStateToProps(state: State): GameRoomScreenStateProps {
     mapName: room.mapName,
     mapDialogOpen: !!mapDialog,
     mapDialogMaps: mapDialog ? mapDialog.maps : undefined,
-    selectedMap:
-      mapDialog && mapDialog.selectedMap
-        ? mapDialog.selectedMap.name
-        : undefined,
+    selectedMap: mapDialog ? mapDialog.selectedMap : undefined,
     mapDialogMinimapPath:
-      mapDialog && mapDialog.selectedMap
-        ? mapDialog.selectedMap.minimap
+      mapDialog && mapDialog.selectedMap && room.mapCache[mapDialog.selectedMap]
+        ? room.mapCache[mapDialog.selectedMap].minimap
         : undefined,
     mapDialogMapInfo:
-      mapDialog && mapDialog.selectedMap
-        ? mapDialog.selectedMap.details
+      mapDialog && mapDialog.selectedMap && room.mapCache[mapDialog.selectedMap]
+        ? room.mapCache[mapDialog.selectedMap]
+        : undefined,
+    modsDialogOpen: !!modsDialog,
+    modsDialogRawMods: modsDialog ? modsDialog.activeMods : undefined,
+    modsDialogMods:
+      modsDialog && state.installedMods
+        ? combineToItems(
+            state.installedMods,
+            modsDialog.activeMods,
+            modsDialog.selectedMod
+          )
         : undefined,
   };
+}
+
+function combineToItems(
+  fullList: InstalledModInfo[],
+  activeList: string[],
+  selectedMod?: string
+): [SelectModsDialogItem[], SelectModsDialogItem[]] {
+  const active = activeList.map<SelectModsDialogItem>(x => ({
+    name: x,
+    checked: true,
+    selected: x === selectedMod,
+  }));
+
+  const inactive = fullList
+    .filter(x => !activeList.includes(x.name))
+    .map<SelectModsDialogItem>(x => ({
+      name: x.name,
+      checked: false,
+      selected: x.name === selectedMod,
+    }));
+
+  return [active, inactive];
 }
 
 function mapDispatchToProps(dispatch: Dispatch): GameRoomScreenDispatchProps {
@@ -299,9 +363,16 @@ function mapDispatchToProps(dispatch: Dispatch): GameRoomScreenDispatchProps {
     onToggleReady: () => dispatch(toggleReady()),
     onStartGame: () => dispatch(sendStartGame()),
     onOpenSelectMapDialog: () => dispatch(openSelectMapDialog()),
+    onOpenSelectModsDialog: () => dispatch(openSelectModsDialog()),
     onCloseSelectMapDialog: () => dispatch(closeSelectMapDialog()),
     onDialogSelectMap: (mapName: string) => dispatch(dialogSelectMap(mapName)),
     onChangeMap: () => dispatch(changeMap()),
+    onSelectMod: (name: string) => dispatch(selectMod(name)),
+    onToggleMod: (name: string) => dispatch(toggleMod(name)),
+    onModUp: () => dispatch(modUp()),
+    onModDown: () => dispatch(modDown()),
+    onCloseSelectModDialog: () => dispatch(closeSelectModsDialog()),
+    onChangeMods: (mods: string[]) => dispatch(setActiveMods(mods)),
   };
 }
 

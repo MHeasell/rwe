@@ -4,7 +4,7 @@ const webpack = require("webpack");
 
 module.exports = {
   mode: "development",
-  entry: "./src/master/master-server.ts",
+  entry: "./src/master-server/master-server.ts",
   target: "node",
   devtool: "source-map",
   module: {

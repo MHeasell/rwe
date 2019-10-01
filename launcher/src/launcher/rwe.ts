@@ -1,6 +1,6 @@
 import { execFile } from "child_process";
 import * as path from "path";
-import { assertNever } from "./util";
+import { assertNever } from "../common/util";
 
 export interface RweArgsPlayerHuman {
   type: "human";
@@ -41,7 +41,7 @@ export type RweArgsPlayerSlot =
   | RweArgsFilledPlayerSlot;
 
 export interface RweArgs {
-  dataPath?: string;
+  dataPaths: string[];
   map?: string;
   interface?: string;
   port?: number;
@@ -63,8 +63,8 @@ function serializeRweController(controller: RweArgsPlayerController): string {
 
 function serializeRweArgs(args: RweArgs): string[] {
   const out = [];
-  if (args.dataPath !== undefined) {
-    out.push("--data-path", args.dataPath);
+  for (const path of args.dataPaths) {
+    out.push("--data-path", path);
   }
   if (args.map !== undefined) {
     out.push("--map", args.map);
