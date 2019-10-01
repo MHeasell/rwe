@@ -3,7 +3,8 @@ import path from "path";
 import crypto from "crypto";
 import * as rx from "rxjs";
 import * as rxop from "rxjs/operators";
-import { RweModJson, chooseOp } from "../common/util";
+import { chooseOp } from "../common/rxutil";
+import { RweModJson } from "../common/mods";
 
 const taModFiles = new Map<string, string>([
   [

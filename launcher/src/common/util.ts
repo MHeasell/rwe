@@ -1,8 +1,3 @@
-import * as fs from "fs";
-import * as path from "path";
-import * as rx from "rxjs";
-import * as rxop from "rxjs/operators";
-
 export function masterServer() {
   if (process.env["RWE_MASTER_SERVER"]) {
     return process.env["RWE_MASTER_SERVER"];
@@ -50,45 +45,6 @@ export function assertNever(x: never): never {
   throw new Error(`Unexpected object: ${x}`);
 }
 
-export interface InstalledModResult {
-  name: string;
-  path: string;
-}
-export function getInstalledMods(baseDir: string): InstalledModResult[] {
-  const entries = fs
-    .readdirSync(baseDir, { withFileTypes: true })
-    .filter(e => e.isDirectory())
-    .map<InstalledModResult | undefined>(e => {
-      const modPath = path.join(baseDir, e.name);
-      const json = readRweModJson(path.join(modPath, "rwe_mod.json"));
-      if (!json) {
-        return undefined;
-      }
-      return {
-        name: json.shortname,
-        path: modPath,
-      };
-    });
-
-  return choose(entries, x => x);
-}
-
-export interface RweModJson {
-  shortname: string;
-  name: string;
-  author: string;
-}
-
-function readRweModJson(path: string): RweModJson | undefined {
-  let buffer: Buffer;
-  try {
-    buffer = fs.readFileSync(path);
-  } catch (err) {
-    return undefined;
-  }
-  return JSON.parse(buffer.toString());
-}
-
 export function toggleItem<T>(arr: T[], item: T): T[] {
   return arr.includes(item) ? arr.filter(x => x !== item) : [...arr, item];
 }
@@ -123,17 +79,4 @@ export function moveDown<T>(arr: T[], item: T): T[] {
     arr[index],
     ...arr.slice(index + 2),
   ];
-}
-
-export function chooseOp<T, U>(
-  f: (arg: T) => U | undefined
-): rx.OperatorFunction<T, U> {
-  const selector = (x: T): rx.Observable<U> => {
-    const r = f(x);
-    if (r === undefined) {
-      return rx.empty();
-    }
-    return rx.of(r);
-  };
-  return rxop.concatMap(selector);
 }

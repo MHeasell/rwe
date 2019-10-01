@@ -57,15 +57,11 @@ import {
   RweArgsPlayerInfo,
   RweArgsPlayerSlot,
 } from "../rwe";
-import {
-  assertNever,
-  masterServer,
-  getInstalledMods,
-  choose,
-  chooseOp,
-} from "../../common/util";
+import { assertNever, masterServer, choose } from "../../common/util";
 import { getRweModsPath } from "../util";
 import { wizardEpic } from "../wizardEpic";
+import { getInstalledMods } from "../../common/mods";
+import { chooseOp } from "../../common/rxutil";
 
 export interface EpicDependencies {
   clientService: GameClientService;
