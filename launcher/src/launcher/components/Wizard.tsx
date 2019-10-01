@@ -7,6 +7,7 @@ import {
   Button,
   DialogTitle,
   DialogContent,
+  Grid,
 } from "@material-ui/core";
 import { assertNever } from "../../common/util";
 
@@ -33,13 +34,12 @@ export function Wizard(props: WizardProps) {
         />
       </DialogContent>
       <DialogActions>
-        <Button
-          onClick={() =>
-            props.state === "success" ? props.onClose() : props.onNext(filePath)
-          }
-        >
-          Next
-        </Button>
+        {(props.state === "welcome" || props.state === "fail") && (
+          <Button onClick={() => props.onNext(filePath)}>Next</Button>
+        )}
+        {props.state === "success" && (
+          <Button onClick={() => props.onClose()}>Finish</Button>
+        )}
       </DialogActions>
     </Dialog>
   );
@@ -73,11 +73,26 @@ function WizardWelcome() {
 }
 
 function WizardWorking() {
-  return <CircularProgress />;
+  return (
+    <Grid container direction="row" justify="center">
+      <Grid item>
+        <CircularProgress />
+      </Grid>
+    </Grid>
+  );
 }
 
 function WizardSuccess() {
-  return <Typography>Success!</Typography>;
+  return (
+    <>
+      <Typography>
+        The wizard has successfully created the Total Annihilation mod.
+      </Typography>
+      <Typography>
+        Please close and re-open the launcher in order to detect the new mod.
+      </Typography>
+    </>
+  );
 }
 
 function WizardManual(props: {
@@ -86,8 +101,10 @@ function WizardManual(props: {
 }) {
   return (
     <>
-      <Typography>Fail!</Typography>
-      <Typography>Manually locate your Total Annihilation folder</Typography>
+      <Typography>
+        The wizard was unable to locate Total Annihilation game data.
+      </Typography>
+      <Typography>Manually locate your Total Annihilation folder:</Typography>
       {/*
       // @ts-ignore */}
       <input
