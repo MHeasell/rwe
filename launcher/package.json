@@ -15,7 +15,8 @@
     "clean": "rm -rf ./dist",
     "package": "npm run build && electron-packager dist --arch=x64 --overwrite --asar",
     "lint": "npx eslint . --ext=.ts --ext=.tsx",
-    "tsc": "tsc --noEmit"
+    "tsc": "tsc --noEmit",
+    "storybook": "start-storybook"
   },
   "author": "Michael Heasell",
   "license": "GPL-3.0-only",
@@ -25,6 +26,7 @@
     "@babel/preset-env": "^7.6.2",
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.6.0",
+    "@storybook/react": "^5.2.1",
     "@types/electron-devtools-installer": "^2.2.0",
     "@types/react": "^16.9.2",
     "@types/react-dom": "^16.9.0",
