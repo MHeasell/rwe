@@ -15,6 +15,7 @@ interface PlayerInfo {
   color: PlayerColor;
   team?: number;
   ready: boolean;
+  installedMods: string[];
 }
 
 function toProtocolPlayerInfo(info: PlayerInfo): protocol.PlayerInfo {
@@ -25,6 +26,7 @@ function toProtocolPlayerInfo(info: PlayerInfo): protocol.PlayerInfo {
     color: info.color,
     team: info.team,
     ready: info.ready,
+    installedMods: info.installedMods,
   };
 }
 
@@ -213,6 +215,7 @@ export class GameServer {
             color: 0,
             team: 0,
             ready: false,
+            installedMods: data.installedMods,
           },
         };
 
@@ -239,6 +242,7 @@ export class GameServer {
         const playerJoined: protocol.PlayerJoinedPayload = {
           playerId: playerId,
           name: data.name,
+          installedMods: data.installedMods,
         };
 
         this.sendToRoom(roomId, protocol.PlayerJoined, playerJoined);
@@ -525,7 +529,10 @@ export class GameServer {
       !room.players.every(x => {
         switch (x.state) {
           case "filled":
-            return x.player.ready;
+            return (
+              x.player.ready &&
+              room.activeMods.every(m => x.player.installedMods.includes(m))
+            );
           case "closed":
             return true;
           case "empty":
@@ -534,7 +541,7 @@ export class GameServer {
       })
     ) {
       this.log(
-        `Received start-game from ${playerId}, but not all open slots are filled and ready`
+        `Received start-game from ${playerId}, but not all open slots are filled, ready and have the required mods`
       );
       return;
     }

@@ -47,6 +47,7 @@ export interface PlayerInfo {
   color: PlayerColor;
   team?: number;
   ready: boolean;
+  installedMods: string[];
 }
 
 export interface ChatMessage {
@@ -91,7 +92,10 @@ export function canStartGame(room: GameRoom) {
   return room.players.every(x => {
     switch (x.state) {
       case "filled":
-        return x.player.ready;
+        return (
+          x.player.ready &&
+          room.activeMods.every(m => x.player.installedMods.includes(m))
+        );
       case "closed":
         return true;
       case "empty":

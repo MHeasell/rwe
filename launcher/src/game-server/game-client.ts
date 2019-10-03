@@ -83,6 +83,7 @@ export class GameClientService {
     gameId: number,
     playerName: string,
     ipv4Address: string,
+    installedMods: string[],
     adminKey?: string
   ) {
     this.client = socketioClient(connectionString);
@@ -123,6 +124,7 @@ export class GameClientService {
       gameId,
       name: playerName,
       ipv4Address,
+      installedMods,
     };
     if (adminKey !== undefined) {
       handshakePayload.adminKey = adminKey;

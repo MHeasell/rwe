@@ -8,6 +8,7 @@ export interface PlayerInfo {
   color: PlayerColor;
   team?: number;
   ready: boolean;
+  installedMods: string[];
 }
 
 export interface FilledPlayerSlot {
@@ -32,6 +33,7 @@ export interface HandshakePayload {
   name: string;
   ipv4Address: string;
   adminKey?: string;
+  installedMods: string[];
 }
 
 // Emitted by the server to a client in response to a handshake
@@ -60,6 +62,7 @@ export const PlayerJoined = "player-joined";
 export interface PlayerJoinedPayload {
   playerId: number;
   name: string;
+  installedMods: string[];
 }
 
 // Broadcast by the server to all clients when a player leaves

@@ -220,6 +220,7 @@ const gameRoomEpic = (
                   x.payload.game_id,
                   action.playerName,
                   clientAddress,
+                  state$.value.installedMods!.map(m => m.name),
                   x.payload.admin_key
                 );
               });
@@ -245,7 +246,8 @@ const gameRoomEpic = (
                 connectionString,
                 selectedGameId,
                 action.name,
-                clientAddress
+                clientAddress,
+                state.installedMods!.map(m => m.name)
               );
             });
           break;

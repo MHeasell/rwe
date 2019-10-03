@@ -206,6 +206,7 @@ function gameRoomReducer(room: GameRoom, action: AppAction): GameRoom {
           color: 0,
           team: 0,
           ready: false,
+          installedMods: action.payload.installedMods,
         },
       };
       const newPlayerIndex = room.players.findIndex(x => x.state === "empty");
