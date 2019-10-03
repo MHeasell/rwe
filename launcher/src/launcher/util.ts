@@ -29,10 +29,16 @@ const taModFiles = new Map<string, string>([
   ],
 ]);
 
-function getSearchDirectories() {
-  const systemDrive = process.env["SYSTEMDRIVE"]!;
-  const programFiles = process.env["PROGRAMFILES"]!;
-  const programFilesX86 = process.env["ProgramFiles(x86)"]!;
+function getSearchDirectories(): string[] {
+  if (process.platform !== "win32") {
+    return [];
+  }
+  const systemDrive = process.env["SYSTEMDRIVE"] || "C:";
+  const programFiles =
+    process.env["PROGRAMFILES"] || path.join(systemDrive, "Program Files");
+  const programFilesX86 =
+    process.env["ProgramFiles(x86)"] ||
+    path.join(systemDrive, "Program Files (x86)");
   return [
     path.join(systemDrive, "CAVEDOG", "TOTALA"),
     path.join(
