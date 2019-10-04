@@ -948,7 +948,7 @@ namespace rwe
                     return true;
                 }
 
-                tryApplyMovementToPosition(unitId, buildPieceInfo.position);
+                tryApplyMovementToPosition(*state.targetUnit, buildPieceInfo.position);
                 targetUnit.rotation = buildPieceInfo.rotation;
 
                 auto costs = targetUnit.getBuildCostInfo(unit.workerTimePerTick);
