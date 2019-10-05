@@ -1,4 +1,3 @@
-import { ModsDialogState } from "./modsDialog";
 import { MapDialogState } from "./mapsDialog";
 import { WizardState } from "./wizard";
 
@@ -30,7 +29,7 @@ export interface GameRoom {
   messages: ChatMessage[];
   mapName?: string;
   mapDialog?: MapDialogState;
-  modsDialog?: ModsDialogState;
+  modsDialogOpen: boolean;
   activeMods: string[];
   mapCache: { [key: string]: MapCacheValue };
 }

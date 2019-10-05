@@ -16,7 +16,6 @@ import {
   MapCacheValue,
 } from "./state";
 import { findAndMap } from "../common/util";
-import { modDialogReducer } from "./modsDialog";
 import { mapDialogReducer } from "./mapsDialog";
 import { wizardReducer } from "./wizard";
 
@@ -61,6 +60,7 @@ function gameRoomScreenReducer(
         messages: [],
         activeMods: action.payload.activeMods,
         mapCache: {},
+        modsDialogOpen: false,
       };
       return { ...screen, room };
     }
@@ -152,21 +152,15 @@ function mapDialogWrapperReducer(room: GameRoom, action: AppAction): GameRoom {
 function modDialogWrapperReducer(room: GameRoom, action: AppAction): GameRoom {
   switch (action.type) {
     case "OPEN_SELECT_MODS_DIALOG": {
-      return { ...room, modsDialog: { activeMods: room.activeMods } };
+      return { ...room, modsDialogOpen: true };
     }
     case "CLOSE_SELECT_MODS_DIALOG": {
-      return { ...room, modsDialog: undefined };
+      return { ...room, modsDialogOpen: false };
     }
     case "REQUEST_SET_ACTIVE_MODS": {
-      return { ...room, modsDialog: undefined };
+      return { ...room, modsDialogOpen: false };
     }
     default: {
-      if (room.modsDialog) {
-        const modsDialog = modDialogReducer(room.modsDialog, action);
-        if (modsDialog !== room.modsDialog) {
-          return { ...room, modsDialog };
-        }
-      }
       return room;
     }
   }

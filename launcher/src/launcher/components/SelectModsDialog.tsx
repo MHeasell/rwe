@@ -16,8 +16,28 @@ import {
 } from "@material-ui/core";
 import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
 import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
+import { toggleItem, moveUp, moveDown } from "../../common/util";
 
-export interface Item {
+export interface ItemProps {
+  name: string;
+  checked: boolean;
+  selected: boolean;
+  onSelect(): void;
+  onToggle(): void;
+}
+
+function ModListItem(props: ItemProps) {
+  return (
+    <ListItem dense button selected={props.selected} onClick={props.onSelect}>
+      <ListItemText primary={props.name} />
+      <ListItemSecondaryAction>
+        <Checkbox checked={props.checked} onChange={props.onToggle} />
+      </ListItemSecondaryAction>
+    </ListItem>
+  );
+}
+
+interface Item {
   name: string;
   checked: boolean;
   selected: boolean;
@@ -32,56 +52,63 @@ function ModsList(props: {
     <List dense>
       {props.items.map(item => {
         return (
-          <ListItem
+          <ModListItem
             key={item.name}
-            dense
-            button
+            name={item.name}
+            checked={item.checked}
             selected={item.selected}
-            onClick={() => {
-              props.onSelectMod(item.name);
-            }}
-          >
-            <ListItemText primary={item.name} />
-            <ListItemSecondaryAction>
-              <Checkbox
-                checked={item.checked}
-                onChange={() => {
-                  props.onToggleMod(item.name);
-                }}
-              />
-            </ListItemSecondaryAction>
-          </ListItem>
+            onSelect={() => props.onSelectMod(item.name)}
+            onToggle={() => props.onToggleMod(item.name)}
+          />
         );
       })}
     </List>
   );
 }
 
-interface Props {
-  items?: [Item[], Item[]];
-  open: boolean;
-  onSelectMod: (name: string) => void;
-  onToggleMod: (name: string) => void;
-  onModUp: () => void;
-  onModDown: () => void;
-  onOk: () => void;
-  onCancel: () => void;
+export interface Props {
+  title: string;
+  items: string[];
+  initiallyActiveItems: string[];
+  onSubmit(selectedItems: string[]): void;
+  onCancel(): void;
 }
 
 export function SelectModsDialog(props: Props) {
+  const [state, dispatch] = React.useReducer(modDialogReducer, {
+    activeItems: props.initiallyActiveItems,
+  });
+  const active = state.activeItems.map<Item>(x => ({
+    name: x,
+    checked: true,
+    selected: x === state.selectedItem,
+  }));
+  const inactive = props.items
+    .filter(x => !state.activeItems.includes(x))
+    .map<Item>(x => ({
+      name: x,
+      checked: false,
+      selected: x === state.selectedItem,
+    }));
   return (
-    <Dialog open={props.open} onClose={props.onCancel}>
-      <DialogTitle>Select Mods</DialogTitle>
+    <Dialog open onClose={props.onCancel}>
+      <DialogTitle>{props.title}</DialogTitle>
       <DialogContent>
         <Grid container>
           <Grid container direction="column" item xs>
             <Grid item>
-              <IconButton onClick={props.onModUp} size="small">
+              <IconButton
+                onClick={() => dispatch({ type: "MOD_UP" })}
+                size="small"
+              >
                 <ArrowUpwardIcon />
               </IconButton>
             </Grid>
             <Grid item>
-              <IconButton onClick={props.onModDown} size="small">
+              <IconButton
+                onClick={() => dispatch({ type: "MOD_DOWN" })}
+                size="small"
+              >
                 <ArrowDownwardIcon />
               </IconButton>
             </Grid>
@@ -90,15 +117,15 @@ export function SelectModsDialog(props: Props) {
             {props.items && (
               <>
                 <ModsList
-                  items={props.items[0]}
-                  onSelectMod={props.onSelectMod}
-                  onToggleMod={props.onToggleMod}
+                  items={active}
+                  onSelectMod={name => dispatch({ type: "SELECT_MOD", name })}
+                  onToggleMod={name => dispatch({ type: "TOGGLE_MOD", name })}
                 />
                 <Divider />
                 <ModsList
-                  items={props.items[1]}
-                  onSelectMod={props.onSelectMod}
-                  onToggleMod={props.onToggleMod}
+                  items={inactive}
+                  onSelectMod={name => dispatch({ type: "SELECT_MOD", name })}
+                  onToggleMod={name => dispatch({ type: "TOGGLE_MOD", name })}
                 />
               </>
             )}
@@ -106,11 +133,71 @@ export function SelectModsDialog(props: Props) {
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={props.onOk} color="primary">
+        <Button
+          onClick={() => props.onSubmit(state.activeItems)}
+          color="primary"
+        >
           OK
         </Button>
         <Button onClick={props.onCancel}>Cancel</Button>
       </DialogActions>
     </Dialog>
   );
+}
+
+interface ModsDialogState {
+  activeItems: string[];
+  selectedItem?: string;
+}
+
+export interface SelectModAction {
+  type: "SELECT_MOD";
+  name: string;
+}
+export interface ToggleModAction {
+  type: "TOGGLE_MOD";
+  name: string;
+}
+export interface ModUpAction {
+  type: "MOD_UP";
+}
+export interface ModDownAction {
+  type: "MOD_DOWN";
+}
+export type ModsDialogAction =
+  | SelectModAction
+  | ToggleModAction
+  | ModUpAction
+  | ModDownAction;
+
+function modDialogReducer(
+  modsDialog: ModsDialogState,
+  action: ModsDialogAction
+): ModsDialogState {
+  switch (action.type) {
+    case "SELECT_MOD": {
+      return { ...modsDialog, selectedItem: action.name };
+    }
+    case "TOGGLE_MOD": {
+      const newList = toggleItem(modsDialog.activeItems, action.name);
+      return { ...modsDialog, activeItems: newList };
+    }
+    case "MOD_UP": {
+      if (!modsDialog.selectedItem) {
+        return modsDialog;
+      }
+      const newList = moveUp(modsDialog.activeItems, modsDialog.selectedItem);
+      return { ...modsDialog, activeItems: newList };
+    }
+    case "MOD_DOWN": {
+      if (!modsDialog.selectedItem) {
+        return modsDialog;
+      }
+      const newList = moveDown(modsDialog.activeItems, modsDialog.selectedItem);
+      return { ...modsDialog, activeItems: newList };
+    }
+
+    default:
+      return modsDialog;
+  }
 }
