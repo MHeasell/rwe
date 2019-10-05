@@ -68,51 +68,49 @@ interface Props {
   onCancel: () => void;
 }
 
-export class SelectModsDialog extends React.Component<Props> {
-  render() {
-    return (
-      <Dialog open={this.props.open} onClose={this.props.onCancel}>
-        <DialogTitle>Select Mods</DialogTitle>
-        <DialogContent>
-          <Grid container>
-            <Grid container direction="column" item xs>
-              <Grid item>
-                <IconButton onClick={this.props.onModUp} size="small">
-                  <ArrowUpwardIcon />
-                </IconButton>
-              </Grid>
-              <Grid item>
-                <IconButton onClick={this.props.onModDown} size="small">
-                  <ArrowDownwardIcon />
-                </IconButton>
-              </Grid>
+export function SelectModsDialog(props: Props) {
+  return (
+    <Dialog open={props.open} onClose={props.onCancel}>
+      <DialogTitle>Select Mods</DialogTitle>
+      <DialogContent>
+        <Grid container>
+          <Grid container direction="column" item xs>
+            <Grid item>
+              <IconButton onClick={props.onModUp} size="small">
+                <ArrowUpwardIcon />
+              </IconButton>
             </Grid>
             <Grid item>
-              {this.props.items && (
-                <>
-                  <ModsList
-                    items={this.props.items[0]}
-                    onSelectMod={this.props.onSelectMod}
-                    onToggleMod={this.props.onToggleMod}
-                  />
-                  <Divider />
-                  <ModsList
-                    items={this.props.items[1]}
-                    onSelectMod={this.props.onSelectMod}
-                    onToggleMod={this.props.onToggleMod}
-                  />
-                </>
-              )}
+              <IconButton onClick={props.onModDown} size="small">
+                <ArrowDownwardIcon />
+              </IconButton>
             </Grid>
           </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={this.props.onOk} color="primary">
-            OK
-          </Button>
-          <Button onClick={this.props.onCancel}>Cancel</Button>
-        </DialogActions>
-      </Dialog>
-    );
-  }
+          <Grid item>
+            {props.items && (
+              <>
+                <ModsList
+                  items={props.items[0]}
+                  onSelectMod={props.onSelectMod}
+                  onToggleMod={props.onToggleMod}
+                />
+                <Divider />
+                <ModsList
+                  items={props.items[1]}
+                  onSelectMod={props.onSelectMod}
+                  onToggleMod={props.onToggleMod}
+                />
+              </>
+            )}
+          </Grid>
+        </Grid>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={props.onOk} color="primary">
+          OK
+        </Button>
+        <Button onClick={props.onCancel}>Cancel</Button>
+      </DialogActions>
+    </Dialog>
+  );
 }
