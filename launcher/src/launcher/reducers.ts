@@ -111,9 +111,6 @@ function overviewScreenReducer(
     case "CLOSE_SINGLE_PLAYER_MODS_DIALOG": {
       return { ...screen, modsDialogOpen: false };
     }
-    case "CHANGE_SINGLE_PLAYER_MODS": {
-      return { ...screen, modsDialogOpen: false };
-    }
     default:
       return screen;
   }
@@ -391,9 +388,9 @@ function games(state: State = initialState, action: AppAction): State {
       return { ...state, masterServerConnectionStatus: "disconnected" };
     case "RECEIVE_INSTALLED_MODS":
       return { ...state, installedMods: action.mods };
-    case "CHANGE_SINGLE_PLAYER_MODS":
+    case "CLOSE_SINGLE_PLAYER_MODS_DIALOG":
       return currentScreenWrapperReducer(
-        { ...state, activeMods: action.mods },
+        action.newMods ? { ...state, activeMods: action.newMods } : state,
         action
       );
     default: {

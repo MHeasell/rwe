@@ -5,7 +5,6 @@ import { Dispatch } from "redux";
 import {
   joinSelectedGameCancel,
   joinSelectedGameConfirm,
-  changeSinglePlayerMods,
   closeSinglePlayerModsDialog,
 } from "../actions";
 import { State } from "../state";
@@ -136,7 +135,7 @@ function mapDispatchToProps(dispatch: Dispatch): OverviewScreenDispatchProps {
       dispatch(close());
     },
     onChangeMods: (mods: string[]) => {
-      dispatch(changeSinglePlayerMods(mods));
+      dispatch(closeSinglePlayerModsDialog(mods));
     },
     onCloseModsDialog: () => {
       dispatch(closeSinglePlayerModsDialog());

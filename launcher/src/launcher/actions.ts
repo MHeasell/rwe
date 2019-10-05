@@ -109,25 +109,15 @@ export function openSinglePlayerModsDialog(): OpenSinglePlayerModsDialogAction {
 
 export interface CloseSinglePlayerModsDialogAction {
   type: "CLOSE_SINGLE_PLAYER_MODS_DIALOG";
+  newMods?: string[];
 }
 
-export function closeSinglePlayerModsDialog(): CloseSinglePlayerModsDialogAction {
+export function closeSinglePlayerModsDialog(
+  newMods?: string[]
+): CloseSinglePlayerModsDialogAction {
   return {
     type: "CLOSE_SINGLE_PLAYER_MODS_DIALOG",
-  };
-}
-
-export interface ChangeSinglePlayerModsAction {
-  type: "CHANGE_SINGLE_PLAYER_MODS";
-  mods: string[];
-}
-
-export function changeSinglePlayerMods(
-  mods: string[]
-): ChangeSinglePlayerModsAction {
-  return {
-    type: "CHANGE_SINGLE_PLAYER_MODS",
-    mods,
+    newMods,
   };
 }
 
@@ -765,5 +755,4 @@ export type AppAction =
   | MapsDialogAction
   | WizardAction
   | OpenSinglePlayerModsDialogAction
-  | CloseSinglePlayerModsDialogAction
-  | ChangeSinglePlayerModsAction;
+  | CloseSinglePlayerModsDialogAction;
