@@ -6,23 +6,38 @@ export interface InstalledModResult {
   name: string;
   path: string;
 }
-export function getInstalledMods(baseDir: string): InstalledModResult[] {
-  const entries = fs
-    .readdirSync(baseDir, { withFileTypes: true })
-    .filter(e => e.isDirectory())
-    .map<InstalledModResult | undefined>(e => {
-      const modPath = path.join(baseDir, e.name);
-      const json = readRweModJson(path.join(modPath, "rwe_mod.json"));
-      if (!json) {
-        return undefined;
+export function getInstalledMods(
+  baseDir: string
+): Promise<InstalledModResult[]> {
+  return new Promise<fs.Dirent[]>((resolve, reject) => {
+    fs.readdir(baseDir, { withFileTypes: true }, (err, files) => {
+      if (err) {
+        if (err.code === "ENOENT") {
+          resolve([]);
+        } else {
+          reject(err);
+        }
+      } else {
+        resolve(files);
       }
-      return {
-        name: json.shortname,
-        path: modPath,
-      };
     });
+  }).then(entries => {
+    const mappedEntries = entries
+      .filter(e => e.isDirectory())
+      .map<InstalledModResult | undefined>(e => {
+        const modPath = path.join(baseDir, e.name);
+        const json = readRweModJson(path.join(modPath, "rwe_mod.json"));
+        if (!json) {
+          return undefined;
+        }
+        return {
+          name: json.shortname,
+          path: modPath,
+        };
+      });
 
-  return choose(entries, x => x);
+    return choose(mappedEntries, x => x);
+  });
 }
 
 export interface RweModJson {

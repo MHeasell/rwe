@@ -186,8 +186,9 @@ const installedModsEpic = (
   _: EpicDependencies
 ): rx.Observable<AppAction> => {
   const modsPath = getRweModsPath();
-  const installedMods = getInstalledMods(modsPath);
-  return rx.of<AppAction>(receiveInstalledMods(installedMods));
+  return rx
+    .from(getInstalledMods(modsPath))
+    .pipe(rxop.map(receiveInstalledMods));
 };
 
 const gameRoomEpic = (
