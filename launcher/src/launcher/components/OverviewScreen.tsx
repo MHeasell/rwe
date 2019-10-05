@@ -3,10 +3,8 @@ import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import {
-  joinSelectedGameCancel,
   joinSelectedGameConfirm,
   hostGame,
-  joinSelectedGame,
   launchRwe,
   changeSinglePlayerMods,
 } from "../actions";
@@ -55,12 +53,10 @@ function ConnectionNotice(props: ConnectionNoticeProps) {
 }
 
 interface OverviewScreenDispatchProps {
-  onDialogClose: () => void;
   onDialogConfirm: (name: string) => void;
   onWizardNext: (path?: string) => void;
   onWizardClose: () => void;
   onHostGame: () => void;
-  onJoinGame: () => void;
   onLaunchRwe: () => void;
   onChangeMods: (newMods: string[]) => void;
 }
@@ -69,7 +65,6 @@ interface OverviewScreenStateProps {
   installedMods: string[];
   activeMods: string[];
   connected: boolean;
-  dialogOpen: boolean;
   wizardState?: WizardState;
   hostEnabled: boolean;
   joinEnabled: boolean;
@@ -82,6 +77,7 @@ interface OverviewScreenProps
 
 function OverviewScreen(props: OverviewScreenProps) {
   const [modsDialogOpen, setModsDialogOpen] = React.useState(false);
+  const [playerNameDialogOpen, setPlayerNameDialogOpen] = React.useState(false);
   return (
     <>
       <Paper className="app-container">
@@ -92,14 +88,17 @@ function OverviewScreen(props: OverviewScreenProps) {
           joinEnabled={props.joinEnabled}
           launchEnabled={props.launchEnabled}
           onHostGame={props.onHostGame}
-          onJoinGame={props.onJoinGame}
+          onJoinGame={() => setPlayerNameDialogOpen(true)}
           onLaunchRwe={props.onLaunchRwe}
           onOpenModsDialog={() => setModsDialogOpen(true)}
         />
         <PlayerNameDialog
-          open={props.dialogOpen}
-          onConfirm={props.onDialogConfirm}
-          onClose={props.onDialogClose}
+          open={playerNameDialogOpen}
+          onConfirm={name => {
+            setPlayerNameDialogOpen(false);
+            props.onDialogConfirm(name);
+          }}
+          onClose={() => setPlayerNameDialogOpen(false)}
         />
       </Paper>
       {props.wizardState && (
@@ -126,13 +125,8 @@ function OverviewScreen(props: OverviewScreenProps) {
 }
 
 function mapStateToProps(state: State): OverviewScreenStateProps {
-  const dialogOpen =
-    state.currentScreen.screen === "overview"
-      ? state.currentScreen.dialogOpen
-      : false;
   return {
     connected: state.masterServerConnectionStatus === "connected",
-    dialogOpen,
     wizardState: state.wizard,
     installedMods: (state.installedMods || []).map(x => x.name),
     activeMods: state.activeMods,
@@ -144,9 +138,6 @@ function mapStateToProps(state: State): OverviewScreenStateProps {
 
 function mapDispatchToProps(dispatch: Dispatch): OverviewScreenDispatchProps {
   return {
-    onDialogClose: () => {
-      dispatch(joinSelectedGameCancel());
-    },
     onDialogConfirm: (name: string) => {
       dispatch(joinSelectedGameConfirm(name));
     },
@@ -160,7 +151,6 @@ function mapDispatchToProps(dispatch: Dispatch): OverviewScreenDispatchProps {
       dispatch(changeSinglePlayerMods(mods));
     },
     onHostGame: () => dispatch(hostGame()),
-    onJoinGame: () => dispatch(joinSelectedGame()),
     onLaunchRwe: () => dispatch(launchRwe()),
   };
 }

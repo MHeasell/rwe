@@ -23,7 +23,6 @@ const initialState: State = {
   games: [],
   currentScreen: {
     screen: "overview",
-    dialogOpen: false,
   },
   isRweRunning: false,
   masterServerConnectionStatus: "disconnected",
@@ -69,10 +68,10 @@ function gameRoomScreenReducer(
       return { ...screen, room };
     }
     case "START_GAME": {
-      return { screen: "overview", dialogOpen: false };
+      return { screen: "overview" };
     }
     case "DISCONNECT_GAME": {
-      return { screen: "overview", dialogOpen: false };
+      return { screen: "overview" };
     }
     default: {
       if (!screen.room) {
@@ -92,14 +91,8 @@ function overviewScreenReducer(
   action: AppAction
 ): AppScreen {
   switch (action.type) {
-    case "JOIN_SELECTED_GAME": {
-      return { ...screen, dialogOpen: true };
-    }
     case "JOIN_SELECTED_GAME_CONFIRM": {
       return { screen: "game-room" };
-    }
-    case "JOIN_SELECTED_GAME_CANCEL": {
-      return { ...screen, dialogOpen: false };
     }
     case "HOST_GAME": {
       return { screen: "host-form" };
@@ -115,7 +108,7 @@ function hostFormReducer(screen: HostFormScreen, action: AppAction): AppScreen {
       return { screen: "game-room" };
     }
     case "HOST_GAME_FORM_CANCEL": {
-      return { screen: "overview", dialogOpen: false };
+      return { screen: "overview" };
     }
     default:
       return screen;

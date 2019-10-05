@@ -23,16 +23,6 @@ export function selectGame(gameId: number): SelectGameAction {
   };
 }
 
-export interface JoinSelectedGameAction {
-  type: "JOIN_SELECTED_GAME";
-}
-
-export function joinSelectedGame(): JoinSelectedGameAction {
-  return {
-    type: "JOIN_SELECTED_GAME",
-  };
-}
-
 export interface JoinSelectedGameConfirmAction {
   type: "JOIN_SELECTED_GAME_CONFIRM";
   name: string;
@@ -44,16 +34,6 @@ export function joinSelectedGameConfirm(
   return {
     type: "JOIN_SELECTED_GAME_CONFIRM",
     name,
-  };
-}
-
-export interface JoinSelectedGameCancelAction {
-  type: "JOIN_SELECTED_GAME_CANCEL";
-}
-
-export function joinSelectedGameCancel(): JoinSelectedGameCancelAction {
-  return {
-    type: "JOIN_SELECTED_GAME_CANCEL",
   };
 }
 
@@ -689,9 +669,7 @@ export function receiveInstalledMods(
 
 export type AppAction =
   | SelectGameAction
-  | JoinSelectedGameAction
   | JoinSelectedGameConfirmAction
-  | JoinSelectedGameCancelAction
   | HostGameAction
   | HostGameFormCancelAction
   | HostGameFormConfirmAction

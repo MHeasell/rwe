@@ -3,7 +3,6 @@ import { WizardState } from "./wizard";
 
 export interface OverviewScreen {
   screen: "overview";
-  dialogOpen: boolean;
 }
 
 export interface HostFormScreen {
