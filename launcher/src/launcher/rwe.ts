@@ -41,11 +41,11 @@ export type RweArgsPlayerSlot =
   | RweArgsFilledPlayerSlot;
 
 export interface RweArgs {
-  dataPaths: string[];
+  dataPaths?: string[];
   map?: string;
   interface?: string;
   port?: number;
-  players: RweArgsPlayerSlot[];
+  players?: RweArgsPlayerSlot[];
 }
 
 function serializeRweController(controller: RweArgsPlayerController): string {
@@ -63,8 +63,10 @@ function serializeRweController(controller: RweArgsPlayerController): string {
 
 function serializeRweArgs(args: RweArgs): string[] {
   const out = [];
-  for (const path of args.dataPaths) {
-    out.push("--data-path", path);
+  if (args.dataPaths) {
+    for (const path of args.dataPaths) {
+      out.push("--data-path", path);
+    }
   }
   if (args.map !== undefined) {
     out.push("--map", args.map);
@@ -75,22 +77,26 @@ function serializeRweArgs(args: RweArgs): string[] {
   if (args.port !== undefined) {
     out.push("--port", args.port.toString());
   }
-  for (const p of args.players) {
-    switch (p.state) {
-      case "filled": {
-        const controllerString = serializeRweController(p.controller);
-        out.push(
-          "--player",
-          `${p.name.replace(";", "_")};${controllerString};${p.side};${p.color}`
-        );
-        break;
+  if (args.players) {
+    for (const p of args.players) {
+      switch (p.state) {
+        case "filled": {
+          const controllerString = serializeRweController(p.controller);
+          out.push(
+            "--player",
+            `${p.name.replace(";", "_")};${controllerString};${p.side};${
+              p.color
+            }`
+          );
+          break;
+        }
+        case "empty": {
+          out.push("--player", "empty");
+          break;
+        }
+        default:
+          assertNever(p);
       }
-      case "empty": {
-        out.push("--player", "empty");
-        break;
-      }
-      default:
-        assertNever(p);
     }
   }
   return out;
