@@ -171,11 +171,19 @@ const launchRweEpic = (
   return action$.pipe(
     ofType<AppAction, LaunchRweAction>("LAUNCH_RWE"),
     rxop.flatMap(() => {
-      return rx.from(execRwe()).pipe(
-        rxop.mapTo(undefined),
-        rxop.catchError(e => rx.of(undefined)),
-        rxop.mapTo(gameEnded())
-      );
+      return rx
+        .from(
+          execRwe({
+            dataPaths: choose(state$.value.activeMods, name =>
+              state$.value.installedMods!.find(x => x.name === name)
+            ).map(x => x.path),
+          })
+        )
+        .pipe(
+          rxop.mapTo(undefined),
+          rxop.catchError(e => rx.of(undefined)),
+          rxop.mapTo(gameEnded())
+        );
     })
   );
 };

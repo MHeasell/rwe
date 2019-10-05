@@ -97,6 +97,40 @@ export function hostGameFormConfirm(
   };
 }
 
+export interface OpenSinglePlayerModsDialogAction {
+  type: "OPEN_SINGLE_PLAYER_MODS_DIALOG";
+}
+
+export function openSinglePlayerModsDialog(): OpenSinglePlayerModsDialogAction {
+  return {
+    type: "OPEN_SINGLE_PLAYER_MODS_DIALOG",
+  };
+}
+
+export interface CloseSinglePlayerModsDialogAction {
+  type: "CLOSE_SINGLE_PLAYER_MODS_DIALOG";
+}
+
+export function closeSinglePlayerModsDialog(): CloseSinglePlayerModsDialogAction {
+  return {
+    type: "CLOSE_SINGLE_PLAYER_MODS_DIALOG",
+  };
+}
+
+export interface ChangeSinglePlayerModsAction {
+  type: "CHANGE_SINGLE_PLAYER_MODS";
+  mods: string[];
+}
+
+export function changeSinglePlayerMods(
+  mods: string[]
+): ChangeSinglePlayerModsAction {
+  return {
+    type: "CHANGE_SINGLE_PLAYER_MODS",
+    mods,
+  };
+}
+
 export interface LaunchRweAction {
   type: "LAUNCH_RWE";
 }
@@ -729,4 +763,7 @@ export type AppAction =
   | ReceiveActiveModsChangedAction
   | ReceiveInstalledMods
   | MapsDialogAction
-  | WizardAction;
+  | WizardAction
+  | OpenSinglePlayerModsDialogAction
+  | CloseSinglePlayerModsDialogAction
+  | ChangeSinglePlayerModsAction;

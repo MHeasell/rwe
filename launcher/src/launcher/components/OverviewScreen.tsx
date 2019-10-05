@@ -2,7 +2,12 @@ import { Collapse, Divider, Paper, Typography } from "@material-ui/core";
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import { joinSelectedGameCancel, joinSelectedGameConfirm } from "../actions";
+import {
+  joinSelectedGameCancel,
+  joinSelectedGameConfirm,
+  changeSinglePlayerMods,
+  closeSinglePlayerModsDialog,
+} from "../actions";
 import { State } from "../state";
 import BottomPanel from "./BottomPanel";
 import GamesTable from "./GamesTable";
@@ -10,6 +15,7 @@ import { PlayerNameDialog } from "./PlayerNameDialog";
 import { Wizard } from "./Wizard";
 import { next, close } from "../wizardActions";
 import { WizardState } from "../wizard";
+import { SelectModsDialog } from "./SelectModsDialog";
 
 function MainPanel() {
   return (
@@ -46,9 +52,14 @@ interface OverviewScreenDispatchProps {
   onDialogConfirm: (name: string) => void;
   onWizardNext: (path?: string) => void;
   onWizardClose: () => void;
+  onChangeMods(mods: string[]): void;
+  onCloseModsDialog(): void;
 }
 
 interface OverviewScreenStateProps {
+  installedMods: string[];
+  activeMods: string[];
+  modsDialogOpen: boolean;
   connected: boolean;
   dialogOpen: boolean;
   wizardState?: WizardState;
@@ -78,6 +89,15 @@ function OverviewScreen(props: OverviewScreenProps) {
           onClose={props.onWizardClose}
         />
       )}
+      {props.modsDialogOpen && (
+        <SelectModsDialog
+          title="Select Single Player Mods"
+          items={props.installedMods}
+          initiallyActiveItems={props.activeMods}
+          onSubmit={props.onChangeMods}
+          onCancel={props.onCloseModsDialog}
+        />
+      )}
     </>
   );
 }
@@ -87,10 +107,17 @@ function mapStateToProps(state: State): OverviewScreenStateProps {
     state.currentScreen.screen === "overview"
       ? state.currentScreen.dialogOpen
       : false;
+  const modsDialogOpen =
+    state.currentScreen.screen === "overview"
+      ? state.currentScreen.modsDialogOpen
+      : false;
   return {
     connected: state.masterServerConnectionStatus === "connected",
     dialogOpen,
+    modsDialogOpen,
     wizardState: state.wizard,
+    installedMods: (state.installedMods || []).map(x => x.name),
+    activeMods: state.activeMods,
   };
 }
 
@@ -107,6 +134,12 @@ function mapDispatchToProps(dispatch: Dispatch): OverviewScreenDispatchProps {
     },
     onWizardClose: () => {
       dispatch(close());
+    },
+    onChangeMods: (mods: string[]) => {
+      dispatch(changeSinglePlayerMods(mods));
+    },
+    onCloseModsDialog: () => {
+      dispatch(closeSinglePlayerModsDialog());
     },
   };
 }

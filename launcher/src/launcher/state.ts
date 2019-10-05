@@ -4,6 +4,7 @@ import { WizardState } from "./wizard";
 export interface OverviewScreen {
   screen: "overview";
   dialogOpen: boolean;
+  modsDialogOpen: boolean;
 }
 
 export interface HostFormScreen {
@@ -123,6 +124,7 @@ export interface InstalledModInfo {
 
 export interface State {
   installedMods?: InstalledModInfo[];
+  activeMods: string[];
   games: GameListEntry[];
   selectedGameId?: number;
   currentScreen: AppScreen;

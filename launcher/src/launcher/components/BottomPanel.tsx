@@ -8,13 +8,19 @@ import {
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import { hostGame, joinSelectedGame, launchRwe } from "../actions";
+import {
+  hostGame,
+  joinSelectedGame,
+  launchRwe,
+  openSinglePlayerModsDialog,
+} from "../actions";
 import {
   canHostGame,
   canJoinSelectedGame,
   canLaunchRwe,
   State,
 } from "../state";
+import { Grid } from "@material-ui/core";
 
 const styles = (theme: Theme) =>
   createStyles({
@@ -33,6 +39,7 @@ interface BottomPanelDispatchProps {
   onHostGame: () => void;
   onJoinGame: () => void;
   onLaunchRwe: () => void;
+  onOpenModsDialog: () => void;
 }
 
 interface UnstyledBottomPanelProps
@@ -64,13 +71,22 @@ const UnstyledBottomPanel = (props: BottomPanelProps) => {
         </Button>
       </div>
       <div className="bottom-panel-right">
-        <Button
-          variant="contained"
-          disabled={!props.launchEnabled}
-          onClick={props.onLaunchRwe}
-        >
-          Launch RWE
-        </Button>
+        <Grid container spacing={1}>
+          <Grid item>
+            <Button variant="contained" onClick={props.onOpenModsDialog}>
+              Single Player Mods
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
+              variant="contained"
+              disabled={!props.launchEnabled}
+              onClick={props.onLaunchRwe}
+            >
+              Launch RWE
+            </Button>
+          </Grid>
+        </Grid>
       </div>
     </div>
   );
@@ -89,6 +105,7 @@ function mapDispatchToProps(dispatch: Dispatch): BottomPanelDispatchProps {
     onHostGame: () => dispatch(hostGame()),
     onJoinGame: () => dispatch(joinSelectedGame()),
     onLaunchRwe: () => dispatch(launchRwe()),
+    onOpenModsDialog: () => dispatch(openSinglePlayerModsDialog()),
   };
 }
 

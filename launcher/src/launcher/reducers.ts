@@ -21,9 +21,14 @@ import { wizardReducer } from "./wizard";
 
 const initialState: State = {
   games: [],
-  currentScreen: { screen: "overview", dialogOpen: false },
+  currentScreen: {
+    screen: "overview",
+    dialogOpen: false,
+    modsDialogOpen: false,
+  },
   isRweRunning: false,
   masterServerConnectionStatus: "disconnected",
+  activeMods: [],
 };
 
 function roomResponseEntryToGamesListEntry(
@@ -65,10 +70,10 @@ function gameRoomScreenReducer(
       return { ...screen, room };
     }
     case "START_GAME": {
-      return { screen: "overview", dialogOpen: false };
+      return { screen: "overview", dialogOpen: false, modsDialogOpen: false };
     }
     case "DISCONNECT_GAME": {
-      return { screen: "overview", dialogOpen: false };
+      return { screen: "overview", dialogOpen: false, modsDialogOpen: false };
     }
     default: {
       if (!screen.room) {
@@ -100,6 +105,15 @@ function overviewScreenReducer(
     case "HOST_GAME": {
       return { screen: "host-form" };
     }
+    case "OPEN_SINGLE_PLAYER_MODS_DIALOG": {
+      return { ...screen, modsDialogOpen: true };
+    }
+    case "CLOSE_SINGLE_PLAYER_MODS_DIALOG": {
+      return { ...screen, modsDialogOpen: false };
+    }
+    case "CHANGE_SINGLE_PLAYER_MODS": {
+      return { ...screen, modsDialogOpen: false };
+    }
     default:
       return screen;
   }
@@ -111,7 +125,7 @@ function hostFormReducer(screen: HostFormScreen, action: AppAction): AppScreen {
       return { screen: "game-room" };
     }
     case "HOST_GAME_FORM_CANCEL": {
-      return { screen: "overview", dialogOpen: false };
+      return { screen: "overview", dialogOpen: false, modsDialogOpen: false };
     }
     default:
       return screen;
@@ -377,6 +391,11 @@ function games(state: State = initialState, action: AppAction): State {
       return { ...state, masterServerConnectionStatus: "disconnected" };
     case "RECEIVE_INSTALLED_MODS":
       return { ...state, installedMods: action.mods };
+    case "CHANGE_SINGLE_PLAYER_MODS":
+      return currentScreenWrapperReducer(
+        { ...state, activeMods: action.mods },
+        action
+      );
     default: {
       return wizardWrapperReducer(
         currentScreenWrapperReducer(state, action),
