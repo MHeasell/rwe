@@ -97,26 +97,16 @@ export function hostGameFormConfirm(
   };
 }
 
-export interface OpenSinglePlayerModsDialogAction {
-  type: "OPEN_SINGLE_PLAYER_MODS_DIALOG";
-}
-
-export function openSinglePlayerModsDialog(): OpenSinglePlayerModsDialogAction {
-  return {
-    type: "OPEN_SINGLE_PLAYER_MODS_DIALOG",
-  };
-}
-
-export interface CloseSinglePlayerModsDialogAction {
-  type: "CLOSE_SINGLE_PLAYER_MODS_DIALOG";
+export interface ChangeSinglePlayerModsAction {
+  type: "CHANGE_SINGLE_PLAYER_MODS";
   newMods?: string[];
 }
 
-export function closeSinglePlayerModsDialog(
+export function changeSinglePlayerMods(
   newMods?: string[]
-): CloseSinglePlayerModsDialogAction {
+): ChangeSinglePlayerModsAction {
   return {
-    type: "CLOSE_SINGLE_PLAYER_MODS_DIALOG",
+    type: "CHANGE_SINGLE_PLAYER_MODS",
     newMods,
   };
 }
@@ -754,5 +744,4 @@ export type AppAction =
   | ReceiveInstalledMods
   | MapsDialogAction
   | WizardAction
-  | OpenSinglePlayerModsDialogAction
-  | CloseSinglePlayerModsDialogAction;
+  | ChangeSinglePlayerModsAction;

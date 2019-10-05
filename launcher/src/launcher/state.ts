@@ -4,7 +4,6 @@ import { WizardState } from "./wizard";
 export interface OverviewScreen {
   screen: "overview";
   dialogOpen: boolean;
-  modsDialogOpen: boolean;
 }
 
 export interface HostFormScreen {
