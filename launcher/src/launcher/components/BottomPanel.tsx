@@ -6,20 +6,6 @@ import {
   WithStyles,
 } from "@material-ui/core/styles";
 import * as React from "react";
-import { connect } from "react-redux";
-import { Dispatch } from "redux";
-import {
-  hostGame,
-  joinSelectedGame,
-  launchRwe,
-  openSinglePlayerModsDialog,
-} from "../actions";
-import {
-  canHostGame,
-  canJoinSelectedGame,
-  canLaunchRwe,
-  State,
-} from "../state";
 import { Grid } from "@material-ui/core";
 
 const styles = (theme: Theme) =>
@@ -92,25 +78,5 @@ const UnstyledBottomPanel = (props: BottomPanelProps) => {
   );
 };
 
-function mapStateToProps(state: State): BottomPanelStateProps {
-  return {
-    hostEnabled: canHostGame(state),
-    joinEnabled: canJoinSelectedGame(state),
-    launchEnabled: canLaunchRwe(state),
-  };
-}
-
-function mapDispatchToProps(dispatch: Dispatch): BottomPanelDispatchProps {
-  return {
-    onHostGame: () => dispatch(hostGame()),
-    onJoinGame: () => dispatch(joinSelectedGame()),
-    onLaunchRwe: () => dispatch(launchRwe()),
-    onOpenModsDialog: () => dispatch(openSinglePlayerModsDialog()),
-  };
-}
-
-const UnconnectedBottomPanel = withStyles(styles)(UnstyledBottomPanel);
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(UnconnectedBottomPanel);
+const BottomPanel = withStyles(styles)(UnstyledBottomPanel);
+export default BottomPanel;

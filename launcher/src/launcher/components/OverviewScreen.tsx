@@ -6,8 +6,17 @@ import {
   joinSelectedGameCancel,
   joinSelectedGameConfirm,
   closeSinglePlayerModsDialog,
+  hostGame,
+  joinSelectedGame,
+  launchRwe,
+  openSinglePlayerModsDialog,
 } from "../actions";
-import { State } from "../state";
+import {
+  State,
+  canHostGame,
+  canJoinSelectedGame,
+  canLaunchRwe,
+} from "../state";
 import BottomPanel from "./BottomPanel";
 import GamesTable from "./GamesTable";
 import { PlayerNameDialog } from "./PlayerNameDialog";
@@ -53,6 +62,10 @@ interface OverviewScreenDispatchProps {
   onWizardClose: () => void;
   onChangeMods(mods: string[]): void;
   onCloseModsDialog(): void;
+  onHostGame: () => void;
+  onJoinGame: () => void;
+  onLaunchRwe: () => void;
+  onOpenModsDialog: () => void;
 }
 
 interface OverviewScreenStateProps {
@@ -62,6 +75,9 @@ interface OverviewScreenStateProps {
   connected: boolean;
   dialogOpen: boolean;
   wizardState?: WizardState;
+  hostEnabled: boolean;
+  joinEnabled: boolean;
+  launchEnabled: boolean;
 }
 
 interface OverviewScreenProps
@@ -74,7 +90,15 @@ function OverviewScreen(props: OverviewScreenProps) {
       <Paper className="app-container">
         <ConnectionNotice connected={props.connected} />
         <MainPanel />
-        <BottomPanel />
+        <BottomPanel
+          hostEnabled={props.hostEnabled}
+          joinEnabled={props.joinEnabled}
+          launchEnabled={props.launchEnabled}
+          onHostGame={props.onHostGame}
+          onJoinGame={props.onJoinGame}
+          onLaunchRwe={props.onLaunchRwe}
+          onOpenModsDialog={props.onOpenModsDialog}
+        />
         <PlayerNameDialog
           open={props.dialogOpen}
           onConfirm={props.onDialogConfirm}
@@ -117,6 +141,9 @@ function mapStateToProps(state: State): OverviewScreenStateProps {
     wizardState: state.wizard,
     installedMods: (state.installedMods || []).map(x => x.name),
     activeMods: state.activeMods,
+    hostEnabled: canHostGame(state),
+    joinEnabled: canJoinSelectedGame(state),
+    launchEnabled: canLaunchRwe(state),
   };
 }
 
@@ -140,6 +167,10 @@ function mapDispatchToProps(dispatch: Dispatch): OverviewScreenDispatchProps {
     onCloseModsDialog: () => {
       dispatch(closeSinglePlayerModsDialog());
     },
+    onHostGame: () => dispatch(hostGame()),
+    onJoinGame: () => dispatch(joinSelectedGame()),
+    onLaunchRwe: () => dispatch(launchRwe()),
+    onOpenModsDialog: () => dispatch(openSinglePlayerModsDialog()),
   };
 }
 
