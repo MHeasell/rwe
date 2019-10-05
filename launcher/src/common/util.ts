@@ -49,6 +49,17 @@ export function toggleItem<T>(arr: T[], item: T): T[] {
   return arr.includes(item) ? arr.filter(x => x !== item) : [...arr, item];
 }
 
+export function canMoveUp<T>(arr: T[], item: T): boolean {
+  const index = arr.indexOf(item);
+  if (index === -1) {
+    return false;
+  }
+  if (index === 0) {
+    return false;
+  }
+  return true;
+}
+
 export function moveUp<T>(arr: T[], item: T): T[] {
   const index = arr.indexOf(item);
   if (index === -1) {
@@ -63,6 +74,17 @@ export function moveUp<T>(arr: T[], item: T): T[] {
     arr[index - 1],
     ...arr.slice(index + 1),
   ];
+}
+
+export function canMoveDown<T>(arr: T[], item: T): boolean {
+  const index = arr.indexOf(item);
+  if (index === -1) {
+    return false;
+  }
+  if (index === arr.length - 1) {
+    return false;
+  }
+  return true;
 }
 
 export function moveDown<T>(arr: T[], item: T): T[] {

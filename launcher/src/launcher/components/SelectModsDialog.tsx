@@ -16,7 +16,13 @@ import {
 } from "@material-ui/core";
 import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
 import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
-import { toggleItem, moveUp, moveDown } from "../../common/util";
+import {
+  toggleItem,
+  moveUp,
+  moveDown,
+  canMoveUp,
+  canMoveDown,
+} from "../../common/util";
 
 export interface ItemProps {
   name: string;
@@ -98,6 +104,7 @@ export function SelectModsDialog(props: Props) {
           <Grid container direction="column" item xs>
             <Grid item>
               <IconButton
+                disabled={!canMoveUpState(state)}
                 onClick={() => dispatch({ type: "MOD_UP" })}
                 size="small"
               >
@@ -106,6 +113,7 @@ export function SelectModsDialog(props: Props) {
             </Grid>
             <Grid item>
               <IconButton
+                disabled={!canMoveDownState(state)}
                 onClick={() => dispatch({ type: "MOD_DOWN" })}
                 size="small"
               >
@@ -200,4 +208,18 @@ function modDialogReducer(
     default:
       return modsDialog;
   }
+}
+
+function canMoveUpState(state: ModsDialogState): boolean {
+  if (!state.selectedItem) {
+    return false;
+  }
+  return canMoveUp(state.activeItems, state.selectedItem);
+}
+
+function canMoveDownState(state: ModsDialogState): boolean {
+  if (!state.selectedItem) {
+    return false;
+  }
+  return canMoveDown(state.activeItems, state.selectedItem);
 }
