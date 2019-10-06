@@ -63,7 +63,6 @@ function gameRoomScreenReducer(
         messages: [],
         activeMods: action.payload.activeMods,
         mapCache: {},
-        modsDialogOpen: false,
       };
       return { ...screen, room };
     }
@@ -141,23 +140,6 @@ function mapDialogWrapperReducer(room: GameRoom, action: AppAction): GameRoom {
           return { ...room, mapDialog };
         }
       }
-      return room;
-    }
-  }
-}
-
-function modDialogWrapperReducer(room: GameRoom, action: AppAction): GameRoom {
-  switch (action.type) {
-    case "OPEN_SELECT_MODS_DIALOG": {
-      return { ...room, modsDialogOpen: true };
-    }
-    case "CLOSE_SELECT_MODS_DIALOG": {
-      return { ...room, modsDialogOpen: false };
-    }
-    case "REQUEST_SET_ACTIVE_MODS": {
-      return { ...room, modsDialogOpen: false };
-    }
-    default: {
       return room;
     }
   }
@@ -314,10 +296,7 @@ function gameRoomReducer(room: GameRoom, action: AppAction): GameRoom {
     }
 
     default: {
-      return modDialogWrapperReducer(
-        mapDialogWrapperReducer(room, action),
-        action
-      );
+      return mapDialogWrapperReducer(room, action);
     }
   }
 }

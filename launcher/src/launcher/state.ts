@@ -28,7 +28,6 @@ export interface GameRoom {
   messages: ChatMessage[];
   mapName?: string;
   mapDialog?: MapDialogState;
-  modsDialogOpen: boolean;
   activeMods: string[];
   mapCache: { [key: string]: MapCacheValue };
 }

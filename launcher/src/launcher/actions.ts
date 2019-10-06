@@ -541,26 +541,6 @@ export function openSelectMapDialog(): OpenSelectMapDialogAction {
   };
 }
 
-export interface OpenSelectModsDialogAction {
-  type: "OPEN_SELECT_MODS_DIALOG";
-}
-
-export function openSelectModsDialog(): OpenSelectModsDialogAction {
-  return {
-    type: "OPEN_SELECT_MODS_DIALOG",
-  };
-}
-
-export interface CloseSelectModsDialogAction {
-  type: "CLOSE_SELECT_MODS_DIALOG";
-}
-
-export function closeSelectModsDialog(): CloseSelectModsDialogAction {
-  return {
-    type: "CLOSE_SELECT_MODS_DIALOG",
-  };
-}
-
 export interface SetActiveModsAction {
   type: "REQUEST_SET_ACTIVE_MODS";
   mods: string[];
@@ -715,8 +695,6 @@ export type AppAction =
   | ChangeMapAction
   | ReceiveMapChangedAction
   | ReceiveCombinedMapInfoAction
-  | OpenSelectModsDialogAction
-  | CloseSelectModsDialogAction
   | SetActiveModsAction
   | ReceiveActiveModsChangedAction
   | ReceiveInstalledMods
