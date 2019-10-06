@@ -7,7 +7,6 @@ import {
   DialogTitle,
   ListItem,
   ListItemText,
-  RootRef,
   Theme,
   Typography,
   WithStyles,
@@ -38,13 +37,11 @@ export interface MapSelectDialogProps extends WithStyles<typeof styles> {
 }
 
 class MapSelectDialog extends React.Component<MapSelectDialogProps> {
-  private readonly listRef: React.RefObject<HTMLElement>;
-  private readonly selectedElementRef: React.RefObject<HTMLElement>;
+  private readonly listRef: React.RefObject<List>;
 
   constructor(props: MapSelectDialogProps) {
     super(props);
     this.listRef = React.createRef();
-    this.selectedElementRef = React.createRef();
   }
 
   componentDidMount() {
@@ -80,9 +77,7 @@ class MapSelectDialog extends React.Component<MapSelectDialogProps> {
         <DialogContent>
           <div className="map-dialog-container">
             <div className="map-dialog-left">
-              <RootRef rootRef={this.listRef}>
-                <div className="map-dialog-list">{this.renderMaps()}</div>
-              </RootRef>
+              <div className="map-dialog-list">{this.renderMaps()}</div>
             </div>
             <div className="map-dialog-right">
               <div className="map-dialog-minimap-container">{mapImage}</div>
@@ -123,6 +118,7 @@ class MapSelectDialog extends React.Component<MapSelectDialogProps> {
 
     return (
       <List
+        ref={this.listRef}
         height={320}
         width={292}
         itemSize={35}
@@ -140,17 +136,16 @@ class MapSelectDialog extends React.Component<MapSelectDialogProps> {
   ) {
     if (name === selectedMap) {
       return (
-        <RootRef rootRef={this.selectedElementRef} key={name}>
-          <ListItem
-            dense
-            style={style}
-            button
-            selected={name === selectedMap}
-            onClick={() => this.props.onSelect(name)}
-          >
-            <ListItemText primary={name}></ListItemText>
-          </ListItem>
-        </RootRef>
+        <ListItem
+          key={name}
+          dense
+          style={style}
+          button
+          selected={name === selectedMap}
+          onClick={() => this.props.onSelect(name)}
+        >
+          <ListItemText primary={name}></ListItemText>
+        </ListItem>
       );
     }
     return (
@@ -168,13 +163,14 @@ class MapSelectDialog extends React.Component<MapSelectDialogProps> {
   }
 
   private scrollToSelectedItem() {
-    if (this.selectedElementRef.current && this.listRef.current) {
-      const elemHeight = this.selectedElementRef.current.offsetHeight;
-      const viewportHeight = this.listRef.current.clientHeight;
-      const offset = viewportHeight / 2 - elemHeight / 2;
-      this.listRef.current.scrollTop =
-        this.selectedElementRef.current.offsetTop - offset;
+    if (!this.props.maps || !this.props.selectedMap || !this.listRef.current) {
+      return;
     }
+    const idx = this.props.maps.indexOf(this.props.selectedMap);
+    if (idx === -1) {
+      return;
+    }
+    this.listRef.current.scrollToItem(idx, "center");
   }
 }
 
