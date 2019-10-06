@@ -134,139 +134,119 @@ interface GameRoomScreenProps
     GameRoomScreenDispatchProps,
     WithStyles<typeof styles> {}
 
-class UnconnectedGameRoomScreen extends React.Component<GameRoomScreenProps> {
-  private chatDivRef = React.createRef<HTMLElement>();
-  private chatBottomRef = React.createRef<HTMLElement>();
+function UnconnectedGameRoomScreen(props: GameRoomScreenProps) {
+  const chatDivRef = React.useRef<HTMLElement>();
+  const chatBottomRef = React.useRef<HTMLElement>();
 
-  constructor(props: GameRoomScreenProps) {
-    super(props);
-  }
+  const isScrolledToBottom = React.useMemo(() => {
+    return chatDivRef.current
+      ? isElementScrolledToBottom(chatDivRef.current)
+      : null;
+  }, [props.messages]);
 
-  getSnapshotBeforeUpdate(prevProps: GameRoomScreenProps) {
-    if (prevProps.messages !== this.props.messages) {
-      return this.isScrolledToBottom(this.chatDivRef.current!);
+  React.useEffect(() => {
+    if (isScrolledToBottom) {
+      chatBottomRef.current!.scrollIntoView();
     }
-    return null;
-  }
+  }, [props.messages]);
 
-  componentDidUpdate(
-    prevProps: GameRoomScreenProps,
-    _prevState: {},
-    snapshot: boolean | null
-  ) {
-    if (snapshot) {
-      this.scrollToBottomOfChat();
-    }
-  }
-
-  render() {
-    const messageElements = this.props.messages.map((m, i) => {
-      return (
-        <Typography key={i}>
-          {m.senderName ? m.senderName : "<unknown>"}: {m.message}
-        </Typography>
-      );
-    });
-
+  const messageElements = props.messages.map((m, i) => {
     return (
-      <div className="game-room-screen-container">
-        <div className="game-room-screen-left">
-          <div className="game-room-players-panel">
-            <Typography variant="h6" className="game-room-players-title">
-              Players
-            </Typography>
-            <PlayersTable
-              rows={this.props.players}
-              localPlayerId={this.props.localPlayerId}
-              adminPlayerId={this.props.adminPlayerId}
-              onOpenSlot={this.props.onOpenSlot}
-              onCloseSlot={this.props.onCloseSlot}
-              onChangeSide={this.props.onChangeSide}
-              onChangeColor={this.props.onChangeColor}
-              onChangeTeam={this.props.onChangeTeam}
-              onToggleReady={this.props.onToggleReady}
-            />
-          </div>
-          <div className="game-room-map-panel">
-            <TextField
-              disabled
-              value={this.props.mapName ? this.props.mapName : ""}
-            />
-            <Button
-              onClick={this.props.onOpenSelectMapDialog}
-              disabled={this.props.localPlayerId !== this.props.adminPlayerId}
-            >
-              Select Map
-            </Button>
-            <Button onClick={this.props.onOpenSelectModsDialog}>
-              Select Mods
-            </Button>
-          </div>
-          <Typography variant="h6" className="game-room-screen-messages-title">
-            Messages
-          </Typography>
-          <RootRef rootRef={this.chatDivRef}>
-            <div className="game-room-screen-messages-panel">
-              {messageElements}
-              <RootRef rootRef={this.chatBottomRef}>
-                <div></div>
-              </RootRef>
-            </div>
-          </RootRef>
-          <Divider />
-          <MessageInput onSend={this.props.onSend} />
-        </div>
-        <div className="game-room-screen-right">
-          <GameSettingsPanel />
-          <div>
-            <Button fullWidth onClick={this.props.onLeaveGame}>
-              Leave Game
-            </Button>
-          </div>
-          <div>
-            <Button
-              fullWidth
-              variant="contained"
-              color="primary"
-              disabled={!this.props.startEnabled}
-              onClick={this.props.onStartGame}
-            >
-              Start Game
-            </Button>
-          </div>
-        </div>
-        <MapSelectDialog
-          open={this.props.mapDialogOpen}
-          maps={this.props.mapDialogMaps}
-          selectedMap={this.props.selectedMap}
-          minimapSrc={this.props.mapDialogMinimapPath}
-          selectedMapDetails={this.props.mapDialogMapInfo}
-          onSelect={this.props.onDialogSelectMap}
-          onConfirm={this.props.onChangeMap}
-          onClose={this.props.onCloseSelectMapDialog}
-        />
-        {this.props.modsDialogOpen && (
-          <SelectModsDialog
-            title="Select Mods"
-            initiallyActiveItems={this.props.activeMods}
-            items={this.props.installedMods}
-            onSubmit={items => this.props.onChangeMods(items)}
-            onCancel={this.props.onCloseSelectModDialog}
-          />
-        )}
-      </div>
+      <Typography key={i}>
+        {m.senderName ? m.senderName : "<unknown>"}: {m.message}
+      </Typography>
     );
-  }
+  });
 
-  private scrollToBottomOfChat() {
-    this.chatBottomRef.current!.scrollIntoView();
-  }
+  return (
+    <div className="game-room-screen-container">
+      <div className="game-room-screen-left">
+        <div className="game-room-players-panel">
+          <Typography variant="h6" className="game-room-players-title">
+            Players
+          </Typography>
+          <PlayersTable
+            rows={props.players}
+            localPlayerId={props.localPlayerId}
+            adminPlayerId={props.adminPlayerId}
+            onOpenSlot={props.onOpenSlot}
+            onCloseSlot={props.onCloseSlot}
+            onChangeSide={props.onChangeSide}
+            onChangeColor={props.onChangeColor}
+            onChangeTeam={props.onChangeTeam}
+            onToggleReady={props.onToggleReady}
+          />
+        </div>
+        <div className="game-room-map-panel">
+          <TextField disabled value={props.mapName ? props.mapName : ""} />
+          <Button
+            onClick={props.onOpenSelectMapDialog}
+            disabled={props.localPlayerId !== props.adminPlayerId}
+          >
+            Select Map
+          </Button>
+          <Button onClick={props.onOpenSelectModsDialog}>Select Mods</Button>
+        </div>
+        <Typography variant="h6" className="game-room-screen-messages-title">
+          Messages
+        </Typography>
+        <RootRef rootRef={chatDivRef}>
+          <div className="game-room-screen-messages-panel">
+            {messageElements}
+            <RootRef rootRef={chatBottomRef}>
+              <div></div>
+            </RootRef>
+          </div>
+        </RootRef>
+        <Divider />
+        <MessageInput onSend={props.onSend} />
+      </div>
+      <div className="game-room-screen-right">
+        <GameSettingsPanel />
+        <div>
+          <Button fullWidth onClick={props.onLeaveGame}>
+            Leave Game
+          </Button>
+        </div>
+        <div>
+          <Button
+            fullWidth
+            variant="contained"
+            color="primary"
+            disabled={!props.startEnabled}
+            onClick={props.onStartGame}
+          >
+            Start Game
+          </Button>
+        </div>
+      </div>
+      <MapSelectDialog
+        open={props.mapDialogOpen}
+        maps={props.mapDialogMaps}
+        selectedMap={props.selectedMap}
+        minimapSrc={props.mapDialogMinimapPath}
+        selectedMapDetails={props.mapDialogMapInfo}
+        onSelect={props.onDialogSelectMap}
+        onConfirm={props.onChangeMap}
+        onClose={props.onCloseSelectMapDialog}
+      />
+      {props.modsDialogOpen && (
+        <SelectModsDialog
+          title="Select Mods"
+          initiallyActiveItems={props.activeMods}
+          items={props.installedMods}
+          onSubmit={items => props.onChangeMods(items)}
+          onCancel={props.onCloseSelectModDialog}
+        />
+      )}
+    </div>
+  );
+}
 
-  private isScrolledToBottom(elem: HTMLElement): boolean {
-    const scrollPos = elem.scrollTop;
-    const scrollBottom = elem.scrollHeight - elem.clientHeight;
-    return scrollBottom <= 0 || scrollPos === scrollBottom;
-  }
+function isElementScrolledToBottom(elem: HTMLElement): boolean {
+  const scrollPos = elem.scrollTop;
+  const scrollBottom = elem.scrollHeight - elem.clientHeight;
+  return scrollBottom <= 0 || scrollPos === scrollBottom;
 }
 
 function mapStateToProps(state: State): GameRoomScreenStateProps {
