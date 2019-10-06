@@ -212,6 +212,12 @@ namespace rwe
 
         auto consoleFont = sceneContext.textureService->getFont("fonts/CONSOLE.FNT");
 
+        std::optional<std::ofstream> stateLogStream;
+        if (gameParameters.stateLogFile)
+        {
+            stateLogStream = std::ofstream(*gameParameters.stateLogFile);
+        }
+
         auto gameScene = std::make_unique<GameScene>(
             sceneContext,
             std::move(playerCommandService),
@@ -229,7 +235,8 @@ namespace rwe
             std::move(sounds),
             consoleFont,
             *localPlayerId,
-            audioLookup);
+            audioLookup,
+            std::move(stateLogStream));
 
         const auto& schema = ota.schemas.at(schemaIndex);
 

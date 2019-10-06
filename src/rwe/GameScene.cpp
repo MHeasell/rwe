@@ -98,8 +98,9 @@ namespace rwe
         InGameSoundsInfo sounds,
         const std::shared_ptr<SpriteSeries>& guiFont,
         PlayerId localPlayerId,
-        TdfBlock* audioLookup)
-        : sceneContext(sceneContext),
+        TdfBlock* audioLookup,
+    std::optional<std::ofstream>&& stateLogStream)
+    : sceneContext(sceneContext),
           worldViewport(ViewportService(GuiSizeLeft, GuiSizeTop, sceneContext.viewportService->width() - GuiSizeLeft - GuiSizeRight, sceneContext.viewportService->height() - GuiSizeTop - GuiSizeBottom)),
           playerCommandService(std::move(playerCommandService)),
           worldRenderService(std::move(worldRenderService)),
@@ -119,7 +120,8 @@ namespace rwe
           sounds(std::move(sounds)),
           guiFont(guiFont),
           localPlayerId(localPlayerId),
-          uiFactory(sceneContext.textureService, sceneContext.audioService, audioLookup, sceneContext.vfs, sceneContext.viewportService->width(), sceneContext.viewportService->height())
+          uiFactory(sceneContext.textureService, sceneContext.audioService, audioLookup, sceneContext.vfs, sceneContext.viewportService->width(), sceneContext.viewportService->height()),
+          stateLogStream(std::move(stateLogStream))
     {
     }
 
@@ -1315,6 +1317,11 @@ namespace rwe
         auto gameHash = simulation.computeHash();
         playerCommandService->pushHash(localPlayerId, gameHash);
         gameNetworkService->submitGameHash(gameHash);
+
+        if (stateLogStream)
+        {
+            *stateLogStream << dumpJson(simulation) << std::endl;
+        }
     }
 
     std::optional<UnitId> GameScene::getUnitUnderCursor() const

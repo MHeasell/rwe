@@ -6,6 +6,7 @@
 #include <functional>
 #include <optional>
 #include <queue>
+#include <fstream>
 #include <rwe/AudioService.h>
 #include <rwe/CursorService.h>
 #include <rwe/DiscreteRect.h>
@@ -249,6 +250,8 @@ namespace rwe
 
         std::vector<std::pair<GameTime, GameHash>> gameHashes;
 
+        std::optional<std::ofstream> stateLogStream;
+
     public:
         GameScene(
             const SceneContext& sceneContext,
@@ -267,7 +270,8 @@ namespace rwe
             InGameSoundsInfo sounds,
             const std::shared_ptr<SpriteSeries>& guiFont,
             PlayerId localPlayerId,
-            TdfBlock* audioLookup);
+            TdfBlock* audioLookup,
+            std::optional<std::ofstream>&& stateLogStream);
 
         void init() override;
 

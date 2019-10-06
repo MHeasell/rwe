@@ -445,6 +445,7 @@ int main(int argc, char* argv[])
         desc.add_options()
             ("help", "produce help message")
             ("log", po::value<std::string>(), "Sets the log output file path")
+            ("state-log", po::value<std::string>(), "Sets the output file for sim-state logs. This is a desync debugging feature.")
             ("width", po::value<unsigned int>()->default_value(800), "Sets the window width in pixels")
             ("height", po::value<unsigned int>()->default_value(600), "Sets the window height in pixels")
             ("data-path", po::value<std::vector<std::string>>(), "Sets the location(s) to search for game data")
@@ -483,6 +484,10 @@ int main(int argc, char* argv[])
                 const auto& players = vm["player"].as<std::vector<std::string>>();
 
                 gameParameters = rwe::GameParameters{mapName, 0};
+                if (vm.count("state-log"))
+                {
+                    gameParameters->stateLogFile = vm["state-log"].as<std::string>();
+                }
                 gameParameters->localNetworkPort = vm["port"].as<std::string>();
                 unsigned int playerIndex = 0;
                 if (players.size() > 10)
