@@ -221,7 +221,6 @@ function UnconnectedGameRoomScreen(props: GameRoomScreenProps) {
         open={props.mapDialogOpen}
         maps={props.mapDialogMaps}
         selectedMap={props.selectedMap}
-        minimapSrc={props.mapDialogMinimapPath}
         selectedMapDetails={props.mapDialogMapInfo}
         onSelect={props.onDialogSelectMap}
         onConfirm={props.onChangeMap}
@@ -277,10 +276,6 @@ function mapStateToProps(state: State): GameRoomScreenStateProps {
     mapDialogOpen: !!mapDialog,
     mapDialogMaps: mapDialog ? mapDialog.maps : undefined,
     selectedMap: mapDialog ? mapDialog.selectedMap : undefined,
-    mapDialogMinimapPath:
-      mapDialog && mapDialog.selectedMap && room.mapCache[mapDialog.selectedMap]
-        ? room.mapCache[mapDialog.selectedMap].minimap
-        : undefined,
     mapDialogMapInfo:
       mapDialog && mapDialog.selectedMap && room.mapCache[mapDialog.selectedMap]
         ? room.mapCache[mapDialog.selectedMap]

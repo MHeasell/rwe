@@ -21,6 +21,7 @@ export interface SelectedMapDetails {
   description: string;
   memory: string;
   numberOfPlayers: string;
+  minimap?: string;
 }
 
 export interface MapSelectDialogProps extends WithStyles<typeof styles> {
@@ -28,7 +29,6 @@ export interface MapSelectDialogProps extends WithStyles<typeof styles> {
 
   maps?: string[];
   selectedMap?: string;
-  minimapSrc?: string;
   selectedMapDetails?: SelectedMapDetails;
 
   onSelect: (map: string) => void;
@@ -50,11 +50,15 @@ function MapSelectDialog(props: MapSelectDialogProps) {
     listRef.current.scrollToItem(idx, "center");
   }, [!!props.maps]);
 
-  const mapImage = props.minimapSrc ? (
-    <img src={`file://${props.minimapSrc}`} className="map-dialog-minimap" />
-  ) : (
-    <React.Fragment />
-  );
+  const mapImage =
+    props.selectedMapDetails && props.selectedMapDetails.minimap ? (
+      <img
+        src={`file://${props.selectedMapDetails.minimap}`}
+        className="map-dialog-minimap"
+      />
+    ) : (
+      <React.Fragment />
+    );
 
   const mapDescription = props.selectedMapDetails
     ? props.selectedMapDetails.description
