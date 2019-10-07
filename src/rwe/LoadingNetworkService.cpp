@@ -1,4 +1,5 @@
 #include "LoadingNetworkService.h"
+#include "network_util.h"
 #include <spdlog/spdlog.h>
 
 namespace rwe
@@ -99,8 +100,22 @@ namespace rwe
 
         spdlog::get("rwe")->debug("Sender was recognised");
 
+        if (bytesTransferred < 4)
+        {
+            spdlog::get("rwe")->error("Received message is too short, ignoring");
+            return;
+        }
+
+        auto receivedCrc = readInt(&receiveBuffer[bytesTransferred - 4]);
+        auto computedCrc = computeCrc(receiveBuffer.data(), bytesTransferred - 4);
+        if (receivedCrc != computedCrc)
+        {
+            spdlog::get("rwe")->error("Message CRC incorrect, ignoring");
+            return;
+        }
+
         proto::NetworkMessage message;
-        message.ParseFromArray(receiveBuffer.data(), bytesTransferred);
+        message.ParseFromArray(receiveBuffer.data(), bytesTransferred - 4);
 
         if (!message.has_loading_status())
         {
@@ -148,12 +163,23 @@ namespace rwe
             }
         }
 
-        outerMessage.SerializeToArray(sendBuffer.data(), sendBuffer.size());
+        auto messageSize = outerMessage.ByteSize();
+        if (messageSize > sendBuffer.size() - 4)
+        {
+            throw std::runtime_error("Message to be sent was bigger than buffer size");
+        }
+        if (!outerMessage.SerializeToArray(sendBuffer.data(), sendBuffer.size()))
+        {
+            throw std::runtime_error("Failed to serialize message to buffer");
+        }
+
+        // throw in a CRC to verify the message
+        writeInt(&sendBuffer[messageSize], computeCrc(sendBuffer.data(), messageSize));
 
         for (const auto& p : remoteEndpoints)
         {
             spdlog::get("rwe")->debug("Sending notification to {0} {1}, size {2}", p.endpoint.address().to_string(), p.endpoint.port(), outerMessage.ByteSize());
-            socket.send_to(boost::asio::buffer(sendBuffer.data(), outerMessage.ByteSize()), p.endpoint);
+            socket.send_to(boost::asio::buffer(sendBuffer.data(), messageSize + 4), p.endpoint);
         }
     }
 

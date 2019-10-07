@@ -203,11 +203,20 @@ namespace rwe
         }
 
         auto message = createProtoMessage(packetId, localPlayerId, currentSceneTime, endpoint.nextCommandToSend, endpoint.nextCommandToReceive, endpoint.nextHashToSend, endpoint.nextHashToReceive, delay, endpoint.sendBuffer, endpoint.hashSendBuffer);
-        if (!message.SerializeToArray(sendBuffer.data(), sendBuffer.size()))
+        auto messageSize = message.ByteSize();
+        if (messageSize > sendBuffer.size() - 4)
         {
             throw std::runtime_error("Message to be sent was bigger than buffer size");
         }
-        socket.send_to(boost::asio::buffer(sendBuffer.data(), message.ByteSize()), endpoint.endpoint);
+        if (!message.SerializeToArray(sendBuffer.data(), sendBuffer.size()))
+        {
+            throw std::runtime_error("Failed to serialize message to buffer");
+        }
+
+        // throw in a CRC to verify the message
+        writeInt(&sendBuffer[messageSize], computeCrc(sendBuffer.data(), messageSize));
+
+        socket.send_to(boost::asio::buffer(sendBuffer.data(), messageSize + 4), endpoint.endpoint);
 
         auto nextSequenceNumber = SequenceNumber(endpoint.nextCommandToSend.value + (endpoint.sendBuffer.size()));
         if (endpoint.sendTimes.empty() || endpoint.sendTimes.back().first < nextSequenceNumber)
@@ -232,6 +241,12 @@ namespace rwe
             spdlog::get("rwe")->warn("Received {} bytes, which filled the entire message buffer!!", receivedBytes);
         }
 
+        if (receivedBytes < 4)
+        {
+            spdlog::get("rwe")->error("Received message is too short, ignoring", receivedBytes);
+            return;
+        }
+
         auto endpointIt = std::find_if(endpoints.begin(), endpoints.end(), [this](const auto& e) { return currentRemoteEndpoint == e.endpoint; });
         if (endpointIt == endpoints.end())
         {
@@ -240,8 +255,16 @@ namespace rwe
             return;
         }
 
+        auto receivedCrc = readInt(&receiveBuffer[receivedBytes - 4]);
+        auto computedCrc = computeCrc(receiveBuffer.data(), receivedBytes - 4);
+        if (receivedCrc != computedCrc)
+        {
+            spdlog::get("rwe")->error("Message CRC incorrect, ignoring");
+            return;
+        }
+
         proto::NetworkMessage outerMessage;
-        outerMessage.ParseFromArray(receiveBuffer.data(), receivedBytes);
+        outerMessage.ParseFromArray(receiveBuffer.data(), receivedBytes - 4);
         if (!outerMessage.has_game_update())
         {
             // message wasn't a game update, ignore it

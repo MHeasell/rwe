@@ -3,7 +3,6 @@
 #include <rwe/SceneTime.h>
 #include <rwe/rwe_time.h>
 
-
 namespace rwe
 {
     float ema(float val, float average, float alpha);
@@ -24,4 +23,10 @@ namespace rwe
         }
         return accum / count;
     }
+
+    void writeInt(char* sendBuffer, unsigned int crcResult);
+
+    unsigned int readInt(const char* buffer);
+
+    unsigned int computeCrc(const char* buffer, unsigned int size);
 }
