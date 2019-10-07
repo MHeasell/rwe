@@ -215,7 +215,7 @@ namespace rwe
         std::optional<std::ofstream> stateLogStream;
         if (gameParameters.stateLogFile)
         {
-            stateLogStream = std::ofstream(*gameParameters.stateLogFile);
+            stateLogStream = std::ofstream(*gameParameters.stateLogFile, std::ios::binary);
         }
 
         auto gameScene = std::make_unique<GameScene>(
