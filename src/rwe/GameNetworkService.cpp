@@ -203,7 +203,10 @@ namespace rwe
         }
 
         auto message = createProtoMessage(packetId, localPlayerId, currentSceneTime, endpoint.nextCommandToSend, endpoint.nextCommandToReceive, endpoint.nextHashToSend, endpoint.nextHashToReceive, delay, endpoint.sendBuffer, endpoint.hashSendBuffer);
-        message.SerializeToArray(messageBuffer.data(), messageBuffer.size());
+        if (!message.SerializeToArray(messageBuffer.data(), messageBuffer.size()))
+        {
+            throw std::runtime_error("Message to be sent was bigger than buffer size");
+        }
         socket.send_to(boost::asio::buffer(messageBuffer.data(), message.ByteSize()), endpoint.endpoint);
 
         auto nextSequenceNumber = SequenceNumber(endpoint.nextCommandToSend.value + (endpoint.sendBuffer.size()));
