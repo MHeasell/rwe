@@ -118,7 +118,7 @@ namespace rwe
     void GameNetworkService::listenForNextMessage()
     {
         socket.async_receive_from(
-            boost::asio::buffer(messageBuffer.data(), messageBuffer.size()),
+            boost::asio::buffer(receiveBuffer.data(), receiveBuffer.size()),
             currentRemoteEndpoint,
             [this](const auto& error, const auto& bytesTransferred) {
               receive(error, bytesTransferred);
@@ -203,11 +203,11 @@ namespace rwe
         }
 
         auto message = createProtoMessage(packetId, localPlayerId, currentSceneTime, endpoint.nextCommandToSend, endpoint.nextCommandToReceive, endpoint.nextHashToSend, endpoint.nextHashToReceive, delay, endpoint.sendBuffer, endpoint.hashSendBuffer);
-        if (!message.SerializeToArray(messageBuffer.data(), messageBuffer.size()))
+        if (!message.SerializeToArray(sendBuffer.data(), sendBuffer.size()))
         {
             throw std::runtime_error("Message to be sent was bigger than buffer size");
         }
-        socket.send_to(boost::asio::buffer(messageBuffer.data(), message.ByteSize()), endpoint.endpoint);
+        socket.send_to(boost::asio::buffer(sendBuffer.data(), message.ByteSize()), endpoint.endpoint);
 
         auto nextSequenceNumber = SequenceNumber(endpoint.nextCommandToSend.value + (endpoint.sendBuffer.size()));
         if (endpoint.sendTimes.empty() || endpoint.sendTimes.back().first < nextSequenceNumber)
@@ -227,7 +227,7 @@ namespace rwe
         auto receiveTime = getTimestamp();
         spdlog::get("rwe")->debug("Received {} bytes from endpoint: {}:{}", receivedBytes, currentRemoteEndpoint.address().to_string(), currentRemoteEndpoint.port());
 
-        if (receivedBytes == messageBuffer.size())
+        if (receivedBytes == receiveBuffer.size())
         {
             spdlog::get("rwe")->warn("Received {} bytes, which filled the entire message buffer!!", receivedBytes);
         }
@@ -241,7 +241,7 @@ namespace rwe
         }
 
         proto::NetworkMessage outerMessage;
-        outerMessage.ParseFromArray(messageBuffer.data(), receivedBytes);
+        outerMessage.ParseFromArray(receiveBuffer.data(), receivedBytes);
         if (!outerMessage.has_game_update())
         {
             // message wasn't a game update, ignore it

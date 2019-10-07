@@ -100,7 +100,7 @@ namespace rwe
         spdlog::get("rwe")->debug("Sender was recognised");
 
         proto::NetworkMessage message;
-        message.ParseFromArray(messageBuffer.data(), bytesTransferred);
+        message.ParseFromArray(receiveBuffer.data(), bytesTransferred);
 
         if (!message.has_loading_status())
         {
@@ -148,12 +148,12 @@ namespace rwe
             }
         }
 
-        outerMessage.SerializeToArray(messageBuffer.data(), messageBuffer.size());
+        outerMessage.SerializeToArray(sendBuffer.data(), sendBuffer.size());
 
         for (const auto& p : remoteEndpoints)
         {
             spdlog::get("rwe")->debug("Sending notification to {0} {1}, size {2}", p.endpoint.address().to_string(), p.endpoint.port(), outerMessage.ByteSize());
-            socket.send_to(boost::asio::buffer(messageBuffer.data(), outerMessage.ByteSize()), p.endpoint);
+            socket.send_to(boost::asio::buffer(sendBuffer.data(), outerMessage.ByteSize()), p.endpoint);
         }
     }
 
@@ -175,7 +175,7 @@ namespace rwe
     {
         // go back to waiting for the next message
         socket.async_receive_from(
-            boost::asio::buffer(messageBuffer.data(), messageBuffer.size()),
+            boost::asio::buffer(receiveBuffer.data(), receiveBuffer.size()),
             currentRemoteEndpoint,
             [this](const auto& error, const auto& bytesTransferred) {
               onReceive(error, bytesTransferred);

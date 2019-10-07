@@ -89,7 +89,8 @@ namespace rwe
 
         std::vector<EndpointInfo> endpoints;
 
-        std::array<char, 1500> messageBuffer;
+        std::array<char, 1500> sendBuffer;
+        std::array<char, 1500> receiveBuffer;
         boost::asio::ip::udp::endpoint currentRemoteEndpoint;
 
         PlayerCommandService* const playerCommandService;

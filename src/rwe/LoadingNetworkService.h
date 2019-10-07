@@ -43,7 +43,8 @@ namespace rwe
         boost::asio::io_service ioContext;
         boost::asio::ip::udp::resolver resolver;
         boost::asio::ip::udp::socket socket;
-        std::array<char, 1500> messageBuffer;
+        std::array<char, 1500> sendBuffer;
+        std::array<char, 1500> receiveBuffer;
         boost::asio::ip::udp::endpoint currentRemoteEndpoint;
         boost::asio::steady_timer notifyTimer;
 
