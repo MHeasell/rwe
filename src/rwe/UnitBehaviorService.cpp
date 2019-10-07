@@ -428,15 +428,15 @@ namespace rwe
         // check for collision at the new position
         auto newFootprintRegion = scene->computeFootprintRegion(newPosition, unit.footprintX, unit.footprintZ);
 
-        // Unlike for pathfinding, TA doesn't care about the unit's actual movement class for collision checks,
-        // it only cares about the attributes defined directly on the unit.
-        // Jam these into an ad-hoc movement class to pass into our walkability check.
-        if (!isGridPointWalkable(sim.terrain, unit.getAdHocMovementClass(), newFootprintRegion.x, newFootprintRegion.y))
+        if (scene->isCollisionAt(newFootprintRegion, id))
         {
             return false;
         }
 
-        if (scene->isCollisionAt(newFootprintRegion, id))
+        // Unlike for pathfinding, TA doesn't care about the unit's actual movement class for collision checks,
+        // it only cares about the attributes defined directly on the unit.
+        // Jam these into an ad-hoc movement class to pass into our walkability check.
+        if (!isGridPointWalkable(sim.terrain, unit.getAdHocMovementClass(), newFootprintRegion.x, newFootprintRegion.y))
         {
             return false;
         }
