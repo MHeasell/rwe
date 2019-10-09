@@ -774,11 +774,21 @@ namespace rwe
                             {
                                 if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
                                 {
-                                    replaceUnitSelection(*hoveredUnit);
+                                    if (isShiftDown())
+                                    {
+                                        toggleUnitSelection(*hoveredUnit);
+                                    }
+                                    else
+                                    {
+                                        replaceUnitSelection(*hoveredUnit);
+                                    }
                                 }
                                 else
                                 {
-                                    clearUnitSelection();
+                                    if (!isShiftDown())
+                                    {
+                                        clearUnitSelection();
+                                    }
                                 }
                             }
                             else
@@ -2265,7 +2275,7 @@ namespace rwe
         const auto cameraPos = camera.getPosition();
         auto cameraBox = box.translate(-cameraPos.x, -cameraPos.z);
         const auto& matrix = camera.getViewProjectionMatrix();
-        std::vector<UnitId> units;
+        std::unordered_set<UnitId> units;
 
         for (const auto& e : simulation.units)
         {
@@ -2282,15 +2292,48 @@ namespace rwe
                 continue;
             }
 
-            units.emplace_back(e.first);
+            units.insert(e.first);
         }
 
-        replaceUnitSelection(units);
+        if (isShiftDown())
+        {
+            toggleUnitSelection(units);
+        }
+        else
+        {
+            replaceUnitSelection(units);
+        }
     }
 
-    void GameScene::replaceUnitSelection(const UnitId& unitId)
+    void GameScene::toggleUnitSelection(const rwe::UnitId& unitId)
     {
-        selectedUnits.clear();
+        auto it = selectedUnits.find(unitId);
+        if (it != selectedUnits.end())
+        {
+            deselectUnit(unitId);
+            return;
+        }
+
+        selectAdditionalUnit(unitId);
+    }
+
+    void GameScene::toggleUnitSelection(const std::unordered_set<UnitId>& units)
+    {
+        std::unordered_set<UnitId> newSelection(selectedUnits);
+        for (const auto& unitId : units)
+        {
+            auto [it, inserted] = newSelection.insert(unitId);
+            if (!inserted)
+            {
+                newSelection.erase(it);
+            }
+        }
+
+        replaceUnitSelection(newSelection);
+    }
+
+    void GameScene::selectAdditionalUnit(const rwe::UnitId& unitId)
+    {
         selectedUnits.insert(unitId);
 
         const auto& unit = getUnit(unitId);
@@ -2301,6 +2344,12 @@ namespace rwe
         }
 
         onSelectedUnitsChanged();
+    }
+
+    void GameScene::replaceUnitSelection(const UnitId& unitId)
+    {
+        selectedUnits.clear();
+        selectAdditionalUnit(unitId);
     }
 
     void GameScene::deselectUnit(const UnitId& unitId)
@@ -2315,24 +2364,20 @@ namespace rwe
         onSelectedUnitsChanged();
     }
 
-    void GameScene::replaceUnitSelection(const std::vector<UnitId>& units)
+    void GameScene::replaceUnitSelection(const std::unordered_set<UnitId>& units)
     {
-        selectedUnits.clear();
-        for (const auto& unitId : units)
-        {
-            selectedUnits.insert(unitId);
-        }
+        selectedUnits = units;
 
-        if (units.size() == 1)
+        if (selectedUnits.size() == 1)
         {
-            const auto& unit = getUnit(units.front());
+            const auto& unit = getUnit(*units.begin());
             const auto& selectionSound = unit.selectionSound;
             if (selectionSound)
             {
                 playSoundOnSelectChannel(*selectionSound);
             }
         }
-        else if (units.size() > 0)
+        else if (selectedUnits.size() > 0)
         {
             playSoundOnSelectChannel(*sounds.selectMultipleUnits);
         }

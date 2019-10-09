@@ -453,9 +453,15 @@ namespace rwe
 
         void selectUnitsInBandbox(const DiscreteRect& box);
 
+        void toggleUnitSelection(const UnitId& unitId);
+
+        void toggleUnitSelection(const std::unordered_set<UnitId>& units);
+
+        void selectAdditionalUnit(const UnitId& unitId);
+
         void replaceUnitSelection(const UnitId& unitId);
 
-        void replaceUnitSelection(const std::vector<UnitId>& units);
+        void replaceUnitSelection(const std::unordered_set<UnitId>& units);
 
         void deselectUnit(const UnitId& unitId);
 
