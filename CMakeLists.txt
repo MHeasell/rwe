@@ -715,6 +715,7 @@ set(TEST_FILES
     test/rwe/cob/cob_util_test.cpp
     test/rwe/dump_util_test.cpp
     test/rwe/geometry/BoundingBox3f_test.cpp
+    test/rwe/geometry/Circle2f_test.cpp
     test/rwe/geometry/CollisionMesh_test.cpp
     test/rwe/geometry/Plane3f_test.cpp
     test/rwe/geometry/Ray3f_test.cpp
