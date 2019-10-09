@@ -685,7 +685,7 @@ namespace rwe
                             {
                                 if (sounds.notOkToBuild)
                                 {
-                                    playSoundOnSelectChannel(*sounds.notOkToBuild);
+                                    playUiSound(*sounds.notOkToBuild);
                                 }
                             }
                         }
@@ -1109,18 +1109,19 @@ namespace rwe
         return simulation.gameTime;
     }
 
-    void GameScene::playSoundOnSelectChannel(const AudioService::SoundHandle& handle)
+    void GameScene::playUiSound(const AudioService::SoundHandle& handle)
     {
         sceneContext.audioService->playSoundIfFree(handle, UnitSelectChannel);
     }
 
-    void GameScene::playUnitSound(UnitId /*unitId*/, const AudioService::SoundHandle& sound)
+    void GameScene::playNotificationSound(const PlayerId& playerId, const AudioService::SoundHandle& sound)
     {
-        // FIXME: should play on a unit-specific channel group
-        sceneContext.audioService->playSound(sound);
+        if (playerId == localPlayerId) {
+            sceneContext.audioService->playSoundIfFree(sound, UnitSelectChannel);
+        }
     }
 
-    void GameScene::playSoundAt(const Vector3f& /*position*/, const AudioService::SoundHandle& sound)
+    void GameScene::playSoundAt(const Vector3f& position, const AudioService::SoundHandle& sound)
     {
         // FIXME: should play on a position-aware channel
         sceneContext.audioService->playSound(sound);
@@ -1436,7 +1437,7 @@ namespace rwe
         {
             if (sounds.okToBuild)
             {
-                playSoundOnSelectChannel(*sounds.okToBuild);
+                playUiSound(*sounds.okToBuild);
             }
         }
         else
@@ -1444,7 +1445,7 @@ namespace rwe
             const auto& unit = getUnit(unitId);
             if (unit.okSound)
             {
-                playSoundOnSelectChannel(*(unit.okSound));
+                playUiSound(*(unit.okSound));
             }
         }
     }
@@ -1458,7 +1459,7 @@ namespace rwe
         {
             if (sounds.okToBuild)
             {
-                playSoundOnSelectChannel(*sounds.okToBuild);
+                playUiSound(*sounds.okToBuild);
             }
         }
     }
@@ -1470,7 +1471,7 @@ namespace rwe
         const auto& unit = getUnit(unitId);
         if (unit.okSound)
         {
-            playSoundOnSelectChannel(*(unit.okSound));
+            playUiSound(*(unit.okSound));
         }
     }
 
@@ -1820,7 +1821,7 @@ namespace rwe
 
             if (unit->get().activateSound)
             {
-                playUnitSound(unitId, *unit->get().activateSound);
+                playNotificationSound(unit->get().owner, *unit->get().activateSound);
             }
 
             if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && *selectedUnit == unitId)
@@ -1839,7 +1840,7 @@ namespace rwe
 
             if (unit->get().deactivateSound)
             {
-                playUnitSound(unitId, *unit->get().deactivateSound);
+                playNotificationSound(unit->get().owner, *unit->get().deactivateSound);
             }
 
             if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && *selectedUnit == unitId)
@@ -2340,7 +2341,7 @@ namespace rwe
         const auto& selectionSound = unit.selectionSound;
         if (selectionSound)
         {
-            playSoundOnSelectChannel(*selectionSound);
+            playUiSound(*selectionSound);
         }
 
         onSelectedUnitsChanged();
@@ -2374,12 +2375,12 @@ namespace rwe
             const auto& selectionSound = unit.selectionSound;
             if (selectionSound)
             {
-                playSoundOnSelectChannel(*selectionSound);
+                playUiSound(*selectionSound);
             }
         }
         else if (selectedUnits.size() > 0)
         {
-            playSoundOnSelectChannel(*sounds.selectMultipleUnits);
+            playUiSound(*sounds.selectMultipleUnits);
         }
 
         onSelectedUnitsChanged();

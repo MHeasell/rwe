@@ -317,7 +317,7 @@ namespace rwe
 
         if (weapon->soundStart)
         {
-            scene->playUnitSound(id, *weapon->soundStart);
+            scene->playSoundAt(simVectorToFloat(firingPoint), *weapon->soundStart);
         }
         unit.cobEnvironment->createThread(getFireScriptName(weaponIndex));
 
@@ -630,7 +630,7 @@ namespace rwe
 
                     if (unit.arrivedSound)
                     {
-                        scene->playSoundOnSelectChannel(*unit.arrivedSound);
+                        scene->playNotificationSound(unit.owner, *unit.arrivedSound);
                     }
 
                     return true;
@@ -764,7 +764,7 @@ namespace rwe
 
                     if (unit.buildSound)
                     {
-                        scene->playSoundOnSelectChannel(*unit.buildSound);
+                        scene->playNotificationSound(unit.owner, *unit.buildSound);
                     }
 
                     auto nanoFromPosition = getNanoPoint(unitId);
@@ -831,7 +831,7 @@ namespace rwe
                 // play sound when the unit is completed
                 if (targetUnit.completeSound)
                 {
-                    scene->playSoundOnSelectChannel(*targetUnit.completeSound);
+                    scene->playNotificationSound(targetUnit.owner, *targetUnit.completeSound);
                 }
                 if (targetUnit.activateWhenBuilt)
                 {
@@ -970,7 +970,7 @@ namespace rwe
                     // play sound when the unit is completed
                     if (targetUnit.completeSound)
                     {
-                        scene->playSoundOnSelectChannel(*targetUnit.completeSound);
+                        scene->playNotificationSound(targetUnit.owner, *targetUnit.completeSound);
                     }
                     if (targetUnit.activateWhenBuilt)
                     {

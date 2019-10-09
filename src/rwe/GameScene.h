@@ -319,9 +319,9 @@ namespace rwe
 
         bool isCollisionAt(const DiscreteRect& rect, UnitId self) const;
 
-        void playSoundOnSelectChannel(const AudioService::SoundHandle& sound);
+        void playUiSound(const AudioService::SoundHandle& sound);
 
-        void playUnitSound(UnitId unitId, const AudioService::SoundHandle& sound);
+        void playNotificationSound(const PlayerId& playerId, const AudioService::SoundHandle& sound);
 
         void playSoundAt(const Vector3f& position, const AudioService::SoundHandle& sound);
 
