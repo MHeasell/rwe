@@ -15,7 +15,7 @@ namespace rwe
     }
     SimAngle atan2(SimScalar a, SimScalar b)
     {
-        return fromRadians(RadiansAngle(std::atan2(a.value, b.value)));
+        return fromRadians(RadiansAngle::fromUnwrappedAngle(std::atan2(a.value, b.value)));
     }
     SimScalar hypot(SimScalar a, SimScalar b)
     {
