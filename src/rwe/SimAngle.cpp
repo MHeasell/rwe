@@ -7,7 +7,7 @@ namespace rwe
 {
     RadiansAngle toRadians(SimAngle angle)
     {
-        return RadiansAngle(wrap(-Pif, Pif, static_cast<float>(angle.value) / 32768.0f * Pif));
+        return RadiansAngle::fromUnwrappedAngle(static_cast<float>(angle.value) / 32768.0f * Pif);
     }
     SimAngle fromRadians(RadiansAngle angle)
     {
