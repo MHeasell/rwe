@@ -129,7 +129,7 @@ namespace rwe
 
 
         /**
-         * Rate at which the unit turns in rads/tick.
+         * Rate at which the unit turns in world angular units/tick.
          */
         SimScalar turnRate;
 

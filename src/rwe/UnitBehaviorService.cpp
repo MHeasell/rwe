@@ -15,7 +15,7 @@ namespace rwe
 
     bool isWithinTurningCircle(const SimVector& dest, SimScalar speed, SimScalar turnRate, SimAngle currentDirection)
     {
-        auto turnRadius = speed / turnRate;
+        auto turnRadius = speed / angularToRadians(turnRate);
 
         auto anticlockwiseCircleAngle = currentDirection + QuarterTurn;
         auto clockwiseCircleAngle = currentDirection - QuarterTurn;

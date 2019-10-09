@@ -50,4 +50,9 @@ namespace rwe
     SimScalar abs(SimScalar s);
 
     SimScalar sqrt(SimScalar s);
+
+    inline SimScalar angularToRadians(SimScalar s)
+    {
+        return SimScalar((s.value / 65536.0f) * 2.0f * 3.14159265358979323846f);
+    }
 }
