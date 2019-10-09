@@ -99,8 +99,8 @@ namespace rwe
         const std::shared_ptr<SpriteSeries>& guiFont,
         PlayerId localPlayerId,
         TdfBlock* audioLookup,
-    std::optional<std::ofstream>&& stateLogStream)
-    : sceneContext(sceneContext),
+        std::optional<std::ofstream>&& stateLogStream)
+        : sceneContext(sceneContext),
           worldViewport(ViewportService(GuiSizeLeft, GuiSizeTop, sceneContext.viewportService->width() - GuiSizeLeft - GuiSizeRight, sceneContext.viewportService->height() - GuiSizeTop - GuiSizeBottom)),
           playerCommandService(std::move(playerCommandService)),
           worldRenderService(std::move(worldRenderService)),

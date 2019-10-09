@@ -1,5 +1,5 @@
 #include "LoadingNetworkService.h"
-#include "network_util.h"
+#include <rwe/network_util.h>
 #include <spdlog/spdlog.h>
 
 namespace rwe
@@ -204,8 +204,8 @@ namespace rwe
             boost::asio::buffer(receiveBuffer.data(), receiveBuffer.size()),
             currentRemoteEndpoint,
             [this](const auto& error, const auto& bytesTransferred) {
-              onReceive(error, bytesTransferred);
-              startListening();
+                onReceive(error, bytesTransferred);
+                startListening();
             });
     }
     boost::asio::ip::udp::endpoint LoadingNetworkService::getEndpoint(int playerIndex)

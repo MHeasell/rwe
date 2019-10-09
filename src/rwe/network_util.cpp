@@ -17,9 +17,9 @@ namespace rwe
     unsigned int readInt(const char* buffer)
     {
         return (static_cast<unsigned int>(static_cast<unsigned char>(buffer[3])) << 24u)
-               | (static_cast<unsigned int>(static_cast<unsigned char>(buffer[2])) << 16u)
-               | (static_cast<unsigned int>(static_cast<unsigned char>(buffer[1])) << 8u)
-               | (static_cast<unsigned int>(static_cast<unsigned char>(buffer[0])));
+            | (static_cast<unsigned int>(static_cast<unsigned char>(buffer[2])) << 16u)
+            | (static_cast<unsigned int>(static_cast<unsigned char>(buffer[1])) << 8u)
+            | (static_cast<unsigned int>(static_cast<unsigned char>(buffer[0])));
     }
     unsigned int computeCrc(const char* buffer, unsigned int size)
     {

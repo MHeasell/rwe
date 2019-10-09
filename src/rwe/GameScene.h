@@ -3,10 +3,10 @@
 #include <boost/range/adaptor/map.hpp>
 #include <boost/version.hpp>
 #include <deque>
+#include <fstream>
 #include <functional>
 #include <optional>
 #include <queue>
-#include <fstream>
 #include <rwe/AudioService.h>
 #include <rwe/CursorService.h>
 #include <rwe/DiscreteRect.h>

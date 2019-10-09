@@ -121,8 +121,8 @@ namespace rwe
             boost::asio::buffer(receiveBuffer.data(), receiveBuffer.size()),
             currentRemoteEndpoint,
             [this](const auto& error, const auto& bytesTransferred) {
-              receive(error, bytesTransferred);
-              listenForNextMessage();
+                receive(error, bytesTransferred);
+                listenForNextMessage();
             });
     }
 
