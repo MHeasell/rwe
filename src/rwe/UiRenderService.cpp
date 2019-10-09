@@ -270,6 +270,11 @@ namespace rwe
 
     void UiRenderService::drawBoxOutline(float x, float y, float width, float height, Color color)
     {
+        drawBoxOutline(x, y, width, height, color, 1.0f);
+    }
+
+    void UiRenderService::drawBoxOutline(float x, float y, float width, float height, Color color, float thickness)
+    {
         assert(width >= 0.0f);
         assert(height >= 0.0f);
 
@@ -278,15 +283,19 @@ namespace rwe
             return;
         }
 
-        fillColor(x, y, width, 1.0f, color);
-        if (height > 1.0f)
+        if (width <= thickness * 2.0f || height <= thickness * 2.0f)
         {
-            fillColor(x, y + height - 1.0f, width, 1.0f, color);
+            fillColor(x, y, width, height, color);
+            return;
         }
-        if (height > 2.0f)
-        {
-            fillColor(x, y + 1.0f, 1.0f, height - 2.0f, color);
-            fillColor(x + width - 1.0f, y + 1.0f, 1.0f, height - 2.0f, color);
-        }
+
+        // top
+        fillColor(x, y, width, thickness, color);
+        // bottom
+        fillColor(x, y + height - thickness, width, thickness, color);
+        // left
+        fillColor(x, y + thickness, thickness, height - (thickness * 2.0f), color);
+        // right
+        fillColor(x + width - thickness, y + thickness, thickness, height - (thickness * 2.0f), color);
     }
 }

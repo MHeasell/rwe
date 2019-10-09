@@ -471,7 +471,8 @@ namespace rwe
                 topLeftUi.y,
                 hoverBuildInfo->rect.width * simScalarToFloat(MapTerrain::HeightTileWidthInWorldUnits),
                 hoverBuildInfo->rect.height * simScalarToFloat(MapTerrain::HeightTileHeightInWorldUnits),
-                color);
+                color,
+                2.0f);
         }
 
         // Draw bandbox selection rectangle

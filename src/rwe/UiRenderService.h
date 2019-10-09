@@ -76,6 +76,8 @@ namespace rwe
         void drawHealthBar2(float x, float y, float width, float height, float percentFull);
 
         void drawBoxOutline(float x, float y, float width, float height, Color color);
+
+        void drawBoxOutline(float x, float y, float width, float height, Color color, float thickness);
     };
 
     template <typename It>
