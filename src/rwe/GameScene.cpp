@@ -1116,7 +1116,8 @@ namespace rwe
 
     void GameScene::playNotificationSound(const PlayerId& playerId, const AudioService::SoundHandle& sound)
     {
-        if (playerId == localPlayerId) {
+        if (playerId == localPlayerId)
+        {
             sceneContext.audioService->playSoundIfFree(sound, UnitSelectChannel);
         }
     }
