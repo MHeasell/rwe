@@ -1,5 +1,6 @@
 #pragma once
 
+#include <random>
 #include <rwe/Explosion.h>
 #include <rwe/FeatureId.h>
 #include <rwe/GameHash.h>
@@ -87,6 +88,8 @@ namespace rwe
 
     struct GameSimulation
     {
+        std::minstd_rand rng;
+
         WinStatus gameStatus{WinStatusUndecided()};
 
         MapTerrain terrain;

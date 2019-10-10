@@ -5,6 +5,7 @@
 #include <rwe/cob/CobOpCode.h>
 #include <rwe/cob/cob_util.h>
 #include <rwe/fixed_point.h>
+#include <random>
 
 namespace rwe
 {
@@ -225,10 +226,9 @@ namespace rwe
     {
         auto high = pop();
         auto low = pop();
-        auto range = high - low;
 
-        // FIXME: replace with deterministic RNG source
-        auto value = (std::rand() % range) + low;
+        std::uniform_int_distribution<int> dist(low, high);
+        auto value = dist(sim->rng);
         push(value);
     }
 

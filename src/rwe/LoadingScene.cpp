@@ -103,6 +103,35 @@ namespace rwe
         sceneContext.cursor->render(nativeUiRenderService);
     }
 
+    std::seed_seq seedFromGameParameters(const GameParameters& params)
+    {
+        std::vector<unsigned int> initialVec;
+        std::copy(params.mapName.begin(), params.mapName.end(), std::back_inserter(initialVec));
+
+        for (const auto& e : params.players)
+        {
+            if (!e)
+            {
+                initialVec.push_back(0);
+                continue;
+            }
+
+            initialVec.push_back(e->color.value);
+            initialVec.push_back(e->energy.value);
+            initialVec.push_back(e->metal.value);
+            if (e->name)
+            {
+                std::copy(e->name->begin(), e->name->end(), std::back_inserter(initialVec));
+            }
+            else
+            {
+                initialVec.push_back(0);
+            }
+        }
+
+        return std::seed_seq(initialVec.begin(), initialVec.end());
+    }
+
     std::unique_ptr<GameScene> LoadingScene::createGameScene(const std::string& mapName, unsigned int schemaIndex)
     {
         auto otaRaw = sceneContext.vfs->readFile(std::string("maps/").append(mapName).append(".ota"));
@@ -115,6 +144,8 @@ namespace rwe
         auto ota = parseOta(parseTdfFromString(otaStr));
 
         auto simulation = createInitialSimulation(mapName, ota, schemaIndex);
+        auto seedSeq = seedFromGameParameters(gameParameters);
+        simulation.rng.seed(seedSeq);
 
         auto minimap = sceneContext.textureService->getMinimap(mapName);
 
