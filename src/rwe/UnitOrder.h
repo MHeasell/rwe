@@ -35,5 +35,12 @@ namespace rwe
         explicit BuggerOffOrder(const DiscreteRect& r) : rect(r) {}
     };
 
-    using UnitOrder = std::variant<MoveOrder, AttackOrder, BuildOrder, BuggerOffOrder>;
+    /** Finish building an already in-progress unit */
+    struct CompleteBuildOrder
+    {
+        UnitId target;
+        explicit CompleteBuildOrder(const UnitId& target) : target(target) {}
+    };
+
+    using UnitOrder = std::variant<MoveOrder, AttackOrder, BuildOrder, BuggerOffOrder, CompleteBuildOrder>;
 }

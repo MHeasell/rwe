@@ -57,6 +57,12 @@ namespace rwe
         {
             throw std::logic_error("Cannot serialize BuggerOffOrder");
         }
+
+        void operator()(const CompleteBuildOrder& o)
+        {
+            auto& out = *cmd->mutable_complete_build();
+            out.set_unit(o.target.value);
+        }
     };
 
     class WriteUnitCommandVisitor
@@ -296,6 +302,12 @@ namespace rwe
         {
             const auto& build = cmd.build();
             return BuildOrder(build.unit_type(), deserializeVector(build.position()));
+        }
+
+        if (cmd.has_complete_build())
+        {
+            const auto& build = cmd.complete_build();
+            return CompleteBuildOrder(UnitId(build.unit()));
         }
 
         throw std::runtime_error("Failed to deserlialize unit order");

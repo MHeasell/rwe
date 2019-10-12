@@ -723,15 +723,32 @@ namespace rwe
                 [&](const NormalCursorMode&) {
                     for (const auto& selectedUnit : selectedUnits)
                     {
-                        if (hoveredUnit && isEnemy(*hoveredUnit))
+                        if (hoveredUnit)
                         {
-                            if (isShiftDown())
+                            if (isEnemy(*hoveredUnit))
                             {
-                                localPlayerEnqueueUnitOrder(selectedUnit, AttackOrder(*hoveredUnit));
+                                if (isShiftDown())
+                                {
+                                    localPlayerEnqueueUnitOrder(selectedUnit, AttackOrder(*hoveredUnit));
+                                }
+                                else
+                                {
+                                    localPlayerIssueUnitOrder(selectedUnit, AttackOrder(*hoveredUnit));
+                                }
                             }
                             else
                             {
-                                localPlayerIssueUnitOrder(selectedUnit, AttackOrder(*hoveredUnit));
+                                if (getUnit(*hoveredUnit).isBeingBuilt())
+                                {
+                                    if (isShiftDown())
+                                    {
+                                        localPlayerEnqueueUnitOrder(selectedUnit, CompleteBuildOrder(*hoveredUnit));
+                                    }
+                                    else
+                                    {
+                                        localPlayerIssueUnitOrder(selectedUnit, CompleteBuildOrder(*hoveredUnit));
+                                    }
+                                }
                             }
                         }
                         else

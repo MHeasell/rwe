@@ -588,6 +588,9 @@ namespace rwe
             },
             [this, unitId](const BuggerOffOrder& o) {
                 return handleBuggerOffOrder(unitId, o);
+            },
+            [this, unitId](const CompleteBuildOrder& o) {
+                return handleCompleteBuildOrder(unitId, o);
             });
     }
 
@@ -877,6 +880,103 @@ namespace rwe
                 {
                     unit.behaviourState = IdleState();
                     return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    bool UnitBehaviorService::handleCompleteBuildOrder(rwe::UnitId unitId, const rwe::CompleteBuildOrder& buildOrder)
+    {
+        auto& sim = scene->getSimulation();
+        auto& unit = sim.getUnit(unitId);
+
+        auto targetUnitRef = sim.tryGetUnit(buildOrder.target);
+        if (!targetUnitRef || targetUnitRef->get().isDead() || !targetUnitRef->get().isBeingBuilt())
+        {
+            if (std::holds_alternative<BuildingState>(unit.behaviourState))
+            {
+                unit.cobEnvironment->createThread("StopBuilding");
+            }
+            unit.behaviourState = IdleState();
+            return true;
+        }
+        auto& targetUnit = targetUnitRef->get();
+
+        if (auto idleState = std::get_if<IdleState>(&unit.behaviourState); idleState != nullptr)
+        {
+            // TODO: if we are in range already, go straight to building
+
+            // request a path to get to the build site
+            auto footprintRect = scene->computeFootprintRegion(targetUnit.position, targetUnit.footprintX, targetUnit.footprintZ);
+            scene->getSimulation().requestPath(unitId);
+            unit.behaviourState = MovingState{footprintRect, std::nullopt, true};
+        }
+        else if (auto movingState = std::get_if<MovingState>(&unit.behaviourState); movingState != nullptr)
+        {
+            // TODO: if we are in range already, go straight to building
+
+            // if we are colliding, request a new path
+            if (unit.inCollision && !movingState->pathRequested)
+            {
+                // only request a new path if we don't have one yet,
+                // or we've already had our current one for a bit
+                if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTime(60))
+                {
+                    sim.requestPath(unitId);
+                    movingState->pathRequested = true;
+                }
+            }
+
+            // if a path is available, attempt to follow it
+            auto& pathToFollow = movingState->path;
+            if (pathToFollow)
+            {
+                if (followPath(unit, *pathToFollow))
+                {
+                    auto nanoFromPosition = getNanoPoint(unitId);
+                    auto headingAndPitch = computeHeadingAndPitch(unit.rotation, nanoFromPosition, targetUnit.position);
+                    auto heading = headingAndPitch.first;
+                    auto pitch = headingAndPitch.second;
+
+                    unit.cobEnvironment->createThread("StartBuilding", {toCobAngle(heading).value, toCobAngle(pitch).value});
+                    unit.behaviourState = BuildingState{buildOrder.target};
+                }
+            }
+        }
+        else if (auto buildingState = std::get_if<BuildingState>(&unit.behaviourState); buildingState != nullptr)
+        {
+            if (!unit.inBuildStance)
+            {
+                // We are not in the correct stance to build the unit yet, wait.
+                return false;
+            }
+
+            auto costs = targetUnit.getBuildCostInfo(unit.workerTimePerTick);
+            auto gotResources = sim.addResourceDelta(
+                unitId,
+                -Energy(targetUnit.energyCost.value * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime)),
+                -Metal(targetUnit.metalCost.value * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime)),
+                -costs.energyCost,
+                -costs.metalCost);
+
+            if (!gotResources)
+            {
+                // we don't have resources available to build -- wait
+                return false;
+            }
+
+            if (targetUnit.addBuildProgress(unit.workerTimePerTick))
+            {
+                // play sound when the unit is completed
+                if (targetUnit.completeSound)
+                {
+                    scene->playNotificationSound(targetUnit.owner, *targetUnit.completeSound);
+                }
+                if (targetUnit.activateWhenBuilt)
+                {
+                    scene->activateUnit(buildingState->targetUnit);
                 }
             }
         }
