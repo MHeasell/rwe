@@ -433,7 +433,7 @@ namespace rwe
     {
         PathRequest request{unitId};
 
-        // If the unit iWorldAngles already in the queue for a path,
+        // If the unit is already in the queue for a path,
         // we'll assume that they no longer care about their old request
         // and that their new request is for some new path,
         // so we'll move them to the back of the queue for fairness.
