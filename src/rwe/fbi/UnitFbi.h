@@ -52,6 +52,8 @@ namespace rwe
 
         unsigned int workerTime;
 
+        unsigned int buildDistance;
+
         bool onOffable;
         bool activateWhenBuilt;
 

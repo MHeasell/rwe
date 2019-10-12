@@ -151,6 +151,8 @@ namespace rwe
         // to divide by 30 here to get per-tick time, even though we run at 60fps.
         unit.workerTimePerTick = fbi.workerTime / 30;
 
+        unit.buildDistance = SimScalar(fbi.buildDistance);
+
         unit.onOffable = fbi.onOffable;
         unit.activateWhenBuilt = fbi.activateWhenBuilt;
 

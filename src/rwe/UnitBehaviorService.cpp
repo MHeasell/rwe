@@ -906,7 +906,17 @@ namespace rwe
 
         if (auto idleState = std::get_if<IdleState>(&unit.behaviourState); idleState != nullptr)
         {
-            // TODO: if we are in range already, go straight to building
+            if (unit.position.distanceSquared(targetUnit.position) <= (unit.buildDistance * unit.buildDistance))
+            {
+                auto nanoFromPosition = getNanoPoint(unitId);
+                auto headingAndPitch = computeHeadingAndPitch(unit.rotation, nanoFromPosition, targetUnit.position);
+                auto heading = headingAndPitch.first;
+                auto pitch = headingAndPitch.second;
+
+                unit.cobEnvironment->createThread("StartBuilding", {toCobAngle(heading).value, toCobAngle(pitch).value});
+                unit.behaviourState = BuildingState{buildOrder.target};
+                return false;
+            }
 
             // request a path to get to the build site
             auto footprintRect = scene->computeFootprintRegion(targetUnit.position, targetUnit.footprintX, targetUnit.footprintZ);
@@ -915,7 +925,17 @@ namespace rwe
         }
         else if (auto movingState = std::get_if<MovingState>(&unit.behaviourState); movingState != nullptr)
         {
-            // TODO: if we are in range already, go straight to building
+            if (unit.position.distanceSquared(targetUnit.position) <= (unit.buildDistance * unit.buildDistance))
+            {
+                auto nanoFromPosition = getNanoPoint(unitId);
+                auto headingAndPitch = computeHeadingAndPitch(unit.rotation, nanoFromPosition, targetUnit.position);
+                auto heading = headingAndPitch.first;
+                auto pitch = headingAndPitch.second;
+
+                unit.cobEnvironment->createThread("StartBuilding", {toCobAngle(heading).value, toCobAngle(pitch).value});
+                unit.behaviourState = BuildingState{buildOrder.target};
+                return false;
+            }
 
             // if we are colliding, request a new path
             if (unit.inCollision && !movingState->pathRequested)

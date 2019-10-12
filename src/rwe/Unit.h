@@ -208,6 +208,8 @@ namespace rwe
 
         unsigned int workerTimePerTick;
 
+        SimScalar buildDistance;
+
         bool onOffable;
         bool activateWhenBuilt;
 

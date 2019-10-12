@@ -60,6 +60,7 @@ namespace rwe
         tdf.readOrDefault("BuildCostMetal", u.buildCostMetal);
 
         tdf.readOrDefault("WorkerTime", u.workerTime);
+        tdf.readOrDefault("Builddistance", u.buildDistance);
 
         tdf.readOrDefault("onoffable", u.onOffable);
         tdf.readOrDefault("ActivateWhenBuilt", u.activateWhenBuilt);
