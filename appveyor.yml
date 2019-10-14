@@ -16,7 +16,7 @@ configuration:
   - Release
 
 environment:
-  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
   nodejs_version: "10"
   matrix:
     - RWE_COMPILER: MSVC
