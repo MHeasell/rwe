@@ -315,9 +315,22 @@ namespace rwe
         weapon.tolerance = SimAngle(tdf.tolerance);
         weapon.pitchTolerance = SimAngle(tdf.pitchTolerance);
         weapon.velocity = SimScalar(static_cast<float>(tdf.weaponVelocity) / 60.0f);
-        weapon.duration = SimScalar(tdf.duration * 60.0f * 2.0f); // duration seems to match better if doubled
-        weapon.color = getLaserColor(tdf.color);
-        weapon.color2 = getLaserColor(tdf.color2);
+
+        if (tdf.renderType == 0)
+        {
+            weapon.renderType = ProjectileRenderTypeLaser{
+                getLaserColor(tdf.color),
+                getLaserColor(tdf.color2),
+                SimScalar(tdf.duration * 60.0f * 2.0f), // duration seems to match better if doubled
+            };
+        }
+        else
+        {
+            weapon.renderType = ProjectileRenderTypeLaser{
+                Vector3f(0.0f, 0.0f, 0.0f),
+                Vector3f(0.0f, 0.0f, 0.0f),
+                SimScalar(4.0f)};
+        }
         weapon.commandFire = tdf.commandFire;
         weapon.startSmoke = tdf.startSmoke;
         weapon.endSmoke = tdf.endSmoke;

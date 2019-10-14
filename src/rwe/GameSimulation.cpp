@@ -454,9 +454,8 @@ namespace rwe
         laser.position = position;
         laser.origin = position;
         laser.velocity = direction * weapon.velocity;
-        laser.duration = weapon.duration;
-        laser.color = weapon.color;
-        laser.color2 = weapon.color2;
+
+        laser.renderType = weapon.renderType;
 
         laser.endSmoke = weapon.endSmoke;
         laser.smokeTrail = weapon.smokeTrail;

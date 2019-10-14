@@ -3,9 +3,12 @@
 #include <rwe/AudioService.h>
 #include <rwe/GameTime.h>
 #include <rwe/PlayerId.h>
+#include <rwe/ProjectileRenderType.h>
+#include <rwe/ShaderMesh.h>
 #include <rwe/SimVector.h>
 #include <rwe/SpriteSeries.h>
 #include <rwe/math/Vector3x.h>
+#include <variant>
 
 namespace rwe
 {
@@ -20,11 +23,7 @@ namespace rwe
         /** Velocity in game pixels/tick */
         SimVector velocity;
 
-        /** Duration in ticks */
-        SimScalar duration;
-
-        Vector3f color;
-        Vector3f color2;
+        ProjectileRenderType renderType;
 
         /** If true, creates smoke on impact. */
         bool endSmoke;
@@ -50,7 +49,7 @@ namespace rwe
 
         SimScalar damageRadius;
 
-        SimVector getBackPosition() const;
+        SimVector getBackPosition(const ProjectileRenderTypeLaser& laserRenderType) const;
 
         unsigned int getDamage(const std::string& unitType) const;
     };

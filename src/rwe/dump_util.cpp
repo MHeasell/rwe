@@ -91,7 +91,6 @@ namespace rwe
             {"position", dumpJson(laser.position)},
             {"origin", dumpJson(laser.origin)},
             {"velocity", dumpJson(laser.velocity)},
-            {"duration", dumpJson(laser.duration)},
             {"damageRadius", dumpJson(laser.damageRadius)}};
 
         for (const auto& [t, damage] : laser.damage)

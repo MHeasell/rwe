@@ -2,6 +2,7 @@
 
 #include <rwe/AudioService.h>
 #include <rwe/GameTime.h>
+#include <rwe/ProjectileRenderType.h>
 #include <rwe/SpriteSeries.h>
 #include <rwe/UnitId.h>
 #include <rwe/cob/CobThread.h>
@@ -62,14 +63,10 @@ namespace rwe
 
         SimAngle pitchTolerance;
 
-        Vector3f color;
-        Vector3f color2;
+        ProjectileRenderType renderType;
 
         /** Projectile velocity in pixels/tick. */
         SimScalar velocity;
-
-        /** Beam duration in ticks. */
-        SimScalar duration;
 
         /** If true, the weapon only fires on command and does not auto-target. */
         bool commandFire;

@@ -111,7 +111,6 @@ namespace rwe
             laser.position,
             laser.origin,
             laser.velocity,
-            laser.duration,
             laser.damageRadius);
 
         for (const auto& [_, damage] : laser.damage)

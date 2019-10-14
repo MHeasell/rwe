@@ -1,6 +1,7 @@
 #include "RenderService.h"
 #include <rwe/math/rwe_math.h>
 #include <rwe/matrix_util.h>
+#include <rwe/overloaded.h>
 
 namespace rwe
 {
@@ -505,13 +506,21 @@ namespace rwe
             }
 
             auto position = simVectorToFloat(laser->position);
-            auto backPosition = simVectorToFloat(laser->getBackPosition());
 
-            vertices.emplace_back(position, laser->color);
-            vertices.emplace_back(backPosition, laser->color);
+            match(
+                laser->renderType,
+                [&](const ProjectileRenderTypeLaser& l) {
+                    auto backPosition = simVectorToFloat(laser->getBackPosition(l));
 
-            vertices.emplace_back(position + pixelOffset, laser->color2);
-            vertices.emplace_back(backPosition + pixelOffset, laser->color2);
+                    vertices.emplace_back(position, l.color);
+                    vertices.emplace_back(backPosition, l.color);
+
+                    vertices.emplace_back(position + pixelOffset, l.color2);
+                    vertices.emplace_back(backPosition + pixelOffset, l.color2);
+                },
+                [&](const auto&) {
+                    // TODO: implement other render types
+                });
         }
 
         auto mesh = graphics->createColoredMesh(vertices, GL_STREAM_DRAW);
