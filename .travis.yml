@@ -3,7 +3,7 @@ branches:
     - appveyor
 
 language: cpp
-dist: trusty
+dist: xenial
 sudo: false
 git:
   depth: 99999  # our build requires a full clone
@@ -11,9 +11,12 @@ addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
+      - sourceline: "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-9 main"
+        key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
     packages:
-      - gcc-7
-      - g++-7
+      - gcc-9
+      - g++-9
+      - clang-9
       - libboost-dev
       - libboost-filesystem-dev
       - libboost-program-options-dev
@@ -30,8 +33,8 @@ cache:
     - libs/_protobuf-install
 
 env:
-  - MATRIX_EVAL="CC=gcc-7 CXX=g++-7"
-  - MATRIX_EVAL="CC=clang CXX=clang++"
+  - MATRIX_EVAL="CC=gcc-9 CXX=g++-9"
+  - MATRIX_EVAL="CC=clang-9 CXX=clang++-9"
 
 before_install:
   - eval "${MATRIX_EVAL}"
