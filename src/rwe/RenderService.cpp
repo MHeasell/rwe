@@ -497,7 +497,7 @@ namespace rwe
     {
         Vector3f pixelOffset(0.0f, 0.0f, -1.0f);
 
-        std::vector<GlColoredVertex> vertices;
+        std::vector<GlColoredVertex> laserVertices;
         for (const auto& [_, projectile] : projectiles)
         {
             auto position = simVectorToFloat(projectile.position);
@@ -507,18 +507,18 @@ namespace rwe
                 [&](const ProjectileRenderTypeLaser& l) {
                     auto backPosition = simVectorToFloat(projectile.getBackPosition(l));
 
-                    vertices.emplace_back(position, l.color);
-                    vertices.emplace_back(backPosition, l.color);
+                    laserVertices.emplace_back(position, l.color);
+                    laserVertices.emplace_back(backPosition, l.color);
 
-                    vertices.emplace_back(position + pixelOffset, l.color2);
-                    vertices.emplace_back(backPosition + pixelOffset, l.color2);
+                    laserVertices.emplace_back(position + pixelOffset, l.color2);
+                    laserVertices.emplace_back(backPosition + pixelOffset, l.color2);
                 },
                 [&](const auto&) {
                     // TODO: implement other render types
                 });
         }
 
-        auto mesh = graphics->createColoredMesh(vertices, GL_STREAM_DRAW);
+        auto mesh = graphics->createColoredMesh(laserVertices, GL_STREAM_DRAW);
 
         const auto& shader = shaders->basicColor;
         graphics->bindShader(shader.handle.get());
