@@ -72,28 +72,7 @@ namespace rwe
 
         if (mesh.visible)
         {
-            auto mvpMatrix = camera.getViewProjectionMatrix() * matrix;
-
-            {
-                const auto& colorShader = shaders->unitColor;
-                graphics->bindShader(colorShader.handle.get());
-                graphics->setUniformMatrix(colorShader.mvpMatrix, mvpMatrix);
-                graphics->setUniformMatrix(colorShader.modelMatrix, matrix);
-                graphics->setUniformFloat(colorShader.seaLevel, seaLevel);
-                graphics->setUniformBool(colorShader.shade, mesh.shaded);
-                graphics->drawTriangles(mesh.mesh->coloredVertices);
-            }
-
-            {
-                const auto& textureShader = shaders->unitTexture;
-                graphics->bindShader(textureShader.handle.get());
-                graphics->bindTexture(mesh.mesh->texture.get());
-                graphics->setUniformMatrix(textureShader.mvpMatrix, mvpMatrix);
-                graphics->setUniformMatrix(textureShader.modelMatrix, matrix);
-                graphics->setUniformFloat(textureShader.seaLevel, seaLevel);
-                graphics->setUniformBool(textureShader.shade, mesh.shaded);
-                graphics->drawTriangles(mesh.mesh->texturedVertices);
-            }
+            drawShaderMesh(*mesh.mesh, matrix, seaLevel, mesh.shaded);
         }
 
         for (const auto& c : mesh.children)
@@ -567,6 +546,32 @@ namespace rwe
             graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * modelMatrix);
             graphics->setUniformVec4(shader.tint, 1.0f, 1.0f, 1.0f, alpha);
             graphics->drawTriangles(*sprite.mesh);
+        }
+    }
+
+    void RenderService::drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded)
+    {
+        auto mvpMatrix = camera.getViewProjectionMatrix() * matrix;
+
+        {
+            const auto& colorShader = shaders->unitColor;
+            graphics->bindShader(colorShader.handle.get());
+            graphics->setUniformMatrix(colorShader.mvpMatrix, mvpMatrix);
+            graphics->setUniformMatrix(colorShader.modelMatrix, matrix);
+            graphics->setUniformFloat(colorShader.seaLevel, seaLevel);
+            graphics->setUniformBool(colorShader.shade, shaded);
+            graphics->drawTriangles(mesh.coloredVertices);
+        }
+
+        {
+            const auto& textureShader = shaders->unitTexture;
+            graphics->bindShader(textureShader.handle.get());
+            graphics->bindTexture(mesh.texture.get());
+            graphics->setUniformMatrix(textureShader.mvpMatrix, mvpMatrix);
+            graphics->setUniformMatrix(textureShader.modelMatrix, matrix);
+            graphics->setUniformFloat(textureShader.seaLevel, seaLevel);
+            graphics->setUniformBool(textureShader.shade, shaded);
+            graphics->drawTriangles(mesh.texturedVertices);
         }
     }
 

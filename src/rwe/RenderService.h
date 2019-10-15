@@ -117,6 +117,8 @@ namespace rwe
         void drawExplosions(GameTime currentTime, const std::vector<std::optional<Explosion>>& explosions);
 
     private:
+        void drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded);
+
         GlMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines);
 
         GlMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines, const Color& color);
