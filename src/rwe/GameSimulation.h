@@ -107,7 +107,7 @@ namespace rwe
 
         VectorMap<Unit, UnitIdTag> units;
 
-        VectorMap<LaserProjectile, ProjectileIdTag> lasers;
+        VectorMap<LaserProjectile, ProjectileIdTag> projectiles;
 
         std::vector<std::optional<Explosion>> explosions;
 

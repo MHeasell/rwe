@@ -148,6 +148,6 @@ namespace rwe
             simulation.gameTime,
             simulation.players,
             simulation.units,
-            simulation.lasers);
+            simulation.projectiles);
     }
 }

@@ -410,7 +410,7 @@ namespace rwe
             worldRenderService.drawUnit(unit, simScalarToFloat(seaLevel), simulation.gameTime.value);
         }
 
-        worldRenderService.drawLasers(simulation.lasers);
+        worldRenderService.drawLasers(simulation.projectiles);
 
         sceneContext.graphics->disableDepthWrites();
 
@@ -1619,7 +1619,7 @@ namespace rwe
     void GameScene::updateLasers()
     {
         auto gameTime = getGameTime();
-        for (auto& [id, laser] : simulation.lasers)
+        for (auto& [id, laser] : simulation.projectiles)
         {
             laser.position += laser.velocity;
 
@@ -1642,12 +1642,12 @@ namespace rwe
             if (seaLevel > terrainHeight && laser.position.y <= seaLevel)
             {
                 doLaserImpact(laser, ImpactType::Water);
-                simulation.lasers.remove(id);
+                simulation.projectiles.remove(id);
             }
             else if (laser.position.y <= terrainHeight)
             {
                 doLaserImpact(laser, ImpactType::Normal);
-                simulation.lasers.remove(id);
+                simulation.projectiles.remove(id);
             }
             else
             {
@@ -1660,7 +1660,7 @@ namespace rwe
                     if (collides)
                     {
                         doLaserImpact(laser, ImpactType::Normal);
-                        simulation.lasers.remove(id);
+                        simulation.projectiles.remove(id);
                     }
                 }
             }

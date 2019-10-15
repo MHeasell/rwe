@@ -476,7 +476,7 @@ namespace rwe
 
     void GameSimulation::spawnLaser(PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction)
     {
-        lasers.emplace(createProjectileFromWeapon(owner, weapon, position, direction));
+        projectiles.emplace(createProjectileFromWeapon(owner, weapon, position, direction));
     }
 
     void GameSimulation::spawnExplosion(const SimVector& position, const std::shared_ptr<SpriteSeries>& animation)

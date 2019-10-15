@@ -128,7 +128,7 @@ namespace rwe
             {"gameTime", dumpJson(simulation.gameTime)},
             {"players", dumpJson(simulation.players)},
             {"units", dumpJson(simulation.units)},
-            {"lasers", dumpJson(simulation.lasers)},
+            {"projectiles", dumpJson(simulation.projectiles)},
         };
     }
 }
