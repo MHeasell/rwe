@@ -6,8 +6,10 @@
 #include <rwe/GraphicsContext.h>
 #include <rwe/LaserProjectile.h>
 #include <rwe/OccupiedGrid.h>
+#include <rwe/ProjectileId.h>
 #include <rwe/ShaderService.h>
 #include <rwe/Unit.h>
+#include <rwe/VectorMap.h>
 #include <rwe/pathfinding/AStarPathFinder.h>
 #include <rwe/pathfinding/OctileDistance.h>
 #include <rwe/pathfinding/PathCost.h>
@@ -110,7 +112,7 @@ namespace rwe
 
         void fillScreen(float r, float g, float b, float a);
 
-        void drawLasers(const std::vector<std::optional<LaserProjectile>>& lasers);
+        void drawLasers(const VectorMap<LaserProjectile, ProjectileIdTag>& lasers);
 
         void drawExplosions(GameTime currentTime, const std::vector<std::optional<Explosion>>& explosions);
 

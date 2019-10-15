@@ -287,6 +287,7 @@ set(SOURCE_FILES
     src/rwe/PlayerId.h
     src/rwe/Point.cpp
     src/rwe/Point.h
+    src/rwe/ProjectileId.h
     src/rwe/ProjectileRenderType.h
     src/rwe/RadiansAngle.cpp
     src/rwe/RadiansAngle.h

@@ -1619,50 +1619,48 @@ namespace rwe
     void GameScene::updateLasers()
     {
         auto gameTime = getGameTime();
-        for (auto& laser : simulation.lasers)
+        for (auto& [id, laser] : simulation.lasers)
         {
-            if (!laser)
-            {
-                continue;
-            }
-
-            laser->position += laser->velocity;
+            laser.position += laser.velocity;
 
             // emit smoke trail
-            if (laser->smokeTrail)
+            if (laser.smokeTrail)
             {
-                if (gameTime > laser->lastSmoke + *laser->smokeTrail)
+                if (gameTime > laser.lastSmoke + *laser.smokeTrail)
                 {
-                    createLightSmoke(laser->position);
-                    laser->lastSmoke = gameTime;
+                    createLightSmoke(laser.position);
+                    laser.lastSmoke = gameTime;
                 }
             }
 
             // test collision with terrain
-            auto terrainHeight = simulation.terrain.getHeightAt(laser->position.x, laser->position.z);
+            auto terrainHeight = simulation.terrain.getHeightAt(laser.position.x, laser.position.z);
             auto seaLevel = simulation.terrain.getSeaLevel();
 
             // test collision with sea
             // FIXME: waterweapons should be allowed in water
-            if (seaLevel > terrainHeight && laser->position.y <= seaLevel)
+            if (seaLevel > terrainHeight && laser.position.y <= seaLevel)
             {
                 doLaserImpact(laser, ImpactType::Water);
+                simulation.lasers.remove(id);
             }
-            else if (laser->position.y <= terrainHeight)
+            else if (laser.position.y <= terrainHeight)
             {
                 doLaserImpact(laser, ImpactType::Normal);
+                simulation.lasers.remove(id);
             }
             else
             {
                 // detect collision with something's footprint
-                auto heightMapPos = simulation.terrain.worldToHeightmapCoordinate(laser->position);
+                auto heightMapPos = simulation.terrain.worldToHeightmapCoordinate(laser.position);
                 auto cellValue = simulation.occupiedGrid.tryGet(heightMapPos);
                 if (cellValue)
                 {
-                    auto collides = laserCollides(simulation, *laser, cellValue->get());
+                    auto collides = laserCollides(simulation, laser, cellValue->get());
                     if (collides)
                     {
                         doLaserImpact(laser, ImpactType::Normal);
+                        simulation.lasers.remove(id);
                     }
                 }
             }
@@ -1694,43 +1692,41 @@ namespace rwe
         }
     }
 
-    void GameScene::doLaserImpact(std::optional<LaserProjectile>& laser, ImpactType impactType)
+    void GameScene::doLaserImpact(const LaserProjectile& laser, ImpactType impactType)
     {
         switch (impactType)
         {
             case ImpactType::Normal:
             {
-                if (laser->soundHit)
+                if (laser.soundHit)
                 {
-                    playSoundAt(simVectorToFloat(laser->position), *laser->soundHit);
+                    playSoundAt(simVectorToFloat(laser.position), *laser.soundHit);
                 }
-                if (laser->explosion)
+                if (laser.explosion)
                 {
-                    simulation.spawnExplosion(laser->position, *laser->explosion);
+                    simulation.spawnExplosion(laser.position, *laser.explosion);
                 }
-                if (laser->endSmoke)
+                if (laser.endSmoke)
                 {
-                    createLightSmoke(laser->position);
+                    createLightSmoke(laser.position);
                 }
                 break;
             }
             case ImpactType::Water:
             {
-                if (laser->soundWater)
+                if (laser.soundWater)
                 {
-                    playSoundAt(simVectorToFloat(laser->position), *laser->soundWater);
+                    playSoundAt(simVectorToFloat(laser.position), *laser.soundWater);
                 }
-                if (laser->waterExplosion)
+                if (laser.waterExplosion)
                 {
-                    simulation.spawnExplosion(laser->position, *laser->waterExplosion);
+                    simulation.spawnExplosion(laser.position, *laser.waterExplosion);
                 }
                 break;
             }
         }
 
-        applyDamageInRadius(laser->position, laser->damageRadius, *laser);
-
-        laser = std::nullopt;
+        applyDamageInRadius(laser.position, laser.damageRadius, laser);
     }
 
     void GameScene::applyDamageInRadius(const SimVector& position, SimScalar radius, const LaserProjectile& laser)
@@ -1963,7 +1959,7 @@ namespace rwe
         if (unit.explosionWeapon)
         {
             auto impactType = unit.position.y < simulation.terrain.getSeaLevel() ? ImpactType::Water : ImpactType::Normal;
-            std::optional<LaserProjectile> projectile = simulation.createProjectileFromWeapon(unit.owner, *unit.explosionWeapon, unit.position, SimVector(0_ss, -1_ss, 0_ss));
+            auto projectile = simulation.createProjectileFromWeapon(unit.owner, *unit.explosionWeapon, unit.position, SimVector(0_ss, -1_ss, 0_ss));
             doLaserImpact(projectile, impactType);
         }
     }

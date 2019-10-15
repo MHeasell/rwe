@@ -11,6 +11,7 @@
 #include <rwe/OccupiedGrid.h>
 #include <rwe/PlayerColorIndex.h>
 #include <rwe/PlayerId.h>
+#include <rwe/ProjectileId.h>
 #include <rwe/Unit.h>
 #include <rwe/VectorMap.h>
 #include <unordered_map>
@@ -106,7 +107,7 @@ namespace rwe
 
         VectorMap<Unit, UnitIdTag> units;
 
-        std::vector<std::optional<LaserProjectile>> lasers;
+        VectorMap<LaserProjectile, ProjectileIdTag> lasers;
 
         std::vector<std::optional<Explosion>> explosions;
 

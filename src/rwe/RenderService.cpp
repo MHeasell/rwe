@@ -493,24 +493,19 @@ namespace rwe
         graphics->drawTriangles(mesh);
     }
 
-    void RenderService::drawLasers(const std::vector<std::optional<LaserProjectile>>& lasers)
+    void RenderService::drawLasers(const VectorMap<LaserProjectile, ProjectileIdTag>& lasers)
     {
         Vector3f pixelOffset(0.0f, 0.0f, -1.0f);
 
         std::vector<GlColoredVertex> vertices;
-        for (const auto& laser : lasers)
+        for (const auto& [_, laser] : lasers)
         {
-            if (!laser)
-            {
-                continue;
-            }
-
-            auto position = simVectorToFloat(laser->position);
+            auto position = simVectorToFloat(laser.position);
 
             match(
-                laser->renderType,
+                laser.renderType,
                 [&](const ProjectileRenderTypeLaser& l) {
-                    auto backPosition = simVectorToFloat(laser->getBackPosition(l));
+                    auto backPosition = simVectorToFloat(laser.getBackPosition(l));
 
                     vertices.emplace_back(position, l.color);
                     vertices.emplace_back(backPosition, l.color);
