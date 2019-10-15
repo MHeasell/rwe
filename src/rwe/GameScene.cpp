@@ -17,7 +17,7 @@ namespace rwe
         return Line3x<SimScalar>(floatToSimVector(line.start), floatToSimVector(line.end));
     }
 
-    bool laserCollides(const GameSimulation& sim, const LaserProjectile& laser, const OccupiedCell& cellValue)
+    bool laserCollides(const GameSimulation& sim, const Projectile& laser, const OccupiedCell& cellValue)
     {
         auto collidesWithOccupiedCell = match(
             cellValue.occupiedType,
@@ -1692,7 +1692,7 @@ namespace rwe
         }
     }
 
-    void GameScene::doLaserImpact(const LaserProjectile& laser, ImpactType impactType)
+    void GameScene::doLaserImpact(const Projectile& laser, ImpactType impactType)
     {
         switch (impactType)
         {
@@ -1729,7 +1729,7 @@ namespace rwe
         applyDamageInRadius(laser.position, laser.damageRadius, laser);
     }
 
-    void GameScene::applyDamageInRadius(const SimVector& position, SimScalar radius, const LaserProjectile& laser)
+    void GameScene::applyDamageInRadius(const SimVector& position, SimScalar radius, const Projectile& laser)
     {
         auto minX = position.x - radius;
         auto maxX = position.x + radius;

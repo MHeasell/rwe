@@ -12,7 +12,7 @@
 
 namespace rwe
 {
-    struct LaserProjectile
+    struct Projectile
     {
         PlayerId owner;
 

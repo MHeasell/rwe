@@ -1,8 +1,8 @@
-#include "LaserProjectile.h"
+#include "Projectile.h"
 
 namespace rwe
 {
-    SimVector LaserProjectile::getBackPosition(const ProjectileRenderTypeLaser& laserRenderType) const
+    SimVector Projectile::getBackPosition(const ProjectileRenderTypeLaser& laserRenderType) const
     {
         auto durationVector = velocity * laserRenderType.duration;
         if (durationVector.lengthSquared() < (position - origin).lengthSquared())
@@ -15,7 +15,7 @@ namespace rwe
         }
     }
 
-    unsigned int LaserProjectile::getDamage(const std::string& unitType) const
+    unsigned int Projectile::getDamage(const std::string& unitType) const
     {
         auto it = damage.find(unitType);
         if (it != damage.end())

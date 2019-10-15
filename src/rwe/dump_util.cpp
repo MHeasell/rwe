@@ -84,7 +84,7 @@ namespace rwe
             {"z", v.z},
         };
     }
-    nlohmann::json dumpJson(const LaserProjectile& laser)
+    nlohmann::json dumpJson(const Projectile& laser)
     {
         nlohmann::json j{
             {"owner", dumpJson(laser.owner)},

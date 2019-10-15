@@ -4,8 +4,8 @@
 #include <rwe/Explosion.h>
 #include <rwe/GameTime.h>
 #include <rwe/GraphicsContext.h>
-#include <rwe/LaserProjectile.h>
 #include <rwe/OccupiedGrid.h>
+#include <rwe/Projectile.h>
 #include <rwe/ProjectileId.h>
 #include <rwe/ShaderService.h>
 #include <rwe/Unit.h>
@@ -112,7 +112,7 @@ namespace rwe
 
         void fillScreen(float r, float g, float b, float a);
 
-        void drawLasers(const VectorMap<LaserProjectile, ProjectileIdTag>& lasers);
+        void drawLasers(const VectorMap<Projectile, ProjectileIdTag>& lasers);
 
         void drawExplosions(GameTime currentTime, const std::vector<std::optional<Explosion>>& explosions);
 

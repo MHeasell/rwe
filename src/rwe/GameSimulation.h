@@ -5,12 +5,12 @@
 #include <rwe/FeatureId.h>
 #include <rwe/GameHash.h>
 #include <rwe/GameTime.h>
-#include <rwe/LaserProjectile.h>
 #include <rwe/MapFeature.h>
 #include <rwe/MapTerrain.h>
 #include <rwe/OccupiedGrid.h>
 #include <rwe/PlayerColorIndex.h>
 #include <rwe/PlayerId.h>
+#include <rwe/Projectile.h>
 #include <rwe/ProjectileId.h>
 #include <rwe/Unit.h>
 #include <rwe/VectorMap.h>
@@ -107,7 +107,7 @@ namespace rwe
 
         VectorMap<Unit, UnitIdTag> units;
 
-        VectorMap<LaserProjectile, ProjectileIdTag> projectiles;
+        VectorMap<Projectile, ProjectileIdTag> projectiles;
 
         std::vector<std::optional<Explosion>> explosions;
 
@@ -196,7 +196,7 @@ namespace rwe
 
         void requestPath(UnitId unitId);
 
-        LaserProjectile createProjectileFromWeapon(PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction);
+        Projectile createProjectileFromWeapon(PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction);
 
         void spawnLaser(PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction);
 

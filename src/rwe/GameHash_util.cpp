@@ -104,7 +104,7 @@ namespace rwe
         return combineHashes(v.x, v.y, v.z);
     }
 
-    GameHash computeHashOf(const LaserProjectile& laser)
+    GameHash computeHashOf(const Projectile& laser)
     {
         GameHash h = combineHashes(
             laser.owner,

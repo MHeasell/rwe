@@ -245,8 +245,6 @@ set(SOURCE_FILES
     src/rwe/Hpi.h
     src/rwe/InGameSoundsInfo.cpp
     src/rwe/InGameSoundsInfo.h
-    src/rwe/LaserProjectile.cpp
-    src/rwe/LaserProjectile.h
     src/rwe/LoadingNetworkService.cpp
     src/rwe/LoadingNetworkService.h
     src/rwe/LoadingScene.cpp
@@ -287,6 +285,8 @@ set(SOURCE_FILES
     src/rwe/PlayerId.h
     src/rwe/Point.cpp
     src/rwe/Point.h
+    src/rwe/Projectile.cpp
+    src/rwe/Projectile.h
     src/rwe/ProjectileId.h
     src/rwe/ProjectileRenderType.h
     src/rwe/RadiansAngle.cpp

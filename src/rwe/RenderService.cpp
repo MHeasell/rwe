@@ -493,7 +493,7 @@ namespace rwe
         graphics->drawTriangles(mesh);
     }
 
-    void RenderService::drawLasers(const VectorMap<LaserProjectile, ProjectileIdTag>& lasers)
+    void RenderService::drawLasers(const VectorMap<Projectile, ProjectileIdTag>& lasers)
     {
         Vector3f pixelOffset(0.0f, 0.0f, -1.0f);
 

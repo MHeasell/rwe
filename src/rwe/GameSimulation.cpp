@@ -446,10 +446,10 @@ namespace rwe
         pathRequests.push_back(PathRequest{unitId});
     }
 
-    LaserProjectile GameSimulation::createProjectileFromWeapon(
+    Projectile GameSimulation::createProjectileFromWeapon(
         PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction)
     {
-        LaserProjectile laser;
+        Projectile laser;
         laser.owner = owner;
         laser.position = position;
         laser.origin = position;

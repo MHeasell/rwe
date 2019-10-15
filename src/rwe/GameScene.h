@@ -333,7 +333,7 @@ namespace rwe
 
         const GameSimulation& getSimulation() const;
 
-        void doLaserImpact(const LaserProjectile& laser, ImpactType impactType);
+        void doLaserImpact(const Projectile& laser, ImpactType impactType);
 
         void createLightSmoke(const SimVector& position);
 
@@ -409,7 +409,7 @@ namespace rwe
 
         void updateExplosions();
 
-        void applyDamageInRadius(const SimVector& position, SimScalar radius, const LaserProjectile& laser);
+        void applyDamageInRadius(const SimVector& position, SimScalar radius, const Projectile& laser);
 
         void applyDamage(UnitId unitId, unsigned int damagePoints);
 
