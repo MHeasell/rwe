@@ -410,7 +410,7 @@ namespace rwe
             worldRenderService.drawUnit(unit, simScalarToFloat(seaLevel), simulation.gameTime.value);
         }
 
-        worldRenderService.drawProjectiles(simulation.projectiles);
+        worldRenderService.drawProjectiles(simulation.projectiles, simScalarToFloat(seaLevel));
 
         sceneContext.graphics->disableDepthWrites();
 

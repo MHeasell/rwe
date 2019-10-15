@@ -316,20 +316,49 @@ namespace rwe
         weapon.pitchTolerance = SimAngle(tdf.pitchTolerance);
         weapon.velocity = SimScalar(static_cast<float>(tdf.weaponVelocity) / 60.0f);
 
-        if (tdf.renderType == 0)
+        switch (tdf.renderType)
         {
-            weapon.renderType = ProjectileRenderTypeLaser{
-                getLaserColor(tdf.color),
-                getLaserColor(tdf.color2),
-                SimScalar(tdf.duration * 60.0f * 2.0f), // duration seems to match better if doubled
-            };
-        }
-        else
-        {
-            weapon.renderType = ProjectileRenderTypeLaser{
-                Vector3f(0.0f, 0.0f, 0.0f),
-                Vector3f(0.0f, 0.0f, 0.0f),
-                SimScalar(4.0f)};
+            case 0:
+            {
+                weapon.renderType = ProjectileRenderTypeLaser{
+                    getLaserColor(tdf.color),
+                    getLaserColor(tdf.color2),
+                    SimScalar(tdf.duration * 60.0f * 2.0f), // duration seems to match better if doubled
+                };
+                break;
+            }
+            case 1:
+            {
+                auto mesh = meshService.loadProjectileMesh(tdf.model, PlayerColorIndex(0));
+                setShadeRecursive(mesh, false);
+                weapon.renderType = ProjectileRenderTypeModel{
+                    std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::HalfZ};
+                break;
+            }
+            case 3:
+            {
+                auto mesh = meshService.loadProjectileMesh(tdf.model, PlayerColorIndex(0));
+                setShadeRecursive(mesh, false);
+                weapon.renderType = ProjectileRenderTypeModel{
+                    std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::QuarterY};
+                break;
+            }
+            case 6:
+            {
+                auto mesh = meshService.loadProjectileMesh(tdf.model, PlayerColorIndex(0));
+                setShadeRecursive(mesh, false);
+                weapon.renderType = ProjectileRenderTypeModel{
+                    std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::None};
+                break;
+            }
+            default:
+            {
+                weapon.renderType = ProjectileRenderTypeLaser{
+                    Vector3f(0.0f, 0.0f, 0.0f),
+                    Vector3f(0.0f, 0.0f, 0.0f),
+                    SimScalar(4.0f)};
+                break;
+            }
         }
         weapon.commandFire = tdf.commandFire;
         weapon.startSmoke = tdf.startSmoke;

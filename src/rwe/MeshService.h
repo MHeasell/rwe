@@ -65,6 +65,8 @@ namespace rwe
 
         UnitMeshInfo loadUnitMesh(const std::string& name, const PlayerColorIndex& teamColor);
 
+        UnitMesh loadProjectileMesh(const std::string& name, const PlayerColorIndex& teamColor);
+
     private:
         SharedTextureHandle getMeshTextureAtlas();
         Rectangle2f getTextureRegion(const std::string& name, const PlayerColorIndex& teamColor);

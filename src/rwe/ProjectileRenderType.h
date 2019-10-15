@@ -3,6 +3,7 @@
 #include <memory>
 #include <rwe/ShaderMesh.h>
 #include <rwe/SimScalar.h>
+#include <rwe/UnitMesh.h>
 #include <rwe/math/Vector3f.h>
 #include <variant>
 
@@ -25,7 +26,7 @@ namespace rwe
             HalfZ,
             QuarterY,
         };
-        std::shared_ptr<ShaderMesh> mesh;
+        std::shared_ptr<UnitMesh> mesh;
         RotationMode rotationMode;
     };
 

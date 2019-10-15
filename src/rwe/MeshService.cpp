@@ -257,6 +257,20 @@ namespace rwe
         return UnitMeshInfo{std::move(unitMesh), std::move(selectionMesh), simScalarFromFixed(unitHeight)};
     }
 
+    UnitMesh MeshService::loadProjectileMesh(const std::string& name, const PlayerColorIndex& teamColor)
+    {
+        auto bytes = vfs->readFile("objects3d/" + name + ".3do");
+        if (!bytes)
+        {
+            throw std::runtime_error("Failed to load object bytes: " + name);
+        }
+
+        boost::interprocess::bufferstream s(bytes->data(), bytes->size());
+        auto objects = parse3doObjects(s, s.tellg());
+        assert(objects.size() == 1);
+        return unitMeshFrom3do(objects.front(), teamColor);
+    }
+
     SharedTextureHandle MeshService::getMeshTextureAtlas()
     {
         return atlas;

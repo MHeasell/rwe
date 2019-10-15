@@ -472,7 +472,32 @@ namespace rwe
         graphics->drawTriangles(mesh);
     }
 
-    void RenderService::drawProjectiles(const VectorMap<Projectile, ProjectileIdTag>& projectiles)
+    /**
+     * Assumes input vector is normalised.
+     */
+    Matrix4f pointDirection(const Vector3f& direction)
+    {
+        auto right = direction.cross(Vector3f(0.0f, 1.0f, 0.0f)).normalizedOr(Vector3f(1.0f, 0.0f, 0.0f));
+        auto realUp = right.cross(direction);
+        return Matrix4f::rotationToAxes(right, realUp, direction);
+    }
+
+    Matrix4f rotationModeToMatrix(ProjectileRenderTypeModel::RotationMode r)
+    {
+        switch (r)
+        {
+            case ProjectileRenderTypeModel::RotationMode::HalfZ:
+                return Matrix4f::rotationZ(0.0f, -1.0f); // 180 degrees
+            case ProjectileRenderTypeModel::RotationMode::QuarterY:
+                return Matrix4f::rotationY(1.0f, 0.0f); // 90 degrees
+            case ProjectileRenderTypeModel::RotationMode::None:
+                return Matrix4f::identity();
+            default:
+                throw std::logic_error("Unknown RotationMode");
+        }
+    }
+
+    void RenderService::drawProjectiles(const VectorMap<Projectile, ProjectileIdTag>& projectiles, float seaLevel)
     {
         Vector3f pixelOffset(0.0f, 0.0f, -1.0f);
 
@@ -491,6 +516,12 @@ namespace rwe
 
                     laserVertices.emplace_back(position + pixelOffset, l.color2);
                     laserVertices.emplace_back(backPosition + pixelOffset, l.color2);
+                },
+                [&](const ProjectileRenderTypeModel& m) {
+                    auto transform = Matrix4f::translation(position)
+                        * pointDirection(simVectorToFloat(projectile.velocity).normalized())
+                        * rotationModeToMatrix(m.rotationMode);
+                    drawUnitMesh(*m.mesh, transform, seaLevel);
                 },
                 [&](const auto&) {
                     // TODO: implement other render types
