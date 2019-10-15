@@ -22,7 +22,6 @@ addons:
       - libboost-program-options-dev
       - libsdl2-dev
       - libsdl2-image-dev
-      - libsdl2-net-dev
       - libsdl2-mixer-dev
       - libglew-dev
       - zlib1g-dev

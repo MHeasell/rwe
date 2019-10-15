@@ -2,14 +2,11 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
-#include <SDL_net.h>
 #include <stdexcept>
 
 namespace rwe
 {
     SDLException::SDLException(const char* sdlError) : runtime_error(sdlError) {}
-
-    SDLNetException::SDLNetException(const char* sdlError) : runtime_error(sdlError) {}
 
     SDLMixerException::SDLMixerException(const char* sdlError) : runtime_error(sdlError) {}
 
@@ -25,11 +22,6 @@ namespace rwe
     SdlContext* SdlContextManager::getSdlContext()
     {
         return &sdlContext;
-    }
-
-    const SdlNetContext* SdlContextManager::getSdlNetContext() const
-    {
-        return &sdlNetContext;
     }
 
     SdlMixerContext* SdlContextManager::getSdlMixerContext()
@@ -53,19 +45,6 @@ namespace rwe
     SdlContext::~SdlContext()
     {
         SDL_Quit();
-    }
-
-    SdlNetContext::SdlNetContext()
-    {
-        if (SDLNet_Init() != 0)
-        {
-            throw SDLNetException(SDLNet_GetError());
-        }
-    }
-
-    SdlNetContext::~SdlNetContext()
-    {
-        SDLNet_Quit();
     }
 
     SdlMixerContext::SdlMixerContext()

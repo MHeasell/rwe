@@ -96,7 +96,6 @@ Install the required packages:
       mingw-w64-x86_64-SDL2 \
       mingw-w64-x86_64-SDL2_image \
       mingw-w64-x86_64-SDL2_mixer \
-      mingw-w64-x86_64-SDL2_net \
       mingw-w64-x86_64-glew \
       mingw-w64-x86_64-smpeg2 \
       mingw-w64-x86_64-zlib \
@@ -137,7 +136,6 @@ Install the necessary packages:
       libboost-program-options-dev \
       libsdl2-dev \
       libsdl2-image-dev \
-      libsdl2-net-dev \
       libsdl2-mixer-dev \
       libglew-dev \
       zlib1g-dev \

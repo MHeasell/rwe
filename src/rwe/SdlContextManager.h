@@ -13,12 +13,6 @@ namespace rwe
         explicit SDLException(const char* sdlError);
     };
 
-    class SDLNetException : public std::runtime_error
-    {
-    public:
-        explicit SDLNetException(const char* sdlError);
-    };
-
     class SDLMixerException : public std::runtime_error
     {
     public:
@@ -111,16 +105,6 @@ namespace rwe
         friend class SdlContextManager;
     };
 
-    class SdlNetContext
-    {
-    private:
-        SdlNetContext();
-        SdlNetContext(const SdlNetContext&) = delete;
-        ~SdlNetContext();
-
-        friend class SdlContextManager;
-    };
-
     class SdlMixerContext
     {
     private:
@@ -197,13 +181,11 @@ namespace rwe
 
         const SdlContext* getSdlContext() const;
         SdlContext* getSdlContext();
-        const SdlNetContext* getSdlNetContext() const;
         SdlMixerContext* getSdlMixerContext();
         const SdlImageContext* getSdlImageContext() const;
 
     private:
         SdlContext sdlContext;
-        SdlNetContext sdlNetContext;
         SdlMixerContext sdlMixerContext;
         SdlImageContext sdlImageContext;
     };
