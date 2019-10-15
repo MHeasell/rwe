@@ -112,7 +112,7 @@ namespace rwe
 
         void fillScreen(float r, float g, float b, float a);
 
-        void drawLasers(const VectorMap<Projectile, ProjectileIdTag>& lasers);
+        void drawProjectiles(const VectorMap<Projectile, ProjectileIdTag>& projectiles);
 
         void drawExplosions(GameTime currentTime, const std::vector<std::optional<Explosion>>& explosions);
 

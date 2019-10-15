@@ -449,32 +449,32 @@ namespace rwe
     Projectile GameSimulation::createProjectileFromWeapon(
         PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction)
     {
-        Projectile laser;
-        laser.owner = owner;
-        laser.position = position;
-        laser.origin = position;
-        laser.velocity = direction * weapon.velocity;
+        Projectile projectile;
+        projectile.owner = owner;
+        projectile.position = position;
+        projectile.origin = position;
+        projectile.velocity = direction * weapon.velocity;
 
-        laser.renderType = weapon.renderType;
+        projectile.renderType = weapon.renderType;
 
-        laser.endSmoke = weapon.endSmoke;
-        laser.smokeTrail = weapon.smokeTrail;
-        laser.lastSmoke = gameTime;
+        projectile.endSmoke = weapon.endSmoke;
+        projectile.smokeTrail = weapon.smokeTrail;
+        projectile.lastSmoke = gameTime;
 
-        laser.soundHit = weapon.soundHit;
-        laser.soundWater = weapon.soundWater;
+        projectile.soundHit = weapon.soundHit;
+        projectile.soundWater = weapon.soundWater;
 
-        laser.explosion = weapon.explosion;
-        laser.waterExplosion = weapon.waterExplosion;
+        projectile.explosion = weapon.explosion;
+        projectile.waterExplosion = weapon.waterExplosion;
 
-        laser.damage = weapon.damage;
+        projectile.damage = weapon.damage;
 
-        laser.damageRadius = weapon.damageRadius;
+        projectile.damageRadius = weapon.damageRadius;
 
-        return laser;
+        return projectile;
     }
 
-    void GameSimulation::spawnLaser(PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction)
+    void GameSimulation::spawnProjectile(PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction)
     {
         projectiles.emplace(createProjectileFromWeapon(owner, weapon, position, direction));
     }

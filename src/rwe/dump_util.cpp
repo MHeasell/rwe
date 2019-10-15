@@ -84,16 +84,16 @@ namespace rwe
             {"z", v.z},
         };
     }
-    nlohmann::json dumpJson(const Projectile& laser)
+    nlohmann::json dumpJson(const Projectile& projectile)
     {
         nlohmann::json j{
-            {"owner", dumpJson(laser.owner)},
-            {"position", dumpJson(laser.position)},
-            {"origin", dumpJson(laser.origin)},
-            {"velocity", dumpJson(laser.velocity)},
-            {"damageRadius", dumpJson(laser.damageRadius)}};
+            {"owner", dumpJson(projectile.owner)},
+            {"position", dumpJson(projectile.position)},
+            {"origin", dumpJson(projectile.origin)},
+            {"velocity", dumpJson(projectile.velocity)},
+            {"damageRadius", dumpJson(projectile.damageRadius)}};
 
-        for (const auto& [t, damage] : laser.damage)
+        for (const auto& [t, damage] : projectile.damage)
         {
             j["damage"][t] = dumpJson(damage);
         }

@@ -313,7 +313,7 @@ namespace rwe
         {
             scene->createLightSmoke(firingPoint);
         }
-        scene->getSimulation().spawnLaser(unit.owner, *weapon, firingPoint, targetVector.normalized());
+        scene->getSimulation().spawnProjectile(unit.owner, *weapon, firingPoint, targetVector.normalized());
 
         if (weapon->soundStart)
         {

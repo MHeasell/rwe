@@ -198,7 +198,7 @@ namespace rwe
 
         Projectile createProjectileFromWeapon(PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction);
 
-        void spawnLaser(PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction);
+        void spawnProjectile(PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction);
 
         void spawnExplosion(const SimVector& position, const std::shared_ptr<SpriteSeries>& animation);
 

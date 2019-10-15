@@ -17,20 +17,20 @@ namespace rwe
         return Line3x<SimScalar>(floatToSimVector(line.start), floatToSimVector(line.end));
     }
 
-    bool laserCollides(const GameSimulation& sim, const Projectile& laser, const OccupiedCell& cellValue)
+    bool projectileCollides(const GameSimulation& sim, const Projectile& projectile, const OccupiedCell& cellValue)
     {
         auto collidesWithOccupiedCell = match(
             cellValue.occupiedType,
             [&](const OccupiedUnit& v) {
                 const auto& unit = sim.getUnit(v.id);
 
-                if (unit.isOwnedBy(laser.owner))
+                if (unit.isOwnedBy(projectile.owner))
                 {
                     return false;
                 }
 
-                // ignore if the laser is above or below the unit
-                if (laser.position.y < unit.position.y || laser.position.y > unit.position.y + unit.height)
+                // ignore if the projectile is above or below the unit
+                if (projectile.position.y < unit.position.y || projectile.position.y > unit.position.y + unit.height)
                 {
                     return false;
                 }
@@ -40,8 +40,8 @@ namespace rwe
             [&](const OccupiedFeature& v) {
                 const auto& feature = sim.getFeature(v.id);
 
-                // ignore if the laser is above or below the feature
-                if (laser.position.y < feature.position.y || laser.position.y > feature.position.y + feature.height)
+                // ignore if the projectile is above or below the feature
+                if (projectile.position.y < feature.position.y || projectile.position.y > feature.position.y + feature.height)
                 {
                     return false;
                 }
@@ -62,13 +62,13 @@ namespace rwe
         {
             const auto& unit = sim.getUnit(cellValue.buildingCell->unit);
 
-            if (unit.isOwnedBy(laser.owner))
+            if (unit.isOwnedBy(projectile.owner))
             {
                 return false;
             }
 
-            // ignore if the laser is above or below the unit
-            if (laser.position.y < unit.position.y || laser.position.y > unit.position.y + unit.height)
+            // ignore if the projectile is above or below the unit
+            if (projectile.position.y < unit.position.y || projectile.position.y > unit.position.y + unit.height)
             {
                 return false;
             }
@@ -410,7 +410,7 @@ namespace rwe
             worldRenderService.drawUnit(unit, simScalarToFloat(seaLevel), simulation.gameTime.value);
         }
 
-        worldRenderService.drawLasers(simulation.projectiles);
+        worldRenderService.drawProjectiles(simulation.projectiles);
 
         sceneContext.graphics->disableDepthWrites();
 
@@ -1316,7 +1316,7 @@ namespace rwe
             cobExecutionService.run(*this, simulation, unitId);
         }
 
-        updateLasers();
+        updateProjectiles();
 
         updateExplosions();
 
@@ -1616,56 +1616,56 @@ namespace rwe
         return !getUnit(id).isOwnedBy(localPlayerId);
     }
 
-    void GameScene::updateLasers()
+    void GameScene::updateProjectiles()
     {
         auto gameTime = getGameTime();
-        for (auto& [id, laser] : simulation.projectiles)
+        for (auto& [id, projectile] : simulation.projectiles)
         {
-            laser.position += laser.velocity;
+            projectile.position += projectile.velocity;
 
             // emit smoke trail
-            if (laser.smokeTrail)
+            if (projectile.smokeTrail)
             {
-                if (gameTime > laser.lastSmoke + *laser.smokeTrail)
+                if (gameTime > projectile.lastSmoke + *projectile.smokeTrail)
                 {
-                    createLightSmoke(laser.position);
-                    laser.lastSmoke = gameTime;
+                    createLightSmoke(projectile.position);
+                    projectile.lastSmoke = gameTime;
                 }
             }
 
             // test collision with terrain
-            auto terrainHeight = simulation.terrain.getHeightAt(laser.position.x, laser.position.z);
+            auto terrainHeight = simulation.terrain.getHeightAt(projectile.position.x, projectile.position.z);
             auto seaLevel = simulation.terrain.getSeaLevel();
 
             // test collision with sea
             // FIXME: waterweapons should be allowed in water
-            if (seaLevel > terrainHeight && laser.position.y <= seaLevel)
+            if (seaLevel > terrainHeight && projectile.position.y <= seaLevel)
             {
-                doLaserImpact(laser, ImpactType::Water);
+                doProjectileImpact(projectile, ImpactType::Water);
                 simulation.projectiles.remove(id);
             }
-            else if (laser.position.y <= terrainHeight)
+            else if (projectile.position.y <= terrainHeight)
             {
-                doLaserImpact(laser, ImpactType::Normal);
+                doProjectileImpact(projectile, ImpactType::Normal);
                 simulation.projectiles.remove(id);
             }
             else
             {
                 // detect collision with something's footprint
-                auto heightMapPos = simulation.terrain.worldToHeightmapCoordinate(laser.position);
+                auto heightMapPos = simulation.terrain.worldToHeightmapCoordinate(projectile.position);
                 auto cellValue = simulation.occupiedGrid.tryGet(heightMapPos);
                 if (cellValue)
                 {
-                    auto collides = laserCollides(simulation, laser, cellValue->get());
+                    auto collides = projectileCollides(simulation, projectile, cellValue->get());
                     if (collides)
                     {
-                        doLaserImpact(laser, ImpactType::Normal);
+                        doProjectileImpact(projectile, ImpactType::Normal);
                         simulation.projectiles.remove(id);
                     }
                 }
             }
 
-            // TODO: detect collision between a laser and the world boundary
+            // TODO: detect collision between a projectile and the world boundary
         }
     }
 
@@ -1692,44 +1692,44 @@ namespace rwe
         }
     }
 
-    void GameScene::doLaserImpact(const Projectile& laser, ImpactType impactType)
+    void GameScene::doProjectileImpact(const Projectile& projectile, ImpactType impactType)
     {
         switch (impactType)
         {
             case ImpactType::Normal:
             {
-                if (laser.soundHit)
+                if (projectile.soundHit)
                 {
-                    playSoundAt(simVectorToFloat(laser.position), *laser.soundHit);
+                    playSoundAt(simVectorToFloat(projectile.position), *projectile.soundHit);
                 }
-                if (laser.explosion)
+                if (projectile.explosion)
                 {
-                    simulation.spawnExplosion(laser.position, *laser.explosion);
+                    simulation.spawnExplosion(projectile.position, *projectile.explosion);
                 }
-                if (laser.endSmoke)
+                if (projectile.endSmoke)
                 {
-                    createLightSmoke(laser.position);
+                    createLightSmoke(projectile.position);
                 }
                 break;
             }
             case ImpactType::Water:
             {
-                if (laser.soundWater)
+                if (projectile.soundWater)
                 {
-                    playSoundAt(simVectorToFloat(laser.position), *laser.soundWater);
+                    playSoundAt(simVectorToFloat(projectile.position), *projectile.soundWater);
                 }
-                if (laser.waterExplosion)
+                if (projectile.waterExplosion)
                 {
-                    simulation.spawnExplosion(laser.position, *laser.waterExplosion);
+                    simulation.spawnExplosion(projectile.position, *projectile.waterExplosion);
                 }
                 break;
             }
         }
 
-        applyDamageInRadius(laser.position, laser.damageRadius, laser);
+        applyDamageInRadius(projectile.position, projectile.damageRadius, projectile);
     }
 
-    void GameScene::applyDamageInRadius(const SimVector& position, SimScalar radius, const Projectile& laser)
+    void GameScene::applyDamageInRadius(const SimVector& position, SimScalar radius, const Projectile& projectile)
     {
         auto minX = position.x - radius;
         auto maxX = position.x + radius;
@@ -1803,7 +1803,7 @@ namespace rwe
 
             // apply appropriate damage
             auto damageScale = std::clamp(1_ss - (sqrt(unitDistanceSquared) / radius), 0_ss, 1_ss);
-            auto rawDamage = laser.getDamage(unit.unitType);
+            auto rawDamage = projectile.getDamage(unit.unitType);
             auto scaledDamage = simScalarToUInt(SimScalar(rawDamage) * damageScale);
             applyDamage(*u, scaledDamage);
         });
@@ -1960,7 +1960,7 @@ namespace rwe
         {
             auto impactType = unit.position.y < simulation.terrain.getSeaLevel() ? ImpactType::Water : ImpactType::Normal;
             auto projectile = simulation.createProjectileFromWeapon(unit.owner, *unit.explosionWeapon, unit.position, SimVector(0_ss, -1_ss, 0_ss));
-            doLaserImpact(projectile, impactType);
+            doProjectileImpact(projectile, impactType);
         }
     }
 

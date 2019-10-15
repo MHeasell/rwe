@@ -37,7 +37,7 @@ namespace rwe
         };
     }
 
-    nlohmann::json dumpJson(const Projectile& laser);
+    nlohmann::json dumpJson(const Projectile& projectile);
 
     nlohmann::json dumpJson(const IdleState&);
 
