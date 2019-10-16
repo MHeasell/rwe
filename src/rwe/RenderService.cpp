@@ -507,8 +507,9 @@ namespace rwe
         Vector3f pixelOffset(0.0f, 0.0f, -1.0f);
 
         std::vector<GlColoredVertex> laserVertices;
-        for (const auto& [_, projectile] : projectiles)
+        for (const auto& e : projectiles)
         {
+            const auto& projectile = e.second;
             auto position = simVectorToFloat(projectile.position);
 
             match(
