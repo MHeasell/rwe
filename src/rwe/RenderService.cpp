@@ -497,7 +497,12 @@ namespace rwe
         }
     }
 
-    void RenderService::drawProjectiles(const VectorMap<Projectile, ProjectileIdTag>& projectiles, float seaLevel)
+    unsigned int getFrameIndex(GameTime currentTime, unsigned int numFrames)
+    {
+        return (currentTime.value / 4) % numFrames;
+    }
+
+    void RenderService::drawProjectiles(const VectorMap<Projectile, ProjectileIdTag>& projectiles, float seaLevel, GameTime currentTime)
     {
         Vector3f pixelOffset(0.0f, 0.0f, -1.0f);
 
@@ -522,6 +527,21 @@ namespace rwe
                         * pointDirection(simVectorToFloat(projectile.velocity).normalized())
                         * rotationModeToMatrix(m.rotationMode);
                     drawUnitMesh(*m.mesh, transform, seaLevel);
+                },
+                [&](const ProjectileRenderTypeSprite& s) {
+                    Vector3f snappedPosition(
+                        std::round(position.x),
+                        truncateToInterval(position.y, 2.0f),
+                        std::round(position.z));
+                    Matrix4f conversionMatrix = Matrix4f::scale(Vector3f(1.0f, -2.0f, 1.0f));
+                    const auto& shader = shaders->basicTexture;
+                    graphics->bindShader(shader.handle.get());
+                    const auto& sprite = *s.spriteSeries->sprites[getFrameIndex(currentTime, s.spriteSeries->sprites.size())];
+                    auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix * sprite.getTransform();
+                    graphics->bindTexture(sprite.texture.get());
+                    graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * modelMatrix);
+                    graphics->setUniformVec4(shader.tint, 1.0f, 1.0f, 1.0f, 1.0f);
+                    graphics->drawTriangles(*sprite.mesh);
                 },
                 [&](const auto&) {
                     // TODO: implement other render types

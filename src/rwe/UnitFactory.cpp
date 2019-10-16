@@ -305,6 +305,19 @@ namespace rwe
         return unitDatabase.hasUnitInfo(unitType);
     }
 
+    std::string getFxName(unsigned int code)
+    {
+        switch (code)
+        {
+            case 0: return "cannonshell";
+            case 1: return "plasmasm";
+            case 2: return "plasmamd";
+            case 3: return "ultrashell";
+            case 4: return "plasmasm";
+            default: throw std::runtime_error("Unknown weapon sprite code");
+        }
+    }
+
     UnitWeapon UnitFactory::createWeapon(const std::string& weaponType)
     {
         const auto& tdf = unitDatabase.getWeapon(weaponType);
@@ -341,6 +354,12 @@ namespace rwe
                 setShadeRecursive(mesh, false);
                 weapon.renderType = ProjectileRenderTypeModel{
                     std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::QuarterY};
+                break;
+            }
+            case 4:
+            {
+                auto sprite = textureService->getGafEntry("anims/fx.gaf", getFxName(tdf.color));
+                weapon.renderType = ProjectileRenderTypeSprite{sprite};
                 break;
             }
             case 6:

@@ -3,6 +3,7 @@
 #include <memory>
 #include <rwe/ShaderMesh.h>
 #include <rwe/SimScalar.h>
+#include <rwe/SpriteSeries.h>
 #include <rwe/UnitMesh.h>
 #include <rwe/math/Vector3f.h>
 #include <variant>
@@ -36,16 +37,7 @@ namespace rwe
 
     struct ProjectileRenderTypeSprite
     {
-        enum class Sprite
-        {
-            CannonShell,
-            PlasmaSm,
-            PlasmaMd,
-            UltraShell,
-            Nothing
-        };
-
-        Sprite sprite;
+        std::shared_ptr<SpriteSeries> spriteSeries;
     };
 
     struct ProjectileRenderTypeFlamethrower
