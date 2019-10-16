@@ -1671,25 +1671,25 @@ namespace rwe
 
     void GameScene::updateExplosions()
     {
-        for (auto& exp : simulation.explosions)
+        auto end = simulation.explosions.end();
+        for (auto it = simulation.explosions.begin(); it != end;)
         {
-            if (!exp)
+            auto& exp = *it;
+            if (exp.isFinished(simulation.gameTime))
             {
+                exp = std::move(*--end);
                 continue;
             }
 
-            if (exp->isFinished(simulation.gameTime))
-            {
-                exp = std::nullopt;
-                continue;
-            }
-
-            if (exp->floats)
+            if (exp.floats)
             {
                 // TODO: drift with the wind
-                exp->position.y += 0.5_ssf;
+                exp.position.y += 0.5_ssf;
             }
+
+            ++it;
         }
+        simulation.explosions.erase(end, simulation.explosions.end());
     }
 
     void GameScene::doProjectileImpact(const Projectile& projectile, ImpactType impactType)

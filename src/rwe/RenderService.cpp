@@ -558,25 +558,20 @@ namespace rwe
         graphics->drawLines(mesh);
     }
 
-    void RenderService::drawExplosions(GameTime currentTime, const std::vector<std::optional<Explosion>>& explosions)
+    void RenderService::drawExplosions(GameTime currentTime, const std::vector<Explosion>& explosions)
     {
         graphics->bindShader(shaders->basicTexture.handle.get());
 
         for (const auto& exp : explosions)
         {
-            if (!exp)
+            if (!exp.isStarted(currentTime) || exp.isFinished(currentTime))
             {
                 continue;
             }
 
-            if (!exp->isStarted(currentTime) || exp->isFinished(currentTime))
-            {
-                continue;
-            }
-
-            auto position = simVectorToFloat(exp->position);
-            auto frameIndex = exp->getFrameIndex(currentTime);
-            const auto& sprite = *exp->animation->sprites[frameIndex];
+            auto position = simVectorToFloat(exp.position);
+            auto frameIndex = exp.getFrameIndex(currentTime);
+            const auto& sprite = *exp.animation->sprites[frameIndex];
 
             float alpha = 1.0f;
 

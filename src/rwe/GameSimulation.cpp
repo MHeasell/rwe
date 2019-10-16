@@ -486,15 +486,7 @@ namespace rwe
         exp.animation = animation;
         exp.startTime = gameTime;
 
-        auto it = std::find_if(explosions.begin(), explosions.end(), [](const auto& x) { return !x; });
-        if (it == explosions.end())
-        {
-            explosions.push_back(exp);
-        }
-        else
-        {
-            *it = exp;
-        }
+        explosions.push_back(exp);
     }
 
     void GameSimulation::spawnSmoke(const SimVector& position, const std::shared_ptr<SpriteSeries>& animation)
@@ -505,15 +497,7 @@ namespace rwe
         exp.startTime = gameTime;
         exp.floats = true;
 
-        auto it = std::find_if(explosions.begin(), explosions.end(), [](const auto& x) { return !x; });
-        if (it == explosions.end())
-        {
-            explosions.push_back(exp);
-        }
-        else
-        {
-            *it = exp;
-        }
+        explosions.push_back(exp);
     }
 
     WinStatus GameSimulation::computeWinStatus() const

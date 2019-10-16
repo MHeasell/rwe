@@ -109,7 +109,7 @@ namespace rwe
 
         VectorMap<Projectile, ProjectileIdTag> projectiles;
 
-        std::vector<std::optional<Explosion>> explosions;
+        std::vector<Explosion> explosions;
 
         std::deque<PathRequest> pathRequests;
 

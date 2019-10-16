@@ -114,7 +114,7 @@ namespace rwe
 
         void drawProjectiles(const VectorMap<Projectile, ProjectileIdTag>& projectiles, float seaLevel, GameTime currentTime);
 
-        void drawExplosions(GameTime currentTime, const std::vector<std::optional<Explosion>>& explosions);
+        void drawExplosions(GameTime currentTime, const std::vector<Explosion>& explosions);
 
     private:
         void drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded);
