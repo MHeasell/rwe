@@ -1,9 +1,12 @@
 #pragma once
 
+#include <rwe/SimAngle.h>
+#include <rwe/SimScalar.h>
 #include <rwe/SimVector.h>
 #include <rwe/UnitFactory.h>
 #include <rwe/UnitId.h>
 #include <rwe/UnitOrder.h>
+#include <rwe/cob/CobExecutionService.h>
 #include <rwe/pathfinding/PathFindingService.h>
 
 namespace rwe
@@ -13,13 +16,17 @@ namespace rwe
     class UnitBehaviorService
     {
     private:
-        GameScene* scene;
-        UnitFactory* unitFactory;
+        GameScene* const scene;
+        UnitFactory* const unitFactory;
+        CobExecutionService* const cobExecutionService;
 
     public:
         UnitBehaviorService(
             GameScene* scene,
-            UnitFactory* unitFactory);
+            UnitFactory* unitFactory,
+            CobExecutionService* cobExecutionService);
+
+        void onCreate(UnitId unitId);
 
         void update(UnitId unitId);
 
@@ -28,7 +35,11 @@ namespace rwe
         std::optional<SimVector> tryGetSweetSpot(UnitId id);
 
     private:
-        static std::pair<SimAngle, SimAngle> computeHeadingAndPitch(SimAngle rotation, const SimVector& from, const SimVector& to);
+        static std::pair<SimAngle, SimAngle> computeHeadingAndPitch(SimAngle rotation, const SimVector& from, const SimVector& to, SimScalar speed, SimScalar gravity, SimScalar zOffset, ProjectilePhysicsType projectileType);
+
+        static std::pair<SimAngle, SimAngle> computeLineOfSightHeadingAndPitch(SimAngle rotation, const SimVector& from, const SimVector& to);
+
+        static std::pair<SimAngle, SimAngle> computeBallisticHeadingAndPitch(SimAngle rotation, const SimVector& from, const SimVector& to, SimScalar speed, SimScalar gravity, SimScalar zOffset);
 
         /** Returns true if the order has been completed. */
         bool handleOrder(UnitId unitId, const UnitOrder& moveOrder);
@@ -55,7 +66,7 @@ namespace rwe
         bool followPath(Unit& unit, PathFollowingInfo& path);
 
         void updateWeapon(UnitId id, unsigned int weaponIndex);
-        void tryFireWeapon(UnitId id, unsigned int weaponIndex, const SimVector& targetPosition);
+        void tryFireWeapon(UnitId id, unsigned int weaponIndex, SimAngle heading, SimAngle pitch, const SimVector& targetPosition);
 
         void applyUnitSteering(UnitId id);
         void updateUnitRotation(UnitId id);
@@ -73,11 +84,14 @@ namespace rwe
         std::optional<int> runCobQuery(UnitId id, const std::string& name);
 
         SimVector getAimingPoint(UnitId id, unsigned int weaponIndex);
+        SimVector getLocalAimingPoint(UnitId id, unsigned int weaponIndex);
 
         SimVector getFiringPoint(UnitId id, unsigned int weaponIndex);
+        SimVector getLocalFiringPoint(UnitId id, unsigned int weaponIndex);
 
         SimVector getNanoPoint(UnitId id);
 
+        SimVector getPieceLocalPosition(UnitId id, unsigned int pieceId);
         SimVector getPiecePosition(UnitId id, unsigned int pieceId);
 
         SimAngle getPieceXZRotation(UnitId id, unsigned int pieceId);

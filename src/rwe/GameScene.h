@@ -194,8 +194,8 @@ namespace rwe
         std::unique_ptr<GameNetworkService> gameNetworkService;
 
         PathFindingService pathFindingService;
-        UnitBehaviorService unitBehaviorService;
         CobExecutionService cobExecutionService;
+        UnitBehaviorService unitBehaviorService;
 
         std::shared_ptr<Sprite> minimap;
         std::shared_ptr<SpriteSeries> minimapDots;

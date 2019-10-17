@@ -3,6 +3,7 @@
 #include <rwe/AudioService.h>
 #include <rwe/GameTime.h>
 #include <rwe/PlayerId.h>
+#include <rwe/ProjectilePhysicsType.h>
 #include <rwe/ProjectileRenderType.h>
 #include <rwe/ShaderMesh.h>
 #include <rwe/SimVector.h>
@@ -22,6 +23,8 @@ namespace rwe
 
         /** Velocity in game pixels/tick */
         SimVector velocity;
+
+        bool gravity;
 
         ProjectileRenderType renderType;
 

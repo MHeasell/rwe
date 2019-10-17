@@ -288,6 +288,7 @@ set(SOURCE_FILES
     src/rwe/Projectile.cpp
     src/rwe/Projectile.h
     src/rwe/ProjectileId.h
+    src/rwe/ProjectilePhysicsType.h
     src/rwe/ProjectileRenderType.h
     src/rwe/RadiansAngle.cpp
     src/rwe/RadiansAngle.h

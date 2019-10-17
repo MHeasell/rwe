@@ -37,6 +37,8 @@ namespace rwe
         return SimAngle(static_cast<uint16_t>(s.value));
     }
 
+    SimAngle atan(SimScalar v);
+
     SimAngle atan2(SimScalar a, SimScalar b);
 
     SimScalar hypot(SimScalar a, SimScalar b);

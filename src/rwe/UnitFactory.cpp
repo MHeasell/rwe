@@ -110,7 +110,6 @@ namespace rwe
 
         const auto& script = unitDatabase.getUnitScript(fbi.unitName);
         auto cobEnv = std::make_unique<CobEnvironment>(&script);
-        cobEnv->createThread("Create", std::vector<int>());
         Unit unit(meshInfo.mesh, std::move(cobEnv), std::move(meshInfo.selectionMesh));
         unit.name = fbi.name;
         unit.unitType = toUpper(unitType);
@@ -334,6 +333,11 @@ namespace rwe
         weapon.tolerance = SimAngle(tdf.tolerance);
         weapon.pitchTolerance = SimAngle(tdf.pitchTolerance);
         weapon.velocity = SimScalar(static_cast<float>(tdf.weaponVelocity) / 60.0f);
+
+        weapon.physicsType = tdf.lineOfSight
+            ? ProjectilePhysicsType::LineOfSight
+            : tdf.ballistic ? ProjectilePhysicsType::Ballistic
+                            : ProjectilePhysicsType::LineOfSight;
 
         switch (tdf.renderType)
         {

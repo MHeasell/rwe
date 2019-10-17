@@ -2,6 +2,7 @@
 
 #include <rwe/AudioService.h>
 #include <rwe/GameTime.h>
+#include <rwe/ProjectilePhysicsType.h>
 #include <rwe/ProjectileRenderType.h>
 #include <rwe/SpriteSeries.h>
 #include <rwe/UnitId.h>
@@ -40,6 +41,8 @@ namespace rwe
 
     struct UnitWeapon
     {
+        ProjectilePhysicsType physicsType;
+
         SimScalar maxRange;
 
         SimScalar reloadTime;
@@ -74,6 +77,9 @@ namespace rwe
         std::unordered_map<std::string, unsigned int> damage;
 
         SimScalar damageRadius;
+
+        /** Offset from aim point to firing point, compensation for ballistics calculations. */
+        SimScalar ballisticZOffset{0};
 
         /** The internal state of the weapon. */
         UnitWeaponState state{UnitWeaponStateIdle()};

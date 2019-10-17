@@ -13,6 +13,10 @@ namespace rwe
     {
         return SimAngle(static_cast<uint16_t>(std::round((angle.value / Pif) * 32768.0f)));
     }
+    SimAngle atan(SimScalar v)
+    {
+        return fromRadians(RadiansAngle::fromUnwrappedAngle(std::atan(v.value)));
+    }
     SimAngle atan2(SimScalar a, SimScalar b)
     {
         return fromRadians(RadiansAngle::fromUnwrappedAngle(std::atan2(a.value, b.value)));

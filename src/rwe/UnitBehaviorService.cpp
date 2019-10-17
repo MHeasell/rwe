@@ -27,9 +27,41 @@ namespace rwe
 
     UnitBehaviorService::UnitBehaviorService(
         GameScene* scene,
-        UnitFactory* unitFactory)
-        : scene(scene), unitFactory(unitFactory)
+        UnitFactory* unitFactory,
+        CobExecutionService* cobExecutionService)
+        : scene(scene), unitFactory(unitFactory), cobExecutionService(cobExecutionService)
     {
+    }
+
+    void UnitBehaviorService::onCreate(UnitId unitId)
+    {
+        auto& sim = scene->getSimulation();
+        auto& unit = sim.getUnit(unitId);
+
+        unit.cobEnvironment->createThread("Create", std::vector<int>());
+
+        // set speed for metal extractors
+        if (unit.extractsMetal != Metal(0))
+        {
+            auto footprint = scene->computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+            auto metalValue = sim.metalGrid.accumulate(sim.metalGrid.clipRegion(footprint), 0u, std::plus<>());
+            unit.cobEnvironment->createThread("SetSpeed", {static_cast<int>(metalValue)});
+        }
+
+        cobExecutionService->run(*scene, scene->getSimulation(), unitId);
+
+        // measure z distances for ballistics
+        for (int i = 0; i < unit.weapons.size(); ++i)
+        {
+            auto& weapon = unit.weapons[i];
+            if (!weapon)
+            {
+                continue;
+            }
+            auto localAimingPoint = getLocalAimingPoint(unitId, i);
+            auto localFiringPoint = getLocalFiringPoint(unitId, i);
+            weapon->ballisticZOffset = localFiringPoint.z - localAimingPoint.z;
+        }
     }
 
     void UnitBehaviorService::update(UnitId unitId)
@@ -101,7 +133,20 @@ namespace rwe
         }
     }
 
-    std::pair<SimAngle, SimAngle> UnitBehaviorService::computeHeadingAndPitch(SimAngle rotation, const SimVector& from, const SimVector& to)
+    std::pair<SimAngle, SimAngle> UnitBehaviorService::computeHeadingAndPitch(SimAngle rotation, const SimVector& from, const SimVector& to, SimScalar speed, SimScalar gravity, SimScalar zOffset, ProjectilePhysicsType projectileType)
+    {
+        switch (projectileType)
+        {
+            case ProjectilePhysicsType::LineOfSight:
+                return computeLineOfSightHeadingAndPitch(rotation, from, to);
+            case ProjectilePhysicsType::Ballistic:
+                return computeBallisticHeadingAndPitch(rotation, from, to, speed, gravity, zOffset);
+            default:
+                throw std::logic_error("Unknown ProjectilePhysicsType");
+        }
+    }
+
+    std::pair<SimAngle, SimAngle> UnitBehaviorService::computeLineOfSightHeadingAndPitch(SimAngle rotation, const SimVector& from, const SimVector& to)
     {
         auto aimVector = to - from;
         if (aimVector.lengthSquared() == 0_ss)
@@ -117,6 +162,44 @@ namespace rwe
         auto pitch = atan2(aimVector.y, aimVectorXZ.length());
 
         return {heading, pitch};
+    }
+
+    std::optional<std::pair<SimAngle, SimAngle>> computeFiringAngles(SimScalar speed, SimScalar gravity, SimScalar targetX, SimScalar targetY)
+    {
+        auto inner = (gravity * targetX * targetX) + (2_ss * speed * speed * targetY);
+        auto beforeSquareRoot = (speed * speed * speed * speed) - (gravity * inner);
+        if (beforeSquareRoot < 0_ss)
+        {
+            return std::nullopt;
+        }
+        auto plusMinus = sqrt(beforeSquareRoot);
+
+        auto result1 = atan(((speed * speed) + plusMinus) / (gravity * targetX));
+        auto result2 = atan(((speed * speed) - plusMinus) / (gravity * targetX));
+
+        return std::make_pair(result1, result2);
+    }
+
+    std::pair<SimAngle, SimAngle> UnitBehaviorService::computeBallisticHeadingAndPitch(SimAngle rotation, const SimVector& from, const SimVector& to, SimScalar speed, SimScalar gravity, SimScalar zOffset)
+    {
+        auto aimVector = to - from;
+        if (aimVector.lengthSquared() == 0_ss)
+        {
+            aimVector = Unit::toDirection(rotation);
+        }
+
+        SimVector aimVectorXZ(aimVector.x, 0_ss, aimVector.z);
+
+        auto heading = Unit::toRotation(aimVectorXZ);
+        heading = heading - rotation;
+
+        auto pitches = computeFiringAngles(speed, gravity, aimVectorXZ.length() - zOffset, aimVector.y);
+        if (!pitches)
+        {
+            return {heading, EighthTurn};
+        }
+
+        return {heading, pitches->second};
     }
 
     bool UnitBehaviorService::followPath(Unit& unit, PathFollowingInfo& path)
@@ -242,7 +325,7 @@ namespace rwe
             {
                 auto aimFromPosition = getAimingPoint(id, weaponIndex);
 
-                auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, *targetPosition);
+                auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, *targetPosition, weapon->velocity, (112_ss / 6000_ss), weapon->ballisticZOffset, weapon->physicsType);
                 auto heading = headingAndPitch.first;
                 auto pitch = headingAndPitch.second;
 
@@ -256,7 +339,7 @@ namespace rwe
                 {
                     // We couldn't launch an aiming script (there isn't one),
                     // just go straight to firing.
-                    tryFireWeapon(id, weaponIndex, *targetPosition);
+                    tryFireWeapon(id, weaponIndex, heading, pitch, *targetPosition);
                 }
             }
             else
@@ -274,14 +357,14 @@ namespace rwe
                         auto targetPosition = getTargetPosition(aimingState->target);
                         auto aimFromPosition = getAimingPoint(id, weaponIndex);
 
-                        auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, *targetPosition);
+                        auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, *targetPosition, weapon->velocity, (112_ss / 6000_ss), weapon->ballisticZOffset, weapon->physicsType);
                         auto heading = headingAndPitch.first;
                         auto pitch = headingAndPitch.second;
 
                         // if the target is close enough, try to fire
                         if (angleBetweenIsLessOrEqual(heading, aimInfo.lastHeading, weapon->tolerance) && angleBetweenIsLessOrEqual(pitch, aimInfo.lastPitch, weapon->pitchTolerance))
                         {
-                            tryFireWeapon(id, weaponIndex, *targetPosition);
+                            tryFireWeapon(id, weaponIndex, heading, pitch, *targetPosition);
                         }
                     }
                 }
@@ -289,7 +372,14 @@ namespace rwe
         }
     }
 
-    void UnitBehaviorService::tryFireWeapon(UnitId id, unsigned int weaponIndex, const SimVector& targetPosition)
+    SimVector toDirection(SimAngle heading, SimAngle pitch)
+    {
+        return Matrix4x<SimScalar>::rotationY(sin(heading), cos(heading))
+            * Matrix4x<SimScalar>::rotationX(sin(pitch), cos(pitch))
+            * SimVector(0_ss, 0_ss, 1_ss);
+    }
+
+    void UnitBehaviorService::tryFireWeapon(UnitId id, unsigned int weaponIndex, SimAngle heading, SimAngle pitch, const SimVector& targetPosition)
     {
         auto& unit = scene->getSimulation().getUnit(id);
         auto& weapon = unit.weapons[weaponIndex];
@@ -308,12 +398,25 @@ namespace rwe
 
         // spawn a projectile from the firing point
         auto firingPoint = getFiringPoint(id, weaponIndex);
-        auto targetVector = targetPosition - firingPoint;
+
+        SimVector direction;
+        switch (weapon->physicsType)
+        {
+            case ProjectilePhysicsType::LineOfSight:
+                direction = targetPosition - firingPoint;
+                break;
+            case ProjectilePhysicsType::Ballistic:
+                direction = toDirection(heading + unit.rotation, -pitch);
+                break;
+            default:
+                throw std::logic_error("Unknown ProjectilePhysicsType");
+        }
+
         if (weapon->startSmoke)
         {
             scene->createLightSmoke(firingPoint);
         }
-        scene->getSimulation().spawnProjectile(unit.owner, *weapon, firingPoint, targetVector.normalized());
+        scene->getSimulation().spawnProjectile(unit.owner, *weapon, firingPoint, direction);
 
         if (weapon->soundStart)
         {
@@ -529,27 +632,39 @@ namespace rwe
 
     SimVector UnitBehaviorService::getAimingPoint(UnitId id, unsigned int weaponIndex)
     {
+        const auto& unit = scene->getSimulation().getUnit(id);
+        return unit.getTransform() * getLocalAimingPoint(id, weaponIndex);
+    }
+
+    SimVector UnitBehaviorService::getLocalAimingPoint(UnitId id, unsigned int weaponIndex)
+    {
         auto scriptName = getAimFromScriptName(weaponIndex);
         auto pieceId = runCobQuery(id, scriptName);
         if (!pieceId)
         {
-            return getFiringPoint(id, weaponIndex);
+            return getLocalFiringPoint(id, weaponIndex);
         }
 
-        return getPiecePosition(id, *pieceId);
+        return getPieceLocalPosition(id, *pieceId);
     }
 
     SimVector UnitBehaviorService::getFiringPoint(UnitId id, unsigned int weaponIndex)
+    {
+        const auto& unit = scene->getSimulation().getUnit(id);
+        return unit.getTransform() * getLocalFiringPoint(id, weaponIndex);
+    }
+
+    SimVector UnitBehaviorService::getLocalFiringPoint(UnitId id, unsigned int weaponIndex)
     {
 
         auto scriptName = getQueryScriptName(weaponIndex);
         auto pieceId = runCobQuery(id, scriptName);
         if (!pieceId)
         {
-            return scene->getSimulation().getUnit(id).position;
+            return SimVector(0_ss, 0_ss, 0_ss);
         }
 
-        return getPiecePosition(id, *pieceId);
+        return getPieceLocalPosition(id, *pieceId);
     }
 
     SimVector UnitBehaviorService::getSweetSpot(UnitId id)
@@ -771,7 +886,7 @@ namespace rwe
                     }
 
                     auto nanoFromPosition = getNanoPoint(unitId);
-                    auto headingAndPitch = computeHeadingAndPitch(unit.rotation, nanoFromPosition, buildOrder.position);
+                    auto headingAndPitch = computeLineOfSightHeadingAndPitch(unit.rotation, nanoFromPosition, buildOrder.position);
                     auto heading = headingAndPitch.first;
                     auto pitch = headingAndPitch.second;
 
@@ -909,7 +1024,7 @@ namespace rwe
             if (unit.position.distanceSquared(targetUnit.position) <= (unit.buildDistance * unit.buildDistance))
             {
                 auto nanoFromPosition = getNanoPoint(unitId);
-                auto headingAndPitch = computeHeadingAndPitch(unit.rotation, nanoFromPosition, targetUnit.position);
+                auto headingAndPitch = computeLineOfSightHeadingAndPitch(unit.rotation, nanoFromPosition, targetUnit.position);
                 auto heading = headingAndPitch.first;
                 auto pitch = headingAndPitch.second;
 
@@ -928,7 +1043,7 @@ namespace rwe
             if (unit.position.distanceSquared(targetUnit.position) <= (unit.buildDistance * unit.buildDistance))
             {
                 auto nanoFromPosition = getNanoPoint(unitId);
-                auto headingAndPitch = computeHeadingAndPitch(unit.rotation, nanoFromPosition, targetUnit.position);
+                auto headingAndPitch = computeLineOfSightHeadingAndPitch(unit.rotation, nanoFromPosition, targetUnit.position);
                 auto heading = headingAndPitch.first;
                 auto pitch = headingAndPitch.second;
 
@@ -956,7 +1071,7 @@ namespace rwe
                 if (followPath(unit, *pathToFollow))
                 {
                     auto nanoFromPosition = getNanoPoint(unitId);
-                    auto headingAndPitch = computeHeadingAndPitch(unit.rotation, nanoFromPosition, targetUnit.position);
+                    auto headingAndPitch = computeLineOfSightHeadingAndPitch(unit.rotation, nanoFromPosition, targetUnit.position);
                     auto heading = headingAndPitch.first;
                     auto pitch = headingAndPitch.second;
 
@@ -1133,7 +1248,7 @@ namespace rwe
         return getPiecePosition(id, *pieceId);
     }
 
-    SimVector UnitBehaviorService::getPiecePosition(UnitId id, unsigned int pieceId)
+    SimVector UnitBehaviorService::getPieceLocalPosition(UnitId id, unsigned int pieceId)
     {
         auto& unit = scene->getSimulation().getUnit(id);
 
@@ -1144,7 +1259,14 @@ namespace rwe
             throw std::logic_error("Failed to find piece offset");
         }
 
-        return unit.getTransform() * (*pieceTransform) * SimVector(0_ss, 0_ss, 0_ss);
+        return (*pieceTransform) * SimVector(0_ss, 0_ss, 0_ss);
+    }
+
+    SimVector UnitBehaviorService::getPiecePosition(UnitId id, unsigned int pieceId)
+    {
+        auto& unit = scene->getSimulation().getUnit(id);
+
+        return unit.getTransform() * getPieceLocalPosition(id, pieceId);
     }
 
     SimAngle angleTo(const Vector2x<SimScalar>& lhs, const Vector2x<SimScalar>& rhs)

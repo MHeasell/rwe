@@ -111,8 +111,8 @@ namespace rwe
           unitFactory(sceneContext.textureService, std::move(unitDatabase), std::move(meshService), &this->collisionService, sceneContext.palette, sceneContext.guiPalette),
           gameNetworkService(std::move(gameNetworkService)),
           pathFindingService(&this->simulation, &this->collisionService),
-          unitBehaviorService(this, &this->unitFactory),
           cobExecutionService(),
+          unitBehaviorService(this, &this->unitFactory, &this->cobExecutionService),
           minimap(minimap),
           minimapDots(minimapDots),
           minimapDotHighlight(minimapDotHighlight),
@@ -1042,17 +1042,10 @@ namespace rwe
 
         if (unitId)
         {
-            const auto& unit = getUnit(*unitId);
-
-            // set speed for metal extractors
-            if (unit.extractsMetal != Metal(0))
-            {
-                auto footprint = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
-                auto metalValue = simulation.metalGrid.accumulate(simulation.metalGrid.clipRegion(footprint), 0u, std::plus<>());
-                unit.cobEnvironment->createThread("SetSpeed", {static_cast<int>(metalValue)});
-            }
+            unitBehaviorService.onCreate(*unitId);
 
             // initialise local-player-specific UI data
+            const auto& unit = getUnit(*unitId);
             unitGuiInfos.insert_or_assign(*unitId, UnitGuiInfo{unit.builder ? UnitGuiInfo::Section::Build : UnitGuiInfo::Section::Orders, 0});
         }
 
@@ -1621,6 +1614,10 @@ namespace rwe
         auto gameTime = getGameTime();
         for (auto& [id, projectile] : simulation.projectiles)
         {
+            if (projectile.gravity)
+            {
+                projectile.velocity.y -= 112_ss / 6000_ss;
+            }
             projectile.position += projectile.velocity;
 
             // emit smoke trail
