@@ -86,6 +86,12 @@ namespace rwe
          */
         SimScalar getHeightAt(SimScalar x, SimScalar z) const;
 
+        /**
+         * Gets the height of the terrain at the given world coordinates.
+         * If the input is outside the heightmap grid, returns None.
+         */
+        std::optional<SimScalar> tryGetHeightAt(SimScalar x, SimScalar z) const;
+
         std::optional<SimVector> intersectLine(const Line3x<SimScalar>& line) const;
 
         std::optional<SimVector> intersectWithHeightmapCell(const Line3x<SimScalar>& line, int x, int y) const;

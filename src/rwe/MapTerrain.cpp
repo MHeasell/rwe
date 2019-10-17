@@ -151,6 +151,11 @@ namespace rwe
 
     SimScalar MapTerrain::getHeightAt(SimScalar x, SimScalar z) const
     {
+        return tryGetHeightAt(x, z).value_or(0_ss);
+    }
+
+    std::optional<SimScalar> MapTerrain::tryGetHeightAt(SimScalar x, SimScalar z) const
+    {
         auto tilePos = worldToHeightmapCoordinate(SimVector(x, 0_ss, z));
         if (
             tilePos.x < 0
@@ -165,7 +170,7 @@ namespace rwe
         auto pos = intersectLine(line);
         if (!pos)
         {
-            return 0_ss;
+            return std::nullopt;
         }
         return pos->y;
     }

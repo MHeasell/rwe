@@ -1634,7 +1634,14 @@ namespace rwe
             }
 
             // test collision with terrain
-            auto terrainHeight = simulation.terrain.getHeightAt(projectile.position.x, projectile.position.z);
+            auto terrainHeight = simulation.terrain.tryGetHeightAt(projectile.position.x, projectile.position.z);
+            if (!terrainHeight)
+            {
+                // silently remove projectiles that go outside the map
+                simulation.projectiles.remove(id);
+                continue;
+            }
+
             auto seaLevel = simulation.terrain.getSeaLevel();
 
             // test collision with sea
@@ -1664,8 +1671,6 @@ namespace rwe
                     }
                 }
             }
-
-            // TODO: detect collision between a projectile and the world boundary
         }
     }
 
