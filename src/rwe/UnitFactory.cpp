@@ -309,12 +309,18 @@ namespace rwe
     {
         switch (code)
         {
-            case 0: return "cannonshell";
-            case 1: return "plasmasm";
-            case 2: return "plasmamd";
-            case 3: return "ultrashell";
-            case 4: return "plasmasm";
-            default: throw std::runtime_error("Unknown weapon sprite code");
+            case 0:
+                return "cannonshell";
+            case 1:
+                return "plasmasm";
+            case 2:
+                return "plasmamd";
+            case 3:
+                return "ultrashell";
+            case 4:
+                return "plasmasm";
+            default:
+                throw std::runtime_error("Unknown weapon sprite code");
         }
     }
 
