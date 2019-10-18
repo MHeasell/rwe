@@ -1743,8 +1743,8 @@ namespace rwe
 
         auto minPoint = simulation.terrain.worldToHeightmapCoordinate(SimVector(minX, position.y, minZ));
         auto maxPoint = simulation.terrain.worldToHeightmapCoordinate(SimVector(maxX, position.y, maxZ));
-        auto minCell = simulation.terrain.getHeightMap().clampToCoords(minPoint);
-        auto maxCell = simulation.terrain.getHeightMap().clampToCoords(maxPoint);
+        auto minCell = simulation.occupiedGrid.clampToCoords(minPoint);
+        auto maxCell = simulation.occupiedGrid.clampToCoords(maxPoint);
 
         assert(minCell.x <= maxCell.x);
         assert(minCell.y <= maxCell.y);
