@@ -403,7 +403,7 @@ namespace rwe
         switch (weapon->physicsType)
         {
             case ProjectilePhysicsType::LineOfSight:
-                direction = targetPosition - firingPoint;
+                direction = (targetPosition - firingPoint).normalized();
                 break;
             case ProjectilePhysicsType::Ballistic:
                 direction = toDirection(heading + unit.rotation, -pitch);
