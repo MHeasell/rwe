@@ -117,14 +117,12 @@ namespace rwe
         return Ok(std::move(glContext));
     };
 
-    int run(spdlog::logger& logger, const std::vector<fs::path>& searchPath, const std::optional<GameParameters>& gameParameters, unsigned int screenWidth, unsigned int screenHeight)
+    int run(spdlog::logger& logger, const std::vector<fs::path>& searchPath, const std::optional<GameParameters>& gameParameters, unsigned int desiredWindowWidth, unsigned int desiredWindowHeight, bool fullscreen)
     {
         logger.info(ProjectNameVersion);
         logger.info("Current directory: {0}", fs::current_path().string());
 
         TimeService timeService(getTimestamp());
-
-        ViewportService viewportService(0, 0, screenWidth, screenHeight);
 
         logger.info("Initializing SDL");
         SdlContextManager sdlManager;
@@ -141,11 +139,22 @@ namespace rwe
             throw std::runtime_error(SDL_GetError());
         }
 
-        auto window = sdlContext->createWindow("RWE", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, viewportService.width(), viewportService.height(), SDL_WINDOW_OPENGL);
+        auto window = sdlContext->createWindow(
+			"RWE",
+			SDL_WINDOWPOS_CENTERED,
+			SDL_WINDOWPOS_CENTERED,
+			desiredWindowWidth,
+			desiredWindowHeight,
+			SDL_WINDOW_OPENGL | (fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0));
         if (window == nullptr)
         {
             throw std::runtime_error(SDL_GetError());
         }
+
+        int windowWidth;
+        int windowHeight;
+        sdlContext->getWindowSize(window.get(), &windowWidth, &windowHeight);
+        ViewportService viewportService(0, 0, windowWidth, windowHeight);
 
         logger.info("Initializing OpenGL context");
 
@@ -452,6 +461,7 @@ int main(int argc, char* argv[])
             ("state-log", po::value<std::string>(), "Sets the output file for sim-state logs. This is a desync debugging feature.")
             ("width", po::value<unsigned int>()->default_value(800), "Sets the window width in pixels")
             ("height", po::value<unsigned int>()->default_value(600), "Sets the window height in pixels")
+            ("fullscreen", po::bool_switch(), "Starts the application in fullscreen mode")
             ("data-path", po::value<std::vector<std::string>>(), "Sets the location(s) to search for game data")
             ("map", po::value<std::string>(), "If given, launches straight into a game on the given map")
             ("port", po::value<std::string>()->default_value("1337"), "Network port to bind to")
@@ -519,8 +529,9 @@ int main(int argc, char* argv[])
 
             auto screenWidth = vm["width"].as<unsigned int>();
             auto screenHeight = vm["height"].as<unsigned int>();
+            auto fullscreen = vm["fullscreen"].as<bool>();
 
-            return rwe::run(*logger, gameDataPaths, gameParameters, screenWidth, screenHeight);
+            return rwe::run(*logger, gameDataPaths, gameParameters, screenWidth, screenHeight, fullscreen);
         }
         catch (const std::exception& e)
         {

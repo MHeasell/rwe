@@ -101,6 +101,11 @@ namespace rwe
             return SDL_GL_SetAttribute(attr, value);
         }
 
+        void getWindowSize(SDL_Window* window, int* w, int* h)
+        {
+            SDL_GetWindowSize(window, w, h);
+        }
+
     private:
         friend class SdlContextManager;
     };
