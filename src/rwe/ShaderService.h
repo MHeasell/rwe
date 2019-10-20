@@ -28,15 +28,6 @@ namespace rwe
         UniformLocation shade;
     };
 
-    struct UnitColorShader
-    {
-        ShaderProgramHandle handle;
-        UniformLocation mvpMatrix;
-        UniformLocation modelMatrix;
-        UniformLocation seaLevel;
-        UniformLocation shade;
-    };
-
     struct UnitBuildShader
     {
         ShaderProgramHandle handle;
@@ -62,7 +53,6 @@ namespace rwe
     public:
         BasicColorShader basicColor;
         BasicTextureShader basicTexture;
-        UnitColorShader unitColor;
         UnitTextureShader unitTexture;
         UnitBuildShader unitBuild;
     };
