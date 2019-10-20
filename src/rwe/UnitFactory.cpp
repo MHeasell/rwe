@@ -334,6 +334,9 @@ namespace rwe
         weapon.pitchTolerance = SimAngle(tdf.pitchTolerance);
         weapon.velocity = SimScalar(static_cast<float>(tdf.weaponVelocity) / 60.0f);
 
+        weapon.burst = tdf.burst;
+        weapon.burstInterval = SimScalar(tdf.burstRate);
+
         weapon.physicsType = tdf.lineOfSight
             ? ProjectilePhysicsType::LineOfSight
             : tdf.ballistic ? ProjectilePhysicsType::Ballistic

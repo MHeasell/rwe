@@ -59,6 +59,15 @@ namespace rwe
         std::optional<std::shared_ptr<SpriteSeries>> explosion;
         std::optional<std::shared_ptr<SpriteSeries>> waterExplosion;
 
+        /** The number of shots in a burst. */
+        int burst;
+
+        /** The amount of time between shots in the same burst, in seconds. */
+        SimScalar burstInterval;
+
+        /** Counts how many shots the weapon has fired so far in the current burst. */
+        int burstNumber{0};
+
         /** The game time at which the weapon next becomes ready to fire. */
         GameTime readyTime{0};
 

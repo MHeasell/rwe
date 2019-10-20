@@ -424,8 +424,17 @@ namespace rwe
         }
         unit.cobEnvironment->createThread(getFireScriptName(weaponIndex));
 
-        // we are reloading now
-        weapon->readyTime = gameTime + deltaSecondsToTicks(weapon->reloadTime);
+        ++weapon->burstNumber;
+        if (weapon->burstNumber >= weapon->burst)
+        {
+            // we finished our burst, we are reloading now
+            weapon->burstNumber = 0;
+            weapon->readyTime = gameTime + deltaSecondsToTicks(weapon->reloadTime);
+        }
+        else
+        {
+            weapon->readyTime = gameTime + deltaSecondsToTicks(weapon->burstInterval);
+        }
     }
 
     void UnitBehaviorService::applyUnitSteering(UnitId id)
