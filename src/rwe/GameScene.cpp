@@ -881,6 +881,30 @@ namespace rwe
             camera.setPosition(Vector3f(newPos.x, cameraPos.y, newPos.y));
         }
 
+        // update camera position from edge scroll
+        {
+            const float speed = CameraPanSpeed * simScalarToFloat(SecondsPerTick);
+
+            auto mousePosition = getMousePosition();
+            auto directionX = mousePosition.x == sceneContext.viewportService->left()
+                ? -1
+                : mousePosition.x == sceneContext.viewportService->right() - 1
+                    ? 1
+                    : 0;
+            auto directionZ = mousePosition.y == sceneContext.viewportService->top()
+                ? -1
+                : mousePosition.y == sceneContext.viewportService->bottom() - 1
+                    ? 1
+                    : 0;
+
+            auto dx = directionX * speed;
+            auto dz = directionZ * speed;
+            auto& cameraPos = camera.getRawPosition();
+            auto newPos = cameraConstraint.clamp(Vector2f(cameraPos.x + dx, cameraPos.z + dz));
+
+            camera.setPosition(Vector3f(newPos.x, cameraPos.y, newPos.y));
+        }
+
         // handle minimap dragging
         if (auto cursor = std::get_if<NormalCursorMode>(&cursorMode.getValue()); cursor != nullptr)
         {
