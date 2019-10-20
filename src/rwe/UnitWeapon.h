@@ -65,6 +65,9 @@ namespace rwe
         /** The amount of time between shots in the same burst, in seconds. */
         SimScalar burstInterval;
 
+        /** Maximum angle deviation of projectiles shot in a burst. */
+        SimAngle sprayAngle;
+
         /** Counts how many shots the weapon has fired so far in the current burst. */
         int burstNumber{0};
 

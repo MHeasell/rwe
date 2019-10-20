@@ -379,6 +379,25 @@ namespace rwe
             * SimVector(0_ss, 0_ss, 1_ss);
     }
 
+    SimVector rotateDirectionXZ(const SimVector& direction, SimAngle angle)
+    {
+        return Matrix4x<SimScalar>::rotationY(sin(angle), cos(angle)) * direction;
+    }
+
+    SimVector UnitBehaviorService::changeDirectionByRandomAngle(const SimVector& direction, SimAngle maxAngle)
+    {
+        std::uniform_int_distribution dist(SimAngle(0).value, maxAngle.value);
+        std::uniform_int_distribution dist2(0, 1);
+        auto& rng = scene->getSimulation().rng;
+        auto angle = SimAngle(dist(rng));
+        if (dist2(rng))
+        {
+            angle = SimAngle(0) - angle;
+        }
+
+        return rotateDirectionXZ(direction, angle);
+    }
+
     void UnitBehaviorService::tryFireWeapon(UnitId id, unsigned int weaponIndex, SimAngle heading, SimAngle pitch, const SimVector& targetPosition)
     {
         auto& unit = scene->getSimulation().getUnit(id);
@@ -410,6 +429,11 @@ namespace rwe
                 break;
             default:
                 throw std::logic_error("Unknown ProjectilePhysicsType");
+        }
+
+        if (weapon->sprayAngle != SimAngle(0))
+        {
+            direction = changeDirectionByRandomAngle(direction, weapon->sprayAngle);
         }
 
         if (weapon->startSmoke)

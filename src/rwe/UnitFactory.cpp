@@ -336,6 +336,7 @@ namespace rwe
 
         weapon.burst = tdf.burst;
         weapon.burstInterval = SimScalar(tdf.burstRate);
+        weapon.sprayAngle = SimAngle(tdf.sprayAngle);
 
         weapon.physicsType = tdf.lineOfSight
             ? ProjectilePhysicsType::LineOfSight
