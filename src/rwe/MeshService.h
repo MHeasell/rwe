@@ -42,6 +42,7 @@ namespace rwe
         SharedTextureHandle atlas;
         std::unordered_map<FrameId, Rectangle2f> atlasMap;
         std::unordered_map<std::string, TextureAttributes> textureAttributesMap;
+        std::vector<Vector2f> atlasColorMap;
 
     public:
         static MeshService createMeshService(
@@ -54,7 +55,8 @@ namespace rwe
             const ColorPalette* palette,
             SharedTextureHandle&& atlas,
             std::unordered_map<FrameId, Rectangle2f>&& atlasMap,
-            std::unordered_map<std::string, TextureAttributes> textureAttributesMap);
+            std::unordered_map<std::string, TextureAttributes> textureAttributesMap,
+            std::vector<Vector2f>&& atlasColorMap);
 
         struct UnitMeshInfo
         {
@@ -70,6 +72,7 @@ namespace rwe
     private:
         SharedTextureHandle getMeshTextureAtlas();
         Rectangle2f getTextureRegion(const std::string& name, const PlayerColorIndex& teamColor);
+        Vector2f getColorTexturePoint(unsigned int colorIndex);
 
         Mesh meshFrom3do(const _3do::Object& o, const PlayerColorIndex& teamColor);
 

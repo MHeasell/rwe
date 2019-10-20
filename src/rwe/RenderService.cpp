@@ -601,16 +601,6 @@ namespace rwe
         auto mvpMatrix = camera.getViewProjectionMatrix() * matrix;
 
         {
-            const auto& colorShader = shaders->unitColor;
-            graphics->bindShader(colorShader.handle.get());
-            graphics->setUniformMatrix(colorShader.mvpMatrix, mvpMatrix);
-            graphics->setUniformMatrix(colorShader.modelMatrix, matrix);
-            graphics->setUniformFloat(colorShader.seaLevel, seaLevel);
-            graphics->setUniformBool(colorShader.shade, shaded);
-            graphics->drawTriangles(mesh.coloredVertices);
-        }
-
-        {
             const auto& textureShader = shaders->unitTexture;
             graphics->bindShader(textureShader.handle.get());
             graphics->bindTexture(mesh.texture.get());

@@ -4,11 +4,9 @@ namespace rwe
 {
     ShaderMesh::ShaderMesh(
         const SharedTextureHandle& texture,
-        GlMesh&& texturedVertices,
-        GlMesh&& coloredVertices)
+        GlMesh&& texturedVertices)
         : texture(texture),
-          texturedVertices(std::move(texturedVertices)),
-          coloredVertices(std::move(coloredVertices))
+          texturedVertices(std::move(texturedVertices))
     {
     }
 }

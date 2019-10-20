@@ -4,12 +4,7 @@ namespace rwe
 {
 
     Mesh::Triangle::Triangle(const Mesh::Vertex& a, const Mesh::Vertex& b, const Mesh::Vertex& c)
-        : a(a), b(b), c(c), color(255, 255, 255)
-    {
-    }
-
-    Mesh::Triangle::Triangle(const Mesh::Vertex& a, const Mesh::Vertex& b, const Mesh::Vertex& c, const Color& color)
-        : a(a), b(b), c(c), color(color)
+        : a(a), b(b), c(c)
     {
     }
 

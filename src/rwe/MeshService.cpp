@@ -7,6 +7,7 @@
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/math/Vector3f.h>
 #include <rwe/math/rwe_math.h>
+#include <rwe/overloaded.h>
 #include <rwe/rwe_string.h>
 #include <rwe/vertex_height.h>
 
@@ -85,6 +86,16 @@ namespace rwe
         }
     };
 
+    struct AtlasItemFrame
+    {
+        FrameInfo* frameInfo;
+    };
+    struct AtlasItemColor
+    {
+        unsigned int colorIndex;
+    };
+    using AtlasItem = std::variant<AtlasItemFrame, AtlasItemColor>;
+
     MeshService MeshService::createMeshService(AbstractVirtualFileSystem* vfs, GraphicsContext* graphics, const ColorPalette* palette)
     {
         auto gafs = vfs->getFileNames("textures", ".gaf");
@@ -115,43 +126,64 @@ namespace rwe
         }
 
         // figure out how to pack the textures into an atlas
-        std::vector<FrameInfo*> frameRefs;
+        std::vector<AtlasItem> frameRefs;
         frameRefs.reserve(frames.size());
         for (auto& f : frames)
         {
-            frameRefs.push_back(&f);
+            frameRefs.emplace_back(AtlasItemFrame{&f});
+        }
+
+        for (int i = 0; i < palette->size(); ++i)
+        {
+            frameRefs.emplace_back(AtlasItemColor{i});
         }
 
         // For packing, round the area occupied by the texture up to the nearest power of two.
         // This is required to prevent texture bleeding when shrinking the atlas for mipmaps.
-        auto packInfo = packGridsGeneric<FrameInfo*>(frameRefs, [](const FrameInfo* f) {
-            return Size(roundUpToPowerOfTwo(f->data.getWidth()), roundUpToPowerOfTwo(f->data.getHeight()));
+        auto packInfo = packGridsGeneric<AtlasItem>(frameRefs, [](const AtlasItem& item) {
+            return match(
+                item,
+                [](const AtlasItemFrame& f) {
+                    return Size(roundUpToPowerOfTwo(f.frameInfo->data.getWidth()), roundUpToPowerOfTwo(f.frameInfo->data.getHeight()));
+                },
+                [](const AtlasItemColor&) {
+                    return Size(1, 1);
+                });
         });
 
         // pack the textures
         Grid<Color> atlas(packInfo.width, packInfo.height);
         std::unordered_map<FrameId, Rectangle2f> atlasMap;
+        std::vector<Vector2f> atlasColorMap(palette->size());
 
         for (const auto& e : packInfo.entries)
         {
-            FrameId id(e.value->name, e.value->frameNumber);
+            match(
+                e.value,
+                [&](const AtlasItemFrame& f) {
+                    FrameId id(f.frameInfo->name, f.frameInfo->frameNumber);
 
-            auto left = static_cast<float>(e.x) / static_cast<float>(packInfo.width);
-            auto top = static_cast<float>(e.y) / static_cast<float>(packInfo.height);
-            auto right = static_cast<float>(e.x + e.value->data.getWidth()) / static_cast<float>(packInfo.width);
-            auto bottom = static_cast<float>(e.y + e.value->data.getHeight()) / static_cast<float>(packInfo.height);
-            auto bounds = Rectangle2f::fromTLBR(top, left, bottom, right);
+                    auto left = static_cast<float>(e.x) / static_cast<float>(packInfo.width);
+                    auto top = static_cast<float>(e.y) / static_cast<float>(packInfo.height);
+                    auto right = static_cast<float>(e.x + f.frameInfo->data.getWidth()) / static_cast<float>(packInfo.width);
+                    auto bottom = static_cast<float>(e.y + f.frameInfo->data.getHeight()) / static_cast<float>(packInfo.height);
+                    auto bounds = Rectangle2f::fromTLBR(top, left, bottom, right);
 
-            atlasMap.insert({id, bounds});
+                    atlasMap.insert({id, bounds});
 
-            atlas.transformAndReplace<char>(e.x, e.y, e.value->data, [palette](char v) {
-                return (*palette)[static_cast<unsigned char>(v)];
-            });
+                    atlas.transformAndReplace<char>(e.x, e.y, f.frameInfo->data, [palette](char v) {
+                        return (*palette)[static_cast<unsigned char>(v)];
+                    });
+                },
+                [&](const AtlasItemColor& c) {
+                    atlasColorMap[c.colorIndex] = Vector2f((e.x + 0.5f) / static_cast<float>(packInfo.width), (e.y + 0.5f) / static_cast<float>(packInfo.height));
+                    atlas.set(e.x, e.y, (*palette)[c.colorIndex]);
+                });
         }
 
         SharedTextureHandle atlasTexture(graphics->createTexture(atlas));
 
-        return MeshService(vfs, palette, std::move(atlasTexture), std::move(atlasMap), std::move(attribs));
+        return MeshService(vfs, palette, std::move(atlasTexture), std::move(atlasMap), std::move(attribs), std::move(atlasColorMap));
     }
 
     MeshService::MeshService(
@@ -159,12 +191,14 @@ namespace rwe
         const ColorPalette* palette,
         SharedTextureHandle&& atlas,
         std::unordered_map<FrameId, Rectangle2f>&& atlasMap,
-        std::unordered_map<std::string, TextureAttributes> textureAttributesMap)
+        std::unordered_map<std::string, TextureAttributes> textureAttributesMap,
+        std::vector<Vector2f>&& atlasColorMap)
         : vfs(vfs),
           palette(palette),
           atlas(std::move(atlas)),
           atlasMap(std::move(atlasMap)),
-          textureAttributesMap(std::move(textureAttributesMap))
+          textureAttributesMap(std::move(textureAttributesMap)),
+          atlasColorMap(std::move(atlasColorMap))
     {
     }
 
@@ -199,17 +233,17 @@ namespace rwe
             // handle other polygon types
             if (p.vertices.size() >= 3 && p.colorIndex)
             {
+                auto texturePosition = getColorTexturePoint(*p.colorIndex);
                 const auto& first = vertexToVector(o.vertices[p.vertices.front()]);
                 for (unsigned int i = p.vertices.size() - 1; i >= 2; --i)
                 {
                     const auto& second = vertexToVector(o.vertices[p.vertices[i]]);
                     const auto& third = vertexToVector(o.vertices[p.vertices[i - 1]]);
                     Mesh::Triangle t(
-                        Mesh::Vertex(first, Vector2f(0.0f, 0.0f)),
-                        Mesh::Vertex(second, Vector2f(0.0f, 0.0f)),
-                        Mesh::Vertex(third, Vector2f(0.0f, 0.0f)),
-                        (*palette)[*p.colorIndex]);
-                    m.colorFaces.push_back(t);
+                        Mesh::Vertex(first, texturePosition),
+                        Mesh::Vertex(second, texturePosition),
+                        Mesh::Vertex(third, texturePosition));
+                    m.faces.push_back(t);
                 }
 
                 continue;
@@ -305,6 +339,12 @@ namespace rwe
         return it->second;
     }
 
+    Vector2f MeshService::getColorTexturePoint(unsigned int colorIndex)
+    {
+        assert(colorIndex < atlasColorMap.size());
+        return atlasColorMap[colorIndex];
+    }
+
     SelectionMesh MeshService::selectionMeshFrom3do(const _3do::Object& o)
     {
         auto index = o.selectionPrimitiveIndex.value_or(0u);
@@ -359,19 +399,6 @@ namespace rwe
 
         auto texturedMesh = graphics->createTexturedNormalMesh(texturedVerticesBuffer, GL_STATIC_DRAW);
 
-        std::vector<GlColoredNormalVertex> coloredVerticesBuffer;
-        for (const auto& t : mesh.colorFaces)
-        {
-            auto color = Vector3f(t.color.r, t.color.g, t.color.b) / 255.0f;
-            auto normal = getNormal(t);
-
-            coloredVerticesBuffer.emplace_back(t.a.position, color, normal);
-            coloredVerticesBuffer.emplace_back(t.b.position, color, normal);
-            coloredVerticesBuffer.emplace_back(t.c.position, color, normal);
-        }
-
-        auto coloredMesh = graphics->createColoredNormalMesh(coloredVerticesBuffer, GL_STATIC_DRAW);
-
-        return ShaderMesh(mesh.texture, std::move(texturedMesh), std::move(coloredMesh));
+        return ShaderMesh(mesh.texture, std::move(texturedMesh));
     }
 }

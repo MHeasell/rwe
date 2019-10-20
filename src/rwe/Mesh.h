@@ -26,17 +26,12 @@ namespace rwe
             Vertex b;
             Vertex c;
 
-            Color color;
-
             Triangle() = default;
             Triangle(const Vertex& a, const Vertex& b, const Vertex& c);
-
-            Triangle(const Vertex& a, const Vertex& b, const Vertex& c, const Color& color);
         };
 
         SharedTextureHandle texture;
 
         std::vector<Triangle> faces;
-        std::vector<Triangle> colorFaces;
     };
 }
