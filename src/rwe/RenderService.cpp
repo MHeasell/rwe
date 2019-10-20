@@ -626,11 +626,14 @@ namespace rwe
 
         Vector3f snappedPosition(std::round(position.x), truncateToInterval(position.y, 2.0f), std::round(position.z));
 
-        // Convert to a world-space flat position.
-        auto modelMatrix = Matrix4f::translation(snappedPosition)
-            * Matrix4f::rotationX(-Pif / 2.0f)
-            * Matrix4f::scale(Vector3f(1.0f, -1.0f, 1.0f))
-            * sprite.getTransform();
+        // Convert to a model position that makes sense in the game world.
+        // For standing (blocking) features we stretch y-dimension values by 2x
+        // to correct for TA camera distortion.
+        Matrix4f conversionMatrix = feature.isStanding()
+            ? Matrix4f::scale(Vector3f(1.0f, -2.0f, 1.0f))
+            : Matrix4f::rotationX(-Pif / 2.0f) * Matrix4f::scale(Vector3f(1.0f, -1.0f, 1.0f));
+
+        auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix * sprite.getTransform();
 
         const auto& shader = shaders->basicTexture;
         graphics->bindTexture(sprite.texture.get());

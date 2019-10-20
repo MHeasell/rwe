@@ -414,10 +414,7 @@ namespace rwe
 
         sceneContext.graphics->disableDepthWrites();
 
-        sceneContext.graphics->disableDepthTest();
         worldRenderService.drawStandingFeatureShadows(simulation.features | boost::adaptors::map_values);
-        sceneContext.graphics->enableDepthTest();
-
         worldRenderService.drawStandingFeatures(simulation.features | boost::adaptors::map_values);
 
         sceneContext.graphics->disableDepthTest();
