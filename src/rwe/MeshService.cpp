@@ -133,7 +133,7 @@ namespace rwe
             frameRefs.emplace_back(AtlasItemFrame{&f});
         }
 
-        for (int i = 0; i < palette->size(); ++i)
+        for (unsigned int i = 0; i < palette->size(); ++i)
         {
             frameRefs.emplace_back(AtlasItemColor{i});
         }
