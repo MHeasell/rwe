@@ -40,6 +40,12 @@ namespace rwe
         UniformLocation time;
     };
 
+    struct ShadowShader
+    {
+        ShaderProgramHandle handle;
+        UniformLocation mvpMatrix;
+    };
+
     class ShaderService
     {
     public:
@@ -55,5 +61,6 @@ namespace rwe
         BasicTextureShader basicTexture;
         UnitTextureShader unitTexture;
         UnitBuildShader unitBuild;
+        ShadowShader shadow;
     };
 }

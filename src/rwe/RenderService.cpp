@@ -596,6 +596,88 @@ namespace rwe
         }
     }
 
+    void RenderService::drawRenderBatch(const RenderBatch& batch, float seaLevel)
+    {
+        // draw regular meshes
+        drawRenderBatchMeshes(batch.meshes, seaLevel);
+
+        // draw shadow meshes
+        graphics->enableStencilBuffer();
+        graphics->clearStencilBuffer();
+        graphics->useStencilBufferForWrites();
+        graphics->disableColorBuffer();
+
+        drawRenderBatchMeshShadows(batch.meshShadows);
+
+        graphics->useStencilBufferAsMask();
+        graphics->enableColorBuffer();
+
+        fillScreen(0.0f, 0.0f, 0.0f, 0.5f);
+
+        graphics->enableColorBuffer();
+        graphics->disableStencilBuffer();
+
+        drawRenderBatchSprites(batch.sprites);
+    }
+
+    void RenderService::drawRenderBatchMeshes(const std::vector<MeshRenderCommand>& meshes, float seaLevel)
+    {
+        if (meshes.empty())
+        {
+            return;
+        }
+
+        const auto& textureShader = shaders->unitTexture;
+        graphics->bindShader(textureShader.handle.get());
+        graphics->bindTexture(meshes[0].texture);
+        auto currentTexture = meshes[0].texture;
+
+        for (const auto& mesh : meshes)
+        {
+            if (mesh.texture != currentTexture)
+            {
+                graphics->bindTexture(mesh.texture);
+            }
+            graphics->setUniformMatrix(textureShader.mvpMatrix, mesh.mvpMatrix);
+            graphics->setUniformMatrix(textureShader.modelMatrix, mesh.modelMatrix);
+            graphics->setUniformFloat(textureShader.seaLevel, seaLevel);
+            graphics->setUniformBool(textureShader.shade, mesh.shade);
+            graphics->drawTriangles(*mesh.mesh);
+        }
+    }
+
+    void RenderService::drawRenderBatchMeshShadows(const std::vector<MeshShadowRenderCommand>& meshShadows)
+    {
+        const auto& shadowShader = shaders->unitTexture;
+        graphics->bindShader(shadowShader.handle.get());
+
+        for (const auto& mesh : meshShadows)
+        {
+            graphics->setUniformMatrix(shadowShader.mvpMatrix, mesh.mvpMatrix);
+            graphics->drawTriangles(*mesh.mesh);
+        }
+    }
+
+    void RenderService::drawRenderBatchSprites(const std::vector<SpriteRenderCommand>& sprites)
+    {
+        if (sprites.empty())
+        {
+            return;
+        }
+
+        const auto& spriteShader = shaders->basicTexture;
+        graphics->bindShader(spriteShader.handle.get());
+
+        for (const auto& sprite : sprites)
+        {
+            const auto& shader = shaders->basicTexture;
+            graphics->bindTexture(sprite.texture);
+            graphics->setUniformMatrix(shader.mvpMatrix, sprite.mvpMatrix);
+            graphics->setUniformVec4(shader.tint, 1.0f, 1.0f, 1.0f, sprite.alpha);
+            graphics->drawTriangles(*sprite.mesh);
+        }
+    }
+
     void RenderService::drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded)
     {
         auto mvpMatrix = camera.getViewProjectionMatrix() * matrix;

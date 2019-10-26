@@ -516,7 +516,7 @@ set(SOURCE_FILES
     src/rwe/vfs/DirectoryFileSystem.h
     src/rwe/vfs/HpiFileSystem.cpp
     src/rwe/vfs/HpiFileSystem.h
-    )
+        src/rwe/RenderBatch.cpp src/rwe/RenderBatch.h src/rwe/RenderBatch_helpers.cpp src/rwe/RenderBatch_helpers.h)
 
 if(WIN32)
     add_definitions(-DRWE_PLATFORM_WINDOWS)

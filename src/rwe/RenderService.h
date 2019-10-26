@@ -1,5 +1,6 @@
 #pragma once
 
+#include "RenderBatch.h"
 #include <boost/iterator/filter_iterator.hpp>
 #include <rwe/Explosion.h>
 #include <rwe/GameTime.h>
@@ -116,7 +117,15 @@ namespace rwe
 
         void drawExplosions(GameTime currentTime, const std::vector<Explosion>& explosions);
 
+        void drawRenderBatch(const RenderBatch& batch, float seaLevel);
+
     private:
+        void drawRenderBatchMeshes(const std::vector<MeshRenderCommand>& meshes, float seaLevel);
+
+        void drawRenderBatchMeshShadows(const std::vector<MeshShadowRenderCommand>& meshShadows);
+
+        void drawRenderBatchSprites(const std::vector<SpriteRenderCommand>& sprites);
+
         void drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded);
 
         GlMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines);
