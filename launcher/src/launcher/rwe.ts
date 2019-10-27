@@ -48,6 +48,18 @@ export interface RweArgs {
   players?: RweArgsPlayerSlot[];
 }
 
+function serializeHost(host: string): string {
+  const ipv4Match = host.match(/^(?:::ffff:)?(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
+  if (ipv4Match) {
+    return `::ffff:${ipv4Match[1]}.${ipv4Match[2]}.${ipv4Match[3]}.${ipv4Match[4]}`;
+  }
+  return host;
+}
+
+function serializeHostAndPort(host: string, port: number): string {
+  return `[${serializeHost(host)}]:${port.toString()}`;
+}
+
 function serializeRweController(controller: RweArgsPlayerController): string {
   switch (controller.type) {
     case "human":
@@ -55,7 +67,10 @@ function serializeRweController(controller: RweArgsPlayerController): string {
     case "computer":
       return "Computer";
     case "remote":
-      return `Network,${controller.host}:${controller.port.toString()}`;
+      return `Network,${serializeHostAndPort(
+        controller.host,
+        controller.port
+      )}`;
     default:
       throw new Error("unknown controller type");
   }
