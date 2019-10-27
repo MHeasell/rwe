@@ -1,4 +1,9 @@
-import { app, BrowserWindow, BrowserWindowConstructorOptions } from "electron";
+import {
+  app,
+  BrowserWindow,
+  BrowserWindowConstructorOptions,
+  Menu,
+} from "electron";
 import * as path from "path";
 import { installExtensions } from "./install-devtools-extensions";
 
@@ -65,7 +70,16 @@ function createWindow() {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on("ready", () => installExtensions().then(createWindow));
+app.on("ready", () =>
+  installExtensions().then(() => {
+    // Hide menu bar in release mode to discourage users
+    // from poking at developer tools.
+    if (!development) {
+      Menu.setApplicationMenu(null);
+    }
+    createWindow();
+  })
+);
 
 // Quit when all windows are closed.
 app.on("window-all-closed", () => {
