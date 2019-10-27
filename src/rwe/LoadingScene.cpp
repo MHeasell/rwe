@@ -100,7 +100,6 @@ namespace rwe
     void LoadingScene::render()
     {
         panel->render(scaledUiRenderService);
-        sceneContext.cursor->render(nativeUiRenderService);
     }
 
     std::seed_seq seedFromGameParameters(const GameParameters& params)

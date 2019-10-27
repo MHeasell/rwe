@@ -234,8 +234,6 @@ namespace rwe
 
         AudioService audioService(sdlContext, sdlManager.getSdlMixerContext(), &vfs);
 
-        SceneManager sceneManager(sdlContext, window.get(), &graphics, &timeService);
-
         // load sound definitions
         logger.info("Loading global sound definitions");
         auto allSoundBytes = vfs.readFile("gamedata/ALLSOUND.TDF");
@@ -258,6 +256,8 @@ namespace rwe
             textureService.getGafEntry("anims/CURSORS.GAF", "cursorred"));
 
         sdlContext->showCursor(SDL_DISABLE);
+
+        SceneManager sceneManager(sdlContext, window.get(), &graphics, &timeService, &cursor, UiRenderService(&graphics, &shaders, UiCamera(viewportService.width(), viewportService.height())));
 
         logger.info("Loading side data");
         auto sideDataBytes = vfs.readFile("gamedata/SIDEDATA.TDF");

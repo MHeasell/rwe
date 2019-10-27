@@ -44,8 +44,6 @@ namespace rwe
             scaledUiRenderService.fillScreen(Color(0, 0, 0, 63));
             e->render(scaledUiRenderService);
         }
-
-        sceneContext.cursor->render(nativeUiRenderService);
     }
 
     void MainMenuScene::onMouseDown(MouseButtonEvent event)

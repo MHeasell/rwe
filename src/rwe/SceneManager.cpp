@@ -20,13 +20,17 @@ namespace rwe
         SdlContext* sdl,
         SDL_Window* window,
         GraphicsContext* graphics,
-        TimeService* timeService)
+        TimeService* timeService,
+        CursorService* cursorService,
+        UiRenderService&& uiRenderService)
         : currentScene(),
           nextScene(),
           sdl(sdl),
           window(window),
           graphics(graphics),
           timeService(timeService),
+          cursorService(cursorService),
+          uiRenderService(std::move(uiRenderService)),
           requestedExit(false)
     {
     }
@@ -108,6 +112,7 @@ namespace rwe
 
             graphics->clear();
             currentScene->render();
+            cursorService->render(uiRenderService);
             sdl->glSwapWindow(window);
 
             auto finishTime = timeService->getTicks();

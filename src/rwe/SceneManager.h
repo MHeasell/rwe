@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <rwe/CursorService.h>
 #include <rwe/GraphicsContext.h>
 #include <rwe/SdlContextManager.h>
 #include <rwe/events.h>
@@ -44,13 +45,15 @@ namespace rwe
         SDL_Window* window;
         GraphicsContext* graphics;
         TimeService* timeService;
+        CursorService* cursorService;
+        UiRenderService uiRenderService;
         bool requestedExit;
 
     public:
         // Number of milliseconds between each game tick.
         static const unsigned int TickInterval = 1000 / 60;
 
-        explicit SceneManager(SdlContext* sdl, SDL_Window* window, GraphicsContext* graphics, TimeService* timeService);
+        explicit SceneManager(SdlContext* sdl, SDL_Window* window, GraphicsContext* graphics, TimeService* timeService, CursorService* cursorService, UiRenderService&& uiRenderService);
         void setNextScene(std::shared_ptr<Scene> scene);
 
         void execute();

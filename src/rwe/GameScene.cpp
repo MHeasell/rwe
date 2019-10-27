@@ -319,7 +319,6 @@ namespace rwe
 
         sceneContext.graphics->setViewport(0, 0, sceneContext.viewportService->width(), sceneContext.viewportService->height());
         sceneContext.graphics->disableDepthBuffer();
-        sceneContext.cursor->render(chromeUiRenderService);
         sceneContext.graphics->enableDepthBuffer();
     }
 
