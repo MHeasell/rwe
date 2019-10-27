@@ -1,3 +1,4 @@
+#include <SDL.h>
 #include <boost/filesystem.hpp>
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include <iostream>
@@ -90,6 +91,19 @@ void writeMapInfoSuccess(const rwe::OtaRecord& ota)
         {"memory", ota.memory},
         {"numberOfPlayers", ota.numPlayers},
     };
+    std::cout << j << std::endl;
+}
+
+void writeGetModeListSuccess(const std::vector<std::pair<int, int>>& modes)
+{
+    std::vector<json> modesJson;
+    std::transform(modes.begin(), modes.end(), std::back_inserter(modesJson), [](const auto& m) {
+        return json{{"width", m.first}, {"height", m.second}};
+    });
+    json j = {
+        {"modes", modesJson},
+    };
+
     std::cout << j << std::endl;
 }
 
@@ -216,6 +230,27 @@ int main(int argc, char* argv[])
 
             rwe::extractMinimap(vfs, palette, mapName, output.string());
             writeGetMinimapSuccess(output.string());
+        }
+        else if (command == "video-modes")
+        {
+            if (SDL_Init(SDL_INIT_VIDEO))
+            {
+                throw std::runtime_error("Failed to init video");
+            }
+            std::vector<std::pair<int, int>> modeList;
+            auto displayModes = SDL_GetNumDisplayModes(0);
+            for (int i = 0; i < displayModes; ++i)
+            {
+                SDL_DisplayMode mode;
+                SDL_GetDisplayMode(0, i, &mode);
+                if (mode.format != SDL_PIXELFORMAT_RGB888 || mode.refresh_rate != 60)
+                {
+                    continue;
+                }
+                modeList.emplace_back(mode.w, mode.h);
+            }
+            writeGetModeListSuccess(modeList);
+            SDL_Quit();
         }
         else
         {
