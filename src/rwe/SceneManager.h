@@ -3,6 +3,7 @@
 #include <memory>
 #include <rwe/CursorService.h>
 #include <rwe/GraphicsContext.h>
+#include <rwe/ImGuiContext.h>
 #include <rwe/SdlContextManager.h>
 #include <rwe/events.h>
 #include <rwe/rwe_time.h>
@@ -45,6 +46,7 @@ namespace rwe
         SDL_Window* window;
         GraphicsContext* graphics;
         TimeService* timeService;
+        ImGuiContext* imGuiContext;
         CursorService* cursorService;
         UiRenderService uiRenderService;
         bool requestedExit;
@@ -53,7 +55,7 @@ namespace rwe
         // Number of milliseconds between each game tick.
         static const unsigned int TickInterval = 1000 / 60;
 
-        explicit SceneManager(SdlContext* sdl, SDL_Window* window, GraphicsContext* graphics, TimeService* timeService, CursorService* cursorService, UiRenderService&& uiRenderService);
+        explicit SceneManager(SdlContext* sdl, SDL_Window* window, GraphicsContext* graphics, TimeService* timeService, ImGuiContext* imGuiContext, CursorService* cursorService, UiRenderService&& uiRenderService);
         void setNextScene(std::shared_ptr<Scene> scene);
 
         void execute();

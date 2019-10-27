@@ -21,6 +21,7 @@ namespace rwe
         SDL_Window* window,
         GraphicsContext* graphics,
         TimeService* timeService,
+        ImGuiContext* imGuiContext,
         CursorService* cursorService,
         UiRenderService&& uiRenderService)
         : currentScene(),
@@ -29,6 +30,7 @@ namespace rwe
           window(window),
           graphics(graphics),
           timeService(timeService),
+          imGuiContext(imGuiContext),
           cursorService(cursorService),
           uiRenderService(std::move(uiRenderService)),
           requestedExit(false)
@@ -55,6 +57,11 @@ namespace rwe
             SDL_Event event;
             while (sdl->pollEvent(&event))
             {
+                if (imGuiContext->processEvent(event))
+                {
+                    continue;
+                }
+
                 switch (event.type)
                 {
                     case SDL_QUIT:
@@ -110,9 +117,19 @@ namespace rwe
 
             currentScene->update();
 
+            imGuiContext->newFrame(window);
+
             graphics->clear();
             currentScene->render();
-            cursorService->render(uiRenderService);
+
+            if (!imGuiContext->io->WantCaptureMouse)
+            {
+                sdl->showCursor(false);
+                cursorService->render(uiRenderService);
+            }
+
+            imGuiContext->render();
+
             sdl->glSwapWindow(window);
 
             auto finishTime = timeService->getTicks();

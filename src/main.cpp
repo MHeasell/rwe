@@ -117,7 +117,7 @@ namespace rwe
         return Ok(std::move(glContext));
     };
 
-    int run(spdlog::logger& logger, const std::vector<fs::path>& searchPath, const std::optional<GameParameters>& gameParameters, unsigned int desiredWindowWidth, unsigned int desiredWindowHeight, bool fullscreen)
+    int run(spdlog::logger& logger, const std::vector<fs::path>& searchPath, const std::optional<GameParameters>& gameParameters, unsigned int desiredWindowWidth, unsigned int desiredWindowHeight, bool fullscreen, const std::string& imGuiIniPath)
     {
         logger.info(ProjectNameVersion);
         logger.info("Current directory: {0}", fs::current_path().string());
@@ -190,6 +190,9 @@ namespace rwe
             logger.debug("  {0}", glGetStringi(GL_EXTENSIONS, i));
         }
 
+        logger.info("Initializing Dear ImGui");
+        ImGuiContext imGuiContext(imGuiIniPath, window.get(), glContext.get());
+
         logger.info("Initializing virtual file system");
         CompositeVirtualFileSystem vfs;
         for (const auto& path : searchPath)
@@ -257,7 +260,7 @@ namespace rwe
 
         sdlContext->showCursor(SDL_DISABLE);
 
-        SceneManager sceneManager(sdlContext, window.get(), &graphics, &timeService, &cursor, UiRenderService(&graphics, &shaders, UiCamera(viewportService.width(), viewportService.height())));
+        SceneManager sceneManager(sdlContext, window.get(), &graphics, &timeService, &imGuiContext, &cursor, UiRenderService(&graphics, &shaders, UiCamera(viewportService.width(), viewportService.height())));
 
         logger.info("Loading side data");
         auto sideDataBytes = vfs.readFile("gamedata/SIDEDATA.TDF");
@@ -320,6 +323,7 @@ namespace rwe
         sceneManager.execute();
 
         logger.info("Finished main loop, exiting");
+
         return 0;
     }
 
@@ -452,6 +456,9 @@ int main(int argc, char* argv[])
         fs::path configFilePath(*localDataPath);
         configFilePath /= "rwe.cfg";
 
+        fs::path imGuiIniFilePath(*localDataPath);
+        imGuiIniFilePath /= "imgui.ini";
+
         po::options_description desc("Allowed options");
 
         // clang-format off
@@ -531,7 +538,7 @@ int main(int argc, char* argv[])
             auto screenHeight = vm["height"].as<unsigned int>();
             auto fullscreen = vm["fullscreen"].as<bool>();
 
-            return rwe::run(*logger, gameDataPaths, gameParameters, screenWidth, screenHeight, fullscreen);
+            return rwe::run(*logger, gameDataPaths, gameParameters, screenWidth, screenHeight, fullscreen, imGuiIniFilePath.string());
         }
         catch (const std::exception& e)
         {

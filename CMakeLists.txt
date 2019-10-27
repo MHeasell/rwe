@@ -198,7 +198,18 @@ protobuf_generate_cpp(PROTO_SOURCE_FILES PROTO_HEADER_FILES proto/network.proto)
 message("proto src files: ${PROTO_SOURCE_FILES}")
 message("proto header files: ${PROTO_HEADER_FILES}")
 
+file(GLOB IMGUI_SOURCE_FILES
+    ${PROJECT_SOURCE_DIR}/libs/imgui/*.cpp
+    )
+
+set(IMGUI_IMPL_FILES
+    ${PROJECT_SOURCE_DIR}/libs/imgui/examples/imgui_impl_sdl.cpp
+    ${PROJECT_SOURCE_DIR}/libs/imgui/examples/imgui_impl_opengl3.cpp
+    )
+
 set(SOURCE_FILES
+    ${IMGUI_IMPL_FILES}
+    ${IMGUI_SOURCE_FILES}
     src/rwe/AudioService.cpp
     src/rwe/AudioService.h
     src/rwe/BoxTreeSplit.cpp
@@ -243,6 +254,8 @@ set(SOURCE_FILES
     src/rwe/Grid.h
     src/rwe/Hpi.cpp
     src/rwe/Hpi.h
+    src/rwe/ImGuiContext.cpp
+    src/rwe/ImGuiContext.h
     src/rwe/InGameSoundsInfo.cpp
     src/rwe/InGameSoundsInfo.h
     src/rwe/LoadingNetworkService.cpp
@@ -610,6 +623,9 @@ target_include_directories(librwe PUBLIC ${Protobuf_INCLUDE_DIRS})
 target_include_directories(librwe PUBLIC ${CMAKE_CURRENT_BINARY_DIR}) # for generated headers
 
 target_link_libraries(librwe nlohmann_json::nlohmann_json)
+
+target_include_directories(librwe PUBLIC ${PROJECT_SOURCE_DIR}/libs/imgui)
+target_include_directories(librwe PUBLIC ${PROJECT_SOURCE_DIR}/libs/imgui/examples)
 
 add_custom_target(rwe_shaders)
 add_custom_command(TARGET rwe_shaders PRE_BUILD
