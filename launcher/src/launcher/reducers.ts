@@ -353,6 +353,8 @@ function games(state: State = initialState, action: AppAction): State {
       return { ...state, masterServerConnectionStatus: "disconnected" };
     case "RECEIVE_INSTALLED_MODS":
       return { ...state, installedMods: action.mods };
+    case "RECEIVE_VIDEO_MODES":
+      return { ...state, videoModes: action.modes };
     case "CHANGE_SINGLE_PLAYER_MODS":
       return currentScreenWrapperReducer(
         action.newMods ? { ...state, activeMods: action.newMods } : state,

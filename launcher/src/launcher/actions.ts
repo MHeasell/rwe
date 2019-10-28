@@ -6,7 +6,7 @@ import {
   GameUpdatedEventPayload,
   GetGamesResponsePayload,
 } from "../master-server/protocol";
-import { PlayerSide, InstalledModInfo } from "./state";
+import { PlayerSide, InstalledModInfo, VideoMode } from "./state";
 import * as protocol from "../game-server/protocol";
 import { MapsDialogAction } from "./mapsDialogActions";
 import { WizardAction } from "./wizardActions";
@@ -647,6 +647,18 @@ export function receiveInstalledMods(
   };
 }
 
+export interface ReceiveVideoModes {
+  type: "RECEIVE_VIDEO_MODES";
+  modes: VideoMode[];
+}
+
+export function receiveVideoModes(modes: VideoMode[]): ReceiveVideoModes {
+  return {
+    type: "RECEIVE_VIDEO_MODES",
+    modes,
+  };
+}
+
 export type AppAction =
   | SelectGameAction
   | JoinSelectedGameConfirmAction
@@ -698,6 +710,7 @@ export type AppAction =
   | SetActiveModsAction
   | ReceiveActiveModsChangedAction
   | ReceiveInstalledMods
+  | ReceiveVideoModes
   | MapsDialogAction
   | WizardAction
   | ChangeSinglePlayerModsAction;

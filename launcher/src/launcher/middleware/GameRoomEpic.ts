@@ -33,6 +33,7 @@ import {
   receiveActiveModsChanged,
   receiveInstalledMods,
   receiveCombinedMapInfo,
+  receiveVideoModes,
 } from "../actions";
 import {
   FilledPlayerSlot,
@@ -394,6 +395,16 @@ const mapNameAndCacheSelector = createSelector(
   (mapName, cacheEntry) => [mapName, cacheEntry] as const
 );
 
+const videoModesEpic = (
+  action$: rx.Observable<AppAction>,
+  state$: StateObservable<State>,
+  deps: EpicDependencies
+): rx.Observable<AppAction> => {
+  return rx
+    .from(deps.bridgeService.getVideoModes())
+    .pipe(rxop.map(x => receiveVideoModes(x.modes)));
+};
+
 const rweBridgeEpic = (
   action$: rx.Observable<AppAction>,
   state$: StateObservable<State>,
@@ -449,5 +460,6 @@ export const rootEpic = combineEpics(
   launchRweEpic,
   rweBridgeEpic,
   installedModsEpic,
-  wizardEpic
+  wizardEpic,
+  videoModesEpic
 );

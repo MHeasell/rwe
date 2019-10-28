@@ -119,8 +119,14 @@ export interface InstalledModInfo {
   path: string;
 }
 
+export interface VideoMode {
+  width: number;
+  height: number;
+}
+
 export interface State {
   installedMods?: InstalledModInfo[];
+  videoModes?: VideoMode[];
   activeMods: string[];
   games: GameListEntry[];
   selectedGameId?: number;
