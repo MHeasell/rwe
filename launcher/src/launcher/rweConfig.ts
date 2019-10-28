@@ -1,4 +1,5 @@
 import os from "os";
+import fs from "fs";
 
 export interface RweConfig {
   width?: number;
@@ -23,6 +24,22 @@ function parseConfigInt(n?: string): number | undefined {
   return parseInt(n, 10);
 }
 
+export function readConfigFromFile(filename: string): Promise<RweConfig> {
+  return new Promise((resolve, reject) => {
+    fs.readFile(filename, "utf8", (err, data) => {
+      if (err) {
+        if (err.code === "ENOENT") {
+          resolve({});
+        } else {
+          reject(err);
+        }
+        return;
+      }
+      resolve(readConfig(data));
+    });
+  });
+}
+
 export function readConfig(lines: string): RweConfig {
   const m = readConfigMap(lines);
   return {
@@ -30,6 +47,21 @@ export function readConfig(lines: string): RweConfig {
     height: parseConfigInt(m.get("height")),
     fullscreen: parseConfigBoolean(m.get("fullscreen")),
   };
+}
+
+export function writeConfigToFile(
+  filename: string,
+  data: RweConfig
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(filename, writeConfig(data), "utf8", err => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve();
+    });
+  });
 }
 
 export function writeConfig(config: RweConfig): string {
@@ -55,7 +87,7 @@ function readConfigMap(lines: string): Map<string, string> {
     if (!match) {
       continue;
     }
-    m.set(match[0], match[1]);
+    m.set(match[1], match[2]);
   }
   return m;
 }
