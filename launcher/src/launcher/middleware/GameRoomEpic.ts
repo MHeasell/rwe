@@ -34,6 +34,7 @@ import {
   receiveInstalledMods,
   receiveCombinedMapInfo,
   receiveVideoModes,
+  SubmitSettingsDialogAction,
   receiveRweConfig,
 } from "../actions";
 import {
@@ -64,7 +65,7 @@ import { getRweModsPath, getRweConfigPath } from "../util";
 import { wizardEpic } from "../wizardEpic";
 import { getInstalledMods } from "../../common/mods";
 import { chooseOp } from "../../common/rxutil";
-import { readConfigFromFile } from "../rweConfig";
+import { readConfigFromFile, writeConfigToFile } from "../rweConfig";
 
 export interface EpicDependencies {
   clientService: GameClientService;
@@ -418,6 +419,22 @@ const rweConfigEpic = (
     .pipe(rxop.map(x => receiveRweConfig(x)));
 };
 
+const rweConfigDialogEpic = (
+  action$: rx.Observable<AppAction>,
+  state$: StateObservable<State>,
+  deps: EpicDependencies
+): rx.Observable<AppAction> => {
+  const configFilePath = getRweConfigPath();
+
+  return action$.pipe(
+    ofType<AppAction, SubmitSettingsDialogAction>("SUBMIT_SETTINGS_DIALOG"),
+    rxop.concatMap(action => {
+      return rx.from(writeConfigToFile(configFilePath, action.settings));
+    }),
+    rxop.concatMap(() => rx.empty())
+  );
+};
+
 const rweBridgeEpic = (
   action$: rx.Observable<AppAction>,
   state$: StateObservable<State>,
@@ -475,5 +492,6 @@ export const rootEpic = combineEpics(
   installedModsEpic,
   wizardEpic,
   videoModesEpic,
-  rweConfigEpic
+  rweConfigEpic,
+  rweConfigDialogEpic
 );

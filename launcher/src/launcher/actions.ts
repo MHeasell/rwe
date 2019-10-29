@@ -660,6 +660,20 @@ export function receiveVideoModes(modes: VideoMode[]): ReceiveVideoModes {
   };
 }
 
+export interface SubmitSettingsDialogAction {
+  type: "SUBMIT_SETTINGS_DIALOG";
+  settings: RweConfig;
+}
+
+export function submitSettingsDialog(
+  settings: RweConfig
+): SubmitSettingsDialogAction {
+  return {
+    type: "SUBMIT_SETTINGS_DIALOG",
+    settings,
+  };
+}
+
 export interface ReceiveRweConfigAction {
   type: "RECEIVE_RWE_CONFIG";
   settings: RweConfig;
@@ -725,6 +739,7 @@ export type AppAction =
   | ReceiveInstalledMods
   | ReceiveVideoModes
   | ReceiveRweConfigAction
+  | SubmitSettingsDialogAction
   | MapsDialogAction
   | WizardAction
   | ChangeSinglePlayerModsAction;

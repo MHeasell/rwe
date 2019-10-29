@@ -362,6 +362,8 @@ function games(state: State = initialState, action: AppAction): State {
       );
     case "RECEIVE_RWE_CONFIG":
       return { ...state, rweConfig: action.settings };
+    case "SUBMIT_SETTINGS_DIALOG":
+      return { ...state, rweConfig: action.settings };
     default: {
       return wizardWrapperReducer(
         currentScreenWrapperReducer(state, action),
