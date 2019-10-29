@@ -10,6 +10,7 @@ import { PlayerSide, InstalledModInfo, VideoMode } from "./state";
 import * as protocol from "../game-server/protocol";
 import { MapsDialogAction } from "./mapsDialogActions";
 import { WizardAction } from "./wizardActions";
+import { RweConfig } from "./rweConfig";
 
 export interface SelectGameAction {
   type: "SELECT_GAME";
@@ -659,6 +660,18 @@ export function receiveVideoModes(modes: VideoMode[]): ReceiveVideoModes {
   };
 }
 
+export interface ReceiveRweConfigAction {
+  type: "RECEIVE_RWE_CONFIG";
+  settings: RweConfig;
+}
+
+export function receiveRweConfig(settings: RweConfig): ReceiveRweConfigAction {
+  return {
+    type: "RECEIVE_RWE_CONFIG",
+    settings,
+  };
+}
+
 export type AppAction =
   | SelectGameAction
   | JoinSelectedGameConfirmAction
@@ -711,6 +724,7 @@ export type AppAction =
   | ReceiveActiveModsChangedAction
   | ReceiveInstalledMods
   | ReceiveVideoModes
+  | ReceiveRweConfigAction
   | MapsDialogAction
   | WizardAction
   | ChangeSinglePlayerModsAction;

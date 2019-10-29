@@ -34,6 +34,7 @@ import {
   receiveInstalledMods,
   receiveCombinedMapInfo,
   receiveVideoModes,
+  receiveRweConfig,
 } from "../actions";
 import {
   FilledPlayerSlot,
@@ -59,10 +60,11 @@ import {
   RweArgsPlayerSlot,
 } from "../rwe";
 import { assertNever, masterServer, choose } from "../../common/util";
-import { getRweModsPath } from "../util";
+import { getRweModsPath, getRweConfigPath } from "../util";
 import { wizardEpic } from "../wizardEpic";
 import { getInstalledMods } from "../../common/mods";
 import { chooseOp } from "../../common/rxutil";
+import { readConfigFromFile } from "../rweConfig";
 
 export interface EpicDependencies {
   clientService: GameClientService;
@@ -405,6 +407,17 @@ const videoModesEpic = (
     .pipe(rxop.map(x => receiveVideoModes(x.modes)));
 };
 
+const rweConfigEpic = (
+  action$: rx.Observable<AppAction>,
+  state$: StateObservable<State>,
+  deps: EpicDependencies
+): rx.Observable<AppAction> => {
+  const configFilePath = getRweConfigPath();
+  return rx
+    .from(readConfigFromFile(configFilePath))
+    .pipe(rxop.map(x => receiveRweConfig(x)));
+};
+
 const rweBridgeEpic = (
   action$: rx.Observable<AppAction>,
   state$: StateObservable<State>,
@@ -461,5 +474,6 @@ export const rootEpic = combineEpics(
   rweBridgeEpic,
   installedModsEpic,
   wizardEpic,
-  videoModesEpic
+  videoModesEpic,
+  rweConfigEpic
 );

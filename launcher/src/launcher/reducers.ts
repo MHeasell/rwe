@@ -360,6 +360,8 @@ function games(state: State = initialState, action: AppAction): State {
         action.newMods ? { ...state, activeMods: action.newMods } : state,
         action
       );
+    case "RECEIVE_RWE_CONFIG":
+      return { ...state, rweConfig: action.settings };
     default: {
       return wizardWrapperReducer(
         currentScreenWrapperReducer(state, action),
