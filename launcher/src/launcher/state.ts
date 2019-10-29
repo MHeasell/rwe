@@ -1,5 +1,6 @@
 import { MapDialogState } from "./mapsDialog";
 import { WizardState } from "./wizard";
+import { RweConfig } from "./rweConfig";
 
 export interface OverviewScreen {
   screen: "overview";
@@ -119,8 +120,14 @@ export interface InstalledModInfo {
   path: string;
 }
 
+export interface VideoMode {
+  width: number;
+  height: number;
+}
+
 export interface State {
   installedMods?: InstalledModInfo[];
+  videoModes?: VideoMode[];
   activeMods: string[];
   games: GameListEntry[];
   selectedGameId?: number;
@@ -128,6 +135,7 @@ export interface State {
   isRweRunning: boolean;
   masterServerConnectionStatus: MasterServerConnectionStatus;
   wizard?: WizardState;
+  rweConfig?: RweConfig;
 }
 
 export function canJoinSelectedGame(state: State): boolean {

@@ -50,6 +50,14 @@ interface GetMinimapResponse {
   path: string;
 }
 
+interface GetVideoModesCommand {
+  command: "video-modes";
+}
+
+interface GetVideoModesResponse {
+  modes: { width: number; height: number }[];
+}
+
 interface CommandQueueItem {
   command: BridgeCommand;
   callback: (value: string) => void;
@@ -60,7 +68,8 @@ type BridgeCommand =
   | ClearDataPathsCommand
   | GetMapInfoCommand
   | GetMapListCommand
-  | GetMinimapCommand;
+  | GetMinimapCommand
+  | GetVideoModesCommand;
 
 export class RweBridge {
   private readonly proc: ChildProcess;
@@ -119,6 +128,13 @@ export class RweBridge {
     const cmd: GetMinimapCommand = { command: "get-minimap", map: mapName };
     return this.submitCommand(cmd).then(
       answer => JSON.parse(answer) as GetMinimapResponse
+    );
+  }
+
+  getVideoModes(): Promise<GetVideoModesResponse> {
+    const cmd: GetVideoModesCommand = { command: "video-modes" };
+    return this.submitCommand(cmd).then(
+      answer => JSON.parse(answer) as GetVideoModesResponse
     );
   }
 

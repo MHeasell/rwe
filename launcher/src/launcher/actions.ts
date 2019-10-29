@@ -6,10 +6,11 @@ import {
   GameUpdatedEventPayload,
   GetGamesResponsePayload,
 } from "../master-server/protocol";
-import { PlayerSide, InstalledModInfo } from "./state";
+import { PlayerSide, InstalledModInfo, VideoMode } from "./state";
 import * as protocol from "../game-server/protocol";
 import { MapsDialogAction } from "./mapsDialogActions";
 import { WizardAction } from "./wizardActions";
+import { RweConfig } from "./rweConfig";
 
 export interface SelectGameAction {
   type: "SELECT_GAME";
@@ -647,6 +648,44 @@ export function receiveInstalledMods(
   };
 }
 
+export interface ReceiveVideoModes {
+  type: "RECEIVE_VIDEO_MODES";
+  modes: VideoMode[];
+}
+
+export function receiveVideoModes(modes: VideoMode[]): ReceiveVideoModes {
+  return {
+    type: "RECEIVE_VIDEO_MODES",
+    modes,
+  };
+}
+
+export interface SubmitSettingsDialogAction {
+  type: "SUBMIT_SETTINGS_DIALOG";
+  settings: RweConfig;
+}
+
+export function submitSettingsDialog(
+  settings: RweConfig
+): SubmitSettingsDialogAction {
+  return {
+    type: "SUBMIT_SETTINGS_DIALOG",
+    settings,
+  };
+}
+
+export interface ReceiveRweConfigAction {
+  type: "RECEIVE_RWE_CONFIG";
+  settings: RweConfig;
+}
+
+export function receiveRweConfig(settings: RweConfig): ReceiveRweConfigAction {
+  return {
+    type: "RECEIVE_RWE_CONFIG",
+    settings,
+  };
+}
+
 export type AppAction =
   | SelectGameAction
   | JoinSelectedGameConfirmAction
@@ -698,6 +737,9 @@ export type AppAction =
   | SetActiveModsAction
   | ReceiveActiveModsChangedAction
   | ReceiveInstalledMods
+  | ReceiveVideoModes
+  | ReceiveRweConfigAction
+  | SubmitSettingsDialogAction
   | MapsDialogAction
   | WizardAction
   | ChangeSinglePlayerModsAction;

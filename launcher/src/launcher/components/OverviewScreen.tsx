@@ -7,12 +7,14 @@ import {
   hostGame,
   launchRwe,
   changeSinglePlayerMods,
+  submitSettingsDialog,
 } from "../actions";
 import {
   State,
   canHostGame,
   canJoinSelectedGame,
   canLaunchRwe,
+  VideoMode,
 } from "../state";
 import BottomPanel from "./BottomPanel";
 import GamesTable from "./GamesTable";
@@ -21,6 +23,8 @@ import { Wizard } from "./Wizard";
 import { next, close } from "../wizardActions";
 import { WizardState } from "../wizard";
 import { SelectModsDialog } from "./SelectModsDialog";
+import { RweOptionsDialog } from "./RweOptionsDialog";
+import { RweConfig } from "../rweConfig";
 
 function MainPanel() {
   return (
@@ -59,6 +63,7 @@ interface OverviewScreenDispatchProps {
   onHostGame: () => void;
   onLaunchRwe: () => void;
   onChangeMods: (newMods: string[]) => void;
+  onChangeConfig: (newConfig: RweConfig) => void;
 }
 
 interface OverviewScreenStateProps {
@@ -69,6 +74,8 @@ interface OverviewScreenStateProps {
   hostEnabled: boolean;
   joinEnabled: boolean;
   launchEnabled: boolean;
+  videoModes?: VideoMode[];
+  rweConfig?: RweConfig;
 }
 
 interface OverviewScreenProps
@@ -77,6 +84,7 @@ interface OverviewScreenProps
 
 function OverviewScreen(props: OverviewScreenProps) {
   const [modsDialogOpen, setModsDialogOpen] = React.useState(false);
+  const [configDialogOpen, setConfigDialogOpen] = React.useState(false);
   const [playerNameDialogOpen, setPlayerNameDialogOpen] = React.useState(false);
   return (
     <>
@@ -91,6 +99,7 @@ function OverviewScreen(props: OverviewScreenProps) {
           onJoinGame={() => setPlayerNameDialogOpen(true)}
           onLaunchRwe={props.onLaunchRwe}
           onOpenModsDialog={() => setModsDialogOpen(true)}
+          onOpenConfigDialog={() => setConfigDialogOpen(true)}
         />
         <PlayerNameDialog
           open={playerNameDialogOpen}
@@ -120,6 +129,25 @@ function OverviewScreen(props: OverviewScreenProps) {
           onCancel={() => setModsDialogOpen(false)}
         />
       )}
+      {configDialogOpen && (
+        <RweOptionsDialog
+          videoModes={props.videoModes || []}
+          initialFullscreen={props.rweConfig && props.rweConfig.fullscreen}
+          initiallySelectedMode={
+            props.rweConfig && props.rweConfig.width && props.rweConfig.height
+              ? {
+                  width: props.rweConfig.width,
+                  height: props.rweConfig.height,
+                }
+              : undefined
+          }
+          onSubmit={newConfig => {
+            setConfigDialogOpen(false);
+            props.onChangeConfig(newConfig);
+          }}
+          onCancel={() => setConfigDialogOpen(false)}
+        />
+      )}
     </>
   );
 }
@@ -133,6 +161,8 @@ function mapStateToProps(state: State): OverviewScreenStateProps {
     hostEnabled: canHostGame(state),
     joinEnabled: canJoinSelectedGame(state),
     launchEnabled: canLaunchRwe(state),
+    videoModes: state.videoModes,
+    rweConfig: state.rweConfig,
   };
 }
 
@@ -149,6 +179,9 @@ function mapDispatchToProps(dispatch: Dispatch): OverviewScreenDispatchProps {
     },
     onChangeMods: (mods: string[]) => {
       dispatch(changeSinglePlayerMods(mods));
+    },
+    onChangeConfig: (newConfig: RweConfig) => {
+      dispatch(submitSettingsDialog(newConfig));
     },
     onHostGame: () => dispatch(hostGame()),
     onLaunchRwe: () => dispatch(launchRwe()),

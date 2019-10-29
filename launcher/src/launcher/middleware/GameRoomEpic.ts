@@ -33,6 +33,9 @@ import {
   receiveActiveModsChanged,
   receiveInstalledMods,
   receiveCombinedMapInfo,
+  receiveVideoModes,
+  SubmitSettingsDialogAction,
+  receiveRweConfig,
 } from "../actions";
 import {
   FilledPlayerSlot,
@@ -58,10 +61,11 @@ import {
   RweArgsPlayerSlot,
 } from "../rwe";
 import { assertNever, masterServer, choose } from "../../common/util";
-import { getRweModsPath } from "../util";
+import { getRweModsPath, getRweConfigPath } from "../util";
 import { wizardEpic } from "../wizardEpic";
 import { getInstalledMods } from "../../common/mods";
 import { chooseOp } from "../../common/rxutil";
+import { readConfigFromFile, writeConfigToFile } from "../rweConfig";
 
 export interface EpicDependencies {
   clientService: GameClientService;
@@ -394,6 +398,43 @@ const mapNameAndCacheSelector = createSelector(
   (mapName, cacheEntry) => [mapName, cacheEntry] as const
 );
 
+const videoModesEpic = (
+  action$: rx.Observable<AppAction>,
+  state$: StateObservable<State>,
+  deps: EpicDependencies
+): rx.Observable<AppAction> => {
+  return rx
+    .from(deps.bridgeService.getVideoModes())
+    .pipe(rxop.map(x => receiveVideoModes(x.modes)));
+};
+
+const rweConfigEpic = (
+  action$: rx.Observable<AppAction>,
+  state$: StateObservable<State>,
+  deps: EpicDependencies
+): rx.Observable<AppAction> => {
+  const configFilePath = getRweConfigPath();
+  return rx
+    .from(readConfigFromFile(configFilePath))
+    .pipe(rxop.map(x => receiveRweConfig(x)));
+};
+
+const rweConfigDialogEpic = (
+  action$: rx.Observable<AppAction>,
+  state$: StateObservable<State>,
+  deps: EpicDependencies
+): rx.Observable<AppAction> => {
+  const configFilePath = getRweConfigPath();
+
+  return action$.pipe(
+    ofType<AppAction, SubmitSettingsDialogAction>("SUBMIT_SETTINGS_DIALOG"),
+    rxop.concatMap(action => {
+      return rx.from(writeConfigToFile(configFilePath, action.settings));
+    }),
+    rxop.concatMap(() => rx.empty())
+  );
+};
+
 const rweBridgeEpic = (
   action$: rx.Observable<AppAction>,
   state$: StateObservable<State>,
@@ -449,5 +490,8 @@ export const rootEpic = combineEpics(
   launchRweEpic,
   rweBridgeEpic,
   installedModsEpic,
-  wizardEpic
+  wizardEpic,
+  videoModesEpic,
+  rweConfigEpic,
+  rweConfigDialogEpic
 );

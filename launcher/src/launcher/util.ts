@@ -221,3 +221,7 @@ export function getRweUserPath(): string {
 export function getRweModsPath(): string {
   return path.join(getRweUserPath(), "mods");
 }
+
+export function getRweConfigPath(): string {
+  return path.join(getRweUserPath(), "rwe.cfg");
+}

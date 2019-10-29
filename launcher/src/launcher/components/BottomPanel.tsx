@@ -26,6 +26,7 @@ interface BottomPanelDispatchProps {
   onJoinGame: () => void;
   onLaunchRwe: () => void;
   onOpenModsDialog: () => void;
+  onOpenConfigDialog: () => void;
 }
 
 interface UnstyledBottomPanelProps
@@ -58,6 +59,11 @@ const UnstyledBottomPanel = (props: BottomPanelProps) => {
       </div>
       <div className="bottom-panel-right">
         <Grid container spacing={1}>
+          <Grid item>
+            <Button variant="contained" onClick={props.onOpenConfigDialog}>
+              RWE Settings
+            </Button>
+          </Grid>
           <Grid item>
             <Button variant="contained" onClick={props.onOpenModsDialog}>
               Single Player Mods
