@@ -117,6 +117,14 @@ namespace rwe
 
             currentScene->update();
 
+            if (imGuiContext->io->WantCaptureMouse)
+            {
+                imGuiContext->io->ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
+            }
+            else
+            {
+                imGuiContext->io->ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+            }
             imGuiContext->newFrame(window);
 
             graphics->clear();
@@ -124,7 +132,7 @@ namespace rwe
 
             if (!imGuiContext->io->WantCaptureMouse)
             {
-                sdl->showCursor(false);
+                sdl->showCursor(SDL_FALSE);
                 cursorService->render(uiRenderService);
             }
 

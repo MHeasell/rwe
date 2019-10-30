@@ -139,7 +139,6 @@ namespace rwe
         const auto& localSideData = sceneContext.sideData->at(getPlayer(localPlayerId).side);
 
         sceneContext.graphics->setViewport(0, 0, sceneContext.viewportService->width(), sceneContext.viewportService->height());
-        sceneContext.graphics->disableDepthBuffer();
 
         renderMinimap();
 
@@ -316,10 +315,9 @@ namespace rwe
             worldViewport.width(),
             worldViewport.height());
         renderWorld();
+        sceneContext.graphics->disableDepthBuffer();
 
         sceneContext.graphics->setViewport(0, 0, sceneContext.viewportService->width(), sceneContext.viewportService->height());
-        sceneContext.graphics->disableDepthBuffer();
-        sceneContext.graphics->enableDepthBuffer();
     }
 
     void GameScene::renderMinimap()
