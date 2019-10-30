@@ -106,6 +106,11 @@ namespace rwe
             SDL_GetWindowSize(window, w, h);
         }
 
+        void setWindowGrab(SDL_Window* window, SDL_bool grabbed)
+        {
+            SDL_SetWindowGrab(window, grabbed);
+        }
+
     private:
         friend class SdlContextManager;
     };

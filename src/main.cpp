@@ -151,6 +151,11 @@ namespace rwe
             throw std::runtime_error(SDL_GetError());
         }
 
+        // Prevent the mouse from leaving the window.
+        // We rely on nudging the edges of the screen to pan the camera,
+        // so this is necessary for the game to work.
+        sdlContext->setWindowGrab(window.get(), SDL_TRUE);
+
         int windowWidth;
         int windowHeight;
         sdlContext->getWindowSize(window.get(), &windowWidth, &windowHeight);
