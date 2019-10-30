@@ -106,6 +106,26 @@ namespace rwe
             SDL_GetWindowSize(window, w, h);
         }
 
+        int getWindowDisplayIndex(SDL_Window* window)
+        {
+            return SDL_GetWindowDisplayIndex(window);
+        }
+
+        SDL_DisplayMode* getClosestDisplayMode(int displayIndex, const SDL_DisplayMode* mode, SDL_DisplayMode* closest)
+        {
+            return SDL_GetClosestDisplayMode(displayIndex, mode, closest);
+        }
+
+        int setWindowDisplayMode(SDL_Window* window, const SDL_DisplayMode* mode)
+        {
+            return SDL_SetWindowDisplayMode(window, mode);
+        }
+
+        void setWindowSize(SDL_Window* window, int width, int height)
+        {
+            return SDL_SetWindowSize(window, width, height);
+        }
+
         void setWindowGrab(SDL_Window* window, SDL_bool grabbed)
         {
             SDL_SetWindowGrab(window, grabbed);

@@ -151,6 +151,33 @@ namespace rwe
             throw std::runtime_error(SDL_GetError());
         }
 
+        if (fullscreen)
+        {
+            SDL_DisplayMode desiredMode;
+            desiredMode.w = desiredWindowWidth;
+            desiredMode.h = desiredWindowHeight;
+            desiredMode.refresh_rate = 0;
+            desiredMode.format = 0;
+            desiredMode.driverdata = 0;
+            SDL_DisplayMode targetMode;
+            auto displayIndex = sdlContext->getWindowDisplayIndex(window.get());
+            if (displayIndex < 0)
+            {
+                throw std::runtime_error(SDL_GetError());
+            }
+
+            if (sdlContext->getClosestDisplayMode(displayIndex, &desiredMode, &targetMode) == nullptr)
+            {
+                throw std::runtime_error(SDL_GetError());
+            }
+
+            if (sdlContext->setWindowDisplayMode(window.get(), &targetMode) != 0)
+            {
+                throw std::runtime_error(SDL_GetError());
+            }
+            sdlContext->setWindowSize(window.get(), desiredWindowWidth, desiredWindowHeight);
+        }
+
         // Prevent the mouse from leaving the window.
         // We rely on nudging the edges of the screen to pan the camera,
         // so this is necessary for the game to work.
