@@ -145,7 +145,7 @@ namespace rwe
             SDL_WINDOWPOS_CENTERED,
             desiredWindowWidth,
             desiredWindowHeight,
-            SDL_WINDOW_OPENGL | (fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0));
+            SDL_WINDOW_OPENGL | (fullscreen ? SDL_WINDOW_FULLSCREEN : 0));
         if (window == nullptr)
         {
             throw std::runtime_error(SDL_GetError());
