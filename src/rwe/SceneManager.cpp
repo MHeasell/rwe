@@ -174,6 +174,14 @@ namespace rwe
 
         ImGui::Begin("Global Debug", &showDebugWindow);
         ImGui::Checkbox("Left click interface mode", &globalConfig->leftClickInterfaceMode);
+        if (ImGui::Button("Grab Mouse"))
+        {
+            sdl->setWindowGrab(window, SDL_TRUE);
+        }
+        if (ImGui::Button("Ungrab Mouse"))
+        {
+            sdl->setWindowGrab(window, SDL_FALSE);
+        }
         ImGui::End();
     }
 }
