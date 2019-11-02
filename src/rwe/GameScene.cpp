@@ -523,6 +523,7 @@ namespace rwe
 
         ImGui::Begin("Game Debug", &showDebugWindow);
         ImGui::Checkbox("Health bars", &healthBarsVisible);
+        ImGui::Separator();
         ImGui::Checkbox("Cursor terrain dot", &cursorTerrainDotVisible);
         ImGui::Checkbox("Occupied grid", &occupiedGridVisible);
         ImGui::Checkbox("Pathfinding visualisation", &pathfindingVisualisationVisible);

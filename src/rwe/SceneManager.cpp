@@ -178,15 +178,19 @@ namespace rwe
 
         ImGui::Begin("Global Debug", &showDebugWindow);
         ImGui::Text("Last frame time: %dms", lastFrameDurationMs);
+        ImGui::Separator();
         ImGui::Checkbox("Left click interface mode", &globalConfig->leftClickInterfaceMode);
+        ImGui::Separator();
         if (ImGui::Button("Grab Mouse"))
         {
             sdl->setWindowGrab(window, SDL_TRUE);
         }
+        ImGui::SameLine();
         if (ImGui::Button("Ungrab Mouse"))
         {
             sdl->setWindowGrab(window, SDL_FALSE);
         }
+        ImGui::Separator();
         if (ImGui::Button("Show Demo Window"))
         {
             showDemoWindow = true;
