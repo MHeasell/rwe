@@ -253,6 +253,7 @@ namespace rwe
         std::optional<std::ofstream> stateLogStream;
 
         bool showDebugWindow{false};
+        char unitSpawnText[20]{""};
 
     public:
         GameScene(

@@ -528,6 +528,18 @@ namespace rwe
         ImGui::Checkbox("Occupied grid", &occupiedGridVisible);
         ImGui::Checkbox("Pathfinding visualisation", &pathfindingVisualisationVisible);
         ImGui::Checkbox("Movement class grid", &movementClassGridVisible);
+        if (ImGui::InputText("Spawn Unit", unitSpawnText, IM_ARRAYSIZE(unitSpawnText), ImGuiInputTextFlags_EnterReturnsTrue))
+        {
+            std::string text(unitSpawnText);
+            if (!text.empty() && unitFactory.isValidUnitType(text))
+            {
+                if (auto terrainPos = getMouseTerrainCoordinate())
+                {
+                    spawnCompletedUnit(text, localPlayerId, *terrainPos);
+                    unitSpawnText[0] = '\0';
+                }
+            }
+        }
         ImGui::End();
     }
 
