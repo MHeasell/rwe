@@ -6,6 +6,7 @@
 #include <rwe/AudioService.h>
 #include <rwe/ColorPalette.h>
 #include <rwe/Energy.h>
+#include <rwe/GlobalConfig.h>
 #include <rwe/GraphicsContext.h>
 #include <rwe/LoadingScene.h>
 #include <rwe/MainMenuScene.h>
@@ -117,7 +118,7 @@ namespace rwe
         return Ok(std::move(glContext));
     };
 
-    int run(spdlog::logger& logger, const std::vector<fs::path>& searchPath, const std::optional<GameParameters>& gameParameters, unsigned int desiredWindowWidth, unsigned int desiredWindowHeight, bool fullscreen, const std::string& imGuiIniPath)
+    int run(spdlog::logger& logger, const std::vector<fs::path>& searchPath, const std::optional<GameParameters>& gameParameters, unsigned int desiredWindowWidth, unsigned int desiredWindowHeight, bool fullscreen, const std::string& imGuiIniPath, const GlobalConfig& globalConfig)
     {
         logger.info(ProjectNameVersion);
         logger.info("Current directory: {0}", fs::current_path().string());
@@ -326,7 +327,8 @@ namespace rwe
             &*guiPalette,
             &sceneManager,
             &sideDataMap,
-            &timeService);
+            &timeService,
+            &globalConfig);
 
         if (gameParameters)
         {
@@ -501,6 +503,7 @@ int main(int argc, char* argv[])
             ("width", po::value<unsigned int>()->default_value(800), "Sets the window width in pixels")
             ("height", po::value<unsigned int>()->default_value(600), "Sets the window height in pixels")
             ("fullscreen", po::bool_switch(), "Starts the application in fullscreen mode")
+            ("interface-mode", po::value<std::string>()->default_value("left-click"), "left-click or right-click")
             ("data-path", po::value<std::vector<std::string>>(), "Sets the location(s) to search for game data")
             ("map", po::value<std::string>(), "If given, launches straight into a game on the given map")
             ("port", po::value<std::string>()->default_value("1337"), "Network port to bind to")
@@ -530,6 +533,8 @@ int main(int argc, char* argv[])
 
         try
         {
+            rwe::GlobalConfig config;
+            config.leftClickInterfaceMode = vm["interface-mode"].as<std::string>() != "right-click";
             std::optional<rwe::GameParameters> gameParameters;
             if (vm.count("map"))
             {
@@ -570,7 +575,7 @@ int main(int argc, char* argv[])
             auto screenHeight = vm["height"].as<unsigned int>();
             auto fullscreen = vm["fullscreen"].as<bool>();
 
-            return rwe::run(*logger, gameDataPaths, gameParameters, screenWidth, screenHeight, fullscreen, imGuiIniFilePath.string());
+            return rwe::run(*logger, gameDataPaths, gameParameters, screenWidth, screenHeight, fullscreen, imGuiIniFilePath.string(), config);
         }
         catch (const std::exception& e)
         {

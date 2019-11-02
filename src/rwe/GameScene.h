@@ -495,5 +495,7 @@ namespace rwe
 
             return std::nullopt;
         }
+
+        bool leftClickMode() const;
     };
 }

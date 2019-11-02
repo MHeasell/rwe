@@ -795,6 +795,58 @@ namespace rwe
                                         replaceUnitSelection(*hoveredUnit);
                                     }
                                 }
+                                else if (leftClickMode() && hoveredUnit)
+                                {
+                                    if (isEnemy(*hoveredUnit))
+                                    {
+                                        for (const auto& selectedUnit : selectedUnits)
+                                        {
+                                            if (isShiftDown())
+                                            {
+                                                localPlayerEnqueueUnitOrder(selectedUnit, AttackOrder(*hoveredUnit));
+                                            }
+                                            else
+                                            {
+                                                localPlayerIssueUnitOrder(selectedUnit, AttackOrder(*hoveredUnit));
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (getUnit(*hoveredUnit).isBeingBuilt())
+                                        {
+                                            for (const auto& selectedUnit : selectedUnits)
+                                            {
+                                                if (isShiftDown())
+                                                {
+                                                    localPlayerEnqueueUnitOrder(selectedUnit, CompleteBuildOrder(*hoveredUnit));
+                                                }
+                                                else
+                                                {
+                                                    localPlayerIssueUnitOrder(selectedUnit, CompleteBuildOrder(*hoveredUnit));
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                else if (leftClickMode())
+                                {
+                                    auto coord = getMouseTerrainCoordinate();
+                                    if (coord)
+                                    {
+                                        for (const auto& selectedUnit : selectedUnits)
+                                        {
+                                            if (isShiftDown())
+                                            {
+                                                localPlayerEnqueueUnitOrder(selectedUnit, MoveOrder(*coord));
+                                            }
+                                            else
+                                            {
+                                                localPlayerIssueUnitOrder(selectedUnit, MoveOrder(*coord));
+                                            }
+                                        }
+                                    }
+                                }
                                 else
                                 {
                                     if (!isShiftDown())
@@ -966,17 +1018,39 @@ namespace rwe
                     sceneContext.cursor->useNormalCursor();
                 },
                 [&](const NormalCursorMode&) {
-                    if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
+                    if (leftClickMode())
                     {
-                        sceneContext.cursor->useSelectCursor();
-                    }
-                    else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).canAttack; }) && hoveredUnit && isEnemy(*hoveredUnit))
-                    {
-                        sceneContext.cursor->useRedCursor();
+                        if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
+                        {
+                            sceneContext.cursor->useSelectCursor();
+                        }
+                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).canAttack; }) && hoveredUnit && isEnemy(*hoveredUnit))
+                        {
+                            sceneContext.cursor->useAttackCursor();
+                        }
+                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).canMove; }))
+                        {
+                            sceneContext.cursor->useMoveCursor();
+                        }
+                        else
+                        {
+                            sceneContext.cursor->useNormalCursor();
+                        }
                     }
                     else
                     {
-                        sceneContext.cursor->useNormalCursor();
+                        if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
+                        {
+                            sceneContext.cursor->useSelectCursor();
+                        }
+                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).canAttack; }) && hoveredUnit && isEnemy(*hoveredUnit))
+                        {
+                            sceneContext.cursor->useRedCursor();
+                        }
+                        else
+                        {
+                            sceneContext.cursor->useNormalCursor();
+                        }
                     }
                 });
         }
@@ -2592,5 +2666,10 @@ namespace rwe
                     deactivateUnit(unitCommand.unit);
                 }
             });
+    }
+
+    bool GameScene::leftClickMode() const
+    {
+        return sceneContext.globalConfig->leftClickInterfaceMode;
     }
 }

@@ -20,10 +20,13 @@ interface VideoMode {
   height: number;
 }
 
+type InterfaceMode = "left-click" | "right-click";
+
 interface Props {
   videoModes: VideoMode[];
   initialFullscreen?: boolean;
   initiallySelectedMode?: VideoMode;
+  initiallySelectedInterfaceMode?: InterfaceMode;
 
   onSubmit(options: RweConfig): void;
   onCancel(): void;
@@ -47,6 +50,9 @@ function parseVideoMode(m: string): VideoMode | undefined {
 export function RweOptionsDialog(props: Props) {
   const [fullscreen, setFullscreen] = React.useState(!!props.initialFullscreen);
   const [videoMode, setVideoMode] = React.useState(props.initiallySelectedMode);
+  const [interfaceMode, setInterfaceMode] = React.useState<InterfaceMode>(
+    props.initiallySelectedInterfaceMode || "left-click"
+  );
 
   return (
     <Dialog open>
@@ -83,6 +89,18 @@ export function RweOptionsDialog(props: Props) {
             </Select>
           </FormControl>
         </FormGroup>
+        <FormGroup>
+          <FormControl>
+            <InputLabel>Interface Mode</InputLabel>
+            <Select
+              value={interfaceMode}
+              onChange={e => setInterfaceMode(e.target.value as InterfaceMode)}
+            >
+              <MenuItem value="left-click">Left Click</MenuItem>
+              <MenuItem value="right-click">Right Click</MenuItem>
+            </Select>
+          </FormControl>
+        </FormGroup>
       </DialogContent>
       <DialogActions>
         <Button
@@ -91,6 +109,7 @@ export function RweOptionsDialog(props: Props) {
               fullscreen,
               width: videoMode && videoMode.width,
               height: videoMode && videoMode.height,
+              interfaceMode: interfaceMode,
             })
           }
           color="primary"

@@ -5,6 +5,7 @@ export interface RweConfig {
   width?: number;
   height?: number;
   fullscreen?: boolean;
+  interfaceMode?: "left-click" | "right-click";
 }
 
 function parseConfigBoolean(b?: string): boolean | undefined {
@@ -22,6 +23,19 @@ function parseConfigInt(n?: string): number | undefined {
     return undefined;
   }
   return parseInt(n, 10);
+}
+
+function parseConfigInterfaceMode(
+  m?: string
+): "left-click" | "right-click" | undefined {
+  if (m === "left-click") {
+    return "left-click";
+  }
+  if (m === "right-click") {
+    return "right-click";
+  }
+
+  return undefined;
 }
 
 export function readConfigFromFile(filename: string): Promise<RweConfig> {
@@ -46,6 +60,7 @@ export function readConfig(lines: string): RweConfig {
     width: parseConfigInt(m.get("width")),
     height: parseConfigInt(m.get("height")),
     fullscreen: parseConfigBoolean(m.get("fullscreen")),
+    interfaceMode: parseConfigInterfaceMode(m.get("interface-mode")),
   };
 }
 
@@ -76,6 +91,9 @@ export function writeConfig(config: RweConfig): string {
   if (config.fullscreen) {
     arr.push(["fullscreen", "true"]);
   }
+  if (config.interfaceMode) {
+    arr.push(["interface-mode", config.interfaceMode]);
+  }
 
   return arr.map(x => `${x[0]} = ${x[1]}${os.EOL}`).join("");
 }
@@ -83,7 +101,7 @@ export function writeConfig(config: RweConfig): string {
 function readConfigMap(lines: string): Map<string, string> {
   const m = new Map<string, string>();
   for (const line of lines.split(/\r?\n/)) {
-    const match = line.match(/^\s*(\w+)\s*=\s*(\w+)\s*$/);
+    const match = line.match(/^\s*([\w-]+)\s*=\s*([\w-]+)\s*$/);
     if (!match) {
       continue;
     }

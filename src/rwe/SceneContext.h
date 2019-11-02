@@ -2,6 +2,7 @@
 
 #include <rwe/AudioService.h>
 #include <rwe/CursorService.h>
+#include <rwe/GlobalConfig.h>
 #include <rwe/MapFeatureService.h>
 #include <rwe/SceneManager.h>
 #include <rwe/SideData.h>
@@ -28,6 +29,7 @@ namespace rwe
         SceneManager* const sceneManager;
         const std::unordered_map<std::string, SideData>* const sideData;
         TimeService* const timeService;
+        const GlobalConfig* const globalConfig;
 
         SceneContext(
             SdlContext* const sdl,
@@ -42,7 +44,8 @@ namespace rwe
             const ColorPalette* const guiPalette,
             SceneManager* const sceneManager,
             const std::unordered_map<std::string, SideData>* const sideData,
-            TimeService* const timeService)
+            TimeService* const timeService,
+            const GlobalConfig* const globalConfig)
             : sdl(sdl),
               viewportService(viewportService),
               graphics(graphics),
@@ -55,7 +58,8 @@ namespace rwe
               guiPalette(guiPalette),
               sceneManager(sceneManager),
               sideData(sideData),
-              timeService(timeService)
+              timeService(timeService),
+              globalConfig(globalConfig)
         {
         }
     };

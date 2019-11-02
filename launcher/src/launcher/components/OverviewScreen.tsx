@@ -141,6 +141,9 @@ function OverviewScreen(props: OverviewScreenProps) {
                 }
               : undefined
           }
+          initiallySelectedInterfaceMode={
+            props.rweConfig && props.rweConfig.interfaceMode
+          }
           onSubmit={newConfig => {
             setConfigDialogOpen(false);
             props.onChangeConfig(newConfig);
