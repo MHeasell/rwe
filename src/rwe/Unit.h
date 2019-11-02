@@ -193,6 +193,7 @@ namespace rwe
         std::array<std::optional<UnitWeapon>, 3> weapons;
 
         bool canAttack;
+        bool canMove;
 
         std::optional<UnitWeapon> explosionWeapon;
 

@@ -32,6 +32,7 @@ namespace rwe
         unsigned int maxWaterDepth;
 
         bool canAttack;
+        bool canMove;
 
         bool commander;
 

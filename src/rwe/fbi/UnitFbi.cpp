@@ -40,6 +40,7 @@ namespace rwe
         tdf.readOrDefault("MaxWaterDepth", u.maxWaterDepth);
 
         tdf.readOrDefault("CanAttack", u.canAttack);
+        tdf.readOrDefault("CanMove", u.canMove);
 
         tdf.readOrDefault("Commander", u.commander);
 

@@ -132,6 +132,7 @@ namespace rwe
         unit.brakeRate = SimScalar(fbi.brakeRate.value / 2.0f);
 
         unit.canAttack = fbi.canAttack;
+        unit.canMove = fbi.canMove;
 
         unit.commander = fbi.commander;
 
