@@ -63,6 +63,10 @@ namespace rwe
     void ImGuiContext::render()
     {
         ImGui::Render();
+    }
+
+    void ImGuiContext::renderDrawData()
+    {
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
 }

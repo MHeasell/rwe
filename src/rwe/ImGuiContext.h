@@ -21,5 +21,7 @@ namespace rwe
         void newFrame(SDL_Window* window);
 
         void render();
+
+        void renderDrawData();
     };
 }

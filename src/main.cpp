@@ -118,7 +118,7 @@ namespace rwe
         return Ok(std::move(glContext));
     };
 
-    int run(spdlog::logger& logger, const std::vector<fs::path>& searchPath, const std::optional<GameParameters>& gameParameters, unsigned int desiredWindowWidth, unsigned int desiredWindowHeight, bool fullscreen, const std::string& imGuiIniPath, const GlobalConfig& globalConfig)
+    int run(spdlog::logger& logger, const std::vector<fs::path>& searchPath, const std::optional<GameParameters>& gameParameters, unsigned int desiredWindowWidth, unsigned int desiredWindowHeight, bool fullscreen, const std::string& imGuiIniPath, GlobalConfig& globalConfig)
     {
         logger.info(ProjectNameVersion);
         logger.info("Current directory: {0}", fs::current_path().string());
@@ -293,7 +293,7 @@ namespace rwe
 
         sdlContext->showCursor(SDL_DISABLE);
 
-        SceneManager sceneManager(sdlContext, window.get(), &graphics, &timeService, &imGuiContext, &cursor, UiRenderService(&graphics, &shaders, UiCamera(viewportService.width(), viewportService.height())));
+        SceneManager sceneManager(sdlContext, window.get(), &graphics, &timeService, &imGuiContext, &cursor, &globalConfig, UiRenderService(&graphics, &shaders, UiCamera(viewportService.width(), viewportService.height())));
 
         logger.info("Loading side data");
         auto sideDataBytes = vfs.readFile("gamedata/SIDEDATA.TDF");

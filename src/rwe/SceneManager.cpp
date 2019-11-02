@@ -1,4 +1,5 @@
 #include "SceneManager.h"
+#include <rwe/SceneContext.h>
 
 namespace rwe
 {
@@ -23,6 +24,7 @@ namespace rwe
         TimeService* timeService,
         ImGuiContext* imGuiContext,
         CursorService* cursorService,
+        GlobalConfig* globalConfig,
         UiRenderService&& uiRenderService)
         : currentScene(),
           nextScene(),
@@ -32,6 +34,7 @@ namespace rwe
           timeService(timeService),
           imGuiContext(imGuiContext),
           cursorService(cursorService),
+          globalConfig(globalConfig),
           uiRenderService(std::move(uiRenderService)),
           requestedExit(false)
     {
@@ -67,7 +70,14 @@ namespace rwe
                     case SDL_QUIT:
                         return;
                     case SDL_KEYDOWN:
-                        currentScene->onKeyDown(event.key.keysym);
+                        if (event.key.keysym.sym == SDLK_F12)
+                        {
+                            showDebugWindow = true;
+                        }
+                        else
+                        {
+                            currentScene->onKeyDown(event.key.keysym);
+                        }
                         break;
                     case SDL_KEYUP:
                         currentScene->onKeyUp(event.key.keysym);
@@ -115,8 +125,6 @@ namespace rwe
                 }
             }
 
-            currentScene->update();
-
             if (imGuiContext->io->WantCaptureMouse)
             {
                 imGuiContext->io->ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
@@ -126,6 +134,9 @@ namespace rwe
                 imGuiContext->io->ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
             }
             imGuiContext->newFrame(window);
+            currentScene->update();
+            renderDebugWindow();
+            imGuiContext->render();
 
             graphics->clear();
             currentScene->render();
@@ -136,7 +147,7 @@ namespace rwe
                 cursorService->render(uiRenderService);
             }
 
-            imGuiContext->render();
+            imGuiContext->renderDrawData();
 
             sdl->glSwapWindow(window);
 
@@ -152,5 +163,17 @@ namespace rwe
     void SceneManager::requestExit()
     {
         requestedExit = true;
+    }
+
+    void SceneManager::renderDebugWindow()
+    {
+        if (!showDebugWindow)
+        {
+            return;
+        }
+
+        ImGui::Begin("Global Debug", &showDebugWindow);
+        ImGui::Checkbox("Left click interface mode", &globalConfig->leftClickInterfaceMode);
+        ImGui::End();
     }
 }
