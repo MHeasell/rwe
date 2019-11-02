@@ -14,7 +14,7 @@ namespace rwe
     {
         if (io.WantCaptureKeyboard)
         {
-            if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
+            if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP || event.type == SDL_TEXTINPUT)
             {
                 return true;
             }
