@@ -514,6 +514,22 @@ namespace rwe
         sceneContext.graphics->enableDepthBuffer();
     }
 
+    void GameScene::renderDebugWindow()
+    {
+        if (!showDebugWindow)
+        {
+            return;
+        }
+
+        ImGui::Begin("Game Debug", &showDebugWindow);
+        ImGui::Checkbox("Health bars", &healthBarsVisible);
+        ImGui::Checkbox("Cursor terrain dot", &cursorTerrainDotVisible);
+        ImGui::Checkbox("Occupied grid", &occupiedGridVisible);
+        ImGui::Checkbox("Pathfinding visualisation", &pathfindingVisualisationVisible);
+        ImGui::Checkbox("Movement class grid", &movementClassGridVisible);
+        ImGui::End();
+    }
+
     void GameScene::onKeyDown(const SDL_Keysym& keysym)
     {
         currentPanel->keyDown(KeyEvent(keysym.sym));
@@ -542,21 +558,9 @@ namespace rwe
         {
             rightShiftDown = true;
         }
-        else if (keysym.sym == SDLK_F8)
-        {
-            cursorTerrainDotVisible = !cursorTerrainDotVisible;
-        }
-        else if (keysym.sym == SDLK_F9)
-        {
-            occupiedGridVisible = !occupiedGridVisible;
-        }
-        else if (keysym.sym == SDLK_F10)
-        {
-            pathfindingVisualisationVisible = !pathfindingVisualisationVisible;
-        }
         else if (keysym.sym == SDLK_F11)
         {
-            movementClassGridVisible = !movementClassGridVisible;
+            showDebugWindow = true;
         }
         else if (keysym.scancode == SDL_SCANCODE_GRAVE)
         {
@@ -1131,6 +1135,8 @@ namespace rwe
                 tryTickGame();
             }
         }
+
+        renderDebugWindow();
     }
 
     std::optional<UnitId> GameScene::spawnUnit(const std::string& unitType, PlayerId owner, const SimVector& position)

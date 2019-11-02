@@ -252,6 +252,8 @@ namespace rwe
 
         std::optional<std::ofstream> stateLogStream;
 
+        bool showDebugWindow{false};
+
     public:
         GameScene(
             const SceneContext& sceneContext,
@@ -438,6 +440,8 @@ namespace rwe
         void renderMinimap();
 
         void renderWorld();
+
+        void renderDebugWindow();
 
         void attachOrdersMenuEventHandlers();
 
