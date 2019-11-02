@@ -152,10 +152,10 @@ namespace rwe
             sdl->glSwapWindow(window);
 
             auto finishTime = timeService->getTicks();
-            auto timeTaken = finishTime - startTime;
-            if (timeTaken < TickInterval)
+            lastFrameDurationMs = finishTime - startTime;
+            if (lastFrameDurationMs < TickInterval)
             {
-                sdl->delay(TickInterval - timeTaken);
+                sdl->delay(TickInterval - lastFrameDurationMs);
             }
         }
     }
@@ -173,6 +173,7 @@ namespace rwe
         }
 
         ImGui::Begin("Global Debug", &showDebugWindow);
+        ImGui::Text("Last frame time: %dms", lastFrameDurationMs);
         ImGui::Checkbox("Left click interface mode", &globalConfig->leftClickInterfaceMode);
         if (ImGui::Button("Grab Mouse"))
         {

@@ -53,6 +53,8 @@ namespace rwe
         bool requestedExit;
         bool showDebugWindow{false};
 
+        unsigned int lastFrameDurationMs{0};
+
     public:
         // Number of milliseconds between each game tick.
         static const unsigned int TickInterval = 1000 / 60;
