@@ -52,6 +52,7 @@ namespace rwe
         UiRenderService uiRenderService;
         bool requestedExit;
         bool showDebugWindow{false};
+        bool showDemoWindow{false};
 
         unsigned int lastFrameDurationMs{0};
 

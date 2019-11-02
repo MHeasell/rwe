@@ -135,6 +135,10 @@ namespace rwe
             }
             imGuiContext->newFrame(window);
             currentScene->update();
+            if (showDemoWindow)
+            {
+                ImGui::ShowDemoWindow(&showDemoWindow);
+            }
             renderDebugWindow();
             imGuiContext->render();
 
@@ -182,6 +186,10 @@ namespace rwe
         if (ImGui::Button("Ungrab Mouse"))
         {
             sdl->setWindowGrab(window, SDL_FALSE);
+        }
+        if (ImGui::Button("Show Demo Window"))
+        {
+            showDemoWindow = true;
         }
         ImGui::End();
     }
