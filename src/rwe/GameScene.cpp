@@ -1039,6 +1039,10 @@ namespace rwe
                         {
                             sceneContext.cursor->useAttackCursor();
                         }
+                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).builder; }) && hoveredUnit && getUnit(*hoveredUnit).isBeingBuilt())
+                        {
+                            sceneContext.cursor->useRepairCursor();
+                        }
                         else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).canMove; }))
                         {
                             sceneContext.cursor->useMoveCursor();
@@ -1057,6 +1061,10 @@ namespace rwe
                         else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).canAttack; }) && hoveredUnit && isEnemy(*hoveredUnit))
                         {
                             sceneContext.cursor->useRedCursor();
+                        }
+                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).builder; }) && hoveredUnit && getUnit(*hoveredUnit).isBeingBuilt())
+                        {
+                            sceneContext.cursor->useGreenCursor();
                         }
                         else
                         {
