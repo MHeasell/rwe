@@ -75,7 +75,7 @@ namespace rwe
         struct SelectingState
         {
             Point startPosition;
-            SelectingState(const Point& startPosition) : startPosition(startPosition) {}
+            explicit SelectingState(const Point& startPosition) : startPosition(startPosition) {}
             SelectingState(int x, int y) : startPosition(x, y) {}
             bool operator==(const SelectingState& rhs) const
             {
