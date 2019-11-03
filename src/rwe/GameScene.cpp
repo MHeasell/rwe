@@ -706,7 +706,59 @@ namespace rwe
                 [&](const NormalCursorMode&) {
                     if (isCursorOverMinimap())
                     {
-                        cursorMode.next(NormalCursorMode{NormalCursorMode::DraggingMinimapState()});
+                        if (leftClickMode())
+                        {
+                            for (const auto& selectedUnit : selectedUnits)
+                            {
+                                if (hoveredUnit)
+                                {
+                                    if (isEnemy(*hoveredUnit))
+                                    {
+                                        if (isShiftDown())
+                                        {
+                                            localPlayerEnqueueUnitOrder(selectedUnit, AttackOrder(*hoveredUnit));
+                                        }
+                                        else
+                                        {
+                                            localPlayerIssueUnitOrder(selectedUnit, AttackOrder(*hoveredUnit));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (getUnit(*hoveredUnit).isBeingBuilt())
+                                        {
+                                            if (isShiftDown())
+                                            {
+                                                localPlayerEnqueueUnitOrder(selectedUnit, CompleteBuildOrder(*hoveredUnit));
+                                            }
+                                            else
+                                            {
+                                                localPlayerIssueUnitOrder(selectedUnit, CompleteBuildOrder(*hoveredUnit));
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    auto coord = getMouseTerrainCoordinate();
+                                    if (coord)
+                                    {
+                                        if (isShiftDown())
+                                        {
+                                            localPlayerEnqueueUnitOrder(selectedUnit, MoveOrder(*coord));
+                                        }
+                                        else
+                                        {
+                                            localPlayerIssueUnitOrder(selectedUnit, MoveOrder(*coord));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            cursorMode.next(NormalCursorMode{NormalCursorMode::DraggingMinimapState()});
+                        }
                     }
                     else if (isCursorOverWorld())
                     {
@@ -734,7 +786,14 @@ namespace rwe
                 [&](const NormalCursorMode&) {
                     if (leftClickMode())
                     {
-                        clearUnitSelection();
+                        if (isCursorOverMinimap())
+                        {
+                            cursorMode.next(NormalCursorMode{NormalCursorMode::DraggingMinimapState()});
+                        }
+                        else if (isCursorOverWorld())
+                        {
+                            clearUnitSelection();
+                        }
                     }
                     else
                     {
@@ -895,6 +954,20 @@ namespace rwe
                 [&](const auto&) {
                     // do nothing
                 });
+        }
+        else if (event.button == MouseButtonEvent::MouseButton::Right)
+        {
+            match(
+                cursorMode.getValue(),
+                [&](const NormalCursorMode& m) {
+                    match(
+                        m.state,
+                        [&](const NormalCursorMode::DraggingMinimapState&) {
+                            cursorMode.next(NormalCursorMode{NormalCursorMode::UpState()});
+                        },
+                        [](const auto&) {});
+                },
+                [](const auto&) {});
         }
     }
 
