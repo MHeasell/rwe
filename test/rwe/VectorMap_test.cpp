@@ -1,8 +1,11 @@
 #include <catch2/catch.hpp>
+#include <rapidcheck.h>
+#include <rapidcheck/catch.h>
 #include <rwe/OpaqueId.h>
 #include <rwe/VectorMap.h>
 #include <rwe/optional_io.h>
 #include <rwe/OpaqueId_io.h>
+#include "rc_gen_optional.h"
 
 namespace rwe
 {
@@ -282,5 +285,38 @@ namespace rwe
 
             REQUIRE(c.find(dId) == c.end());
         }
+
+        rc::prop("can insert and remove elements and it doesn't break", [](std::vector<std::optional<int>> ops) {
+            VectorMap<int, IdTag> m;
+
+            std::vector<std::pair<Id, int>> ids;
+
+            long long total = 0;
+            for (const auto & o : ops)
+            {
+                if (o)
+                {
+                    total += *o;
+                    auto id = m.emplace(*o);
+                    ids.emplace_back(id, *o);
+                }
+                else
+                {
+                    auto idIndex = *rc::gen::inRange<std::size_t>(0, ids.size());
+                    m.remove(ids[idIndex].first);
+                    total -= ids[idIndex].second;
+                    ids.erase(ids.begin() + idIndex);
+                }
+
+                long long currentTotal = 0;
+                for (const auto& e : m)
+                {
+                    auto it = std::find_if(ids.begin(), ids.end(), [&e](const auto& x) { return x.first == e.first; });
+                    RC_ASSERT(it != ids.end());
+                    currentTotal += e.second;
+                }
+                RC_ASSERT(currentTotal == total);
+            }
+        });
     }
 }
