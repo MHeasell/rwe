@@ -254,6 +254,7 @@ namespace rwe
 
         bool showDebugWindow{false};
         char unitSpawnText[20]{""};
+        int unitSpawnPlayer{0};
 
     public:
         GameScene(
