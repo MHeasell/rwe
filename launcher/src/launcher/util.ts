@@ -5,6 +5,7 @@ import * as rx from "rxjs";
 import * as rxop from "rxjs/operators";
 import { chooseOp } from "../common/rxutil";
 import { RweModJson } from "../common/mods";
+import { enumerateValues, HKEY, RegistryValueType } from "registry-js";
 
 const taModFiles = new Map<string, string>([
   [
@@ -29,16 +30,86 @@ const taModFiles = new Map<string, string>([
   ],
 ]);
 
+const taPathRegistryLocations: [HKEY, string, string][] = [
+  [
+    HKEY.HKEY_LOCAL_MACHINE,
+    "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 298030",
+    "InstallLocation",
+  ],
+  [HKEY.HKEY_LOCAL_MACHINE, "SOFTWARE\\GOG.com\\GOGTOTALANNIHILATION", "PATH"],
+  [
+    HKEY.HKEY_LOCAL_MACHINE,
+    "SOFTWARE\\GOG.com\\GOGTOTALANNIHILATIONBT",
+    "PATH",
+  ],
+  [
+    HKEY.HKEY_LOCAL_MACHINE,
+    "SOFTWARE\\GOG.com\\GOGTOTALANNIHILATIONCC",
+    "PATH",
+  ],
+  [
+    HKEY.HKEY_LOCAL_MACHINE,
+    "SOFTWARE\\Wow6432Node\\GOG.com\\GOGTOTALANNIHILATION",
+    "PATH",
+  ],
+  [
+    HKEY.HKEY_LOCAL_MACHINE,
+    "SOFTWARE\\Wow6432Node\\GOG.com\\GOGTOTALANNIHILATIONBT",
+    "PATH",
+  ],
+  [
+    HKEY.HKEY_LOCAL_MACHINE,
+    "SOFTWARE\\Wow6432Node\\GOG.com\\GOGTOTALANNIHILATIONCC",
+    "PATH",
+  ],
+  [
+    HKEY.HKEY_LOCAL_MACHINE,
+    "SOFTWARE\\Microsoft\\DirectPlay\\Applications\\Total Annihilation",
+    "Path",
+  ],
+  [
+    HKEY.HKEY_LOCAL_MACHINE,
+    "SOFTWARE\\Wow6432Node\\Microsoft\\DirectPlay\\Applications\\Total Annihilation",
+    "Path",
+  ],
+  [
+    HKEY.HKEY_LOCAL_MACHINE,
+    "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\GOGPACKTOTALANNIHILATIONCOMMANDERPACK_is1",
+    "InstallLocation",
+  ],
+  [
+    HKEY.HKEY_LOCAL_MACHINE,
+    "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\GOGPACKTOTALANNIHILATIONCOMMANDERPACK_is1",
+    "InstallLocation",
+  ],
+  [
+    HKEY.HKEY_LOCAL_MACHINE,
+    "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Total Annihilation",
+    "Dir",
+  ],
+];
+
 function getSearchDirectories(): string[] {
   if (process.platform !== "win32") {
     return [];
   }
+  const rawPaths = [
+    ...findRegistryTaInstallLocations(),
+    ...getHardcodedTaPathGuesses(),
+  ];
+  const normalizedPaths = rawPaths.map(x => path.resolve(x.toUpperCase()));
+  const deduplicatedPaths = [...new Set(normalizedPaths).values()];
+  return deduplicatedPaths;
+}
+
+function getHardcodedTaPathGuesses(): string[] {
   const systemDrive = process.env["SYSTEMDRIVE"] || "C:";
   const programFiles =
     process.env["PROGRAMFILES"] || path.join(systemDrive, "Program Files");
   const programFilesX86 =
     process.env["ProgramFiles(x86)"] ||
     path.join(systemDrive, "Program Files (x86)");
+
   return [
     path.join(systemDrive, "CAVEDOG", "TOTALA"),
     path.join(
@@ -57,6 +128,21 @@ function getSearchDirectories(): string[] {
     ),
     path.join(systemDrive, "GOG Games", "Total Annihilation - Commander Pack"),
   ];
+}
+
+/** May contain duplicate paths -- it's up to the caller to dedupe them. */
+function findRegistryTaInstallLocations(): string[] {
+  return taPathRegistryLocations.flatMap(([hkey, key, name]) => {
+    const values = enumerateValues(hkey, key);
+    const installPathEntry = values.find(x => x.name === name);
+    if (
+      installPathEntry &&
+      installPathEntry.type === RegistryValueType.REG_SZ
+    ) {
+      return [installPathEntry.data];
+    }
+    return [];
+  });
 }
 
 export function automaticallySetUpTaMod(outDir: string): Promise<boolean> {
