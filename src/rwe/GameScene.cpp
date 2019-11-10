@@ -767,7 +767,7 @@ namespace rwe
                         auto worldViewportPos = sceneContext.viewportService->toOtherViewport(worldViewport, p);
                         const auto cameraPosition = worldRenderService.getCamera().getPosition();
                         Point originRelativePos(cameraPosition.x + worldViewportPos.x, cameraPosition.z + worldViewportPos.y);
-                        cursorMode.next(NormalCursorMode{NormalCursorMode::SelectingState(originRelativePos)});
+                        cursorMode.next(NormalCursorMode{NormalCursorMode::SelectingState(sceneTime, originRelativePos)});
                     }
                 });
         }
@@ -866,7 +866,7 @@ namespace rwe
                             const auto cameraPosition = worldRenderService.getCamera().getPosition();
                             Point originRelativePos(cameraPosition.x + worldViewportPos.x, cameraPosition.z + worldViewportPos.y);
 
-                            if (state.startPosition == originRelativePos)
+                            if (sceneTime - state.startTime < SceneTime(60) && state.startPosition.maxSingleDimensionDistance(originRelativePos) < 32)
                             {
                                 if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
                                 {

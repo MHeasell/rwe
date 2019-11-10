@@ -74,12 +74,13 @@ namespace rwe
     {
         struct SelectingState
         {
+            SceneTime startTime;
             Point startPosition;
-            explicit SelectingState(const Point& startPosition) : startPosition(startPosition) {}
+            explicit SelectingState(SceneTime startTime, const Point& startPosition) : startTime(startTime), startPosition(startPosition) {}
             SelectingState(int x, int y) : startPosition(x, y) {}
             bool operator==(const SelectingState& rhs) const
             {
-                return startPosition == rhs.startPosition;
+                return startTime == rhs.startTime && startPosition == rhs.startPosition;
             }
             bool operator!=(const SelectingState& rhs) const
             {

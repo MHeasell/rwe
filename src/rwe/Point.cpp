@@ -30,4 +30,10 @@ namespace rwe
     {
         return std::hash<Point>()(p);
     }
+
+    int Point::maxSingleDimensionDistance(const Point& rhs) const
+    {
+        auto delta = *this - rhs;
+        return std::max(std::abs(delta.x), std::abs(delta.y));
+    }
 }
