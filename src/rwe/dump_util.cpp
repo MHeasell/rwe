@@ -108,6 +108,26 @@ namespace rwe
     {
         return nlohmann::json();
     }
+    nlohmann::json dumpJson(const CreatingUnitState& s)
+    {
+        return nlohmann::json{
+            {"unitType", dumpJson(s.unitType)},
+            {"owner", dumpJson(s.owner)},
+            {"position", dumpJson(s.position)},
+        };
+    }
+    nlohmann::json dumpJson(const UnitCreationStatusPending& s)
+    {
+        return nlohmann::json();
+    }
+    nlohmann::json dumpJson(const UnitCreationStatusDone& s)
+    {
+        return nlohmann::json{{"unitId", dumpJson(s.unitId)}};
+    }
+    nlohmann::json dumpJson(const UnitCreationStatusFailed&)
+    {
+        return nlohmann::json();
+    }
     nlohmann::json dumpJson(const MovingState& m)
     {
         return nlohmann::json{

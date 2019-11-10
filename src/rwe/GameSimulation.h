@@ -113,6 +113,8 @@ namespace rwe
 
         std::deque<PathRequest> pathRequests;
 
+        std::deque<UnitId> unitCreationRequests;
+
         GameTime gameTime{0};
 
         explicit GameSimulation(MapTerrain&& terrain, unsigned char surfaceMetal);

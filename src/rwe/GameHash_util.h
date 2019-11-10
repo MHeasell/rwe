@@ -29,7 +29,13 @@ namespace rwe
 
     GameHash computeHashOf(const IdleState&);
 
-    GameHash computeHashOf(const BuildingState&);
+    GameHash computeHashOf(const BuildingState& s);
+
+    GameHash computeHashOf(const CreatingUnitState&);
+
+    GameHash computeHashOf(const UnitCreationStatusPending&);
+    GameHash computeHashOf(const UnitCreationStatusDone&);
+    GameHash computeHashOf(const UnitCreationStatusFailed&);
 
     GameHash computeHashOf(const MovingState& m);
 

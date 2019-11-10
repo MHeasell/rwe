@@ -905,14 +905,21 @@ namespace rwe
             {
                 if (followPath(unit, *pathToFollow))
                 {
-                    auto targetUnitId = scene->spawnUnit(buildOrder.unitType, unit.owner, buildOrder.position);
-                    if (!targetUnitId)
-                    {
-                        // we failed to create the unit -- give up
-                        unit.behaviourState = IdleState();
-                        return true;
-                    }
-
+                    unit.behaviourState = CreatingUnitState{buildOrder.unitType, unit.owner, buildOrder.position};
+                    scene->getSimulation().unitCreationRequests.push_back(unitId);
+                }
+            }
+        }
+        else if (auto creatingState = std::get_if<CreatingUnitState>(&unit.behaviourState); creatingState != nullptr)
+        {
+            return match(
+                creatingState->status,
+                [&](const UnitCreationStatusFailed&) {
+                    // we failed to create the unit -- give up
+                    unit.behaviourState = IdleState();
+                    return true;
+                },
+                [&](const UnitCreationStatusDone& d) {
                     if (unit.buildSound)
                     {
                         scene->playNotificationSound(unit.owner, *unit.buildSound);
@@ -924,9 +931,12 @@ namespace rwe
                     auto pitch = headingAndPitch.second;
 
                     unit.cobEnvironment->createThread("StartBuilding", {toCobAngle(heading).value, toCobAngle(pitch).value});
-                    unit.behaviourState = BuildingState{*targetUnitId};
-                }
-            }
+                    unit.behaviourState = BuildingState{d.unitId};
+                    return false;
+                },
+                [](const UnitCreationStatusPending&) {
+                    return false;
+                });
         }
         else if (auto buildingState = std::get_if<BuildingState>(&unit.behaviourState); buildingState != nullptr)
         {
@@ -1163,6 +1173,22 @@ namespace rwe
                 unit.factoryState = FactoryStateBuilding();
                 return false;
             },
+            [&](FactoryStateCreatingUnit& state) {
+                return match(
+                    state.status,
+                    [&](const UnitCreationStatusPending&) {
+                        return false;
+                    },
+                    [&](const UnitCreationStatusDone& s) {
+                        unit.cobEnvironment->createThread("StartBuilding");
+                        unit.factoryState = FactoryStateBuilding{s.unitId};
+                        return false;
+                    },
+                    [&](const UnitCreationStatusFailed&) {
+                        unit.factoryState = FactoryStateBuilding();
+                        return false;
+                    });
+            },
             [&](FactoryStateBuilding& state) {
                 if (!unit.inBuildStance)
                 {
@@ -1175,12 +1201,8 @@ namespace rwe
                 buildPieceInfo.position.y = sim.terrain.getHeightAt(buildPieceInfo.position.x, buildPieceInfo.position.z);
                 if (!state.targetUnit)
                 {
-                    state.targetUnit = scene->spawnUnit(unitType, unit.owner, buildPieceInfo.position);
-                    if (state.targetUnit)
-                    {
-                        unit.cobEnvironment->createThread("StartBuilding");
-                    }
-
+                    unit.factoryState = FactoryStateCreatingUnit{unitType, unit.owner, buildPieceInfo.position};
+                    scene->getSimulation().unitCreationRequests.push_back(unitId);
                     return false;
                 }
 
@@ -1258,6 +1280,18 @@ namespace rwe
             unit.factoryState,
             [&](const FactoryStateIdle&) {
                 // do nothing
+            },
+            [&](const FactoryStateCreatingUnit& state) {
+                match(
+                    state.status,
+                    [&](const UnitCreationStatusDone& d) {
+                        scene->quietlyKillUnit(d.unitId);
+                    },
+                    [&](const auto&) {
+                        // do nothing
+                    });
+                scene->deactivateUnit(unitId);
+                unit.factoryState = FactoryStateIdle();
             },
             [&](const FactoryStateBuilding& state) {
                 if (state.targetUnit)

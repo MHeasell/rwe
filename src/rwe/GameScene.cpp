@@ -1537,6 +1537,8 @@ namespace rwe
 
         deleteDeadUnits();
 
+        spawnNewUnits();
+
         auto gameHash = simulation.computeHash();
         playerCommandService->pushHash(localPlayerId, gameHash);
         gameNetworkService->submitGameHash(gameHash);
@@ -2139,6 +2141,55 @@ namespace rwe
                 ++it;
             }
         }
+    }
+
+    void GameScene::spawnNewUnits()
+    {
+        for (const auto& unitId : simulation.unitCreationRequests)
+        {
+            auto unit = tryGetUnit(unitId);
+            if (!unit)
+            {
+                continue;
+            }
+
+            if (auto s = std::get_if<CreatingUnitState>(&unit->get().behaviourState); s != nullptr)
+            {
+
+                if (!std::holds_alternative<UnitCreationStatusPending>(s->status))
+                {
+                    continue;
+                }
+
+                auto newUnitId = spawnUnit(s->unitType, s->owner, s->position);
+                if (!newUnitId)
+                {
+                    s->status = UnitCreationStatusFailed();
+                    continue;
+                }
+
+                s->status = UnitCreationStatusDone{*newUnitId};
+            }
+
+            if (auto s = std::get_if<FactoryStateCreatingUnit>(&unit->get().factoryState); s != nullptr)
+            {
+                if (!std::holds_alternative<UnitCreationStatusPending>(s->status))
+                {
+                    continue;
+                }
+
+                auto newUnitId = spawnUnit(s->unitType, s->owner, s->position);
+                if (!newUnitId)
+                {
+                    s->status = UnitCreationStatusFailed();
+                    continue;
+                }
+
+                s->status = UnitCreationStatusDone{*newUnitId};
+            }
+        }
+
+        simulation.unitCreationRequests.clear();
     }
 
     BoundingBox3x<SimScalar> GameScene::createBoundingBox(const Unit& unit) const

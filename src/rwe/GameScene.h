@@ -419,6 +419,8 @@ namespace rwe
 
         void deleteDeadUnits();
 
+        void spawnNewUnits();
+
         BoundingBox3x<SimScalar> createBoundingBox(const Unit& unit) const;
 
         void killUnit(UnitId unitId);

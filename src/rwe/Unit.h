@@ -49,15 +49,45 @@ namespace rwe
     {
     };
 
+    struct UnitCreationStatusPending
+    {
+    };
+
+    struct UnitCreationStatusDone
+    {
+        UnitId unitId;
+    };
+
+    struct UnitCreationStatusFailed
+    {
+    };
+
+    using UnitCreationStatus = std::variant<UnitCreationStatusPending, UnitCreationStatusFailed, UnitCreationStatusDone>;
+    struct CreatingUnitState
+    {
+        std::string unitType;
+        PlayerId owner;
+        SimVector position;
+        UnitCreationStatus status{UnitCreationStatusPending()};
+    };
+
     struct BuildingState
     {
         UnitId targetUnit;
     };
 
-    using UnitState = std::variant<IdleState, MovingState, BuildingState>;
+    using UnitState = std::variant<IdleState, MovingState, CreatingUnitState, BuildingState>;
 
     struct FactoryStateIdle
     {
+    };
+
+    struct FactoryStateCreatingUnit
+    {
+        std::string unitType;
+        PlayerId owner;
+        SimVector position;
+        UnitCreationStatus status{UnitCreationStatusPending()};
     };
 
     struct FactoryStateBuilding
@@ -65,7 +95,7 @@ namespace rwe
         std::optional<UnitId> targetUnit;
     };
 
-    using FactoryState = std::variant<FactoryStateIdle, FactoryStateBuilding>;
+    using FactoryState = std::variant<FactoryStateIdle, FactoryStateCreatingUnit, FactoryStateBuilding>;
 
     UnitOrder createMoveOrder(const SimVector& destination);
 

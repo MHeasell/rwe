@@ -43,6 +43,12 @@ namespace rwe
 
     nlohmann::json dumpJson(const BuildingState&);
 
+    nlohmann::json dumpJson(const CreatingUnitState&);
+
+    nlohmann::json dumpJson(const UnitCreationStatusPending&);
+    nlohmann::json dumpJson(const UnitCreationStatusDone&);
+    nlohmann::json dumpJson(const UnitCreationStatusFailed&);
+
     nlohmann::json dumpJson(const MovingState& m);
 
     nlohmann::json dumpJson(const DiscreteRect& r);

@@ -130,6 +130,29 @@ namespace rwe
         return GameHash(0);
     }
 
+    GameHash computeHashOf(const CreatingUnitState& s)
+    {
+        return combineHashes(
+            s.position,
+            s.owner,
+            s.unitType,
+            s.status);
+    }
+
+    GameHash computeHashOf(const UnitCreationStatusPending&)
+    {
+        return GameHash(0);
+    }
+    GameHash computeHashOf(const UnitCreationStatusDone& s)
+    {
+        return combineHashes(s.unitId);
+    }
+
+    GameHash computeHashOf(const UnitCreationStatusFailed&)
+    {
+        return GameHash(0);
+    }
+
     GameHash computeHashOf(const MovingState& m)
     {
         return combineHashes(
