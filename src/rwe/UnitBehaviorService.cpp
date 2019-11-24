@@ -825,7 +825,10 @@ namespace rwe
                     // we're in range, aim weapons
                     for (unsigned int i = 0; i < 2; ++i)
                     {
-                        unit.setWeaponTarget(i, *targetPosition);
+                        match(
+                            attackOrder.target,
+                            [&](const UnitId& u) { unit.setWeaponTarget(i, u); },
+                            [&](const SimVector& v) { unit.setWeaponTarget(i, v); });
                     }
                 }
             }
