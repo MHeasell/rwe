@@ -34,7 +34,6 @@
     "@types/react-redux": "^7.1.5",
     "@types/socket.io": "^2.1.4",
     "@types/socket.io-client": "^1.4.32",
-    "@types/storybook__react": "^4.0.2",
     "@types/yargs": "^13.0.4",
     "@typescript-eslint/eslint-plugin": "^2.13.0",
     "@typescript-eslint/parser": "^2.13.0",
