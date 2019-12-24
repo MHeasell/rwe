@@ -32,6 +32,7 @@
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/no-unused-vars": ["warn", { "args": "none" }],
         "@typescript-eslint/camelcase": "off",
-        "@typescript-eslint/no-use-before-define": ["error", { "functions": false }]
+        "@typescript-eslint/no-use-before-define": ["error", { "functions": false }],
+        "@typescript-eslint/no-empty-function": "off"
     }
 }
