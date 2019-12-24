@@ -4,7 +4,7 @@ const webpack = require("webpack");
 
 module.exports = {
   mode: "development",
-  entry: "./src/launcher/renderer.tsx",
+  entry: ["react-hot-loader/patch", "./src/launcher/renderer.tsx"],
   target: "electron-renderer",
   devtool: "source-map",
   module: {
