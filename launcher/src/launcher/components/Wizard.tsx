@@ -105,10 +105,10 @@ function WizardManual(props: {
         The wizard was unable to locate Total Annihilation game data.
       </Typography>
       <Typography>Manually locate your Total Annihilation folder:</Typography>
-      {/*
-      // @ts-ignore */}
       <input
         type="file"
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
         webkitdirectory="true"
         onChange={e => {
           props.onChange(e.target.files![0].path);
