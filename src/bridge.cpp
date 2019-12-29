@@ -160,6 +160,25 @@ std::optional<rwe::OtaRecord> getMapInfo(rwe::AbstractVirtualFileSystem& vfs, co
     return rwe::parseOta(rwe::parseTdfFromString(dataString));
 }
 
+std::optional<std::string> getMinimap(rwe::AbstractVirtualFileSystem& vfs, const std::string& mapName)
+{
+    auto paletteBytes = vfs.readFile("palettes/PALETTE.PAL");
+    if (!paletteBytes)
+    {
+        return std::nullopt;
+    }
+
+    boost::interprocess::bufferstream paletteBuffer(paletteBytes->data(), paletteBytes->size());
+    png::rgb_pixel palette[256];
+    rwe::loadPalette(paletteBuffer, palette);
+
+    auto output = fs::temp_directory_path();
+    output /= mapName + ".png";
+
+    rwe::extractMinimap(vfs, palette, mapName, output.string());
+    return output.string();
+}
+
 int main(int argc, char* argv[])
 {
     rwe::CompositeVirtualFileSystem vfs;
@@ -225,23 +244,17 @@ int main(int argc, char* argv[])
                 std::cout << "Missing map field" << std::endl;
                 return 1;
             }
-            auto paletteBytes = vfs.readFile("palettes/PALETTE.PAL");
-            if (!paletteBytes)
+
+            auto filename = getMinimap(vfs, mapIt->get<std::string>());
+            if (filename)
             {
-                throw std::runtime_error("Couldn't find palette");
+                writeGetMinimapSuccess(*filename);
             }
-
-            boost::interprocess::bufferstream paletteBuffer(paletteBytes->data(), paletteBytes->size());
-            png::rgb_pixel palette[256];
-            rwe::loadPalette(paletteBuffer, palette);
-
-            auto mapName = mapIt->get<std::string>();
-
-            auto output = fs::temp_directory_path();
-            output /= mapName + ".png";
-
-            rwe::extractMinimap(vfs, palette, mapName, output.string());
-            writeGetMinimapSuccess(output.string());
+            else
+            {
+                std::cout << "Failed to load minimap" << std::endl;
+                return 1;
+            }
         }
         else if (command == "video-modes")
         {
