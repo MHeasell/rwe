@@ -94,6 +94,14 @@ void writeMapInfoSuccess(const rwe::OtaRecord& ota)
     std::cout << j << std::endl;
 }
 
+void writeMapInfoError()
+{
+    json j = {
+        {"result", "not-found"},
+    };
+    std::cout << j << std::endl;
+}
+
 void writeGetModeListSuccess(const std::vector<std::pair<int, int>>& modes)
 {
     std::vector<json> modesJson;
@@ -193,12 +201,14 @@ int main(int argc, char* argv[])
             auto data = vfs.readFile("maps/" + mapIt->get<std::string>() + ".ota");
             if (!data)
             {
-                std::cout << "Map ota not found!" << std::endl;
-                return 1;
+                writeMapInfoError();
             }
-            std::string dataString(data->begin(), data->end());
-            auto ota = rwe::parseOta(rwe::parseTdfFromString(dataString));
-            writeMapInfoSuccess(ota);
+            else
+            {
+                std::string dataString(data->begin(), data->end());
+                auto ota = rwe::parseOta(rwe::parseTdfFromString(dataString));
+                writeMapInfoSuccess(ota);
+            }
         }
         else if (command == "map-list")
         {

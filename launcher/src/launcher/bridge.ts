@@ -24,11 +24,19 @@ interface GetMapInfoCommand {
   map: string;
 }
 
-export interface GetMapInfoResponse {
+export type GetMapInfoResponse =
+  | GetMapInfoOkResponse
+  | GetMapInfoNotFoundResponse;
+
+export interface GetMapInfoOkResponse {
   result: "ok";
   description: string;
   memory: string;
   numberOfPlayers: string;
+}
+
+export interface GetMapInfoNotFoundResponse {
+  result: "not-found";
 }
 
 interface GetMapListCommand {
