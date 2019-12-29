@@ -179,6 +179,31 @@ std::optional<std::string> getMinimap(rwe::AbstractVirtualFileSystem& vfs, const
     return output.string();
 }
 
+std::optional<std::vector<std::pair<int, int>>> getVideoModes()
+{
+    if (SDL_Init(SDL_INIT_VIDEO))
+    {
+        return std::nullopt;
+    }
+    std::vector<std::pair<int, int>> modeList;
+    auto displayModes = SDL_GetNumDisplayModes(0);
+    for (int i = 0; i < displayModes; ++i)
+    {
+        SDL_DisplayMode mode;
+        if (SDL_GetDisplayMode(0, i, &mode) != 0)
+        {
+            continue;
+        }
+        if (mode.format != SDL_PIXELFORMAT_RGB888 || mode.refresh_rate != 60)
+        {
+            continue;
+        }
+        modeList.emplace_back(mode.w, mode.h);
+    }
+    SDL_Quit();
+    return modeList;
+}
+
 int main(int argc, char* argv[])
 {
     rwe::CompositeVirtualFileSystem vfs;
@@ -258,24 +283,16 @@ int main(int argc, char* argv[])
         }
         else if (command == "video-modes")
         {
-            if (SDL_Init(SDL_INIT_VIDEO))
+            auto modeList = getVideoModes();
+            if (modeList)
             {
-                throw std::runtime_error("Failed to init video");
+                writeGetModeListSuccess(*modeList);
             }
-            std::vector<std::pair<int, int>> modeList;
-            auto displayModes = SDL_GetNumDisplayModes(0);
-            for (int i = 0; i < displayModes; ++i)
+            else
             {
-                SDL_DisplayMode mode;
-                SDL_GetDisplayMode(0, i, &mode);
-                if (mode.format != SDL_PIXELFORMAT_RGB888 || mode.refresh_rate != 60)
-                {
-                    continue;
-                }
-                modeList.emplace_back(mode.w, mode.h);
+                std::cout << "Failed to get video modes" << std::endl;
+                return 1;
             }
-            writeGetModeListSuccess(modeList);
-            SDL_Quit();
         }
         else
         {
