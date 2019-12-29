@@ -149,6 +149,17 @@ namespace rwe
     }
 }
 
+std::optional<rwe::OtaRecord> getMapInfo(rwe::AbstractVirtualFileSystem& vfs, const std::string& mapName)
+{
+    auto data = vfs.readFile("maps/" + mapName + ".ota");
+    if (!data)
+    {
+        return std::nullopt;
+    }
+    std::string dataString(data->begin(), data->end());
+    return rwe::parseOta(rwe::parseTdfFromString(dataString));
+}
+
 int main(int argc, char* argv[])
 {
     rwe::CompositeVirtualFileSystem vfs;
@@ -190,15 +201,16 @@ int main(int argc, char* argv[])
                 return 1;
             }
 
-            auto data = vfs.readFile("maps/" + mapIt->get<std::string>() + ".ota");
-            if (!data)
+            auto ota = getMapInfo(vfs, mapIt->get<std::string>());
+            if (ota)
+            {
+                writeMapInfoSuccess(*ota);
+            }
+            else
             {
                 std::cout << "Map ota not found!" << std::endl;
                 return 1;
             }
-            std::string dataString(data->begin(), data->end());
-            auto ota = rwe::parseOta(rwe::parseTdfFromString(dataString));
-            writeMapInfoSuccess(ota);
         }
         else if (command == "map-list")
         {
