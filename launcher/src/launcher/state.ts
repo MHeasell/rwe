@@ -23,13 +23,7 @@ export interface MapCacheValue {
 }
 
 export interface GameRoom {
-  localPlayerId?: number;
-  adminPlayerId?: number;
-  players: PlayerSlot[];
-  messages: ChatMessage[];
-  mapName?: string;
   mapDialog?: MapDialogState;
-  activeMods: string[];
   mapCache: { [key: string]: MapCacheValue };
 }
 
@@ -75,7 +69,7 @@ export function getRoom(state: State): GameRoom | undefined {
   return state.currentScreen.room;
 }
 
-export function canStartGame(room: GameRoom) {
+export function canStartGame(room: CurrentGameState) {
   if (room.adminPlayerId !== room.localPlayerId) {
     return false;
   }
@@ -125,12 +119,22 @@ export interface VideoMode {
   height: number;
 }
 
+export interface CurrentGameState {
+  localPlayerId?: number;
+  adminPlayerId?: number;
+  players: PlayerSlot[];
+  messages: ChatMessage[];
+  mapName?: string;
+  activeMods: string[];
+}
+
 export interface State {
   installedMods?: InstalledModInfo[];
   videoModes?: VideoMode[];
   activeMods: string[];
   games: GameListEntry[];
   selectedGameId?: number;
+  currentGame?: CurrentGameState;
   currentScreen: AppScreen;
   isRweRunning: boolean;
   masterServerConnectionStatus: MasterServerConnectionStatus;

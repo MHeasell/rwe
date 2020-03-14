@@ -10,10 +10,10 @@ import {
 } from "../actions";
 import {
   FilledPlayerSlot,
-  GameRoom,
   getRoom,
   State,
   InstalledModInfo,
+  CurrentGameState,
 } from "../state";
 import * as protocol from "../../game-server/protocol";
 
@@ -30,9 +30,9 @@ import {
 import { assertNever, masterServer, choose } from "../../common/util";
 import { EpicDependencies } from "./EpicDependencies";
 
-function rweArgsFromGameRoom(
+function rweArgsFromCurrentGameState(
   installedMods: InstalledModInfo[],
-  game: GameRoom,
+  game: CurrentGameState,
   startInfo: protocol.StartGamePayload
 ): RweArgs {
   const playersArgs: RweArgsPlayerSlot[] = game.players.map((x, i) => {
@@ -188,7 +188,7 @@ export const gameRoomEpic = (
         }
         case "TOGGLE_READY": {
           const state = state$.value;
-          const room = getRoom(state);
+          const room = state.currentGame;
           if (!room) {
             break;
           }
@@ -220,14 +220,18 @@ export const gameRoomEpic = (
         }
         case "RECEIVE_START_GAME": {
           const state = state$.value;
-          const room = getRoom(state);
+          const room = state.currentGame;
           if (!room || !state.installedMods) {
             break;
           }
           return rx
             .from(
               execRwe(
-                rweArgsFromGameRoom(state.installedMods, room, action.payload)
+                rweArgsFromCurrentGameState(
+                  state.installedMods,
+                  room,
+                  action.payload
+                )
               )
             )
             .pipe(

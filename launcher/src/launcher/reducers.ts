@@ -14,6 +14,7 @@ import {
   PlayerSlot,
   State,
   MapCacheValue,
+  CurrentGameState,
 } from "./state";
 import { findAndMap } from "../common/util";
 import { mapDialogReducer } from "./mapsDialog";
@@ -49,125 +50,39 @@ function findPlayer(
   );
 }
 
-function gameRoomScreenReducer(
-  screen: GameRoomScreen,
-  action: AppAction
-): AppScreen {
+function currentGameReducer(state: State, action: AppAction): State {
   switch (action.type) {
     case "RECEIVE_HANDSHAKE_RESPONSE": {
-      const room: GameRoom = {
+      const game: CurrentGameState = {
         players: action.payload.players,
         localPlayerId: action.payload.playerId,
         adminPlayerId: action.payload.adminPlayerId,
         mapName: action.payload.mapName,
         messages: [],
         activeMods: action.payload.activeMods,
-        mapCache: {},
       };
-      return { ...screen, room };
-    }
-    case "START_GAME": {
-      return { screen: "overview" };
+      return { ...state, currentGame: game };
     }
     case "DISCONNECT_GAME": {
-      return { screen: "overview" };
+      return { ...state, currentGame: undefined };
     }
     default: {
-      if (!screen.room) {
-        return screen;
-      }
-      const room = gameRoomReducer(screen.room, action);
-      if (room === screen.room) {
-        return screen;
-      }
-      return { ...screen, room };
-    }
-  }
-}
-
-function overviewScreenReducer(
-  screen: OverviewScreen,
-  action: AppAction
-): AppScreen {
-  switch (action.type) {
-    case "JOIN_SELECTED_GAME_CONFIRM": {
-      return { screen: "game-room" };
-    }
-    case "HOST_GAME": {
-      return { screen: "host-form" };
-    }
-    default:
-      return screen;
-  }
-}
-
-function hostFormReducer(screen: HostFormScreen, action: AppAction): AppScreen {
-  switch (action.type) {
-    case "HOST_GAME_FORM_CONFIRM": {
-      return { screen: "game-room" };
-    }
-    case "HOST_GAME_FORM_CANCEL": {
-      return { screen: "overview" };
-    }
-    default:
-      return screen;
-  }
-}
-
-function currentScreenReducer(screen: AppScreen, action: AppAction): AppScreen {
-  switch (screen.screen) {
-    case "game-room":
-      return gameRoomScreenReducer(screen, action);
-    case "overview":
-      return overviewScreenReducer(screen, action);
-    case "host-form":
-      return hostFormReducer(screen, action);
-  }
-}
-
-function mapDialogWrapperReducer(room: GameRoom, action: AppAction): GameRoom {
-  switch (action.type) {
-    case "OPEN_SELECT_MAP_DIALOG": {
-      return { ...room, mapDialog: { selectedMap: room.mapName } };
-    }
-    case "CLOSE_SELECT_MAP_DIALOG": {
-      return { ...room, mapDialog: undefined };
-    }
-    default: {
-      if (room.mapDialog) {
-        const mapDialog = mapDialogReducer(room.mapDialog, action);
-        if (mapDialog !== room.mapDialog) {
-          return { ...room, mapDialog };
-        }
-      }
-      return room;
-    }
-  }
-}
-
-function wizardWrapperReducer(state: State, action: AppAction): State {
-  switch (action.type) {
-    case "wizard/OPEN": {
-      return { ...state, wizard: { step: "welcome" } };
-    }
-    case "wizard/CLOSE": {
-      if (!state.wizard || state.wizard.step === "working") {
+      if (!state.currentGame) {
         return state;
       }
-      return { ...state, wizard: undefined };
-    }
-    default:
-      if (state.wizard) {
-        const wizard = wizardReducer(state.wizard, action);
-        if (wizard !== state.wizard) {
-          return { ...state, wizard };
-        }
+      const newGame = currentGameReducer2(state.currentGame, action);
+      if (newGame === state.currentGame) {
+        return state;
       }
-      return state;
+      return { ...state, currentGame: newGame };
+    }
   }
 }
 
-function gameRoomReducer(room: GameRoom, action: AppAction): GameRoom {
+function currentGameReducer2(
+  room: CurrentGameState,
+  action: AppAction
+): CurrentGameState {
   switch (action.type) {
     case "RECEIVE_PLAYER_JOINED": {
       const newPlayer: PlayerSlot = {
@@ -280,11 +195,144 @@ function gameRoomReducer(room: GameRoom, action: AppAction): GameRoom {
       return { ...room, players: newPlayers };
     }
     case "RECEIVE_ACTIVE_MODS_CHANGED": {
-      return { ...room, activeMods: action.payload.mods, mapCache: {} };
+      return { ...room, activeMods: action.payload.mods };
     }
     case "RECEIVE_MAP_CHANGED": {
       return { ...room, mapName: action.data.mapName };
     }
+    default: {
+      return room;
+    }
+  }
+}
+
+function gameRoomScreenReducer(
+  screen: GameRoomScreen,
+  mapName: string | undefined,
+  action: AppAction
+): AppScreen {
+  switch (action.type) {
+    case "RECEIVE_HANDSHAKE_RESPONSE": {
+      const room: GameRoom = {
+        mapCache: {},
+      };
+      return { ...screen, room };
+    }
+    case "START_GAME": {
+      return { screen: "overview" };
+    }
+    case "DISCONNECT_GAME": {
+      return { screen: "overview" };
+    }
+    default: {
+      if (!screen.room) {
+        return screen;
+      }
+      const room = gameRoomReducer(screen.room, mapName, action);
+      if (room === screen.room) {
+        return screen;
+      }
+      return { ...screen, room };
+    }
+  }
+}
+
+function overviewScreenReducer(
+  screen: OverviewScreen,
+  action: AppAction
+): AppScreen {
+  switch (action.type) {
+    case "JOIN_SELECTED_GAME_CONFIRM": {
+      return { screen: "game-room" };
+    }
+    case "HOST_GAME": {
+      return { screen: "host-form" };
+    }
+    default:
+      return screen;
+  }
+}
+
+function hostFormReducer(screen: HostFormScreen, action: AppAction): AppScreen {
+  switch (action.type) {
+    case "HOST_GAME_FORM_CONFIRM": {
+      return { screen: "game-room" };
+    }
+    case "HOST_GAME_FORM_CANCEL": {
+      return { screen: "overview" };
+    }
+    default:
+      return screen;
+  }
+}
+
+function currentScreenReducer(
+  screen: AppScreen,
+  mapName: string | undefined,
+  action: AppAction
+): AppScreen {
+  switch (screen.screen) {
+    case "game-room":
+      return gameRoomScreenReducer(screen, mapName, action);
+    case "overview":
+      return overviewScreenReducer(screen, action);
+    case "host-form":
+      return hostFormReducer(screen, action);
+  }
+}
+
+function mapDialogWrapperReducer(
+  room: GameRoom,
+  mapName: string | undefined,
+  action: AppAction
+): GameRoom {
+  switch (action.type) {
+    case "OPEN_SELECT_MAP_DIALOG": {
+      return { ...room, mapDialog: { selectedMap: mapName } };
+    }
+    case "CLOSE_SELECT_MAP_DIALOG": {
+      return { ...room, mapDialog: undefined };
+    }
+    default: {
+      if (room.mapDialog) {
+        const mapDialog = mapDialogReducer(room.mapDialog, action);
+        if (mapDialog !== room.mapDialog) {
+          return { ...room, mapDialog };
+        }
+      }
+      return room;
+    }
+  }
+}
+
+function wizardWrapperReducer(state: State, action: AppAction): State {
+  switch (action.type) {
+    case "wizard/OPEN": {
+      return { ...state, wizard: { step: "welcome" } };
+    }
+    case "wizard/CLOSE": {
+      if (!state.wizard || state.wizard.step === "working") {
+        return state;
+      }
+      return { ...state, wizard: undefined };
+    }
+    default:
+      if (state.wizard) {
+        const wizard = wizardReducer(state.wizard, action);
+        if (wizard !== state.wizard) {
+          return { ...state, wizard };
+        }
+      }
+      return state;
+  }
+}
+
+function gameRoomReducer(
+  room: GameRoom,
+  mapName: string | undefined,
+  action: AppAction
+): GameRoom {
+  switch (action.type) {
     case "RECEIVE_COMBINED_MAP_INFO": {
       const entry: MapCacheValue = {
         description: action.info.description,
@@ -294,9 +342,11 @@ function gameRoomReducer(room: GameRoom, action: AppAction): GameRoom {
       };
       return { ...room, mapCache: { ...room.mapCache, [action.name]: entry } };
     }
-
+    case "RECEIVE_ACTIVE_MODS_CHANGED": {
+      return { ...room, mapCache: {} };
+    }
     default: {
-      return mapDialogWrapperReducer(room, action);
+      return mapDialogWrapperReducer(room, mapName, action);
     }
   }
 }
@@ -366,7 +416,7 @@ function games(state: State = initialState, action: AppAction): State {
       return { ...state, rweConfig: action.settings };
     default: {
       return wizardWrapperReducer(
-        currentScreenWrapperReducer(state, action),
+        currentScreenWrapperReducer(currentGameReducer(state, action), action),
         action
       );
     }
@@ -374,7 +424,11 @@ function games(state: State = initialState, action: AppAction): State {
 }
 
 function currentScreenWrapperReducer(state: State, action: AppAction): State {
-  const screen = currentScreenReducer(state.currentScreen, action);
+  const screen = currentScreenReducer(
+    state.currentScreen,
+    state.currentGame?.mapName,
+    action
+  );
   if (screen === state.currentScreen) {
     return state;
   }

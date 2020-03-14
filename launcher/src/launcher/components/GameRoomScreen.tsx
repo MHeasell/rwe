@@ -250,8 +250,9 @@ function isElementScrolledToBottom(elem: HTMLElement): boolean {
 
 function mapStateToProps(state: State): GameRoomScreenStateProps {
   const installedMods = (state.installedMods || []).map(x => x.name);
+  const game = state.currentGame;
   const room = getRoom(state);
-  if (!room) {
+  if (!game || !room) {
     return {
       installedMods,
       activeMods: [],
@@ -266,13 +267,13 @@ function mapStateToProps(state: State): GameRoomScreenStateProps {
 
   return {
     installedMods,
-    activeMods: room.activeMods,
-    localPlayerId: room.localPlayerId,
-    adminPlayerId: room.adminPlayerId,
-    players: room.players,
-    messages: room.messages,
-    startEnabled: canStartGame(room),
-    mapName: room.mapName,
+    activeMods: game.activeMods,
+    localPlayerId: game.localPlayerId,
+    adminPlayerId: game.adminPlayerId,
+    players: game.players,
+    messages: game.messages,
+    startEnabled: canStartGame(game),
+    mapName: game.mapName,
     mapDialogOpen: !!mapDialog,
     mapDialogMaps: mapDialog ? mapDialog.maps : undefined,
     selectedMap: mapDialog ? mapDialog.selectedMap : undefined,
