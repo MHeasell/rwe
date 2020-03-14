@@ -4,7 +4,7 @@ import * as rxop from "rxjs/operators";
 import fs from "fs";
 import { AppAction } from "./actions";
 import { State } from "./state";
-import { EpicDependencies } from "./middleware/GameRoomEpic";
+import { EpicDependencies } from "./middleware/EpicDependencies";
 import { NextAction, done, fail, open } from "./wizardActions";
 import {
   automaticallySetUpTaMod,

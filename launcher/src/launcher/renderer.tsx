@@ -10,7 +10,6 @@ import { applyMiddleware, compose, createStore, Store } from "redux";
 import { createEpicMiddleware } from "redux-observable";
 import { AppAction } from "./actions";
 import App from "./components/App";
-import { EpicDependencies, rootEpic } from "./middleware/GameRoomEpic";
 import rootReducer from "./reducers";
 import { State } from "./state";
 import { GameClientService } from "../game-server/game-client";
@@ -19,6 +18,8 @@ import { RweBridge } from "./bridge";
 import { MasterClientService } from "../master-server/master-client";
 import "./style.css";
 import { masterServer } from "../common/util";
+import { EpicDependencies } from "./middleware/EpicDependencies";
+import { rootEpic } from "./middleware/RootEpic";
 
 const masterClentService = new MasterClientService();
 masterClentService.connectToServer(`${masterServer()}/master`);
