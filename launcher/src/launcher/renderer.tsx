@@ -20,27 +20,38 @@ import "./style.css";
 import { masterServer } from "../common/util";
 import { EpicDependencies } from "./middleware/EpicDependencies";
 import { rootEpic } from "./middleware/RootEpic";
+import { createEnhancer } from "./sideEffects";
 
 const masterClentService = new MasterClientService();
 masterClentService.connectToServer(`${masterServer()}/master`);
+
+const epicDeps = {
+  clientService: new GameClientService(),
+  masterClentService,
+  bridgeService: new RweBridge(),
+};
+
 const epicMiddleware = createEpicMiddleware<
   AppAction,
   AppAction,
   State,
   EpicDependencies
 >({
-  dependencies: {
-    clientService: new GameClientService(),
-    masterClentService,
-    bridgeService: new RweBridge(),
-  },
+  dependencies: epicDeps,
 });
+
+type SideEffect = {};
+
+const executeSideEffect = (effect: SideEffect) => {};
 
 const composeEnhancers: typeof compose =
   (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store: Store<any> = createStore(
   rootReducer,
-  composeEnhancers(applyMiddleware(epicMiddleware))
+  composeEnhancers(
+    applyMiddleware(epicMiddleware),
+    createEnhancer(executeSideEffect)
+  )
 );
 
 epicMiddleware.run(rootEpic);
