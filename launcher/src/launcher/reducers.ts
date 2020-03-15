@@ -351,7 +351,7 @@ function gameRoomReducer(
   }
 }
 
-function games(state: State = initialState, action: AppAction): State {
+function rootReducer(state: State = initialState, action: AppAction): State {
   switch (action.type) {
     case "SELECT_GAME":
       return { ...state, selectedGameId: action.gameId };
@@ -435,4 +435,4 @@ function currentScreenWrapperReducer(state: State, action: AppAction): State {
   return { ...state, currentScreen: screen };
 }
 
-export default games;
+export default rootReducer;
