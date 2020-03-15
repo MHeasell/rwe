@@ -100,10 +100,12 @@ const UnstyledGamesTable = (props: GamesTableProps) => {
 const UnconnectedGamesTable = withStyles(gamesTableStyles)(UnstyledGamesTable);
 
 function mapStateToProps(state: State): UnstyledGamesTableProps {
-  const gameIndex = state.games.findIndex(g => g.id === state.selectedGameId);
+  const gameIndex = state.masterClient.games.findIndex(
+    g => g.id === state.selectedGameId
+  );
   const selectedIndex = gameIndex === -1 ? undefined : gameIndex;
   return {
-    games: state.games,
+    games: state.masterClient.games,
     selectedIndex,
   };
 }

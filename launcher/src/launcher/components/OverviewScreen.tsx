@@ -157,7 +157,7 @@ function OverviewScreen(props: OverviewScreenProps) {
 
 function mapStateToProps(state: State): OverviewScreenStateProps {
   return {
-    connected: state.masterServerConnectionStatus === "connected",
+    connected: state.masterClient.masterServerConnectionStatus === "connected",
     wizardState: state.wizard,
     installedMods: (state.installedMods || []).map(x => x.name),
     activeMods: state.activeMods,
@@ -191,7 +191,4 @@ function mapDispatchToProps(dispatch: Dispatch): OverviewScreenDispatchProps {
   };
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(OverviewScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(OverviewScreen);

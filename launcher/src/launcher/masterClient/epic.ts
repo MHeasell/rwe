@@ -1,8 +1,8 @@
 import { StateObservable } from "redux-observable";
 import * as rx from "rxjs";
 import * as rxop from "rxjs/operators";
+import { AppAction } from "../actions";
 import {
-  AppAction,
   masterServerConnect,
   masterServerDisconnect,
   receiveCreateGameResponse,
@@ -10,9 +10,9 @@ import {
   receiveGameDeleted,
   receiveGameUpdated,
   receiveRooms,
-} from "../actions";
+} from "./actions";
 import { State } from "../state";
-import { EpicDependencies } from "./EpicDependencies";
+import { EpicDependencies } from "../middleware/EpicDependencies";
 
 export const masterClientEventsEpic = (
   action$: rx.Observable<AppAction>,

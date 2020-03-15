@@ -2,7 +2,6 @@ import { AppAction } from "./actions";
 import { GetGamesResponseItem } from "../master-server/protocol";
 import {
   AppScreen,
-  GameListEntry,
   GameRoom,
   GameRoomScreen,
   HostFormScreen,
@@ -12,8 +11,9 @@ import {
 } from "./state";
 import { mapDialogReducer } from "./mapsDialog";
 import { wizardReducer } from "./wizard";
-import { Reducer, Action } from "redux";
+import { Action } from "redux";
 import { currentGameWrapperReducer } from "./gameClient/state";
+import { GameListEntry, MasterClientState } from "./masterClient/state";
 
 function composeReducers<S, A extends Action>(
   a: (state: S, action: A) => S,
@@ -29,12 +29,14 @@ function reduceReducers<S, A extends Action>(
 }
 
 const initialState: State = {
-  games: [],
+  masterClient: {
+    games: [],
+    masterServerConnectionStatus: "disconnected",
+  },
   currentScreen: {
     screen: "overview",
   },
   isRweRunning: false,
-  masterServerConnectionStatus: "disconnected",
   activeMods: [],
 };
 
@@ -197,27 +199,16 @@ function gameRoomReducer(
   }
 }
 
-function globalActionsReducer(
-  state: State = initialState,
+function masterClientReducer(
+  state: MasterClientState,
   action: AppAction
-): State {
+): MasterClientState {
   switch (action.type) {
-    case "SELECT_GAME":
-      return { ...state, selectedGameId: action.gameId };
-    case "LAUNCH_RWE":
-      return { ...state, isRweRunning: true };
-    case "LAUNCH_RWE_END":
-      return { ...state, isRweRunning: false };
     case "RECEIVE_ROOMS": {
       const gamesList = action.rooms.games.map(
         roomResponseEntryToGamesListEntry
       );
-      const selectedId =
-        state.selectedGameId &&
-        gamesList.find(x => x.id === state.selectedGameId)
-          ? state.selectedGameId
-          : undefined;
-      return { ...state, games: gamesList, selectedGameId: selectedId };
+      return { ...state, games: gamesList };
     }
     case "RECEIVE_GAME_CREATED": {
       const game = roomResponseEntryToGamesListEntry({
@@ -238,18 +229,31 @@ function globalActionsReducer(
     }
     case "RECEIVE_GAME_DELETED": {
       const games = state.games.filter(x => x.id !== action.payload.game_id);
-      const selectedId =
-        state.selectedGameId === action.payload.game_id
-          ? undefined
-          : state.selectedGameId;
-      return { ...state, games, selectedGameId: selectedId };
+      return { ...state, games };
     }
-    case "GAME_ENDED":
-      return { ...state, isRweRunning: false };
     case "MASTER_SERVER_CONNECT":
       return { ...state, masterServerConnectionStatus: "connected" };
     case "MASTER_SERVER_DISCONNECT":
       return { ...state, masterServerConnectionStatus: "disconnected" };
+    default: {
+      return state;
+    }
+  }
+}
+
+function globalActionsReducer(
+  state: State = initialState,
+  action: AppAction
+): State {
+  switch (action.type) {
+    case "SELECT_GAME":
+      return { ...state, selectedGameId: action.gameId };
+    case "LAUNCH_RWE":
+      return { ...state, isRweRunning: true };
+    case "LAUNCH_RWE_END":
+      return { ...state, isRweRunning: false };
+    case "GAME_ENDED":
+      return { ...state, isRweRunning: false };
     case "RECEIVE_INSTALLED_MODS":
       return { ...state, installedMods: action.mods };
     case "RECEIVE_VIDEO_MODES":
@@ -286,7 +290,7 @@ function currentScreenWrapperReducer(
 
 const reduceOnField = <S, A extends Action, K extends keyof S>(
   field: K,
-  reducer: Reducer<S[K], A>
+  reducer: (state: S[K], action: A) => S[K]
 ) => (state: S, action: A): S => {
   const newFieldValue = reducer(state[field], action);
   if (newFieldValue === state[field]) {
@@ -299,6 +303,7 @@ const rootReducer = reduceReducers(
   globalActionsReducer,
   wizardWrapperReducer,
   currentScreenWrapperReducer,
+  reduceOnField("masterClient", masterClientReducer),
   reduceOnField("currentGame", currentGameWrapperReducer)
 );
 

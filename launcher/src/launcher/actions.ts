@@ -1,17 +1,11 @@
 import { GetMapInfoResponse } from "./bridge";
-import {
-  CreateGameResponsePayload,
-  GameCreatedEventPayload,
-  GameDeletedEventPayload,
-  GameUpdatedEventPayload,
-  GetGamesResponsePayload,
-} from "../master-server/protocol";
 import { InstalledModInfo, VideoMode } from "./state";
 import { MapsDialogAction } from "./mapsDialogActions";
 import { WizardAction } from "./wizardActions";
 import { RweConfig } from "./rweConfig";
 import { GameClientAction } from "./gameClient/actions";
 import { PlayerSide } from "./gameClient/state";
+import { MasterClientAction } from "./masterClient/actions";
 
 export interface SelectGameAction {
   type: "SELECT_GAME";
@@ -110,96 +104,6 @@ export interface LaunchRweEndAction {
 export function launchRweEnd(): LaunchRweEndAction {
   return {
     type: "LAUNCH_RWE_END",
-  };
-}
-
-export interface MasterServerConnectAction {
-  type: "MASTER_SERVER_CONNECT";
-}
-
-export function masterServerConnect(): MasterServerConnectAction {
-  return {
-    type: "MASTER_SERVER_CONNECT",
-  };
-}
-
-export interface MasterServerDisconnectAction {
-  type: "MASTER_SERVER_DISCONNECT";
-}
-
-export function masterServerDisconnect(): MasterServerDisconnectAction {
-  return {
-    type: "MASTER_SERVER_DISCONNECT",
-  };
-}
-
-export interface ReceiveRoomsAction {
-  type: "RECEIVE_ROOMS";
-  rooms: GetGamesResponsePayload;
-}
-
-export function receiveRooms(
-  rooms: GetGamesResponsePayload
-): ReceiveRoomsAction {
-  return {
-    type: "RECEIVE_ROOMS",
-    rooms,
-  };
-}
-
-export interface ReceiveCreateGameResponseAction {
-  type: "RECEIVE_CREATE_GAME_RESPONSE";
-  payload: CreateGameResponsePayload;
-}
-
-export function receiveCreateGameResponse(
-  payload: CreateGameResponsePayload
-): ReceiveCreateGameResponseAction {
-  return {
-    type: "RECEIVE_CREATE_GAME_RESPONSE",
-    payload,
-  };
-}
-
-export interface ReceiveGameCreatedAction {
-  type: "RECEIVE_GAME_CREATED";
-  payload: GameCreatedEventPayload;
-}
-
-export function receiveGameCreated(
-  payload: GameCreatedEventPayload
-): ReceiveGameCreatedAction {
-  return {
-    type: "RECEIVE_GAME_CREATED",
-    payload,
-  };
-}
-
-export interface ReceiveGameUpdatedAction {
-  type: "RECEIVE_GAME_UPDATED";
-  payload: GameUpdatedEventPayload;
-}
-
-export function receiveGameUpdated(
-  payload: GameUpdatedEventPayload
-): ReceiveGameUpdatedAction {
-  return {
-    type: "RECEIVE_GAME_UPDATED",
-    payload,
-  };
-}
-
-export interface ReceiveGameDeletedAction {
-  type: "RECEIVE_GAME_DELETED";
-  payload: GameDeletedEventPayload;
-}
-
-export function receiveGameDeleted(
-  payload: GameDeletedEventPayload
-): ReceiveGameDeletedAction {
-  return {
-    type: "RECEIVE_GAME_DELETED",
-    payload,
   };
 }
 
@@ -503,13 +407,6 @@ export type AppAction =
   | HostGameFormConfirmAction
   | LaunchRweAction
   | LaunchRweEndAction
-  | ReceiveCreateGameResponseAction
-  | MasterServerConnectAction
-  | MasterServerDisconnectAction
-  | ReceiveRoomsAction
-  | ReceiveGameCreatedAction
-  | ReceiveGameUpdatedAction
-  | ReceiveGameDeletedAction
   | SendChatMessageAction
   | ChangeSideAction
   | ChangeTeamAction
@@ -538,4 +435,5 @@ export type AppAction =
   | MapsDialogAction
   | WizardAction
   | ChangeSinglePlayerModsAction
-  | GameClientAction;
+  | GameClientAction
+  | MasterClientAction;

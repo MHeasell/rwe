@@ -2,6 +2,7 @@ import { MapDialogState } from "./mapsDialog";
 import { WizardState } from "./wizard";
 import { RweConfig } from "./rweConfig";
 import { CurrentGameState } from "./gameClient/state";
+import { isFull, MasterClientState } from "./masterClient/state";
 
 export interface OverviewScreen {
   screen: "overview";
@@ -37,19 +38,6 @@ export function getRoom(state: State): GameRoom | undefined {
   return state.currentScreen.room;
 }
 
-export interface GameListEntry {
-  id: number;
-  description: string;
-  players: number;
-  maxPlayers: number;
-}
-
-export function isFull(game: GameListEntry): boolean {
-  return game.players === game.maxPlayers;
-}
-
-export type MasterServerConnectionStatus = "connected" | "disconnected";
-
 export interface InstalledModInfo {
   name: string;
   path: string;
@@ -64,14 +52,13 @@ export interface State {
   installedMods?: InstalledModInfo[];
   videoModes?: VideoMode[];
   activeMods: string[];
-  games: GameListEntry[];
   selectedGameId?: number;
   currentGame?: CurrentGameState;
   currentScreen: AppScreen;
   isRweRunning: boolean;
-  masterServerConnectionStatus: MasterServerConnectionStatus;
   wizard?: WizardState;
   rweConfig?: RweConfig;
+  masterClient: MasterClientState;
 }
 
 export function canJoinSelectedGame(state: State): boolean {
@@ -83,7 +70,9 @@ export function canJoinSelectedGame(state: State): boolean {
     return false;
   }
 
-  const game = state.games.find(g => g.id === state.selectedGameId);
+  const game = state.masterClient.games.find(
+    g => g.id === state.selectedGameId
+  );
   if (!game || isFull(game)) {
     return false;
   }

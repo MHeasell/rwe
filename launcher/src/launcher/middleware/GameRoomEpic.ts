@@ -5,7 +5,6 @@ import {
   AppAction,
   closeSelectMapDialog,
   gameEnded,
-  ReceiveCreateGameResponseAction,
   LeaveGameAction,
 } from "../actions";
 import { getRoom, State, InstalledModInfo } from "../state";
@@ -24,6 +23,7 @@ import {
 } from "../rwe";
 import { assertNever, masterServer, choose } from "../../common/util";
 import { EpicDependencies } from "./EpicDependencies";
+import { ReceiveCreateGameResponseAction } from "../masterClient/actions";
 
 function rweArgsFromCurrentGameState(
   installedMods: InstalledModInfo[],
