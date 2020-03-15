@@ -19,6 +19,20 @@ import {
 import { findAndMap } from "../common/util";
 import { mapDialogReducer } from "./mapsDialog";
 import { wizardReducer } from "./wizard";
+import { Reducer, Action } from "redux";
+
+function composeReducers<S, A extends Action>(
+  a: Reducer<S, A>,
+  b: Reducer<S, A>
+): Reducer<S, A> {
+  return (state: S | undefined, action: A) => a(b(state, action), action);
+}
+
+function reduceReducers<S, A extends Action>(
+  ...rs: Reducer<S, A>[]
+): Reducer<S, A> {
+  return rs.reduce(composeReducers);
+}
 
 const initialState: State = {
   games: [],
@@ -50,7 +64,10 @@ function findPlayer(
   );
 }
 
-function currentGameReducer(state: State, action: AppAction): State {
+function currentGameReducer(
+  state: State = initialState,
+  action: AppAction
+): State {
   switch (action.type) {
     case "RECEIVE_HANDSHAKE_RESPONSE": {
       const game: CurrentGameState = {
@@ -305,7 +322,10 @@ function mapDialogWrapperReducer(
   }
 }
 
-function wizardWrapperReducer(state: State, action: AppAction): State {
+function wizardWrapperReducer(
+  state: State = initialState,
+  action: AppAction
+): State {
   switch (action.type) {
     case "wizard/OPEN": {
       return { ...state, wizard: { step: "welcome" } };
@@ -351,7 +371,10 @@ function gameRoomReducer(
   }
 }
 
-function rootReducer(state: State = initialState, action: AppAction): State {
+function globalActionsReducer(
+  state: State = initialState,
+  action: AppAction
+): State {
   switch (action.type) {
     case "SELECT_GAME":
       return { ...state, selectedGameId: action.gameId };
@@ -415,15 +438,15 @@ function rootReducer(state: State = initialState, action: AppAction): State {
     case "SUBMIT_SETTINGS_DIALOG":
       return { ...state, rweConfig: action.settings };
     default: {
-      return wizardWrapperReducer(
-        currentScreenWrapperReducer(currentGameReducer(state, action), action),
-        action
-      );
+      return state;
     }
   }
 }
 
-function currentScreenWrapperReducer(state: State, action: AppAction): State {
+function currentScreenWrapperReducer(
+  state: State = initialState,
+  action: AppAction
+): State {
   const screen = currentScreenReducer(
     state.currentScreen,
     state.currentGame?.mapName,
@@ -434,5 +457,12 @@ function currentScreenWrapperReducer(state: State, action: AppAction): State {
   }
   return { ...state, currentScreen: screen };
 }
+
+const rootReducer = reduceReducers(
+  globalActionsReducer,
+  wizardWrapperReducer,
+  currentScreenWrapperReducer,
+  currentGameReducer
+);
 
 export default rootReducer;
