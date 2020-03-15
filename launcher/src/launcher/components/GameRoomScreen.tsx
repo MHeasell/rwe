@@ -31,19 +31,18 @@ import {
   toggleReady,
   setActiveMods,
 } from "../actions";
-import {
-  canStartGame,
-  ChatMessage,
-  getRoom,
-  PlayerSide,
-  PlayerSlot,
-  State,
-} from "../state";
+import { getRoom, State } from "../state";
 import MapSelectDialog, { SelectedMapDetails } from "./MapSelectDialog";
 import MessageInput from "./MessageInput";
 import { PlayersTable } from "./PlayersTable";
 import { SelectModsDialog } from "./SelectModsDialog";
 import { dialogSelectMap } from "../mapsDialogActions";
+import {
+  ChatMessage,
+  canStartGame,
+  PlayerSlot,
+  PlayerSide,
+} from "../gameClient/state";
 
 function GameSettingsPanel() {
   return (

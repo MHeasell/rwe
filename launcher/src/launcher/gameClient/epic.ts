@@ -2,7 +2,6 @@ import { StateObservable } from "redux-observable";
 import * as rx from "rxjs";
 import * as rxop from "rxjs/operators";
 import {
-  AppAction,
   disconnectGame,
   receiveChatMessage,
   receiveHandshakeResponse,
@@ -17,9 +16,10 @@ import {
   receiveSlotOpened,
   receiveStartGame,
   receiveActiveModsChanged,
-} from "../actions";
+} from "./actions";
 import { State } from "../state";
-import { EpicDependencies } from "./EpicDependencies";
+import { EpicDependencies } from "../middleware/EpicDependencies";
+import { AppAction } from "../actions";
 
 export const gameClientEventsEpic = (
   action$: rx.Observable<AppAction>,

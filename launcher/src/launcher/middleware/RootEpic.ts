@@ -1,7 +1,7 @@
 import { combineEpics } from "redux-observable";
 import { wizardEpic } from "../wizardEpic";
 import { masterClientEventsEpic } from "./MasterClientEventsEpic";
-import { gameClientEventsEpic } from "./GameClientEventsEpic";
+import { gameClientEventsEpic } from "../gameClient/epic";
 import { gameRoomEpic } from "./GameRoomEpic";
 import { launchRweEpic } from "./LaunchRweEpic";
 import { rweBridgeEpic } from "./RweBridgeEpic";

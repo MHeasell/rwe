@@ -2,35 +2,29 @@ import { AppAction } from "./actions";
 import { GetGamesResponseItem } from "../master-server/protocol";
 import {
   AppScreen,
-  ChatMessage,
-  ClosedPlayerSlot,
-  EmptyPlayerSlot,
   GameListEntry,
   GameRoom,
   GameRoomScreen,
   HostFormScreen,
   OverviewScreen,
-  PlayerInfo,
-  PlayerSlot,
   State,
   MapCacheValue,
-  CurrentGameState,
 } from "./state";
-import { findAndMap } from "../common/util";
 import { mapDialogReducer } from "./mapsDialog";
 import { wizardReducer } from "./wizard";
 import { Reducer, Action } from "redux";
+import { currentGameWrapperReducer } from "./gameClient/state";
 
 function composeReducers<S, A extends Action>(
-  a: Reducer<S, A>,
-  b: Reducer<S, A>
-): Reducer<S, A> {
-  return (state: S | undefined, action: A) => a(b(state, action), action);
+  a: (state: S, action: A) => S,
+  b: (state: S, action: A) => S
+): (state: S, action: A) => S {
+  return (state: S, action: A) => a(b(state, action), action);
 }
 
 function reduceReducers<S, A extends Action>(
-  ...rs: Reducer<S, A>[]
-): Reducer<S, A> {
+  ...rs: ((state: S, action: A) => S)[]
+): (state: S, action: A) => S {
   return rs.reduce(composeReducers);
 }
 
@@ -53,174 +47,6 @@ function roomResponseEntryToGamesListEntry(
     players: room.game.players,
     maxPlayers: room.game.max_players,
   };
-}
-
-function findPlayer(
-  players: PlayerSlot[],
-  playerId: number
-): PlayerInfo | undefined {
-  return findAndMap(players, x =>
-    x.state === "filled" && x.player.id === playerId ? x.player : undefined
-  );
-}
-
-function currentGameWrapperReducer(
-  state: State = initialState,
-  action: AppAction
-): State {
-  switch (action.type) {
-    case "RECEIVE_HANDSHAKE_RESPONSE": {
-      const game: CurrentGameState = {
-        players: action.payload.players,
-        localPlayerId: action.payload.playerId,
-        adminPlayerId: action.payload.adminPlayerId,
-        mapName: action.payload.mapName,
-        messages: [],
-        activeMods: action.payload.activeMods,
-      };
-      return { ...state, currentGame: game };
-    }
-    case "DISCONNECT_GAME": {
-      return { ...state, currentGame: undefined };
-    }
-    default: {
-      if (!state.currentGame) {
-        return state;
-      }
-      const newGame = currentGameReducer(state.currentGame, action);
-      if (newGame === state.currentGame) {
-        return state;
-      }
-      return { ...state, currentGame: newGame };
-    }
-  }
-}
-
-function currentGameReducer(
-  room: CurrentGameState,
-  action: AppAction
-): CurrentGameState {
-  switch (action.type) {
-    case "RECEIVE_PLAYER_JOINED": {
-      const newPlayer: PlayerSlot = {
-        state: "filled",
-        player: {
-          id: action.payload.playerId,
-          name: action.payload.name,
-          side: "ARM",
-          color: 0,
-          team: 0,
-          ready: false,
-          installedMods: action.payload.installedMods,
-        },
-      };
-      const newPlayerIndex = room.players.findIndex(x => x.state === "empty");
-      if (newPlayerIndex === -1) {
-        throw new Error("Player joined game, but already full!");
-      }
-      const newPlayers = room.players.map((x, i) =>
-        i === newPlayerIndex ? newPlayer : x
-      );
-      return { ...room, players: newPlayers };
-    }
-    case "RECEIVE_PLAYER_LEFT": {
-      const newPlayers = room.players.map(x => {
-        if (x.state === "filled" && x.player.id === action.payload.playerId) {
-          const e: EmptyPlayerSlot = { state: "empty" };
-          return e;
-        }
-        return x;
-      });
-      const newAdminId =
-        action.payload.newAdminPlayerId !== undefined
-          ? action.payload.newAdminPlayerId
-          : action.payload.playerId === room.adminPlayerId
-          ? undefined
-          : room.adminPlayerId;
-
-      return { ...room, players: newPlayers, adminPlayerId: newAdminId };
-    }
-    case "RECEIVE_CHAT_MESSAGE": {
-      const newMessages = room.messages.slice();
-      const sender = findPlayer(room.players, action.payload.playerId);
-      const senderName = sender ? sender.name : undefined;
-      const newMessage: ChatMessage = {
-        senderName: senderName,
-        message: action.payload.message,
-      };
-      newMessages.push(newMessage);
-      return { ...room, messages: newMessages };
-    }
-    case "RECEIVE_PLAYER_CHANGED_SIDE": {
-      const newPlayers = room.players.map(x => {
-        if (x.state !== "filled" || x.player.id !== action.payload.playerId) {
-          return x;
-        }
-        const p = { ...x.player, side: action.payload.side };
-        return { ...x, player: p };
-      });
-      return { ...room, players: newPlayers };
-    }
-    case "RECEIVE_PLAYER_CHANGED_TEAM": {
-      const newPlayers = room.players.map(x => {
-        if (x.state !== "filled" || x.player.id !== action.payload.playerId) {
-          return x;
-        }
-        const p = { ...x.player, team: action.payload.team };
-        return { ...x, player: p };
-      });
-      return { ...room, players: newPlayers };
-    }
-    case "RECEIVE_PLAYER_CHANGED_COLOR": {
-      const newPlayers = room.players.map(x => {
-        if (x.state !== "filled" || x.player.id !== action.payload.playerId) {
-          return x;
-        }
-        const p = { ...x.player, color: action.payload.color };
-        return { ...x, player: p };
-      });
-      return { ...room, players: newPlayers };
-    }
-    case "RECEIVE_PLAYER_READY": {
-      const newPlayers = room.players.map(x => {
-        if (x.state !== "filled" || x.player.id !== action.payload.playerId) {
-          return x;
-        }
-        const p = { ...x.player, ready: action.payload.value };
-        return { ...x, player: p };
-      });
-      return { ...room, players: newPlayers };
-    }
-    case "RECEIVE_SLOT_OPENED": {
-      const newPlayers = room.players.map((x, i) => {
-        if (i !== action.payload.slotId) {
-          return x;
-        }
-        const e: EmptyPlayerSlot = { state: "empty" };
-        return e;
-      });
-      return { ...room, players: newPlayers };
-    }
-    case "RECEIVE_SLOT_CLOSED": {
-      const newPlayers = room.players.map((x, i) => {
-        if (i !== action.payload.slotId) {
-          return x;
-        }
-        const e: ClosedPlayerSlot = { state: "closed" };
-        return e;
-      });
-      return { ...room, players: newPlayers };
-    }
-    case "RECEIVE_ACTIVE_MODS_CHANGED": {
-      return { ...room, activeMods: action.payload.mods };
-    }
-    case "RECEIVE_MAP_CHANGED": {
-      return { ...room, mapName: action.data.mapName };
-    }
-    default: {
-      return room;
-    }
-  }
 }
 
 function gameRoomScreenReducer(
@@ -458,11 +284,25 @@ function currentScreenWrapperReducer(
   return { ...state, currentScreen: screen };
 }
 
+const reduceOnField = <S, A extends Action, K extends keyof S>(
+  field: K,
+  reducer: Reducer<S[K], A>
+) => (state: S, action: A): S => {
+  const newFieldValue = reducer(state[field], action);
+  if (newFieldValue === state[field]) {
+    return state;
+  }
+  return { ...state, [field]: newFieldValue };
+};
+
 const rootReducer = reduceReducers(
   globalActionsReducer,
   wizardWrapperReducer,
   currentScreenWrapperReducer,
-  currentGameWrapperReducer
+  reduceOnField("currentGame", currentGameWrapperReducer)
 );
 
-export default rootReducer;
+const wrappedRootReducer = (s: State | undefined, a: AppAction) =>
+  s === undefined ? initialState : rootReducer(s, a);
+
+export default wrappedRootReducer;

@@ -1,6 +1,5 @@
 import { Observable, Subject } from "rxjs";
 import socketioClient from "socket.io-client";
-import { PlayerSide } from "../launcher/state";
 import * as protocol from "./protocol";
 
 export class GameClientService {
@@ -223,7 +222,7 @@ export class GameClientService {
     this.client.emit(protocol.ChatMessage, payload);
   }
 
-  changeSide(side: PlayerSide) {
+  changeSide(side: protocol.PlayerSide) {
     if (!this.client) {
       return;
     }

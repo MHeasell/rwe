@@ -1,5 +1,5 @@
-type PlayerSide = "ARM" | "CORE";
-type PlayerColor = number;
+export type PlayerSide = "ARM" | "CORE";
+export type PlayerColor = number;
 
 export interface PlayerInfo {
   id: number;

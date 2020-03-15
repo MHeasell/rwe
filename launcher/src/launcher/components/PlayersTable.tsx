@@ -10,7 +10,7 @@ import {
 } from "@material-ui/core";
 import StarIcon from "@material-ui/icons/Grade";
 import * as React from "react";
-import { PlayerInfo, PlayerSide, PlayerSlot } from "../state";
+import { PlayerInfo, PlayerSide, PlayerSlot } from "../gameClient/state";
 import { assertNever } from "../../common/util";
 
 type OpenStatus = "open" | "closed";
@@ -224,8 +224,9 @@ export class PlayersTable extends React.Component<PlayersTableProps> {
   }
 
   private handleSideChange(event: React.SyntheticEvent<EventTarget>) {
-    this.props.onChangeSide((event.target as HTMLSelectElement)
-      .value as PlayerSide);
+    this.props.onChangeSide(
+      (event.target as HTMLSelectElement).value as PlayerSide
+    );
   }
 
   private handleColorChange(event: React.SyntheticEvent<EventTarget>) {

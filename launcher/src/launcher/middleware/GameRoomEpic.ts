@@ -8,13 +8,8 @@ import {
   ReceiveCreateGameResponseAction,
   LeaveGameAction,
 } from "../actions";
-import {
-  FilledPlayerSlot,
-  getRoom,
-  State,
-  InstalledModInfo,
-  CurrentGameState,
-} from "../state";
+import { getRoom, State, InstalledModInfo } from "../state";
+import { FilledPlayerSlot, CurrentGameState } from "../gameClient/state";
 import * as protocol from "../../game-server/protocol";
 
 import { getIpv4Address } from "../../common/ip-lookup";
