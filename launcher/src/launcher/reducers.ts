@@ -64,7 +64,7 @@ function findPlayer(
   );
 }
 
-function currentGameReducer(
+function currentGameWrapperReducer(
   state: State = initialState,
   action: AppAction
 ): State {
@@ -87,7 +87,7 @@ function currentGameReducer(
       if (!state.currentGame) {
         return state;
       }
-      const newGame = currentGameReducer2(state.currentGame, action);
+      const newGame = currentGameReducer(state.currentGame, action);
       if (newGame === state.currentGame) {
         return state;
       }
@@ -96,7 +96,7 @@ function currentGameReducer(
   }
 }
 
-function currentGameReducer2(
+function currentGameReducer(
   room: CurrentGameState,
   action: AppAction
 ): CurrentGameState {
@@ -462,7 +462,7 @@ const rootReducer = reduceReducers(
   globalActionsReducer,
   wizardWrapperReducer,
   currentScreenWrapperReducer,
-  currentGameReducer
+  currentGameWrapperReducer
 );
 
 export default rootReducer;
