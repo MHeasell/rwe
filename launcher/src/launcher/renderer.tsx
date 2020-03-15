@@ -36,7 +36,7 @@ const epicMiddleware = createEpicMiddleware<
   },
 });
 
-const composeEnhancers =
+const composeEnhancers: typeof compose =
   (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store: Store<any> = createStore(
   rootReducer,
