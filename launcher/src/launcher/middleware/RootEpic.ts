@@ -9,8 +9,16 @@ import { installedModsEpic } from "./InstalledModsEpic";
 import { videoModesEpic } from "./VideoModesEpic";
 import { rweConfigEpic } from "./RweConfigEpic";
 import { rweConfigDialogEpic } from "./RweConfigDialogEpic";
+import { AppAction } from "../actions";
+import { EpicDependencies } from "./EpicDependencies";
+import { State } from "../state";
 
-export const rootEpic = combineEpics(
+export const rootEpic = combineEpics<
+  AppAction,
+  AppAction,
+  State,
+  EpicDependencies
+>(
   masterClientEventsEpic,
   gameClientEventsEpic,
   gameRoomEpic,
