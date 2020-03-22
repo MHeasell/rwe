@@ -18,7 +18,8 @@
     "package": "npm run rebuild && npm run build && electron-packager dist --arch=x64 --overwrite --asar",
     "lint": "eslint . --ext=.ts --ext=.tsx",
     "tsc": "tsc --noEmit",
-    "storybook": "start-storybook"
+    "storybook": "start-storybook",
+    "test": "jest"
   },
   "author": "Michael Heasell",
   "license": "GPL-3.0-only",
@@ -30,6 +31,7 @@
     "@babel/preset-typescript": "^7.8.3",
     "@storybook/react": "^5.2.8",
     "@types/electron-devtools-installer": "^2.2.0",
+    "@types/jest": "^25.1.4",
     "@types/react": "^16.9.17",
     "@types/react-dom": "^16.9.4",
     "@types/react-redux": "^7.1.5",
@@ -38,6 +40,7 @@
     "@types/yargs": "^13.0.4",
     "@typescript-eslint/eslint-plugin": "^2.13.0",
     "@typescript-eslint/parser": "^2.13.0",
+    "babel-jest": "^25.1.0",
     "babel-loader": "^8.0.6",
     "copy-webpack-plugin": "^5.1.1",
     "cross-env": "^6.0.3",
@@ -50,6 +53,7 @@
     "eslint-config-prettier": "^6.7.0",
     "eslint-plugin-react": "^7.17.0",
     "file-loader": "^5.0.2",
+    "jest": "^25.1.0",
     "node-loader": "^0.6.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^1.19.1",
