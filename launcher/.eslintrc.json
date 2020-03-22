@@ -37,6 +37,10 @@
     },
     "overrides": [
         {
+            "files": ["*.ts", "*.tsx"],
+            "rules": { "no-undef": "off"}
+        },
+        {
             "files": ["*.test.ts", "*.test.tsx"],
             "env": { "jest": true }
         }
