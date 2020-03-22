@@ -3,6 +3,7 @@ import { WizardState } from "./wizard";
 import { RweConfig } from "./rweConfig";
 import { CurrentGameState } from "./gameClient/state";
 import { isFull, MasterClientState } from "./masterClient/state";
+import { StateWithSideEffects } from "./sideEffects";
 
 export interface OverviewScreen {
   screen: "overview";
@@ -60,6 +61,12 @@ export interface State {
   rweConfig?: RweConfig;
   masterClient: MasterClientState;
 }
+
+export type SideEffect = "effect!";
+
+export type StateAndSideEffects = StateWithSideEffects<State, SideEffect>;
+
+export type WithSideEffects<S> = StateWithSideEffects<S, SideEffect>;
 
 export function canJoinSelectedGame(state: State): boolean {
   if (state.isRweRunning) {

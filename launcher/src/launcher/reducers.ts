@@ -8,25 +8,16 @@ import {
   OverviewScreen,
   State,
   MapCacheValue,
+  SideEffect,
+  StateAndSideEffects,
+  WithSideEffects,
 } from "./state";
 import { mapDialogReducer } from "./mapsDialog";
 import { wizardReducer } from "./wizard";
 import { Action } from "redux";
 import { currentGameWrapperReducer } from "./gameClient/state";
 import { GameListEntry, MasterClientState } from "./masterClient/state";
-
-function composeReducers<S, A extends Action>(
-  a: (state: S, action: A) => S,
-  b: (state: S, action: A) => S
-): (state: S, action: A) => S {
-  return (state: S, action: A) => a(b(state, action), action);
-}
-
-function reduceReducers<S, A extends Action>(
-  ...rs: ((state: S, action: A) => S)[]
-): (state: S, action: A) => S {
-  return rs.reduce(composeReducers);
-}
+import { reduceReducers, liftState, withSideEffects } from "./sideEffects";
 
 const initialState: State = {
   masterClient: {
@@ -39,6 +30,8 @@ const initialState: State = {
   isRweRunning: false,
   activeMods: [],
 };
+
+const initialStateAndSideEffects: StateAndSideEffects = liftState(initialState);
 
 function roomResponseEntryToGamesListEntry(
   room: GetGamesResponseItem
@@ -85,16 +78,16 @@ function gameRoomScreenReducer(
 function overviewScreenReducer(
   screen: OverviewScreen,
   action: AppAction
-): AppScreen {
+): WithSideEffects<AppScreen> {
   switch (action.type) {
     case "JOIN_SELECTED_GAME_CONFIRM": {
-      return { screen: "game-room" };
+      return liftState({ screen: "game-room" });
     }
     case "HOST_GAME": {
-      return { screen: "host-form" };
+      return withSideEffects({ screen: "host-form" }, "effect!");
     }
     default:
-      return screen;
+      return liftState(screen);
   }
 }
 
@@ -115,14 +108,14 @@ function currentScreenReducer(
   screen: AppScreen,
   mapName: string | undefined,
   action: AppAction
-): AppScreen {
+): WithSideEffects<AppScreen> {
   switch (screen.screen) {
     case "game-room":
-      return gameRoomScreenReducer(screen, mapName, action);
+      return liftState(gameRoomScreenReducer(screen, mapName, action));
     case "overview":
-      return overviewScreenReducer(screen, action);
+      return liftState(overviewScreenReducer(screen, action));
     case "host-form":
-      return hostFormReducer(screen, action);
+      return liftState(hostFormReducer(screen, action));
   }
 }
 
@@ -244,31 +237,31 @@ function masterClientReducer(
 function globalActionsReducer(
   state: State = initialState,
   action: AppAction
-): State {
+): WithSideEffects<State> {
   switch (action.type) {
     case "SELECT_GAME":
-      return { ...state, selectedGameId: action.gameId };
+      return liftState({ ...state, selectedGameId: action.gameId });
     case "LAUNCH_RWE":
-      return { ...state, isRweRunning: true };
+      return liftState({ ...state, isRweRunning: true });
     case "LAUNCH_RWE_END":
-      return { ...state, isRweRunning: false };
+      return liftState({ ...state, isRweRunning: false });
     case "GAME_ENDED":
-      return { ...state, isRweRunning: false };
+      return liftState({ ...state, isRweRunning: false });
     case "RECEIVE_INSTALLED_MODS":
-      return { ...state, installedMods: action.mods };
+      return liftState({ ...state, installedMods: action.mods });
     case "RECEIVE_VIDEO_MODES":
-      return { ...state, videoModes: action.modes };
+      return liftState({ ...state, videoModes: action.modes });
     case "CHANGE_SINGLE_PLAYER_MODS":
       return currentScreenWrapperReducer(
         action.newMods ? { ...state, activeMods: action.newMods } : state,
         action
       );
     case "RECEIVE_RWE_CONFIG":
-      return { ...state, rweConfig: action.settings };
+      return liftState({ ...state, rweConfig: action.settings });
     case "SUBMIT_SETTINGS_DIALOG":
-      return { ...state, rweConfig: action.settings };
+      return liftState({ ...state, rweConfig: action.settings });
     default: {
-      return state;
+      return liftState(state);
     }
   }
 }
@@ -276,16 +269,19 @@ function globalActionsReducer(
 function currentScreenWrapperReducer(
   state: State = initialState,
   action: AppAction
-): State {
+): WithSideEffects<State> {
   const screen = currentScreenReducer(
     state.currentScreen,
     state.currentGame?.mapName,
     action
   );
-  if (screen === state.currentScreen) {
-    return state;
+  if (screen.state === state.currentScreen) {
+    return liftState(state);
   }
-  return { ...state, currentScreen: screen };
+  return withSideEffects(
+    { ...state, currentScreen: screen.state },
+    ...screen.sideEffects
+  );
 }
 
 const reduceOnField = <S, A extends Action, K extends keyof S>(
@@ -299,7 +295,7 @@ const reduceOnField = <S, A extends Action, K extends keyof S>(
   return { ...state, [field]: newFieldValue };
 };
 
-const rootReducer = reduceReducers(
+const rootReducer = reduceReducers<State, SideEffect, AppAction>(
   globalActionsReducer,
   wizardWrapperReducer,
   currentScreenWrapperReducer,
@@ -307,7 +303,13 @@ const rootReducer = reduceReducers(
   reduceOnField("currentGame", currentGameWrapperReducer)
 );
 
-const wrappedRootReducer = (s: State | undefined, a: AppAction) =>
-  s === undefined ? initialState : rootReducer(s, a);
+const wrappedRootReducer = (
+  s: State | undefined,
+  a: AppAction
+): StateAndSideEffects => {
+  return s === undefined
+    ? initialStateAndSideEffects
+    : liftState(rootReducer(s, a));
+};
 
 export default wrappedRootReducer;

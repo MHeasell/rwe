@@ -13,9 +13,9 @@ export type StateWithSideEffects<S, SE> = {
   sideEffects: SE[];
 };
 
-export type SideEffectExecutor<SE> = (effect: SE) => void;
+export type SideEffectExecutor<SE> = (sideEffect: SE) => void;
 
-const withSideEffects = <S, SE>(
+export const withSideEffects = <S, SE>(
   state: S,
   ...sideEffects: SE[]
 ): StateWithSideEffects<S, SE> => ({
@@ -25,21 +25,26 @@ const withSideEffects = <S, SE>(
 });
 
 const isLiftedState = <S, SE>(s: any): s is StateWithSideEffects<S, SE> =>
-  s && s.isStateAndSideEffects === true;
+  s && s.isStateWithSideEffects === true;
 
-const liftState = <S, SE>(
+export const liftState = <S, SE>(
   state: S | StateWithSideEffects<S, SE>
 ): StateWithSideEffects<S, SE> =>
   isLiftedState(state) ? state : withSideEffects(state);
 
-type EnhancedReducer<S, SE, A extends Action> = (
+type TopLevelEnhancedReducer<S, SE, A extends Action> = (
   state: S | undefined,
+  action: A
+) => S | StateWithSideEffects<S, SE>;
+
+type EnhancedReducer<S, SE, A extends Action> = (
+  state: S,
   action: A
 ) => S | StateWithSideEffects<S, SE>;
 
 export const createEnhancer = <SE>(executor: SideEffectExecutor<SE>) => {
   const myStoreEnhancer: StoreEnhancer = createStore => <S, A extends Action>(
-    reducer: EnhancedReducer<S, SE, A>,
+    reducer: TopLevelEnhancedReducer<S, SE, A>,
     initialState?: DeepPartial<S>
   ): Store<S, A> => {
     let sideEffects: SE[] = [];
@@ -81,7 +86,7 @@ export const createEnhancer = <SE>(executor: SideEffectExecutor<SE>) => {
 export const composeReducers = <S, SE, A extends Action>(
   a: EnhancedReducer<S, SE, A>,
   b: EnhancedReducer<S, SE, A>
-): EnhancedReducer<S, SE, A> => (state: S | undefined, action: A) => {
+): EnhancedReducer<S, SE, A> => (state: S, action: A) => {
   const resultB = liftState(b(state, action));
   const resultA = liftState(a(resultB.state, action));
   return withSideEffects(

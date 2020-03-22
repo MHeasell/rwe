@@ -11,7 +11,7 @@ import { createEpicMiddleware } from "redux-observable";
 import { AppAction } from "./actions";
 import App from "./components/App";
 import rootReducer from "./reducers";
-import { State } from "./state";
+import { SideEffect, State } from "./state";
 import { GameClientService } from "../game-server/game-client";
 
 import { RweBridge } from "./bridge";
@@ -40,14 +40,14 @@ const epicMiddleware = createEpicMiddleware<
   dependencies: epicDeps,
 });
 
-type SideEffect = {};
-
-const executeSideEffect = (effect: SideEffect) => {};
+const executeSideEffect = (se: SideEffect) => {
+  console.log("blah");
+};
 
 const composeEnhancers: typeof compose =
   (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store: Store<any> = createStore(
-  rootReducer,
+  rootReducer as any, // shhhhh
   composeEnhancers(
     applyMiddleware(epicMiddleware),
     createEnhancer(executeSideEffect)
