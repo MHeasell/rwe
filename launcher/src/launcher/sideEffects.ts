@@ -24,8 +24,9 @@ export const withSideEffects = <S, SE>(
   sideEffects,
 });
 
-const isLiftedState = <S, SE>(s: any): s is StateWithSideEffects<S, SE> =>
-  s && s.isStateWithSideEffects === true;
+export const isLiftedState = <S, SE>(
+  s: any
+): s is StateWithSideEffects<S, SE> => s && s.isStateWithSideEffects === true;
 
 export const liftState = <S, SE>(
   state: S | StateWithSideEffects<S, SE>
