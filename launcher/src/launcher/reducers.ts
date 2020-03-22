@@ -18,6 +18,7 @@ import { Action } from "redux";
 import { currentGameWrapperReducer } from "./gameClient/state";
 import { GameListEntry, MasterClientState } from "./masterClient/state";
 import { reduceReducers, liftState, withSideEffects } from "./sideEffects";
+import { choose } from "../common/util";
 
 const initialState: State = {
   masterClient: {
@@ -84,7 +85,7 @@ function overviewScreenReducer(
       return liftState({ screen: "game-room" });
     }
     case "HOST_GAME": {
-      return withSideEffects({ screen: "host-form" }, "effect!");
+      return liftState({ screen: "host-form" });
     }
     default:
       return liftState(screen);
@@ -242,7 +243,17 @@ function globalActionsReducer(
     case "SELECT_GAME":
       return liftState({ ...state, selectedGameId: action.gameId });
     case "LAUNCH_RWE":
-      return liftState({ ...state, isRweRunning: true });
+      return withSideEffects(
+        { ...state, isRweRunning: true },
+        {
+          type: "LAUNCH_RWE",
+          args: {
+            dataPaths: choose(state.activeMods, name =>
+              (state.installedMods || []).find(x => x.name === name)
+            ).map(x => x.path),
+          },
+        }
+      );
     case "LAUNCH_RWE_END":
       return liftState({ ...state, isRweRunning: false });
     case "GAME_ENDED":

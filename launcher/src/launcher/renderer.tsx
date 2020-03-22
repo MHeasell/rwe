@@ -8,7 +8,7 @@ import * as ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import { applyMiddleware, compose, createStore, Store } from "redux";
 import { createEpicMiddleware } from "redux-observable";
-import { AppAction } from "./actions";
+import { AppAction, gameEnded } from "./actions";
 import App from "./components/App";
 import rootReducer from "./reducers";
 import { SideEffect, State } from "./state";
@@ -21,6 +21,9 @@ import { masterServer } from "../common/util";
 import { EpicDependencies } from "./middleware/EpicDependencies";
 import { rootEpic } from "./middleware/RootEpic";
 import { createEnhancer } from "./sideEffects";
+import { execRwe } from "./rwe";
+import * as rx from "rxjs";
+import * as rxop from "rxjs/operators";
 
 const masterClentService = new MasterClientService();
 masterClentService.connectToServer(`${masterServer()}/master`);
@@ -40,13 +43,27 @@ const epicMiddleware = createEpicMiddleware<
   dependencies: epicDeps,
 });
 
+// eslint-disable-next-line prefer-const
+let store: Store<any>;
+
 const executeSideEffect = (se: SideEffect) => {
-  console.log("blah");
+  switch (se.type) {
+    case "LAUNCH_RWE": {
+      return rx
+        .from(execRwe(se.args))
+        .pipe(
+          rxop.mapTo(undefined),
+          rxop.catchError(() => rx.of(undefined)),
+          rxop.mapTo(gameEnded())
+        )
+        .subscribe(store.dispatch);
+    }
+  }
 };
 
 const composeEnhancers: typeof compose =
   (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-const store: Store<any> = createStore(
+store = createStore(
   rootReducer as any, // shhhhh
   composeEnhancers(
     applyMiddleware(epicMiddleware),

@@ -4,6 +4,7 @@ import { RweConfig } from "./rweConfig";
 import { CurrentGameState } from "./gameClient/state";
 import { isFull, MasterClientState } from "./masterClient/state";
 import { StateWithSideEffects } from "./sideEffects";
+import { RweArgs } from "./rwe";
 
 export interface OverviewScreen {
   screen: "overview";
@@ -62,7 +63,7 @@ export interface State {
   masterClient: MasterClientState;
 }
 
-export type SideEffect = "effect!";
+export type SideEffect = { type: "LAUNCH_RWE"; args?: RweArgs };
 
 export type StateAndSideEffects = StateWithSideEffects<State, SideEffect>;
 
