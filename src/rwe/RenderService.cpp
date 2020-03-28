@@ -54,6 +54,18 @@ namespace rwe
         graphics->drawLineLoop(unit.selectionMesh.visualMesh);
     }
 
+    void RenderService::drawNanolatheLine(const Vector3f& start, const Vector3f& end)
+    {
+        std::vector<Line3f> lines{Line3f(start, end)};
+        auto mesh = createTemporaryLinesMesh(lines, Color(0, 255, 0));
+
+        const auto& shader = shaders->basicColor;
+        graphics->bindShader(shader.handle.get());
+        graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix());
+        graphics->setUniformFloat(shader.alpha, 1.0f);
+        graphics->drawLines(mesh);
+    }
+
     void RenderService::drawUnit(const Unit& unit, float seaLevel, float time)
     {
         if (unit.isBeingBuilt())

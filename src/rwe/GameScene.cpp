@@ -415,6 +415,13 @@ namespace rwe
         worldRenderService.drawStandingFeatures(simulation.features | boost::adaptors::map_values);
 
         sceneContext.graphics->disableDepthTest();
+        for (const auto& unit : (simulation.units | boost::adaptors::map_values))
+        {
+            if (auto nanolatheTarget = unit.getActiveNanolatheTarget())
+            {
+                worldRenderService.drawNanolatheLine(simVectorToFloat(unit.position), simVectorToFloat(getUnit(*nanolatheTarget).position));
+            }
+        }
         worldRenderService.drawExplosions(simulation.gameTime, simulation.explosions);
         sceneContext.graphics->enableDepthTest();
 

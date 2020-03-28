@@ -613,4 +613,21 @@ namespace rwe
         }
         return sum;
     }
+
+    std::optional<UnitId> Unit::getActiveNanolatheTarget() const
+    {
+        auto buildingState = std::get_if<BuildingState>(&behaviourState);
+        if (buildingState && buildingState->didPutResourceThisTick)
+        {
+            return buildingState->targetUnit;
+        }
+
+        auto factoryBuildingState = std::get_if<FactoryStateBuilding>(&factoryState);
+        if (factoryBuildingState && factoryBuildingState->targetUnit && factoryBuildingState->targetUnit->second)
+        {
+            return factoryBuildingState->targetUnit->first;
+        }
+
+        return std::nullopt;
+    }
 }

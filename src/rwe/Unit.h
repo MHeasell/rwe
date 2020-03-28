@@ -74,6 +74,7 @@ namespace rwe
     struct BuildingState
     {
         UnitId targetUnit;
+        bool didPutResourceThisTick;
     };
 
     using UnitState = std::variant<IdleState, MovingState, CreatingUnitState, BuildingState>;
@@ -92,7 +93,8 @@ namespace rwe
 
     struct FactoryStateBuilding
     {
-        std::optional<UnitId> targetUnit;
+        // when the bool is true, we successfully put resource into the the target this frame
+        std::optional<std::pair<UnitId, bool>> targetUnit;
     };
 
     using FactoryState = std::variant<FactoryStateIdle, FactoryStateCreatingUnit, FactoryStateBuilding>;
@@ -362,5 +364,7 @@ namespace rwe
         std::unordered_map<std::string, int> getBuildQueueTotals() const;
 
         int getBuildQueueTotal(const std::string& unitType) const;
+
+        std::optional<UnitId> getActiveNanolatheTarget() const;
     };
 }

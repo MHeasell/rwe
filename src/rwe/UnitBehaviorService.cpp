@@ -934,7 +934,7 @@ namespace rwe
                     auto pitch = headingAndPitch.second;
 
                     unit.cobEnvironment->createThread("StartBuilding", {toCobAngle(heading).value, toCobAngle(pitch).value});
-                    unit.behaviourState = BuildingState{d.unitId};
+                    unit.behaviourState = BuildingState{d.unitId, false};
                     return false;
                 },
                 [](const UnitCreationStatusPending&) {
@@ -984,6 +984,7 @@ namespace rwe
                 -costs.energyCost,
                 -costs.metalCost);
 
+            buildingState->didPutResourceThisTick = gotResources;
             if (!gotResources)
             {
                 // we don't have resources available to build -- wait
@@ -1184,7 +1185,7 @@ namespace rwe
                     },
                     [&](const UnitCreationStatusDone& s) {
                         unit.cobEnvironment->createThread("StartBuilding");
-                        unit.factoryState = FactoryStateBuilding{s.unitId};
+                        unit.factoryState = FactoryStateBuilding{std::make_pair(s.unitId, false)};
                         return false;
                     },
                     [&](const UnitCreationStatusFailed&) {
@@ -1209,12 +1210,12 @@ namespace rwe
                     return false;
                 }
 
-                auto& targetUnit = scene->getSimulation().getUnit(*state.targetUnit);
+                auto& targetUnit = scene->getSimulation().getUnit(state.targetUnit->first);
                 if (targetUnit.unitType != unitType)
                 {
                     if (targetUnit.isBeingBuilt() && !targetUnit.isDead())
                     {
-                        scene->quietlyKillUnit(*state.targetUnit);
+                        scene->quietlyKillUnit(state.targetUnit->first);
                     }
                     state.targetUnit = std::nullopt;
                     return false;
@@ -1241,7 +1242,7 @@ namespace rwe
                     return true;
                 }
 
-                tryApplyMovementToPosition(*state.targetUnit, buildPieceInfo.position);
+                tryApplyMovementToPosition(state.targetUnit->first, buildPieceInfo.position);
                 targetUnit.rotation = buildPieceInfo.rotation;
 
                 auto costs = targetUnit.getBuildCostInfo(unit.workerTimePerTick);
@@ -1252,6 +1253,7 @@ namespace rwe
                     -costs.energyCost,
                     -costs.metalCost);
 
+                state.targetUnit->second = gotResources;
                 if (!gotResources)
                 {
                     // we don't have resources available to build -- wait
@@ -1267,7 +1269,7 @@ namespace rwe
                     }
                     if (targetUnit.activateWhenBuilt)
                     {
-                        scene->activateUnit(*state.targetUnit);
+                        scene->activateUnit(state.targetUnit->first);
                     }
                 }
 
@@ -1299,7 +1301,7 @@ namespace rwe
             [&](const FactoryStateBuilding& state) {
                 if (state.targetUnit)
                 {
-                    scene->quietlyKillUnit(*state.targetUnit);
+                    scene->quietlyKillUnit(state.targetUnit->first);
                     unit.cobEnvironment->createThread("StopBuilding");
                 }
                 scene->deactivateUnit(unitId);
