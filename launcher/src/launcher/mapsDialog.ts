@@ -1,7 +1,7 @@
 import { AppAction } from "./actions";
 
 export interface MapDialogState {
-  maps?: string[];
+  maps?: { name: string; source: string }[];
   selectedMap?: string;
 }
 

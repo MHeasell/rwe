@@ -124,10 +124,10 @@ namespace rwe
         }
     }
 
-    void extractMinimap(AbstractVirtualFileSystem& vfs, const png::rgb_pixel* palette, const std::string& mapName, const std::string& outputPath)
+    void extractMinimap(CompositeVirtualFileSystem& vfs, const png::rgb_pixel* palette, const std::string& source, const std::string& mapName, const std::string& outputPath)
     {
 
-        auto tntData = vfs.readFile("maps/" + mapName + ".tnt");
+        auto tntData = vfs.readFileFromSource(source, "maps/" + mapName + ".tnt");
         if (!tntData)
         {
             throw std::runtime_error("map tnt not found!");
@@ -153,9 +153,9 @@ namespace rwe
     }
 }
 
-std::optional<rwe::OtaRecord> getMapInfo(rwe::AbstractVirtualFileSystem& vfs, const std::string& mapName)
+std::optional<rwe::OtaRecord> getMapInfo(rwe::CompositeVirtualFileSystem& vfs, const std::string& source, const std::string& mapName)
 {
-    auto data = vfs.readFile("maps/" + mapName + ".ota");
+    auto data = vfs.readFileFromSource(source, "maps/" + mapName + ".ota");
     if (!data)
     {
         return std::nullopt;
@@ -164,7 +164,7 @@ std::optional<rwe::OtaRecord> getMapInfo(rwe::AbstractVirtualFileSystem& vfs, co
     return rwe::parseOta(rwe::parseTdfFromString(dataString));
 }
 
-std::optional<std::string> getMinimap(rwe::AbstractVirtualFileSystem& vfs, const std::string& mapName)
+std::optional<std::string> getMinimap(rwe::CompositeVirtualFileSystem& vfs, const std::string& source, const std::string& mapName)
 {
     auto paletteBytes = vfs.readFile("palettes/PALETTE.PAL");
     if (!paletteBytes)
@@ -179,7 +179,7 @@ std::optional<std::string> getMinimap(rwe::AbstractVirtualFileSystem& vfs, const
     auto output = fs::temp_directory_path();
     output /= mapName + ".png";
 
-    rwe::extractMinimap(vfs, palette, mapName, output.string());
+    rwe::extractMinimap(vfs, palette, source, mapName, output.string());
     return output.string();
 }
 
@@ -248,8 +248,14 @@ int main(int argc, char* argv[])
                 std::cout << "Missing map field" << std::endl;
                 return 1;
             }
+            auto sourceIt = j.find("source");
+            if (sourceIt == j.end())
+            {
+                std::cout << "Missing source field" << std::endl;
+                return 1;
+            }
 
-            auto ota = getMapInfo(vfs, mapIt->get<std::string>());
+            auto ota = getMapInfo(vfs, sourceIt->get<std::string>(), mapIt->get<std::string>());
             if (ota)
             {
                 writeMapInfoSuccess(*ota);
@@ -273,8 +279,14 @@ int main(int argc, char* argv[])
                 std::cout << "Missing map field" << std::endl;
                 return 1;
             }
+            auto sourceIt = j.find("source");
+            if (sourceIt == j.end())
+            {
+                std::cout << "Missing source field" << std::endl;
+                return 1;
+            }
 
-            auto filename = getMinimap(vfs, mapIt->get<std::string>());
+            auto filename = getMinimap(vfs, sourceIt->get<std::string>(), mapIt->get<std::string>());
             if (filename)
             {
                 writeGetMinimapSuccess(*filename);

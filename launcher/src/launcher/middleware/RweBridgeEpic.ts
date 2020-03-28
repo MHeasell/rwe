@@ -10,8 +10,13 @@ import { createSelector } from "reselect";
 
 function getSelectedMap(state: State) {
   const room = getRoom(state);
-  return room && room.mapDialog ? room.mapDialog.selectedMap : undefined;
+  if (!room || !room.mapDialog || !room.mapDialog.selectedMap) {
+    return undefined;
+  }
+  const name = room.mapDialog.selectedMap;
+  return room.mapDialog.maps?.find(x => x.name == name);
 }
+
 function getSelectedMapCacheEntry(state: State) {
   const room = getRoom(state);
   if (!room) {
@@ -42,13 +47,17 @@ export const rweBridgeEpic = (
 
   const mapInfoStream = selectedMap$.pipe(
     rxop.switchMap(
-      (mapName): rx.Observable<AppAction> => {
-        const mapInfo$ = rx.from(deps.bridgeService.getMapInfo(mapName));
-        const minimap$ = rx.from(deps.bridgeService.getMinimap(mapName));
+      (mapListItem): rx.Observable<AppAction> => {
+        const mapInfo$ = rx.from(
+          deps.bridgeService.getMapInfo(mapListItem.source, mapListItem.name)
+        );
+        const minimap$ = rx.from(
+          deps.bridgeService.getMinimap(mapListItem.source, mapListItem.name)
+        );
         return rx.combineLatest([mapInfo$, minimap$]).pipe(
           rxop.map(([infoResponse, minimapResponse]) => {
             return receiveCombinedMapInfo(
-              mapName,
+              mapListItem.name,
               infoResponse,
               minimapResponse.path
             );
@@ -65,7 +74,7 @@ export const rweBridgeEpic = (
           case "OPEN_SELECT_MAP_DIALOG": {
             return rx
               .from(deps.bridgeService.getMapList())
-              .pipe(rxop.map(x => receiveMapList(x.maps.map(m => m.name))));
+              .pipe(rxop.map(x => receiveMapList(x.maps)));
           }
         }
         return rx.empty();

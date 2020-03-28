@@ -22,6 +22,7 @@ type ClearDataPathsResponse = SuccessResponse;
 interface GetMapInfoCommand {
   command: "map-info";
   map: string;
+  source: string;
 }
 
 export interface GetMapInfoResponse {
@@ -43,6 +44,7 @@ interface GetMapListResponse {
 interface GetMinimapCommand {
   command: "get-minimap";
   map: string;
+  source: string;
 }
 
 interface GetMinimapResponse {
@@ -110,8 +112,12 @@ export class RweBridge {
     );
   }
 
-  getMapInfo(mapName: string): Promise<GetMapInfoResponse> {
-    const cmd: GetMapInfoCommand = { command: "map-info", map: mapName };
+  getMapInfo(source: string, mapName: string): Promise<GetMapInfoResponse> {
+    const cmd: GetMapInfoCommand = {
+      command: "map-info",
+      source,
+      map: mapName,
+    };
     return this.submitCommand(cmd).then(
       answer => JSON.parse(answer) as GetMapInfoResponse
     );
@@ -124,8 +130,12 @@ export class RweBridge {
     );
   }
 
-  getMinimap(mapName: string): Promise<GetMinimapResponse> {
-    const cmd: GetMinimapCommand = { command: "get-minimap", map: mapName };
+  getMinimap(source: string, mapName: string): Promise<GetMinimapResponse> {
+    const cmd: GetMinimapCommand = {
+      command: "get-minimap",
+      source,
+      map: mapName,
+    };
     return this.submitCommand(cmd).then(
       answer => JSON.parse(answer) as GetMinimapResponse
     );

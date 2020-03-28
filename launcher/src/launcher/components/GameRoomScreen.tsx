@@ -274,7 +274,7 @@ function mapStateToProps(state: State): GameRoomScreenStateProps {
     startEnabled: canStartGame(game),
     mapName: game.mapName,
     mapDialogOpen: !!mapDialog,
-    mapDialogMaps: mapDialog ? mapDialog.maps : undefined,
+    mapDialogMaps: mapDialog?.maps?.map(x => x.name),
     selectedMap: mapDialog ? mapDialog.selectedMap : undefined,
     mapDialogMapInfo:
       mapDialog && mapDialog.selectedMap && room.mapCache[mapDialog.selectedMap]

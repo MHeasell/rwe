@@ -307,10 +307,12 @@ export function closeSelectMapDialog(): CloseSelectMapDialogAction {
 
 export interface ReceiveMapListAction {
   type: "RECEIVE_MAP_LIST";
-  maps: string[];
+  maps: { name: string; source: string }[];
 }
 
-export function receiveMapList(maps: string[]): ReceiveMapListAction {
+export function receiveMapList(
+  maps: { name: string; source: string }[]
+): ReceiveMapListAction {
   return {
     type: "RECEIVE_MAP_LIST",
     maps,
