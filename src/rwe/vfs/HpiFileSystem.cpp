@@ -3,6 +3,11 @@
 
 namespace rwe
 {
+    const std::string& HpiFileSystem::getPath() const
+    {
+        return name;
+    }
+
     std::optional<std::vector<char>> HpiFileSystem::readFile(const std::string& filename) const
     {
         auto file = hpi.findFile(filename);

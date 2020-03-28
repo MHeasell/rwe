@@ -18,4 +18,10 @@ namespace rwe
         std::vector<char> readFileOrThrow(const std::string& filename) const;
         std::vector<GuiEntry> readGuiOrThrow(const std::string& filename) const;
     };
+
+    class LeafVirtualFileSystem : public AbstractVirtualFileSystem
+    {
+    public:
+        virtual const std::string& getPath() const = 0;
+    };
 }

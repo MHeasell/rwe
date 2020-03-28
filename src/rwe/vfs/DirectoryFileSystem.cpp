@@ -48,13 +48,18 @@ namespace rwe
     }
 
     DirectoryFileSystem::DirectoryFileSystem(const std::string& path)
-        : path(path)
+        : path(path), pathString(this->path.string())
     {
     }
 
     DirectoryFileSystem::DirectoryFileSystem(const boost::filesystem::path& path)
-        : path(path)
+        : path(path), pathString(this->path.string())
     {
+    }
+
+    const std::string& DirectoryFileSystem::getPath() const
+    {
+        return pathString;
     }
 
     std::optional<std::vector<char>> DirectoryFileSystem::readFile(const std::string& filename) const

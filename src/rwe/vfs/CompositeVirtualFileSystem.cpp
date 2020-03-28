@@ -24,6 +24,26 @@ namespace rwe
         return std::nullopt;
     }
 
+    std::optional<std::vector<char>> CompositeVirtualFileSystem::readFileFromSource(const std::string& source, const std::string& filename) const
+    {
+        for (const auto& fs : filesystems)
+        {
+            if (fs->getPath() != source)
+            {
+                continue;
+            }
+
+            auto file = fs->readFile(filename);
+            if (file)
+            {
+                return file;
+            }
+            return std::nullopt;
+        }
+
+        return std::nullopt;
+    }
+
     std::vector<std::string>
     CompositeVirtualFileSystem::getFileNames(const std::string& directory, const std::string& extension)
     {
@@ -39,6 +59,24 @@ namespace rwe
         return v;
     }
 
+    std::vector<std::pair<std::string, std::string>>
+    CompositeVirtualFileSystem::getFileNamesWithSources(const std::string& directory, const std::string& extension)
+    {
+        std::map<std::string, std::string> entries;
+
+        for (const auto& fs : filesystems)
+        {
+            auto v = fs->getFileNames(directory, extension);
+            for (const auto& filename : v)
+            {
+                entries.insert({filename, fs->getPath()});
+            }
+        }
+
+        std::vector<std::pair<std::string, std::string>> v(entries.begin(), entries.end());
+        return v;
+    }
+
     std::vector<std::string>
     CompositeVirtualFileSystem::getFileNamesRecursive(const std::string& directory, const std::string& extension)
     {
@@ -51,6 +89,24 @@ namespace rwe
         }
 
         std::vector<std::string> v(entries.begin(), entries.end());
+        return v;
+    }
+
+    std::vector<std::pair<std::string, std::string>>
+    CompositeVirtualFileSystem::getFileNamesRecursiveWithSources(const std::string& directory, const std::string& extension)
+    {
+        std::map<std::string, std::string> entries;
+
+        for (const auto& fs : filesystems)
+        {
+            auto v = fs->getFileNamesRecursive(directory, extension);
+            for (const auto& filename : v)
+            {
+                entries.insert({filename, fs->getPath()});
+            }
+        }
+
+        std::vector<std::pair<std::string, std::string>> v(entries.begin(), entries.end());
         return v;
     }
 

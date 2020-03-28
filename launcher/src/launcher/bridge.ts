@@ -37,7 +37,7 @@ interface GetMapListCommand {
 
 interface GetMapListResponse {
   result: "ok";
-  maps: string[];
+  maps: { name: string; source: string }[];
 }
 
 interface GetMinimapCommand {

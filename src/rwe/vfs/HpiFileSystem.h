@@ -6,7 +6,7 @@
 
 namespace rwe
 {
-    class HpiFileSystem final : public AbstractVirtualFileSystem
+    class HpiFileSystem final : public LeafVirtualFileSystem
     {
     private:
         class HpiRecursiveFilenamesVisitor
@@ -31,6 +31,10 @@ namespace rwe
 
     public:
         explicit HpiFileSystem(const std::string& file);
+
+    public:
+        const std::string& getPath() const override;
+
         std::optional<std::vector<char>> readFile(const std::string& filename) const override;
 
         std::vector<std::string> getFileNames(const std::string& directory, const std::string& extension) override;

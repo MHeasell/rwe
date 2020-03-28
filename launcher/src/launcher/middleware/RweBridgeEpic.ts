@@ -65,7 +65,7 @@ export const rweBridgeEpic = (
           case "OPEN_SELECT_MAP_DIALOG": {
             return rx
               .from(deps.bridgeService.getMapList())
-              .pipe(rxop.map(x => receiveMapList(x.maps)));
+              .pipe(rxop.map(x => receiveMapList(x.maps.map(m => m.name))));
           }
         }
         return rx.empty();

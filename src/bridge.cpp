@@ -19,9 +19,9 @@ namespace fs = boost::filesystem;
 
 using json = nlohmann::json;
 
-bool hasMultiplayerSchema(rwe::AbstractVirtualFileSystem& vfs, const std::string& mapName)
+bool hasMultiplayerSchema(rwe::CompositeVirtualFileSystem& vfs, const std::string& source, const std::string& mapName)
 {
-    auto otaRaw = vfs.readFile(std::string("maps/").append(mapName).append(".ota"));
+    auto otaRaw = vfs.readFileFromSource(source, std::string("maps/").append(mapName).append(".ota"));
     if (!otaRaw)
     {
         throw std::runtime_error("Failed to read OTA file");
@@ -33,18 +33,18 @@ bool hasMultiplayerSchema(rwe::AbstractVirtualFileSystem& vfs, const std::string
     return std::any_of(ota.schemas.begin(), ota.schemas.end(), [](const auto& s) { return rwe::startsWith(rwe::toUpper(s.type), "NETWORK"); });
 }
 
-std::vector<std::string> getMapNames(rwe::AbstractVirtualFileSystem& vfs)
+std::vector<std::pair<std::string, std::string>> getMapNames(rwe::CompositeVirtualFileSystem& vfs)
 {
-    auto mapNames = vfs.getFileNames("maps", ".ota");
+    auto mapNames = vfs.getFileNamesWithSources("maps", ".ota");
 
     for (auto& e : mapNames)
     {
         // chop off the extension
-        e.resize(e.size() - 4);
+        e.first.resize(e.first.size() - 4);
     }
 
     // Keep only maps that have a multiplayer schema
-    mapNames.erase(std::remove_if(mapNames.begin(), mapNames.end(), [&vfs](const auto& e) { return !hasMultiplayerSchema(vfs, e); }), mapNames.end());
+    mapNames.erase(std::remove_if(mapNames.begin(), mapNames.end(), [&vfs](const auto& e) { return !hasMultiplayerSchema(vfs, e.second, e.first); }), mapNames.end());
 
     return mapNames;
 }
@@ -65,11 +65,15 @@ void writeSuccess()
     std::cout << j << std::endl;
 }
 
-void writeMapListSuccess(const std::vector<std::string>& names)
+void writeMapListSuccess(const std::vector<std::pair<std::string, std::string>>& names)
 {
+    std::vector<json> mapsJson;
+    std::transform(names.begin(), names.end(), std::back_inserter(mapsJson), [](const auto& m) {
+        return json{{"name", m.first}, {"source", m.second}};
+    });
     json j = {
         {"result", "ok"},
-        {"maps", names},
+        {"maps", mapsJson},
     };
     std::cout << j << std::endl;
 }
