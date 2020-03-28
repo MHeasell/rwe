@@ -42,7 +42,9 @@ import {
   canStartGame,
   PlayerSlot,
   PlayerSide,
+  CanStartGameError,
 } from "../gameClient/state";
+import { assertNever } from "../../common/util";
 
 function GameSettingsPanel() {
   return (
@@ -94,6 +96,7 @@ interface GameRoomScreenStateProps {
   players: PlayerSlot[];
   messages: ChatMessage[];
   startEnabled: boolean;
+  startWarnings: string[];
   mapName?: string;
   mapDialogOpen: boolean;
   activeMods: string[];
@@ -215,6 +218,11 @@ function UnconnectedGameRoomScreen(props: GameRoomScreenProps) {
             Start Game
           </Button>
         </div>
+        <div>
+          {props.startWarnings.map(x => (
+            <Typography key={x}>{x}</Typography>
+          ))}
+        </div>
       </div>
       <MapSelectDialog
         open={props.mapDialogOpen}
@@ -247,6 +255,25 @@ function isElementScrolledToBottom(elem: HTMLElement): boolean {
   return scrollBottom <= 0 || scrollPos === scrollBottom;
 }
 
+function errToString(err: CanStartGameError): string {
+  switch (err.type) {
+    case "no-map":
+      return "No map selected";
+    case "no-mods":
+      return "No mods enabled";
+    case "no-players":
+      return "Game has no players yet";
+    case "not-admin":
+      return "You are not the room admin";
+    case "unready-players":
+      return "Some players are not ready";
+    case "missing-mods":
+      return "Some players do not have one of the active mods";
+    default:
+      assertNever(err);
+  }
+}
+
 function mapStateToProps(state: State): GameRoomScreenStateProps {
   const installedMods = (state.installedMods || []).map(x => x.name);
   const game = state.currentGame;
@@ -258,11 +285,14 @@ function mapStateToProps(state: State): GameRoomScreenStateProps {
       players: [],
       messages: [],
       startEnabled: false,
+      startWarnings: [],
       mapDialogOpen: false,
     };
   }
 
   const mapDialog = room.mapDialog;
+
+  const canStartGameResult = canStartGame(game);
 
   return {
     installedMods,
@@ -271,7 +301,11 @@ function mapStateToProps(state: State): GameRoomScreenStateProps {
     adminPlayerId: game.adminPlayerId,
     players: game.players,
     messages: game.messages,
-    startEnabled: canStartGame(game),
+    startEnabled: canStartGameResult.result === "ok",
+    startWarnings:
+      canStartGameResult.result === "err"
+        ? canStartGameResult.errors.map(x => errToString(x))
+        : [],
     mapName: game.mapName,
     mapDialogOpen: !!mapDialog,
     mapDialogMaps: mapDialog?.maps?.map(x => x.name),

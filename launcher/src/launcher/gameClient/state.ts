@@ -1,5 +1,5 @@
 import { AppAction } from "../actions";
-import { findAndMap } from "../../common/util";
+import { findAndMap, assertNever, choose } from "../../common/util";
 
 export type PlayerSide = "ARM" | "CORE";
 
@@ -44,31 +44,85 @@ export interface CurrentGameState {
   activeMods: string[];
 }
 
-export function canStartGame(room: CurrentGameState) {
+export type CanStartGameError =
+  | { type: "not-admin" }
+  | { type: "no-players" }
+  | { type: "no-map" }
+  | { type: "no-mods" }
+  | { type: "unready-players"; unreadyPlayerIds: number[] }
+  | {
+      type: "missing-mods";
+      playersMissingMods: { playerId: number; mods: string[] }[];
+    };
+
+export type CanStartGameResult =
+  | { result: "ok" }
+  | { result: "err"; errors: CanStartGameError[] };
+
+export function canStartGame(room: CurrentGameState): CanStartGameResult {
+  const errors: CanStartGameError[] = [];
+
   if (room.adminPlayerId !== room.localPlayerId) {
-    return false;
+    errors.push({ type: "not-admin" });
   }
-  if (room.players.length === 0) {
-    return false;
+  if (room.players.filter(x => x.state === "filled").length < 2) {
+    errors.push({ type: "no-players" });
+  }
+
+  if (room.activeMods.length === 0) {
+    errors.push({ type: "no-mods" });
   }
 
   if (room.mapName === undefined) {
-    return false;
+    errors.push({ type: "no-map" });
   }
 
-  return room.players.every(x => {
+  const unreadyPlayerIds = choose(room.players, x => {
     switch (x.state) {
-      case "filled":
-        return (
-          x.player.ready &&
-          room.activeMods.every(m => x.player.installedMods.includes(m))
-        );
+      case "filled": {
+        if (!x.player.ready) {
+          return x.player.id;
+        }
+        return undefined;
+      }
       case "closed":
-        return true;
+        return undefined;
       case "empty":
-        return false;
+        return undefined;
+      default:
+        assertNever(x);
     }
   });
+
+  if (unreadyPlayerIds.length !== 0) {
+    errors.push({ type: "unready-players", unreadyPlayerIds });
+  }
+
+  const playersMissingMods = choose(room.players, x => {
+    switch (x.state) {
+      case "filled": {
+        const missingMods = room.activeMods.filter(
+          m => !x.player.installedMods.includes(m)
+        );
+        if (missingMods.length !== 0) {
+          return { playerId: x.player.id, mods: missingMods };
+        }
+        return undefined;
+      }
+      case "closed":
+        return undefined;
+      case "empty":
+        return undefined;
+      default:
+        assertNever(x);
+    }
+  });
+
+  if (playersMissingMods.length !== 0) {
+    errors.push({ type: "missing-mods", playersMissingMods });
+  }
+
+  return errors.length === 0 ? { result: "ok" } : { result: "err", errors };
 }
 
 function findPlayer(
