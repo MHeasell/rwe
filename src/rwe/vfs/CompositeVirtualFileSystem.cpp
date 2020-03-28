@@ -1,9 +1,9 @@
 #include "CompositeVirtualFileSystem.h"
 #include <boost/filesystem.hpp>
+#include <map>
+#include <rwe/rwe_string.h>
 #include <rwe/vfs/DirectoryFileSystem.h>
 #include <rwe/vfs/HpiFileSystem.h>
-
-#include <rwe/rwe_string.h>
 #include <set>
 
 namespace fs = boost::filesystem;
