@@ -614,18 +614,18 @@ namespace rwe
         return sum;
     }
 
-    std::optional<UnitId> Unit::getActiveNanolatheTarget() const
+    std::optional<std::pair<UnitId, SimVector>> Unit::getActiveNanolatheTarget() const
     {
         auto buildingState = std::get_if<BuildingState>(&behaviourState);
-        if (buildingState && buildingState->didPutResourceThisTick)
+        if (buildingState && buildingState->nanoParticleOrigin)
         {
-            return buildingState->targetUnit;
+            return std::make_pair(buildingState->targetUnit, *buildingState->nanoParticleOrigin);
         }
 
         auto factoryBuildingState = std::get_if<FactoryStateBuilding>(&factoryState);
         if (factoryBuildingState && factoryBuildingState->targetUnit && factoryBuildingState->targetUnit->second)
         {
-            return factoryBuildingState->targetUnit->first;
+            return std::make_pair(factoryBuildingState->targetUnit->first, *factoryBuildingState->targetUnit->second);
         }
 
         return std::nullopt;

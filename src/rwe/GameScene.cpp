@@ -419,7 +419,7 @@ namespace rwe
         {
             if (auto nanolatheTarget = unit.getActiveNanolatheTarget())
             {
-                worldRenderService.drawNanolatheLine(simVectorToFloat(unit.position), simVectorToFloat(getUnit(*nanolatheTarget).position));
+                worldRenderService.drawNanolatheLine(simVectorToFloat(nanolatheTarget->second), simVectorToFloat(getUnit(nanolatheTarget->first).position));
             }
         }
         worldRenderService.drawExplosions(simulation.gameTime, simulation.explosions);

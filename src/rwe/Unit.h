@@ -74,7 +74,7 @@ namespace rwe
     struct BuildingState
     {
         UnitId targetUnit;
-        bool didPutResourceThisTick;
+        std::optional<SimVector> nanoParticleOrigin;
     };
 
     using UnitState = std::variant<IdleState, MovingState, CreatingUnitState, BuildingState>;
@@ -93,8 +93,8 @@ namespace rwe
 
     struct FactoryStateBuilding
     {
-        // when the bool is true, we successfully put resource into the the target this frame
-        std::optional<std::pair<UnitId, bool>> targetUnit;
+        // the vector is the origin of nano particles
+        std::optional<std::pair<UnitId, std::optional<SimVector>>> targetUnit;
     };
 
     using FactoryState = std::variant<FactoryStateIdle, FactoryStateCreatingUnit, FactoryStateBuilding>;
@@ -365,6 +365,6 @@ namespace rwe
 
         int getBuildQueueTotal(const std::string& unitType) const;
 
-        std::optional<UnitId> getActiveNanolatheTarget() const;
+        std::optional<std::pair<UnitId, SimVector>> getActiveNanolatheTarget() const;
     };
 }

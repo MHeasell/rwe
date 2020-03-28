@@ -934,7 +934,7 @@ namespace rwe
                     auto pitch = headingAndPitch.second;
 
                     unit.cobEnvironment->createThread("StartBuilding", {toCobAngle(heading).value, toCobAngle(pitch).value});
-                    unit.behaviourState = BuildingState{d.unitId, false};
+                    unit.behaviourState = BuildingState{d.unitId, std::nullopt};
                     return false;
                 },
                 [](const UnitCreationStatusPending&) {
@@ -984,12 +984,13 @@ namespace rwe
                 -costs.energyCost,
                 -costs.metalCost);
 
-            buildingState->didPutResourceThisTick = gotResources;
             if (!gotResources)
             {
                 // we don't have resources available to build -- wait
+                buildingState->nanoParticleOrigin = std::nullopt;
                 return false;
             }
+            buildingState->nanoParticleOrigin = getNanoPoint(unitId);
 
             if (targetUnit.addBuildProgress(unit.workerTimePerTick))
             {
@@ -1146,8 +1147,10 @@ namespace rwe
             if (!gotResources)
             {
                 // we don't have resources available to build -- wait
+                buildingState->nanoParticleOrigin = std::nullopt;
                 return false;
             }
+            buildingState->nanoParticleOrigin = getNanoPoint(unitId);
 
             if (targetUnit.addBuildProgress(unit.workerTimePerTick))
             {
@@ -1185,7 +1188,7 @@ namespace rwe
                     },
                     [&](const UnitCreationStatusDone& s) {
                         unit.cobEnvironment->createThread("StartBuilding");
-                        unit.factoryState = FactoryStateBuilding{std::make_pair(s.unitId, false)};
+                        unit.factoryState = FactoryStateBuilding{std::make_pair(s.unitId, std::optional<SimVector>())};
                         return false;
                     },
                     [&](const UnitCreationStatusFailed&) {
@@ -1253,12 +1256,13 @@ namespace rwe
                     -costs.energyCost,
                     -costs.metalCost);
 
-                state.targetUnit->second = gotResources;
                 if (!gotResources)
                 {
                     // we don't have resources available to build -- wait
+                    state.targetUnit->second = std::nullopt;
                     return false;
                 }
+                state.targetUnit->second = getNanoPoint(unitId);
 
                 if (targetUnit.addBuildProgress(unit.workerTimePerTick))
                 {
