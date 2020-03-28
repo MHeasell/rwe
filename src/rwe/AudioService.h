@@ -3,6 +3,7 @@
 #include <functional>
 #include <memory>
 #include <rwe/SdlContextManager.h>
+#include <rwe/observable/Subject.h>
 #include <rwe/vfs/AbstractVirtualFileSystem.h>
 #include <unordered_map>
 
@@ -37,19 +38,29 @@ namespace rwe
         SdlMixerContext* sdlMixerContext;
         AbstractVirtualFileSystem* fileSystem;
         std::unordered_map<std::string, std::shared_ptr<Sound>> soundBank;
+        Subject<int> channelFinished;
+        std::function<void(int)> channelFinishedCallback = std::bind(&Subject<int>::next, &channelFinished, std::placeholders::_1);
 
     public:
         AudioService(SdlContext* sdlContext, SdlMixerContext* sdlMixerContext, AbstractVirtualFileSystem* fileSystem);
+        AudioService(const AudioService&) = delete;
+        AudioService(const AudioService&&) = delete;
+        AudioService& operator=(const AudioService&) = delete;
+        AudioService& operator=(AudioService&&) = delete;
 
         LoopToken loopSound(const SoundHandle& sound);
 
-        void playSound(const SoundHandle& sound);
+        int playSound(const SoundHandle& sound);
 
         std::optional<SoundHandle> loadSound(const std::string& soundName);
 
         void reserveChannels(unsigned int count);
 
         void playSoundIfFree(const SoundHandle& sound, unsigned int channel);
+
+        void setVolume(int channel, int volume);
+
+        Observable<int>& getChannelFinished();
 
     private:
         void haltChannel(int channel);

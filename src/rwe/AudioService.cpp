@@ -11,6 +11,7 @@ namespace rwe
           sdlMixerContext(sdlMixerContext),
           fileSystem(fileSystem)
     {
+        this->sdlMixerContext->channelFinished(std::bind(&Subject<int>::next, &channelFinished, std::placeholders::_1));
     }
 
     AudioService::LoopToken AudioService::loopSound(const SoundHandle& sound)
@@ -19,9 +20,9 @@ namespace rwe
         return LoopToken(this, channel, sound);
     }
 
-    void AudioService::playSound(const SoundHandle& sound)
+    int AudioService::playSound(const SoundHandle& sound)
     {
-        sdlMixerContext->playChannel(-1, sound.get(), 0);
+        return sdlMixerContext->playChannel(-1, sound.get(), 0);
     }
 
     std::optional<AudioService::SoundHandle> AudioService::loadSound(const std::string& soundName)
@@ -71,6 +72,16 @@ namespace rwe
         }
 
         sdlMixerContext->playChannel(channel, sound.get(), 0);
+    }
+
+    Observable<int>& AudioService::getChannelFinished()
+    {
+        return channelFinished;
+    }
+
+    void AudioService::setVolume(int channel, int volume)
+    {
+        sdlMixerContext->volume(channel, volume);
     }
 
     AudioService::LoopToken::LoopToken(AudioService* audioService, int channel, const AudioService::SoundHandle& sound)

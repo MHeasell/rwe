@@ -1,4 +1,5 @@
 #include "GameScene.h"
+#include <algorithm>
 #include <boost/range/adaptor/map.hpp>
 #include <fstream>
 #include <functional>
@@ -132,6 +133,34 @@ namespace rwe
 
         sceneContext.audioService->reserveChannels(reservedChannelsCount);
         gameNetworkService->start();
+    }
+
+    float computeSoundCeiling(int soundCount)
+    {
+        assert(soundCount > 0);
+        if (soundCount <= 4)
+        {
+            return soundCount;
+        }
+
+        if (soundCount <= 8)
+        {
+            return 4 + ((soundCount - 4) * 0.5f);
+        }
+
+        if (soundCount <= 16)
+        {
+            return (6 + ((soundCount - 8) * 0.25f));
+        }
+
+        return 8;
+    }
+
+    int computeSoundVolume(int soundCount)
+    {
+        soundCount = std::max(soundCount, 1);
+        auto headRoom = computeSoundCeiling(soundCount);
+        return std::clamp(static_cast<int>(headRoom * 128) / soundCount, 1, 128);
     }
 
     void GameScene::render()
@@ -318,6 +347,14 @@ namespace rwe
         sceneContext.graphics->disableDepthBuffer();
 
         sceneContext.graphics->setViewport(0, 0, sceneContext.viewportService->width(), sceneContext.viewportService->height());
+
+        // oh yeah also regulate sound
+        std::scoped_lock<std::mutex> lock(playingUnitChannelsLock);
+        auto volume = computeSoundVolume(playingUnitChannels.size());
+        for (auto channel : playingUnitChannels)
+        {
+            sceneContext.audioService->setVolume(channel, volume);
+        }
     }
 
     void GameScene::renderMinimap()
@@ -548,6 +585,10 @@ namespace rwe
             }
             ImGui::SetKeyboardFocusHere(-1);
         }
+        ImGui::Separator();
+        std::scoped_lock<std::mutex> lock(playingUnitChannelsLock);
+        ImGui::LabelText("Unit sounds", "%d", playingUnitChannels.size());
+        ImGui::LabelText("Sound volume", "%d", computeSoundVolume(playingUnitChannels.size()));
         ImGui::End();
     }
 
@@ -1343,7 +1384,16 @@ namespace rwe
     void GameScene::playSoundAt(const Vector3f& position, const AudioService::SoundHandle& sound)
     {
         // FIXME: should play on a position-aware channel
-        sceneContext.audioService->playSound(sound);
+        auto channel = sceneContext.audioService->playSound(sound);
+        std::scoped_lock<std::mutex> lock(playingUnitChannelsLock);
+        playingUnitChannels.insert(channel);
+        sceneContext.audioService->setVolume(channel, computeSoundVolume(playingUnitChannels.size()));
+    }
+
+    void GameScene::onChannelFinished(int channel)
+    {
+        std::scoped_lock<std::mutex> lock(playingUnitChannelsLock);
+        playingUnitChannels.erase(channel);
     }
 
     Matrix4f GameScene::worldToMinimapMatrix(const MapTerrain& terrain, const Rectangle2f& minimapRect)

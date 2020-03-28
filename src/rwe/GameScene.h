@@ -178,6 +178,8 @@ namespace rwe
 
         SceneContext sceneContext;
 
+        std::unique_ptr<Subscription> audioSub = sceneContext.audioService->getChannelFinished().subscribe([this](int channel) { onChannelFinished(channel); });
+
         ViewportService worldViewport;
 
         std::unique_ptr<PlayerCommandService> playerCommandService;
@@ -256,6 +258,9 @@ namespace rwe
         bool showDebugWindow{false};
         char unitSpawnText[20]{""};
         int unitSpawnPlayer{0};
+
+        std::mutex playingUnitChannelsLock;
+        std::unordered_set<int> playingUnitChannels;
 
     public:
         GameScene(
@@ -354,6 +359,8 @@ namespace rwe
         void quietlyKillUnit(UnitId unitId);
 
         void setBuggerOff(UnitId unitId, bool value);
+
+        void onChannelFinished(int channel);
 
     private:
         static Matrix4f worldToMinimapMatrix(const MapTerrain& terrain, const Rectangle2f& minimapRect);

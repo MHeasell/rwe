@@ -2,6 +2,7 @@
 
 #include <SDL.h>
 #include <SDL_mixer.h>
+#include <functional>
 #include <memory>
 #include <stdexcept>
 
@@ -183,6 +184,18 @@ namespace rwe
         int playing(int channel)
         {
             return Mix_Playing(channel);
+        }
+
+        void channelFinished(std::function<void(int)> f)
+        {
+            static auto cachedF = f;
+            void (*callback)(int) = [](int channel) { cachedF(channel); };
+            return Mix_ChannelFinished(callback);
+        }
+
+        int volume(int channel, int volume)
+        {
+            return Mix_Volume(channel, volume);
         }
     };
 
