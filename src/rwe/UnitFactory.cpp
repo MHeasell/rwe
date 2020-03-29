@@ -429,6 +429,11 @@ namespace rwe
 
         weapon.damageRadius = SimScalar(static_cast<float>(tdf.areaOfEffect) / 2.0f);
 
+        if (tdf.weaponTimer != 0.0f)
+        {
+            weapon.weaponTimer = GameTime(static_cast<unsigned int>(tdf.weaponTimer * 60.0f));
+        }
+
         return weapon;
     }
 

@@ -90,6 +90,9 @@ namespace rwe
 
         SimScalar damageRadius;
 
+        /** Number of ticks projectiles fired from this weapon live for */
+        std::optional<GameTime> weaponTimer;
+
         /** Offset from aim point to firing point, compensation for ballistics calculations. */
         SimScalar ballisticZOffset{0};
 

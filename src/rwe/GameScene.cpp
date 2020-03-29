@@ -1875,6 +1875,13 @@ namespace rwe
         auto gameTime = getGameTime();
         for (auto& [id, projectile] : simulation.projectiles)
         {
+            // remove if it's time to die
+            if (projectile.dieOnFrame && *projectile.dieOnFrame <= gameTime)
+            {
+                projectile.isDead = true;
+                continue;
+            }
+
             if (projectile.gravity)
             {
                 projectile.velocity.y -= 112_ss / 6000_ss;

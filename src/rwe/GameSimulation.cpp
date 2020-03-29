@@ -472,6 +472,11 @@ namespace rwe
 
         projectile.damageRadius = weapon.damageRadius;
 
+        if (weapon.weaponTimer)
+        {
+            projectile.dieOnFrame = gameTime + *weapon.weaponTimer;
+        }
+
         return projectile;
     }
 

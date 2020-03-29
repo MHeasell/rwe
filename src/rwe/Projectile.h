@@ -50,6 +50,8 @@ namespace rwe
 
         std::unordered_map<std::string, unsigned int> damage;
 
+        std::optional<GameTime> dieOnFrame;
+
         SimScalar damageRadius;
 
         bool isDead{false};
