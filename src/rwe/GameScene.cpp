@@ -2294,7 +2294,7 @@ namespace rwe
         if (unit.explosionWeapon)
         {
             auto impactType = unit.position.y < simulation.terrain.getSeaLevel() ? ImpactType::Water : ImpactType::Normal;
-            auto projectile = simulation.createProjectileFromWeapon(unit.owner, *unit.explosionWeapon, unit.position, SimVector(0_ss, -1_ss, 0_ss));
+            auto projectile = simulation.createProjectileFromWeapon(unit.owner, *unit.explosionWeapon, unit.position, SimVector(0_ss, -1_ss, 0_ss), 0_ss);
             doProjectileImpact(projectile, impactType);
         }
     }

@@ -440,7 +440,7 @@ namespace rwe
         {
             scene->createLightSmoke(firingPoint);
         }
-        scene->getSimulation().spawnProjectile(unit.owner, *weapon, firingPoint, direction);
+        scene->getSimulation().spawnProjectile(unit.owner, *weapon, firingPoint, direction, (targetPosition - firingPoint).length());
 
         if (weapon->soundStart)
         {

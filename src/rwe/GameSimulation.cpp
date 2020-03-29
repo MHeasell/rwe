@@ -447,7 +447,7 @@ namespace rwe
     }
 
     Projectile GameSimulation::createProjectileFromWeapon(
-        PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction)
+        PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction, SimScalar distanceToTarget)
     {
         Projectile projectile;
         projectile.owner = owner;
@@ -476,13 +476,17 @@ namespace rwe
         {
             projectile.dieOnFrame = gameTime + *weapon.weaponTimer;
         }
+        else if (weapon.physicsType == ProjectilePhysicsType::LineOfSight)
+        {
+            projectile.dieOnFrame = gameTime + GameTime(simScalarToUInt(distanceToTarget / weapon.velocity));
+        }
 
         return projectile;
     }
 
-    void GameSimulation::spawnProjectile(PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction)
+    void GameSimulation::spawnProjectile(PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction, SimScalar distanceToTarget)
     {
-        projectiles.emplace(createProjectileFromWeapon(owner, weapon, position, direction));
+        projectiles.emplace(createProjectileFromWeapon(owner, weapon, position, direction, distanceToTarget));
     }
 
     void GameSimulation::spawnExplosion(const SimVector& position, const std::shared_ptr<SpriteSeries>& animation)
