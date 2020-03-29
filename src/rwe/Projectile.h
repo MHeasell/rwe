@@ -52,6 +52,8 @@ namespace rwe
 
         SimScalar damageRadius;
 
+        bool isDead{false};
+
         SimVector getBackPosition(const ProjectileRenderTypeLaser& laserRenderType) const;
 
         unsigned int getDamage(const std::string& unitType) const;

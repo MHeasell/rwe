@@ -1594,6 +1594,8 @@ namespace rwe
 
         deleteDeadUnits();
 
+        deleteDeadProjectiles();
+
         spawnNewUnits();
 
         auto gameHash = simulation.computeHash();
@@ -1894,7 +1896,7 @@ namespace rwe
             if (!terrainHeight)
             {
                 // silently remove projectiles that go outside the map
-                simulation.projectiles.remove(id);
+                projectile.isDead = true;
                 continue;
             }
 
@@ -1905,12 +1907,12 @@ namespace rwe
             if (seaLevel > terrainHeight && projectile.position.y <= seaLevel)
             {
                 doProjectileImpact(projectile, ImpactType::Water);
-                simulation.projectiles.remove(id);
+                projectile.isDead = true;
             }
             else if (projectile.position.y <= terrainHeight)
             {
                 doProjectileImpact(projectile, ImpactType::Normal);
-                simulation.projectiles.remove(id);
+                projectile.isDead = true;
             }
             else
             {
@@ -1923,7 +1925,7 @@ namespace rwe
                     if (collides)
                     {
                         doProjectileImpact(projectile, ImpactType::Normal);
-                        simulation.projectiles.remove(id);
+                        projectile.isDead = true;
                     }
                 }
             }
@@ -2192,6 +2194,22 @@ namespace rwe
 
                 unitGuiInfos.erase(it->first);
                 it = simulation.units.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+    }
+
+    void GameScene::deleteDeadProjectiles()
+    {
+        for (auto it = simulation.projectiles.begin(); it != simulation.projectiles.end();)
+        {
+            const auto& projectile = it->second;
+            if (projectile.isDead)
+            {
+                it = simulation.projectiles.erase(it);
             }
             else
             {
