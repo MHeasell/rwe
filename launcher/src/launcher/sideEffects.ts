@@ -1,7 +1,7 @@
 import {
   Store,
   StoreEnhancer,
-  DeepPartial,
+  PreloadedState,
   Reducer,
   Action,
   Dispatch,
@@ -46,7 +46,7 @@ type EnhancedReducer<S, SE, A extends Action> = (
 export const createEnhancer = <SE>(executor: SideEffectExecutor<SE>) => {
   const myStoreEnhancer: StoreEnhancer = createStore => <S, A extends Action>(
     reducer: TopLevelEnhancedReducer<S, SE, A>,
-    initialState?: DeepPartial<S>
+    initialState?: PreloadedState<S>
   ): Store<S, A> => {
     let sideEffects: SE[] = [];
 
