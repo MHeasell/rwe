@@ -49,7 +49,12 @@ module.exports = {
       },
       {
         test: /\.node$/,
-        use: "node-loader",
+        loader: "awesome-node-loader",
+        options: {
+          rewritePath: process.env.RWE_LAUNCHER_IS_DEV
+            ? path.resolve(__dirname, "dist")
+            : undefined,
+        },
       },
     ],
   },
@@ -62,6 +67,10 @@ module.exports = {
   output: {
     filename: "renderer.js",
     path: path.resolve(__dirname, "dist"),
+  },
+  node: {
+    __dirname: false,
+    __filename: false,
   },
   plugins: [
     new CopyWebpackPlugin([
