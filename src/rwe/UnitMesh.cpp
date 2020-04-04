@@ -1,6 +1,7 @@
 #include "UnitMesh.h"
 #include <rwe/float_math.h>
 
+#include <boost/algorithm/string.hpp>
 #include <rwe/math/Matrix4f.h>
 #include <rwe/math/rwe_math.h>
 #include <rwe/util.h>
@@ -94,7 +95,7 @@ namespace rwe
 
     std::optional<std::reference_wrapper<const UnitMesh>> UnitMesh::find(const std::string& pieceName) const
     {
-        if (pieceName == name)
+        if (boost::iequals(pieceName, name))
         {
             return *this;
         }
@@ -124,7 +125,7 @@ namespace rwe
 
     std::optional<Matrix4x<SimScalar>> UnitMesh::getPieceTransform(const std::string& pieceName) const
     {
-        if (pieceName == name)
+        if (boost::iequals(pieceName, name))
         {
             return getTransform();
         }
