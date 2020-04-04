@@ -555,7 +555,10 @@ namespace rwe
             {
                 for (const auto& [_, unit] : simulation.units)
                 {
-                    renderBuildBoxes(unit, Color(0, 0, 255));
+                    if (unit.isOwnedBy(localPlayerId))
+                    {
+                        renderBuildBoxes(unit, Color(0, 0, 255));
+                    }
                 }
             }
 
