@@ -247,15 +247,17 @@ namespace rwe
 
         assert(terrain.getHeightMap().getWidth() >= 2);
         assert(terrain.getHeightMap().getHeight() >= 2);
+        assert(movementClassGrid.getWidth() <= terrain.getHeightMap().getWidth());
+        assert(movementClassGrid.getHeight() <= terrain.getHeightMap().getHeight());
 
         auto topLeftCell = terrain.worldToHeightmapCoordinate(floatToSimVector(Vector3f(left, 0.0f, top)));
-        topLeftCell.x = std::clamp(topLeftCell.x, 0, static_cast<int>(terrain.getHeightMap().getWidth() - 2));
-        topLeftCell.y = std::clamp(topLeftCell.y, 0, static_cast<int>(terrain.getHeightMap().getHeight() - 2));
+        topLeftCell.x = std::clamp(topLeftCell.x, 0, static_cast<int>(movementClassGrid.getWidth() - 1));
+        topLeftCell.y = std::clamp(topLeftCell.y, 0, static_cast<int>(movementClassGrid.getHeight() - 1));
 
         auto bottomRightCell = terrain.worldToHeightmapCoordinate(floatToSimVector(Vector3f(right, 0.0f, bottom)));
         bottomRightCell.y += 7; // compensate for height
-        bottomRightCell.x = std::clamp(bottomRightCell.x, 0, static_cast<int>(terrain.getHeightMap().getWidth() - 2));
-        bottomRightCell.y = std::clamp(bottomRightCell.y, 0, static_cast<int>(terrain.getHeightMap().getHeight() - 2));
+        bottomRightCell.x = std::clamp(bottomRightCell.x, 0, static_cast<int>(movementClassGrid.getWidth() - 1));
+        bottomRightCell.y = std::clamp(bottomRightCell.y, 0, static_cast<int>(movementClassGrid.getHeight() - 1));
 
         assert(topLeftCell.x <= bottomRightCell.x);
         assert(topLeftCell.y <= bottomRightCell.y);
