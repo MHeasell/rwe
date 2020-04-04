@@ -7,8 +7,16 @@ import {
 import * as path from "path";
 import { installExtensions } from "./install-devtools-extensions";
 
+import { init } from "@sentry/electron/dist/main";
+
 const development = !!process.env["RWE_LAUNCHER_IS_DEV"];
 console.log(`Running in ${development ? "development" : "production"} mode`);
+
+if (!development) {
+  init({
+    dsn: "https://205f2f8999194f90ac7f4ce17d36be24@sentry.io/5188334",
+  });
+}
 
 // We intentionally load "remote" content during development
 // because we use the webpack-dev-server

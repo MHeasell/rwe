@@ -25,6 +25,16 @@ import { execRwe } from "./rwe";
 import * as rx from "rxjs";
 import * as rxop from "rxjs/operators";
 
+import { init } from "@sentry/electron/dist/renderer";
+
+const development = !!process.env["RWE_LAUNCHER_IS_DEV"];
+
+if (!development) {
+  init({
+    dsn: "https://205f2f8999194f90ac7f4ce17d36be24@sentry.io/5188334",
+  });
+}
+
 const masterClentService = new MasterClientService();
 masterClentService.connectToServer(`${masterServer()}/master`);
 
