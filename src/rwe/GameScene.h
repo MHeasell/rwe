@@ -457,6 +457,8 @@ namespace rwe
 
         void renderDebugWindow();
 
+        void renderUnitOrders(UnitId unitId);
+
         void attachOrdersMenuEventHandlers();
 
         void onMessage(const std::string& message, ActivateMessage::Type mode);

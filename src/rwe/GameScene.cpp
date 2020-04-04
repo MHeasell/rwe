@@ -400,6 +400,37 @@ namespace rwe
         }
     }
 
+    void GameScene::renderUnitOrders(UnitId unitId)
+    {
+        const auto& unit = getUnit(unitId);
+        for (const auto& order : unit.orders)
+        {
+            if (const auto buildOrder = std::get_if<BuildOrder>(&order))
+            {
+                const auto& unitType = buildOrder->unitType;
+                auto mc = unitFactory.getAdHocMovementClass(unitType);
+                auto footprint = unitFactory.getUnitFootprint(unitType);
+                auto footprintRect = computeFootprintRegion(buildOrder->position, footprint.x, footprint.y);
+
+                auto topLeftWorld = simulation.terrain.heightmapIndexToWorldCorner(footprintRect.x, footprintRect.y);
+                topLeftWorld.y = simulation.terrain.getHeightAt(
+                    topLeftWorld.x + ((SimScalar(footprintRect.width) * MapTerrain::HeightTileWidthInWorldUnits) / 2_ss),
+                    topLeftWorld.z + ((SimScalar(footprintRect.height) * MapTerrain::HeightTileHeightInWorldUnits) / 2_ss));
+
+                auto topLeftUi = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
+                    * worldRenderService.getCamera().getViewProjectionMatrix()
+                    * simVectorToFloat(topLeftWorld);
+                worldUiRenderService.drawBoxOutline(
+                    topLeftUi.x,
+                    topLeftUi.y,
+                    footprintRect.width * simScalarToFloat(MapTerrain::HeightTileWidthInWorldUnits),
+                    footprintRect.height * simScalarToFloat(MapTerrain::HeightTileHeightInWorldUnits),
+                    Color(0, 255, 0),
+                    2.0f);
+            }
+        }
+    }
+
     void GameScene::renderWorld()
     {
         sceneContext.graphics->disableDepthBuffer();
@@ -466,6 +497,14 @@ namespace rwe
 
         // in-world UI/overlay rendering
         sceneContext.graphics->disableDepthBuffer();
+
+        if (isShiftDown())
+        {
+            for (const auto& selectedUnitId : selectedUnits)
+            {
+                renderUnitOrders(selectedUnitId);
+            }
+        }
 
         if (healthBarsVisible)
         {
