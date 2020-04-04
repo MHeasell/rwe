@@ -403,10 +403,28 @@ namespace rwe
     void GameScene::renderUnitOrders(UnitId unitId)
     {
         const auto& unit = getUnit(unitId);
+        auto pos = unit.position;
+        auto worldToUi = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
+            * worldRenderService.getCamera().getViewProjectionMatrix();
         for (const auto& order : unit.orders)
         {
+            auto nextPos = match(
+                order,
+                [&](const BuildOrder& o) { return o.position; },
+                [&](const MoveOrder& o) { return o.destination; },
+                [&](const AttackOrder& o) { return match(
+                                                o.target,
+                                                [&](const SimVector& v) { return v; },
+                                                [&](const UnitId& u) { return getUnit(u).position; }); },
+                [&](const BuggerOffOrder&) { return pos; },
+                [&](const CompleteBuildOrder& o) { return getUnit(o.target).position; });
+
             if (const auto buildOrder = std::get_if<BuildOrder>(&order))
             {
+                auto uiPos = worldToUi * simVectorToFloat(pos);
+                auto uiDest = worldToUi * simVectorToFloat(nextPos);
+                worldUiRenderService.drawLine(uiPos.xy(), uiDest.xy());
+
                 const auto& unitType = buildOrder->unitType;
                 auto mc = unitFactory.getAdHocMovementClass(unitType);
                 auto footprint = unitFactory.getUnitFootprint(unitType);
@@ -417,9 +435,7 @@ namespace rwe
                     topLeftWorld.x + ((SimScalar(footprintRect.width) * MapTerrain::HeightTileWidthInWorldUnits) / 2_ss),
                     topLeftWorld.z + ((SimScalar(footprintRect.height) * MapTerrain::HeightTileHeightInWorldUnits) / 2_ss));
 
-                auto topLeftUi = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
-                    * worldRenderService.getCamera().getViewProjectionMatrix()
-                    * simVectorToFloat(topLeftWorld);
+                auto topLeftUi = worldToUi * simVectorToFloat(topLeftWorld);
                 worldUiRenderService.drawBoxOutline(
                     topLeftUi.x,
                     topLeftUi.y,
@@ -428,6 +444,20 @@ namespace rwe
                     Color(0, 255, 0),
                     2.0f);
             }
+            else if (const auto moveOrder = std::get_if<MoveOrder>(&order))
+            {
+                auto uiPos = worldToUi * simVectorToFloat(pos);
+                auto uiDest = worldToUi * simVectorToFloat(nextPos);
+                worldUiRenderService.drawLine(uiPos.xy(), uiDest.xy());
+            }
+            else if (const auto completeBuildOrder = std::get_if<CompleteBuildOrder>(&order))
+            {
+                auto uiPos = worldToUi * simVectorToFloat(pos);
+                auto uiDest = worldToUi * simVectorToFloat(nextPos);
+                worldUiRenderService.drawLine(uiPos.xy(), uiDest.xy());
+            }
+
+            pos = nextPos;
         }
     }
 

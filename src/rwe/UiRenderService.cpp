@@ -298,4 +298,21 @@ namespace rwe
         // right
         fillColor(x + width - thickness, y + thickness, thickness, height - (thickness * 2.0f), color);
     }
+
+    void UiRenderService::drawLine(const Vector2f& start, const Vector2f& end)
+    {
+        auto floatColor = Vector3f(1.0f, 1.0f, 1.0f);
+        std::vector<GlColoredVertex> vertices{
+            {{start.x, start.y, 0.0f}, floatColor},
+            {{end.x, end.y, 0.0f}, floatColor},
+        };
+
+        auto mesh = graphics->createColoredMesh(vertices, GL_STREAM_DRAW);
+
+        const auto& shader = shaders->basicColor;
+        graphics->bindShader(shader.handle.get());
+        graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * matrixStack.top());
+        graphics->setUniformFloat(shader.alpha, 1.0f);
+        graphics->drawLines(mesh);
+    }
 }

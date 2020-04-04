@@ -78,6 +78,8 @@ namespace rwe
         void drawBoxOutline(float x, float y, float width, float height, Color color);
 
         void drawBoxOutline(float x, float y, float width, float height, Color color, float thickness);
+
+        void drawLine(const Vector2f& start, const Vector2f& end);
     };
 
     template <typename It>
