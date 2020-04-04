@@ -645,7 +645,7 @@ namespace rwe
         if (ImGui::InputText("Spawn Unit", unitSpawnText, IM_ARRAYSIZE(unitSpawnText), ImGuiInputTextFlags_EnterReturnsTrue))
         {
             std::string text(unitSpawnText);
-            if (!text.empty() && unitFactory.isValidUnitType(text) && unitSpawnPlayer >= 0 && unitSpawnPlayer <= simulation.players.size())
+            if (!text.empty() && unitFactory.isValidUnitType(text) && unitSpawnPlayer >= 0 && unitSpawnPlayer < simulation.players.size())
             {
                 if (auto terrainPos = getMouseTerrainCoordinate())
                 {
