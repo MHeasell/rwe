@@ -30,13 +30,18 @@ export function findAndMap<T, R>(
   return undefined;
 }
 
-export function choose<T, R>(arr: T[], f: (x: T) => R | undefined): R[] {
+export function choose<T, R>(
+  arr: T[],
+  f: (x: T, i: number) => R | undefined
+): R[] {
   const out: R[] = [];
+  let i = 0;
   for (const e of arr) {
-    const v = f(e);
+    const v = f(e, i);
     if (v !== undefined) {
       out.push(v);
     }
+    ++i;
   }
   return out;
 }

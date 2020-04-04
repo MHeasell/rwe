@@ -269,6 +269,8 @@ function errToString(err: CanStartGameError): string {
       return "Some players are not ready";
     case "missing-mods":
       return "Some players do not have one of the active mods";
+    case "unfilled-slots":
+      return "Some open slots have not yet been filled";
     default:
       assertNever(err);
   }

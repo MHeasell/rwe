@@ -49,6 +49,7 @@ export type CanStartGameError =
   | { type: "no-players" }
   | { type: "no-map" }
   | { type: "no-mods" }
+  | { type: "unfilled-slots"; unfilledSlots: number[] }
   | { type: "unready-players"; unreadyPlayerIds: number[] }
   | {
       type: "missing-mods";
@@ -75,6 +76,13 @@ export function canStartGame(room: CurrentGameState): CanStartGameResult {
 
   if (room.mapName === undefined) {
     errors.push({ type: "no-map" });
+  }
+
+  const unfilledSlots = choose(room.players, (x, i) =>
+    x.state === "empty" ? i : undefined
+  );
+  if (unfilledSlots.length > 0) {
+    errors.push({ type: "unfilled-slots", unfilledSlots });
   }
 
   const unreadyPlayerIds = choose(room.players, x => {
