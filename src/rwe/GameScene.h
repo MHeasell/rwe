@@ -457,7 +457,9 @@ namespace rwe
 
         void renderDebugWindow();
 
-        void renderUnitOrders(UnitId unitId);
+        void renderUnitOrderLines(UnitId unitId);
+
+        void renderBuildBoxes(const Unit& unit, const Color& color);
 
         void attachOrdersMenuEventHandlers();
 
