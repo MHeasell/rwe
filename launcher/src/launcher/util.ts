@@ -259,13 +259,30 @@ function readDir(dir: string): Promise<fs.Dirent[]> {
   });
 }
 
+type DirentPair = [string, fs.Dirent[]];
+type FlatDirentPair = [string, fs.Dirent];
+
 function getHashes(
   searchDirectory: string
 ): rx.Observable<readonly [string, string]> {
   return rx.from(readDir(searchDirectory)).pipe(
-    rxop.concatMap(rx.from),
-    rxop.filter(x => x.isFile()),
-    rxop.map(f => path.join(searchDirectory, f.name)),
+    rxop.map<fs.Dirent[], DirentPair>(entries => [searchDirectory, entries]),
+    rxop.catchError<DirentPair, rx.Observable<DirentPair>>(err => {
+      if (err.code === "ENOTDIR") {
+        const parentName = path.dirname(searchDirectory);
+        return rx.from(readDir(path.dirname(searchDirectory))).pipe(
+          rxop.map<fs.Dirent[], DirentPair>(x => [parentName, x])
+        );
+      }
+      throw err;
+    }),
+    rxop.concatMap<DirentPair, rx.Observable<[string, fs.Dirent]>>(x =>
+      rx.from(
+        x[1].map<FlatDirentPair>(y => [x[0], y])
+      )
+    ),
+    rxop.filter(x => x[1].isFile()),
+    rxop.map(f => path.join(f[0], f[1].name)),
     rxop.concatMap(f => rx.from(getHash(f).then(hash => [f, hash] as const)))
   );
 }
