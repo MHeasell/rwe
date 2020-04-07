@@ -48,7 +48,7 @@ export function Wizard(props: WizardProps) {
 function WizardContents(props: {
   state: State;
   path?: string;
-  onChange: (path: string) => void;
+  onChange: (path?: string) => void;
 }) {
   switch (props.state) {
     case "welcome":
@@ -97,7 +97,7 @@ function WizardSuccess() {
 
 function WizardManual(props: {
   path?: string;
-  onChange: (path: string) => void;
+  onChange: (path?: string) => void;
 }) {
   return (
     <>
@@ -111,7 +111,9 @@ function WizardManual(props: {
         // @ts-ignore
         webkitdirectory="true"
         onChange={e => {
-          props.onChange(e.target.files![0].path);
+          props.onChange(
+            e.target.files!.length > 0 ? e.target.files![0].path : undefined
+          );
         }}
       />
     </>
