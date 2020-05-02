@@ -44,7 +44,9 @@ namespace rwe
         bool isValidUnitType(const std::string& unitType) const;
 
     private:
+        std::optional<UnitWeapon> tryCreateWeapon(const std::string& weaponType);
         UnitWeapon createWeapon(const std::string& weaponType);
+        UnitWeapon createWeapon(const WeaponTdf& tdf);
 
         Vector3f getLaserColor(unsigned int colorIndex);
     };

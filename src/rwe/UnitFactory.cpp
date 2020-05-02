@@ -203,20 +203,20 @@ namespace rwe
         // add weapons
         if (!fbi.weapon1.empty())
         {
-            unit.weapons[0] = createWeapon(fbi.weapon1);
+            unit.weapons[0] = tryCreateWeapon(fbi.weapon1);
         }
         if (!fbi.weapon2.empty())
         {
-            unit.weapons[1] = createWeapon(fbi.weapon2);
+            unit.weapons[1] = tryCreateWeapon(fbi.weapon2);
         }
         if (!fbi.weapon3.empty())
         {
-            unit.weapons[2] = createWeapon(fbi.weapon3);
+            unit.weapons[2] = tryCreateWeapon(fbi.weapon3);
         }
 
         if (!fbi.explodeAs.empty())
         {
-            unit.explosionWeapon = createWeapon(fbi.explodeAs);
+            unit.explosionWeapon = tryCreateWeapon(fbi.explodeAs);
         }
 
         if (soundClass.select1)
@@ -324,9 +324,23 @@ namespace rwe
         }
     }
 
+    std::optional<UnitWeapon> UnitFactory::tryCreateWeapon(const std::string& weaponType)
+    {
+        const auto tdf = unitDatabase.tryGetWeapon(weaponType);
+        if (!tdf) {
+            return std::nullopt;
+        }
+        return createWeapon(*tdf);
+    }
+
     UnitWeapon UnitFactory::createWeapon(const std::string& weaponType)
     {
         const auto& tdf = unitDatabase.getWeapon(weaponType);
+        return createWeapon(tdf);
+    }
+
+    UnitWeapon UnitFactory::createWeapon(const WeaponTdf& tdf)
+    {
         UnitWeapon weapon;
 
         weapon.maxRange = SimScalar(tdf.range);

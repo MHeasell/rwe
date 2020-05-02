@@ -42,6 +42,8 @@ namespace rwe
 
         const WeaponTdf& getWeapon(const std::string& weaponName) const;
 
+        std::optional<std::reference_wrapper<const WeaponTdf>> tryGetWeapon(const std::string& weaponName) const;
+
         void addWeapon(const std::string& name, WeaponTdf&& weapon);
 
         const SoundClass& getSoundClassOrDefault(const std::string& className) const;

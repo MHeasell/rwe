@@ -40,6 +40,17 @@ namespace rwe
         cobMap.insert({toUpper(unitName), std::move(cob)});
     }
 
+    std::optional<std::reference_wrapper<const WeaponTdf>> UnitDatabase::tryGetWeapon(const std::string& weaponName) const
+    {
+        auto it = weaponMap.find(toUpper(weaponName));
+        if (it == weaponMap.end())
+        {
+            return std::nullopt;
+        }
+
+        return it->second;
+    }
+
     const WeaponTdf& UnitDatabase::getWeapon(const std::string& weaponName) const
     {
         auto it = weaponMap.find(toUpper(weaponName));
