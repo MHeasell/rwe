@@ -453,10 +453,10 @@ namespace rwe
             auto drawLine = match(
                 order,
                 [&](const BuildOrder&) { return true; },
-                [&](const MoveOrder& o) { return true; },
-                [&](const AttackOrder& o) { return false; },
+                [&](const MoveOrder&) { return true; },
+                [&](const AttackOrder&) { return false; },
                 [&](const BuggerOffOrder&) { return false; },
-                [&](const CompleteBuildOrder& o) { return true; });
+                [&](const CompleteBuildOrder&) { return true; });
 
             if (drawLine)
             {
