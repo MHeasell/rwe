@@ -1,5 +1,6 @@
 import os from "os";
 import fs from "fs";
+import path from "path";
 
 export interface RweConfig {
   width?: number;
@@ -69,6 +70,7 @@ export function writeConfigToFile(
   data: RweConfig
 ): Promise<void> {
   return new Promise((resolve, reject) => {
+    fs.mkdirSync(path.dirname(filename), { recursive: true });
     fs.writeFile(filename, writeConfig(data), "utf8", err => {
       if (err) {
         reject(err);
