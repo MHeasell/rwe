@@ -354,7 +354,6 @@ namespace rwe
                     if (*returnValue)
                     {
                         // aiming was successful, check the target again for drift
-                        auto targetPosition = getTargetPosition(aimingState->target);
                         auto aimFromPosition = getAimingPoint(id, weaponIndex);
 
                         auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, *targetPosition, weapon->velocity, (112_ss / 6000_ss), weapon->ballisticZOffset, weapon->physicsType);
