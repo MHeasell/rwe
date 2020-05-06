@@ -32,7 +32,7 @@ namespace rwe
 
         std::optional<AimInfo> aimInfo;
 
-        UnitWeaponStateAttacking(const UnitWeaponAttackTarget& target) : target(target)
+        explicit UnitWeaponStateAttacking(const UnitWeaponAttackTarget& target) : target(target)
         {
         }
     };
