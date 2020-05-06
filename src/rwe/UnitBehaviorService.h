@@ -69,7 +69,7 @@ namespace rwe
 
         SimVector changeDirectionByRandomAngle(const SimVector& direction, SimAngle maxAngle);
 
-        void tryFireWeapon(UnitId id, unsigned int weaponIndex, SimAngle heading, SimAngle pitch, const SimVector& targetPosition);
+        void tryFireWeapon(UnitId id, unsigned int weaponIndex);
 
         void applyUnitSteering(UnitId id);
         void updateUnitRotation(UnitId id);

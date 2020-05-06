@@ -20,6 +20,10 @@ namespace rwe
 
     struct UnitWeaponStateAttacking
     {
+        struct IdleInfo
+        {
+        };
+
         struct AimInfo
         {
             const CobThread* thread;
@@ -27,10 +31,27 @@ namespace rwe
             SimAngle lastPitch;
         };
 
+        struct FireInfo
+        {
+            SimAngle heading;
+            SimAngle pitch;
+
+            SimVector targetPosition;
+
+            std::optional<int> firingPiece;
+
+            /** Counts how many shots the weapon has fired so far in the current burst. */
+            int burstsFired;
+
+            /** When the next shot of the burst can be fired */
+            GameTime readyTime;
+        };
+
         /** The target the weapon is currently trying to shoot at. */
         UnitWeaponAttackTarget target;
 
-        std::optional<AimInfo> aimInfo;
+        using AttackInfo = std::variant<IdleInfo, AimInfo, FireInfo>;
+        AttackInfo attackInfo;
 
         explicit UnitWeaponStateAttacking(const UnitWeaponAttackTarget& target) : target(target)
         {
@@ -67,9 +88,6 @@ namespace rwe
 
         /** Maximum angle deviation of projectiles shot in a burst. */
         SimAngle sprayAngle;
-
-        /** Counts how many shots the weapon has fired so far in the current burst. */
-        int burstNumber{0};
 
         /** The game time at which the weapon next becomes ready to fire. */
         GameTime readyTime{0};

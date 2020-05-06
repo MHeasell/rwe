@@ -290,6 +290,12 @@ namespace rwe
         }
         else if (auto aimingState = std::get_if<UnitWeaponStateAttacking>(&weapon->state); aimingState != nullptr)
         {
+            if (std::holds_alternative<UnitWeaponStateAttacking::FireInfo>(aimingState->attackInfo))
+            {
+                tryFireWeapon(id, weaponIndex);
+                return;
+            }
+
             // If we are not fire-at-will, the target is a unit,
             // and we don't have an explicit order to attack that unit,
             // drop the target.
@@ -321,7 +327,7 @@ namespace rwe
             {
                 unit.clearWeaponTarget(weaponIndex);
             }
-            else if (!aimingState->aimInfo)
+            else if (std::holds_alternative<UnitWeaponStateAttacking::IdleInfo>(aimingState->attackInfo))
             {
                 auto aimFromPosition = getAimingPoint(id, weaponIndex);
 
@@ -333,23 +339,23 @@ namespace rwe
 
                 if (threadId)
                 {
-                    aimingState->aimInfo = UnitWeaponStateAttacking::AimInfo{*threadId, heading, pitch};
+                    aimingState->attackInfo = UnitWeaponStateAttacking::AimInfo{*threadId, heading, pitch};
                 }
                 else
                 {
                     // We couldn't launch an aiming script (there isn't one),
                     // just go straight to firing.
-                    tryFireWeapon(id, weaponIndex, heading, pitch, *targetPosition);
+                    aimingState->attackInfo = UnitWeaponStateAttacking::FireInfo{heading, pitch, *targetPosition, std::nullopt, 0, GameTime(0)};
+                    tryFireWeapon(id, weaponIndex);
                 }
             }
-            else
+            else if (auto aimInfo = std::get_if<UnitWeaponStateAttacking::AimInfo>(&aimingState->attackInfo))
             {
-                const auto aimInfo = *aimingState->aimInfo;
-                auto returnValue = unit.cobEnvironment->tryReapThread(aimInfo.thread);
+                auto returnValue = unit.cobEnvironment->tryReapThread(aimInfo->thread);
                 if (returnValue)
                 {
                     // we successfully reaped, clear the thread.
-                    aimingState->aimInfo = std::nullopt;
+                    aimingState->attackInfo = UnitWeaponStateAttacking::IdleInfo{};
 
                     if (*returnValue)
                     {
@@ -361,9 +367,10 @@ namespace rwe
                         auto pitch = headingAndPitch.second;
 
                         // if the target is close enough, try to fire
-                        if (angleBetweenIsLessOrEqual(heading, aimInfo.lastHeading, weapon->tolerance) && angleBetweenIsLessOrEqual(pitch, aimInfo.lastPitch, weapon->pitchTolerance))
+                        if (angleBetweenIsLessOrEqual(heading, aimInfo->lastHeading, weapon->tolerance) && angleBetweenIsLessOrEqual(pitch, aimInfo->lastPitch, weapon->pitchTolerance))
                         {
-                            tryFireWeapon(id, weaponIndex, heading, pitch, *targetPosition);
+                            aimingState->attackInfo = UnitWeaponStateAttacking::FireInfo{heading, pitch, *targetPosition, std::nullopt, 0, GameTime(0)};
+                            tryFireWeapon(id, weaponIndex);
                         }
                     }
                 }
@@ -397,7 +404,7 @@ namespace rwe
         return rotateDirectionXZ(direction, angle);
     }
 
-    void UnitBehaviorService::tryFireWeapon(UnitId id, unsigned int weaponIndex, SimAngle heading, SimAngle pitch, const SimVector& targetPosition)
+    void UnitBehaviorService::tryFireWeapon(UnitId id, unsigned int weaponIndex)
     {
         auto& unit = scene->getSimulation().getUnit(id);
         auto& weapon = unit.weapons[weaponIndex];
@@ -407,24 +414,48 @@ namespace rwe
             return;
         }
 
-        // wait for the weapon to reload
+        auto attackInfo = std::get_if<UnitWeaponStateAttacking>(&weapon->state);
+        if (!attackInfo)
+        {
+            return;
+        }
+
+        auto fireInfo = std::get_if<UnitWeaponStateAttacking::FireInfo>(&attackInfo->attackInfo);
+        if (!fireInfo)
+        {
+            return;
+        }
+
+        // wait for the weapon to reload before firing first burst
         auto gameTime = scene->getGameTime();
-        if (gameTime < weapon->readyTime)
+        if (fireInfo->burstsFired == 0 && gameTime < weapon->readyTime)
+        {
+            return;
+        }
+
+        // wait for burst reload
+        if (gameTime < fireInfo->readyTime)
         {
             return;
         }
 
         // spawn a projectile from the firing point
-        auto firingPoint = getFiringPoint(id, weaponIndex);
+        if (!fireInfo->firingPiece)
+        {
+            auto scriptName = getQueryScriptName(weaponIndex);
+            fireInfo->firingPiece = runCobQuery(id, scriptName).value_or(0);
+        }
+
+        auto firingPoint = unit.getTransform() * getPieceLocalPosition(id, *fireInfo->firingPiece);
 
         SimVector direction;
         switch (weapon->physicsType)
         {
             case ProjectilePhysicsType::LineOfSight:
-                direction = (targetPosition - firingPoint).normalized();
+                direction = (fireInfo->targetPosition - firingPoint).normalized();
                 break;
             case ProjectilePhysicsType::Ballistic:
-                direction = toDirection(heading + unit.rotation, -pitch);
+                direction = toDirection(fireInfo->heading + unit.rotation, -fireInfo->pitch);
                 break;
             default:
                 throw std::logic_error("Unknown ProjectilePhysicsType");
@@ -435,28 +466,30 @@ namespace rwe
             direction = changeDirectionByRandomAngle(direction, weapon->sprayAngle);
         }
 
-        if (weapon->startSmoke)
-        {
-            scene->createLightSmoke(firingPoint);
-        }
-        scene->getSimulation().spawnProjectile(unit.owner, *weapon, firingPoint, direction, (targetPosition - firingPoint).length());
+        scene->getSimulation().spawnProjectile(unit.owner, *weapon, firingPoint, direction, (fireInfo->targetPosition - firingPoint).length());
 
         if (weapon->soundStart)
         {
             scene->playSoundAt(simVectorToFloat(firingPoint), *weapon->soundStart);
         }
-        unit.cobEnvironment->createThread(getFireScriptName(weaponIndex));
 
-        ++weapon->burstNumber;
-        if (weapon->burstNumber >= weapon->burst)
+        // If we just started the burst, set the reload timer
+        if (fireInfo->burstsFired == 0)
+        {
+            unit.cobEnvironment->createThread(getFireScriptName(weaponIndex));
+            weapon->readyTime = gameTime + deltaSecondsToTicks(weapon->reloadTime);
+            if (weapon->startSmoke)
+            {
+                scene->createLightSmoke(firingPoint);
+            }
+        }
+
+        ++fireInfo->burstsFired;
+        fireInfo->readyTime = gameTime + deltaSecondsToTicks(weapon->burstInterval);
+        if (fireInfo->burstsFired >= weapon->burst)
         {
             // we finished our burst, we are reloading now
-            weapon->burstNumber = 0;
-            weapon->readyTime = gameTime + deltaSecondsToTicks(weapon->reloadTime);
-        }
-        else
-        {
-            weapon->readyTime = gameTime + deltaSecondsToTicks(weapon->burstInterval);
+            attackInfo->attackInfo = UnitWeaponStateAttacking::IdleInfo{};
         }
     }
 
