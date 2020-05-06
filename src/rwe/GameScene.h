@@ -347,6 +347,8 @@ namespace rwe
 
         void createLightSmoke(const SimVector& position);
 
+        void createWeaponSmoke(const SimVector& position);
+
         void activateUnit(UnitId unitId);
         void deactivateUnit(UnitId unitId);
 

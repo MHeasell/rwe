@@ -2195,7 +2195,14 @@ namespace rwe
 
     void GameScene::createLightSmoke(const SimVector& position)
     {
-        simulation.spawnSmoke(position, sceneContext.textureService->getGafEntry("anims/FX.GAF", "smoke 1"));
+        auto anim = sceneContext.textureService->getGafEntry("anims/FX.GAF", "smoke 1");
+        simulation.spawnSmoke(position, anim, GameTime(anim->sprites.size() * 4), GameTime(4));
+    }
+
+    void GameScene::createWeaponSmoke(const SimVector& position)
+    {
+        auto anim = sceneContext.textureService->getGafEntry("anims/FX.GAF", "smoke 1");
+        simulation.spawnSmoke(position, anim, GameTime(60), GameTime(30));
     }
 
     void GameScene::activateUnit(UnitId unitId)

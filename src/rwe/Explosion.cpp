@@ -11,12 +11,12 @@ namespace rwe
     {
         assert(currentTime >= startTime);
         auto deltaTime = currentTime - startTime;
-        auto frameIndex = deltaTime.value / 4; // explosions run at 15fps
+        auto frameIndex = (deltaTime.value / frameDuration.value) % animation->sprites.size();
         return frameIndex;
     }
 
     bool Explosion::isFinished(GameTime currentTime) const
     {
-        return getFrameIndex(currentTime) >= animation->sprites.size();
+        return currentTime >= finishTime;
     }
 }

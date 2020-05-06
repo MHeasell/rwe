@@ -13,6 +13,8 @@ namespace rwe
         SimVector position;
         std::shared_ptr<SpriteSeries> animation;
         GameTime startTime;
+        GameTime finishTime;
+        GameTime frameDuration{4};
 
         /** If true, the particle moves upwards each tick, as smoke. */
         bool floats{false};

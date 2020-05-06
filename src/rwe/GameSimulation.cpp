@@ -499,12 +499,14 @@ namespace rwe
         explosions.push_back(exp);
     }
 
-    void GameSimulation::spawnSmoke(const SimVector& position, const std::shared_ptr<SpriteSeries>& animation)
+    void GameSimulation::spawnSmoke(const SimVector& position, const std::shared_ptr<SpriteSeries>& animation, GameTime duration, GameTime frameDuration)
     {
         Explosion exp;
         exp.position = position;
         exp.animation = animation;
         exp.startTime = gameTime;
+        exp.finishTime = gameTime + duration;
+        exp.frameDuration = frameDuration;
         exp.floats = true;
 
         explosions.push_back(exp);

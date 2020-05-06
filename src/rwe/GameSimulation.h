@@ -204,7 +204,7 @@ namespace rwe
 
         void spawnExplosion(const SimVector& position, const std::shared_ptr<SpriteSeries>& animation);
 
-        void spawnSmoke(const SimVector& position, const std::shared_ptr<SpriteSeries>& animation);
+        void spawnSmoke(const SimVector& position, const std::shared_ptr<SpriteSeries>& animation, GameTime duration, GameTime frameDuration);
 
         WinStatus computeWinStatus() const;
 
