@@ -18,6 +18,7 @@ namespace rwe
 
         /** If true, the particle moves upwards each tick, as smoke. */
         bool floats{false};
+        bool translucent{false};
 
         bool isStarted(GameTime currentTime) const;
         unsigned int getFrameIndex(GameTime currentTime) const;

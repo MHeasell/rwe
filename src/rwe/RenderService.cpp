@@ -588,7 +588,7 @@ namespace rwe
             auto frameIndex = exp.getFrameIndex(currentTime);
             const auto& sprite = *exp.animation->sprites[frameIndex];
 
-            float alpha = 1.0f;
+            float alpha = exp.translucent ? 0.5f : 1.0f;
 
             Vector3f snappedPosition(
                 std::round(position.x),

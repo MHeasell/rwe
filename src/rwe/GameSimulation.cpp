@@ -509,6 +509,7 @@ namespace rwe
         exp.startTime = gameTime;
         exp.finishTime = gameTime + duration;
         exp.frameDuration = frameDuration;
+        exp.translucent = true;
         exp.floats = true;
 
         explosions.push_back(exp);
