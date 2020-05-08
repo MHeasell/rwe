@@ -495,6 +495,8 @@ namespace rwe
         exp.position = position;
         exp.animation = animation;
         exp.startTime = gameTime;
+        exp.finishTime = gameTime + GameTime(animation->sprites.size() * 4);
+        exp.frameDuration = GameTime(4);
 
         explosions.push_back(exp);
     }
