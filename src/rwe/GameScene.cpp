@@ -447,7 +447,8 @@ namespace rwe
                                                 [&](const SimVector& v) { return v; },
                                                 [&](const UnitId& u) { return getUnit(u).position; }); },
                 [&](const BuggerOffOrder&) { return pos; },
-                [&](const CompleteBuildOrder& o) { return getUnit(o.target).position; });
+                [&](const CompleteBuildOrder& o) { return getUnit(o.target).position; },
+                [&](const GuardOrder& o) { return getUnit(o.target).position; });
 
 
             auto drawLine = match(
@@ -456,7 +457,8 @@ namespace rwe
                 [&](const MoveOrder&) { return true; },
                 [&](const AttackOrder&) { return false; },
                 [&](const BuggerOffOrder&) { return false; },
-                [&](const CompleteBuildOrder&) { return true; });
+                [&](const CompleteBuildOrder&) { return true; },
+                [&](const GuardOrder&) { return true; });
 
             if (drawLine)
             {
@@ -820,6 +822,23 @@ namespace rwe
                         }
                     }
                 },
+                [&](const GuardCursorMode&) {
+                    for (const auto& selectedUnit : selectedUnits)
+                    {
+                        if (hoveredUnit && isFriendly(*hoveredUnit))
+                        {
+                            if (isShiftDown())
+                            {
+                                localPlayerEnqueueUnitOrder(selectedUnit, GuardOrder(*hoveredUnit));
+                            }
+                            else
+                            {
+                                localPlayerIssueUnitOrder(selectedUnit, GuardOrder(*hoveredUnit));
+                                cursorMode.next(NormalCursorMode());
+                            }
+                        }
+                    }
+                },
                 [&](const BuildCursorMode& buildCursor) {
                     if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit)
                     {
@@ -928,6 +947,9 @@ namespace rwe
                     cursorMode.next(NormalCursorMode());
                 },
                 [&](const MoveCursorMode&) {
+                    cursorMode.next(NormalCursorMode());
+                },
+                [&](const GuardCursorMode&) {
                     cursorMode.next(NormalCursorMode());
                 },
                 [&](const BuildCursorMode&) {
@@ -1261,6 +1283,9 @@ namespace rwe
                 [&](const MoveCursorMode&) {
                     sceneContext.cursor->useMoveCursor();
                 },
+                [&](const GuardCursorMode&) {
+                    sceneContext.cursor->useGuardCursor();
+                },
                 [&](const BuildCursorMode&) {
                     sceneContext.cursor->useNormalCursor();
                 },
@@ -1299,6 +1324,10 @@ namespace rwe
                             sceneContext.cursor->useRedCursor();
                         }
                         else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).builder; }) && hoveredUnit && isFriendly(*hoveredUnit) && getUnit(*hoveredUnit).isBeingBuilt())
+                        {
+                            sceneContext.cursor->useGreenCursor();
+                        }
+                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).canGuard; }) && hoveredUnit && isFriendly(*hoveredUnit))
                         {
                             sceneContext.cursor->useGreenCursor();
                         }
@@ -2485,6 +2514,13 @@ namespace rwe
             }));
         }
 
+        if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "DEFEND"))
+        {
+            p->get().addSubscription(cursorMode.subscribe([& p = p->get()](const auto& v) {
+                p.setToggledOn(std::holds_alternative<GuardCursorMode>(v));
+            }));
+        }
+
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "FIREORD"))
         {
             p->get().addSubscription(fireOrders.subscribe([& p = p->get()](const auto& v) {
@@ -2567,6 +2603,22 @@ namespace rwe
             else
             {
                 cursorMode.next(MoveCursorMode());
+            }
+        }
+        else if (matchesWithSidePrefix("DEFEND", message))
+        {
+            if (sounds.specialOrders)
+            {
+                sceneContext.audioService->playSound(*sounds.specialOrders);
+            }
+
+            if (std::holds_alternative<GuardCursorMode>(cursorMode.getValue()))
+            {
+                cursorMode.next(NormalCursorMode());
+            }
+            else
+            {
+                cursorMode.next(GuardCursorMode());
             }
         }
         else if (matchesWithSidePrefix("STOP", message))

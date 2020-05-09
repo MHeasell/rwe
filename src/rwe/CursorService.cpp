@@ -9,6 +9,7 @@ namespace rwe
         std::shared_ptr<SpriteSeries> selectCursor,
         std::shared_ptr<SpriteSeries> attackCursor,
         std::shared_ptr<SpriteSeries> moveCursor,
+        std::shared_ptr<SpriteSeries> guardCursor,
         std::shared_ptr<SpriteSeries> repairCursor,
         std::shared_ptr<SpriteSeries> redCursor,
         std::shared_ptr<SpriteSeries> greenCursor)
@@ -18,6 +19,7 @@ namespace rwe
           _selectCursor(std::move(selectCursor)),
           _attackCursor(std::move(attackCursor)),
           _moveCursor(std::move(moveCursor)),
+          _guardCursor(std::move(guardCursor)),
           _repairCursor(std::move(repairCursor)),
           _redCursor(std::move(redCursor)),
           _greenCursor(std::move(greenCursor)),
@@ -43,6 +45,11 @@ namespace rwe
     void CursorService::useMoveCursor()
     {
         currentCursor = _moveCursor.get();
+    }
+
+    void CursorService::useGuardCursor()
+    {
+        currentCursor = _guardCursor.get();
     }
 
     void CursorService::useRepairCursor()

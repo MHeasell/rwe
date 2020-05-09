@@ -63,6 +63,12 @@ namespace rwe
             auto& out = *cmd->mutable_complete_build();
             out.set_unit(o.target.value);
         }
+
+        void operator()(const GuardOrder& o)
+        {
+            auto& out = *cmd->mutable_guard();
+            out.set_unit(o.target.value);
+        }
     };
 
     class WriteUnitCommandVisitor
@@ -308,6 +314,12 @@ namespace rwe
         {
             const auto& build = cmd.complete_build();
             return CompleteBuildOrder(UnitId(build.unit()));
+        }
+
+        if (cmd.has_guard())
+        {
+            const auto& guard = cmd.guard();
+            return GuardOrder(UnitId(guard.unit()));
         }
 
         throw std::runtime_error("Failed to deserlialize unit order");

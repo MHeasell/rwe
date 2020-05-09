@@ -226,6 +226,7 @@ namespace rwe
 
         bool canAttack;
         bool canMove;
+        bool canGuard;
 
         std::optional<UnitWeapon> explosionWeapon;
 

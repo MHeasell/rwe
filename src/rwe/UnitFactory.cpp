@@ -133,6 +133,7 @@ namespace rwe
 
         unit.canAttack = fbi.canAttack;
         unit.canMove = fbi.canMove;
+        unit.canGuard = fbi.canGuard;
 
         unit.commander = fbi.commander;
 

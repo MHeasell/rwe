@@ -41,6 +41,7 @@ namespace rwe
 
         tdf.readOrDefault("CanAttack", u.canAttack);
         tdf.readOrDefault("CanMove", u.canMove);
+        tdf.readOrDefault("CanGuard", u.canGuard);
 
         tdf.readOrDefault("Commander", u.commander);
 

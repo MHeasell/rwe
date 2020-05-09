@@ -289,6 +289,7 @@ namespace rwe
             textureService.getGafEntry("anims/CURSORS.GAF", "cursorselect"),
             textureService.getGafEntry("anims/CURSORS.GAF", "cursorattack"),
             textureService.getGafEntry("anims/CURSORS.GAF", "cursormove"),
+            textureService.getGafEntry("anims/CURSORS.GAF", "cursordefend"),
             textureService.getGafEntry("anims/CURSORS.GAF", "cursorrepair"),
             textureService.getGafEntry("anims/CURSORS.GAF", "cursorred"),
             textureService.getGafEntry("anims/CURSORS.GAF", "cursorgrn"));

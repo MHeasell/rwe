@@ -42,5 +42,11 @@ namespace rwe
         explicit CompleteBuildOrder(const UnitId& target) : target(target) {}
     };
 
-    using UnitOrder = std::variant<MoveOrder, AttackOrder, BuildOrder, BuggerOffOrder, CompleteBuildOrder>;
+    struct GuardOrder
+    {
+        UnitId target;
+        explicit GuardOrder(const UnitId& target) : target(target) {}
+    };
+
+    using UnitOrder = std::variant<MoveOrder, AttackOrder, BuildOrder, BuggerOffOrder, CompleteBuildOrder, GuardOrder>;
 }

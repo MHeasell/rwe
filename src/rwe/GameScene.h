@@ -70,6 +70,12 @@ namespace rwe
         bool operator!=(const MoveCursorMode& /*rhs*/) const { return false; }
     };
 
+    struct GuardCursorMode
+    {
+        bool operator==(const GuardCursorMode& /*rhs*/) const { return true; }
+        bool operator!=(const GuardCursorMode& /*rhs*/) const { return false; }
+    };
+
     struct NormalCursorMode
     {
         struct SelectingState
@@ -127,7 +133,7 @@ namespace rwe
         }
     };
 
-    using CursorMode = std::variant<AttackCursorMode, MoveCursorMode, BuildCursorMode, NormalCursorMode>;
+    using CursorMode = std::variant<AttackCursorMode, MoveCursorMode, GuardCursorMode, BuildCursorMode, NormalCursorMode>;
 
     enum class ImpactType
     {

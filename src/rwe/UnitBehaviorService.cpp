@@ -771,6 +771,9 @@ namespace rwe
             },
             [this, unitId](const CompleteBuildOrder& o) {
                 return handleCompleteBuildOrder(unitId, o);
+            },
+            [this, unitId](const GuardOrder& o) {
+                return handleGuardOrder(unitId, o);
             });
     }
 
@@ -1198,6 +1201,22 @@ namespace rwe
             }
         }
 
+        return false;
+    }
+
+    bool UnitBehaviorService::handleGuardOrder(UnitId unitId, const GuardOrder& guardOrder)
+    {
+        auto& unit = scene->getSimulation().getUnit(unitId);
+
+        auto target = scene->getSimulation().tryGetUnit(guardOrder.target);
+        // TODO: real allied check here
+        if (!target || !target->get().isOwnedBy(unit.owner))
+        {
+            // unit is dead or a traitor, abandon order
+            return true;
+        }
+
+        // TODO: actually attempt to guard the unit
         return false;
     }
 
