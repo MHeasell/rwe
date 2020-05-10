@@ -1298,7 +1298,7 @@ namespace rwe
                         {
                             sceneContext.cursor->useRedCursor();
                         }
-                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).builder; }) && hoveredUnit && getUnit(*hoveredUnit).isBeingBuilt())
+                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).builder; }) && hoveredUnit && isFriendly(*hoveredUnit) && getUnit(*hoveredUnit).isBeingBuilt())
                         {
                             sceneContext.cursor->useGreenCursor();
                         }
@@ -1969,6 +1969,11 @@ namespace rwe
     {
         // TODO: consider allies/teams here
         return !getUnit(id).isOwnedBy(localPlayerId);
+    }
+
+    bool GameScene::isFriendly(UnitId id) const
+    {
+        return !isEnemy(id);
     }
 
     void GameScene::updateProjectiles()

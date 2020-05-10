@@ -419,6 +419,8 @@ namespace rwe
 
         bool isEnemy(UnitId id) const;
 
+        bool isFriendly(UnitId id) const;
+
         void updateProjectiles();
 
         void updateExplosions();
