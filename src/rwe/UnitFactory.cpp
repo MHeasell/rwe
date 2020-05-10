@@ -327,7 +327,8 @@ namespace rwe
     std::optional<UnitWeapon> UnitFactory::tryCreateWeapon(const std::string& weaponType)
     {
         const auto tdf = unitDatabase.tryGetWeapon(weaponType);
-        if (!tdf) {
+        if (!tdf)
+        {
             return std::nullopt;
         }
         return createWeapon(*tdf);
