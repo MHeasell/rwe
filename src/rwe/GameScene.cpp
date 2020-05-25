@@ -445,11 +445,31 @@ namespace rwe
                 [&](const AttackOrder& o) { return match(
                                                 o.target,
                                                 [&](const SimVector& v) { return v; },
-                                                [&](const UnitId& u) { return getUnit(u).position; }); },
+                                                [&](const UnitId& u) {
+                                                    auto unitOption = tryGetUnit(u);
+                                                    if (!unitOption)
+                                                    {
+                                                        return pos;
+                                                    }
+                                                    return unitOption->get().position;
+                                                }); },
                 [&](const BuggerOffOrder&) { return pos; },
-                [&](const CompleteBuildOrder& o) { return getUnit(o.target).position; },
-                [&](const GuardOrder& o) { return getUnit(o.target).position; });
-
+                [&](const CompleteBuildOrder& o) {
+                    auto unitOption = tryGetUnit(o.target);
+                    if (!unitOption)
+                    {
+                        return pos;
+                    }
+                    return unitOption->get().position;
+                },
+                [&](const GuardOrder& o) {
+                    auto unitOption = tryGetUnit(o.target);
+                    if (!unitOption)
+                    {
+                        return pos;
+                    }
+                    return unitOption->get().position;
+                });
 
             auto drawLine = match(
                 order,
@@ -527,7 +547,11 @@ namespace rwe
         {
             if (auto nanolatheTarget = unit.getActiveNanolatheTarget())
             {
-                worldRenderService.drawNanolatheLine(simVectorToFloat(nanolatheTarget->second), simVectorToFloat(getUnit(nanolatheTarget->first).position));
+                auto targetUnitOption = tryGetUnit(nanolatheTarget->first);
+                if (targetUnitOption)
+                {
+                    worldRenderService.drawNanolatheLine(simVectorToFloat(nanolatheTarget->second), simVectorToFloat(targetUnitOption->get().position));
+                }
             }
         }
         worldRenderService.drawExplosions(simulation.gameTime, simulation.explosions);

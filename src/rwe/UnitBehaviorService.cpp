@@ -978,15 +978,16 @@ namespace rwe
         }
         else if (auto buildingState = std::get_if<BuildingState>(&unit.behaviourState); buildingState != nullptr)
         {
-            if (!scene->getSimulation().unitExists(buildingState->targetUnit))
+            auto targetUnitOption = scene->getSimulation().tryGetUnit(buildingState->targetUnit);
+            if (!targetUnitOption)
             {
                 // the unit has gone away (maybe it was killed?), give up
                 unit.cobEnvironment->createThread("StopBuilding");
                 unit.behaviourState = IdleState();
                 return true;
             }
+            auto& targetUnit = targetUnitOption->get();
 
-            auto& targetUnit = scene->getSimulation().getUnit(buildingState->targetUnit);
             if (targetUnit.isDead())
             {
                 // the target is dead, give up
@@ -1264,7 +1265,16 @@ namespace rwe
                     return false;
                 }
 
-                auto& targetUnit = scene->getSimulation().getUnit(state.targetUnit->first);
+                auto targetUnitOption = scene->getSimulation().tryGetUnit(state.targetUnit->first);
+                if (!targetUnitOption)
+                {
+                    unit.factoryState = FactoryStateCreatingUnit{unitType, unit.owner, buildPieceInfo.position};
+                    scene->getSimulation().unitCreationRequests.push_back(unitId);
+                    return false;
+                }
+
+                auto& targetUnit = targetUnitOption->get();
+
                 if (targetUnit.unitType != unitType)
                 {
                     if (targetUnit.isBeingBuilt() && !targetUnit.isDead())

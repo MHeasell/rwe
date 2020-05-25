@@ -759,19 +759,37 @@ namespace rwe
             case CobValueId::UnitXZ:
             {
                 auto targetUnitId = UnitId(arg1);
-                const auto& pos = sim->getUnit(targetUnitId).position;
+                auto targetUnitOption = sim->tryGetUnit(targetUnitId);
+                if (!targetUnitOption)
+                {
+                    // FIXME: not sure if correct return value when unit does not exist
+                    return 0;
+                }
+                const auto& pos = targetUnitOption->get().position;
                 return packCoords(pos.x, pos.z);
             }
             case CobValueId::UnitY:
             {
                 auto targetUnitId = UnitId(arg1);
-                const auto& pos = sim->getUnit(targetUnitId).position;
+                auto targetUnitOption = sim->tryGetUnit(targetUnitId);
+                if (!targetUnitOption)
+                {
+                    // FIXME: not sure if correct return value when unit does not exist
+                    return 0;
+                }
+                const auto& pos = targetUnitOption->get().position;
                 return simScalarToFixed(pos.y);
             }
             case CobValueId::UnitHeight:
             {
                 auto targetUnitId = UnitId(arg1);
-                return simScalarToFixed(sim->getUnit(targetUnitId).height);
+                auto targetUnitOption = sim->tryGetUnit(targetUnitId);
+                if (!targetUnitOption)
+                {
+                    // FIXME: not sure if correct return value when unit does not exist
+                    return 0;
+                }
+                return simScalarToFixed(targetUnitOption->get().height);
             }
             case CobValueId::XZAtan:
             {
@@ -844,24 +862,39 @@ namespace rwe
             case CobValueId::UnitTeam:
             {
                 auto targetUnitId = UnitId(arg1);
-                const auto& unit = sim->getUnit(targetUnitId);
+                auto targetUnitOption = sim->tryGetUnit(targetUnitId);
+                if (!targetUnitOption)
+                {
+                    // FIXME: unsure if correct return value when unit does not exist
+                    return 0;
+                }
                 // TODO: return player's team instead of player ID
-                return unit.owner.value;
+                return targetUnitOption->get().owner.value;
             }
             case CobValueId::UnitBuildPercentLeft:
             {
                 auto targetUnitId = UnitId(arg1);
-                const auto& unit = sim->getUnit(targetUnitId);
-                return unit.getBuildPercentLeft();
+                auto targetUnitOption = sim->tryGetUnit(targetUnitId);
+                if (!targetUnitOption)
+                {
+                    // FIXME: unsure if correct return value when unit does not exist
+                    return 0;
+                }
+                return targetUnitOption->get().getBuildPercentLeft();
             }
             case CobValueId::UnitAllied:
             {
                 auto targetUnitId = UnitId(arg1);
 
                 const auto& unit = sim->getUnit(unitId);
-                const auto& targetUnit = sim->getUnit(targetUnitId);
+                auto targetUnitOption = sim->tryGetUnit(targetUnitId);
+                if (!targetUnitOption)
+                {
+                    // FIXME: unsure if correct return value when unit does not exist
+                    return 0;
+                }
                 // TODO: real allied check including teams/alliances
-                return targetUnit.isOwnedBy(unit.owner);
+                return targetUnitOption->get().isOwnedBy(unit.owner);
             }
             default:
                 throw std::runtime_error("Unknown unit value ID: " + std::to_string(static_cast<unsigned int>(valueId)));
