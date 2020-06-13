@@ -180,4 +180,13 @@ namespace rwe
     {
         return p.x >= x && p.y >= y && p.x < (x + static_cast<int>(width)) && p.y < (y + static_cast<int>(height));
     }
+
+    DiscreteRect DiscreteRect::expandTopLeft(unsigned int expandWidth, unsigned int expandHeight) const
+    {
+        return DiscreteRect(
+            x - static_cast<int>(expandWidth),
+            y - static_cast<int>(expandHeight),
+            width + expandWidth,
+            height + expandHeight);
+    }
 }

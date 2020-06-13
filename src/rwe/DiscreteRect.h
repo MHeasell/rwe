@@ -70,6 +70,8 @@ namespace rwe
          * If the two rectangles do not intersect, returns None.
          */
         std::optional<DiscreteRect> intersection(const DiscreteRect& rhs) const;
+
+        DiscreteRect expandTopLeft(unsigned int expandWidth, unsigned int expandHeight) const;
     };
 }
 

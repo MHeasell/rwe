@@ -41,7 +41,7 @@ namespace rwe
 
         auto start = simulation->computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
         // expand the goal rect to take into account our own collision rect
-        auto goal = expandTopLeft(destination, unit.footprintX, unit.footprintZ);
+        auto goal = destination.expandTopLeft(unit.footprintX, unit.footprintZ);
 
         UnitPerimeterPathFinder pathFinder(simulation, collisionService, unitId, unit.movementClass, unit.footprintX, unit.footprintZ, goal);
 
@@ -114,14 +114,5 @@ namespace rwe
         auto center = corner + SimVector(halfWorldWidth, 0_ss, halfWorldHeight);
         center.y = simulation->terrain.getHeightAt(center.x, center.z);
         return center;
-    }
-
-    DiscreteRect PathFindingService::expandTopLeft(const DiscreteRect& rect, unsigned int width, unsigned int height)
-    {
-        return DiscreteRect(
-            rect.x - static_cast<int>(width),
-            rect.y - static_cast<int>(height),
-            rect.width + width,
-            rect.height + height);
     }
 }
