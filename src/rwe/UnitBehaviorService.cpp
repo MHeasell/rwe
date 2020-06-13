@@ -801,72 +801,70 @@ namespace rwe
         {
             return true;
         }
-        else
+
+        auto targetPosition = getTargetPosition(attackOrder.target);
+        if (!targetPosition)
         {
-            auto targetPosition = getTargetPosition(attackOrder.target);
-            if (!targetPosition)
-            {
-                // target has gone away, throw away this order
-                return true;
-            }
+            // target has gone away, throw away this order
+            return true;
+        }
 
-            auto maxRangeSquared = unit.weapons[0]->maxRange * unit.weapons[0]->maxRange;
-            if (auto idleState = std::get_if<IdleState>(&unit.behaviourState); idleState != nullptr)
+        auto maxRangeSquared = unit.weapons[0]->maxRange * unit.weapons[0]->maxRange;
+        if (auto idleState = std::get_if<IdleState>(&unit.behaviourState); idleState != nullptr)
+        {
+            // if we're out of range, drive into range
+            if (unit.position.distanceSquared(*targetPosition) > maxRangeSquared)
             {
-                // if we're out of range, drive into range
-                if (unit.position.distanceSquared(*targetPosition) > maxRangeSquared)
+                // request a path to follow
+                scene->getSimulation().requestPath(unitId);
+                auto destination = attackTargetToMovingStateGoal(attackOrder.target);
+                unit.behaviourState = MovingState{destination, std::nullopt, true};
+            }
+            else
+            {
+                // we're in range, aim weapons
+                for (unsigned int i = 0; i < 2; ++i)
                 {
-                    // request a path to follow
-                    scene->getSimulation().requestPath(unitId);
-                    auto destination = attackTargetToMovingStateGoal(attackOrder.target);
-                    unit.behaviourState = MovingState{destination, std::nullopt, true};
-                }
-                else
-                {
-                    // we're in range, aim weapons
-                    for (unsigned int i = 0; i < 2; ++i)
-                    {
-                        match(
-                            attackOrder.target,
-                            [&](const UnitId& u) { unit.setWeaponTarget(i, u); },
-                            [&](const SimVector& v) { unit.setWeaponTarget(i, v); });
-                    }
+                    match(
+                        attackOrder.target,
+                        [&](const UnitId& u) { unit.setWeaponTarget(i, u); },
+                        [&](const SimVector& v) { unit.setWeaponTarget(i, v); });
                 }
             }
-            else if (auto movingState = std::get_if<MovingState>(&unit.behaviourState); movingState != nullptr)
+        }
+        else if (auto movingState = std::get_if<MovingState>(&unit.behaviourState); movingState != nullptr)
+        {
+            if (unit.position.distanceSquared(*targetPosition) <= maxRangeSquared)
             {
-                if (unit.position.distanceSquared(*targetPosition) <= maxRangeSquared)
-                {
-                    unit.behaviourState = IdleState();
-                }
-                else
-                {
-                    // TODO: consider requesting a new path if the target unit has moved significantly
+                unit.behaviourState = IdleState();
+            }
+            else
+            {
+                // TODO: consider requesting a new path if the target unit has moved significantly
 
-                    // if we are colliding, request a new path
-                    if (unit.inCollision && !movingState->pathRequested)
+                // if we are colliding, request a new path
+                if (unit.inCollision && !movingState->pathRequested)
+                {
+                    auto& sim = scene->getSimulation();
+
+                    // only request a new path if we don't have one yet,
+                    // or we've already had our current one for a bit
+                    if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTime(60))
                     {
-                        auto& sim = scene->getSimulation();
-
-                        // only request a new path if we don't have one yet,
-                        // or we've already had our current one for a bit
-                        if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTime(60))
-                        {
-                            sim.requestPath(unitId);
-                            movingState->pathRequested = true;
-                        }
+                        sim.requestPath(unitId);
+                        movingState->pathRequested = true;
                     }
+                }
 
-                    // if a path is available, attempt to follow it
-                    auto& pathToFollow = movingState->path;
-                    if (pathToFollow)
+                // if a path is available, attempt to follow it
+                auto& pathToFollow = movingState->path;
+                if (pathToFollow)
+                {
+                    if (followPath(unit, *pathToFollow))
                     {
-                        if (followPath(unit, *pathToFollow))
-                        {
-                            // we finished following the path,
-                            // go back to idle
-                            unit.behaviourState = IdleState();
-                        }
+                        // we finished following the path,
+                        // go back to idle
+                        unit.behaviourState = IdleState();
                     }
                 }
             }
