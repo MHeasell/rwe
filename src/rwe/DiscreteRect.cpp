@@ -12,7 +12,7 @@ namespace rwe
 
     bool DiscreteRect::isAdjacentTo(int px, int py) const
     {
-        return DiscreteRect(x - 1, y - 1, width + 1, height + 1).topLeftTouchesPerimeter(px, py);
+        return expandTopLeft(1, 1).topLeftTouchesPerimeter(px, py);
     }
 
     bool DiscreteRect::isInteriorPerimeter(int px, int py) const
