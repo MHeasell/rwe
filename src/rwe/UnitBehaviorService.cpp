@@ -781,47 +781,13 @@ namespace rwe
     {
         auto& unit = scene->getSimulation().getUnit(unitId);
 
-        if (auto idleState = std::get_if<IdleState>(&unit.behaviourState); idleState != nullptr)
+        if (moveTo(unitId, moveOrder.destination))
         {
-            // request a path to follow
-            scene->getSimulation().requestPath(unitId);
-            const auto& destination = moveOrder.destination;
-            unit.behaviourState = MovingState{destination, std::nullopt, true};
-        }
-        else if (auto movingState = std::get_if<MovingState>(&unit.behaviourState); movingState != nullptr)
-        {
-            // if we are colliding, request a new path
-            if (unit.inCollision && !movingState->pathRequested)
+            if (unit.arrivedSound)
             {
-                auto& sim = scene->getSimulation();
-
-                // only request a new path if we don't have one yet,
-                // or we've already had our current one for a bit
-                if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTime(60))
-                {
-                    sim.requestPath(unitId);
-                    movingState->pathRequested = true;
-                }
+                scene->playNotificationSound(unit.owner, *unit.arrivedSound);
             }
-
-            // if a path is available, attempt to follow it
-            auto& pathToFollow = movingState->path;
-            if (pathToFollow)
-            {
-                if (followPath(unit, *pathToFollow))
-                {
-                    // we finished following the path,
-                    // order complete
-                    unit.behaviourState = IdleState();
-
-                    if (unit.arrivedSound)
-                    {
-                        scene->playNotificationSound(unit.owner, *unit.arrivedSound);
-                    }
-
-                    return true;
-                }
-            }
+            return true;
         }
 
         return false;
@@ -1465,6 +1431,70 @@ namespace rwe
             [this](UnitId unitId) {
                 const auto& targetUnit = scene->getSimulation().getUnit(unitId);
                 return MovingStateGoal(scene->computeFootprintRegion(targetUnit.position, targetUnit.footprintX, targetUnit.footprintZ));
+            });
+    }
+
+    bool UnitBehaviorService::moveTo(UnitId unitId, const MovingStateGoal& goal)
+    {
+        auto& unit = scene->getSimulation().getUnit(unitId);
+
+        return match(
+            unit.behaviourState,
+            [&](const IdleState&) {
+                // request a path to follow
+                scene->getSimulation().requestPath(unitId);
+                unit.behaviourState = MovingState{goal, std::nullopt, true};
+                return false;
+            },
+            [&](const BuildingState&) {
+                unit.cobEnvironment->createThread("StopBuilding");
+                // request a path to follow
+                scene->getSimulation().requestPath(unitId);
+                unit.behaviourState = MovingState{goal, std::nullopt, true};
+                return false;
+            },
+            [&](const CreatingUnitState&) {
+                // request a path to follow
+                scene->getSimulation().requestPath(unitId);
+                unit.behaviourState = MovingState{goal, std::nullopt, true};
+                return false;
+            },
+            [&](MovingState& movingState) {
+                if (movingState.destination != goal)
+                {
+                    // request a path to follow
+                    scene->getSimulation().requestPath(unitId);
+                    unit.behaviourState = MovingState{goal, std::nullopt, true};
+                    return false;
+                }
+
+                // if we are colliding, request a new path
+                if (unit.inCollision && !movingState.pathRequested)
+                {
+                    auto& sim = scene->getSimulation();
+
+                    // only request a new path if we don't have one yet,
+                    // or we've already had our current one for a bit
+                    if (!movingState.path || (sim.gameTime - movingState.path->pathCreationTime) >= GameTime(60))
+                    {
+                        sim.requestPath(unitId);
+                        movingState.pathRequested = true;
+                    }
+                }
+
+                // if a path is available, attempt to follow it
+                if (movingState.path)
+                {
+                    if (followPath(unit, *movingState.path))
+                    {
+                        // we finished following the path,
+                        // order complete
+                        unit.behaviourState = IdleState();
+                        return true;
+                    }
+                }
+
+                return false;
             });
     }
 }

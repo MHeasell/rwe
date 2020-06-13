@@ -112,5 +112,7 @@ namespace rwe
         std::optional<SimVector> getTargetPosition(const UnitWeaponAttackTarget& target);
 
         MovingStateGoal attackTargetToMovingStateGoal(const AttackTarget& target);
+
+        bool moveTo(UnitId unitId, const MovingStateGoal& goal);
     };
 }
