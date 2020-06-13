@@ -685,6 +685,24 @@ namespace rwe
         sceneContext.graphics->enableDepthBuffer();
     }
 
+    const char* stateToString(const UnitState& state)
+    {
+        return match(
+            state,
+            [&](const IdleState&) {
+                return "idle";
+            },
+            [&](const BuildingState&) {
+                return "building";
+            },
+            [&](const MovingState&) {
+                return "moving";
+            },
+            [&](const CreatingUnitState&) {
+                return "creating unit";
+            });
+    }
+
     void GameScene::renderDebugWindow()
     {
         if (!showDebugWindow)
@@ -713,9 +731,25 @@ namespace rwe
             ImGui::SetKeyboardFocusHere(-1);
         }
         ImGui::Separator();
-        std::scoped_lock<std::mutex> lock(playingUnitChannelsLock);
-        ImGui::LabelText("Unit sounds", "%d", playingUnitChannels.size());
-        ImGui::LabelText("Sound volume", "%d", computeSoundVolume(playingUnitChannels.size()));
+        {
+            std::scoped_lock<std::mutex> lock(playingUnitChannelsLock);
+            ImGui::LabelText("Unit sounds", "%d", playingUnitChannels.size());
+            ImGui::LabelText("Sound volume", "%d", computeSoundVolume(playingUnitChannels.size()));
+        }
+
+        if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit)
+        {
+            const auto& unit = getUnit(*selectedUnit);
+
+            ImGui::Separator();
+            ImGui::LabelText("State", "%s", stateToString(unit.behaviourState));
+            ImGui::Text("Cob vars");
+            for (auto i = 0; i < unit.cobEnvironment->_statics.size(); ++i)
+            {
+                ImGui::Text("%d: %d", i, unit.cobEnvironment->_statics[i]);
+            }
+        }
+
         ImGui::End();
     }
 
