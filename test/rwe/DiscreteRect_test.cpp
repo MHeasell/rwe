@@ -1,4 +1,5 @@
 #include <catch2/catch.hpp>
+#include <rapidcheck/catch.h>
 #include <rwe/DiscreteRect.h>
 #include <rwe/pathfinding/OctileDistance_io.h>
 
@@ -71,6 +72,57 @@ namespace rwe
                 REQUIRE(!r.isAdjacentTo(4, 7));
                 REQUIRE(!r.isAdjacentTo(5, 7));
                 REQUIRE(!r.isAdjacentTo(5, 6));
+            }
+
+            SECTION("tests whether rects are adjacent")
+            {
+                SECTION("manual tests") {
+                    DiscreteRect r(1, 2, 5, 6);
+
+                    //   -1 0 1 2 3 4 5 6 7
+                    // 0  . . . . . . . . .
+                    // 1  . . . . . . . . .
+                    // 2  . . x x x x x . .
+                    // 3  . . x x x x x . .
+                    // 4  . . x x x x x . .
+                    // 5  . . x x x x x . .
+                    // 6  . . x x x x x . .
+                    // 7  . . x x x x x . .
+                    // 8  . . . . . . . . .
+                    // 9  . . . . . . . . .
+
+                    // shares left edge
+                    REQUIRE(r.isAdjacentTo(DiscreteRect(-2, 3, 3, 2)));
+
+                    // one space away from left edge
+                    REQUIRE(!r.isAdjacentTo(DiscreteRect(-3, 3, 3, 2)));
+
+                    // shares top-left corner
+                    REQUIRE(r.isAdjacentTo(DiscreteRect(-1, -1, 2, 3)));
+
+                    // shares right edge
+                    REQUIRE(r.isAdjacentTo(DiscreteRect(6, 4, 3, 2)));
+
+                    // one space away from right edge
+                    REQUIRE(!r.isAdjacentTo(DiscreteRect(7, 4, 3, 2)));
+
+                    // shares bottom edge
+                    REQUIRE(r.isAdjacentTo(DiscreteRect(2, 8, 3, 2)));
+
+                    // one space away from bottom edge
+                    REQUIRE(!r.isAdjacentTo(DiscreteRect(2, 9, 3, 2)));
+
+                    // shares top edge
+                    REQUIRE(r.isAdjacentTo(DiscreteRect(2, 0, 3, 2)));
+
+                    // one space away from top edge
+                    REQUIRE(!r.isAdjacentTo(DiscreteRect(2, -1, 3, 2)));
+                }
+
+                rc::prop("a unit rectangle is adjacent if the point is", [](int x, int y, unsigned int w, unsigned int h, int x2, int y2) {
+                    DiscreteRect r(x, y, w, h);
+                    RC_ASSERT(r.isAdjacentTo(DiscreteRect(x2, y2, 1, 1)) == r.isAdjacentTo(x2, y2));
+                });
             }
         }
 

@@ -38,6 +38,13 @@ namespace rwe
          */
         bool isAdjacentTo(int px, int py) const;
 
+        /**
+         * Returns true if the given rectangle is adjacent to this one.
+         * Rectangles are considered adjacent if they share an edge or a corner
+         * and do not overlap.
+         */
+        bool isAdjacentTo(const DiscreteRect& rhs) const;
+
         bool isInteriorPerimeter(int px, int py) const;
 
         /**
