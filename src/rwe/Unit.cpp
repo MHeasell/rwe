@@ -386,7 +386,7 @@ namespace rwe
     void Unit::clearOrders()
     {
         orders.clear();
-        behaviourState = IdleState();
+        buildOrderUnitId = std::nullopt;
 
         // not clear if this really belongs here
         clearWeaponTargets();

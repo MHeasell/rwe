@@ -211,6 +211,13 @@ namespace rwe
         std::deque<UnitOrder> orders;
         UnitState behaviourState;
 
+        /**
+         * State we remember related to the current order.
+         * This is cleared every time an order is completed.
+         * Right now this is just a unit ID for build orders.
+         */
+        std::optional<UnitId> buildOrderUnitId;
+
         bool inBuildStance{false};
         bool yardOpen{false};
 

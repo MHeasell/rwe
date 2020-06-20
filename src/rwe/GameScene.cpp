@@ -2450,6 +2450,11 @@ namespace rwe
                     continue;
                 }
 
+                if (unit->get().buildSound)
+                {
+                    playNotificationSound(unit->get().owner, *unit->get().buildSound);
+                }
+
                 s->status = UnitCreationStatusDone{*newUnitId};
             }
 

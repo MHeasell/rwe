@@ -114,5 +114,17 @@ namespace rwe
         MovingStateGoal attackTargetToMovingStateGoal(const AttackTarget& target);
 
         bool moveTo(UnitId unitId, const MovingStateGoal& goal);
+
+        bool attackTarget(UnitId unitId, const AttackTarget& target);
+
+        bool buildUnit(UnitId unitId, const std::string& unitType, const SimVector& position);
+
+        UnitCreationStatus createNewUnit(UnitId unitId, const std::string& unitType, const SimVector& position);
+
+        bool buildExistingUnit(UnitId unitId, UnitId targetUnitId);
+
+        void changeState(Unit& unit, const UnitState& newState);
+
+        bool deployBuildArm(UnitId unitId, UnitId targetUnitId);
     };
 }
