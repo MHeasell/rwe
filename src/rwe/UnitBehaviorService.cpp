@@ -866,8 +866,33 @@ namespace rwe
             // unit is dead or a traitor, abandon order
             return true;
         }
+        auto& targetUnit = target->get();
 
-        // TODO: actually attempt to guard the unit
+
+        // assist building
+        if (auto bs = std::get_if<BuildingState>(&targetUnit.behaviourState); unit.builder && bs)
+        {
+            buildExistingUnit(unitId, bs->targetUnit);
+            return false;
+        }
+
+        // assist factory building
+        if (auto fs = std::get_if<FactoryStateBuilding>(&targetUnit.factoryState); unit.builder && fs)
+        {
+            if (fs->targetUnit)
+            {
+                buildExistingUnit(unitId, fs->targetUnit->first);
+                return false;
+            }
+        }
+
+        // stay close
+        if (unit.canMove && unit.position.distanceSquared(targetUnit.position) > SimScalar(200 * 200))
+        {
+            moveTo(unitId, targetUnit.position);
+            return false;
+        }
+
         return false;
     }
 
