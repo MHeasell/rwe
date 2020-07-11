@@ -392,6 +392,11 @@ namespace rwe
         clearWeaponTargets();
     }
 
+    void Unit::replaceOrders(const std::deque<UnitOrder>& newOrders)
+    {
+        orders = newOrders;
+    }
+
     void Unit::addOrder(const UnitOrder& order)
     {
         orders.push_back(order);

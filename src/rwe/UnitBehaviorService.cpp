@@ -785,6 +785,10 @@ namespace rwe
     bool UnitBehaviorService::handleMoveOrder(UnitId unitId, const MoveOrder& moveOrder)
     {
         auto& unit = scene->getSimulation().getUnit(unitId);
+        if (!unit.isMobile)
+        {
+            return false;
+        }
 
         if (moveTo(unitId, moveOrder.destination))
         {
@@ -970,10 +974,14 @@ namespace rwe
 
                 if (!targetUnit.isBeingBuilt())
                 {
-                    if (targetUnit.orders.empty())
+                    if (unit.orders.empty())
                     {
                         auto footprintRect = scene->computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
                         targetUnit.addOrder(BuggerOffOrder(footprintRect));
+                    }
+                    else
+                    {
+                        targetUnit.replaceOrders(unit.orders);
                     }
                     unit.cobEnvironment->createThread("StopBuilding");
                     scene->deactivateUnit(unitId);

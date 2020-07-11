@@ -339,6 +339,8 @@ namespace rwe
 
         void clearOrders();
 
+        void replaceOrders(const std::deque<UnitOrder>& newOrders);
+
         void addOrder(const UnitOrder& order);
 
         void setWeaponTarget(unsigned int weaponIndex, UnitId target);
