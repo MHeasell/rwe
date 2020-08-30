@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+#include <cstdint>
 #include <rwe/OpaqueId.h>
 #include <rwe/RadiansAngle.h>
 #include <rwe/SimScalar.h>
