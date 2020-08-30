@@ -6,6 +6,7 @@
 #include <optional>
 #include <rwe/OpaqueId.h>
 #include <rwe/overloaded.h>
+#include <stdexcept>
 #include <utility>
 #include <variant>
 
