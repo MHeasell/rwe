@@ -1,5 +1,6 @@
 #include "UnitBehaviorService.h"
 #include <rwe/GameScene.h>
+#include <rwe/Index.h>
 #include <rwe/cob/CobExecutionContext.h>
 #include <rwe/geometry/Circle2x.h>
 #include <rwe/math/rwe_math.h>
@@ -115,7 +116,7 @@ namespace rwe
                 changeState(unit, IdleState());
             }
 
-            for (unsigned int i = 0; i < unit.weapons.size(); ++i)
+            for (Index i = 0; i < getSize(unit.weapons); ++i)
             {
                 updateWeapon(unitId, i);
             }

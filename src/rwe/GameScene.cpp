@@ -3,6 +3,7 @@
 #include <boost/range/adaptor/map.hpp>
 #include <fstream>
 #include <functional>
+#include <rwe/Index.h>
 #include <rwe/Mesh.h>
 #include <rwe/dump_util.h>
 #include <rwe/overloaded.h>
@@ -1426,7 +1427,7 @@ namespace rwe
         }
 
         // Queue up commands from the computer players
-        for (unsigned int i = 0; i < simulation.players.size(); ++i)
+        for (Index i = 0; i < getSize(simulation.players); ++i)
         {
             PlayerId id(i);
             const auto& player = simulation.players[i];

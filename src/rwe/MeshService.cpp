@@ -2,6 +2,7 @@
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include <rwe/BoxTreeSplit.h>
 #include <rwe/Gaf.h>
+#include <rwe/Index.h>
 #include <rwe/_3do.h>
 #include <rwe/fixed_point.h>
 #include <rwe/geometry/CollisionMesh.h>
@@ -235,7 +236,7 @@ namespace rwe
             {
                 auto texturePosition = getColorTexturePoint(*p.colorIndex);
                 const auto& first = vertexToVector(o.vertices[p.vertices.front()]);
-                for (unsigned int i = p.vertices.size() - 1; i >= 2; --i)
+                for (Index i = getSize(p.vertices) - 1; i >= 2; --i)
                 {
                     const auto& second = vertexToVector(o.vertices[p.vertices[i]]);
                     const auto& third = vertexToVector(o.vertices[p.vertices[i - 1]]);

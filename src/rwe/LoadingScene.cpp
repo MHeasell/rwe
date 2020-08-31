@@ -1,6 +1,7 @@
 #include "LoadingScene.h"
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include <rwe/GameNetworkService.h>
+#include <rwe/Index.h>
 #include <rwe/WeaponTdf.h>
 #include <rwe/ota.h>
 #include <rwe/tdf.h>
@@ -59,7 +60,7 @@ namespace rwe
             ? (*barSpriteSeries)->sprites[0]
             : sceneContext.textureService->getDefaultSpriteSeries()->sprites[0];
 
-        for (unsigned int i = 0; i < categories.size(); ++i)
+        for (Index i = 0; i < getSize(categories); ++i)
         {
             int y = 136 + (i * 42);
             auto label = std::make_unique<UiLabel>(90, y, 100, 12, categories[i], font);
@@ -272,7 +273,7 @@ namespace rwe
 
         std::optional<SimVector> humanStartPos;
 
-        for (unsigned int i = 0; i < gameParameters.players.size(); ++i)
+        for (Index i = 0; i < getSize(gameParameters.players); ++i)
         {
             const auto& player = gameParameters.players[i];
             if (!player)

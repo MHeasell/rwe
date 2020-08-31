@@ -259,6 +259,7 @@ set(SOURCE_FILES
     src/rwe/ImGuiContext.h
     src/rwe/InGameSoundsInfo.cpp
     src/rwe/InGameSoundsInfo.h
+    src/rwe/Index.h
     src/rwe/LoadingNetworkService.cpp
     src/rwe/LoadingNetworkService.h
     src/rwe/LoadingScene.cpp

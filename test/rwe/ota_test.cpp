@@ -1,5 +1,6 @@
 #include <catch2/catch.hpp>
 
+#include <rwe/Index.h>
 #include <rwe/ota.h>
 #include <rwe/tdf.h>
 
@@ -240,7 +241,7 @@ namespace rwe
 
             REQUIRE(parsedRecord.schemas.size() == ota.schemas.size());
 
-            for (unsigned int i = 0; i < parsedRecord.schemas.size(); ++i)
+            for (Index i = 0; i < getSize(parsedRecord.schemas); ++i)
             {
                 const auto& a = parsedRecord.schemas[i];
                 const auto& b = ota.schemas[i];
@@ -260,7 +261,7 @@ namespace rwe
                 REQUIRE(a.meteorInterval == b.meteorInterval);
 
                 REQUIRE(a.specials.size() == b.specials.size());
-                for (unsigned int j = 0; j < a.specials.size(); ++j)
+                for (Index j = 0; j < getSize(a.specials); ++j)
                 {
                     const auto& sa = a.specials[j];
                     const auto& sb = b.specials[j];
@@ -271,7 +272,7 @@ namespace rwe
                 }
 
                 REQUIRE(a.features.size() == b.features.size());
-                for (unsigned int j = 0; j < a.features.size(); ++j)
+                for (Index j = 0; j < getSize(a.features); ++j)
                 {
                     const auto& fa = a.features[j];
                     const auto& fb = b.features[j];
@@ -365,7 +366,7 @@ namespace rwe
 
             REQUIRE(parsedRecord.schemas.size() == ota.schemas.size());
 
-            for (unsigned int i = 0; i < parsedRecord.schemas.size(); ++i)
+            for (Index i = 0; i < getSize(parsedRecord.schemas); ++i)
             {
                 const auto& a = parsedRecord.schemas[i];
                 const auto& b = ota.schemas[i];
@@ -385,7 +386,7 @@ namespace rwe
                 REQUIRE(a.meteorInterval == b.meteorInterval);
 
                 REQUIRE(a.specials.size() == b.specials.size());
-                for (unsigned int j = 0; j < a.specials.size(); ++j)
+                for (Index j = 0; j < getSize(a.specials); ++j)
                 {
                     const auto& sa = a.specials[j];
                     const auto& sb = b.specials[j];
@@ -396,7 +397,7 @@ namespace rwe
                 }
 
                 REQUIRE(a.features.size() == b.features.size());
-                for (unsigned int j = 0; j < a.features.size(); ++j)
+                for (Index j = 0; j < getSize(a.features); ++j)
                 {
                     const auto& fa = a.features[j];
                     const auto& fb = b.features[j];

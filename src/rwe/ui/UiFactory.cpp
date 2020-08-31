@@ -1,4 +1,5 @@
 #include "UiFactory.h"
+#include <rwe/Index.h>
 #include <rwe/ui/UiSurface.h>
 
 #include <memory>
@@ -249,7 +250,7 @@ namespace rwe
         }
 
         std::vector<UiStagedButton::StageInfo> stageInfos;
-        for (unsigned int i = 0; i < sprites.normal.size(); ++i)
+        for (Index i = 0; i < getSize(sprites.normal); ++i)
         {
             stageInfos.emplace_back(sprites.normal[i], labels[i]);
         }

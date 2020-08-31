@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <iostream>
 #include <rwe/Cob.h>
+#include <rwe/Index.h>
 #include <rwe/_3do.h>
 #include <rwe/cob/CobOpCode.h>
 #include <rwe/optional_io.h>
@@ -191,7 +192,7 @@ private:
 void printCob(const rwe::CobScript& cob)
 {
     std::cout << "Pieces:" << std::endl;
-    for (unsigned int i = 0; i < cob.pieces.size(); ++i)
+    for (rwe::Index i = 0; i < rwe::getSize(cob.pieces); ++i)
     {
         std::cout << "  " << std::setw(2) << i << ": " << cob.pieces[i] << std::endl;
     }
@@ -203,7 +204,7 @@ void printCob(const rwe::CobScript& cob)
     std::cout << std::endl;
 
     std::cout << "Functions:" << std::endl;
-    for (unsigned int i = 0; i < cob.functions.size(); ++i)
+    for (rwe::Index i = 0; i < rwe::getSize(cob.functions); ++i)
     {
         const auto& f = cob.functions[i];
         std::cout << "  " << std::setw(2) << i << ": " << f.name << " (" << f.address << ")" << std::endl;

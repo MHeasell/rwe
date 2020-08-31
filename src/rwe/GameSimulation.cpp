@@ -1,4 +1,5 @@
 #include "GameSimulation.h"
+#include <rwe/Index.h>
 #include <rwe/SimScalar.h>
 #include <rwe/collection_util.h>
 #include <rwe/overloaded.h>
@@ -518,7 +519,7 @@ namespace rwe
     WinStatus GameSimulation::computeWinStatus() const
     {
         std::optional<PlayerId> livingPlayer;
-        for (unsigned int i = 0; i < players.size(); ++i)
+        for (Index i = 0; i < getSize(players); ++i)
         {
             const auto& p = players[i];
 

@@ -1,5 +1,6 @@
 #include "Unit.h"
 #include <rwe/GameScene.h>
+#include <rwe/Index.h>
 #include <rwe/geometry/Plane3f.h>
 #include <rwe/math/rwe_math.h>
 #include <rwe/matrix_util.h>
@@ -491,7 +492,7 @@ namespace rwe
 
     void Unit::clearWeaponTargets()
     {
-        for (unsigned int i = 0; i < weapons.size(); ++i)
+        for (Index i = 0; i < getSize(weapons); ++i)
         {
             clearWeaponTarget(i);
         }

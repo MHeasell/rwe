@@ -1,4 +1,5 @@
 #include "MainMenuScene.h"
+#include <rwe/Index.h>
 #include <rwe/LoadingScene.h>
 #include <rwe/MainMenuModel.h>
 #include <rwe/config.h>
@@ -690,7 +691,7 @@ namespace rwe
 
         GameParameters params{model.selectedMap.getValue()->name, 0};
 
-        for (unsigned int i = 0; i < model.players.size(); ++i)
+        for (Index i = 0; i < getSize(model.players); ++i)
         {
             const auto& playerSlot = model.players[i];
             if (playerSlot.type.getValue() == MainMenuModel::PlayerSettings::Type::Open)
