@@ -29,6 +29,11 @@ enable_testing()
 
 set(RC_ENABLE_CATCH ON CACHE BOOL "Enables Catch support in RapidCheck" FORCE)
 set(RC_ENABLE_BOOST ON CACHE BOOL "Enables Boost support in RapidCheck" FORCE)
+# rapidcheck relies on result_of, which is deprecated in favour of invoke_result.
+# MSVC hides it from their stdlib unless you supply this option.
+if(MSVC)
+    add_definitions(-D_HAS_DEPRECATED_RESULT_OF)
+endif()
 add_subdirectory("libs/rapidcheck")
 
 set(JSON_BuildTests OFF CACHE INTERNAL "")
