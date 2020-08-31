@@ -1,4 +1,5 @@
 #include "pathfinding_utils.h"
+#include <algorithm>
 
 namespace rwe
 {
