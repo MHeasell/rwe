@@ -1,5 +1,6 @@
 #include "DiscreteRect.h"
 #include <algorithm>
+#include <stdexcept>
 
 namespace rwe
 {
