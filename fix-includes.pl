@@ -13,6 +13,10 @@ for my $filename (@ARGV) {
 
     my $basedir = dirname($filename);
 
+    # This is a hack to let us run from project root
+    # instead of having to run from within src or test dirs.
+    $basedir =~ s/^(src|test)\///;
+
     $filename =~ /^(.+)\.[^\.]+$/ or die "File has no extension: $filename\n";
     my $filename_without_extension = basename($1);
     my $header_filename = "$filename_without_extension.h";
