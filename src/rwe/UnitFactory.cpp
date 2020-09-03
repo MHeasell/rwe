@@ -90,7 +90,6 @@ namespace rwe
     Unit UnitFactory::createUnit(
         const std::string& unitType,
         PlayerId owner,
-        const PlayerColorIndex& colorIndex,
         const SimVector& position)
     {
         const auto& fbi = unitDatabase.getUnitInfo(unitType);
@@ -101,7 +100,7 @@ namespace rwe
             movementClassOption = unitDatabase.getMovementClass(fbi.movementClass);
         }
 
-        auto meshInfo = meshService.loadUnitMesh(fbi.objectName, colorIndex);
+        auto meshInfo = meshService.loadUnitMesh(fbi.objectName);
         if (fbi.bmCode) // unit is mobile
         {
             // don't shade mobile units
@@ -373,7 +372,7 @@ namespace rwe
             }
             case 1:
             {
-                auto mesh = meshService.loadProjectileMesh(tdf.model, PlayerColorIndex(0));
+                auto mesh = meshService.loadProjectileMesh(tdf.model);
                 setShadeRecursive(mesh, false);
                 weapon.renderType = ProjectileRenderTypeModel{
                     std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::HalfZ};
@@ -381,7 +380,7 @@ namespace rwe
             }
             case 3:
             {
-                auto mesh = meshService.loadProjectileMesh(tdf.model, PlayerColorIndex(0));
+                auto mesh = meshService.loadProjectileMesh(tdf.model);
                 setShadeRecursive(mesh, false);
                 weapon.renderType = ProjectileRenderTypeModel{
                     std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::QuarterY};
@@ -395,7 +394,7 @@ namespace rwe
             }
             case 6:
             {
-                auto mesh = meshService.loadProjectileMesh(tdf.model, PlayerColorIndex(0));
+                auto mesh = meshService.loadProjectileMesh(tdf.model);
                 setShadeRecursive(mesh, false);
                 weapon.renderType = ProjectileRenderTypeModel{
                     std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::None};

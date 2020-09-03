@@ -5,6 +5,7 @@
 #include <rwe/GameTime.h>
 #include <rwe/GraphicsContext.h>
 #include <rwe/OccupiedGrid.h>
+#include <rwe/PlayerColorIndex.h>
 #include <rwe/Projectile.h>
 #include <rwe/ProjectileId.h>
 #include <rwe/ShaderService.h>
@@ -41,19 +42,24 @@ namespace rwe
 
         CabinetCamera camera;
 
+        SharedTextureHandle unitTextureAtlas;
+        std::vector<SharedTextureHandle> unitTeamTextureAtlases;
+
     public:
         RenderService(
             GraphicsContext* graphics,
             ShaderService* shaders,
-            const CabinetCamera& camera);
+            const CabinetCamera& camera,
+            SharedTextureHandle unitTextureAtlas,
+            std::vector<SharedTextureHandle>&& unitTeamTextureAtlases);
 
         CabinetCamera& getCamera();
         const CabinetCamera& getCamera() const;
 
-        void drawUnit(const Unit& unit, float seaLevel, float time);
+        void drawUnit(const Unit& unit, float seaLevel, float time, PlayerColorIndex playerColorIndex);
         void drawUnitShadow(const Unit& unit, float groundHeight);
-        void drawUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel);
-        void drawBuildingUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time);
+        void drawUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex);
+        void drawBuildingUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex);
         void drawSelectionRect(const Unit& unit);
         void drawNanolatheLine(const Vector3f& start, const Vector3f& end);
         void drawOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid);
@@ -118,7 +124,7 @@ namespace rwe
         void drawExplosions(GameTime currentTime, const std::vector<Explosion>& explosions);
 
     private:
-        void drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded);
+        void drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, PlayerColorIndex playerColorIndex);
 
         GlMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines);
 

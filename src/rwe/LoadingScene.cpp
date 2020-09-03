@@ -3,6 +3,7 @@
 #include <rwe/GameNetworkService.h>
 #include <rwe/Index.h>
 #include <rwe/WeaponTdf.h>
+#include <rwe/atlas_util.h>
 #include <rwe/ota.h>
 #include <rwe/tdf.h>
 #include <rwe/tnt/TntArchive.h>
@@ -159,7 +160,8 @@ namespace rwe
 
         UiCamera chromeUiCamera(sceneContext.viewportService->width(), sceneContext.viewportService->height());
 
-        auto meshService = MeshService::createMeshService(sceneContext.vfs, sceneContext.graphics, sceneContext.palette);
+        auto atlasInfo = createTextureAtlases(sceneContext.vfs, sceneContext.graphics, sceneContext.palette);
+        MeshService meshService(sceneContext.vfs, sceneContext.graphics, std::move(atlasInfo.textureAtlasMap), std::move(atlasInfo.teamTextureAtlasMap), std::move(atlasInfo.colorAtlasMap));
 
         auto unitDatabase = createUnitDatabase();
 
@@ -218,7 +220,7 @@ namespace rwe
 
         auto gameNetworkService = std::make_unique<GameNetworkService>(*localPlayerId, std::stoi(gameParameters.localNetworkPort), endpointInfos, playerCommandService.get());
 
-        RenderService worldRenderService(sceneContext.graphics, sceneContext.shaders, worldCamera);
+        RenderService worldRenderService(sceneContext.graphics, sceneContext.shaders, worldCamera, atlasInfo.textureAtlas, std::move(atlasInfo.teamTextureAtlases));
         UiRenderService worldUiRenderService(sceneContext.graphics, sceneContext.shaders, worldUiCamera);
         UiRenderService chromeUiRenderService(sceneContext.graphics, sceneContext.shaders, chromeUiCamera);
 

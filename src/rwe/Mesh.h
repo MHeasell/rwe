@@ -30,8 +30,7 @@ namespace rwe
             Triangle(const Vertex& a, const Vertex& b, const Vertex& c);
         };
 
-        SharedTextureHandle texture;
-
         std::vector<Triangle> faces;
+        std::vector<Triangle> teamFaces;
     };
 }

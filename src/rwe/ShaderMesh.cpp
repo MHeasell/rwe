@@ -3,10 +3,10 @@
 namespace rwe
 {
     ShaderMesh::ShaderMesh(
-        const SharedTextureHandle& texture,
-        GlMesh&& texturedVertices)
-        : texture(texture),
-          texturedVertices(std::move(texturedVertices))
+        GlMesh&& vertices,
+        GlMesh&& teamVertices)
+        : vertices(std::move(vertices)),
+          teamVertices(std::move(teamVertices))
     {
     }
 }

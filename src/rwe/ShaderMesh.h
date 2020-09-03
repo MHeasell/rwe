@@ -9,11 +9,11 @@ namespace rwe
 {
     struct ShaderMesh
     {
-        SharedTextureHandle texture;
-        GlMesh texturedVertices;
+        GlMesh vertices;
+        GlMesh teamVertices;
 
         ShaderMesh(
-            const SharedTextureHandle& texture,
-            GlMesh&& texturedVertices);
+            GlMesh&& vertices,
+            GlMesh&& teamVertices);
     };
 }

@@ -22,211 +22,51 @@ namespace rwe
             fromFixedPoint(-v.z)); // flip to convert from left-handed to right-handed
     }
 
-    struct FrameInfo
-    {
-        std::string name;
-        unsigned int frameNumber;
-        Grid<char> data;
-
-        FrameInfo(const std::string& name, unsigned int frameNumber, unsigned int width, unsigned int height)
-            : name(name), frameNumber(frameNumber), data(width, height)
-        {
-        }
-    };
-
-    class FrameListGafAdapter : public GafReaderAdapter
-    {
-    private:
-        std::vector<FrameInfo>* frames;
-        const std::string* entryName;
-        FrameInfo* frameInfo;
-        GafFrameData currentFrameHeader;
-        unsigned int frameNumber{0};
-
-    public:
-        explicit FrameListGafAdapter(std::vector<FrameInfo>* frames, const std::string* entryName)
-            : frames(frames),
-              entryName(entryName)
-        {
-        }
-
-        void beginFrame(const GafFrameData& header) override
-        {
-            frameInfo = &(frames->emplace_back(*entryName, frameNumber, header.width, header.height));
-            currentFrameHeader = header;
-        }
-
-        void frameLayer(const LayerData& data) override
-        {
-            for (std::size_t y = 0; y < data.height; ++y)
-            {
-                for (std::size_t x = 0; x < data.width; ++x)
-                {
-                    auto outPosX = static_cast<int>(x) - (data.x - currentFrameHeader.posX);
-                    auto outPosY = static_cast<int>(y) - (data.y - currentFrameHeader.posY);
-
-                    if (outPosX < 0 || outPosX >= currentFrameHeader.width || outPosY < 0 || outPosY >= currentFrameHeader.height)
-                    {
-                        throw std::runtime_error("frame coordinate out of bounds");
-                    }
-
-                    auto colorIndex = static_cast<unsigned char>(data.data[(y * data.width) + x]);
-                    if (colorIndex == data.transparencyKey)
-                    {
-                        continue;
-                    }
-
-                    frameInfo->data.set(outPosX, outPosY, colorIndex);
-                }
-            }
-        }
-
-        void endFrame() override
-        {
-            ++frameNumber;
-        }
-    };
-
-    struct AtlasItemFrame
-    {
-        FrameInfo* frameInfo;
-    };
-    struct AtlasItemColor
-    {
-        unsigned int colorIndex;
-    };
-    using AtlasItem = std::variant<AtlasItemFrame, AtlasItemColor>;
-
-    MeshService MeshService::createMeshService(AbstractVirtualFileSystem* vfs, GraphicsContext* graphics, const ColorPalette* palette)
-    {
-        auto gafs = vfs->getFileNames("textures", ".gaf");
-
-        std::vector<FrameInfo> frames;
-        std::unordered_map<std::string, TextureAttributes> attribs;
-
-        // load all the textures into memory
-        for (const auto& gafName : gafs)
-        {
-            auto bytes = vfs->readFile("textures/" + gafName);
-            if (!bytes)
-            {
-                throw std::runtime_error("File in listing could not be read: " + gafName);
-            }
-
-            boost::interprocess::bufferstream stream(bytes->data(), bytes->size());
-            GafArchive gaf(&stream);
-
-            bool isTeamDependent = toUpper(gafName) == "LOGOS.GAF";
-
-            for (const auto& e : gaf.entries())
-            {
-                attribs[e.name] = TextureAttributes{isTeamDependent};
-                FrameListGafAdapter adapter(&frames, &e.name);
-                gaf.extract(e, adapter);
-            }
-        }
-
-        // figure out how to pack the textures into an atlas
-        std::vector<AtlasItem> frameRefs;
-        frameRefs.reserve(frames.size());
-        for (auto& f : frames)
-        {
-            frameRefs.emplace_back(AtlasItemFrame{&f});
-        }
-
-        for (unsigned int i = 0; i < palette->size(); ++i)
-        {
-            frameRefs.emplace_back(AtlasItemColor{i});
-        }
-
-        // For packing, round the area occupied by the texture up to the nearest power of two.
-        // This is required to prevent texture bleeding when shrinking the atlas for mipmaps.
-        auto packInfo = packGridsGeneric<AtlasItem>(frameRefs, [](const AtlasItem& item) {
-            return match(
-                item,
-                [](const AtlasItemFrame& f) {
-                    return Size(roundUpToPowerOfTwo(f.frameInfo->data.getWidth()), roundUpToPowerOfTwo(f.frameInfo->data.getHeight()));
-                },
-                [](const AtlasItemColor&) {
-                    return Size(1, 1);
-                });
-        });
-
-        // pack the textures
-        Grid<Color> atlas(packInfo.width, packInfo.height);
-        std::unordered_map<FrameId, Rectangle2f> atlasMap;
-        std::vector<Vector2f> atlasColorMap(palette->size());
-
-        for (const auto& e : packInfo.entries)
-        {
-            match(
-                e.value,
-                [&](const AtlasItemFrame& f) {
-                    FrameId id(f.frameInfo->name, f.frameInfo->frameNumber);
-
-                    auto left = static_cast<float>(e.x) / static_cast<float>(packInfo.width);
-                    auto top = static_cast<float>(e.y) / static_cast<float>(packInfo.height);
-                    auto right = static_cast<float>(e.x + f.frameInfo->data.getWidth()) / static_cast<float>(packInfo.width);
-                    auto bottom = static_cast<float>(e.y + f.frameInfo->data.getHeight()) / static_cast<float>(packInfo.height);
-                    auto bounds = Rectangle2f::fromTLBR(top, left, bottom, right);
-
-                    atlasMap.insert({id, bounds});
-
-                    atlas.transformAndReplace<char>(e.x, e.y, f.frameInfo->data, [palette](char v) {
-                        return (*palette)[static_cast<unsigned char>(v)];
-                    });
-                },
-                [&](const AtlasItemColor& c) {
-                    atlasColorMap[c.colorIndex] = Vector2f((e.x + 0.5f) / static_cast<float>(packInfo.width), (e.y + 0.5f) / static_cast<float>(packInfo.height));
-                    atlas.set(e.x, e.y, (*palette)[c.colorIndex]);
-                });
-        }
-
-        SharedTextureHandle atlasTexture(graphics->createTexture(atlas));
-
-        return MeshService(vfs, palette, std::move(atlasTexture), std::move(atlasMap), std::move(attribs), std::move(atlasColorMap));
-    }
-
     MeshService::MeshService(
         AbstractVirtualFileSystem* vfs,
-        const ColorPalette* palette,
-        SharedTextureHandle&& atlas,
-        std::unordered_map<FrameId, Rectangle2f>&& atlasMap,
-        std::unordered_map<std::string, TextureAttributes> textureAttributesMap,
+        GraphicsContext* graphics,
+        std::unordered_map<std::string, Rectangle2f>&& atlasMap,
+        std::unordered_map<std::string, Rectangle2f>&& teamAtlasMap,
         std::vector<Vector2f>&& atlasColorMap)
         : vfs(vfs),
-          palette(palette),
-          atlas(std::move(atlas)),
+          graphics(graphics),
           atlasMap(std::move(atlasMap)),
-          textureAttributesMap(std::move(textureAttributesMap)),
+          teamAtlasMap(std::move(teamAtlasMap)),
           atlasColorMap(std::move(atlasColorMap))
     {
     }
 
-    Mesh MeshService::meshFrom3do(const _3do::Object& o, const PlayerColorIndex& teamColor)
+    Mesh MeshService::meshFrom3do(const _3do::Object& o)
     {
         Mesh m;
-        m.texture = getMeshTextureAtlas();
 
         for (const auto& p : o.primitives)
         {
             // handle textured quads
             if (p.vertices.size() == 4 && p.textureName)
             {
-                auto textureBounds = getTextureRegion(*(p.textureName), teamColor);
+                auto textureBounds = getTextureRegion(*(p.textureName));
 
                 Mesh::Triangle t0(
-                    Mesh::Vertex(vertexToVector(o.vertices[p.vertices[2]]), textureBounds.bottomRight()),
-                    Mesh::Vertex(vertexToVector(o.vertices[p.vertices[1]]), textureBounds.topRight()),
-                    Mesh::Vertex(vertexToVector(o.vertices[p.vertices[0]]), textureBounds.topLeft()));
+                    Mesh::Vertex(vertexToVector(o.vertices[p.vertices[2]]), textureBounds.region.bottomRight()),
+                    Mesh::Vertex(vertexToVector(o.vertices[p.vertices[1]]), textureBounds.region.topRight()),
+                    Mesh::Vertex(vertexToVector(o.vertices[p.vertices[0]]), textureBounds.region.topLeft()));
 
                 Mesh::Triangle t1(
-                    Mesh::Vertex(vertexToVector(o.vertices[p.vertices[3]]), textureBounds.bottomLeft()),
-                    Mesh::Vertex(vertexToVector(o.vertices[p.vertices[2]]), textureBounds.bottomRight()),
-                    Mesh::Vertex(vertexToVector(o.vertices[p.vertices[0]]), textureBounds.topLeft()));
+                    Mesh::Vertex(vertexToVector(o.vertices[p.vertices[3]]), textureBounds.region.bottomLeft()),
+                    Mesh::Vertex(vertexToVector(o.vertices[p.vertices[2]]), textureBounds.region.bottomRight()),
+                    Mesh::Vertex(vertexToVector(o.vertices[p.vertices[0]]), textureBounds.region.topLeft()));
 
-                m.faces.push_back(t0);
-                m.faces.push_back(t1);
+                if (textureBounds.isTeamColor)
+                {
+                    m.teamFaces.push_back(t0);
+                    m.teamFaces.push_back(t1);
+                }
+                else
+                {
+                    m.faces.push_back(t0);
+                    m.faces.push_back(t1);
+                }
 
                 continue;
             }
@@ -256,7 +96,7 @@ namespace rwe
         return m;
     }
 
-    UnitMesh MeshService::unitMeshFrom3do(const _3do::Object& o, const PlayerColorIndex& teamColor)
+    UnitMesh MeshService::unitMeshFrom3do(const _3do::Object& o)
     {
         UnitMesh m;
         m.origin = Vector3x<SimScalar>(
@@ -264,18 +104,18 @@ namespace rwe
             simScalarFromFixed(o.y),
             -simScalarFromFixed(o.z)); // flip to convert from left-handed to right-handed
         m.name = o.name;
-        auto mesh = meshFrom3do(o, teamColor);
+        auto mesh = meshFrom3do(o);
         m.mesh = std::make_shared<ShaderMesh>(convertMesh(mesh));
 
         for (const auto& c : o.children)
         {
-            m.children.push_back(unitMeshFrom3do(c, teamColor));
+            m.children.push_back(unitMeshFrom3do(c));
         }
 
         return m;
     }
 
-    MeshService::UnitMeshInfo MeshService::loadUnitMesh(const std::string& name, const PlayerColorIndex& teamColor)
+    MeshService::UnitMeshInfo MeshService::loadUnitMesh(const std::string& name)
     {
         auto bytes = vfs->readFile("objects3d/" + name + ".3do");
         if (!bytes)
@@ -287,12 +127,12 @@ namespace rwe
         auto objects = parse3doObjects(s, s.tellg());
         assert(objects.size() == 1);
         auto selectionMesh = selectionMeshFrom3do(objects.front());
-        auto unitMesh = unitMeshFrom3do(objects.front(), teamColor);
+        auto unitMesh = unitMeshFrom3do(objects.front());
         auto unitHeight = findHighestVertex(objects.front()).y;
         return UnitMeshInfo{std::move(unitMesh), std::move(selectionMesh), simScalarFromFixed(unitHeight)};
     }
 
-    UnitMesh MeshService::loadProjectileMesh(const std::string& name, const PlayerColorIndex& teamColor)
+    UnitMesh MeshService::loadProjectileMesh(const std::string& name)
     {
         auto bytes = vfs->readFile("objects3d/" + name + ".3do");
         if (!bytes)
@@ -303,41 +143,28 @@ namespace rwe
         boost::interprocess::bufferstream s(bytes->data(), bytes->size());
         auto objects = parse3doObjects(s, s.tellg());
         assert(objects.size() == 1);
-        return unitMeshFrom3do(objects.front(), teamColor);
+        return unitMeshFrom3do(objects.front());
     }
 
-    SharedTextureHandle MeshService::getMeshTextureAtlas()
+    MeshService::TextureRegionInfo MeshService::getTextureRegion(const std::string& name)
     {
-        return atlas;
-    }
-
-    Rectangle2f MeshService::getTextureRegion(const std::string& name, const PlayerColorIndex& teamColor)
-    {
-        auto attrsIt = textureAttributesMap.find(name);
-        if (attrsIt == textureAttributesMap.end())
+        auto it = atlasMap.find(name);
+        if (it != atlasMap.end())
         {
-            // Some unit models in the wild (e.g. the ARM commander in TA:Zero)
-            // contain references to textures that don't exist,
-            // so we cannot simply throw here.
-            // TODO: consider returning an optional and making the caller decide what to do
-            return Rectangle2f(0, 0, 0, 0);
+            return TextureRegionInfo{false, it->second};
         }
 
-        const auto& attrs = attrsIt->second;
-        unsigned int frameNumber = 0;
-        if (attrs.isTeamDependent)
+        auto it2 = teamAtlasMap.find(name);
+        if (it2 != teamAtlasMap.end())
         {
-            frameNumber = teamColor.value;
+            return TextureRegionInfo{true, it2->second};
         }
 
-        FrameId frameId(name, frameNumber);
-        auto it = atlasMap.find(frameId);
-        if (it == atlasMap.end())
-        {
-            throw std::runtime_error("Texture not found in atlas: " + name);
-        }
-
-        return it->second;
+        // Some unit models in the wild (e.g. the ARM commander in TA:Zero)
+        // contain references to textures that don't exist,
+        // so we cannot simply throw here.
+        // TODO: consider returning an optional and making the caller decide what to do
+        return {false, Rectangle2f(0, 0, 0, 0)};
     }
 
     Vector2f MeshService::getColorTexturePoint(unsigned int colorIndex)
@@ -400,6 +227,18 @@ namespace rwe
 
         auto texturedMesh = graphics->createTexturedNormalMesh(texturedVerticesBuffer, GL_STATIC_DRAW);
 
-        return ShaderMesh(mesh.texture, std::move(texturedMesh));
+        std::vector<GlTexturedNormalVertex> teamTexturedVerticesBuffer;
+        teamTexturedVerticesBuffer.reserve(mesh.teamFaces.size() * 3);
+        for (const auto& t : mesh.teamFaces)
+        {
+            auto normal = getNormal(t);
+            teamTexturedVerticesBuffer.emplace_back(t.a.position, t.a.textureCoord, normal);
+            teamTexturedVerticesBuffer.emplace_back(t.b.position, t.b.textureCoord, normal);
+            teamTexturedVerticesBuffer.emplace_back(t.c.position, t.c.textureCoord, normal);
+        }
+
+        auto teamTexturedMesh = graphics->createTexturedNormalMesh(teamTexturedVerticesBuffer, GL_STATIC_DRAW);
+
+        return ShaderMesh(std::move(texturedMesh), std::move(teamTexturedMesh));
     }
 }

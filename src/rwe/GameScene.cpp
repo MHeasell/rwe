@@ -533,7 +533,7 @@ namespace rwe
         auto seaLevel = simulation.terrain.getSeaLevel();
         for (const auto& unit : (simulation.units | boost::adaptors::map_values))
         {
-            worldRenderService.drawUnit(unit, simScalarToFloat(seaLevel), simulation.gameTime.value);
+            worldRenderService.drawUnit(unit, simScalarToFloat(seaLevel), simulation.gameTime.value, getPlayer(unit.owner).color);
         }
 
         worldRenderService.drawProjectiles(simulation.projectiles, simScalarToFloat(seaLevel), simulation.gameTime);
@@ -1475,7 +1475,7 @@ namespace rwe
     {
         // TODO: if we failed to add the unit throw some warning
         auto unitId = simulation.tryAddUnit(
-            unitFactory.createUnit(unitType, owner, simulation.getPlayer(owner).color, position));
+            unitFactory.createUnit(unitType, owner, position));
 
         if (unitId)
         {

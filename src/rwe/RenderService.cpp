@@ -27,10 +27,14 @@ namespace rwe
     RenderService::RenderService(
         GraphicsContext* graphics,
         ShaderService* shaders,
-        const CabinetCamera& camera)
+        const CabinetCamera& camera,
+        SharedTextureHandle unitTextureAtlas,
+        std::vector<SharedTextureHandle>&& unitTeamTextureAtlases)
         : graphics(graphics),
           shaders(shaders),
-          camera(camera)
+          camera(camera),
+          unitTextureAtlas(unitTextureAtlas),
+          unitTeamTextureAtlases(std::move(unitTeamTextureAtlases))
     {
     }
 
@@ -66,34 +70,34 @@ namespace rwe
         graphics->drawLines(mesh);
     }
 
-    void RenderService::drawUnit(const Unit& unit, float seaLevel, float time)
+    void RenderService::drawUnit(const Unit& unit, float seaLevel, float time, PlayerColorIndex playerColorIndex)
     {
         if (unit.isBeingBuilt())
         {
-            drawBuildingUnitMesh(unit.mesh, toFloatMatrix(unit.getTransform()), seaLevel, unit.getPreciseCompletePercent(), simScalarToFloat(unit.position.y), time);
+            drawBuildingUnitMesh(unit.mesh, toFloatMatrix(unit.getTransform()), seaLevel, unit.getPreciseCompletePercent(), simScalarToFloat(unit.position.y), time, playerColorIndex);
         }
         else
         {
-            drawUnitMesh(unit.mesh, toFloatMatrix(unit.getTransform()), seaLevel);
+            drawUnitMesh(unit.mesh, toFloatMatrix(unit.getTransform()), seaLevel, playerColorIndex);
         }
     }
 
-    void RenderService::drawUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel)
+    void RenderService::drawUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex)
     {
         auto matrix = modelMatrix * toFloatMatrix(mesh.getTransform());
 
         if (mesh.visible)
         {
-            drawShaderMesh(*mesh.mesh, matrix, seaLevel, mesh.shaded);
+            drawShaderMesh(*mesh.mesh, matrix, seaLevel, mesh.shaded, playerColorIndex);
         }
 
         for (const auto& c : mesh.children)
         {
-            drawUnitMesh(c, matrix, seaLevel);
+            drawUnitMesh(c, matrix, seaLevel, playerColorIndex);
         }
     }
 
-    void RenderService::drawBuildingUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time)
+    void RenderService::drawBuildingUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex)
     {
         auto matrix = modelMatrix * toFloatMatrix(mesh.getTransform());
 
@@ -106,7 +110,6 @@ namespace rwe
             {
                 const auto& buildShader = shaders->unitBuild;
                 graphics->bindShader(buildShader.handle.get());
-                graphics->bindTexture(mesh.mesh->texture.get());
                 graphics->setUniformMatrix(buildShader.mvpMatrix, mvpMatrix);
                 graphics->setUniformMatrix(buildShader.modelMatrix, matrix);
                 graphics->setUniformFloat(buildShader.unitY, unitY);
@@ -114,13 +117,18 @@ namespace rwe
                 graphics->setUniformBool(buildShader.shade, mesh.shaded);
                 graphics->setUniformFloat(buildShader.percentComplete, percentComplete);
                 graphics->setUniformFloat(buildShader.time, time);
-                graphics->drawTriangles(mesh.mesh->texturedVertices);
+
+                graphics->bindTexture(unitTextureAtlas.get());
+                graphics->drawTriangles(mesh.mesh->vertices);
+
+                graphics->bindTexture(unitTeamTextureAtlases.at(playerColorIndex.value).get());
+                graphics->drawTriangles(mesh.mesh->teamVertices);
             }
         }
 
         for (const auto& c : mesh.children)
         {
-            drawBuildingUnitMesh(c, matrix, seaLevel, percentComplete, unitY, time);
+            drawBuildingUnitMesh(c, matrix, seaLevel, percentComplete, unitY, time, playerColorIndex);
         }
     }
 
@@ -448,7 +456,7 @@ namespace rwe
 
         auto matrix = Matrix4f::translation(simVectorToFloat(unit.position)) * Matrix4f::rotationY(toRadians(unit.rotation).value);
 
-        drawUnitMesh(unit.mesh, shadowProjection * matrix, 0.0f);
+        drawUnitMesh(unit.mesh, shadowProjection * matrix, 0.0f, PlayerColorIndex(0));
     }
 
     CabinetCamera& RenderService::getCamera()
@@ -541,7 +549,7 @@ namespace rwe
                     auto transform = Matrix4f::translation(position)
                         * pointDirection(simVectorToFloat(projectile.velocity).normalized())
                         * rotationModeToMatrix(m.rotationMode);
-                    drawUnitMesh(*m.mesh, transform, seaLevel);
+                    drawUnitMesh(*m.mesh, transform, seaLevel, PlayerColorIndex(0));
                 },
                 [&](const ProjectileRenderTypeSprite& s) {
                     Vector3f snappedPosition(
@@ -610,19 +618,23 @@ namespace rwe
         }
     }
 
-    void RenderService::drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded)
+    void RenderService::drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, PlayerColorIndex playerColorIndex)
     {
         auto mvpMatrix = camera.getViewProjectionMatrix() * matrix;
 
         {
             const auto& textureShader = shaders->unitTexture;
             graphics->bindShader(textureShader.handle.get());
-            graphics->bindTexture(mesh.texture.get());
             graphics->setUniformMatrix(textureShader.mvpMatrix, mvpMatrix);
             graphics->setUniformMatrix(textureShader.modelMatrix, matrix);
             graphics->setUniformFloat(textureShader.seaLevel, seaLevel);
             graphics->setUniformBool(textureShader.shade, shaded);
-            graphics->drawTriangles(mesh.texturedVertices);
+
+            graphics->bindTexture(unitTextureAtlas.get());
+            graphics->drawTriangles(mesh.vertices);
+
+            graphics->bindTexture(unitTeamTextureAtlases.at(playerColorIndex.value).get());
+            graphics->drawTriangles(mesh.teamVertices);
         }
     }
 

@@ -409,6 +409,23 @@ namespace rwe
             replacement.forEachIndexed([&](const auto& c, const auto& v) { set(x + c.x, y + c.y, f(v)); });
         }
 
+        template <typename U, typename Func>
+        void transformAndReplace(std::size_t x, std::size_t y, std::size_t regionWidth, std::size_t regionHeight, const Grid<U>& replacement, Func f)
+        {
+            if (x + regionWidth > getWidth() || y + regionHeight > getHeight())
+            {
+                throw std::logic_error("replacement goes out of bounds");
+            }
+            if (regionWidth > replacement.getWidth() || regionHeight > replacement.getHeight())
+            {
+                throw std::logic_error("size exceeds replacement grid bounds");
+            }
+
+            GridRegion(0, 0, regionWidth, regionHeight).forEach([&](GridCoordinates c) {
+                set(x + c.x, y + c.y, f(replacement.get(c.x, c.y)));
+            });
+        }
+
         /**
          * Returns a clipped version of region
          * representing the intersection of region

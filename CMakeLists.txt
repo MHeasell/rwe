@@ -376,6 +376,8 @@ set(SOURCE_FILES
     src/rwe/WeaponTdf.h
     src/rwe/_3do.cpp
     src/rwe/_3do.h
+    src/rwe/atlas_util.cpp
+    src/rwe/atlas_util.h
     src/rwe/camera/AbstractCamera.cpp
     src/rwe/camera/AbstractCamera.h
     src/rwe/camera/CabinetCamera.cpp
