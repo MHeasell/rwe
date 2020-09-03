@@ -10,7 +10,6 @@
 #include <rwe/Mesh.h>
 #include <rwe/SelectionMesh.h>
 #include <rwe/ShaderHandle.h>
-#include <rwe/ShaderMesh.h>
 #include <rwe/ShaderProgramHandle.h>
 #include <rwe/Sprite.h>
 #include <rwe/SpriteSeries.h>

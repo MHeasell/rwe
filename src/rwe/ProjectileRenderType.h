@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-#include <rwe/ShaderMesh.h>
 #include <rwe/SimScalar.h>
 #include <rwe/SpriteSeries.h>
 #include <rwe/UnitMesh.h>

@@ -5,7 +5,6 @@
 #include <rwe/PlayerId.h>
 #include <rwe/ProjectilePhysicsType.h>
 #include <rwe/ProjectileRenderType.h>
-#include <rwe/ShaderMesh.h>
 #include <rwe/SimVector.h>
 #include <rwe/SpriteSeries.h>
 #include <rwe/math/Vector3x.h>
