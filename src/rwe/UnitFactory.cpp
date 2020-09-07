@@ -87,6 +87,37 @@ namespace rwe
         return Grid<YardMapCell>(width, height, std::move(cells));
     }
 
+    UnitMesh toUnitMesh(const UnitDatabase& db, const std::string& unitName, const UnitPieceDefinition& def)
+    {
+        UnitMesh m;
+        m.origin = def.origin;
+        m.name = def.name;
+        auto mesh = db.getUnitPieceMesh(unitName, def.name);
+        if (!mesh)
+        {
+            throw std::runtime_error("No mesh for piece");
+        }
+        m.mesh = *mesh;
+
+        for (const auto& c : def.children)
+        {
+            m.children.push_back(toUnitMesh(db, unitName, c));
+        }
+
+        return m;
+    }
+
+    UnitMesh createUnitMesh(const UnitDatabase& db, const std::string& objectName)
+    {
+        auto def = db.getUnitModelDefinition(objectName);
+        if (!def)
+        {
+            throw std::runtime_error("No definition for object");
+        }
+
+        return toUnitMesh(db, objectName, def->get().rootPiece);
+    }
+
     Unit UnitFactory::createUnit(
         const std::string& unitType,
         PlayerId owner,
@@ -100,21 +131,32 @@ namespace rwe
             movementClassOption = unitDatabase.getMovementClass(fbi.movementClass);
         }
 
-        auto meshInfo = meshService.loadUnitMesh(fbi.objectName);
+        auto mesh = createUnitMesh(unitDatabase, fbi.objectName);
+        auto modelDefinition = unitDatabase.getUnitModelDefinition(fbi.objectName);
+        if (!modelDefinition)
+        {
+            throw std::runtime_error("Missing model definition");
+        }
+        auto selectionMesh = unitDatabase.getSelectionMesh(fbi.objectName);
+        if (!selectionMesh)
+        {
+            throw std::runtime_error("Missing selection mesh");
+        }
+
         if (fbi.bmCode) // unit is mobile
         {
             // don't shade mobile units
-            setShadeRecursive(meshInfo.mesh, false);
+            setShadeRecursive(mesh, false);
         }
 
         const auto& script = unitDatabase.getUnitScript(fbi.unitName);
         auto cobEnv = std::make_unique<CobEnvironment>(&script);
-        Unit unit(meshInfo.mesh, std::move(cobEnv), std::move(meshInfo.selectionMesh));
+        Unit unit(mesh, std::move(cobEnv), *selectionMesh);
         unit.name = fbi.name;
         unit.unitType = toUpper(unitType);
         unit.owner = owner;
         unit.position = position;
-        unit.height = meshInfo.height;
+        unit.height = modelDefinition->get().height;
 
         if (fbi.bmCode) // unit is mobile
         {
@@ -372,7 +414,7 @@ namespace rwe
             }
             case 1:
             {
-                auto mesh = meshService.loadProjectileMesh(tdf.model);
+                auto mesh = createUnitMesh(unitDatabase, tdf.model);
                 setShadeRecursive(mesh, false);
                 weapon.renderType = ProjectileRenderTypeModel{
                     std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::HalfZ};
@@ -380,7 +422,7 @@ namespace rwe
             }
             case 3:
             {
-                auto mesh = meshService.loadProjectileMesh(tdf.model);
+                auto mesh = createUnitMesh(unitDatabase, tdf.model);
                 setShadeRecursive(mesh, false);
                 weapon.renderType = ProjectileRenderTypeModel{
                     std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::QuarterY};
@@ -394,7 +436,7 @@ namespace rwe
             }
             case 6:
             {
-                auto mesh = meshService.loadProjectileMesh(tdf.model);
+                auto mesh = createUnitMesh(unitDatabase, tdf.model);
                 setShadeRecursive(mesh, false);
                 weapon.renderType = ProjectileRenderTypeModel{
                     std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::None};

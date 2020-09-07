@@ -64,8 +64,8 @@ namespace rwe
         return SimVector(sin(rotation), 0_ss, cos(rotation));
     }
 
-    Unit::Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, SelectionMesh&& selectionMesh)
-        : mesh(mesh), cobEnvironment(std::move(cobEnvironment)), selectionMesh(std::move(selectionMesh))
+    Unit::Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, std::shared_ptr<SelectionMesh> selectionMesh)
+        : mesh(mesh), cobEnvironment(std::move(cobEnvironment)), selectionMesh(selectionMesh)
     {
     }
 
@@ -353,7 +353,7 @@ namespace rwe
         auto inverseTransform = toFloatMatrix(getInverseTransform());
         auto line = ray.toLine();
         Line3f modelSpaceLine(inverseTransform * line.start, inverseTransform * line.end);
-        auto v = selectionMesh.collisionMesh.intersectLine(modelSpaceLine);
+        auto v = selectionMesh->collisionMesh.intersectLine(modelSpaceLine);
         if (!v)
         {
             return std::nullopt;

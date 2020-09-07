@@ -96,16 +96,14 @@ namespace rwe
         return m;
     }
 
-    UnitMesh MeshService::unitMeshFrom3do(const _3do::Object& o)
+    UnitPieceDefinition unitMeshFrom3do(const _3do::Object& o)
     {
-        UnitMesh m;
+        UnitPieceDefinition m;
         m.origin = Vector3x<SimScalar>(
             simScalarFromFixed(o.x),
             simScalarFromFixed(o.y),
             -simScalarFromFixed(o.z)); // flip to convert from left-handed to right-handed
         m.name = o.name;
-        auto mesh = meshFrom3do(o);
-        m.mesh = std::make_shared<ShaderMesh>(convertMesh(mesh));
 
         for (const auto& c : o.children)
         {
@@ -113,6 +111,17 @@ namespace rwe
         }
 
         return m;
+    }
+
+    void MeshService::extractMeshes(const _3do::Object& o, std::vector<std::pair<std::string, std::shared_ptr<ShaderMesh>>>& v)
+    {
+        auto mesh = meshFrom3do(o);
+        v.emplace_back(o.name, std::make_shared<ShaderMesh>(convertMesh(mesh)));
+
+        for (const auto& c : o.children)
+        {
+            extractMeshes(c, v);
+        }
     }
 
     MeshService::UnitMeshInfo MeshService::loadUnitMesh(const std::string& name)
@@ -127,12 +136,18 @@ namespace rwe
         auto objects = parse3doObjects(s, s.tellg());
         assert(objects.size() == 1);
         auto selectionMesh = selectionMeshFrom3do(objects.front());
-        auto unitMesh = unitMeshFrom3do(objects.front());
-        auto unitHeight = findHighestVertex(objects.front()).y;
-        return UnitMeshInfo{std::move(unitMesh), std::move(selectionMesh), simScalarFromFixed(unitHeight)};
+
+        UnitModelDefinition d;
+        d.rootPiece = unitMeshFrom3do(objects.front());
+        d.height = simScalarFromFixed(findHighestVertex(objects.front()).y);
+
+        std::vector<std::pair<std::string, std::shared_ptr<ShaderMesh>>> meshes;
+        extractMeshes(objects.front(), meshes);
+
+        return UnitMeshInfo{std::move(d), std::move(meshes), std::move(selectionMesh)};
     }
 
-    UnitMesh MeshService::loadProjectileMesh(const std::string& name)
+    MeshService::ProjectileMeshInfo MeshService::loadProjectileMesh(const std::string& name)
     {
         auto bytes = vfs->readFile("objects3d/" + name + ".3do");
         if (!bytes)
@@ -143,7 +158,15 @@ namespace rwe
         boost::interprocess::bufferstream s(bytes->data(), bytes->size());
         auto objects = parse3doObjects(s, s.tellg());
         assert(objects.size() == 1);
-        return unitMeshFrom3do(objects.front());
+
+        UnitModelDefinition d;
+        d.rootPiece = unitMeshFrom3do(objects.front());
+        d.height = simScalarFromFixed(findHighestVertex(objects.front()).y);
+
+        std::vector<std::pair<std::string, std::shared_ptr<ShaderMesh>>> meshes;
+        extractMeshes(objects.front(), meshes);
+
+        return ProjectileMeshInfo{std::move(d), std::move(meshes)};
     }
 
     MeshService::TextureRegionInfo MeshService::getTextureRegion(const std::string& name)

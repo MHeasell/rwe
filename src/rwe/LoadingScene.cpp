@@ -163,7 +163,7 @@ namespace rwe
         auto atlasInfo = createTextureAtlases(sceneContext.vfs, sceneContext.graphics, sceneContext.palette);
         MeshService meshService(sceneContext.vfs, sceneContext.graphics, std::move(atlasInfo.textureAtlasMap), std::move(atlasInfo.teamTextureAtlasMap), std::move(atlasInfo.colorAtlasMap));
 
-        auto unitDatabase = createUnitDatabase();
+        auto unitDatabase = createUnitDatabase(meshService);
 
         MovementClassCollisionService collisionService;
 
@@ -556,7 +556,7 @@ namespace rwe
         return it->second;
     }
 
-    UnitDatabase LoadingScene::createUnitDatabase()
+    UnitDatabase LoadingScene::createUnitDatabase(MeshService& meshService)
     {
         UnitDatabase db;
 
@@ -635,6 +635,17 @@ namespace rwe
                     preloadSound(db, pair.second.soundStart);
                     preloadSound(db, pair.second.soundHit);
                     preloadSound(db, pair.second.soundWater);
+
+                    if (!pair.second.model.empty())
+                    {
+                        auto meshInfo = meshService.loadProjectileMesh(pair.second.model);
+                        db.addUnitModelDefinition(pair.second.model, std::move(meshInfo.modelDefinition));
+                        for (const auto& m : meshInfo.pieceMeshes)
+                        {
+                            db.addUnitPieceMesh(pair.second.model, m.first, m.second);
+                        }
+                    }
+
                     db.addWeapon(pair.first, std::move(pair.second));
                 }
             }
@@ -669,6 +680,15 @@ namespace rwe
                 }
 
                 db.addUnitInfo(fbi.unitName, fbi);
+
+                auto meshInfo = meshService.loadUnitMesh(fbi.objectName);
+                db.addUnitModelDefinition(fbi.objectName, std::move(meshInfo.modelDefinition));
+                for (const auto& m : meshInfo.pieceMeshes)
+                {
+                    db.addUnitPieceMesh(fbi.objectName, m.first, m.second);
+                }
+
+                db.addSelectionMesh(fbi.objectName, std::make_shared<SelectionMesh>(std::move(meshInfo.selectionMesh)));
             }
         }
 

@@ -363,7 +363,11 @@ set(SOURCE_FILES
     src/rwe/UnitId.h
     src/rwe/UnitMesh.cpp
     src/rwe/UnitMesh.h
+    src/rwe/UnitModelDefinition.cpp
+    src/rwe/UnitModelDefinition.h
     src/rwe/UnitOrder.h
+    src/rwe/UnitPieceDefinition.cpp
+    src/rwe/UnitPieceDefinition.h
     src/rwe/UnitWeapon.h
     src/rwe/VaoHandle.h
     src/rwe/VboHandle.h

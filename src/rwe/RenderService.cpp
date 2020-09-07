@@ -55,7 +55,7 @@ namespace rwe
         graphics->bindShader(shader.handle.get());
         graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * matrix);
         graphics->setUniformFloat(shader.alpha, 1.0f);
-        graphics->drawLineLoop(unit.selectionMesh.visualMesh);
+        graphics->drawLineLoop(unit.selectionMesh->visualMesh);
     }
 
     void RenderService::drawNanolatheLine(const Vector3f& start, const Vector3f& end)
