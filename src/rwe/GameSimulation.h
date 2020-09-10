@@ -190,8 +190,6 @@ namespace rwe
 
         bool isPieceTurning(UnitId unitId, const std::string& name, Axis axis) const;
 
-        std::optional<UnitId> getFirstCollidingUnit(const Ray3f& ray) const;
-
         std::optional<SimVector> intersectLineWithTerrain(const Line3x<SimScalar>& line) const;
 
         void moveUnitOccupiedArea(const DiscreteRect& oldRect, const DiscreteRect& newRect, UnitId unitId);

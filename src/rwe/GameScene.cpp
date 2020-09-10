@@ -1862,7 +1862,20 @@ namespace rwe
 
     std::optional<UnitId> GameScene::getFirstCollidingUnit(const Ray3f& ray) const
     {
-        return simulation.getFirstCollidingUnit(ray);
+        auto bestDistance = std::numeric_limits<float>::infinity();
+        std::optional<UnitId> it;
+
+        for (const auto& entry : simulation.units)
+        {
+            auto distance = entry.second.selectionIntersect(ray);
+            if (distance && distance < bestDistance)
+            {
+                bestDistance = *distance;
+                it = entry.first;
+            }
+        }
+
+        return it;
     }
 
     std::optional<SimVector> GameScene::getMouseTerrainCoordinate() const

@@ -396,24 +396,6 @@ namespace rwe
         return getUnit(unitId).isTurnInProgress(name, axis);
     }
 
-    std::optional<UnitId> GameSimulation::getFirstCollidingUnit(const Ray3f& ray) const
-    {
-        auto bestDistance = std::numeric_limits<float>::infinity();
-        std::optional<UnitId> it;
-
-        for (const auto& entry : units)
-        {
-            auto distance = entry.second.selectionIntersect(ray);
-            if (distance && distance < bestDistance)
-            {
-                bestDistance = *distance;
-                it = entry.first;
-            }
-        }
-
-        return it;
-    }
-
     std::optional<SimVector> GameSimulation::intersectLineWithTerrain(const Line3x<SimScalar>& line) const
     {
         return terrain.intersectLine(line);
