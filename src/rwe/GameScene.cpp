@@ -6,6 +6,7 @@
 #include <rwe/Index.h>
 #include <rwe/Mesh.h>
 #include <rwe/dump_util.h>
+#include <rwe/matrix_util.h>
 #include <rwe/overloaded.h>
 #include <rwe/resource_io.h>
 #include <rwe/ui/UiStagedButton.h>
@@ -1867,7 +1868,7 @@ namespace rwe
 
         for (const auto& entry : simulation.units)
         {
-            auto distance = entry.second.selectionIntersect(ray);
+            auto distance = selectionIntersect(entry.second, *entry.second.selectionMesh, ray);
             if (distance && distance < bestDistance)
             {
                 bestDistance = *distance;
@@ -1876,6 +1877,20 @@ namespace rwe
         }
 
         return it;
+    }
+
+    std::optional<float> GameScene::selectionIntersect(const Unit& unit, const SelectionMesh& mesh, const Ray3f& ray) const
+    {
+        auto inverseTransform = toFloatMatrix(unit.getInverseTransform());
+        auto line = ray.toLine();
+        Line3f modelSpaceLine(inverseTransform * line.start, inverseTransform * line.end);
+        auto v = mesh.collisionMesh.intersectLine(modelSpaceLine);
+        if (!v)
+        {
+            return std::nullopt;
+        }
+
+        return ray.origin.distance(*v);
     }
 
     std::optional<SimVector> GameScene::getMouseTerrainCoordinate() const

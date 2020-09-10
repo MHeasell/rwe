@@ -348,20 +348,6 @@ namespace rwe
         throw std::logic_error("Invalid axis");
     }
 
-    std::optional<float> Unit::selectionIntersect(const Ray3f& ray) const
-    {
-        auto inverseTransform = toFloatMatrix(getInverseTransform());
-        auto line = ray.toLine();
-        Line3f modelSpaceLine(inverseTransform * line.start, inverseTransform * line.end);
-        auto v = selectionMesh->collisionMesh.intersectLine(modelSpaceLine);
-        if (!v)
-        {
-            return std::nullopt;
-        }
-
-        return ray.origin.distance(*v);
-    }
-
     bool Unit::isOwnedBy(PlayerId playerId) const
     {
         return owner == playerId;

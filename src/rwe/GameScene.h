@@ -389,6 +389,14 @@ namespace rwe
 
         std::optional<UnitId> getFirstCollidingUnit(const Ray3f& ray) const;
 
+        /**
+         * Returns a value if the given ray intersects this unit
+         * for the purposes of unit selection.
+         * The value returned is the distance along the ray
+         * where the intersection occurred.
+         */
+        std::optional<float> selectionIntersect(const Unit& unit, const SelectionMesh& mesh, const Ray3f& ray) const;
+
         std::optional<SimVector> getMouseTerrainCoordinate() const;
 
         void localPlayerIssueUnitOrder(UnitId unitId, const UnitOrder& order);

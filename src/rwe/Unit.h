@@ -321,14 +321,6 @@ namespace rwe
 
         bool isTurnInProgress(const std::string& pieceName, Axis axis) const;
 
-        /**
-         * Returns a value if the given ray intersects this unit
-         * for the purposes of unit selection.
-         * The value returned is the distance along the ray
-         * where the intersection occurred.
-         */
-        std::optional<float> selectionIntersect(const Ray3f& ray) const;
-
         bool isOwnedBy(PlayerId playerId) const;
 
         bool isDead() const;
