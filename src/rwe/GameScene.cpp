@@ -111,7 +111,8 @@ namespace rwe
           chromeUiRenderService(std::move(chromeUiRenderService)),
           simulation(std::move(simulation)),
           collisionService(std::move(collisionService)),
-          unitFactory(sceneContext.textureService, std::move(unitDatabase), std::move(meshService), &this->collisionService, sceneContext.palette, sceneContext.guiPalette),
+          unitDatabase(std::move(unitDatabase)),
+          unitFactory(sceneContext.textureService, &this->unitDatabase, std::move(meshService), &this->collisionService, sceneContext.palette, sceneContext.guiPalette),
           gameNetworkService(std::move(gameNetworkService)),
           pathFindingService(&this->simulation, &this->collisionService),
           cobExecutionService(),
@@ -524,7 +525,10 @@ namespace rwe
 
         for (const auto& selectedUnitId : selectedUnits)
         {
-            worldRenderService.drawSelectionRect(getUnit(selectedUnitId));
+            const auto& unit = getUnit(selectedUnitId);
+            const auto& fbi = unitDatabase.getUnitInfo(unit.unitType);
+            auto selectionMesh = unitDatabase.getSelectionMesh(fbi.objectName);
+            worldRenderService.drawSelectionRect(unit, *selectionMesh.value());
         }
 
         worldRenderService.drawUnitShadows(simulation.terrain, simulation.units | boost::adaptors::map_values);
@@ -1868,7 +1872,9 @@ namespace rwe
 
         for (const auto& entry : simulation.units)
         {
-            auto distance = selectionIntersect(entry.second, *entry.second.selectionMesh, ray);
+            const auto& fbi = unitDatabase.getUnitInfo(entry.second.unitType);
+            auto selectionMesh = unitDatabase.getSelectionMesh(fbi.objectName);
+            auto distance = selectionIntersect(entry.second, *selectionMesh.value(), ray);
             if (distance && distance < bestDistance)
             {
                 bestDistance = *distance;

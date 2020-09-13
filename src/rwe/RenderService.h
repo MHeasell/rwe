@@ -60,7 +60,7 @@ namespace rwe
         void drawUnitShadow(const Unit& unit, float groundHeight);
         void drawUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex);
         void drawBuildingUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex);
-        void drawSelectionRect(const Unit& unit);
+        void drawSelectionRect(const Unit& unit, const SelectionMesh& selectionMesh);
         void drawNanolatheLine(const Vector3f& start, const Vector3f& end);
         void drawOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid);
         void drawMovementClassCollisionGrid(const MapTerrain& terrain, const Grid<char>& movementClassGrid);

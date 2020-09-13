@@ -39,7 +39,7 @@ namespace rwe
     }
 
     void
-    RenderService::drawSelectionRect(const Unit& unit)
+    RenderService::drawSelectionRect(const Unit& unit, const SelectionMesh& selectionMesh)
     {
         // try to ensure that the selection rectangle vertices
         // are aligned with the middle of pixels,
@@ -55,7 +55,7 @@ namespace rwe
         graphics->bindShader(shader.handle.get());
         graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * matrix);
         graphics->setUniformFloat(shader.alpha, 1.0f);
-        graphics->drawLineLoop(unit.selectionMesh->visualMesh);
+        graphics->drawLineLoop(selectionMesh.visualMesh);
     }
 
     void RenderService::drawNanolatheLine(const Vector3f& start, const Vector3f& end)

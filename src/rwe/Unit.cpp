@@ -64,8 +64,8 @@ namespace rwe
         return SimVector(sin(rotation), 0_ss, cos(rotation));
     }
 
-    Unit::Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, std::shared_ptr<SelectionMesh> selectionMesh)
-        : mesh(mesh), cobEnvironment(std::move(cobEnvironment)), selectionMesh(selectionMesh)
+    Unit::Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment)
+        : mesh(mesh), cobEnvironment(std::move(cobEnvironment))
     {
     }
 

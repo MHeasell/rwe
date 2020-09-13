@@ -198,6 +198,7 @@ namespace rwe
 
         MovementClassCollisionService collisionService;
 
+        UnitDatabase unitDatabase;
         UnitFactory unitFactory;
 
         std::unique_ptr<GameNetworkService> gameNetworkService;

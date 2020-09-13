@@ -5,13 +5,13 @@ namespace rwe
 {
     UnitFactory::UnitFactory(
         TextureService* textureService,
-        UnitDatabase&& unitDatabase,
+        UnitDatabase* unitDatabase,
         MeshService&& meshService,
         MovementClassCollisionService* collisionService,
         const ColorPalette* palette,
         const ColorPalette* guiPalette)
         : textureService(textureService),
-          unitDatabase(std::move(unitDatabase)),
+          unitDatabase(unitDatabase),
           meshService(std::move(meshService)),
           collisionService(collisionService),
           palette(palette),
@@ -123,24 +123,19 @@ namespace rwe
         PlayerId owner,
         const SimVector& position)
     {
-        const auto& fbi = unitDatabase.getUnitInfo(unitType);
-        const auto& soundClass = unitDatabase.getSoundClassOrDefault(fbi.soundCategory);
+        const auto& fbi = unitDatabase->getUnitInfo(unitType);
+        const auto& soundClass = unitDatabase->getSoundClassOrDefault(fbi.soundCategory);
         std::optional<std::reference_wrapper<const MovementClass>> movementClassOption;
         if (!fbi.movementClass.empty())
         {
-            movementClassOption = unitDatabase.getMovementClass(fbi.movementClass);
+            movementClassOption = unitDatabase->getMovementClass(fbi.movementClass);
         }
 
-        auto mesh = createUnitMesh(unitDatabase, fbi.objectName);
-        auto modelDefinition = unitDatabase.getUnitModelDefinition(fbi.objectName);
+        auto mesh = createUnitMesh(*unitDatabase, fbi.objectName);
+        auto modelDefinition = unitDatabase->getUnitModelDefinition(fbi.objectName);
         if (!modelDefinition)
         {
             throw std::runtime_error("Missing model definition");
-        }
-        auto selectionMesh = unitDatabase.getSelectionMesh(fbi.objectName);
-        if (!selectionMesh)
-        {
-            throw std::runtime_error("Missing selection mesh");
         }
 
         if (fbi.bmCode) // unit is mobile
@@ -149,9 +144,9 @@ namespace rwe
             setShadeRecursive(mesh, false);
         }
 
-        const auto& script = unitDatabase.getUnitScript(fbi.unitName);
+        const auto& script = unitDatabase->getUnitScript(fbi.unitName);
         auto cobEnv = std::make_unique<CobEnvironment>(&script);
-        Unit unit(mesh, std::move(cobEnv), *selectionMesh);
+        Unit unit(mesh, std::move(cobEnv));
         unit.name = fbi.name;
         unit.unitType = toUpper(unitType);
         unit.owner = owner;
@@ -263,31 +258,31 @@ namespace rwe
 
         if (soundClass.select1)
         {
-            unit.selectionSound = unitDatabase.tryGetSoundHandle(*(soundClass.select1));
+            unit.selectionSound = unitDatabase->tryGetSoundHandle(*(soundClass.select1));
         }
         if (soundClass.ok1)
         {
-            unit.okSound = unitDatabase.tryGetSoundHandle(*(soundClass.ok1));
+            unit.okSound = unitDatabase->tryGetSoundHandle(*(soundClass.ok1));
         }
         if (soundClass.arrived1)
         {
-            unit.arrivedSound = unitDatabase.tryGetSoundHandle(*(soundClass.arrived1));
+            unit.arrivedSound = unitDatabase->tryGetSoundHandle(*(soundClass.arrived1));
         }
         if (soundClass.build)
         {
-            unit.buildSound = unitDatabase.tryGetSoundHandle(*soundClass.build);
+            unit.buildSound = unitDatabase->tryGetSoundHandle(*soundClass.build);
         }
         if (soundClass.unitComplete)
         {
-            unit.completeSound = unitDatabase.tryGetSoundHandle(*soundClass.unitComplete);
+            unit.completeSound = unitDatabase->tryGetSoundHandle(*soundClass.unitComplete);
         }
         if (soundClass.activate)
         {
-            unit.activateSound = unitDatabase.tryGetSoundHandle(*soundClass.activate);
+            unit.activateSound = unitDatabase->tryGetSoundHandle(*soundClass.activate);
         }
         if (soundClass.deactivate)
         {
-            unit.deactivateSound = unitDatabase.tryGetSoundHandle(*soundClass.deactivate);
+            unit.deactivateSound = unitDatabase->tryGetSoundHandle(*soundClass.deactivate);
         }
 
         return unit;
@@ -295,7 +290,7 @@ namespace rwe
 
     std::optional<std::reference_wrapper<const std::vector<GuiEntry>>> UnitFactory::getBuilderGui(const std::string& unitType, unsigned int page) const
     {
-        const auto& pages = unitDatabase.tryGetBuilderGui(unitType);
+        const auto& pages = unitDatabase->tryGetBuilderGui(unitType);
         if (!pages)
         {
             return std::nullopt;
@@ -313,7 +308,7 @@ namespace rwe
 
     unsigned int UnitFactory::getBuildPageCount(const std::string& unitType) const
     {
-        const auto& pages = unitDatabase.tryGetBuilderGui(unitType);
+        const auto& pages = unitDatabase->tryGetBuilderGui(unitType);
         if (!pages)
         {
             return 0;
@@ -324,13 +319,13 @@ namespace rwe
 
     Point UnitFactory::getUnitFootprint(const std::string& unitType) const
     {
-        const auto& fbi = unitDatabase.getUnitInfo(unitType);
+        const auto& fbi = unitDatabase->getUnitInfo(unitType);
         return Point(fbi.footprintX, fbi.footprintZ);
     }
 
     MovementClass UnitFactory::getAdHocMovementClass(const std::string& unitType) const
     {
-        const auto& fbi = unitDatabase.getUnitInfo(unitType);
+        const auto& fbi = unitDatabase->getUnitInfo(unitType);
 
         MovementClass mc;
         mc.minWaterDepth = fbi.minWaterDepth;
@@ -344,7 +339,7 @@ namespace rwe
 
     bool UnitFactory::isValidUnitType(const std::string& unitType) const
     {
-        return unitDatabase.hasUnitInfo(unitType);
+        return unitDatabase->hasUnitInfo(unitType);
     }
 
     std::string getFxName(unsigned int code)
@@ -368,7 +363,7 @@ namespace rwe
 
     std::optional<UnitWeapon> UnitFactory::tryCreateWeapon(const std::string& weaponType)
     {
-        const auto tdf = unitDatabase.tryGetWeapon(weaponType);
+        const auto tdf = unitDatabase->tryGetWeapon(weaponType);
         if (!tdf)
         {
             return std::nullopt;
@@ -378,7 +373,7 @@ namespace rwe
 
     UnitWeapon UnitFactory::createWeapon(const std::string& weaponType)
     {
-        const auto& tdf = unitDatabase.getWeapon(weaponType);
+        const auto& tdf = unitDatabase->getWeapon(weaponType);
         return createWeapon(tdf);
     }
 
@@ -414,7 +409,7 @@ namespace rwe
             }
             case 1:
             {
-                auto mesh = createUnitMesh(unitDatabase, tdf.model);
+                auto mesh = createUnitMesh(*unitDatabase, tdf.model);
                 setShadeRecursive(mesh, false);
                 weapon.renderType = ProjectileRenderTypeModel{
                     std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::HalfZ};
@@ -422,7 +417,7 @@ namespace rwe
             }
             case 3:
             {
-                auto mesh = createUnitMesh(unitDatabase, tdf.model);
+                auto mesh = createUnitMesh(*unitDatabase, tdf.model);
                 setShadeRecursive(mesh, false);
                 weapon.renderType = ProjectileRenderTypeModel{
                     std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::QuarterY};
@@ -436,7 +431,7 @@ namespace rwe
             }
             case 6:
             {
-                auto mesh = createUnitMesh(unitDatabase, tdf.model);
+                auto mesh = createUnitMesh(*unitDatabase, tdf.model);
                 setShadeRecursive(mesh, false);
                 weapon.renderType = ProjectileRenderTypeModel{
                     std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::None};
@@ -460,15 +455,15 @@ namespace rwe
         }
         if (!tdf.soundStart.empty())
         {
-            weapon.soundStart = unitDatabase.tryGetSoundHandle(tdf.soundStart);
+            weapon.soundStart = unitDatabase->tryGetSoundHandle(tdf.soundStart);
         }
         if (!tdf.soundHit.empty())
         {
-            weapon.soundHit = unitDatabase.tryGetSoundHandle(tdf.soundHit);
+            weapon.soundHit = unitDatabase->tryGetSoundHandle(tdf.soundHit);
         }
         if (!tdf.soundWater.empty())
         {
-            weapon.soundWater = unitDatabase.tryGetSoundHandle(tdf.soundWater);
+            weapon.soundWater = unitDatabase->tryGetSoundHandle(tdf.soundWater);
         }
         if (!tdf.explosionGaf.empty() && !tdf.explosionArt.empty())
         {

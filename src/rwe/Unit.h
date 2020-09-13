@@ -137,7 +137,6 @@ namespace rwe
         UnitMesh mesh;
         SimVector position;
         std::unique_ptr<CobEnvironment> cobEnvironment;
-        std::shared_ptr<SelectionMesh> selectionMesh;
         std::optional<AudioService::SoundHandle> selectionSound;
         std::optional<AudioService::SoundHandle> okSound;
         std::optional<AudioService::SoundHandle> arrivedSound;
@@ -284,7 +283,7 @@ namespace rwe
 
         static SimVector toDirection(SimAngle rotation);
 
-        Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment, std::shared_ptr<SelectionMesh> selectionMesh);
+        Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment);
 
         bool isBeingBuilt() const;
 
