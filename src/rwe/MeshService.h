@@ -3,6 +3,7 @@
 #include <boost/functional/hash.hpp>
 #include <memory>
 #include <rwe/PlayerColorIndex.h>
+#include <rwe/SelectionMesh.h>
 #include <rwe/TextureService.h>
 #include <rwe/UnitMesh.h>
 #include <rwe/UnitModelDefinition.h>

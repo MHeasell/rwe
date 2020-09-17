@@ -92,12 +92,6 @@ namespace rwe
         UnitMesh m;
         m.origin = def.origin;
         m.name = def.name;
-        auto mesh = db.getUnitPieceMesh(unitName, def.name);
-        if (!mesh)
-        {
-            throw std::runtime_error("No mesh for piece");
-        }
-        m.mesh = *mesh;
 
         for (const auto& c : def.children)
         {
@@ -149,6 +143,7 @@ namespace rwe
         Unit unit(mesh, std::move(cobEnv));
         unit.name = fbi.name;
         unit.unitType = toUpper(unitType);
+        unit.objectName = fbi.objectName;
         unit.owner = owner;
         unit.position = position;
         unit.height = modelDefinition->get().height;
@@ -412,7 +407,7 @@ namespace rwe
                 auto mesh = createUnitMesh(*unitDatabase, tdf.model);
                 setShadeRecursive(mesh, false);
                 weapon.renderType = ProjectileRenderTypeModel{
-                    std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::HalfZ};
+                    tdf.model, std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::HalfZ};
                 break;
             }
             case 3:
@@ -420,7 +415,7 @@ namespace rwe
                 auto mesh = createUnitMesh(*unitDatabase, tdf.model);
                 setShadeRecursive(mesh, false);
                 weapon.renderType = ProjectileRenderTypeModel{
-                    std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::QuarterY};
+                    tdf.model, std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::QuarterY};
                 break;
             }
             case 4:
@@ -434,7 +429,7 @@ namespace rwe
                 auto mesh = createUnitMesh(*unitDatabase, tdf.model);
                 setShadeRecursive(mesh, false);
                 weapon.renderType = ProjectileRenderTypeModel{
-                    std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::None};
+                    tdf.model, std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::None};
                 break;
             }
             default:

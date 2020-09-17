@@ -11,7 +11,6 @@
 #include <rwe/MovementClass.h>
 #include <rwe/MovementClassId.h>
 #include <rwe/PlayerId.h>
-#include <rwe/SelectionMesh.h>
 #include <rwe/SimAngle.h>
 #include <rwe/SimScalar.h>
 #include <rwe/SimVector.h>
@@ -134,6 +133,7 @@ namespace rwe
     public:
         std::string name;
         std::string unitType;
+        std::string objectName;
         UnitMesh mesh;
         SimVector position;
         std::unique_ptr<CobEnvironment> cobEnvironment;

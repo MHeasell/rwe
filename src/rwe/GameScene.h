@@ -396,7 +396,7 @@ namespace rwe
          * The value returned is the distance along the ray
          * where the intersection occurred.
          */
-        std::optional<float> selectionIntersect(const Unit& unit, const SelectionMesh& mesh, const Ray3f& ray) const;
+        std::optional<float> selectionIntersect(const Unit& unit, const CollisionMesh& mesh, const Ray3f& ray) const;
 
         std::optional<SimVector> getMouseTerrainCoordinate() const;
 

@@ -526,9 +526,7 @@ namespace rwe
         for (const auto& selectedUnitId : selectedUnits)
         {
             const auto& unit = getUnit(selectedUnitId);
-            const auto& fbi = unitDatabase.getUnitInfo(unit.unitType);
-            auto selectionMesh = unitDatabase.getSelectionMesh(fbi.objectName);
-            worldRenderService.drawSelectionRect(unit, *selectionMesh.value());
+            worldRenderService.drawSelectionRect(unit);
         }
 
         worldRenderService.drawUnitShadows(simulation.terrain, simulation.units | boost::adaptors::map_values);
@@ -1885,12 +1883,12 @@ namespace rwe
         return it;
     }
 
-    std::optional<float> GameScene::selectionIntersect(const Unit& unit, const SelectionMesh& mesh, const Ray3f& ray) const
+    std::optional<float> GameScene::selectionIntersect(const Unit& unit, const CollisionMesh& mesh, const Ray3f& ray) const
     {
         auto inverseTransform = toFloatMatrix(unit.getInverseTransform());
         auto line = ray.toLine();
         Line3f modelSpaceLine(inverseTransform * line.start, inverseTransform * line.end);
-        auto v = mesh.collisionMesh.intersectLine(modelSpaceLine);
+        auto v = mesh.intersectLine(modelSpaceLine);
         if (!v)
         {
             return std::nullopt;

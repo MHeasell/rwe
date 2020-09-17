@@ -280,6 +280,8 @@ set(SOURCE_FILES
     src/rwe/MapTerrain.h
     src/rwe/Mesh.cpp
     src/rwe/Mesh.h
+    src/rwe/MeshDatabase.cpp
+    src/rwe/MeshDatabase.h
     src/rwe/MeshService.cpp
     src/rwe/MeshService.h
     src/rwe/Metal.h

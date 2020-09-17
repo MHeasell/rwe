@@ -5,12 +5,12 @@
 #include <rwe/AudioService.h>
 #include <rwe/Cob.h>
 #include <rwe/MovementClass.h>
-#include <rwe/SelectionMesh.h>
 #include <rwe/ShaderMesh.h>
 #include <rwe/SoundClass.h>
 #include <rwe/UnitModelDefinition.h>
 #include <rwe/WeaponTdf.h>
 #include <rwe/fbi/UnitFbi.h>
+#include <rwe/geometry/CollisionMesh.h>
 #include <utility>
 
 namespace rwe
@@ -35,11 +35,9 @@ namespace rwe
 
         std::unordered_map<std::string, std::vector<std::vector<GuiEntry>>> builderGuisMap;
 
-        std::unordered_map<std::pair<std::string, std::string>, std::shared_ptr<ShaderMesh>, boost::hash<std::pair<std::string, std::string>>> unitPieceMeshesMap;
-
         std::unordered_map<std::string, UnitModelDefinition> unitModelDefinitionsMap;
 
-        std::unordered_map<std::string, std::shared_ptr<SelectionMesh>> selectionMeshesMap;
+        std::unordered_map<std::string, std::shared_ptr<CollisionMesh>> selectionMeshesMap;
 
     public:
         bool hasUnitInfo(const std::string& unitName) const;
@@ -82,16 +80,12 @@ namespace rwe
 
         MovementClassIterator movementClassEnd() const;
 
-        void addUnitPieceMesh(const std::string& unitName, const std::string& pieceName, std::shared_ptr<ShaderMesh> pieceMesh);
-
-        std::optional<std::shared_ptr<ShaderMesh>> getUnitPieceMesh(const std::string& objectName, const std::string& pieceName) const;
-
         void addUnitModelDefinition(const std::string& objectName, UnitModelDefinition&& model);
 
         std::optional<std::reference_wrapper<const UnitModelDefinition>> getUnitModelDefinition(const std::string& objectName) const;
 
-        std::optional<std::shared_ptr<SelectionMesh>> getSelectionMesh(const std::string& objectName) const;
+        void addSelectionMesh(const std::string& objectName, std::shared_ptr<CollisionMesh> mesh);
 
-        void addSelectionMesh(const std::string& objectName, std::shared_ptr<SelectionMesh> mesh);
+        std::optional<std::shared_ptr<CollisionMesh>> getSelectionMesh(const std::string& objectName) const;
     };
 }

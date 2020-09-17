@@ -8,7 +8,6 @@
 #include <rwe/MapFeature.h>
 #include <rwe/MapTerrain.h>
 #include <rwe/Mesh.h>
-#include <rwe/SelectionMesh.h>
 #include <rwe/ShaderHandle.h>
 #include <rwe/ShaderProgramHandle.h>
 #include <rwe/Sprite.h>

@@ -62,7 +62,6 @@ namespace rwe
 
         std::string name;
         Vector3x<SimScalar> origin;
-        std::shared_ptr<ShaderMesh> mesh;
         std::vector<UnitMesh> children;
         bool visible{true};
         bool shaded{true};

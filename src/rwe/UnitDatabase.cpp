@@ -166,21 +166,6 @@ namespace rwe
         return movementClassMap.end();
     }
 
-    void UnitDatabase::addUnitPieceMesh(const std::string& unitName, const std::string& pieceName, std::shared_ptr<ShaderMesh> pieceMesh)
-    {
-        unitPieceMeshesMap.insert({{unitName, pieceName}, pieceMesh});
-    }
-
-    std::optional<std::shared_ptr<ShaderMesh>> UnitDatabase::getUnitPieceMesh(const std::string& objectName, const std::string& pieceName) const
-    {
-        auto it = unitPieceMeshesMap.find({objectName, pieceName});
-        if (it == unitPieceMeshesMap.end())
-        {
-            return std::nullopt;
-        }
-        return it->second;
-    }
-
     void UnitDatabase::addUnitModelDefinition(const std::string& objectName, UnitModelDefinition&& model)
     {
         unitModelDefinitionsMap.insert({objectName, std::move(model)});
@@ -196,12 +181,12 @@ namespace rwe
         return it->second;
     }
 
-    void UnitDatabase::addSelectionMesh(const std::string& objectName, std::shared_ptr<SelectionMesh> mesh)
+    void UnitDatabase::addSelectionMesh(const std::string& objectName, std::shared_ptr<CollisionMesh> mesh)
     {
         selectionMeshesMap.insert({objectName, mesh});
     }
 
-    std::optional<std::shared_ptr<SelectionMesh>> UnitDatabase::getSelectionMesh(const std::string& objectName) const
+    std::optional<std::shared_ptr<CollisionMesh>> UnitDatabase::getSelectionMesh(const std::string& objectName) const
     {
         auto it = selectionMeshesMap.find(objectName);
         if (it == selectionMeshesMap.end())

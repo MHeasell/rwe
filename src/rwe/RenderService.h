@@ -4,6 +4,7 @@
 #include <rwe/Explosion.h>
 #include <rwe/GameTime.h>
 #include <rwe/GraphicsContext.h>
+#include <rwe/MeshDatabase.h>
 #include <rwe/OccupiedGrid.h>
 #include <rwe/PlayerColorIndex.h>
 #include <rwe/Projectile.h>
@@ -39,6 +40,7 @@ namespace rwe
     private:
         GraphicsContext* graphics;
         ShaderService* shaders;
+        MeshDatabase meshDatabase;
 
         CabinetCamera camera;
 
@@ -49,6 +51,7 @@ namespace rwe
         RenderService(
             GraphicsContext* graphics,
             ShaderService* shaders,
+            MeshDatabase&& meshDatabase,
             const CabinetCamera& camera,
             SharedTextureHandle unitTextureAtlas,
             std::vector<SharedTextureHandle>&& unitTeamTextureAtlases);
@@ -58,9 +61,9 @@ namespace rwe
 
         void drawUnit(const Unit& unit, float seaLevel, float time, PlayerColorIndex playerColorIndex);
         void drawUnitShadow(const Unit& unit, float groundHeight);
-        void drawUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex);
-        void drawBuildingUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex);
-        void drawSelectionRect(const Unit& unit, const SelectionMesh& selectionMesh);
+        void drawUnitMesh(const std::string& objectName, const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex);
+        void drawBuildingUnitMesh(const std::string& objectName, const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex);
+        void drawSelectionRect(const Unit& unit);
         void drawNanolatheLine(const Vector3f& start, const Vector3f& end);
         void drawOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid);
         void drawMovementClassCollisionGrid(const MapTerrain& terrain, const Grid<char>& movementClassGrid);
@@ -125,6 +128,8 @@ namespace rwe
 
     private:
         void drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, PlayerColorIndex playerColorIndex);
+
+        void drawBuildingShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex);
 
         GlMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines);
 

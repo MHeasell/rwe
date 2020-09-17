@@ -141,7 +141,7 @@ namespace rwe
 
         const SideData& getSideData(const std::string& side) const;
 
-        UnitDatabase createUnitDatabase(MeshService& meshService);
+        std::pair<UnitDatabase, MeshDatabase> createUnitDatabase(MeshService& meshService);
 
         void preloadSound(UnitDatabase& db, const std::string& soundName);
 

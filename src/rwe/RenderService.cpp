@@ -27,11 +27,13 @@ namespace rwe
     RenderService::RenderService(
         GraphicsContext* graphics,
         ShaderService* shaders,
+        MeshDatabase&& meshDatabase,
         const CabinetCamera& camera,
         SharedTextureHandle unitTextureAtlas,
         std::vector<SharedTextureHandle>&& unitTeamTextureAtlases)
         : graphics(graphics),
           shaders(shaders),
+          meshDatabase(std::move(meshDatabase)),
           camera(camera),
           unitTextureAtlas(unitTextureAtlas),
           unitTeamTextureAtlases(std::move(unitTeamTextureAtlases))
@@ -39,8 +41,10 @@ namespace rwe
     }
 
     void
-    RenderService::drawSelectionRect(const Unit& unit, const SelectionMesh& selectionMesh)
+    RenderService::drawSelectionRect(const Unit& unit)
     {
+        auto selectionMesh = meshDatabase.getSelectionMesh(unit.objectName);
+
         // try to ensure that the selection rectangle vertices
         // are aligned with the middle of pixels,
         // to prevent discontinuities in the drawn lines.
@@ -55,7 +59,7 @@ namespace rwe
         graphics->bindShader(shader.handle.get());
         graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * matrix);
         graphics->setUniformFloat(shader.alpha, 1.0f);
-        graphics->drawLineLoop(selectionMesh.visualMesh);
+        graphics->drawLineLoop(*selectionMesh.value());
     }
 
     void RenderService::drawNanolatheLine(const Vector3f& start, const Vector3f& end)
@@ -74,61 +78,43 @@ namespace rwe
     {
         if (unit.isBeingBuilt())
         {
-            drawBuildingUnitMesh(unit.mesh, toFloatMatrix(unit.getTransform()), seaLevel, unit.getPreciseCompletePercent(), simScalarToFloat(unit.position.y), time, playerColorIndex);
+            drawBuildingUnitMesh(unit.objectName, unit.mesh, toFloatMatrix(unit.getTransform()), seaLevel, unit.getPreciseCompletePercent(), simScalarToFloat(unit.position.y), time, playerColorIndex);
         }
         else
         {
-            drawUnitMesh(unit.mesh, toFloatMatrix(unit.getTransform()), seaLevel, playerColorIndex);
+            drawUnitMesh(unit.objectName, unit.mesh, toFloatMatrix(unit.getTransform()), seaLevel, playerColorIndex);
         }
     }
 
-    void RenderService::drawUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex)
+    void RenderService::drawUnitMesh(const std::string& objectName, const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex)
     {
         auto matrix = modelMatrix * toFloatMatrix(mesh.getTransform());
 
         if (mesh.visible)
         {
-            drawShaderMesh(*mesh.mesh, matrix, seaLevel, mesh.shaded, playerColorIndex);
+            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, mesh.name).value();
+            drawShaderMesh(resolvedMesh, matrix, seaLevel, mesh.shaded, playerColorIndex);
         }
 
         for (const auto& c : mesh.children)
         {
-            drawUnitMesh(c, matrix, seaLevel, playerColorIndex);
+            drawUnitMesh(objectName, c, matrix, seaLevel, playerColorIndex);
         }
     }
 
-    void RenderService::drawBuildingUnitMesh(const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex)
+    void RenderService::drawBuildingUnitMesh(const std::string& objectName, const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex)
     {
         auto matrix = modelMatrix * toFloatMatrix(mesh.getTransform());
 
         if (mesh.visible)
         {
-            auto mvpMatrix = camera.getViewProjectionMatrix() * matrix;
-
-            // TODO: draw colored vertices
-
-            {
-                const auto& buildShader = shaders->unitBuild;
-                graphics->bindShader(buildShader.handle.get());
-                graphics->setUniformMatrix(buildShader.mvpMatrix, mvpMatrix);
-                graphics->setUniformMatrix(buildShader.modelMatrix, matrix);
-                graphics->setUniformFloat(buildShader.unitY, unitY);
-                graphics->setUniformFloat(buildShader.seaLevel, seaLevel);
-                graphics->setUniformBool(buildShader.shade, mesh.shaded);
-                graphics->setUniformFloat(buildShader.percentComplete, percentComplete);
-                graphics->setUniformFloat(buildShader.time, time);
-
-                graphics->bindTexture(unitTextureAtlas.get());
-                graphics->drawTriangles(mesh.mesh->vertices);
-
-                graphics->bindTexture(unitTeamTextureAtlases.at(playerColorIndex.value).get());
-                graphics->drawTriangles(mesh.mesh->teamVertices);
-            }
+            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, mesh.name).value();
+            drawBuildingShaderMesh(resolvedMesh, modelMatrix, seaLevel, mesh.shaded, percentComplete, unitY, time, playerColorIndex);
         }
 
         for (const auto& c : mesh.children)
         {
-            drawBuildingUnitMesh(c, matrix, seaLevel, percentComplete, unitY, time, playerColorIndex);
+            drawBuildingUnitMesh(objectName, c, matrix, seaLevel, percentComplete, unitY, time, playerColorIndex);
         }
     }
 
@@ -456,7 +442,7 @@ namespace rwe
 
         auto matrix = Matrix4f::translation(simVectorToFloat(unit.position)) * Matrix4f::rotationY(toRadians(unit.rotation).value);
 
-        drawUnitMesh(unit.mesh, shadowProjection * matrix, 0.0f, PlayerColorIndex(0));
+        drawUnitMesh(unit.objectName, unit.mesh, shadowProjection * matrix, 0.0f, PlayerColorIndex(0));
     }
 
     CabinetCamera& RenderService::getCamera()
@@ -549,7 +535,7 @@ namespace rwe
                     auto transform = Matrix4f::translation(position)
                         * pointDirection(simVectorToFloat(projectile.velocity).normalized())
                         * rotationModeToMatrix(m.rotationMode);
-                    drawUnitMesh(*m.mesh, transform, seaLevel, PlayerColorIndex(0));
+                    drawUnitMesh(m.objectName, *m.mesh, transform, seaLevel, PlayerColorIndex(0));
                 },
                 [&](const ProjectileRenderTypeSprite& s) {
                     Vector3f snappedPosition(
@@ -629,6 +615,29 @@ namespace rwe
             graphics->setUniformMatrix(textureShader.modelMatrix, matrix);
             graphics->setUniformFloat(textureShader.seaLevel, seaLevel);
             graphics->setUniformBool(textureShader.shade, shaded);
+
+            graphics->bindTexture(unitTextureAtlas.get());
+            graphics->drawTriangles(mesh.vertices);
+
+            graphics->bindTexture(unitTeamTextureAtlases.at(playerColorIndex.value).get());
+            graphics->drawTriangles(mesh.teamVertices);
+        }
+    }
+
+    void RenderService::drawBuildingShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex)
+    {
+        auto mvpMatrix = camera.getViewProjectionMatrix() * matrix;
+
+        {
+            const auto& buildShader = shaders->unitBuild;
+            graphics->bindShader(buildShader.handle.get());
+            graphics->setUniformMatrix(buildShader.mvpMatrix, mvpMatrix);
+            graphics->setUniformMatrix(buildShader.modelMatrix, matrix);
+            graphics->setUniformFloat(buildShader.unitY, unitY);
+            graphics->setUniformFloat(buildShader.seaLevel, seaLevel);
+            graphics->setUniformBool(buildShader.shade, shaded);
+            graphics->setUniformFloat(buildShader.percentComplete, percentComplete);
+            graphics->setUniformFloat(buildShader.time, time);
 
             graphics->bindTexture(unitTextureAtlas.get());
             graphics->drawTriangles(mesh.vertices);

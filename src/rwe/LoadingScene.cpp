@@ -4,6 +4,7 @@
 #include <rwe/Index.h>
 #include <rwe/WeaponTdf.h>
 #include <rwe/atlas_util.h>
+#include <rwe/geometry/CollisionMesh.h>
 #include <rwe/ota.h>
 #include <rwe/tdf.h>
 #include <rwe/tnt/TntArchive.h>
@@ -163,7 +164,7 @@ namespace rwe
         auto atlasInfo = createTextureAtlases(sceneContext.vfs, sceneContext.graphics, sceneContext.palette);
         MeshService meshService(sceneContext.vfs, sceneContext.graphics, std::move(atlasInfo.textureAtlasMap), std::move(atlasInfo.teamTextureAtlasMap), std::move(atlasInfo.colorAtlasMap));
 
-        auto unitDatabase = createUnitDatabase(meshService);
+        auto [unitDatabase, meshDatabase] = createUnitDatabase(meshService);
 
         MovementClassCollisionService collisionService;
 
@@ -220,7 +221,7 @@ namespace rwe
 
         auto gameNetworkService = std::make_unique<GameNetworkService>(*localPlayerId, std::stoi(gameParameters.localNetworkPort), endpointInfos, playerCommandService.get());
 
-        RenderService worldRenderService(sceneContext.graphics, sceneContext.shaders, worldCamera, atlasInfo.textureAtlas, std::move(atlasInfo.teamTextureAtlases));
+        RenderService worldRenderService(sceneContext.graphics, sceneContext.shaders, std::move(meshDatabase), worldCamera, atlasInfo.textureAtlas, std::move(atlasInfo.teamTextureAtlases));
         UiRenderService worldUiRenderService(sceneContext.graphics, sceneContext.shaders, worldUiCamera);
         UiRenderService chromeUiRenderService(sceneContext.graphics, sceneContext.shaders, chromeUiCamera);
 
@@ -556,9 +557,10 @@ namespace rwe
         return it->second;
     }
 
-    UnitDatabase LoadingScene::createUnitDatabase(MeshService& meshService)
+    std::pair<UnitDatabase, MeshDatabase> LoadingScene::createUnitDatabase(MeshService& meshService)
     {
         UnitDatabase db;
+        MeshDatabase meshDb;
 
         // read sound categories
         {
@@ -642,7 +644,7 @@ namespace rwe
                         db.addUnitModelDefinition(pair.second.model, std::move(meshInfo.modelDefinition));
                         for (const auto& m : meshInfo.pieceMeshes)
                         {
-                            db.addUnitPieceMesh(pair.second.model, m.first, m.second);
+                            meshDb.addUnitPieceMesh(pair.second.model, m.first, m.second);
                         }
                     }
 
@@ -685,10 +687,11 @@ namespace rwe
                 db.addUnitModelDefinition(fbi.objectName, std::move(meshInfo.modelDefinition));
                 for (const auto& m : meshInfo.pieceMeshes)
                 {
-                    db.addUnitPieceMesh(fbi.objectName, m.first, m.second);
+                    meshDb.addUnitPieceMesh(fbi.objectName, m.first, m.second);
                 }
 
-                db.addSelectionMesh(fbi.objectName, std::make_shared<SelectionMesh>(std::move(meshInfo.selectionMesh)));
+                db.addSelectionMesh(fbi.objectName, std::make_shared<CollisionMesh>(std::move(meshInfo.selectionMesh.collisionMesh)));
+                meshDb.addSelectionMesh(fbi.objectName, std::make_shared<GlMesh>(std::move(meshInfo.selectionMesh.visualMesh)));
             }
         }
 
@@ -713,7 +716,7 @@ namespace rwe
             }
         }
 
-        return db;
+        return std::make_pair(db, meshDb);
     }
 
     void LoadingScene::preloadSound(UnitDatabase& db, const std::optional<std::string>& soundName)
