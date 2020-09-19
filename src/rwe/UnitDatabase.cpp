@@ -107,7 +107,7 @@ namespace rwe
         return it->second;
     }
 
-    std::optional<AudioService::SoundHandle> UnitDatabase::tryGetSoundHandle(const std::string& sound)
+    std::optional<AudioService::SoundHandle> UnitDatabase::tryGetSoundHandle(const std::string& sound) const
     {
         auto it = soundMap.find(sound);
         if (it == soundMap.end())
