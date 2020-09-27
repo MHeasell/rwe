@@ -793,10 +793,7 @@ namespace rwe
 
         if (moveTo(unitId, moveOrder.destination))
         {
-            if (unit.arrivedSound)
-            {
-                scene->playNotificationSound(unit.owner, *unit.arrivedSound);
-            }
+            scene->playUnitNotificationSound(unit.owner, unit.unitType, UnitSoundType::Arrived1);
             return true;
         }
 
@@ -1012,10 +1009,7 @@ namespace rwe
                 if (targetUnit.addBuildProgress(unit.workerTimePerTick))
                 {
                     // play sound when the unit is completed
-                    if (targetUnit.completeSound)
-                    {
-                        scene->playNotificationSound(targetUnit.owner, *targetUnit.completeSound);
-                    }
+                    scene->playUnitNotificationSound(targetUnit.owner, targetUnit.unitType, UnitSoundType::UnitComplete);
                     if (targetUnit.activateWhenBuilt)
                     {
                         scene->activateUnit(state.targetUnit->first);
@@ -1319,10 +1313,7 @@ namespace rwe
                 if (targetUnit.addBuildProgress(unit.workerTimePerTick))
                 {
                     // play sound when the unit is completed
-                    if (targetUnit.completeSound)
-                    {
-                        scene->playNotificationSound(targetUnit.owner, *targetUnit.completeSound);
-                    }
+                    scene->playUnitNotificationSound(targetUnit.owner, targetUnit.unitType, UnitSoundType::UnitComplete);
                     if (targetUnit.activateWhenBuilt)
                     {
                         scene->activateUnit(buildingState.targetUnit);

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <rwe/UnitSoundType.h>
 #include <boost/range/adaptor/map.hpp>
 #include <boost/version.hpp>
 #include <deque>
@@ -339,6 +340,8 @@ namespace rwe
         void playUiSound(const AudioService::SoundHandle& sound);
 
         void playNotificationSound(const PlayerId& playerId, const AudioService::SoundHandle& sound);
+
+        void playUnitNotificationSound(const PlayerId& playerId, const std::string& unitType, UnitSoundType soundType);
 
         void playSoundAt(const Vector3f& position, const AudioService::SoundHandle& sound);
 

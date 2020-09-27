@@ -1573,6 +1573,79 @@ namespace rwe
         }
     }
 
+
+    std::optional<std::string> getSoundName(const SoundClass& c, UnitSoundType sound)
+    {
+        switch (sound)
+        {
+            case UnitSoundType::Select1:
+                return c.select1;
+            case UnitSoundType::UnitComplete:
+                return c.unitComplete;
+            case UnitSoundType::Activate:
+                return c.activate;
+            case UnitSoundType::Deactivate:
+                return c.deactivate;
+            case UnitSoundType::Ok1:
+                return c.ok1;
+            case UnitSoundType::Arrived1:
+                return c.arrived1;
+            case UnitSoundType::Cant1:
+                return c.cant1;
+            case UnitSoundType::UnderAttack:
+                return c.underAttack;
+            case UnitSoundType::Build:
+                return c.build;
+            case UnitSoundType::Repair:
+                return c.repair;
+            case UnitSoundType::Working:
+                return c.working;
+            case UnitSoundType::Cloak:
+                return c.cloak;
+            case UnitSoundType::Uncloak:
+                return c.uncloak;
+            case UnitSoundType::Capture:
+                return c.capture;
+            case UnitSoundType::Count5:
+                return c.count5;
+            case UnitSoundType::Count4:
+                return c.count4;
+            case UnitSoundType::Count3:
+                return c.count3;
+            case UnitSoundType::Count2:
+                return c.count2;
+            case UnitSoundType::Count1:
+                return c.count1;
+            case UnitSoundType::Count0:
+                return c.count0;
+            case UnitSoundType::CancelDestruct:
+                return c.cancelDestruct;
+            default:
+                throw std::logic_error("Invalid sound type");
+        }
+    }
+
+    std::optional<AudioService::SoundHandle> getSound(const UnitDatabase& db, const std::string& unitType, UnitSoundType soundType)
+    {
+        const auto& fbi = db.getUnitInfo(unitType);
+        const auto& soundClass = db.getSoundClassOrDefault(fbi.soundCategory);
+        const auto& soundId = getSoundName(soundClass, soundType);
+        if (soundId)
+        {
+            return db.tryGetSoundHandle(*soundId);
+        }
+        return std::nullopt;
+    }
+
+    void GameScene::playUnitNotificationSound(const PlayerId& playerId, const std::string& unitType, UnitSoundType soundType)
+    {
+        auto sound = getSound(unitDatabase, unitType, soundType);
+        if (sound)
+        {
+            playNotificationSound(playerId, *sound);
+        }
+    }
+
     void GameScene::playSoundAt(const Vector3f& position, const AudioService::SoundHandle& sound)
     {
         // FIXME: should play on a position-aware channel
@@ -1937,9 +2010,10 @@ namespace rwe
         else
         {
             const auto& unit = getUnit(unitId);
-            if (unit.okSound)
+            auto handle = getSound(unitDatabase, unit.unitType, UnitSoundType::Ok1);
+            if (handle)
             {
-                playUiSound(*(unit.okSound));
+                playUiSound(*handle);
             }
         }
     }
@@ -1963,9 +2037,10 @@ namespace rwe
         localPlayerCommandBuffer.push_back(PlayerUnitCommand(unitId, PlayerUnitCommand::Stop()));
 
         const auto& unit = getUnit(unitId);
-        if (unit.okSound)
+        auto handle = getSound(unitDatabase, unit.unitType, UnitSoundType::Ok1);
+        if (handle)
         {
-            playUiSound(*(unit.okSound));
+            playUiSound(*handle);
         }
     }
 
@@ -2336,11 +2411,7 @@ namespace rwe
         if (unit)
         {
             unit->get().activate();
-
-            if (unit->get().activateSound)
-            {
-                playNotificationSound(unit->get().owner, *unit->get().activateSound);
-            }
+            playUnitNotificationSound(unit->get().owner, unit->get().unitType, UnitSoundType::Activate);
 
             if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && *selectedUnit == unitId)
             {
@@ -2355,11 +2426,7 @@ namespace rwe
         if (unit)
         {
             unit->get().deactivate();
-
-            if (unit->get().deactivateSound)
-            {
-                playNotificationSound(unit->get().owner, *unit->get().deactivateSound);
-            }
+            playUnitNotificationSound(unit->get().owner, unit->get().unitType, UnitSoundType::Deactivate);
 
             if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && *selectedUnit == unitId)
             {
@@ -2483,10 +2550,7 @@ namespace rwe
                     continue;
                 }
 
-                if (unit->get().buildSound)
-                {
-                    playNotificationSound(unit->get().owner, *unit->get().buildSound);
-                }
+                playUnitNotificationSound(unit->get().owner, unit->get().unitType, UnitSoundType::Build);
 
                 s->status = UnitCreationStatusDone{*newUnitId};
             }
@@ -2949,7 +3013,7 @@ namespace rwe
         selectedUnits.insert(unitId);
 
         const auto& unit = getUnit(unitId);
-        const auto& selectionSound = unit.selectionSound;
+        auto selectionSound = getSound(unitDatabase, unit.unitType, UnitSoundType::Select1);
         if (selectionSound)
         {
             playUiSound(*selectionSound);
@@ -2983,7 +3047,7 @@ namespace rwe
         if (selectedUnits.size() == 1)
         {
             const auto& unit = getUnit(*units.begin());
-            const auto& selectionSound = unit.selectionSound;
+            auto selectionSound = getSound(unitDatabase, unit.unitType, UnitSoundType::Select1);
             if (selectionSound)
             {
                 playUiSound(*selectionSound);

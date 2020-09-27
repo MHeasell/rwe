@@ -370,6 +370,7 @@ set(SOURCE_FILES
     src/rwe/UnitOrder.h
     src/rwe/UnitPieceDefinition.cpp
     src/rwe/UnitPieceDefinition.h
+    src/rwe/UnitSoundType.h
     src/rwe/UnitWeapon.h
     src/rwe/VaoHandle.h
     src/rwe/VboHandle.h

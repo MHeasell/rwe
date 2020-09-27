@@ -118,7 +118,6 @@ namespace rwe
         const SimVector& position)
     {
         const auto& fbi = unitDatabase->getUnitInfo(unitType);
-        const auto& soundClass = unitDatabase->getSoundClassOrDefault(fbi.soundCategory);
         std::optional<std::reference_wrapper<const MovementClass>> movementClassOption;
         if (!fbi.movementClass.empty())
         {
@@ -249,35 +248,6 @@ namespace rwe
         if (!fbi.explodeAs.empty())
         {
             unit.explosionWeapon = tryCreateWeapon(fbi.explodeAs);
-        }
-
-        if (soundClass.select1)
-        {
-            unit.selectionSound = unitDatabase->tryGetSoundHandle(*(soundClass.select1));
-        }
-        if (soundClass.ok1)
-        {
-            unit.okSound = unitDatabase->tryGetSoundHandle(*(soundClass.ok1));
-        }
-        if (soundClass.arrived1)
-        {
-            unit.arrivedSound = unitDatabase->tryGetSoundHandle(*(soundClass.arrived1));
-        }
-        if (soundClass.build)
-        {
-            unit.buildSound = unitDatabase->tryGetSoundHandle(*soundClass.build);
-        }
-        if (soundClass.unitComplete)
-        {
-            unit.completeSound = unitDatabase->tryGetSoundHandle(*soundClass.unitComplete);
-        }
-        if (soundClass.activate)
-        {
-            unit.activateSound = unitDatabase->tryGetSoundHandle(*soundClass.activate);
-        }
-        if (soundClass.deactivate)
-        {
-            unit.deactivateSound = unitDatabase->tryGetSoundHandle(*soundClass.deactivate);
         }
 
         return unit;

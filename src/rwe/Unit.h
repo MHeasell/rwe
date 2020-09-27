@@ -137,13 +137,6 @@ namespace rwe
         UnitMesh mesh;
         SimVector position;
         std::unique_ptr<CobEnvironment> cobEnvironment;
-        std::optional<AudioService::SoundHandle> selectionSound;
-        std::optional<AudioService::SoundHandle> okSound;
-        std::optional<AudioService::SoundHandle> arrivedSound;
-        std::optional<AudioService::SoundHandle> buildSound;
-        std::optional<AudioService::SoundHandle> completeSound;
-        std::optional<AudioService::SoundHandle> activateSound;
-        std::optional<AudioService::SoundHandle> deactivateSound;
         PlayerId owner;
 
         /**
