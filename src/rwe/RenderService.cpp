@@ -109,7 +109,7 @@ namespace rwe
         if (mesh.visible)
         {
             const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, mesh.name).value();
-            drawBuildingShaderMesh(resolvedMesh, modelMatrix, seaLevel, mesh.shaded, percentComplete, unitY, time, playerColorIndex);
+            drawBuildingShaderMesh(resolvedMesh, matrix, seaLevel, mesh.shaded, percentComplete, unitY, time, playerColorIndex);
         }
 
         for (const auto& c : mesh.children)
