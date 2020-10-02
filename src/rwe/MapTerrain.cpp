@@ -6,45 +6,10 @@
 namespace rwe
 {
     MapTerrain::MapTerrain(
-        std::vector<TextureRegion>&& tileGraphics,
-        Grid<size_t>&& tiles,
         Grid<unsigned char>&& heights,
         SimScalar seaLevel)
-        : tileGraphics(std::move(tileGraphics)), tiles(std::move(tiles)), heights(std::move(heights)), seaLevel(seaLevel)
+        : heights(std::move(heights)), seaLevel(seaLevel)
     {
-    }
-
-    const TextureRegion& MapTerrain::getTileTexture(std::size_t index) const
-    {
-        assert(index < tileGraphics.size());
-        return tileGraphics[index];
-    }
-
-    const Grid<std::size_t>& MapTerrain::getTiles() const
-    {
-        return tiles;
-    }
-
-    Point MapTerrain::worldToTileCoordinate(const SimVector& position) const
-    {
-        auto widthInWorldUnits = getWidthInWorldUnits();
-        auto heightInWorldUnits = getHeightInWorldUnits();
-
-        auto newX = (position.x + (widthInWorldUnits / 2_ss)) / TileWidthInWorldUnits;
-        auto newY = (position.z + (heightInWorldUnits / 2_ss)) / TileHeightInWorldUnits;
-
-        return Point(static_cast<int>(newX.value), static_cast<int>(newY.value));
-    }
-
-    SimVector MapTerrain::tileCoordinateToWorldCorner(int x, int y) const
-    {
-        auto widthInWorldUnits = getWidthInWorldUnits();
-        auto heightInWorldUnits = getHeightInWorldUnits();
-
-        auto worldX = (SimScalar(x) * TileWidthInWorldUnits) - (widthInWorldUnits / 2_ss);
-        auto worldY = (SimScalar(y) * TileHeightInWorldUnits) - (heightInWorldUnits / 2_ss);
-
-        return SimVector(worldX, 0_ss, worldY);
     }
 
     Point MapTerrain::worldToHeightmapCoordinate(const SimVector& position) const
@@ -106,24 +71,24 @@ namespace rwe
 
     SimScalar MapTerrain::leftInWorldUnits() const
     {
-        return -((SimScalar(tiles.getWidth()) / 2_ss) * TileWidthInWorldUnits);
+        return -((SimScalar(heights.getWidth()) / 2_ss) * HeightTileWidthInWorldUnits);
     }
 
     SimScalar MapTerrain::rightCutoffInWorldUnits() const
     {
-        auto right = (SimScalar(tiles.getWidth()) / 2_ss) * TileWidthInWorldUnits;
-        return right - TileWidthInWorldUnits;
+        auto right = (SimScalar(heights.getWidth()) / 2_ss) * HeightTileWidthInWorldUnits;
+        return right - (HeightTileWidthInWorldUnits * 2_ss);
     }
 
     SimScalar MapTerrain::topInWorldUnits() const
     {
-        return -((SimScalar(tiles.getHeight()) / 2_ss) * TileHeightInWorldUnits);
+        return -((SimScalar(heights.getHeight()) / 2_ss) * HeightTileHeightInWorldUnits);
     }
 
     SimScalar MapTerrain::bottomCutoffInWorldUnits() const
     {
-        auto bottom = (SimScalar(tiles.getHeight()) / 2_ss) * TileHeightInWorldUnits;
-        return bottom - (TileHeightInWorldUnits * 4_ss);
+        auto bottom = (SimScalar(heights.getHeight()) / 2_ss) * HeightTileHeightInWorldUnits;
+        return bottom - (HeightTileHeightInWorldUnits * 8_ss);
     }
 
     const Grid<unsigned char>& MapTerrain::getHeightMap() const
@@ -133,12 +98,12 @@ namespace rwe
 
     SimScalar MapTerrain::getWidthInWorldUnits() const
     {
-        return SimScalar(tiles.getWidth()) * TileWidthInWorldUnits;
+        return SimScalar(heights.getWidth()) * HeightTileWidthInWorldUnits;
     }
 
     SimScalar MapTerrain::getHeightInWorldUnits() const
     {
-        return SimScalar(tiles.getHeight()) * TileHeightInWorldUnits;
+        return SimScalar(heights.getHeight()) * HeightTileHeightInWorldUnits;
     }
 
     SimVector MapTerrain::topLeftCoordinateToWorld(const SimVector& pos) const

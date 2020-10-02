@@ -7,6 +7,7 @@
 #include <rwe/GameScene.h>
 #include <rwe/LoadingNetworkService.h>
 #include <rwe/MapFeatureService.h>
+#include <rwe/MapTerrainGraphics.h>
 #include <rwe/Metal.h>
 #include <rwe/PlayerColorIndex.h>
 #include <rwe/SceneContext.h>
@@ -125,7 +126,16 @@ namespace rwe
 
         std::unique_ptr<GameScene> createGameScene(const std::string& mapName, unsigned int schemaIndex);
 
-        GameSimulation createInitialSimulation(const std::string& mapName, const rwe::OtaRecord& ota, unsigned int schemaIndex);
+
+        struct LoadMapResult
+        {
+            MapTerrain terrain;
+            unsigned char surfaceMetal;
+            std::vector<MapFeature> features;
+            MapTerrainGraphics terrainGraphics;
+        };
+
+        LoadMapResult loadMap(const std::string& mapName, const rwe::OtaRecord& ota, unsigned int schemaIndex);
 
         std::vector<TextureRegion> getTileTextures(TntArchive& tnt);
 

@@ -2,6 +2,7 @@
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include <rwe/GameNetworkService.h>
 #include <rwe/Index.h>
+#include <rwe/MapTerrainGraphics.h>
 #include <rwe/WeaponTdf.h>
 #include <rwe/atlas_util.h>
 #include <rwe/geometry/CollisionMesh.h>
@@ -145,7 +146,12 @@ namespace rwe
         std::string otaStr(otaRaw->begin(), otaRaw->end());
         auto ota = parseOta(parseTdfFromString(otaStr));
 
-        auto simulation = createInitialSimulation(mapName, ota, schemaIndex);
+        auto mapInfo = loadMap(mapName, ota, schemaIndex);
+        GameSimulation simulation(std::move(mapInfo.terrain), mapInfo.surfaceMetal);
+        for (auto& feature : mapInfo.features)
+        {
+            simulation.addFeature(std::move(feature));
+        }
         auto seedSeq = seedFromGameParameters(gameParameters);
         simulation.rng.seed(seedSeq);
 
@@ -259,6 +265,7 @@ namespace rwe
             std::move(worldUiRenderService),
             std::move(chromeUiRenderService),
             std::move(simulation),
+            std::move(mapInfo.terrainGraphics),
             std::move(collisionService),
             std::move(unitDatabase),
             std::move(meshService),
@@ -316,7 +323,7 @@ namespace rwe
         return gameScene;
     }
 
-    GameSimulation LoadingScene::createInitialSimulation(const std::string& mapName, const OtaRecord& ota, unsigned int schemaIndex)
+    LoadingScene::LoadMapResult LoadingScene::loadMap(const std::string& mapName, const OtaRecord& ota, unsigned int schemaIndex)
     {
         auto tntBytes = sceneContext.vfs->readFile("maps/" + mapName + ".tnt");
         if (!tntBytes)
@@ -337,16 +344,18 @@ namespace rwe
         auto heightGrid = getHeightGrid(mapAttributes);
 
         MapTerrain terrain(
-            std::move(tileTextures),
-            std::move(dataGrid),
             std::move(heightGrid),
             SimScalar(tnt.getHeader().seaLevel));
 
+        MapTerrainGraphics terrainGraphics(
+            std::move(tileTextures),
+            std::move(dataGrid));
+
         const auto& schema = ota.schemas.at(schemaIndex);
 
-        GameSimulation simulation(std::move(terrain), schema.surfaceMetal);
-
         auto featureTemplates = getFeatures(tnt);
+
+        std::vector<MapFeature> features;
 
         for (std::size_t y = 0; y < mapAttributes.getHeight(); ++y)
         {
@@ -361,9 +370,9 @@ namespace rwe
                         break;
                     default:
                         const auto& featureTemplate = featureTemplates[e.feature];
-                        auto pos = computeFeaturePosition(simulation.terrain, featureTemplate, x, y);
+                        auto pos = computeFeaturePosition(terrain, featureTemplate, x, y);
                         auto feature = createFeature(pos, featureTemplate);
-                        simulation.addFeature(std::move(feature));
+                        features.push_back(std::move(feature));
                 }
             }
         }
@@ -372,12 +381,12 @@ namespace rwe
         for (const auto& f : schema.features)
         {
             const auto& featureTemplate = featureService->getFeatureDefinition(f.featureName);
-            auto pos = computeFeaturePosition(simulation.terrain, featureTemplate, f.xPos, f.zPos);
+            auto pos = computeFeaturePosition(terrain, featureTemplate, f.xPos, f.zPos);
             auto feature = createFeature(pos, featureTemplate);
-            simulation.addFeature(std::move(feature));
+            features.push_back(std::move(feature));
         }
 
-        return simulation;
+        return LoadMapResult{std::move(terrain), static_cast<unsigned char>(schema.surfaceMetal), std::move(features), std::move(terrainGraphics)};
     }
 
     std::vector<TextureRegion> LoadingScene::getTileTextures(TntArchive& tnt)

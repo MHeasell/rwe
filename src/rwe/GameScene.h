@@ -1,6 +1,5 @@
 #pragma once
 
-#include <rwe/UnitSoundType.h>
 #include <boost/range/adaptor/map.hpp>
 #include <boost/version.hpp>
 #include <deque>
@@ -31,6 +30,7 @@
 #include <rwe/UnitDatabase.h>
 #include <rwe/UnitFactory.h>
 #include <rwe/UnitId.h>
+#include <rwe/UnitSoundType.h>
 #include <rwe/ViewportService.h>
 #include <rwe/camera/UiCamera.h>
 #include <rwe/cob/CobExecutionService.h>
@@ -197,6 +197,8 @@ namespace rwe
 
         GameSimulation simulation;
 
+        MapTerrainGraphics terrainGraphics;
+
         MovementClassCollisionService collisionService;
 
         UnitDatabase unitDatabase;
@@ -278,6 +280,7 @@ namespace rwe
             UiRenderService&& worldUiRenderService,
             UiRenderService&& chromeUiRenderService,
             GameSimulation&& simulation,
+            MapTerrainGraphics&& terrainGraphics,
             MovementClassCollisionService&& collisionService,
             UnitDatabase&& unitDatabase,
             MeshService&& meshService,

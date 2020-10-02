@@ -1,5 +1,6 @@
 #pragma once
 
+#include <rwe/MapTerrainGraphics.h>
 #include <boost/iterator/filter_iterator.hpp>
 #include <rwe/Explosion.h>
 #include <rwe/GameTime.h>
@@ -69,7 +70,7 @@ namespace rwe
         void drawMovementClassCollisionGrid(const MapTerrain& terrain, const Grid<char>& movementClassGrid);
         void drawPathfindingVisualisation(const MapTerrain& terrain, const AStarPathInfo<Point, PathCost>& pathInfo);
 
-        void drawMapTerrain(const MapTerrain& terrain);
+        void drawMapTerrain(const MapTerrainGraphics& terrain);
 
         template <typename Range>
         void drawFlatFeatures(const Range& features)
@@ -95,7 +96,7 @@ namespace rwe
             drawStandingFeatureShadowsInternal(features.begin(), features.end());
         }
 
-        void drawMapTerrain(const MapTerrain& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
+        void drawMapTerrain(const MapTerrainGraphics& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
 
         template <typename Range>
         void drawUnitShadows(const MapTerrain& terrain, const Range& units)

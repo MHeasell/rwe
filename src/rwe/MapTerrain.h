@@ -14,9 +14,6 @@ namespace rwe
     class MapTerrain
     {
     public:
-        static constexpr SimScalar TileWidthInWorldUnits = 32_ss;
-        static constexpr SimScalar TileHeightInWorldUnits = 32_ss;
-
         static constexpr SimScalar HeightTileWidthInWorldUnits = 16_ss;
         static constexpr SimScalar HeightTileHeightInWorldUnits = 16_ss;
 
@@ -24,24 +21,14 @@ namespace rwe
         static constexpr SimScalar MinHeight = 0_ss;
 
     private:
-        std::vector<TextureRegion> tileGraphics;
-
-        Grid<std::size_t> tiles;
-
         Grid<unsigned char> heights;
 
         SimScalar seaLevel;
 
     public:
         MapTerrain(
-            std::vector<TextureRegion>&& tileGraphics,
-            Grid<size_t>&& tiles,
             Grid<unsigned char>&& heights,
             SimScalar seaLevel);
-
-        Point worldToTileCoordinate(const SimVector& position) const;
-
-        SimVector tileCoordinateToWorldCorner(int x, int y) const;
 
         Point worldToHeightmapCoordinate(const SimVector& position) const;
 
@@ -63,9 +50,6 @@ namespace rwe
 
         SimVector topLeftCoordinateToWorld(const SimVector& position) const;
 
-        const TextureRegion& getTileTexture(std::size_t index) const;
-
-        const Grid<std::size_t>& getTiles() const;
 
         const Grid<unsigned char>& getHeightMap() const;
 

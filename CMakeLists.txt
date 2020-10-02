@@ -278,6 +278,8 @@ set(SOURCE_FILES
     src/rwe/MapFeatureService.h
     src/rwe/MapTerrain.cpp
     src/rwe/MapTerrain.h
+    src/rwe/MapTerrainGraphics.cpp
+    src/rwe/MapTerrainGraphics.h
     src/rwe/Mesh.cpp
     src/rwe/Mesh.h
     src/rwe/MeshDatabase.cpp

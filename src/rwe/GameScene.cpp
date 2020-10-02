@@ -91,6 +91,7 @@ namespace rwe
         UiRenderService&& worldUiRenderService,
         UiRenderService&& chromeUiRenderService,
         GameSimulation&& simulation,
+        MapTerrainGraphics&& terrainGraphics,
         MovementClassCollisionService&& collisionService,
         UnitDatabase&& unitDatabase,
         MeshService&& meshService,
@@ -110,6 +111,7 @@ namespace rwe
           worldUiRenderService(std::move(worldUiRenderService)),
           chromeUiRenderService(std::move(chromeUiRenderService)),
           simulation(std::move(simulation)),
+          terrainGraphics(std::move(terrainGraphics)),
           collisionService(std::move(collisionService)),
           unitDatabase(std::move(unitDatabase)),
           unitFactory(sceneContext.textureService, &this->unitDatabase, std::move(meshService), &this->collisionService, sceneContext.palette, sceneContext.guiPalette),
@@ -498,7 +500,7 @@ namespace rwe
     {
         sceneContext.graphics->disableDepthBuffer();
 
-        worldRenderService.drawMapTerrain(simulation.terrain);
+        worldRenderService.drawMapTerrain(terrainGraphics);
 
         worldRenderService.drawFlatFeatureShadows(simulation.features | boost::adaptors::map_values);
         worldRenderService.drawFlatFeatures(simulation.features | boost::adaptors::map_values);

@@ -371,7 +371,7 @@ namespace rwe
         return graphics->createColoredMesh(buffer, GL_STREAM_DRAW);
     }
 
-    void RenderService::drawMapTerrain(const MapTerrain& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
+    void RenderService::drawMapTerrain(const MapTerrainGraphics& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
     {
         std::unordered_map<TextureIdentifier, std::vector<std::pair<unsigned int, unsigned int>>> batches;
 
@@ -405,11 +405,11 @@ namespace rwe
                 const auto& tileTexture = terrain.getTileTexture(tileIndex);
 
                 vertices.emplace_back(Vector3f(tilePosition.x, 0.0f, tilePosition.z), tileTexture.region.topLeft());
-                vertices.emplace_back(Vector3f(tilePosition.x, 0.0f, tilePosition.z + simScalarToFloat(MapTerrain::TileHeightInWorldUnits)), tileTexture.region.bottomLeft());
-                vertices.emplace_back(Vector3f(tilePosition.x + simScalarToFloat(MapTerrain::TileWidthInWorldUnits), 0.0f, tilePosition.z + simScalarToFloat(MapTerrain::TileHeightInWorldUnits)), tileTexture.region.bottomRight());
+                vertices.emplace_back(Vector3f(tilePosition.x, 0.0f, tilePosition.z + simScalarToFloat(MapTerrainGraphics::TileHeightInWorldUnits)), tileTexture.region.bottomLeft());
+                vertices.emplace_back(Vector3f(tilePosition.x + simScalarToFloat(MapTerrainGraphics::TileWidthInWorldUnits), 0.0f, tilePosition.z + simScalarToFloat(MapTerrainGraphics::TileHeightInWorldUnits)), tileTexture.region.bottomRight());
 
-                vertices.emplace_back(Vector3f(tilePosition.x + simScalarToFloat(MapTerrain::TileWidthInWorldUnits), 0.0f, tilePosition.z + simScalarToFloat(MapTerrain::TileHeightInWorldUnits)), tileTexture.region.bottomRight());
-                vertices.emplace_back(Vector3f(tilePosition.x + simScalarToFloat(MapTerrain::TileWidthInWorldUnits), 0.0f, tilePosition.z), tileTexture.region.topRight());
+                vertices.emplace_back(Vector3f(tilePosition.x + simScalarToFloat(MapTerrainGraphics::TileWidthInWorldUnits), 0.0f, tilePosition.z + simScalarToFloat(MapTerrainGraphics::TileHeightInWorldUnits)), tileTexture.region.bottomRight());
+                vertices.emplace_back(Vector3f(tilePosition.x + simScalarToFloat(MapTerrainGraphics::TileWidthInWorldUnits), 0.0f, tilePosition.z), tileTexture.region.topRight());
                 vertices.emplace_back(Vector3f(tilePosition.x, 0.0f, tilePosition.z), tileTexture.region.topLeft());
             }
 
@@ -420,7 +420,7 @@ namespace rwe
         }
     }
 
-    void RenderService::drawMapTerrain(const MapTerrain& terrain)
+    void RenderService::drawMapTerrain(const MapTerrainGraphics& terrain)
     {
         Vector3f cameraExtents(camera.getWidth() / 2.0f, 0.0f, camera.getHeight() / 2.0f);
         auto topLeft = terrain.worldToTileCoordinate(floatToSimVector(camera.getPosition() - cameraExtents));
