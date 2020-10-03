@@ -2,8 +2,8 @@
 #include <cassert>
 #include <fstream>
 #include <iostream>
-#include <rwe/_3do.h>
 #include <rwe/fixed_point.h>
+#include <rwe/io/_3do/_3do.h>
 #include <rwe/optional_io.h>
 #include <rwe/vertex_height.h>
 #include <vector>

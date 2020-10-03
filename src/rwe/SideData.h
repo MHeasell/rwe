@@ -1,7 +1,7 @@
 #pragma once
 
 #include <rwe/DiscreteRect.h>
-#include <rwe/tdf/TdfBlock.h>
+#include <rwe/io/tdf/TdfBlock.h>
 #include <string>
 
 namespace rwe

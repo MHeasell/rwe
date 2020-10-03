@@ -4,13 +4,13 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <png++/png.hpp>
-#include <rwe/_3do.h>
 #include <rwe/fixed_point.h>
+#include <rwe/io/_3do/_3do.h>
+#include <rwe/io/ota/ota.h>
+#include <rwe/io/tdf/tdf.h>
+#include <rwe/io/tnt/TntArchive.h>
 #include <rwe/optional_io.h>
-#include <rwe/ota.h>
 #include <rwe/rwe_string.h>
-#include <rwe/tdf.h>
-#include <rwe/tnt/TntArchive.h>
 #include <rwe/vfs/CompositeVirtualFileSystem.h>
 #include <string>
 #include <vector>

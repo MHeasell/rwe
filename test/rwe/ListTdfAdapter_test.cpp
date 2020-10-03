@@ -1,5 +1,5 @@
 #include <catch2/catch.hpp>
-#include <rwe/tdf/ListTdfAdapter.h>
+#include <rwe/io/tdf/ListTdfAdapter.h>
 
 #include <utf8.h>
 

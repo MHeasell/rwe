@@ -1,10 +1,10 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <rwe/Cob.h>
 #include <rwe/Index.h>
-#include <rwe/_3do.h>
 #include <rwe/cob/CobOpCode.h>
+#include <rwe/io/_3do/_3do.h>
+#include <rwe/io/cob/Cob.h>
 #include <rwe/optional_io.h>
 #include <vector>
 

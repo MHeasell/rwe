@@ -3,14 +3,14 @@
 #include <boost/functional/hash.hpp>
 #include <memory>
 #include <rwe/AudioService.h>
-#include <rwe/Cob.h>
 #include <rwe/MovementClass.h>
 #include <rwe/ShaderMesh.h>
 #include <rwe/SoundClass.h>
 #include <rwe/UnitModelDefinition.h>
-#include <rwe/WeaponTdf.h>
-#include <rwe/fbi/UnitFbi.h>
 #include <rwe/geometry/CollisionMesh.h>
+#include <rwe/io/cob/Cob.h>
+#include <rwe/io/fbi/UnitFbi.h>
+#include <rwe/io/weapontdf/WeaponTdf.h>
 #include <utility>
 
 namespace rwe

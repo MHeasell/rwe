@@ -1,6 +1,6 @@
 #pragma once
-#include <rwe/tdf/TdfBlock.h>
-#include <rwe/fbi/UnitFbi.h>
+#include <rwe/io/fbi/UnitFbi.h>
+#include <rwe/io/tdf/TdfBlock.h>
 
 namespace rwe
 {

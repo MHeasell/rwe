@@ -1,6 +1,6 @@
 #include <catch2/catch.hpp>
 #include <rwe/SideData.h>
-#include <rwe/tdf.h>
+#include <rwe/io/tdf/tdf.h>
 
 namespace rwe
 {

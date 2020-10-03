@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rwe/FeatureDefinition.h>
+#include <rwe/io/featuretdf/FeatureDefinition.h>
 #include <rwe/vfs/AbstractVirtualFileSystem.h>
 #include <string>
 

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <rwe/MapTerrainGraphics.h>
 #include <boost/iterator/filter_iterator.hpp>
 #include <rwe/Explosion.h>
 #include <rwe/GameTime.h>
 #include <rwe/GraphicsContext.h>
+#include <rwe/MapTerrainGraphics.h>
 #include <rwe/MeshDatabase.h>
 #include <rwe/OccupiedGrid.h>
 #include <rwe/PlayerColorIndex.h>

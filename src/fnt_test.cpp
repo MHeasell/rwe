@@ -3,7 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <png++/png.hpp>
-#include <rwe/Fnt.h>
+#include <rwe/io/fnt/Fnt.h>
 #include <rwe/optional_io.h>
 #include <vector>
 

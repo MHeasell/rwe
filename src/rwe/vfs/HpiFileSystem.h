@@ -1,7 +1,7 @@
 #pragma once
 
 #include <fstream>
-#include <rwe/Hpi.h>
+#include <rwe/io/hpi/Hpi.h>
 #include <rwe/vfs/AbstractVirtualFileSystem.h>
 
 namespace rwe

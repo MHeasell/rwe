@@ -3,8 +3,8 @@
 #include <iostream>
 #include <memory>
 #include <png++/png.hpp>
-#include <rwe/Gaf.h>
-#include <rwe/tnt/TntArchive.h>
+#include <rwe/io/gaf/Gaf.h>
+#include <rwe/io/tnt/TntArchive.h>
 #include <string>
 
 namespace fs = boost::filesystem;

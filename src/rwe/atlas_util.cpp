@@ -1,8 +1,8 @@
 #include "atlas_util.h"
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include <rwe/BoxTreeSplit.h>
-#include <rwe/Gaf.h>
 #include <rwe/Index.h>
+#include <rwe/io/gaf/Gaf.h>
 #include <rwe/overloaded.h>
 
 namespace rwe

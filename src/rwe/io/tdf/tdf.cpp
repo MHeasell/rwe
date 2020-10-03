@@ -1,7 +1,7 @@
 #include "tdf.h"
 
-#include <rwe/tdf/ListTdfAdapter.h>
-#include <rwe/tdf/SimpleTdfAdapter.h>
+#include <rwe/io/tdf/ListTdfAdapter.h>
+#include <rwe/io/tdf/SimpleTdfAdapter.h>
 
 namespace rwe
 {

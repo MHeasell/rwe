@@ -20,10 +20,10 @@
 #include <rwe/ShaderService.h>
 #include <rwe/ViewportService.h>
 #include <rwe/config.h>
-#include <rwe/gui.h>
+#include <rwe/io/gui/gui.h>
+#include <rwe/io/tdf/tdf.h>
 #include <rwe/ip_util.h>
 #include <rwe/rwe_time.h>
-#include <rwe/tdf.h>
 #include <rwe/ui/UiFactory.h>
 #include <rwe/util.h>
 #include <rwe/vfs/CompositeVirtualFileSystem.h>

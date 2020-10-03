@@ -2,7 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
-#include <rwe/Hpi.h>
+#include <rwe/io/hpi/Hpi.h>
 #include <rwe/overloaded.h>
 #include <string>
 

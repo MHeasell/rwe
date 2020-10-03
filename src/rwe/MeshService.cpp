@@ -1,11 +1,11 @@
 #include "MeshService.h"
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include <rwe/BoxTreeSplit.h>
-#include <rwe/Gaf.h>
 #include <rwe/Index.h>
-#include <rwe/_3do.h>
 #include <rwe/fixed_point.h>
 #include <rwe/geometry/CollisionMesh.h>
+#include <rwe/io/_3do/_3do.h>
+#include <rwe/io/gaf/Gaf.h>
 #include <rwe/math/Vector3f.h>
 #include <rwe/math/rwe_math.h>
 #include <rwe/overloaded.h>

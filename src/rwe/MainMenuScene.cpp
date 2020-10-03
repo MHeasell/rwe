@@ -3,10 +3,10 @@
 #include <rwe/LoadingScene.h>
 #include <rwe/MainMenuModel.h>
 #include <rwe/config.h>
-#include <rwe/gui.h>
-#include <rwe/ota.h>
+#include <rwe/io/gui/gui.h>
+#include <rwe/io/ota/ota.h>
+#include <rwe/io/tdf/tdf.h>
 #include <rwe/resource_io.h>
-#include <rwe/tdf.h>
 #include <rwe/ui/UiSurface.h>
 
 namespace rwe

@@ -1,8 +1,8 @@
 #include <catch2/catch.hpp>
 
 #include <rwe/Index.h>
-#include <rwe/ota.h>
-#include <rwe/tdf.h>
+#include <rwe/io/ota/ota.h>
+#include <rwe/io/tdf/tdf.h>
 
 namespace rwe
 {

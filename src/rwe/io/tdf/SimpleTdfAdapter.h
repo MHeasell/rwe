@@ -1,16 +1,16 @@
 #pragma once
 
-#include <rwe/tdf/TdfBlock.h>
-#include <rwe/tdf/TdfParser.h>
+#include <rwe/io/tdf/TdfBlock.h>
+#include <rwe/io/tdf/TdfParser.h>
 #include <string>
 #include <vector>
 
 namespace rwe
 {
-    class ListTdfAdapter : public TdfAdapter<std::vector<TdfBlock>>
+    class SimpleTdfAdapter : public TdfAdapter<TdfBlock>
     {
     private:
-        std::vector<TdfBlock> root;
+        TdfBlock root;
 
         std::vector<TdfBlock*> blockStack;
 

@@ -2,9 +2,9 @@
 
 #include <rwe/Energy.h>
 #include <rwe/Metal.h>
-#include <rwe/fbi/FbiAnglePerTick.h>
-#include <rwe/fbi/FbiDistancePerTick.h>
-#include <rwe/fbi/FbiDistancePerTickSquared.h>
+#include <rwe/io/fbi/FbiAnglePerTick.h>
+#include <rwe/io/fbi/FbiDistancePerTick.h>
+#include <rwe/io/fbi/FbiDistancePerTickSquared.h>
 #include <string>
 
 namespace rwe

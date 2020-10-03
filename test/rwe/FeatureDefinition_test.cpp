@@ -1,7 +1,7 @@
-#include <rwe/optional_io.h>
 #include <catch2/catch.hpp>
-#include <rwe/FeatureDefinition.h>
-#include <rwe/tdf.h>
+#include <rwe/optional_io.h>
+#include <rwe/io/featuretdf/FeatureDefinition.h>
+#include <rwe/io/tdf/tdf.h>
 
 namespace rwe
 {

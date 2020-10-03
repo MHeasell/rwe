@@ -1,10 +1,10 @@
 #include "TextureService.h"
 #include <boost/interprocess/streams/bufferstream.hpp>
-#include <rwe/Fnt.h>
-#include <rwe/Gaf.h>
+#include <rwe/io/fnt/Fnt.h>
+#include <rwe/io/gaf/Gaf.h>
+#include <rwe/io/tnt/TntArchive.h>
 #include <rwe/pcx.h>
 #include <rwe/rwe_string.h>
-#include <rwe/tnt/TntArchive.h>
 
 namespace rwe
 {

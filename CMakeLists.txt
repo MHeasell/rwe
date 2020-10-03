@@ -217,8 +217,6 @@ set(SOURCE_FILES
     src/rwe/AudioService.h
     src/rwe/BoxTreeSplit.cpp
     src/rwe/BoxTreeSplit.h
-    src/rwe/Cob.cpp
-    src/rwe/Cob.h
     src/rwe/ColorPalette.cpp
     src/rwe/ColorPalette.h
     src/rwe/CursorService.cpp
@@ -230,13 +228,7 @@ set(SOURCE_FILES
     src/rwe/Energy.h
     src/rwe/Explosion.cpp
     src/rwe/Explosion.h
-    src/rwe/FeatureDefinition.cpp
-    src/rwe/FeatureDefinition.h
     src/rwe/FeatureId.h
-    src/rwe/Fnt.cpp
-    src/rwe/Fnt.h
-    src/rwe/Gaf.cpp
-    src/rwe/Gaf.h
     src/rwe/GameHash.cpp
     src/rwe/GameHash.h
     src/rwe/GameHash_util.cpp
@@ -257,8 +249,6 @@ set(SOURCE_FILES
     src/rwe/GraphicsContext.cpp
     src/rwe/GraphicsContext.h
     src/rwe/Grid.h
-    src/rwe/Hpi.cpp
-    src/rwe/Hpi.h
     src/rwe/ImGuiContext.cpp
     src/rwe/ImGuiContext.h
     src/rwe/InGameSoundsInfo.cpp
@@ -381,10 +371,6 @@ set(SOURCE_FILES
     src/rwe/ViewportService.cpp
     src/rwe/ViewportService.h
     src/rwe/Weapon.h
-    src/rwe/WeaponTdf.cpp
-    src/rwe/WeaponTdf.h
-    src/rwe/_3do.cpp
-    src/rwe/_3do.h
     src/rwe/atlas_util.cpp
     src/rwe/atlas_util.h
     src/rwe/camera/AbstractCamera.cpp
@@ -418,12 +404,6 @@ set(SOURCE_FILES
     src/rwe/dump_util.h
     src/rwe/events.cpp
     src/rwe/events.h
-    src/rwe/fbi/FbiAnglePerTick.h
-    src/rwe/fbi/FbiDistancePerTick.h
-    src/rwe/fbi/FbiDistancePerTickSquared.h
-    src/rwe/fbi/UnitFbi.h
-    src/rwe/fbi/io.cpp
-    src/rwe/fbi/io.h
     src/rwe/fixed_point.cpp
     src/rwe/fixed_point.h
     src/rwe/float_math.cpp
@@ -444,8 +424,42 @@ set(SOURCE_FILES
     src/rwe/geometry/Rectangle2x.h
     src/rwe/geometry/Triangle3f.h
     src/rwe/geometry/Triangle3x.h
-    src/rwe/gui.cpp
-    src/rwe/gui.h
+    src/rwe/io/_3do/_3do.cpp
+    src/rwe/io/_3do/_3do.h
+    src/rwe/io/cob/Cob.cpp
+    src/rwe/io/cob/Cob.h
+    src/rwe/io/fbi/FbiAnglePerTick.h
+    src/rwe/io/fbi/FbiDistancePerTick.h
+    src/rwe/io/fbi/FbiDistancePerTickSquared.h
+    src/rwe/io/fbi/UnitFbi.h
+    src/rwe/io/fbi/io.cpp
+    src/rwe/io/fbi/io.h
+    src/rwe/io/featuretdf/FeatureDefinition.cpp
+    src/rwe/io/featuretdf/FeatureDefinition.h
+    src/rwe/io/fnt/Fnt.cpp
+    src/rwe/io/fnt/Fnt.h
+    src/rwe/io/gaf/Gaf.cpp
+    src/rwe/io/gaf/Gaf.h
+    src/rwe/io/gui/gui.cpp
+    src/rwe/io/gui/gui.h
+    src/rwe/io/hpi/Hpi.cpp
+    src/rwe/io/hpi/Hpi.h
+    src/rwe/io/ota/ota.cpp
+    src/rwe/io/ota/ota.h
+    src/rwe/io/tdf/ListTdfAdapter.cpp
+    src/rwe/io/tdf/ListTdfAdapter.h
+    src/rwe/io/tdf/SimpleTdfAdapter.cpp
+    src/rwe/io/tdf/SimpleTdfAdapter.h
+    src/rwe/io/tdf/TdfBlock.cpp
+    src/rwe/io/tdf/TdfBlock.h
+    src/rwe/io/tdf/TdfParser.cpp
+    src/rwe/io/tdf/TdfParser.h
+    src/rwe/io/tdf/tdf.cpp
+    src/rwe/io/tdf/tdf.h
+    src/rwe/io/tnt/TntArchive.cpp
+    src/rwe/io/tnt/TntArchive.h
+    src/rwe/io/weapontdf/WeaponTdf.cpp
+    src/rwe/io/weapontdf/WeaponTdf.h
     src/rwe/io_utils.cpp
     src/rwe/io_utils.h
     src/rwe/ip_util.cpp
@@ -471,8 +485,6 @@ set(SOURCE_FILES
     src/rwe/observable/Subscription.h
     src/rwe/optional_io.h
     src/rwe/optional_util.h
-    src/rwe/ota.cpp
-    src/rwe/ota.h
     src/rwe/overloaded.h
     src/rwe/pathfinding/AStarPathFinder.h
     src/rwe/pathfinding/AbstractUnitPathFinder.cpp
@@ -503,18 +515,6 @@ set(SOURCE_FILES
     src/rwe/rwe_string.h
     src/rwe/rwe_time.cpp
     src/rwe/rwe_time.h
-    src/rwe/tdf.cpp
-    src/rwe/tdf.h
-    src/rwe/tdf/ListTdfAdapter.cpp
-    src/rwe/tdf/ListTdfAdapter.h
-    src/rwe/tdf/SimpleTdfAdapter.cpp
-    src/rwe/tdf/SimpleTdfAdapter.h
-    src/rwe/tdf/TdfBlock.cpp
-    src/rwe/tdf/TdfBlock.h
-    src/rwe/tdf/TdfParser.cpp
-    src/rwe/tdf/TdfParser.h
-    src/rwe/tnt/TntArchive.cpp
-    src/rwe/tnt/TntArchive.h
     src/rwe/ui/UiComponent.cpp
     src/rwe/ui/UiComponent.h
     src/rwe/ui/UiFactory.cpp

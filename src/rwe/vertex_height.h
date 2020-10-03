@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cassert>
 #include <optional>
-#include <rwe/_3do.h>
+#include <rwe/io/_3do/_3do.h>
 
 namespace rwe
 {

@@ -1,9 +1,9 @@
 #include "gui.h"
 
 #include <algorithm>
+#include <rwe/io/tdf/TdfBlock.h>
+#include <rwe/io/tdf/tdf.h>
 #include <rwe/optional_util.h>
-#include <rwe/tdf.h>
-#include <rwe/tdf/TdfBlock.h>
 #include <stdexcept>
 
 namespace rwe

@@ -1,4 +1,4 @@
-#include <rwe/gui.h>
+#include <rwe/io/gui/gui.h>
 #include <rwe/vfs/AbstractVirtualFileSystem.h>
 
 namespace rwe

@@ -3,7 +3,7 @@
 #include <rwe/AudioService.h>
 #include <rwe/MainMenuModel.h>
 #include <rwe/TextureService.h>
-#include <rwe/gui.h>
+#include <rwe/io/gui/gui.h>
 #include <rwe/ui/UiLabel.h>
 #include <rwe/ui/UiListBox.h>
 #include <rwe/ui/UiPanel.h>

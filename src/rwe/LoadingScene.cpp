@@ -3,14 +3,14 @@
 #include <rwe/GameNetworkService.h>
 #include <rwe/Index.h>
 #include <rwe/MapTerrainGraphics.h>
-#include <rwe/WeaponTdf.h>
 #include <rwe/atlas_util.h>
 #include <rwe/geometry/CollisionMesh.h>
-#include <rwe/ota.h>
-#include <rwe/tdf.h>
-#include <rwe/tnt/TntArchive.h>
+#include <rwe/io/fbi/io.h>
+#include <rwe/io/ota/ota.h>
+#include <rwe/io/tdf/tdf.h>
+#include <rwe/io/tnt/TntArchive.h>
+#include <rwe/io/weapontdf/WeaponTdf.h>
 #include <rwe/ui/UiLabel.h>
-#include <rwe/fbi/io.h>
 
 namespace rwe
 {

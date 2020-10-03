@@ -1,7 +1,7 @@
 #pragma once
 
 #include <optional>
-#include <rwe/gui.h>
+#include <rwe/io/gui/gui.h>
 #include <string>
 #include <vector>
 
