@@ -1,6 +1,6 @@
 #include <catch2/catch.hpp>
 #include <rapidcheck/catch.h>
-#include <rwe/DiscreteRect.h>
+#include <rwe/grid/DiscreteRect.h>
 #include <rwe/pathfinding/OctileDistance_io.h>
 
 namespace rwe

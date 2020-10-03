@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rwe/DiscreteRect.h>
+#include <rwe/grid/DiscreteRect.h>
 #include <rwe/sim/SimVector.h>
 #include <rwe/sim/UnitId.h>
 #include <variant>

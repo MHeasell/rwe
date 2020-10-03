@@ -1,6 +1,6 @@
 #include <catch2/catch.hpp>
 #include <optional>
-#include <rwe/Grid.h>
+#include <rwe/grid/Grid.h>
 
 namespace rwe
 {

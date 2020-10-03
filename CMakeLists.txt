@@ -221,10 +221,6 @@ set(SOURCE_FILES
     src/rwe/ColorPalette.h
     src/rwe/CursorService.cpp
     src/rwe/CursorService.h
-    src/rwe/DiscreteRect.cpp
-    src/rwe/DiscreteRect.h
-    src/rwe/EightWayDirection.cpp
-    src/rwe/EightWayDirection.h
     src/rwe/GameHash.cpp
     src/rwe/GameHash.h
     src/rwe/GameHash_util.cpp
@@ -233,14 +229,8 @@ set(SOURCE_FILES
     src/rwe/GameNetworkService.h
     src/rwe/GameScene.cpp
     src/rwe/GameScene.h
-    src/rwe/render/GlIdentifier.h
-    src/rwe/render/GlMesh.cpp
-    src/rwe/render/GlMesh.h
     src/rwe/GlobalConfig.cpp
     src/rwe/GlobalConfig.h
-    src/rwe/render/GraphicsContext.cpp
-    src/rwe/render/GraphicsContext.h
-    src/rwe/Grid.h
     src/rwe/ImGuiContext.cpp
     src/rwe/ImGuiContext.h
     src/rwe/InGameSoundsInfo.cpp
@@ -272,14 +262,11 @@ set(SOURCE_FILES
     src/rwe/OpaqueId.h
     src/rwe/OpaqueId_io.h
     src/rwe/OpaqueUnit.h
-    src/rwe/render/OpenGlVersion.h
     src/rwe/PlayerColorIndex.cpp
     src/rwe/PlayerColorIndex.h
     src/rwe/PlayerCommand.h
     src/rwe/PlayerCommandService.cpp
     src/rwe/PlayerCommandService.h
-    src/rwe/Point.cpp
-    src/rwe/Point.h
     src/rwe/ProjectileRenderType.h
     src/rwe/RadiansAngle.cpp
     src/rwe/RadiansAngle.h
@@ -294,10 +281,6 @@ set(SOURCE_FILES
     src/rwe/SdlContextManager.cpp
     src/rwe/SdlContextManager.h
     src/rwe/SelectionMesh.h
-    src/rwe/render/ShaderHandle.h
-    src/rwe/render/ShaderMesh.cpp
-    src/rwe/render/ShaderMesh.h
-    src/rwe/render/ShaderProgramHandle.h
     src/rwe/ShaderService.cpp
     src/rwe/ShaderService.h
     src/rwe/SharedHandle.h
@@ -305,18 +288,10 @@ set(SOURCE_FILES
     src/rwe/SideData.h
     src/rwe/SoundClass.cpp
     src/rwe/SoundClass.h
-    src/rwe/render/Sprite.cpp
-    src/rwe/render/Sprite.h
-    src/rwe/render/SpriteSeries.cpp
-    src/rwe/render/SpriteSeries.h
-    src/rwe/render/TextureHandle.h
-    src/rwe/render/TextureRegion.cpp
-    src/rwe/render/TextureRegion.h
     src/rwe/TextureService.cpp
     src/rwe/TextureService.h
     src/rwe/UiRenderService.cpp
     src/rwe/UiRenderService.h
-    src/rwe/render/UniformLocation.h
     src/rwe/UniqueHandle.h
     src/rwe/UnitDatabase.cpp
     src/rwe/UnitDatabase.h
@@ -325,8 +300,6 @@ set(SOURCE_FILES
     src/rwe/UnitModelDefinition.cpp
     src/rwe/UnitModelDefinition.h
     src/rwe/UnitSoundType.h
-    src/rwe/render/VaoHandle.h
-    src/rwe/render/VboHandle.h
     src/rwe/VectorMap.cpp
     src/rwe/VectorMap.h
     src/rwe/ViewportService.cpp
@@ -385,6 +358,13 @@ set(SOURCE_FILES
     src/rwe/geometry/Rectangle2x.h
     src/rwe/geometry/Triangle3f.h
     src/rwe/geometry/Triangle3x.h
+    src/rwe/grid/DiscreteRect.cpp
+    src/rwe/grid/DiscreteRect.h
+    src/rwe/grid/EightWayDirection.cpp
+    src/rwe/grid/EightWayDirection.h
+    src/rwe/grid/Grid.h
+    src/rwe/grid/Point.cpp
+    src/rwe/grid/Point.h
     src/rwe/io/_3do/_3do.cpp
     src/rwe/io/_3do/_3do.h
     src/rwe/io/cob/Cob.cpp
@@ -468,6 +448,26 @@ set(SOURCE_FILES
     src/rwe/proto/serialization.cpp
     src/rwe/proto/serialization.h
     src/rwe/range_util.h
+    src/rwe/render/GlIdentifier.h
+    src/rwe/render/GlMesh.cpp
+    src/rwe/render/GlMesh.h
+    src/rwe/render/GraphicsContext.cpp
+    src/rwe/render/GraphicsContext.h
+    src/rwe/render/OpenGlVersion.h
+    src/rwe/render/ShaderHandle.h
+    src/rwe/render/ShaderMesh.cpp
+    src/rwe/render/ShaderMesh.h
+    src/rwe/render/ShaderProgramHandle.h
+    src/rwe/render/Sprite.cpp
+    src/rwe/render/Sprite.h
+    src/rwe/render/SpriteSeries.cpp
+    src/rwe/render/SpriteSeries.h
+    src/rwe/render/TextureHandle.h
+    src/rwe/render/TextureRegion.cpp
+    src/rwe/render/TextureRegion.h
+    src/rwe/render/UniformLocation.h
+    src/rwe/render/VaoHandle.h
+    src/rwe/render/VboHandle.h
     src/rwe/resource_io.cpp
     src/rwe/resource_io.h
     src/rwe/rwe_string.cpp

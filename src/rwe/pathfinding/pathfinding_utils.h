@@ -1,8 +1,8 @@
 #pragma once
 
-#include <rwe/DiscreteRect.h>
-#include <rwe/EightWayDirection.h>
-#include <rwe/Point.h>
+#include <rwe/grid/DiscreteRect.h>
+#include <rwe/grid/EightWayDirection.h>
+#include <rwe/grid/Point.h>
 #include <rwe/pathfinding/OctileDistance.h>
 
 namespace rwe

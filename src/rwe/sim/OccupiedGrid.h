@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rwe/Grid.h>
+#include <rwe/grid/Grid.h>
 #include <rwe/sim/FeatureId.h>
 #include <rwe/sim/UnitId.h>
 #include <variant>

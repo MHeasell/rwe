@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rwe/Grid.h>
+#include <rwe/grid/Grid.h>
 #include <rwe/render/TextureRegion.h>
 #include <rwe/sim/SimScalar.h>
 #include <rwe/sim/SimVector.h>

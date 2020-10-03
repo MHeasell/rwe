@@ -1,5 +1,5 @@
 #include <catch2/catch.hpp>
-#include <rwe/EightWayDirection.h>
+#include <rwe/grid/EightWayDirection.h>
 #include <rwe/util.h>
 
 namespace rwe

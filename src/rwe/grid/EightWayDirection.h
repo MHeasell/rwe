@@ -1,7 +1,7 @@
 #pragma once
 
 #include <array>
-#include <rwe/Point.h>
+#include <rwe/grid/Point.h>
 #include <rwe/math/rwe_math.h>
 #include <stdexcept>
 

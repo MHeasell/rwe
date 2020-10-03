@@ -4,7 +4,7 @@
 #include <cassert>
 #include <functional>
 #include <optional>
-#include <rwe/DiscreteRect.h>
+#include <rwe/grid/DiscreteRect.h>
 #include <stdexcept>
 #include <vector>
 

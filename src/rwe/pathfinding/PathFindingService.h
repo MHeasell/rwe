@@ -2,7 +2,7 @@
 
 #include <deque>
 #include <rwe/MovementClassCollisionService.h>
-#include <rwe/Point.h>
+#include <rwe/grid/Point.h>
 #include <rwe/math/Vector3f.h>
 #include <rwe/pathfinding/AStarPathFinder.h>
 #include <rwe/pathfinding/OctileDistance.h>

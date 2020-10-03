@@ -9,7 +9,6 @@
 #include <queue>
 #include <rwe/AudioService.h>
 #include <rwe/CursorService.h>
-#include <rwe/DiscreteRect.h>
 #include <rwe/GameNetworkService.h>
 #include <rwe/InGameSoundsInfo.h>
 #include <rwe/MeshService.h>
@@ -27,6 +26,7 @@
 #include <rwe/ViewportService.h>
 #include <rwe/camera/UiCamera.h>
 #include <rwe/cob/CobExecutionService.h>
+#include <rwe/grid/DiscreteRect.h>
 #include <rwe/observable/BehaviorSubject.h>
 #include <rwe/pathfinding/PathFindingService.h>
 #include <rwe/sim/GameSimulation.h>

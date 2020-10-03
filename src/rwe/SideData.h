@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rwe/DiscreteRect.h>
+#include <rwe/grid/DiscreteRect.h>
 #include <rwe/io/tdf/TdfBlock.h>
 #include <string>
 

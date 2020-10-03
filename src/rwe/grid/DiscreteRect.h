@@ -2,7 +2,7 @@
 
 #include <boost/functional/hash.hpp>
 #include <optional>
-#include <rwe/Point.h>
+#include <rwe/grid/Point.h>
 #include <rwe/pathfinding/OctileDistance.h>
 
 namespace rwe

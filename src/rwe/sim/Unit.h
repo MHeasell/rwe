@@ -4,12 +4,12 @@
 #include <memory>
 #include <optional>
 #include <rwe/AudioService.h>
-#include <rwe/DiscreteRect.h>
-#include <rwe/Grid.h>
 #include <rwe/MovementClassId.h>
 #include <rwe/cob/CobEnvironment.h>
 #include <rwe/geometry/BoundingBox3f.h>
 #include <rwe/geometry/CollisionMesh.h>
+#include <rwe/grid/DiscreteRect.h>
+#include <rwe/grid/Grid.h>
 #include <rwe/pathfinding/UnitPath.h>
 #include <rwe/sim/Energy.h>
 #include <rwe/sim/Metal.h>

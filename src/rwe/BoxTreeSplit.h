@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <optional>
-#include <rwe/Grid.h>
+#include <rwe/grid/Grid.h>
 #include <variant>
 #include <vector>
 

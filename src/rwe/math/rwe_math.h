@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rwe/Point.h>
+#include <rwe/grid/Point.h>
 #include <rwe/math/Vector2f.h>
 
 namespace rwe

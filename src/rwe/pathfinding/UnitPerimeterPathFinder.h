@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rwe/DiscreteRect.h>
+#include <rwe/grid/DiscreteRect.h>
 #include <rwe/pathfinding/AbstractUnitPathFinder.h>
 
 namespace rwe

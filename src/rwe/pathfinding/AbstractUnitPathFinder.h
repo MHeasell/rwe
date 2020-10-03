@@ -1,8 +1,8 @@
 #pragma once
 
-#include <rwe/DiscreteRect.h>
-#include <rwe/EightWayDirection.h>
 #include <rwe/MovementClassCollisionService.h>
+#include <rwe/grid/DiscreteRect.h>
+#include <rwe/grid/EightWayDirection.h>
 #include <rwe/pathfinding/AStarPathFinder.h>
 #include <rwe/pathfinding/PathCost.h>
 #include <rwe/pathfinding/pathfinding_utils.h>
