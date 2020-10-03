@@ -421,8 +421,9 @@ set(SOURCE_FILES
     src/rwe/fbi/FbiAnglePerTick.h
     src/rwe/fbi/FbiDistancePerTick.h
     src/rwe/fbi/FbiDistancePerTickSquared.h
-    src/rwe/fbi/UnitFbi.cpp
     src/rwe/fbi/UnitFbi.h
+    src/rwe/fbi/io.cpp
+    src/rwe/fbi/io.h
     src/rwe/fixed_point.cpp
     src/rwe/fixed_point.h
     src/rwe/float_math.cpp

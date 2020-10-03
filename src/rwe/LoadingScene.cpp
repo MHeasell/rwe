@@ -10,6 +10,7 @@
 #include <rwe/tdf.h>
 #include <rwe/tnt/TntArchive.h>
 #include <rwe/ui/UiLabel.h>
+#include <rwe/fbi/io.h>
 
 namespace rwe
 {

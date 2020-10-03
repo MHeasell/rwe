@@ -5,7 +5,6 @@
 #include <rwe/fbi/FbiAnglePerTick.h>
 #include <rwe/fbi/FbiDistancePerTick.h>
 #include <rwe/fbi/FbiDistancePerTickSquared.h>
-#include <rwe/tdf/TdfBlock.h>
 #include <string>
 
 namespace rwe
@@ -72,8 +71,4 @@ namespace rwe
 
         std::string yardMap;
     };
-
-    UnitFbi parseUnitInfoBlock(const TdfBlock& tdf);
-
-    UnitFbi parseUnitFbi(const TdfBlock& tdf);
 }
