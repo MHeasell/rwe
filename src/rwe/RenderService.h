@@ -1,7 +1,6 @@
 #pragma once
 
 #include <boost/iterator/filter_iterator.hpp>
-#include <rwe/GraphicsContext.h>
 #include <rwe/MapTerrainGraphics.h>
 #include <rwe/MeshDatabase.h>
 #include <rwe/PlayerColorIndex.h>
@@ -10,6 +9,7 @@
 #include <rwe/pathfinding/AStarPathFinder.h>
 #include <rwe/pathfinding/OctileDistance.h>
 #include <rwe/pathfinding/PathCost.h>
+#include <rwe/render/GraphicsContext.h>
 #include <rwe/sim/Explosion.h>
 #include <rwe/sim/GameTime.h>
 #include <rwe/sim/OccupiedGrid.h>

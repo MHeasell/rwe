@@ -1,7 +1,7 @@
 #pragma once
 
-#include <rwe/VaoHandle.h>
-#include <rwe/VboHandle.h>
+#include <rwe/render/VaoHandle.h>
+#include <rwe/render/VboHandle.h>
 
 namespace rwe
 {

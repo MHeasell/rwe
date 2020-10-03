@@ -2,9 +2,9 @@
 
 #include <rwe/Grid.h>
 #include <rwe/Point.h>
-#include <rwe/TextureRegion.h>
 #include <rwe/camera/CabinetCamera.h>
 #include <rwe/geometry/Line3f.h>
+#include <rwe/render/TextureRegion.h>
 #include <rwe/sim/SimScalar.h>
 #include <rwe/sim/SimVector.h>
 #include <vector>

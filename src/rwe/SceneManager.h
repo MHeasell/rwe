@@ -3,10 +3,10 @@
 #include <memory>
 #include <rwe/CursorService.h>
 #include <rwe/GlobalConfig.h>
-#include <rwe/GraphicsContext.h>
 #include <rwe/ImGuiContext.h>
 #include <rwe/SdlContextManager.h>
 #include <rwe/events.h>
+#include <rwe/render/GraphicsContext.h>
 #include <rwe/rwe_time.h>
 #include <stack>
 

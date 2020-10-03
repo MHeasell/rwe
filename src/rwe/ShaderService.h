@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rwe/GraphicsContext.h>
+#include <rwe/render/GraphicsContext.h>
 #include <unordered_map>
 
 namespace rwe

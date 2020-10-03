@@ -6,10 +6,8 @@
 #include <rwe/AudioService.h>
 #include <rwe/ColorPalette.h>
 #include <rwe/GlobalConfig.h>
-#include <rwe/GraphicsContext.h>
 #include <rwe/LoadingScene.h>
 #include <rwe/MainMenuScene.h>
-#include <rwe/OpenGlVersion.h>
 #include <rwe/PlayerColorIndex.h>
 #include <rwe/Result.h>
 #include <rwe/SceneContext.h>
@@ -21,6 +19,8 @@
 #include <rwe/io/gui/gui.h>
 #include <rwe/io/tdf/tdf.h>
 #include <rwe/ip_util.h>
+#include <rwe/render/GraphicsContext.h>
+#include <rwe/render/OpenGlVersion.h>
 #include <rwe/rwe_time.h>
 #include <rwe/sim/Energy.h>
 #include <rwe/sim/Metal.h>

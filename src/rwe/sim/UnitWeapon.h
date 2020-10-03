@@ -2,9 +2,9 @@
 
 #include <rwe/AudioService.h>
 #include <rwe/ProjectileRenderType.h>
-#include <rwe/SpriteSeries.h>
 #include <rwe/cob/CobThread.h>
 #include <rwe/math/Vector3f.h>
+#include <rwe/render/SpriteSeries.h>
 #include <rwe/sim/GameTime.h>
 #include <rwe/sim/ProjectilePhysicsType.h>
 #include <rwe/sim/UnitId.h>

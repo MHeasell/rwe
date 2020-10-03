@@ -233,13 +233,13 @@ set(SOURCE_FILES
     src/rwe/GameNetworkService.h
     src/rwe/GameScene.cpp
     src/rwe/GameScene.h
-    src/rwe/GlIdentifier.h
-    src/rwe/GlMesh.cpp
-    src/rwe/GlMesh.h
+    src/rwe/render/GlIdentifier.h
+    src/rwe/render/GlMesh.cpp
+    src/rwe/render/GlMesh.h
     src/rwe/GlobalConfig.cpp
     src/rwe/GlobalConfig.h
-    src/rwe/GraphicsContext.cpp
-    src/rwe/GraphicsContext.h
+    src/rwe/render/GraphicsContext.cpp
+    src/rwe/render/GraphicsContext.h
     src/rwe/Grid.h
     src/rwe/ImGuiContext.cpp
     src/rwe/ImGuiContext.h
@@ -272,7 +272,7 @@ set(SOURCE_FILES
     src/rwe/OpaqueId.h
     src/rwe/OpaqueId_io.h
     src/rwe/OpaqueUnit.h
-    src/rwe/OpenGlVersion.h
+    src/rwe/render/OpenGlVersion.h
     src/rwe/PlayerColorIndex.cpp
     src/rwe/PlayerColorIndex.h
     src/rwe/PlayerCommand.h
@@ -294,10 +294,10 @@ set(SOURCE_FILES
     src/rwe/SdlContextManager.cpp
     src/rwe/SdlContextManager.h
     src/rwe/SelectionMesh.h
-    src/rwe/ShaderHandle.h
-    src/rwe/ShaderMesh.cpp
-    src/rwe/ShaderMesh.h
-    src/rwe/ShaderProgramHandle.h
+    src/rwe/render/ShaderHandle.h
+    src/rwe/render/ShaderMesh.cpp
+    src/rwe/render/ShaderMesh.h
+    src/rwe/render/ShaderProgramHandle.h
     src/rwe/ShaderService.cpp
     src/rwe/ShaderService.h
     src/rwe/SharedHandle.h
@@ -305,18 +305,18 @@ set(SOURCE_FILES
     src/rwe/SideData.h
     src/rwe/SoundClass.cpp
     src/rwe/SoundClass.h
-    src/rwe/Sprite.cpp
-    src/rwe/Sprite.h
-    src/rwe/SpriteSeries.cpp
-    src/rwe/SpriteSeries.h
-    src/rwe/TextureHandle.h
-    src/rwe/TextureRegion.cpp
-    src/rwe/TextureRegion.h
+    src/rwe/render/Sprite.cpp
+    src/rwe/render/Sprite.h
+    src/rwe/render/SpriteSeries.cpp
+    src/rwe/render/SpriteSeries.h
+    src/rwe/render/TextureHandle.h
+    src/rwe/render/TextureRegion.cpp
+    src/rwe/render/TextureRegion.h
     src/rwe/TextureService.cpp
     src/rwe/TextureService.h
     src/rwe/UiRenderService.cpp
     src/rwe/UiRenderService.h
-    src/rwe/UniformLocation.h
+    src/rwe/render/UniformLocation.h
     src/rwe/UniqueHandle.h
     src/rwe/UnitDatabase.cpp
     src/rwe/UnitDatabase.h
@@ -325,8 +325,8 @@ set(SOURCE_FILES
     src/rwe/UnitModelDefinition.cpp
     src/rwe/UnitModelDefinition.h
     src/rwe/UnitSoundType.h
-    src/rwe/VaoHandle.h
-    src/rwe/VboHandle.h
+    src/rwe/render/VaoHandle.h
+    src/rwe/render/VboHandle.h
     src/rwe/VectorMap.cpp
     src/rwe/VectorMap.h
     src/rwe/ViewportService.cpp

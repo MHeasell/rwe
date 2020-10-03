@@ -2,8 +2,8 @@
 
 #include <boost/functional/hash.hpp>
 #include <memory>
-#include <rwe/GlMesh.h>
-#include <rwe/ShaderMesh.h>
+#include <rwe/render/GlMesh.h>
+#include <rwe/render/ShaderMesh.h>
 #include <utility>
 
 namespace rwe

@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <optional>
-#include <rwe/SpriteSeries.h>
+#include <rwe/render/SpriteSeries.h>
 #include <rwe/sim/SimVector.h>
 
 namespace rwe

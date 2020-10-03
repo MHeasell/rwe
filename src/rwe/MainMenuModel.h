@@ -3,9 +3,9 @@
 #include <array>
 #include <optional>
 #include <rwe/PlayerColorIndex.h>
-#include <rwe/Sprite.h>
 #include <rwe/events.h>
 #include <rwe/observable/BehaviorSubject.h>
+#include <rwe/render/Sprite.h>
 #include <rwe/sim/Energy.h>
 #include <rwe/sim/Metal.h>
 #include <string>

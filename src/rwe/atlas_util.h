@@ -1,9 +1,9 @@
 #pragma once
 
 #include <rwe/ColorPalette.h>
-#include <rwe/GraphicsContext.h>
-#include <rwe/TextureHandle.h>
 #include <rwe/geometry/Rectangle2f.h>
+#include <rwe/render/GraphicsContext.h>
+#include <rwe/render/TextureHandle.h>
 #include <rwe/vfs/AbstractVirtualFileSystem.h>
 #include <string>
 #include <unordered_map>

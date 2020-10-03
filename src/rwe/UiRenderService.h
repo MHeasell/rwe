@@ -1,8 +1,8 @@
 #pragma once
 
-#include <rwe/GraphicsContext.h>
 #include <rwe/ShaderService.h>
 #include <rwe/camera/UiCamera.h>
+#include <rwe/render/GraphicsContext.h>
 #include <stack>
 
 namespace rwe

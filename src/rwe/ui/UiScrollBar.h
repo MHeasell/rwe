@@ -1,8 +1,8 @@
 #pragma once
 
 #include <memory>
-#include <rwe/SpriteSeries.h>
 #include <rwe/observable/Subject.h>
+#include <rwe/render/SpriteSeries.h>
 #include <rwe/ui/UiComponent.h>
 
 namespace rwe

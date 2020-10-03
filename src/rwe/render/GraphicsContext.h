@@ -4,17 +4,17 @@
 #include <SDL.h>
 #include <memory>
 #include <rwe/ColorPalette.h>
-#include <rwe/GlMesh.h>
 #include <rwe/Mesh.h>
-#include <rwe/ShaderHandle.h>
-#include <rwe/ShaderProgramHandle.h>
-#include <rwe/Sprite.h>
-#include <rwe/SpriteSeries.h>
-#include <rwe/TextureHandle.h>
-#include <rwe/UniformLocation.h>
 #include <rwe/camera/AbstractCamera.h>
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/math/Vector3f.h>
+#include <rwe/render/GlMesh.h>
+#include <rwe/render/ShaderHandle.h>
+#include <rwe/render/ShaderProgramHandle.h>
+#include <rwe/render/Sprite.h>
+#include <rwe/render/SpriteSeries.h>
+#include <rwe/render/TextureHandle.h>
+#include <rwe/render/UniformLocation.h>
 #include <rwe/sim/MapFeature.h>
 #include <rwe/sim/MapTerrain.h>
 

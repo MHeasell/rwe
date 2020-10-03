@@ -1,9 +1,9 @@
 #pragma once
 
-#include <rwe/GlMesh.h>
-#include <rwe/TextureHandle.h>
-#include <rwe/VaoHandle.h>
-#include <rwe/VboHandle.h>
+#include <rwe/render/GlMesh.h>
+#include <rwe/render/TextureHandle.h>
+#include <rwe/render/VaoHandle.h>
+#include <rwe/render/VboHandle.h>
 
 namespace rwe
 {

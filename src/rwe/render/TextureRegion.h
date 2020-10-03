@@ -1,7 +1,7 @@
 #pragma once
 
-#include <rwe/TextureHandle.h>
 #include <rwe/geometry/Rectangle2f.h>
+#include <rwe/render/TextureHandle.h>
 
 namespace rwe
 {

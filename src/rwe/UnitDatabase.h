@@ -3,13 +3,13 @@
 #include <boost/functional/hash.hpp>
 #include <memory>
 #include <rwe/AudioService.h>
-#include <rwe/ShaderMesh.h>
 #include <rwe/SoundClass.h>
 #include <rwe/UnitModelDefinition.h>
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/io/cob/Cob.h>
 #include <rwe/io/fbi/UnitFbi.h>
 #include <rwe/io/weapontdf/WeaponTdf.h>
+#include <rwe/render/ShaderMesh.h>
 #include <rwe/sim/MovementClass.h>
 #include <utility>
 

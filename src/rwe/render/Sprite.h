@@ -1,10 +1,10 @@
 #pragma once
 
 #include <memory>
-#include <rwe/GlMesh.h>
-#include <rwe/TextureHandle.h>
 #include <rwe/geometry/Rectangle2f.h>
 #include <rwe/math/Matrix4f.h>
+#include <rwe/render/GlMesh.h>
+#include <rwe/render/TextureHandle.h>
 
 namespace rwe
 {

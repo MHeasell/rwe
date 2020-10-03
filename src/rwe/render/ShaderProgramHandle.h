@@ -1,8 +1,8 @@
 #pragma once
 
 #include <GL/glew.h>
-#include <rwe/GlIdentifier.h>
 #include <rwe/SharedHandle.h>
+#include <rwe/render/GlIdentifier.h>
 
 namespace rwe
 {

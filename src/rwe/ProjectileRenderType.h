@@ -1,8 +1,8 @@
 #pragma once
 
 #include <memory>
-#include <rwe/SpriteSeries.h>
 #include <rwe/math/Vector3f.h>
+#include <rwe/render/SpriteSeries.h>
 #include <rwe/sim/SimScalar.h>
 #include <rwe/sim/UnitMesh.h>
 #include <variant>

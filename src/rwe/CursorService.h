@@ -1,10 +1,10 @@
 #pragma once
 
 #include <memory>
-#include <rwe/GraphicsContext.h>
 #include <rwe/SdlContextManager.h>
-#include <rwe/SpriteSeries.h>
 #include <rwe/UiRenderService.h>
+#include <rwe/render/GraphicsContext.h>
+#include <rwe/render/SpriteSeries.h>
 #include <rwe/rwe_time.h>
 
 namespace rwe

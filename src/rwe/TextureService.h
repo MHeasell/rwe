@@ -3,9 +3,9 @@
 #include <memory>
 #include <optional>
 #include <rwe/ColorPalette.h>
-#include <rwe/GraphicsContext.h>
-#include <rwe/SpriteSeries.h>
-#include <rwe/TextureHandle.h>
+#include <rwe/render/GraphicsContext.h>
+#include <rwe/render/SpriteSeries.h>
+#include <rwe/render/TextureHandle.h>
 #include <rwe/vfs/AbstractVirtualFileSystem.h>
 #include <unordered_map>
 

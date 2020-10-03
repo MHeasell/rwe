@@ -2,8 +2,8 @@
 
 #include <memory>
 #include <optional>
-#include <rwe/SpriteSeries.h>
 #include <rwe/observable/BehaviorSubject.h>
+#include <rwe/render/SpriteSeries.h>
 #include <rwe/ui/UiComponent.h>
 #include <vector>
 
