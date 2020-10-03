@@ -2,8 +2,8 @@
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include <rwe/io/fnt/Fnt.h>
 #include <rwe/io/gaf/Gaf.h>
+#include <rwe/io/pcx/pcx.h>
 #include <rwe/io/tnt/TntArchive.h>
-#include <rwe/pcx.h>
 #include <rwe/rwe_string.h>
 
 namespace rwe

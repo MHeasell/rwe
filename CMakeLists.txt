@@ -407,6 +407,8 @@ set(SOURCE_FILES
     src/rwe/io/hpi/Hpi.h
     src/rwe/io/ota/ota.cpp
     src/rwe/io/ota/ota.h
+    src/rwe/io/pcx/pcx.cpp
+    src/rwe/io/pcx/pcx.h
     src/rwe/io/tdf/ListTdfAdapter.cpp
     src/rwe/io/tdf/ListTdfAdapter.h
     src/rwe/io/tdf/SimpleTdfAdapter.cpp
@@ -463,8 +465,6 @@ set(SOURCE_FILES
     src/rwe/pathfinding/UnitPerimeterPathFinder.h
     src/rwe/pathfinding/pathfinding_utils.cpp
     src/rwe/pathfinding/pathfinding_utils.h
-    src/rwe/pcx.cpp
-    src/rwe/pcx.h
     src/rwe/proto/serialization.cpp
     src/rwe/proto/serialization.h
     src/rwe/range_util.h

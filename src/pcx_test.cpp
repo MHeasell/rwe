@@ -1,6 +1,6 @@
 #include <iostream>
 #include <png++/png.hpp>
-#include <rwe/pcx.h>
+#include <rwe/io/pcx/pcx.h>
 #include <string>
 
 class PaletteReadingException : public std::runtime_error
