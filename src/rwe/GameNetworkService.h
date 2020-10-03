@@ -8,13 +8,13 @@
 #include <network.pb.h>
 #include <random>
 #include <rwe/GameHash.h>
-#include <rwe/GameTime.h>
 #include <rwe/OpaqueId.h>
 #include <rwe/OpaqueUnit.h>
 #include <rwe/PlayerCommand.h>
 #include <rwe/PlayerCommandService.h>
-#include <rwe/PlayerId.h>
 #include <rwe/rwe_time.h>
+#include <rwe/sim/GameTime.h>
+#include <rwe/sim/PlayerId.h>
 
 namespace rwe
 {

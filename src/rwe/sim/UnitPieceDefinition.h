@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rwe/SimVector.h>
+#include <rwe/sim/SimVector.h>
 #include <string>
 
 namespace rwe

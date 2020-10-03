@@ -1,9 +1,9 @@
 #pragma once
 
 #include <rwe/Grid.h>
-#include <rwe/SimScalar.h>
-#include <rwe/SimVector.h>
 #include <rwe/TextureRegion.h>
+#include <rwe/sim/SimScalar.h>
+#include <rwe/sim/SimVector.h>
 #include <vector>
 
 namespace rwe

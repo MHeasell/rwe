@@ -1,11 +1,11 @@
 #pragma once
 
 #include <rwe/MeshService.h>
-#include <rwe/MovementClass.h>
 #include <rwe/MovementClassCollisionService.h>
-#include <rwe/SimVector.h>
-#include <rwe/Unit.h>
 #include <rwe/UnitDatabase.h>
+#include <rwe/sim/MovementClass.h>
+#include <rwe/sim/SimVector.h>
+#include <rwe/sim/Unit.h>
 #include <string>
 
 namespace rwe

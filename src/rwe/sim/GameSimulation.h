@@ -1,19 +1,19 @@
 #pragma once
 
 #include <random>
-#include <rwe/Explosion.h>
-#include <rwe/FeatureId.h>
 #include <rwe/GameHash.h>
-#include <rwe/GameTime.h>
-#include <rwe/MapFeature.h>
-#include <rwe/MapTerrain.h>
-#include <rwe/OccupiedGrid.h>
 #include <rwe/PlayerColorIndex.h>
-#include <rwe/PlayerId.h>
-#include <rwe/Projectile.h>
-#include <rwe/ProjectileId.h>
-#include <rwe/Unit.h>
 #include <rwe/VectorMap.h>
+#include <rwe/sim/Explosion.h>
+#include <rwe/sim/FeatureId.h>
+#include <rwe/sim/GameTime.h>
+#include <rwe/sim/MapFeature.h>
+#include <rwe/sim/MapTerrain.h>
+#include <rwe/sim/OccupiedGrid.h>
+#include <rwe/sim/PlayerId.h>
+#include <rwe/sim/Projectile.h>
+#include <rwe/sim/ProjectileId.h>
+#include <rwe/sim/Unit.h>
 #include <unordered_map>
 
 namespace rwe

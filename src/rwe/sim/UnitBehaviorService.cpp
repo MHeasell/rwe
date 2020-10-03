@@ -4,8 +4,8 @@
 #include <rwe/cob/CobExecutionContext.h>
 #include <rwe/geometry/Circle2x.h>
 #include <rwe/math/rwe_math.h>
-#include <rwe/movement.h>
 #include <rwe/overloaded.h>
+#include <rwe/sim/movement.h>
 
 namespace rwe
 {

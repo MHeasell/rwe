@@ -2,8 +2,8 @@
 
 #include <cstdint>
 #include <nlohmann/json.hpp>
-#include <rwe/GameSimulation.h>
 #include <rwe/OpaqueId.h>
+#include <rwe/sim/GameSimulation.h>
 #include <string>
 #include <utility>
 

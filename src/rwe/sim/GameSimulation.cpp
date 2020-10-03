@@ -1,11 +1,11 @@
 #include "GameSimulation.h"
 #include <rwe/Index.h>
-#include <rwe/SimScalar.h>
 #include <rwe/collection_util.h>
 #include <rwe/overloaded.h>
+#include <rwe/sim/SimScalar.h>
 
 #include <rwe/GameHash_util.h>
-#include <rwe/movement.h>
+#include <rwe/sim/movement.h>
 #include <type_traits>
 
 namespace rwe

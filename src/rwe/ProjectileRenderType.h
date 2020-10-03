@@ -1,10 +1,10 @@
 #pragma once
 
 #include <memory>
-#include <rwe/SimScalar.h>
 #include <rwe/SpriteSeries.h>
-#include <rwe/UnitMesh.h>
 #include <rwe/math/Vector3f.h>
+#include <rwe/sim/SimScalar.h>
+#include <rwe/sim/UnitMesh.h>
 #include <variant>
 
 namespace rwe

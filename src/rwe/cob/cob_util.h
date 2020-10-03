@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <rwe/SimScalar.h>
+#include <rwe/sim/SimScalar.h>
 #include <utility>
 
 namespace rwe

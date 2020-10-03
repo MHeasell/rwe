@@ -1,13 +1,13 @@
 #pragma once
 
 #include <rwe/AudioService.h>
-#include <rwe/GameTime.h>
-#include <rwe/PlayerId.h>
-#include <rwe/ProjectilePhysicsType.h>
 #include <rwe/ProjectileRenderType.h>
-#include <rwe/SimVector.h>
 #include <rwe/SpriteSeries.h>
 #include <rwe/math/Vector3x.h>
+#include <rwe/sim/GameTime.h>
+#include <rwe/sim/PlayerId.h>
+#include <rwe/sim/ProjectilePhysicsType.h>
+#include <rwe/sim/SimVector.h>
 #include <variant>
 
 namespace rwe

@@ -1,21 +1,21 @@
 #pragma once
 
 #include <boost/iterator/filter_iterator.hpp>
-#include <rwe/Explosion.h>
-#include <rwe/GameTime.h>
 #include <rwe/GraphicsContext.h>
 #include <rwe/MapTerrainGraphics.h>
 #include <rwe/MeshDatabase.h>
-#include <rwe/OccupiedGrid.h>
 #include <rwe/PlayerColorIndex.h>
-#include <rwe/Projectile.h>
-#include <rwe/ProjectileId.h>
 #include <rwe/ShaderService.h>
-#include <rwe/Unit.h>
 #include <rwe/VectorMap.h>
 #include <rwe/pathfinding/AStarPathFinder.h>
 #include <rwe/pathfinding/OctileDistance.h>
 #include <rwe/pathfinding/PathCost.h>
+#include <rwe/sim/Explosion.h>
+#include <rwe/sim/GameTime.h>
+#include <rwe/sim/OccupiedGrid.h>
+#include <rwe/sim/Projectile.h>
+#include <rwe/sim/ProjectileId.h>
+#include <rwe/sim/Unit.h>
 #include <vector>
 
 namespace rwe

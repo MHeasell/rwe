@@ -1,8 +1,8 @@
 #pragma once
 
 #include <iomanip>
-#include <rwe/Energy.h>
-#include <rwe/Metal.h>
+#include <rwe/sim/Energy.h>
+#include <rwe/sim/Metal.h>
 #include <sstream>
 #include <string>
 

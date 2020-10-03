@@ -2,7 +2,7 @@
 
 #include <network.pb.h>
 #include <rwe/PlayerCommand.h>
-#include <rwe/UnitFireOrders.h>
+#include <rwe/sim/UnitFireOrders.h>
 #include <vector>
 
 namespace rwe

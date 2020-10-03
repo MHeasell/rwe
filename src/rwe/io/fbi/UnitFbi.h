@@ -1,10 +1,10 @@
 #pragma once
 
-#include <rwe/Energy.h>
-#include <rwe/Metal.h>
 #include <rwe/io/fbi/FbiAnglePerTick.h>
 #include <rwe/io/fbi/FbiDistancePerTick.h>
 #include <rwe/io/fbi/FbiDistancePerTickSquared.h>
+#include <rwe/sim/Energy.h>
+#include <rwe/sim/Metal.h>
 #include <string>
 
 namespace rwe

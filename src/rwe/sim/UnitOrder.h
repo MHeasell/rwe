@@ -1,8 +1,8 @@
 #pragma once
 
 #include <rwe/DiscreteRect.h>
-#include <rwe/SimVector.h>
-#include <rwe/UnitId.h>
+#include <rwe/sim/SimVector.h>
+#include <rwe/sim/UnitId.h>
 #include <variant>
 
 namespace rwe

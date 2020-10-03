@@ -1,7 +1,7 @@
 #include <catch2/catch.hpp>
 #include <rapidcheck/catch.h>
 #include <rwe/OpaqueId_io.h>
-#include <rwe/SimAngle.h>
+#include <rwe/sim/SimAngle.h>
 #include <rwe/util.h>
 
 namespace rc

@@ -225,10 +225,6 @@ set(SOURCE_FILES
     src/rwe/DiscreteRect.h
     src/rwe/EightWayDirection.cpp
     src/rwe/EightWayDirection.h
-    src/rwe/Energy.h
-    src/rwe/Explosion.cpp
-    src/rwe/Explosion.h
-    src/rwe/FeatureId.h
     src/rwe/GameHash.cpp
     src/rwe/GameHash.h
     src/rwe/GameHash_util.cpp
@@ -237,10 +233,6 @@ set(SOURCE_FILES
     src/rwe/GameNetworkService.h
     src/rwe/GameScene.cpp
     src/rwe/GameScene.h
-    src/rwe/GameSimulation.cpp
-    src/rwe/GameSimulation.h
-    src/rwe/GameTime.cpp
-    src/rwe/GameTime.h
     src/rwe/GlIdentifier.h
     src/rwe/GlMesh.cpp
     src/rwe/GlMesh.h
@@ -262,12 +254,8 @@ set(SOURCE_FILES
     src/rwe/MainMenuModel.h
     src/rwe/MainMenuScene.cpp
     src/rwe/MainMenuScene.h
-    src/rwe/MapFeature.cpp
-    src/rwe/MapFeature.h
     src/rwe/MapFeatureService.cpp
     src/rwe/MapFeatureService.h
-    src/rwe/MapTerrain.cpp
-    src/rwe/MapTerrain.h
     src/rwe/MapTerrainGraphics.cpp
     src/rwe/MapTerrainGraphics.h
     src/rwe/Mesh.cpp
@@ -276,15 +264,10 @@ set(SOURCE_FILES
     src/rwe/MeshDatabase.h
     src/rwe/MeshService.cpp
     src/rwe/MeshService.h
-    src/rwe/Metal.h
     src/rwe/MinHeap.h
-    src/rwe/MovementClass.cpp
-    src/rwe/MovementClass.h
     src/rwe/MovementClassCollisionService.cpp
     src/rwe/MovementClassCollisionService.h
     src/rwe/MovementClassId.h
-    src/rwe/OccupiedGrid.cpp
-    src/rwe/OccupiedGrid.h
     src/rwe/OpaqueField.h
     src/rwe/OpaqueId.h
     src/rwe/OpaqueId_io.h
@@ -295,13 +278,8 @@ set(SOURCE_FILES
     src/rwe/PlayerCommand.h
     src/rwe/PlayerCommandService.cpp
     src/rwe/PlayerCommandService.h
-    src/rwe/PlayerId.h
     src/rwe/Point.cpp
     src/rwe/Point.h
-    src/rwe/Projectile.cpp
-    src/rwe/Projectile.h
-    src/rwe/ProjectileId.h
-    src/rwe/ProjectilePhysicsType.h
     src/rwe/ProjectileRenderType.h
     src/rwe/RadiansAngle.cpp
     src/rwe/RadiansAngle.h
@@ -325,11 +303,6 @@ set(SOURCE_FILES
     src/rwe/SharedHandle.h
     src/rwe/SideData.cpp
     src/rwe/SideData.h
-    src/rwe/SimAngle.cpp
-    src/rwe/SimAngle.h
-    src/rwe/SimScalar.cpp
-    src/rwe/SimScalar.h
-    src/rwe/SimVector.h
     src/rwe/SoundClass.cpp
     src/rwe/SoundClass.h
     src/rwe/Sprite.cpp
@@ -345,25 +318,13 @@ set(SOURCE_FILES
     src/rwe/UiRenderService.h
     src/rwe/UniformLocation.h
     src/rwe/UniqueHandle.h
-    src/rwe/Unit.cpp
-    src/rwe/Unit.h
-    src/rwe/UnitBehaviorService.cpp
-    src/rwe/UnitBehaviorService.h
     src/rwe/UnitDatabase.cpp
     src/rwe/UnitDatabase.h
     src/rwe/UnitFactory.cpp
     src/rwe/UnitFactory.h
-    src/rwe/UnitFireOrders.h
-    src/rwe/UnitId.h
-    src/rwe/UnitMesh.cpp
-    src/rwe/UnitMesh.h
     src/rwe/UnitModelDefinition.cpp
     src/rwe/UnitModelDefinition.h
-    src/rwe/UnitOrder.h
-    src/rwe/UnitPieceDefinition.cpp
-    src/rwe/UnitPieceDefinition.h
     src/rwe/UnitSoundType.h
-    src/rwe/UnitWeapon.h
     src/rwe/VaoHandle.h
     src/rwe/VboHandle.h
     src/rwe/VectorMap.cpp
@@ -475,8 +436,6 @@ set(SOURCE_FILES
     src/rwe/math/rwe_math.h
     src/rwe/matrix_util.cpp
     src/rwe/matrix_util.h
-    src/rwe/movement.cpp
-    src/rwe/movement.h
     src/rwe/network_util.cpp
     src/rwe/network_util.h
     src/rwe/observable/BehaviorSubject.h
@@ -515,6 +474,49 @@ set(SOURCE_FILES
     src/rwe/rwe_string.h
     src/rwe/rwe_time.cpp
     src/rwe/rwe_time.h
+    src/rwe/sim/Energy.h
+    src/rwe/sim/Explosion.cpp
+    src/rwe/sim/Explosion.h
+    src/rwe/sim/FeatureId.h
+    src/rwe/sim/GameSimulation.cpp
+    src/rwe/sim/GameSimulation.h
+    src/rwe/sim/GameTime.cpp
+    src/rwe/sim/GameTime.h
+    src/rwe/sim/MapFeature.cpp
+    src/rwe/sim/MapFeature.h
+    src/rwe/sim/MapTerrain.cpp
+    src/rwe/sim/MapTerrain.h
+    src/rwe/sim/Metal.h
+    src/rwe/sim/MovementClass.cpp
+    src/rwe/sim/MovementClass.h
+    src/rwe/sim/OccupiedGrid.cpp
+    src/rwe/sim/OccupiedGrid.h
+    src/rwe/sim/PlayerId.h
+    src/rwe/sim/Projectile.cpp
+    src/rwe/sim/Projectile.h
+    src/rwe/sim/ProjectileId.h
+    src/rwe/sim/ProjectilePhysicsType.h
+    src/rwe/sim/SimAngle.cpp
+    src/rwe/sim/SimAngle.h
+    src/rwe/sim/SimScalar.cpp
+    src/rwe/sim/SimScalar.h
+    src/rwe/sim/SimVector.h
+    src/rwe/sim/Unit.cpp
+    src/rwe/sim/Unit.h
+    src/rwe/sim/UnitBehaviorService.cpp
+    src/rwe/sim/UnitBehaviorService.h
+    src/rwe/sim/UnitFireOrders.h
+    src/rwe/sim/UnitId.h
+    src/rwe/sim/UnitMesh.cpp
+    src/rwe/sim/UnitMesh.h
+    src/rwe/sim/UnitOrder.h
+    src/rwe/sim/UnitPieceDefinition.cpp
+    src/rwe/sim/UnitPieceDefinition.h
+    src/rwe/sim/UnitWeapon.h
+    src/rwe/sim/movement.cpp
+    src/rwe/sim/movement.h
+    src/rwe/sim/unit_util.cpp
+    src/rwe/sim/unit_util.h
     src/rwe/ui/UiComponent.cpp
     src/rwe/ui/UiComponent.h
     src/rwe/ui/UiFactory.cpp
@@ -533,8 +535,6 @@ set(SOURCE_FILES
     src/rwe/ui/UiStagedButton.h
     src/rwe/ui/UiSurface.cpp
     src/rwe/ui/UiSurface.h
-    src/rwe/unit_util.cpp
-    src/rwe/unit_util.h
     src/rwe/util.cpp
     src/rwe/util.h
     src/rwe/vertex_height.cpp

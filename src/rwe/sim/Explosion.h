@@ -1,10 +1,10 @@
 #pragma once
 
 #include <memory>
-#include <rwe/GameTime.h>
-#include <rwe/SimVector.h>
 #include <rwe/SpriteSeries.h>
 #include <rwe/math/Vector3f.h>
+#include <rwe/sim/GameTime.h>
+#include <rwe/sim/SimVector.h>
 
 namespace rwe
 {

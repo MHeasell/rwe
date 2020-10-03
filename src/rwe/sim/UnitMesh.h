@@ -4,9 +4,9 @@
 #include <optional>
 #include <rwe/RadiansAngle.h>
 #include <rwe/ShaderMesh.h>
-#include <rwe/SimAngle.h>
 #include <rwe/math/Matrix4f.h>
 #include <rwe/math/Vector3f.h>
+#include <rwe/sim/SimAngle.h>
 #include <string>
 #include <variant>
 #include <vector>

@@ -1,10 +1,10 @@
 #pragma once
 
 #include <memory>
-#include <rwe/GameTime.h>
-#include <rwe/UnitId.h>
 #include <rwe/cob/CobThread.h>
 #include <rwe/io/cob/Cob.h>
+#include <rwe/sim/GameTime.h>
+#include <rwe/sim/UnitId.h>
 #include <variant>
 #include <vector>
 

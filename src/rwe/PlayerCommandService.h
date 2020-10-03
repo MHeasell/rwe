@@ -3,10 +3,10 @@
 #include <deque>
 #include <mutex>
 #include <rwe/GameHash.h>
-#include <rwe/GameTime.h>
 #include <rwe/PlayerCommand.h>
-#include <rwe/PlayerId.h>
 #include <rwe/SceneTime.h>
+#include <rwe/sim/GameTime.h>
+#include <rwe/sim/PlayerId.h>
 #include <unordered_map>
 #include <vector>
 

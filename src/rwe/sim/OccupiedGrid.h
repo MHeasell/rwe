@@ -1,8 +1,8 @@
 #pragma once
 
-#include <rwe/FeatureId.h>
 #include <rwe/Grid.h>
-#include <rwe/UnitId.h>
+#include <rwe/sim/FeatureId.h>
+#include <rwe/sim/UnitId.h>
 #include <variant>
 
 namespace rwe

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <rwe/SimScalar.h>
-#include <rwe/UnitPieceDefinition.h>
+#include <rwe/sim/SimScalar.h>
+#include <rwe/sim/UnitPieceDefinition.h>
 
 namespace rwe
 {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <rwe/SimScalar.h>
 #include <rwe/math/Matrix4f.h>
+#include <rwe/sim/SimScalar.h>
 
 namespace rwe
 {

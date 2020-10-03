@@ -1,12 +1,12 @@
 #pragma once
 
-#include <rwe/GameSimulation.h>
 #include <rwe/cob/CobAngularSpeed.h>
 #include <rwe/cob/CobEnvironment.h>
 #include <rwe/cob/CobPosition.h>
 #include <rwe/cob/CobSleepDuration.h>
 #include <rwe/cob/CobSpeed.h>
 #include <rwe/cob/CobValueId.h>
+#include <rwe/sim/GameSimulation.h>
 
 namespace rwe
 {

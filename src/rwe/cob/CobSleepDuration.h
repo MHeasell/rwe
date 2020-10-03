@@ -1,8 +1,8 @@
 #pragma once
 
-#include <rwe/GameTime.h>
 #include <rwe/OpaqueId.h>
 #include <rwe/SceneManager.h>
+#include <rwe/sim/GameTime.h>
 
 namespace rwe
 {

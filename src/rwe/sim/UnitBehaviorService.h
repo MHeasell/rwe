@@ -1,13 +1,13 @@
 #pragma once
 
-#include <rwe/SimAngle.h>
-#include <rwe/SimScalar.h>
-#include <rwe/SimVector.h>
 #include <rwe/UnitFactory.h>
-#include <rwe/UnitId.h>
-#include <rwe/UnitOrder.h>
 #include <rwe/cob/CobExecutionService.h>
 #include <rwe/pathfinding/PathFindingService.h>
+#include <rwe/sim/SimAngle.h>
+#include <rwe/sim/SimScalar.h>
+#include <rwe/sim/SimVector.h>
+#include <rwe/sim/UnitId.h>
+#include <rwe/sim/UnitOrder.h>
 
 namespace rwe
 {

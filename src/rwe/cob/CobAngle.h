@@ -1,7 +1,7 @@
 #pragma once
 
 #include <rwe/OpaqueUnit.h>
-#include <rwe/SimAngle.h>
+#include <rwe/sim/SimAngle.h>
 
 namespace rwe
 {

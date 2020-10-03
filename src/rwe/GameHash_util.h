@@ -2,8 +2,8 @@
 
 #include <cstdint>
 #include <rwe/GameHash.h>
-#include <rwe/GameSimulation.h>
 #include <rwe/overloaded.h>
+#include <rwe/sim/GameSimulation.h>
 
 namespace rwe
 {

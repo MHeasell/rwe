@@ -5,8 +5,6 @@
 #include <memory>
 #include <rwe/ColorPalette.h>
 #include <rwe/GlMesh.h>
-#include <rwe/MapFeature.h>
-#include <rwe/MapTerrain.h>
 #include <rwe/Mesh.h>
 #include <rwe/ShaderHandle.h>
 #include <rwe/ShaderProgramHandle.h>
@@ -17,6 +15,8 @@
 #include <rwe/camera/AbstractCamera.h>
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/math/Vector3f.h>
+#include <rwe/sim/MapFeature.h>
+#include <rwe/sim/MapTerrain.h>
 
 namespace rwe
 {

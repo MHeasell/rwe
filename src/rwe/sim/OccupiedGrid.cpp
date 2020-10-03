@@ -1,5 +1,5 @@
 #include "OccupiedGrid.h"
-#include <rwe/FeatureId.h>
+#include <rwe/sim/FeatureId.h>
 
 namespace rwe
 {

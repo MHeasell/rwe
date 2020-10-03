@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rwe/GameSimulation.h>
+#include <rwe/sim/GameSimulation.h>
 
 namespace rwe
 {

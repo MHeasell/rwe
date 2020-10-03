@@ -1,5 +1,5 @@
 #include <catch2/catch.hpp>
-#include <rwe/SimVector.h>
+#include <rwe/sim/SimVector.h>
 
 namespace rwe
 {

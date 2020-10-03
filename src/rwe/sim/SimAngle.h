@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <rwe/OpaqueId.h>
 #include <rwe/RadiansAngle.h>
-#include <rwe/SimScalar.h>
+#include <rwe/sim/SimScalar.h>
 
 namespace rwe
 {

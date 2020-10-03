@@ -2,8 +2,8 @@
 
 #include <memory>
 #include <optional>
-#include <rwe/SimVector.h>
 #include <rwe/SpriteSeries.h>
+#include <rwe/sim/SimVector.h>
 
 namespace rwe
 {

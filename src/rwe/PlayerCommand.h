@@ -1,9 +1,9 @@
 #pragma once
 
 #include <rwe/SceneTime.h>
-#include <rwe/UnitFireOrders.h>
-#include <rwe/UnitId.h>
-#include <rwe/UnitOrder.h>
+#include <rwe/sim/UnitFireOrders.h>
+#include <rwe/sim/UnitId.h>
+#include <rwe/sim/UnitOrder.h>
 #include <variant>
 
 namespace rwe
