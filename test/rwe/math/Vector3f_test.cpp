@@ -1,8 +1,8 @@
-#include <rwe/optional_io.h>
 #include <catch2/catch.hpp>
 #include <rwe/math/Vector3f.h>
-#include <sstream>
+#include <rwe/optional_io.h>
 #include <rwe/util.h>
+#include <sstream>
 
 namespace rwe
 {

@@ -1,7 +1,7 @@
 #include <catch2/catch.hpp>
-#include <rwe/optional_io.h>
 #include <rwe/io/featuretdf/FeatureDefinition.h>
 #include <rwe/io/tdf/tdf.h>
+#include <rwe/optional_io.h>
 
 namespace rwe
 {
@@ -17,42 +17,42 @@ namespace rwe
         {
             std::string input = R"TDF(
 [Tree1]
-	{
-	world=greenworld;
-	description=Tree;
-	category=trees;
-	animating=0;
-	footprintx=4;
-	footprintz=5;
-	height=40;
-	filename=trees;
-	seqname=leaf1;
-	seqnameshad=leafshad;
-	seqnamereclamate=tree1reclamate;
-	energy = 250;
+    {
+    world=greenworld;
+    description=Tree;
+    category=trees;
+    animating=0;
+    footprintx=4;
+    footprintz=5;
+    height=40;
+    filename=trees;
+    seqname=leaf1;
+    seqnameshad=leafshad;
+    seqnamereclamate=tree1reclamate;
+    energy = 250;
 
-	seqnameburn=leafyburn01;
-	seqnameburnshad=;
-	featureburnt=Tree1Dead;
-	burnmin=5;
-	burnmax=15;
-	sparktime=5;
-	spreadchance=90;
-	burnweapon=TreeBurn;
+    seqnameburn=leafyburn01;
+    seqnameburnshad=;
+    featureburnt=Tree1Dead;
+    burnmin=5;
+    burnmax=15;
+    sparktime=5;
+    spreadchance=90;
+    burnweapon=TreeBurn;
 
-	seqnamedie=treeboom;
-	featuredead=smudge01;
-	featurereclamate=smudge01;
+    seqnamedie=treeboom;
+    featuredead=smudge01;
+    featurereclamate=smudge01;
 
-	animtrans=0;
-	shadtrans=1;
-	flamable=1;
-	reclaimable=1;
-	reproduce=0;
-	reproducearea=6;
-	blocking=1;
-	hitdensity=10;
-	}
+    animtrans=0;
+    shadtrans=1;
+    flamable=1;
+    reclaimable=1;
+    reproduce=0;
+    reproducearea=6;
+    blocking=1;
+    hitdensity=10;
+    }
 )TDF";
 
             auto tdfRoot = parseTdfFromString(input);

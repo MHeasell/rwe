@@ -1,7 +1,7 @@
-#include <rwe/optional_io.h>
 #include <catch2/catch.hpp>
-#include <rwe/geometry/Ray3f.h>
 #include <rwe/geometry/CollisionMesh.h>
+#include <rwe/geometry/Ray3f.h>
+#include <rwe/optional_io.h>
 
 namespace rwe
 {
@@ -13,9 +13,9 @@ namespace rwe
             {
                 auto cm = CollisionMesh::fromQuad(
                     Vector3f(-1.0f, 0.0f, -1.0f),
-                    Vector3f( 1.0f, 0.0f, -1.0f),
-                    Vector3f( 1.0f, 0.0f,  1.0f),
-                    Vector3f(-1.0f, 0.0f,  1.0f));
+                    Vector3f(1.0f, 0.0f, -1.0f),
+                    Vector3f(1.0f, 0.0f, 1.0f),
+                    Vector3f(-1.0f, 0.0f, 1.0f));
 
                 Ray3f ray(
                     Vector3f(0.0f, 10.0f, 0.0f),

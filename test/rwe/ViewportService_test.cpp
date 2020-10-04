@@ -21,7 +21,7 @@ namespace rwe
             SECTION("works in a simple case")
             {
                 ViewportService vp(0, 0, 8, 6);
-                auto p = vp.toViewportSpace(-0.5f, 1.0f/3.0f);
+                auto p = vp.toViewportSpace(-0.5f, 1.0f / 3.0f);
                 REQUIRE(p.x == 2);
                 REQUIRE(p.y == 2);
             }

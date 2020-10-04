@@ -10,109 +10,109 @@ namespace rwe
         {
             std::string input = R"TDF(
 [SIDE0]
-	{
-	name=CoolFaction;
-	nameprefix=COO;
-	commander=ARMCOM;
-	intgaf=ARMINT;
+    {
+    name=CoolFaction;
+    nameprefix=COO;
+    commander=ARMCOM;
+    intgaf=ARMINT;
 
-	font=console;
-	fontgui=armbutt;
-	energycolor=208;
-	metalcolor=224;
+    font=console;
+    fontgui=armbutt;
+    energycolor=208;
+    metalcolor=224;
 
-	[LOGO]
-		{ x1=132; y1=5; x2=152; y2=25; }
+    [LOGO]
+        { x1=132; y1=5; x2=152; y2=25; }
 
-	[ENERGYBAR]
-		{ x1=471; y1=11; x2=592; y2=13; }
+    [ENERGYBAR]
+        { x1=471; y1=11; x2=592; y2=13; }
 
-	[ENERGYNUM]
-		{ x1=529; y1=18; x2=529; y2=18; }
+    [ENERGYNUM]
+        { x1=529; y1=18; x2=529; y2=18; }
 
-	[ENERGYMAX]
-		{ x1=595; y1=1; x2=595; y2=1; }
+    [ENERGYMAX]
+        { x1=595; y1=1; x2=595; y2=1; }
 
-	[ENERGY0]
-		{ x1=468; y1=1; x2=468; y2=1; }
+    [ENERGY0]
+        { x1=468; y1=1; x2=468; y2=1; }
 
-	[METALBAR]
-		{ x1=218; y1=11; x2=339; y2=13; }
+    [METALBAR]
+        { x1=218; y1=11; x2=339; y2=13; }
 
-	[METALNUM]
-		{ x1=278; y1=18; x2=278; y2=18; }
+    [METALNUM]
+        { x1=278; y1=18; x2=278; y2=18; }
 
-	[METALMAX]
-		{ x1=341; y1=1; x2=341; y2=1; }
+    [METALMAX]
+        { x1=341; y1=1; x2=341; y2=1; }
 
-	[METAL0]
-		{ x1=215; y1=1; x2=215; y2=1; }
+    [METAL0]
+        { x1=215; y1=1; x2=215; y2=1; }
 
-	[TOTALUNITS]
-		{ x1=560; y1=7; x2=583; y2=15; }
+    [TOTALUNITS]
+        { x1=560; y1=7; x2=583; y2=15; }
 
-	[TOTALTIME]
-		{ x1=605; y1=7; x2=628; y2=15; }
+    [TOTALTIME]
+        { x1=605; y1=7; x2=628; y2=15; }
 
-	[ENERGYPRODUCED]
-		{ x1=609; y1=5; x2=609; y2=5; }
+    [ENERGYPRODUCED]
+        { x1=609; y1=5; x2=609; y2=5; }
 
-	[ENERGYCONSUMED]
-		{ x1=609; y1=17; x2=609; y2=17; }
+    [ENERGYCONSUMED]
+        { x1=609; y1=17; x2=609; y2=17; }
 
-	[METALPRODUCED]
-		{ x1=358; y1=5; x2=358; y2=5; }
+    [METALPRODUCED]
+        { x1=358; y1=5; x2=358; y2=5; }
 
-	[METALCONSUMED]
-		{ x1=358; y1=17; x2=358; y2=17; }
+    [METALCONSUMED]
+        { x1=358; y1=17; x2=358; y2=17; }
 
-	// All of these regions describe areas on the screen footer
+    // All of these regions describe areas on the screen footer
 
-	[LOGO2]
-		{ x1=132; y1=455; x2=152; y2=475; }
+    [LOGO2]
+        { x1=132; y1=455; x2=152; y2=475; }
 
-	[UNITNAME]
-		{ x1=245; y1=452; x2=245; y2=460; }
+    [UNITNAME]
+        { x1=245; y1=452; x2=245; y2=460; }
 
-	[DAMAGEBAR]
-		{ x1=200; y1=463; x2=290; y2=465; }
+    [DAMAGEBAR]
+        { x1=200; y1=463; x2=290; y2=465; }
 
-	[UNITMETALMAKE]
-		{ x1=350; y1=458; x2=170; y2=478; }
+    [UNITMETALMAKE]
+        { x1=350; y1=458; x2=170; y2=478; }
 
-	[UNITMETALUSE]
-		{ x1=350; y1=468; x2=170; y2=478; }
+    [UNITMETALUSE]
+        { x1=350; y1=468; x2=170; y2=478; }
 
-	[UNITENERGYMAKE]
-		{ x1=400; y1=458; x2=170; y2=468; }
+    [UNITENERGYMAKE]
+        { x1=400; y1=458; x2=170; y2=468; }
 
-	[UNITENERGYUSE]
-		{ x1=400; y1=468; x2=170; y2=468; }
+    [UNITENERGYUSE]
+        { x1=400; y1=468; x2=170; y2=468; }
 
-	[MISSIONTEXT]
-		{ x1=385; y1=449; x2=400; y2=450; }
+    [MISSIONTEXT]
+        { x1=385; y1=449; x2=400; y2=450; }
 
-	[UNITNAME2]
-		{ x1=555; y1=452; x2=555; y2=460; }
+    [UNITNAME2]
+        { x1=555; y1=452; x2=555; y2=460; }
 
-	[DAMAGEBAR2]
-		{ x1=510; y1=463; x2=600; y2=465; }
+    [DAMAGEBAR2]
+        { x1=510; y1=463; x2=600; y2=465; }
 
-	[NAME]
-		{ x1=132; y1=452; x2=142; y2=460; }
+    [NAME]
+        { x1=132; y1=452; x2=142; y2=460; }
 
-	[DESCRIPTION]
-		{ x1=132; y1=465; x2=142; y2=472; }
+    [DESCRIPTION]
+        { x1=132; y1=465; x2=142; y2=472; }
 
-	[RELOAD1]
-		{ x1=132; y1=450; x2=148; y2=458; }
+    [RELOAD1]
+        { x1=132; y1=450; x2=148; y2=458; }
 
-	[RELOAD2]
-		{ x1=132; y1=460; x2=148; y2=468; }
+    [RELOAD2]
+        { x1=132; y1=460; x2=148; y2=468; }
 
-	[RELOAD3]
-		{ x1=132; y1=470; x2=148; y2=478; }
-	}
+    [RELOAD3]
+        { x1=132; y1=470; x2=148; y2=478; }
+    }
 )TDF";
 
             auto tdf = parseTdfFromString(input);

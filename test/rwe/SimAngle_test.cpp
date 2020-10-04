@@ -6,7 +6,7 @@
 
 namespace rc
 {
-    template<>
+    template <>
     struct Arbitrary<rwe::SimAngle>
     {
         static Gen<rwe::SimAngle> arbitrary()
@@ -46,10 +46,10 @@ namespace rwe
         }
 
         rc::prop("fromRadians inverts toRadians", [](SimAngle a) {
-          auto f = toRadians(a);
-          RC_LOG() << "f: " << f << std::endl;
-          auto t2 = fromRadians(f);
-          RC_ASSERT(t2.value == a.value);
+            auto f = toRadians(a);
+            RC_LOG() << "f: " << f << std::endl;
+            auto t2 = fromRadians(f);
+            RC_ASSERT(t2.value == a.value);
         });
     }
 
@@ -72,7 +72,7 @@ namespace rwe
         });
 
         rc::prop("result never more than half a turn", [](SimAngle a, SimAngle b) {
-          RC_ASSERT(angleBetween(a, b).value <= HalfTurn.value);
+            RC_ASSERT(angleBetween(a, b).value <= HalfTurn.value);
         });
     }
 
@@ -107,7 +107,6 @@ namespace rwe
             REQUIRE(turnTowards(SimAngle(100), SimAngle(200), SimAngle(150)) == SimAngle(200));
             REQUIRE(turnTowards(SimAngle(100), SimAngle(200), SimAngle(100)) == SimAngle(200));
             REQUIRE(turnTowards(SimAngle(200), SimAngle(100), SimAngle(150)) == SimAngle(100));
-
         }
         SECTION("when max turn less than delta, advances towards destination by max turn")
         {

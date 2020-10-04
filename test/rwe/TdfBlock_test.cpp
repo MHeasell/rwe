@@ -1,6 +1,6 @@
 #include <catch2/catch.hpp>
-#include <rwe/optional_io.h>
 #include <rwe/io/tdf/TdfBlock.h>
+#include <rwe/optional_io.h>
 
 namespace rwe
 {

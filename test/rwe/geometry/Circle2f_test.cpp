@@ -9,7 +9,8 @@ namespace rwe
 {
     TEST_CASE("Circle2f::contains")
     {
-        SECTION("returns true when point is inside the circle") {
+        SECTION("returns true when point is inside the circle")
+        {
             Circle2f c(10.0f, Vector2f(1.0f, 2.0f));
 
             // x

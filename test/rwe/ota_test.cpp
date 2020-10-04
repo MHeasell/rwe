@@ -13,131 +13,131 @@ namespace rwe
 
             std::string input = R"TDF(
 [GlobalHeader]
-	{
-	missionname=Painted Desert;
-	missiondescription=18 X 18  Battle in the Many Mesas area.;
-	planet=Desert;
-	missionhint=;
-	brief=;
-	narration=;
-	glamour=;
-	lineofsight=0;
-	mapping=0;
-	tidalstrength=0;
-	solarstrength=35;
-	lavaworld=0;
-	killmul=50;
-	timemul=0;
-	minwindspeed=100;
-	maxwindspeed=4000;
-	gravity=112;
-	numplayers=2, 3, 4, 6;
-	size=19 x 19;
-	memory=32 mb;
-	useonlyunits=Painted Desert.tdf;
-	SCHEMACOUNT=2;
-	[Schema 0]
-		{
-		Type=Network 2;
-		aiprofile=RADAI;
-		SurfaceMetal=3;
-		MohoMetal=40;
-		HumanMetal=1000;
-		ComputerMetal=2000;
-		HumanEnergy=3000;
-		ComputerEnergy=4000;
-		MeteorWeapon=radMETEOR;
-		MeteorRadius=1;
-		MeteorDensity=.2;
-		MeteorDuration=3;
-		MeteorInterval=4;
-		[specials]
-			{
-			[special0]
-				{
-				specialwhat=StartPos1;
-				XPos=1824;
-				ZPos=1008;
-				}
-			[special1]
-				{
-				specialwhat=StartPos2;
-				XPos=7872;
-				ZPos=8432;
-				}
-			}
-		}
-	[Schema 1]
-		{
-		Type=Network 3;
-		aiprofile=;
-		SurfaceMetal=5;
-		MohoMetal=60;
-		HumanMetal=1000;
-		ComputerMetal=1000;
-		HumanEnergy=1000;
-		ComputerEnergy=1000;
-		MeteorWeapon=;
-		MeteorRadius=0;
-		MeteorDensity=0;
-		MeteorDuration=0;
-		MeteorInterval=0;
-		[features]
-			{
-			[feature0]
-				{
-				Featurename=DryMetal03;
-				XPos=121;
-				ZPos=495;
-				}
-			[feature1]
-				{
-				Featurename=DryMetal01;
-				XPos=482;
-				ZPos=455;
-				}
-			[feature2]
-				{
-				Featurename=DryMetal02;
-				XPos=460;
-				ZPos=111;
-				}
-			[feature3]
-				{
-				Featurename=DryMetal03;
-				XPos=119;
-				ZPos=108;
-				}
-			}
-		[specials]
-			{
-			[special0]
-				{
-				specialwhat=StartPos1;
-				XPos=1776;
-				ZPos=1536;
-				}
-			[special1]
-				{
-				specialwhat=StartPos2;
-				XPos=7488;
-				ZPos=2016;
-				}
-			[special2]
-				{
-				specialwhat=StartPos3;
-				XPos=7632;
-				ZPos=7408;
-				}
-			[special3]
-				{
-				specialwhat=StartPos4;
-				XPos=1856;
-				ZPos=8096;
-				}
-			}
-		}
-	}
+    {
+    missionname=Painted Desert;
+    missiondescription=18 X 18  Battle in the Many Mesas area.;
+    planet=Desert;
+    missionhint=;
+    brief=;
+    narration=;
+    glamour=;
+    lineofsight=0;
+    mapping=0;
+    tidalstrength=0;
+    solarstrength=35;
+    lavaworld=0;
+    killmul=50;
+    timemul=0;
+    minwindspeed=100;
+    maxwindspeed=4000;
+    gravity=112;
+    numplayers=2, 3, 4, 6;
+    size=19 x 19;
+    memory=32 mb;
+    useonlyunits=Painted Desert.tdf;
+    SCHEMACOUNT=2;
+    [Schema 0]
+        {
+        Type=Network 2;
+        aiprofile=RADAI;
+        SurfaceMetal=3;
+        MohoMetal=40;
+        HumanMetal=1000;
+        ComputerMetal=2000;
+        HumanEnergy=3000;
+        ComputerEnergy=4000;
+        MeteorWeapon=radMETEOR;
+        MeteorRadius=1;
+        MeteorDensity=.2;
+        MeteorDuration=3;
+        MeteorInterval=4;
+        [specials]
+            {
+            [special0]
+                {
+                specialwhat=StartPos1;
+                XPos=1824;
+                ZPos=1008;
+                }
+            [special1]
+                {
+                specialwhat=StartPos2;
+                XPos=7872;
+                ZPos=8432;
+                }
+            }
+        }
+    [Schema 1]
+        {
+        Type=Network 3;
+        aiprofile=;
+        SurfaceMetal=5;
+        MohoMetal=60;
+        HumanMetal=1000;
+        ComputerMetal=1000;
+        HumanEnergy=1000;
+        ComputerEnergy=1000;
+        MeteorWeapon=;
+        MeteorRadius=0;
+        MeteorDensity=0;
+        MeteorDuration=0;
+        MeteorInterval=0;
+        [features]
+            {
+            [feature0]
+                {
+                Featurename=DryMetal03;
+                XPos=121;
+                ZPos=495;
+                }
+            [feature1]
+                {
+                Featurename=DryMetal01;
+                XPos=482;
+                ZPos=455;
+                }
+            [feature2]
+                {
+                Featurename=DryMetal02;
+                XPos=460;
+                ZPos=111;
+                }
+            [feature3]
+                {
+                Featurename=DryMetal03;
+                XPos=119;
+                ZPos=108;
+                }
+            }
+        [specials]
+            {
+            [special0]
+                {
+                specialwhat=StartPos1;
+                XPos=1776;
+                ZPos=1536;
+                }
+            [special1]
+                {
+                specialwhat=StartPos2;
+                XPos=7488;
+                ZPos=2016;
+                }
+            [special2]
+                {
+                specialwhat=StartPos3;
+                XPos=7632;
+                ZPos=7408;
+                }
+            [special3]
+                {
+                specialwhat=StartPos4;
+                XPos=1856;
+                ZPos=8096;
+                }
+            }
+        }
+    }
 )TDF";
 
             OtaSchema schema0;
@@ -289,14 +289,14 @@ namespace rwe
 
             std::string input = R"TDF(
 [GlobalHeader]
-	{
-	missionname=Painted Desert;
-	SCHEMACOUNT=1;
-	[Schema 0]
-		{
-		Type=Network 1;
+    {
+    missionname=Painted Desert;
+    SCHEMACOUNT=1;
+    [Schema 0]
+        {
+        Type=Network 1;
         }
-	}
+    }
 )TDF";
 
             OtaSchema schema0;

@@ -2,10 +2,10 @@
 #include <rapidcheck.h>
 #include <rapidcheck/catch.h>
 #include <rwe/OpaqueId.h>
+#include <rwe/OpaqueId_io.h>
 #include <rwe/VectorMap.h>
 #include <rwe/optional_io.h>
-#include <rwe/OpaqueId_io.h>
-#include "rc_gen_optional.h"
+#include <rwe/rc_gen_optional.h>
 
 namespace rwe
 {
@@ -75,8 +75,8 @@ namespace rwe
             REQUIRE(idD == Id(768));
             REQUIRE(idE == Id(1024));
 
-            REQUIRE(idF == Id(257)); // idB + 1 generation
-            REQUIRE(idG == Id(769)); // idD + 1 generation
+            REQUIRE(idF == Id(257));  // idB + 1 generation
+            REQUIRE(idG == Id(769));  // idD + 1 generation
             REQUIRE(idH == Id(1280)); // new slot
 
             REQUIRE(m.tryGet(idA) == 'a');
@@ -292,7 +292,7 @@ namespace rwe
             std::vector<std::pair<Id, int>> ids;
 
             long long total = 0;
-            for (const auto & o : ops)
+            for (const auto& o : ops)
             {
                 if (o)
                 {

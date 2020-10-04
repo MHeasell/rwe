@@ -9,7 +9,6 @@ namespace std
     }
 }
 
-#include "rc_gen_optional.h"
 #include <boost/functional/hash.hpp>
 #include <catch2/catch.hpp>
 #include <optional>
@@ -18,6 +17,7 @@ namespace std
 #include <rwe/MinHeap.h>
 #include <rwe/grid/Point.h>
 #include <rwe/optional_io.h>
+#include <rwe/rc_gen_optional.h>
 
 namespace std
 {
