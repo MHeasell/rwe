@@ -739,8 +739,8 @@ namespace rwe
         ImGui::Separator();
         {
             std::scoped_lock<std::mutex> lock(playingUnitChannelsLock);
-            ImGui::LabelText("Unit sounds", "%d", playingUnitChannels.size());
-            ImGui::LabelText("Sound volume", "%d", computeSoundVolume(playingUnitChannels.size()));
+            ImGui::LabelText("Unit sounds", "%lld", getSize(playingUnitChannels));
+            ImGui::LabelText("Sound volume", "%d", computeSoundVolume(getSize(playingUnitChannels)));
         }
 
         if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit)
@@ -750,9 +750,9 @@ namespace rwe
             ImGui::Separator();
             ImGui::LabelText("State", "%s", stateToString(unit.behaviourState));
             ImGui::Text("Cob vars");
-            for (auto i = 0; i < unit.cobEnvironment->_statics.size(); ++i)
+            for (Index i = 0; i < getSize(unit.cobEnvironment->_statics); ++i)
             {
-                ImGui::Text("%d: %d", i, unit.cobEnvironment->_statics[i]);
+                ImGui::Text("%lld: %d", i, unit.cobEnvironment->_statics[i]);
             }
         }
 
@@ -1648,7 +1648,7 @@ namespace rwe
         }
     }
 
-    void GameScene::playSoundAt(const Vector3f& position, const AudioService::SoundHandle& sound)
+    void GameScene::playSoundAt(const Vector3f& /*position*/, const AudioService::SoundHandle& sound)
     {
         // FIXME: should play on a position-aware channel
         auto channel = sceneContext.audioService->playSound(sound);

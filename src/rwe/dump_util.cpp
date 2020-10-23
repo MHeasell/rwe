@@ -116,7 +116,7 @@ namespace rwe
             {"position", dumpJson(s.position)},
         };
     }
-    nlohmann::json dumpJson(const UnitCreationStatusPending& s)
+    nlohmann::json dumpJson(const UnitCreationStatusPending&)
     {
         return nlohmann::json();
     }

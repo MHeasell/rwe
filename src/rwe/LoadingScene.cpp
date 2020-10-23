@@ -77,7 +77,7 @@ namespace rwe
         }
 
         // set up network
-        for (int i = 0; i < gameParameters.players.size(); ++i)
+        for (Index i = 0; i < getSize(gameParameters.players); ++i)
         {
             const auto& p = gameParameters.players[i];
             if (!p)
@@ -194,7 +194,7 @@ namespace rwe
         std::array<std::optional<PlayerId>, 10> gamePlayers;
         std::vector<GameNetworkService::EndpointInfo> endpointInfos;
 
-        for (int i = 0; i < gameParameters.players.size(); ++i)
+        for (Index i = 0; i < getSize(gameParameters.players); ++i)
         {
             const auto& params = gameParameters.players[i];
             if (params)
