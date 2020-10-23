@@ -474,10 +474,7 @@ namespace rwe
 
         scene->getSimulation().spawnProjectile(unit.owner, *weapon, firingPoint, direction, (fireInfo->targetPosition - firingPoint).length());
 
-        if (weapon->soundStart)
-        {
-            scene->playSoundAt(simVectorToFloat(firingPoint), *weapon->soundStart);
-        }
+        scene->playWeaponStartSound(simVectorToFloat(firingPoint), weapon->weaponType);
 
         // If we just started the burst, set the reload timer
         if (fireInfo->burstsFired == 0)

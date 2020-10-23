@@ -1657,6 +1657,52 @@ namespace rwe
         sceneContext.audioService->setVolume(channel, computeSoundVolume(playingUnitChannels.size()));
     }
 
+    void GameScene::playWeaponStartSound(const Vector3f& position, const std::string& weaponType)
+    {
+
+        const auto& weaponTdf = unitDatabase.getWeapon(weaponType);
+        if (!weaponTdf.soundStart.empty())
+        {
+            auto sound = unitDatabase.tryGetSoundHandle(weaponTdf.soundStart);
+            if (sound)
+            {
+                playSoundAt(position, *sound);
+            }
+        }
+    }
+
+    void GameScene::playWeaponImpactSound(const Vector3f& position, const std::string& weaponType, ImpactType impactType)
+    {
+        const auto& weaponTdf = unitDatabase.getWeapon(weaponType);
+        switch (impactType)
+        {
+            case ImpactType::Normal:
+            {
+                if (!weaponTdf.soundHit.empty())
+                {
+                    auto sound = unitDatabase.tryGetSoundHandle(weaponTdf.soundHit);
+                    if (sound)
+                    {
+                        playSoundAt(position, *sound);
+                    }
+                }
+                break;
+            }
+            case ImpactType::Water:
+            {
+                if (!weaponTdf.soundWater.empty())
+                {
+                    auto sound = unitDatabase.tryGetSoundHandle(weaponTdf.soundWater);
+                    if (sound)
+                    {
+                        playSoundAt(position, *sound);
+                    }
+                }
+                break;
+            }
+        }
+    }
+
     void GameScene::onChannelFinished(int channel)
     {
         std::scoped_lock<std::mutex> lock(playingUnitChannelsLock);
@@ -2267,14 +2313,11 @@ namespace rwe
 
     void GameScene::doProjectileImpact(const Projectile& projectile, ImpactType impactType)
     {
+        playWeaponImpactSound(simVectorToFloat(projectile.position), projectile.weaponType, impactType);
         switch (impactType)
         {
             case ImpactType::Normal:
             {
-                if (projectile.soundHit)
-                {
-                    playSoundAt(simVectorToFloat(projectile.position), *projectile.soundHit);
-                }
                 if (projectile.explosion)
                 {
                     simulation.spawnExplosion(projectile.position, *projectile.explosion);
@@ -2287,10 +2330,6 @@ namespace rwe
             }
             case ImpactType::Water:
             {
-                if (projectile.soundWater)
-                {
-                    playSoundAt(simVectorToFloat(projectile.position), *projectile.soundWater);
-                }
                 if (projectile.waterExplosion)
                 {
                     simulation.spawnExplosion(projectile.position, *projectile.waterExplosion);

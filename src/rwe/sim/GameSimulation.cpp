@@ -433,6 +433,7 @@ namespace rwe
         PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction, SimScalar distanceToTarget)
     {
         Projectile projectile;
+        projectile.weaponType = weapon.weaponType;
         projectile.owner = owner;
         projectile.position = position;
         projectile.origin = position;
@@ -445,8 +446,6 @@ namespace rwe
         projectile.smokeTrail = weapon.smokeTrail;
         projectile.lastSmoke = gameTime;
 
-        projectile.soundHit = weapon.soundHit;
-        projectile.soundWater = weapon.soundWater;
 
         projectile.explosion = weapon.explosion;
         projectile.waterExplosion = weapon.waterExplosion;

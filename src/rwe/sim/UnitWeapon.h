@@ -62,6 +62,8 @@ namespace rwe
 
     struct UnitWeapon
     {
+        std::string weaponType;
+
         ProjectilePhysicsType physicsType;
 
         SimScalar maxRange;
@@ -72,10 +74,6 @@ namespace rwe
         bool endSmoke;
 
         std::optional<GameTime> smokeTrail;
-
-        std::optional<AudioService::SoundHandle> soundStart;
-        std::optional<AudioService::SoundHandle> soundHit;
-        std::optional<AudioService::SoundHandle> soundWater;
 
         std::optional<std::shared_ptr<SpriteSeries>> explosion;
         std::optional<std::shared_ptr<SpriteSeries>> waterExplosion;

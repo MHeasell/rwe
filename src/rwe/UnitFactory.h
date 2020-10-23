@@ -46,7 +46,7 @@ namespace rwe
     private:
         std::optional<UnitWeapon> tryCreateWeapon(const std::string& weaponType);
         UnitWeapon createWeapon(const std::string& weaponType);
-        UnitWeapon createWeapon(const WeaponTdf& tdf);
+        UnitWeapon createWeapon(const std::string& weaponType, const WeaponTdf& tdf);
 
         Vector3f getLaserColor(unsigned int colorIndex);
     };

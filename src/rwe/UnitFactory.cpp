@@ -333,18 +333,20 @@ namespace rwe
         {
             return std::nullopt;
         }
-        return createWeapon(*tdf);
+        return createWeapon(weaponType, *tdf);
     }
 
     UnitWeapon UnitFactory::createWeapon(const std::string& weaponType)
     {
         const auto& tdf = unitDatabase->getWeapon(weaponType);
-        return createWeapon(tdf);
+        return createWeapon(weaponType, tdf);
     }
 
-    UnitWeapon UnitFactory::createWeapon(const WeaponTdf& tdf)
+    UnitWeapon UnitFactory::createWeapon(const std::string& weaponType, const WeaponTdf& tdf)
     {
         UnitWeapon weapon;
+
+        weapon.weaponType = weaponType;
 
         weapon.maxRange = SimScalar(tdf.range);
         weapon.reloadTime = SimScalar(tdf.reloadTime);
@@ -417,18 +419,6 @@ namespace rwe
         if (tdf.smokeTrail)
         {
             weapon.smokeTrail = GameTime(static_cast<unsigned int>(tdf.smokeDelay * 60.0f));
-        }
-        if (!tdf.soundStart.empty())
-        {
-            weapon.soundStart = unitDatabase->tryGetSoundHandle(tdf.soundStart);
-        }
-        if (!tdf.soundHit.empty())
-        {
-            weapon.soundHit = unitDatabase->tryGetSoundHandle(tdf.soundHit);
-        }
-        if (!tdf.soundWater.empty())
-        {
-            weapon.soundWater = unitDatabase->tryGetSoundHandle(tdf.soundWater);
         }
         if (!tdf.explosionGaf.empty() && !tdf.explosionArt.empty())
         {

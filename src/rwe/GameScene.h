@@ -348,6 +348,10 @@ namespace rwe
 
         void playSoundAt(const Vector3f& position, const AudioService::SoundHandle& sound);
 
+        void playWeaponStartSound(const Vector3f& position, const std::string& weaponType);
+
+        void playWeaponImpactSound(const Vector3f& position, const std::string& weaponType, ImpactType impactType);
+
         DiscreteRect computeFootprintRegion(const SimVector& position, unsigned int footprintX, unsigned int footprintZ) const;
 
         void moveUnitOccupiedArea(const DiscreteRect& oldRect, const DiscreteRect& newRect, UnitId unitId);

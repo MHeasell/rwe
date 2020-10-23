@@ -14,6 +14,8 @@ namespace rwe
 {
     struct Projectile
     {
+        std::string weaponType;
+
         PlayerId owner;
 
         SimVector position;
@@ -40,9 +42,6 @@ namespace rwe
 
         /** The last time the projectile emitted smoke. */
         GameTime lastSmoke;
-
-        std::optional<AudioService::SoundHandle> soundHit;
-        std::optional<AudioService::SoundHandle> soundWater;
 
         std::optional<std::shared_ptr<SpriteSeries>> explosion;
         std::optional<std::shared_ptr<SpriteSeries>> waterExplosion;
