@@ -1,6 +1,7 @@
 #include "GameNetworkService.h"
 #include <boost/range/adaptors.hpp>
 #include <rwe/GameHash.h>
+#include <rwe/Index.h>
 #include <rwe/OpaqueId_io.h>
 #include <rwe/SceneManager.h>
 #include <rwe/network_util.h>
@@ -204,7 +205,7 @@ namespace rwe
 
         auto message = createProtoMessage(packetId, localPlayerId, currentSceneTime, endpoint.nextCommandToSend, endpoint.nextCommandToReceive, endpoint.nextHashToSend, endpoint.nextHashToReceive, delay, endpoint.sendBuffer, endpoint.hashSendBuffer);
         auto messageSize = message.ByteSize();
-        if (messageSize > sendBuffer.size() - 4)
+        if (messageSize > getSize(sendBuffer) - 4)
         {
             throw std::runtime_error("Message to be sent was bigger than buffer size");
         }
