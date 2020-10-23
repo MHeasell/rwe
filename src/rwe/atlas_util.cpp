@@ -144,7 +144,7 @@ namespace rwe
             for (const auto& e : packInfo.entries)
             {
                 const auto& frames = entries.at(e.value).second;
-                if (frames.size() <= i)
+                if (getSize(frames) <= i)
                 {
                     // skip if there is no frame for this team
                     continue;

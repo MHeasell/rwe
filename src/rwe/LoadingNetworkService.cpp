@@ -1,4 +1,5 @@
 #include "LoadingNetworkService.h"
+#include <rwe/Index.h>
 #include <rwe/network_util.h>
 #include <spdlog/spdlog.h>
 
@@ -164,7 +165,7 @@ namespace rwe
         }
 
         auto messageSize = outerMessage.ByteSize();
-        if (messageSize > sendBuffer.size() - 4)
+        if (messageSize > getSize(sendBuffer) - 4)
         {
             throw std::runtime_error("Message to be sent was bigger than buffer size");
         }
