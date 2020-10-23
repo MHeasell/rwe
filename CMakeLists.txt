@@ -304,7 +304,6 @@ set(SOURCE_FILES
     src/rwe/VectorMap.h
     src/rwe/ViewportService.cpp
     src/rwe/ViewportService.h
-    src/rwe/Weapon.h
     src/rwe/atlas_util.cpp
     src/rwe/atlas_util.h
     src/rwe/camera/AbstractCamera.cpp
