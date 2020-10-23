@@ -4,12 +4,12 @@
 
 namespace rwe
 {
-    float abs(float v)
+    float rweAbs(float v)
     {
         return std::abs(v);
     }
 
-    float sqrt(float f)
+    float rweSqrt(float f)
     {
         return std::sqrt(f);
     }

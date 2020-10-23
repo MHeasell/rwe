@@ -47,9 +47,9 @@ namespace rwe
         return static_cast<int>(f.value * 65536.0f);
     }
 
-    SimScalar abs(SimScalar s);
+    SimScalar rweAbs(SimScalar s);
 
-    SimScalar sqrt(SimScalar s);
+    SimScalar rweSqrt(SimScalar s);
 
     inline SimScalar angularToRadians(SimScalar s)
     {

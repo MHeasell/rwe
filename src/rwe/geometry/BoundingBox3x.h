@@ -30,9 +30,9 @@ namespace rwe
         Val distanceSquared(const Vector3x<Val>& pos) const
         {
             auto toCenter = center - pos;
-            auto dX = std::max(Val(0), abs(toCenter.x) - extents.x);
-            auto dY = std::max(Val(0), abs(toCenter.y) - extents.y);
-            auto dZ = std::max(Val(0), abs(toCenter.z) - extents.z);
+            auto dX = std::max(Val(0), rweAbs(toCenter.x) - extents.x);
+            auto dY = std::max(Val(0), rweAbs(toCenter.y) - extents.y);
+            auto dZ = std::max(Val(0), rweAbs(toCenter.z) - extents.z);
             return (dX * dX) + (dY * dY) + (dZ * dZ);
         }
     };

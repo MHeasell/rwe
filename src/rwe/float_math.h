@@ -2,6 +2,6 @@
 
 namespace rwe
 {
-    float sqrt(float f);
-    float abs(float f);
+    float rweSqrt(float f);
+    float rweAbs(float f);
 }

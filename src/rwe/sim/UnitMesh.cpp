@@ -14,7 +14,7 @@ namespace rwe
         {
             auto remaining = op->targetPosition - currentPos;
             auto frameSpeed = op->speed * dt;
-            if (abs(remaining) <= frameSpeed)
+            if (rweAbs(remaining) <= frameSpeed)
             {
                 currentPos = op->targetPosition;
                 op = std::nullopt;
@@ -49,7 +49,7 @@ namespace rwe
         {
             auto frameAccel = spinOp->acceleration / 2_ss;
             auto remaining = spinOp->targetSpeed - spinOp->currentSpeed;
-            if (abs(remaining) <= frameAccel)
+            if (rweAbs(remaining) <= frameAccel)
             {
                 spinOp->currentSpeed = spinOp->targetSpeed;
             }
@@ -73,7 +73,7 @@ namespace rwe
         if (auto stopSpinOp = std::get_if<UnitMesh::StopSpinOperation>(&*op); stopSpinOp != nullptr)
         {
             auto frameDecel = stopSpinOp->deceleration / 2_ss;
-            if (abs(stopSpinOp->currentSpeed) <= frameDecel)
+            if (rweAbs(stopSpinOp->currentSpeed) <= frameDecel)
             {
                 op = std::nullopt;
                 return;

@@ -2414,7 +2414,7 @@ namespace rwe
             }
 
             // apply appropriate damage
-            auto damageScale = std::clamp(1_ss - (sqrt(unitDistanceSquared) / radius), 0_ss, 1_ss);
+            auto damageScale = std::clamp(1_ss - (rweSqrt(unitDistanceSquared) / radius), 0_ss, 1_ss);
             auto rawDamage = projectile.getDamage(unit.unitType);
             auto scaledDamage = simScalarToUInt(SimScalar(rawDamage) * damageScale);
             applyDamage(*u, scaledDamage);

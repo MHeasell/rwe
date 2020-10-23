@@ -106,8 +106,8 @@ namespace rwe
         Val distanceSquared(const Vector2x<Val>& pos) const
         {
             auto toCenter = position - pos;
-            auto dX = std::max(Val(0), abs(toCenter.x) - extents.x);
-            auto dY = std::max(Val(0), abs(toCenter.y) - extents.y);
+            auto dX = std::max(Val(0), rweAbs(toCenter.x) - extents.x);
+            auto dY = std::max(Val(0), rweAbs(toCenter.y) - extents.y);
             return (dX * dX) + (dY * dY);
         }
 

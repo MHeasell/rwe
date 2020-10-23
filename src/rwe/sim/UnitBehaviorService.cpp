@@ -178,7 +178,7 @@ namespace rwe
         {
             return std::nullopt;
         }
-        auto plusMinus = sqrt(beforeSquareRoot);
+        auto plusMinus = rweSqrt(beforeSquareRoot);
 
         auto result1 = atan(((speed * speed) + plusMinus) / (gravity * targetX));
         auto result2 = atan(((speed * speed) - plusMinus) / (gravity * targetX));

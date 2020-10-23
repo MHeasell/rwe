@@ -2,7 +2,6 @@
 
 #include <rwe/AudioService.h>
 #include <rwe/ProjectileRenderType.h>
-#include <rwe/math/Vector3x.h>
 #include <rwe/render/SpriteSeries.h>
 #include <rwe/sim/GameTime.h>
 #include <rwe/sim/PlayerId.h>
