@@ -1,4 +1,5 @@
 #include "LoadingNetworkService.h"
+#include <algorithm>
 #include <rwe/Index.h>
 #include <rwe/network_util.h>
 #include <spdlog/spdlog.h>
@@ -36,14 +37,7 @@ namespace rwe
     bool LoadingNetworkService::areAllClientsReady()
     {
         std::scoped_lock<std::mutex> lock(mutex);
-        for (const auto& p : remoteEndpoints)
-        {
-            if (p.status != Status::Ready)
-            {
-                return false;
-            }
-        }
-        return true;
+        return std::all_of(remoteEndpoints.begin(), remoteEndpoints.end(), [](const auto& p) { return p.status == Status::Ready; });
     }
 
     void LoadingNetworkService::waitForAllToBeReady()
