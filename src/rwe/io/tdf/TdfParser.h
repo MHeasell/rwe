@@ -105,6 +105,7 @@ namespace rwe
         virtual void onStartBlock(const std::string& name) = 0;
         virtual void onEndBlock() = 0;
         virtual Result onDone() = 0;
+        virtual ~TdfAdapter() = default;
     };
 
     template <typename It, typename Result>
