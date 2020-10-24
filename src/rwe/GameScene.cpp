@@ -560,7 +560,7 @@ namespace rwe
                 }
             }
         }
-        worldRenderService.drawExplosions(simulation.gameTime, simulation.explosions);
+        worldRenderService.drawExplosions(simulation.gameTime, explosions);
         sceneContext.graphics->enableDepthTest();
 
         sceneContext.graphics->enableDepthWrites();
@@ -2290,8 +2290,8 @@ namespace rwe
 
     void GameScene::updateExplosions()
     {
-        auto end = simulation.explosions.end();
-        for (auto it = simulation.explosions.begin(); it != end;)
+        auto end = explosions.end();
+        for (auto it = explosions.begin(); it != end;)
         {
             auto& exp = *it;
             if (exp.isFinished(simulation.gameTime))
@@ -2308,7 +2308,7 @@ namespace rwe
 
             ++it;
         }
-        simulation.explosions.erase(end, simulation.explosions.end());
+        explosions.erase(end, explosions.end());
     }
 
     void GameScene::doProjectileImpact(const Projectile& projectile, ImpactType impactType)
@@ -2320,7 +2320,7 @@ namespace rwe
             {
                 if (projectile.explosion)
                 {
-                    simulation.spawnExplosion(projectile.position, *projectile.explosion);
+                    spawnExplosion(projectile.position, *projectile.explosion);
                 }
                 if (projectile.endSmoke)
                 {
@@ -2332,7 +2332,7 @@ namespace rwe
             {
                 if (projectile.waterExplosion)
                 {
-                    simulation.spawnExplosion(projectile.position, *projectile.waterExplosion);
+                    spawnExplosion(projectile.position, *projectile.waterExplosion);
                 }
                 break;
             }
@@ -2437,13 +2437,13 @@ namespace rwe
     void GameScene::createLightSmoke(const SimVector& position)
     {
         auto anim = sceneContext.textureService->getGafEntry("anims/FX.GAF", "smoke 1");
-        simulation.spawnSmoke(position, anim, GameTime(anim->sprites.size() * 4), GameTime(4));
+        spawnSmoke(position, anim, GameTime(anim->sprites.size() * 4), GameTime(4));
     }
 
     void GameScene::createWeaponSmoke(const SimVector& position)
     {
         auto anim = sceneContext.textureService->getGafEntry("anims/FX.GAF", "smoke 1");
-        simulation.spawnSmoke(position, anim, GameTime(60), GameTime(30));
+        spawnSmoke(position, anim, GameTime(60), GameTime(30));
     }
 
     void GameScene::activateUnit(UnitId unitId)
@@ -3278,5 +3278,31 @@ namespace rwe
     bool GameScene::leftClickMode() const
     {
         return sceneContext.globalConfig->leftClickInterfaceMode;
+    }
+
+    void GameScene::spawnExplosion(const SimVector& position, const std::shared_ptr<SpriteSeries>& animation)
+    {
+        Explosion exp;
+        exp.position = position;
+        exp.animation = animation;
+        exp.startTime = simulation.gameTime;
+        exp.finishTime = simulation.gameTime + GameTime(animation->sprites.size() * 4);
+        exp.frameDuration = GameTime(4);
+
+        explosions.push_back(exp);
+    }
+
+    void GameScene::spawnSmoke(const SimVector& position, const std::shared_ptr<SpriteSeries>& animation, GameTime duration, GameTime frameDuration)
+    {
+        Explosion exp;
+        exp.position = position;
+        exp.animation = animation;
+        exp.startTime = simulation.gameTime;
+        exp.finishTime = simulation.gameTime + duration;
+        exp.frameDuration = frameDuration;
+        exp.translucent = true;
+        exp.floats = true;
+
+        explosions.push_back(exp);
     }
 }

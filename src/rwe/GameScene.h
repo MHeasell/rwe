@@ -272,6 +272,8 @@ namespace rwe
         std::mutex playingUnitChannelsLock;
         std::unordered_set<int> playingUnitChannels;
 
+        std::vector<Explosion> explosions;
+
     public:
         GameScene(
             const SceneContext& sceneContext,
@@ -548,5 +550,9 @@ namespace rwe
         }
 
         bool leftClickMode() const;
+
+        void spawnExplosion(const SimVector& position, const std::shared_ptr<SpriteSeries>& animation);
+
+        void spawnSmoke(const SimVector& position, const std::shared_ptr<SpriteSeries>& animation, GameTime duration, GameTime frameDuration);
     };
 }

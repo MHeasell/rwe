@@ -109,8 +109,6 @@ namespace rwe
 
         VectorMap<Projectile, ProjectileIdTag> projectiles;
 
-        std::vector<Explosion> explosions;
-
         std::deque<PathRequest> pathRequests;
 
         std::deque<UnitId> unitCreationRequests;
@@ -199,10 +197,6 @@ namespace rwe
         Projectile createProjectileFromWeapon(PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction, SimScalar distanceToTarget);
 
         void spawnProjectile(PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction, SimScalar distanceToTarget);
-
-        void spawnExplosion(const SimVector& position, const std::shared_ptr<SpriteSeries>& animation);
-
-        void spawnSmoke(const SimVector& position, const std::shared_ptr<SpriteSeries>& animation, GameTime duration, GameTime frameDuration);
 
         WinStatus computeWinStatus() const;
 

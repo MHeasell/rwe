@@ -471,32 +471,6 @@ namespace rwe
         projectiles.emplace(createProjectileFromWeapon(owner, weapon, position, direction, distanceToTarget));
     }
 
-    void GameSimulation::spawnExplosion(const SimVector& position, const std::shared_ptr<SpriteSeries>& animation)
-    {
-        Explosion exp;
-        exp.position = position;
-        exp.animation = animation;
-        exp.startTime = gameTime;
-        exp.finishTime = gameTime + GameTime(animation->sprites.size() * 4);
-        exp.frameDuration = GameTime(4);
-
-        explosions.push_back(exp);
-    }
-
-    void GameSimulation::spawnSmoke(const SimVector& position, const std::shared_ptr<SpriteSeries>& animation, GameTime duration, GameTime frameDuration)
-    {
-        Explosion exp;
-        exp.position = position;
-        exp.animation = animation;
-        exp.startTime = gameTime;
-        exp.finishTime = gameTime + duration;
-        exp.frameDuration = frameDuration;
-        exp.translucent = true;
-        exp.floats = true;
-
-        explosions.push_back(exp);
-    }
-
     WinStatus GameSimulation::computeWinStatus() const
     {
         std::optional<PlayerId> livingPlayer;
