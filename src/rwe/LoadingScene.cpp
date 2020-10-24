@@ -743,6 +743,24 @@ namespace rwe
             meshDb.addSpriteSeries("FX", "smoke 1", anim);
         }
 
+        // preload weapon sprites
+        {
+            auto anim = sceneContext.textureService->getGafEntry("anims/FX.GAF", "cannonshell");
+            meshDb.addSpriteSeries("FX", "cannonshell", anim);
+        }
+        {
+            auto anim = sceneContext.textureService->getGafEntry("anims/FX.GAF", "plasmasm");
+            meshDb.addSpriteSeries("FX", "plasmasm", anim);
+        }
+        {
+            auto anim = sceneContext.textureService->getGafEntry("anims/FX.GAF", "plasmamd");
+            meshDb.addSpriteSeries("FX", "plasmamd", anim);
+        }
+        {
+            auto anim = sceneContext.textureService->getGafEntry("anims/FX.GAF", "ultrashell");
+            meshDb.addSpriteSeries("FX", "ultrashell", anim);
+        }
+
         return std::make_pair(db, meshDb);
     }
 

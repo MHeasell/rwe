@@ -392,8 +392,7 @@ namespace rwe
             }
             case 4:
             {
-                auto sprite = textureService->getGafEntry("anims/fx.gaf", getFxName(tdf.color));
-                weapon.renderType = ProjectileRenderTypeSprite{sprite};
+                weapon.renderType = ProjectileRenderTypeSprite{"fx", getFxName(tdf.color)};
                 break;
             }
             case 6:

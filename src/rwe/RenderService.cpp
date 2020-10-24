@@ -545,7 +545,8 @@ namespace rwe
                     Matrix4f conversionMatrix = Matrix4f::scale(Vector3f(1.0f, -2.0f, 1.0f));
                     const auto& shader = shaders->basicTexture;
                     graphics->bindShader(shader.handle.get());
-                    const auto& sprite = *s.spriteSeries->sprites[getFrameIndex(currentTime, s.spriteSeries->sprites.size())];
+                    const auto spriteSeries = meshDatabase.getSpriteSeries(s.gaf, s.anim).value();
+                    const auto& sprite = *spriteSeries->sprites[getFrameIndex(currentTime, spriteSeries->sprites.size())];
                     auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix * sprite.getTransform();
                     graphics->bindTexture(sprite.texture.get());
                     graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * modelMatrix);

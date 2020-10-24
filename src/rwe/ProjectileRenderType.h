@@ -37,7 +37,8 @@ namespace rwe
 
     struct ProjectileRenderTypeSprite
     {
-        std::shared_ptr<SpriteSeries> spriteSeries;
+        std::string gaf;
+        std::string anim;
     };
 
     struct ProjectileRenderTypeFlamethrower
