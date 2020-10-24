@@ -1,4 +1,5 @@
 #include "Explosion.h"
+#include <rwe/overloaded.h>
 
 namespace rwe
 {
@@ -7,16 +8,21 @@ namespace rwe
         return currentTime >= startTime;
     }
 
-    unsigned int Explosion::getFrameIndex(GameTime currentTime) const
+    unsigned int Explosion::getFrameIndex(GameTime currentTime, int totalFrames) const
     {
         assert(currentTime >= startTime);
         auto deltaTime = currentTime - startTime;
-        auto frameIndex = (deltaTime.value / frameDuration.value) % animation->sprites.size();
+        auto frameIndex = (deltaTime.value / frameDuration.value) % totalFrames;
         return frameIndex;
     }
 
-    bool Explosion::isFinished(GameTime currentTime) const
+    bool Explosion::isFinished(GameTime currentTime, int numberOfFrames) const
     {
-        return currentTime >= finishTime;
+        auto concreteFinishTime = match(
+            finishTime,
+            [&](const ExplosionFinishTimeFixedTime& t) { return t.time; },
+            [&](const ExplosionFinishTimeEndOfFrames&) { return startTime + (GameTime(numberOfFrames * frameDuration.value)); });
+
+        return currentTime >= concreteFinishTime;
     }
 }

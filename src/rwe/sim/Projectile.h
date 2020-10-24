@@ -2,7 +2,6 @@
 
 #include <rwe/AudioService.h>
 #include <rwe/ProjectileRenderType.h>
-#include <rwe/render/SpriteSeries.h>
 #include <rwe/sim/GameTime.h>
 #include <rwe/sim/PlayerId.h>
 #include <rwe/sim/ProjectilePhysicsType.h>
@@ -41,9 +40,6 @@ namespace rwe
 
         /** The last time the projectile emitted smoke. */
         GameTime lastSmoke;
-
-        std::optional<std::shared_ptr<SpriteSeries>> explosion;
-        std::optional<std::shared_ptr<SpriteSeries>> waterExplosion;
 
         std::unordered_map<std::string, unsigned int> damage;
 

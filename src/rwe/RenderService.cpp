@@ -573,21 +573,22 @@ namespace rwe
 
         for (const auto& exp : explosions)
         {
-            if (!exp.isStarted(currentTime) || exp.isFinished(currentTime))
+            auto spriteSeries = meshDatabase.getSpriteSeries(exp.explosionGaf, exp.explosionAnim).value();
+
+            if (!exp.isStarted(currentTime) || exp.isFinished(currentTime, spriteSeries->sprites.size()))
             {
                 continue;
             }
 
-            auto position = simVectorToFloat(exp.position);
-            auto frameIndex = exp.getFrameIndex(currentTime);
-            const auto& sprite = *exp.animation->sprites[frameIndex];
+            auto frameIndex = exp.getFrameIndex(currentTime, spriteSeries->sprites.size());
+            const auto& sprite = *spriteSeries->sprites[frameIndex];
 
             float alpha = exp.translucent ? 0.5f : 1.0f;
 
             Vector3f snappedPosition(
-                std::round(position.x),
-                truncateToInterval(position.y, 2.0f),
-                std::round(position.z));
+                std::round(exp.position.x),
+                truncateToInterval(exp.position.y, 2.0f),
+                std::round(exp.position.z));
 
             // Convert to a model position that makes sense in the game world.
             // For standing (blocking) features we stretch y-dimension values by 2x
@@ -724,5 +725,30 @@ namespace rwe
         lines.emplace_back(worldEndF, arm2);
 
         graphics->drawLines(createTemporaryLinesMesh(lines, color));
+    }
+
+
+    void RenderService::updateExplosions(GameTime currentTime, std::vector<Explosion>& explosions)
+    {
+        auto end = explosions.end();
+        for (auto it = explosions.begin(); it != end;)
+        {
+            auto& exp = *it;
+            const auto anim = meshDatabase.getSpriteSeries(exp.explosionGaf, exp.explosionAnim).value();
+            if (exp.isFinished(currentTime, anim->sprites.size()))
+            {
+                exp = std::move(*--end);
+                continue;
+            }
+
+            if (exp.floats)
+            {
+                // TODO: drift with the wind
+                exp.position.y += 0.5f;
+            }
+
+            ++it;
+        }
+        explosions.erase(end, explosions.end());
     }
 }

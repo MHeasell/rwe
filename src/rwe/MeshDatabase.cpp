@@ -32,4 +32,18 @@ namespace rwe
         return it->second;
     }
 
+    void MeshDatabase::addSpriteSeries(const std::string& gafName, const std::string& animName, std::shared_ptr<SpriteSeries> sprite)
+    {
+        spritesMap.insert({{gafName, animName}, sprite});
+    }
+
+    std::optional<std::shared_ptr<SpriteSeries>> MeshDatabase::getSpriteSeries(const std::string& gaf, const std::string& anim) const
+    {
+        auto it = spritesMap.find({gaf, anim});
+        if (it == spritesMap.end())
+        {
+            return std::nullopt;
+        }
+        return it->second;
+    }
 }

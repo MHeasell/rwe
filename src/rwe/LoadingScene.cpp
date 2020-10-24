@@ -658,6 +658,17 @@ namespace rwe
                         }
                     }
 
+                    if (!pair.second.explosionGaf.empty() && !pair.second.explosionArt.empty())
+                    {
+                        auto anim = sceneContext.textureService->getGafEntry("anims/" + pair.second.explosionGaf + ".gaf", pair.second.explosionArt);
+                        meshDb.addSpriteSeries(pair.second.explosionGaf, pair.second.explosionArt, anim);
+                    }
+                    if (!pair.second.waterExplosionGaf.empty() && !pair.second.waterExplosionArt.empty())
+                    {
+                        auto anim = sceneContext.textureService->getGafEntry("anims/" + pair.second.waterExplosionGaf + ".gaf", pair.second.waterExplosionArt);
+                        meshDb.addSpriteSeries(pair.second.waterExplosionGaf, pair.second.waterExplosionArt, anim);
+                    }
+
                     db.addWeapon(pair.first, std::move(pair.second));
                 }
             }
@@ -724,6 +735,12 @@ namespace rwe
 
                 db.addUnitScript(scriptNameWithoutExtension, std::move(cob));
             }
+        }
+
+        // preload smoke
+        {
+            auto anim = sceneContext.textureService->getGafEntry("anims/FX.GAF", "smoke 1");
+            meshDb.addSpriteSeries("FX", "smoke 1", anim);
         }
 
         return std::make_pair(db, meshDb);

@@ -420,14 +420,6 @@ namespace rwe
         {
             weapon.smokeTrail = GameTime(static_cast<unsigned int>(tdf.smokeDelay * 60.0f));
         }
-        if (!tdf.explosionGaf.empty() && !tdf.explosionArt.empty())
-        {
-            weapon.explosion = textureService->getGafEntry("anims/" + tdf.explosionGaf + ".gaf", tdf.explosionArt);
-        }
-        if (!tdf.waterExplosionGaf.empty() && !tdf.waterExplosionArt.empty())
-        {
-            weapon.waterExplosion = textureService->getGafEntry("anims/" + tdf.waterExplosionGaf + ".gaf", tdf.waterExplosionArt);
-        }
 
         for (const auto& p : tdf.damage)
         {

@@ -127,6 +127,8 @@ namespace rwe
 
         void drawExplosions(GameTime currentTime, const std::vector<Explosion>& explosions);
 
+        void updateExplosions(GameTime currentTime, std::vector<Explosion>& explosions);
+
     private:
         void drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, PlayerColorIndex playerColorIndex);
 

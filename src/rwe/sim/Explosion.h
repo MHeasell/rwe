@@ -8,12 +8,21 @@
 
 namespace rwe
 {
+    struct ExplosionFinishTimeEndOfFrames
+    {
+    };
+    struct ExplosionFinishTimeFixedTime
+    {
+        GameTime time;
+    };
+    using ExplosionFinishTime = std::variant<ExplosionFinishTimeEndOfFrames, ExplosionFinishTimeFixedTime>;
     struct Explosion
     {
-        SimVector position;
-        std::shared_ptr<SpriteSeries> animation;
+        Vector3f position;
+        std::string explosionGaf;
+        std::string explosionAnim;
         GameTime startTime;
-        GameTime finishTime;
+        ExplosionFinishTime finishTime;
         GameTime frameDuration{4};
 
         /** If true, the particle moves upwards each tick, as smoke. */
@@ -21,7 +30,7 @@ namespace rwe
         bool translucent{false};
 
         bool isStarted(GameTime currentTime) const;
-        unsigned int getFrameIndex(GameTime currentTime) const;
-        bool isFinished(GameTime currentTime) const;
+        unsigned int getFrameIndex(GameTime currentTime, int totalFrames) const;
+        bool isFinished(GameTime currentTime, int numberOfFrames) const;
     };
 }

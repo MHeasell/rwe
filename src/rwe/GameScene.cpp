@@ -1703,6 +1703,36 @@ namespace rwe
         }
     }
 
+    void GameScene::spawnWeaponImpactExplosion(const Vector3f& position, const std::string& weaponType, ImpactType impactType)
+    {
+
+        const auto& weaponTdf = unitDatabase.getWeapon(weaponType);
+        switch (impactType)
+        {
+            case ImpactType::Normal:
+            {
+
+                if (!weaponTdf.explosionGaf.empty() && !weaponTdf.explosionArt.empty())
+                {
+                    spawnExplosion(position, weaponTdf.explosionGaf, weaponTdf.explosionArt);
+                }
+                if (weaponTdf.endSmoke)
+                {
+                    createLightSmoke(position);
+                }
+                break;
+            }
+            case ImpactType::Water:
+            {
+                if (!weaponTdf.waterExplosionGaf.empty() && !weaponTdf.waterExplosionArt.empty())
+                {
+                    spawnExplosion(position, weaponTdf.waterExplosionGaf, weaponTdf.waterExplosionArt);
+                }
+                break;
+            }
+        }
+    }
+
     void GameScene::onChannelFinished(int channel)
     {
         std::scoped_lock<std::mutex> lock(playingUnitChannelsLock);
@@ -1881,7 +1911,7 @@ namespace rwe
 
         updateProjectiles();
 
-        updateExplosions();
+        worldRenderService.updateExplosions(simulation.gameTime, explosions);
 
         // if a commander died this frame, kill the player that owns it
         for (const auto& p : simulation.units)
@@ -2242,7 +2272,7 @@ namespace rwe
             {
                 if (gameTime > projectile.lastSmoke + *projectile.smokeTrail)
                 {
-                    createLightSmoke(projectile.position);
+                    createLightSmoke(simVectorToFloat(projectile.position));
                     projectile.lastSmoke = gameTime;
                 }
             }
@@ -2288,55 +2318,10 @@ namespace rwe
         }
     }
 
-    void GameScene::updateExplosions()
-    {
-        auto end = explosions.end();
-        for (auto it = explosions.begin(); it != end;)
-        {
-            auto& exp = *it;
-            if (exp.isFinished(simulation.gameTime))
-            {
-                exp = std::move(*--end);
-                continue;
-            }
-
-            if (exp.floats)
-            {
-                // TODO: drift with the wind
-                exp.position.y += 0.5_ssf;
-            }
-
-            ++it;
-        }
-        explosions.erase(end, explosions.end());
-    }
-
     void GameScene::doProjectileImpact(const Projectile& projectile, ImpactType impactType)
     {
         playWeaponImpactSound(simVectorToFloat(projectile.position), projectile.weaponType, impactType);
-        switch (impactType)
-        {
-            case ImpactType::Normal:
-            {
-                if (projectile.explosion)
-                {
-                    spawnExplosion(projectile.position, *projectile.explosion);
-                }
-                if (projectile.endSmoke)
-                {
-                    createLightSmoke(projectile.position);
-                }
-                break;
-            }
-            case ImpactType::Water:
-            {
-                if (projectile.waterExplosion)
-                {
-                    spawnExplosion(projectile.position, *projectile.waterExplosion);
-                }
-                break;
-            }
-        }
+        spawnWeaponImpactExplosion(simVectorToFloat(projectile.position), projectile.weaponType, impactType);
 
         applyDamageInRadius(projectile.position, projectile.damageRadius, projectile);
     }
@@ -2434,16 +2419,15 @@ namespace rwe
         }
     }
 
-    void GameScene::createLightSmoke(const SimVector& position)
+    void GameScene::createLightSmoke(const Vector3f& position)
     {
-        auto anim = sceneContext.textureService->getGafEntry("anims/FX.GAF", "smoke 1");
-        spawnSmoke(position, anim, GameTime(anim->sprites.size() * 4), GameTime(4));
+        spawnSmoke(position, "FX", "smoke 1", ExplosionFinishTimeEndOfFrames(), GameTime(4));
     }
 
-    void GameScene::createWeaponSmoke(const SimVector& position)
+    void GameScene::createWeaponSmoke(const Vector3f& position)
     {
         auto anim = sceneContext.textureService->getGafEntry("anims/FX.GAF", "smoke 1");
-        spawnSmoke(position, anim, GameTime(60), GameTime(30));
+        spawnSmoke(position, "FX", "smoke 1", ExplosionFinishTimeFixedTime{simulation.gameTime + GameTime(60)}, GameTime(30));
     }
 
     void GameScene::activateUnit(UnitId unitId)
@@ -3280,25 +3264,27 @@ namespace rwe
         return sceneContext.globalConfig->leftClickInterfaceMode;
     }
 
-    void GameScene::spawnExplosion(const SimVector& position, const std::shared_ptr<SpriteSeries>& animation)
+    void GameScene::spawnExplosion(const Vector3f& position, const std::string& gaf, const std::string& anim)
     {
         Explosion exp;
         exp.position = position;
-        exp.animation = animation;
+        exp.explosionGaf = gaf;
+        exp.explosionAnim = anim;
         exp.startTime = simulation.gameTime;
-        exp.finishTime = simulation.gameTime + GameTime(animation->sprites.size() * 4);
+        exp.finishTime = ExplosionFinishTimeEndOfFrames();
         exp.frameDuration = GameTime(4);
 
         explosions.push_back(exp);
     }
 
-    void GameScene::spawnSmoke(const SimVector& position, const std::shared_ptr<SpriteSeries>& animation, GameTime duration, GameTime frameDuration)
+    void GameScene::spawnSmoke(const Vector3f& position, const std::string& gaf, const std::string& anim, ExplosionFinishTime duration, GameTime frameDuration)
     {
         Explosion exp;
         exp.position = position;
-        exp.animation = animation;
+        exp.explosionGaf = gaf;
+        exp.explosionAnim = anim;
         exp.startTime = simulation.gameTime;
-        exp.finishTime = simulation.gameTime + duration;
+        exp.finishTime = duration;
         exp.frameDuration = frameDuration;
         exp.translucent = true;
         exp.floats = true;

@@ -446,10 +446,6 @@ namespace rwe
         projectile.smokeTrail = weapon.smokeTrail;
         projectile.lastSmoke = gameTime;
 
-
-        projectile.explosion = weapon.explosion;
-        projectile.waterExplosion = weapon.waterExplosion;
-
         projectile.damage = weapon.damage;
 
         projectile.damageRadius = weapon.damageRadius;

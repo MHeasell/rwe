@@ -354,6 +354,8 @@ namespace rwe
 
         void playWeaponImpactSound(const Vector3f& position, const std::string& weaponType, ImpactType impactType);
 
+        void spawnWeaponImpactExplosion(const Vector3f& position, const std::string& weaponType, ImpactType impactType);
+
         DiscreteRect computeFootprintRegion(const SimVector& position, unsigned int footprintX, unsigned int footprintZ) const;
 
         void moveUnitOccupiedArea(const DiscreteRect& oldRect, const DiscreteRect& newRect, UnitId unitId);
@@ -364,9 +366,9 @@ namespace rwe
 
         void doProjectileImpact(const Projectile& projectile, ImpactType impactType);
 
-        void createLightSmoke(const SimVector& position);
+        void createLightSmoke(const Vector3f& position);
 
-        void createWeaponSmoke(const SimVector& position);
+        void createWeaponSmoke(const Vector3f& position);
 
         void activateUnit(UnitId unitId);
         void deactivateUnit(UnitId unitId);
@@ -551,8 +553,8 @@ namespace rwe
 
         bool leftClickMode() const;
 
-        void spawnExplosion(const SimVector& position, const std::shared_ptr<SpriteSeries>& animation);
+        void spawnExplosion(const Vector3f& position, const std::string& gaf, const std::string& anim);
 
-        void spawnSmoke(const SimVector& position, const std::shared_ptr<SpriteSeries>& animation, GameTime duration, GameTime frameDuration);
+        void spawnSmoke(const Vector3f& position, const std::string& gaf, const std::string& anim, ExplosionFinishTime duration, GameTime frameDuration);
     };
 }

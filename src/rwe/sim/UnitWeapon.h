@@ -4,7 +4,6 @@
 #include <rwe/ProjectileRenderType.h>
 #include <rwe/cob/CobThread.h>
 #include <rwe/math/Vector3f.h>
-#include <rwe/render/SpriteSeries.h>
 #include <rwe/sim/GameTime.h>
 #include <rwe/sim/ProjectilePhysicsType.h>
 #include <rwe/sim/UnitId.h>
@@ -74,9 +73,6 @@ namespace rwe
         bool endSmoke;
 
         std::optional<GameTime> smokeTrail;
-
-        std::optional<std::shared_ptr<SpriteSeries>> explosion;
-        std::optional<std::shared_ptr<SpriteSeries>> waterExplosion;
 
         /** The number of shots in a burst. */
         int burst;

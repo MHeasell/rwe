@@ -483,7 +483,7 @@ namespace rwe
             weapon->readyTime = gameTime + deltaSecondsToTicks(weapon->reloadTime);
             if (weapon->startSmoke)
             {
-                scene->createWeaponSmoke(firingPoint);
+                scene->createWeaponSmoke(simVectorToFloat(firingPoint));
             }
         }
 
