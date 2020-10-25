@@ -57,15 +57,28 @@ namespace rwe
                 [&env, &simulation, unitId](const CobEnvironment::BlockedStatus::Turn& condition) {
                     const auto& pieceName = env._script->pieces.at(condition.object);
                     return !simulation.isPieceTurning(unitId, pieceName, toAxis(condition.axis));
-                },
-                [&simulation](const CobEnvironment::BlockedStatus::Sleep& condition) {
-                    return simulation.gameTime >= condition.wakeUpTime;
                 });
 
             if (isUnblocked)
             {
                 env.readyQueue.push_back(pair.second);
                 it = env.blockedQueue.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+
+        // check if any sleeping threads can be moved into the ready queue
+        for (auto it = env.sleepingQueue.begin(); it != env.sleepingQueue.end();)
+        {
+            const auto& pair = *it;
+            const auto& wakeTime = pair.first;
+            if (simulation.gameTime >= wakeTime)
+            {
+                env.readyQueue.push_back(pair.second);
+                it = env.sleepingQueue.erase(it);
             }
             else
             {
@@ -87,6 +100,9 @@ namespace rwe
                 context.execute(),
                 [&env, thread](const CobEnvironment::BlockedStatus& status) {
                     env.blockedQueue.emplace_back(status, thread);
+                },
+                [&](const CobEnvironment::SleepStatus& status) {
+                    env.sleepingQueue.emplace_back(simulation.gameTime + status.duration.toGameTime(), thread);
                 },
                 [&env, thread](const CobEnvironment::FinishedStatus&) {
                     env.finishedQueue.emplace_back(thread);

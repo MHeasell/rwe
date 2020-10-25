@@ -206,8 +206,7 @@ namespace rwe
                 case OpCode::SLEEP:
                 {
                     auto duration = popSleepDuration();
-                    auto wakeUpTime = sim->gameTime + duration.toGameTime();
-                    return CobEnvironment::BlockedStatus(CobEnvironment::BlockedStatus::Sleep(wakeUpTime));
+                    return CobEnvironment::SleepStatus{duration};
                 }
 
                 case OpCode::CALL_SCRIPT:

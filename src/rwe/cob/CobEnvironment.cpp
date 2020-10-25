@@ -134,6 +134,14 @@ namespace rwe
         }
 
         {
+            auto it = std::find_if(sleepingQueue.begin(), sleepingQueue.end(), [thread](const auto& pair) { return pair.second == thread; });
+            if (it != sleepingQueue.end())
+            {
+                sleepingQueue.erase(it);
+            }
+        }
+
+        {
             auto it = std::find(finishedQueue.begin(), finishedQueue.end(), thread);
             if (it != finishedQueue.end())
             {
@@ -144,7 +152,7 @@ namespace rwe
 
     bool CobEnvironment::isNotCorrupt() const
     {
-        auto sizes = readyQueue.size() + blockedQueue.size() + finishedQueue.size();
+        auto sizes = readyQueue.size() + blockedQueue.size() + sleepingQueue.size() + finishedQueue.size();
         if (sizes != threads.size())
         {
             return false;
@@ -174,6 +182,14 @@ namespace rwe
         {
             auto it = std::find_if(blockedQueue.begin(), blockedQueue.end(), [thread](const auto& pair) { return pair.second == thread; });
             if (it != blockedQueue.end())
+            {
+                return true;
+            }
+        }
+
+        {
+            auto it = std::find_if(sleepingQueue.begin(), sleepingQueue.end(), [thread](const auto& pair) { return pair.second == thread; });
+            if (it != sleepingQueue.end())
             {
                 return true;
             }

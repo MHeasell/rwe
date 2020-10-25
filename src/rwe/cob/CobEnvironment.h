@@ -6,6 +6,7 @@
 #include <rwe/cob/CobAngularSpeed.h>
 #include <rwe/cob/CobAxis.h>
 #include <rwe/cob/CobPosition.h>
+#include <rwe/cob/CobSleepDuration.h>
 #include <rwe/cob/CobSpeed.h>
 #include <rwe/cob/CobThread.h>
 #include <rwe/io/cob/Cob.h>
@@ -44,22 +45,19 @@ namespace rwe
                 }
             };
 
-            struct Sleep
-            {
-                GameTime wakeUpTime;
-
-                explicit Sleep(GameTime wakeUpTime) : wakeUpTime(wakeUpTime)
-                {
-                }
-            };
-
-            using Condition = std::variant<Move, Turn, Sleep>;
+            using Condition = std::variant<Move, Turn>;
 
             Condition condition;
 
         public:
             explicit BlockedStatus(const Condition& condition) : condition(condition) {}
         };
+
+        struct SleepStatus
+        {
+            CobSleepDuration duration;
+        };
+
         struct FinishedStatus
         {
         };
@@ -102,7 +100,7 @@ namespace rwe
             CommandType command;
         };
 
-        using Status = std::variant<SignalStatus, MotionCommandStatus, BlockedStatus, FinishedStatus>;
+        using Status = std::variant<SignalStatus, MotionCommandStatus, BlockedStatus, SleepStatus, FinishedStatus>;
 
     public:
         const CobScript* const _script;
@@ -113,6 +111,7 @@ namespace rwe
 
         std::deque<CobThread*> readyQueue;
         std::deque<std::pair<BlockedStatus, CobThread*>> blockedQueue;
+        std::deque<std::pair<GameTime, CobThread*>> sleepingQueue;
         std::deque<CobThread*> finishedQueue;
 
     public:
