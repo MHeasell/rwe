@@ -257,7 +257,6 @@ set(SOURCE_FILES
     src/rwe/MinHeap.h
     src/rwe/MovementClassCollisionService.cpp
     src/rwe/MovementClassCollisionService.h
-    src/rwe/MovementClassId.h
     src/rwe/OpaqueField.h
     src/rwe/OpaqueId.h
     src/rwe/OpaqueId_io.h
@@ -488,6 +487,7 @@ set(SOURCE_FILES
     src/rwe/sim/Metal.h
     src/rwe/sim/MovementClass.cpp
     src/rwe/sim/MovementClass.h
+    src/rwe/sim/MovementClassId.h
     src/rwe/sim/OccupiedGrid.cpp
     src/rwe/sim/OccupiedGrid.h
     src/rwe/sim/PlayerId.h

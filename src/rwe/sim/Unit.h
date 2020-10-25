@@ -4,7 +4,6 @@
 #include <memory>
 #include <optional>
 #include <rwe/AudioService.h>
-#include <rwe/MovementClassId.h>
 #include <rwe/cob/CobEnvironment.h>
 #include <rwe/geometry/BoundingBox3f.h>
 #include <rwe/geometry/CollisionMesh.h>
@@ -14,6 +13,7 @@
 #include <rwe/sim/Energy.h>
 #include <rwe/sim/Metal.h>
 #include <rwe/sim/MovementClass.h>
+#include <rwe/sim/MovementClassId.h>
 #include <rwe/sim/PlayerId.h>
 #include <rwe/sim/SimAngle.h>
 #include <rwe/sim/SimScalar.h>

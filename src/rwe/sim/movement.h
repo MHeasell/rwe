@@ -1,10 +1,10 @@
 #pragma once
 
-#include <rwe/MovementClassId.h>
 #include <rwe/grid/Grid.h>
 #include <rwe/grid/Point.h>
 #include <rwe/sim/MapTerrain.h>
 #include <rwe/sim/MovementClass.h>
+#include <rwe/sim/MovementClassId.h>
 #include <unordered_map>
 
 namespace rwe
