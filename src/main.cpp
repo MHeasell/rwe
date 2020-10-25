@@ -14,7 +14,7 @@
 #include <rwe/SceneManager.h>
 #include <rwe/SdlContextManager.h>
 #include <rwe/ShaderService.h>
-#include <rwe/ViewportService.h>
+#include <rwe/Viewport.h>
 #include <rwe/config.h>
 #include <rwe/io/gui/gui.h>
 #include <rwe/io/tdf/tdf.h>
@@ -187,7 +187,7 @@ namespace rwe
         int windowWidth;
         int windowHeight;
         sdlContext->getWindowSize(window.get(), &windowWidth, &windowHeight);
-        ViewportService viewportService(0, 0, windowWidth, windowHeight);
+        Viewport viewport(0, 0, windowWidth, windowHeight);
 
         logger.info("Initializing OpenGL context");
 
@@ -296,7 +296,7 @@ namespace rwe
 
         sdlContext->showCursor(SDL_DISABLE);
 
-        SceneManager sceneManager(sdlContext, window.get(), &graphics, &timeService, &imGuiContext, &cursor, &globalConfig, UiRenderService(&graphics, &shaders, UiCamera(viewportService.width(), viewportService.height())));
+        SceneManager sceneManager(sdlContext, window.get(), &graphics, &timeService, &imGuiContext, &cursor, &globalConfig, UiRenderService(&graphics, &shaders, UiCamera(viewport.width(), viewport.height())));
 
         logger.info("Loading side data");
         auto sideDataBytes = vfs.readFile("gamedata/SIDEDATA.TDF");
@@ -319,7 +319,7 @@ namespace rwe
 
         SceneContext sceneContext(
             sdlContext,
-            &viewportService,
+            &viewport,
             &graphics,
             &textureService,
             &audioService,
@@ -351,8 +351,8 @@ namespace rwe
                 sceneContext,
                 &allSoundTdf,
                 &featureService,
-                viewportService.width(),
-                viewportService.height());
+                viewport.width(),
+                viewport.height());
             sceneManager.setNextScene(std::move(scene));
         }
 

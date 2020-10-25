@@ -105,7 +105,7 @@ namespace rwe
         TdfBlock* audioLookup,
         std::optional<std::ofstream>&& stateLogStream)
         : sceneContext(sceneContext),
-          worldViewport(ViewportService(GuiSizeLeft, GuiSizeTop, sceneContext.viewportService->width() - GuiSizeLeft - GuiSizeRight, sceneContext.viewportService->height() - GuiSizeTop - GuiSizeBottom)),
+          worldViewport(Viewport(GuiSizeLeft, GuiSizeTop, sceneContext.viewport->width() - GuiSizeLeft - GuiSizeRight, sceneContext.viewport->height() - GuiSizeTop - GuiSizeBottom)),
           playerCommandService(std::move(playerCommandService)),
           worldRenderService(std::move(worldRenderService)),
           worldUiRenderService(std::move(worldUiRenderService)),
@@ -126,7 +126,7 @@ namespace rwe
           sounds(std::move(sounds)),
           guiFont(guiFont),
           localPlayerId(localPlayerId),
-          uiFactory(sceneContext.textureService, sceneContext.audioService, audioLookup, sceneContext.vfs, sceneContext.viewportService->width(), sceneContext.viewportService->height()),
+          uiFactory(sceneContext.textureService, sceneContext.audioService, audioLookup, sceneContext.vfs, sceneContext.viewport->width(), sceneContext.viewport->height()),
           stateLogStream(std::move(stateLogStream))
     {
     }
@@ -172,7 +172,7 @@ namespace rwe
     {
         const auto& localSideData = sceneContext.sideData->at(getPlayer(localPlayerId).side);
 
-        sceneContext.graphics->setViewport(0, 0, sceneContext.viewportService->width(), sceneContext.viewportService->height());
+        sceneContext.graphics->setViewport(0, 0, sceneContext.viewport->width(), sceneContext.viewport->height());
 
         renderMinimap();
 
@@ -189,7 +189,7 @@ namespace rwe
         }
         if (bottomPanelBackground)
         {
-            while (topXBuffer < sceneContext.viewportService->width())
+            while (topXBuffer < sceneContext.viewport->width())
             {
                 const auto& sprite = *(*bottomPanelBackground)->sprites.at(0);
                 chromeUiRenderService.drawSpriteAbs(topXBuffer, 0.0f, sprite);
@@ -277,7 +277,7 @@ namespace rwe
         float bottomXBuffer = GuiSizeLeft;
         if (bottomPanelBackground)
         {
-            while (bottomXBuffer < sceneContext.viewportService->width())
+            while (bottomXBuffer < sceneContext.viewport->width())
             {
                 const auto& sprite = *(*bottomPanelBackground)->sprites.at(0);
                 chromeUiRenderService.drawSpriteAbs(bottomXBuffer, worldViewport.bottom(), sprite);
@@ -285,7 +285,7 @@ namespace rwe
             }
         }
 
-        auto extraBottom = sceneContext.viewportService->height() - 480;
+        auto extraBottom = sceneContext.viewport->height() - 480;
         if (hoveredUnit)
         {
             const auto& unit = getUnit(*hoveredUnit);
@@ -342,16 +342,16 @@ namespace rwe
         currentPanel->render(chromeUiRenderService);
         sceneContext.graphics->enableDepthBuffer();
 
-        auto viewportPos = worldViewport.toOtherViewport(*sceneContext.viewportService, 0, worldViewport.height());
+        auto viewportPos = worldViewport.toOtherViewport(*sceneContext.viewport, 0, worldViewport.height());
         sceneContext.graphics->setViewport(
             viewportPos.x,
-            sceneContext.viewportService->height() - viewportPos.y,
+            sceneContext.viewport->height() - viewportPos.y,
             worldViewport.width(),
             worldViewport.height());
         renderWorld();
         sceneContext.graphics->disableDepthBuffer();
 
-        sceneContext.graphics->setViewport(0, 0, sceneContext.viewportService->width(), sceneContext.viewportService->height());
+        sceneContext.graphics->setViewport(0, 0, sceneContext.viewport->width(), sceneContext.viewport->height());
 
         // oh yeah also regulate sound
         std::scoped_lock<std::mutex> lock(playingUnitChannelsLock);
@@ -656,7 +656,7 @@ namespace rwe
                 const auto cameraPosition = camera.getPosition();
                 Point cameraRelativeStart(start.x - cameraPosition.x, start.y - cameraPosition.z);
 
-                auto worldViewportPos = sceneContext.viewportService->toOtherViewport(worldViewport, getMousePosition());
+                auto worldViewportPos = sceneContext.viewport->toOtherViewport(worldViewport, getMousePosition());
                 auto rect = DiscreteRect::fromPoints(cameraRelativeStart, worldViewportPos);
 
                 worldUiRenderService.drawBoxOutline(rect.x, rect.y, rect.width, rect.height, Color(255, 255, 255));
@@ -996,7 +996,7 @@ namespace rwe
                     else if (isCursorOverWorld())
                     {
                         Point p(event.x, event.y);
-                        auto worldViewportPos = sceneContext.viewportService->toOtherViewport(worldViewport, p);
+                        auto worldViewportPos = sceneContext.viewport->toOtherViewport(worldViewport, p);
                         const auto cameraPosition = worldRenderService.getCamera().getPosition();
                         Point originRelativePos(cameraPosition.x + worldViewportPos.x, cameraPosition.z + worldViewportPos.y);
                         cursorMode.next(NormalCursorMode{NormalCursorMode::SelectingState(sceneTime, originRelativePos)});
@@ -1097,7 +1097,7 @@ namespace rwe
                         normalCursor.state,
                         [&](const NormalCursorMode::SelectingState& state) {
                             Point p(event.x, event.y);
-                            auto worldViewportPos = sceneContext.viewportService->toOtherViewport(worldViewport, p);
+                            auto worldViewportPos = sceneContext.viewport->toOtherViewport(worldViewport, p);
                             const auto cameraPosition = worldRenderService.getCamera().getPosition();
                             Point originRelativePos(cameraPosition.x + worldViewportPos.x, cameraPosition.z + worldViewportPos.y);
 
@@ -1268,14 +1268,14 @@ namespace rwe
             const float speed = CameraPanSpeed * simScalarToFloat(SecondsPerTick);
 
             auto mousePosition = getMousePosition();
-            auto directionX = mousePosition.x == sceneContext.viewportService->left()
+            auto directionX = mousePosition.x == sceneContext.viewport->left()
                 ? -1
-                : mousePosition.x == sceneContext.viewportService->right() - 1
+                : mousePosition.x == sceneContext.viewport->right() - 1
                     ? 1
                     : 0;
-            auto directionZ = mousePosition.y == sceneContext.viewportService->top()
+            auto directionZ = mousePosition.y == sceneContext.viewport->top()
                 ? -1
-                : mousePosition.y == sceneContext.viewportService->bottom() - 1
+                : mousePosition.y == sceneContext.viewport->bottom() - 1
                     ? 1
                     : 0;
 
@@ -1992,7 +1992,7 @@ namespace rwe
 
     Vector2f GameScene::screenToWorldClipSpace(Point p) const
     {
-        return worldViewport.toClipSpace(sceneContext.viewportService->toOtherViewport(worldViewport, p));
+        return worldViewport.toClipSpace(sceneContext.viewport->toOtherViewport(worldViewport, p));
     }
 
     bool GameScene::isCursorOverMinimap() const

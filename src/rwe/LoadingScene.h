@@ -13,7 +13,6 @@
 #include <rwe/SideData.h>
 #include <rwe/TextureService.h>
 #include <rwe/UnitDatabase.h>
-#include <rwe/ViewportService.h>
 #include <rwe/io/ota/ota.h>
 #include <rwe/io/tnt/TntArchive.h>
 #include <rwe/sim/Energy.h>

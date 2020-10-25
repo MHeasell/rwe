@@ -7,7 +7,7 @@
 #include <rwe/SceneManager.h>
 #include <rwe/SideData.h>
 #include <rwe/TextureService.h>
-#include <rwe/ViewportService.h>
+#include <rwe/Viewport.h>
 #include <rwe/rwe_time.h>
 #include <rwe/vfs/AbstractVirtualFileSystem.h>
 
@@ -17,7 +17,7 @@ namespace rwe
     {
     public:
         SdlContext* const sdl;
-        ViewportService* const viewportService;
+        Viewport* const viewport;
         GraphicsContext* const graphics;
         TextureService* const textureService;
         AudioService* const audioService;
@@ -33,7 +33,7 @@ namespace rwe
 
         SceneContext(
             SdlContext* const sdl,
-            ViewportService* const viewportService,
+            Viewport* const viewportService,
             GraphicsContext* const graphics,
             TextureService* const textureService,
             AudioService* const audioService,
@@ -47,7 +47,7 @@ namespace rwe
             TimeService* const timeService,
             const GlobalConfig* const globalConfig)
             : sdl(sdl),
-              viewportService(viewportService),
+              viewport(viewportService),
               graphics(graphics),
               textureService(textureService),
               audioService(audioService),

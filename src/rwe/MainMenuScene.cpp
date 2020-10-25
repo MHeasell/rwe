@@ -718,7 +718,7 @@ namespace rwe
 
     Point MainMenuScene::toScaledCoordinates(int x, int y) const
     {
-        auto clip = scaledUiRenderService.getCamera().screenToWorldRay(sceneContext.viewportService->toClipSpace(x, y));
+        auto clip = scaledUiRenderService.getCamera().screenToWorldRay(sceneContext.viewport->toClipSpace(x, y));
         return Point(static_cast<int>(clip.origin.x), static_cast<int>(clip.origin.y));
     }
 

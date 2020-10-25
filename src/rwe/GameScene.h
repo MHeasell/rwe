@@ -23,7 +23,7 @@
 #include <rwe/UnitDatabase.h>
 #include <rwe/UnitFactory.h>
 #include <rwe/UnitSoundType.h>
-#include <rwe/ViewportService.h>
+#include <rwe/Viewport.h>
 #include <rwe/camera/UiCamera.h>
 #include <rwe/cob/CobExecutionService.h>
 #include <rwe/grid/DiscreteRect.h>
@@ -187,7 +187,7 @@ namespace rwe
 
         std::unique_ptr<Subscription> audioSub = sceneContext.audioService->getChannelFinished().subscribe([this](int channel) { onChannelFinished(channel); });
 
-        ViewportService worldViewport;
+        Viewport worldViewport;
 
         std::unique_ptr<PlayerCommandService> playerCommandService;
 

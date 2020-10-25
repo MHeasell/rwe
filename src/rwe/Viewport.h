@@ -5,7 +5,7 @@
 
 namespace rwe
 {
-    class ViewportService
+    class Viewport
     {
     private:
         int _x;
@@ -14,7 +14,7 @@ namespace rwe
         unsigned int _height;
 
     public:
-        ViewportService(int x, int y, unsigned int width, unsigned int height);
+        Viewport(int x, int y, unsigned int width, unsigned int height);
 
         Vector2f toClipSpace(int x, int y) const;
 
@@ -24,9 +24,9 @@ namespace rwe
 
         Point toViewportSpace(Vector2f v) const;
 
-        Point toOtherViewport(const ViewportService& v, int x, int y);
+        Point toOtherViewport(const Viewport& v, int x, int y);
 
-        Point toOtherViewport(const ViewportService& v, const Point& p);
+        Point toOtherViewport(const Viewport& v, const Point& p);
 
         int x() const;
 

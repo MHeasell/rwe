@@ -29,11 +29,11 @@ namespace rwe
         : sceneContext(sceneContext),
           featureService(featureService),
           scaledUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(640.0, 480.0f)),
-          nativeUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(sceneContext.viewportService->width(), sceneContext.viewportService->height())),
+          nativeUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(sceneContext.viewport->width(), sceneContext.viewport->height())),
           audioLookup(audioLookup),
           bgm(std::move(bgm)),
           gameParameters(std::move(gameParameters)),
-          uiFactory(sceneContext.textureService, sceneContext.audioService, audioLookup, sceneContext.vfs, sceneContext.viewportService->width(), sceneContext.viewportService->height())
+          uiFactory(sceneContext.textureService, sceneContext.audioService, audioLookup, sceneContext.vfs, sceneContext.viewport->width(), sceneContext.viewport->height())
     {
     }
 
@@ -158,15 +158,15 @@ namespace rwe
 
         auto minimap = sceneContext.textureService->getMinimap(mapName);
 
-        auto worldViewportWidth = sceneContext.viewportService->width() - GameScene::GuiSizeLeft - GameScene::GuiSizeRight;
-        auto worldViewportHeight = sceneContext.viewportService->height() - GameScene::GuiSizeTop - GameScene::GuiSizeBottom;
+        auto worldViewportWidth = sceneContext.viewport->width() - GameScene::GuiSizeLeft - GameScene::GuiSizeRight;
+        auto worldViewportHeight = sceneContext.viewport->height() - GameScene::GuiSizeTop - GameScene::GuiSizeBottom;
 
         CabinetCamera worldCamera(worldViewportWidth, worldViewportHeight);
         worldCamera.setPosition(Vector3f(0.0f, 0.0f, 0.0f));
 
         UiCamera worldUiCamera(worldViewportWidth, worldViewportHeight);
 
-        UiCamera chromeUiCamera(sceneContext.viewportService->width(), sceneContext.viewportService->height());
+        UiCamera chromeUiCamera(sceneContext.viewport->width(), sceneContext.viewport->height());
 
         auto atlasInfo = createTextureAtlases(sceneContext.vfs, sceneContext.graphics, sceneContext.palette);
         MeshService meshService(sceneContext.vfs, sceneContext.graphics, std::move(atlasInfo.textureAtlasMap), std::move(atlasInfo.teamTextureAtlasMap), std::move(atlasInfo.colorAtlasMap));

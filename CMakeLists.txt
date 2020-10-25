@@ -301,8 +301,8 @@ set(SOURCE_FILES
     src/rwe/UnitSoundType.h
     src/rwe/VectorMap.cpp
     src/rwe/VectorMap.h
-    src/rwe/ViewportService.cpp
-    src/rwe/ViewportService.h
+    src/rwe/Viewport.cpp
+    src/rwe/Viewport.h
     src/rwe/atlas_util.cpp
     src/rwe/atlas_util.h
     src/rwe/camera/AbstractCamera.cpp
@@ -725,7 +725,7 @@ set(TEST_FILES
     src/rwe/Result.test.cpp
     src/rwe/SideData.test.cpp
     src/rwe/VectorMap.test.cpp
-    src/rwe/ViewportService.test.cpp
+    src/rwe/Viewport.test.cpp
     src/rwe/camera/CabinetCamera.test.cpp
     src/rwe/cob/cob_util.test.cpp
     src/rwe/dump_util.test.cpp
