@@ -5,7 +5,6 @@
 #include <rwe/CursorService.h>
 #include <rwe/GameScene.h>
 #include <rwe/LoadingNetworkService.h>
-#include <rwe/MapFeatureService.h>
 #include <rwe/MapTerrainGraphics.h>
 #include <rwe/PlayerColorIndex.h>
 #include <rwe/SceneContext.h>
@@ -13,6 +12,7 @@
 #include <rwe/SideData.h>
 #include <rwe/TextureService.h>
 #include <rwe/UnitDatabase.h>
+#include <rwe/io/featuretdf/FeatureDefinition.h>
 #include <rwe/io/ota/ota.h>
 #include <rwe/io/tnt/TntArchive.h>
 #include <rwe/sim/Energy.h>
@@ -91,8 +91,6 @@ namespace rwe
 
         std::unique_ptr<UiPanel> panel;
 
-        MapFeatureService* featureService;
-
         UiRenderService scaledUiRenderService;
         UiRenderService nativeUiRenderService;
 
@@ -111,7 +109,6 @@ namespace rwe
     public:
         LoadingScene(
             const SceneContext& sceneContext,
-            MapFeatureService* featureService,
             TdfBlock* audioLookup,
             AudioService::LoopToken&& bgm,
             GameParameters gameParameters);
@@ -134,7 +131,7 @@ namespace rwe
             MapTerrainGraphics terrainGraphics;
         };
 
-        LoadMapResult loadMap(const std::string& mapName, const rwe::OtaRecord& ota, unsigned int schemaIndex);
+        LoadMapResult loadMap(const std::unordered_map<std::string, FeatureDefinition>& featuresMap, const std::string& mapName, const rwe::OtaRecord& ota, unsigned int schemaIndex);
 
         std::vector<TextureRegion> getTileTextures(TntArchive& tnt);
 
@@ -142,7 +139,7 @@ namespace rwe
 
         Grid<unsigned char> getHeightGrid(const Grid<TntTileAttributes>& attrs) const;
 
-        std::vector<FeatureDefinition> getFeatures(TntArchive& tnt);
+        std::vector<FeatureDefinition> getFeatures(const std::unordered_map<std::string, FeatureDefinition>& featuresMap, TntArchive& tnt);
 
         MapFeature createFeature(const SimVector& pos, const FeatureDefinition& definition);
 

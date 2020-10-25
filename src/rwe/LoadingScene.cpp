@@ -14,6 +14,33 @@
 
 namespace rwe
 {
+    std::unordered_map<std::string, FeatureDefinition> loadAllFeatureDefinitions(AbstractVirtualFileSystem& vfs)
+    {
+        std::unordered_map<std::string, FeatureDefinition> features;
+
+        auto files = vfs.getFileNamesRecursive("features", ".tdf");
+
+        for (const auto& name : files)
+        {
+            auto bytes = vfs.readFile("features/" + name);
+            if (!bytes)
+            {
+                throw std::runtime_error("Failed to read feature " + name);
+            }
+
+            std::string tdfString(bytes->data(), bytes->size());
+
+            auto tdfRoot = parseTdfFromString(tdfString);
+            for (const auto& e : tdfRoot.blocks)
+            {
+                auto featureDefinition = FeatureDefinition::fromTdf(*e.second);
+                features.insert_or_assign(e.first, std::move(featureDefinition));
+            }
+        }
+
+        return features;
+    }
+
     GameParameters::GameParameters(const std::string& mapName, unsigned int schemaIndex)
         : mapName(mapName),
           schemaIndex(schemaIndex)
@@ -22,12 +49,10 @@ namespace rwe
 
     LoadingScene::LoadingScene(
         const SceneContext& sceneContext,
-        MapFeatureService* featureService,
         TdfBlock* audioLookup,
         AudioService::LoopToken&& bgm,
         GameParameters gameParameters)
         : sceneContext(sceneContext),
-          featureService(featureService),
           scaledUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(640.0, 480.0f)),
           nativeUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(sceneContext.viewport->width(), sceneContext.viewport->height())),
           audioLookup(audioLookup),
@@ -94,7 +119,6 @@ namespace rwe
         }
         networkService.start(gameParameters.localNetworkPort);
 
-        featureService->loadAllFeatureDefinitions();
         sceneContext.sceneManager->setNextScene(createGameScene(gameParameters.mapName, gameParameters.schemaIndex));
 
         // wait for other players before starting
@@ -147,7 +171,8 @@ namespace rwe
         std::string otaStr(otaRaw->begin(), otaRaw->end());
         auto ota = parseOta(parseTdfFromString(otaStr));
 
-        auto mapInfo = loadMap(mapName, ota, schemaIndex);
+        auto featuresMap = loadAllFeatureDefinitions(*sceneContext.vfs);
+        auto mapInfo = loadMap(featuresMap, mapName, ota, schemaIndex);
         GameSimulation simulation(std::move(mapInfo.terrain), mapInfo.surfaceMetal);
         for (auto& feature : mapInfo.features)
         {
@@ -324,7 +349,7 @@ namespace rwe
         return gameScene;
     }
 
-    LoadingScene::LoadMapResult LoadingScene::loadMap(const std::string& mapName, const OtaRecord& ota, unsigned int schemaIndex)
+    LoadingScene::LoadMapResult LoadingScene::loadMap(const std::unordered_map<std::string, FeatureDefinition>& featuresMap, const std::string& mapName, const OtaRecord& ota, unsigned int schemaIndex)
     {
         auto tntBytes = sceneContext.vfs->readFile("maps/" + mapName + ".tnt");
         if (!tntBytes)
@@ -354,7 +379,7 @@ namespace rwe
 
         const auto& schema = ota.schemas.at(schemaIndex);
 
-        auto featureTemplates = getFeatures(tnt);
+        auto featureTemplates = getFeatures(featuresMap, tnt);
 
         std::vector<MapFeature> features;
 
@@ -381,7 +406,7 @@ namespace rwe
         // add features from the OTA schema
         for (const auto& f : schema.features)
         {
-            const auto& featureTemplate = featureService->getFeatureDefinition(f.featureName);
+            const auto& featureTemplate = featuresMap.at(f.featureName);
             auto pos = computeFeaturePosition(terrain, featureTemplate, f.xPos, f.zPos);
             auto feature = createFeature(pos, featureTemplate);
             features.push_back(std::move(feature));
@@ -469,12 +494,12 @@ namespace rwe
         return dataGrid;
     }
 
-    std::vector<FeatureDefinition> LoadingScene::getFeatures(TntArchive& tnt)
+    std::vector<FeatureDefinition> LoadingScene::getFeatures(const std::unordered_map<std::string, FeatureDefinition>& featuresMap, TntArchive& tnt)
     {
         std::vector<FeatureDefinition> features;
 
-        tnt.readFeatures([this, &features](const auto& featureName) {
-            const auto& feature = featureService->getFeatureDefinition(featureName);
+        tnt.readFeatures([&](const auto& featureName) {
+            const auto& feature = featuresMap.at(featureName);
             features.push_back(feature);
         });
 

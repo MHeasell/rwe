@@ -244,8 +244,6 @@ set(SOURCE_FILES
     src/rwe/MainMenuModel.h
     src/rwe/MainMenuScene.cpp
     src/rwe/MainMenuScene.h
-    src/rwe/MapFeatureService.cpp
-    src/rwe/MapFeatureService.h
     src/rwe/MapTerrainGraphics.cpp
     src/rwe/MapTerrainGraphics.h
     src/rwe/Mesh.cpp

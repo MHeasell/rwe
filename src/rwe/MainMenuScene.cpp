@@ -14,12 +14,10 @@ namespace rwe
     MainMenuScene::MainMenuScene(
         const SceneContext& sceneContext,
         TdfBlock* audioLookup,
-        MapFeatureService* featureService,
         float width,
         float height)
         : sceneContext(sceneContext),
           soundLookup(audioLookup),
-          featureService(featureService),
           scaledUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(640.0f, 480.0f)),
           nativeUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(width, height)),
           model(),
@@ -708,7 +706,6 @@ namespace rwe
 
         auto scene = std::make_unique<LoadingScene>(
             sceneContext,
-            featureService,
             soundLookup,
             std::move(bgm),
             params);

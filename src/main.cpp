@@ -315,8 +315,6 @@ namespace rwe
             }
         }
 
-        MapFeatureService featureService(&vfs);
-
         SceneContext sceneContext(
             sdlContext,
             &viewport,
@@ -338,7 +336,6 @@ namespace rwe
             logger.info("Launching into game on map: {0}", gameParameters->mapName);
             auto scene = std::make_unique<LoadingScene>(
                 sceneContext,
-                &featureService,
                 &allSoundTdf,
                 AudioService::LoopToken(),
                 *gameParameters);
@@ -350,7 +347,6 @@ namespace rwe
             auto scene = std::make_unique<MainMenuScene>(
                 sceneContext,
                 &allSoundTdf,
-                &featureService,
                 viewport.width(),
                 viewport.height());
             sceneManager.setNextScene(std::move(scene));

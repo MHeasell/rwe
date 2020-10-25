@@ -3,7 +3,6 @@
 #include <rwe/AudioService.h>
 #include <rwe/CursorService.h>
 #include <rwe/GlobalConfig.h>
-#include <rwe/MapFeatureService.h>
 #include <rwe/SceneManager.h>
 #include <rwe/SideData.h>
 #include <rwe/TextureService.h>

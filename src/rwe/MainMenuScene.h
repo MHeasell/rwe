@@ -3,7 +3,6 @@
 #include <memory>
 #include <rwe/AudioService.h>
 #include <rwe/CursorService.h>
-#include <rwe/MapFeatureService.h>
 #include <rwe/RenderService.h>
 #include <rwe/SceneContext.h>
 #include <rwe/SceneManager.h>
@@ -22,8 +21,6 @@ namespace rwe
         SceneContext sceneContext;
         TdfBlock* soundLookup;
 
-        MapFeatureService* featureService;
-
         UiRenderService scaledUiRenderService;
         UiRenderService nativeUiRenderService;
 
@@ -39,7 +36,6 @@ namespace rwe
         MainMenuScene(
             const SceneContext& sceneContext,
             TdfBlock* audioLookup,
-            MapFeatureService* featureService,
             float width,
             float height);
 
