@@ -404,6 +404,7 @@ set(SOURCE_FILES
     src/rwe/io_utils.h
     src/rwe/ip_util.cpp
     src/rwe/ip_util.h
+    src/rwe/match.h
     src/rwe/math/Matrix4f.h
     src/rwe/math/Matrix4x.h
     src/rwe/math/Vector2f.h
@@ -423,7 +424,6 @@ set(SOURCE_FILES
     src/rwe/observable/Subscription.h
     src/rwe/optional_io.h
     src/rwe/optional_util.h
-    src/rwe/overloaded.h
     src/rwe/pathfinding/AStarPathFinder.h
     src/rwe/pathfinding/AbstractUnitPathFinder.cpp
     src/rwe/pathfinding/AbstractUnitPathFinder.h

@@ -6,9 +6,9 @@
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/io/_3do/_3do.h>
 #include <rwe/io/gaf/Gaf.h>
+#include <rwe/match.h>
 #include <rwe/math/Vector3f.h>
 #include <rwe/math/rwe_math.h>
-#include <rwe/overloaded.h>
 #include <rwe/rwe_string.h>
 #include <rwe/vertex_height.h>
 

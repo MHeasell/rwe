@@ -1,7 +1,7 @@
 #include "GameSimulation.h"
 #include <rwe/Index.h>
 #include <rwe/collection_util.h>
-#include <rwe/overloaded.h>
+#include <rwe/match.h>
 #include <rwe/sim/SimScalar.h>
 
 #include <rwe/GameHash_util.h>

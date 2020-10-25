@@ -3,8 +3,8 @@
 #include <rwe/Index.h>
 #include <rwe/cob/CobExecutionContext.h>
 #include <rwe/geometry/Circle2x.h>
+#include <rwe/match.h>
 #include <rwe/math/rwe_math.h>
-#include <rwe/overloaded.h>
 #include <rwe/sim/movement.h>
 
 namespace rwe

@@ -3,7 +3,7 @@
 #include <rwe/BoxTreeSplit.h>
 #include <rwe/Index.h>
 #include <rwe/io/gaf/Gaf.h>
-#include <rwe/overloaded.h>
+#include <rwe/match.h>
 
 namespace rwe
 {
