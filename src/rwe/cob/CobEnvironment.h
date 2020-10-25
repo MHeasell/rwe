@@ -1,7 +1,12 @@
 #pragma once
 
 #include <memory>
+#include <optional>
+#include <rwe/cob/CobAngle.h>
+#include <rwe/cob/CobAngularSpeed.h>
 #include <rwe/cob/CobAxis.h>
+#include <rwe/cob/CobPosition.h>
+#include <rwe/cob/CobSpeed.h>
 #include <rwe/cob/CobThread.h>
 #include <rwe/io/cob/Cob.h>
 #include <rwe/sim/GameTime.h>
@@ -69,7 +74,35 @@ namespace rwe
             unsigned int signal;
         };
 
-        using Status = std::variant<SignalStatus, BlockedStatus, FinishedStatus>;
+        struct MotionCommandStatus
+        {
+            struct Move
+            {
+                CobPosition position;
+                std::optional<CobSpeed> speed;
+            };
+            struct Turn
+            {
+                CobAngle angle;
+                std::optional<CobAngularSpeed> speed;
+            };
+            struct Spin
+            {
+                CobAngularSpeed targetSpeed;
+                CobAngularSpeed acceleration;
+            };
+            struct StopSpin
+            {
+                CobAngularSpeed deceleration;
+            };
+            using CommandType = std::variant<Move, Turn, Spin, StopSpin>;
+
+            unsigned int piece;
+            CobAxis axis;
+            CommandType command;
+        };
+
+        using Status = std::variant<SignalStatus, MotionCommandStatus, BlockedStatus, FinishedStatus>;
 
     public:
         const CobScript* const _script;

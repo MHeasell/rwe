@@ -9,21 +9,6 @@
 
 namespace rwe
 {
-    Axis toAxis(CobAxis axis)
-    {
-        switch (axis)
-        {
-            case CobAxis::X:
-                return Axis::X;
-            case CobAxis::Y:
-                return Axis::Y;
-            case CobAxis::Z:
-                return Axis::Z;
-            default:
-                throw std::logic_error("Invalid CobAxis value");
-        }
-    }
-
     CobExecutionContext::CobExecutionContext(
         GameScene* scene,
         GameSimulation* sim,
@@ -110,23 +95,69 @@ namespace rwe
                     break;
 
                 case OpCode::MOVE:
-                    moveObject();
-                    break;
+                {
+                    auto object = nextInstruction();
+                    auto axis = nextInstructionAsAxis();
+                    auto position = popPosition();
+                    auto speed = popSpeed();
+                    return CobEnvironment::MotionCommandStatus{
+                        object,
+                        axis,
+                        CobEnvironment::MotionCommandStatus::Move{position, speed}};
+                }
                 case OpCode::MOVE_NOW:
-                    moveObjectNow();
-                    break;
+                {
+                    auto object = nextInstruction();
+                    auto axis = nextInstructionAsAxis();
+                    auto position = popPosition();
+                    return CobEnvironment::MotionCommandStatus{
+                        object,
+                        axis,
+                        CobEnvironment::MotionCommandStatus::Move{position}};
+                }
                 case OpCode::TURN:
-                    turnObject();
-                    break;
+                {
+                    auto object = nextInstruction();
+                    auto axis = nextInstructionAsAxis();
+                    auto angle = popAngle();
+                    auto speed = popAngularSpeed();
+                    return CobEnvironment::MotionCommandStatus{
+                        object,
+                        axis,
+                        CobEnvironment::MotionCommandStatus::Turn{angle, speed}};
+                }
                 case OpCode::TURN_NOW:
-                    turnObjectNow();
-                    break;
+                {
+                    auto object = nextInstruction();
+                    auto axis = nextInstructionAsAxis();
+                    auto angle = popAngle();
+                    return CobEnvironment::MotionCommandStatus{
+                        object,
+                        axis,
+                        CobEnvironment::MotionCommandStatus::Turn{angle}};
+                }
                 case OpCode::SPIN:
-                    spinObject();
-                    break;
+                {
+                    auto object = nextInstruction();
+                    auto axis = nextInstructionAsAxis();
+                    auto targetSpeed = popAngularSpeed();
+                    auto acceleration = popAngularSpeed();
+                    return CobEnvironment::MotionCommandStatus{
+                        object,
+                        axis,
+                        CobEnvironment::MotionCommandStatus::Spin{targetSpeed, acceleration}};
+                }
                 case OpCode::STOP_SPIN:
-                    stopSpinObject();
-                    break;
+                {
+
+                    auto object = nextInstruction();
+                    auto axis = nextInstructionAsAxis();
+                    auto deceleration = popAngularSpeed();
+                    return CobEnvironment::MotionCommandStatus{
+                        object,
+                        axis,
+                        CobEnvironment::MotionCommandStatus::StopSpin{deceleration}};
+                }
                 case OpCode::EXPLODE:
                     explode();
                     break;
@@ -385,73 +416,6 @@ namespace rwe
     {
         auto v = pop();
         push(~v);
-    }
-
-    void CobExecutionContext::moveObject()
-    {
-        auto object = nextInstruction();
-        auto axis = nextInstructionAsAxis();
-        auto position = popPosition();
-        if (axis == CobAxis::X) // flip x-axis translations to match our right-handed coordinates
-        {
-            position = -position;
-        }
-        auto speed = popSpeed();
-        sim->moveObject(unitId, getObjectName(object), toAxis(axis), position.toWorldDistance(), speed.toSimScalar());
-    }
-
-    void CobExecutionContext::moveObjectNow()
-    {
-        auto object = nextInstruction();
-        auto axis = nextInstructionAsAxis();
-        auto position = popPosition();
-        if (axis == CobAxis::X) // flip x-axis translations to match our right-handed coordinates
-        {
-            position = -position;
-        }
-        sim->moveObjectNow(unitId, getObjectName(object), toAxis(axis), position.toWorldDistance());
-    }
-
-    void CobExecutionContext::turnObject()
-    {
-        auto object = nextInstruction();
-        auto axis = nextInstructionAsAxis();
-        auto angle = popAngle();
-        if (axis == CobAxis::Z) // flip z-axis rotations to match our right-handed coordinates
-        {
-            angle = -angle;
-        }
-        auto speed = popAngularSpeed();
-        sim->turnObject(unitId, getObjectName(object), toAxis(axis), toWorldAngle(angle), speed.toSimScalar());
-    }
-
-    void CobExecutionContext::turnObjectNow()
-    {
-        auto object = nextInstruction();
-        auto axis = nextInstructionAsAxis();
-        auto angle = popAngle();
-        if (axis == CobAxis::Z) // flip z-axis rotations to match our right-handed coordinates
-        {
-            angle = -angle;
-        }
-        sim->turnObjectNow(unitId, getObjectName(object), toAxis(axis), toWorldAngle(angle));
-    }
-
-    void CobExecutionContext::spinObject()
-    {
-        auto object = nextInstruction();
-        auto axis = nextInstructionAsAxis();
-        auto targetSpeed = popAngularSpeed();
-        auto acceleration = popAngularSpeed();
-        sim->spinObject(unitId, getObjectName(object), toAxis(axis), targetSpeed.toSimScalar(), acceleration.toSimScalar());
-    }
-
-    void CobExecutionContext::stopSpinObject()
-    {
-        auto object = nextInstruction();
-        auto axis = nextInstructionAsAxis();
-        auto deceleration = popAngularSpeed();
-        sim->stopSpinObject(unitId, getObjectName(object), toAxis(axis), deceleration.toSimScalar());
     }
 
     void CobExecutionContext::explode()

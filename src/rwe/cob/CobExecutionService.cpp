@@ -20,6 +20,11 @@ namespace rwe
         }
     }
 
+    const std::string& getObjectName(const CobEnvironment& env, unsigned int objectId)
+    {
+        return env._script->pieces.at(objectId);
+    }
+
     void CobExecutionService::run(GameScene& scene, GameSimulation& simulation, UnitId unitId)
     {
         auto& unit = simulation.getUnit(unitId);
@@ -89,6 +94,44 @@ namespace rwe
                 [&env, thread](const CobEnvironment::SignalStatus& status) {
                     env.readyQueue.emplace_front(thread);
                     env.sendSignal(status.signal);
+                },
+                [&](const CobEnvironment::MotionCommandStatus& status) {
+                    env.readyQueue.emplace_front(thread);
+
+                    const auto& objectName = getObjectName(env, status.piece);
+                    auto axis = toAxis(status.axis);
+                    match(
+                        status.command,
+                        [&](const CobEnvironment::MotionCommandStatus::Move& m) {
+                            // flip x-axis translations to match our right-handed coordinates
+                            auto position = status.axis == CobAxis::X ? -m.position : m.position;
+                            if (m.speed)
+                            {
+                                simulation.moveObject(unitId, objectName, axis, position.toWorldDistance(), m.speed->toSimScalar());
+                            }
+                            else
+                            {
+                                simulation.moveObjectNow(unitId, objectName, axis, position.toWorldDistance());
+                            }
+                        },
+                        [&](const CobEnvironment::MotionCommandStatus::Turn& t) {
+                            // flip z-axis rotations to match our right-handed coordinates
+                            auto angle = status.axis == CobAxis::Z ? -t.angle : t.angle;
+                            if (t.speed)
+                            {
+                                simulation.turnObject(unitId, objectName, axis, toWorldAngle(angle), t.speed->toSimScalar());
+                            }
+                            else
+                            {
+                                simulation.turnObjectNow(unitId, objectName, axis, toWorldAngle(angle));
+                            }
+                        },
+                        [&](const CobEnvironment::MotionCommandStatus::Spin& s) {
+                            simulation.spinObject(unitId, objectName, axis, s.targetSpeed.toSimScalar(), s.acceleration.toSimScalar());
+                        },
+                        [&](const CobEnvironment::MotionCommandStatus::StopSpin& s) {
+                            simulation.stopSpinObject(unitId, objectName, axis, s.deceleration.toSimScalar());
+                        });
                 });
         }
 

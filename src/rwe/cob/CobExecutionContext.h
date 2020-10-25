@@ -76,18 +76,6 @@ namespace rwe
         void bitwiseNot();
 
         // control object pieces
-        void moveObject();
-
-        void moveObjectNow();
-
-        void turnObject();
-
-        void turnObjectNow();
-
-        void spinObject();
-
-        void stopSpinObject();
-
         void explode();
 
         void emitSmoke();
