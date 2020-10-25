@@ -98,20 +98,18 @@ namespace rwe
                     auto axis = nextInstructionAsAxis();
                     auto position = popPosition();
                     auto speed = popSpeed();
-                    return CobEnvironment::MotionCommandStatus{
+                    return CobEnvironment::PieceCommandStatus{
                         object,
-                        axis,
-                        CobEnvironment::MotionCommandStatus::Move{position, speed}};
+                        CobEnvironment::PieceCommandStatus::Move{axis, position, speed}};
                 }
                 case OpCode::MOVE_NOW:
                 {
                     auto object = nextInstruction();
                     auto axis = nextInstructionAsAxis();
                     auto position = popPosition();
-                    return CobEnvironment::MotionCommandStatus{
+                    return CobEnvironment::PieceCommandStatus{
                         object,
-                        axis,
-                        CobEnvironment::MotionCommandStatus::Move{position}};
+                        CobEnvironment::PieceCommandStatus::Move{axis, position}};
                 }
                 case OpCode::TURN:
                 {
@@ -119,20 +117,18 @@ namespace rwe
                     auto axis = nextInstructionAsAxis();
                     auto angle = popAngle();
                     auto speed = popAngularSpeed();
-                    return CobEnvironment::MotionCommandStatus{
+                    return CobEnvironment::PieceCommandStatus{
                         object,
-                        axis,
-                        CobEnvironment::MotionCommandStatus::Turn{angle, speed}};
+                        CobEnvironment::PieceCommandStatus::Turn{axis, angle, speed}};
                 }
                 case OpCode::TURN_NOW:
                 {
                     auto object = nextInstruction();
                     auto axis = nextInstructionAsAxis();
                     auto angle = popAngle();
-                    return CobEnvironment::MotionCommandStatus{
+                    return CobEnvironment::PieceCommandStatus{
                         object,
-                        axis,
-                        CobEnvironment::MotionCommandStatus::Turn{angle}};
+                        CobEnvironment::PieceCommandStatus::Turn{axis, angle}};
                 }
                 case OpCode::SPIN:
                 {
@@ -140,10 +136,9 @@ namespace rwe
                     auto axis = nextInstructionAsAxis();
                     auto targetSpeed = popAngularSpeed();
                     auto acceleration = popAngularSpeed();
-                    return CobEnvironment::MotionCommandStatus{
+                    return CobEnvironment::PieceCommandStatus{
                         object,
-                        axis,
-                        CobEnvironment::MotionCommandStatus::Spin{targetSpeed, acceleration}};
+                        CobEnvironment::PieceCommandStatus::Spin{axis, targetSpeed, acceleration}};
                 }
                 case OpCode::STOP_SPIN:
                 {
@@ -151,10 +146,9 @@ namespace rwe
                     auto object = nextInstruction();
                     auto axis = nextInstructionAsAxis();
                     auto deceleration = popAngularSpeed();
-                    return CobEnvironment::MotionCommandStatus{
+                    return CobEnvironment::PieceCommandStatus{
                         object,
-                        axis,
-                        CobEnvironment::MotionCommandStatus::StopSpin{deceleration}};
+                        CobEnvironment::PieceCommandStatus::StopSpin{axis, deceleration}};
                 }
                 case OpCode::EXPLODE:
                     explode();
@@ -163,17 +157,25 @@ namespace rwe
                     emitSmoke();
                     break;
                 case OpCode::SHOW:
-                    showObject();
-                    break;
+                {
+                    auto object = nextInstruction();
+                    return CobEnvironment::PieceCommandStatus{object, CobEnvironment::PieceCommandStatus::Show()};
+                }
                 case OpCode::HIDE:
-                    hideObject();
-                    break;
+                {
+                    auto object = nextInstruction();
+                    return CobEnvironment::PieceCommandStatus{object, CobEnvironment::PieceCommandStatus::Hide()};
+                }
                 case OpCode::SHADE:
-                    enableShading();
-                    break;
+                {
+                    auto object = nextInstruction();
+                    return CobEnvironment::PieceCommandStatus{object, CobEnvironment::PieceCommandStatus::EnableShading()};
+                }
                 case OpCode::DONT_SHADE:
-                    disableShading();
-                    break;
+                {
+                    auto object = nextInstruction();
+                    return CobEnvironment::PieceCommandStatus{object, CobEnvironment::PieceCommandStatus::DisableShading()};
+                }
                 case OpCode::CACHE:
                     enableCaching();
                     break;
@@ -427,30 +429,6 @@ namespace rwe
         /*auto piece = */ nextInstruction();
         /*auto smokeType = */ pop();
         // TODO: this
-    }
-
-    void CobExecutionContext::showObject()
-    {
-        auto object = nextInstruction();
-        sim->showObject(unitId, getObjectName(object));
-    }
-
-    void CobExecutionContext::hideObject()
-    {
-        auto object = nextInstruction();
-        sim->hideObject(unitId, getObjectName(object));
-    }
-
-    void CobExecutionContext::enableShading()
-    {
-        auto object = nextInstruction();
-        sim->enableShading(unitId, getObjectName(object));
-    }
-
-    void CobExecutionContext::disableShading()
-    {
-        auto object = nextInstruction();
-        sim->disableShading(unitId, getObjectName(object));
     }
 
     void CobExecutionContext::enableCaching()

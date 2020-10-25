@@ -72,35 +72,50 @@ namespace rwe
             unsigned int signal;
         };
 
-        struct MotionCommandStatus
+        struct PieceCommandStatus
         {
             struct Move
             {
+                CobAxis axis;
                 CobPosition position;
                 std::optional<CobSpeed> speed;
             };
             struct Turn
             {
+                CobAxis axis;
                 CobAngle angle;
                 std::optional<CobAngularSpeed> speed;
             };
             struct Spin
             {
+                CobAxis axis;
                 CobAngularSpeed targetSpeed;
                 CobAngularSpeed acceleration;
             };
             struct StopSpin
             {
+                CobAxis axis;
                 CobAngularSpeed deceleration;
             };
-            using CommandType = std::variant<Move, Turn, Spin, StopSpin>;
+            struct Show
+            {
+            };
+            struct Hide
+            {
+            };
+            struct EnableShading
+            {
+            };
+            struct DisableShading
+            {
+            };
+            using CommandType = std::variant<Move, Turn, Spin, StopSpin, Show, Hide, EnableShading, DisableShading>;
 
             unsigned int piece;
-            CobAxis axis;
             CommandType command;
         };
 
-        using Status = std::variant<SignalStatus, MotionCommandStatus, BlockedStatus, SleepStatus, FinishedStatus>;
+        using Status = std::variant<SignalStatus, PieceCommandStatus, BlockedStatus, SleepStatus, FinishedStatus>;
 
     public:
         const CobScript* const _script;

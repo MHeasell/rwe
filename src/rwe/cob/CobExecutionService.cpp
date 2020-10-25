@@ -111,42 +111,53 @@ namespace rwe
                     env.readyQueue.emplace_front(thread);
                     env.sendSignal(status.signal);
                 },
-                [&](const CobEnvironment::MotionCommandStatus& status) {
+                [&](const CobEnvironment::PieceCommandStatus& status) {
                     env.readyQueue.emplace_front(thread);
 
                     const auto& objectName = getObjectName(env, status.piece);
-                    auto axis = toAxis(status.axis);
                     match(
                         status.command,
-                        [&](const CobEnvironment::MotionCommandStatus::Move& m) {
+                        [&](const CobEnvironment::PieceCommandStatus::Move& m) {
                             // flip x-axis translations to match our right-handed coordinates
-                            auto position = status.axis == CobAxis::X ? -m.position : m.position;
+                            auto position = m.axis == CobAxis::X ? -m.position : m.position;
                             if (m.speed)
                             {
-                                simulation.moveObject(unitId, objectName, axis, position.toWorldDistance(), m.speed->toSimScalar());
+                                simulation.moveObject(unitId, objectName, toAxis(m.axis), position.toWorldDistance(), m.speed->toSimScalar());
                             }
                             else
                             {
-                                simulation.moveObjectNow(unitId, objectName, axis, position.toWorldDistance());
+                                simulation.moveObjectNow(unitId, objectName, toAxis(m.axis), position.toWorldDistance());
                             }
                         },
-                        [&](const CobEnvironment::MotionCommandStatus::Turn& t) {
+                        [&](const CobEnvironment::PieceCommandStatus::Turn& t) {
                             // flip z-axis rotations to match our right-handed coordinates
-                            auto angle = status.axis == CobAxis::Z ? -t.angle : t.angle;
+                            auto angle = t.axis == CobAxis::Z ? -t.angle : t.angle;
                             if (t.speed)
                             {
-                                simulation.turnObject(unitId, objectName, axis, toWorldAngle(angle), t.speed->toSimScalar());
+                                simulation.turnObject(unitId, objectName, toAxis(t.axis), toWorldAngle(angle), t.speed->toSimScalar());
                             }
                             else
                             {
-                                simulation.turnObjectNow(unitId, objectName, axis, toWorldAngle(angle));
+                                simulation.turnObjectNow(unitId, objectName, toAxis(t.axis), toWorldAngle(angle));
                             }
                         },
-                        [&](const CobEnvironment::MotionCommandStatus::Spin& s) {
-                            simulation.spinObject(unitId, objectName, axis, s.targetSpeed.toSimScalar(), s.acceleration.toSimScalar());
+                        [&](const CobEnvironment::PieceCommandStatus::Spin& s) {
+                            simulation.spinObject(unitId, objectName, toAxis(s.axis), s.targetSpeed.toSimScalar(), s.acceleration.toSimScalar());
                         },
-                        [&](const CobEnvironment::MotionCommandStatus::StopSpin& s) {
-                            simulation.stopSpinObject(unitId, objectName, axis, s.deceleration.toSimScalar());
+                        [&](const CobEnvironment::PieceCommandStatus::StopSpin& s) {
+                            simulation.stopSpinObject(unitId, objectName, toAxis(s.axis), s.deceleration.toSimScalar());
+                        },
+                        [&](const CobEnvironment::PieceCommandStatus::Show&) {
+                            simulation.showObject(unitId, objectName);
+                        },
+                        [&](const CobEnvironment::PieceCommandStatus::Hide&) {
+                            simulation.hideObject(unitId, objectName);
+                        },
+                        [&](const CobEnvironment::PieceCommandStatus::EnableShading&) {
+                            simulation.enableShading(unitId, objectName);
+                        },
+                        [&](const CobEnvironment::PieceCommandStatus::DisableShading&) {
+                            simulation.disableShading(unitId, objectName);
                         });
                 });
         }
