@@ -5,6 +5,21 @@
 
 namespace rwe
 {
+    Axis toAxis(CobAxis axis)
+    {
+        switch (axis)
+        {
+            case CobAxis::X:
+                return Axis::X;
+            case CobAxis::Y:
+                return Axis::Y;
+            case CobAxis::Z:
+                return Axis::Z;
+            default:
+                throw std::logic_error("Invalid CobAxis value");
+        }
+    }
+
     void CobExecutionService::run(GameScene& scene, GameSimulation& simulation, UnitId unitId)
     {
         auto& unit = simulation.getUnit(unitId);
@@ -32,11 +47,11 @@ namespace rwe
                 status.condition,
                 [&env, &simulation, unitId](const CobEnvironment::BlockedStatus::Move& condition) {
                     const auto& pieceName = env._script->pieces.at(condition.object);
-                    return !simulation.isPieceMoving(unitId, pieceName, condition.axis);
+                    return !simulation.isPieceMoving(unitId, pieceName, toAxis(condition.axis));
                 },
                 [&env, &simulation, unitId](const CobEnvironment::BlockedStatus::Turn& condition) {
                     const auto& pieceName = env._script->pieces.at(condition.object);
-                    return !simulation.isPieceTurning(unitId, pieceName, condition.axis);
+                    return !simulation.isPieceTurning(unitId, pieceName, toAxis(condition.axis));
                 },
                 [&simulation](const CobEnvironment::BlockedStatus::Sleep& condition) {
                     return simulation.gameTime >= condition.wakeUpTime;

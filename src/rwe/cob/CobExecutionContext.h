@@ -155,7 +155,7 @@ namespace rwe
         void push(int val);
 
         unsigned int nextInstruction();
-        Axis nextInstructionAsAxis();
+        CobAxis nextInstructionAsAxis();
 
         const std::string& getObjectName(unsigned int objectId);
 

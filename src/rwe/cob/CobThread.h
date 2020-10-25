@@ -1,9 +1,8 @@
 #pragma once
 
 #include <rwe/cob/CobFunction.h>
-#include <rwe/util.h>
 #include <stack>
-#include <variant>
+#include <string>
 #include <vector>
 
 namespace rwe

@@ -311,6 +311,7 @@ set(SOURCE_FILES
     src/rwe/camera/UiCamera.h
     src/rwe/cob/CobAngle.h
     src/rwe/cob/CobAngularSpeed.h
+    src/rwe/cob/CobAxis.h
     src/rwe/cob/CobConstants.h
     src/rwe/cob/CobEnvironment.cpp
     src/rwe/cob/CobEnvironment.h

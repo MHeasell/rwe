@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <rwe/cob/CobAxis.h>
 #include <rwe/cob/CobThread.h>
 #include <rwe/io/cob/Cob.h>
 #include <rwe/sim/GameTime.h>
@@ -21,9 +22,9 @@ namespace rwe
             struct Move
             {
                 unsigned int object;
-                Axis axis;
+                CobAxis axis;
 
-                Move(unsigned int object, Axis axis) : object(object), axis(axis)
+                Move(unsigned int object, CobAxis axis) : object(object), axis(axis)
                 {
                 }
             };
@@ -31,9 +32,9 @@ namespace rwe
             struct Turn
             {
                 unsigned int object;
-                Axis axis;
+                CobAxis axis;
 
-                Turn(unsigned int object, Axis axis) : object(object), axis(axis)
+                Turn(unsigned int object, CobAxis axis) : object(object), axis(axis)
                 {
                 }
             };
