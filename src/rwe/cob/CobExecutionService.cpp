@@ -25,70 +25,8 @@ namespace rwe
         return env._script->pieces.at(objectId);
     }
 
-    void CobExecutionService::run(GameScene& scene, GameSimulation& simulation, UnitId unitId)
+    void executeThreads(GameScene& scene, GameSimulation& simulation, CobEnvironment& env, UnitId unitId)
     {
-        auto& unit = simulation.getUnit(unitId);
-        auto& env = *unit.cobEnvironment;
-
-        assert(env.isNotCorrupt());
-
-        // clean up any finished threads that were not reaped last frame
-        for (const auto& thread : env.finishedQueue)
-        {
-            env.deleteThread(thread);
-        }
-        env.finishedQueue.clear();
-
-        assert(env.isNotCorrupt());
-
-        // check if any blocked threads can be unblocked
-        // and move them back into the ready queue
-        for (auto it = env.blockedQueue.begin(); it != env.blockedQueue.end();)
-        {
-            const auto& pair = *it;
-            const auto& status = pair.first;
-
-            auto isUnblocked = match(
-                status.condition,
-                [&env, &simulation, unitId](const CobEnvironment::BlockedStatus::Move& condition) {
-                    const auto& pieceName = env._script->pieces.at(condition.object);
-                    return !simulation.isPieceMoving(unitId, pieceName, toAxis(condition.axis));
-                },
-                [&env, &simulation, unitId](const CobEnvironment::BlockedStatus::Turn& condition) {
-                    const auto& pieceName = env._script->pieces.at(condition.object);
-                    return !simulation.isPieceTurning(unitId, pieceName, toAxis(condition.axis));
-                });
-
-            if (isUnblocked)
-            {
-                env.readyQueue.push_back(pair.second);
-                it = env.blockedQueue.erase(it);
-            }
-            else
-            {
-                ++it;
-            }
-        }
-
-        // check if any sleeping threads can be moved into the ready queue
-        for (auto it = env.sleepingQueue.begin(); it != env.sleepingQueue.end();)
-        {
-            const auto& pair = *it;
-            const auto& wakeTime = pair.first;
-            if (simulation.gameTime >= wakeTime)
-            {
-                env.readyQueue.push_back(pair.second);
-                it = env.sleepingQueue.erase(it);
-            }
-            else
-            {
-                ++it;
-            }
-        }
-
-        assert(env.isNotCorrupt());
-
-        // execute ready threads
         while (!env.readyQueue.empty())
         {
             auto thread = env.readyQueue.front();
@@ -161,6 +99,73 @@ namespace rwe
                         });
                 });
         }
+    }
+
+    void CobExecutionService::run(GameScene& scene, GameSimulation& simulation, UnitId unitId)
+    {
+        auto& unit = simulation.getUnit(unitId);
+        auto& env = *unit.cobEnvironment;
+
+        assert(env.isNotCorrupt());
+
+        // clean up any finished threads that were not reaped last frame
+        for (const auto& thread : env.finishedQueue)
+        {
+            env.deleteThread(thread);
+        }
+        env.finishedQueue.clear();
+
+        assert(env.isNotCorrupt());
+
+        // check if any blocked threads can be unblocked
+        // and move them back into the ready queue
+        for (auto it = env.blockedQueue.begin(); it != env.blockedQueue.end();)
+        {
+            const auto& pair = *it;
+            const auto& status = pair.first;
+
+            auto isUnblocked = match(
+                status.condition,
+                [&env, &simulation, unitId](const CobEnvironment::BlockedStatus::Move& condition) {
+                    const auto& pieceName = env._script->pieces.at(condition.object);
+                    return !simulation.isPieceMoving(unitId, pieceName, toAxis(condition.axis));
+                },
+                [&env, &simulation, unitId](const CobEnvironment::BlockedStatus::Turn& condition) {
+                    const auto& pieceName = env._script->pieces.at(condition.object);
+                    return !simulation.isPieceTurning(unitId, pieceName, toAxis(condition.axis));
+                });
+
+            if (isUnblocked)
+            {
+                env.readyQueue.push_back(pair.second);
+                it = env.blockedQueue.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+
+        // check if any sleeping threads can be moved into the ready queue
+        for (auto it = env.sleepingQueue.begin(); it != env.sleepingQueue.end();)
+        {
+            const auto& pair = *it;
+            const auto& wakeTime = pair.first;
+            if (simulation.gameTime >= wakeTime)
+            {
+                env.readyQueue.push_back(pair.second);
+                it = env.sleepingQueue.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+
+        assert(env.isNotCorrupt());
+
+        // execute ready threads
+        executeThreads(scene, simulation, env, unitId);
 
         assert(env.isNotCorrupt());
     }
