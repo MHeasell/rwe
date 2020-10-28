@@ -35,7 +35,7 @@ namespace rwe
 
             auto result = match(
                 context.execute(),
-                [&env, thread](const CobEnvironment::BlockedStatus& status) {
+                [&](const CobEnvironment::BlockedStatus& status) {
                     env.readyQueue.pop_front();
                     env.blockedQueue.emplace_back(status, thread);
                     return std::optional<CobEnvironment::PieceCommandStatus>();
@@ -45,12 +45,12 @@ namespace rwe
                     env.sleepingQueue.emplace_back(simulation.gameTime + status.duration.toGameTime(), thread);
                     return std::optional<CobEnvironment::PieceCommandStatus>();
                 },
-                [&env, thread](const CobEnvironment::FinishedStatus&) {
+                [&](const CobEnvironment::FinishedStatus&) {
                     env.readyQueue.pop_front();
                     env.finishedQueue.emplace_back(thread);
                     return std::optional<CobEnvironment::PieceCommandStatus>();
                 },
-                [&env, thread](const CobEnvironment::SignalStatus& status) {
+                [&](const CobEnvironment::SignalStatus& status) {
                     env.sendSignal(status.signal);
                     return std::optional<CobEnvironment::PieceCommandStatus>();
                 },
