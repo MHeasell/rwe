@@ -25,80 +25,95 @@ namespace rwe
         return env._script->pieces.at(objectId);
     }
 
-    void executeThreads(GameScene& scene, GameSimulation& simulation, CobEnvironment& env, UnitId unitId)
+    std::optional<CobEnvironment::PieceCommandStatus> executeThreads(GameScene& scene, GameSimulation& simulation, CobEnvironment& env, UnitId unitId)
     {
         while (!env.readyQueue.empty())
         {
             auto thread = env.readyQueue.front();
-            env.readyQueue.pop_front();
 
             CobExecutionContext context(&scene, &simulation, &env, thread, unitId);
 
-            match(
+            auto result = match(
                 context.execute(),
                 [&env, thread](const CobEnvironment::BlockedStatus& status) {
+                    env.readyQueue.pop_front();
                     env.blockedQueue.emplace_back(status, thread);
+                    return std::optional<CobEnvironment::PieceCommandStatus>();
                 },
                 [&](const CobEnvironment::SleepStatus& status) {
+                    env.readyQueue.pop_front();
                     env.sleepingQueue.emplace_back(simulation.gameTime + status.duration.toGameTime(), thread);
+                    return std::optional<CobEnvironment::PieceCommandStatus>();
                 },
                 [&env, thread](const CobEnvironment::FinishedStatus&) {
+                    env.readyQueue.pop_front();
                     env.finishedQueue.emplace_back(thread);
+                    return std::optional<CobEnvironment::PieceCommandStatus>();
                 },
                 [&env, thread](const CobEnvironment::SignalStatus& status) {
-                    env.readyQueue.emplace_front(thread);
                     env.sendSignal(status.signal);
+                    return std::optional<CobEnvironment::PieceCommandStatus>();
                 },
                 [&](const CobEnvironment::PieceCommandStatus& status) {
-                    env.readyQueue.emplace_front(thread);
-
-                    const auto& objectName = getObjectName(env, status.piece);
-                    match(
-                        status.command,
-                        [&](const CobEnvironment::PieceCommandStatus::Move& m) {
-                            // flip x-axis translations to match our right-handed coordinates
-                            auto position = m.axis == CobAxis::X ? -m.position : m.position;
-                            if (m.speed)
-                            {
-                                simulation.moveObject(unitId, objectName, toAxis(m.axis), position.toWorldDistance(), m.speed->toSimScalar());
-                            }
-                            else
-                            {
-                                simulation.moveObjectNow(unitId, objectName, toAxis(m.axis), position.toWorldDistance());
-                            }
-                        },
-                        [&](const CobEnvironment::PieceCommandStatus::Turn& t) {
-                            // flip z-axis rotations to match our right-handed coordinates
-                            auto angle = t.axis == CobAxis::Z ? -t.angle : t.angle;
-                            if (t.speed)
-                            {
-                                simulation.turnObject(unitId, objectName, toAxis(t.axis), toWorldAngle(angle), t.speed->toSimScalar());
-                            }
-                            else
-                            {
-                                simulation.turnObjectNow(unitId, objectName, toAxis(t.axis), toWorldAngle(angle));
-                            }
-                        },
-                        [&](const CobEnvironment::PieceCommandStatus::Spin& s) {
-                            simulation.spinObject(unitId, objectName, toAxis(s.axis), s.targetSpeed.toSimScalar(), s.acceleration.toSimScalar());
-                        },
-                        [&](const CobEnvironment::PieceCommandStatus::StopSpin& s) {
-                            simulation.stopSpinObject(unitId, objectName, toAxis(s.axis), s.deceleration.toSimScalar());
-                        },
-                        [&](const CobEnvironment::PieceCommandStatus::Show&) {
-                            simulation.showObject(unitId, objectName);
-                        },
-                        [&](const CobEnvironment::PieceCommandStatus::Hide&) {
-                            simulation.hideObject(unitId, objectName);
-                        },
-                        [&](const CobEnvironment::PieceCommandStatus::EnableShading&) {
-                            simulation.enableShading(unitId, objectName);
-                        },
-                        [&](const CobEnvironment::PieceCommandStatus::DisableShading&) {
-                            simulation.disableShading(unitId, objectName);
-                        });
+                    return std::optional<CobEnvironment::PieceCommandStatus>(status);
                 });
+
+            if (result)
+            {
+                return result;
+            }
         }
+
+        return std::nullopt;
+    }
+
+    void handlePieceCommand(GameScene& scene, GameSimulation& simulation, const CobEnvironment& env, UnitId unitId, const CobEnvironment::PieceCommandStatus& result)
+    {
+        const auto& objectName = getObjectName(env, result.piece);
+        match(
+            result.command,
+            [&](const CobEnvironment::PieceCommandStatus::Move& m) {
+                // flip x-axis translations to match our right-handed coordinates
+                auto position = m.axis == CobAxis::X ? -m.position : m.position;
+                if (m.speed)
+                {
+                    simulation.moveObject(unitId, objectName, toAxis(m.axis), position.toWorldDistance(), m.speed->toSimScalar());
+                }
+                else
+                {
+                    simulation.moveObjectNow(unitId, objectName, toAxis(m.axis), position.toWorldDistance());
+                }
+            },
+            [&](const CobEnvironment::PieceCommandStatus::Turn& t) {
+                // flip z-axis rotations to match our right-handed coordinates
+                auto angle = t.axis == CobAxis::Z ? -t.angle : t.angle;
+                if (t.speed)
+                {
+                    simulation.turnObject(unitId, objectName, toAxis(t.axis), toWorldAngle(angle), t.speed->toSimScalar());
+                }
+                else
+                {
+                    simulation.turnObjectNow(unitId, objectName, toAxis(t.axis), toWorldAngle(angle));
+                }
+            },
+            [&](const CobEnvironment::PieceCommandStatus::Spin& s) {
+                simulation.spinObject(unitId, objectName, toAxis(s.axis), s.targetSpeed.toSimScalar(), s.acceleration.toSimScalar());
+            },
+            [&](const CobEnvironment::PieceCommandStatus::StopSpin& s) {
+                simulation.stopSpinObject(unitId, objectName, toAxis(s.axis), s.deceleration.toSimScalar());
+            },
+            [&](const CobEnvironment::PieceCommandStatus::Show&) {
+                simulation.showObject(unitId, objectName);
+            },
+            [&](const CobEnvironment::PieceCommandStatus::Hide&) {
+                simulation.hideObject(unitId, objectName);
+            },
+            [&](const CobEnvironment::PieceCommandStatus::EnableShading&) {
+                simulation.enableShading(unitId, objectName);
+            },
+            [&](const CobEnvironment::PieceCommandStatus::DisableShading&) {
+                simulation.disableShading(unitId, objectName);
+            });
     }
 
     void CobExecutionService::run(GameScene& scene, GameSimulation& simulation, UnitId unitId)
@@ -165,7 +180,10 @@ namespace rwe
         assert(env.isNotCorrupt());
 
         // execute ready threads
-        executeThreads(scene, simulation, env, unitId);
+        while (auto result = executeThreads(scene, simulation, env, unitId))
+        {
+            handlePieceCommand(scene, simulation, env, unitId, *result);
+        }
 
         assert(env.isNotCorrupt());
     }
