@@ -15,14 +15,12 @@ namespace rwe
     class CobExecutionContext
     {
     private:
-        GameScene* const scene;
-        GameSimulation* const sim;
         CobEnvironment* const env;
         CobThread* const thread;
         const UnitId unitId;
 
     public:
-        CobExecutionContext(GameScene* scene, GameSimulation* sim, CobEnvironment* env, CobThread* thread, UnitId unitId);
+        CobExecutionContext(CobEnvironment* env, CobThread* thread, UnitId unitId);
 
         CobEnvironment::Status execute();
 
@@ -112,7 +110,7 @@ namespace rwe
 
         void popStackOperation();
 
-        void setValue();
+        CobEnvironment::SetQueryStatus setValue();
 
         // non-commands
         int pop();
@@ -129,9 +127,5 @@ namespace rwe
 
         unsigned int nextInstruction();
         CobAxis nextInstructionAsAxis();
-
-        const std::string& getObjectName(unsigned int objectId);
-
-        void setGetter(CobValueId valueId, int value);
     };
 }

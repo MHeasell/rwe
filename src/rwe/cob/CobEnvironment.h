@@ -210,7 +210,47 @@ namespace rwe
             Query query;
         };
 
-        using Status = std::variant<SignalStatus, PieceCommandStatus, BlockedStatus, SleepStatus, QueryStatus, FinishedStatus>;
+        struct SetQueryStatus
+        {
+            struct Activation
+            {
+                bool value;
+            };
+            struct StandingMoveOrders
+            {
+                int value;
+            };
+            struct StandingFireOrders
+            {
+                int value;
+            };
+            struct InBuildStance
+            {
+                bool value;
+            };
+            struct Busy
+            {
+                bool value;
+            };
+            struct YardOpen
+            {
+                bool value;
+            };
+            struct BuggerOff
+            {
+                bool value;
+            };
+            struct Armored
+            {
+                bool value;
+            };
+
+            using Query = std::variant<Activation, StandingMoveOrders, StandingFireOrders, InBuildStance, Busy, YardOpen, BuggerOff, Armored>;
+
+            Query query;
+        };
+
+        using Status = std::variant<SignalStatus, PieceCommandStatus, BlockedStatus, SleepStatus, QueryStatus, SetQueryStatus, FinishedStatus>;
 
     public:
         const CobScript* const _script;

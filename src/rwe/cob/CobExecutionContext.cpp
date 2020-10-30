@@ -88,12 +88,35 @@ namespace rwe
         }
     }
 
+    CobEnvironment::SetQueryStatus::Query setGetter(CobValueId valueId, int value)
+    {
+        switch (valueId)
+        {
+            case CobValueId::Activation:
+                return CobEnvironment::SetQueryStatus::Activation{value != 0};
+            case CobValueId::StandingMoveOrders:
+                return CobEnvironment::SetQueryStatus::StandingMoveOrders{value};
+            case CobValueId::StandingFireOrders:
+                return CobEnvironment::SetQueryStatus::StandingFireOrders{value};
+            case CobValueId::InBuildStance:
+                return CobEnvironment::SetQueryStatus::InBuildStance{value != 0};
+            case CobValueId::Busy:
+                return CobEnvironment::SetQueryStatus::Busy{value != 0};
+            case CobValueId::YardOpen:
+                return CobEnvironment::SetQueryStatus::YardOpen{value != 0};
+            case CobValueId::BuggerOff:
+                return CobEnvironment::SetQueryStatus::BuggerOff{value != 0};
+            case CobValueId::Armored:
+                return CobEnvironment::SetQueryStatus::Armored{value != 0};
+            default:
+                throw std::runtime_error("Cannot set unit value with ID: " + std::to_string(static_cast<unsigned int>(valueId)));
+        }
+    }
+
     CobExecutionContext::CobExecutionContext(
-        GameScene* scene,
-        GameSimulation* sim,
         CobEnvironment* env,
         CobThread* thread,
-        UnitId unitId) : scene(scene), sim(sim), env(env), thread(thread), unitId(unitId)
+        UnitId unitId) : env(env), thread(thread), unitId(unitId)
     {
     }
 
@@ -358,9 +381,11 @@ namespace rwe
                     break;
                 }
                 case OpCode::SET_VALUE:
-                    setValue();
-                    break;
-
+                {
+                    auto newValue = pop();
+                    auto valueId = popValueId();
+                    return CobEnvironment::SetQueryStatus{setGetter(valueId, newValue)};
+                }
                 default:
                     throw std::runtime_error("Unsupported opcode " + std::to_string(instruction));
             }
@@ -643,11 +668,11 @@ namespace rwe
         pop();
     }
 
-    void CobExecutionContext::setValue()
+    CobEnvironment::SetQueryStatus CobExecutionContext::setValue()
     {
         auto newValue = pop();
         auto valueId = popValueId();
-        setGetter(valueId, newValue);
+        return CobEnvironment::SetQueryStatus{setGetter(valueId, newValue)};
     }
 
     int CobExecutionContext::pop()
@@ -728,54 +753,5 @@ namespace rwe
     unsigned int CobExecutionContext::nextInstruction()
     {
         return env->script()->instructions.at(thread->callStack.top().instructionIndex++);
-    }
-
-    const std::string& CobExecutionContext::getObjectName(unsigned int objectId)
-    {
-        return env->_script->pieces.at(objectId);
-    }
-
-    void CobExecutionContext::setGetter(CobValueId valueId, int value)
-    {
-        switch (valueId)
-        {
-            case CobValueId::Activation:
-            {
-                if (value)
-                {
-                    scene->activateUnit(unitId);
-                }
-                else
-                {
-                    scene->deactivateUnit(unitId);
-                }
-                return;
-            }
-            case CobValueId::StandingMoveOrders:
-                return; // TODO
-            case CobValueId::StandingFireOrders:
-                return; // TODO
-            case CobValueId::InBuildStance:
-            {
-                scene->setBuildStance(unitId, value != 0);
-                return;
-            }
-            case CobValueId::Busy:
-                return; // TODO
-            case CobValueId::YardOpen:
-            {
-                scene->setYardOpen(unitId, value != 0);
-                return;
-            }
-            case CobValueId::BuggerOff:
-            {
-                scene->setBuggerOff(unitId, value != 0);
-                return;
-            }
-            case CobValueId::Armored:
-                return; // TODO
-            default:
-                throw std::runtime_error("Cannot set unit value with ID: " + std::to_string(static_cast<unsigned int>(valueId)));
-        }
     }
 }
