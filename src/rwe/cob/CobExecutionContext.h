@@ -27,9 +27,6 @@ namespace rwe
         CobEnvironment::Status execute();
 
     private:
-        // utility
-        void randomNumber();
-
         // arithmetic
         void add();
 

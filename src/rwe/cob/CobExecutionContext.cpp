@@ -105,9 +105,11 @@ namespace rwe
             switch (static_cast<OpCode>(instruction))
             {
                 case OpCode::RAND:
-                    randomNumber();
-                    break;
-
+                {
+                    auto high = pop();
+                    auto low = pop();
+                    return CobEnvironment::QueryStatus{CobEnvironment::QueryStatus::Random{low, high}};
+                }
                 case OpCode::ADD:
                     add();
                     break;
@@ -365,16 +367,6 @@ namespace rwe
         }
 
         return CobEnvironment::FinishedStatus();
-    }
-
-    void CobExecutionContext::randomNumber()
-    {
-        auto high = pop();
-        auto low = pop();
-
-        std::uniform_int_distribution<int> dist(low, high);
-        auto value = dist(sim->rng);
-        push(value);
     }
 
     void CobExecutionContext::add()

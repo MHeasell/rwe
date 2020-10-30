@@ -126,6 +126,12 @@ namespace rwe
     {
         return match(
             result.query,
+            [&](const CobEnvironment::QueryStatus::Random& q) {
+                // FIXME: probably not consistent across platforms
+                std::uniform_int_distribution<int> dist(q.low, q.high);
+                auto value = dist(sim.rng);
+                return value;
+            },
             [&](const CobEnvironment::QueryStatus::Activation&) {
                 const auto& unit = sim.getUnit(unitId);
                 return static_cast<int>(unit.activated);

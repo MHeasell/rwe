@@ -117,6 +117,11 @@ namespace rwe
 
         struct QueryStatus
         {
+            struct Random
+            {
+                int low;
+                int high;
+            };
             struct Activation
             {
             };
@@ -200,7 +205,7 @@ namespace rwe
                 UnitId targetUnitId;
             };
 
-            using Query = std::variant<Activation, StandingFireOrders, StandingMoveOrders, Health, InBuildStance, Busy, PieceXZ, PieceY, UnitXZ, UnitY, UnitHeight, XZAtan, GroundHeight, BuildPercentLeft, YardOpen, BuggerOff, Armored, VeteranLevel, MinId, MaxId, MyId, UnitTeam, UnitBuildPercentLeft, UnitAllied>;
+            using Query = std::variant<Random, Activation, StandingFireOrders, StandingMoveOrders, Health, InBuildStance, Busy, PieceXZ, PieceY, UnitXZ, UnitY, UnitHeight, XZAtan, GroundHeight, BuildPercentLeft, YardOpen, BuggerOff, Armored, VeteranLevel, MinId, MaxId, MyId, UnitTeam, UnitBuildPercentLeft, UnitAllied>;
 
             Query query;
         };
