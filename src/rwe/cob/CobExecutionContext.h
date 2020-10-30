@@ -6,7 +6,6 @@
 #include <rwe/cob/CobSleepDuration.h>
 #include <rwe/cob/CobSpeed.h>
 #include <rwe/cob/CobValueId.h>
-#include <rwe/sim/GameSimulation.h>
 
 namespace rwe
 {
