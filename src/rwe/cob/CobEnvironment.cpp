@@ -205,4 +205,10 @@ namespace rwe
 
         return false;
     }
+
+    void CobEnvironment::pushResult(int result)
+    {
+        assert(!readyQueue.empty());
+        readyQueue.front()->stack.push(result);
+    }
 }

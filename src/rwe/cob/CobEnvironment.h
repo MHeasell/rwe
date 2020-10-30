@@ -115,7 +115,97 @@ namespace rwe
             CommandType command;
         };
 
-        using Status = std::variant<SignalStatus, PieceCommandStatus, BlockedStatus, SleepStatus, FinishedStatus>;
+        struct QueryStatus
+        {
+            struct Activation
+            {
+            };
+            struct StandingFireOrders
+            {
+            };
+            struct StandingMoveOrders
+            {
+            };
+            struct Health
+            {
+            };
+            struct InBuildStance
+            {
+            };
+            struct Busy
+            {
+            };
+            struct PieceXZ
+            {
+                int piece;
+            };
+            struct PieceY
+            {
+                int piece;
+            };
+            struct UnitXZ
+            {
+                UnitId targetUnitId;
+            };
+            struct UnitY
+            {
+                UnitId targetUnitId;
+            };
+            struct UnitHeight
+            {
+                UnitId targetUnitId;
+            };
+            struct XZAtan
+            {
+                int32_t coords;
+            };
+            struct GroundHeight
+            {
+                int32_t coords;
+            };
+            struct BuildPercentLeft
+            {
+            };
+            struct YardOpen
+            {
+            };
+            struct BuggerOff
+            {
+            };
+            struct Armored
+            {
+            };
+            struct VeteranLevel
+            {
+            };
+            struct MinId
+            {
+            };
+            struct MaxId
+            {
+            };
+            struct MyId
+            {
+            };
+            struct UnitTeam
+            {
+                UnitId targetUnitId;
+            };
+            struct UnitBuildPercentLeft
+            {
+                UnitId targetUnitId;
+            };
+            struct UnitAllied
+            {
+                UnitId targetUnitId;
+            };
+
+            using Query = std::variant<Activation, StandingFireOrders, StandingMoveOrders, Health, InBuildStance, Busy, PieceXZ, PieceY, UnitXZ, UnitY, UnitHeight, XZAtan, GroundHeight, BuildPercentLeft, YardOpen, BuggerOff, Armored, VeteranLevel, MinId, MaxId, MyId, UnitTeam, UnitBuildPercentLeft, UnitAllied>;
+
+            Query query;
+        };
+
+        using Status = std::variant<SignalStatus, PieceCommandStatus, BlockedStatus, SleepStatus, QueryStatus, FinishedStatus>;
 
     public:
         const CobScript* const _script;
@@ -176,6 +266,11 @@ namespace rwe
         std::optional<int> tryReapThread(const CobThread* thread);
 
         bool isNotCorrupt() const;
+
+        /**
+         * Pushes a value onto the first ready thread's stack.
+         */
+        void pushResult(int result);
 
     private:
         void removeThreadFromQueues(const CobThread* thread);

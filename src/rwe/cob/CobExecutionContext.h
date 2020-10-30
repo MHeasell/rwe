@@ -123,10 +123,6 @@ namespace rwe
 
         void popStackOperation();
 
-        void getValue();
-
-        void getValueWithArgs();
-
         void setValue();
 
         // non-commands
@@ -147,7 +143,6 @@ namespace rwe
 
         const std::string& getObjectName(unsigned int objectId);
 
-        int getValueInternal(CobValueId valueId, int arg1, int arg2, int arg3, int arg4);
         void setGetter(CobValueId valueId, int value);
     };
 }

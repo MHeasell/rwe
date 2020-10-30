@@ -1,6 +1,7 @@
 #include "CobExecutionService.h"
 #include <rwe/GameScene.h>
 #include <rwe/cob/CobExecutionContext.h>
+#include <rwe/cob/cob_util.h>
 #include <rwe/match.h>
 
 namespace rwe
@@ -25,7 +26,9 @@ namespace rwe
         return env._script->pieces.at(objectId);
     }
 
-    std::optional<CobEnvironment::PieceCommandStatus> executeThreads(GameScene& scene, GameSimulation& simulation, CobEnvironment& env, UnitId unitId)
+    using InterruptedReason = std::variant<CobEnvironment::PieceCommandStatus, CobEnvironment::QueryStatus>;
+
+    std::optional<InterruptedReason> executeThreads(GameScene& scene, GameSimulation& simulation, CobEnvironment& env, UnitId unitId)
     {
         while (!env.readyQueue.empty())
         {
@@ -38,24 +41,27 @@ namespace rwe
                 [&](const CobEnvironment::BlockedStatus& status) {
                     env.readyQueue.pop_front();
                     env.blockedQueue.emplace_back(status, thread);
-                    return std::optional<CobEnvironment::PieceCommandStatus>();
+                    return std::optional<InterruptedReason>();
                 },
                 [&](const CobEnvironment::SleepStatus& status) {
                     env.readyQueue.pop_front();
                     env.sleepingQueue.emplace_back(simulation.gameTime + status.duration.toGameTime(), thread);
-                    return std::optional<CobEnvironment::PieceCommandStatus>();
+                    return std::optional<InterruptedReason>();
                 },
                 [&](const CobEnvironment::FinishedStatus&) {
                     env.readyQueue.pop_front();
                     env.finishedQueue.emplace_back(thread);
-                    return std::optional<CobEnvironment::PieceCommandStatus>();
+                    return std::optional<InterruptedReason>();
                 },
                 [&](const CobEnvironment::SignalStatus& status) {
                     env.sendSignal(status.signal);
-                    return std::optional<CobEnvironment::PieceCommandStatus>();
+                    return std::optional<InterruptedReason>();
                 },
                 [&](const CobEnvironment::PieceCommandStatus& status) {
-                    return std::optional<CobEnvironment::PieceCommandStatus>(status);
+                    return std::optional<InterruptedReason>(status);
+                },
+                [&](const CobEnvironment::QueryStatus& status) {
+                    return std::optional<InterruptedReason>(status);
                 });
 
             if (result)
@@ -113,6 +119,165 @@ namespace rwe
             },
             [&](const CobEnvironment::PieceCommandStatus::DisableShading&) {
                 simulation.disableShading(unitId, objectName);
+            });
+    }
+
+    int handleQuery(GameScene& scene, GameSimulation& sim, const CobEnvironment& env, UnitId unitId, const CobEnvironment::QueryStatus& result)
+    {
+        return match(
+            result.query,
+            [&](const CobEnvironment::QueryStatus::Activation&) {
+                const auto& unit = sim.getUnit(unitId);
+                return static_cast<int>(unit.activated);
+            },
+            [&](const CobEnvironment::QueryStatus::StandingFireOrders&) {
+                return 0; // TODO
+            },
+            [&](const CobEnvironment::QueryStatus::StandingMoveOrders&) {
+                return 0; // TODO
+            },
+            [&](const CobEnvironment::QueryStatus::Health&) {
+                const auto& unit = sim.getUnit(unitId);
+                return static_cast<int>(unit.hitPoints / unit.maxHitPoints);
+            },
+            [&](const CobEnvironment::QueryStatus::InBuildStance&) {
+                const auto& unit = sim.getUnit(unitId);
+                return static_cast<int>(unit.inBuildStance);
+            },
+            [&](const CobEnvironment::QueryStatus::Busy&) {
+                return 0;
+            },
+            [&](const CobEnvironment::QueryStatus::PieceXZ& q) {
+                auto pieceId = q.piece;
+                const auto& pieceName = getObjectName(env, pieceId);
+                const auto& unit = sim.getUnit(unitId);
+                auto pieceTransform = unit.mesh.getPieceTransform(pieceName);
+                if (!pieceTransform)
+                {
+                    throw std::runtime_error("Unknown piece " + pieceName);
+                }
+                auto pos = unit.getTransform() * (*pieceTransform) * SimVector(0_ss, 0_ss, 0_ss);
+                return static_cast<int>(packCoords(pos.x, pos.z));
+            },
+            [&](const CobEnvironment::QueryStatus::PieceY& q) {
+                auto pieceId = q.piece;
+                const auto& pieceName = getObjectName(env, pieceId);
+                const auto& unit = sim.getUnit(unitId);
+                auto pieceTransform = unit.mesh.getPieceTransform(pieceName);
+                if (!pieceTransform)
+                {
+                    throw std::runtime_error("Unknown piece " + pieceName);
+                }
+                const auto& pos = unit.getTransform() * (*pieceTransform) * SimVector(0_ss, 0_ss, 0_ss);
+                return simScalarToFixed(pos.y);
+            },
+            [&](const CobEnvironment::QueryStatus::UnitXZ& q) {
+                auto targetUnitId = q.targetUnitId;
+                auto targetUnitOption = sim.tryGetUnit(targetUnitId);
+                if (!targetUnitOption)
+                {
+                    // FIXME: not sure if correct return value when unit does not exist
+                    return 0;
+                }
+                const auto& pos = targetUnitOption->get().position;
+                return static_cast<int>(packCoords(pos.x, pos.z));
+            },
+            [&](const CobEnvironment::QueryStatus::UnitY& q) {
+                auto targetUnitId = q.targetUnitId;
+                auto targetUnitOption = sim.tryGetUnit(targetUnitId);
+                if (!targetUnitOption)
+                {
+                    // FIXME: not sure if correct return value when unit does not exist
+                    return 0;
+                }
+                const auto& pos = targetUnitOption->get().position;
+                return simScalarToFixed(pos.y);
+            },
+            [&](const CobEnvironment::QueryStatus::UnitHeight& q) {
+                auto targetUnitId = q.targetUnitId;
+                auto targetUnitOption = sim.tryGetUnit(targetUnitId);
+                if (!targetUnitOption)
+                {
+                    // FIXME: not sure if correct return value when unit does not exist
+                    return 0;
+                }
+                return simScalarToFixed(targetUnitOption->get().height);
+            },
+            [&](const CobEnvironment::QueryStatus::XZAtan& q) {
+                auto pair = unpackCoords(q.coords);
+                const auto& unit = sim.getUnit(unitId);
+
+                // Surprisingly, the result of XZAtan is offset by the unit's current rotation.
+                // The other interesting thing is that in TA, at least for mobile units,
+                // it appears that a unit with rotation 0 faces up, towards negative Z.
+                // However, in RWE, a unit with rotation 0 faces down, towards positive z.
+                // We therefore subtract a half turn to convert to what scripts expect.
+                // TODO: test whether this is also the case for buildings
+                auto correctedUnitRotation = unit.rotation - HalfTurn;
+                auto result = atan2(pair.first, pair.second) - correctedUnitRotation;
+                return static_cast<int>(toCobAngle(result).value);
+            },
+            [&](const CobEnvironment::QueryStatus::GroundHeight& q) {
+                auto pair = unpackCoords(q.coords);
+                auto result = sim.terrain.getHeightAt(pair.first, pair.second);
+                return simScalarToFixed(result);
+            },
+            [&](const CobEnvironment::QueryStatus::BuildPercentLeft&) {
+                const auto& unit = sim.getUnit(unitId);
+                return static_cast<int>(unit.getBuildPercentLeft());
+            },
+            [&](const CobEnvironment::QueryStatus::YardOpen&) {
+                const auto& unit = sim.getUnit(unitId);
+                return static_cast<int>(unit.yardOpen);
+            },
+            [&](const CobEnvironment::QueryStatus::BuggerOff&) {
+                return 0; // TODO
+            },
+            [&](const CobEnvironment::QueryStatus::Armored&) {
+                return 0; // TODO
+            },
+            [&](const CobEnvironment::QueryStatus::VeteranLevel&) {
+                return 0; // TODO
+            },
+            [&](const CobEnvironment::QueryStatus::MinId&) {
+                return 0; // TODO
+            },
+            [&](const CobEnvironment::QueryStatus::MaxId&) {
+                return static_cast<int>(sim.nextUnitId.value - 1);
+            },
+            [&](const CobEnvironment::QueryStatus::MyId&) {
+                return static_cast<int>(unitId.value);
+            },
+            [&](const CobEnvironment::QueryStatus::UnitTeam& q) {
+                auto targetUnitId = q.targetUnitId;
+                auto targetUnitOption = sim.tryGetUnit(targetUnitId);
+                if (!targetUnitOption)
+                {
+                    // FIXME: unsure if correct return value when unit does not exist
+                    return 0;
+                }
+                // TODO: return player's team instead of player ID
+                return static_cast<int>(targetUnitOption->get().owner.value);
+            },
+            [&](const CobEnvironment::QueryStatus::UnitBuildPercentLeft& q) {
+                auto targetUnitOption = sim.tryGetUnit(q.targetUnitId);
+                if (!targetUnitOption)
+                {
+                    // FIXME: unsure if correct return value when unit does not exist
+                    return 0;
+                }
+                return static_cast<int>(targetUnitOption->get().getBuildPercentLeft());
+            },
+            [&](const CobEnvironment::QueryStatus::UnitAllied& q) {
+                const auto& unit = sim.getUnit(unitId);
+                auto targetUnitOption = sim.tryGetUnit(q.targetUnitId);
+                if (!targetUnitOption)
+                {
+                    // FIXME: unsure if correct return value when unit does not exist
+                    return 0;
+                }
+                // TODO: real allied check including teams/alliances
+                return static_cast<int>(targetUnitOption->get().isOwnedBy(unit.owner));
             });
     }
 
@@ -182,7 +347,15 @@ namespace rwe
         // execute ready threads
         while (auto result = executeThreads(scene, simulation, env, unitId))
         {
-            handlePieceCommand(scene, simulation, env, unitId, *result);
+            match(
+                *result,
+                [&](const CobEnvironment::PieceCommandStatus& s) {
+                    handlePieceCommand(scene, simulation, env, unitId, s);
+                },
+                [&](const CobEnvironment::QueryStatus& s) {
+                    auto result = handleQuery(scene, simulation, env, unitId, s);
+                    env.pushResult(result);
+                });
         }
 
         assert(env.isNotCorrupt());
