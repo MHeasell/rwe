@@ -77,14 +77,6 @@ namespace rwe
 
         void emitSmoke();
 
-        void showObject();
-
-        void hideObject();
-
-        void enableShading();
-
-        void disableShading();
-
         void enableCaching();
 
         void disableCaching();
