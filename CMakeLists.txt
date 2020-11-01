@@ -327,6 +327,7 @@ set(SOURCE_FILES
     src/rwe/cob/CobSpeed.h
     src/rwe/cob/CobThread.cpp
     src/rwe/cob/CobThread.h
+    src/rwe/cob/CobTime.h
     src/rwe/cob/CobValueId.h
     src/rwe/cob/cob_util.cpp
     src/rwe/cob/cob_util.h

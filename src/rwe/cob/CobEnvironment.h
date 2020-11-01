@@ -9,8 +9,8 @@
 #include <rwe/cob/CobSleepDuration.h>
 #include <rwe/cob/CobSpeed.h>
 #include <rwe/cob/CobThread.h>
+#include <rwe/cob/CobTime.h>
 #include <rwe/io/cob/Cob.h>
-#include <rwe/sim/GameTime.h>
 #include <rwe/sim/UnitId.h>
 #include <variant>
 #include <vector>
@@ -261,7 +261,7 @@ namespace rwe
 
         std::deque<CobThread*> readyQueue;
         std::deque<std::pair<BlockedStatus, CobThread*>> blockedQueue;
-        std::deque<std::pair<GameTime, CobThread*>> sleepingQueue;
+        std::deque<std::pair<CobTime, CobThread*>> sleepingQueue;
         std::deque<CobThread*> finishedQueue;
 
     public:

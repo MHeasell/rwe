@@ -6,6 +6,16 @@
 
 namespace rwe
 {
+    CobTime toCobTime(GameTime gameTime)
+    {
+        return CobTime((gameTime.value * 1000) / 60);
+    }
+
+    CobTime addDuration(CobTime time, CobSleepDuration duration)
+    {
+        return CobTime(time.value + duration.value);
+    }
+
     Axis toAxis(CobAxis axis)
     {
         switch (axis)
@@ -44,8 +54,9 @@ namespace rwe
                     return std::optional<InterruptedReason>();
                 },
                 [&](const CobEnvironment::SleepStatus& status) {
+                    auto wakeTime = addDuration(toCobTime(gameTime), status.duration);
                     env.readyQueue.pop_front();
-                    env.sleepingQueue.emplace_back(gameTime + status.duration.toGameTime(), thread);
+                    env.sleepingQueue.emplace_back(wakeTime, thread);
                     return std::optional<InterruptedReason>();
                 },
                 [&](const CobEnvironment::FinishedStatus&) {
@@ -373,11 +384,12 @@ namespace rwe
         }
 
         // check if any sleeping threads can be moved into the ready queue
+        auto cobTime = toCobTime(simulation.gameTime);
         for (auto it = env.sleepingQueue.begin(); it != env.sleepingQueue.end();)
         {
             const auto& pair = *it;
             const auto& wakeTime = pair.first;
-            if (simulation.gameTime >= wakeTime)
+            if (cobTime >= wakeTime)
             {
                 env.readyQueue.push_back(pair.second);
                 it = env.sleepingQueue.erase(it);
