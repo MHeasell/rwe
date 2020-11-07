@@ -102,6 +102,11 @@ namespace rwe
             return SDL_GL_SetAttribute(attr, value);
         }
 
+        int glSetSwapInterval(int interval)
+        {
+            return SDL_GL_SetSwapInterval(interval);
+        }
+
         void getWindowSize(SDL_Window* window, int* w, int* h)
         {
             SDL_GetWindowSize(window, w, h);
