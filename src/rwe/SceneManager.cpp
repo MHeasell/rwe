@@ -45,6 +45,59 @@ namespace rwe
         nextScene = std::move(scene);
     }
 
+    void dispatchToScene(const SDL_Event& event, SceneManager::Scene& currentScene)
+    {
+        switch (event.type)
+        {
+            case SDL_KEYDOWN:
+                currentScene.onKeyDown(event.key.keysym);
+                break;
+            case SDL_KEYUP:
+                currentScene.onKeyUp(event.key.keysym);
+                break;
+            case SDL_MOUSEBUTTONDOWN:
+            {
+                auto button = convertSdlMouseButton(event.button.button);
+                if (!button)
+                {
+                    break;
+                }
+
+                MouseButtonEvent e(event.button.x, event.button.y, *button);
+                currentScene.onMouseDown(e);
+                break;
+            }
+            case SDL_MOUSEBUTTONUP:
+            {
+                auto button = convertSdlMouseButton(event.button.button);
+                if (!button)
+                {
+                    break;
+                }
+
+                MouseButtonEvent e(event.button.x, event.button.y, *button);
+                currentScene.onMouseUp(e);
+                break;
+            }
+            case SDL_MOUSEMOTION:
+            {
+                MouseMoveEvent e(event.motion.x, event.motion.y);
+                currentScene.onMouseMove(e);
+                break;
+            }
+            case SDL_MOUSEWHEEL:
+            {
+                MouseWheelEvent e(event.wheel.x, event.wheel.y);
+                currentScene.onMouseWheel(e);
+                break;
+            }
+
+            default:
+                // skip unrecognised events
+                break;
+        }
+    }
+
     void SceneManager::execute()
     {
         while (!requestedExit)
@@ -66,64 +119,18 @@ namespace rwe
                     continue;
                 }
 
-                switch (event.type)
+                if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F12)
                 {
-                    case SDL_QUIT:
-                        return;
-                    case SDL_KEYDOWN:
-                        if (event.key.keysym.sym == SDLK_F12)
-                        {
-                            showDebugWindow = true;
-                        }
-                        else
-                        {
-                            currentScene->onKeyDown(event.key.keysym);
-                        }
-                        break;
-                    case SDL_KEYUP:
-                        currentScene->onKeyUp(event.key.keysym);
-                        break;
-                    case SDL_MOUSEBUTTONDOWN:
-                    {
-                        auto button = convertSdlMouseButton(event.button.button);
-                        if (!button)
-                        {
-                            break;
-                        }
-
-                        MouseButtonEvent e(event.button.x, event.button.y, *button);
-                        currentScene->onMouseDown(e);
-                        break;
-                    }
-                    case SDL_MOUSEBUTTONUP:
-                    {
-                        auto button = convertSdlMouseButton(event.button.button);
-                        if (!button)
-                        {
-                            break;
-                        }
-
-                        MouseButtonEvent e(event.button.x, event.button.y, *button);
-                        currentScene->onMouseUp(e);
-                        break;
-                    }
-                    case SDL_MOUSEMOTION:
-                    {
-                        MouseMoveEvent e(event.motion.x, event.motion.y);
-                        currentScene->onMouseMove(e);
-                        break;
-                    }
-                    case SDL_MOUSEWHEEL:
-                    {
-                        MouseWheelEvent e(event.wheel.x, event.wheel.y);
-                        currentScene->onMouseWheel(e);
-                        break;
-                    }
-
-                    default:
-                        // skip unrecognised events
-                        break;
+                    showDebugWindow = true;
+                    continue;
                 }
+
+                if (event.type == SDL_QUIT)
+                {
+                    return;
+                }
+
+                dispatchToScene(event, *currentScene);
             }
 
             if (imGuiContext->io->WantCaptureMouse)
