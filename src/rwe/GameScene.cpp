@@ -1244,14 +1244,16 @@ namespace rwe
         return Rectangle2f::fromTLBR(top, left, bottom, right);
     }
 
-    void GameScene::update()
+    void GameScene::update(int millisecondsElapsed)
     {
+        millisecondsBuffer += millisecondsElapsed;
+
         auto& camera = worldRenderService.getCamera();
         auto cameraConstraint = computeCameraConstraint(simulation.terrain, camera);
 
         // update camera position from keyboard arrows
         {
-            const float speed = CameraPanSpeed * simScalarToFloat(SecondsPerTick);
+            const float speed = CameraPanSpeed * millisecondsElapsed / 1000.0f;
             int directionX = (right ? 1 : 0) - (left ? 1 : 0);
             int directionZ = (down ? 1 : 0) - (up ? 1 : 0);
 
@@ -1265,7 +1267,7 @@ namespace rwe
 
         // update camera position from edge scroll
         {
-            const float speed = CameraPanSpeed * simScalarToFloat(SecondsPerTick);
+            const float speed = CameraPanSpeed * millisecondsElapsed / 1000.0f;
 
             auto mousePosition = getMousePosition();
             auto directionX = mousePosition.x == sceneContext.viewport->left()
@@ -1462,14 +1464,17 @@ namespace rwe
         const SceneTime frameCheckInterval(5);
         auto highSceneTime = averageSceneTime + frameTolerance;
         auto lowSceneTime = averageSceneTime <= frameTolerance ? SceneTime{0} : averageSceneTime - frameTolerance;
-        if (sceneTime % frameCheckInterval != SceneTime(0) || sceneTime <= highSceneTime)
+        for (; millisecondsBuffer >= SceneManager::TickInterval; millisecondsBuffer -= SceneManager::TickInterval)
         {
-            tryTickGame();
-
-            // simulate an extra frame to catch up every so often
-            if (sceneTime % frameCheckInterval == SceneTime(0) && sceneTime < lowSceneTime)
+            if (sceneTime % frameCheckInterval != SceneTime(0) || sceneTime <= highSceneTime)
             {
                 tryTickGame();
+
+                // simulate an extra frame to catch up every so often
+                if (sceneTime % frameCheckInterval == SceneTime(0) && sceneTime < lowSceneTime)
+                {
+                    tryTickGame();
+                }
             }
         }
 

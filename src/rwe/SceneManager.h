@@ -18,7 +18,7 @@ namespace rwe
         class Scene
         {
         public:
-            virtual void update() {}
+            virtual void update(int millisecondsElapsed) {}
 
             virtual void init() {}
 
@@ -54,6 +54,7 @@ namespace rwe
         bool showDebugWindow{false};
         bool showDemoWindow{false};
 
+        unsigned int lastFrameStartTime{0};
         unsigned int lastFrameDurationMs{0};
 
     public:

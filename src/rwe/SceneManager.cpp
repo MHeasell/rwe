@@ -56,6 +56,7 @@ namespace rwe
             }
 
             auto startTime = timeService->getTicks();
+            auto timeElapsed = lastFrameStartTime == 0 ? 0 : startTime - lastFrameStartTime;
 
             SDL_Event event;
             while (sdl->pollEvent(&event))
@@ -134,7 +135,7 @@ namespace rwe
                 imGuiContext->io->ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
             }
             imGuiContext->newFrame(window);
-            currentScene->update();
+            currentScene->update(timeElapsed);
             if (showDemoWindow)
             {
                 ImGui::ShowDemoWindow(&showDemoWindow);
@@ -157,10 +158,7 @@ namespace rwe
 
             auto finishTime = timeService->getTicks();
             lastFrameDurationMs = finishTime - startTime;
-            if (lastFrameDurationMs < TickInterval)
-            {
-                sdl->delay(TickInterval - lastFrameDurationMs);
-            }
+            lastFrameStartTime = startTime;
         }
     }
 

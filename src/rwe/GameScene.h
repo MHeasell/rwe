@@ -274,6 +274,8 @@ namespace rwe
 
         std::vector<Explosion> explosions;
 
+        int millisecondsBuffer{0};
+
     public:
         GameScene(
             const SceneContext& sceneContext,
@@ -312,7 +314,7 @@ namespace rwe
 
         void onMouseWheel(MouseWheelEvent event) override;
 
-        void update() override;
+        void update(int millisecondsElapsed) override;
 
         std::optional<UnitId> spawnUnit(const std::string& unitType, PlayerId owner, const SimVector& position);
 

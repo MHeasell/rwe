@@ -58,7 +58,7 @@ namespace rwe
 
         void onKeyDown(const SDL_Keysym& keysym) override;
 
-        void update() override;
+        void update(int millisecondsElapsed) override;
 
         void goToPreviousMenu();
 

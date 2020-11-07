@@ -141,9 +141,9 @@ namespace rwe
         return *(panelStack.back());
     }
 
-    void MainMenuScene::update()
+    void MainMenuScene::update(int millisecondsElapsed)
     {
-        topPanel().update(static_cast<float>(SceneManager::TickInterval) / 1000.0f);
+        topPanel().update(static_cast<float>(millisecondsElapsed) / 1000.0f);
     }
 
     void MainMenuScene::onMouseWheel(MouseWheelEvent event)
