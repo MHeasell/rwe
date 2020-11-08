@@ -13,4 +13,9 @@ namespace rwe
     {
         return std::sqrt(f);
     }
+
+    float rweLerp(float a, float b, float t)
+    {
+        return (1.0f - t) * a + t * b;
+    }
 }

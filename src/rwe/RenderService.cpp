@@ -5,6 +5,19 @@
 
 namespace rwe
 {
+    float angleLerp(float a, float b, float t)
+    {
+        if (b - a >= Pif)
+        {
+            return rweLerp(a + (2.0f * Pif), b, t);
+        }
+        if (b - a < -Pif)
+        {
+            return rweLerp(a, b + (2.0f * Pif), t);
+        }
+        return rweLerp(a, b, t);
+    }
+
     class IsOccupiedVisitor
     {
     public:
@@ -41,19 +54,22 @@ namespace rwe
     }
 
     void
-    RenderService::drawSelectionRect(const Unit& unit)
+    RenderService::drawSelectionRect(const Unit& unit, float frac)
     {
         auto selectionMesh = meshDatabase.getSelectionMesh(unit.objectName);
+
+        auto position = lerp(simVectorToFloat(unit.previousPosition), simVectorToFloat(unit.position), frac);
 
         // try to ensure that the selection rectangle vertices
         // are aligned with the middle of pixels,
         // to prevent discontinuities in the drawn lines.
         Vector3f snappedPosition(
-            snapToInterval(simScalarToFloat(unit.position.x), 1.0f) + 0.5f,
-            snapToInterval(simScalarToFloat(unit.position.y), 2.0f),
-            snapToInterval(simScalarToFloat(unit.position.z), 1.0f) + 0.5f);
+            snapToInterval(position.x, 1.0f) + 0.5f,
+            snapToInterval(position.y, 2.0f),
+            snapToInterval(position.z, 1.0f) + 0.5f);
 
-        auto matrix = Matrix4f::translation(snappedPosition) * Matrix4f::rotationY(toRadians(unit.rotation).value);
+        auto rotation = angleLerp(toRadians(unit.previousRotation).value, toRadians(unit.rotation).value, frac);
+        auto matrix = Matrix4f::translation(snappedPosition) * Matrix4f::rotationY(rotation);
 
         const auto& shader = shaders->basicColor;
         graphics->bindShader(shader.handle.get());
@@ -74,15 +90,18 @@ namespace rwe
         graphics->drawLines(mesh);
     }
 
-    void RenderService::drawUnit(const Unit& unit, float seaLevel, float time, PlayerColorIndex playerColorIndex)
+    void RenderService::drawUnit(const Unit& unit, float seaLevel, float time, PlayerColorIndex playerColorIndex, float frac)
     {
+        auto position = lerp(simVectorToFloat(unit.previousPosition), simVectorToFloat(unit.position), frac);
+        auto rotation = angleLerp(toRadians(unit.previousRotation).value, toRadians(unit.rotation).value, frac);
+        auto transform = Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
         if (unit.isBeingBuilt())
         {
-            drawBuildingUnitMesh(unit.objectName, unit.mesh, toFloatMatrix(unit.getTransform()), seaLevel, unit.getPreciseCompletePercent(), simScalarToFloat(unit.position.y), time, playerColorIndex);
+            drawBuildingUnitMesh(unit.objectName, unit.mesh, transform, seaLevel, unit.getPreciseCompletePercent(), position.y, time, playerColorIndex);
         }
         else
         {
-            drawUnitMesh(unit.objectName, unit.mesh, toFloatMatrix(unit.getTransform()), seaLevel, playerColorIndex);
+            drawUnitMesh(unit.objectName, unit.mesh, transform, seaLevel, playerColorIndex);
         }
     }
 
@@ -433,14 +452,16 @@ namespace rwe
         drawMapTerrain(terrain, x1, y1, (x2 + 1) - x1, (y2 + 1) - y1);
     }
 
-    void RenderService::drawUnitShadow(const Unit& unit, float groundHeight)
+    void RenderService::drawUnitShadow(const Unit& unit, float groundHeight, float frac)
     {
         auto shadowProjection = Matrix4f::translation(Vector3f(0.0f, groundHeight, 0.0f))
             * Matrix4f::scale(Vector3f(1.0f, 0.0f, 1.0f))
             * Matrix4f::shearXZ(0.25f, -0.25f)
             * Matrix4f::translation(Vector3f(0.0f, -groundHeight, 0.0f));
 
-        auto matrix = Matrix4f::translation(simVectorToFloat(unit.position)) * Matrix4f::rotationY(toRadians(unit.rotation).value);
+        auto position = lerp(simVectorToFloat(unit.previousPosition), simVectorToFloat(unit.position), frac);
+        auto rotation = angleLerp(toRadians(unit.previousRotation).value, toRadians(unit.rotation).value, frac);
+        auto matrix = Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
 
         drawUnitMesh(unit.objectName, unit.mesh, shadowProjection * matrix, 0.0f, PlayerColorIndex(0));
     }

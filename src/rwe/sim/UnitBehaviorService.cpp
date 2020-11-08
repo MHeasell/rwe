@@ -506,6 +506,7 @@ namespace rwe
     {
         auto& unit = scene->getSimulation().getUnit(id);
         auto turnRateThisFrame = SimAngle(unit.turnRate.value);
+        unit.previousRotation = unit.rotation;
         unit.rotation = turnTowards(unit.rotation, unit.targetAngle, turnRateThisFrame);
     }
 
@@ -549,6 +550,8 @@ namespace rwe
     void UnitBehaviorService::updateUnitPosition(UnitId unitId)
     {
         auto& unit = scene->getSimulation().getUnit(unitId);
+
+        unit.previousPosition = unit.position;
 
         auto direction = Unit::toDirection(unit.rotation);
 

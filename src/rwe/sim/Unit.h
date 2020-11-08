@@ -136,6 +136,7 @@ namespace rwe
         std::string objectName;
         UnitMesh mesh;
         SimVector position;
+        SimVector previousPosition;
         std::unique_ptr<CobEnvironment> cobEnvironment;
         PlayerId owner;
 
@@ -150,6 +151,7 @@ namespace rwe
          * by the normal of the terrain the unit is standing on.
          */
         SimAngle rotation{0};
+        SimAngle previousRotation{0};
 
 
         /**

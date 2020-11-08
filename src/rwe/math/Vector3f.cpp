@@ -18,4 +18,12 @@ namespace rwe
         auto det = determinant(lhs, rhs, normal);
         return angle * (det > 0.0f ? 1.0f : -1.0f);
     }
+
+    Vector3f lerp(const Vector3f& a, const Vector3f& b, float t)
+    {
+        return Vector3f(
+            rweLerp(a.x, b.x, t),
+            rweLerp(a.y, b.y, t),
+            rweLerp(a.z, b.z, t));
+    }
 }

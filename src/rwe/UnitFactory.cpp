@@ -145,12 +145,14 @@ namespace rwe
         unit.objectName = fbi.objectName;
         unit.owner = owner;
         unit.position = position;
+        unit.previousPosition = position;
         unit.height = modelDefinition->get().height;
 
         if (fbi.bmCode) // unit is mobile
         {
             // spawn the unit facing the other way
             unit.rotation = HalfTurn;
+            unit.previousRotation = HalfTurn;
         }
 
         // These units are per-tick.

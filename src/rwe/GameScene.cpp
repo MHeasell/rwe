@@ -526,20 +526,21 @@ namespace rwe
             }
         }
 
+        auto interpolationFraction = static_cast<float>(millisecondsBuffer) / static_cast<float>(SimMillisecondsPerTick);
         for (const auto& selectedUnitId : selectedUnits)
         {
             const auto& unit = getUnit(selectedUnitId);
-            worldRenderService.drawSelectionRect(unit);
+            worldRenderService.drawSelectionRect(unit, interpolationFraction);
         }
 
-        worldRenderService.drawUnitShadows(simulation.terrain, simulation.units | boost::adaptors::map_values);
+        worldRenderService.drawUnitShadows(simulation.terrain, simulation.units | boost::adaptors::map_values, interpolationFraction);
 
         sceneContext.graphics->enableDepthBuffer();
 
         auto seaLevel = simulation.terrain.getSeaLevel();
         for (const auto& unit : (simulation.units | boost::adaptors::map_values))
         {
-            worldRenderService.drawUnit(unit, simScalarToFloat(seaLevel), simulation.gameTime.value, getPlayer(unit.owner).color);
+            worldRenderService.drawUnit(unit, simScalarToFloat(seaLevel), simulation.gameTime.value, getPlayer(unit.owner).color, interpolationFraction);
         }
 
         worldRenderService.drawProjectiles(simulation.projectiles, simScalarToFloat(seaLevel), simulation.gameTime);

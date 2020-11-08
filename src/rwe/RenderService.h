@@ -60,11 +60,11 @@ namespace rwe
         CabinetCamera& getCamera();
         const CabinetCamera& getCamera() const;
 
-        void drawUnit(const Unit& unit, float seaLevel, float time, PlayerColorIndex playerColorIndex);
-        void drawUnitShadow(const Unit& unit, float groundHeight);
+        void drawUnit(const Unit& unit, float seaLevel, float time, PlayerColorIndex playerColorIndex, float frac);
+        void drawUnitShadow(const Unit& unit, float groundHeight, float frac);
         void drawUnitMesh(const std::string& objectName, const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex);
         void drawBuildingUnitMesh(const std::string& objectName, const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex);
-        void drawSelectionRect(const Unit& unit);
+        void drawSelectionRect(const Unit& unit, float frac);
         void drawNanolatheLine(const Vector3f& start, const Vector3f& end);
         void drawOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid);
         void drawMovementClassCollisionGrid(const MapTerrain& terrain, const Grid<char>& movementClassGrid);
@@ -99,7 +99,7 @@ namespace rwe
         void drawMapTerrain(const MapTerrainGraphics& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
 
         template <typename Range>
-        void drawUnitShadows(const MapTerrain& terrain, const Range& units)
+        void drawUnitShadows(const MapTerrain& terrain, const Range& units, float frac)
         {
             graphics->enableStencilBuffer();
             graphics->clearStencilBuffer();
@@ -108,8 +108,9 @@ namespace rwe
 
             for (const Unit& unit : units)
             {
-                auto groundHeight = terrain.getHeightAt(unit.position.x, unit.position.z);
-                drawUnitShadow(unit, simScalarToFloat(groundHeight));
+                auto position = lerp(simVectorToFloat(unit.previousPosition), simVectorToFloat(unit.position), frac);
+                auto groundHeight = terrain.getHeightAt(floatToSimScalar(position.x), floatToSimScalar(position.z));
+                drawUnitShadow(unit, simScalarToFloat(groundHeight), frac);
             }
 
             graphics->useStencilBufferAsMask();
