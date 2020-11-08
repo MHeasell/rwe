@@ -154,12 +154,10 @@ namespace rwe
         }
 
         // These units are per-tick.
-        // We divide by two here because TA ticks are 1/30 of a second,
-        // where as ours are 1/60 of a second.
         unit.turnRate = toWorldAnglePerTick(fbi.turnRate);
-        unit.maxSpeed = SimScalar(fbi.maxVelocity.value / 2.0f);
-        unit.acceleration = SimScalar(fbi.acceleration.value / 2.0f);
-        unit.brakeRate = SimScalar(fbi.brakeRate.value / 2.0f);
+        unit.maxSpeed = SimScalar(fbi.maxVelocity.value);
+        unit.acceleration = SimScalar(fbi.acceleration.value);
+        unit.brakeRate = SimScalar(fbi.brakeRate.value);
 
         unit.canAttack = fbi.canAttack;
         unit.canMove = fbi.canMove;
@@ -172,14 +170,11 @@ namespace rwe
         unit.builder = fbi.builder;
 
         // Build time is per second, assuming 30 ticks per second.
-        // However, we use 60 ticks per second, so we multiply by 2 here.
-        unit.buildTime = fbi.buildTime * 2;
+        unit.buildTime = fbi.buildTime;
         unit.energyCost = fbi.buildCostEnergy;
         unit.metalCost = fbi.buildCostMetal;
 
         // Worker time is per second, assuming 30 ticks per second.
-        // We already scaled up build time to compensate so we are fine
-        // to divide by 30 here to get per-tick time, even though we run at 60fps.
         unit.workerTimePerTick = fbi.workerTime / 30;
 
         unit.buildDistance = SimScalar(fbi.buildDistance);
@@ -352,7 +347,7 @@ namespace rwe
         weapon.reloadTime = SimScalar(tdf.reloadTime);
         weapon.tolerance = SimAngle(tdf.tolerance);
         weapon.pitchTolerance = SimAngle(tdf.pitchTolerance);
-        weapon.velocity = SimScalar(static_cast<float>(tdf.weaponVelocity) / 60.0f);
+        weapon.velocity = SimScalar(static_cast<float>(tdf.weaponVelocity) / 30.0f);
 
         weapon.burst = tdf.burst;
         weapon.burstInterval = SimScalar(tdf.burstRate);
@@ -370,7 +365,7 @@ namespace rwe
                 weapon.renderType = ProjectileRenderTypeLaser{
                     getLaserColor(tdf.color),
                     getLaserColor(tdf.color2),
-                    SimScalar(tdf.duration * 60.0f * 2.0f), // duration seems to match better if doubled
+                    SimScalar(tdf.duration * 30.0f * 2.0f), // duration seems to match better if doubled
                 };
                 break;
             }
@@ -417,7 +412,7 @@ namespace rwe
         weapon.endSmoke = tdf.endSmoke;
         if (tdf.smokeTrail)
         {
-            weapon.smokeTrail = GameTime(static_cast<unsigned int>(tdf.smokeDelay * 60.0f));
+            weapon.smokeTrail = GameTime(static_cast<unsigned int>(tdf.smokeDelay * 30.0f));
         }
 
         for (const auto& p : tdf.damage)
@@ -429,7 +424,7 @@ namespace rwe
 
         if (tdf.weaponTimer != 0.0f)
         {
-            weapon.weaponTimer = GameTime(static_cast<unsigned int>(tdf.weaponTimer * 60.0f));
+            weapon.weaponTimer = GameTime(static_cast<unsigned int>(tdf.weaponTimer * 30.0f));
         }
 
         return weapon;

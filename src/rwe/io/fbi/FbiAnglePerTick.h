@@ -11,6 +11,6 @@ namespace rwe
 
     inline SimScalar toWorldAnglePerTick(FbiAnglePerTick d)
     {
-        return SimScalar(d.value / 2u);
+        return SimScalar(d.value);
     }
 }

@@ -47,7 +47,7 @@ namespace rwe
 
         if (auto spinOp = std::get_if<UnitMesh::SpinOperation>(&*op); spinOp != nullptr)
         {
-            auto frameAccel = spinOp->acceleration / 2_ss;
+            auto frameAccel = spinOp->acceleration;
             auto remaining = spinOp->targetSpeed - spinOp->currentSpeed;
             if (rweAbs(remaining) <= frameAccel)
             {
@@ -72,7 +72,7 @@ namespace rwe
 
         if (auto stopSpinOp = std::get_if<UnitMesh::StopSpinOperation>(&*op); stopSpinOp != nullptr)
         {
-            auto frameDecel = stopSpinOp->deceleration / 2_ss;
+            auto frameDecel = stopSpinOp->deceleration;
             if (rweAbs(stopSpinOp->currentSpeed) <= frameDecel)
             {
                 op = std::nullopt;

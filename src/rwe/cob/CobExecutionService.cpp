@@ -8,7 +8,7 @@ namespace rwe
 {
     CobTime toCobTime(GameTime gameTime)
     {
-        return CobTime((gameTime.value * 1000) / 60);
+        return CobTime((gameTime.value * 1000) / 30);
     }
 
     CobTime addDuration(CobTime time, CobSleepDuration duration)

@@ -337,7 +337,7 @@ namespace rwe
             {
                 auto aimFromPosition = getAimingPoint(id, weaponIndex);
 
-                auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, *targetPosition, weapon->velocity, (112_ss / 6000_ss), weapon->ballisticZOffset, weapon->physicsType);
+                auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, *targetPosition, weapon->velocity, (112_ss / 3000_ss), weapon->ballisticZOffset, weapon->physicsType);
                 auto heading = headingAndPitch.first;
                 auto pitch = headingAndPitch.second;
 
@@ -368,7 +368,7 @@ namespace rwe
                         // aiming was successful, check the target again for drift
                         auto aimFromPosition = getAimingPoint(id, weaponIndex);
 
-                        auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, *targetPosition, weapon->velocity, (112_ss / 6000_ss), weapon->ballisticZOffset, weapon->physicsType);
+                        auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, *targetPosition, weapon->velocity, (112_ss / 3000_ss), weapon->ballisticZOffset, weapon->physicsType);
                         auto heading = headingAndPitch.first;
                         auto pitch = headingAndPitch.second;
 
@@ -1164,7 +1164,7 @@ namespace rwe
 
             // only request a new path if we don't have one yet,
             // or we've already had our current one for a bit
-            if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTime(60))
+            if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTime(30))
             {
                 sim.requestPath(unitId);
                 movingState->pathRequested = true;

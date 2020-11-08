@@ -7,6 +7,7 @@
 #include <rwe/network_util.h>
 #include <rwe/proto/serialization.h>
 #include <rwe/range_util.h>
+#include <rwe/sim/SimTicksPerSecond.h>
 #include <spdlog/fmt/ostr.h>
 #include <spdlog/spdlog.h>
 #include <thread>
@@ -316,7 +317,7 @@ namespace rwe
             spdlog::get("rwe")->debug("Average RTT: {0}ms", endpoint.averageRoundTripTime);
         }
 
-        auto extraFrames = static_cast<unsigned int>((endpoint.averageRoundTripTime / 2.0f) / SceneManager::TickInterval);
+        auto extraFrames = static_cast<unsigned int>((endpoint.averageRoundTripTime / 2.0f) * SimTicksPerSecond / 1000.0f);
         endpoint.lastKnownSceneTime = std::make_pair(SceneTime(message.current_scene_time() + extraFrames), receiveTime);
         spdlog::get("rwe")->debug("Estimated peer scene time: {0}", endpoint.lastKnownSceneTime->first.value);
 

@@ -499,6 +499,7 @@ set(SOURCE_FILES
     src/rwe/sim/SimAngle.h
     src/rwe/sim/SimScalar.cpp
     src/rwe/sim/SimScalar.h
+    src/rwe/sim/SimTicksPerSecond.h
     src/rwe/sim/SimVector.h
     src/rwe/sim/Unit.cpp
     src/rwe/sim/Unit.h

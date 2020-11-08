@@ -9,6 +9,7 @@
 #include <rwe/match.h>
 #include <rwe/matrix_util.h>
 #include <rwe/resource_io.h>
+#include <rwe/sim/SimTicksPerSecond.h>
 #include <rwe/ui/UiStagedButton.h>
 #include <spdlog/spdlog.h>
 #include <unordered_set>
@@ -1101,7 +1102,7 @@ namespace rwe
                             const auto cameraPosition = worldRenderService.getCamera().getPosition();
                             Point originRelativePos(cameraPosition.x + worldViewportPos.x, cameraPosition.z + worldViewportPos.y);
 
-                            if (sceneTime - state.startTime < SceneTime(60) && state.startPosition.maxSingleDimensionDistance(originRelativePos) < 32)
+                            if (sceneTime - state.startTime < SceneTime(30) && state.startPosition.maxSingleDimensionDistance(originRelativePos) < 32)
                             {
                                 if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
                                 {
@@ -1464,7 +1465,7 @@ namespace rwe
         const SceneTime frameCheckInterval(5);
         auto highSceneTime = averageSceneTime + frameTolerance;
         auto lowSceneTime = averageSceneTime <= frameTolerance ? SceneTime{0} : averageSceneTime - frameTolerance;
-        for (; millisecondsBuffer >= SceneManager::TickInterval; millisecondsBuffer -= SceneManager::TickInterval)
+        for (; millisecondsBuffer >= SimMillisecondsPerTick; millisecondsBuffer -= SimMillisecondsPerTick)
         {
             if (sceneTime % frameCheckInterval != SceneTime(0) || sceneTime <= highSceneTime)
             {
@@ -1821,7 +1822,7 @@ namespace rwe
         processPlayerCommands(*playerCommands);
 
         // run resource updates once per second
-        if (simulation.gameTime % GameTime(60) == GameTime(0))
+        if (simulation.gameTime % GameTime(SimTicksPerSecond) == GameTime(0))
         {
             for (auto& player : simulation.players)
             {
@@ -1909,7 +1910,7 @@ namespace rwe
 
             unitBehaviorService.update(unitId);
 
-            unit.mesh.update(SecondsPerTick);
+            unit.mesh.update(SimScalar(SimMillisecondsPerTick) / 1000_ss);
 
             cobExecutionService.run(*this, simulation, unitId);
         }
@@ -1931,10 +1932,10 @@ namespace rwe
         match(
             winStatus,
             [&](const WinStatusWon&) {
-                delay(SceneTime(5 * 60), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
+                delay(SceneTime(5 * 30), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
             },
             [&](const WinStatusDraw&) {
-                delay(SceneTime(5 * 60), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
+                delay(SceneTime(5 * 30), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
             },
             [&](const WinStatusUndecided&) {
                 // do nothing, game still in progress
@@ -2268,7 +2269,7 @@ namespace rwe
 
             if (projectile.gravity)
             {
-                projectile.velocity.y -= 112_ss / 6000_ss;
+                projectile.velocity.y -= 112_ss / 3000_ss;
             }
             projectile.position += projectile.velocity;
 
@@ -2426,13 +2427,13 @@ namespace rwe
 
     void GameScene::createLightSmoke(const Vector3f& position)
     {
-        spawnSmoke(position, "FX", "smoke 1", ExplosionFinishTimeEndOfFrames(), GameTime(4));
+        spawnSmoke(position, "FX", "smoke 1", ExplosionFinishTimeEndOfFrames(), GameTime(2));
     }
 
     void GameScene::createWeaponSmoke(const Vector3f& position)
     {
         auto anim = sceneContext.textureService->getGafEntry("anims/FX.GAF", "smoke 1");
-        spawnSmoke(position, "FX", "smoke 1", ExplosionFinishTimeFixedTime{simulation.gameTime + GameTime(60)}, GameTime(30));
+        spawnSmoke(position, "FX", "smoke 1", ExplosionFinishTimeFixedTime{simulation.gameTime + GameTime(30)}, GameTime(15));
     }
 
     void GameScene::activateUnit(UnitId unitId)
@@ -3277,7 +3278,7 @@ namespace rwe
         exp.explosionAnim = anim;
         exp.startTime = simulation.gameTime;
         exp.finishTime = ExplosionFinishTimeEndOfFrames();
-        exp.frameDuration = GameTime(4);
+        exp.frameDuration = GameTime(2);
 
         explosions.push_back(exp);
     }
