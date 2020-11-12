@@ -9,8 +9,6 @@
 
 namespace rwe
 {
-    class GameScene;
-
     class CobExecutionContext
     {
     private:

@@ -1,9 +1,9 @@
 #include "CobExecutionContext.h"
 #include <random>
-#include <rwe/GameScene.h>
 #include <rwe/cob/CobConstants.h>
 #include <rwe/cob/CobOpCode.h>
 #include <rwe/cob/cob_util.h>
+#include <stdexcept>
 #include <variant>
 
 namespace rwe
