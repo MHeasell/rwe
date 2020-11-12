@@ -17,6 +17,7 @@ namespace rwe
         PlayerId owner;
 
         SimVector position;
+        SimVector previousPosition;
 
         SimVector origin;
 
@@ -50,6 +51,8 @@ namespace rwe
         bool isDead{false};
 
         SimVector getBackPosition(const ProjectileRenderTypeLaser& laserRenderType) const;
+
+        SimVector getPreviousBackPosition(const ProjectileRenderTypeLaser& laserRenderType) const;
 
         unsigned int getDamage(const std::string& unitType) const;
     };

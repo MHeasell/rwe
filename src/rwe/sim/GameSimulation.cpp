@@ -436,6 +436,7 @@ namespace rwe
         projectile.weaponType = weapon.weaponType;
         projectile.owner = owner;
         projectile.position = position;
+        projectile.previousPosition = position;
         projectile.origin = position;
         projectile.velocity = direction * weapon.velocity;
         projectile.gravity = weapon.physicsType == ProjectilePhysicsType::Ballistic;

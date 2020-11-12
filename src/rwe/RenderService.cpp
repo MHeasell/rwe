@@ -539,7 +539,7 @@ namespace rwe
         return (currentTime.value / 2) % numFrames;
     }
 
-    void RenderService::drawProjectiles(const VectorMap<Projectile, ProjectileIdTag>& projectiles, float seaLevel, GameTime currentTime)
+    void RenderService::drawProjectiles(const VectorMap<Projectile, ProjectileIdTag>& projectiles, float seaLevel, GameTime currentTime, float frac)
     {
         Vector3f pixelOffset(0.0f, 0.0f, -1.0f);
 
@@ -547,12 +547,12 @@ namespace rwe
         for (const auto& e : projectiles)
         {
             const auto& projectile = e.second;
-            auto position = simVectorToFloat(projectile.position);
+            auto position = lerp(simVectorToFloat(projectile.previousPosition), simVectorToFloat(projectile.position), frac);
 
             match(
                 projectile.renderType,
                 [&](const ProjectileRenderTypeLaser& l) {
-                    auto backPosition = simVectorToFloat(projectile.getBackPosition(l));
+                    auto backPosition = lerp(simVectorToFloat(projectile.getPreviousBackPosition(l)), simVectorToFloat(projectile.getBackPosition(l)), frac);
 
                     laserVertices.emplace_back(position, l.color);
                     laserVertices.emplace_back(backPosition, l.color);
@@ -564,7 +564,7 @@ namespace rwe
                     auto transform = Matrix4f::translation(position)
                         * pointDirection(simVectorToFloat(projectile.velocity).normalized())
                         * rotationModeToMatrix(m.rotationMode);
-                    drawUnitMesh(m.objectName, *m.mesh, transform, seaLevel, PlayerColorIndex(0), 1.0f);
+                    drawUnitMesh(m.objectName, *m.mesh, transform, seaLevel, PlayerColorIndex(0), frac);
                 },
                 [&](const ProjectileRenderTypeSprite& s) {
                     Vector3f snappedPosition(

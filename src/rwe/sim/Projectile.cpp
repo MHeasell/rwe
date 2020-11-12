@@ -15,6 +15,19 @@ namespace rwe
         }
     }
 
+    SimVector Projectile::getPreviousBackPosition(const ProjectileRenderTypeLaser& laserRenderType) const
+    {
+        auto durationVector = velocity * laserRenderType.duration;
+        if (durationVector.lengthSquared() < (previousPosition - origin).lengthSquared())
+        {
+            return previousPosition - durationVector;
+        }
+        else
+        {
+            return origin;
+        }
+    }
+
     unsigned int Projectile::getDamage(const std::string& unitType) const
     {
         auto it = damage.find(unitType);

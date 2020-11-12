@@ -543,7 +543,7 @@ namespace rwe
             worldRenderService.drawUnit(unit, simScalarToFloat(seaLevel), simulation.gameTime.value, getPlayer(unit.owner).color, interpolationFraction);
         }
 
-        worldRenderService.drawProjectiles(simulation.projectiles, simScalarToFloat(seaLevel), simulation.gameTime);
+        worldRenderService.drawProjectiles(simulation.projectiles, simScalarToFloat(seaLevel), simulation.gameTime, interpolationFraction);
 
         sceneContext.graphics->disableDepthWrites();
 
@@ -2272,6 +2272,7 @@ namespace rwe
             {
                 projectile.velocity.y -= 112_ss / 3000_ss;
             }
+            projectile.previousPosition = projectile.position;
             projectile.position += projectile.velocity;
 
             // emit smoke trail
