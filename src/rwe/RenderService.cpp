@@ -97,17 +97,21 @@ namespace rwe
         auto transform = Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
         if (unit.isBeingBuilt())
         {
-            drawBuildingUnitMesh(unit.objectName, unit.mesh, transform, seaLevel, unit.getPreciseCompletePercent(), position.y, time, playerColorIndex);
+            drawBuildingUnitMesh(unit.objectName, unit.mesh, transform, seaLevel, unit.getPreciseCompletePercent(), position.y, time, playerColorIndex, frac);
         }
         else
         {
-            drawUnitMesh(unit.objectName, unit.mesh, transform, seaLevel, playerColorIndex);
+            drawUnitMesh(unit.objectName, unit.mesh, transform, seaLevel, playerColorIndex, frac);
         }
     }
 
-    void RenderService::drawUnitMesh(const std::string& objectName, const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex)
+    void RenderService::drawUnitMesh(const std::string& objectName, const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex, float frac)
     {
-        auto matrix = modelMatrix * toFloatMatrix(mesh.getTransform());
+        auto position = lerp(simVectorToFloat(mesh.origin + mesh.previousOffset), simVectorToFloat(mesh.origin + mesh.offset), frac);
+        auto rotationX = angleLerp(toRadians(mesh.previousRotationX).value, toRadians(mesh.rotationX).value, frac);
+        auto rotationY = angleLerp(toRadians(mesh.previousRotationY).value, toRadians(mesh.rotationY).value, frac);
+        auto rotationZ = angleLerp(toRadians(mesh.previousRotationZ).value, toRadians(mesh.rotationZ).value, frac);
+        auto matrix = modelMatrix * Matrix4f::translation(position) * Matrix4f::rotationZXY(Vector3f(rotationX, rotationY, rotationZ));
 
         if (mesh.visible)
         {
@@ -117,13 +121,17 @@ namespace rwe
 
         for (const auto& c : mesh.children)
         {
-            drawUnitMesh(objectName, c, matrix, seaLevel, playerColorIndex);
+            drawUnitMesh(objectName, c, matrix, seaLevel, playerColorIndex, frac);
         }
     }
 
-    void RenderService::drawBuildingUnitMesh(const std::string& objectName, const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex)
+    void RenderService::drawBuildingUnitMesh(const std::string& objectName, const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex, float frac)
     {
-        auto matrix = modelMatrix * toFloatMatrix(mesh.getTransform());
+        auto position = lerp(simVectorToFloat(mesh.origin + mesh.previousOffset), simVectorToFloat(mesh.origin + mesh.offset), frac);
+        auto rotationX = angleLerp(toRadians(mesh.previousRotationX).value, toRadians(mesh.rotationX).value, frac);
+        auto rotationY = angleLerp(toRadians(mesh.previousRotationY).value, toRadians(mesh.rotationY).value, frac);
+        auto rotationZ = angleLerp(toRadians(mesh.previousRotationZ).value, toRadians(mesh.rotationZ).value, frac);
+        auto matrix = modelMatrix * Matrix4f::translation(position) * Matrix4f::rotationZXY(Vector3f(rotationX, rotationY, rotationZ));
 
         if (mesh.visible)
         {
@@ -133,7 +141,7 @@ namespace rwe
 
         for (const auto& c : mesh.children)
         {
-            drawBuildingUnitMesh(objectName, c, matrix, seaLevel, percentComplete, unitY, time, playerColorIndex);
+            drawBuildingUnitMesh(objectName, c, matrix, seaLevel, percentComplete, unitY, time, playerColorIndex, frac);
         }
     }
 
@@ -463,7 +471,7 @@ namespace rwe
         auto rotation = angleLerp(toRadians(unit.previousRotation).value, toRadians(unit.rotation).value, frac);
         auto matrix = Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
 
-        drawUnitMesh(unit.objectName, unit.mesh, shadowProjection * matrix, 0.0f, PlayerColorIndex(0));
+        drawUnitMesh(unit.objectName, unit.mesh, shadowProjection * matrix, 0.0f, PlayerColorIndex(0), frac);
     }
 
     CabinetCamera& RenderService::getCamera()
@@ -556,7 +564,7 @@ namespace rwe
                     auto transform = Matrix4f::translation(position)
                         * pointDirection(simVectorToFloat(projectile.velocity).normalized())
                         * rotationModeToMatrix(m.rotationMode);
-                    drawUnitMesh(m.objectName, *m.mesh, transform, seaLevel, PlayerColorIndex(0));
+                    drawUnitMesh(m.objectName, *m.mesh, transform, seaLevel, PlayerColorIndex(0), 1.0f);
                 },
                 [&](const ProjectileRenderTypeSprite& s) {
                     Vector3f snappedPosition(

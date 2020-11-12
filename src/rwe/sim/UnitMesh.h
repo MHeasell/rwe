@@ -66,6 +66,10 @@ namespace rwe
         bool visible{true};
         bool shaded{true};
         Vector3x<SimScalar> offset{0_ss, 0_ss, 0_ss};
+        Vector3x<SimScalar> previousOffset{0_ss, 0_ss, 0_ss};
+        SimAngle previousRotationX{0};
+        SimAngle previousRotationY{0};
+        SimAngle previousRotationZ{0};
         SimAngle rotationX{0};
         SimAngle rotationY{0};
         SimAngle rotationZ{0};

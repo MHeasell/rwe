@@ -156,10 +156,14 @@ namespace rwe
 
     void UnitMesh::update(SimScalar dt)
     {
+        previousOffset = offset;
         applyMoveOperation(xMoveOperation, offset.x, dt);
         applyMoveOperation(yMoveOperation, offset.y, dt);
         applyMoveOperation(zMoveOperation, offset.z, dt);
 
+        previousRotationX = rotationX;
+        previousRotationY = rotationY;
+        previousRotationZ = rotationZ;
         applyTurnOperation(xTurnOperation, rotationX, dt);
         applyTurnOperation(yTurnOperation, rotationY, dt);
         applyTurnOperation(zTurnOperation, rotationZ, dt);
