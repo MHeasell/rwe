@@ -417,6 +417,8 @@ namespace rwe
             weapon.smokeTrail = GameTime(static_cast<unsigned int>(tdf.smokeDelay * 30.0f));
         }
 
+        weapon.soundTrigger = tdf.soundTrigger;
+
         for (const auto& p : tdf.damage)
         {
             weapon.damage.insert_or_assign(toUpper(p.first), p.second);

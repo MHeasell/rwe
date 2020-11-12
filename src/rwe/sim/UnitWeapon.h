@@ -105,6 +105,9 @@ namespace rwe
         /** Number of ticks projectiles fired from this weapon live for */
         std::optional<GameTime> weaponTimer;
 
+        /** If true, weapon start sound plays on each shot of the burst. Otherwise plays only on first shot. */
+        bool soundTrigger;
+
         /** Offset from aim point to firing point, compensation for ballistics calculations. */
         SimScalar ballisticZOffset{0};
 
