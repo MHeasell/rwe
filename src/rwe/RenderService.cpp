@@ -536,7 +536,7 @@ namespace rwe
 
     unsigned int getFrameIndex(GameTime currentTime, unsigned int numFrames)
     {
-        return (currentTime.value / 4) % numFrames;
+        return (currentTime.value / 2) % numFrames;
     }
 
     void RenderService::drawProjectiles(const VectorMap<Projectile, ProjectileIdTag>& projectiles, float seaLevel, GameTime currentTime)
