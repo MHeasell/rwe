@@ -457,7 +457,7 @@ namespace rwe
         }
         else if (weapon.physicsType == ProjectilePhysicsType::LineOfSight)
         {
-            projectile.dieOnFrame = gameTime + GameTime(simScalarToUInt(distanceToTarget / weapon.velocity));
+            projectile.dieOnFrame = gameTime + GameTime(simScalarToUInt(distanceToTarget / weapon.velocity) + 1);
         }
 
         return projectile;
