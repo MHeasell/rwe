@@ -2298,12 +2298,12 @@ namespace rwe
 
             // test collision with sea
             // FIXME: waterweapons should be allowed in water
-            if (seaLevel > terrainHeight && projectile.position.y <= seaLevel)
+            if (seaLevel > *terrainHeight && projectile.position.y <= seaLevel)
             {
                 doProjectileImpact(projectile, ImpactType::Water);
                 projectile.isDead = true;
             }
-            else if (projectile.position.y <= terrainHeight)
+            else if (projectile.position.y <= *terrainHeight)
             {
                 doProjectileImpact(projectile, ImpactType::Normal);
                 projectile.isDead = true;
