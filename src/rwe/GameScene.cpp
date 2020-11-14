@@ -2305,8 +2305,16 @@ namespace rwe
             }
             else if (projectile.position.y <= *terrainHeight)
             {
-                doProjectileImpact(projectile, ImpactType::Normal);
-                projectile.isDead = true;
+                if (projectile.groundBounce)
+                {
+                    projectile.velocity.y = 0_ss;
+                    projectile.position.y = projectile.previousPosition.y;
+                }
+                else
+                {
+                    doProjectileImpact(projectile, ImpactType::Normal);
+                    projectile.isDead = true;
+                }
             }
             else
             {

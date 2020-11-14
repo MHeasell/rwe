@@ -48,7 +48,12 @@ namespace rwe
 
         SimScalar damageRadius;
 
+        bool groundBounce;
+
         bool isDead{false};
+
+        /** The game time at which the projectile was created. */
+        GameTime createdAt;
 
         SimVector getBackPosition(const ProjectileRenderTypeLaser& laserRenderType) const;
 

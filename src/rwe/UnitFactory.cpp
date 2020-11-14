@@ -431,6 +431,8 @@ namespace rwe
             weapon.weaponTimer = GameTime(static_cast<unsigned int>(tdf.weaponTimer * 30.0f));
         }
 
+        weapon.groundBounce = tdf.groundBounce;
+
         return weapon;
     }
 

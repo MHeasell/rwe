@@ -108,6 +108,9 @@ namespace rwe
         /** If true, weapon start sound plays on each shot of the burst. Otherwise plays only on first shot. */
         bool soundTrigger;
 
+        /** If true, projectile does not explode when hitting the ground but instead continues travelling. */
+        bool groundBounce;
+
         /** Offset from aim point to firing point, compensation for ballistics calculations. */
         SimScalar ballisticZOffset{0};
 

@@ -460,6 +460,9 @@ namespace rwe
             projectile.dieOnFrame = gameTime + GameTime(simScalarToUInt(distanceToTarget / weapon.velocity) + 1);
         }
 
+        projectile.createdAt = gameTime;
+        projectile.groundBounce = weapon.groundBounce;
+
         return projectile;
     }
 
