@@ -337,7 +337,7 @@ namespace rwe
             {
                 auto aimFromPosition = getAimingPoint(id, weaponIndex);
 
-                auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, *targetPosition, weapon->velocity, (112_ss / 3000_ss), weapon->ballisticZOffset, weapon->physicsType);
+                auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, *targetPosition, weapon->velocity, (112_ss / (30_ss * 30_ss)), weapon->ballisticZOffset, weapon->physicsType);
                 auto heading = headingAndPitch.first;
                 auto pitch = headingAndPitch.second;
 
@@ -368,7 +368,7 @@ namespace rwe
                         // aiming was successful, check the target again for drift
                         auto aimFromPosition = getAimingPoint(id, weaponIndex);
 
-                        auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, *targetPosition, weapon->velocity, (112_ss / 3000_ss), weapon->ballisticZOffset, weapon->physicsType);
+                        auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, *targetPosition, weapon->velocity, (112_ss / (30_ss * 30_ss)), weapon->ballisticZOffset, weapon->physicsType);
                         auto heading = headingAndPitch.first;
                         auto pitch = headingAndPitch.second;
 

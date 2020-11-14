@@ -2270,7 +2270,7 @@ namespace rwe
 
             if (projectile.gravity)
             {
-                projectile.velocity.y -= 112_ss / 3000_ss;
+                projectile.velocity.y -= 112_ss / (30_ss * 30_ss);
             }
             projectile.previousPosition = projectile.position;
             projectile.position += projectile.velocity;
