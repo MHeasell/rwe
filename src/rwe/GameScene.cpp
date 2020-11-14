@@ -2265,6 +2265,10 @@ namespace rwe
             if (projectile.dieOnFrame && *projectile.dieOnFrame <= gameTime)
             {
                 projectile.isDead = true;
+                if (projectile.endSmoke)
+                {
+                    createLightSmoke(simVectorToFloat(projectile.position));
+                }
                 continue;
             }
 
