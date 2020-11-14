@@ -453,7 +453,10 @@ namespace rwe
 
         if (weapon.weaponTimer)
         {
-            projectile.dieOnFrame = gameTime + *weapon.weaponTimer;
+            auto randomDecay = weapon.randomDecay.value().value;
+            std::uniform_int_distribution<unsigned int> dist(0, randomDecay);
+            auto randomVal = dist(rng);
+            projectile.dieOnFrame = gameTime + *weapon.weaponTimer - GameTime(randomDecay / 2) + GameTime(randomVal);
         }
         else if (weapon.physicsType == ProjectilePhysicsType::LineOfSight)
         {

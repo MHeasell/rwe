@@ -105,6 +105,9 @@ namespace rwe
         /** Number of ticks projectiles fired from this weapon live for */
         std::optional<GameTime> weaponTimer;
 
+        /** The range in frames that projectile lifetime may randomly vary by. */
+        std::optional<GameTime> randomDecay;
+
         /** If true, weapon start sound plays on each shot of the burst. Otherwise plays only on first shot. */
         bool soundTrigger;
 

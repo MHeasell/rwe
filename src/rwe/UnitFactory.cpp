@@ -438,6 +438,8 @@ namespace rwe
 
         weapon.groundBounce = tdf.groundBounce;
 
+        weapon.randomDecay = GameTime(static_cast<unsigned int>(tdf.randomDecay * 30.0f));
+
         return weapon;
     }
 
