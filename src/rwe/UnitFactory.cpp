@@ -392,6 +392,11 @@ namespace rwe
                 weapon.renderType = ProjectileRenderTypeSprite{"fx", getFxName(tdf.color)};
                 break;
             }
+            case 5:
+            {
+                weapon.renderType = ProjectileRenderTypeFlamethrower{};
+                break;
+            }
             case 6:
             {
                 auto mesh = createUnitMesh(*unitDatabase, tdf.model);

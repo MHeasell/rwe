@@ -582,6 +582,27 @@ namespace rwe
                     graphics->setUniformVec4(shader.tint, 1.0f, 1.0f, 1.0f, 1.0f);
                     graphics->drawTriangles(*sprite.mesh);
                 },
+                [&](const ProjectileRenderTypeFlamethrower&) {
+                    Vector3f snappedPosition(
+                        std::round(position.x),
+                        truncateToInterval(position.y, 2.0f),
+                        std::round(position.z));
+                    Matrix4f conversionMatrix = Matrix4f::scale(Vector3f(1.0f, -2.0f, 1.0f));
+                    const auto& shader = shaders->basicTexture;
+                    graphics->bindShader(shader.handle.get());
+                    const auto spriteSeries = meshDatabase.getSpriteSeries("FX", "flamestream").value();
+                    auto timeSinceSpawn = currentTime - projectile.createdAt;
+                    auto fullLifetime = projectile.dieOnFrame.value() - projectile.createdAt;
+                    auto percentComplete = static_cast<float>(timeSinceSpawn.value) / static_cast<float>(fullLifetime.value);
+                    auto frameIndex = static_cast<unsigned int>(percentComplete * spriteSeries->sprites.size());
+                    assert(frameIndex < spriteSeries->sprites.size());
+                    const auto& sprite = *spriteSeries->sprites[frameIndex];
+                    auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix * sprite.getTransform();
+                    graphics->bindTexture(sprite.texture.get());
+                    graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * modelMatrix);
+                    graphics->setUniformVec4(shader.tint, 1.0f, 1.0f, 1.0f, 0.5f);
+                    graphics->drawTriangles(*sprite.mesh);
+                },
                 [&](const auto&) {
                     // TODO: implement other render types
                 });

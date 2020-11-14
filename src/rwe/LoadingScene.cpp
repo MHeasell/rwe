@@ -785,6 +785,10 @@ namespace rwe
             auto anim = sceneContext.textureService->getGafEntry("anims/FX.GAF", "ultrashell");
             meshDb.addSpriteSeries("FX", "ultrashell", anim);
         }
+        {
+            auto anim = sceneContext.textureService->getGafEntry("anims/FX.GAF", "flamestream");
+            meshDb.addSpriteSeries("FX", "flamestream", anim);
+        }
 
         return std::make_pair(db, meshDb);
     }
