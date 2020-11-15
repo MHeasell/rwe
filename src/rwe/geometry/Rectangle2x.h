@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <rwe/math/Vector2x.h>
 #include <rwe/math/rwe_math.h>
 
