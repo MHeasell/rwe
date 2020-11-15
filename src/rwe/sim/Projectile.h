@@ -55,9 +55,9 @@ namespace rwe
         /** The game time at which the projectile was created. */
         GameTime createdAt;
 
-        SimVector getBackPosition(const ProjectileRenderTypeLaser& laserRenderType) const;
+        SimVector getBackPosition(SimScalar duration) const;
 
-        SimVector getPreviousBackPosition(const ProjectileRenderTypeLaser& laserRenderType) const;
+        SimVector getPreviousBackPosition(SimScalar duration) const;
 
         unsigned int getDamage(const std::string& unitType) const;
     };

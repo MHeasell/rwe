@@ -2,9 +2,9 @@
 
 namespace rwe
 {
-    SimVector Projectile::getBackPosition(const ProjectileRenderTypeLaser& laserRenderType) const
+    SimVector Projectile::getBackPosition(SimScalar duration) const
     {
-        auto durationVector = velocity * laserRenderType.duration;
+        auto durationVector = velocity * duration;
         if (durationVector.lengthSquared() < (position - origin).lengthSquared())
         {
             return position - durationVector;
@@ -15,9 +15,9 @@ namespace rwe
         }
     }
 
-    SimVector Projectile::getPreviousBackPosition(const ProjectileRenderTypeLaser& laserRenderType) const
+    SimVector Projectile::getPreviousBackPosition(SimScalar duration) const
     {
-        auto durationVector = velocity * laserRenderType.duration;
+        auto durationVector = velocity * duration;
         if (durationVector.lengthSquared() < (previousPosition - origin).lengthSquared())
         {
             return previousPosition - durationVector;

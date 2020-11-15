@@ -405,6 +405,14 @@ namespace rwe
                     tdf.model, std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::None};
                 break;
             }
+            case 7:
+            {
+                weapon.renderType = ProjectileRenderTypeLightning{
+                    getLaserColor(tdf.color),
+                    SimScalar(tdf.duration * 30.0f * 2.0f), // duration seems to match better if doubled
+                };
+                break;
+            }
             default:
             {
                 weapon.renderType = ProjectileRenderTypeLaser{

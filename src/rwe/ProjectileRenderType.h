@@ -48,7 +48,6 @@ namespace rwe
     struct ProjectileRenderTypeLightning
     {
         Vector3f color;
-        Vector3f color2;
 
         /** Duration in ticks */
         SimScalar duration;

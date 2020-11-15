@@ -541,9 +541,6 @@ namespace rwe
 
     void RenderService::drawProjectiles(const VectorMap<Projectile, ProjectileIdTag>& projectiles, float seaLevel, GameTime currentTime, float frac)
     {
-        Vector3f pixelOffset(0.0f, 0.0f, -1.0f);
-
-        std::vector<GlColoredVertex> laserVertices;
         for (const auto& e : projectiles)
         {
             const auto& projectile = e.second;
@@ -552,13 +549,25 @@ namespace rwe
             match(
                 projectile.renderType,
                 [&](const ProjectileRenderTypeLaser& l) {
-                    auto backPosition = lerp(simVectorToFloat(projectile.getPreviousBackPosition(l)), simVectorToFloat(projectile.getBackPosition(l)), frac);
+                    Vector3f pixelOffset(0.0f, 0.0f, -1.0f);
+
+                    std::vector<GlColoredVertex> laserVertices;
+                    auto backPosition = lerp(simVectorToFloat(projectile.getPreviousBackPosition(l.duration)), simVectorToFloat(projectile.getBackPosition(l.duration)), frac);
 
                     laserVertices.emplace_back(position, l.color);
                     laserVertices.emplace_back(backPosition, l.color);
 
                     laserVertices.emplace_back(position + pixelOffset, l.color2);
                     laserVertices.emplace_back(backPosition + pixelOffset, l.color2);
+
+                    auto mesh = graphics->createColoredMesh(laserVertices, GL_STREAM_DRAW);
+
+                    const auto& shader = shaders->basicColor;
+                    graphics->bindShader(shader.handle.get());
+                    graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix());
+                    graphics->setUniformFloat(shader.alpha, 1.0f);
+
+                    graphics->drawLines(mesh);
                 },
                 [&](const ProjectileRenderTypeModel& m) {
                     auto transform = Matrix4f::translation(position)
@@ -603,19 +612,28 @@ namespace rwe
                     graphics->setUniformVec4(shader.tint, 1.0f, 1.0f, 1.0f, 0.5f);
                     graphics->drawTriangles(*sprite.mesh);
                 },
-                [&](const auto&) {
-                    // TODO: implement other render types
+                [&](const ProjectileRenderTypeLightning& l) {
+                    Vector3f pixelOffset(0.0f, 0.0f, -1.0f);
+
+                    std::vector<GlColoredVertex> laserVertices;
+                    auto backPosition = lerp(simVectorToFloat(projectile.getPreviousBackPosition(l.duration)), simVectorToFloat(projectile.getBackPosition(l.duration)), frac);
+
+                    laserVertices.emplace_back(position, l.color);
+                    laserVertices.emplace_back(backPosition, l.color);
+
+                    auto mesh = graphics->createColoredMesh(laserVertices, GL_STREAM_DRAW);
+
+                    const auto& shader = shaders->basicColor;
+                    graphics->bindShader(shader.handle.get());
+                    graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix());
+                    graphics->setUniformFloat(shader.alpha, 1.0f);
+
+                    graphics->drawLines(mesh);
+                },
+                [&](const ProjectileRenderTypeMindgun&) {
+                    // TODO: implement mindgun if anyone actually uses it
                 });
         }
-
-        auto mesh = graphics->createColoredMesh(laserVertices, GL_STREAM_DRAW);
-
-        const auto& shader = shaders->basicColor;
-        graphics->bindShader(shader.handle.get());
-        graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix());
-        graphics->setUniformFloat(shader.alpha, 1.0f);
-
-        graphics->drawLines(mesh);
     }
 
     void RenderService::drawExplosions(GameTime currentTime, const std::vector<Explosion>& explosions)
