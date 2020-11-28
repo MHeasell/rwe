@@ -51,10 +51,5 @@ namespace rwe
         std::optional<std::reference_wrapper<const Directory>> findDirectory(const std::string& path) const;
 
         void extract(const File& file, char* buffer) const;
-
-    private:
-        HpiArchive::File convertFile(const HpiFileData& file);
-        HpiArchive::DirectoryEntry convertDirectoryEntry(const HpiDirectoryEntry& entry, const char* buffer, std::size_t size);
-        HpiArchive::Directory convertDirectory(const HpiDirectoryData& directory, const char buffer[], std::size_t size);
     };
 }
