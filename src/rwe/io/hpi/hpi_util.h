@@ -39,4 +39,6 @@ namespace rwe
     void decompressZLib(const char* in, std::size_t len, char* out, std::size_t maxBytes);
 
     std::optional<std::size_t> stringSize(const char* begin, const char* end);
+
+    void extractCompressed(std::istream& stream, unsigned char decryptionKey, char* buffer, std::size_t size);
 }

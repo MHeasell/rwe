@@ -1,6 +1,7 @@
 #include "hpi_util.h"
 
 #include <memory>
+#include <rwe/io/hpi/hpi_headers.h>
 #include <zlib.h>
 
 namespace rwe
@@ -179,5 +180,67 @@ namespace rwe
         }
 
         return std::nullopt;
+    }
+
+    void extractCompressed(std::istream& stream, unsigned char decryptionKey, char* buffer, std::size_t size)
+    {
+        auto chunkCount = (size / 65536) + (size % 65536 == 0 ? 0 : 1);
+
+        auto chunkSizes = std::make_unique<uint32_t[]>(chunkCount);
+        readAndDecryptRawArray(stream, decryptionKey, chunkSizes.get(), chunkCount);
+
+        std::size_t bufferOffset = 0;
+        for (std::size_t i = 0; i < chunkCount; ++i)
+        {
+            auto chunkHeader = readAndDecryptRaw<HpiChunk>(stream, decryptionKey);
+            if (chunkHeader.marker != HpiChunkMagicNumber)
+            {
+                throw HpiException("Invalid chunk header");
+            }
+
+            if (bufferOffset + chunkHeader.decompressedSize > size)
+            {
+                throw HpiException("Extracted file larger than expected");
+            }
+
+            auto chunkBuffer = std::make_unique<char[]>(chunkHeader.compressedSize);
+            readAndDecrypt(stream, decryptionKey, chunkBuffer.get(), chunkHeader.compressedSize);
+
+            auto checksum = computeChecksum(chunkBuffer.get(), chunkHeader.compressedSize);
+            if (checksum != chunkHeader.checksum)
+            {
+                throw HpiException("Invalid chunk checksum");
+            }
+
+            if (chunkHeader.encrypted != 0)
+            {
+                decryptInner(chunkBuffer.get(), chunkHeader.compressedSize);
+            }
+
+            switch (chunkHeader.compressionScheme)
+            {
+                case 0: // no compression
+                    if (chunkHeader.compressedSize != chunkHeader.decompressedSize)
+                    {
+                        throw HpiException("Uncompressed chunk has different decompressed and compressed sizes");
+                    }
+
+                    std::copy(chunkBuffer.get(), chunkBuffer.get() + chunkHeader.compressedSize, buffer + bufferOffset);
+                    bufferOffset += chunkHeader.decompressedSize;
+                    break;
+
+                case 1: // LZ77 compression
+                    decompressLZ77(chunkBuffer.get(), chunkHeader.compressedSize, buffer + bufferOffset, chunkHeader.decompressedSize);
+                    bufferOffset += chunkHeader.decompressedSize;
+                    break;
+
+                case 2: // ZLib compression
+                    decompressZLib(chunkBuffer.get(), chunkHeader.compressedSize, buffer + bufferOffset, chunkHeader.decompressedSize);
+                    bufferOffset += chunkHeader.decompressedSize;
+                    break;
+                default:
+                    throw HpiException("Invalid compression scheme");
+            }
+        }
     }
 }
