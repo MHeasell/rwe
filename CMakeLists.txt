@@ -383,6 +383,7 @@ set(SOURCE_FILES
     src/rwe/io/gui/gui.h
     src/rwe/io/hpi/Hpi.cpp
     src/rwe/io/hpi/Hpi.h
+    src/rwe/io/hpi/hpi_headers.h
     src/rwe/io/hpi/hpi_util.cpp
     src/rwe/io/hpi/hpi_util.h
     src/rwe/io/ota/ota.cpp
