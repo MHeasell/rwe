@@ -381,8 +381,8 @@ set(SOURCE_FILES
     src/rwe/io/gaf/Gaf.h
     src/rwe/io/gui/gui.cpp
     src/rwe/io/gui/gui.h
-    src/rwe/io/hpi/Hpi.cpp
-    src/rwe/io/hpi/Hpi.h
+    src/rwe/io/hpi/HpiArchive.cpp
+    src/rwe/io/hpi/HpiArchive.h
     src/rwe/io/hpi/hpi_headers.h
     src/rwe/io/hpi/hpi_util.cpp
     src/rwe/io/hpi/hpi_util.h

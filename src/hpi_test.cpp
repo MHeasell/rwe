@@ -2,7 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
-#include <rwe/io/hpi/Hpi.h>
+#include <rwe/io/hpi/HpiArchive.h>
 #include <rwe/match.h>
 #include <string>
 
