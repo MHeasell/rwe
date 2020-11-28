@@ -21,12 +21,6 @@ namespace rwe
     /** The magic number at the start of HPI chunks ("SQSH"). */
     static const unsigned int HpiChunkMagicNumber = 0x48535153;
 
-    class HpiException : public std::runtime_error
-    {
-    public:
-        explicit HpiException(const char* message);
-    };
-
 #pragma pack(1) // don't pad members
 
     struct HpiVersion
@@ -147,6 +141,4 @@ namespace rwe
         HpiArchive::DirectoryEntry convertDirectoryEntry(const HpiDirectoryEntry& entry, const char* buffer, std::size_t size);
         HpiArchive::Directory convertDirectory(const HpiDirectoryData& directory, const char buffer[], std::size_t size);
     };
-
-    unsigned char transformKey(unsigned char key);
 }
