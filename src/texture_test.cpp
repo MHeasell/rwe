@@ -61,7 +61,7 @@ namespace rwe
         {
         }
 
-        void beginFrame(const GafFrameData& header) override
+        void beginFrame(const GafFrameEntry& entry, const GafFrameData& header) override
         {
             frameInfo = &(frames->emplace_back(*entryName, frameNumber, header.width, header.height));
             currentFrameHeader = header;

@@ -99,7 +99,7 @@ namespace rwe
         };
 
     public:
-        virtual void beginFrame(const GafFrameData& header) = 0;
+        virtual void beginFrame(const GafFrameEntry& entry, const GafFrameData& header) = 0;
         virtual void frameLayer(const LayerData& data) = 0;
         virtual void endFrame() = 0;
     };
@@ -110,7 +110,7 @@ namespace rwe
         struct Entry
         {
             std::string name;
-            std::vector<std::size_t> frameOffsets;
+            std::vector<GafFrameEntry> frameOffsets;
         };
 
     private:

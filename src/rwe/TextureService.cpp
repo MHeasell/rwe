@@ -21,7 +21,7 @@ namespace rwe
     public:
         explicit BufferGafAdapter(GraphicsContext* graphics, const ColorPalette* palette) : graphics(graphics), palette(palette), currentFrameHeader() {}
 
-        void beginFrame(const GafFrameData& header) override
+        void beginFrame(const GafFrameEntry& entry, const GafFrameData& header) override
         {
             buffer.clear();
             buffer.resize(header.width * header.height);

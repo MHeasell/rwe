@@ -57,10 +57,12 @@ private:
 
 public:
     explicit GafAdapter(png::rgb_pixel* palette, const std::string& destPath) : palette(palette), frameCount(0), currentFrame(), destPath(destPath) {}
-    void beginFrame(const rwe::GafFrameData& header) override
+    void beginFrame(const rwe::GafFrameEntry& entry, const rwe::GafFrameData& header) override
     {
         std::cout << "Beginning frame " << frameCount << std::endl;
         currentFrameHeader = header;
+        std::cout << "Frame entry data unknown1: " << entry.unknown1 << std::endl;
+        std::cout << "Frame info: width: " << header.width << ", height: " << header.height << ", posX: " << header.posX << ", posY: " << header.posY << ", transparencyIndex: " << static_cast<int>(header.transparencyIndex) << ", compressed: " << static_cast<int>(header.compressed) << ", subframe count: " << header.subframesCount << ", unknown2: " << header.unknown2 << ", unknown 3: " << header.unknown3 << std::endl;
         currentFrame = std::make_unique<char[]>(header.width * header.height);
         std::fill_n(currentFrame.get(), header.width * header.height, header.transparencyIndex);
     }

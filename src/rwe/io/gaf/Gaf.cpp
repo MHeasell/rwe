@@ -114,13 +114,13 @@ namespace rwe
         auto nameLength = nullPos - entry.name;
         std::string name(reinterpret_cast<char*>(entry.name), nameLength);
 
-        std::vector<std::size_t> frames;
+        std::vector<GafFrameEntry> frames;
         frames.reserve(entry.frames);
 
         for (std::size_t i = 0; i < entry.frames; ++i)
         {
             auto frameEntry = readRaw<GafFrameEntry>(stream);
-            frames.emplace_back(frameEntry.frameDataOffset);
+            frames.emplace_back(frameEntry);
         }
 
         return Entry{std::move(name), std::move(frames)};
@@ -142,9 +142,9 @@ namespace rwe
     {
         for (auto offset : entry.frameOffsets)
         {
-            _stream->seekg(offset);
+            _stream->seekg(offset.frameDataOffset);
             auto frameHeader = readRaw<GafFrameData>(*_stream);
-            adapter.beginFrame(frameHeader);
+            adapter.beginFrame(offset, frameHeader);
 
             _stream->seekg(frameHeader.frameDataOffset);
             if (frameHeader.subframesCount == 0)
