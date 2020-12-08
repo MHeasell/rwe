@@ -123,7 +123,7 @@ namespace rwe
             frames.emplace_back(frameEntry);
         }
 
-        return Entry{std::move(name), std::move(frames)};
+        return Entry{std::move(name), entry.unknown1, entry.unknown2, std::move(frames)};
     }
 
     std::optional<std::reference_wrapper<const GafArchive::Entry>> GafArchive::findEntry(const std::string& name) const

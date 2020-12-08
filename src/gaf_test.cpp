@@ -142,6 +142,8 @@ int extractCommand(const std::string& palettePath, const std::string& gafPath, c
         return 1;
     }
 
+    std::cout << "Found entry: " << entry->get().name << ", unknown1: " << entry->get().unknown1 << ", unknown 2: " << entry->get().unknown2 << std::endl;
+
     std::cout << "Extracting..." << std::endl;
 
     GafAdapter adapter(palette, destinationPath);

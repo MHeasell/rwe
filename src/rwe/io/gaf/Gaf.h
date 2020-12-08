@@ -110,6 +110,8 @@ namespace rwe
         struct Entry
         {
             std::string name;
+            uint16_t unknown1;
+            uint32_t unknown2;
             std::vector<GafFrameEntry> frameOffsets;
         };
 
