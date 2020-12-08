@@ -1,7 +1,7 @@
 #include "TextureService.h"
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include <rwe/io/fnt/Fnt.h>
-#include <rwe/io/gaf/Gaf.h>
+#include <rwe/io/gaf/GafArchive.h>
 #include <rwe/io/pcx/pcx.h>
 #include <rwe/io/tnt/TntArchive.h>
 #include <rwe/rwe_string.h>

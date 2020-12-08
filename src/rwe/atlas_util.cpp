@@ -2,7 +2,7 @@
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include <rwe/BoxTreeSplit.h>
 #include <rwe/Index.h>
-#include <rwe/io/gaf/Gaf.h>
+#include <rwe/io/gaf/GafArchive.h>
 #include <rwe/match.h>
 
 namespace rwe

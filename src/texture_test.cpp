@@ -6,7 +6,7 @@
 #include <rwe/BoxTreeSplit.h>
 #include <rwe/ColorPalette.h>
 #include <rwe/geometry/Rectangle2f.h>
-#include <rwe/io/gaf/Gaf.h>
+#include <rwe/io/gaf/GafArchive.h>
 #include <rwe/math/rwe_math.h>
 #include <rwe/util.h>
 #include <rwe/vfs/AbstractVirtualFileSystem.h>

@@ -1,24 +1,12 @@
 #pragma once
 
 #include <cstdint>
-#include <functional>
-#include <istream>
-#include <optional>
-#include <stdexcept>
-#include <string>
-#include <vector>
 
 namespace rwe
 {
     static const unsigned int GafVersionNumber = 0x00010100;
 
     static const unsigned int GafMaxNameLength = 32;
-
-    class GafException : public std::runtime_error
-    {
-    public:
-        explicit GafException(const char* message);
-    };
 
 #pragma pack(1) // don't pad members
 
@@ -84,51 +72,4 @@ namespace rwe
     };
 
 #pragma pack()
-
-    class GafReaderAdapter
-    {
-    public:
-        struct LayerData
-        {
-            int x;
-            int y;
-            unsigned int width;
-            unsigned int height;
-            unsigned char transparencyKey;
-            char* data;
-        };
-
-    public:
-        virtual void beginFrame(const GafFrameEntry& entry, const GafFrameData& header) = 0;
-        virtual void frameLayer(const LayerData& data) = 0;
-        virtual void endFrame() = 0;
-    };
-
-    class GafArchive
-    {
-    public:
-        struct Entry
-        {
-            std::string name;
-            uint16_t unknown1;
-            uint32_t unknown2;
-            std::vector<GafFrameEntry> frameOffsets;
-        };
-
-    private:
-        std::vector<Entry> _entries;
-        std::istream* _stream;
-
-    public:
-        explicit GafArchive(std::istream* stream);
-
-        const std::vector<Entry>& entries() const;
-
-        std::optional<std::reference_wrapper<const Entry>> findEntry(const std::string& name) const;
-
-        void extract(const Entry& entry, GafReaderAdapter& adapter);
-
-    private:
-        Entry readEntry(std::istream& stream) const;
-    };
 }

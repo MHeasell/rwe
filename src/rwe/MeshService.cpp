@@ -5,7 +5,7 @@
 #include <rwe/fixed_point.h>
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/io/_3do/_3do.h>
-#include <rwe/io/gaf/Gaf.h>
+#include <rwe/io/gaf/GafArchive.h>
 #include <rwe/match.h>
 #include <rwe/math/Vector3f.h>
 #include <rwe/math/rwe_math.h>

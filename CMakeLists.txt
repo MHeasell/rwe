@@ -377,8 +377,12 @@ set(SOURCE_FILES
     src/rwe/io/featuretdf/FeatureDefinition.h
     src/rwe/io/fnt/Fnt.cpp
     src/rwe/io/fnt/Fnt.h
-    src/rwe/io/gaf/Gaf.cpp
-    src/rwe/io/gaf/Gaf.h
+    src/rwe/io/gaf/GafArchive.cpp
+    src/rwe/io/gaf/GafArchive.h
+    src/rwe/io/gaf/GafReaderAdapter.h
+    src/rwe/io/gaf/gaf_headers.h
+    src/rwe/io/gaf/gaf_util.cpp
+    src/rwe/io/gaf/gaf_util.h
     src/rwe/io/gui/gui.cpp
     src/rwe/io/gui/gui.h
     src/rwe/io/hpi/HpiArchive.cpp
