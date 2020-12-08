@@ -1,13 +1,10 @@
 #pragma once
 
-#include <cstdint>
 #include <functional>
 #include <istream>
 #include <optional>
 #include <rwe/io/gaf/GafReaderAdapter.h>
 #include <rwe/io/gaf/gaf_headers.h>
-#include <stdexcept>
-#include <string>
 #include <vector>
 
 namespace rwe

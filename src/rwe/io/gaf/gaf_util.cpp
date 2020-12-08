@@ -1,5 +1,6 @@
 #include "gaf_util.h"
 
+#include <memory>
 #include <rwe/io_utils.h>
 
 namespace rwe
