@@ -520,6 +520,8 @@ set(SOURCE_FILES
     src/rwe/sim/UnitPieceDefinition.cpp
     src/rwe/sim/UnitPieceDefinition.h
     src/rwe/sim/UnitWeapon.h
+    src/rwe/sim/WeaponDefinition.cpp
+    src/rwe/sim/WeaponDefinition.h
     src/rwe/sim/movement.cpp
     src/rwe/sim/movement.h
     src/rwe/sim/unit_util.cpp

@@ -345,17 +345,17 @@ namespace rwe
 
         weapon.weaponType = weaponType;
 
-        weapon.maxRange = SimScalar(tdf.range);
-        weapon.reloadTime = SimScalar(tdf.reloadTime);
-        weapon.tolerance = SimAngle(tdf.tolerance);
-        weapon.pitchTolerance = SimAngle(tdf.pitchTolerance);
-        weapon.velocity = SimScalar(static_cast<float>(tdf.weaponVelocity) / 30.0f);
+        weapon.weaponDefinition.maxRange = SimScalar(tdf.range);
+        weapon.weaponDefinition.reloadTime = SimScalar(tdf.reloadTime);
+        weapon.weaponDefinition.tolerance = SimAngle(tdf.tolerance);
+        weapon.weaponDefinition.pitchTolerance = SimAngle(tdf.pitchTolerance);
+        weapon.weaponDefinition.velocity = SimScalar(static_cast<float>(tdf.weaponVelocity) / 30.0f);
 
-        weapon.burst = tdf.burst;
-        weapon.burstInterval = SimScalar(tdf.burstRate);
-        weapon.sprayAngle = SimAngle(tdf.sprayAngle);
+        weapon.weaponDefinition.burst = tdf.burst;
+        weapon.weaponDefinition.burstInterval = SimScalar(tdf.burstRate);
+        weapon.weaponDefinition.sprayAngle = SimAngle(tdf.sprayAngle);
 
-        weapon.physicsType = tdf.lineOfSight
+        weapon.weaponDefinition.physicsType = tdf.lineOfSight
             ? ProjectilePhysicsType::LineOfSight
             : tdf.ballistic ? ProjectilePhysicsType::Ballistic
                             : ProjectilePhysicsType::LineOfSight;
@@ -364,7 +364,7 @@ namespace rwe
         {
             case 0:
             {
-                weapon.renderType = ProjectileRenderTypeLaser{
+                weapon.weaponDefinition.renderType = ProjectileRenderTypeLaser{
                     getLaserColor(tdf.color),
                     getLaserColor(tdf.color2),
                     SimScalar(tdf.duration * 30.0f * 2.0f), // duration seems to match better if doubled
@@ -375,7 +375,7 @@ namespace rwe
             {
                 auto mesh = createUnitMesh(*unitDatabase, tdf.model);
                 setShadeRecursive(mesh, false);
-                weapon.renderType = ProjectileRenderTypeModel{
+                weapon.weaponDefinition.renderType = ProjectileRenderTypeModel{
                     tdf.model, std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::HalfZ};
                 break;
             }
@@ -383,31 +383,31 @@ namespace rwe
             {
                 auto mesh = createUnitMesh(*unitDatabase, tdf.model);
                 setShadeRecursive(mesh, false);
-                weapon.renderType = ProjectileRenderTypeModel{
+                weapon.weaponDefinition.renderType = ProjectileRenderTypeModel{
                     tdf.model, std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::QuarterY};
                 break;
             }
             case 4:
             {
-                weapon.renderType = ProjectileRenderTypeSprite{"fx", getFxName(tdf.color)};
+                weapon.weaponDefinition.renderType = ProjectileRenderTypeSprite{"fx", getFxName(tdf.color)};
                 break;
             }
             case 5:
             {
-                weapon.renderType = ProjectileRenderTypeFlamethrower{};
+                weapon.weaponDefinition.renderType = ProjectileRenderTypeFlamethrower{};
                 break;
             }
             case 6:
             {
                 auto mesh = createUnitMesh(*unitDatabase, tdf.model);
                 setShadeRecursive(mesh, false);
-                weapon.renderType = ProjectileRenderTypeModel{
+                weapon.weaponDefinition.renderType = ProjectileRenderTypeModel{
                     tdf.model, std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::None};
                 break;
             }
             case 7:
             {
-                weapon.renderType = ProjectileRenderTypeLightning{
+                weapon.weaponDefinition.renderType = ProjectileRenderTypeLightning{
                     getLaserColor(tdf.color),
                     SimScalar(tdf.duration * 30.0f * 2.0f), // duration seems to match better if doubled
                 };
@@ -415,38 +415,38 @@ namespace rwe
             }
             default:
             {
-                weapon.renderType = ProjectileRenderTypeLaser{
+                weapon.weaponDefinition.renderType = ProjectileRenderTypeLaser{
                     Vector3f(0.0f, 0.0f, 0.0f),
                     Vector3f(0.0f, 0.0f, 0.0f),
                     SimScalar(4.0f)};
                 break;
             }
         }
-        weapon.commandFire = tdf.commandFire;
-        weapon.startSmoke = tdf.startSmoke;
-        weapon.endSmoke = tdf.endSmoke;
+        weapon.weaponDefinition.commandFire = tdf.commandFire;
+        weapon.weaponDefinition.startSmoke = tdf.startSmoke;
+        weapon.weaponDefinition.endSmoke = tdf.endSmoke;
         if (tdf.smokeTrail)
         {
-            weapon.smokeTrail = GameTime(static_cast<unsigned int>(tdf.smokeDelay * 30.0f));
+            weapon.weaponDefinition.smokeTrail = GameTime(static_cast<unsigned int>(tdf.smokeDelay * 30.0f));
         }
 
-        weapon.soundTrigger = tdf.soundTrigger;
+        weapon.weaponDefinition.soundTrigger = tdf.soundTrigger;
 
         for (const auto& p : tdf.damage)
         {
-            weapon.damage.insert_or_assign(toUpper(p.first), p.second);
+            weapon.weaponDefinition.damage.insert_or_assign(toUpper(p.first), p.second);
         }
 
-        weapon.damageRadius = SimScalar(static_cast<float>(tdf.areaOfEffect) / 2.0f);
+        weapon.weaponDefinition.damageRadius = SimScalar(static_cast<float>(tdf.areaOfEffect) / 2.0f);
 
         if (tdf.weaponTimer != 0.0f)
         {
-            weapon.weaponTimer = GameTime(static_cast<unsigned int>(tdf.weaponTimer * 30.0f));
+            weapon.weaponDefinition.weaponTimer = GameTime(static_cast<unsigned int>(tdf.weaponTimer * 30.0f));
         }
 
-        weapon.groundBounce = tdf.groundBounce;
+        weapon.weaponDefinition.groundBounce = tdf.groundBounce;
 
-        weapon.randomDecay = GameTime(static_cast<unsigned int>(tdf.randomDecay * 30.0f));
+        weapon.weaponDefinition.randomDecay = GameTime(static_cast<unsigned int>(tdf.randomDecay * 30.0f));
 
         return weapon;
     }

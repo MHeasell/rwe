@@ -438,33 +438,33 @@ namespace rwe
         projectile.position = position;
         projectile.previousPosition = position;
         projectile.origin = position;
-        projectile.velocity = direction * weapon.velocity;
-        projectile.gravity = weapon.physicsType == ProjectilePhysicsType::Ballistic;
+        projectile.velocity = direction * weapon.weaponDefinition.velocity;
+        projectile.gravity = weapon.weaponDefinition.physicsType == ProjectilePhysicsType::Ballistic;
 
-        projectile.renderType = weapon.renderType;
+        projectile.renderType = weapon.weaponDefinition.renderType;
 
-        projectile.endSmoke = weapon.endSmoke;
-        projectile.smokeTrail = weapon.smokeTrail;
+        projectile.endSmoke = weapon.weaponDefinition.endSmoke;
+        projectile.smokeTrail = weapon.weaponDefinition.smokeTrail;
         projectile.lastSmoke = gameTime;
 
-        projectile.damage = weapon.damage;
+        projectile.damage = weapon.weaponDefinition.damage;
 
-        projectile.damageRadius = weapon.damageRadius;
+        projectile.damageRadius = weapon.weaponDefinition.damageRadius;
 
-        if (weapon.weaponTimer)
+        if (weapon.weaponDefinition.weaponTimer)
         {
-            auto randomDecay = weapon.randomDecay.value().value;
+            auto randomDecay = weapon.weaponDefinition.randomDecay.value().value;
             std::uniform_int_distribution<unsigned int> dist(0, randomDecay);
             auto randomVal = dist(rng);
-            projectile.dieOnFrame = gameTime + *weapon.weaponTimer - GameTime(randomDecay / 2) + GameTime(randomVal);
+            projectile.dieOnFrame = gameTime + *weapon.weaponDefinition.weaponTimer - GameTime(randomDecay / 2) + GameTime(randomVal);
         }
-        else if (weapon.physicsType == ProjectilePhysicsType::LineOfSight)
+        else if (weapon.weaponDefinition.physicsType == ProjectilePhysicsType::LineOfSight)
         {
-            projectile.dieOnFrame = gameTime + GameTime(simScalarToUInt(distanceToTarget / weapon.velocity) + 1);
+            projectile.dieOnFrame = gameTime + GameTime(simScalarToUInt(distanceToTarget / weapon.weaponDefinition.velocity) + 1);
         }
 
         projectile.createdAt = gameTime;
-        projectile.groundBounce = weapon.groundBounce;
+        projectile.groundBounce = weapon.weaponDefinition.groundBounce;
 
         return projectile;
     }

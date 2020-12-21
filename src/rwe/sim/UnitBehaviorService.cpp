@@ -267,7 +267,7 @@ namespace rwe
         if (auto idleState = std::get_if<UnitWeaponStateIdle>(&weapon->state); idleState != nullptr)
         {
             // attempt to acquire a target
-            if (!weapon->commandFire && unit.fireOrders == UnitFireOrders::FireAtWill)
+            if (!weapon->weaponDefinition.commandFire && unit.fireOrders == UnitFireOrders::FireAtWill)
             {
                 for (const auto& entry : scene->getSimulation().units)
                 {
@@ -284,7 +284,7 @@ namespace rwe
                         continue;
                     }
 
-                    if (unit.position.distanceSquared(otherUnit.position) > weapon->maxRange * weapon->maxRange)
+                    if (unit.position.distanceSquared(otherUnit.position) > weapon->weaponDefinition.maxRange * weapon->weaponDefinition.maxRange)
                     {
                         continue;
                     }
@@ -329,7 +329,7 @@ namespace rwe
 
             auto targetPosition = getTargetPosition(aimingState->target);
 
-            if (!targetPosition || unit.position.distanceSquared(*targetPosition) > weapon->maxRange * weapon->maxRange)
+            if (!targetPosition || unit.position.distanceSquared(*targetPosition) > weapon->weaponDefinition.maxRange * weapon->weaponDefinition.maxRange)
             {
                 unit.clearWeaponTarget(weaponIndex);
             }
@@ -337,7 +337,7 @@ namespace rwe
             {
                 auto aimFromPosition = getAimingPoint(id, weaponIndex);
 
-                auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, *targetPosition, weapon->velocity, (112_ss / (30_ss * 30_ss)), weapon->ballisticZOffset, weapon->physicsType);
+                auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, *targetPosition, weapon->weaponDefinition.velocity, (112_ss / (30_ss * 30_ss)), weapon->ballisticZOffset, weapon->weaponDefinition.physicsType);
                 auto heading = headingAndPitch.first;
                 auto pitch = headingAndPitch.second;
 
@@ -368,12 +368,12 @@ namespace rwe
                         // aiming was successful, check the target again for drift
                         auto aimFromPosition = getAimingPoint(id, weaponIndex);
 
-                        auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, *targetPosition, weapon->velocity, (112_ss / (30_ss * 30_ss)), weapon->ballisticZOffset, weapon->physicsType);
+                        auto headingAndPitch = computeHeadingAndPitch(unit.rotation, aimFromPosition, *targetPosition, weapon->weaponDefinition.velocity, (112_ss / (30_ss * 30_ss)), weapon->ballisticZOffset, weapon->weaponDefinition.physicsType);
                         auto heading = headingAndPitch.first;
                         auto pitch = headingAndPitch.second;
 
                         // if the target is close enough, try to fire
-                        if (angleBetweenIsLessOrEqual(heading, aimInfo->lastHeading, weapon->tolerance) && angleBetweenIsLessOrEqual(pitch, aimInfo->lastPitch, weapon->pitchTolerance))
+                        if (angleBetweenIsLessOrEqual(heading, aimInfo->lastHeading, weapon->weaponDefinition.tolerance) && angleBetweenIsLessOrEqual(pitch, aimInfo->lastPitch, weapon->weaponDefinition.pitchTolerance))
                         {
                             aimingState->attackInfo = UnitWeaponStateAttacking::FireInfo{heading, pitch, *targetPosition, std::nullopt, 0, GameTime(0)};
                             tryFireWeapon(id, weaponIndex);
@@ -455,7 +455,7 @@ namespace rwe
         auto firingPoint = unit.getTransform() * getPieceLocalPosition(id, *fireInfo->firingPiece);
 
         SimVector direction;
-        switch (weapon->physicsType)
+        switch (weapon->weaponDefinition.physicsType)
         {
             case ProjectilePhysicsType::LineOfSight:
                 direction = (fireInfo->targetPosition - firingPoint).normalized();
@@ -467,14 +467,14 @@ namespace rwe
                 throw std::logic_error("Unknown ProjectilePhysicsType");
         }
 
-        if (weapon->sprayAngle != SimAngle(0))
+        if (weapon->weaponDefinition.sprayAngle != SimAngle(0))
         {
-            direction = changeDirectionByRandomAngle(direction, weapon->sprayAngle);
+            direction = changeDirectionByRandomAngle(direction, weapon->weaponDefinition.sprayAngle);
         }
 
         scene->getSimulation().spawnProjectile(unit.owner, *weapon, firingPoint, direction, (fireInfo->targetPosition - firingPoint).length());
 
-        if (fireInfo->burstsFired == 0 || weapon->soundTrigger)
+        if (fireInfo->burstsFired == 0 || weapon->weaponDefinition.soundTrigger)
         {
             scene->playWeaponStartSound(simVectorToFloat(firingPoint), weapon->weaponType);
         }
@@ -483,16 +483,16 @@ namespace rwe
         if (fireInfo->burstsFired == 0)
         {
             unit.cobEnvironment->createThread(getFireScriptName(weaponIndex));
-            weapon->readyTime = gameTime + deltaSecondsToTicks(weapon->reloadTime);
-            if (weapon->startSmoke)
+            weapon->readyTime = gameTime + deltaSecondsToTicks(weapon->weaponDefinition.reloadTime);
+            if (weapon->weaponDefinition.startSmoke)
             {
                 scene->createWeaponSmoke(simVectorToFloat(firingPoint));
             }
         }
 
         ++fireInfo->burstsFired;
-        fireInfo->readyTime = gameTime + deltaSecondsToTicks(weapon->burstInterval);
-        if (fireInfo->burstsFired >= weapon->burst)
+        fireInfo->readyTime = gameTime + deltaSecondsToTicks(weapon->weaponDefinition.burstInterval);
+        if (fireInfo->burstsFired >= weapon->weaponDefinition.burst)
         {
             // we finished our burst, we are reloading now
             attackInfo->attackInfo = UnitWeaponStateAttacking::IdleInfo{};
@@ -824,7 +824,7 @@ namespace rwe
             return true;
         }
 
-        auto maxRangeSquared = unit.weapons[0]->maxRange * unit.weapons[0]->maxRange;
+        auto maxRangeSquared = unit.weapons[0]->weaponDefinition.maxRange * unit.weapons[0]->weaponDefinition.maxRange;
         if (unit.position.distanceSquared(*targetPosition) > maxRangeSquared)
         {
             moveTo(unitId, *targetPosition);
