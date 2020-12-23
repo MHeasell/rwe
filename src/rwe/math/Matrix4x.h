@@ -11,25 +11,25 @@ namespace rwe
         {
             Matrix4x m;
 
-            m.data[0] = 1;
-            m.data[1] = 0;
-            m.data[2] = 0;
-            m.data[3] = 0;
+            m.data[0] = Val(1);
+            m.data[1] = Val(0);
+            m.data[2] = Val(0);
+            m.data[3] = Val(0);
 
-            m.data[4] = 0;
-            m.data[5] = 1;
-            m.data[6] = 0;
-            m.data[7] = 0;
+            m.data[4] = Val(0);
+            m.data[5] = Val(1);
+            m.data[6] = Val(0);
+            m.data[7] = Val(0);
 
-            m.data[8] = 0;
-            m.data[9] = 0;
-            m.data[10] = 1;
-            m.data[11] = 0;
+            m.data[8] = Val(0);
+            m.data[9] = Val(0);
+            m.data[10] = Val(1);
+            m.data[11] = Val(0);
 
-            m.data[12] = 0;
-            m.data[13] = 0;
-            m.data[14] = 0;
-            m.data[15] = 1;
+            m.data[12] = Val(0);
+            m.data[13] = Val(0);
+            m.data[14] = Val(0);
+            m.data[15] = Val(1);
 
             return m;
         }
