@@ -7,6 +7,7 @@
 #include <rwe/TextureService.h>
 #include <rwe/UnitModelDefinition.h>
 #include <rwe/io/_3do/_3do.h>
+#include <rwe/render/ShaderMesh.h>
 #include <rwe/sim/UnitMesh.h>
 #include <rwe/vfs/AbstractVirtualFileSystem.h>
 
