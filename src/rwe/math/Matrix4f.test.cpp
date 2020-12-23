@@ -42,6 +42,21 @@ namespace rwe
         }
     }
 
+    TEST_CASE("Matrix4f operator==")
+    {
+        SECTION("tests equality")
+        {
+            auto a = Matrix4f::identity();
+            auto b = Matrix4f::identity();
+
+            REQUIRE(a == b);
+
+            b.data[15] = 2.0f;
+
+            REQUIRE(a != b);
+        }
+    }
+
     TEST_CASE("Matrix4f::orthographicProjection")
     {
         SECTION("combines with inverse to produce the identity")

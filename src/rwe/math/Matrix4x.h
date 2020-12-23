@@ -487,4 +487,23 @@ namespace rwe
 
         return v;
     }
+
+    template <typename Val>
+    bool operator==(const Matrix4x<Val>& a, const Matrix4x<Val>& b)
+    {
+        for (auto i = 0; i < 16; ++i)
+        {
+            if (a.data[i] != b.data[i])
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    template <typename Val>
+    bool operator!=(const Matrix4x<Val>& a, const Matrix4x<Val>& b)
+    {
+        return !(a == b);
+    }
 }
