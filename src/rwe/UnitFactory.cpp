@@ -1,6 +1,6 @@
 #include "UnitFactory.h"
-#include <rwe/Index.h>
 #include <algorithm>
+#include <rwe/Index.h>
 
 namespace rwe
 {
