@@ -8,6 +8,7 @@
 #include <rwe/render/ShaderMesh.h>
 #include <rwe/sim/SimAngle.h>
 #include <string>
+#include <rwe/sim/SimVector.h>
 #include <variant>
 #include <vector>
 
@@ -65,8 +66,8 @@ namespace rwe
         std::vector<UnitMesh> children;
         bool visible{true};
         bool shaded{true};
-        Vector3x<SimScalar> offset{0_ss, 0_ss, 0_ss};
-        Vector3x<SimScalar> previousOffset{0_ss, 0_ss, 0_ss};
+        SimVector offset{0_ss, 0_ss, 0_ss};
+        SimVector previousOffset{0_ss, 0_ss, 0_ss};
         SimAngle previousRotationX{0};
         SimAngle previousRotationY{0};
         SimAngle previousRotationZ{0};
