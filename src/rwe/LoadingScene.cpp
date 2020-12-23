@@ -253,7 +253,6 @@ namespace rwe
 
         auto gameNetworkService = std::make_unique<GameNetworkService>(*localPlayerId, std::stoi(gameParameters.localNetworkPort), endpointInfos, playerCommandService.get());
 
-        RenderService worldRenderService(sceneContext.graphics, sceneContext.shaders, std::move(meshDatabase), worldCamera, atlasInfo.textureAtlas, std::move(atlasInfo.teamTextureAtlases));
         UiRenderService worldUiRenderService(sceneContext.graphics, sceneContext.shaders, worldUiCamera);
         UiRenderService chromeUiRenderService(sceneContext.graphics, sceneContext.shaders, chromeUiCamera);
 
@@ -287,7 +286,10 @@ namespace rwe
         auto gameScene = std::make_unique<GameScene>(
             sceneContext,
             std::move(playerCommandService),
-            std::move(worldRenderService),
+            std::move(meshDatabase),
+            worldCamera,
+            atlasInfo.textureAtlas,
+            std::move(atlasInfo.teamTextureAtlases),
             std::move(worldUiRenderService),
             std::move(chromeUiRenderService),
             std::move(simulation),

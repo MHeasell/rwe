@@ -9,6 +9,6 @@ namespace rwe
     {
         std::string name;
         SimVector origin;
-        std::vector<UnitPieceDefinition> children;
+        std::optional<std::string> parent;
     };
 }

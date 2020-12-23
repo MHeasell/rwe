@@ -27,7 +27,6 @@ namespace rwe
             QuarterY,
         };
         std::string objectName;
-        std::shared_ptr<UnitMesh> mesh;
         RotationMode rotationMode;
     };
 

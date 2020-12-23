@@ -134,7 +134,7 @@ namespace rwe
         std::string name;
         std::string unitType;
         std::string objectName;
-        UnitMesh mesh;
+        std::vector<UnitMesh> pieces;
         SimVector position;
         SimVector previousPosition;
         std::unique_ptr<CobEnvironment> cobEnvironment;
@@ -278,7 +278,7 @@ namespace rwe
 
         static SimVector toDirection(SimAngle rotation);
 
-        Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment);
+        Unit(const std::vector<UnitMesh>& pieces, std::unique_ptr<CobEnvironment>&& cobEnvironment);
 
         bool isBeingBuilt() const;
 
@@ -362,5 +362,9 @@ namespace rwe
         int getBuildQueueTotal(const std::string& unitType) const;
 
         std::optional<std::pair<UnitId, SimVector>> getActiveNanolatheTarget() const;
+
+        std::optional<std::reference_wrapper<const UnitMesh>> findPiece(const std::string& pieceName) const;
+
+        std::optional<std::reference_wrapper<UnitMesh>> findPiece(const std::string& pieceName);
     };
 }

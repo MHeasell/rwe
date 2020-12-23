@@ -1,10 +1,6 @@
 #include "UnitMesh.h"
-#include <rwe/float_math.h>
 
-#include <boost/algorithm/string.hpp>
-#include <rwe/math/Matrix4f.h>
 #include <rwe/math/rwe_math.h>
-#include <rwe/util.h>
 
 namespace rwe
 {
@@ -93,67 +89,6 @@ namespace rwe
         }
     }
 
-    std::optional<std::reference_wrapper<const UnitMesh>> UnitMesh::find(const std::string& pieceName) const
-    {
-        if (boost::iequals(pieceName, name))
-        {
-            return *this;
-        }
-
-        for (auto& c : children)
-        {
-            auto piece = c.find(pieceName);
-            if (piece)
-            {
-                return piece;
-            }
-        }
-
-        return std::nullopt;
-    }
-
-    std::optional<std::reference_wrapper<UnitMesh>> UnitMesh::find(const std::string& pieceName)
-    {
-        auto value = static_cast<const UnitMesh&>(*this).find(pieceName);
-        if (!value)
-        {
-            return std::nullopt;
-        }
-
-        return std::ref(const_cast<UnitMesh&>(value->get()));
-    }
-
-    std::optional<Matrix4x<SimScalar>> UnitMesh::getPieceTransform(const std::string& pieceName) const
-    {
-        if (boost::iequals(pieceName, name))
-        {
-            return getTransform();
-        }
-
-        for (auto& c : children)
-        {
-            auto childTransform = c.getPieceTransform(pieceName);
-            if (childTransform)
-            {
-                return getTransform() * (*childTransform);
-            }
-        }
-
-        return std::nullopt;
-    }
-
-    Matrix4x<SimScalar> UnitMesh::getTransform() const
-    {
-        return Matrix4x<SimScalar>::translation(origin + offset)
-            * Matrix4x<SimScalar>::rotationZXY(
-                sin(rotationX),
-                cos(rotationX),
-                sin(rotationY),
-                cos(rotationY),
-                sin(rotationZ),
-                cos(rotationZ));
-    }
-
     void UnitMesh::update(SimScalar dt)
     {
         previousOffset = offset;
@@ -167,11 +102,6 @@ namespace rwe
         applyTurnOperation(xTurnOperation, rotationX, dt);
         applyTurnOperation(yTurnOperation, rotationY, dt);
         applyTurnOperation(zTurnOperation, rotationZ, dt);
-
-        for (auto& c : children)
-        {
-            c.update(dt);
-        }
     }
 
     UnitMesh::MoveOperation::MoveOperation(SimScalar targetPosition, SimScalar speed)

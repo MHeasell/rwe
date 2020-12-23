@@ -1071,13 +1071,9 @@ namespace rwe
         auto& unit = scene->getSimulation().getUnit(id);
 
         const auto& pieceName = unit.cobEnvironment->_script->pieces.at(pieceId);
-        auto pieceTransform = unit.mesh.getPieceTransform(pieceName);
-        if (!pieceTransform)
-        {
-            throw std::logic_error("Failed to find piece offset");
-        }
+        auto pieceTransform = scene->getUnitPieceLocalTransform(id, pieceName);
 
-        return (*pieceTransform) * SimVector(0_ss, 0_ss, 0_ss);
+        return pieceTransform * SimVector(0_ss, 0_ss, 0_ss);
     }
 
     SimVector UnitBehaviorService::getPiecePosition(UnitId id, unsigned int pieceId)
@@ -1097,13 +1093,9 @@ namespace rwe
         auto& unit = scene->getSimulation().getUnit(id);
 
         const auto& pieceName = unit.cobEnvironment->_script->pieces.at(pieceId);
-        auto pieceTransform = unit.mesh.getPieceTransform(pieceName);
-        if (!pieceTransform)
-        {
-            throw std::logic_error("Failed to find piece offset");
-        }
+        auto pieceTransform = scene->getUnitPieceLocalTransform(id, pieceName);
 
-        auto mat = unit.getTransform() * (*pieceTransform);
+        auto mat = unit.getTransform() * pieceTransform;
 
         auto a = Vector2x<SimScalar>(0_ss, 1_ss);
         auto b = mat.mult3x3(SimVector(0_ss, 0_ss, 1_ss)).xz();

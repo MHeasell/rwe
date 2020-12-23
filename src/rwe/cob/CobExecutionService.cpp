@@ -170,25 +170,13 @@ namespace rwe
             [&](const CobEnvironment::QueryStatus::PieceXZ& q) {
                 auto pieceId = q.piece;
                 const auto& pieceName = getObjectName(env, pieceId);
-                const auto& unit = sim.getUnit(unitId);
-                auto pieceTransform = unit.mesh.getPieceTransform(pieceName);
-                if (!pieceTransform)
-                {
-                    throw std::runtime_error("Unknown piece " + pieceName);
-                }
-                auto pos = unit.getTransform() * (*pieceTransform) * SimVector(0_ss, 0_ss, 0_ss);
+                auto pos = scene.getUnitPiecePosition(unitId, pieceName);
                 return static_cast<int>(packCoords(pos.x, pos.z));
             },
             [&](const CobEnvironment::QueryStatus::PieceY& q) {
                 auto pieceId = q.piece;
                 const auto& pieceName = getObjectName(env, pieceId);
-                const auto& unit = sim.getUnit(unitId);
-                auto pieceTransform = unit.mesh.getPieceTransform(pieceName);
-                if (!pieceTransform)
-                {
-                    throw std::runtime_error("Unknown piece " + pieceName);
-                }
-                const auto& pos = unit.getTransform() * (*pieceTransform) * SimVector(0_ss, 0_ss, 0_ss);
+                auto pos = scene.getUnitPiecePosition(unitId, pieceName);
                 return simScalarToFixed(pos.y);
             },
             [&](const CobEnvironment::QueryStatus::UnitXZ& q) {

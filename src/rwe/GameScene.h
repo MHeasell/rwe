@@ -280,7 +280,10 @@ namespace rwe
         GameScene(
             const SceneContext& sceneContext,
             std::unique_ptr<PlayerCommandService>&& playerCommandService,
-            RenderService&& worldRenderService,
+            MeshDatabase&& meshDatabase,
+            CabinetCamera camera,
+            SharedTextureHandle unitTextureAtlas,
+            std::vector<SharedTextureHandle>&& unitTeamTextureAtlases,
             UiRenderService&& worldUiRenderService,
             UiRenderService&& chromeUiRenderService,
             GameSimulation&& simulation,
@@ -339,6 +342,10 @@ namespace rwe
         bool isPieceMoving(UnitId unitId, const std::string& name, Axis axis) const;
 
         bool isPieceTurning(UnitId unitId, const std::string& name, Axis axis) const;
+
+        Matrix4x<SimScalar> getUnitPieceLocalTransform(UnitId unitId, const std::string& pieceName) const;
+
+        SimVector getUnitPiecePosition(UnitId unitId, const std::string& pieceName) const;
 
         GameTime getGameTime() const;
 

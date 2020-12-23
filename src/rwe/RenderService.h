@@ -5,6 +5,7 @@
 #include <rwe/MeshDatabase.h>
 #include <rwe/PlayerColorIndex.h>
 #include <rwe/ShaderService.h>
+#include <rwe/UnitDatabase.h>
 #include <rwe/VectorMap.h>
 #include <rwe/pathfinding/AStarPathFinder.h>
 #include <rwe/pathfinding/OctileDistance.h>
@@ -42,6 +43,7 @@ namespace rwe
         GraphicsContext* graphics;
         ShaderService* shaders;
         MeshDatabase meshDatabase;
+        UnitDatabase* const unitDatabase;
 
         CabinetCamera camera;
 
@@ -53,6 +55,7 @@ namespace rwe
             GraphicsContext* graphics,
             ShaderService* shaders,
             MeshDatabase&& meshDatabase,
+            UnitDatabase* unitDatabase,
             const CabinetCamera& camera,
             SharedTextureHandle unitTextureAtlas,
             std::vector<SharedTextureHandle>&& unitTeamTextureAtlases);
@@ -62,8 +65,9 @@ namespace rwe
 
         void drawUnit(const Unit& unit, float seaLevel, float time, PlayerColorIndex playerColorIndex, float frac);
         void drawUnitShadow(const Unit& unit, float groundHeight, float frac);
-        void drawUnitMesh(const std::string& objectName, const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex, float frac);
-        void drawBuildingUnitMesh(const std::string& objectName, const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex, float frac);
+        void drawUnitMesh(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex, float frac);
+        void drawBuildingUnitMesh(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex, float frac);
+        void drawProjectileUnitMesh(const std::string& objectName, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex);
         void drawSelectionRect(const Unit& unit, float frac);
         void drawNanolatheLine(const Vector3f& start, const Vector3f& end);
         void drawOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid);

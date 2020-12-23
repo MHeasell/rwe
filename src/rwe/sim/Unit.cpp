@@ -64,8 +64,8 @@ namespace rwe
         return SimVector(sin(rotation), 0_ss, cos(rotation));
     }
 
-    Unit::Unit(const UnitMesh& mesh, std::unique_ptr<CobEnvironment>&& cobEnvironment)
-        : mesh(mesh), cobEnvironment(std::move(cobEnvironment))
+    Unit::Unit(const std::vector<UnitMesh>& pieces, std::unique_ptr<CobEnvironment>&& cobEnvironment)
+        : pieces(pieces), cobEnvironment(std::move(cobEnvironment))
     {
     }
 
@@ -142,7 +142,7 @@ namespace rwe
 
     void Unit::moveObject(const std::string& pieceName, Axis axis, SimScalar targetPosition, SimScalar speed)
     {
-        auto piece = mesh.find(pieceName);
+        auto piece = findPiece(pieceName);
         if (!piece)
         {
             throw std::runtime_error("Invalid piece name: " + pieceName);
@@ -166,7 +166,7 @@ namespace rwe
 
     void Unit::moveObjectNow(const std::string& pieceName, Axis axis, SimScalar targetPosition)
     {
-        auto piece = mesh.find(pieceName);
+        auto piece = findPiece(pieceName);
         if (!piece)
         {
             throw std::runtime_error("Invalid piece name: " + pieceName);
@@ -191,7 +191,7 @@ namespace rwe
 
     void Unit::turnObject(const std::string& pieceName, Axis axis, SimAngle targetAngle, SimScalar speed)
     {
-        auto piece = mesh.find(pieceName);
+        auto piece = findPiece(pieceName);
         if (!piece)
         {
             throw std::runtime_error("Invalid piece name: " + pieceName);
@@ -215,7 +215,7 @@ namespace rwe
 
     void Unit::turnObjectNow(const std::string& pieceName, Axis axis, SimAngle targetAngle)
     {
-        auto piece = mesh.find(pieceName);
+        auto piece = findPiece(pieceName);
         if (!piece)
         {
             throw std::runtime_error("Invalid piece name: " + pieceName);
@@ -240,7 +240,7 @@ namespace rwe
 
     void Unit::spinObject(const std::string& pieceName, Axis axis, SimScalar speed, SimScalar acceleration)
     {
-        auto piece = mesh.find(pieceName);
+        auto piece = findPiece(pieceName);
         if (!piece)
         {
             throw std::runtime_error("Invalid piece name: " + pieceName);
@@ -286,7 +286,7 @@ namespace rwe
     void Unit::stopSpinObject(const std::string& pieceName, Axis axis, SimScalar deceleration)
     {
 
-        auto piece = mesh.find(pieceName);
+        auto piece = findPiece(pieceName);
         if (!piece)
         {
             throw std::runtime_error("Invalid piece name: " + pieceName);
@@ -308,7 +308,7 @@ namespace rwe
 
     bool Unit::isMoveInProgress(const std::string& pieceName, Axis axis) const
     {
-        auto piece = mesh.find(pieceName);
+        auto piece = findPiece(pieceName);
         if (!piece)
         {
             throw std::runtime_error("Invalid piece name " + pieceName);
@@ -329,7 +329,7 @@ namespace rwe
 
     bool Unit::isTurnInProgress(const std::string& pieceName, Axis axis) const
     {
-        auto piece = mesh.find(pieceName);
+        auto piece = findPiece(pieceName);
         if (!piece)
         {
             throw std::runtime_error("Invalid piece name " + pieceName);
@@ -621,5 +621,25 @@ namespace rwe
         }
 
         return std::nullopt;
+    }
+
+    std::optional<std::reference_wrapper<const UnitMesh>> Unit::findPiece(const std::string& pieceName) const
+    {
+        auto pieceIt = std::find_if(pieces.begin(), pieces.end(), [&](const auto& p) { return boost::iequals(p.name, pieceName); });
+        if (pieceIt == pieces.end())
+        {
+            return std::nullopt;
+        }
+        return *pieceIt;
+    }
+
+    std::optional<std::reference_wrapper<UnitMesh>> Unit::findPiece(const std::string& pieceName)
+    {
+        auto pieceIt = std::find_if(pieces.begin(), pieces.end(), [&](const auto& p) { return boost::iequals(p.name, pieceName); });
+        if (pieceIt == pieces.end())
+        {
+            return std::nullopt;
+        }
+        return *pieceIt;
     }
 }

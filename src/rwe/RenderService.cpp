@@ -1,4 +1,5 @@
 #include "RenderService.h"
+#include <rwe/Index.h>
 #include <rwe/match.h>
 #include <rwe/math/rwe_math.h>
 #include <rwe/matrix_util.h>
@@ -16,6 +17,56 @@ namespace rwe
             return rweLerp(a, b + (2.0f * Pif), t);
         }
         return rweLerp(a, b, t);
+    }
+
+    Matrix4f getPieceTransform(const std::string& pieceName, const std::vector<UnitPieceDefinition>& pieceDefinitions, const std::vector<UnitMesh>& pieces, float frac)
+    {
+        assert(pieceDefinitions.size() == pieces.size());
+
+        std::optional<std::string> parentPiece = pieceName;
+        auto matrix = Matrix4f::identity();
+
+        do
+        {
+            auto pieceDefIt = std::find_if(pieceDefinitions.begin(), pieceDefinitions.end(), [&](const auto& p) { return boost::iequals(p.name, *parentPiece); });
+            if (pieceDefIt == pieceDefinitions.end())
+            {
+                throw std::runtime_error("missing piece definition: " + *parentPiece);
+            }
+
+            parentPiece = pieceDefIt->parent;
+
+            auto pieceStateIt = pieces.begin() + (pieceDefIt - pieceDefinitions.begin());
+
+            auto position = lerp(simVectorToFloat(pieceDefIt->origin + pieceStateIt->previousOffset), simVectorToFloat(pieceDefIt->origin + pieceStateIt->offset), frac);
+            auto rotationX = angleLerp(toRadians(pieceStateIt->previousRotationX).value, toRadians(pieceStateIt->rotationX).value, frac);
+            auto rotationY = angleLerp(toRadians(pieceStateIt->previousRotationY).value, toRadians(pieceStateIt->rotationY).value, frac);
+            auto rotationZ = angleLerp(toRadians(pieceStateIt->previousRotationZ).value, toRadians(pieceStateIt->rotationZ).value, frac);
+            matrix = Matrix4f::translation(position) * Matrix4f::rotationZXY(Vector3f(rotationX, rotationY, rotationZ)) * matrix;
+        } while (parentPiece);
+
+        return matrix;
+    }
+
+    Matrix4f getPieceTransform(const std::string& pieceName, const std::vector<UnitPieceDefinition>& pieceDefinitions)
+    {
+        std::optional<std::string> parentPiece = pieceName;
+        auto pos = SimVector(0_ss, 0_ss, 0_ss);
+
+        do
+        {
+            auto pieceDefIt = std::find_if(pieceDefinitions.begin(), pieceDefinitions.end(), [&](const auto& p) { return boost::iequals(p.name, *parentPiece); });
+            if (pieceDefIt == pieceDefinitions.end())
+            {
+                throw std::runtime_error("missing piece definition: " + *parentPiece);
+            }
+
+            parentPiece = pieceDefIt->parent;
+
+            pos += pieceDefIt->origin;
+        } while (parentPiece);
+
+        return Matrix4f::translation(simVectorToFloat(pos));
     }
 
     class IsOccupiedVisitor
@@ -41,12 +92,14 @@ namespace rwe
         GraphicsContext* graphics,
         ShaderService* shaders,
         MeshDatabase&& meshDatabase,
+        UnitDatabase* unitDatabase,
         const CabinetCamera& camera,
         SharedTextureHandle unitTextureAtlas,
         std::vector<SharedTextureHandle>&& unitTeamTextureAtlases)
         : graphics(graphics),
           shaders(shaders),
           meshDatabase(std::move(meshDatabase)),
+          unitDatabase(unitDatabase),
           camera(camera),
           unitTextureAtlas(unitTextureAtlas),
           unitTeamTextureAtlases(std::move(unitTeamTextureAtlases))
@@ -97,51 +150,76 @@ namespace rwe
         auto transform = Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
         if (unit.isBeingBuilt())
         {
-            drawBuildingUnitMesh(unit.objectName, unit.mesh, transform, seaLevel, unit.getPreciseCompletePercent(), position.y, time, playerColorIndex, frac);
+            drawBuildingUnitMesh(unit.objectName, unit.pieces, transform, seaLevel, unit.getPreciseCompletePercent(), position.y, time, playerColorIndex, frac);
         }
         else
         {
-            drawUnitMesh(unit.objectName, unit.mesh, transform, seaLevel, playerColorIndex, frac);
+            drawUnitMesh(unit.objectName, unit.pieces, transform, seaLevel, playerColorIndex, frac);
         }
     }
 
-    void RenderService::drawUnitMesh(const std::string& objectName, const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex, float frac)
+    void RenderService::drawUnitMesh(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex, float frac)
     {
-        auto position = lerp(simVectorToFloat(mesh.origin + mesh.previousOffset), simVectorToFloat(mesh.origin + mesh.offset), frac);
-        auto rotationX = angleLerp(toRadians(mesh.previousRotationX).value, toRadians(mesh.rotationX).value, frac);
-        auto rotationY = angleLerp(toRadians(mesh.previousRotationY).value, toRadians(mesh.rotationY).value, frac);
-        auto rotationZ = angleLerp(toRadians(mesh.previousRotationZ).value, toRadians(mesh.rotationZ).value, frac);
-        auto matrix = modelMatrix * Matrix4f::translation(position) * Matrix4f::rotationZXY(Vector3f(rotationX, rotationY, rotationZ));
-
-        if (mesh.visible)
+        auto modelDefinition = unitDatabase->getUnitModelDefinition(objectName);
+        if (!modelDefinition)
         {
-            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, mesh.name).value();
+            throw std::runtime_error("missing model definition: " + objectName);
+        }
+        assert(modelDefinition->get().pieces.size() == meshes.size());
+
+        for (Index i = 0; i < getSize(modelDefinition->get().pieces); ++i)
+        {
+            const auto& pieceDef = modelDefinition->get().pieces[i];
+            const auto& mesh = meshes[i];
+            if (!mesh.visible)
+            {
+                continue;
+            }
+
+            auto matrix = modelMatrix * getPieceTransform(pieceDef.name, modelDefinition->get().pieces, meshes, frac);
+
+            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
             drawShaderMesh(resolvedMesh, matrix, seaLevel, mesh.shaded, playerColorIndex);
         }
+    }
 
-        for (const auto& c : mesh.children)
+    void RenderService::drawBuildingUnitMesh(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex, float frac)
+    {
+        auto modelDefinition = unitDatabase->getUnitModelDefinition(objectName);
+        if (!modelDefinition)
         {
-            drawUnitMesh(objectName, c, matrix, seaLevel, playerColorIndex, frac);
+            throw std::runtime_error("missing model definition: " + objectName);
+        }
+
+        for (Index i = 0; i < getSize(modelDefinition->get().pieces); ++i)
+        {
+            const auto& pieceDef = modelDefinition->get().pieces[i];
+            const auto& mesh = meshes[i];
+            if (!mesh.visible)
+            {
+                continue;
+            }
+
+            auto matrix = modelMatrix * getPieceTransform(pieceDef.name, modelDefinition->get().pieces, meshes, frac);
+
+            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
+            drawBuildingShaderMesh(resolvedMesh, matrix, seaLevel, mesh.shaded, percentComplete, unitY, time, playerColorIndex);
         }
     }
 
-    void RenderService::drawBuildingUnitMesh(const std::string& objectName, const UnitMesh& mesh, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex, float frac)
+    void RenderService::drawProjectileUnitMesh(const std::string& objectName, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex)
     {
-        auto position = lerp(simVectorToFloat(mesh.origin + mesh.previousOffset), simVectorToFloat(mesh.origin + mesh.offset), frac);
-        auto rotationX = angleLerp(toRadians(mesh.previousRotationX).value, toRadians(mesh.rotationX).value, frac);
-        auto rotationY = angleLerp(toRadians(mesh.previousRotationY).value, toRadians(mesh.rotationY).value, frac);
-        auto rotationZ = angleLerp(toRadians(mesh.previousRotationZ).value, toRadians(mesh.rotationZ).value, frac);
-        auto matrix = modelMatrix * Matrix4f::translation(position) * Matrix4f::rotationZXY(Vector3f(rotationX, rotationY, rotationZ));
-
-        if (mesh.visible)
+        auto modelDefinition = unitDatabase->getUnitModelDefinition(objectName);
+        if (!modelDefinition)
         {
-            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, mesh.name).value();
-            drawBuildingShaderMesh(resolvedMesh, matrix, seaLevel, mesh.shaded, percentComplete, unitY, time, playerColorIndex);
+            throw std::runtime_error("missing model definition: " + objectName);
         }
 
-        for (const auto& c : mesh.children)
+        for (const auto& pieceDef : modelDefinition->get().pieces)
         {
-            drawBuildingUnitMesh(objectName, c, matrix, seaLevel, percentComplete, unitY, time, playerColorIndex, frac);
+            auto matrix = modelMatrix * getPieceTransform(pieceDef.name, modelDefinition->get().pieces);
+            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
+            drawShaderMesh(resolvedMesh, matrix, seaLevel, false, playerColorIndex);
         }
     }
 
@@ -471,7 +549,7 @@ namespace rwe
         auto rotation = angleLerp(toRadians(unit.previousRotation).value, toRadians(unit.rotation).value, frac);
         auto matrix = Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
 
-        drawUnitMesh(unit.objectName, unit.mesh, shadowProjection * matrix, 0.0f, PlayerColorIndex(0), frac);
+        drawUnitMesh(unit.objectName, unit.pieces, shadowProjection * matrix, 0.0f, PlayerColorIndex(0), frac);
     }
 
     CabinetCamera& RenderService::getCamera()
@@ -573,7 +651,7 @@ namespace rwe
                     auto transform = Matrix4f::translation(position)
                         * pointDirection(simVectorToFloat(projectile.velocity).normalized())
                         * rotationModeToMatrix(m.rotationMode);
-                    drawUnitMesh(m.objectName, *m.mesh, transform, seaLevel, PlayerColorIndex(0), frac);
+                    drawProjectileUnitMesh(m.objectName, transform, seaLevel, PlayerColorIndex(0));
                 },
                 [&](const ProjectileRenderTypeSprite& s) {
                     Vector3f snappedPosition(

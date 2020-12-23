@@ -1,4 +1,5 @@
 #include "GameScene.h"
+#include <rwe/GameScene_util.h>
 #include <algorithm>
 #include <boost/range/adaptor/map.hpp>
 #include <fstream>
@@ -88,7 +89,10 @@ namespace rwe
     GameScene::GameScene(
         const SceneContext& sceneContext,
         std::unique_ptr<PlayerCommandService>&& playerCommandService,
-        RenderService&& worldRenderService,
+        MeshDatabase&& meshDatabase,
+        CabinetCamera camera,
+        SharedTextureHandle unitTextureAtlas,
+        std::vector<SharedTextureHandle>&& unitTeamTextureAtlases,
         UiRenderService&& worldUiRenderService,
         UiRenderService&& chromeUiRenderService,
         GameSimulation&& simulation,
@@ -108,7 +112,7 @@ namespace rwe
         : sceneContext(sceneContext),
           worldViewport(Viewport(GuiSizeLeft, GuiSizeTop, sceneContext.viewport->width() - GuiSizeLeft - GuiSizeRight, sceneContext.viewport->height() - GuiSizeTop - GuiSizeBottom)),
           playerCommandService(std::move(playerCommandService)),
-          worldRenderService(std::move(worldRenderService)),
+          worldRenderService(this->sceneContext.graphics, this->sceneContext.shaders, std::move(meshDatabase), &this->unitDatabase, camera, unitTextureAtlas, std::move(unitTeamTextureAtlases)),
           worldUiRenderService(std::move(worldUiRenderService)),
           chromeUiRenderService(std::move(chromeUiRenderService)),
           simulation(std::move(simulation)),
@@ -1564,7 +1568,23 @@ namespace rwe
         return simulation.isPieceTurning(unitId, name, axis);
     }
 
-    GameTime GameScene::getGameTime() const
+    Matrix4x<SimScalar> GameScene::getUnitPieceLocalTransform(UnitId unitId, const std::string& pieceName) const
+    {
+        const auto& unit = getUnit(unitId);
+        const auto& modelDef = unitDatabase.getUnitModelDefinition(unit.objectName).value().get();
+        return getPieceTransform(pieceName, modelDef.pieces, unit.pieces);
+    }
+
+    SimVector GameScene::getUnitPiecePosition(UnitId unitId, const std::string& pieceName) const
+    {
+        const auto& unit = getUnit(unitId);
+        const auto& modelDef = unitDatabase.getUnitModelDefinition(unit.objectName).value().get();
+        auto pieceTransform = getPieceTransform(pieceName, modelDef.pieces, unit.pieces);
+        return unit.getTransform() * pieceTransform * SimVector(0_ss, 0_ss, 0_ss);
+    }
+
+    GameTime
+    GameScene::getGameTime() const
     {
         return simulation.gameTime;
     }
@@ -1911,7 +1931,10 @@ namespace rwe
 
             unitBehaviorService.update(unitId);
 
-            unit.mesh.update(SimScalar(SimMillisecondsPerTick) / 1000_ss);
+            for (auto& piece : unit.pieces)
+            {
+                piece.update(SimScalar(SimMillisecondsPerTick) / 1000_ss);
+            }
 
             cobExecutionService.run(*this, simulation, unitId);
         }

@@ -96,7 +96,7 @@ namespace rwe
         return m;
     }
 
-    UnitPieceDefinition unitMeshFrom3do(const _3do::Object& o)
+    std::vector<UnitPieceDefinition> unitMeshFrom3do(const _3do::Object& o, const std::optional<std::string>& parent)
     {
         UnitPieceDefinition m;
         m.origin = Vector3x<SimScalar>(
@@ -104,13 +104,25 @@ namespace rwe
             simScalarFromFixed(o.y),
             -simScalarFromFixed(o.z)); // flip to convert from left-handed to right-handed
         m.name = o.name;
+        m.parent = parent;
+
+        std::vector<UnitPieceDefinition> pieces{m};
 
         for (const auto& c : o.children)
         {
-            m.children.push_back(unitMeshFrom3do(c));
+            auto childPieces = unitMeshFrom3do(c, o.name);
+            for (auto& p : childPieces)
+            {
+                pieces.push_back(p);
+            }
         }
 
-        return m;
+        return pieces;
+    }
+
+    std::vector<UnitPieceDefinition> unitMeshFrom3do(const _3do::Object& o)
+    {
+        return unitMeshFrom3do(o, std::nullopt);
     }
 
     void MeshService::extractMeshes(const _3do::Object& o, std::vector<std::pair<std::string, std::shared_ptr<ShaderMesh>>>& v)
@@ -138,7 +150,7 @@ namespace rwe
         auto selectionMesh = selectionMeshFrom3do(objects.front());
 
         UnitModelDefinition d;
-        d.rootPiece = unitMeshFrom3do(objects.front());
+        d.pieces = unitMeshFrom3do(objects.front());
         d.height = simScalarFromFixed(findHighestVertex(objects.front()).y);
 
         std::vector<std::pair<std::string, std::shared_ptr<ShaderMesh>>> meshes;
@@ -160,7 +172,7 @@ namespace rwe
         assert(objects.size() == 1);
 
         UnitModelDefinition d;
-        d.rootPiece = unitMeshFrom3do(objects.front());
+        d.pieces = unitMeshFrom3do(objects.front());
         d.height = simScalarFromFixed(findHighestVertex(objects.front()).y);
 
         std::vector<std::pair<std::string, std::shared_ptr<ShaderMesh>>> meshes;

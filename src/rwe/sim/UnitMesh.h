@@ -1,16 +1,10 @@
 #pragma once
 
-#include <memory>
 #include <optional>
-#include <rwe/RadiansAngle.h>
-#include <rwe/math/Matrix4f.h>
-#include <rwe/math/Vector3f.h>
-#include <rwe/render/ShaderMesh.h>
 #include <rwe/sim/SimAngle.h>
-#include <string>
+#include <rwe/sim/SimScalar.h>
 #include <rwe/sim/SimVector.h>
 #include <variant>
-#include <vector>
 
 
 namespace rwe
@@ -62,8 +56,6 @@ namespace rwe
         using TurnOperationUnion = std::variant<TurnOperation, SpinOperation, StopSpinOperation>;
 
         std::string name;
-        Vector3x<SimScalar> origin;
-        std::vector<UnitMesh> children;
         bool visible{true};
         bool shaded{true};
         SimVector offset{0_ss, 0_ss, 0_ss};
@@ -82,14 +74,6 @@ namespace rwe
         std::optional<TurnOperationUnion> xTurnOperation;
         std::optional<TurnOperationUnion> yTurnOperation;
         std::optional<TurnOperationUnion> zTurnOperation;
-
-        std::optional<std::reference_wrapper<const UnitMesh>> find(const std::string& pieceName) const;
-
-        std::optional<std::reference_wrapper<UnitMesh>> find(const std::string& pieceName);
-
-        std::optional<Matrix4x<SimScalar>> getPieceTransform(const std::string& pieceName) const;
-
-        Matrix4x<SimScalar> getTransform() const;
 
         void update(SimScalar dt);
     };

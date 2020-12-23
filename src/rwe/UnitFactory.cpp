@@ -1,4 +1,5 @@
 #include "UnitFactory.h"
+#include <rwe/Index.h>
 #include <algorithm>
 
 namespace rwe
@@ -17,15 +18,6 @@ namespace rwe
           palette(palette),
           guiPalette(guiPalette)
     {
-    }
-
-    void setShadeRecursive(UnitMesh& mesh, bool shade)
-    {
-        mesh.shaded = shade;
-        for (auto& c : mesh.children)
-        {
-            setShadeRecursive(c, shade);
-        }
     }
 
     std::optional<YardMapCell> parseYardMapCell(char c)
@@ -87,21 +79,7 @@ namespace rwe
         return Grid<YardMapCell>(width, height, std::move(cells));
     }
 
-    UnitMesh toUnitMesh(const UnitDatabase& db, const std::string& unitName, const UnitPieceDefinition& def)
-    {
-        UnitMesh m;
-        m.origin = def.origin;
-        m.name = def.name;
-
-        for (const auto& c : def.children)
-        {
-            m.children.push_back(toUnitMesh(db, unitName, c));
-        }
-
-        return m;
-    }
-
-    UnitMesh createUnitMesh(const UnitDatabase& db, const std::string& objectName)
+    std::vector<UnitMesh> createUnitMeshes(const UnitDatabase& db, const std::string& objectName)
     {
         auto def = db.getUnitModelDefinition(objectName);
         if (!def)
@@ -109,7 +87,15 @@ namespace rwe
             throw std::runtime_error("No definition for object");
         }
 
-        return toUnitMesh(db, objectName, def->get().rootPiece);
+        const auto& pieceDefs = def->get().pieces;
+
+        std::vector<UnitMesh> pieces(pieceDefs.size());
+        for (Index i = 0; i < getSize(pieces); ++i)
+        {
+            pieces[i].name = pieceDefs[i].name;
+        }
+
+        return pieces;
     }
 
     Unit UnitFactory::createUnit(
@@ -124,7 +110,7 @@ namespace rwe
             movementClassOption = unitDatabase->getMovementClass(fbi.movementClass);
         }
 
-        auto mesh = createUnitMesh(*unitDatabase, fbi.objectName);
+        auto meshes = createUnitMeshes(*unitDatabase, fbi.objectName);
         auto modelDefinition = unitDatabase->getUnitModelDefinition(fbi.objectName);
         if (!modelDefinition)
         {
@@ -134,12 +120,15 @@ namespace rwe
         if (fbi.bmCode) // unit is mobile
         {
             // don't shade mobile units
-            setShadeRecursive(mesh, false);
+            for (auto& m : meshes)
+            {
+                m.shaded = false;
+            }
         }
 
         const auto& script = unitDatabase->getUnitScript(fbi.unitName);
         auto cobEnv = std::make_unique<CobEnvironment>(&script);
-        Unit unit(mesh, std::move(cobEnv));
+        Unit unit(meshes, std::move(cobEnv));
         unit.name = fbi.name;
         unit.unitType = toUpper(unitType);
         unit.objectName = fbi.objectName;
@@ -373,18 +362,14 @@ namespace rwe
             }
             case 1:
             {
-                auto mesh = createUnitMesh(*unitDatabase, tdf.model);
-                setShadeRecursive(mesh, false);
                 weapon.weaponDefinition.renderType = ProjectileRenderTypeModel{
-                    tdf.model, std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::HalfZ};
+                    tdf.model, ProjectileRenderTypeModel::RotationMode::HalfZ};
                 break;
             }
             case 3:
             {
-                auto mesh = createUnitMesh(*unitDatabase, tdf.model);
-                setShadeRecursive(mesh, false);
                 weapon.weaponDefinition.renderType = ProjectileRenderTypeModel{
-                    tdf.model, std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::QuarterY};
+                    tdf.model, ProjectileRenderTypeModel::RotationMode::QuarterY};
                 break;
             }
             case 4:
@@ -399,10 +384,8 @@ namespace rwe
             }
             case 6:
             {
-                auto mesh = createUnitMesh(*unitDatabase, tdf.model);
-                setShadeRecursive(mesh, false);
                 weapon.weaponDefinition.renderType = ProjectileRenderTypeModel{
-                    tdf.model, std::make_shared<UnitMesh>(std::move(mesh)), ProjectileRenderTypeModel::RotationMode::None};
+                    tdf.model, ProjectileRenderTypeModel::RotationMode::None};
                 break;
             }
             case 7:

@@ -229,6 +229,8 @@ set(SOURCE_FILES
     src/rwe/GameNetworkService.h
     src/rwe/GameScene.cpp
     src/rwe/GameScene.h
+    src/rwe/GameScene_util.cpp
+    src/rwe/GameScene_util.h
     src/rwe/GlobalConfig.cpp
     src/rwe/GlobalConfig.h
     src/rwe/ImGuiContext.cpp
@@ -731,6 +733,7 @@ endif()
 set(TEST_FILES
     src/rwe/BoxTreeSplit.test.cpp
     src/rwe/GameHash_util.test.cpp
+    src/rwe/GameScene_util.test.cpp
     src/rwe/MinHeap.test.cpp
     src/rwe/Result.test.cpp
     src/rwe/SideData.test.cpp

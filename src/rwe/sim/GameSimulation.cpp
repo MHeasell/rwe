@@ -268,7 +268,7 @@ namespace rwe
 
     void GameSimulation::showObject(UnitId unitId, const std::string& name)
     {
-        auto mesh = getUnit(unitId).mesh.find(name);
+        auto mesh = getUnit(unitId).findPiece(name);
         if (mesh)
         {
             mesh->get().visible = true;
@@ -277,7 +277,7 @@ namespace rwe
 
     void GameSimulation::hideObject(UnitId unitId, const std::string& name)
     {
-        auto mesh = getUnit(unitId).mesh.find(name);
+        auto mesh = getUnit(unitId).findPiece(name);
         if (mesh)
         {
             mesh->get().visible = false;
@@ -286,7 +286,7 @@ namespace rwe
 
     void GameSimulation::enableShading(UnitId unitId, const std::string& name)
     {
-        auto mesh = getUnit(unitId).mesh.find(name);
+        auto mesh = getUnit(unitId).findPiece(name);
         if (mesh)
         {
             mesh->get().shaded = true;
@@ -295,7 +295,7 @@ namespace rwe
 
     void GameSimulation::disableShading(UnitId unitId, const std::string& name)
     {
-        auto mesh = getUnit(unitId).mesh.find(name);
+        auto mesh = getUnit(unitId).findPiece(name);
         if (mesh)
         {
             mesh->get().shaded = false;
