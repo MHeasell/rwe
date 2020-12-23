@@ -64,8 +64,13 @@ namespace rwe
             auto fooExpectedPosition = SimVector(1_ss, 2_ss, 3_ss);
             REQUIRE(getPieceTransform("foo", pieceDefs, pieces) * SimVector(0_ss, 0_ss, 0_ss) == fooExpectedPosition);
 
+            // sim scalars are still backed by floats atm, so rotation by 90deg
+            // still introduces a bit of fp error due to conversion to radians
             auto barExpectedPosition = SimVector(31_ss, 22_ss, -7_ss);
-            REQUIRE(getPieceTransform("bar", pieceDefs, pieces) * SimVector(0_ss, 0_ss, 0_ss) == barExpectedPosition);
+            auto barActualPosition = getPieceTransform("bar", pieceDefs, pieces) * SimVector(0_ss, 0_ss, 0_ss);
+            REQUIRE(barActualPosition.x.value == Approx(barExpectedPosition.x.value));
+            REQUIRE(barActualPosition.y.value == Approx(barExpectedPosition.y.value));
+            REQUIRE(barActualPosition.z.value == Approx(barExpectedPosition.z.value));
         }
     }
 }
