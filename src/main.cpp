@@ -534,7 +534,25 @@ int main(int argc, char* argv[])
             ("data-path", po::value<std::vector<std::string>>(), "Sets the location(s) to search for game data")
             ("map", po::value<std::string>(), "If given, launches straight into a game on the given map")
             ("port", po::value<std::string>()->default_value("1337"), "Network port to bind to")
-            ("player", po::value<std::vector<std::string>>(), "type;side;color");
+            ("player", po::value<std::vector<std::string>>(), "type;side;color")
+            ("dir-ai", po::value<std::string>()->default_value("ai"), "AI directory name")
+            ("dir-anims", po::value<std::string>()->default_value("anims"), "anims directory name")
+            ("dir-bitmaps", po::value<std::string>()->default_value("bitmaps"), "bitmaps directory name")
+            ("dir-camps", po::value<std::string>()->default_value("camps"), "campaigns directory name")
+            ("dir-downloads", po::value<std::string>()->default_value("downloads"), "downloads directory name")
+            ("dir-features", po::value<std::string>()->default_value("features"), "features directory name")
+            ("dir-fonts", po::value<std::string>()->default_value("fonts"), "fonts directory name")
+            ("dir-gamedata", po::value<std::string>()->default_value("gamedata"), "gamedata directory name")
+            ("dir-guis", po::value<std::string>()->default_value("guis"), "GUIs directory name")
+            ("dir-maps", po::value<std::string>()->default_value("maps"), "maps directory name")
+            ("dir-objects3d", po::value<std::string>()->default_value("objects3d"), "3D objects directory name")
+            ("dir-palettes", po::value<std::string>()->default_value("palettes"), "palettes directory name")
+            ("dir-scripts", po::value<std::string>()->default_value("scripts"), "scripts directory name")
+            ("dir-sounds", po::value<std::string>()->default_value("sounds"), "sounds directory name")
+            ("dir-textures", po::value<std::string>()->default_value("textures"), "textures directory name")
+            ("dir-unitpics", po::value<std::string>()->default_value("unitpics"), "unitpics directory name")
+            ("dir-units", po::value<std::string>()->default_value("units"), "units directory name")
+            ("dir-weapons", po::value<std::string>()->default_value("weapons"), "weapons directory name");
         // clang-format on
 
         po::variables_map vm;
@@ -603,6 +621,23 @@ int main(int argc, char* argv[])
             auto fullscreen = vm["fullscreen"].as<bool>();
 
             auto pathMapping = constructDefaultPathMapping();
+            pathMapping.ai = vm["dir-ai"].as<std::string>();
+            pathMapping.anims = vm["dir-anims"].as<std::string>();
+            pathMapping.bitmaps = vm["dir-bitmaps"].as<std::string>();
+            pathMapping.camps = vm["dir-camps"].as<std::string>();
+            pathMapping.downloads = vm["dir-features"].as<std::string>();
+            pathMapping.fonts = vm["dir-fonts"].as<std::string>();
+            pathMapping.gamedata = vm["dir-gamedata"].as<std::string>();
+            pathMapping.guis = vm["dir-guis"].as<std::string>();
+            pathMapping.maps = vm["dir-maps"].as<std::string>();
+            pathMapping.objects3d = vm["dir-objects3d"].as<std::string>();
+            pathMapping.palettes = vm["dir-palettes"].as<std::string>();
+            pathMapping.scripts = vm["dir-scripts"].as<std::string>();
+            pathMapping.sounds = vm["dir-sounds"].as<std::string>();
+            pathMapping.textures = vm["dir-textures"].as<std::string>();
+            pathMapping.unitpics = vm["dir-unitpics"].as<std::string>();
+            pathMapping.units = vm["dir-units"].as<std::string>();
+            pathMapping.weapons = vm["dir-weapons"].as<std::string>();
 
             return rwe::run(*logger, gameDataPaths, pathMapping, gameParameters, screenWidth, screenHeight, fullscreen, imGuiIniFilePath.string(), config);
         }
