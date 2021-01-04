@@ -26,8 +26,8 @@ namespace rwe
         return quickKey;
     }
 
-    UiFactory::UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs, int screenWidth, int screenHeight)
-        : textureService(textureService), audioService(audioService), soundLookup(soundLookup), vfs(vfs), screenWidth(screenWidth), screenHeight(screenHeight)
+    UiFactory::UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs, const PathMapping* const pathMapping, int screenWidth, int screenHeight)
+        : textureService(textureService), audioService(audioService), soundLookup(soundLookup), vfs(vfs), pathMapping(pathMapping), screenWidth(screenWidth), screenHeight(screenHeight)
     {
     }
 
@@ -94,7 +94,7 @@ namespace rwe
 
     std::unique_ptr<UiPanel> UiFactory::panelFromGuiFile(const std::string& name)
     {
-        auto entries = vfs->readGuiOrThrow("guis/" + name + ".GUI");
+        auto entries = vfs->readGuiOrThrow(pathMapping->guis + "/" + name + ".GUI");
         return panelFromGuiFile(name, entries);
     }
 

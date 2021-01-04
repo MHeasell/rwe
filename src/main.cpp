@@ -8,6 +8,7 @@
 #include <rwe/GlobalConfig.h>
 #include <rwe/LoadingScene.h>
 #include <rwe/MainMenuScene.h>
+#include <rwe/PathMapping.h>
 #include <rwe/PlayerColorIndex.h>
 #include <rwe/Result.h>
 #include <rwe/SceneContext.h>
@@ -118,7 +119,7 @@ namespace rwe
         return Ok(std::move(glContext));
     };
 
-    int run(spdlog::logger& logger, const std::vector<fs::path>& searchPath, const std::optional<GameParameters>& gameParameters, unsigned int desiredWindowWidth, unsigned int desiredWindowHeight, bool fullscreen, const std::string& imGuiIniPath, GlobalConfig& globalConfig)
+    int run(spdlog::logger& logger, const std::vector<fs::path>& searchPath, const PathMapping& pathMapping, const std::optional<GameParameters>& gameParameters, unsigned int desiredWindowWidth, unsigned int desiredWindowHeight, bool fullscreen, const std::string& imGuiIniPath, GlobalConfig& globalConfig)
     {
         logger.info(ProjectNameVersion);
         logger.info("Current directory: {0}", fs::current_path().string());
@@ -329,6 +330,7 @@ namespace rwe
             &sceneManager,
             &sideDataMap,
             &timeService,
+            &pathMapping,
             &globalConfig);
 
         if (gameParameters)
@@ -474,6 +476,32 @@ auto createLoggerInDir(const fs::path& logDir)
     throw std::runtime_error("Failed to create logger");
 }
 
+rwe::PathMapping constructDefaultPathMapping()
+{
+    rwe::PathMapping m;
+
+    m.ai = "ai";
+    m.anims = "anims";
+    m.bitmaps = "bitmaps";
+    m.camps = "camps";
+    m.downloads = "downloads";
+    m.features = "features";
+    m.fonts = "fonts";
+    m.gamedata = "gamedata";
+    m.guis = "guis";
+    m.maps = "maps";
+    m.objects3d = "objects3d";
+    m.palettes = "palettes";
+    m.scripts = "scripts";
+    m.sounds = "sounds";
+    m.textures = "textures";
+    m.unitpics = "unitpics";
+    m.units = "units";
+    m.weapons = "weapons";
+
+    return m;
+}
+
 int main(int argc, char* argv[])
 {
     try
@@ -574,7 +602,9 @@ int main(int argc, char* argv[])
             auto screenHeight = vm["height"].as<unsigned int>();
             auto fullscreen = vm["fullscreen"].as<bool>();
 
-            return rwe::run(*logger, gameDataPaths, gameParameters, screenWidth, screenHeight, fullscreen, imGuiIniFilePath.string(), config);
+            auto pathMapping = constructDefaultPathMapping();
+
+            return rwe::run(*logger, gameDataPaths, pathMapping, gameParameters, screenWidth, screenHeight, fullscreen, imGuiIniFilePath.string(), config);
         }
         catch (const std::exception& e)
         {

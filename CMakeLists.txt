@@ -261,6 +261,8 @@ set(SOURCE_FILES
     src/rwe/OpaqueId.h
     src/rwe/OpaqueId_io.h
     src/rwe/OpaqueUnit.h
+    src/rwe/PathMapping.cpp
+    src/rwe/PathMapping.h
     src/rwe/PlayerColorIndex.cpp
     src/rwe/PlayerColorIndex.h
     src/rwe/PlayerCommand.h

@@ -3,6 +3,7 @@
 #include <rwe/AudioService.h>
 #include <rwe/CursorService.h>
 #include <rwe/GlobalConfig.h>
+#include <rwe/PathMapping.h>
 #include <rwe/SceneManager.h>
 #include <rwe/SideData.h>
 #include <rwe/TextureService.h>
@@ -28,6 +29,7 @@ namespace rwe
         SceneManager* const sceneManager;
         const std::unordered_map<std::string, SideData>* const sideData;
         TimeService* const timeService;
+        const PathMapping* const pathMapping;
         const GlobalConfig* const globalConfig;
 
         SceneContext(
@@ -44,6 +46,7 @@ namespace rwe
             SceneManager* const sceneManager,
             const std::unordered_map<std::string, SideData>* const sideData,
             TimeService* const timeService,
+            const PathMapping* const pathMapping,
             const GlobalConfig* const globalConfig)
             : sdl(sdl),
               viewport(viewportService),
@@ -58,6 +61,7 @@ namespace rwe
               sceneManager(sceneManager),
               sideData(sideData),
               timeService(timeService),
+              pathMapping(pathMapping),
               globalConfig(globalConfig)
         {
         }

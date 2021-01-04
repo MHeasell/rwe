@@ -21,7 +21,7 @@ namespace rwe
           scaledUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(640.0f, 480.0f)),
           nativeUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(width, height)),
           model(),
-          uiFactory(sceneContext.textureService, sceneContext.audioService, soundLookup, sceneContext.vfs, 640, 480),
+          uiFactory(sceneContext.textureService, sceneContext.audioService, soundLookup, sceneContext.vfs, sceneContext.pathMapping, 640, 480),
           panelStack(),
           dialogStack(),
           bgm()
@@ -158,7 +158,7 @@ namespace rwe
 
     void MainMenuScene::goToMainMenu()
     {
-        auto mainMenuGuiRaw = sceneContext.vfs->readFile("guis/MAINMENU.GUI");
+        auto mainMenuGuiRaw = sceneContext.vfs->readFile(sceneContext.pathMapping->guis + "/MAINMENU.GUI");
         if (!mainMenuGuiRaw)
         {
             throw std::runtime_error("Couldn't read MAINMENU.GUI");
@@ -300,7 +300,7 @@ namespace rwe
 
     void MainMenuScene::goToSingleMenu()
     {
-        auto mainMenuGuiRaw = sceneContext.vfs->readFile("guis/SINGLE.GUI");
+        auto mainMenuGuiRaw = sceneContext.vfs->readFile(sceneContext.pathMapping->guis + "/SINGLE.GUI");
         if (!mainMenuGuiRaw)
         {
             throw std::runtime_error("Couldn't read SINGLE.GUI");
@@ -318,7 +318,7 @@ namespace rwe
 
     void MainMenuScene::goToSkirmishMenu()
     {
-        auto mainMenuGuiRaw = sceneContext.vfs->readFile("guis/SKIRMISH.GUI");
+        auto mainMenuGuiRaw = sceneContext.vfs->readFile(sceneContext.pathMapping->guis + "/SKIRMISH.GUI");
         if (!mainMenuGuiRaw)
         {
             throw std::runtime_error("Couldn't read SKIRMISH.GUI");
@@ -353,7 +353,7 @@ namespace rwe
 
     void MainMenuScene::openMapSelectionDialog()
     {
-        auto guiRaw = sceneContext.vfs->readFile("guis/SELMAP.GUI");
+        auto guiRaw = sceneContext.vfs->readFile(sceneContext.pathMapping->guis + "/SELMAP.GUI");
         if (!guiRaw)
         {
             throw std::runtime_error("Couldn't read SELMAP.GUI");

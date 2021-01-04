@@ -58,7 +58,7 @@ namespace rwe
           audioLookup(audioLookup),
           bgm(std::move(bgm)),
           gameParameters(std::move(gameParameters)),
-          uiFactory(sceneContext.textureService, sceneContext.audioService, audioLookup, sceneContext.vfs, sceneContext.viewport->width(), sceneContext.viewport->height())
+          uiFactory(sceneContext.textureService, sceneContext.audioService, audioLookup, sceneContext.vfs, sceneContext.pathMapping, sceneContext.viewport->width(), sceneContext.viewport->height())
     {
     }
 
@@ -601,10 +601,11 @@ namespace rwe
 
         // read sound categories
         {
-            auto bytes = sceneContext.vfs->readFile("gamedata/SOUND.TDF");
+            auto path = sceneContext.pathMapping->gamedata + "/SOUND.TDF";
+            auto bytes = sceneContext.vfs->readFile(path);
             if (!bytes)
             {
-                throw std::runtime_error("Failed to read gamedata/SOUND.TDF");
+                throw std::runtime_error("Failed to read " + path);
             }
 
             std::string soundString(bytes->data(), bytes->size());
@@ -639,10 +640,11 @@ namespace rwe
 
         // read movement classes
         {
-            auto bytes = sceneContext.vfs->readFile("gamedata/MOVEINFO.TDF");
+            auto path = sceneContext.pathMapping->gamedata + "/MOVEINFO.TDF";
+            auto bytes = sceneContext.vfs->readFile(path);
             if (!bytes)
             {
-                throw std::runtime_error("Failed to read gamedata/MOVEINFO.TDF");
+                throw std::runtime_error("Failed to read " + path);
             }
 
             std::string movementString(bytes->data(), bytes->size());
@@ -656,11 +658,11 @@ namespace rwe
 
         // read weapons
         {
-            auto weaponFiles = sceneContext.vfs->getFileNames("weapons", ".tdf");
+            auto weaponFiles = sceneContext.vfs->getFileNames(sceneContext.pathMapping->weapons, ".tdf");
 
             for (const auto& fileName : weaponFiles)
             {
-                auto bytes = sceneContext.vfs->readFile("weapons/" + fileName);
+                auto bytes = sceneContext.vfs->readFile(sceneContext.pathMapping->weapons + "/" + fileName);
                 if (!bytes)
                 {
                     throw std::runtime_error("File in listing could not be read: " + fileName);
@@ -703,11 +705,11 @@ namespace rwe
 
         // read unit FBIs
         {
-            auto fbis = sceneContext.vfs->getFileNames("units", ".fbi");
+            auto fbis = sceneContext.vfs->getFileNames(sceneContext.pathMapping->units, ".fbi");
 
             for (const auto& fbiName : fbis)
             {
-                auto bytes = sceneContext.vfs->readFile("units/" + fbiName);
+                auto bytes = sceneContext.vfs->readFile(sceneContext.pathMapping->units + "/" + fbiName);
                 if (!bytes)
                 {
                     throw std::runtime_error("File in listing could not be read: " + fbiName);
@@ -836,7 +838,7 @@ namespace rwe
     std::optional<std::vector<std::vector<GuiEntry>>> LoadingScene::loadBuilderGui(const std::string& unitName)
     {
         std::vector<std::vector<GuiEntry>> entries;
-        for (int i = 1; auto rawGui = sceneContext.vfs->readFile("guis/" + unitName + std::to_string(i) + ".GUI"); ++i)
+        for (int i = 1; auto rawGui = sceneContext.vfs->readFile(sceneContext.pathMapping->guis + "/" + unitName + std::to_string(i) + ".GUI"); ++i)
         {
             auto parsedGui = parseGuiFromBytes(*rawGui);
             if (!parsedGui)

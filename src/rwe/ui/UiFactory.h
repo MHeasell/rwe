@@ -2,6 +2,7 @@
 
 #include <rwe/AudioService.h>
 #include <rwe/MainMenuModel.h>
+#include <rwe/PathMapping.h>
 #include <rwe/TextureService.h>
 #include <rwe/io/gui/gui.h>
 #include <rwe/ui/UiLabel.h>
@@ -29,12 +30,13 @@ namespace rwe
         AudioService* audioService;
         TdfBlock* soundLookup;
         AbstractVirtualFileSystem* vfs;
+        const PathMapping* const pathMapping;
 
         int screenWidth;
         int screenHeight;
 
     public:
-        UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs, int screenWidth, int screenHeight);
+        UiFactory(TextureService* textureService, AudioService* audioService, TdfBlock* soundLookup, AbstractVirtualFileSystem* vfs, const PathMapping* const pathMapping, int screenWidth, int screenHeight);
 
         std::unique_ptr<UiPanel> panelFromGuiFile(const std::string& name, const std::string& background, const std::vector<GuiEntry>& entries);
 

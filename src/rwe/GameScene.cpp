@@ -1,9 +1,9 @@
 #include "GameScene.h"
-#include <rwe/GameScene_util.h>
 #include <algorithm>
 #include <boost/range/adaptor/map.hpp>
 #include <fstream>
 #include <functional>
+#include <rwe/GameScene_util.h>
 #include <rwe/Index.h>
 #include <rwe/Mesh.h>
 #include <rwe/dump_util.h>
@@ -131,7 +131,7 @@ namespace rwe
           sounds(std::move(sounds)),
           guiFont(guiFont),
           localPlayerId(localPlayerId),
-          uiFactory(sceneContext.textureService, sceneContext.audioService, audioLookup, sceneContext.vfs, sceneContext.viewport->width(), sceneContext.viewport->height()),
+          uiFactory(sceneContext.textureService, sceneContext.audioService, audioLookup, sceneContext.vfs, sceneContext.pathMapping, sceneContext.viewport->width(), sceneContext.viewport->height()),
           stateLogStream(std::move(stateLogStream))
     {
     }
