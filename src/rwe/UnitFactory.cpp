@@ -293,7 +293,7 @@ namespace rwe
         return unitDatabase->hasUnitInfo(unitType);
     }
 
-    std::string getFxName(unsigned int code)
+    std::optional<std::string> getFxName(unsigned int code)
     {
         switch (code)
         {
@@ -308,7 +308,7 @@ namespace rwe
             case 4:
                 return "plasmasm";
             default:
-                throw std::runtime_error("Unknown weapon sprite code");
+                return std::nullopt;
         }
     }
 
@@ -374,7 +374,17 @@ namespace rwe
             }
             case 4:
             {
-                weapon.weaponDefinition.renderType = ProjectileRenderTypeSprite{"fx", getFxName(tdf.color)};
+                auto fxName = getFxName(tdf.color);
+                if (fxName)
+                {
+
+                    weapon.weaponDefinition.renderType = ProjectileRenderTypeSprite{"fx", *fxName};
+                }
+                else
+                {
+                    weapon.weaponDefinition.renderType = ProjectileRenderTypeNone{};
+                }
+
                 break;
             }
             case 5:

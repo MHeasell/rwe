@@ -710,6 +710,9 @@ namespace rwe
                 },
                 [&](const ProjectileRenderTypeMindgun&) {
                     // TODO: implement mindgun if anyone actually uses it
+                },
+                [&](const ProjectileRenderTypeNone&) {
+                    // do nothing
                 });
         }
     }

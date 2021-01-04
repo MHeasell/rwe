@@ -52,11 +52,16 @@ namespace rwe
         SimScalar duration;
     };
 
+    struct ProjectileRenderTypeNone
+    {
+    };
+
     using ProjectileRenderType = std::variant<
         ProjectileRenderTypeLaser,
         ProjectileRenderTypeModel,
         ProjectileRenderTypeMindgun,
         ProjectileRenderTypeSprite,
         ProjectileRenderTypeFlamethrower,
-        ProjectileRenderTypeLightning>;
+        ProjectileRenderTypeLightning,
+        ProjectileRenderTypeNone>;
 }
