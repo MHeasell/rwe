@@ -1,5 +1,6 @@
 #include <boost/filesystem.hpp>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <memory>
 #include <png++/png.hpp>
@@ -45,6 +46,51 @@ int listCommand(const std::string& filename)
 
     return 0;
 }
+
+class InspectAdapter : public rwe::GafReaderAdapter
+{
+private:
+    std::size_t frameCount{0};
+    std::size_t layerCount{0};
+
+public:
+    void beginFrame(const rwe::GafFrameEntry& entry, const rwe::GafFrameData& header) override
+    {
+        std::cout << "    Frame " << frameCount << std::endl;
+        std::cout << "        Frame entry:" << std::endl;
+        std::cout << "            Unknown1 (animated?): " << entry.unknown1 << std::endl;
+        std::cout << "            Data offset: 0x" << std::hex << entry.frameDataOffset << std::dec << std::endl;
+        std::cout << "        Frame info:" << std::endl;
+        std::cout << "            width: " << header.width << std::endl;
+        std::cout << "            height: " << header.height << std::endl;
+        std::cout << "            posX: " << header.posX << std::endl;
+        std::cout << "            posY: " << header.posY << std::endl;
+        std::cout << "            transparencyIndex: " << static_cast<int>(header.transparencyIndex) << std::endl;
+        std::cout << "            compressed: " << static_cast<int>(header.compressed) << std::endl;
+        std::cout << "            subframe count: " << header.subframesCount << std::endl;
+        std::cout << "            unknown2: " << header.unknown2 << std::endl;
+        std::cout << "            unknown3: " << header.unknown3 << std::endl;
+        std::cout << "            unknown3 (hex): 0x" << std::hex << std::setfill('0') << std::setw(8) << header.unknown3 << std::setw(0) << std::setfill(' ') << std::dec << std::endl;
+    }
+
+    void frameLayer(const LayerData& data) override
+    {
+        std::cout << "            Layer " << layerCount << std::endl;
+        std::cout << "                width:" << data.width << std::endl;
+        std::cout << "                height:" << data.height << std::endl;
+        std::cout << "                x:" << data.x << std::endl;
+        std::cout << "                y:" << data.y << std::endl;
+        std::cout << "                transparencyIndex:" << static_cast<int>(data.transparencyKey) << std::endl;
+
+        layerCount += 1;
+    }
+
+    void endFrame() override
+    {
+        frameCount += 1;
+        layerCount = 0;
+    }
+};
 
 class GafAdapter : public rwe::GafReaderAdapter
 {
@@ -115,6 +161,42 @@ public:
     }
 };
 
+int extractAllCommand(const std::string& palettePath, const std::string& gafPath, const std::string& destinationPath)
+{
+    std::cout << "Palette file: " << palettePath << std::endl;
+
+    png::rgb_pixel palette[256];
+    loadPalette(palettePath, palette);
+
+    std::cout << "GAF archive: " << gafPath << std::endl;
+    std::ifstream file(gafPath, std::ios::binary);
+
+    if (!file.is_open())
+    {
+        std::cerr << "Failed to open file." << std::endl;
+        return 1;
+    }
+
+    std::cout << "Opening..." << std::endl;
+    rwe::GafArchive archive(&file);
+
+    for (const auto& entry : archive.entries())
+    {
+        std::cout << "Found entry: " << entry.name << ", unknown1: " << entry.unknown1 << ", unknown 2: " << entry.unknown2 << std::endl;
+
+        fs::path path(destinationPath);
+        path /= entry.name;
+        fs::create_directory(path);
+
+        std::cout << "Extracting..." << std::endl;
+
+        GafAdapter adapter(palette, path.string());
+        archive.extract(entry, adapter);
+    }
+
+    return 0;
+}
+
 int extractCommand(const std::string& palettePath, const std::string& gafPath, const std::string& entryName, const std::string& destinationPath)
 {
     std::cout << "Palette file: " << palettePath << std::endl;
@@ -152,6 +234,31 @@ int extractCommand(const std::string& palettePath, const std::string& gafPath, c
     return 0;
 }
 
+int inspectCommand(const std::string& gafPath)
+{
+    std::cout << "GAF archive: " << gafPath << std::endl;
+    std::ifstream file(gafPath, std::ios::binary);
+
+    if (!file.is_open())
+    {
+        std::cerr << "Failed to open file." << std::endl;
+        return 1;
+    }
+
+    rwe::GafArchive archive(&file);
+
+    for (const auto& entry : archive.entries())
+    {
+        std::cout << "Entry: " << entry.name << std::endl;
+        std::cout << "    unknown1: " << entry.unknown1 << std::endl;
+        std::cout << "    unknown2: " << entry.unknown2 << std::endl;
+        InspectAdapter adapter;
+        archive.extract(entry, adapter);
+    }
+
+    return 0;
+}
+
 int main(int argc, char* argv[])
 {
     if (argc < 2)
@@ -173,6 +280,17 @@ int main(int argc, char* argv[])
         return listCommand(argv[2]);
     }
 
+    if (command == "inspect")
+    {
+        if (argc < 3)
+        {
+            std::cerr << "Specify a GAF file to inspect" << std::endl;
+            return 1;
+        }
+
+        return inspectCommand(argv[2]);
+    }
+
     if (command == "extract")
     {
         if (argc < 6)
@@ -182,6 +300,17 @@ int main(int argc, char* argv[])
         }
 
         return extractCommand(argv[2], argv[3], argv[4], argv[5]);
+    }
+
+    if (command == "extract-all")
+    {
+        if (argc < 5)
+        {
+            std::cerr << "Specify palette file, GAF file, file to extract and destination" << std::endl;
+            return 1;
+        }
+
+        return extractAllCommand(argv[2], argv[3], argv[4]);
     }
 
     std::cerr << "Unrecognised command: " << command << std::endl;
