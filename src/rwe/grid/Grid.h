@@ -249,6 +249,12 @@ namespace rwe
         }
 
         template <typename Func>
+        bool any(Func f) const
+        {
+            return getRegion().any([&](const auto& c) { return f(get(c)); });
+        }
+
+        template <typename Func>
         bool any(const GridRegion& region, Func f) const
         {
             assert(region.x + region.width <= width);
