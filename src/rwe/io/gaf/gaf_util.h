@@ -1,8 +1,8 @@
 #pragma once
 
+#include <istream>
 #include <rwe/io/gaf/GafReaderAdapter.h>
 #include <rwe/io/gaf/gaf_headers.h>
-#include <istream>
 #include <vector>
 
 namespace rwe

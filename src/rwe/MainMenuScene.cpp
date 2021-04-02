@@ -333,7 +333,7 @@ namespace rwe
         auto panel = uiFactory.panelFromGuiFile("SKIRMISH", "Skirmsetup4x", *parsedGui);
         if (auto mapLabel = panel->find<UiLabel>("MapName"))
         {
-            auto sub = model.selectedMap.subscribe([& l = mapLabel->get()](const auto& selectedMap) {
+            auto sub = model.selectedMap.subscribe([&l = mapLabel->get()](const auto& selectedMap) {
                 if (selectedMap)
                 {
                     l.setText(selectedMap->name);
@@ -369,7 +369,7 @@ namespace rwe
 
         if (auto descriptionLabel = panel->find<UiLabel>("DESCRIPTION"))
         {
-            auto sub = model.candidateSelectedMap.subscribe([& l = descriptionLabel->get()](const auto& selectedMap) {
+            auto sub = model.candidateSelectedMap.subscribe([&l = descriptionLabel->get()](const auto& selectedMap) {
                 if (selectedMap)
                 {
                     l.setText(selectedMap->description);
@@ -383,7 +383,7 @@ namespace rwe
         }
         if (auto sizeLabel = panel->find<UiLabel>("SIZE"))
         {
-            auto sub = model.candidateSelectedMap.subscribe([& l = sizeLabel->get()](const auto& selectedMap) {
+            auto sub = model.candidateSelectedMap.subscribe([&l = sizeLabel->get()](const auto& selectedMap) {
                 if (selectedMap)
                 {
                     l.setText(selectedMap->size);
@@ -404,7 +404,7 @@ namespace rwe
                 listBox->get().appendItem(e);
             }
 
-            auto sub = model.selectedMap.subscribe([& l = listBox->get()](const auto& selectedMap) {
+            auto sub = model.selectedMap.subscribe([&l = listBox->get()](const auto& selectedMap) {
                 if (selectedMap)
                 {
                     l.setSelectedItem(selectedMap->name);
@@ -416,7 +416,7 @@ namespace rwe
             });
             listBox->get().addSubscription(std::move(sub));
 
-            listBox->get().selectedIndex().subscribe([& l = listBox->get(), &c = *this](const auto& selectedMap) {
+            listBox->get().selectedIndex().subscribe([&l = listBox->get(), &c = *this](const auto& selectedMap) {
                 if (selectedMap)
                 {
                     c.setCandidateSelectedMap(l.getItems()[*selectedMap]);
@@ -430,7 +430,7 @@ namespace rwe
 
         if (auto surface = panel->find<UiSurface>("MAPPIC"))
         {
-            auto sub = model.candidateSelectedMap.subscribe([& s = surface->get()](const auto& info) {
+            auto sub = model.candidateSelectedMap.subscribe([&s = surface->get()](const auto& info) {
                 if (info)
                 {
                     s.setBackground(info->minimap);

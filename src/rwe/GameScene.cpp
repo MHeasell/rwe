@@ -1299,13 +1299,13 @@ namespace rwe
             auto directionX = mousePosition.x == sceneContext.viewport->left()
                 ? -1
                 : mousePosition.x == sceneContext.viewport->right() - 1
-                    ? 1
-                    : 0;
+                ? 1
+                : 0;
             auto directionZ = mousePosition.y == sceneContext.viewport->top()
                 ? -1
                 : mousePosition.y == sceneContext.viewport->bottom() - 1
-                    ? 1
-                    : 0;
+                ? 1
+                : 0;
 
             auto dx = directionX * speed;
             auto dz = directionZ * speed;
@@ -2765,28 +2765,28 @@ namespace rwe
     {
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "ATTACK"))
         {
-            p->get().addSubscription(cursorMode.subscribe([& p = p->get()](const auto& v) {
+            p->get().addSubscription(cursorMode.subscribe([&p = p->get()](const auto& v) {
                 p.setToggledOn(std::holds_alternative<AttackCursorMode>(v));
             }));
         }
 
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "MOVE"))
         {
-            p->get().addSubscription(cursorMode.subscribe([& p = p->get()](const auto& v) {
+            p->get().addSubscription(cursorMode.subscribe([&p = p->get()](const auto& v) {
                 p.setToggledOn(std::holds_alternative<MoveCursorMode>(v));
             }));
         }
 
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "DEFEND"))
         {
-            p->get().addSubscription(cursorMode.subscribe([& p = p->get()](const auto& v) {
+            p->get().addSubscription(cursorMode.subscribe([&p = p->get()](const auto& v) {
                 p.setToggledOn(std::holds_alternative<GuardCursorMode>(v));
             }));
         }
 
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "FIREORD"))
         {
-            p->get().addSubscription(fireOrders.subscribe([& p = p->get()](const auto& v) {
+            p->get().addSubscription(fireOrders.subscribe([&p = p->get()](const auto& v) {
                 switch (v)
                 {
                     case UnitFireOrders::HoldFire:
@@ -2806,7 +2806,7 @@ namespace rwe
 
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "ONOFF"))
         {
-            p->get().addSubscription(onOff.subscribe([& p = p->get()](const auto& v) {
+            p->get().addSubscription(onOff.subscribe([&p = p->get()](const auto& v) {
                 p.setStage(v ? 1 : 0);
             }));
         }

@@ -11,7 +11,7 @@ namespace rwe
     };
 
     template <typename... Ts>
-    overloaded(Ts...)->overloaded<Ts...>;
+    overloaded(Ts...) -> overloaded<Ts...>;
 
     template <typename Variant, typename... Ts>
     constexpr decltype(auto) match(Variant&& variant, Ts&&... funcs)
