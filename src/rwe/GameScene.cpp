@@ -537,11 +537,11 @@ namespace rwe
             worldRenderService.drawSelectionRect(unit, interpolationFraction);
         }
 
-        worldRenderService.drawUnitShadows(simulation.terrain, simulation.units | boost::adaptors::map_values, interpolationFraction);
+        auto seaLevel = simulation.terrain.getSeaLevel();
+        worldRenderService.drawUnitShadows(simulation.terrain, simulation.units | boost::adaptors::map_values, interpolationFraction, seaLevel);
 
         sceneContext.graphics->enableDepthBuffer();
 
-        auto seaLevel = simulation.terrain.getSeaLevel();
         for (const auto& unit : (simulation.units | boost::adaptors::map_values))
         {
             worldRenderService.drawUnit(unit, simScalarToFloat(seaLevel), simulation.gameTime.value, getPlayer(unit.owner).color, interpolationFraction);
@@ -724,6 +724,7 @@ namespace rwe
             ImGui::Text("%lld: %d", i, unit.cobEnvironment->_statics[i]);
         }
 
+        ImGui::LabelText("Floater", "%s", unit.floater ? "true" : "false");
         ImGui::LabelText("x", "%f", unit.position.x.value);
         ImGui::LabelText("y", "%f", unit.position.y.value);
         ImGui::LabelText("z", "%f", unit.position.z.value);
@@ -1514,9 +1515,16 @@ namespace rwe
 
     std::optional<UnitId> GameScene::spawnUnit(const std::string& unitType, PlayerId owner, const SimVector& position)
     {
+        auto unitFbi = unitDatabase.getUnitInfo(unitType);
+        auto unit = unitFactory.createUnit(unitType, owner, position);
+        if (unit.floater)
+        {
+            unit.position.y = rweMax(simulation.terrain.getSeaLevel(), unit.position.y);
+            unit.previousPosition.y = unit.position.y;
+        }
+
         // TODO: if we failed to add the unit throw some warning
-        auto unitId = simulation.tryAddUnit(
-            unitFactory.createUnit(unitType, owner, position));
+        auto unitId = simulation.tryAddUnit(std::move(unit));
 
         if (unitId)
         {

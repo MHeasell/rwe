@@ -119,6 +119,8 @@ namespace rwe
         Passable
     };
 
+    bool isWater(YardMapCell cell);
+
     bool isPassable(YardMapCell cell, bool yardMapOpen);
 
     class Unit
@@ -268,6 +270,8 @@ namespace rwe
         Metal metalConsumptionBuffer{0};
 
         bool isMobile;
+
+        bool floater;
 
         std::deque<std::pair<std::string, int>> buildQueue;
         FactoryState factoryState;

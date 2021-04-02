@@ -564,6 +564,10 @@ namespace rwe
         {
             auto newPosition = unit.position + (direction * unit.currentSpeed);
             newPosition.y = scene->getTerrain().getHeightAt(newPosition.x, newPosition.z);
+            if (unit.floater)
+            {
+                newPosition.y = rweMax(newPosition.y, scene->getTerrain().getSeaLevel());
+            }
 
             if (!tryApplyMovementToPosition(unitId, newPosition))
             {
@@ -588,6 +592,12 @@ namespace rwe
                 }
                 newPos1.y = scene->getTerrain().getHeightAt(newPos1.x, newPos1.z);
                 newPos2.y = scene->getTerrain().getHeightAt(newPos2.x, newPos2.z);
+
+                if (unit.floater)
+                {
+                    newPos1.y = rweMax(newPos1.y, scene->getTerrain().getSeaLevel());
+                    newPos2.y = rweMax(newPos2.y, scene->getTerrain().getSeaLevel());
+                }
 
                 if (!tryApplyMovementToPosition(unitId, newPos1))
                 {
@@ -937,7 +947,7 @@ namespace rwe
                 auto& sim = scene->getSimulation();
 
                 auto buildPieceInfo = getBuildPieceInfo(unitId);
-                buildPieceInfo.position.y = sim.terrain.getHeightAt(buildPieceInfo.position.x, buildPieceInfo.position.z);
+                //buildPieceInfo.position.y = sim.terrain.getHeightAt(buildPieceInfo.position.x, buildPieceInfo.position.z);
                 if (!state.targetUnit)
                 {
                     unit.factoryState = FactoryStateCreatingUnit{unitType, unit.owner, buildPieceInfo.position};
@@ -988,6 +998,11 @@ namespace rwe
                     scene->deactivateUnit(unitId);
                     unit.factoryState = FactoryStateIdle();
                     return true;
+                }
+
+                if (targetUnit.floater)
+                {
+                    buildPieceInfo.position.y = rweMax(buildPieceInfo.position.y, scene->getTerrain().getSeaLevel());
                 }
 
                 tryApplyMovementToPosition(state.targetUnit->first, buildPieceInfo.position);

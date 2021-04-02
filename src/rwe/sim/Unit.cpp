@@ -23,30 +23,36 @@ namespace rwe
         return AttackOrder(target);
     }
 
+    bool isWater(YardMapCell cell)
+    {
+        switch (cell)
+        {
+            case YardMapCell::Water:
+            case YardMapCell::WaterPassableWhenOpen:
+            case YardMapCell::WaterPassable:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     bool isPassable(YardMapCell cell, bool yardMapOpen)
     {
         switch (cell)
         {
             case YardMapCell::GroundPassableWhenOpen:
-                return yardMapOpen;
             case YardMapCell::WaterPassableWhenOpen:
-                return yardMapOpen;
-            case YardMapCell::GroundNoFeature:
-                return false;
             case YardMapCell::GroundGeoPassableWhenOpen:
                 return yardMapOpen;
-            case YardMapCell::Geo:
-                return false;
-            case YardMapCell::Ground:
-                return false;
             case YardMapCell::GroundPassableWhenClosed:
                 return !yardMapOpen;
+            case YardMapCell::GroundNoFeature:
+            case YardMapCell::Geo:
+            case YardMapCell::Ground:
             case YardMapCell::Water:
                 return false;
             case YardMapCell::GroundPassable:
-                return true;
             case YardMapCell::WaterPassable:
-                return true;
             case YardMapCell::Passable:
                 return true;
             default:

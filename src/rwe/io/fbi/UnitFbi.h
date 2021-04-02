@@ -40,6 +40,8 @@ namespace rwe
 
         bool bmCode;
 
+        bool floater;
+
         std::string weapon1;
         std::string weapon2;
         std::string weapon3;

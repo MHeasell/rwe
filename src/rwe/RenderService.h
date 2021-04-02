@@ -103,7 +103,7 @@ namespace rwe
         void drawMapTerrain(const MapTerrainGraphics& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
 
         template <typename Range>
-        void drawUnitShadows(const MapTerrain& terrain, const Range& units, float frac)
+        void drawUnitShadows(const MapTerrain& terrain, const Range& units, float frac, SimScalar seaLevel)
         {
             graphics->enableStencilBuffer();
             graphics->clearStencilBuffer();
@@ -114,6 +114,10 @@ namespace rwe
             {
                 auto position = lerp(simVectorToFloat(unit.previousPosition), simVectorToFloat(unit.position), frac);
                 auto groundHeight = terrain.getHeightAt(floatToSimScalar(position.x), floatToSimScalar(position.z));
+                if (unit.floater)
+                {
+                    groundHeight = rweMax(groundHeight, seaLevel);
+                }
                 drawUnitShadow(unit, simScalarToFloat(groundHeight), frac);
             }
 

@@ -49,6 +49,8 @@ namespace rwe
 
         tdf.readOrDefault("BMCode", u.bmCode);
 
+        tdf.readOrDefault("Floater", u.floater);
+
         tdf.readOrDefault("Weapon1", u.weapon1);
         tdf.readOrDefault("Weapon2", u.weapon2);
         tdf.readOrDefault("Weapon3", u.weapon3);

@@ -186,6 +186,8 @@ namespace rwe
 
         unit.isMobile = fbi.bmCode;
 
+        unit.floater = fbi.floater;
+
         if (movementClassOption)
         {
             auto movementClass = &movementClassOption->get();
@@ -216,6 +218,10 @@ namespace rwe
         }
 
         unit.yardMap = parseYardMap(unit.footprintX, unit.footprintZ, fbi.yardMap);
+        if (unit.yardMap->any(isWater))
+        {
+            unit.floater = true;
+        }
 
         // add weapons
         if (!fbi.weapon1.empty())
