@@ -183,6 +183,31 @@ namespace rwe
         }
     }
 
+    void RenderService::drawUnitMeshShadow(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float groundHeight, float frac)
+    {
+        auto modelDefinition = unitDatabase->getUnitModelDefinition(objectName);
+        if (!modelDefinition)
+        {
+            throw std::runtime_error("missing model definition: " + objectName);
+        }
+        assert(modelDefinition->get().pieces.size() == meshes.size());
+
+        for (Index i = 0; i < getSize(modelDefinition->get().pieces); ++i)
+        {
+            const auto& pieceDef = modelDefinition->get().pieces[i];
+            const auto& mesh = meshes[i];
+            if (!mesh.visible)
+            {
+                continue;
+            }
+
+            auto matrix = modelMatrix * getPieceTransform(pieceDef.name, modelDefinition->get().pieces, meshes, frac);
+
+            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
+            drawShaderMeshShadow(resolvedMesh, matrix, groundHeight);
+        }
+    }
+
     void RenderService::drawBuildingUnitMesh(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex, float frac)
     {
         auto modelDefinition = unitDatabase->getUnitModelDefinition(objectName);
@@ -540,16 +565,11 @@ namespace rwe
 
     void RenderService::drawUnitShadow(const Unit& unit, float groundHeight, float frac)
     {
-        auto shadowProjection = Matrix4f::translation(Vector3f(0.0f, groundHeight, 0.0f))
-            * Matrix4f::scale(Vector3f(1.0f, 0.0f, 1.0f))
-            * Matrix4f::shearXZ(0.25f, -0.25f)
-            * Matrix4f::translation(Vector3f(0.0f, -groundHeight, 0.0f));
-
         auto position = lerp(simVectorToFloat(unit.previousPosition), simVectorToFloat(unit.position), frac);
         auto rotation = angleLerp(toRadians(unit.previousRotation).value, toRadians(unit.rotation).value, frac);
         auto matrix = Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
 
-        drawUnitMesh(unit.objectName, unit.pieces, shadowProjection * matrix, 0.0f, PlayerColorIndex(0), frac);
+        drawUnitMeshShadow(unit.objectName, unit.pieces, matrix, groundHeight, frac);
     }
 
     CabinetCamera& RenderService::getCamera()
@@ -773,6 +793,18 @@ namespace rwe
             graphics->bindTexture(unitTeamTextureAtlases.at(playerColorIndex.value).get());
             graphics->drawTriangles(mesh.teamVertices);
         }
+    }
+
+    void RenderService::drawShaderMeshShadow(const ShaderMesh& mesh, const Matrix4f& matrix, float groundHeight)
+    {
+        auto vpMatrix = camera.getViewProjectionMatrix();
+        const auto& shader = shaders->unitShadow;
+        graphics->bindShader(shader.handle.get());
+        graphics->setUniformMatrix(shader.vpMatrix, vpMatrix);
+        graphics->setUniformMatrix(shader.modelMatrix, matrix);
+        graphics->setUniformFloat(shader.groundHeight, groundHeight);
+        graphics->drawTriangles(mesh.vertices);
+        graphics->drawTriangles(mesh.teamVertices);
     }
 
     void RenderService::drawBuildingShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex)

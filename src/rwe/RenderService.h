@@ -66,6 +66,7 @@ namespace rwe
         void drawUnit(const Unit& unit, float seaLevel, float time, PlayerColorIndex playerColorIndex, float frac);
         void drawUnitShadow(const Unit& unit, float groundHeight, float frac);
         void drawUnitMesh(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex, float frac);
+        void drawUnitMeshShadow(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float groundHeight, float frac);
         void drawBuildingUnitMesh(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex, float frac);
         void drawProjectileUnitMesh(const std::string& objectName, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex);
         void drawSelectionRect(const Unit& unit, float frac);
@@ -140,6 +141,8 @@ namespace rwe
 
     private:
         void drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, PlayerColorIndex playerColorIndex);
+
+        void drawShaderMeshShadow(const ShaderMesh& mesh, const Matrix4f& matrix, float groundHeight);
 
         void drawBuildingShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex);
 
