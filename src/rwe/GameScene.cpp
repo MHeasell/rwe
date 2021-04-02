@@ -715,6 +715,20 @@ namespace rwe
             });
     }
 
+    void renderUnitInfoSection(const Unit& unit)
+    {
+        ImGui::LabelText("State", "%s", stateToString(unit.behaviourState));
+        ImGui::Text("Cob vars");
+        for (Index i = 0; i < getSize(unit.cobEnvironment->_statics); ++i)
+        {
+            ImGui::Text("%lld: %d", i, unit.cobEnvironment->_statics[i]);
+        }
+
+        ImGui::LabelText("x", "%f", unit.position.x.value);
+        ImGui::LabelText("y", "%f", unit.position.y.value);
+        ImGui::LabelText("z", "%f", unit.position.z.value);
+    }
+
     void GameScene::renderDebugWindow()
     {
         if (!showDebugWindow)
@@ -754,12 +768,17 @@ namespace rwe
             const auto& unit = getUnit(*selectedUnit);
 
             ImGui::Separator();
-            ImGui::LabelText("State", "%s", stateToString(unit.behaviourState));
-            ImGui::Text("Cob vars");
-            for (Index i = 0; i < getSize(unit.cobEnvironment->_statics); ++i)
-            {
-                ImGui::Text("%lld: %d", i, unit.cobEnvironment->_statics[i]);
-            }
+            ImGui::Text("Selected Unit");
+            renderUnitInfoSection(unit);
+        }
+
+        if (hoveredUnit)
+        {
+            const auto& unit = getUnit(*hoveredUnit);
+
+            ImGui::Separator();
+            ImGui::Text("Hovered Unit");
+            renderUnitInfoSection(unit);
         }
 
         ImGui::End();
