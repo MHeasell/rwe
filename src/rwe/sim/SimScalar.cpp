@@ -13,4 +13,9 @@ namespace rwe
     {
         return SimScalar(std::sqrt(s.value));
     }
+
+    SimScalar rweMax(SimScalar a, SimScalar b)
+    {
+        return SimScalar(std::max(a.value, b.value));
+    }
 }
