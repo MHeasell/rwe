@@ -631,7 +631,25 @@ namespace rwe
         // we passed all collision checks, update accordingly
         auto footprintRegion = scene->computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
         scene->moveUnitOccupiedArea(footprintRegion, newFootprintRegion, id);
+
+        auto seaLevel = scene->getTerrain().getSeaLevel();
+        auto oldTerrainHeight = scene->getTerrain().getHeightAt(unit.position.x, unit.position.z);
+        auto oldPosBelowSea = oldTerrainHeight < seaLevel;
+
         unit.position = newPosition;
+
+        auto newTerrainHeight = scene->getTerrain().getHeightAt(unit.position.x, unit.position.z);
+        auto newPosBelowSea = newTerrainHeight < seaLevel;
+
+        if (oldPosBelowSea && !newPosBelowSea)
+        {
+            unit.cobEnvironment->createThread("setSFXoccupy", std::vector<int>{4});
+        }
+        else if (!oldPosBelowSea && newPosBelowSea)
+        {
+            unit.cobEnvironment->createThread("setSFXoccupy", std::vector<int>{2});
+        }
+
         return true;
     }
 
