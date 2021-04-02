@@ -950,7 +950,7 @@ namespace rwe
                 //buildPieceInfo.position.y = sim.terrain.getHeightAt(buildPieceInfo.position.x, buildPieceInfo.position.z);
                 if (!state.targetUnit)
                 {
-                    unit.factoryState = FactoryStateCreatingUnit{unitType, unit.owner, buildPieceInfo.position};
+                    unit.factoryState = FactoryStateCreatingUnit{unitType, unit.owner, buildPieceInfo.position, buildPieceInfo.rotation};
                     scene->getSimulation().unitCreationRequests.push_back(unitId);
                     return false;
                 }
@@ -958,7 +958,7 @@ namespace rwe
                 auto targetUnitOption = scene->getSimulation().tryGetUnit(state.targetUnit->first);
                 if (!targetUnitOption)
                 {
-                    unit.factoryState = FactoryStateCreatingUnit{unitType, unit.owner, buildPieceInfo.position};
+                    unit.factoryState = FactoryStateCreatingUnit{unitType, unit.owner, buildPieceInfo.position, buildPieceInfo.rotation};
                     scene->getSimulation().unitCreationRequests.push_back(unitId);
                     return false;
                 }

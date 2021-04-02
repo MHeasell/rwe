@@ -101,7 +101,8 @@ namespace rwe
     Unit UnitFactory::createUnit(
         const std::string& unitType,
         PlayerId owner,
-        const SimVector& position)
+        const SimVector& position,
+        std::optional<const std::reference_wrapper<SimAngle>> rotation)
     {
         const auto& fbi = unitDatabase->getUnitInfo(unitType);
         std::optional<std::reference_wrapper<const MovementClass>> movementClassOption;
@@ -137,7 +138,12 @@ namespace rwe
         unit.previousPosition = position;
         unit.height = modelDefinition->get().height;
 
-        if (fbi.bmCode) // unit is mobile
+        if (rotation)
+        {
+            unit.rotation = *rotation;
+            unit.previousRotation = *rotation;
+        }
+        else if (fbi.bmCode) // unit is mobile
         {
             // spawn the unit facing the other way
             unit.rotation = HalfTurn;

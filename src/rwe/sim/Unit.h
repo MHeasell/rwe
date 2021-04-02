@@ -87,6 +87,7 @@ namespace rwe
         std::string unitType;
         PlayerId owner;
         SimVector position;
+        SimAngle rotation;
         UnitCreationStatus status{UnitCreationStatusPending()};
     };
 

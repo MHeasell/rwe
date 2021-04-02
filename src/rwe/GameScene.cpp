@@ -1513,10 +1513,10 @@ namespace rwe
         renderDebugWindow();
     }
 
-    std::optional<UnitId> GameScene::spawnUnit(const std::string& unitType, PlayerId owner, const SimVector& position)
+    std::optional<UnitId> GameScene::spawnUnit(const std::string& unitType, PlayerId owner, const SimVector& position, std::optional<const std::reference_wrapper<SimAngle>> rotation)
     {
         auto unitFbi = unitDatabase.getUnitInfo(unitType);
-        auto unit = unitFactory.createUnit(unitType, owner, position);
+        auto unit = unitFactory.createUnit(unitType, owner, position, rotation);
         if (unit.floater)
         {
             unit.position.y = rweMax(simulation.terrain.getSeaLevel(), unit.position.y);
@@ -1540,7 +1540,7 @@ namespace rwe
 
     void GameScene::spawnCompletedUnit(const std::string& unitType, PlayerId owner, const SimVector& position)
     {
-        auto unitId = spawnUnit(unitType, owner, position);
+        auto unitId = spawnUnit(unitType, owner, position, std::nullopt);
         if (unitId)
         {
             auto& unit = getUnit(*unitId);
@@ -2646,7 +2646,7 @@ namespace rwe
                     continue;
                 }
 
-                auto newUnitId = spawnUnit(s->unitType, s->owner, s->position);
+                auto newUnitId = spawnUnit(s->unitType, s->owner, s->position, std::nullopt);
                 if (!newUnitId)
                 {
                     s->status = UnitCreationStatusFailed();
@@ -2665,7 +2665,7 @@ namespace rwe
                     continue;
                 }
 
-                auto newUnitId = spawnUnit(s->unitType, s->owner, s->position);
+                auto newUnitId = spawnUnit(s->unitType, s->owner, s->position, s->rotation);
                 if (!newUnitId)
                 {
                     s->status = UnitCreationStatusFailed();

@@ -320,7 +320,7 @@ namespace rwe
 
         void update(int millisecondsElapsed) override;
 
-        std::optional<UnitId> spawnUnit(const std::string& unitType, PlayerId owner, const SimVector& position);
+        std::optional<UnitId> spawnUnit(const std::string& unitType, PlayerId owner, const SimVector& position, std::optional<const std::reference_wrapper<SimAngle>> rotation);
 
         void spawnCompletedUnit(const std::string& unitType, PlayerId owner, const SimVector& position);
 

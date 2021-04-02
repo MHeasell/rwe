@@ -30,7 +30,7 @@ namespace rwe
             const ColorPalette* guiPalette);
 
     public:
-        Unit createUnit(const std::string& unitType, PlayerId owner, const SimVector& position);
+        Unit createUnit(const std::string& unitType, PlayerId owner, const SimVector& position, std::optional<const std::reference_wrapper<SimAngle>> rotation);
 
         std::optional<std::reference_wrapper<const std::vector<GuiEntry>>> getBuilderGui(const std::string& unitType, unsigned int page) const;
 
