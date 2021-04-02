@@ -41,6 +41,7 @@ namespace rwe
         bool bmCode;
 
         bool floater;
+        bool canHover;
 
         std::string weapon1;
         std::string weapon2;

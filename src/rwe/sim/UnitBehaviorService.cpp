@@ -564,7 +564,7 @@ namespace rwe
         {
             auto newPosition = unit.position + (direction * unit.currentSpeed);
             newPosition.y = scene->getTerrain().getHeightAt(newPosition.x, newPosition.z);
-            if (unit.floater)
+            if (unit.floater || unit.canHover)
             {
                 newPosition.y = rweMax(newPosition.y, scene->getTerrain().getSeaLevel());
             }
@@ -593,7 +593,7 @@ namespace rwe
                 newPos1.y = scene->getTerrain().getHeightAt(newPos1.x, newPos1.z);
                 newPos2.y = scene->getTerrain().getHeightAt(newPos2.x, newPos2.z);
 
-                if (unit.floater)
+                if (unit.floater || unit.canHover)
                 {
                     newPos1.y = rweMax(newPos1.y, scene->getTerrain().getSeaLevel());
                     newPos2.y = rweMax(newPos2.y, scene->getTerrain().getSeaLevel());
@@ -1000,7 +1000,7 @@ namespace rwe
                     return true;
                 }
 
-                if (targetUnit.floater)
+                if (targetUnit.floater || targetUnit.canHover)
                 {
                     buildPieceInfo.position.y = rweMax(buildPieceInfo.position.y, scene->getTerrain().getSeaLevel());
                 }

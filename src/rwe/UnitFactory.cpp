@@ -193,6 +193,7 @@ namespace rwe
         unit.isMobile = fbi.bmCode;
 
         unit.floater = fbi.floater;
+        unit.canHover = fbi.canHover;
 
         if (movementClassOption)
         {

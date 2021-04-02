@@ -1517,7 +1517,7 @@ namespace rwe
     {
         auto unitFbi = unitDatabase.getUnitInfo(unitType);
         auto unit = unitFactory.createUnit(unitType, owner, position, rotation);
-        if (unit.floater)
+        if (unit.floater || unit.canHover)
         {
             unit.position.y = rweMax(simulation.terrain.getSeaLevel(), unit.position.y);
             unit.previousPosition.y = unit.position.y;

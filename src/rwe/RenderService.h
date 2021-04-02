@@ -115,7 +115,7 @@ namespace rwe
             {
                 auto position = lerp(simVectorToFloat(unit.previousPosition), simVectorToFloat(unit.position), frac);
                 auto groundHeight = terrain.getHeightAt(floatToSimScalar(position.x), floatToSimScalar(position.z));
-                if (unit.floater)
+                if (unit.floater || unit.canHover)
                 {
                     groundHeight = rweMax(groundHeight, seaLevel);
                 }

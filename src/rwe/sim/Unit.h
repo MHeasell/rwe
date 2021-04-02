@@ -273,6 +273,7 @@ namespace rwe
         bool isMobile;
 
         bool floater;
+        bool canHover;
 
         std::deque<std::pair<std::string, int>> buildQueue;
         FactoryState factoryState;
