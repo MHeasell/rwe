@@ -718,6 +718,33 @@ namespace rwe
             });
     }
 
+    const char* cobAxisToString(const CobAxis& axis)
+    {
+        switch (axis)
+        {
+            case CobAxis::X:
+                return "x-axis";
+            case CobAxis::Y:
+                return "Y-axis";
+            case CobAxis::Z:
+                return "z-axis";
+            default:
+                throw std::logic_error("invalid axis");
+        }
+    }
+
+    std::string blockedStatusToString(const CobEnvironment::BlockedStatus& status)
+    {
+        return match(
+            status.condition,
+            [&](const CobEnvironment::BlockedStatus::Move& m) {
+                return "wait-for-move piece " + std::to_string(m.object) + " along " + cobAxisToString(m.axis);
+            },
+            [&](const CobEnvironment::BlockedStatus::Turn& t) {
+                return "wait-for-turn piece " + std::to_string(t.object) + " around " + cobAxisToString(t.axis);
+            });
+    }
+
     void renderUnitInfoSection(const Unit& unit)
     {
         ImGui::LabelText("State", "%s", stateToString(unit.behaviourState));
@@ -725,6 +752,39 @@ namespace rwe
         for (Index i = 0; i < getSize(unit.cobEnvironment->_statics); ++i)
         {
             ImGui::Text("%lld: %d", i, unit.cobEnvironment->_statics[i]);
+        }
+
+        ImGui::Text("Cob threads");
+        for (Index i = 0; i < getSize(unit.cobEnvironment->threads); ++i)
+        {
+            const auto& thread = *unit.cobEnvironment->threads[i];
+            ImGui::Text("%lld: %s (%u)", i, thread.name.c_str(), thread.signalMask);
+        }
+
+        ImGui::Text("ready threads");
+        for (Index i = 0; i < getSize(unit.cobEnvironment->readyQueue); ++i)
+        {
+            ImGui::Text("%s", unit.cobEnvironment->readyQueue[i]->name.c_str());
+        }
+
+        ImGui::Text("blocked threads");
+        for (Index i = 0; i < getSize(unit.cobEnvironment->blockedQueue); ++i)
+        {
+            const auto& pair = unit.cobEnvironment->blockedQueue[i];
+            ImGui::Text("%s, %s", pair.second->name.c_str(), blockedStatusToString(pair.first).c_str());
+        }
+
+        ImGui::Text("sleeping threads");
+        for (Index i = 0; i < getSize(unit.cobEnvironment->sleepingQueue); ++i)
+        {
+            const auto& pair = unit.cobEnvironment->sleepingQueue[i];
+            ImGui::Text("%s, wake time: %d", pair.second->name.c_str(), pair.first.value);
+        }
+
+        ImGui::Text("finished threads");
+        for (Index i = 0; i < getSize(unit.cobEnvironment->finishedQueue); ++i)
+        {
+            ImGui::Text("%s", unit.cobEnvironment->finishedQueue[i]->name.c_str());
         }
 
         ImGui::LabelText("Floater", "%s", unit.floater ? "true" : "false");
