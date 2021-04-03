@@ -84,6 +84,8 @@ namespace rwe
 
         std::optional<std::reference_wrapper<const UnitModelDefinition>> getUnitModelDefinition(const std::string& objectName) const;
 
+        bool hasUnitModelDefinition(const std::string& objectName) const;
+
         void addSelectionMesh(const std::string& objectName, std::shared_ptr<CollisionMesh> mesh);
 
         std::optional<std::shared_ptr<CollisionMesh>> getSelectionMesh(const std::string& objectName) const;

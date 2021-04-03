@@ -547,6 +547,8 @@ namespace rwe
             worldRenderService.drawUnit(unit, simScalarToFloat(seaLevel), simulation.gameTime.value, getPlayer(unit.owner).color, interpolationFraction);
         }
 
+        worldRenderService.drawMeshFeatures(simulation.features | boost::adaptors::map_values, simScalarToFloat(seaLevel));
+
         worldRenderService.drawProjectiles(simulation.projectiles, simScalarToFloat(seaLevel), simulation.gameTime, interpolationFraction);
 
         sceneContext.graphics->disableDepthWrites();

@@ -7,12 +7,24 @@
 
 namespace rwe
 {
-    struct MapFeature
+    struct FeatureSpriteInfo
     {
         std::shared_ptr<SpriteSeries> animation;
         bool transparentAnimation;
         std::optional<std::shared_ptr<SpriteSeries>> shadowAnimation;
         bool transparentShadow;
+    };
+
+    struct FeatureObjectInfo
+    {
+        std::string objectName;
+    };
+
+    using FeatureRenderInfo = std::variant<FeatureSpriteInfo, FeatureObjectInfo>;
+
+    struct MapFeature
+    {
+        FeatureRenderInfo renderInfo;
         SimVector position;
         int footprintX;
         int footprintZ;

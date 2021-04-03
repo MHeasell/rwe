@@ -181,6 +181,12 @@ namespace rwe
         return it->second;
     }
 
+    bool UnitDatabase::hasUnitModelDefinition(const std::string& objectName) const
+    {
+        auto it = unitModelDefinitionsMap.find(objectName);
+        return it != unitModelDefinitionsMap.end();
+    }
+
     void UnitDatabase::addSelectionMesh(const std::string& objectName, std::shared_ptr<CollisionMesh> mesh)
     {
         selectionMeshesMap.insert({objectName, mesh});

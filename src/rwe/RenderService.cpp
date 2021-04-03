@@ -248,6 +248,11 @@ namespace rwe
         }
     }
 
+    void RenderService::drawFeatureUnitMesh(const std::string& objectName, const Matrix4f& modelMatrix, float seaLevel)
+    {
+        drawProjectileUnitMesh(objectName, modelMatrix, seaLevel, PlayerColorIndex(0));
+    }
+
     void RenderService::drawOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid)
     {
         auto halfWidth = camera.getWidth() / 2.0f;
@@ -832,15 +837,20 @@ namespace rwe
 
     void RenderService::drawFeatureShadowInternal(const MapFeature& feature)
     {
-        if (!feature.shadowAnimation)
+        auto spriteInfo = std::get_if<FeatureSpriteInfo>(&feature.renderInfo);
+        if (!spriteInfo)
+        {
+            return;
+        }
+        if (!spriteInfo->shadowAnimation)
         {
             return;
         }
 
         auto position = simVectorToFloat(feature.position);
-        const auto& sprite = *(*feature.shadowAnimation)->sprites[0];
+        const auto& sprite = *(*spriteInfo->shadowAnimation)->sprites[0];
 
-        float alpha = feature.transparentShadow ? 0.5f : 1.0f;
+        float alpha = spriteInfo->transparentShadow ? 0.5f : 1.0f;
 
         Vector3f snappedPosition(std::round(position.x), truncateToInterval(position.y, 2.0f), std::round(position.z));
 
@@ -862,10 +872,16 @@ namespace rwe
 
     void RenderService::drawFeatureInternal(const MapFeature& feature)
     {
-        auto position = simVectorToFloat(feature.position);
-        const auto& sprite = *feature.animation->sprites[0];
+        auto spriteInfo = std::get_if<FeatureSpriteInfo>(&feature.renderInfo);
+        if (!spriteInfo)
+        {
+            return;
+        }
 
-        float alpha = feature.transparentAnimation ? 0.5f : 1.0f;
+        auto position = simVectorToFloat(feature.position);
+        const auto& sprite = *spriteInfo->animation->sprites[0];
+
+        float alpha = spriteInfo->transparentAnimation ? 0.5f : 1.0f;
 
         Vector3f snappedPosition(std::round(position.x), truncateToInterval(position.y, 2.0f), std::round(position.z));
 

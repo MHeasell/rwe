@@ -162,6 +162,11 @@ namespace rwe
 
     std::unique_ptr<GameScene> LoadingScene::createGameScene(const std::string& mapName, unsigned int schemaIndex)
     {
+        auto atlasInfo = createTextureAtlases(sceneContext.vfs, sceneContext.graphics, sceneContext.palette);
+        MeshService meshService(sceneContext.vfs, sceneContext.graphics, std::move(atlasInfo.textureAtlasMap), std::move(atlasInfo.teamTextureAtlasMap), std::move(atlasInfo.colorAtlasMap));
+
+        auto [unitDatabase, meshDatabase] = createUnitDatabase(meshService);
+
         auto otaRaw = sceneContext.vfs->readFile(std::string("maps/").append(mapName).append(".ota"));
         if (!otaRaw)
         {
@@ -171,11 +176,25 @@ namespace rwe
         std::string otaStr(otaRaw->begin(), otaRaw->end());
         auto ota = parseOta(parseTdfFromString(otaStr));
 
+        // Load features
         auto featuresMap = loadAllFeatureDefinitions(*sceneContext.vfs);
         auto mapInfo = loadMap(featuresMap, mapName, ota, schemaIndex);
         GameSimulation simulation(std::move(mapInfo.terrain), mapInfo.surfaceMetal);
         for (auto& feature : mapInfo.features)
         {
+            if (auto objectInfo = std::get_if<FeatureObjectInfo>(&feature.renderInfo); objectInfo != nullptr)
+            {
+                if (!unitDatabase.hasUnitModelDefinition(objectInfo->objectName))
+                {
+                    auto meshInfo = meshService.loadProjectileMesh(objectInfo->objectName);
+                    unitDatabase.addUnitModelDefinition(objectInfo->objectName, std::move(meshInfo.modelDefinition));
+                    for (const auto& m : meshInfo.pieceMeshes)
+                    {
+                        meshDatabase.addUnitPieceMesh(objectInfo->objectName, m.first, m.second);
+                    }
+                }
+            }
+
             simulation.addFeature(std::move(feature));
         }
         auto seedSeq = seedFromGameParameters(gameParameters);
@@ -192,11 +211,6 @@ namespace rwe
         UiCamera worldUiCamera(worldViewportWidth, worldViewportHeight);
 
         UiCamera chromeUiCamera(sceneContext.viewport->width(), sceneContext.viewport->height());
-
-        auto atlasInfo = createTextureAtlases(sceneContext.vfs, sceneContext.graphics, sceneContext.palette);
-        MeshService meshService(sceneContext.vfs, sceneContext.graphics, std::move(atlasInfo.textureAtlasMap), std::move(atlasInfo.teamTextureAtlasMap), std::move(atlasInfo.colorAtlasMap));
-
-        auto [unitDatabase, meshDatabase] = createUnitDatabase(meshService);
 
         MovementClassCollisionService collisionService;
 
@@ -518,23 +532,34 @@ namespace rwe
         f.isIndestructible = definition.indestructible;
         f.metal = definition.metal;
         f.position = pos;
-        f.transparentAnimation = definition.animTrans;
-        f.transparentShadow = definition.shadTrans;
-        if (!definition.fileName.empty() && !definition.seqName.empty())
+
+        if (!definition.object.empty())
         {
-            f.animation = sceneContext.textureService->getGafEntry("anims/" + definition.fileName + ".GAF", definition.seqName);
+            f.renderInfo = FeatureObjectInfo{definition.object};
         }
-        if (!f.animation)
+        else
         {
-            f.animation = sceneContext.textureService->getDefaultSpriteSeries();
+            FeatureSpriteInfo spriteInfo;
+            spriteInfo.transparentAnimation = definition.animTrans;
+            spriteInfo.transparentShadow = definition.shadTrans;
+            if (!definition.fileName.empty() && !definition.seqName.empty())
+            {
+                spriteInfo.animation = sceneContext.textureService->getGafEntry("anims/" + definition.fileName + ".GAF", definition.seqName);
+            }
+            if (!spriteInfo.animation)
+            {
+                spriteInfo.animation = sceneContext.textureService->getDefaultSpriteSeries();
+            }
+
+            if (!definition.fileName.empty() && !definition.seqNameShad.empty())
+            {
+                // Some third-party features have broken shadow anim names (e.g. "empty"),
+                // ignore them if they don't exist.
+                spriteInfo.shadowAnimation = sceneContext.textureService->tryGetGafEntry("anims/" + definition.fileName + ".GAF", definition.seqNameShad);
+            }
+            f.renderInfo = std::move(spriteInfo);
         }
 
-        if (!definition.fileName.empty() && !definition.seqNameShad.empty())
-        {
-            // Some third-party features have broken shadow anim names (e.g. "empty"),
-            // ignore them if they don't exist.
-            f.shadowAnimation = sceneContext.textureService->tryGetGafEntry("anims/" + definition.fileName + ".GAF", definition.seqNameShad);
-        }
 
         return f;
     }
