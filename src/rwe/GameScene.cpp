@@ -539,6 +539,7 @@ namespace rwe
 
         auto seaLevel = simulation.terrain.getSeaLevel();
         worldRenderService.drawUnitShadows(simulation.terrain, simulation.units | boost::adaptors::map_values, interpolationFraction, seaLevel);
+        worldRenderService.drawFeatureMeshShadows(simulation.terrain, simulation.features | boost::adaptors::map_values, seaLevel);
 
         sceneContext.graphics->enableDepthBuffer();
 

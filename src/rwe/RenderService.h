@@ -70,6 +70,7 @@ namespace rwe
         void drawBuildingUnitMesh(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex, float frac);
         void drawProjectileUnitMesh(const std::string& objectName, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex, bool shaded);
         void drawFeatureUnitMesh(const std::string& objectName, const Matrix4f& modelMatrix, float seaLevel);
+        void drawFeatureUnitMeshShadow(const std::string& objectName, const Matrix4f& modelMatrix, float groundHeight);
         void drawSelectionRect(const Unit& unit, float frac);
         void drawNanolatheLine(const Vector3f& start, const Vector3f& end);
         void drawOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid);
@@ -127,6 +128,43 @@ namespace rwe
                     groundHeight = rweMax(groundHeight, seaLevel);
                 }
                 drawUnitShadow(unit, simScalarToFloat(groundHeight), frac);
+            }
+
+            graphics->useStencilBufferAsMask();
+            graphics->enableColorBuffer();
+
+            fillScreen(0.0f, 0.0f, 0.0f, 0.5f);
+
+            graphics->enableColorBuffer();
+            graphics->disableStencilBuffer();
+        }
+
+        template <typename Range>
+        void drawFeatureMeshShadows(const MapTerrain& terrain, const Range& features, SimScalar seaLevel)
+        {
+            graphics->enableStencilBuffer();
+            graphics->clearStencilBuffer();
+            graphics->useStencilBufferForWrites();
+            graphics->disableColorBuffer();
+
+            for (const MapFeature& feature : features)
+            {
+                auto objectInfo = std::get_if<FeatureObjectInfo>(&feature.renderInfo);
+                if (objectInfo == nullptr)
+                {
+                    continue;
+                }
+
+                const auto& position = feature.position;
+                auto groundHeight = terrain.getHeightAt(position.x, position.z);
+                if (position.y >= seaLevel && groundHeight < seaLevel)
+                {
+                    groundHeight = seaLevel;
+                }
+
+                auto matrix = Matrix4f::translation(simVectorToFloat(position)) * Matrix4f::rotationY(0.0f, -1.0f);
+
+                drawFeatureUnitMeshShadow(objectInfo->objectName, matrix, simScalarToFloat(groundHeight));
             }
 
             graphics->useStencilBufferAsMask();

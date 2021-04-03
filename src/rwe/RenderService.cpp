@@ -253,6 +253,22 @@ namespace rwe
         drawProjectileUnitMesh(objectName, modelMatrix, seaLevel, PlayerColorIndex(0), true);
     }
 
+    void RenderService::drawFeatureUnitMeshShadow(const std::string& objectName, const Matrix4f& modelMatrix, float groundHeight)
+    {
+        auto modelDefinition = unitDatabase->getUnitModelDefinition(objectName);
+        if (!modelDefinition)
+        {
+            throw std::runtime_error("missing model definition: " + objectName);
+        }
+
+        for (const auto& pieceDef : modelDefinition->get().pieces)
+        {
+            auto matrix = modelMatrix * getPieceTransform(pieceDef.name, modelDefinition->get().pieces);
+            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
+            drawShaderMeshShadow(resolvedMesh, matrix, groundHeight);
+        }
+    }
+
     void RenderService::drawOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid)
     {
         auto halfWidth = camera.getWidth() / 2.0f;
