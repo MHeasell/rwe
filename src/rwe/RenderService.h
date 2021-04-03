@@ -231,7 +231,7 @@ namespace rwe
                 const MapFeature& feature = *it;
                 if (auto objectInfo = std::get_if<FeatureObjectInfo>(&feature.renderInfo); objectInfo != nullptr)
                 {
-                    auto matrix = Matrix4f::translation(simVectorToFloat(feature.position));
+                    auto matrix = Matrix4f::translation(simVectorToFloat(feature.position)) * Matrix4f::rotationY(0.0f, -1.0f);
                     drawFeatureUnitMesh(objectInfo->objectName, matrix, seaLevel);
                 }
             }
