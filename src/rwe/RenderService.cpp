@@ -232,7 +232,7 @@ namespace rwe
         }
     }
 
-    void RenderService::drawProjectileUnitMesh(const std::string& objectName, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex)
+    void RenderService::drawProjectileUnitMesh(const std::string& objectName, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex, bool shaded)
     {
         auto modelDefinition = unitDatabase->getUnitModelDefinition(objectName);
         if (!modelDefinition)
@@ -244,13 +244,13 @@ namespace rwe
         {
             auto matrix = modelMatrix * getPieceTransform(pieceDef.name, modelDefinition->get().pieces);
             const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
-            drawShaderMesh(resolvedMesh, matrix, seaLevel, false, playerColorIndex);
+            drawShaderMesh(resolvedMesh, matrix, seaLevel, shaded, playerColorIndex);
         }
     }
 
     void RenderService::drawFeatureUnitMesh(const std::string& objectName, const Matrix4f& modelMatrix, float seaLevel)
     {
-        drawProjectileUnitMesh(objectName, modelMatrix, seaLevel, PlayerColorIndex(0));
+        drawProjectileUnitMesh(objectName, modelMatrix, seaLevel, PlayerColorIndex(0), true);
     }
 
     void RenderService::drawOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid)
@@ -676,7 +676,7 @@ namespace rwe
                     auto transform = Matrix4f::translation(position)
                         * pointDirection(simVectorToFloat(projectile.velocity).normalized())
                         * rotationModeToMatrix(m.rotationMode);
-                    drawProjectileUnitMesh(m.objectName, transform, seaLevel, PlayerColorIndex(0));
+                    drawProjectileUnitMesh(m.objectName, transform, seaLevel, PlayerColorIndex(0), false);
                 },
                 [&](const ProjectileRenderTypeSprite& s) {
                     Vector3f snappedPosition(

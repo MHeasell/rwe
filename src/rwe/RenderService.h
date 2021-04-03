@@ -68,7 +68,7 @@ namespace rwe
         void drawUnitMesh(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex, float frac);
         void drawUnitMeshShadow(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float groundHeight, float frac);
         void drawBuildingUnitMesh(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex, float frac);
-        void drawProjectileUnitMesh(const std::string& objectName, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex);
+        void drawProjectileUnitMesh(const std::string& objectName, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex, bool shaded);
         void drawFeatureUnitMesh(const std::string& objectName, const Matrix4f& modelMatrix, float seaLevel);
         void drawSelectionRect(const Unit& unit, float frac);
         void drawNanolatheLine(const Vector3f& start, const Vector3f& end);
