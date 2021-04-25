@@ -536,10 +536,17 @@ namespace rwe
         worldRenderService.drawFlatFeatureShadows(simulation.features | boost::adaptors::map_values);
         worldRenderService.drawFlatFeatures(simulation.features | boost::adaptors::map_values);
 
+        sceneContext.graphics->enableDepthBuffer();
+
+        ColoredMeshBatch terrainOverlayBatch;
+
         if (occupiedGridVisible)
         {
-            worldRenderService.drawOccupiedGrid(simulation.terrain, simulation.occupiedGrid);
+            worldRenderService.drawOccupiedGrid(simulation.terrain, simulation.occupiedGrid, terrainOverlayBatch);
         }
+        worldRenderService.drawBatch(terrainOverlayBatch, worldRenderService.getCamera().getViewProjectionMatrix());
+
+        sceneContext.graphics->disableDepthBuffer();
 
         if (pathfindingVisualisationVisible)
         {

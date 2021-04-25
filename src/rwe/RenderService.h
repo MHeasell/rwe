@@ -37,6 +37,12 @@ namespace rwe
         }
     };
 
+    struct ColoredMeshBatch
+    {
+        std::vector<GlColoredVertex> lines;
+        std::vector<GlColoredVertex> triangles;
+    };
+
     class RenderService
     {
     private:
@@ -73,7 +79,7 @@ namespace rwe
         void drawFeatureUnitMeshShadow(const std::string& objectName, const Matrix4f& modelMatrix, float groundHeight);
         void drawSelectionRect(const Unit& unit, float frac);
         void drawNanolatheLine(const Vector3f& start, const Vector3f& end);
-        void drawOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid);
+        void drawOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid, ColoredMeshBatch& batch);
         void drawMovementClassCollisionGrid(const MapTerrain& terrain, const Grid<char>& movementClassGrid);
         void drawPathfindingVisualisation(const MapTerrain& terrain, const AStarPathInfo<Point, PathCost>& pathInfo);
 
@@ -183,6 +189,8 @@ namespace rwe
         void drawExplosions(GameTime currentTime, const std::vector<Explosion>& explosions);
 
         void updateExplosions(GameTime currentTime, std::vector<Explosion>& explosions);
+
+        void drawBatch(const ColoredMeshBatch& batch, const Matrix4f& vpMatrix);
 
     private:
         void drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, PlayerColorIndex playerColorIndex);

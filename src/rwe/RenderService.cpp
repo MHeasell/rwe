@@ -269,7 +269,46 @@ namespace rwe
         }
     }
 
-    void RenderService::drawOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid)
+    void pushTriangle(std::vector<GlColoredVertex>& vs, const Triangle3f& tri, const Vector3f& color)
+    {
+        vs.emplace_back(tri.a, color);
+        vs.emplace_back(tri.b, color);
+        vs.emplace_back(tri.c, color);
+    }
+
+    void pushTriangle(std::vector<GlColoredVertex>& vs, const Triangle3f& tri)
+    {
+        pushTriangle(vs, tri, Vector3f(1.0f, 1.0f, 1.0f));
+    }
+
+    void pushTriangle(std::vector<GlColoredVertex>& vs, const Vector3f& a, const Vector3f& b, const Vector3f& c)
+    {
+        pushTriangle(vs, Triangle3f(a, b, c));
+    }
+
+    void pushTriangle(std::vector<GlColoredVertex>& vs, const Vector3f& a, const Vector3f& b, const Vector3f& c, const Vector3f& color)
+    {
+        pushTriangle(vs, Triangle3f(a, b, c), color);
+    }
+
+    void pushLine(std::vector<GlColoredVertex>& vs, const Line3f& line, const Vector3f& color)
+    {
+        vs.emplace_back(line.start, color);
+        vs.emplace_back(line.end, color);
+    }
+
+    void pushLine(std::vector<GlColoredVertex>& vs, const Line3f& line)
+    {
+        vs.emplace_back(line.start, Vector3f(1.0f, 1.0f, 1.0f));
+        vs.emplace_back(line.end, Vector3f(1.0f, 1.0f, 1.0f));
+    }
+
+    void pushLine(std::vector<GlColoredVertex>& vs, const Vector3f& start, const Vector3f& end)
+    {
+        pushLine(vs, Line3f(start, end));
+    }
+
+    void RenderService::drawOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid, ColoredMeshBatch& batch)
     {
         auto halfWidth = camera.getWidth() / 2.0f;
         auto halfHeight = camera.getHeight() / 2.0f;
@@ -296,12 +335,6 @@ namespace rwe
         assert(topLeftCell.x <= bottomRightCell.x);
         assert(topLeftCell.y <= bottomRightCell.y);
 
-        std::vector<Line3f> lines;
-
-        std::vector<Triangle3f> tris;
-        std::vector<Triangle3f> buildingTris;
-        std::vector<Triangle3f> passableBuildingTris;
-
         for (int y = topLeftCell.y; y <= bottomRightCell.y; ++y)
         {
             for (int x = topLeftCell.x; x <= bottomRightCell.x; ++x)
@@ -315,8 +348,8 @@ namespace rwe
                 auto downPos = simVectorToFloat(terrain.heightmapIndexToWorldCorner(x, y + 1));
                 downPos.y = terrain.getHeightMap().get(x, y + 1);
 
-                lines.emplace_back(pos, rightPos);
-                lines.emplace_back(pos, downPos);
+                pushLine(batch.lines, pos, rightPos);
+                pushLine(batch.lines, pos, downPos);
 
                 const auto& cell = occupiedGrid.get(x, y);
                 if (std::visit(IsOccupiedVisitor(), cell.occupiedType))
@@ -324,8 +357,8 @@ namespace rwe
                     auto downRightPos = simVectorToFloat(terrain.heightmapIndexToWorldCorner(x + 1, y + 1));
                     downRightPos.y = terrain.getHeightMap().get(x + 1, y + 1);
 
-                    tris.emplace_back(pos, downPos, downRightPos);
-                    tris.emplace_back(pos, downRightPos, rightPos);
+                    pushTriangle(batch.triangles, pos, downPos, downRightPos);
+                    pushTriangle(batch.triangles, pos, downRightPos, rightPos);
                 }
 
                 const auto insetAmount = 4.0f;
@@ -339,8 +372,8 @@ namespace rwe
                     downRightPos.y = terrain.getHeightMap().get(x + 1, y + 1);
                     downRightPos += Vector3f(-insetAmount, 0.0f, -insetAmount);
 
-                    buildingTris.emplace_back(topLeftPos, bottomLeftPos, downRightPos);
-                    buildingTris.emplace_back(topLeftPos, downRightPos, topRightPos);
+                    pushTriangle(batch.triangles, topLeftPos, bottomLeftPos, downRightPos, Vector3f(1.0f, 0.0f, 0.0f));
+                    pushTriangle(batch.triangles, topLeftPos, downRightPos, topRightPos, Vector3f(1.0f, 0.0f, 0.0f));
                 }
 
                 if (cell.buildingCell && cell.buildingCell->passable)
@@ -352,28 +385,11 @@ namespace rwe
                     downRightPos.y = terrain.getHeightMap().get(x + 1, y + 1);
                     downRightPos += Vector3f(-insetAmount, 0.0f, -insetAmount);
 
-                    passableBuildingTris.emplace_back(topLeftPos, bottomLeftPos, downRightPos);
-                    passableBuildingTris.emplace_back(topLeftPos, downRightPos, topRightPos);
+                    pushTriangle(batch.triangles, topLeftPos, bottomLeftPos, downRightPos, Vector3f(0.0f, 1.0f, 0.0f));
+                    pushTriangle(batch.triangles, topLeftPos, downRightPos, topRightPos, Vector3f(0.0f, 1.0f, 0.0f));
                 }
             }
         }
-
-        const auto& shader = shaders->basicColor;
-        graphics->bindShader(shader.handle.get());
-        graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix());
-        graphics->setUniformFloat(shader.alpha, 1.0f);
-
-        auto mesh = createTemporaryLinesMesh(lines);
-        graphics->drawLines(mesh);
-
-        auto triMesh = createTemporaryTriMesh(tris);
-        graphics->drawTriangles(triMesh);
-
-        auto buildingTriMesh = createTemporaryTriMesh(buildingTris, Vector3f(1.0f, 0.0f, 0.0f));
-        graphics->drawTriangles(buildingTriMesh);
-
-        auto passableBuildingTriMesh = createTemporaryTriMesh(passableBuildingTris, Vector3f(0.0f, 1.0f, 0.0f));
-        graphics->drawTriangles(passableBuildingTriMesh);
     }
 
     void RenderService::drawMovementClassCollisionGrid(
@@ -964,5 +980,32 @@ namespace rwe
             ++it;
         }
         explosions.erase(end, explosions.end());
+    }
+
+    void RenderService::drawBatch(const ColoredMeshBatch& batch, const Matrix4f& vpMatrix)
+    {
+        if (!batch.lines.empty() || !batch.triangles.empty())
+        {
+            graphics->disableDepthBuffer();
+
+            const auto& shader = shaders->basicColor;
+            graphics->bindShader(shader.handle.get());
+            graphics->setUniformFloat(shader.alpha, 1.0f);
+            graphics->setUniformMatrix(shader.mvpMatrix, vpMatrix);
+            if (!batch.lines.empty())
+            {
+
+                auto mesh = graphics->createColoredMesh(batch.lines, GL_STREAM_DRAW);
+                graphics->drawLines(mesh);
+            }
+
+            if (!batch.triangles.empty())
+            {
+                auto mesh = graphics->createColoredMesh(batch.triangles, GL_STREAM_DRAW);
+                graphics->drawTriangles(mesh);
+            }
+
+            graphics->enableDepthBuffer();
+        }
     }
 }
