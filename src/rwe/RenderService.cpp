@@ -308,6 +308,11 @@ namespace rwe
         pushLine(vs, Line3f(start, end));
     }
 
+    void pushLine(std::vector<GlColoredVertex>& vs, const Vector3f& start, const Vector3f& end, const Vector3f& color)
+    {
+        pushLine(vs, Line3f(start, end), color);
+    }
+
     void RenderService::drawOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid, ColoredMeshBatch& batch)
     {
         auto halfWidth = camera.getWidth() / 2.0f;
@@ -467,13 +472,8 @@ namespace rwe
     }
 
     void
-    RenderService::drawPathfindingVisualisation(const MapTerrain& terrain, const AStarPathInfo<Point, PathCost>& pathInfo)
+    RenderService::drawPathfindingVisualisation(const MapTerrain& terrain, const AStarPathInfo<Point, PathCost>& pathInfo, ColoredMeshBatch& batch)
     {
-        const auto& shader = shaders->basicColor;
-        graphics->bindShader(shader.handle.get());
-        graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix());
-        graphics->setUniformFloat(shader.alpha, 1.0f);
-
         for (const auto& item : pathInfo.closedVertices)
         {
             if (!item.second.predecessor)
@@ -483,7 +483,7 @@ namespace rwe
 
             auto start = (*item.second.predecessor)->vertex;
             auto end = item.second.vertex;
-            drawTerrainArrow(terrain, start, end, Color(255, 0, 0));
+            drawTerrainArrow(terrain, start, end, Color(255, 0, 0), batch);
         }
 
         if (pathInfo.path.size() > 1)
@@ -492,7 +492,7 @@ namespace rwe
             {
                 auto start = *(it - 1);
                 auto end = *it;
-                drawTerrainArrow(terrain, start, end, Color(0, 0, 255));
+                drawTerrainArrow(terrain, start, end, Color(0, 0, 255), batch);
             }
         }
     }
@@ -502,12 +502,17 @@ namespace rwe
         return createTemporaryLinesMesh(lines, Color(255, 255, 255));
     }
 
+    Vector3f colorToVector3f(const Color& color)
+    {
+        return Vector3f(static_cast<float>(color.r) / 255.0f, static_cast<float>(color.g) / 255.0f, static_cast<float>(color.b) / 255.0f);
+    }
+
     GlMesh RenderService::createTemporaryLinesMesh(const std::vector<Line3f>& lines, const Color& color)
     {
         std::vector<GlColoredVertex> buffer;
         buffer.reserve(lines.size() * 2); // 2 verts per line
 
-        Vector3f floatColor(static_cast<float>(color.r) / 255.0f, static_cast<float>(color.g) / 255.0f, static_cast<float>(color.b) / 255.0f);
+        auto floatColor = colorToVector3f(color);
 
         for (const auto& l : lines)
         {
@@ -934,10 +939,8 @@ namespace rwe
     }
 
     void
-    RenderService::drawTerrainArrow(const MapTerrain& terrain, const Point& start, const Point& end, const Color& color)
+    RenderService::drawTerrainArrow(const MapTerrain& terrain, const Point& start, const Point& end, const Color& color, ColoredMeshBatch& batch)
     {
-        std::vector<Line3f> lines;
-
         auto worldStart = terrain.heightmapIndexToWorldCenter(start);
         worldStart.y = terrain.getHeightAt(worldStart.x, worldStart.z);
         auto worldStartF = simVectorToFloat(worldStart);
@@ -950,11 +953,11 @@ namespace rwe
         auto arm1 = Matrix4f::translation(worldEndF) * Matrix4f::rotationY(Pif / 6.0f) * armTemplate;
         auto arm2 = Matrix4f::translation(worldEndF) * Matrix4f::rotationY(-Pif / 6.0f) * armTemplate;
 
-        lines.emplace_back(worldStartF, worldEndF);
-        lines.emplace_back(worldEndF, arm1);
-        lines.emplace_back(worldEndF, arm2);
+        auto floatColor = colorToVector3f(color);
 
-        graphics->drawLines(createTemporaryLinesMesh(lines, color));
+        pushLine(batch.lines, worldStartF, worldEndF, floatColor);
+        pushLine(batch.lines, worldEndF, arm1, floatColor);
+        pushLine(batch.lines, worldEndF, arm2, floatColor);
     }
 
 

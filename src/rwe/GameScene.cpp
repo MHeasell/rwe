@@ -544,14 +544,14 @@ namespace rwe
         {
             worldRenderService.drawOccupiedGrid(simulation.terrain, simulation.occupiedGrid, terrainOverlayBatch);
         }
+        if (pathfindingVisualisationVisible)
+        {
+            worldRenderService.drawPathfindingVisualisation(simulation.terrain, pathFindingService.lastPathDebugInfo, terrainOverlayBatch);
+        }
+
         worldRenderService.drawBatch(terrainOverlayBatch, worldRenderService.getCamera().getViewProjectionMatrix());
 
         sceneContext.graphics->disableDepthBuffer();
-
-        if (pathfindingVisualisationVisible)
-        {
-            worldRenderService.drawPathfindingVisualisation(simulation.terrain, pathFindingService.lastPathDebugInfo);
-        }
 
         if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && movementClassGridVisible)
         {
