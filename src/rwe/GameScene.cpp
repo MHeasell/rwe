@@ -542,11 +542,11 @@ namespace rwe
 
         if (occupiedGridVisible)
         {
-            worldRenderService.drawOccupiedGrid(simulation.terrain, simulation.occupiedGrid, terrainOverlayBatch);
+            drawOccupiedGrid(worldRenderService.getCamera(), simulation.terrain, simulation.occupiedGrid, terrainOverlayBatch);
         }
         if (pathfindingVisualisationVisible)
         {
-            worldRenderService.drawPathfindingVisualisation(simulation.terrain, pathFindingService.lastPathDebugInfo, terrainOverlayBatch);
+            drawPathfindingVisualisation(simulation.terrain, pathFindingService.lastPathDebugInfo, terrainOverlayBatch);
         }
 
         worldRenderService.drawBatch(terrainOverlayBatch, worldRenderService.getCamera().getViewProjectionMatrix());

@@ -79,9 +79,7 @@ namespace rwe
         void drawFeatureUnitMeshShadow(const std::string& objectName, const Matrix4f& modelMatrix, float groundHeight);
         void drawSelectionRect(const Unit& unit, float frac);
         void drawNanolatheLine(const Vector3f& start, const Vector3f& end);
-        void drawOccupiedGrid(const MapTerrain& terrain, const OccupiedGrid& occupiedGrid, ColoredMeshBatch& batch);
         void drawMovementClassCollisionGrid(const MapTerrain& terrain, const Grid<char>& movementClassGrid);
-        void drawPathfindingVisualisation(const MapTerrain& terrain, const AStarPathInfo<Point, PathCost>& pathInfo, ColoredMeshBatch& batch);
 
         void drawMapTerrain(const MapTerrainGraphics& terrain);
 
@@ -201,12 +199,10 @@ namespace rwe
 
         GlMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines);
 
-        GlMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines, const Color& color);
+        GlMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines, const Vector3f& color);
 
         GlMesh createTemporaryTriMesh(const std::vector<Triangle3f>& tris);
         GlMesh createTemporaryTriMesh(const std::vector<Triangle3f>& tris, const Vector3f& color);
-
-        void drawTerrainArrow(const MapTerrain& terrain, const Point& start, const Point& end, const Color& color, ColoredMeshBatch& batch);
 
         void drawFeatureShadowInternal(const MapFeature& feature);
         void drawFeatureInternal(const MapFeature& feature);
