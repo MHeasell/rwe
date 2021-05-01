@@ -68,4 +68,17 @@ namespace rwe
     {
         return CobAngle(static_cast<uint16_t>(std::round(angle.value * (32768.0f / Pif))));
     }
+
+    float angleLerp(float a, float b, float t)
+    {
+        if (b - a >= Pif)
+        {
+            return rweLerp(a + (2.0f * Pif), b, t);
+        }
+        if (b - a < -Pif)
+        {
+            return rweLerp(a, b + (2.0f * Pif), t);
+        }
+        return rweLerp(a, b, t);
+    }
 }

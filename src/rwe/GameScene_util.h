@@ -22,4 +22,15 @@ namespace rwe
     void drawOccupiedGrid(const CabinetCamera& camera, const MapTerrain& terrain, const OccupiedGrid& occupiedGrid, ColoredMeshBatch& batch);
 
     void drawMovementClassCollisionGrid(const MapTerrain& terrain, const Grid<char>& movementClassGrid, const CabinetCamera& camera, ColoredMeshBatch& batch);
+
+    void drawUnit(
+        const UnitDatabase* unitDatabase,
+        const MeshDatabase& meshDatabase,
+        const CabinetCamera& camera,
+        const Unit& unit,
+        PlayerColorIndex playerColorIndex,
+        float frac,
+        TextureIdentifier unitTextureAtlas,
+        std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
+        UnitMeshBatch& batch);
 }

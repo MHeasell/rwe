@@ -43,20 +43,46 @@ namespace rwe
         std::vector<GlColoredVertex> triangles;
     };
 
+    struct UnitTextureMeshRenderInfo
+    {
+        const GlMesh* mesh;
+        Matrix4f modelMatrix;
+        Matrix4f mvpMatrix;
+        bool shaded;
+        TextureIdentifier texture;
+    };
+
+    struct UnitBuildingMeshRenderInfo
+    {
+        const GlMesh* mesh;
+        Matrix4f modelMatrix;
+        Matrix4f mvpMatrix;
+        bool shaded;
+        TextureIdentifier texture;
+        float percentComplete;
+        float unitY;
+    };
+
+    struct UnitMeshBatch
+    {
+        std::vector<UnitTextureMeshRenderInfo> meshes;
+        std::vector<UnitBuildingMeshRenderInfo> buildingMeshes;
+    };
+
     class RenderService
     {
     private:
         GraphicsContext* graphics;
         ShaderService* shaders;
-        MeshDatabase meshDatabase;
         UnitDatabase* const unitDatabase;
 
         CabinetCamera camera;
 
+    public:
+        MeshDatabase meshDatabase;
         SharedTextureHandle unitTextureAtlas;
         std::vector<SharedTextureHandle> unitTeamTextureAtlases;
 
-    public:
         RenderService(
             GraphicsContext* graphics,
             ShaderService* shaders,
@@ -69,7 +95,6 @@ namespace rwe
         CabinetCamera& getCamera();
         const CabinetCamera& getCamera() const;
 
-        void drawUnit(const Unit& unit, float seaLevel, float time, PlayerColorIndex playerColorIndex, float frac);
         void drawUnitShadow(const Unit& unit, float groundHeight, float frac);
         void drawUnitMesh(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex, float frac);
         void drawUnitMeshShadow(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float groundHeight, float frac);
@@ -188,6 +213,8 @@ namespace rwe
         void updateExplosions(GameTime currentTime, std::vector<Explosion>& explosions);
 
         void drawBatch(const ColoredMeshBatch& batch, const Matrix4f& vpMatrix);
+
+        void drawUnitMeshBatch(const UnitMeshBatch& batch, float seaLevel, float time);
 
     private:
         void drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, PlayerColorIndex playerColorIndex);

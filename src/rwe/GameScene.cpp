@@ -576,10 +576,12 @@ namespace rwe
 
         sceneContext.graphics->enableDepthBuffer();
 
+        UnitMeshBatch unitMeshBatch;
         for (const auto& unit : (simulation.units | boost::adaptors::map_values))
         {
-            worldRenderService.drawUnit(unit, simScalarToFloat(seaLevel), simulation.gameTime.value, getPlayer(unit.owner).color, interpolationFraction);
+            drawUnit(&unitDatabase, worldRenderService.meshDatabase, worldRenderService.getCamera(), unit, getPlayer(unit.owner).color, interpolationFraction, worldRenderService.unitTextureAtlas.get(), worldRenderService.unitTeamTextureAtlases, unitMeshBatch);
         }
+        worldRenderService.drawUnitMeshBatch(unitMeshBatch, simScalarToFloat(seaLevel), simulation.gameTime.value);
 
         worldRenderService.drawMeshFeatures(simulation.features | boost::adaptors::map_values, simScalarToFloat(seaLevel));
 

@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <boost/algorithm/string/predicate.hpp>
+#include <rwe/Index.h>
 
 namespace rwe
 {
@@ -303,4 +304,183 @@ namespace rwe
         }
     }
 
+    Matrix4f getPieceTransformForRender(const std::string& pieceName, const std::vector<UnitPieceDefinition>& pieceDefinitions, const std::vector<UnitMesh>& pieces, float frac)
+    {
+        assert(pieceDefinitions.size() == pieces.size());
+
+        std::optional<std::string> parentPiece = pieceName;
+        auto matrix = Matrix4f::identity();
+
+        do
+        {
+            auto pieceDefIt = std::find_if(pieceDefinitions.begin(), pieceDefinitions.end(), [&](const auto& p) { return boost::iequals(p.name, *parentPiece); });
+            if (pieceDefIt == pieceDefinitions.end())
+            {
+                throw std::runtime_error("missing piece definition: " + *parentPiece);
+            }
+
+            parentPiece = pieceDefIt->parent;
+
+            auto pieceStateIt = pieces.begin() + (pieceDefIt - pieceDefinitions.begin());
+
+            auto position = lerp(simVectorToFloat(pieceDefIt->origin + pieceStateIt->previousOffset), simVectorToFloat(pieceDefIt->origin + pieceStateIt->offset), frac);
+            auto rotationX = angleLerp(toRadians(pieceStateIt->previousRotationX).value, toRadians(pieceStateIt->rotationX).value, frac);
+            auto rotationY = angleLerp(toRadians(pieceStateIt->previousRotationY).value, toRadians(pieceStateIt->rotationY).value, frac);
+            auto rotationZ = angleLerp(toRadians(pieceStateIt->previousRotationZ).value, toRadians(pieceStateIt->rotationZ).value, frac);
+            matrix = Matrix4f::translation(position) * Matrix4f::rotationZXY(Vector3f(rotationX, rotationY, rotationZ)) * matrix;
+        } while (parentPiece);
+
+        return matrix;
+    }
+
+    Matrix4f getPieceTransformForRender(const std::string& pieceName, const std::vector<UnitPieceDefinition>& pieceDefinitions)
+    {
+        std::optional<std::string> parentPiece = pieceName;
+        auto pos = SimVector(0_ss, 0_ss, 0_ss);
+
+        do
+        {
+            auto pieceDefIt = std::find_if(pieceDefinitions.begin(), pieceDefinitions.end(), [&](const auto& p) { return boost::iequals(p.name, *parentPiece); });
+            if (pieceDefIt == pieceDefinitions.end())
+            {
+                throw std::runtime_error("missing piece definition: " + *parentPiece);
+            }
+
+            parentPiece = pieceDefIt->parent;
+
+            pos += pieceDefIt->origin;
+        } while (parentPiece);
+
+        return Matrix4f::translation(simVectorToFloat(pos));
+    }
+
+    void drawShaderMesh(
+        const CabinetCamera& camera,
+        const ShaderMesh& mesh,
+        const Matrix4f& matrix,
+        bool shaded,
+        PlayerColorIndex playerColorIndex,
+        TextureIdentifier unitTextureAtlas,
+        std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
+        std::vector<UnitTextureMeshRenderInfo>& batch)
+    {
+        auto mvpMatrix = camera.getViewProjectionMatrix() * matrix;
+
+        batch.emplace_back(&mesh.vertices, matrix, mvpMatrix, shaded, unitTextureAtlas);
+        batch.emplace_back(&mesh.teamVertices, matrix, mvpMatrix, shaded, unitTeamTextureAtlases.at(playerColorIndex.value).get());
+    }
+
+    void drawUnitMesh(
+        const UnitDatabase* unitDatabase,
+        const MeshDatabase& meshDatabase,
+        const CabinetCamera& camera,
+        const std::string& objectName,
+        const std::vector<UnitMesh>& meshes,
+        const Matrix4f& modelMatrix,
+        PlayerColorIndex playerColorIndex,
+        float frac,
+        TextureIdentifier unitTextureAtlas,
+        std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
+        UnitMeshBatch& batch)
+    {
+        auto modelDefinition = unitDatabase->getUnitModelDefinition(objectName);
+        if (!modelDefinition)
+        {
+            throw std::runtime_error("missing model definition: " + objectName);
+        }
+        assert(modelDefinition->get().pieces.size() == meshes.size());
+
+        for (Index i = 0; i < getSize(modelDefinition->get().pieces); ++i)
+        {
+            const auto& pieceDef = modelDefinition->get().pieces[i];
+            const auto& mesh = meshes[i];
+            if (!mesh.visible)
+            {
+                continue;
+            }
+
+            auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition->get().pieces, meshes, frac);
+
+            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
+            drawShaderMesh(camera, resolvedMesh, matrix, mesh.shaded, playerColorIndex, unitTextureAtlas, unitTeamTextureAtlases, batch.meshes);
+        }
+    }
+
+    void drawBuildingShaderMesh(
+        const CabinetCamera& camera,
+        const ShaderMesh& mesh,
+        const Matrix4f& matrix,
+        bool shaded,
+        float percentComplete,
+        float unitY,
+        PlayerColorIndex playerColorIndex,
+        TextureIdentifier unitTextureAtlas,
+        std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
+        std::vector<UnitBuildingMeshRenderInfo>& batch)
+    {
+        auto mvpMatrix = camera.getViewProjectionMatrix() * matrix;
+        batch.emplace_back(&mesh.vertices, matrix, mvpMatrix, shaded, unitTextureAtlas, percentComplete, unitY);
+        batch.emplace_back(&mesh.teamVertices, matrix, mvpMatrix, shaded, unitTeamTextureAtlases.at(playerColorIndex.value).get(), percentComplete, unitY);
+    }
+
+    void drawBuildingUnitMesh(
+        const UnitDatabase* unitDatabase,
+        const MeshDatabase& meshDatabase,
+        const CabinetCamera& camera,
+        const std::string& objectName,
+        const std::vector<UnitMesh>& meshes,
+        const Matrix4f& modelMatrix,
+        float percentComplete,
+        float unitY,
+        PlayerColorIndex playerColorIndex,
+        float frac,
+        TextureIdentifier unitTextureAtlas,
+        std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
+        UnitMeshBatch& batch)
+    {
+        auto modelDefinition = unitDatabase->getUnitModelDefinition(objectName);
+        if (!modelDefinition)
+        {
+            throw std::runtime_error("missing model definition: " + objectName);
+        }
+
+        for (Index i = 0; i < getSize(modelDefinition->get().pieces); ++i)
+        {
+            const auto& pieceDef = modelDefinition->get().pieces[i];
+            const auto& mesh = meshes[i];
+            if (!mesh.visible)
+            {
+                continue;
+            }
+
+            auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition->get().pieces, meshes, frac);
+
+            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
+            drawBuildingShaderMesh(camera, resolvedMesh, matrix, mesh.shaded, percentComplete, unitY, playerColorIndex, unitTextureAtlas, unitTeamTextureAtlases, batch.buildingMeshes);
+        }
+    }
+
+    void drawUnit(
+        const UnitDatabase* unitDatabase,
+        const MeshDatabase& meshDatabase,
+        const CabinetCamera& camera,
+        const Unit& unit,
+        PlayerColorIndex playerColorIndex,
+        float frac,
+        TextureIdentifier unitTextureAtlas,
+        std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
+        UnitMeshBatch& batch)
+    {
+        auto position = lerp(simVectorToFloat(unit.previousPosition), simVectorToFloat(unit.position), frac);
+        auto rotation = angleLerp(toRadians(unit.previousRotation).value, toRadians(unit.rotation).value, frac);
+        auto transform = Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
+        if (unit.isBeingBuilt())
+        {
+            drawBuildingUnitMesh(unitDatabase, meshDatabase, camera, unit.objectName, unit.pieces, transform, unit.getPreciseCompletePercent(), position.y, playerColorIndex, frac, unitTextureAtlas, unitTeamTextureAtlases, batch);
+        }
+        else
+        {
+            drawUnitMesh(unitDatabase, meshDatabase, camera, unit.objectName, unit.pieces, transform, playerColorIndex, frac, unitTextureAtlas, unitTeamTextureAtlases, batch);
+        }
+    }
 }

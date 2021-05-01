@@ -6,19 +6,6 @@
 
 namespace rwe
 {
-    float angleLerp(float a, float b, float t)
-    {
-        if (b - a >= Pif)
-        {
-            return rweLerp(a + (2.0f * Pif), b, t);
-        }
-        if (b - a < -Pif)
-        {
-            return rweLerp(a, b + (2.0f * Pif), t);
-        }
-        return rweLerp(a, b, t);
-    }
-
     Matrix4f getPieceTransform(const std::string& pieceName, const std::vector<UnitPieceDefinition>& pieceDefinitions, const std::vector<UnitMesh>& pieces, float frac)
     {
         assert(pieceDefinitions.size() == pieces.size());
@@ -122,21 +109,6 @@ namespace rwe
         graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix());
         graphics->setUniformFloat(shader.alpha, 1.0f);
         graphics->drawLines(mesh);
-    }
-
-    void RenderService::drawUnit(const Unit& unit, float seaLevel, float time, PlayerColorIndex playerColorIndex, float frac)
-    {
-        auto position = lerp(simVectorToFloat(unit.previousPosition), simVectorToFloat(unit.position), frac);
-        auto rotation = angleLerp(toRadians(unit.previousRotation).value, toRadians(unit.rotation).value, frac);
-        auto transform = Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
-        if (unit.isBeingBuilt())
-        {
-            drawBuildingUnitMesh(unit.objectName, unit.pieces, transform, seaLevel, unit.getPreciseCompletePercent(), position.y, time, playerColorIndex, frac);
-        }
-        else
-        {
-            drawUnitMesh(unit.objectName, unit.pieces, transform, seaLevel, playerColorIndex, frac);
-        }
     }
 
     void RenderService::drawUnitMesh(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex, float frac)
@@ -732,6 +704,43 @@ namespace rwe
             }
 
             graphics->enableDepthBuffer();
+        }
+    }
+
+    void RenderService::drawUnitMeshBatch(const UnitMeshBatch& batch, float seaLevel, float time)
+    {
+        if (!batch.buildingMeshes.empty())
+        {
+            const auto& buildShader = shaders->unitBuild;
+            graphics->bindShader(buildShader.handle.get());
+            graphics->setUniformFloat(buildShader.seaLevel, seaLevel);
+            graphics->setUniformFloat(buildShader.time, time);
+            for (const auto& m : batch.buildingMeshes)
+            {
+                graphics->setUniformMatrix(buildShader.mvpMatrix, m.mvpMatrix);
+                graphics->setUniformMatrix(buildShader.modelMatrix, m.modelMatrix);
+                graphics->setUniformFloat(buildShader.unitY, m.unitY);
+                graphics->setUniformBool(buildShader.shade, m.shaded);
+                graphics->setUniformFloat(buildShader.percentComplete, m.percentComplete);
+
+                graphics->bindTexture(m.texture);
+                graphics->drawTriangles(*m.mesh);
+            }
+        }
+
+        if (!batch.meshes.empty())
+        {
+            const auto& textureShader = shaders->unitTexture;
+            graphics->bindShader(textureShader.handle.get());
+            graphics->setUniformFloat(textureShader.seaLevel, seaLevel);
+            for (const auto& m : batch.meshes)
+            {
+                graphics->setUniformMatrix(textureShader.mvpMatrix, m.mvpMatrix);
+                graphics->setUniformMatrix(textureShader.modelMatrix, m.modelMatrix);
+                graphics->setUniformBool(textureShader.shade, m.shaded);
+                graphics->bindTexture(m.texture);
+                graphics->drawTriangles(*m.mesh);
+            }
         }
     }
 }
