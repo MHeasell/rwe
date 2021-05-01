@@ -241,4 +241,66 @@ namespace rwe
             }
         }
     }
+
+    void drawMovementClassCollisionGrid(
+        const MapTerrain& terrain,
+        const Grid<char>& movementClassGrid,
+        const CabinetCamera& camera,
+        ColoredMeshBatch& batch)
+    {
+        auto halfWidth = camera.getWidth() / 2.0f;
+        auto halfHeight = camera.getHeight() / 2.0f;
+        auto left = camera.getPosition().x - halfWidth;
+        auto top = camera.getPosition().z - halfHeight;
+        auto right = camera.getPosition().x + halfWidth;
+        auto bottom = camera.getPosition().z + halfHeight;
+
+        assert(left < right);
+        assert(top < bottom);
+
+        assert(terrain.getHeightMap().getWidth() >= 2);
+        assert(terrain.getHeightMap().getHeight() >= 2);
+        assert(movementClassGrid.getWidth() <= terrain.getHeightMap().getWidth());
+        assert(movementClassGrid.getHeight() <= terrain.getHeightMap().getHeight());
+
+        auto topLeftCell = terrain.worldToHeightmapCoordinate(floatToSimVector(Vector3f(left, 0.0f, top)));
+        topLeftCell.x = std::clamp(topLeftCell.x, 0, static_cast<int>(movementClassGrid.getWidth() - 1));
+        topLeftCell.y = std::clamp(topLeftCell.y, 0, static_cast<int>(movementClassGrid.getHeight() - 1));
+
+        auto bottomRightCell = terrain.worldToHeightmapCoordinate(floatToSimVector(Vector3f(right, 0.0f, bottom)));
+        bottomRightCell.y += 7; // compensate for height
+        bottomRightCell.x = std::clamp(bottomRightCell.x, 0, static_cast<int>(movementClassGrid.getWidth() - 1));
+        bottomRightCell.y = std::clamp(bottomRightCell.y, 0, static_cast<int>(movementClassGrid.getHeight() - 1));
+
+        assert(topLeftCell.x <= bottomRightCell.x);
+        assert(topLeftCell.y <= bottomRightCell.y);
+
+        for (int y = topLeftCell.y; y <= bottomRightCell.y; ++y)
+        {
+            for (int x = topLeftCell.x; x <= bottomRightCell.x; ++x)
+            {
+                auto pos = simVectorToFloat(terrain.heightmapIndexToWorldCorner(x, y));
+                pos.y = terrain.getHeightMap().get(x, y);
+
+                auto rightPos = simVectorToFloat(terrain.heightmapIndexToWorldCorner(x + 1, y));
+                rightPos.y = terrain.getHeightMap().get(x + 1, y);
+
+                auto downPos = simVectorToFloat(terrain.heightmapIndexToWorldCorner(x, y + 1));
+                downPos.y = terrain.getHeightMap().get(x, y + 1);
+
+                pushLine(batch.lines, pos, rightPos);
+                pushLine(batch.lines, pos, downPos);
+
+                if (!movementClassGrid.get(x, y))
+                {
+                    auto downRightPos = simVectorToFloat(terrain.heightmapIndexToWorldCorner(x + 1, y + 1));
+                    downRightPos.y = terrain.getHeightMap().get(x + 1, y + 1);
+
+                    pushTriangle(batch.triangles, pos, downPos, downRightPos);
+                    pushTriangle(batch.triangles, pos, downRightPos, rightPos);
+                }
+            }
+        }
+    }
+
 }

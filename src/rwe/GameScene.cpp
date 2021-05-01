@@ -549,19 +549,19 @@ namespace rwe
             drawPathfindingVisualisation(simulation.terrain, pathFindingService.lastPathDebugInfo, terrainOverlayBatch);
         }
 
-        worldRenderService.drawBatch(terrainOverlayBatch, worldRenderService.getCamera().getViewProjectionMatrix());
-
-        sceneContext.graphics->disableDepthBuffer();
-
         if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && movementClassGridVisible)
         {
             const auto& unit = simulation.getUnit(*selectedUnit);
             if (unit.movementClass)
             {
                 const auto& grid = collisionService.getGrid(*unit.movementClass);
-                worldRenderService.drawMovementClassCollisionGrid(simulation.terrain, grid);
+                drawMovementClassCollisionGrid(simulation.terrain, grid, worldRenderService.getCamera(), terrainOverlayBatch);
             }
         }
+
+        worldRenderService.drawBatch(terrainOverlayBatch, worldRenderService.getCamera().getViewProjectionMatrix());
+
+        sceneContext.graphics->disableDepthBuffer();
 
         auto interpolationFraction = static_cast<float>(millisecondsBuffer) / static_cast<float>(SimMillisecondsPerTick);
         for (const auto& selectedUnitId : selectedUnits)
