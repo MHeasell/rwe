@@ -472,6 +472,8 @@ set(SOURCE_FILES
     src/rwe/render/Sprite.h
     src/rwe/render/SpriteSeries.cpp
     src/rwe/render/SpriteSeries.h
+    src/rwe/render/TextureArrayHandle.h
+    src/rwe/render/TextureArrayRegion.h
     src/rwe/render/TextureHandle.h
     src/rwe/render/TextureRegion.cpp
     src/rwe/render/TextureRegion.h

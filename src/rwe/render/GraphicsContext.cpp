@@ -19,6 +19,11 @@ namespace rwe
     {
     }
 
+    GlTextureArrayVertex::GlTextureArrayVertex(const Vector3f& pos, const Vector3f& texCoord)
+        : x(pos.x), y(pos.y), z(pos.z), u(texCoord.x), v(texCoord.y), w(texCoord.z)
+    {
+    }
+
     GlTexturedNormalVertex::GlTexturedNormalVertex(const Vector3f& pos, const Vector2f& texCoord, const Vector3f& normal)
         : x(pos.x), y(pos.y), z(pos.z), u(texCoord.x), v(texCoord.y), nx(normal.x), ny(normal.y), nz(normal.z)
     {
@@ -113,6 +118,30 @@ namespace rwe
             GL_UNSIGNED_BYTE,
             &c);
         requireNoOpenGlError();
+
+        return handle;
+    }
+
+    TextureArrayHandle GraphicsContext::createTextureArray(unsigned int width, unsigned int height, unsigned int mipMapLevels, std::vector<Color>& images)
+    {
+        assert(images.size() % (width * height) == 0);
+        auto depth = images.size() / (width * height);
+        GLuint texture;
+        glGenTextures(1, &texture);
+        TextureArrayIdentifier id(texture);
+        TextureArrayHandle handle(id);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
+        glTexStorage3D(GL_TEXTURE_2D_ARRAY, mipMapLevels, GL_RGBA8, width, height, depth);
+
+        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, width, height, depth, GL_RGBA, GL_UNSIGNED_BYTE, images.data());
+
+        glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
         return handle;
     }
@@ -228,6 +257,27 @@ namespace rwe
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), reinterpret_cast<void*>(0));
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), reinterpret_cast<void*>(3 * sizeof(GLfloat)));
+
+        unbindBuffer(GL_ARRAY_BUFFER);
+        unbindVertexArray();
+
+        return GlMesh(std::move(vao), std::move(vbo), vertices.size());
+    }
+
+    GlMesh GraphicsContext::createTextureArrayMesh(const std::vector<GlTextureArrayVertex>& vertices, GLenum usage)
+    {
+        auto vao = genVertexArray();
+        bindVertexArray(vao.get());
+
+        auto vbo = genBuffer();
+        bindBuffer(GL_ARRAY_BUFFER, vbo.get());
+
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GlTextureArrayVertex), vertices.data(), usage);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(0));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void*>(3 * sizeof(GLfloat)));
 
         unbindBuffer(GL_ARRAY_BUFFER);
         unbindVertexArray();
@@ -397,9 +447,19 @@ namespace rwe
         glBindTexture(GL_TEXTURE_2D, texture.value);
     }
 
+    void GraphicsContext::bindTextureArray(TextureArrayIdentifier texture)
+    {
+        glBindTexture(GL_TEXTURE_2D_ARRAY, texture.value);
+    }
+
     void GraphicsContext::unbindTexture()
     {
         glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    void GraphicsContext::unbindTextureArray()
+    {
+        glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
     }
 
     void GraphicsContext::enableBlending()

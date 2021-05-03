@@ -1,5 +1,6 @@
 #pragma once
 
+#include "TextureArrayHandle.h"
 #include <GL/glew.h>
 #include <SDL.h>
 #include <memory>
@@ -31,6 +32,19 @@ namespace rwe
 
         GlTexturedVertex() = default;
         GlTexturedVertex(const Vector3f& pos, const Vector2f& texCoord);
+    };
+
+    struct GlTextureArrayVertex
+    {
+        GLfloat x;
+        GLfloat y;
+        GLfloat z;
+        GLfloat u;
+        GLfloat v;
+        GLfloat w;
+
+        GlTextureArrayVertex() = default;
+        GlTextureArrayVertex(const Vector3f& pos, const Vector3f& texCoord);
     };
 
     struct GlTexturedNormalVertex
@@ -113,6 +127,8 @@ namespace rwe
 
         TextureHandle createColorTexture(Color c);
 
+        TextureArrayHandle createTextureArray(unsigned int width, unsigned int height, unsigned int mipMapLevels, std::vector<Color>& images);
+
         void enableDepthBuffer();
 
         void disableDepthBuffer();
@@ -144,6 +160,8 @@ namespace rwe
 
         GlMesh createTexturedMesh(const std::vector<GlTexturedVertex>& vertices, GLenum usage);
 
+        GlMesh createTextureArrayMesh(const std::vector<GlTextureArrayVertex>& vertices, GLenum usage);
+
         GlMesh createColoredMesh(const std::vector<GlColoredVertex>& vertices, GLenum usage);
 
         GlMesh createTexturedNormalMesh(const std::vector<GlTexturedNormalVertex>& vertices, GLenum usage);
@@ -156,7 +174,11 @@ namespace rwe
 
         void bindTexture(TextureIdentifier texture);
 
+        void bindTextureArray(TextureArrayIdentifier texture);
+
         void unbindTexture();
+
+        void unbindTextureArray();
 
         void enableBlending();
 

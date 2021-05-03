@@ -15,6 +15,7 @@
 #include <rwe/io/featuretdf/FeatureDefinition.h>
 #include <rwe/io/ota/ota.h>
 #include <rwe/io/tnt/TntArchive.h>
+#include <rwe/render/TextureArrayRegion.h>
 #include <rwe/sim/Energy.h>
 #include <rwe/sim/Metal.h>
 #include <rwe/sim/SimVector.h>
@@ -133,7 +134,7 @@ namespace rwe
 
         LoadMapResult loadMap(const std::unordered_map<std::string, FeatureDefinition>& featuresMap, const std::string& mapName, const rwe::OtaRecord& ota, unsigned int schemaIndex);
 
-        std::vector<TextureRegion> getTileTextures(TntArchive& tnt);
+        std::vector<TextureArrayRegion> getTileTextures(TntArchive& tnt);
 
         Grid<std::size_t> getMapData(TntArchive& tnt);
 

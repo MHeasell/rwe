@@ -2,12 +2,12 @@
 
 namespace rwe
 {
-    MapTerrainGraphics::MapTerrainGraphics(std::vector<TextureRegion>&& tileGraphics, Grid<std::size_t>&& tiles)
+    MapTerrainGraphics::MapTerrainGraphics(std::vector<TextureArrayRegion>&& tileGraphics, Grid<std::size_t>&& tiles)
         : tileGraphics(std::move(tileGraphics)), tiles(std::move(tiles))
     {
     }
 
-    const TextureRegion& MapTerrainGraphics::getTileTexture(std::size_t index) const
+    const TextureArrayRegion& MapTerrainGraphics::getTileTexture(std::size_t index) const
     {
         assert(index < tileGraphics.size());
         return tileGraphics[index];

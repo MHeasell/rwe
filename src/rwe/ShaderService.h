@@ -19,6 +19,12 @@ namespace rwe
         UniformLocation tint;
     };
 
+    struct MapTerrainShader
+    {
+        ShaderProgramHandle handle;
+        UniformLocation mvpMatrix;
+    };
+
     struct UnitTextureShader
     {
         ShaderProgramHandle handle;
@@ -61,6 +67,7 @@ namespace rwe
     public:
         BasicColorShader basicColor;
         BasicTextureShader basicTexture;
+        MapTerrainShader mapTerrain;
         UnitTextureShader unitTexture;
         UnitShadowShader unitShadow;
         UnitBuildShader unitBuild;

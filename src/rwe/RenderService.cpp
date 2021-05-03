@@ -263,7 +263,7 @@ namespace rwe
 
     void RenderService::drawMapTerrain(const MapTerrainGraphics& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
     {
-        std::unordered_map<TextureIdentifier, std::vector<std::pair<unsigned int, unsigned int>>> batches;
+        std::unordered_map<TextureArrayIdentifier, std::vector<std::pair<unsigned int, unsigned int>>> batches;
 
         for (unsigned int dy = 0; dy < height; ++dy)
         {
@@ -276,13 +276,13 @@ namespace rwe
             }
         }
 
-        const auto& shader = shaders->basicTexture;
+        const auto& shader = shaders->mapTerrain;
         graphics->bindShader(shader.handle.get());
         graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix());
 
         for (const auto& batch : batches)
         {
-            std::vector<GlTexturedVertex> vertices;
+            std::vector<GlTextureArrayVertex> vertices;
 
             for (const auto& p : batch.second)
             {
@@ -292,20 +292,21 @@ namespace rwe
                 auto tileIndex = terrain.getTiles().get(x + dx, y + dy);
                 auto tilePosition = simVectorToFloat(terrain.tileCoordinateToWorldCorner(x + dx, y + dy));
 
-                const auto& tileTexture = terrain.getTileTexture(tileIndex);
+                const auto& tileTextureArray = terrain.getTileTexture(tileIndex);
+                auto layerIndex = static_cast<float>(tileTextureArray.index);
 
-                vertices.emplace_back(Vector3f(tilePosition.x, 0.0f, tilePosition.z), tileTexture.region.topLeft());
-                vertices.emplace_back(Vector3f(tilePosition.x, 0.0f, tilePosition.z + simScalarToFloat(MapTerrainGraphics::TileHeightInWorldUnits)), tileTexture.region.bottomLeft());
-                vertices.emplace_back(Vector3f(tilePosition.x + simScalarToFloat(MapTerrainGraphics::TileWidthInWorldUnits), 0.0f, tilePosition.z + simScalarToFloat(MapTerrainGraphics::TileHeightInWorldUnits)), tileTexture.region.bottomRight());
+                vertices.emplace_back(Vector3f(tilePosition.x, 0.0f, tilePosition.z), Vector3f(0.0f, 0.0f, layerIndex));
+                vertices.emplace_back(Vector3f(tilePosition.x, 0.0f, tilePosition.z + simScalarToFloat(MapTerrainGraphics::TileHeightInWorldUnits)), Vector3f(0.0f, 1.0f, layerIndex));
+                vertices.emplace_back(Vector3f(tilePosition.x + simScalarToFloat(MapTerrainGraphics::TileWidthInWorldUnits), 0.0f, tilePosition.z + simScalarToFloat(MapTerrainGraphics::TileHeightInWorldUnits)), Vector3f(1.0f, 1.0f, layerIndex));
 
-                vertices.emplace_back(Vector3f(tilePosition.x + simScalarToFloat(MapTerrainGraphics::TileWidthInWorldUnits), 0.0f, tilePosition.z + simScalarToFloat(MapTerrainGraphics::TileHeightInWorldUnits)), tileTexture.region.bottomRight());
-                vertices.emplace_back(Vector3f(tilePosition.x + simScalarToFloat(MapTerrainGraphics::TileWidthInWorldUnits), 0.0f, tilePosition.z), tileTexture.region.topRight());
-                vertices.emplace_back(Vector3f(tilePosition.x, 0.0f, tilePosition.z), tileTexture.region.topLeft());
+                vertices.emplace_back(Vector3f(tilePosition.x + simScalarToFloat(MapTerrainGraphics::TileWidthInWorldUnits), 0.0f, tilePosition.z + simScalarToFloat(MapTerrainGraphics::TileHeightInWorldUnits)), Vector3f(1.0f, 1.0f, layerIndex));
+                vertices.emplace_back(Vector3f(tilePosition.x + simScalarToFloat(MapTerrainGraphics::TileWidthInWorldUnits), 0.0f, tilePosition.z), Vector3f(1.0f, 0.0f, layerIndex));
+                vertices.emplace_back(Vector3f(tilePosition.x, 0.0f, tilePosition.z), Vector3f(0.0f, 0.0f, layerIndex));
             }
 
-            auto mesh = graphics->createTexturedMesh(vertices, GL_STREAM_DRAW);
+            auto mesh = graphics->createTextureArrayMesh(vertices, GL_STREAM_DRAW);
 
-            graphics->bindTexture(batch.first);
+            graphics->bindTextureArray(batch.first);
             graphics->drawTriangles(mesh);
         }
     }

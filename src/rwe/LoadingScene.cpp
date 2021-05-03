@@ -431,67 +431,46 @@ namespace rwe
         return LoadMapResult{std::move(terrain), static_cast<unsigned char>(schema.surfaceMetal), std::move(features), std::move(terrainGraphics)};
     }
 
-    std::vector<TextureRegion> LoadingScene::getTileTextures(TntArchive& tnt)
+    std::vector<TextureArrayRegion> LoadingScene::getTileTextures(TntArchive& tnt)
     {
         static const unsigned int tileWidth = 32;
         static const unsigned int tileHeight = 32;
-        static const unsigned int textureWidth = 1024;
-        static const unsigned int textureHeight = 1024;
-        static const auto textureWidthInTiles = textureWidth / tileWidth;
-        static const auto textureHeightInTiles = textureHeight / tileHeight;
-        static const auto tilesPerTexture = textureWidthInTiles * textureHeightInTiles;
+        static const unsigned int mipMapLevels = 5;
+        static const auto tilesPerTextureArray = 256;
 
-        std::vector<TextureRegion> tileTextures;
+        std::vector<TextureArrayRegion> tileTextures;
 
-        Grid<Color> textureBuffer(textureWidth, textureHeight);
+        std::vector<Color> textureArrayBuffer;
+        textureArrayBuffer.reserve(tileWidth * tileHeight * tilesPerTextureArray);
 
-        std::vector<SharedTextureHandle> textureHandles;
+        std::vector<SharedTextureArrayHandle> textureArrayHandles;
 
         // read the tile graphics into textures
         {
-            unsigned int tileCount = 0;
-            tnt.readTiles([this, &tileCount, &textureBuffer, &textureHandles](const char* tile) {
-                if (tileCount == tilesPerTexture)
+            tnt.readTiles([&](const char* tile) {
+                if (textureArrayBuffer.size() == tileWidth * tileHeight * tilesPerTextureArray)
                 {
-                    SharedTextureHandle handle(sceneContext.graphics->createTexture(textureBuffer));
-                    textureHandles.push_back(std::move(handle));
-                    tileCount = 0;
+                    SharedTextureArrayHandle handle(sceneContext.graphics->createTextureArray(tileWidth, tileHeight, mipMapLevels, textureArrayBuffer));
+                    textureArrayHandles.push_back(std::move(handle));
+                    textureArrayBuffer.clear();
                 }
 
-                auto tileX = tileCount % textureWidthInTiles;
-                auto tileY = tileCount / textureWidthInTiles;
-                auto startX = tileX * tileWidth;
-                auto startY = tileY * tileHeight;
-                for (unsigned int dy = 0; dy < tileHeight; ++dy)
+                for (unsigned int i = 0; i < (tileWidth * tileHeight); ++i)
                 {
-                    for (unsigned int dx = 0; dx < tileWidth; ++dx)
-                    {
-                        auto textureX = startX + dx;
-                        auto textureY = startY + dy;
-                        auto index = static_cast<unsigned char>(tile[(dy * tileWidth) + dx]);
-                        textureBuffer.set(textureX, textureY, (*sceneContext.palette)[index]);
-                    }
+                    auto index = static_cast<unsigned char>(tile[i]);
+                    textureArrayBuffer.push_back((*sceneContext.palette)[index]);
                 }
-
-                tileCount += 1;
             });
         }
-        textureHandles.emplace_back(sceneContext.graphics->createTexture(textureBuffer));
+        textureArrayHandles.emplace_back(sceneContext.graphics->createTextureArray(tileWidth, tileHeight, mipMapLevels, textureArrayBuffer));
 
         // populate the list of texture regions referencing the textures
         for (unsigned int i = 0; i < tnt.getHeader().numberOfTiles; ++i)
         {
-            auto textureIndex = i / tilesPerTexture;
-            auto tileIndex = i % tilesPerTexture;
-            const float regionWidth = static_cast<float>(tileWidth) / static_cast<float>(textureWidth);
-            const float regionHeight = static_cast<float>(tileHeight) / static_cast<float>(textureHeight);
-            auto x = tileIndex % textureWidthInTiles;
-            auto y = tileIndex / textureWidthInTiles;
-
-            assert(textureHandles.size() > i / tilesPerTexture);
-            tileTextures.emplace_back(
-                textureHandles[textureIndex],
-                Rectangle2f::fromTopLeft(x * regionWidth, y * regionHeight, regionWidth, regionHeight));
+            assert(textureArrayHandles.size() > i / tilesPerTextureArray);
+            auto textureIndex = i / tilesPerTextureArray;
+            auto tileIndex = i % tilesPerTextureArray;
+            tileTextures.emplace_back(textureArrayHandles[textureIndex], tileIndex);
         }
 
         return tileTextures;
