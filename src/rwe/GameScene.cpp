@@ -1313,6 +1313,12 @@ namespace rwe
             }
         }
 
+        // reset cursor mode if shift is released and at least 1 order was queued since shift was held
+        if (commandWasQueued && !isShiftDown()) {
+          cursorMode.next(NormalCursorMode());
+          commandWasQueued = false;
+        }
+
         hoveredUnit = getUnitUnderCursor();
 
         if (auto buildCursor = std::get_if<BuildCursorMode>(&cursorMode.getValue()); buildCursor != nullptr && isCursorOverWorld())
@@ -2138,6 +2144,8 @@ namespace rwe
                 playUiSound(*sounds.okToBuild);
             }
         }
+
+        commandWasQueued = true;
     }
 
     void GameScene::localPlayerStopUnit(UnitId unitId)

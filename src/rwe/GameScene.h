@@ -251,6 +251,7 @@ namespace rwe
         std::deque<std::optional<GameSceneTimeAction>> actions;
 
         std::vector<PlayerCommand> localPlayerCommandBuffer;
+        bool commandWasQueued{false};
 
         BehaviorSubject<UnitFireOrders> fireOrders{UnitFireOrders::HoldFire};
         BehaviorSubject<bool> onOff{false};
