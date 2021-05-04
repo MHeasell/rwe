@@ -7,7 +7,7 @@ if [ ! -f "$install_dir/done" ]; then
     cd protobuf
     ./autogen.sh
     ./configure "--prefix=$install_dir"
-    make
+    make -j`nproc`
     make install
     touch "$install_dir/done"
 fi
