@@ -440,7 +440,7 @@ namespace rwe
         }
     }
 
-    void GameScene::renderUnitOrderLines(UnitId unitId)
+    void GameScene::renderUnitOrders(UnitId unitId, bool drawLines)
     {
         const auto& unit = getUnit(unitId);
         auto pos = unit.position;
@@ -481,20 +481,25 @@ namespace rwe
                     return unitOption->get().position;
                 });
 
-            auto drawLine = match(
-                order,
-                [&](const BuildOrder&) { return true; },
-                [&](const MoveOrder&) { return true; },
-                [&](const AttackOrder&) { return false; },
-                [&](const BuggerOffOrder&) { return false; },
-                [&](const CompleteBuildOrder&) { return true; },
-                [&](const GuardOrder&) { return true; });
+            // TODO draw icon here
 
-            if (drawLine)
+            if (drawLines)
             {
-                auto uiPos = worldToUi * simVectorToFloat(pos);
-                auto uiDest = worldToUi * simVectorToFloat(nextPos);
-                worldUiRenderService.drawLine(uiPos.xy(), uiDest.xy());
+                auto drawLine = match(
+                    order,
+                    [&](const BuildOrder&) { return true; },
+                    [&](const MoveOrder&) { return true; },
+                    [&](const AttackOrder&) { return false; },
+                    [&](const BuggerOffOrder&) { return false; },
+                    [&](const CompleteBuildOrder&) { return true; },
+                    [&](const GuardOrder&) { return true; });
+
+                if (drawLine)
+                {
+                    auto uiPos = worldToUi * simVectorToFloat(pos);
+                    auto uiDest = worldToUi * simVectorToFloat(nextPos);
+                    worldUiRenderService.drawLine(uiPos.xy(), uiDest.xy());
+                }
             }
 
             pos = nextPos;
@@ -581,16 +586,6 @@ namespace rwe
         {
             auto singleSelectedUnit = getSingleSelectedUnit();
 
-            // draw order lines
-            if (singleSelectedUnit)
-            {
-                renderUnitOrderLines(*singleSelectedUnit);
-            }
-            if (hoveredUnit && (!singleSelectedUnit || *hoveredUnit != *singleSelectedUnit) && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
-            {
-                renderUnitOrderLines(*hoveredUnit);
-            }
-
             // if unit is a builder, show all other buildings being built
             if ((singleSelectedUnit && getUnit(*singleSelectedUnit).builder) || (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId) && getUnit(*hoveredUnit).builder))
             {
@@ -603,9 +598,22 @@ namespace rwe
                 }
             }
 
+            // draw orders + lines for hovered unit
+            if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
+            {
+                renderUnitOrders(*hoveredUnit, true);
+            }
+
+            // draw orders for all selected units
             for (const auto& selectedUnitId : selectedUnits)
             {
                 renderBuildBoxes(getUnit(selectedUnitId), Color(0, 255, 0));
+
+                if (selectedUnitId != hoveredUnit)
+                {
+                    // draw lines if only one unit is selected--hovered unit is drawn aleady
+                    renderUnitOrders(selectedUnitId, singleSelectedUnit == selectedUnitId);
+                }
             }
         }
 

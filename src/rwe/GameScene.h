@@ -500,7 +500,7 @@ namespace rwe
 
         void renderDebugWindow();
 
-        void renderUnitOrderLines(UnitId unitId);
+        void renderUnitOrders(UnitId unitId, bool drawLines);
 
         void renderBuildBoxes(const Unit& unit, const Color& color);
 
