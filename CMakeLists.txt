@@ -168,7 +168,6 @@ else()
     find_windows_dll(VORBISFILE_DLL "libvorbisfile-3.dll")
     find_windows_dll(WEBP_DLL "libwebp-7.dll")
     find_windows_dll(ZSTD_DLL "libzstd.dll")
-    find_windows_dll(FLUIDSYNTH_DLL "libfluidsynth-2.dll")
     find_windows_dll(MODPLUG_DLL "libmodplug-1.dll")
     find_windows_dll(OPUSFILE_DLL "libopusfile-0.dll")
     find_windows_dll(OPUS_DLL "libopus-0.dll")
@@ -185,6 +184,8 @@ else()
     find_windows_dll(INTL_DLL "libintl-8.dll")
     find_windows_dll(PCRE_DLL "libpcre-1.dll")
     find_windows_dll(ICONV_DLL "libiconv-2.dll")
+    find_windows_dll(SSP_DLL "libssp-0.dll")
+    find_windows_dll(DEFLATE_DLL "libdeflate.dll")
 endif()
 
 # We should have std::chrono everywhere,
@@ -626,9 +627,10 @@ target_copy_file(librwe ${TIFF_DLL})
 if(WIN32 AND NOT MSVC)
     target_copy_file(librwe ${LZMA_DLL}) # MSYS2 libtiff depends on liblzma
     target_copy_file(librwe ${ZSTD_DLL}) # MSYS2 libtiff depends on zstd
-    target_copy_file(librwe ${FLUIDSYNTH_DLL}) # MSYS2 SDL2_mixer depends on fluidsynth
+    target_copy_file(librwe ${DEFLATE_DLL}) # MSYS2 libtiff depends on deflate
     target_copy_file(librwe ${MODPLUG_DLL}) # MSYS2 SDL2_mixer depends on modplug
     target_copy_file(librwe ${OPUSFILE_DLL}) # MSYS2 SDL2_mixer depends on opusfile
+    target_copy_file(librwe ${SSP_DLL}) # MSYS2 SDL2_mixer libflac depends on ssp
     target_copy_file(librwe ${OPUS_DLL})
     target_copy_file(librwe ${PORTAUDIO_DLL})
     target_copy_file(librwe ${READLINE_DLL})
