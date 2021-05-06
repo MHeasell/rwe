@@ -400,6 +400,8 @@ set(SOURCE_FILES
     src/rwe/io/pcx/pcx.h
     src/rwe/io/tdf/ListTdfAdapter.cpp
     src/rwe/io/tdf/ListTdfAdapter.h
+    src/rwe/io/tdf/NetSchemaTdfAdapter.cpp
+    src/rwe/io/tdf/NetSchemaTdfAdapter.h
     src/rwe/io/tdf/SimpleTdfAdapter.cpp
     src/rwe/io/tdf/SimpleTdfAdapter.h
     src/rwe/io/tdf/TdfBlock.cpp

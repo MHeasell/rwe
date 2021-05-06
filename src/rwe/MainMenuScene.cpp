@@ -937,9 +937,6 @@ namespace rwe
             throw std::runtime_error("Failed to read OTA file");
         }
 
-        std::string otaStr(otaRaw->begin(), otaRaw->end());
-        auto ota = parseOta(parseTdfFromString(otaStr));
-
-        return std::any_of(ota.schemas.begin(), ota.schemas.end(), [](const auto& s) { return startsWith(toUpper(s.type), "NETWORK"); });
+        return parseTdfHasNetworkSchema(*otaRaw);
     }
 }

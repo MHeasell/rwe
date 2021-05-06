@@ -171,12 +171,12 @@ namespace rwe
             consumeComments();
             while (*_it != ']' && *_it != TdfEndOfFile)
             {
-                utf8::append(*_it, inserter);
-                consumeComments();
+                utf8::unchecked::append(*_it, inserter);
                 ++_it;
+                consumeComments();
             }
 
-            utf8Trim(name);
+            utf8UncheckedTrim(name);
 
             return name;
         }
@@ -230,19 +230,19 @@ namespace rwe
                 throw TdfParserException(_it.getLine(), _it.getColumn(), "Expected property name");
             }
 
-            utf8::append(*_it, inserter);
+            utf8::unchecked::append(*_it, inserter);
             ++_it;
 
             consumeComments();
 
             while (*_it != '=' && *_it != ';' && *_it != TdfEndOfFile)
             {
-                utf8::append(*_it, inserter);
+                utf8::unchecked::append(*_it, inserter);
                 ++_it;
                 consumeComments();
             }
 
-            utf8Trim(value);
+            utf8UncheckedTrim(value);
 
             return value;
         }
@@ -254,12 +254,12 @@ namespace rwe
 
             while (*_it != ';' && *_it != TdfEndOfFile)
             {
-                utf8::append(*_it, inserter);
+                utf8::unchecked::append(*_it, inserter);
                 ++_it;
                 consumeComments();
             }
 
-            utf8Trim(value);
+            utf8UncheckedTrim(value);
 
             return value;
         }

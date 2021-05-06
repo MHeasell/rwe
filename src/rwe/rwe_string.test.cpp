@@ -78,12 +78,22 @@ namespace rwe
         }
     }
 
-    TEST_CASE("utf8Trim")
+    TEST_CASE("utf8TrimChecked")
     {
         SECTION("trims leading and trailing spaces")
         {
             std::string s("    foo  ");
             utf8Trim(s);
+            REQUIRE(s == "foo");
+        }
+    }
+
+    TEST_CASE("utf8TrimUnchecked")
+    {
+        SECTION("trims leading and trailing spaces")
+        {
+            std::string s("    foo  ");
+            utf8UncheckedTrim(s);
             REQUIRE(s == "foo");
         }
     }
