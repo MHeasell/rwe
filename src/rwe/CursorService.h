@@ -10,7 +10,7 @@
 
 namespace rwe
 {
-    enum class CursorType
+    enum class CursorType : size_t
     {
         Normal,
         Select,
@@ -25,9 +25,7 @@ namespace rwe
 
     using Cursors = std::array<std::shared_ptr<SpriteSeries>, static_cast<size_t>(CursorType::NUM_CURSORS)>;
 
-    size_t operator*(CursorType t) {
-        return static_cast<size_t>(t);
-    }
+    size_t operator*(CursorType t);
 
     class CursorService
     {
@@ -43,6 +41,8 @@ namespace rwe
         CursorService(SdlContext* sdlContext, TimeService* timeService, Cursors cursors);
 
         void useCursor(CursorType type);
+
+        std::shared_ptr<SpriteSeries> getCursor(CursorType type) const;
 
         void render(UiRenderService& renderer) const;
     };

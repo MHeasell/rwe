@@ -481,7 +481,28 @@ namespace rwe
                     return unitOption->get().position;
                 });
 
-            // TODO draw icon here
+            auto waypointIcon = match(
+                order,
+                [&](const BuildOrder&) { return std::optional<CursorType>(); },
+                [&](const MoveOrder&) { return std::optional<CursorType>(CursorType::Move); },
+                [&](const AttackOrder&) { return std::optional<CursorType>(CursorType::Attack); },
+                [&](const BuggerOffOrder&) { return std::optional<CursorType>(); },
+                [&](const CompleteBuildOrder&) { return std::optional<CursorType>(CursorType::Repair); },
+                [&](const GuardOrder&) { return std::optional<CursorType>(CursorType::Guard); });
+
+            // draw waypoint icons
+            if (waypointIcon)
+            {
+                auto timeInMillis = sceneContext.timeService->getTicks();
+                unsigned int frameRateInSeconds = 2;
+                unsigned int millisPerFrame = 1000 / frameRateInSeconds;
+
+                const auto& frames = sceneContext.cursor->getCursor(*waypointIcon)->sprites;
+                auto frameIndex = (timeInMillis / millisPerFrame) % frames.size();
+
+                auto uiDest = worldToUi * simVectorToFloat(nextPos);
+                worldUiRenderService.drawSprite(uiDest.x, uiDest.y, *(frames[frameIndex]), Color(255, 255, 255, 100));
+            }
 
             if (drawLines)
             {

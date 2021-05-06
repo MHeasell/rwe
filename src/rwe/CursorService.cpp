@@ -2,6 +2,10 @@
 
 namespace rwe
 {
+    size_t operator*(CursorType t) {
+        return static_cast<size_t>(t);
+    }
+
     CursorService::CursorService(
         SdlContext* sdlContext,
         TimeService* timeService,
@@ -16,6 +20,11 @@ namespace rwe
     void CursorService::useCursor(CursorType type)
     {
         currentCursor = _cursors[*type].get();
+    }
+
+    std::shared_ptr<SpriteSeries> CursorService::getCursor(CursorType type) const
+    {
+        return _cursors[*type];
     }
 
     void CursorService::render(UiRenderService& renderer) const
