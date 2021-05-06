@@ -1440,69 +1440,69 @@ namespace rwe
         if (!isCursorOverMinimap() && !isCursorOverWorld())
         {
             // The cursor is outside the world, so over UI elements.
-            sceneContext.cursor->useNormalCursor();
+            sceneContext.cursor->useCursor(CursorType::Normal);
         }
         else
         {
             match(
                 cursorMode.getValue(),
                 [&](const AttackCursorMode&) {
-                    sceneContext.cursor->useAttackCursor();
+                    sceneContext.cursor->useCursor(CursorType::Attack);
                 },
                 [&](const MoveCursorMode&) {
-                    sceneContext.cursor->useMoveCursor();
+                    sceneContext.cursor->useCursor(CursorType::Move);
                 },
                 [&](const GuardCursorMode&) {
-                    sceneContext.cursor->useGuardCursor();
+                    sceneContext.cursor->useCursor(CursorType::Guard);
                 },
                 [&](const BuildCursorMode&) {
-                    sceneContext.cursor->useNormalCursor();
+                    sceneContext.cursor->useCursor(CursorType::Normal);
                 },
                 [&](const NormalCursorMode&) {
                     if (leftClickMode())
                     {
                         if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
                         {
-                            sceneContext.cursor->useSelectCursor();
+                            sceneContext.cursor->useCursor(CursorType::Select);
                         }
                         else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).canAttack; }) && hoveredUnit && isEnemy(*hoveredUnit))
                         {
-                            sceneContext.cursor->useAttackCursor();
+                            sceneContext.cursor->useCursor(CursorType::Attack);
                         }
                         else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).builder; }) && hoveredUnit && getUnit(*hoveredUnit).isBeingBuilt())
                         {
-                            sceneContext.cursor->useRepairCursor();
+                            sceneContext.cursor->useCursor(CursorType::Repair);
                         }
                         else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).canMove; }))
                         {
-                            sceneContext.cursor->useMoveCursor();
+                            sceneContext.cursor->useCursor(CursorType::Move);
                         }
                         else
                         {
-                            sceneContext.cursor->useNormalCursor();
+                            sceneContext.cursor->useCursor(CursorType::Normal);
                         }
                     }
                     else
                     {
                         if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
                         {
-                            sceneContext.cursor->useSelectCursor();
+                            sceneContext.cursor->useCursor(CursorType::Select);
                         }
                         else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).canAttack; }) && hoveredUnit && isEnemy(*hoveredUnit))
                         {
-                            sceneContext.cursor->useRedCursor();
+                            sceneContext.cursor->useCursor(CursorType::Red);
                         }
                         else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).builder; }) && hoveredUnit && isFriendly(*hoveredUnit) && getUnit(*hoveredUnit).isBeingBuilt())
                         {
-                            sceneContext.cursor->useGreenCursor();
+                            sceneContext.cursor->useCursor(CursorType::Green);
                         }
                         else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).canGuard; }) && hoveredUnit && isFriendly(*hoveredUnit))
                         {
-                            sceneContext.cursor->useGreenCursor();
+                            sceneContext.cursor->useCursor(CursorType::Green);
                         }
                         else
                         {
-                            sceneContext.cursor->useNormalCursor();
+                            sceneContext.cursor->useCursor(CursorType::Normal);
                         }
                     }
                 });
