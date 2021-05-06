@@ -169,10 +169,11 @@ namespace rwe
             auto inserter = std::back_inserter(name);
 
             consumeComments();
-            while (auto cp = acceptNotAny(std::vector<TdfCodePoint>{']', TdfEndOfFile}))
+            while (*_it != ']' && *_it != TdfEndOfFile)
             {
-                utf8::append(*cp, inserter);
+                utf8::append(*_it, inserter);
                 consumeComments();
+                ++_it;
             }
 
             utf8Trim(name);
@@ -186,21 +187,20 @@ namespace rwe
             consumeWhitespaceAndComments();
             while (!accept('}'))
             {
-                if (peek() == '[')
+                switch (*_it)
                 {
-                    block();
-                }
-                else if (peek() == ';')
-                {
-                    // Empty statement (i.e. terminator that terminates nothing).
-                    // Strictly this isn't really valid
-                    // but some files in the wild do have this
-                    // and we need cope with them.
-                    expect(';');
-                }
-                else
-                {
-                    property();
+                    case '[':
+                        block();
+                        break;
+                    case ';':
+                        // Empty statement (i.e. terminator that terminates nothing).
+                        // Strictly this isn't really valid
+                        // but some files in the wild do have this
+                        // and we need cope with them.
+                        expect(';');
+                        break;
+                    default:
+                        property();
                 }
 
                 consumeWhitespaceAndComments();
@@ -225,17 +225,20 @@ namespace rwe
             std::string value;
             auto inserter = std::back_inserter(value);
 
-            auto firstCodePoint = acceptNotAny(std::vector<TdfCodePoint>{'=', '\n', ';', TdfEndOfFile});
-            if (!firstCodePoint)
+            if (*_it == '=' || *_it == '\n' || *_it == ';' || *_it == TdfEndOfFile)
             {
                 throw TdfParserException(_it.getLine(), _it.getColumn(), "Expected property name");
             }
-            utf8::append(*firstCodePoint, inserter);
+
+            utf8::append(*_it, inserter);
+            ++_it;
 
             consumeComments();
-            while (auto cp = acceptNotAny(std::vector<TdfCodePoint>{'=', ';', TdfEndOfFile}))
+
+            while (*_it != '=' && *_it != ';' && *_it != TdfEndOfFile)
             {
-                utf8::append(*cp, inserter);
+                utf8::append(*_it, inserter);
+                ++_it;
                 consumeComments();
             }
 
@@ -249,9 +252,10 @@ namespace rwe
             std::string value;
             auto inserter = std::back_inserter(value);
 
-            while (auto cp = acceptNotAny(std::vector<TdfCodePoint>{';', TdfEndOfFile}))
+            while (*_it != ';' && *_it != TdfEndOfFile)
             {
-                utf8::append(*cp, inserter);
+                utf8::append(*_it, inserter);
+                ++_it;
                 consumeComments();
             }
 
@@ -262,7 +266,15 @@ namespace rwe
 
         bool acceptWhitespace()
         {
-            return accept(' ') || accept('\t') || accept('\n');
+            switch (*_it)
+            {
+                case ' ':
+                case '\t':
+                case '\n':
+                    ++_it;
+                    return true;
+            }
+            return false;
         }
 
         void consumeWhitespaceAndComments()
@@ -288,50 +300,33 @@ namespace rwe
 
         bool acceptBlockComment()
         {
-            if (!accept("/*"))
+            if (!accept2("/*"))
             {
                 return false;
             }
 
-            while (true)
+            while (!accept2("*/"))
             {
-                if (accept("*/"))
+                if (isEndOfFile())
                 {
-                    return true;
+                    throw TdfParserException(_it.getLine(), _it.getColumn(), "Expected */, got end of file");
                 }
-
-                if (acceptNotEndOfFile())
-                {
-                    continue;
-                }
-
-                throw TdfParserException(_it.getLine(), _it.getColumn(), "Expected */, got end of file");
+                ++_it;
             }
+            return true;
         }
 
         bool acceptLineComment()
         {
-            if (!accept("//"))
+            if (!accept2("//"))
             {
                 return false;
             }
-
-            while (acceptNotAny(std::vector<TdfCodePoint>{'\n', TdfEndOfFile}))
+            while (*_it != '\n' && *_it != TdfEndOfFile)
             {
-                // do nothing
+                ++_it;
             }
 
-            return true;
-        }
-
-        bool acceptNotEndOfFile()
-        {
-            if (isEndOfFile())
-            {
-                return false;
-            }
-
-            next();
             return true;
         }
 
@@ -343,64 +338,26 @@ namespace rwe
             }
         }
 
-        template <typename Container>
-        std::optional<TdfCodePoint> acceptNotAny(const Container& container)
-        {
-            return acceptNotAny(container.begin(), container.end());
-        }
-
-        template <typename CharIt>
-        std::optional<TdfCodePoint> acceptNotAny(const CharIt& begin, const CharIt& end)
-        {
-            auto curr = peek();
-            auto it = std::find(begin, end, curr);
-            if (it == end)
-            {
-                next();
-                return curr;
-            }
-
-            return std::nullopt;
-        }
-
-        std::optional<TdfCodePoint> acceptNot(TdfCodePoint cp)
-        {
-            auto val = peek();
-
-            if (val == cp)
-            {
-                return std::nullopt;
-            }
-
-            next();
-            return val;
-        }
-
         bool accept(TdfCodePoint cp)
         {
-            if (peek() != cp)
+            if (*_it != cp)
             {
                 return false;
             }
 
-            next();
+            ++_it;
             return true;
         }
 
-        bool accept(const std::string& str)
+        bool accept2(const char* pTwoChars)
         {
+            //operator+ isn't implemented...
             auto localIt = _it;
-            for (auto it = utf8Begin(str), end = utf8End(str); it != end; ++it)
+            if (*_it != pTwoChars[0] || *(++localIt) != pTwoChars[1])
             {
-                if (*localIt != *it)
-                {
-                    return false;
-                }
-
-                ++localIt;
+                return false;
             }
-
-            _it = localIt;
+            ++_it; ++_it;
             return true;
         }
 
@@ -409,16 +366,5 @@ namespace rwe
             return _it.isEnd();
         }
 
-        TdfCodePoint peek()
-        {
-            return *_it;
-        }
-
-        TdfCodePoint next()
-        {
-            auto val = *_it;
-            ++_it;
-            return val;
-        }
     };
 }
