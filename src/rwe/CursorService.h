@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <rwe/SdlContextManager.h>
 #include <rwe/UiRenderService.h>
@@ -9,51 +10,39 @@
 
 namespace rwe
 {
+    enum class CursorType : size_t
+    {
+        Normal,
+        Select,
+        Attack,
+        Move,
+        Guard,
+        Repair,
+        Red,
+        Green,
+        NUM_CURSORS
+    };
+
+    using Cursors = std::array<std::shared_ptr<SpriteSeries>, static_cast<size_t>(CursorType::NUM_CURSORS)>;
+
+    size_t operator*(CursorType t);
+
     class CursorService
     {
     private:
         SdlContext* sdlContext;
         TimeService* timeService;
 
-        std::shared_ptr<SpriteSeries> _normalCursor;
-        std::shared_ptr<SpriteSeries> _selectCursor;
-        std::shared_ptr<SpriteSeries> _attackCursor;
-        std::shared_ptr<SpriteSeries> _moveCursor;
-        std::shared_ptr<SpriteSeries> _guardCursor;
-        std::shared_ptr<SpriteSeries> _repairCursor;
-        std::shared_ptr<SpriteSeries> _redCursor;
-        std::shared_ptr<SpriteSeries> _greenCursor;
+        const Cursors _cursors;
 
         SpriteSeries* currentCursor;
 
     public:
-        CursorService(
-            SdlContext* sdlContext,
-            TimeService* timeService,
-            std::shared_ptr<SpriteSeries> normalCursor,
-            std::shared_ptr<SpriteSeries> selectCursor,
-            std::shared_ptr<SpriteSeries> attackCursor,
-            std::shared_ptr<SpriteSeries> moveCursor,
-            std::shared_ptr<SpriteSeries> guardCursor,
-            std::shared_ptr<SpriteSeries> repairCursor,
-            std::shared_ptr<SpriteSeries> redCursor,
-            std::shared_ptr<SpriteSeries> greenCursor);
+        CursorService(SdlContext* sdlContext, TimeService* timeService, Cursors cursors);
 
-        void useNormalCursor();
+        void useCursor(CursorType type);
 
-        void useSelectCursor();
-
-        void useAttackCursor();
-
-        void useMoveCursor();
-
-        void useGuardCursor();
-
-        void useRepairCursor();
-
-        void useRedCursor();
-
-        void useGreenCursor();
+        std::shared_ptr<SpriteSeries> getCursor(CursorType type) const;
 
         void render(UiRenderService& renderer) const;
     };

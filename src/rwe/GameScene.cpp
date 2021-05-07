@@ -440,7 +440,7 @@ namespace rwe
         }
     }
 
-    void GameScene::renderUnitOrderLines(UnitId unitId)
+    void GameScene::renderUnitOrders(UnitId unitId, bool drawLines)
     {
         const auto& unit = getUnit(unitId);
         auto pos = unit.position;
@@ -481,20 +481,46 @@ namespace rwe
                     return unitOption->get().position;
                 });
 
-            auto drawLine = match(
+            auto waypointIcon = match(
                 order,
-                [&](const BuildOrder&) { return true; },
-                [&](const MoveOrder&) { return true; },
-                [&](const AttackOrder&) { return false; },
-                [&](const BuggerOffOrder&) { return false; },
-                [&](const CompleteBuildOrder&) { return true; },
-                [&](const GuardOrder&) { return true; });
+                [&](const BuildOrder&) { return std::optional<CursorType>(); },
+                [&](const MoveOrder&) { return std::optional<CursorType>(CursorType::Move); },
+                [&](const AttackOrder&) { return std::optional<CursorType>(CursorType::Attack); },
+                [&](const BuggerOffOrder&) { return std::optional<CursorType>(); },
+                [&](const CompleteBuildOrder&) { return std::optional<CursorType>(CursorType::Repair); },
+                [&](const GuardOrder&) { return std::optional<CursorType>(CursorType::Guard); });
 
-            if (drawLine)
+            // draw waypoint icons
+            if (waypointIcon)
             {
-                auto uiPos = worldToUi * simVectorToFloat(pos);
+                auto timeInMillis = sceneContext.timeService->getTicks();
+                unsigned int frameRateInSeconds = 2;
+                unsigned int millisPerFrame = 1000 / frameRateInSeconds;
+
+                const auto& frames = sceneContext.cursor->getCursor(*waypointIcon)->sprites;
+                auto frameIndex = (timeInMillis / millisPerFrame) % frames.size();
+
                 auto uiDest = worldToUi * simVectorToFloat(nextPos);
-                worldUiRenderService.drawLine(uiPos.xy(), uiDest.xy());
+                worldUiRenderService.drawSprite(uiDest.x, uiDest.y, *(frames[frameIndex]), Color(255, 255, 255, 100));
+            }
+
+            if (drawLines)
+            {
+                auto drawLine = match(
+                    order,
+                    [&](const BuildOrder&) { return true; },
+                    [&](const MoveOrder&) { return true; },
+                    [&](const AttackOrder&) { return false; },
+                    [&](const BuggerOffOrder&) { return false; },
+                    [&](const CompleteBuildOrder&) { return true; },
+                    [&](const GuardOrder&) { return true; });
+
+                if (drawLine)
+                {
+                    auto uiPos = worldToUi * simVectorToFloat(pos);
+                    auto uiDest = worldToUi * simVectorToFloat(nextPos);
+                    worldUiRenderService.drawLine(uiPos.xy(), uiDest.xy());
+                }
             }
 
             pos = nextPos;
@@ -581,16 +607,6 @@ namespace rwe
         {
             auto singleSelectedUnit = getSingleSelectedUnit();
 
-            // draw order lines
-            if (singleSelectedUnit)
-            {
-                renderUnitOrderLines(*singleSelectedUnit);
-            }
-            if (hoveredUnit && (!singleSelectedUnit || *hoveredUnit != *singleSelectedUnit) && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
-            {
-                renderUnitOrderLines(*hoveredUnit);
-            }
-
             // if unit is a builder, show all other buildings being built
             if ((singleSelectedUnit && getUnit(*singleSelectedUnit).builder) || (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId) && getUnit(*hoveredUnit).builder))
             {
@@ -603,9 +619,22 @@ namespace rwe
                 }
             }
 
+            // draw orders + lines for hovered unit
+            if (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId))
+            {
+                renderUnitOrders(*hoveredUnit, true);
+            }
+
+            // draw orders for all selected units
             for (const auto& selectedUnitId : selectedUnits)
             {
                 renderBuildBoxes(getUnit(selectedUnitId), Color(0, 255, 0));
+
+                if (selectedUnitId != hoveredUnit)
+                {
+                    // draw lines if only one unit is selected--hovered unit is drawn aleady
+                    renderUnitOrders(selectedUnitId, singleSelectedUnit == selectedUnitId);
+                }
             }
         }
 
@@ -1432,69 +1461,69 @@ namespace rwe
         if (!isCursorOverMinimap() && !isCursorOverWorld())
         {
             // The cursor is outside the world, so over UI elements.
-            sceneContext.cursor->useNormalCursor();
+            sceneContext.cursor->useCursor(CursorType::Normal);
         }
         else
         {
             match(
                 cursorMode.getValue(),
                 [&](const AttackCursorMode&) {
-                    sceneContext.cursor->useAttackCursor();
+                    sceneContext.cursor->useCursor(CursorType::Attack);
                 },
                 [&](const MoveCursorMode&) {
-                    sceneContext.cursor->useMoveCursor();
+                    sceneContext.cursor->useCursor(CursorType::Move);
                 },
                 [&](const GuardCursorMode&) {
-                    sceneContext.cursor->useGuardCursor();
+                    sceneContext.cursor->useCursor(CursorType::Guard);
                 },
                 [&](const BuildCursorMode&) {
-                    sceneContext.cursor->useNormalCursor();
+                    sceneContext.cursor->useCursor(CursorType::Normal);
                 },
                 [&](const NormalCursorMode&) {
                     if (leftClickMode())
                     {
                         if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
                         {
-                            sceneContext.cursor->useSelectCursor();
+                            sceneContext.cursor->useCursor(CursorType::Select);
                         }
                         else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).canAttack; }) && hoveredUnit && isEnemy(*hoveredUnit))
                         {
-                            sceneContext.cursor->useAttackCursor();
+                            sceneContext.cursor->useCursor(CursorType::Attack);
                         }
                         else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).builder; }) && hoveredUnit && getUnit(*hoveredUnit).isBeingBuilt())
                         {
-                            sceneContext.cursor->useRepairCursor();
+                            sceneContext.cursor->useCursor(CursorType::Repair);
                         }
                         else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).canMove; }))
                         {
-                            sceneContext.cursor->useMoveCursor();
+                            sceneContext.cursor->useCursor(CursorType::Move);
                         }
                         else
                         {
-                            sceneContext.cursor->useNormalCursor();
+                            sceneContext.cursor->useCursor(CursorType::Normal);
                         }
                     }
                     else
                     {
                         if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
                         {
-                            sceneContext.cursor->useSelectCursor();
+                            sceneContext.cursor->useCursor(CursorType::Select);
                         }
                         else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).canAttack; }) && hoveredUnit && isEnemy(*hoveredUnit))
                         {
-                            sceneContext.cursor->useRedCursor();
+                            sceneContext.cursor->useCursor(CursorType::Red);
                         }
                         else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).builder; }) && hoveredUnit && isFriendly(*hoveredUnit) && getUnit(*hoveredUnit).isBeingBuilt())
                         {
-                            sceneContext.cursor->useGreenCursor();
+                            sceneContext.cursor->useCursor(CursorType::Green);
                         }
                         else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).canGuard; }) && hoveredUnit && isFriendly(*hoveredUnit))
                         {
-                            sceneContext.cursor->useGreenCursor();
+                            sceneContext.cursor->useCursor(CursorType::Green);
                         }
                         else
                         {
-                            sceneContext.cursor->useNormalCursor();
+                            sceneContext.cursor->useCursor(CursorType::Normal);
                         }
                     }
                 });

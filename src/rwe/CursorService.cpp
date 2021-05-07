@@ -2,69 +2,29 @@
 
 namespace rwe
 {
+    size_t operator*(CursorType t) {
+        return static_cast<size_t>(t);
+    }
+
     CursorService::CursorService(
         SdlContext* sdlContext,
         TimeService* timeService,
-        std::shared_ptr<SpriteSeries> normalCursor,
-        std::shared_ptr<SpriteSeries> selectCursor,
-        std::shared_ptr<SpriteSeries> attackCursor,
-        std::shared_ptr<SpriteSeries> moveCursor,
-        std::shared_ptr<SpriteSeries> guardCursor,
-        std::shared_ptr<SpriteSeries> repairCursor,
-        std::shared_ptr<SpriteSeries> redCursor,
-        std::shared_ptr<SpriteSeries> greenCursor)
+        Cursors cursors)
         : sdlContext(sdlContext),
           timeService(timeService),
-          _normalCursor(std::move(normalCursor)),
-          _selectCursor(std::move(selectCursor)),
-          _attackCursor(std::move(attackCursor)),
-          _moveCursor(std::move(moveCursor)),
-          _guardCursor(std::move(guardCursor)),
-          _repairCursor(std::move(repairCursor)),
-          _redCursor(std::move(redCursor)),
-          _greenCursor(std::move(greenCursor)),
-          currentCursor(_normalCursor.get())
+          _cursors(std::move(cursors)),
+          currentCursor(_cursors[*CursorType::Normal].get())
     {
     }
 
-    void CursorService::useNormalCursor()
+    void CursorService::useCursor(CursorType type)
     {
-        currentCursor = _normalCursor.get();
+        currentCursor = _cursors[*type].get();
     }
 
-    void CursorService::useSelectCursor()
+    std::shared_ptr<SpriteSeries> CursorService::getCursor(CursorType type) const
     {
-        currentCursor = _selectCursor.get();
-    }
-
-    void CursorService::useAttackCursor()
-    {
-        currentCursor = _attackCursor.get();
-    }
-
-    void CursorService::useMoveCursor()
-    {
-        currentCursor = _moveCursor.get();
-    }
-
-    void CursorService::useGuardCursor()
-    {
-        currentCursor = _guardCursor.get();
-    }
-
-    void CursorService::useRepairCursor()
-    {
-        currentCursor = _repairCursor.get();
-    }
-
-    void CursorService::useRedCursor()
-    {
-        currentCursor = _redCursor.get();
-    }
-
-    void CursorService::useGreenCursor()
-    {
-        currentCursor = _greenCursor.get();
+        return _cursors[*type];
     }
 
     void CursorService::render(UiRenderService& renderer) const

@@ -283,17 +283,16 @@ namespace rwe
         auto allSoundTdf = parseTdfFromString(allSoundString);
 
         logger.info("Loading cursors");
-        CursorService cursor(
-            sdlContext,
-            &timeService,
-            textureService.getGafEntry("anims/CURSORS.GAF", "cursornormal"),
-            textureService.getGafEntry("anims/CURSORS.GAF", "cursorselect"),
-            textureService.getGafEntry("anims/CURSORS.GAF", "cursorattack"),
-            textureService.getGafEntry("anims/CURSORS.GAF", "cursormove"),
-            textureService.getGafEntry("anims/CURSORS.GAF", "cursordefend"),
-            textureService.getGafEntry("anims/CURSORS.GAF", "cursorrepair"),
-            textureService.getGafEntry("anims/CURSORS.GAF", "cursorred"),
-            textureService.getGafEntry("anims/CURSORS.GAF", "cursorgrn"));
+        Cursors cursors;
+        cursors[*CursorType::Normal] = textureService.getGafEntry("anims/CURSORS.GAF", "cursornormal");
+        cursors[*CursorType::Select] = textureService.getGafEntry("anims/CURSORS.GAF", "cursorselect");
+        cursors[*CursorType::Attack] = textureService.getGafEntry("anims/CURSORS.GAF", "cursorattack");
+        cursors[*CursorType::Move]   = textureService.getGafEntry("anims/CURSORS.GAF", "cursormove");
+        cursors[*CursorType::Guard]  = textureService.getGafEntry("anims/CURSORS.GAF", "cursordefend");
+        cursors[*CursorType::Repair] = textureService.getGafEntry("anims/CURSORS.GAF", "cursorrepair");
+        cursors[*CursorType::Red]    = textureService.getGafEntry("anims/CURSORS.GAF", "cursorred");
+        cursors[*CursorType::Green]  = textureService.getGafEntry("anims/CURSORS.GAF", "cursorgrn");
+        CursorService cursor(sdlContext, &timeService, cursors);
 
         sdlContext->showCursor(SDL_DISABLE);
 
