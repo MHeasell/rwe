@@ -4,6 +4,7 @@
 #include <optional>
 #include <rwe/render/SpriteSeries.h>
 #include <rwe/sim/SimVector.h>
+#include <variant>
 
 namespace rwe
 {
