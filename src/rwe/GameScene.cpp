@@ -916,7 +916,7 @@ namespace rwe
         }
         else if (keysym.sym == SDLK_ESCAPE)
         {
-          clearUnitSelection();
+            handleEscapeDown();
         }
         else if (keysym.sym == SDLK_F11)
         {
@@ -2356,6 +2356,17 @@ namespace rwe
     bool GameScene::isShiftDown() const
     {
         return leftShiftDown || rightShiftDown;
+    }
+
+    void GameScene::handleEscapeDown() {
+        match(
+            cursorMode.getValue(),
+            [this](const NormalCursorMode&) {
+                clearUnitSelection();
+            },
+            [this](const auto&) {
+                cursorMode.next(NormalCursorMode());
+            });
     }
 
     Unit& GameScene::getUnit(UnitId id)

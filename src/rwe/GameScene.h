@@ -446,6 +446,8 @@ namespace rwe
 
         bool isShiftDown() const;
 
+        void handleEscapeDown();
+
         Unit& getUnit(UnitId id);
 
         const Unit& getUnit(UnitId id) const;
