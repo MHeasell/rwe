@@ -2,7 +2,8 @@
 
 namespace rwe
 {
-    size_t operator*(CursorType t) {
+    size_t operator*(CursorType t)
+    {
         return static_cast<size_t>(t);
     }
 

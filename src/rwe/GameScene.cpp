@@ -1433,9 +1433,10 @@ namespace rwe
         }
 
         // reset cursor mode if shift is released and at least 1 order was queued since shift was held
-        if (commandWasQueued && !isShiftDown()) {
-          cursorMode.next(NormalCursorMode());
-          commandWasQueued = false;
+        if (commandWasQueued && !isShiftDown())
+        {
+            cursorMode.next(NormalCursorMode());
+            commandWasQueued = false;
         }
 
         hoveredUnit = getUnitUnderCursor();

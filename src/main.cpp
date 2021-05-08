@@ -287,11 +287,11 @@ namespace rwe
         cursors[*CursorType::Normal] = textureService.getGafEntry("anims/CURSORS.GAF", "cursornormal");
         cursors[*CursorType::Select] = textureService.getGafEntry("anims/CURSORS.GAF", "cursorselect");
         cursors[*CursorType::Attack] = textureService.getGafEntry("anims/CURSORS.GAF", "cursorattack");
-        cursors[*CursorType::Move]   = textureService.getGafEntry("anims/CURSORS.GAF", "cursormove");
-        cursors[*CursorType::Guard]  = textureService.getGafEntry("anims/CURSORS.GAF", "cursordefend");
+        cursors[*CursorType::Move] = textureService.getGafEntry("anims/CURSORS.GAF", "cursormove");
+        cursors[*CursorType::Guard] = textureService.getGafEntry("anims/CURSORS.GAF", "cursordefend");
         cursors[*CursorType::Repair] = textureService.getGafEntry("anims/CURSORS.GAF", "cursorrepair");
-        cursors[*CursorType::Red]    = textureService.getGafEntry("anims/CURSORS.GAF", "cursorred");
-        cursors[*CursorType::Green]  = textureService.getGafEntry("anims/CURSORS.GAF", "cursorgrn");
+        cursors[*CursorType::Red] = textureService.getGafEntry("anims/CURSORS.GAF", "cursorred");
+        cursors[*CursorType::Green] = textureService.getGafEntry("anims/CURSORS.GAF", "cursorgrn");
         CursorService cursor(sdlContext, &timeService, cursors);
 
         sdlContext->showCursor(SDL_DISABLE);
