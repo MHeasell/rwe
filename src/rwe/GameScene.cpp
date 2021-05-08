@@ -914,6 +914,10 @@ namespace rwe
         {
             rightShiftDown = true;
         }
+        else if (keysym.sym == SDLK_ESCAPE)
+        {
+          clearUnitSelection();
+        }
         else if (keysym.sym == SDLK_F11)
         {
             showDebugWindow = true;
