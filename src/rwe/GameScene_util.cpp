@@ -460,6 +460,32 @@ namespace rwe
         }
     }
 
+    void drawProjectileUnitMesh(
+        const UnitDatabase* unitDatabase,
+        const MeshDatabase& meshDatabase,
+        const CabinetCamera& camera,
+        const std::string& objectName,
+        const Matrix4f& modelMatrix,
+        PlayerColorIndex playerColorIndex,
+        bool shaded,
+        TextureIdentifier unitTextureAtlas,
+        std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
+        UnitMeshBatch& batch)
+    {
+        auto modelDefinition = unitDatabase->getUnitModelDefinition(objectName);
+        if (!modelDefinition)
+        {
+            throw std::runtime_error("missing model definition: " + objectName);
+        }
+
+        for (const auto& pieceDef : modelDefinition->get().pieces)
+        {
+            auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition->get().pieces);
+            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
+            drawShaderMesh(camera, resolvedMesh, matrix, shaded, playerColorIndex, unitTextureAtlas, unitTeamTextureAtlases, batch.meshes);
+        }
+    }
+
     void drawUnit(
         const UnitDatabase* unitDatabase,
         const MeshDatabase& meshDatabase,
@@ -481,6 +507,23 @@ namespace rwe
         else
         {
             drawUnitMesh(unitDatabase, meshDatabase, camera, unit.objectName, unit.pieces, transform, playerColorIndex, frac, unitTextureAtlas, unitTeamTextureAtlases, batch);
+        }
+    }
+
+    void drawMeshFeature(
+        const UnitDatabase* unitDatabase,
+        const MeshDatabase& meshDatabase,
+        const CabinetCamera& camera,
+        const MapFeature& feature,
+        TextureIdentifier unitTextureAtlas,
+        std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
+        UnitMeshBatch& batch)
+    {
+
+        if (auto objectInfo = std::get_if<FeatureObjectInfo>(&feature.renderInfo); objectInfo != nullptr)
+        {
+            auto matrix = Matrix4f::translation(simVectorToFloat(feature.position)) * Matrix4f::rotationY(0.0f, -1.0f);
+            drawProjectileUnitMesh(unitDatabase, meshDatabase, camera, objectInfo->objectName, matrix, PlayerColorIndex(0), true, unitTextureAtlas, unitTeamTextureAtlases, batch);
         }
     }
 }

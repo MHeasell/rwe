@@ -33,4 +33,13 @@ namespace rwe
         TextureIdentifier unitTextureAtlas,
         std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
         UnitMeshBatch& batch);
+
+    void drawMeshFeature(
+        const UnitDatabase* unitDatabase,
+        const MeshDatabase& meshDatabase,
+        const CabinetCamera& camera,
+        const MapFeature& feature,
+        TextureIdentifier unitTextureAtlas,
+        std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
+        UnitMeshBatch& batch);
 }

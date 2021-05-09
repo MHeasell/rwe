@@ -581,9 +581,11 @@ namespace rwe
         {
             drawUnit(&unitDatabase, worldRenderService.meshDatabase, worldRenderService.getCamera(), unit, getPlayer(unit.owner).color, interpolationFraction, worldRenderService.unitTextureAtlas.get(), worldRenderService.unitTeamTextureAtlases, unitMeshBatch);
         }
+        for (const auto& feature : (simulation.features | boost::adaptors::map_values))
+        {
+            drawMeshFeature(&unitDatabase, worldRenderService.meshDatabase, worldRenderService.getCamera(), feature, worldRenderService.unitTextureAtlas.get(), worldRenderService.unitTeamTextureAtlases, unitMeshBatch);
+        }
         worldRenderService.drawUnitMeshBatch(unitMeshBatch, simScalarToFloat(seaLevel), simulation.gameTime.value);
-
-        worldRenderService.drawMeshFeatures(simulation.features | boost::adaptors::map_values, simScalarToFloat(seaLevel));
 
         worldRenderService.drawProjectiles(simulation.projectiles, simScalarToFloat(seaLevel), simulation.gameTime, interpolationFraction);
 
