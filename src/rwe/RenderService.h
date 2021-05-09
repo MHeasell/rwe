@@ -96,11 +96,8 @@ namespace rwe
         const CabinetCamera& getCamera() const;
 
         void drawUnitShadow(const Unit& unit, float groundHeight, float frac);
-        void drawUnitMesh(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex, float frac);
         void drawUnitMeshShadow(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float groundHeight, float frac);
-        void drawBuildingUnitMesh(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex, float frac);
         void drawProjectileUnitMesh(const std::string& objectName, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex, bool shaded);
-        void drawFeatureUnitMesh(const std::string& objectName, const Matrix4f& modelMatrix, float seaLevel);
         void drawFeatureUnitMeshShadow(const std::string& objectName, const Matrix4f& modelMatrix, float groundHeight);
         void drawSelectionRect(const Unit& unit, float frac);
         void drawNanolatheLine(const Vector3f& start, const Vector3f& end);
@@ -129,12 +126,6 @@ namespace rwe
         void drawStandingFeatureShadows(const Range& features)
         {
             drawStandingFeatureShadowsInternal(features.begin(), features.end());
-        }
-
-        template <typename Range>
-        void drawMeshFeatures(const Range& features, float seaLevel)
-        {
-            drawMeshFeaturesInternal(features.begin(), features.end(), seaLevel);
         }
 
         void drawMapTerrain(const MapTerrainGraphics& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
@@ -289,20 +280,6 @@ namespace rwe
             auto fEnd = boost::make_filter_iterator<IsFeatureNotStanding>(end, end);
 
             drawFeatureShadowsInternal(fBegin, fEnd);
-        }
-
-        template <typename It>
-        void drawMeshFeaturesInternal(It begin, It end, float seaLevel)
-        {
-            for (auto it = begin; it != end; ++it)
-            {
-                const MapFeature& feature = *it;
-                if (auto objectInfo = std::get_if<FeatureObjectInfo>(&feature.renderInfo); objectInfo != nullptr)
-                {
-                    auto matrix = Matrix4f::translation(simVectorToFloat(feature.position)) * Matrix4f::rotationY(0.0f, -1.0f);
-                    drawFeatureUnitMesh(objectInfo->objectName, matrix, seaLevel);
-                }
-            }
         }
     };
 }

@@ -111,31 +111,6 @@ namespace rwe
         graphics->drawLines(mesh);
     }
 
-    void RenderService::drawUnitMesh(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex, float frac)
-    {
-        auto modelDefinition = unitDatabase->getUnitModelDefinition(objectName);
-        if (!modelDefinition)
-        {
-            throw std::runtime_error("missing model definition: " + objectName);
-        }
-        assert(modelDefinition->get().pieces.size() == meshes.size());
-
-        for (Index i = 0; i < getSize(modelDefinition->get().pieces); ++i)
-        {
-            const auto& pieceDef = modelDefinition->get().pieces[i];
-            const auto& mesh = meshes[i];
-            if (!mesh.visible)
-            {
-                continue;
-            }
-
-            auto matrix = modelMatrix * getPieceTransform(pieceDef.name, modelDefinition->get().pieces, meshes, frac);
-
-            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
-            drawShaderMesh(resolvedMesh, matrix, seaLevel, mesh.shaded, playerColorIndex);
-        }
-    }
-
     void RenderService::drawUnitMeshShadow(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float groundHeight, float frac)
     {
         auto modelDefinition = unitDatabase->getUnitModelDefinition(objectName);
@@ -161,30 +136,6 @@ namespace rwe
         }
     }
 
-    void RenderService::drawBuildingUnitMesh(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float seaLevel, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex, float frac)
-    {
-        auto modelDefinition = unitDatabase->getUnitModelDefinition(objectName);
-        if (!modelDefinition)
-        {
-            throw std::runtime_error("missing model definition: " + objectName);
-        }
-
-        for (Index i = 0; i < getSize(modelDefinition->get().pieces); ++i)
-        {
-            const auto& pieceDef = modelDefinition->get().pieces[i];
-            const auto& mesh = meshes[i];
-            if (!mesh.visible)
-            {
-                continue;
-            }
-
-            auto matrix = modelMatrix * getPieceTransform(pieceDef.name, modelDefinition->get().pieces, meshes, frac);
-
-            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
-            drawBuildingShaderMesh(resolvedMesh, matrix, seaLevel, mesh.shaded, percentComplete, unitY, time, playerColorIndex);
-        }
-    }
-
     void RenderService::drawProjectileUnitMesh(const std::string& objectName, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex, bool shaded)
     {
         auto modelDefinition = unitDatabase->getUnitModelDefinition(objectName);
@@ -199,11 +150,6 @@ namespace rwe
             const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
             drawShaderMesh(resolvedMesh, matrix, seaLevel, shaded, playerColorIndex);
         }
-    }
-
-    void RenderService::drawFeatureUnitMesh(const std::string& objectName, const Matrix4f& modelMatrix, float seaLevel)
-    {
-        drawProjectileUnitMesh(objectName, modelMatrix, seaLevel, PlayerColorIndex(0), true);
     }
 
     void RenderService::drawFeatureUnitMeshShadow(const std::string& objectName, const Matrix4f& modelMatrix, float groundHeight)
