@@ -1,5 +1,6 @@
 #include "SimScalar.h"
 
+#include <algorithm>
 #include <cmath>
 
 namespace rwe
