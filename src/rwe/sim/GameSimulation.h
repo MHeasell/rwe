@@ -39,10 +39,10 @@ namespace rwe
         std::string side;
 
         Metal metal;
-        Metal maxMetal;
-
         Energy energy;
-        Energy maxEnergy;
+
+        Metal maxMetal{0};
+        Energy maxEnergy{0};
 
         bool metalStalled{false};
         bool energyStalled{false};

@@ -1640,7 +1640,7 @@ namespace rwe
         return unitId;
     }
 
-    void GameScene::spawnCompletedUnit(const std::string& unitType, PlayerId owner, const SimVector& position)
+    std::optional<std::reference_wrapper<Unit>> GameScene::spawnCompletedUnit(const std::string& unitType, PlayerId owner, const SimVector& position)
     {
         auto unitId = spawnUnit(unitType, owner, position, std::nullopt);
         if (unitId)
@@ -1649,7 +1649,11 @@ namespace rwe
             // units start as unbuilt nanoframes,
             // we we need to convert it immediately into a completed unit.
             unit.finishBuilding();
+
+            return unit;
         }
+
+        return std::nullopt;
     }
 
     void GameScene::setCameraPosition(const Vector3f& newPosition)
@@ -1980,6 +1984,23 @@ namespace rwe
         // run resource updates once per second
         if (simulation.gameTime % GameTime(SimTicksPerSecond) == GameTime(0))
         {
+            // recalculate max energy and metal storage
+            for (auto& player : simulation.players)
+            {
+                player.maxEnergy = Energy(0);
+                player.maxMetal = Metal(0);
+            }
+
+            for (auto& entry : simulation.units)
+            {
+                auto& unit = entry.second;
+                if (!unit.isBeingBuilt())
+                {
+                    getPlayer(unit.owner).maxMetal += unit.metalStorage;
+                    getPlayer(unit.owner).maxEnergy += unit.energyStorage;
+                }
+            }
+
             for (auto& player : simulation.players)
             {
                 player.metal += player.metalProductionBuffer;
@@ -2372,6 +2393,11 @@ namespace rwe
     std::optional<std::reference_wrapper<const Unit>> GameScene::tryGetUnit(UnitId id) const
     {
         return simulation.tryGetUnit(id);
+    }
+
+    GamePlayerInfo& GameScene::getPlayer(PlayerId player)
+    {
+        return simulation.getPlayer(player);
     }
 
     const GamePlayerInfo& GameScene::getPlayer(PlayerId player) const
