@@ -257,6 +257,9 @@ namespace rwe
         Energy energyMake;
         Metal metalMake;
 
+        Energy energyStorage;
+        Metal metalStorage;
+
         bool activated{false};
         bool isSufficientlyPowered{false};
 

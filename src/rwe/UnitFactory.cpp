@@ -187,6 +187,9 @@ namespace rwe
 
         unit.extractsMetal = fbi.extractsMetal;
 
+        unit.energyStorage = fbi.energyStorage;
+        unit.metalStorage = fbi.metalStorage;
+
         unit.hideDamage = fbi.hideDamage;
         unit.showPlayerName = fbi.showPlayerName;
 

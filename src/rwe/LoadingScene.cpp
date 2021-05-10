@@ -239,7 +239,7 @@ namespace rwe
             if (params)
             {
                 auto playerType = std::visit(IsComputerVisitor(), params->controller) ? GamePlayerType::Computer : GamePlayerType::Human;
-                GamePlayerInfo gpi{params->name, playerType, params->color, GamePlayerStatus::Alive, params->side, params->metal, params->metal, params->energy, params->energy};
+                GamePlayerInfo gpi{params->name, playerType, params->color, GamePlayerStatus::Alive, params->side, params->metal, params->energy};
                 auto playerId = simulation.addPlayer(gpi);
                 gamePlayers[i] = playerId;
                 playerCommandService->registerPlayer(playerId);
@@ -352,7 +352,12 @@ namespace rwe
             }
 
             const auto& sideData = getSideData(player->side);
-            gameScene->spawnCompletedUnit(sideData.commander, *gamePlayers[i], worldStartPos);
+            std::optional<std::reference_wrapper<Unit>> commander = gameScene->spawnCompletedUnit(sideData.commander, *gamePlayers[i], worldStartPos);
+            if (commander)
+            {
+                commander->get().energyStorage += Energy(player->energy);
+                commander->get().metalStorage += Metal(player->metal);
+            }
         }
 
         if (!humanStartPos)

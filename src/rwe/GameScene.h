@@ -322,7 +322,7 @@ namespace rwe
 
         std::optional<UnitId> spawnUnit(const std::string& unitType, PlayerId owner, const SimVector& position, std::optional<const std::reference_wrapper<SimAngle>> rotation);
 
-        void spawnCompletedUnit(const std::string& unitType, PlayerId owner, const SimVector& position);
+        std::optional<std::reference_wrapper<Unit>> spawnCompletedUnit(const std::string& unitType, PlayerId owner, const SimVector& position);
 
         void setCameraPosition(const Vector3f& newPosition);
 
@@ -455,6 +455,8 @@ namespace rwe
         std::optional<std::reference_wrapper<Unit>> tryGetUnit(UnitId id);
 
         std::optional<std::reference_wrapper<const Unit>> tryGetUnit(UnitId id) const;
+
+        GamePlayerInfo& getPlayer(PlayerId player);
 
         const GamePlayerInfo& getPlayer(PlayerId player) const;
 
