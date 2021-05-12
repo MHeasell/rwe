@@ -761,6 +761,7 @@ set(TEST_FILES
     src/rwe/io/gui/gui.test.cpp
     src/rwe/io/ota/ota.test.cpp
     src/rwe/io/tdf/ListTdfAdapter.test.cpp
+    src/rwe/io/tdf/NetSchemaTdfAdapter.test.cpp
     src/rwe/io/tdf/SimpleTdfAdapter.test.cpp
     src/rwe/io/tdf/TdfBlock.test.cpp
     src/rwe/ip_util.test.cpp

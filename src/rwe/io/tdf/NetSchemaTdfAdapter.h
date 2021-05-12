@@ -7,8 +7,8 @@ namespace rwe
     class NetSchemaTdfAdapter : public TdfAdapter<bool>
     {
     private:
-        bool bHasNetSchema, bInSchema;
-
+        bool hasNetSchema;
+        int schemaNestedLevel;
     public:
         void onStart() override;
 
