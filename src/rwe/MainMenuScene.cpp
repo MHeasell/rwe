@@ -723,14 +723,14 @@ namespace rwe
     {
         auto mapNames = sceneContext.vfs->getFileNames("maps", ".ota");
 
+        // Keep only maps that have a multiplayer schema
+        mapNames.erase(std::remove_if(mapNames.begin(), mapNames.end(), [this](const auto& e) { return !hasMultiplayerSchema(e); }), mapNames.end());
+
         for (auto& e : mapNames)
         {
             // chop off the extension
             e.resize(e.size() - 4);
         }
-
-        // Keep only maps that have a multiplayer schema
-        mapNames.erase(std::remove_if(mapNames.begin(), mapNames.end(), [this](const auto& e) { return !hasMultiplayerSchema(e); }), mapNames.end());
 
         return mapNames;
     }
@@ -931,7 +931,7 @@ namespace rwe
 
     bool MainMenuScene::hasMultiplayerSchema(const std::string& mapName)
     {
-        auto otaRaw = sceneContext.vfs->readFile(std::string("maps/").append(mapName).append(".ota"));
+        auto otaRaw = sceneContext.vfs->readFile(std::string("maps/").append(mapName));
         if (!otaRaw)
         {
             throw std::runtime_error("Failed to read OTA file");
