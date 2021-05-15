@@ -68,6 +68,27 @@ namespace rwe
         return copy;
     }
 
+    // Note: unchecked iterators should only be used on input that would pass utf8::is_valid check
+    ConstUtf8UncheckedIterator cUtf8UncheckedBegin(const std::string& str)
+    {
+        return utf8::unchecked::iterator<std::string::const_iterator>(str.begin());
+    }
+
+    ConstUtf8UncheckedIterator cUtf8UncheckedEnd(const std::string& str)
+    {
+        return utf8::unchecked::iterator<std::string::const_iterator>(str.end());
+    }
+
+    Utf8UncheckedIterator utf8UncheckedBegin(std::string& str)
+    {
+        return utf8::unchecked::iterator<std::string::iterator>(str.begin());
+    }
+
+    Utf8UncheckedIterator utf8UncheckedEnd(std::string& str)
+    {
+        return utf8::unchecked::iterator<std::string::iterator>(str.end());
+    }
+
     ConstUtf8Iterator utf8Begin(const std::string& str)
     {
         return utf8::iterator<std::string::const_iterator>(str.begin(), str.begin(), str.end());
@@ -123,6 +144,33 @@ namespace rwe
     {
         utf8TrimRight(str);
         utf8TrimLeft(str);
+    }
+
+    void utf8UncheckedTrimLeft(std::string& str)
+    {
+        auto firstNonSpace = std::find_if(utf8UncheckedBegin(str), utf8UncheckedEnd(str), [](unsigned int cp) { return std::isspace(cp) == 0; });
+        str.erase(str.begin(), firstNonSpace.base());
+    }
+
+    void utf8UncheckedTrimRight(std::string& str)
+    {
+        auto it = utf8UncheckedEnd(str);
+        auto begin = utf8UncheckedBegin(str);
+        while (it != begin)
+        {
+            if (std::isspace(*--it) == 0)
+            {
+                ++it;
+                str.erase(it.base(), str.end());
+                return;
+            }
+        }
+    }
+
+    void utf8UncheckedTrim(std::string& str)
+    {
+        utf8UncheckedTrimRight(str);
+        utf8UncheckedTrimLeft(str);
     }
 
     bool endsWith(const std::string& str, const std::string& end)
