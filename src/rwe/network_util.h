@@ -28,5 +28,5 @@ namespace rwe
 
     unsigned int readInt(const char* buffer);
 
-    unsigned int computeCrc(const char* buffer, unsigned int size);
+    unsigned int computeCrc(const char* buffer, int size);
 }

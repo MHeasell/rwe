@@ -21,7 +21,7 @@ namespace rwe
             | (static_cast<unsigned int>(static_cast<unsigned char>(buffer[1])) << 8u)
             | (static_cast<unsigned int>(static_cast<unsigned char>(buffer[0])));
     }
-    unsigned int computeCrc(const char* buffer, unsigned int size)
+    unsigned int computeCrc(const char* buffer, int size)
     {
         // throw in a CRC to verify the message
         boost::crc_32_type crc;

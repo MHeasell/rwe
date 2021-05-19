@@ -147,30 +147,31 @@ namespace rwe
 
     float computeSoundCeiling(int soundCount)
     {
+        float c = static_cast<float>(soundCount);
         assert(soundCount > 0);
         if (soundCount <= 4)
         {
-            return soundCount;
+            return c;
         }
 
         if (soundCount <= 8)
         {
-            return 4 + ((soundCount - 4) * 0.5f);
+            return 4.f + ((c - 4.f) * 0.5f);
         }
 
         if (soundCount <= 16)
         {
-            return (6 + ((soundCount - 8) * 0.25f));
+            return (6.f + ((c - 8.f) * 0.25f));
         }
 
-        return 8;
+        return 8.f;
     }
 
     int computeSoundVolume(int soundCount)
     {
         soundCount = std::max(soundCount, 1);
         auto headRoom = computeSoundCeiling(soundCount);
-        return std::clamp(static_cast<int>(headRoom * 128) / soundCount, 1, 128);
+        return std::clamp(static_cast<int>(headRoom * 128.f) / soundCount, 1, 128);
     }
 
     void GameScene::render()
@@ -189,7 +190,7 @@ namespace rwe
         if (topPanelBackground)
         {
             const auto& sprite = *(*topPanelBackground)->sprites.at(0);
-            chromeUiRenderService.drawSpriteAbs(topXBuffer, 0, sprite);
+            chromeUiRenderService.drawSpriteAbs(topXBuffer, 0.f, sprite);
             topXBuffer += sprite.bounds.width();
         }
         if (bottomPanelBackground)
@@ -217,7 +218,7 @@ namespace rwe
             auto rectWidth = (rect.width * std::max(Energy(0), localPlayer.energy).value) / localPlayer.maxEnergy.value;
             const auto& colorIndex = localSideData.energyColor;
             const auto& color = sceneContext.palette->at(colorIndex);
-            chromeUiRenderService.fillColor(rect.x, rect.y, rectWidth, rect.height, color);
+            chromeUiRenderService.fillColor(static_cast<float>(rect.x), static_cast<float>(rect.y), rectWidth, static_cast<float>(rect.height), color);
         }
         {
             const auto& rect = localSideData.energy0;
@@ -251,7 +252,7 @@ namespace rwe
             auto rectWidth = (rect.width * std::max(Metal(0), localPlayer.metal).value) / localPlayer.maxMetal.value;
             const auto& colorIndex = localSideData.metalColor;
             const auto& color = sceneContext.palette->at(colorIndex);
-            chromeUiRenderService.fillColor(rect.x, rect.y, rectWidth, rect.height, color);
+            chromeUiRenderService.fillColor(static_cast<float>(rect.x), static_cast<float>(rect.y), rectWidth, static_cast<float>(rect.height), color);
         }
         {
             const auto& rect = localSideData.metal0;
@@ -285,7 +286,7 @@ namespace rwe
             while (bottomXBuffer < sceneContext.viewport->width())
             {
                 const auto& sprite = *(*bottomPanelBackground)->sprites.at(0);
-                chromeUiRenderService.drawSpriteAbs(bottomXBuffer, worldViewport.bottom(), sprite);
+                chromeUiRenderService.drawSpriteAbs(bottomXBuffer, static_cast<float>(worldViewport.bottom()), sprite);
                 bottomXBuffer += sprite.bounds.width();
             }
         }
@@ -305,13 +306,13 @@ namespace rwe
                 const auto& rect = localSideData.unitName;
                 const auto& playerName = getPlayer(unit.owner).name;
                 const auto& text = unit.showPlayerName && playerName ? *playerName : unit.name;
-                chromeUiRenderService.drawTextCenteredX(rect.x1, extraBottom + rect.y1, text, *guiFont);
+                chromeUiRenderService.drawTextCenteredX(static_cast<float>(rect.x1), static_cast<float>(extraBottom + rect.y1), text, *guiFont);
             }
 
             if (unit.isOwnedBy(localPlayerId) || !unit.hideDamage)
             {
                 const auto& rect = localSideData.damageBar.toDiscreteRect();
-                chromeUiRenderService.drawHealthBar2(rect.x, extraBottom + rect.y, rect.width, rect.height, static_cast<float>(unit.hitPoints) / static_cast<float>(unit.maxHitPoints));
+                chromeUiRenderService.drawHealthBar2(rect.x, extraBottom + rect.y, rect.width, rect.height, unit.hitPoints, unit.maxHitPoints);
             }
 
             if (unit.isOwnedBy(localPlayerId))
@@ -339,7 +340,7 @@ namespace rwe
                 {
                     const auto& rect = localSideData.missionText;
                     auto text = "Standby";
-                    chromeUiRenderService.drawTextCenteredX(rect.x1, extraBottom + rect.y1, text, *guiFont);
+                    chromeUiRenderService.drawTextCenteredX(static_cast<float>(rect.x1), static_cast<float>(extraBottom + rect.y1), text, *guiFont);
                 }
             }
         }
@@ -360,10 +361,10 @@ namespace rwe
 
         // oh yeah also regulate sound
         std::scoped_lock<std::mutex> lock(playingUnitChannelsLock);
-        auto volume = computeSoundVolume(playingUnitChannels.size());
+        auto volume = computeSoundVolume(static_cast<int>(playingUnitChannels.size()));
         for (auto channel : playingUnitChannels)
         {
-            sceneContext.audioService->setVolume(channel, volume);
+            sceneContext.audioService->setVolume(channel, volume); // TODO (kwh) - the underlying interface supports setting -1 to set all channels in one call...
         }
     }
 
@@ -425,8 +426,8 @@ namespace rwe
 
                 auto topLeftWorld = simulation.terrain.heightmapIndexToWorldCorner(footprintRect.x, footprintRect.y);
                 topLeftWorld.y = simulation.terrain.getHeightAt(
-                    topLeftWorld.x + ((SimScalar(footprintRect.width) * MapTerrain::HeightTileWidthInWorldUnits) / 2_ss),
-                    topLeftWorld.z + ((SimScalar(footprintRect.height) * MapTerrain::HeightTileHeightInWorldUnits) / 2_ss));
+                    topLeftWorld.x + ((simScalarFromInt(footprintRect.width) * MapTerrain::HeightTileWidthInWorldUnits) / 2_ss),
+                    topLeftWorld.z + ((simScalarFromInt(footprintRect.height) * MapTerrain::HeightTileHeightInWorldUnits) / 2_ss));
 
                 auto topLeftUi = worldToUi * simVectorToFloat(topLeftWorld);
                 worldUiRenderService.drawBoxOutline(
@@ -585,7 +586,7 @@ namespace rwe
         {
             drawMeshFeature(&unitDatabase, worldRenderService.meshDatabase, worldRenderService.getCamera(), feature, worldRenderService.unitTextureAtlas.get(), worldRenderService.unitTeamTextureAtlases, unitMeshBatch);
         }
-        worldRenderService.drawUnitMeshBatch(unitMeshBatch, simScalarToFloat(seaLevel), simulation.gameTime.value);
+        worldRenderService.drawUnitMeshBatch(unitMeshBatch, simScalarToFloat(seaLevel), static_cast<float>(simulation.gameTime.value));
 
         worldRenderService.drawProjectiles(simulation.projectiles, simScalarToFloat(seaLevel), simulation.gameTime, interpolationFraction);
 
@@ -665,7 +666,7 @@ namespace rwe
                     // This can happen when the unit is still a freshly created nanoframe.
                     continue;
                 }
-
+                // TODO (kwh) - fairly expensive
                 auto uiPos = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
                     * worldRenderService.getCamera().getViewProjectionMatrix()
                     * simVectorToFloat(unit.position);
@@ -680,8 +681,8 @@ namespace rwe
 
             auto topLeftWorld = simulation.terrain.heightmapIndexToWorldCorner(hoverBuildInfo->rect.x, hoverBuildInfo->rect.y);
             topLeftWorld.y = simulation.terrain.getHeightAt(
-                topLeftWorld.x + ((SimScalar(hoverBuildInfo->rect.width) * MapTerrain::HeightTileWidthInWorldUnits) / 2_ss),
-                topLeftWorld.z + ((SimScalar(hoverBuildInfo->rect.height) * MapTerrain::HeightTileHeightInWorldUnits) / 2_ss));
+                topLeftWorld.x + ((simScalarFromInt(hoverBuildInfo->rect.width) * MapTerrain::HeightTileWidthInWorldUnits) / 2_ss),
+                topLeftWorld.z + ((simScalarFromInt(hoverBuildInfo->rect.height) * MapTerrain::HeightTileHeightInWorldUnits) / 2_ss));
 
             auto topLeftUi = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
                 * worldRenderService.getCamera().getViewProjectionMatrix()
@@ -726,14 +727,14 @@ namespace rwe
                 auto cursorTerrainPos = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
                     * worldRenderService.getCamera().getViewProjectionMatrix()
                     * simVectorToFloat(*intersect);
-                worldUiRenderService.fillColor(cursorTerrainPos.x - 2, cursorTerrainPos.y - 2, 4, 4, Color(0, 0, 255));
+                worldUiRenderService.fillColor(cursorTerrainPos.x - 2.f, cursorTerrainPos.y - 2.f, 4.f, 4.f, Color(0, 0, 255));
 
                 intersect->y = simulation.terrain.getHeightAt(intersect->x, intersect->z);
 
                 auto heightTestedTerrainPos = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
                     * worldRenderService.getCamera().getViewProjectionMatrix()
                     * simVectorToFloat(*intersect);
-                worldUiRenderService.fillColor(heightTestedTerrainPos.x - 2, heightTestedTerrainPos.y - 2, 4, 4, Color(255, 0, 0));
+                worldUiRenderService.fillColor(heightTestedTerrainPos.x - 2.f, heightTestedTerrainPos.y - 2.f, 4.f, 4.f, Color(255, 0, 0));
             }
         }
 
@@ -864,7 +865,7 @@ namespace rwe
         {
             std::scoped_lock<std::mutex> lock(playingUnitChannelsLock);
             ImGui::LabelText("Unit sounds", "%lld", getSize(playingUnitChannels));
-            ImGui::LabelText("Sound volume", "%d", computeSoundVolume(getSize(playingUnitChannels)));
+            ImGui::LabelText("Sound volume", "%d", computeSoundVolume(static_cast<int>(playingUnitChannels.size())));
         }
 
         if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit)
@@ -1045,8 +1046,8 @@ namespace rwe
                             {
                                 auto topLeftWorld = simulation.terrain.heightmapIndexToWorldCorner(hoverBuildInfo->rect.x,
                                     hoverBuildInfo->rect.y);
-                                auto x = topLeftWorld.x + ((SimScalar(hoverBuildInfo->rect.width) * MapTerrain::HeightTileWidthInWorldUnits) / 2_ss);
-                                auto z = topLeftWorld.z + ((SimScalar(hoverBuildInfo->rect.height) * MapTerrain::HeightTileHeightInWorldUnits) / 2_ss);
+                                auto x = topLeftWorld.x + ((simScalarFromInt(hoverBuildInfo->rect.width) * MapTerrain::HeightTileWidthInWorldUnits) / 2_ss);
+                                auto z = topLeftWorld.z + ((simScalarFromInt(hoverBuildInfo->rect.height) * MapTerrain::HeightTileHeightInWorldUnits) / 2_ss);
                                 auto y = simulation.terrain.getHeightAt(x, z);
                                 SimVector buildPos(x, y, z);
                                 if (isShiftDown())
@@ -1434,7 +1435,7 @@ namespace rwe
 
                 auto minimapToWorld = minimapToWorldMatrix(simulation.terrain, minimapRect);
                 auto mousePos = getMousePosition();
-                auto worldPos = minimapToWorld * Vector3f(static_cast<float>(mousePos.x) + 0.5f, static_cast<float>(mousePos.y) + 0.5, 0.0f);
+                auto worldPos = minimapToWorld * Vector3f(static_cast<float>(mousePos.x) + 0.5f, static_cast<float>(mousePos.y) + 0.5f, 0.0f);
                 auto newCameraPos = cameraConstraint.clamp(Vector2f(worldPos.x, worldPos.z));
                 camera.setPosition(Vector3f(newCameraPos.x, camera.getRawPosition().y, newCameraPos.y));
             }
@@ -1576,7 +1577,7 @@ namespace rwe
         // Queue up commands from the computer players
         for (Index i = 0; i < getSize(simulation.players); ++i)
         {
-            PlayerId id(i);
+            PlayerId id(static_cast<int>(i));
             const auto& player = simulation.players[i];
             if (player.type == GamePlayerType::Computer)
             {
@@ -1826,7 +1827,7 @@ namespace rwe
         auto channel = sceneContext.audioService->playSound(sound);
         std::scoped_lock<std::mutex> lock(playingUnitChannelsLock);
         playingUnitChannels.insert(channel);
-        sceneContext.audioService->setVolume(channel, computeSoundVolume(playingUnitChannels.size()));
+        sceneContext.audioService->setVolume(channel, computeSoundVolume(static_cast<int>(playingUnitChannels.size())));
     }
 
     void GameScene::playWeaponStartSound(const Vector3f& position, const std::string& weaponType)
@@ -2190,7 +2191,7 @@ namespace rwe
     bool GameScene::isCursorOverMinimap() const
     {
         auto mousePos = getMousePosition();
-        return minimapRect.contains(mousePos.x, mousePos.y);
+        return minimapRect.contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
     }
 
     bool GameScene::isCursorOverWorld() const
@@ -2624,7 +2625,7 @@ namespace rwe
             // apply appropriate damage
             auto damageScale = std::clamp(1_ss - (rweSqrt(unitDistanceSquared) / radius), 0_ss, 1_ss);
             auto rawDamage = projectile.getDamage(unit.unitType);
-            auto scaledDamage = simScalarToUInt(SimScalar(rawDamage) * damageScale);
+            auto scaledDamage = simScalarToUInt(simScalarFromUInt(rawDamage) * damageScale);
             applyDamage(*u, scaledDamage);
         });
     }
@@ -2827,8 +2828,8 @@ namespace rwe
     BoundingBox3x<SimScalar> GameScene::createBoundingBox(const Unit& unit) const
     {
         auto footprint = simulation.computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
-        auto min = SimVector(SimScalar(footprint.x), unit.position.y, SimScalar(footprint.y));
-        auto max = SimVector(SimScalar(footprint.x + footprint.width), unit.position.y + unit.height, SimScalar(footprint.y + footprint.height));
+        auto min = SimVector(simScalarFromInt(footprint.x), unit.position.y, simScalarFromInt(footprint.y));
+        auto max = SimVector(simScalarFromInt(footprint.x + footprint.width), unit.position.y + unit.height, simScalarFromInt(footprint.y + footprint.height));
         auto worldMin = simulation.terrain.heightmapToWorldSpace(min);
         auto worldMax = simulation.terrain.heightmapToWorldSpace(max);
         return BoundingBox3x<SimScalar>::fromMinMax(worldMin, worldMax);

@@ -13,11 +13,11 @@ namespace rwe
 
         int x;
         int y;
-        unsigned int width;
-        unsigned int height;
+        int width;
+        int height;
 
         DiscreteRect() = default;
-        DiscreteRect(int x, int y, unsigned int width, unsigned int height) : x(x), y(y), width(width), height(height)
+        DiscreteRect(int x, int y, int width, int height) : x(x), y(y), width(width), height(height)
         {
         }
 

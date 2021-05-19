@@ -296,7 +296,7 @@ namespace rwe
 
         sdlContext->showCursor(SDL_DISABLE);
 
-        SceneManager sceneManager(sdlContext, window.get(), &graphics, &timeService, &imGuiContext, &cursor, &globalConfig, UiRenderService(&graphics, &shaders, UiCamera(viewport.width(), viewport.height())));
+        SceneManager sceneManager(sdlContext, window.get(), &graphics, &timeService, &imGuiContext, &cursor, &globalConfig, UiRenderService(&graphics, &shaders, UiCamera(static_cast<float>(viewport.width()), static_cast<float>(viewport.height()))));
 
         logger.info("Loading side data");
         auto sideDataBytes = vfs.readFile("gamedata/SIDEDATA.TDF");
@@ -348,8 +348,8 @@ namespace rwe
             auto scene = std::make_unique<MainMenuScene>(
                 sceneContext,
                 &allSoundTdf,
-                viewport.width(),
-                viewport.height());
+                static_cast<float>(viewport.width()),
+                static_cast<float>(viewport.height()));
             sceneManager.setNextScene(std::move(scene));
         }
 

@@ -256,9 +256,9 @@ namespace rwe
             // observed in playtesting,
             // this can cause NaN to be emitted by acos
             // due to floating point error in the input
-            Vector3f a(171.99025, -0.00849914551, -38.2367249);
-            Vector3f b(171.99025, 0, -38.2367249);
-            Vector3f n(38.2367249, -0, 171.99025);
+            Vector3f a(171.99025f, -0.00849914551f, -38.2367249f);
+            Vector3f b(171.99025f, 0.f, -38.2367249f);
+            Vector3f n(38.2367249f, -0.f, 171.99025f);
             REQUIRE(angleTo(a, b, n) == Approx(0.0f));
         }
     }

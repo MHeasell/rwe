@@ -46,12 +46,12 @@ namespace rwe
         name = std::move(newName);
     }
 
-    unsigned int UiComponent::getGroup() const
+    int UiComponent::getGroup() const
     {
         return group;
     }
 
-    void UiComponent::setGroup(unsigned int newGroup)
+    void UiComponent::setGroup(int newGroup)
     {
         group = newGroup;
     }

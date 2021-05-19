@@ -78,7 +78,7 @@ namespace rwe
     };
     struct AtlasItemColor
     {
-        unsigned int colorIndex;
+        int colorIndex;
     };
     using AtlasItem = std::variant<AtlasItemFrame, AtlasItemColor>;
 
@@ -221,7 +221,7 @@ namespace rwe
             frameRefs.emplace_back(AtlasItemFrame{&f});
         }
 
-        for (unsigned int i = 0; i < palette->size(); ++i)
+        for (int i = 0; i < palette->size(); ++i)
         {
             frameRefs.emplace_back(AtlasItemColor{i});
         }

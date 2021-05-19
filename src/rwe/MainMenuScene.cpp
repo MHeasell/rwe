@@ -603,7 +603,7 @@ namespace rwe
     {
         auto& player = model.players[playerIndex];
         auto currentColor = player.colorIndex.getValue();
-        for (unsigned int i = 1; i < 10; ++i)
+        for (int i = 1; i < 10; ++i)
         {
             auto newColor = PlayerColorIndex((currentColor.value + i) % 10);
             if (!model.isColorInUse(newColor))
@@ -618,7 +618,7 @@ namespace rwe
     {
         auto& player = model.players[playerIndex];
         auto currentColor = player.colorIndex.getValue();
-        for (unsigned int i = 9; i >= 1; --i)
+        for (int i = 9; i >= 1; --i)
         {
             auto newColor = PlayerColorIndex((currentColor.value + i) % 10);
             if (!model.isColorInUse(newColor))
@@ -737,17 +737,17 @@ namespace rwe
 
     void MainMenuScene::attachPlayerSelectionComponents(const std::string& guiName, UiPanel& panel)
     {
-        unsigned int tableStart = 78;
-        unsigned int rowHeight = 20;
+        int tableStart = 78;
+        int rowHeight = 20;
 
         for (int i = 0; i < 10; ++i)
         {
-            unsigned int rowStart = tableStart + (i * rowHeight);
+            int rowStart = tableStart + (i * rowHeight);
 
             {
                 // player name button
-                unsigned int width = 112;
-                unsigned int height = 20;
+                int width = 112;
+                int height = 20;
 
                 auto b = uiFactory.createBasicButton(45, rowStart, width, height, guiName, "skirmname", "Player");
                 b->setName("PLAYER" + std::to_string(i));
@@ -781,15 +781,15 @@ namespace rwe
 
     void MainMenuScene::attachDetailedPlayerSelectionComponents(const std::string& guiName, UiPanel& panel, int i)
     {
-        unsigned int tableStart = 78;
-        unsigned int rowHeight = 20;
+        int tableStart = 78;
+        int rowHeight = 20;
 
-        unsigned int rowStart = tableStart + (i * rowHeight);
+        int rowStart = tableStart + (i * rowHeight);
 
         {
             // side button
-            unsigned int width = 44;
-            unsigned int height = 20;
+            int width = 44;
+            int height = 20;
 
             auto b = uiFactory.createStagedButton(163, rowStart, width, height, guiName, "SIDEx", std::vector<std::string>(2), 2);
             b->setName("PLAYER" + std::to_string(i) + "_side");
@@ -812,15 +812,15 @@ namespace rwe
 
         {
             // color
-            unsigned int width = 19;
-            unsigned int height = 19;
+            int width = 19;
+            int height = 19;
 
             auto graphics = sceneContext.textureService->getGafEntry("anims/LOGOS.GAF", "32xlogos");
             auto newSprites = std::make_shared<SpriteSeries>();
             newSprites->sprites.reserve(graphics->sprites.size());
 
             std::transform(graphics->sprites.begin(), graphics->sprites.end(), std::back_inserter(newSprites->sprites), [width, height](const auto& sprite) {
-                auto bounds = Rectangle2f::fromTopLeft(0.0f, 0.0f, width, height);
+                auto bounds = Rectangle2f::fromTopLeft(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height));
                 return std::make_shared<Sprite>(bounds, sprite->texture, sprite->mesh);
             });
 
@@ -838,8 +838,8 @@ namespace rwe
 
         {
             // ally
-            unsigned int width = 38;
-            unsigned int height = 20;
+            int width = 38;
+            int height = 20;
 
             auto graphics = sceneContext.textureService->getGuiTexture(guiName, "TEAMICONSx");
             if (!graphics)
@@ -896,8 +896,8 @@ namespace rwe
 
         {
             // metal
-            unsigned int width = 46;
-            unsigned int height = 20;
+            int width = 46;
+            int height = 20;
 
             auto b = uiFactory.createButton(286, rowStart, width, height, guiName, "skirmmet", "");
             b->setName("PLAYER" + std::to_string(i) + "_metal");
@@ -913,8 +913,8 @@ namespace rwe
 
         {
             // energy
-            unsigned int width = 46;
-            unsigned int height = 20;
+            int width = 46;
+            int height = 20;
 
             auto b = uiFactory.createButton(337, rowStart, width, height, guiName, "skirmmet", "");
             b->setName("PLAYER" + std::to_string(i) + "_energy");

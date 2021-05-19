@@ -125,7 +125,7 @@ namespace rwe
     TextureArrayHandle GraphicsContext::createTextureArray(unsigned int width, unsigned int height, unsigned int mipMapLevels, std::vector<Color>& images)
     {
         assert(images.size() % (width * height) == 0);
-        auto depth = images.size() / (width * height);
+        GLsizei depth = static_cast<GLsizei>(images.size()) / (width * height);
         GLuint texture;
         glGenTextures(1, &texture);
         TextureArrayIdentifier id(texture);
@@ -205,7 +205,7 @@ namespace rwe
     ShaderHandle GraphicsContext::compileShader(GLenum shaderType, const std::string& source)
     {
         auto data = source.data();
-        GLint length = source.size();
+        GLint length = static_cast<int>(source.size());
         ShaderHandle shader(ShaderIdentifier(glCreateShader(shaderType)));
         glShaderSource(shader.get().value, 1, &data, &length);
         glCompileShader(shader.get().value);

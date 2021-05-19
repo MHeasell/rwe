@@ -30,12 +30,13 @@ namespace rwe
         /** Draws the sprite, ignoring its internal x and y offset. */
         void drawSpriteAbs(float x, float y, const Sprite& sprite);
 
+        void drawSpriteAbs(  int x,   int y,   int width,   int height, const Sprite& sprite);
         void drawSpriteAbs(float x, float y, float width, float height, const Sprite& sprite);
 
         void drawSpriteAbs(const Rectangle2f& rect, const Sprite& sprite);
 
-        void drawText(float x, float y, const std::string& text, const SpriteSeries& font);
-        void drawText(float x, float y, const std::string& text, const SpriteSeries& font, const Color& tint);
+        void drawText(  int x,   int y, const std::string& text, const SpriteSeries& font, const Color& tint = Color(255, 255, 255));
+        void drawText(float x, float y, const std::string& text, const SpriteSeries& font, const Color& tint = Color(255, 255, 255));
 
         void drawTextWrapped(Rectangle2f area, const std::string& text, const SpriteSeries& font);
 
@@ -43,8 +44,8 @@ namespace rwe
 
         void drawTextCenteredX(float x, float y, const std::string& text, const SpriteSeries& font);
 
-        void drawTextAlignRight(float x, float y, const std::string& text, const SpriteSeries& font);
-        void drawTextAlignRight(float x, float y, const std::string& text, const SpriteSeries& font, const Color& tint);
+        void drawTextAlignRight(  int x,   int y, const std::string& text, const SpriteSeries& font, const Color& tint = Color(255, 255, 255));
+        void drawTextAlignRight(float x, float y, const std::string& text, const SpriteSeries& font, const Color& tint = Color(255, 255, 255));
 
         float getTextWidth(const std::string& text, const SpriteSeries& font);
 
@@ -73,11 +74,10 @@ namespace rwe
 
         void drawHealthBar(float x, float y, float percentFull);
 
-        void drawHealthBar2(float x, float y, float width, float height, float percentFull);
+        void drawHealthBar2(int x, int y, int width, int height, int hitPoints, int maxHitPoints);
 
-        void drawBoxOutline(float x, float y, float width, float height, Color color);
-
-        void drawBoxOutline(float x, float y, float width, float height, Color color, float thickness);
+        void drawBoxOutline(  int x,   int y,   int width,   int height, Color color, float thickness = 1.0f);
+        void drawBoxOutline(float x, float y, float width, float height, Color color, float thickness = 1.0f);
 
         void drawLine(const Vector2f& start, const Vector2f& end);
     };

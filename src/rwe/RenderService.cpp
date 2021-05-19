@@ -389,7 +389,7 @@ namespace rwe
                     const auto& shader = shaders->basicTexture;
                     graphics->bindShader(shader.handle.get());
                     const auto spriteSeries = meshDatabase.getSpriteSeries(s.gaf, s.anim).value();
-                    const auto& sprite = *spriteSeries->sprites[getFrameIndex(currentTime, spriteSeries->sprites.size())];
+                    const auto& sprite = *spriteSeries->sprites[getFrameIndex(currentTime, static_cast<unsigned int>(spriteSeries->sprites.size()))];
                     auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix * sprite.getTransform();
                     graphics->bindTexture(sprite.texture.get());
                     graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * modelMatrix);
@@ -452,12 +452,12 @@ namespace rwe
         {
             auto spriteSeries = meshDatabase.getSpriteSeries(exp.explosionGaf, exp.explosionAnim).value();
 
-            if (!exp.isStarted(currentTime) || exp.isFinished(currentTime, spriteSeries->sprites.size()))
+            if (!exp.isStarted(currentTime) || exp.isFinished(currentTime, static_cast<int>(spriteSeries->sprites.size())))
             {
                 continue;
             }
 
-            auto frameIndex = exp.getFrameIndex(currentTime, spriteSeries->sprites.size());
+            auto frameIndex = exp.getFrameIndex(currentTime, static_cast<int>(spriteSeries->sprites.size()));
             const auto& sprite = *spriteSeries->sprites[frameIndex];
 
             float alpha = exp.translucent ? 0.5f : 1.0f;
@@ -610,7 +610,7 @@ namespace rwe
         {
             auto& exp = *it;
             const auto anim = meshDatabase.getSpriteSeries(exp.explosionGaf, exp.explosionAnim).value();
-            if (exp.isFinished(currentTime, anim->sprites.size()))
+            if (exp.isFinished(currentTime, static_cast<int>(anim->sprites.size())))
             {
                 exp = std::move(*--end);
                 continue;

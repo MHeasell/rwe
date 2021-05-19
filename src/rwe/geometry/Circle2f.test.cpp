@@ -31,25 +31,25 @@ namespace rwe
         }
 
         rc::prop("works when point is within radius distance on axes", []() {
-            auto x = *rc::gen::inRange(-10000, 10000);
-            auto y = *rc::gen::inRange(-10000, 10000);
-            auto radius = *rc::gen::inRange(0, 10000);
-            auto distance = *rc::gen::inRange(-radius, radius + 1);
-            Circle2f c(radius, Vector2f(x, y));
+            float x = static_cast<float>(*rc::gen::inRange(-10000, 10000));
+            float y = static_cast<float>(*rc::gen::inRange(-10000, 10000));
+            int radius = *rc::gen::inRange(0, 10000);
+            float distance = static_cast<float>(*rc::gen::inRange(-radius, radius + 1));
+            Circle2f c(static_cast<float>(radius), Vector2f(x, y));
             Vector2f px(x + distance, y);
             Vector2f py(x, y + distance);
             RC_ASSERT(c.contains(px));
             RC_ASSERT(c.contains(py));
         });
         rc::prop("works when point is within sqrt(radius) distance on axes", []() {
-            auto x = *rc::gen::inRange(-10000, 10000);
-            auto y = *rc::gen::inRange(-10000, 10000);
+            auto x = static_cast<float>(*rc::gen::inRange(-10000, 10000));
+            auto y = static_cast<float>(*rc::gen::inRange(-10000, 10000));
             auto radius = *rc::gen::inRange(0, 10000);
-            auto dx = *rc::gen::inRange(-radius, radius + 1);
-            auto dy = *rc::gen::inRange(-radius, radius + 1);
+            auto dx = static_cast<float>(*rc::gen::inRange(-radius, radius + 1));
+            auto dy = static_cast<float>(*rc::gen::inRange(-radius, radius + 1));
 
-            const auto scale = std::sin(Pif / 4);
-            Circle2f c(radius, Vector2f(x, y));
+            const auto scale = std::sin(Pif / 4.f);
+            Circle2f c(static_cast<float>(radius), Vector2f(x, y));
             Vector2f p(x + (dx * scale * 0.9f), y + (dy * scale * 0.9f));
             RC_ASSERT(c.contains(p));
         });

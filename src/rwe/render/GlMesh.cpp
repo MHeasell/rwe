@@ -5,10 +5,10 @@ namespace rwe
     GlMesh::GlMesh(
         VaoHandle&& vao,
         VboHandle&& vbo,
-        unsigned int vertexCount)
+        size_t vertexCount)
         : vao(std::move(vao)),
           vbo(std::move(vbo)),
-          vertexCount(vertexCount)
+          vertexCount(static_cast<int>(vertexCount))
     {
     }
 }

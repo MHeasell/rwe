@@ -5,8 +5,8 @@
 namespace rwe
 {
     struct PlayerColorIndexTag;
-    struct PlayerColorIndex : public OpaqueId<unsigned int, PlayerColorIndexTag>
+    struct PlayerColorIndex : public OpaqueId<int, PlayerColorIndexTag>
     {
-        explicit PlayerColorIndex(unsigned int value);
+        explicit PlayerColorIndex(int value);
     };
 }

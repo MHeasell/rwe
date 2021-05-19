@@ -75,7 +75,7 @@ namespace rwe
         }
     }
 
-    void LoadingNetworkService::onReceive(const boost::system::error_code& error, std::size_t bytesTransferred)
+    void LoadingNetworkService::onReceive(const boost::system::error_code& error, int bytesTransferred)
     {
         if (error)
         {
@@ -110,7 +110,7 @@ namespace rwe
         }
 
         proto::NetworkMessage message;
-        message.ParseFromArray(receiveBuffer.data(), bytesTransferred - 4);
+        message.ParseFromArray(receiveBuffer.data(), static_cast<int>(bytesTransferred - 4));
 
         if (!message.has_loading_status())
         {
@@ -163,7 +163,7 @@ namespace rwe
         {
             throw std::runtime_error("Message to be sent was bigger than buffer size");
         }
-        if (!outerMessage.SerializeToArray(sendBuffer.data(), sendBuffer.size()))
+        if (!outerMessage.SerializeToArray(sendBuffer.data(), static_cast<int>(sendBuffer.size())))
         {
             throw std::runtime_error("Failed to serialize message to buffer");
         }

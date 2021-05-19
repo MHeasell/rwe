@@ -95,7 +95,7 @@ namespace rwe
             REQUIRE(f.reproduce == false);
             REQUIRE(f.reproduceArea == 6);
 
-            REQUIRE(f.blocking == 1);
+            REQUIRE(f.blocking == true);
             REQUIRE(f.hitDensity == 10);
 
             // fields not provided

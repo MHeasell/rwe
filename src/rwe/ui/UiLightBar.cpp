@@ -11,7 +11,7 @@ namespace rwe
     void UiLightBar::render(UiRenderService& context) const
     {
         auto color = percentComplete == 1.0f ? Color(83, 223, 79) : Color(255, 71, 0);
-        context.fillColor(posX, posY, sizeX * percentComplete, sizeY, color);
+        context.fillColor(static_cast<float>(posX), static_cast<float>(posY), sizeX * percentComplete, static_cast<float>(sizeY), color);
 
         context.drawSpriteAbs(posX, posY, sizeX, sizeY, *lightMask);
     }

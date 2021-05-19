@@ -118,7 +118,7 @@ namespace rwe
 
             for (Index i = 0; i < getSize(unit.weapons); ++i)
             {
-                updateWeapon(unitId, i);
+                updateWeapon(unitId, static_cast<int>(i));
             }
         }
 
@@ -255,7 +255,7 @@ namespace rwe
         return false;
     }
 
-    void UnitBehaviorService::updateWeapon(UnitId id, unsigned int weaponIndex)
+    void UnitBehaviorService::updateWeapon(UnitId id, int weaponIndex)
     {
         auto& unit = scene->getSimulation().getUnit(id);
         auto& weapon = unit.weapons[weaponIndex];
@@ -410,7 +410,7 @@ namespace rwe
         return rotateDirectionXZ(direction, angle);
     }
 
-    void UnitBehaviorService::tryFireWeapon(UnitId id, unsigned int weaponIndex)
+    void UnitBehaviorService::tryFireWeapon(UnitId id, int weaponIndex)
     {
         auto& unit = scene->getSimulation().getUnit(id);
         auto& weapon = unit.weapons[weaponIndex];
@@ -653,7 +653,7 @@ namespace rwe
         return true;
     }
 
-    std::string UnitBehaviorService::getAimScriptName(unsigned int weaponIndex) const
+    std::string UnitBehaviorService::getAimScriptName(int weaponIndex) const
     {
         switch (weaponIndex)
         {
@@ -668,7 +668,7 @@ namespace rwe
         }
     }
 
-    std::string UnitBehaviorService::getAimFromScriptName(unsigned int weaponIndex) const
+    std::string UnitBehaviorService::getAimFromScriptName(int weaponIndex) const
     {
         switch (weaponIndex)
         {
@@ -683,7 +683,7 @@ namespace rwe
         }
     }
 
-    std::string UnitBehaviorService::getFireScriptName(unsigned int weaponIndex) const
+    std::string UnitBehaviorService::getFireScriptName(int weaponIndex) const
     {
         switch (weaponIndex)
         {
@@ -698,7 +698,7 @@ namespace rwe
         }
     }
 
-    std::string UnitBehaviorService::getQueryScriptName(unsigned int weaponIndex) const
+    std::string UnitBehaviorService::getQueryScriptName(int weaponIndex) const
     {
         switch (weaponIndex)
         {
@@ -732,13 +732,13 @@ namespace rwe
         return result;
     }
 
-    SimVector UnitBehaviorService::getAimingPoint(UnitId id, unsigned int weaponIndex)
+    SimVector UnitBehaviorService::getAimingPoint(UnitId id, int weaponIndex)
     {
         const auto& unit = scene->getSimulation().getUnit(id);
         return unit.getTransform() * getLocalAimingPoint(id, weaponIndex);
     }
 
-    SimVector UnitBehaviorService::getLocalAimingPoint(UnitId id, unsigned int weaponIndex)
+    SimVector UnitBehaviorService::getLocalAimingPoint(UnitId id, int weaponIndex)
     {
         auto scriptName = getAimFromScriptName(weaponIndex);
         auto pieceId = runCobQuery(id, scriptName);
@@ -750,13 +750,13 @@ namespace rwe
         return getPieceLocalPosition(id, *pieceId);
     }
 
-    SimVector UnitBehaviorService::getFiringPoint(UnitId id, unsigned int weaponIndex)
+    SimVector UnitBehaviorService::getFiringPoint(UnitId id, int weaponIndex)
     {
         const auto& unit = scene->getSimulation().getUnit(id);
         return unit.getTransform() * getLocalFiringPoint(id, weaponIndex);
     }
 
-    SimVector UnitBehaviorService::getLocalFiringPoint(UnitId id, unsigned int weaponIndex)
+    SimVector UnitBehaviorService::getLocalFiringPoint(UnitId id, int weaponIndex)
     {
 
         auto scriptName = getQueryScriptName(weaponIndex);
@@ -860,7 +860,7 @@ namespace rwe
         else
         {
             // we're in range, aim weapons
-            for (unsigned int i = 0; i < 2; ++i)
+            for (int i = 0; i < 2; ++i)
             {
                 match(
                     target,
@@ -1099,7 +1099,7 @@ namespace rwe
         return getPiecePosition(id, *pieceId);
     }
 
-    SimVector UnitBehaviorService::getPieceLocalPosition(UnitId id, unsigned int pieceId)
+    SimVector UnitBehaviorService::getPieceLocalPosition(UnitId id, int pieceId)
     {
         auto& unit = scene->getSimulation().getUnit(id);
 
@@ -1109,7 +1109,7 @@ namespace rwe
         return pieceTransform * SimVector(0_ss, 0_ss, 0_ss);
     }
 
-    SimVector UnitBehaviorService::getPiecePosition(UnitId id, unsigned int pieceId)
+    SimVector UnitBehaviorService::getPiecePosition(UnitId id, int pieceId)
     {
         auto& unit = scene->getSimulation().getUnit(id);
 
@@ -1121,7 +1121,7 @@ namespace rwe
         return atan2(lhs.det(rhs), lhs.dot(rhs));
     }
 
-    SimAngle UnitBehaviorService::getPieceXZRotation(UnitId id, unsigned int pieceId)
+    SimAngle UnitBehaviorService::getPieceXZRotation(UnitId id, int pieceId)
     {
         auto& unit = scene->getSimulation().getUnit(id);
 

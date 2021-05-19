@@ -45,11 +45,11 @@ namespace rwe
     {
         if (background)
         {
-            graphics.drawSpriteAbs(posX, posY, **background);
+            graphics.drawSpriteAbs(static_cast<float>(posX), static_cast<float>(posY), **background);
         }
 
         graphics.pushMatrix();
-        graphics.multiplyMatrix(Matrix4f::translation(Vector3f(posX, posY, 0.0f)));
+        graphics.multiplyMatrix(Matrix4f::translation(Vector3f(static_cast<float>(posX), static_cast<float>(posY), 0.0f)));
 
         for (const auto& i : children)
         {
