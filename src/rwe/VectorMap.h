@@ -116,7 +116,7 @@ namespace rwe
             }
             else
             {
-                auto id = makeId(Index(vec.size()));
+                auto id = makeId(Index(static_cast<unsigned int>(vec.size())));
                 vec.emplace_back(std::make_pair(id, T(std::forward<Args>(args)...)));
                 return id;
             }

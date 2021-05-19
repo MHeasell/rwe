@@ -41,7 +41,7 @@ namespace rwe
         std::shared_ptr<SpriteSeries> getGafEntry(const std::string& gafName, const std::string& entryName);
         std::optional<std::shared_ptr<SpriteSeries>> getGuiTexture(const std::string& guiName, const std::string& graphicName);
         SharedTextureHandle getBitmap(const std::string& bitmapName);
-        std::shared_ptr<Sprite> getBitmapRegion(const std::string& bitmapName, int x, int y, int width, int height);
+        std::shared_ptr<Sprite> getBitmapRegion(const std::string& bitmapName, float x, float y, float width, float height);
         SharedTextureHandle getDefaultTexture();
         std::shared_ptr<SpriteSeries> getDefaultSpriteSeries();
         std::shared_ptr<Sprite> getDefaultSprite();

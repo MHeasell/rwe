@@ -14,7 +14,7 @@ namespace rwe
 
         SimScalar toSimScalar() const
         {
-            return SimScalar(value);
+            return SimScalar(static_cast<float>(value));
         }
     };
 }

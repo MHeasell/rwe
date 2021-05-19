@@ -185,7 +185,7 @@ private:
 
         auto count = it - begin;
 
-        return std::pair<unsigned int, uint32_t>(count, *it++);
+        return std::pair<unsigned int, uint32_t>(static_cast<unsigned int>(count), *it++);
     }
 };
 

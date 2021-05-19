@@ -42,6 +42,6 @@ namespace rwe
 
         auto frameIndex = (timeInMillis / millisPerFrame) % frames.size();
 
-        renderer.drawSprite(x, y, *(frames[frameIndex]));
+        renderer.drawSprite(static_cast<float>(x), static_cast<float>(y), *(frames[frameIndex]));
     }
 }

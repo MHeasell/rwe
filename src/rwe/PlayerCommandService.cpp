@@ -53,7 +53,7 @@ namespace rwe
     {
         std::scoped_lock<std::mutex> lock(mutex);
 
-        return commandBuffers.at(player).size();
+        return static_cast<unsigned int>(commandBuffers.at(player).size());
     }
 
     bool PlayerCommandService::checkHashes()

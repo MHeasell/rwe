@@ -174,7 +174,7 @@ namespace rwe
         // Worker time is per second, assuming 30 ticks per second.
         unit.workerTimePerTick = fbi.workerTime / 30;
 
-        unit.buildDistance = SimScalar(fbi.buildDistance);
+        unit.buildDistance = simScalarFromUInt(fbi.buildDistance);
 
         unit.onOffable = fbi.onOffable;
         unit.activateWhenBuilt = fbi.activateWhenBuilt;
@@ -255,7 +255,7 @@ namespace rwe
         return unit;
     }
 
-    std::optional<std::reference_wrapper<const std::vector<GuiEntry>>> UnitFactory::getBuilderGui(const std::string& unitType, unsigned int page) const
+    std::optional<std::reference_wrapper<const std::vector<GuiEntry>>> UnitFactory::getBuilderGui(const std::string& unitType, int page) const
     {
         const auto& pages = unitDatabase->tryGetBuilderGui(unitType);
         if (!pages)
@@ -273,7 +273,7 @@ namespace rwe
         return unwrappedPages[page];
     }
 
-    unsigned int UnitFactory::getBuildPageCount(const std::string& unitType) const
+    int UnitFactory::getBuildPageCount(const std::string& unitType) const
     {
         const auto& pages = unitDatabase->tryGetBuilderGui(unitType);
         if (!pages)
@@ -281,7 +281,7 @@ namespace rwe
             return 0;
         }
 
-        return pages->get().size();
+        return static_cast<int>(pages->get().size());
     }
 
     Point UnitFactory::getUnitFootprint(const std::string& unitType) const
@@ -350,11 +350,11 @@ namespace rwe
 
         weapon.weaponType = weaponType;
 
-        weapon.weaponDefinition.maxRange = SimScalar(tdf.range);
+        weapon.weaponDefinition.maxRange = simScalarFromUInt(tdf.range);
         weapon.weaponDefinition.reloadTime = SimScalar(tdf.reloadTime);
         weapon.weaponDefinition.tolerance = SimAngle(tdf.tolerance);
         weapon.weaponDefinition.pitchTolerance = SimAngle(tdf.pitchTolerance);
-        weapon.weaponDefinition.velocity = SimScalar(static_cast<float>(tdf.weaponVelocity) / 30.0f);
+        weapon.weaponDefinition.velocity = simScalarFromUInt(tdf.weaponVelocity) / 30.0_ssf;
 
         weapon.weaponDefinition.burst = tdf.burst;
         weapon.weaponDefinition.burstInterval = SimScalar(tdf.burstRate);
@@ -446,7 +446,7 @@ namespace rwe
             weapon.weaponDefinition.damage.insert_or_assign(toUpper(p.first), p.second);
         }
 
-        weapon.weaponDefinition.damageRadius = SimScalar(static_cast<float>(tdf.areaOfEffect) / 2.0f);
+        weapon.weaponDefinition.damageRadius = simScalarFromUInt(tdf.areaOfEffect) * 0.5_ssf;
 
         if (tdf.weaponTimer != 0.0f)
         {
@@ -468,7 +468,7 @@ namespace rwe
             static_cast<float>(color.b) / 255.0f);
     }
 
-    unsigned int colorDistance(const Color& a, const Color& b)
+    int colorDistance(const Color& a, const Color& b)
     {
         auto dr = a.r > b.r ? a.r - b.r : b.r - a.r;
         auto dg = a.g > b.g ? a.g - b.g : b.g - a.g;

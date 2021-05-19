@@ -9,7 +9,7 @@ namespace rwe
 
     void UiScrollBar::render(UiRenderService& context) const
     {
-        drawScrollBackground(context, posX, posY, sizeY);
+        drawScrollBackground(context, static_cast<float>(posX), static_cast<float>(posY), static_cast<float>(sizeY));
 
         auto info = getScrollBoxInfo();
 
@@ -19,8 +19,8 @@ namespace rwe
     UiScrollBar::UiScrollBar(
         int posX,
         int posY,
-        unsigned int sizeX,
-        unsigned int sizeY,
+        int sizeX,
+        int sizeY,
         std::shared_ptr<SpriteSeries> sprites)
         : UiComponent(posX, posY, sizeX, sizeY),
           sprites(std::move(sprites))
@@ -94,7 +94,7 @@ namespace rwe
     void UiScrollBar::mouseDown(MouseButtonEvent event)
     {
         const Sprite& upArrow = *sprites->sprites[6];
-        if (Rectangle2f::fromTopLeft(posX, posY, upArrow.bounds.width(), upArrow.bounds.height()).contains(event.x, event.y))
+        if (Rectangle2f::fromTopLeft(static_cast<float>(posX), static_cast<float>(posY), upArrow.bounds.width(), upArrow.bounds.height()).contains(static_cast<float>(event.x), static_cast<float>(event.y)))
         {
             upArrowPressed = true;
             scrollUpSubject.next(true);
@@ -102,7 +102,7 @@ namespace rwe
         }
 
         const Sprite& downArrow = *sprites->sprites[8];
-        if (Rectangle2f::fromTopLeft(posX, posY + sizeY - downArrow.bounds.height(), downArrow.bounds.width(), downArrow.bounds.height()).contains(event.x, event.y))
+        if (Rectangle2f::fromTopLeft(static_cast<float>(posX), posY + sizeY - downArrow.bounds.height(), downArrow.bounds.width(), downArrow.bounds.height()).contains(static_cast<float>(event.x), static_cast<float>(event.y)))
         {
             downArrowPressed = true;
             scrollDownSubject.next(true);
@@ -110,7 +110,7 @@ namespace rwe
         }
 
         auto boxInfo = getScrollBoxInfo();
-        if (Rectangle2f::fromTopLeft(posX, posY + boxInfo.pos, sizeX, boxInfo.size).contains(event.x, event.y))
+        if (Rectangle2f::fromTopLeft(static_cast<float>(posX), posY + boxInfo.pos, static_cast<float>(sizeX), boxInfo.size).contains(static_cast<float>(event.x), static_cast<float>(event.y)))
         {
             barGrabbed = true;
             mouseDownY = event.y;
@@ -187,7 +187,7 @@ namespace rwe
 
         if (backgroundPressed)
         {
-            auto cursorPercent = toScrollPercent(mouseY - posY);
+            auto cursorPercent = toScrollPercent(static_cast<float>(mouseY - posY));
 
             auto boxTopPercent = scrollPercent * (1.0f - getEffectiveScrollBarPercent());
 

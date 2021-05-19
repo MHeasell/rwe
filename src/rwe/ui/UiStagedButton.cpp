@@ -22,7 +22,7 @@ namespace rwe
     {
         const auto& sprite = pressed || toggledOn ? *pressedSprite : *stages[currentStage].sprite;
 
-        graphics.drawSpriteAbs(posX, posY, sprite);
+        graphics.drawSpriteAbs(static_cast<float>(posX), static_cast<float>(posY), sprite);
 
         const auto& label = stages[currentStage].label;
         switch (textAlign)
@@ -56,7 +56,7 @@ namespace rwe
             case TextAlign::BottomCenter:
             {
                 float textX = posX + (sizeX / 2.0f);
-                float textY = posY + sizeY - 7;
+                float textY = posY + sizeY - 7.f;
                 if (pressed)
                 {
                     textX += 1.0f;

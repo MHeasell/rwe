@@ -67,6 +67,28 @@ namespace rwe
     {
         SECTION("rounds up values to the next power of two")
         {
+            // note output = 0 for input == 0 and input that would round too high to fit in this data type
+
+            // edges of validity: 1, 1 << (sizeof(T)*8) - 1
+
+            unsigned short input = 0;
+
+            for (int i = 0; i < sizeof(i) * 8; i++)
+            {
+                const int power = 1 << i;
+                REQUIRE(roundUpToPowerOfTwo(power) == power);
+                if (i < (sizeof(i) * 8) - 2)
+                {
+                    const int up = power + 1;
+                    REQUIRE(roundUpToPowerOfTwo(up) == power << 1);
+                
+                }
+                if (i > 1)
+                {
+                    const int down = power - 1;
+                    REQUIRE(roundUpToPowerOfTwo(down) == power >> 1);
+                }
+            }
             REQUIRE(roundUpToPowerOfTwo(1) == 1);
             REQUIRE(roundUpToPowerOfTwo(2) == 2);
             REQUIRE(roundUpToPowerOfTwo(3) == 4);

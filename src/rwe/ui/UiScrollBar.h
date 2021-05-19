@@ -52,8 +52,8 @@ namespace rwe
         UiScrollBar(
             int posX,
             int posY,
-            unsigned int sizeX,
-            unsigned int sizeY,
+            int sizeX,
+            int sizeY,
             std::shared_ptr<SpriteSeries> sprites);
 
         void render(UiRenderService& context) const override;

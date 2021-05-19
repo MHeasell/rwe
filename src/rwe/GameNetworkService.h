@@ -132,6 +132,6 @@ namespace rwe
 
         void send(EndpointInfo& endpoint);
 
-        void receive(const boost::system::error_code& error, std::size_t receivedBytes);
+        void receive(const boost::system::error_code& error, int receivedBytes);
     };
 }

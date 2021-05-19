@@ -32,10 +32,10 @@ namespace rwe
     public:
         Unit createUnit(const std::string& unitType, PlayerId owner, const SimVector& position, std::optional<const std::reference_wrapper<SimAngle>> rotation);
 
-        std::optional<std::reference_wrapper<const std::vector<GuiEntry>>> getBuilderGui(const std::string& unitType, unsigned int page) const;
+        std::optional<std::reference_wrapper<const std::vector<GuiEntry>>> getBuilderGui(const std::string& unitType, int page) const;
 
         /** If the unit has no build gui, this will be zero. */
-        unsigned int getBuildPageCount(const std::string& unitType) const;
+        int getBuildPageCount(const std::string& unitType) const;
 
         Point getUnitFootprint(const std::string& unitType) const;
 

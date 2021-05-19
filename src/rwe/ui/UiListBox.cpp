@@ -17,17 +17,17 @@ namespace rwe
 
     void UiListBox::render(UiRenderService& context) const
     {
-        auto lines = std::min<unsigned int>(numberOfLines(), items.size());
+        auto lines = std::min<unsigned int>(numberOfLines(), static_cast<unsigned int>(items.size()));
 
         for (unsigned int i = 0; i < lines; ++i)
         {
-            float y = 12.0f + (i * 12.0f);
+            int y = 12 + (i * 12);
             auto itemIndex = scrollPositionSubject.getValue() + i;
 
             const auto& selectedIndexValue = selectedIndexSubject.getValue();
             if (selectedIndexValue && itemIndex == *selectedIndexValue)
             {
-                context.fillColor(posX, posY + y - 11.0f, sizeX, 12.0f, Color(255, 255, 255, 31));
+                context.fillColor(static_cast<float>(posX), posY + y - 11.0f, static_cast<float>(sizeX), 12.0f, Color(255, 255, 255, 31));
             }
 
             const auto& e = items[itemIndex];

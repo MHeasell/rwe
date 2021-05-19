@@ -108,8 +108,8 @@ namespace rwe
     {
         auto corner = simulation->terrain.heightmapIndexToWorldCorner(rect.x, rect.y);
 
-        auto halfWorldWidth = (SimScalar(rect.width) * MapTerrain::HeightTileWidthInWorldUnits) / 2_ss;
-        auto halfWorldHeight = (SimScalar(rect.height) * MapTerrain::HeightTileHeightInWorldUnits) / 2_ss;
+        auto halfWorldWidth = (simScalarFromInt(rect.width) * MapTerrain::HeightTileWidthInWorldUnits) / 2_ss;
+        auto halfWorldHeight = (simScalarFromInt(rect.height) * MapTerrain::HeightTileHeightInWorldUnits) / 2_ss;
 
         auto center = corner + SimVector(halfWorldWidth, 0_ss, halfWorldHeight);
         center.y = simulation->terrain.getHeightAt(center.x, center.z);

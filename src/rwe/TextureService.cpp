@@ -62,10 +62,10 @@ namespace rwe
             SharedTextureHandle handle(graphics->createTexture(currentFrameHeader.width, currentFrameHeader.height, buffer));
 
             auto bounds = Rectangle2f::fromTopLeft(
-                -currentFrameHeader.posX,
-                -currentFrameHeader.posY,
-                currentFrameHeader.width,
-                currentFrameHeader.height);
+                static_cast<float>(-currentFrameHeader.posX),
+                static_cast<float>(-currentFrameHeader.posY),
+                static_cast<float>(currentFrameHeader.width),
+                static_cast<float>(currentFrameHeader.height));
 
             auto region = Rectangle2f::fromTopLeft(0.0f, 0.0f, 1.0f, 1.0f);
 
@@ -177,14 +177,14 @@ namespace rwe
         return defaultSpriteSeries->sprites[0]->texture;
     }
 
-    std::shared_ptr<Sprite> TextureService::getBitmapRegion(const std::string& bitmapName, int x, int y, int width, int height)
+    std::shared_ptr<Sprite> TextureService::getBitmapRegion(const std::string& bitmapName, float x, float y, float width, float height)
     {
         auto bitmap = getBitmapInternal(bitmapName);
         auto region = Rectangle2f::fromTopLeft(
-            static_cast<float>(x) / static_cast<float>(bitmap.width),
-            static_cast<float>(y) / static_cast<float>(bitmap.height),
-            static_cast<float>(width) / static_cast<float>(bitmap.width),
-            static_cast<float>(height) / static_cast<float>(bitmap.height));
+            x / static_cast<float>(bitmap.width),
+            y / static_cast<float>(bitmap.height),
+            width / static_cast<float>(bitmap.width),
+            height / static_cast<float>(bitmap.height));
         auto bounds = Rectangle2f::fromTopLeft(x, y, width, height);
         return std::make_shared<Sprite>(graphics->createSprite(bounds, region, bitmap.handle));
     }
@@ -251,7 +251,7 @@ namespace rwe
 
         SharedTextureHandle texture(graphics->createTexture(minimap.width, minimap.height, rgbMinimap));
         auto sprite = graphics->createSprite(
-            Rectangle2f::fromTopLeft(0.0f, 0.0f, minimap.width, minimap.height),
+            Rectangle2f::fromTopLeft(0.0f, 0.0f, static_cast<float>(minimap.width), static_cast<float>(minimap.height)),
             Rectangle2f::fromTopLeft(0.0f, 0.0f, 1.0f, 1.0f),
             texture);
         auto spritePtr = std::make_shared<Sprite>(std::move(sprite));
@@ -303,7 +303,7 @@ namespace rwe
 
             SharedTextureHandle texture(graphics->createTexture(width, fnt.glyphHeight(), rgbGlyph));
             auto sprite = std::make_shared<Sprite>(graphics->createSprite(
-                Rectangle2f::fromTopLeft(0.0f, 0.0f, width, fnt.glyphHeight()),
+                Rectangle2f::fromTopLeft(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(fnt.glyphHeight())),
                 Rectangle2f::fromTopLeft(0.0f, 0.0f, 1.0f, 1.0f),
                 texture));
 

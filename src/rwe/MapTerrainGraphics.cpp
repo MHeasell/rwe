@@ -34,19 +34,19 @@ namespace rwe
         auto widthInWorldUnits = getWidthInWorldUnits();
         auto heightInWorldUnits = getHeightInWorldUnits();
 
-        auto worldX = (SimScalar(x) * TileWidthInWorldUnits) - (widthInWorldUnits / 2_ss);
-        auto worldY = (SimScalar(y) * TileHeightInWorldUnits) - (heightInWorldUnits / 2_ss);
+        auto worldX = (simScalarFromInt(x) * TileWidthInWorldUnits) - (widthInWorldUnits / 2_ss);
+        auto worldY = (simScalarFromInt(y) * TileHeightInWorldUnits) - (heightInWorldUnits / 2_ss);
 
         return SimVector(worldX, 0_ss, worldY);
     }
 
     SimScalar MapTerrainGraphics::getWidthInWorldUnits() const
     {
-        return SimScalar(tiles.getWidth()) * TileWidthInWorldUnits;
+        return simScalarFromInt(tiles.getWidth()) * TileWidthInWorldUnits;
     }
 
     SimScalar MapTerrainGraphics::getHeightInWorldUnits() const
     {
-        return SimScalar(tiles.getHeight()) * TileHeightInWorldUnits;
+        return simScalarFromInt(tiles.getHeight()) * TileHeightInWorldUnits;
     }
 }

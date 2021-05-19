@@ -107,7 +107,7 @@ namespace rwe
 
     PlayerId GameSimulation::addPlayer(const GamePlayerInfo& info)
     {
-        PlayerId id(players.size());
+        PlayerId id(static_cast<int>(players.size()));
         players.push_back(info);
         return id;
     }
@@ -490,7 +490,7 @@ namespace rwe
                 }
                 else
                 {
-                    livingPlayer = PlayerId(i);
+                    livingPlayer = PlayerId(static_cast<int>(i));
                 }
             }
         }

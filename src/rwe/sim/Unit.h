@@ -338,9 +338,9 @@ namespace rwe
 
         void addOrder(const UnitOrder& order);
 
-        void setWeaponTarget(unsigned int weaponIndex, UnitId target);
-        void setWeaponTarget(unsigned int weaponIndex, const SimVector& target);
-        void clearWeaponTarget(unsigned int weaponIndex);
+        void setWeaponTarget(int weaponIndex, UnitId target);
+        void setWeaponTarget(int weaponIndex, const SimVector& target);
+        void clearWeaponTarget(int weaponIndex);
         void clearWeaponTargets();
 
         Matrix4x<SimScalar> getTransform() const;

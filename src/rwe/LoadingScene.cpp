@@ -54,7 +54,7 @@ namespace rwe
         GameParameters gameParameters)
         : sceneContext(sceneContext),
           scaledUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(640.0, 480.0f)),
-          nativeUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(sceneContext.viewport->width(), sceneContext.viewport->height())),
+          nativeUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(static_cast<float>(sceneContext.viewport->width()), static_cast<float>(sceneContext.viewport->height()))),
           audioLookup(audioLookup),
           bgm(std::move(bgm)),
           gameParameters(std::move(gameParameters)),
@@ -66,10 +66,10 @@ namespace rwe
     {
         auto backgroundSprite = sceneContext.textureService->getBitmapRegion(
             "Loadgame2bg",
-            0,
-            0,
-            640,
-            480);
+            0.f,
+            0.f,
+            640.f,
+            480.f);
 
         panel = std::make_unique<UiPanel>(0, 0, 640, 480, backgroundSprite);
 
@@ -91,7 +91,7 @@ namespace rwe
 
         for (Index i = 0; i < getSize(categories); ++i)
         {
-            int y = 136 + (i * 42);
+            int y = 136 + (static_cast<int>(i) * 42);
             auto label = std::make_unique<UiLabel>(90, y, 100, 12, categories[i], font);
             panel->appendChild(std::move(label));
 
@@ -115,7 +115,7 @@ namespace rwe
                 continue;
             }
 
-            networkService.addEndpoint(i, address->first, address->second);
+            networkService.addEndpoint(static_cast<int>(i), address->first, address->second);
         }
         networkService.start(gameParameters.localNetworkPort);
 
@@ -145,8 +145,8 @@ namespace rwe
             }
 
             initialVec.push_back(e->color.value);
-            initialVec.push_back(e->energy.value);
-            initialVec.push_back(e->metal.value);
+            initialVec.push_back(static_cast<int>(e->energy.value));
+            initialVec.push_back(static_cast<int>(e->metal.value));
             if (e->name)
             {
                 std::copy(e->name->begin(), e->name->end(), std::back_inserter(initialVec));
@@ -202,15 +202,15 @@ namespace rwe
 
         auto minimap = sceneContext.textureService->getMinimap(mapName);
 
-        auto worldViewportWidth = sceneContext.viewport->width() - GameScene::GuiSizeLeft - GameScene::GuiSizeRight;
-        auto worldViewportHeight = sceneContext.viewport->height() - GameScene::GuiSizeTop - GameScene::GuiSizeBottom;
+        auto worldViewportWidth = static_cast<float>(sceneContext.viewport->width() - GameScene::GuiSizeLeft - GameScene::GuiSizeRight);
+        auto worldViewportHeight = static_cast<float>(sceneContext.viewport->height() - GameScene::GuiSizeTop - GameScene::GuiSizeBottom);
 
         CabinetCamera worldCamera(worldViewportWidth, worldViewportHeight);
         worldCamera.setPosition(Vector3f(0.0f, 0.0f, 0.0f));
 
         UiCamera worldUiCamera(worldViewportWidth, worldViewportHeight);
 
-        UiCamera chromeUiCamera(sceneContext.viewport->width(), sceneContext.viewport->height());
+        UiCamera chromeUiCamera(static_cast<float>(sceneContext.viewport->width()), static_cast<float>(sceneContext.viewport->height()));
 
         MovementClassCollisionService collisionService;
 
@@ -233,7 +233,7 @@ namespace rwe
         std::array<std::optional<PlayerId>, 10> gamePlayers;
         std::vector<GameNetworkService::EndpointInfo> endpointInfos;
 
-        for (Index i = 0; i < getSize(gameParameters.players); ++i)
+        for (int i = 0; i < getSize(gameParameters.players); ++i)
         {
             const auto& params = gameParameters.players[i];
             if (params)
@@ -343,7 +343,7 @@ namespace rwe
             }
             const auto& startPos = *startPosIt;
 
-            auto worldStartPos = gameScene->getTerrain().topLeftCoordinateToWorld(SimVector(SimScalar(startPos.xPos), 0_ss, SimScalar(startPos.zPos)));
+            auto worldStartPos = gameScene->getTerrain().topLeftCoordinateToWorld(SimVector(simScalarFromInt(startPos.xPos), 0_ss, simScalarFromInt(startPos.zPos)));
             worldStartPos.y = gameScene->getTerrain().getHeightAt(worldStartPos.x, worldStartPos.z);
 
             if (*gamePlayers[i] == *localPlayerId)
@@ -392,7 +392,7 @@ namespace rwe
 
         MapTerrain terrain(
             std::move(heightGrid),
-            SimScalar(tnt.getHeader().seaLevel));
+            simScalarFromUInt(tnt.getHeader().seaLevel));
 
         MapTerrainGraphics terrainGraphics(
             std::move(tileTextures),
@@ -404,9 +404,9 @@ namespace rwe
 
         std::vector<MapFeature> features;
 
-        for (std::size_t y = 0; y < mapAttributes.getHeight(); ++y)
+        for (int y = 0; y < mapAttributes.getHeight(); ++y)
         {
-            for (std::size_t x = 0; x < mapAttributes.getWidth(); ++x)
+            for (int x = 0; x < mapAttributes.getWidth(); ++x)
             {
                 const auto& e = mapAttributes.get(x, y);
                 switch (e.feature)
@@ -511,7 +511,7 @@ namespace rwe
         MapFeature f;
         f.footprintX = definition.footprintX;
         f.footprintZ = definition.footprintZ;
-        f.height = SimScalar(definition.height);
+        f.height = simScalarFromUInt(definition.height);
         f.isBlocking = definition.blocking;
         f.isIndestructible = definition.indestructible;
         f.metal = definition.metal;
@@ -565,27 +565,27 @@ namespace rwe
     SimVector LoadingScene::computeFeaturePosition(
         const MapTerrain& terrain,
         const FeatureDefinition& featureDefinition,
-        std::size_t x,
-        std::size_t y) const
+        int x,
+        int y) const
     {
         const auto& heightmap = terrain.getHeightMap();
 
-        unsigned int height = 0;
+        int height = 0;
         if (x < heightmap.getWidth() - 1 && y < heightmap.getHeight() - 1)
         {
             height = computeMidpointHeight(heightmap, x, y);
         }
 
         auto position = terrain.heightmapIndexToWorldCorner(x, y);
-        position.y = SimScalar(height);
+        position.y = simScalarFromInt(height);
 
-        position.x += (SimScalar(featureDefinition.footprintX) * MapTerrain::HeightTileWidthInWorldUnits) / 2_ss;
-        position.z += (SimScalar(featureDefinition.footprintZ) * MapTerrain::HeightTileHeightInWorldUnits) / 2_ss;
+        position.x += (simScalarFromInt(featureDefinition.footprintX) * MapTerrain::HeightTileWidthInWorldUnits) / 2_ss;
+        position.z += (simScalarFromInt(featureDefinition.footprintZ) * MapTerrain::HeightTileHeightInWorldUnits) / 2_ss;
 
         return position;
     }
 
-    unsigned int LoadingScene::computeMidpointHeight(const Grid<unsigned char>& heightmap, std::size_t x, std::size_t y)
+    int LoadingScene::computeMidpointHeight(const Grid<unsigned char>& heightmap, int x, int y)
     {
         assert(x < heightmap.getWidth() - 1);
         assert(y < heightmap.getHeight() - 1);

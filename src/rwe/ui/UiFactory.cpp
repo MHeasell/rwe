@@ -39,10 +39,10 @@ namespace rwe
 
         auto texture = textureService->getBitmapRegion(
             background,
-            0,
-            0,
-            panelEntry.common.width,
-            panelEntry.common.height);
+            0.f,
+            0.f,
+            static_cast<float>(panelEntry.common.width),
+            static_cast<float>(panelEntry.common.height));
 
 
         // Adjust x and y pos such that the bottom and right edges of the panel
@@ -238,7 +238,7 @@ namespace rwe
     }
 
     std::unique_ptr<UiStagedButton>
-    UiFactory::createStagedButton(int x, int y, int width, int height, const std::string& guiName, const std::string& name, const std::vector<std::string>& labels, unsigned int stages)
+    UiFactory::createStagedButton(int x, int y, int width, int height, const std::string& guiName, const std::string& name, const std::vector<std::string>& labels, int stages)
     {
         auto sprites = getStagedButtonGraphics(guiName, name, stages);
 
@@ -389,7 +389,7 @@ namespace rwe
         return button;
     }
 
-    std::shared_ptr<SpriteSeries> UiFactory::getDefaultStagedButtonGraphics(const std::string& guiName, unsigned int stages)
+    std::shared_ptr<SpriteSeries> UiFactory::getDefaultStagedButtonGraphics(const std::string& guiName, int stages)
     {
         assert(stages >= 1 && stages <= 4);
         std::string entryName("stagebuttn");
@@ -404,7 +404,7 @@ namespace rwe
         // default behaviour
         const auto& sprite = textureService->getDefaultSprite();
         auto series = std::make_shared<SpriteSeries>();
-        for (unsigned int i = 0; i < stages; ++i)
+        for (int i = 0; i < stages; ++i)
         {
             series->sprites.push_back(sprite);
         }
@@ -567,7 +567,7 @@ namespace rwe
         auto stageCount = spriteCount > 3 ? spriteCount - 2 : 1;
 
         std::vector<std::shared_ptr<Sprite>> normalSprites;
-        for (unsigned int i = 0; i < stageCount; ++i)
+        for (int i = 0; i < stageCount; ++i)
         {
             normalSprites.push_back(sprites[i]);
         }
@@ -602,7 +602,7 @@ namespace rwe
         return UiFactory::ButtonSprites{std::vector<std::shared_ptr<Sprite>>{normalSprite}, pressedSprite, disabledSprite};
     }
 
-    UiFactory::ButtonSprites UiFactory::getStagedButtonGraphics(const std::string& guiName, const std::string& name, unsigned int stages)
+    UiFactory::ButtonSprites UiFactory::getStagedButtonGraphics(const std::string& guiName, const std::string& name, int stages)
     {
         auto graphics = textureService->getGuiTexture(guiName, name);
         if (!graphics)
@@ -613,17 +613,17 @@ namespace rwe
         auto defaultSprite = textureService->getDefaultSprite();
 
         const auto& sprites = (*graphics)->sprites;
-        auto spriteCount = sprites.size();
+        auto spriteCount = static_cast<int>(sprites.size());
 
         auto stagesPresentCount = spriteCount > 2 ? spriteCount - 2 : 0;
-        auto stagesToCopyCount = std::min<unsigned int>(stages, stagesPresentCount);
+        auto stagesToCopyCount = std::min<int>(stages, stagesPresentCount);
 
         std::vector<std::shared_ptr<Sprite>> normalSprites;
-        for (unsigned int i = 0; i < stagesToCopyCount; ++i)
+        for (int i = 0; i < stagesToCopyCount; ++i)
         {
             normalSprites.push_back(sprites[i]);
         }
-        for (unsigned int i = stagesToCopyCount; i < stages; ++i)
+        for (int i = stagesToCopyCount; i < stages; ++i)
         {
             normalSprites.push_back(defaultSprite);
         }

@@ -210,7 +210,7 @@ namespace rwe
         {
             throw std::runtime_error("Message to be sent was bigger than buffer size");
         }
-        if (!message.SerializeToArray(sendBuffer.data(), sendBuffer.size()))
+        if (!message.SerializeToArray(sendBuffer.data(), static_cast<int>(sendBuffer.size())))
         {
             throw std::runtime_error("Failed to serialize message to buffer");
         }
@@ -220,14 +220,14 @@ namespace rwe
 
         socket.send_to(boost::asio::buffer(sendBuffer.data(), messageSize + 4), endpoint.endpoint);
 
-        auto nextSequenceNumber = SequenceNumber(endpoint.nextCommandToSend.value + (endpoint.sendBuffer.size()));
+        auto nextSequenceNumber = SequenceNumber(endpoint.nextCommandToSend.value + static_cast<unsigned int>(endpoint.sendBuffer.size()));
         if (endpoint.sendTimes.empty() || endpoint.sendTimes.back().first < nextSequenceNumber)
         {
             endpoint.sendTimes.emplace_back(nextSequenceNumber, sendTime);
         }
     }
 
-    void GameNetworkService::receive(const boost::system::error_code& error, std::size_t receivedBytes)
+    void GameNetworkService::receive(const boost::system::error_code& error, int receivedBytes)
     {
         if (error)
         {
@@ -313,7 +313,7 @@ namespace rwe
             auto ackDelay = std::chrono::milliseconds(message.ack_delay());
             roundTripTime = roundTripTime > ackDelay ? roundTripTime - ackDelay : std::chrono::milliseconds(0);
             auto rttMillis = std::chrono::duration_cast<std::chrono::milliseconds>(roundTripTime).count();
-            endpoint.averageRoundTripTime = ema(rttMillis, endpoint.averageRoundTripTime, 0.1f);
+            endpoint.averageRoundTripTime = ema(static_cast<float>(rttMillis), endpoint.averageRoundTripTime, 0.1f);
             spdlog::get("rwe")->debug("Average RTT: {0}ms", endpoint.averageRoundTripTime);
         }
 
@@ -346,7 +346,7 @@ namespace rwe
         }
 
         GameTime newNextHashToSend(message.next_game_hash_to_receive());
-        if (newNextHashToSend > endpoint.nextHashToSend + GameTime(endpoint.hashSendBuffer.size()))
+        if (newNextHashToSend > endpoint.nextHashToSend + GameTime(static_cast<unsigned int>(endpoint.hashSendBuffer.size())))
         {
             spdlog::get("rwe")->error(
                 "Remote acked up to {0}, but we are at {1} and hash buffer contains {2} elements",

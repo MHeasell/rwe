@@ -95,7 +95,7 @@ namespace rwe
     template <typename... Ts>
     GameHash computeHashOf(const std::variant<Ts...>& v)
     {
-        return GameHash(v.index())
+        return GameHash(static_cast<uint32_t>(v.index()))
             + match(v, [](const auto& x) { return computeHashOf(x); });
     }
 

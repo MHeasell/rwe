@@ -44,6 +44,11 @@ namespace rwe
         drawSprite(x - sprite.bounds.left(), y - sprite.bounds.top(), sprite);
     }
 
+    void UiRenderService::drawSpriteAbs(int x, int y, int width, int height, const Sprite& sprite)
+    {
+        drawSpriteAbs(static_cast<float>(x), static_cast<float>(y), static_cast<float>(width), static_cast<float>(height), sprite);
+    }
+
     void UiRenderService::drawSpriteAbs(float x, float y, float width, float height, const Sprite& sprite)
     {
         auto matrix = Matrix4f::translation(Vector3f(x, y, 0.0f))
@@ -61,12 +66,12 @@ namespace rwe
         drawSpriteAbs(rect.left(), rect.top(), rect.width(), rect.height(), sprite);
     }
 
-    void UiRenderService::drawText(float x, float y, const std::string& text, const SpriteSeries& font)
+    void UiRenderService::drawText(int x, int y, const std::string& text, const SpriteSeries& font, const Color& tint /*= Color(255, 255, 255)*/)
     {
-        drawText(x, y, text, font, Color(255, 255, 255));
+        drawText(static_cast<float>(x), static_cast<float>(y), text, font, tint);
     }
 
-    void UiRenderService::drawText(float x, float y, const std::string& text, const SpriteSeries& font, const Color& tint)
+    void UiRenderService::drawText(float x, float y, const std::string& text, const SpriteSeries& font, const Color& tint /*= Color(255, 255, 255)*/)
     {
         auto it = utf8Begin(text);
         auto end = utf8End(text);
@@ -127,12 +132,12 @@ namespace rwe
         drawText(std::round(x - halfWidth), y, text, font);
     }
 
-    void UiRenderService::drawTextAlignRight(float x, float y, const std::string& text, const SpriteSeries& font)
+    void UiRenderService::drawTextAlignRight(int x, int y, const std::string& text, const SpriteSeries& font, const Color& tint /*= Color(255, 255, 255)*/)
     {
-        drawTextAlignRight(x, y, text, font, Color(255, 255, 255));
+        drawTextAlignRight(static_cast<float>(x), static_cast<float>(y), text, font, tint);
     }
 
-    void UiRenderService::drawTextAlignRight(float x, float y, const std::string& text, const SpriteSeries& font, const Color& tint)
+    void UiRenderService::drawTextAlignRight(float x, float y, const std::string& text, const SpriteSeries& font, const Color& tint /*= Color(255, 255, 255)*/)
     {
         auto width = getTextWidth(text, font);
         drawText(x - width, y, text, font, tint);
@@ -260,20 +265,21 @@ namespace rwe
         fillColor(x + borderWidth, y + borderWidth, innerWidth, innerHeight, healthColor);
     }
 
-    void UiRenderService::drawHealthBar2(float x, float y, float width, float height, float percentFull)
+    void UiRenderService::drawHealthBar2(int x, int y, int width, int height, int hitPoints, int maxHitPoints)
     {
-        assert(percentFull >= 0.0f && percentFull <= 1.0f);
-        float healthWidth = width * percentFull;
-        fillColor(x, y, healthWidth, height, Color(83, 223, 79));
-        fillColor(x + healthWidth, y, width - healthWidth, height, Color(171, 23, 0));
+        float ratioFull = static_cast<float>(hitPoints) / static_cast<float>(maxHitPoints);
+        assert(ratioFull >= 0.0f && ratioFull <= 1.0f);
+        float healthWidth = width * ratioFull;
+        fillColor(static_cast<float>(x), static_cast<float>(y), healthWidth, static_cast<float>(height), Color(83, 223, 79));
+        fillColor(x + healthWidth, static_cast<float>(y), width - healthWidth, static_cast<float>(height), Color(171, 23, 0));
     }
 
-    void UiRenderService::drawBoxOutline(float x, float y, float width, float height, Color color)
+    void UiRenderService::drawBoxOutline(int x, int y, int width, int height, Color color, float thickness /*= 1.0f*/)
     {
-        drawBoxOutline(x, y, width, height, color, 1.0f);
+        drawBoxOutline(static_cast<float>(x), static_cast<float>(y), static_cast<float>(width), static_cast<float>(height), color, thickness);
     }
 
-    void UiRenderService::drawBoxOutline(float x, float y, float width, float height, Color color, float thickness)
+    void UiRenderService::drawBoxOutline(float x, float y, float width, float height, Color color, float thickness /*= 1.0f*/)
     {
         assert(width >= 0.0f);
         assert(height >= 0.0f);

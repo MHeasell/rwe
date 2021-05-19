@@ -440,7 +440,7 @@ namespace rwe
         bool operator()(const UnitWeaponStateAttacking& state) const { return std::visit(TargetIsPositionVisitor(position), state.target); }
     };
 
-    void Unit::setWeaponTarget(unsigned int weaponIndex, UnitId target)
+    void Unit::setWeaponTarget(int weaponIndex, UnitId target)
     {
         auto& weapon = weapons[weaponIndex];
         if (!weapon)
@@ -455,7 +455,7 @@ namespace rwe
         }
     }
 
-    void Unit::setWeaponTarget(unsigned int weaponIndex, const SimVector& target)
+    void Unit::setWeaponTarget(int weaponIndex, const SimVector& target)
     {
         auto& weapon = weapons[weaponIndex];
         if (!weapon)
@@ -470,7 +470,7 @@ namespace rwe
         }
     }
 
-    void Unit::clearWeaponTarget(unsigned int weaponIndex)
+    void Unit::clearWeaponTarget(int weaponIndex)
     {
         auto& weapon = weapons[weaponIndex];
         if (!weapon)
@@ -479,14 +479,14 @@ namespace rwe
         }
 
         weapon->state = UnitWeaponStateIdle();
-        cobEnvironment->createThread("TargetCleared", {static_cast<int>(weaponIndex)});
+        cobEnvironment->createThread("TargetCleared", {weaponIndex});
     }
 
     void Unit::clearWeaponTargets()
     {
         for (Index i = 0; i < getSize(weapons); ++i)
         {
-            clearWeaponTarget(i);
+            clearWeaponTarget(static_cast<int>(i));
         }
     }
 

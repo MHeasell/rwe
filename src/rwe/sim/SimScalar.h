@@ -9,12 +9,12 @@ namespace rwe
 
     constexpr SimScalar operator"" _ss(unsigned long long val)
     {
-        return SimScalar(val);
+        return SimScalar(static_cast<float>(val));
     }
 
     constexpr SimScalar operator"" _ssf(long double val)
     {
-        return SimScalar(val);
+        return SimScalar(static_cast<float>(val));
     }
 
     inline float simScalarToFloat(SimScalar s)
@@ -30,6 +30,16 @@ namespace rwe
     inline unsigned int simScalarToUInt(SimScalar s)
     {
         return static_cast<unsigned int>(s.value);
+    }
+
+    inline SimScalar simScalarFromUInt(unsigned int i)
+    {
+        return SimScalar(static_cast<float>(i));
+    }
+
+    inline SimScalar simScalarFromInt(int i)
+    {
+        return SimScalar(static_cast<float>(i));
     }
 
     inline int roundToInt(SimScalar s)

@@ -8,10 +8,10 @@ namespace rwe
         switch (alignment)
         {
             case Alignment::Left:
-                context.drawTextWrapped(Rectangle2f::fromTopLeft(posX, posY + 12.0f, sizeX, sizeY), text, *font);
+                context.drawTextWrapped(Rectangle2f::fromTopLeft(static_cast<float>(posX), posY + 12.0f, static_cast<float>(sizeX), static_cast<float>(sizeY)), text, *font);
                 break;
             case Alignment::Center:
-                context.drawTextCentered(posX, posY, text, *font);
+                context.drawTextCentered(static_cast<float>(posX), static_cast<float>(posY), text, *font);
                 break;
         }
     }

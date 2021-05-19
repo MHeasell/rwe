@@ -26,7 +26,7 @@ namespace rwe
 
     SimVector MapTerrain::heightmapIndexToWorldCorner(int x, int y) const
     {
-        return heightmapToWorldSpace(SimVector(SimScalar(x), 0_ss, SimScalar(y)));
+        return heightmapToWorldSpace(SimVector(simScalarFromInt(x), 0_ss, simScalarFromInt(y)));
     }
 
     SimVector MapTerrain::heightmapIndexToWorldCorner(Point p) const
@@ -36,12 +36,12 @@ namespace rwe
 
     SimVector MapTerrain::heightmapIndexToWorldCenter(int x, int y) const
     {
-        return heightmapToWorldSpace(SimVector(SimScalar(x) + 0.5_ssf, 0_ss, SimScalar(y) + 0.5_ssf));
+        return heightmapToWorldSpace(SimVector(simScalarFromInt(x) + 0.5_ssf, 0_ss, simScalarFromInt(y) + 0.5_ssf));
     }
 
     SimVector MapTerrain::heightmapIndexToWorldCenter(std::size_t x, std::size_t y) const
     {
-        return heightmapToWorldSpace(SimVector(SimScalar(x) + 0.5_ssf, 0_ss, SimScalar(y) + 0.5_ssf));
+        return heightmapToWorldSpace(SimVector(SimScalar(static_cast<float>(x)) + 0.5_ssf, 0_ss, SimScalar(static_cast<float>(y)) + 0.5_ssf));
     }
 
     SimVector MapTerrain::heightmapIndexToWorldCenter(Point p) const
@@ -71,23 +71,23 @@ namespace rwe
 
     SimScalar MapTerrain::leftInWorldUnits() const
     {
-        return -((SimScalar(heights.getWidth()) / 2_ss) * HeightTileWidthInWorldUnits);
+        return -((simScalarFromInt(heights.getWidth()) / 2_ss) * HeightTileWidthInWorldUnits);
     }
 
     SimScalar MapTerrain::rightCutoffInWorldUnits() const
     {
-        auto right = (SimScalar(heights.getWidth()) / 2_ss) * HeightTileWidthInWorldUnits;
+        auto right = (simScalarFromInt(heights.getWidth()) / 2_ss) * HeightTileWidthInWorldUnits;
         return right - (HeightTileWidthInWorldUnits * 2_ss);
     }
 
     SimScalar MapTerrain::topInWorldUnits() const
     {
-        return -((SimScalar(heights.getHeight()) / 2_ss) * HeightTileHeightInWorldUnits);
+        return -((simScalarFromInt(heights.getHeight()) / 2_ss) * HeightTileHeightInWorldUnits);
     }
 
     SimScalar MapTerrain::bottomCutoffInWorldUnits() const
     {
-        auto bottom = (SimScalar(heights.getHeight()) / 2_ss) * HeightTileHeightInWorldUnits;
+        auto bottom = (simScalarFromInt(heights.getHeight()) / 2_ss) * HeightTileHeightInWorldUnits;
         return bottom - (HeightTileHeightInWorldUnits * 8_ss);
     }
 
@@ -98,12 +98,12 @@ namespace rwe
 
     SimScalar MapTerrain::getWidthInWorldUnits() const
     {
-        return SimScalar(heights.getWidth()) * HeightTileWidthInWorldUnits;
+        return simScalarFromInt(heights.getWidth()) * HeightTileWidthInWorldUnits;
     }
 
     SimScalar MapTerrain::getHeightInWorldUnits() const
     {
-        return SimScalar(heights.getHeight()) * HeightTileHeightInWorldUnits;
+        return simScalarFromInt(heights.getHeight()) * HeightTileHeightInWorldUnits;
     }
 
     SimVector MapTerrain::topLeftCoordinateToWorld(const SimVector& pos) const
@@ -149,13 +149,13 @@ namespace rwe
 
         auto xDirection = ray.direction.x > 0_ss ? 1 : -1;
         auto zDirection = ray.direction.z > 0_ss ? 1 : -1;
-        auto xPlaneOffset = (HeightTileWidthInWorldUnits / 2_ss) * SimScalar(xDirection);
-        auto zPlaneOffset = (HeightTileHeightInWorldUnits / 2_ss) * SimScalar(zDirection);
+        auto xPlaneOffset = (HeightTileWidthInWorldUnits / 2_ss) * simScalarFromInt(xDirection);
+        auto zPlaneOffset = (HeightTileHeightInWorldUnits / 2_ss) * simScalarFromInt(zDirection);
 
         while (true)
         {
-            auto neighbourX = (heightmapPosition.x - SimScalar(startCell.x)) > 0.5_ssf ? 1 : -1;
-            auto neighbourY = (heightmapPosition.z - SimScalar(startCell.y)) > 0.5_ssf ? 1 : -1;
+            auto neighbourX = (heightmapPosition.x - simScalarFromInt(startCell.x)) > 0.5_ssf ? 1 : -1;
+            auto neighbourY = (heightmapPosition.z - simScalarFromInt(startCell.y)) > 0.5_ssf ? 1 : -1;
 
             // Due to floating-point precision issues,
             // when the line passes very close to a cell boundary
@@ -221,7 +221,7 @@ namespace rwe
                 }
 
                 startCell.x += xDirection;
-                heightmapPosition.x += SimScalar(xDirection);
+                heightmapPosition.x += simScalarFromInt(xDirection);
             }
             else
             {
@@ -231,7 +231,7 @@ namespace rwe
                 }
 
                 startCell.y += zDirection;
-                heightmapPosition.z += SimScalar(zDirection);
+                heightmapPosition.z += simScalarFromInt(zDirection);
             }
         }
     }

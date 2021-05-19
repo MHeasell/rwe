@@ -132,7 +132,7 @@ namespace png
 #ifdef PNG_tRNS_SUPPORTED
                     png_set_tRNS(m_png, m_info,
                                  const_cast< byte* >(& m_tRNS[0]),
-                                 m_tRNS.size(),
+                                 static_cast<int>(m_tRNS.size()),
                                  NULL);
 #else
                     throw error("attempted to write tRNS chunk; recompile with PNG_tRNS_SUPPORTED");

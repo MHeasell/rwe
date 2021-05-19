@@ -27,7 +27,7 @@ namespace rwe
 
         static CobPosition fromWorldDistance(SimScalar d)
         {
-            return CobPosition(d.value * 65536.0f);
+            return CobPosition(static_cast <int32_t>(d.value * 65536.0f));
         }
     };
 }
