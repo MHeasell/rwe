@@ -248,6 +248,22 @@ namespace rwe
             }
         }
 
+        void replace(std::size_t x, std::size_t y, std::size_t regionWidth, std::size_t regionHeight, const Grid<T>& replacement)
+        {
+            if (x + regionWidth > getWidth() || y + regionHeight > getHeight())
+            {
+                throw std::logic_error("replacement goes out of bounds");
+            }
+            if (regionWidth > replacement.getWidth() || regionHeight > replacement.getHeight())
+            {
+                throw std::logic_error("size exceeds replacement grid bounds");
+            }
+
+            GridRegion(0, 0, regionWidth, regionHeight).forEach([&](GridCoordinates c) {
+                set(x + c.x, y + c.y, replacement.get(c.x, c.y));
+            });
+        }
+
         template <typename Func>
         bool any(Func f) const
         {

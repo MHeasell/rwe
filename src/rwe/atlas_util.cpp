@@ -11,7 +11,7 @@ namespace rwe
     {
         std::string name;
         unsigned int frameNumber;
-        Grid<char> data;
+        Grid<Color> data;
 
         FrameInfo(const std::string& name, unsigned int frameNumber, unsigned int width, unsigned int height)
             : name(name), frameNumber(frameNumber), data(width, height)
@@ -22,6 +22,7 @@ namespace rwe
     class FrameListGafAdapter : public GafReaderAdapter
     {
     private:
+        const ColorPalette* palette;
         std::vector<FrameInfo>* frames;
         const std::string* entryName;
         FrameInfo* frameInfo;
@@ -29,9 +30,8 @@ namespace rwe
         unsigned int frameNumber{0};
 
     public:
-        explicit FrameListGafAdapter(std::vector<FrameInfo>* frames, const std::string* entryName)
-            : frames(frames),
-              entryName(entryName)
+        explicit FrameListGafAdapter(const ColorPalette* palette, std::vector<FrameInfo>* frames, const std::string* entryName)
+            : palette(palette), frames(frames), entryName(entryName)
         {
         }
 
@@ -61,7 +61,7 @@ namespace rwe
                         continue;
                     }
 
-                    frameInfo->data.set(outPosX, outPosY, colorIndex);
+                    frameInfo->data.set(outPosX, outPosY, (*palette)[colorIndex]);
                 }
             }
         }
@@ -101,7 +101,7 @@ namespace rwe
         for (const auto& e : gaf.entries())
         {
             std::vector<FrameInfo> frames;
-            FrameListGafAdapter adapter(&frames, &e.name);
+            FrameListGafAdapter adapter(&palette, &frames, &e.name);
             gaf.extract(e, adapter);
             entries.emplace_back(e.name, std::move(frames));
         }
@@ -157,15 +157,12 @@ namespace rwe
                 // Otherwise we may write over other textures in the atlas or go out of bounds.
                 const auto& firstFrame = entries.at(e.value).second.at(0);
                 const auto& frame = entries.at(e.value).second.at(i);
-                atlas.transformAndReplace<char>(
+                atlas.replace(
                     e.x,
                     e.y,
                     std::min(firstFrame.data.getWidth(), frame.data.getWidth()),
                     std::min(firstFrame.data.getHeight(), frame.data.getHeight()),
-                    frame.data,
-                    [palette](char v) {
-                        return palette[static_cast<unsigned char>(v)];
-                    });
+                    frame.data);
             }
             atlases.emplace_back(graphics.createTexture(atlas));
         }
@@ -200,7 +197,7 @@ namespace rwe
 
             for (const auto& e : gaf.entries())
             {
-                FrameListGafAdapter adapter(&frames, &e.name);
+                FrameListGafAdapter adapter(palette, &frames, &e.name);
                 gaf.extract(e, adapter);
             }
         }
@@ -257,9 +254,7 @@ namespace rwe
 
                     atlasMap.insert({f.frameInfo->name, bounds});
 
-                    atlas.transformAndReplace<char>(e.x, e.y, f.frameInfo->data, [palette](char v) {
-                        return (*palette)[static_cast<unsigned char>(v)];
-                    });
+                    atlas.replace(e.x, e.y, f.frameInfo->data);
                 },
                 [&](const AtlasItemColor& c) {
                     atlasColorMap[c.colorIndex] = Vector2f((e.x + 0.5f) / static_cast<float>(packInfo.width), (e.y + 0.5f) / static_cast<float>(packInfo.height));
