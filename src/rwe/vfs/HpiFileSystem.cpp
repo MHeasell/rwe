@@ -75,6 +75,22 @@ namespace rwe
     }
 
     std::vector<std::string>
+    HpiFileSystem::getDirectoryNamesInternal(const HpiArchive::Directory& directory)
+    {
+        std::vector<std::string> v;
+
+        for (const auto& e : directory.entries)
+        {
+            if (std::holds_alternative<HpiArchive::Directory>(e.data))
+            {
+                v.push_back(e.name);
+            }
+        }
+
+        return v;
+    }
+
+    std::vector<std::string>
     HpiFileSystem::getFileNamesRecursiveInternal(const HpiArchive::Directory& directory, const std::string& extension)
     {
         std::vector<std::string> v;
@@ -86,6 +102,18 @@ namespace rwe
         }
 
         return v;
+    }
+
+    std::vector<std::string> HpiFileSystem::getDirectoryNames(const std::string& directory)
+    {
+        auto dir = hpi.findDirectory(directory);
+        if (!dir)
+        {
+            // no such directory, so no files inside it
+            return std::vector<std::string>();
+        }
+
+        return getDirectoryNamesInternal(*dir);
     }
 
     HpiFileSystem::HpiRecursiveFilenamesVisitor::HpiRecursiveFilenamesVisitor(

@@ -42,8 +42,11 @@ namespace rwe
         std::vector<std::string>
         getFileNamesRecursive(const std::string& directory, const std::string& extension) override;
 
+        std::vector<std::string> getDirectoryNames(const std::string& directory) override;
+
     private:
         std::vector<std::string> getFileNamesInternal(const HpiArchive::Directory& directory, const std::string& extension);
         std::vector<std::string> getFileNamesRecursiveInternal(const HpiArchive::Directory& directory, const std::string& extension);
+        std::vector<std::string> getDirectoryNamesInternal(const HpiArchive::Directory& directory);
     };
 }

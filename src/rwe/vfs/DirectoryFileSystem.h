@@ -24,5 +24,7 @@ namespace rwe
         std::vector<std::string> getFileNames(const std::string& directory, const std::string& filter) override;
 
         std::vector<std::string> getFileNamesRecursive(const std::string& directory, const std::string& extension) override;
+
+        virtual std::vector<std::string> getDirectoryNames(const std::string& directory) override;
     };
 }

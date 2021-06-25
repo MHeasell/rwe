@@ -110,6 +110,19 @@ namespace rwe
         return v;
     }
 
+    std::vector<std::string> CompositeVirtualFileSystem::getDirectoryNames(const std::string& directory)
+    {
+        std::set<std::string> entries;
+        for (const auto& fs : filesystems)
+        {
+            auto v = fs->getDirectoryNames(directory);
+            entries.insert(v.begin(), v.end());
+        }
+
+        std::vector<std::string> v(entries.begin(), entries.end());
+        return v;
+    }
+
     void CompositeVirtualFileSystem::clear()
     {
         filesystems.clear();

@@ -26,6 +26,8 @@ namespace rwe
         std::vector<std::pair<std::string, std::string>>
         getFileNamesRecursiveWithSources(const std::string& directory, const std::string& extension);
 
+        std::vector<std::string> getDirectoryNames(const std::string& directory) override;
+
         void clear();
 
         template <typename T, typename... Args>
