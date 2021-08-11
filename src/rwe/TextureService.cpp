@@ -279,7 +279,7 @@ namespace rwe
 
         auto series = std::make_shared<SpriteSeries>();
 
-        for (unsigned int i = 0; i < 256; ++i)
+        for (int i = 0; i < 256; ++i)
         {
             std::vector<char> glyphBits(512);
             auto bytesRead = fnt.extract(i, glyphBits.data());
@@ -288,10 +288,10 @@ namespace rwe
 
             std::vector<Color> rgbGlyph;
             rgbGlyph.reserve(bytesRead * 8);
-            for (unsigned int j = 0; j < bytesRead; ++j)
+            for (int j = 0; j < bytesRead; ++j)
             {
                 auto byte = static_cast<unsigned char>(glyphBits[j]);
-                for (unsigned int k = 0; k < 8; ++k)
+                for (int k = 0; k < 8; ++k)
                 {
                     rgbGlyph.push_back(byte & (128u >> k) ? Color(255, 255, 255) : Color(0, 0, 0, 0));
                 }
@@ -313,7 +313,7 @@ namespace rwe
         return series;
     }
 
-    TextureService::TextureInfo::TextureInfo(unsigned int width, unsigned int height, const SharedTextureHandle& handle)
+    TextureService::TextureInfo::TextureInfo(int width, int height, const SharedTextureHandle& handle)
         : width(width), height(height), handle(handle)
     {
     }

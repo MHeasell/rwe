@@ -7,12 +7,12 @@ namespace rwe
     {
     }
 
-    int CobEnvironment::getStatic(unsigned int id)
+    int CobEnvironment::getStatic(int id)
     {
         return _statics.at(id);
     }
 
-    void CobEnvironment::setStatic(unsigned int id, int value)
+    void CobEnvironment::setStatic(int id, int value)
     {
         _statics.at(id) = value;
     }
@@ -35,7 +35,7 @@ namespace rwe
         return createNonScheduledThread(index, params);
     }
 
-    CobThread CobEnvironment::createNonScheduledThread(unsigned int functionId, const std::vector<int>& params)
+    CobThread CobEnvironment::createNonScheduledThread(int functionId, const std::vector<int>& params)
     {
         const auto& functionInfo = _script->functions.at(functionId);
         CobThread thread(functionInfo.name);
@@ -43,7 +43,7 @@ namespace rwe
         return thread;
     }
 
-    const CobThread* CobEnvironment::createThread(unsigned int functionId, const std::vector<int>& params, unsigned int signalMask)
+    const CobThread* CobEnvironment::createThread(int functionId, const std::vector<int>& params, int signalMask)
     {
         const auto& functionInfo = _script->functions.at(functionId);
         auto& thread = threads.emplace_back(std::make_unique<CobThread>(functionInfo.name, signalMask));
@@ -52,7 +52,7 @@ namespace rwe
         return thread.get();
     }
 
-    const CobThread* CobEnvironment::createThread(unsigned int functionId, const std::vector<int>& params)
+    const CobThread* CobEnvironment::createThread(int functionId, const std::vector<int>& params)
     {
         return createThread(functionId, params, 0);
     }
@@ -84,7 +84,7 @@ namespace rwe
         }
     }
 
-    void CobEnvironment::sendSignal(unsigned int signal)
+    void CobEnvironment::sendSignal(int signal)
     {
         for (auto it = threads.begin(); it != threads.end();)
         {

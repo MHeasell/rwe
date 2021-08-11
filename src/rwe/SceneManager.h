@@ -54,12 +54,12 @@ namespace rwe
         bool showDebugWindow{false};
         bool showDemoWindow{false};
 
-        unsigned int lastFrameStartTime{0};
-        unsigned int lastFrameDurationMs{0};
+        int lastFrameStartTime{0};
+        int lastFrameDurationMs{0};
 
     public:
         // Number of milliseconds between each game tick.
-        static const unsigned int TickInterval = 1000 / 60;
+        static const int TickInterval = 1000 / 60;
 
         explicit SceneManager(SdlContext* sdl, SDL_Window* window, GraphicsContext* graphics, TimeService* timeService, ImGuiContext* imGuiContext, CursorService* cursorService, GlobalConfig* globalConfig, UiRenderService&& uiRenderService);
         void setNextScene(std::shared_ptr<Scene> scene);

@@ -84,7 +84,7 @@ namespace rwe
             case CobValueId::UnitAllied:
                 return CobEnvironment::QueryStatus::UnitAllied{UnitId(arg1)};
             default:
-                throw std::runtime_error("Unknown unit value ID: " + std::to_string(static_cast<unsigned int>(valueId)));
+                throw std::runtime_error("Unknown unit value ID: " + std::to_string(static_cast<int>(valueId)));
         }
     }
 
@@ -109,7 +109,7 @@ namespace rwe
             case CobValueId::Armored:
                 return CobEnvironment::SetQueryStatus::Armored{value != 0};
             default:
-                throw std::runtime_error("Cannot set unit value with ID: " + std::to_string(static_cast<unsigned int>(valueId)));
+                throw std::runtime_error("Cannot set unit value with ID: " + std::to_string(static_cast<int>(valueId)));
         }
     }
 
@@ -587,7 +587,7 @@ namespace rwe
 
         // collect up the parameters
         std::vector<int> params(paramCount);
-        for (unsigned int i = 0; i < paramCount; ++i)
+        for (int i = 0; i < paramCount; ++i)
         {
             params[i] = pop();
         }
@@ -602,7 +602,7 @@ namespace rwe
         auto paramCount = nextInstruction();
 
         std::vector<int> params(paramCount);
-        for (unsigned int i = 0; i < paramCount; ++i)
+        for (int i = 0; i < paramCount; ++i)
         {
             params[i] = pop();
         }
@@ -714,14 +714,14 @@ namespace rwe
         return CobAngularSpeed(pop());
     }
 
-    unsigned int CobExecutionContext::popSignal()
+    int CobExecutionContext::popSignal()
     {
-        return static_cast<unsigned int>(pop());
+        return pop();
     }
 
-    unsigned int CobExecutionContext::popSignalMask()
+    int CobExecutionContext::popSignalMask()
     {
-        return static_cast<unsigned int>(pop());
+        return pop();
     }
 
     CobValueId CobExecutionContext::popValueId()
@@ -750,7 +750,7 @@ namespace rwe
         }
     }
 
-    unsigned int CobExecutionContext::nextInstruction()
+    int CobExecutionContext::nextInstruction()
     {
         return env->script()->instructions.at(thread->callStack.top().instructionIndex++);
     }

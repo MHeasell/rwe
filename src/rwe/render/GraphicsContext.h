@@ -121,13 +121,13 @@ namespace rwe
 
         TextureHandle createTexture(const Grid<Color>& image);
 
-        TextureHandle createTexture(unsigned int width, unsigned int height, const std::vector<Color>& image);
+        TextureHandle createTexture(int width, int height, const std::vector<Color>& image);
 
-        TextureHandle createTexture(unsigned int width, unsigned int height, const Color* image);
+        TextureHandle createTexture(int width, int height, const Color* image);
 
         TextureHandle createColorTexture(Color c);
 
-        TextureArrayHandle createTextureArray(unsigned int width, unsigned int height, unsigned int mipMapLevels, std::vector<Color>& images);
+        TextureArrayHandle createTextureArray(int width, int height, int mipMapLevels, std::vector<Color>& images);
 
         void enableDepthBuffer();
 

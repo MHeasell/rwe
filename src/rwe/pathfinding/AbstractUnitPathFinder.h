@@ -21,8 +21,8 @@ namespace rwe
         MovementClassCollisionService* const collisionService;
         const UnitId self;
         const std::optional<MovementClassId> movementClass;
-        const unsigned int footprintX;
-        const unsigned int footprintZ;
+        const int footprintX;
+        const int footprintZ;
 
     public:
         AbstractUnitPathFinder(
@@ -30,8 +30,8 @@ namespace rwe
             MovementClassCollisionService* collisionService,
             UnitId self,
             std::optional<MovementClassId> movementClass,
-            unsigned int footprintX,
-            unsigned int footprintZ);
+            int footprintX,
+            int footprintZ);
 
     protected:
         std::vector<VertexInfo> getSuccessors(const VertexInfo& vertex) override;

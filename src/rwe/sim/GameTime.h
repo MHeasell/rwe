@@ -6,7 +6,7 @@
 namespace rwe
 {
     struct GameTimeTag;
-    using GameTime = OpaqueUnit<unsigned int, GameTimeTag>;
+    using GameTime = OpaqueUnit<int, GameTimeTag>;
 
     GameTime deltaSecondsToTicks(float seconds);
     GameTime deltaSecondsToTicks(SimScalar seconds);

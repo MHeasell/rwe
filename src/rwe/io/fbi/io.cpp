@@ -34,7 +34,7 @@ namespace rwe
         tdf.readOrDefault("FootprintX", u.footprintX);
         tdf.readOrDefault("FootprintZ", u.footprintZ);
 
-        tdf.readOrDefault("MaxSlope", u.maxSlope, 255u);
+        tdf.readOrDefault("MaxSlope", u.maxSlope, 255);
         tdf.readOrDefault("MaxWaterSlope", u.maxWaterSlope, u.maxSlope);
         tdf.readOrDefault("MinWaterDepth", u.minWaterDepth);
         tdf.readOrDefault("MaxWaterDepth", u.maxWaterDepth);

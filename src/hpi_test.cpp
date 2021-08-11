@@ -23,10 +23,10 @@ std::string schemeName(rwe::HpiArchive::File::CompressionScheme scheme)
     }
 }
 
-void printDir(unsigned int indent, const std::string& name, const rwe::HpiArchive::Directory& d);
-void printFile(unsigned int indent, const std::string& name, const rwe::HpiArchive::File& f);
+void printDir(int indent, const std::string& name, const rwe::HpiArchive::Directory& d);
+void printFile(int indent, const std::string& name, const rwe::HpiArchive::File& f);
 
-void printEntry(unsigned int indent, const rwe::HpiArchive::DirectoryEntry& e)
+void printEntry(int indent, const rwe::HpiArchive::DirectoryEntry& e)
 {
     match(
         e.data,
@@ -38,7 +38,7 @@ void printEntry(unsigned int indent, const rwe::HpiArchive::DirectoryEntry& e)
         });
 }
 
-void printDir(unsigned int indent, const std::string& name, const rwe::HpiArchive::Directory& d)
+void printDir(int indent, const std::string& name, const rwe::HpiArchive::Directory& d)
 {
     std::string dent(indent, ' ');
     std::cout << dent << name << " directory:" << std::endl;
@@ -48,7 +48,7 @@ void printDir(unsigned int indent, const std::string& name, const rwe::HpiArchiv
     }
 }
 
-void printFile(unsigned int indent, const std::string& name, const rwe::HpiArchive::File& f)
+void printFile(int indent, const std::string& name, const rwe::HpiArchive::File& f)
 {
     std::string compression = schemeName(f.compressionScheme);
 

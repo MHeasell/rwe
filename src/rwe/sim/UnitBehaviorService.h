@@ -67,11 +67,11 @@ namespace rwe
 
         bool followPath(Unit& unit, PathFollowingInfo& path);
 
-        void updateWeapon(UnitId id, unsigned int weaponIndex);
+        void updateWeapon(UnitId id, int weaponIndex);
 
         SimVector changeDirectionByRandomAngle(const SimVector& direction, SimAngle maxAngle);
 
-        void tryFireWeapon(UnitId id, unsigned int weaponIndex);
+        void tryFireWeapon(UnitId id, int weaponIndex);
 
         void applyUnitSteering(UnitId id);
         void updateUnitRotation(UnitId id);
@@ -81,25 +81,25 @@ namespace rwe
 
         bool tryApplyMovementToPosition(UnitId id, const SimVector& newPosition);
 
-        std::string getAimScriptName(unsigned int weaponIndex) const;
-        std::string getAimFromScriptName(unsigned int weaponIndex) const;
-        std::string getFireScriptName(unsigned int weaponIndex) const;
-        std::string getQueryScriptName(unsigned int weaponIndex) const;
+        std::string getAimScriptName(int weaponIndex) const;
+        std::string getAimFromScriptName(int weaponIndex) const;
+        std::string getFireScriptName(int weaponIndex) const;
+        std::string getQueryScriptName(int weaponIndex) const;
 
         std::optional<int> runCobQuery(UnitId id, const std::string& name);
 
-        SimVector getAimingPoint(UnitId id, unsigned int weaponIndex);
-        SimVector getLocalAimingPoint(UnitId id, unsigned int weaponIndex);
+        SimVector getAimingPoint(UnitId id, int weaponIndex);
+        SimVector getLocalAimingPoint(UnitId id, int weaponIndex);
 
-        SimVector getFiringPoint(UnitId id, unsigned int weaponIndex);
-        SimVector getLocalFiringPoint(UnitId id, unsigned int weaponIndex);
+        SimVector getFiringPoint(UnitId id, int weaponIndex);
+        SimVector getLocalFiringPoint(UnitId id, int weaponIndex);
 
         SimVector getNanoPoint(UnitId id);
 
-        SimVector getPieceLocalPosition(UnitId id, unsigned int pieceId);
-        SimVector getPiecePosition(UnitId id, unsigned int pieceId);
+        SimVector getPieceLocalPosition(UnitId id, int pieceId);
+        SimVector getPiecePosition(UnitId id, int pieceId);
 
-        SimAngle getPieceXZRotation(UnitId id, unsigned int pieceId);
+        SimAngle getPieceXZRotation(UnitId id, int pieceId);
 
         struct BuildPieceInfo
         {

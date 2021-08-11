@@ -128,7 +128,7 @@ namespace rwe
             drawStandingFeatureShadowsInternal(features.begin(), features.end());
         }
 
-        void drawMapTerrain(const MapTerrainGraphics& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
+        void drawMapTerrain(const MapTerrainGraphics& terrain, int x, int y, int width, int height);
 
         template <typename Range>
         void drawUnitShadows(const MapTerrain& terrain, const Range& units, float frac, SimScalar seaLevel)

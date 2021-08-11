@@ -494,8 +494,8 @@ namespace rwe
             if (waypointIcon)
             {
                 auto timeInMillis = sceneContext.timeService->getTicks();
-                unsigned int frameRateInSeconds = 2;
-                unsigned int millisPerFrame = 1000 / frameRateInSeconds;
+                int frameRateInSeconds = 2;
+                int millisPerFrame = 1000 / frameRateInSeconds;
 
                 const auto& frames = sceneContext.cursor->getCursor(*waypointIcon)->sprites;
                 auto frameIndex = (timeInMillis / millisPerFrame) % frames.size();
@@ -1547,7 +1547,7 @@ namespace rwe
 
         auto maxRtt = std::clamp(gameNetworkService->getMaxAverageRttMillis(), 16.0f, 2000.0f);
         auto highCommandLatencyMillis = maxRtt + (maxRtt / 4.0f) + 200.0f;
-        auto commandLatencyFrames = static_cast<unsigned int>(highCommandLatencyMillis / 16.0f) + 1;
+        auto commandLatencyFrames = static_cast<int>(highCommandLatencyMillis / 16.0f) + 1;
         auto targetCommandBufferSize = commandLatencyFrames;
 
         auto bufferedCommandCount = playerCommandService->bufferedCommandCount(localPlayerId);
@@ -2423,7 +2423,7 @@ namespace rwe
     }
 
     DiscreteRect
-    GameScene::computeFootprintRegion(const SimVector& position, unsigned int footprintX, unsigned int footprintZ) const
+    GameScene::computeFootprintRegion(const SimVector& position, int footprintX, int footprintZ) const
     {
         return simulation.computeFootprintRegion(position, footprintX, footprintZ);
     }
@@ -2629,7 +2629,7 @@ namespace rwe
         });
     }
 
-    void GameScene::applyDamage(UnitId unitId, unsigned int damagePoints)
+    void GameScene::applyDamage(UnitId unitId, int damagePoints)
     {
         auto& unit = simulation.getUnit(unitId);
         if (unit.hitPoints <= damagePoints)

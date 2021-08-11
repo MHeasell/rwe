@@ -3,18 +3,18 @@
 
 namespace rwe
 {
-    UiPanel::UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY)
+    UiPanel::UiPanel(int posX, int posY, int sizeX, int sizeY)
         : UiComponent(posX, posY, sizeX, sizeY)
     {
     }
 
-    UiPanel::UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<Sprite> background)
+    UiPanel::UiPanel(int posX, int posY, int sizeX, int sizeY, std::shared_ptr<Sprite> background)
         : UiComponent(posX, posY, sizeX, sizeY),
           background(std::move(background))
     {
     }
 
-    UiPanel::UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::optional<std::shared_ptr<Sprite>> background)
+    UiPanel::UiPanel(int posX, int posY, int sizeX, int sizeY, std::optional<std::shared_ptr<Sprite>> background)
         : UiComponent(posX, posY, sizeX, sizeY),
           background(background)
     {

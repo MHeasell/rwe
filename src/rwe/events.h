@@ -73,17 +73,17 @@ namespace rwe
     struct GroupMessage
     {
         std::string topic;
-        unsigned int group;
+        int group;
         std::string controlName;
         ControlMessage message;
 
-        GroupMessage(const std::string& topic, unsigned int group, const std::string& controlName, const ControlMessage& message);
+        GroupMessage(const std::string& topic, int group, const std::string& controlName, const ControlMessage& message);
 
-        GroupMessage(const std::string& topic, unsigned int group, const std::string& controlName, const ScrollPositionMessage& message);
+        GroupMessage(const std::string& topic, int group, const std::string& controlName, const ScrollPositionMessage& message);
 
-        GroupMessage(const std::string& topic, unsigned int group, const std::string& controlName, const ScrollUpMessage& message);
+        GroupMessage(const std::string& topic, int group, const std::string& controlName, const ScrollUpMessage& message);
 
-        GroupMessage(const std::string& topic, unsigned int group, const std::string& controlName, const ScrollDownMessage& message);
+        GroupMessage(const std::string& topic, int group, const std::string& controlName, const ScrollDownMessage& message);
     };
 
     struct ButtonClickEvent

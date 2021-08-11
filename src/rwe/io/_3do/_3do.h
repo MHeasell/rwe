@@ -7,7 +7,7 @@
 
 namespace rwe
 {
-    static const unsigned int _3doMagicNumber = 1;
+    static const int _3doMagicNumber = 1;
 
 #pragma pack(1)
     struct _3doObject
@@ -60,8 +60,8 @@ namespace rwe
 
         struct Primitive
         {
-            std::optional<unsigned int> colorIndex;
-            std::vector<unsigned int> vertices;
+            std::optional<int> colorIndex;
+            std::vector<int> vertices;
             std::optional<std::string> textureName;
         };
 
@@ -74,7 +74,7 @@ namespace rwe
             std::vector<Primitive> primitives;
             std::vector<Object> children;
             std::string name;
-            std::optional<unsigned int> selectionPrimitiveIndex;
+            std::optional<int> selectionPrimitiveIndex;
         };
     };
 

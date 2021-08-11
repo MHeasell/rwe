@@ -88,20 +88,20 @@ namespace rwe
         throw std::runtime_error("Invalid point direction");
     }
 
-    unsigned int directionToIndex(Direction d)
+    int directionToIndex(Direction d)
     {
-        return static_cast<unsigned int>(d);
+        return static_cast<int>(d);
     }
 
-    Direction directionFromIndex(unsigned int i)
+    Direction directionFromIndex(int i)
     {
         assert(i < 8);
         return static_cast<Direction>(i);
     }
 
-    unsigned int directionDistance(Direction a, Direction b)
+    int directionDistance(Direction a, Direction b)
     {
-        auto indexDifference = static_cast<int>(directionToIndex(b)) - static_cast<int>(directionToIndex(a));
-        return static_cast<unsigned int>(std::abs(wrap(-4, 4, indexDifference)));
+        int indexDifference = directionToIndex(b) - directionToIndex(a);
+        return std::abs(wrap(-4, 4, indexDifference));
     }
 }

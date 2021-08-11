@@ -75,7 +75,7 @@ namespace rwe
         }
     }
 
-    void LoadingNetworkService::onReceive(const boost::system::error_code& error, std::size_t bytesTransferred)
+    void LoadingNetworkService::onReceive(const boost::system::error_code& error, int bytesTransferred)
     {
         if (error)
         {

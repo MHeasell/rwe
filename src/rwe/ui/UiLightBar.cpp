@@ -3,7 +3,7 @@
 namespace rwe
 {
 
-    UiLightBar::UiLightBar(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<Sprite> lightMask)
+    UiLightBar::UiLightBar(int posX, int posY, int sizeX, int sizeY, std::shared_ptr<Sprite> lightMask)
         : UiComponent(posX, posY, sizeX, sizeY), lightMask(std::move(lightMask))
     {
     }

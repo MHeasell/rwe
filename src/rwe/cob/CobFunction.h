@@ -7,13 +7,13 @@ namespace rwe
     class CobFunction
     {
     public:
-        unsigned int instructionIndex;
+        int instructionIndex;
         std::vector<int> locals;
-        unsigned int localCount{0};
+        int localCount{0};
 
     public:
-        CobFunction(unsigned int instructionIndex, const std::vector<int>& locals);
+        CobFunction(int instructionIndex, const std::vector<int>& locals);
 
-        explicit CobFunction(unsigned int instructionIndex);
+        explicit CobFunction(int instructionIndex);
     };
 }

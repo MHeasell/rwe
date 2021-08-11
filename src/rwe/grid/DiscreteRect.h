@@ -13,11 +13,11 @@ namespace rwe
 
         int x;
         int y;
-        unsigned int width;
-        unsigned int height;
+        int width;
+        int height;
 
         DiscreteRect() = default;
-        DiscreteRect(int x, int y, unsigned int width, unsigned int height) : x(x), y(y), width(width), height(height)
+        DiscreteRect(int x, int y, int width, int height) : x(x), y(y), width(width), height(height)
         {
         }
 
@@ -64,9 +64,9 @@ namespace rwe
 
         OctileDistance octileDistanceToTopLeftTouching(int px, int py) const;
 
-        DiscreteRect expand(unsigned int amount) const;
+        DiscreteRect expand(int amount) const;
 
-        DiscreteRect expand(unsigned int dx, unsigned int dy) const;
+        DiscreteRect expand(int dx, int dy) const;
 
         DiscreteRect translate(int dx, int dy) const;
 
@@ -78,7 +78,7 @@ namespace rwe
          */
         std::optional<DiscreteRect> intersection(const DiscreteRect& rhs) const;
 
-        DiscreteRect expandTopLeft(unsigned int expandWidth, unsigned int expandHeight) const;
+        DiscreteRect expandTopLeft(int expandWidth, int expandHeight) const;
     };
 }
 

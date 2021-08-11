@@ -27,20 +27,20 @@ namespace rwe
         {
             struct Move
             {
-                unsigned int object;
+                int object;
                 CobAxis axis;
 
-                Move(unsigned int object, CobAxis axis) : object(object), axis(axis)
+                Move(int object, CobAxis axis) : object(object), axis(axis)
                 {
                 }
             };
 
             struct Turn
             {
-                unsigned int object;
+                int object;
                 CobAxis axis;
 
-                Turn(unsigned int object, CobAxis axis) : object(object), axis(axis)
+                Turn(int object, CobAxis axis) : object(object), axis(axis)
                 {
                 }
             };
@@ -69,7 +69,7 @@ namespace rwe
          */
         struct SignalStatus
         {
-            unsigned int signal;
+            int signal;
         };
 
         struct PieceCommandStatus
@@ -111,7 +111,7 @@ namespace rwe
             };
             using CommandType = std::variant<Move, Turn, Spin, StopSpin, Show, Hide, EnableShading, DisableShading>;
 
-            unsigned int piece;
+            int piece;
             CommandType command;
         };
 
@@ -273,19 +273,19 @@ namespace rwe
         CobEnvironment& operator=(CobEnvironment&& other) = delete;
 
     public:
-        int getStatic(unsigned int id);
+        int getStatic(int id);
 
-        void setStatic(unsigned int id, int value);
+        void setStatic(int id, int value);
 
         const CobScript* script();
 
         std::optional<CobThread> createNonScheduledThread(const std::string& functionName, const std::vector<int>& params);
 
-        CobThread createNonScheduledThread(unsigned int functionId, const std::vector<int>& params);
+        CobThread createNonScheduledThread(int functionId, const std::vector<int>& params);
 
-        const CobThread* createThread(unsigned int functionId, const std::vector<int>& params, unsigned int signalMask);
+        const CobThread* createThread(int functionId, const std::vector<int>& params, int signalMask);
 
-        const CobThread* createThread(unsigned int functionId, const std::vector<int>& params);
+        const CobThread* createThread(int functionId, const std::vector<int>& params);
 
         std::optional<const CobThread*> createThread(const std::string& functionName, const std::vector<int>& params);
 
@@ -298,7 +298,7 @@ namespace rwe
          * If the signal is non-zero after being ANDed
          * with the thread's signal mask, the thread is killed.
          */
-        void sendSignal(unsigned int signal);
+        void sendSignal(int signal);
 
         /**
          * Attempts to collect the return value from a thread.

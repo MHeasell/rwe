@@ -49,11 +49,11 @@ namespace rwe
         gameTimeBuffers.emplace(playerId, std::deque<GameHash>());
     }
 
-    unsigned int PlayerCommandService::bufferedCommandCount(PlayerId player) const
+    int PlayerCommandService::bufferedCommandCount(PlayerId player) const
     {
         std::scoped_lock<std::mutex> lock(mutex);
 
-        return commandBuffers.at(player).size();
+        return static_cast<int>(commandBuffers.at(player).size());
     }
 
     bool PlayerCommandService::checkHashes()

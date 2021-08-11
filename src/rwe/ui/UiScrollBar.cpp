@@ -19,8 +19,8 @@ namespace rwe
     UiScrollBar::UiScrollBar(
         int posX,
         int posY,
-        unsigned int sizeX,
-        unsigned int sizeY,
+        int sizeX,
+        int sizeY,
         std::shared_ptr<SpriteSeries> sprites)
         : UiComponent(posX, posY, sizeX, sizeY),
           sprites(std::move(sprites))

@@ -22,7 +22,7 @@ namespace rwe
     public:
         explicit FntArchive(std::istream* stream);
 
-        unsigned int glyphHeight() const;
+        int glyphHeight() const;
 
         /**
          * Writes glyph data out to the given buffer.
@@ -35,6 +35,6 @@ namespace rwe
          * If there is no glyph for the given index (from 0 to 255),
          * returns 0 and writes no data to the buffer.
          */
-        unsigned int extract(unsigned int index, char* buffer);
+        int extract(int index, char* buffer);
     };
 }

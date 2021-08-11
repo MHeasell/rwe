@@ -26,7 +26,7 @@ namespace rwe
     struct CobFunctionInfo
     {
         std::string name;
-        unsigned int address;
+        int address;
     };
 
     struct CobScript
@@ -34,7 +34,7 @@ namespace rwe
         std::vector<uint32_t> instructions;
         std::vector<std::string> pieces;
         std::vector<CobFunctionInfo> functions;
-        unsigned int staticVariableCount;
+        int staticVariableCount;
     };
 
     CobScript parseCob(std::istream& stream);

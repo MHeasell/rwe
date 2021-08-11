@@ -2,7 +2,7 @@
 
 namespace rwe
 {
-    PathCost::PathCost(const OctileDistance& distance, unsigned int turnCount)
+    PathCost::PathCost(const OctileDistance& distance, int turnCount)
         : distance(distance), turnCount(turnCount)
     {
     }

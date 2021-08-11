@@ -9,15 +9,15 @@
 
 namespace rwe
 {
-    bool isGridPointWalkable(const MapTerrain& terrain, const MovementClass& movementClass, unsigned int x, unsigned int y);
+    bool isGridPointWalkable(const MapTerrain& terrain, const MovementClass& movementClass, int x, int y);
 
-    bool isMaxSlopeGreaterThan(const Grid<unsigned char>& heights, unsigned int waterLevel, unsigned int x, unsigned int y, unsigned int width, unsigned int height, unsigned int maxSlope, unsigned int maxWaterSlope);
+    bool isMaxSlopeGreaterThan(const Grid<unsigned char>& heights, int waterLevel, int x, int y, int width, int height, int maxSlope, int maxWaterSlope);
 
-    bool isWaterDepthWithinBounds(const Grid<unsigned char>& heights, unsigned int waterLevel, unsigned int x, unsigned int y, unsigned int width, unsigned int height, unsigned int minWaterDepth, unsigned int maxWaterDepth);
+    bool isWaterDepthWithinBounds(const Grid<unsigned char>& heights, int waterLevel, int x, int y, int width, int height, int minWaterDepth, int maxWaterDepth);
 
-    unsigned int getWaterDepth(const Grid<unsigned char>& heights, unsigned int waterLevel, unsigned int x, unsigned int y);
+    int getWaterDepth(const Grid<unsigned char>& heights, int waterLevel, int x, int y);
 
-    unsigned int getSlope(const Grid<unsigned char>& heights, unsigned int x, unsigned int y);
+    int getSlope(const Grid<unsigned char>& heights, int x, int y);
 
-    bool isAreaUnderWater(const Grid<unsigned char>& heights, unsigned int waterLevel, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
+    bool isAreaUnderWater(const Grid<unsigned char>& heights, int waterLevel, int x, int y, int width, int height);
 }

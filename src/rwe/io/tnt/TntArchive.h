@@ -9,7 +9,7 @@
 
 namespace rwe
 {
-    static const unsigned int TntMagicNumber = 0x2000;
+    static const int TntMagicNumber = 0x2000;
 
     static const uint8_t TntMinimapVoidByte = 0x64;
 
@@ -71,8 +71,8 @@ namespace rwe
 
     struct TntMinimapInfo
     {
-        unsigned int width;
-        unsigned int height;
+        int width;
+        int height;
         std::vector<char> data;
     };
 

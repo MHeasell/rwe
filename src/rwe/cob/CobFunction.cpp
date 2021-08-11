@@ -2,12 +2,12 @@
 
 namespace rwe
 {
-    CobFunction::CobFunction(unsigned int instructionIndex, const std::vector<int>& locals)
+    CobFunction::CobFunction(int instructionIndex, const std::vector<int>& locals)
         : instructionIndex(instructionIndex), locals(locals)
     {
     }
 
-    CobFunction::CobFunction(unsigned int instructionIndex) : instructionIndex(instructionIndex)
+    CobFunction::CobFunction(int instructionIndex) : instructionIndex(instructionIndex)
     {
     }
 }

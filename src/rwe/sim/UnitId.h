@@ -5,5 +5,5 @@
 namespace rwe
 {
     struct UnitIdTag;
-    using UnitId = OpaqueId<unsigned int, UnitIdTag>;
+    using UnitId = OpaqueId<int, UnitIdTag>;
 }

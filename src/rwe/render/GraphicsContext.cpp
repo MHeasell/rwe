@@ -62,13 +62,13 @@ namespace rwe
     }
 
     TextureHandle
-    GraphicsContext::createTexture(unsigned int width, unsigned int height, const std::vector<Color>& image)
+    GraphicsContext::createTexture(int width, int height, const std::vector<Color>& image)
     {
         assert(image.size() == width * height);
         return createTexture(width, height, image.data());
     }
 
-    TextureHandle GraphicsContext::createTexture(unsigned int width, unsigned int height, const Color* image)
+    TextureHandle GraphicsContext::createTexture(int width, int height, const Color* image)
     {
         GLuint texture;
         glGenTextures(1, &texture);
@@ -122,7 +122,7 @@ namespace rwe
         return handle;
     }
 
-    TextureArrayHandle GraphicsContext::createTextureArray(unsigned int width, unsigned int height, unsigned int mipMapLevels, std::vector<Color>& images)
+    TextureArrayHandle GraphicsContext::createTextureArray(int width, int height, int mipMapLevels, std::vector<Color>& images)
     {
         assert(images.size() % (width * height) == 0);
         auto depth = images.size() / (width * height);

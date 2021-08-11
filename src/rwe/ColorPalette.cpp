@@ -16,7 +16,7 @@ namespace rwe
 
         std::vector<Color> colors(256);
 
-        for (unsigned int i = 0; i < 256; ++i)
+        for (int i = 0; i < 256; ++i)
         {
             colors[i].r = static_cast<unsigned char>(vector[(4 * i)]);
             colors[i].g = static_cast<unsigned char>(vector[(4 * i) + 1]);

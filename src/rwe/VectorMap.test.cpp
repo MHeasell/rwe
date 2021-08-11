@@ -10,7 +10,7 @@
 namespace rwe
 {
     struct IdTag;
-    using Id = OpaqueId<unsigned int, IdTag>;
+    using Id = OpaqueId<int, IdTag>;
     TEST_CASE("VectorMap")
     {
         SECTION("can store and retrieve elements")

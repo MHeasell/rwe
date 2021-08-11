@@ -190,18 +190,18 @@ namespace rwe
 
         std::optional<MovementClassId> movementClass;
 
-        unsigned int footprintX;
-        unsigned int footprintZ;
-        unsigned int maxSlope;
-        unsigned int maxWaterSlope;
-        unsigned int minWaterDepth;
-        unsigned int maxWaterDepth;
+        int footprintX;
+        int footprintZ;
+        int maxSlope;
+        int maxWaterSlope;
+        int minWaterDepth;
+        int maxWaterDepth;
 
         /** If true, the unit is considered a commander for victory conditions. */
         bool commander;
 
-        unsigned int hitPoints{0};
-        unsigned int maxHitPoints;
+        int hitPoints{0};
+        int maxHitPoints;
 
         LifeState lifeState{LifeState::Alive};
 
@@ -238,13 +238,13 @@ namespace rwe
 
         bool builder;
 
-        unsigned int buildTime;
+        int buildTime;
         Energy energyCost;
         Metal metalCost;
 
-        unsigned int buildTimeCompleted{0};
+        int buildTimeCompleted{0};
 
-        unsigned int workerTimePerTick;
+        int workerTimePerTick;
 
         SimScalar buildDistance;
 
@@ -291,20 +291,20 @@ namespace rwe
 
         bool isBeingBuilt() const;
 
-        unsigned int getBuildPercentLeft() const;
+        int getBuildPercentLeft() const;
 
         float getPreciseCompletePercent() const;
 
         struct BuildCostInfo
         {
-            unsigned int workerTime;
+            int workerTime;
             Energy energyCost;
             Metal metalCost;
         };
 
-        BuildCostInfo getBuildCostInfo(unsigned int buildTimeContribution);
+        BuildCostInfo getBuildCostInfo(int buildTimeContribution);
 
-        bool addBuildProgress(unsigned int buildTimeContribution);
+        bool addBuildProgress(int buildTimeContribution);
 
         bool isCommander() const;
 
@@ -338,9 +338,9 @@ namespace rwe
 
         void addOrder(const UnitOrder& order);
 
-        void setWeaponTarget(unsigned int weaponIndex, UnitId target);
-        void setWeaponTarget(unsigned int weaponIndex, const SimVector& target);
-        void clearWeaponTarget(unsigned int weaponIndex);
+        void setWeaponTarget(int weaponIndex, UnitId target);
+        void setWeaponTarget(int weaponIndex, const SimVector& target);
+        void clearWeaponTarget(int weaponIndex);
         void clearWeaponTargets();
 
         Matrix4x<SimScalar> getTransform() const;

@@ -8,7 +8,7 @@ namespace rwe
         return currentTime >= startTime;
     }
 
-    unsigned int Explosion::getFrameIndex(GameTime currentTime, int totalFrames) const
+    int Explosion::getFrameIndex(GameTime currentTime, int totalFrames) const
     {
         assert(currentTime >= startTime);
         auto deltaTime = currentTime - startTime;

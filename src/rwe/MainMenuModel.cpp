@@ -46,7 +46,7 @@ namespace rwe
 
     std::optional<PlayerColorIndex> MainMenuModel::getFirstFreeColor() const
     {
-        for (unsigned int i = 0; i < 10; ++i)
+        for (int i = 0; i < 10; ++i)
         {
             if (!isColorInUse(PlayerColorIndex(i)))
             {

@@ -59,7 +59,7 @@ namespace rwe
 
         BehaviorMode behaviorMode{BehaviorMode::Button};
 
-        unsigned int currentStage{0};
+        int currentStage{0};
 
         Subject<ButtonClickEvent> clickSubject;
 
@@ -67,8 +67,8 @@ namespace rwe
         UiStagedButton(
             int posX,
             int posY,
-            unsigned int sizeX,
-            unsigned int sizeY,
+            int sizeX,
+            int sizeY,
             std::vector<StageInfo> stages,
             std::shared_ptr<Sprite> pressedSprite,
             std::shared_ptr<SpriteSeries> labelFont);
@@ -89,7 +89,7 @@ namespace rwe
 
         Observable<ButtonClickEvent>& onClick();
 
-        void setStage(unsigned int newStage);
+        void setStage(int newStage);
 
         bool autoChangeStage{true};
 

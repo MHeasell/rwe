@@ -37,8 +37,8 @@ namespace rwe
 
         auto timeInMillis = timeService->getTicks();
         const auto& frames = currentCursor->sprites;
-        unsigned int frameRateInSeconds = 6;
-        unsigned int millisPerFrame = 1000 / frameRateInSeconds;
+        int frameRateInSeconds = 6;
+        int millisPerFrame = 1000 / frameRateInSeconds;
 
         auto frameIndex = (timeInMillis / millisPerFrame) % frames.size();
 

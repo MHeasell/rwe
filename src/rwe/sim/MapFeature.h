@@ -32,7 +32,7 @@ namespace rwe
         SimScalar height;
         bool isBlocking;
         bool isIndestructible;
-        unsigned int metal;
+        int metal;
 
         bool isStanding() const;
     };

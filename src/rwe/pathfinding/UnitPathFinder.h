@@ -26,8 +26,8 @@ namespace rwe
             MovementClassCollisionService* collisionService,
             UnitId self,
             std::optional<MovementClassId> movementClass,
-            unsigned int footprintX,
-            unsigned int footprintZ,
+            int footprintX,
+            int footprintZ,
             const Point& goal);
 
     protected:

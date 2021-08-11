@@ -77,12 +77,12 @@ namespace rwe
     struct GameParameters
     {
         std::string mapName;
-        unsigned int schemaIndex;
+        int schemaIndex;
         std::array<std::optional<PlayerInfo>, 10> players;
         std::string localNetworkPort{"1337"};
         std::optional<std::string> stateLogFile;
 
-        GameParameters(const std::string& mapName, unsigned int schemaIndex);
+        GameParameters(const std::string& mapName, int schemaIndex);
     };
 
     class LoadingScene : public SceneManager::Scene
@@ -119,9 +119,9 @@ namespace rwe
         void render() override;
 
     private:
-        static unsigned int computeMidpointHeight(const Grid<unsigned char>& heightmap, std::size_t x, std::size_t y);
+        static int computeMidpointHeight(const Grid<unsigned char>& heightmap, int x, int y);
 
-        std::unique_ptr<GameScene> createGameScene(const std::string& mapName, unsigned int schemaIndex);
+        std::unique_ptr<GameScene> createGameScene(const std::string& mapName, int schemaIndex);
 
 
         struct LoadMapResult
@@ -132,7 +132,7 @@ namespace rwe
             MapTerrainGraphics terrainGraphics;
         };
 
-        LoadMapResult loadMap(const std::unordered_map<std::string, FeatureDefinition>& featuresMap, const std::string& mapName, const rwe::OtaRecord& ota, unsigned int schemaIndex);
+        LoadMapResult loadMap(const std::unordered_map<std::string, FeatureDefinition>& featuresMap, const std::string& mapName, const rwe::OtaRecord& ota, int schemaIndex);
 
         std::vector<TextureArrayRegion> getTileTextures(TntArchive& tnt);
 
@@ -144,7 +144,7 @@ namespace rwe
 
         MapFeature createFeature(const SimVector& pos, const FeatureDefinition& definition);
 
-        SimVector computeFeaturePosition(const MapTerrain& terrain, const FeatureDefinition& featureDefinition, std::size_t x, std::size_t y) const;
+        SimVector computeFeaturePosition(const MapTerrain& terrain, const FeatureDefinition& featureDefinition, int x, int y) const;
 
         const SideData& getSideData(const std::string& side) const;
 

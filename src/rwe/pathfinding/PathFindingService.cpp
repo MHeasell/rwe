@@ -6,7 +6,7 @@
 
 namespace rwe
 {
-    static const unsigned int MaxTasksPerTick = 10;
+    static const int MaxTasksPerTick = 10;
 
     PathFindingService::PathFindingService(GameSimulation* simulation, MovementClassCollisionService* collisionService)
         : simulation(simulation), collisionService(collisionService)
@@ -16,7 +16,7 @@ namespace rwe
     void PathFindingService::update()
     {
         auto& requests = simulation->pathRequests;
-        unsigned int tasksDone = 0;
+        int tasksDone = 0;
         while (!requests.empty() && tasksDone < MaxTasksPerTick)
         {
             auto& request = requests.front();

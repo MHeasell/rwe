@@ -49,11 +49,11 @@ namespace rwe
         return sound;
     }
 
-    void AudioService::reserveChannels(unsigned int count)
+    void AudioService::reserveChannels(int count)
     {
-        auto num = sdlMixerContext->reserveChannels(count);
+        int num = sdlMixerContext->reserveChannels(count);
         assert(num >= 0);
-        if (static_cast<unsigned int>(num) < count)
+        if (num < count)
         {
             throw std::runtime_error("Failed to reserve audio channels");
         }
@@ -64,7 +64,7 @@ namespace rwe
         sdlMixerContext->haltChannel(channel);
     }
 
-    void AudioService::playSoundIfFree(const AudioService::SoundHandle& sound, unsigned int channel)
+    void AudioService::playSoundIfFree(const AudioService::SoundHandle& sound, int channel)
     {
         if (sdlMixerContext->playing(channel))
         {

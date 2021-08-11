@@ -4,7 +4,7 @@ namespace rwe
 {
     int toFixedPoint(float val)
     {
-        return static_cast<unsigned int>(val * 65536.0f);
+        return static_cast<int>(val * 65536.0f);
     }
 
     float fromFixedPoint(int val)

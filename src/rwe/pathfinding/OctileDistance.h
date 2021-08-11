@@ -5,13 +5,13 @@ namespace rwe
     /** A distance in grid squares separated into straight and diagonal components. */
     struct OctileDistance
     {
-        unsigned int straight{0};
-        unsigned int diagonal{0};
+        int straight{0};
+        int diagonal{0};
 
-        static OctileDistance fromXAndY(unsigned int x, unsigned int y);
+        static OctileDistance fromXAndY(int x, int y);
 
         OctileDistance() = default;
-        OctileDistance(unsigned int straight, unsigned int diagonal);
+        OctileDistance(int straight, int diagonal);
 
         bool operator==(const OctileDistance& rhs) const;
 

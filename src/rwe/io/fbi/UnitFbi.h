@@ -23,12 +23,12 @@ namespace rwe
         FbiDistancePerTickSquared acceleration;
         FbiDistancePerTickSquared brakeRate;
 
-        unsigned int footprintX;
-        unsigned int footprintZ;
-        unsigned int maxSlope;
-        unsigned int maxWaterSlope;
-        unsigned int minWaterDepth;
-        unsigned int maxWaterDepth;
+        int footprintX;
+        int footprintZ;
+        int maxSlope;
+        int maxWaterSlope;
+        int minWaterDepth;
+        int maxWaterDepth;
 
         bool canAttack;
         bool canMove;
@@ -36,7 +36,7 @@ namespace rwe
 
         bool commander;
 
-        unsigned int maxDamage;
+        int maxDamage;
 
         bool bmCode;
 
@@ -50,13 +50,13 @@ namespace rwe
         std::string explodeAs;
 
         bool builder;
-        unsigned int buildTime;
+        int buildTime;
         Energy buildCostEnergy;
         Metal buildCostMetal;
 
-        unsigned int workerTime;
+        int workerTime;
 
-        unsigned int buildDistance;
+        int buildDistance;
 
         bool onOffable;
         bool activateWhenBuilt;

@@ -28,7 +28,7 @@ namespace rwe
         }
     }
 
-    unsigned int Projectile::getDamage(const std::string& unitType) const
+    int Projectile::getDamage(const std::string& unitType) const
     {
         auto it = damage.find(unitType);
         if (it != damage.end())

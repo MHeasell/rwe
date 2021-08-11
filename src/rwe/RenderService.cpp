@@ -207,13 +207,13 @@ namespace rwe
         return graphics->createColoredMesh(buffer, GL_STREAM_DRAW);
     }
 
-    void RenderService::drawMapTerrain(const MapTerrainGraphics& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
+    void RenderService::drawMapTerrain(const MapTerrainGraphics& terrain, int x, int y, int width, int height)
     {
-        std::unordered_map<TextureArrayIdentifier, std::vector<std::pair<unsigned int, unsigned int>>> batches;
+        std::unordered_map<TextureArrayIdentifier, std::vector<std::pair<int, int>>> batches;
 
-        for (unsigned int dy = 0; dy < height; ++dy)
+        for (int dy = 0; dy < height; ++dy)
         {
-            for (unsigned int dx = 0; dx < width; ++dx)
+            for (int dx = 0; dx < width; ++dx)
             {
                 auto tileIndex = terrain.getTiles().get(x + dx, y + dy);
                 const auto& tileTexture = terrain.getTileTexture(tileIndex);
@@ -262,10 +262,10 @@ namespace rwe
         Vector3f cameraExtents(camera.getWidth() / 2.0f, 0.0f, camera.getHeight() / 2.0f);
         auto topLeft = terrain.worldToTileCoordinate(floatToSimVector(camera.getPosition() - cameraExtents));
         auto bottomRight = terrain.worldToTileCoordinate(floatToSimVector(camera.getPosition() + cameraExtents));
-        auto x1 = static_cast<unsigned int>(std::clamp<int>(topLeft.x, 0, terrain.getTiles().getWidth() - 1));
-        auto y1 = static_cast<unsigned int>(std::clamp<int>(topLeft.y, 0, terrain.getTiles().getHeight() - 1));
-        auto x2 = static_cast<unsigned int>(std::clamp<int>(bottomRight.x, 0, terrain.getTiles().getWidth() - 1));
-        auto y2 = static_cast<unsigned int>(std::clamp<int>(bottomRight.y, 0, terrain.getTiles().getHeight() - 1));
+        auto x1 = std::clamp<int>(topLeft.x, 0, terrain.getTiles().getWidth() - 1);
+        auto y1 = std::clamp<int>(topLeft.y, 0, terrain.getTiles().getHeight() - 1);
+        auto x2 = std::clamp<int>(bottomRight.x, 0, terrain.getTiles().getWidth() - 1);
+        auto y2 = std::clamp<int>(bottomRight.y, 0, terrain.getTiles().getHeight() - 1);
 
         drawMapTerrain(terrain, x1, y1, (x2 + 1) - x1, (y2 + 1) - y1);
     }
@@ -339,7 +339,7 @@ namespace rwe
         }
     }
 
-    unsigned int getFrameIndex(GameTime currentTime, unsigned int numFrames)
+    int getFrameIndex(GameTime currentTime, int numFrames)
     {
         return (currentTime.value / 2) % numFrames;
     }
@@ -408,7 +408,7 @@ namespace rwe
                     auto timeSinceSpawn = currentTime - projectile.createdAt;
                     auto fullLifetime = projectile.dieOnFrame.value() - projectile.createdAt;
                     auto percentComplete = static_cast<float>(timeSinceSpawn.value) / static_cast<float>(fullLifetime.value);
-                    auto frameIndex = static_cast<unsigned int>(percentComplete * spriteSeries->sprites.size());
+                    int frameIndex = static_cast<int>(percentComplete * spriteSeries->sprites.size());
                     assert(frameIndex < spriteSeries->sprites.size());
                     const auto& sprite = *spriteSeries->sprites[frameIndex];
                     auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix * sprite.getTransform();

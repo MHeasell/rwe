@@ -26,7 +26,7 @@ namespace rwe
 
         void pushHash(PlayerId player, const GameHash& gameHash);
 
-        unsigned int bufferedCommandCount(PlayerId player) const;
+        int bufferedCommandCount(PlayerId player) const;
 
         void registerPlayer(PlayerId playerId);
 

@@ -119,7 +119,7 @@ namespace rwe
         return Ok(std::move(glContext));
     };
 
-    int run(spdlog::logger& logger, const std::vector<fs::path>& searchPath, const PathMapping& pathMapping, const std::optional<GameParameters>& gameParameters, unsigned int desiredWindowWidth, unsigned int desiredWindowHeight, bool fullscreen, const std::string& imGuiIniPath, GlobalConfig& globalConfig)
+    int run(spdlog::logger& logger, const std::vector<fs::path>& searchPath, const PathMapping& pathMapping, const std::optional<GameParameters>& gameParameters, int desiredWindowWidth, int desiredWindowHeight, bool fullscreen, const std::string& imGuiIniPath, GlobalConfig& globalConfig)
     {
         logger.info(ProjectNameVersion);
         logger.info("Current directory: {0}", fs::current_path().string());
@@ -526,8 +526,8 @@ int main(int argc, char* argv[])
             ("help", "produce help message")
             ("log", po::value<std::string>(), "Sets the log output file path")
             ("state-log", po::value<std::string>(), "Sets the output file for sim-state logs. This is a desync debugging feature.")
-            ("width", po::value<unsigned int>()->default_value(800), "Sets the window width in pixels")
-            ("height", po::value<unsigned int>()->default_value(600), "Sets the window height in pixels")
+            ("width", po::value<int>()->default_value(800), "Sets the window width in pixels")
+            ("height", po::value<int>()->default_value(600), "Sets the window height in pixels")
             ("fullscreen", po::bool_switch(), "Starts the application in fullscreen mode")
             ("interface-mode", po::value<std::string>()->default_value("left-click"), "left-click or right-click")
             ("data-path", po::value<std::vector<std::string>>(), "Sets the location(s) to search for game data")
@@ -591,7 +591,7 @@ int main(int argc, char* argv[])
                     gameParameters->stateLogFile = vm["state-log"].as<std::string>();
                 }
                 gameParameters->localNetworkPort = vm["port"].as<std::string>();
-                unsigned int playerIndex = 0;
+                int playerIndex = 0;
                 if (players.size() > 10)
                 {
                     throw std::runtime_error("too many players");
@@ -615,8 +615,8 @@ int main(int argc, char* argv[])
                 gameDataPaths.emplace_back(*localDataPath) /= "Data";
             }
 
-            auto screenWidth = vm["width"].as<unsigned int>();
-            auto screenHeight = vm["height"].as<unsigned int>();
+            auto screenWidth = vm["width"].as<int>();
+            auto screenHeight = vm["height"].as<int>();
             auto fullscreen = vm["fullscreen"].as<bool>();
 
             auto pathMapping = constructDefaultPathMapping();

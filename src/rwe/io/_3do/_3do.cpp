@@ -33,7 +33,7 @@ namespace rwe
             outputObject.name = readNullTerminatedString(stream);
 
             stream.seekg(object.verticesOffset);
-            for (unsigned int i = 0; i < object.numberOfVertices; ++i)
+            for (int i = 0; i < object.numberOfVertices; ++i)
             {
                 auto v = readRaw<_3doVertex>(stream);
                 outputObject.vertices.push_back(_3do::Vertex{v.x, v.y, v.z});
@@ -42,7 +42,7 @@ namespace rwe
             stream.seekg(object.primitivesOffset);
             std::vector<_3doPrimitive> ps;
             ps.reserve(object.numberOfPrimitives);
-            for (unsigned int i = 0; i < object.numberOfPrimitives; ++i)
+            for (int i = 0; i < object.numberOfPrimitives; ++i)
             {
                 ps.push_back(readRaw<_3doPrimitive>(stream));
             }
@@ -67,7 +67,7 @@ namespace rwe
                 }
 
                 stream.seekg(p.verticesOffset);
-                for (unsigned int j = 0; j < p.numberOfVertices; ++j)
+                for (int j = 0; j < p.numberOfVertices; ++j)
                 {
                     outP.vertices.push_back(readRaw<uint16_t>(stream));
                 }

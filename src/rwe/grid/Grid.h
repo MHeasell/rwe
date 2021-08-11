@@ -12,10 +12,10 @@ namespace rwe
 {
     struct GridCoordinates
     {
-        std::size_t x;
-        std::size_t y;
+        int x;
+        int y;
         GridCoordinates() = default;
-        GridCoordinates(size_t x, size_t y) : x(x), y(y)
+        GridCoordinates(int x, int y) : x(x), y(y)
         {
         }
 
@@ -39,21 +39,22 @@ namespace rwe
             return GridRegion(x.first, y.first, x.second - x.first + 1, y.second - y.first + 1);
         }
 
-        std::size_t x;
-        std::size_t y;
-        std::size_t width;
-        std::size_t height;
+        int x;
+        int y;
+        int width;
+        int height;
 
         GridRegion() = default;
-        GridRegion(unsigned int x, unsigned int y, unsigned int width, unsigned int height)
+
+        GridRegion(int x, int y, int width, int height)
             : x(x), y(y), width(width), height(height) {}
 
         template <typename Func>
         void forEach(Func f) const
         {
-            for (std::size_t dy = 0; dy < height; ++dy)
+            for (int dy = 0; dy < height; ++dy)
             {
-                for (std::size_t dx = 0; dx < width; ++dx)
+                for (int dx = 0; dx < width; ++dx)
                 {
                     f(GridCoordinates(x + dx, y + dy));
                 }
@@ -63,9 +64,9 @@ namespace rwe
         template <typename Func>
         void forEach(Func f)
         {
-            for (std::size_t dy = 0; dy < height; ++dy)
+            for (int dy = 0; dy < height; ++dy)
             {
-                for (std::size_t dx = 0; dx < width; ++dx)
+                for (int dx = 0; dx < width; ++dx)
                 {
                     f(GridCoordinates(x + dx, y + dy));
                 }
@@ -75,9 +76,9 @@ namespace rwe
         template <typename Func>
         bool any(Func f) const
         {
-            for (std::size_t dy = 0; dy < height; ++dy)
+            for (int dy = 0; dy < height; ++dy)
             {
-                for (std::size_t dx = 0; dx < width; ++dx)
+                for (int dx = 0; dx < width; ++dx)
                 {
                     if (f(GridCoordinates(x + dx, y + dy)))
                     {
@@ -101,13 +102,13 @@ namespace rwe
     class Grid
     {
     private:
-        std::size_t width;
-        std::size_t height;
+        int width;
+        int height;
         std::vector<T> data;
 
     public:
         template <typename Func>
-        static Grid<T> from(std::size_t width, std::size_t height, Func f)
+        static Grid<T> from(int width, int height, Func f)
         {
             Grid<T> g(width, height);
             g.fill(f);
@@ -116,24 +117,24 @@ namespace rwe
 
         Grid() : width(0), height(0) {}
 
-        Grid(std::size_t width, std::size_t height)
+        Grid(int width, int height)
             : width(width), height(height), data(width * height) {}
 
-        Grid(std::size_t width, std::size_t height, const T& initialValue)
+        Grid(int width, int height, const T& initialValue)
             : width(width), height(height), data(width * height, initialValue) {}
 
-        Grid(std::size_t width, std::size_t height, std::vector<T>&& data)
+        Grid(int width, int height, std::vector<T>&& data)
             : width(width), height(height), data(std::move(data))
         {
             assert(this->data.size() == width * height);
         }
 
-        T& get(std::size_t x, std::size_t y)
+        T& get(int x, int y)
         {
             return data[toIndex(x, y)];
         }
 
-        const T& get(std::size_t x, std::size_t y) const
+        const T& get(int x, int y) const
         {
             return data[toIndex(x, y)];
         }
@@ -148,12 +149,12 @@ namespace rwe
             return data[toIndex(coords)];
         }
 
-        void set(std::size_t x, std::size_t y, const T& value)
+        void set(int x, int y, const T& value)
         {
             data[toIndex(x, y)] = value;
         }
 
-        void set(std::size_t x, std::size_t y, T&& value)
+        void set(int x, int y, T&& value)
         {
             data[toIndex(x, y)] = std::move(value);
         }
@@ -185,24 +186,24 @@ namespace rwe
             return !(rhs == *this);
         }
 
-        std::size_t toIndex(std::size_t x, std::size_t y) const
+        std::size_t toIndex(int x, int y) const
         {
             assert(x < width && y < height);
-            return (y * width) + x;
+            return (static_cast<std::size_t>(y) * width) + x;
         }
 
         std::size_t toIndex(const GridCoordinates& coords) const
         {
             assert(coords.x < width && coords.y < height);
-            return (coords.y * width) + coords.x;
+            return (static_cast<std::size_t>(coords.y) * width) + coords.x;
         }
 
-        std::size_t getWidth() const
+        int getWidth() const
         {
             return width;
         }
 
-        std::size_t getHeight() const
+        int getHeight() const
         {
             return height;
         }
@@ -232,16 +233,16 @@ namespace rwe
             return GridRegion(0, 0, width, height);
         }
 
-        void replace(std::size_t x, std::size_t y, const Grid<T>& replacement)
+        void replace(int x, int y, const Grid<T>& replacement)
         {
             if (x + replacement.getWidth() > getWidth() || y + replacement.getHeight() > getHeight())
             {
                 throw std::logic_error("replacement goes out of bounds");
             }
 
-            for (std::size_t dy = 0; dy < replacement.getHeight(); ++dy)
+            for (int dy = 0; dy < replacement.getHeight(); ++dy)
             {
-                for (std::size_t dx = 0; dx < replacement.getWidth(); ++dx)
+                for (int dx = 0; dx < replacement.getWidth(); ++dx)
                 {
                     set(x + dx, y + dy, replacement.get(dx, dy));
                 }
@@ -269,7 +270,7 @@ namespace rwe
         }
 
         template <typename U, typename BinaryFunc>
-        bool any2(unsigned int x, unsigned int y, const Grid<U>& g, BinaryFunc f) const
+        bool any2(int x, int y, const Grid<U>& g, BinaryFunc f) const
         {
             assert(x + g.getWidth() <= this->width);
             assert(y + g.getHeight() <= this->height);
@@ -285,7 +286,7 @@ namespace rwe
         }
 
         template <typename U, typename BinaryFunc>
-        void forEach2(unsigned int x, unsigned int y, const Grid<U>& g, BinaryFunc f)
+        void forEach2(int x, int y, const Grid<U>& g, BinaryFunc f)
         {
             assert(x + g.getWidth() <= this->width);
             assert(y + g.getHeight() <= this->height);
@@ -327,8 +328,8 @@ namespace rwe
         {
             return rect.x >= 0
                 && rect.y >= 0
-                && static_cast<unsigned int>(rect.x) + rect.width <= width
-                && static_cast<unsigned int>(rect.y) + rect.height <= height;
+                && rect.x + rect.width <= width
+                && rect.y + rect.height <= height;
         }
 
         /**
@@ -357,13 +358,13 @@ namespace rwe
          */
         GridCoordinates clampToCoords(const Point& p) const
         {
-            std::size_t x = (p.x > 0) ? static_cast<std::size_t>(p.x) : 0;
+            int x = (p.x > 0) ? p.x : 0;
             if (x >= width)
             {
                 x = width - 1;
             }
 
-            std::size_t y = (p.y > 0) ? static_cast<std::size_t>(p.y) : 0;
+            int y = (p.y > 0) ? p.y : 0;
             if (y >= height)
             {
                 y = height - 1;
@@ -383,8 +384,8 @@ namespace rwe
                 return std::nullopt;
             }
 
-            auto x1 = static_cast<std::size_t>(p.x);
-            auto y1 = static_cast<std::size_t>(p.y);
+            auto x1 = p.x;
+            auto y1 = p.y;
 
             if (x1 >= width || y1 >= height)
             {
@@ -405,7 +406,7 @@ namespace rwe
         }
 
         template <typename U, typename Func>
-        void transformAndReplace(std::size_t x, std::size_t y, const Grid<U>& replacement, Func f)
+        void transformAndReplace(int x, int y, const Grid<U>& replacement, Func f)
         {
             if (x + replacement.getWidth() > getWidth() || y + replacement.getHeight() > getHeight())
             {
@@ -416,7 +417,7 @@ namespace rwe
         }
 
         template <typename U, typename Func>
-        void transformAndReplace(std::size_t x, std::size_t y, std::size_t regionWidth, std::size_t regionHeight, const Grid<U>& replacement, Func f)
+        void transformAndReplace(int x, int y, int regionWidth, int regionHeight, const Grid<U>& replacement, Func f)
         {
             if (x + regionWidth > getWidth() || y + regionHeight > getHeight())
             {
@@ -447,8 +448,8 @@ namespace rwe
                 return GridRegion(0, 0, 0, 0);
             }
             return GridRegion(
-                static_cast<unsigned int>(intersect->x), // guaranteed non-negative
-                static_cast<unsigned int>(intersect->y), // guaranteed non-negative
+                intersect->x, // guaranteed non-negative
+                intersect->y, // guaranteed non-negative
                 intersect->width,
                 intersect->height);
         }

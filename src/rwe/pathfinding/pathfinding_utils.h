@@ -12,12 +12,12 @@ namespace rwe
      * If this is not the case, the behaviour is undefined.
      */
     template <typename It, typename Inserter>
-    static unsigned int simplifyPath(It it, It end, Inserter out)
+    static int simplifyPath(It it, It end, Inserter out)
     {
         const Point* curr = &*it;
         *out = *it++;
 
-        unsigned int appendedCount = 1;
+        int appendedCount = 1;
 
         int directionX = 0;
         int directionY = 0;

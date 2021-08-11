@@ -41,7 +41,7 @@ namespace rwe
         return features;
     }
 
-    GameParameters::GameParameters(const std::string& mapName, unsigned int schemaIndex)
+    GameParameters::GameParameters(const std::string& mapName, int schemaIndex)
         : mapName(mapName),
           schemaIndex(schemaIndex)
     {
@@ -133,7 +133,7 @@ namespace rwe
 
     std::seed_seq seedFromGameParameters(const GameParameters& params)
     {
-        std::vector<unsigned int> initialVec;
+        std::vector<int> initialVec;
         std::copy(params.mapName.begin(), params.mapName.end(), std::back_inserter(initialVec));
 
         for (const auto& e : params.players)
@@ -160,7 +160,7 @@ namespace rwe
         return std::seed_seq(initialVec.begin(), initialVec.end());
     }
 
-    std::unique_ptr<GameScene> LoadingScene::createGameScene(const std::string& mapName, unsigned int schemaIndex)
+    std::unique_ptr<GameScene> LoadingScene::createGameScene(const std::string& mapName, int schemaIndex)
     {
         auto atlasInfo = createTextureAtlases(sceneContext.vfs, sceneContext.graphics, sceneContext.palette);
         MeshService meshService(sceneContext.vfs, sceneContext.graphics, std::move(atlasInfo.textureAtlasMap), std::move(atlasInfo.teamTextureAtlasMap), std::move(atlasInfo.colorAtlasMap));
@@ -370,7 +370,7 @@ namespace rwe
         return gameScene;
     }
 
-    LoadingScene::LoadMapResult LoadingScene::loadMap(const std::unordered_map<std::string, FeatureDefinition>& featuresMap, const std::string& mapName, const OtaRecord& ota, unsigned int schemaIndex)
+    LoadingScene::LoadMapResult LoadingScene::loadMap(const std::unordered_map<std::string, FeatureDefinition>& featuresMap, const std::string& mapName, const OtaRecord& ota, int schemaIndex)
     {
         auto tntBytes = sceneContext.vfs->readFile("maps/" + mapName + ".tnt");
         if (!tntBytes)
@@ -404,9 +404,9 @@ namespace rwe
 
         std::vector<MapFeature> features;
 
-        for (std::size_t y = 0; y < mapAttributes.getHeight(); ++y)
+        for (int y = 0; y < mapAttributes.getHeight(); ++y)
         {
-            for (std::size_t x = 0; x < mapAttributes.getWidth(); ++x)
+            for (int x = 0; x < mapAttributes.getWidth(); ++x)
             {
                 const auto& e = mapAttributes.get(x, y);
                 switch (e.feature)
@@ -438,9 +438,9 @@ namespace rwe
 
     std::vector<TextureArrayRegion> LoadingScene::getTileTextures(TntArchive& tnt)
     {
-        static const unsigned int tileWidth = 32;
-        static const unsigned int tileHeight = 32;
-        static const unsigned int mipMapLevels = 5;
+        static const int tileWidth = 32;
+        static const int tileHeight = 32;
+        static const int mipMapLevels = 5;
         static const auto tilesPerTextureArray = 256;
 
         std::vector<TextureArrayRegion> tileTextures;
@@ -460,7 +460,7 @@ namespace rwe
                     textureArrayBuffer.clear();
                 }
 
-                for (unsigned int i = 0; i < (tileWidth * tileHeight); ++i)
+                for (int i = 0; i < (tileWidth * tileHeight); ++i)
                 {
                     auto index = static_cast<unsigned char>(tile[i]);
                     textureArrayBuffer.push_back((*sceneContext.palette)[index]);
@@ -470,7 +470,7 @@ namespace rwe
         textureArrayHandles.emplace_back(sceneContext.graphics->createTextureArray(tileWidth, tileHeight, mipMapLevels, textureArrayBuffer));
 
         // populate the list of texture regions referencing the textures
-        for (unsigned int i = 0; i < tnt.getHeader().numberOfTiles; ++i)
+        for (int i = 0; i < tnt.getHeader().numberOfTiles; ++i)
         {
             assert(textureArrayHandles.size() > i / tilesPerTextureArray);
             auto textureIndex = i / tilesPerTextureArray;
@@ -565,12 +565,12 @@ namespace rwe
     SimVector LoadingScene::computeFeaturePosition(
         const MapTerrain& terrain,
         const FeatureDefinition& featureDefinition,
-        std::size_t x,
-        std::size_t y) const
+        int x,
+        int y) const
     {
         const auto& heightmap = terrain.getHeightMap();
 
-        unsigned int height = 0;
+        int height = 0;
         if (x < heightmap.getWidth() - 1 && y < heightmap.getHeight() - 1)
         {
             height = computeMidpointHeight(heightmap, x, y);
@@ -585,7 +585,7 @@ namespace rwe
         return position;
     }
 
-    unsigned int LoadingScene::computeMidpointHeight(const Grid<unsigned char>& heightmap, std::size_t x, std::size_t y)
+    int LoadingScene::computeMidpointHeight(const Grid<unsigned char>& heightmap, int x, int y)
     {
         assert(x < heightmap.getWidth() - 1);
         assert(y < heightmap.getHeight() - 1);

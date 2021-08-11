@@ -2,7 +2,7 @@
 
 namespace rwe
 {
-    UiListBox::UiListBox(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<SpriteSeries> font)
+    UiListBox::UiListBox(int posX, int posY, int sizeX, int sizeY, std::shared_ptr<SpriteSeries> font)
         : UiComponent(posX, posY, sizeX, sizeY), font(std::move(font))
     {
         scrollPosition().subscribe([this](const auto& /*scrollPos*/) {
@@ -17,11 +17,11 @@ namespace rwe
 
     void UiListBox::render(UiRenderService& context) const
     {
-        auto lines = std::min<unsigned int>(numberOfLines(), items.size());
+        int lines = std::min<int>(numberOfLines(), items.size());
 
-        for (unsigned int i = 0; i < lines; ++i)
+        for (int i = 0; i < lines; ++i)
         {
-            float y = 12.0f + (i * 12.0f);
+            int y = 12 + (i * 12);
             auto itemIndex = scrollPositionSubject.getValue() + i;
 
             const auto& selectedIndexValue = selectedIndexSubject.getValue();
@@ -62,7 +62,7 @@ namespace rwe
         auto it = std::find(items.begin(), items.end(), item);
         if (it != items.end())
         {
-            auto index = static_cast<unsigned int>(it - items.begin());
+            auto index = static_cast<int>(it - items.begin());
             selectedIndexSubject.next(index);
             setScrollPositionCentered(index);
         }
@@ -73,12 +73,12 @@ namespace rwe
         selectedIndexSubject.next(std::nullopt);
     }
 
-    Observable<std::optional<unsigned int>>& UiListBox::selectedIndex()
+    Observable<std::optional<int>>& UiListBox::selectedIndex()
     {
         return selectedIndexSubject;
     }
 
-    const Observable<std::optional<unsigned int>>& UiListBox::selectedIndex() const
+    const Observable<std::optional<int>>& UiListBox::selectedIndex() const
     {
         return selectedIndexSubject;
     }
@@ -110,16 +110,16 @@ namespace rwe
         }
     }
 
-    unsigned int UiListBox::numberOfLines() const
+    int UiListBox::numberOfLines() const
     {
-        auto lines = static_cast<unsigned int>((sizeY) / 12.0f);
+        auto lines = static_cast<int>((sizeY) / 12.0f);
 
         // listboxes defined in TA guis tend to be too long,
         // so shorten our number of lines by 1 to compensate.
         return lines - 1;
     }
 
-    std::optional<unsigned int> UiListBox::pixelToLine(int y) const
+    std::optional<int> UiListBox::pixelToLine(int y) const
     {
         auto floatIndex = (y - posY) / 12.0f;
         if (floatIndex < 0.0f)
@@ -127,7 +127,7 @@ namespace rwe
             return std::nullopt;
         }
 
-        auto index = static_cast<unsigned int>(floatIndex);
+        auto index = static_cast<int>(floatIndex);
         if (index >= numberOfLines())
         {
             return std::nullopt;
@@ -136,7 +136,7 @@ namespace rwe
         return index;
     }
 
-    void UiListBox::setScrollPositionCentered(unsigned int newPosition)
+    void UiListBox::setScrollPositionCentered(int newPosition)
     {
         auto halfLines = numberOfLines() / 2;
         if (newPosition > halfLines)
@@ -149,7 +149,7 @@ namespace rwe
         }
     }
 
-    void UiListBox::setScrollPosition(unsigned int newPosition)
+    void UiListBox::setScrollPosition(int newPosition)
     {
         auto maxScroll = maxScrollPosition();
         if (newPosition > maxScroll)
@@ -162,13 +162,13 @@ namespace rwe
         }
     }
 
-    unsigned int UiListBox::maxScrollPosition() const
+    int UiListBox::maxScrollPosition() const
     {
         auto listSize = items.size();
         auto displayLines = numberOfLines();
         if (listSize > displayLines)
         {
-            return static_cast<unsigned int>(listSize - displayLines);
+            return static_cast<int>(listSize - displayLines);
         }
         else
         {
@@ -176,12 +176,12 @@ namespace rwe
         }
     }
 
-    Observable<unsigned int>& UiListBox::scrollPosition()
+    Observable<int>& UiListBox::scrollPosition()
     {
         return scrollPositionSubject;
     }
 
-    const Observable<unsigned int>& UiListBox::scrollPosition() const
+    const Observable<int>& UiListBox::scrollPosition() const
     {
         return scrollPositionSubject;
     }

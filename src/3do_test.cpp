@@ -8,7 +8,7 @@
 #include <rwe/vertex_height.h>
 #include <vector>
 
-void print3doObject(unsigned int indent, const std::vector<rwe::_3do::Object>& os)
+void print3doObject(int indent, const std::vector<rwe::_3do::Object>& os)
 {
     for (const auto& o : os)
     {

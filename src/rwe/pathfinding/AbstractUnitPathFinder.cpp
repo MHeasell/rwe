@@ -7,8 +7,8 @@ namespace rwe
         MovementClassCollisionService* collisionService,
         UnitId self,
         std::optional<MovementClassId> movementClass,
-        unsigned int footprintX,
-        unsigned int footprintZ)
+        int footprintX,
+        int footprintZ)
         : simulation(simulation),
           collisionService(collisionService),
           self(self),
@@ -40,7 +40,7 @@ namespace rwe
                 // double the cost on rough terrain
                 distance = distance + distance;
             }
-            unsigned int turns = (!prevDirection || direction == *prevDirection) ? 0 : 1;
+            int turns = (!prevDirection || direction == *prevDirection) ? 0 : 1;
             PathCost cost(distance, turns);
             vs.push_back(VertexInfo{info.costToReach + cost, neighbour, &info});
         }

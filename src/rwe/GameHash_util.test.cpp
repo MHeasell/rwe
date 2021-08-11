@@ -5,7 +5,7 @@
 namespace rwe
 {
     struct IdTag;
-    using Id = OpaqueId<unsigned int, IdTag>;
+    using Id = OpaqueId<int, IdTag>;
 
     enum class TestEnum
     {

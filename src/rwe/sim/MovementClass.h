@@ -8,12 +8,12 @@ namespace rwe
     struct MovementClass
     {
         std::string name;
-        unsigned int footprintX;
-        unsigned int footprintZ;
-        unsigned int minWaterDepth;
-        unsigned int maxWaterDepth;
-        unsigned int maxSlope;
-        unsigned int maxWaterSlope;
+        int footprintX;
+        int footprintZ;
+        int minWaterDepth;
+        int maxWaterDepth;
+        int maxSlope;
+        int maxWaterSlope;
     };
 
     MovementClass parseMovementClass(const TdfBlock& block);

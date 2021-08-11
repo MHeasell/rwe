@@ -13,7 +13,7 @@ namespace rwe
      * The maximum number of elements in the open list to expand
      * before giving up on a path search.
      */
-    const unsigned int MaxOpenListQueries = 2000;
+    const int MaxOpenListQueries = 2000;
 
     template <typename T, typename Cost = float>
     struct AStarVertexInfo
@@ -55,7 +55,7 @@ namespace rwe
 
             std::optional<std::pair<Cost, const VertexInfo*>> closestVertex;
 
-            unsigned int openListPopsPerformed = 0;
+            int openListPopsPerformed = 0;
 
             while (!openVertices.empty() && openListPopsPerformed < MaxOpenListQueries)
             {

@@ -16,11 +16,11 @@ namespace rwe
     class VectorMap
     {
     private:
-        using Id = OpaqueId<unsigned int, IdTag>;
+        using Id = OpaqueId<int, IdTag>;
         struct IndexTag;
-        using Index = OpaqueId<unsigned int, IndexTag>;
+        using Index = OpaqueId<int, IndexTag>;
         struct GenerationTag;
-        using Generation = OpaqueId<unsigned int, GenerationTag>;
+        using Generation = OpaqueId<int, GenerationTag>;
 
         struct FreeEntry
         {
@@ -116,7 +116,7 @@ namespace rwe
             }
             else
             {
-                auto id = makeId(Index(vec.size()));
+                auto id = makeId(Index(static_cast<int>(vec.size())));
                 vec.emplace_back(std::make_pair(id, T(std::forward<Args>(args)...)));
                 return id;
             }

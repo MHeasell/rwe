@@ -11,16 +11,16 @@ namespace rwe
     template <typename T>
     struct BoxPackInfoEntry
     {
-        unsigned int x;
-        unsigned int y;
+        int x;
+        int y;
         T value;
     };
 
     template <typename T>
     struct BoxPackInfo
     {
-        unsigned int width;
-        unsigned int height;
+        int width;
+        int height;
 
         std::vector<BoxPackInfoEntry<T>> entries;
     };
@@ -40,8 +40,8 @@ namespace rwe
     template <typename T>
     struct BoxTreeNode
     {
-        unsigned int width;
-        unsigned int height;
+        int width;
+        int height;
 
         using Union = std::variant<BoxTreeSplit<T>, BoxTreeLeaf<T>>;
 
@@ -52,13 +52,13 @@ namespace rwe
             std::unique_ptr<BoxTreeNode>&& left,
             std::unique_ptr<BoxTreeNode>&& right);
 
-        BoxTreeNode(unsigned int width, unsigned int height);
+        BoxTreeNode(int width, int height);
 
-        BoxTreeNode(unsigned int width, unsigned int height, const T& value);
+        BoxTreeNode(int width, int height, const T& value);
 
-        BoxTreeNode(unsigned int width, unsigned int height, T&& value);
+        BoxTreeNode(int width, int height, T&& value);
 
-        std::optional<BoxTreeNode<T>*> findNode(unsigned int itemWidth, unsigned int itemHeight);
+        std::optional<BoxTreeNode<T>*> findNode(int itemWidth, int itemHeight);
 
         std::vector<BoxPackInfoEntry<T>> walk();
     };
@@ -97,19 +97,19 @@ namespace rwe
     {
         std::unique_ptr<BoxTreeNode<T>> root;
 
-        BoxTree(unsigned int width, unsigned int height, const T& value)
+        BoxTree(int width, int height, const T& value)
             : root(std::make_unique<BoxTreeNode<T>>(width, height, value))
         {
         }
 
-        BoxTree(unsigned int width, unsigned int height, T&& value)
+        BoxTree(int width, int height, T&& value)
             : root(std::make_unique<BoxTreeNode<T>>(width, height, std::move(value)))
         {
         }
 
-        BoxTreeNode<T>* findOrCreateNode(unsigned int itemWidth, unsigned int itemHeight);
+        BoxTreeNode<T>* findOrCreateNode(int itemWidth, int itemHeight);
 
-        void insert(unsigned int itemWidth, unsigned int itemHeight, const T& item);
+        void insert(int itemWidth, int itemHeight, const T& item);
     };
 
     enum class GrowDirection
@@ -119,7 +119,7 @@ namespace rwe
     };
 
     template <typename T>
-    BoxTreeNode<T>* BoxTree<T>::findOrCreateNode(unsigned int itemWidth, unsigned int itemHeight)
+    BoxTreeNode<T>* BoxTree<T>::findOrCreateNode(int itemWidth, int itemHeight)
     {
         // find a leaf node big enough to fit the box
         auto node = root->findNode(itemWidth, itemHeight);
@@ -165,7 +165,7 @@ namespace rwe
     }
 
     template <typename T>
-    void BoxTree<T>::insert(unsigned int itemWidth, unsigned int itemHeight, const T& item)
+    void BoxTree<T>::insert(int itemWidth, int itemHeight, const T& item)
     {
         auto node = findOrCreateNode(itemWidth, itemHeight);
 
@@ -211,25 +211,25 @@ namespace rwe
     }
 
     template <typename T>
-    BoxTreeNode<T>::BoxTreeNode(unsigned int width, unsigned int height)
+    BoxTreeNode<T>::BoxTreeNode(int width, int height)
         : width(width), height(height), value(BoxTreeLeaf<T>())
     {
     }
 
     template <typename T>
-    BoxTreeNode<T>::BoxTreeNode(unsigned int width, unsigned int height, const T& value)
+    BoxTreeNode<T>::BoxTreeNode(int width, int height, const T& value)
         : width(width), height(height), value(BoxTreeLeaf<T>(value))
     {
     }
 
     template <typename T>
-    BoxTreeNode<T>::BoxTreeNode(unsigned int width, unsigned int height, T&& value)
+    BoxTreeNode<T>::BoxTreeNode(int width, int height, T&& value)
         : width(width), height(height), value(BoxTreeLeaf<T>(std::move(value)))
     {
     }
 
     template <typename T>
-    std::optional<BoxTreeNode<T>*> BoxTreeNode<T>::findNode(unsigned int itemWidth, unsigned int itemHeight)
+    std::optional<BoxTreeNode<T>*> BoxTreeNode<T>::findNode(int itemWidth, int itemHeight)
     {
         if (itemWidth > width || itemHeight > height)
         {
@@ -297,11 +297,11 @@ namespace rwe
 
     struct Size
     {
-        std::size_t width;
-        std::size_t height;
+        int width;
+        int height;
 
         Size() = default;
-        Size(std::size_t width, std::size_t height);
+        Size(int width, int height);
     };
 
     template <typename T>

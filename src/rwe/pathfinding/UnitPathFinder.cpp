@@ -7,8 +7,8 @@ namespace rwe
         MovementClassCollisionService* collisionService,
         UnitId self,
         std::optional<MovementClassId> movementClass,
-        unsigned int footprintX,
-        unsigned int footprintZ,
+        int footprintX,
+        int footprintZ,
         const Point& goal)
         : AbstractUnitPathFinder(
             simulation,
@@ -29,7 +29,7 @@ namespace rwe
     PathCost UnitPathFinder::estimateCostToGoal(const Point& start)
     {
         auto distance = octileDistance(start, goal);
-        unsigned int turns = (distance.straight > 0 && distance.diagonal > 0) ? 1 : 0;
+        int turns = (distance.straight > 0 && distance.diagonal > 0) ? 1 : 0;
         return PathCost(distance, turns);
     }
 }
