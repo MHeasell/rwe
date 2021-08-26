@@ -8,7 +8,6 @@
 #include <rwe/proto/serialization.h>
 #include <rwe/range_util.h>
 #include <rwe/sim/SimTicksPerSecond.h>
-#include <spdlog/fmt/ostr.h>
 #include <spdlog/spdlog.h>
 #include <thread>
 
@@ -177,7 +176,7 @@ namespace rwe
         sendTimer.async_wait([this](const boost::system::error_code& error) {
             if (error)
             {
-                spdlog::get("rwe")->error("Boost error while waiting on timer: {}", error);
+                spdlog::get("rwe")->error("Boost error while waiting on timer: {}", error.message());
                 return;
             }
 
@@ -231,7 +230,7 @@ namespace rwe
     {
         if (error)
         {
-            spdlog::get("rwe")->error("Boost error on receive: {}", error);
+            spdlog::get("rwe")->error("Boost error on receive: {}", error.message());
             return;
         }
 
@@ -292,8 +291,8 @@ namespace rwe
         {
             spdlog::get("rwe")->error(
                 "Remote acked up to {0}, but we are at {1} and command buffer contains {2} elements",
-                newNextCommandToSend,
-                endpoint.nextCommandToSend,
+                newNextCommandToSend.value,
+                endpoint.nextCommandToSend.value,
                 endpoint.sendBuffer.size());
         }
         while (newNextCommandToSend > endpoint.nextCommandToSend && !endpoint.sendBuffer.empty())
@@ -350,8 +349,8 @@ namespace rwe
         {
             spdlog::get("rwe")->error(
                 "Remote acked up to {0}, but we are at {1} and hash buffer contains {2} elements",
-                newNextHashToSend,
-                endpoint.nextHashToSend,
+                newNextHashToSend.value,
+                endpoint.nextHashToSend.value,
                 endpoint.hashSendBuffer.size());
         }
         while (newNextHashToSend > endpoint.nextHashToSend && !endpoint.hashSendBuffer.empty())

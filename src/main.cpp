@@ -28,7 +28,7 @@
 #include <rwe/ui/UiFactory.h>
 #include <rwe/util.h>
 #include <rwe/vfs/CompositeVirtualFileSystem.h>
-#include <spdlog/spdlog.h>
+#include <spdlog/sinks/basic_file_sink.h>
 
 namespace fs = boost::filesystem;
 namespace po = boost::program_options;
