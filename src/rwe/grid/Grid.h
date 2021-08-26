@@ -17,6 +17,7 @@ namespace rwe
         GridCoordinates() = default;
         GridCoordinates(int x, int y) : x(x), y(y)
         {
+            assert(x >= 0 && y >= 0);
         }
 
         bool operator==(const GridCoordinates& rhs) const
@@ -47,7 +48,10 @@ namespace rwe
         GridRegion() = default;
 
         GridRegion(int x, int y, int width, int height)
-            : x(x), y(y), width(width), height(height) {}
+            : x(x), y(y), width(width), height(height) 
+        { 
+            assert(x >= 0 && y >= 0 && width >= 0 && height >= 0); 
+        }
 
         template <typename Func>
         void forEach(Func f) const
@@ -118,14 +122,15 @@ namespace rwe
         Grid() : width(0), height(0) {}
 
         Grid(int width, int height)
-            : width(width), height(height), data(width * height) {}
+            : width(width), height(height), data(width * height) { assert(width >= 0 && height >= 0); }
 
         Grid(int width, int height, const T& initialValue)
-            : width(width), height(height), data(width * height, initialValue) {}
+            : width(width), height(height), data(width * height, initialValue) { assert(width >= 0 && height >= 0); }
 
         Grid(int width, int height, std::vector<T>&& data)
             : width(width), height(height), data(std::move(data))
         {
+            assert(width >= 0 && height >= 0);
             assert(this->data.size() == width * height);
         }
 

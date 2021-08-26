@@ -613,10 +613,10 @@ namespace rwe
         auto defaultSprite = textureService->getDefaultSprite();
 
         const auto& sprites = (*graphics)->sprites;
-        int spriteCount = static_cast<int>(sprites.size());
+        auto spriteCount = static_cast<int>(sprites.size());
 
         auto stagesPresentCount = spriteCount > 2 ? spriteCount - 2 : 0;
-        int stagesToCopyCount = std::min<int>(stages, stagesPresentCount);//TODO (kwh) - do 
+        auto stagesToCopyCount = std::min<int>(stages, stagesPresentCount);//TODO (kwh) - do 
 
         std::vector<std::shared_ptr<Sprite>> normalSprites;
         for (int i = 0; i < stagesToCopyCount; ++i)

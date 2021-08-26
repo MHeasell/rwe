@@ -7,12 +7,12 @@ namespace rwe
     {
     }
 
-    int CobEnvironment::getStatic(int id)
+    int CobEnvironment::getStatic(uint32_t id)
     {
         return _statics.at(id);
     }
 
-    void CobEnvironment::setStatic(int id, int value)
+    void CobEnvironment::setStatic(uint32_t id, int value)
     {
         _statics.at(id) = value;
     }
@@ -43,7 +43,7 @@ namespace rwe
         return thread;
     }
 
-    const CobThread* CobEnvironment::createThread(int functionId, const std::vector<int>& params, int signalMask)
+    const CobThread* CobEnvironment::createThread(int functionId, const std::vector<int>& params, unsigned int signalMask)
     {
         const auto& functionInfo = _script->functions.at(functionId);
         auto& thread = threads.emplace_back(std::make_unique<CobThread>(functionInfo.name, signalMask));
@@ -84,7 +84,7 @@ namespace rwe
         }
     }
 
-    void CobEnvironment::sendSignal(int signal)
+    void CobEnvironment::sendSignal(uint32_t signal)
     {
         for (auto it = threads.begin(); it != threads.end();)
         {

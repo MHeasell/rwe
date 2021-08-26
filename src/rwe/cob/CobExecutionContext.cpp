@@ -714,14 +714,14 @@ namespace rwe
         return CobAngularSpeed(pop());
     }
 
-    int CobExecutionContext::popSignal()
+    uint32_t CobExecutionContext::popSignal()
     {
-        return pop();
+        return static_cast<uint32_t>(pop());
     }
 
-    int CobExecutionContext::popSignalMask()
+    uint32_t CobExecutionContext::popSignalMask()
     {
-        return pop();
+        return static_cast<uint32_t>(pop());
     }
 
     CobValueId CobExecutionContext::popValueId()
@@ -750,7 +750,7 @@ namespace rwe
         }
     }
 
-    int CobExecutionContext::nextInstruction()
+    uint32_t CobExecutionContext::nextInstruction()
     {
         return env->script()->instructions.at(thread->callStack.top().instructionIndex++);
     }

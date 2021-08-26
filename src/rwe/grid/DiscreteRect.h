@@ -19,6 +19,7 @@ namespace rwe
         DiscreteRect() = default;
         DiscreteRect(int x, int y, int width, int height) : x(x), y(y), width(width), height(height)
         {
+            assert(width >= 0 && height >= 0);
         }
 
         bool operator==(const DiscreteRect& rhs) const

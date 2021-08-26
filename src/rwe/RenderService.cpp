@@ -408,7 +408,7 @@ namespace rwe
                     auto timeSinceSpawn = currentTime - projectile.createdAt;
                     auto fullLifetime = projectile.dieOnFrame.value() - projectile.createdAt;
                     auto percentComplete = static_cast<float>(timeSinceSpawn.value) / static_cast<float>(fullLifetime.value);
-                    int frameIndex = static_cast<int>(percentComplete * spriteSeries->sprites.size());
+                    auto frameIndex = static_cast<int>(percentComplete * spriteSeries->sprites.size());
                     assert(frameIndex < spriteSeries->sprites.size());
                     const auto& sprite = *spriteSeries->sprites[frameIndex];
                     auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix * sprite.getTransform();

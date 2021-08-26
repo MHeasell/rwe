@@ -69,7 +69,7 @@ namespace rwe
          */
         struct SignalStatus
         {
-            int signal;
+            uint32_t signal;
         };
 
         struct PieceCommandStatus
@@ -111,7 +111,7 @@ namespace rwe
             };
             using CommandType = std::variant<Move, Turn, Spin, StopSpin, Show, Hide, EnableShading, DisableShading>;
 
-            int piece;
+            uint32_t piece;
             CommandType command;
         };
 
@@ -273,9 +273,9 @@ namespace rwe
         CobEnvironment& operator=(CobEnvironment&& other) = delete;
 
     public:
-        int getStatic(int id);
+        int getStatic(uint32_t id);
 
-        void setStatic(int id, int value);
+        void setStatic(uint32_t id, int value);
 
         const CobScript* script();
 
@@ -283,7 +283,7 @@ namespace rwe
 
         CobThread createNonScheduledThread(int functionId, const std::vector<int>& params);
 
-        const CobThread* createThread(int functionId, const std::vector<int>& params, int signalMask);
+        const CobThread* createThread(int functionId, const std::vector<int>& params, uint32_t signalMask);
 
         const CobThread* createThread(int functionId, const std::vector<int>& params);
 
@@ -298,7 +298,7 @@ namespace rwe
          * If the signal is non-zero after being ANDed
          * with the thread's signal mask, the thread is killed.
          */
-        void sendSignal(int signal);
+        void sendSignal(uint32_t signal);
 
         /**
          * Attempts to collect the return value from a thread.

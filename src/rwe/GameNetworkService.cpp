@@ -332,7 +332,7 @@ namespace rwe
         auto firstRelevantCommandIndex = (endpoint.nextCommandToReceive - firstCommandNumber).value;
 
         // if the packet is relevant (contains new information), process it
-        if (firstRelevantCommandIndex < static_cast<int>(message.command_set_size()))
+        if (firstRelevantCommandIndex < message.command_set_size())
         {
             endpoint.lastReceiveTime = receiveTime;
 

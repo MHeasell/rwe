@@ -17,7 +17,7 @@ namespace rwe
 
     void UiListBox::render(UiRenderService& context) const
     {
-        int lines = std::min<int>(numberOfLines(), items.size());
+        auto lines = std::min<int>(numberOfLines(), items.size());
 
         for (int i = 0; i < lines; ++i)
         {
