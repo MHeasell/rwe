@@ -5,5 +5,5 @@
 namespace rwe
 {
     struct SceneTimeTag;
-    using SceneTime = OpaqueUnit<unsigned int, SceneTimeTag>;
+    using SceneTime = OpaqueUnit<int, SceneTimeTag>;
 }

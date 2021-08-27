@@ -59,7 +59,7 @@ namespace rwe
         return RadiansAngle::fromUnwrappedAngle(static_cast<float>(angle.value) * (Pif / 32768.0f));
     }
 
-    float toleranceToRadians(unsigned int angle)
+    float toleranceToRadians(int angle)
     {
         return static_cast<float>(angle) * (Pif / 32768.0f);
     }

@@ -3,7 +3,7 @@
 
 namespace rwe
 {
-    Viewport::Viewport(int x, int y, unsigned int width, unsigned int height) : _x(x), _y(y), _width(width), _height(height)
+    Viewport::Viewport(int x, int y, int width, int height) : _x(x), _y(y), _width(width), _height(height)
     {
     }
 
@@ -62,12 +62,12 @@ namespace rwe
         return _y;
     }
 
-    unsigned int Viewport::width() const
+    int Viewport::width() const
     {
         return _width;
     }
 
-    unsigned int Viewport::height() const
+    int Viewport::height() const
     {
         return _height;
     }

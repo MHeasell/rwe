@@ -24,7 +24,7 @@ namespace rwe
 
             void operator()(const ScrollPositionMessage& msg) const
             {
-                auto scrollPos = static_cast<unsigned int>(msg.scrollPosition * listBox->maxScrollPosition());
+                auto scrollPos = static_cast<int>(msg.scrollPosition * listBox->maxScrollPosition());
                 listBox->scrollPositionSubject.next(scrollPos);
             }
 
@@ -50,11 +50,11 @@ namespace rwe
         std::vector<std::string> items;
         Subject<bool> itemsChangedSubject;
         std::shared_ptr<SpriteSeries> font;
-        BehaviorSubject<std::optional<unsigned int>> selectedIndexSubject;
-        BehaviorSubject<unsigned int> scrollPositionSubject{0};
+        BehaviorSubject<std::optional<int>> selectedIndexSubject;
+        BehaviorSubject<int> scrollPositionSubject{0};
 
     public:
-        UiListBox(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<SpriteSeries> font);
+        UiListBox(int posX, int posY, int sizeX, int sizeY, std::shared_ptr<SpriteSeries> font);
         void appendItem(std::string item);
 
         void setSelectedItem(const std::string& item);
@@ -69,17 +69,17 @@ namespace rwe
 
         void uiMessage(const GroupMessage& message) override;
 
-        Observable<std::optional<unsigned int>>& selectedIndex();
+        Observable<std::optional<int>>& selectedIndex();
 
-        const Observable<std::optional<unsigned int>>& selectedIndex() const;
+        const Observable<std::optional<int>>& selectedIndex() const;
 
         Observable<bool>& itemsChanged();
 
         const Observable<bool>& itemsChanged() const;
 
-        Observable<unsigned int>& scrollPosition();
+        Observable<int>& scrollPosition();
 
-        const Observable<unsigned int>& scrollPosition() const;
+        const Observable<int>& scrollPosition() const;
 
         const std::vector<std::string>& getItems();
 
@@ -88,15 +88,15 @@ namespace rwe
         float getViewportPercent() const;
 
     private:
-        unsigned int numberOfLines() const;
+        int numberOfLines() const;
 
-        std::optional<unsigned int> pixelToLine(int y) const;
+        std::optional<int> pixelToLine(int y) const;
 
-        void setScrollPosition(unsigned int newPosition);
+        void setScrollPosition(int newPosition);
 
-        void setScrollPositionCentered(unsigned int newPosition);
+        void setScrollPositionCentered(int newPosition);
 
-        unsigned int maxScrollPosition() const;
+        int maxScrollPosition() const;
 
         void scrollUp();
 

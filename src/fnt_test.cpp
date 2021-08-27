@@ -15,19 +15,19 @@ void renderFontFile(std::istream& in, std::ostream& out)
     std::vector<char> v(512);
 
     png::image<png::rgb_pixel> image(256, 512);
-    for (unsigned int i = 0; i < 256; ++i)
+    for (int i = 0; i < 256; ++i)
     {
-        auto charX = (i % 16) * 16;
-        auto charY = (i / 16) * 32;
+        int charX = (i % 16) * 16;
+        int charY = (i / 16) * 32;
 
-        auto byteLength = fnt.extract(i, v.data());
-        auto width = byteLength / 2;
-        auto bitLength = byteLength * 8;
+        int byteLength = fnt.extract(i, v.data());
+        int width = byteLength / 2;
+        int bitLength = byteLength * 8;
 
-        for (unsigned int j = 0; j < bitLength; ++j)
+        for (int j = 0; j < bitLength; ++j)
         {
-            auto dx = j % width;
-            auto dy = j / width;
+            int dx = j % width;
+            int dy = j / width;
             if (dy >= fnt.glyphHeight())
             {
                 break;

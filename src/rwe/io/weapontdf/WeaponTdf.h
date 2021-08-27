@@ -9,10 +9,10 @@ namespace rwe
     class WeaponTdf
     {
     public:
-        unsigned int id;
+        int id;
         std::string name;
 
-        unsigned int range;
+        int range;
 
         bool ballistic;
         bool lineOfSight;
@@ -22,22 +22,22 @@ namespace rwe
         bool noExplode;
 
         float reloadTime;
-        unsigned int energyPerShot;
-        unsigned int metalPerShot;
+        int energyPerShot;
+        int metalPerShot;
         float weaponTimer;
         bool noAutoRange;
-        unsigned int weaponVelocity;
-        unsigned int weaponAcceleration;
-        unsigned int areaOfEffect;
+        int weaponVelocity;
+        int weaponAcceleration;
+        int areaOfEffect;
         float edgeEffectiveness;
 
         bool turret;
         float fireStarter;
         bool unitsOnly;
 
-        unsigned int burst;
+        int burst;
         float burstRate;
-        unsigned int sprayAngle;
+        int sprayAngle;
         float randomDecay;
 
         bool groundBounce;
@@ -46,7 +46,7 @@ namespace rwe
         bool twoPhase;
 
         bool guidance;
-        unsigned int turnRate;
+        int turnRate;
 
         bool cruise;
 
@@ -55,20 +55,20 @@ namespace rwe
         bool waterWeapon;
 
         bool burnBlow;
-        unsigned int accuracy;
-        unsigned int tolerance;
-        unsigned int pitchTolerance;
-        unsigned int aimRate;
-        unsigned int holdTime;
+        int accuracy;
+        int tolerance;
+        int pitchTolerance;
+        int aimRate;
+        int holdTime;
 
         bool stockpile;
         bool interceptor;
-        unsigned int coverage;
+        int coverage;
         bool targetable;
 
         bool toAirWeapon;
 
-        unsigned int startVelocity;
+        int startVelocity;
         float minBarrelAngle;
 
         bool paralyzer;
@@ -76,13 +76,13 @@ namespace rwe
         bool noRadar;
 
         std::string model;
-        unsigned int color;
-        unsigned int color2;
+        int color;
+        int color2;
         bool smokeTrail;
         float smokeDelay;
         bool startSmoke;
         bool endSmoke;
-        unsigned int renderType;
+        int renderType;
         bool beamWeapon;
         float duration;
 
@@ -104,18 +104,18 @@ namespace rwe
 
         bool commandFire;
 
-        unsigned int shakeMagnitude;
+        int shakeMagnitude;
         float shakeDuration;
 
-        unsigned int energy;
-        unsigned int metal;
+        int energy;
+        int metal;
 
-        std::vector<std::pair<std::string, unsigned int>> damage;
+        std::vector<std::pair<std::string, int>> damage;
 
         std::string weaponType2;
     };
 
-    std::vector<std::pair<std::string, unsigned int>> parseWeaponDamageBlock(const TdfBlock& block);
+    std::vector<std::pair<std::string, int>> parseWeaponDamageBlock(const TdfBlock& block);
 
     WeaponTdf parseWeaponBlock(const TdfBlock& tdf);
 

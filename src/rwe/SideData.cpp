@@ -2,7 +2,7 @@
 
 namespace rwe
 {
-    SideDataRect::SideDataRect(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2)
+    SideDataRect::SideDataRect(int x1, int y1, int x2, int y2)
         : x1(x1), y1(y1), x2(x2), y2(y2)
     {
     }
@@ -19,8 +19,8 @@ namespace rwe
 
     DiscreteRect SideDataRect::toDiscreteRect() const
     {
-        unsigned int minX;
-        unsigned int maxX;
+        int minX;
+        int maxX;
         if (x1 < x2)
         {
             minX = x1;
@@ -32,8 +32,8 @@ namespace rwe
             maxX = x1;
         }
 
-        unsigned int minY;
-        unsigned int maxY;
+        int minY;
+        int maxY;
         if (y1 < y2)
         {
             minY = y1;
@@ -121,7 +121,7 @@ namespace rwe
     {
         std::vector<SideData> list;
 
-        unsigned int i = 0;
+        int i = 0;
         for (;;)
         {
             auto block = tdf.findBlock("SIDE" + std::to_string(i));

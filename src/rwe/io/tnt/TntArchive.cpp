@@ -29,7 +29,7 @@ namespace rwe
 
         std::array<char, 32 * 32> buffer{};
 
-        for (unsigned int i = 0; i < header.numberOfTiles; ++i)
+        for (int i = 0; i < header.numberOfTiles; ++i)
         {
             stream->read(buffer.data(), 32 * 32);
             tileCallback(buffer.data());
@@ -43,7 +43,7 @@ namespace rwe
         std::string str;
         str.reserve(128);
 
-        for (unsigned int i = 0; i < header.numberOfFeatures; ++i)
+        for (int i = 0; i < header.numberOfFeatures; ++i)
         {
             auto feature = readRaw<TntFeature>(*stream);
             auto nullIt = std::find(feature.name, feature.name + 128, '\0');
@@ -72,14 +72,14 @@ namespace rwe
 
     struct MinimapSize
     {
-        unsigned int width;
-        unsigned int height;
+        int width;
+        int height;
     };
 
-    MinimapSize getMinimapActualSize(const std::vector<char>& data, unsigned int width, unsigned int height)
+    MinimapSize getMinimapActualSize(const std::vector<char>& data, int width, int height)
     {
-        unsigned int realWidth = width;
-        unsigned int realHeight = height;
+        int realWidth = width;
+        int realHeight = height;
 
         while (realWidth > 0 && data[realWidth - 1] == TntMinimapVoidByte)
         {
@@ -94,15 +94,15 @@ namespace rwe
         return MinimapSize{realWidth, realHeight};
     }
 
-    std::vector<char> trimMinimapBytes(const std::vector<char>& data, unsigned int width, unsigned int height, unsigned int newWidth, unsigned int newHeight)
+    std::vector<char> trimMinimapBytes(const std::vector<char>& data, int width, int height, int newWidth, int newHeight)
     {
         assert(newWidth <= width);
         assert(newHeight <= height);
 
         std::vector<char> newData(newWidth * newHeight);
-        for (unsigned int y = 0; y < newHeight; ++y)
+        for (int y = 0; y < newHeight; ++y)
         {
-            for (unsigned int x = 0; x < newWidth; ++x)
+            for (int x = 0; x < newWidth; ++x)
             {
                 newData[(y * newWidth) + x] = data[(y * width) + x];
             }

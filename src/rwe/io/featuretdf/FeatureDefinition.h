@@ -14,9 +14,9 @@ namespace rwe
         std::string description;
         std::string category;
 
-        unsigned int footprintX;
-        unsigned int footprintZ;
-        unsigned int height;
+        int footprintX;
+        int footprintZ;
+        int height;
 
         bool animating;
         std::string fileName;
@@ -31,25 +31,25 @@ namespace rwe
         bool autoreclaimable;
         std::string seqNameReclamate;
         std::string featureReclamate;
-        unsigned int metal;
-        unsigned int energy;
+        int metal;
+        int energy;
 
         bool flamable;
         std::string seqNameBurn;
         std::string seqNameBurnShad;
         std::string featureBurnt;
-        unsigned int burnMin;
-        unsigned int burnMax;
-        unsigned int sparkTime;
-        unsigned int spreadChance;
+        int burnMin;
+        int burnMax;
+        int sparkTime;
+        int spreadChance;
         std::string burnWeapon;
 
         bool geothermal;
 
-        unsigned int hitDensity;
+        int hitDensity;
 
         bool reproduce;
-        unsigned int reproduceArea;
+        int reproduceArea;
 
         bool noDisplayInfo;
 
@@ -58,7 +58,7 @@ namespace rwe
         bool blocking;
 
         bool indestructible;
-        unsigned int damage;
+        int damage;
         std::string seqNameDie;
         std::string featureDead;
     };

@@ -7,9 +7,9 @@ namespace rwe
         return std::chrono::steady_clock::now();
     }
 
-    unsigned int TimeService::getTicks()
+    int TimeService::getTicks() // TODO (kwh) - should be getElapsed_ms? Int is sufficient, won't roll over until after ~7 days
     {
-        return static_cast<unsigned int>(
+        return static_cast<int>(
             std::chrono::duration_cast<std::chrono::milliseconds>(getTimestamp() - initTime).count());
     }
 }

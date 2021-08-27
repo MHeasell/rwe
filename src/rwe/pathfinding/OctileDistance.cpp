@@ -5,7 +5,7 @@ namespace rwe
 {
     static const float DiagonalDistance = std::sqrt(2.0f);
 
-    OctileDistance OctileDistance::fromXAndY(unsigned int x, unsigned int y)
+    OctileDistance OctileDistance::fromXAndY(int x, int y)
     {
         if (x > y)
         {
@@ -17,7 +17,7 @@ namespace rwe
         }
     }
 
-    OctileDistance::OctileDistance(unsigned int straight, unsigned int diagonal) : straight(straight), diagonal(diagonal)
+    OctileDistance::OctileDistance(int straight, int diagonal) : straight(straight), diagonal(diagonal)
     {
     }
 

@@ -14,7 +14,7 @@ namespace rwe
 
         std::stack<int> stack;
 
-        unsigned int signalMask{0};
+        uint32_t signalMask{0};
 
         std::stack<CobFunction> callStack;
 
@@ -27,7 +27,7 @@ namespace rwe
         std::vector<int> returnLocals;
 
     public:
-        CobThread(const std::string& name, unsigned int signalMask);
+        CobThread(const std::string& name, uint32_t signalMask);
 
         explicit CobThread(const std::string& name);
     };

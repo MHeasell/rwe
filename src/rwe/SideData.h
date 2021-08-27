@@ -8,13 +8,13 @@ namespace rwe
 {
     struct SideDataRect
     {
-        unsigned int x1;
-        unsigned int y1;
-        unsigned int x2;
-        unsigned int y2;
+        int x1;
+        int y1;
+        int x2;
+        int y2;
 
         SideDataRect() = default;
-        SideDataRect(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2);
+        SideDataRect(int x1, int y1, int x2, int y2);
 
         bool operator==(const SideDataRect& rhs) const;
 
@@ -32,8 +32,8 @@ namespace rwe
 
         std::string font;
         std::string fontGui;
-        unsigned int energyColor;
-        unsigned int metalColor;
+        int energyColor;
+        int metalColor;
 
         SideDataRect logo;
         SideDataRect energyBar;

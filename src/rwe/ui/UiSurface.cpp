@@ -2,12 +2,12 @@
 
 namespace rwe
 {
-    UiSurface::UiSurface(int posX, int posY, unsigned int sizeX, unsigned int sizeY)
+    UiSurface::UiSurface(int posX, int posY, int sizeX, int sizeY)
         : UiComponent(posX, posY, sizeX, sizeY)
     {
     }
 
-    UiSurface::UiSurface(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<Sprite> background)
+    UiSurface::UiSurface(int posX, int posY, int sizeX, int sizeY, std::shared_ptr<Sprite> background)
         : UiComponent(posX, posY, sizeX, sizeY), background(std::move(background))
     {
     }

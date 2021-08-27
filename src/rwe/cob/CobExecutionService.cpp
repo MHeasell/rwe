@@ -31,7 +31,7 @@ namespace rwe
         }
     }
 
-    const std::string& getObjectName(const CobEnvironment& env, unsigned int objectId)
+    const std::string& getObjectName(const CobEnvironment& env, int objectId)
     {
         return env._script->pieces.at(objectId);
     }

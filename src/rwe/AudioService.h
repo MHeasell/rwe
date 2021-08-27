@@ -54,9 +54,9 @@ namespace rwe
 
         std::optional<SoundHandle> loadSound(const std::string& soundName);
 
-        void reserveChannels(unsigned int count);
+        void reserveChannels(int count);
 
-        void playSoundIfFree(const SoundHandle& sound, unsigned int channel);
+        void playSoundIfFree(const SoundHandle& sound, int channel);
 
         void setVolume(int channel, int volume);
 

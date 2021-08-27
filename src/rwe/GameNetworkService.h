@@ -19,7 +19,7 @@
 namespace rwe
 {
     struct SequenceNumberTag;
-    using SequenceNumber = OpaqueUnit<unsigned int, SequenceNumberTag>;
+    using SequenceNumber = OpaqueUnit<int, SequenceNumberTag>;
 
     class GameNetworkService
     {
@@ -132,6 +132,6 @@ namespace rwe
 
         void send(EndpointInfo& endpoint);
 
-        void receive(const boost::system::error_code& error, std::size_t receivedBytes);
+        void receive(const boost::system::error_code& error, int receivedBytes);
     };
 }

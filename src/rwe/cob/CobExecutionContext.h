@@ -117,12 +117,12 @@ namespace rwe
         CobSpeed popSpeed();
         CobAngle popAngle();
         CobAngularSpeed popAngularSpeed();
-        unsigned int popSignal();
-        unsigned int popSignalMask();
+        uint32_t popSignal();
+        uint32_t popSignalMask();
         CobValueId popValueId();
         void push(int val);
 
-        unsigned int nextInstruction();
+        uint32_t nextInstruction();
         CobAxis nextInstructionAsAxis();
     };
 }

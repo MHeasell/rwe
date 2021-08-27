@@ -13,7 +13,7 @@ namespace rwe
         // read in the instructions
         script.instructions.resize(header.codeLength);
         stream.seekg(header.offsetToScriptCode);
-        for (unsigned int i = 0; i < header.codeLength; ++i)
+        for (int i = 0; i < header.codeLength; ++i)
         {
             script.instructions[i] = readRaw<uint32_t>(stream);
         }
@@ -22,14 +22,14 @@ namespace rwe
         // read in function addresses
         script.functions.resize(header.numberOfScripts);
         stream.seekg(header.offsetToScriptCodeIndexArray);
-        for (unsigned int i = 0; i < header.numberOfScripts; ++i)
+        for (int i = 0; i < header.numberOfScripts; ++i)
         {
             script.functions[i].address = readRaw<uint32_t>(stream);
         }
 
         // read in function names
         stream.seekg(header.offsetToScriptNameOffsetArray);
-        for (unsigned int i = 0; i < header.numberOfScripts; ++i)
+        for (int i = 0; i < header.numberOfScripts; ++i)
         {
             auto nameOffset = readRaw<uint32_t>(stream);
             auto loc = stream.tellg();
@@ -41,7 +41,7 @@ namespace rwe
         // read in piece names
         script.pieces.resize(header.numberOfPieces);
         stream.seekg(header.offsetToPieceNameOffsetArray);
-        for (unsigned int i = 0; i < header.numberOfPieces; ++i)
+        for (int i = 0; i < header.numberOfPieces; ++i)
         {
             auto nameOffset = readRaw<uint32_t>(stream);
             auto loc = stream.tellg();

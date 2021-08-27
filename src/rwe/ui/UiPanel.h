@@ -15,9 +15,9 @@ namespace rwe
         Subject<GroupMessage> groupMessagesSubject;
 
     public:
-        UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY);
-        UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<Sprite> background);
-        UiPanel(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::optional<std::shared_ptr<Sprite>> background);
+        UiPanel(int posX, int posY, int sizeX, int sizeY);
+        UiPanel(int posX, int posY, int sizeX, int sizeY, std::shared_ptr<Sprite> background);
+        UiPanel(int posX, int posY, int sizeX, int sizeY, std::optional<std::shared_ptr<Sprite>> background);
 
         UiPanel(const UiPanel&) = delete;
         UiPanel& operator=(const UiPanel&) = delete;

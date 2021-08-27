@@ -80,9 +80,9 @@ namespace rwe
         return buildTimeCompleted < buildTime;
     }
 
-    unsigned int Unit::getBuildPercentLeft() const
+    int Unit::getBuildPercentLeft() const
     {
-        return 100u - ((buildTimeCompleted * 100u) / buildTime);
+        return 100 - ((buildTimeCompleted * 100) / buildTime);
     }
 
     float Unit::getPreciseCompletePercent() const
@@ -90,7 +90,7 @@ namespace rwe
         return static_cast<float>(buildTimeCompleted) / static_cast<float>(buildTime);
     }
 
-    Unit::BuildCostInfo Unit::getBuildCostInfo(unsigned int buildTimeContribution)
+    Unit::BuildCostInfo Unit::getBuildCostInfo(int buildTimeContribution)
     {
         auto remainingBuildTime = buildTime - buildTimeCompleted;
         if (buildTimeContribution > remainingBuildTime)
@@ -112,7 +112,7 @@ namespace rwe
         return BuildCostInfo{buildTimeContribution, deltaEnergy, deltaMetal};
     }
 
-    bool Unit::addBuildProgress(unsigned int buildTimeContribution)
+    bool Unit::addBuildProgress(int buildTimeContribution)
     {
         auto remainingBuildTime = buildTime - buildTimeCompleted;
         if (buildTimeContribution > remainingBuildTime)
@@ -440,7 +440,7 @@ namespace rwe
         bool operator()(const UnitWeaponStateAttacking& state) const { return std::visit(TargetIsPositionVisitor(position), state.target); }
     };
 
-    void Unit::setWeaponTarget(unsigned int weaponIndex, UnitId target)
+    void Unit::setWeaponTarget(int weaponIndex, UnitId target)
     {
         auto& weapon = weapons[weaponIndex];
         if (!weapon)
@@ -455,7 +455,7 @@ namespace rwe
         }
     }
 
-    void Unit::setWeaponTarget(unsigned int weaponIndex, const SimVector& target)
+    void Unit::setWeaponTarget(int weaponIndex, const SimVector& target)
     {
         auto& weapon = weapons[weaponIndex];
         if (!weapon)
@@ -470,7 +470,7 @@ namespace rwe
         }
     }
 
-    void Unit::clearWeaponTarget(unsigned int weaponIndex)
+    void Unit::clearWeaponTarget(int weaponIndex)
     {
         auto& weapon = weapons[weaponIndex];
         if (!weapon)
@@ -479,14 +479,14 @@ namespace rwe
         }
 
         weapon->state = UnitWeaponStateIdle();
-        cobEnvironment->createThread("TargetCleared", {static_cast<int>(weaponIndex)});
+        cobEnvironment->createThread("TargetCleared", {weaponIndex});
     }
 
     void Unit::clearWeaponTargets()
     {
         for (Index i = 0; i < getSize(weapons); ++i)
         {
-            clearWeaponTarget(i);
+            clearWeaponTarget(static_cast<int>(i));
         }
     }
 

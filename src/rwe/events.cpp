@@ -20,7 +20,7 @@ namespace rwe
 
     GroupMessage::GroupMessage(
         const std::string& topic,
-        unsigned int group,
+        int group,
         const std::string& controlName,
         const ControlMessage& message)
         : topic(topic), group(group), controlName(controlName), message(message)
@@ -29,7 +29,7 @@ namespace rwe
 
     GroupMessage::GroupMessage(
         const std::string& topic,
-        unsigned int group,
+        int group,
         const std::string& controlName,
         const ScrollPositionMessage& message)
         : topic(topic), group(group), controlName(controlName), message(message)
@@ -37,13 +37,13 @@ namespace rwe
     }
 
     GroupMessage::GroupMessage(
-        const std::string& topic, unsigned int group, const std::string& controlName, const ScrollUpMessage& message)
+        const std::string& topic, int group, const std::string& controlName, const ScrollUpMessage& message)
         : topic(topic), group(group), controlName(controlName), message(message)
     {
     }
 
     GroupMessage::GroupMessage(
-        const std::string& topic, unsigned int group, const std::string& controlName, const ScrollDownMessage& message)
+        const std::string& topic, int group, const std::string& controlName, const ScrollDownMessage& message)
         : topic(topic), group(group), controlName(controlName), message(message)
     {
     }

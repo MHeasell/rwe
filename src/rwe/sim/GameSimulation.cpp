@@ -142,7 +142,7 @@ namespace rwe
         return unitId;
     }
 
-    bool GameSimulation::canBeBuiltAt(const rwe::MovementClass& mc, unsigned int x, unsigned int y) const
+    bool GameSimulation::canBeBuiltAt(const rwe::MovementClass& mc, int x, int y) const
     {
         if (isCollisionAt(DiscreteRect(x, y, mc.footprintX, mc.footprintZ)))
         {
@@ -157,7 +157,7 @@ namespace rwe
         return true;
     }
 
-    DiscreteRect GameSimulation::computeFootprintRegion(const SimVector& position, unsigned int footprintX, unsigned int footprintZ) const
+    DiscreteRect GameSimulation::computeFootprintRegion(const SimVector& position, int footprintX, int footprintZ) const
     {
         auto halfFootprintX = SimScalar(footprintX * MapTerrain::HeightTileWidthInWorldUnits.value / 2);
         auto halfFootprintZ = SimScalar(footprintZ * MapTerrain::HeightTileHeightInWorldUnits.value / 2);
@@ -232,7 +232,7 @@ namespace rwe
         });
     }
 
-    bool GameSimulation::isYardmapBlocked(unsigned int x, unsigned int y, const Grid<YardMapCell>& yardMap, bool open) const
+    bool GameSimulation::isYardmapBlocked(int x, int y, const Grid<YardMapCell>& yardMap, bool open) const
     {
         return occupiedGrid.any2(x, y, yardMap, [&](const auto& cell, const auto& yardMapCell) {
             if (isPassable(yardMapCell, open))
@@ -454,7 +454,7 @@ namespace rwe
         if (weapon.weaponDefinition.weaponTimer)
         {
             auto randomDecay = weapon.weaponDefinition.randomDecay.value().value;
-            std::uniform_int_distribution<unsigned int> dist(0, randomDecay);
+            std::uniform_int_distribution<int> dist(0, randomDecay);
             auto randomVal = dist(rng);
             projectile.dieOnFrame = gameTime + *weapon.weaponDefinition.weaponTimer - GameTime(randomDecay / 2) + GameTime(randomVal);
         }

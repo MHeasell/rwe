@@ -42,7 +42,7 @@ namespace rwe
         /** If true, the weapon only fires on command and does not auto-target. */
         bool commandFire;
 
-        std::unordered_map<std::string, unsigned int> damage;
+        std::unordered_map<std::string, int> damage;
 
         SimScalar damageRadius;
 

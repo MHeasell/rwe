@@ -51,7 +51,7 @@ namespace rwe
 
         std::unique_ptr<UiStagedButton> createBasicButton(int x, int y, int width, int height, const std::string& guiName, const std::string& name, const std::string& label);
 
-        std::unique_ptr<UiStagedButton> createStagedButton(int x, int y, int width, int height, const std::string& guiName, const std::string& name, const std::vector<std::string>& labels, unsigned int stages);
+        std::unique_ptr<UiStagedButton> createStagedButton(int x, int y, int width, int height, const std::string& guiName, const std::string& name, const std::vector<std::string>& labels, int stages);
 
     private:
         std::unique_ptr<UiComponent> componentFromGuiEntry(const std::string& guiName, const GuiEntry& entry);
@@ -74,7 +74,7 @@ namespace rwe
 
         std::optional<AudioService::SoundHandle> deduceButtonSound(const std::string& guiName, const std::string& name, int width, int height);
 
-        std::shared_ptr<SpriteSeries> getDefaultStagedButtonGraphics(const std::string& guiName, unsigned int stages);
+        std::shared_ptr<SpriteSeries> getDefaultStagedButtonGraphics(const std::string& guiName, int stages);
 
         std::unique_ptr<UiComponent> surfaceFromGuiEntry(const std::string& guiName, const GuiEntry& entry);
 
@@ -82,6 +82,6 @@ namespace rwe
 
         ButtonSprites getBasicButtonGraphics(const std::string& guiName, const std::string& name, int width, int height);
 
-        ButtonSprites getStagedButtonGraphics(const std::string& guiName, const std::string& name, unsigned int stages);
+        ButtonSprites getStagedButtonGraphics(const std::string& guiName, const std::string& name, int stages);
     };
 }

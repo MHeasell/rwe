@@ -70,12 +70,12 @@ namespace rwe
             header = reinterpret_cast<const PcxHeader*>(&*begin);
         }
 
-        unsigned int getWidth()
+        int getWidth()
         {
             return (header->window.xMax - header->window.xMin) + 1u;
         }
 
-        unsigned int getHeight()
+        int getHeight()
         {
             return (header->window.yMax - header->window.yMin) + 1u;
         }

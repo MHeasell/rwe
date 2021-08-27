@@ -31,7 +31,7 @@ namespace rwe
         bool translucent{false};
 
         bool isStarted(GameTime currentTime) const;
-        unsigned int getFrameIndex(GameTime currentTime, int totalFrames) const;
+        int getFrameIndex(GameTime currentTime, int totalFrames) const;
         bool isFinished(GameTime currentTime, int numberOfFrames) const;
     };
 }

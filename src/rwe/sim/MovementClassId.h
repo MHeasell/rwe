@@ -5,5 +5,5 @@
 namespace rwe
 {
     struct MovementClassIdTag;
-    using MovementClassId = OpaqueId<unsigned int, MovementClassIdTag>;
+    using MovementClassId = OpaqueId<int, MovementClassIdTag>;
 }

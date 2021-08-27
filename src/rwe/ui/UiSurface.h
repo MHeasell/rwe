@@ -12,8 +12,8 @@ namespace rwe
         std::optional<std::shared_ptr<Sprite>> background;
 
     public:
-        UiSurface(int posX, int posY, unsigned int sizeX, unsigned int sizeY);
-        UiSurface(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<Sprite> background);
+        UiSurface(int posX, int posY, int sizeX, int sizeY);
+        UiSurface(int posX, int posY, int sizeX, int sizeY, std::shared_ptr<Sprite> background);
 
         void render(UiRenderService& context) const override;
 

@@ -42,7 +42,7 @@ namespace rwe
         /** The last time the projectile emitted smoke. */
         GameTime lastSmoke;
 
-        std::unordered_map<std::string, unsigned int> damage;
+        std::unordered_map<std::string, int> damage;
 
         std::optional<GameTime> dieOnFrame;
 
@@ -59,6 +59,6 @@ namespace rwe
 
         SimVector getPreviousBackPosition(SimScalar duration) const;
 
-        unsigned int getDamage(const std::string& unitType) const;
+        int getDamage(const std::string& unitType) const;
     };
 }

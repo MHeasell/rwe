@@ -16,7 +16,7 @@
 
 namespace rwe
 {
-    using FrameId = std::pair<std::string, unsigned int>;
+    using FrameId = std::pair<std::string, int>;
 }
 
 namespace std
@@ -36,10 +36,10 @@ namespace rwe
     struct FrameInfo
     {
         std::string name;
-        unsigned int frameNumber;
+        int frameNumber;
         Grid<char> data;
 
-        FrameInfo(const std::string& name, unsigned int frameNumber, unsigned int width, unsigned int height)
+        FrameInfo(const std::string& name, int frameNumber, int width, int height)
             : name(name), frameNumber(frameNumber), data(width, height)
         {
         }
@@ -52,7 +52,7 @@ namespace rwe
         const std::string* entryName;
         FrameInfo* frameInfo;
         GafFrameData currentFrameHeader;
-        unsigned int frameNumber{0};
+        int frameNumber{0};
 
     public:
         explicit FrameListGafAdapter(std::vector<FrameInfo>* frames, const std::string* entryName)
@@ -69,12 +69,12 @@ namespace rwe
 
         void frameLayer(const LayerData& data) override
         {
-            for (std::size_t y = 0; y < data.height; ++y)
+            for (int y = 0; y < data.height; ++y)
             {
-                for (std::size_t x = 0; x < data.width; ++x)
+                for (int x = 0; x < data.width; ++x)
                 {
-                    auto outPosX = static_cast<int>(x) - (data.x - currentFrameHeader.posX);
-                    auto outPosY = static_cast<int>(y) - (data.y - currentFrameHeader.posY);
+                    auto outPosX = x - (data.x - currentFrameHeader.posX);
+                    auto outPosY = y - (data.y - currentFrameHeader.posY);
 
                     if (outPosX < 0 || outPosX >= currentFrameHeader.width || outPosY < 0 || outPosY >= currentFrameHeader.height)
                     {
@@ -163,8 +163,8 @@ namespace rwe
 
     void dumpImage(const Grid<Color>& g, const std::string& outFile)
     {
-        auto width = static_cast<unsigned int>(g.getWidth());
-        auto height = static_cast<unsigned int>(g.getHeight());
+        int width = g.getWidth();
+        int height = g.getHeight();
         png::image<png::rgb_pixel> image(width, height);
         for (png::uint_32 y = 0; y < height; ++y)
         {

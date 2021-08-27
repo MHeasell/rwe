@@ -15,7 +15,7 @@ namespace rwe
         _stream = stream;
     }
 
-    unsigned int FntArchive::extract(unsigned int index, char* buffer)
+    int FntArchive::extract(int index, char* buffer)
     {
         auto ptr = _entries.at(index);
         if (ptr == 0)
@@ -29,7 +29,7 @@ namespace rwe
         return _stream->gcount();
     }
 
-    unsigned int FntArchive::glyphHeight() const
+    int FntArchive::glyphHeight() const
     {
         return _header.glyphHeight;
     }

@@ -132,9 +132,9 @@ namespace rwe
          * could be built at given location on the map -- i.e. it is valid terrain
          * for the unit and it is not occupied by something else.
          */
-        bool canBeBuiltAt(const MovementClass& mc, unsigned int x, unsigned int y) const;
+        bool canBeBuiltAt(const MovementClass& mc, int x, int y) const;
 
-        DiscreteRect computeFootprintRegion(const SimVector& position, unsigned int footprintX, unsigned int footprintZ) const;
+        DiscreteRect computeFootprintRegion(const SimVector& position, int footprintX, int footprintZ) const;
 
         bool isCollisionAt(const DiscreteRect& rect) const;
 
@@ -142,7 +142,7 @@ namespace rwe
 
         bool isCollisionAt(const DiscreteRect& rect, UnitId self) const;
 
-        bool isYardmapBlocked(unsigned int x, unsigned int y, const Grid<YardMapCell>& yardMap, bool open) const;
+        bool isYardmapBlocked(int x, int y, const Grid<YardMapCell>& yardMap, bool open) const;
 
         bool isAdjacentToObstacle(const DiscreteRect& rect) const;
 

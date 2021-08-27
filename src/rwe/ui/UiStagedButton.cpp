@@ -73,8 +73,8 @@ namespace rwe
     UiStagedButton::UiStagedButton(
         int posX,
         int posY,
-        unsigned int sizeX,
-        unsigned int sizeY,
+        int sizeX,
+        int sizeY,
         std::vector<StageInfo> stages,
         std::shared_ptr<Sprite> pressedSprite,
         std::shared_ptr<SpriteSeries> labelFont)
@@ -213,7 +213,7 @@ namespace rwe
         messagesSubject.next(ActivateMessage{sourceToType(event.source)});
     }
 
-    void UiStagedButton::setStage(unsigned int newStage)
+    void UiStagedButton::setStage(int newStage)
     {
         if (newStage >= stages.size())
         {

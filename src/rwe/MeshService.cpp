@@ -202,7 +202,7 @@ namespace rwe
         return {false, Rectangle2f(0, 0, 0, 0)};
     }
 
-    Vector2f MeshService::getColorTexturePoint(unsigned int colorIndex)
+    Vector2f MeshService::getColorTexturePoint(int colorIndex)
     {
         assert(colorIndex < atlasColorMap.size());
         return atlasColorMap[colorIndex];

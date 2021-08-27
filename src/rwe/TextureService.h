@@ -16,12 +16,12 @@ namespace rwe
     private:
         struct TextureInfo
         {
-            unsigned int width;
-            unsigned int height;
+            int width;
+            int height;
             SharedTextureHandle handle;
 
             TextureInfo() = default;
-            TextureInfo(unsigned int width, unsigned int height, const SharedTextureHandle& handle);
+            TextureInfo(int width, int height, const SharedTextureHandle& handle);
         };
 
         GraphicsContext* graphics;

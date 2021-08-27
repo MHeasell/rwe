@@ -5,5 +5,5 @@
 namespace rwe
 {
     struct FeatureIdTag;
-    using FeatureId = OpaqueId<unsigned int, FeatureIdTag>;
+    using FeatureId = OpaqueId<int, FeatureIdTag>;
 }

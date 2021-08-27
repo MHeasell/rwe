@@ -2,13 +2,13 @@
 
 namespace rwe
 {
-    std::vector<std::pair<std::string, unsigned int>> parseWeaponDamageBlock(const TdfBlock& block)
+    std::vector<std::pair<std::string, int>> parseWeaponDamageBlock(const TdfBlock& block)
     {
-        std::vector<std::pair<std::string, unsigned int>> items;
+        std::vector<std::pair<std::string, int>> items;
 
         for (const auto& entry : block.properties)
         {
-            auto value = tdfTryParse<unsigned int>(entry.second);
+            auto value = tdfTryParse<int>(entry.second);
             if (!value)
             {
                 throw std::runtime_error("Failed to parse damage value: " + entry.second);
@@ -71,8 +71,8 @@ namespace rwe
 
         tdf.readOrDefault("burnBlow", w.burnBlow);
         tdf.readOrDefault("accuracy", w.accuracy);
-        tdf.readOrDefault("tolerance", w.tolerance, 256u);
-        tdf.readOrDefault("pitchTolerance", w.pitchTolerance, 256u);
+        tdf.readOrDefault("tolerance", w.tolerance, 256);
+        tdf.readOrDefault("pitchTolerance", w.pitchTolerance, 256);
         tdf.readOrDefault("aimRate", w.aimRate);
         tdf.readOrDefault("holdTime", w.holdTime);
 

@@ -68,7 +68,7 @@ namespace rwe
     private:
         void run(const std::string& port);
 
-        void onReceive(const boost::system::error_code& error, std::size_t bytesTransferred);
+        void onReceive(const boost::system::error_code& error, int bytesTransferred);
 
         void notifyStatus();
 

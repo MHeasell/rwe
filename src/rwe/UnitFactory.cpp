@@ -72,7 +72,7 @@ namespace rwe
         return cells;
     }
 
-    Grid<YardMapCell> parseYardMap(unsigned int width, unsigned int height, const std::string& yardMap)
+    Grid<YardMapCell> parseYardMap(int width, int height, const std::string& yardMap)
     {
         auto cells = parseYardMapCells(yardMap);
         cells.resize(width * height, YardMapCell::Ground);
@@ -255,7 +255,7 @@ namespace rwe
         return unit;
     }
 
-    std::optional<std::reference_wrapper<const std::vector<GuiEntry>>> UnitFactory::getBuilderGui(const std::string& unitType, unsigned int page) const
+    std::optional<std::reference_wrapper<const std::vector<GuiEntry>>> UnitFactory::getBuilderGui(const std::string& unitType, int page) const
     {
         const auto& pages = unitDatabase->tryGetBuilderGui(unitType);
         if (!pages)
@@ -273,7 +273,7 @@ namespace rwe
         return unwrappedPages[page];
     }
 
-    unsigned int UnitFactory::getBuildPageCount(const std::string& unitType) const
+    int UnitFactory::getBuildPageCount(const std::string& unitType) const
     {
         const auto& pages = unitDatabase->tryGetBuilderGui(unitType);
         if (!pages)
@@ -281,7 +281,7 @@ namespace rwe
             return 0;
         }
 
-        return pages->get().size();
+        return static_cast<int>(pages->get().size());
     }
 
     Point UnitFactory::getUnitFootprint(const std::string& unitType) const
@@ -309,7 +309,7 @@ namespace rwe
         return unitDatabase->hasUnitInfo(unitType);
     }
 
-    std::optional<std::string> getFxName(unsigned int code)
+    std::optional<std::string> getFxName(int code)
     {
         switch (code)
         {
@@ -436,7 +436,7 @@ namespace rwe
         weapon.weaponDefinition.endSmoke = tdf.endSmoke;
         if (tdf.smokeTrail)
         {
-            weapon.weaponDefinition.smokeTrail = GameTime(static_cast<unsigned int>(tdf.smokeDelay * 30.0f));
+            weapon.weaponDefinition.smokeTrail = GameTime(static_cast<int>(tdf.smokeDelay * 30.0f));
         }
 
         weapon.weaponDefinition.soundTrigger = tdf.soundTrigger;
@@ -450,12 +450,12 @@ namespace rwe
 
         if (tdf.weaponTimer != 0.0f)
         {
-            weapon.weaponDefinition.weaponTimer = GameTime(static_cast<unsigned int>(tdf.weaponTimer * 30.0f));
+            weapon.weaponDefinition.weaponTimer = GameTime(static_cast<int>(tdf.weaponTimer * 30.0f));
         }
 
         weapon.weaponDefinition.groundBounce = tdf.groundBounce;
 
-        weapon.weaponDefinition.randomDecay = GameTime(static_cast<unsigned int>(tdf.randomDecay * 30.0f));
+        weapon.weaponDefinition.randomDecay = GameTime(static_cast<int>(tdf.randomDecay * 30.0f));
 
         return weapon;
     }
@@ -468,7 +468,7 @@ namespace rwe
             static_cast<float>(color.b) / 255.0f);
     }
 
-    unsigned int colorDistance(const Color& a, const Color& b)
+    int colorDistance(const Color& a, const Color& b)
     {
         auto dr = a.r > b.r ? a.r - b.r : b.r - a.r;
         auto dg = a.g > b.g ? a.g - b.g : b.g - a.g;
@@ -476,7 +476,7 @@ namespace rwe
         return dr + dg + db;
     }
 
-    Vector3f UnitFactory::getLaserColor(unsigned int colorIndex)
+    Vector3f UnitFactory::getLaserColor(int colorIndex)
     {
         // In TA, lasers use the GUIPAL colors,
         // but these must be mapped to a color available

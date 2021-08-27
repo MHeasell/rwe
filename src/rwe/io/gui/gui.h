@@ -27,13 +27,13 @@ namespace rwe
 
     struct GuiButtonAttrib
     {
-        static constexpr unsigned int LabelDisplayLeft = 1;
-        static constexpr unsigned int LabelDisplayCenter = 2;
+        static constexpr int LabelDisplayLeft = 1;
+        static constexpr int LabelDisplayCenter = 2;
 
-        static constexpr unsigned int BehaviorRadio = 16;
-        static constexpr unsigned int BehaviorBuildButton = 32;
-        static constexpr unsigned int BehaviorToggle = 64;
-        static constexpr unsigned int BehaviorCycle = 256;
+        static constexpr int BehaviorRadio = 16;
+        static constexpr int BehaviorBuildButton = 32;
+        static constexpr int BehaviorToggle = 64;
+        static constexpr int BehaviorCycle = 256;
     };
 
     const int GuiScrollHorizontalAttrib = 1;

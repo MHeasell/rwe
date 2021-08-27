@@ -7,10 +7,10 @@ namespace rwe
     struct PathCost
     {
         OctileDistance distance;
-        unsigned int turnCount{0};
+        int turnCount{0};
 
         PathCost() = default;
-        PathCost(const OctileDistance& distance, unsigned int turnCount);
+        PathCost(const OctileDistance& distance, int turnCount);
 
         bool operator==(const PathCost& rhs) const;
 

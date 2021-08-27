@@ -10,10 +10,10 @@ namespace rwe
     struct FrameInfo
     {
         std::string name;
-        unsigned int frameNumber;
+        int frameNumber;
         Grid<char> data;
 
-        FrameInfo(const std::string& name, unsigned int frameNumber, unsigned int width, unsigned int height)
+        FrameInfo(const std::string& name, int frameNumber, int width, int height)
             : name(name), frameNumber(frameNumber), data(width, height)
         {
         }
@@ -26,7 +26,7 @@ namespace rwe
         const std::string* entryName;
         FrameInfo* frameInfo;
         GafFrameData currentFrameHeader;
-        unsigned int frameNumber{0};
+        int frameNumber{0};
 
     public:
         explicit FrameListGafAdapter(std::vector<FrameInfo>* frames, const std::string* entryName)
@@ -78,7 +78,7 @@ namespace rwe
     };
     struct AtlasItemColor
     {
-        unsigned int colorIndex;
+        int colorIndex;
     };
     using AtlasItem = std::variant<AtlasItemFrame, AtlasItemColor>;
 
@@ -221,7 +221,7 @@ namespace rwe
             frameRefs.emplace_back(AtlasItemFrame{&f});
         }
 
-        for (unsigned int i = 0; i < palette->size(); ++i)
+        for (int i = 0; i < palette->size(); ++i)
         {
             frameRefs.emplace_back(AtlasItemColor{i});
         }

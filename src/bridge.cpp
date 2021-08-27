@@ -115,7 +115,7 @@ namespace rwe
 {
     void loadPalette(std::istream& in, png::rgb_pixel* buffer)
     {
-        for (unsigned int i = 0; i < 256; ++i)
+        for (int i = 0; i < 256; ++i)
         {
             in.read(reinterpret_cast<char*>(&(buffer[i].red)), 1);
             in.read(reinterpret_cast<char*>(&(buffer[i].green)), 1);

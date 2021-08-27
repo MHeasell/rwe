@@ -16,11 +16,11 @@ namespace rwe
         int posX;
         int posY;
 
-        unsigned int sizeX;
-        unsigned int sizeY;
+        int sizeX;
+        int sizeY;
 
         std::string name;
-        unsigned int group{0};
+        int group{0};
 
         Subject<const ControlMessage&> messagesSubject;
 
@@ -31,7 +31,7 @@ namespace rwe
         std::vector<std::unique_ptr<Subscription>> subscriptions;
 
     public:
-        UiComponent(int posX, int posY, unsigned int sizeX, unsigned int sizeY)
+        UiComponent(int posX, int posY, int sizeX, int sizeY)
             : posX(posX), posY(posY), sizeX(sizeX), sizeY(sizeY)
         {
         }
@@ -43,9 +43,9 @@ namespace rwe
 
         virtual ~UiComponent();
 
-        unsigned int getWidth() { return sizeX; }
+        int getWidth() { return sizeX; }
 
-        unsigned int getHeight() { return sizeY; }
+        int getHeight() { return sizeY; }
 
         int getX() { return posX; }
         int getY() { return posY; }
@@ -91,8 +91,8 @@ namespace rwe
         void setName(const std::string& newName);
         void setName(std::string&& newName);
 
-        unsigned int getGroup() const;
-        void setGroup(unsigned int newGroup);
+        int getGroup() const;
+        void setGroup(int newGroup);
 
         Observable<const ControlMessage&>& messages();
         const Observable<const ControlMessage&>& messages() const;

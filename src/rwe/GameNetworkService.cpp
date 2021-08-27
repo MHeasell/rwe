@@ -65,7 +65,7 @@ namespace rwe
 
     SceneTime GameNetworkService::estimateAvergeSceneTime(SceneTime localSceneTime)
     {
-        std::promise<unsigned int> result;
+        std::promise<int> result;
         ioContext.post([this, localSceneTime, &result]() {
             auto time = getTimestamp();
             auto otherTimes = choose(endpoints, [](const auto& e) { return e.lastKnownSceneTime; });
@@ -226,7 +226,7 @@ namespace rwe
         }
     }
 
-    void GameNetworkService::receive(const boost::system::error_code& error, std::size_t receivedBytes)
+    void GameNetworkService::receive(const boost::system::error_code& error, int receivedBytes)
     {
         if (error)
         {
@@ -316,7 +316,7 @@ namespace rwe
             spdlog::get("rwe")->debug("Average RTT: {0}ms", endpoint.averageRoundTripTime);
         }
 
-        auto extraFrames = static_cast<unsigned int>((endpoint.averageRoundTripTime / 2.0f) * SimTicksPerSecond / 1000.0f);
+        auto extraFrames = static_cast<int>((endpoint.averageRoundTripTime / 2.0f) * SimTicksPerSecond / 1000.0f);
         endpoint.lastKnownSceneTime = std::make_pair(SceneTime(message.current_scene_time() + extraFrames), receiveTime);
         spdlog::get("rwe")->debug("Estimated peer scene time: {0}", endpoint.lastKnownSceneTime->first.value);
 
@@ -332,7 +332,7 @@ namespace rwe
         auto firstRelevantCommandIndex = (endpoint.nextCommandToReceive - firstCommandNumber).value;
 
         // if the packet is relevant (contains new information), process it
-        if (firstRelevantCommandIndex < static_cast<unsigned int>(message.command_set_size()))
+        if (firstRelevantCommandIndex < message.command_set_size())
         {
             endpoint.lastReceiveTime = receiveTime;
 

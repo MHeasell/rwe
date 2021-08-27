@@ -13,12 +13,12 @@ namespace rwe
 
     private:
         Value handle;
-        unsigned int* referenceCount;
+        int* referenceCount;
 
     public:
         SharedHandle() : handle(), referenceCount(nullptr) {}
 
-        explicit SharedHandle(Value handle) : handle(handle), referenceCount(new unsigned int(1)) {}
+        explicit SharedHandle(Value handle) : handle(handle), referenceCount(new int(1)) {}
 
         ~SharedHandle()
         {
@@ -102,7 +102,7 @@ namespace rwe
             return referenceCount != nullptr;
         }
 
-        unsigned int useCount() const
+        int useCount() const
         {
             if (referenceCount == nullptr)
             {
@@ -117,7 +117,7 @@ namespace rwe
         {
             destroy();
             handle = newValue;
-            referenceCount = new unsigned int(1);
+            referenceCount = new int(1);
         }
 
         /** Resets the handle to the empty state. */

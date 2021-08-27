@@ -24,7 +24,7 @@ namespace rwe
 
     RadiansAngle toRadians(CobAngle angle);
 
-    float toleranceToRadians(unsigned int angle);
+    float toleranceToRadians(int angle);
 
     CobAngle toCobAngle(RadiansAngle angle);
 

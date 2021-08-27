@@ -17,6 +17,6 @@ namespace rwe
         {
         }
 
-        unsigned int getTicks();
+        int getTicks();
     };
 }

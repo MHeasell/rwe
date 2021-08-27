@@ -54,7 +54,7 @@ namespace rwe
             Rectangle2f region;
         };
         TextureRegionInfo getTextureRegion(const std::string& name);
-        Vector2f getColorTexturePoint(unsigned int colorIndex);
+        Vector2f getColorTexturePoint(int colorIndex);
 
         void extractMeshes(const _3do::Object& o, std::vector<std::pair<std::string, std::shared_ptr<ShaderMesh>>>& v);
 

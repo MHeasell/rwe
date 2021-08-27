@@ -53,6 +53,6 @@ namespace rwe
 
         SimVector getWorldCenter(const DiscreteRect& discreteRect);
 
-        DiscreteRect expandTopLeft(const DiscreteRect& rect, unsigned int width, unsigned int height);
+        DiscreteRect expandTopLeft(const DiscreteRect& rect, int width, int height);
     };
 }

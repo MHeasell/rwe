@@ -25,8 +25,8 @@ int convert(const std::string& inFile, const std::string& outFile)
     auto decodedData = decoder.decodeImage();
     auto palette = decoder.decodePalette();
 
-    auto width = decoder.getWidth();
-    auto height = decoder.getHeight();
+    int width = decoder.getWidth();
+    int height = decoder.getHeight();
 
     png::image<png::rgb_pixel> image(width, height);
     for (png::uint_32 y = 0; y < height; ++y)

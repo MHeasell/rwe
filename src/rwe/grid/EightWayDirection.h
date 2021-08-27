@@ -37,7 +37,7 @@ namespace rwe
 
     Direction pointToDirection(const Point& p);
 
-    unsigned int directionToIndex(Direction d);
+    int directionToIndex(Direction d);
 
-    unsigned int directionDistance(Direction a, Direction b);
+    int directionDistance(Direction a, Direction b);
 }

@@ -8,14 +8,14 @@ namespace rwe
     class UiLightBar : public UiComponent
     {
     private:
-        unsigned int numberOfSections{38};
+        int numberOfSections{38};
 
         std::shared_ptr<Sprite> lightMask;
 
         float percentComplete{0.0f};
 
     public:
-        UiLightBar(int posX, int posY, unsigned int sizeX, unsigned int sizeY, std::shared_ptr<Sprite> lightMask);
+        UiLightBar(int posX, int posY, int sizeX, int sizeY, std::shared_ptr<Sprite> lightMask);
 
         void render(UiRenderService& context) const override;
 

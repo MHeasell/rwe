@@ -10,11 +10,11 @@ namespace rwe
     private:
         int _x;
         int _y;
-        unsigned int _width;
-        unsigned int _height;
+        int _width;
+        int _height;
 
     public:
-        Viewport(int x, int y, unsigned int width, unsigned int height);
+        Viewport(int x, int y, int width, int height);
 
         Vector2f toClipSpace(int x, int y) const;
 
@@ -32,9 +32,9 @@ namespace rwe
 
         int y() const;
 
-        unsigned int width() const;
+        int width() const;
 
-        unsigned int height() const;
+        int height() const;
 
         int top() const { return _y; }
         int bottom() const { return _y + static_cast<int>(_height); }

@@ -15,7 +15,7 @@ namespace rwe
         using SubscriberCallback = typename Observable<T>::SubscriberCallback;
 
     private:
-        using SubscriberId = unsigned int;
+        using SubscriberId = int;
 
         struct Subscriber
         {

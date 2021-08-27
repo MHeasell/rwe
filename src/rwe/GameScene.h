@@ -151,7 +151,7 @@ namespace rwe
         };
 
         Section section;
-        unsigned int currentBuildPage;
+        int currentBuildPage;
     };
 
     struct HoverBuildInfo
@@ -171,9 +171,9 @@ namespace rwe
         static constexpr int GuiSizeBottom = 32;
 
     private:
-        static const unsigned int UnitSelectChannel = 0;
+        static const int UnitSelectChannel = 0;
 
-        static const unsigned int reservedChannelsCount = 1;
+        static const int reservedChannelsCount = 1;
 
         /**
          * Speed the camera pans via the arrow keys
@@ -366,7 +366,7 @@ namespace rwe
 
         void spawnWeaponImpactExplosion(const Vector3f& position, const std::string& weaponType, ImpactType impactType);
 
-        DiscreteRect computeFootprintRegion(const SimVector& position, unsigned int footprintX, unsigned int footprintZ) const;
+        DiscreteRect computeFootprintRegion(const SimVector& position, int footprintX, int footprintZ) const;
 
         void moveUnitOccupiedArea(const DiscreteRect& oldRect, const DiscreteRect& newRect, UnitId unitId);
 
@@ -470,7 +470,7 @@ namespace rwe
 
         void applyDamageInRadius(const SimVector& position, SimScalar radius, const Projectile& projectile);
 
-        void applyDamage(UnitId unitId, unsigned int damagePoints);
+        void applyDamage(UnitId unitId, int damagePoints);
 
         void deleteDeadUnits();
 

@@ -11,8 +11,8 @@ namespace rwe
         {
             int x;
             int y;
-            unsigned int width;
-            unsigned int height;
+            int width;
+            int height;
             unsigned char transparencyKey;
             char* data;
         };
