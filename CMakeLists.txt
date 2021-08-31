@@ -74,7 +74,7 @@ endfunction()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
 if(NOT MSVC)
-    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_STANDARD 20) #https://cmake.org/cmake/help/latest/prop_tgt/CXX_STANDARD.html
 endif()
 
 find_package(OpenGL REQUIRED)
@@ -575,6 +575,7 @@ endif()
 add_library(librwe STATIC ${SOURCE_FILES} ${PROTO_SOURCE_FILES} ${PROTO_HEADER_FILES})
 set_target_properties(librwe PROPERTIES PREFIX "")
 if(MSVC)
+# apparently the full C++20 spec only exists in c++latest right now https://docs.microsoft.com/en-us/cpp/build/reference/std-specify-language-standard-version?view=msvc-160
     target_compile_options(librwe PUBLIC "/std:c++latest")
     add_definitions(-D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS)
 else()
