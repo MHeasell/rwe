@@ -74,7 +74,7 @@ endfunction()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
 if(NOT MSVC)
-    set(CMAKE_CXX_STANDARD 20) #https://cmake.org/cmake/help/latest/prop_tgt/CXX_STANDARD.html
+    set(CMAKE_CXX_STANDARD 23) #https://cmake.org/cmake/help/latest/prop_tgt/CXX_STANDARD.html
 endif()
 
 find_package(OpenGL REQUIRED)
