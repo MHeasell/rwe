@@ -1,11 +1,12 @@
 #pragma once
 
+#include <rwe/AbstractViewport.h>
 #include <rwe/grid/Point.h>
 #include <rwe/math/Vector2f.h>
 
 namespace rwe
 {
-    class Viewport
+    class Viewport : public AbstractViewport
     {
     private:
         int _x;
@@ -16,32 +17,12 @@ namespace rwe
     public:
         Viewport(int x, int y, unsigned int width, unsigned int height);
 
-        Vector2f toClipSpace(int x, int y) const;
+        int x() const override;
 
-        Vector2f toClipSpace(Point p) const;
+        int y() const override;
 
-        Point toViewportSpace(float x, float y) const;
+        unsigned int width() const override;
 
-        Point toViewportSpace(Vector2f v) const;
-
-        Point toOtherViewport(const Viewport& v, int x, int y);
-
-        Point toOtherViewport(const Viewport& v, const Point& p);
-
-        int x() const;
-
-        int y() const;
-
-        unsigned int width() const;
-
-        unsigned int height() const;
-
-        int top() const { return _y; }
-        int bottom() const { return _y + static_cast<int>(_height); }
-        int left() const { return _x; }
-        int right() const { return _x + static_cast<int>(_width); }
-
-        bool contains(int x, int y) const;
-        bool contains(const Point& p) const;
+        unsigned int height() const override;
     };
 }

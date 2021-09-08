@@ -213,6 +213,8 @@ set(IMGUI_IMPL_FILES
 set(SOURCE_FILES
     ${IMGUI_IMPL_FILES}
     ${IMGUI_SOURCE_FILES}
+    src/rwe/AbstractViewport.cpp
+    src/rwe/AbstractViewport.h
     src/rwe/AudioService.cpp
     src/rwe/AudioService.h
     src/rwe/BoxTreeSplit.cpp
