@@ -221,6 +221,8 @@ set(SOURCE_FILES
     src/rwe/BoxTreeSplit.h
     src/rwe/ColorPalette.cpp
     src/rwe/ColorPalette.h
+    src/rwe/CroppedViewport.cpp
+    src/rwe/CroppedViewport.h
     src/rwe/CursorService.cpp
     src/rwe/CursorService.h
     src/rwe/GameHash.cpp
