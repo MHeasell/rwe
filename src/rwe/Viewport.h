@@ -24,5 +24,7 @@ namespace rwe
         unsigned int width() const override;
 
         unsigned int height() const override;
+
+        void setDimensions(int width, int height);
     };
 }

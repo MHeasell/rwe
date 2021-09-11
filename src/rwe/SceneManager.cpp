@@ -25,7 +25,8 @@ namespace rwe
         ImGuiContext* imGuiContext,
         CursorService* cursorService,
         GlobalConfig* globalConfig,
-        UiRenderService&& uiRenderService)
+        UiRenderService&& uiRenderService,
+        Viewport* viewport)
         : currentScene(),
           nextScene(),
           sdl(sdl),
@@ -36,6 +37,7 @@ namespace rwe
           cursorService(cursorService),
           globalConfig(globalConfig),
           uiRenderService(std::move(uiRenderService)),
+          viewport(viewport),
           requestedExit(false)
     {
     }
@@ -128,6 +130,15 @@ namespace rwe
                 if (event.type == SDL_QUIT)
                 {
                     return;
+                }
+
+                if (event.type == SDL_WINDOWEVENT)
+                {
+                    if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED && event.window.windowID == sdl->getWindowId(window))
+                    {
+                        viewport->setDimensions(event.window.data1, event.window.data2);
+                        continue;
+                    }
                 }
 
                 dispatchToScene(event, *currentScene);

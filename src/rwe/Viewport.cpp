@@ -26,4 +26,10 @@ namespace rwe
     {
         return _height;
     }
+
+    void Viewport::setDimensions(int width, int height)
+    {
+        _width = width;
+        _height = height;
+    }
 }

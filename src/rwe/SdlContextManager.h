@@ -137,6 +137,11 @@ namespace rwe
             SDL_SetWindowGrab(window, grabbed);
         }
 
+        Uint32 getWindowId(SDL_Window* window)
+        {
+            return SDL_GetWindowID(window);
+        }
+
     private:
         friend class SdlContextManager;
     };

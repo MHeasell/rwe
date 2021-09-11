@@ -50,6 +50,7 @@ namespace rwe
         CursorService* cursorService;
         GlobalConfig* globalConfig;
         UiRenderService uiRenderService;
+        Viewport* const viewport;
         bool requestedExit;
         bool showDebugWindow{false};
         bool showDemoWindow{false};
@@ -61,7 +62,7 @@ namespace rwe
         // Number of milliseconds between each game tick.
         static const unsigned int TickInterval = 1000 / 60;
 
-        explicit SceneManager(SdlContext* sdl, SDL_Window* window, GraphicsContext* graphics, TimeService* timeService, ImGuiContext* imGuiContext, CursorService* cursorService, GlobalConfig* globalConfig, UiRenderService&& uiRenderService);
+        explicit SceneManager(SdlContext* sdl, SDL_Window* window, GraphicsContext* graphics, TimeService* timeService, ImGuiContext* imGuiContext, CursorService* cursorService, GlobalConfig* globalConfig, UiRenderService&& uiRenderService, Viewport* viewport);
         void setNextScene(std::shared_ptr<Scene> scene);
 
         void execute();
