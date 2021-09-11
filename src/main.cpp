@@ -296,7 +296,7 @@ namespace rwe
 
         sdlContext->showCursor(SDL_DISABLE);
 
-        SceneManager sceneManager(sdlContext, window.get(), &graphics, &timeService, &imGuiContext, &cursor, &globalConfig, UiRenderService(&graphics, &shaders, UiCamera(viewport.width(), viewport.height())));
+        SceneManager sceneManager(sdlContext, window.get(), &graphics, &timeService, &imGuiContext, &cursor, &globalConfig, UiRenderService(&graphics, &shaders, &viewport));
 
         logger.info("Loading side data");
         auto sideDataBytes = vfs.readFile("gamedata/SIDEDATA.TDF");

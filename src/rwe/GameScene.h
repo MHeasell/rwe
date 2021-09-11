@@ -8,6 +8,7 @@
 #include <optional>
 #include <queue>
 #include <rwe/AudioService.h>
+#include <rwe/CroppedViewport.h>
 #include <rwe/CursorService.h>
 #include <rwe/GameNetworkService.h>
 #include <rwe/InGameSoundsInfo.h>
@@ -24,7 +25,6 @@
 #include <rwe/UnitFactory.h>
 #include <rwe/UnitSoundType.h>
 #include <rwe/Viewport.h>
-#include <rwe/camera/UiCamera.h>
 #include <rwe/cob/CobExecutionService.h>
 #include <rwe/grid/DiscreteRect.h>
 #include <rwe/observable/BehaviorSubject.h>
@@ -187,7 +187,7 @@ namespace rwe
 
         std::unique_ptr<Subscription> audioSub = sceneContext.audioService->getChannelFinished().subscribe([this](int channel) { onChannelFinished(channel); });
 
-        Viewport worldViewport;
+        CroppedViewport worldViewport;
 
         std::unique_ptr<PlayerCommandService> playerCommandService;
 
@@ -290,8 +290,6 @@ namespace rwe
             CabinetCamera camera,
             SharedTextureHandle unitTextureAtlas,
             std::vector<SharedTextureHandle>&& unitTeamTextureAtlases,
-            UiRenderService&& worldUiRenderService,
-            UiRenderService&& chromeUiRenderService,
             GameSimulation&& simulation,
             MapTerrainGraphics&& terrainGraphics,
             MovementClassCollisionService&& collisionService,

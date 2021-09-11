@@ -11,6 +11,8 @@
 
 namespace rwe
 {
+    const Viewport MainMenuViewport(0, 0, 640, 480);
+
     MainMenuScene::MainMenuScene(
         const SceneContext& sceneContext,
         TdfBlock* audioLookup,
@@ -18,8 +20,8 @@ namespace rwe
         float height)
         : sceneContext(sceneContext),
           soundLookup(audioLookup),
-          scaledUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(640.0f, 480.0f)),
-          nativeUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(width, height)),
+          scaledUiRenderService(sceneContext.graphics, sceneContext.shaders, &MainMenuViewport),
+          nativeUiRenderService(sceneContext.graphics, sceneContext.shaders, sceneContext.viewport),
           model(),
           uiFactory(sceneContext.textureService, sceneContext.audioService, soundLookup, sceneContext.vfs, sceneContext.pathMapping, 640, 480),
           panelStack(),
@@ -715,7 +717,7 @@ namespace rwe
 
     Point MainMenuScene::toScaledCoordinates(int x, int y) const
     {
-        auto clip = scaledUiRenderService.getCamera().screenToWorldRay(sceneContext.viewport->toClipSpace(x, y));
+        auto clip = screenToWorldRayUtil(scaledUiRenderService.getInverseViewProjectionMatrix(), sceneContext.viewport->toClipSpace(x, y));
         return Point(static_cast<int>(clip.origin.x), static_cast<int>(clip.origin.y));
     }
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <rwe/ShaderService.h>
-#include <rwe/camera/UiCamera.h>
+#include <rwe/Viewport.h>
 #include <rwe/render/GraphicsContext.h>
 #include <stack>
 
@@ -12,14 +12,12 @@ namespace rwe
     private:
         GraphicsContext* graphics;
         ShaderService* shaders;
-        UiCamera camera;
+        const AbstractViewport* viewport;
 
         std::stack<Matrix4f> matrixStack{{Matrix4f::identity()}};
 
     public:
-        UiRenderService(GraphicsContext* graphics, ShaderService* shaders, const UiCamera& camera);
-
-        const UiCamera& getCamera() const;
+        UiRenderService(GraphicsContext* graphics, ShaderService* shaders, const AbstractViewport* viewport);
 
         void fillScreen(const Color& color);
 
@@ -80,6 +78,10 @@ namespace rwe
         void drawBoxOutline(float x, float y, float width, float height, Color color, float thickness);
 
         void drawLine(const Vector2f& start, const Vector2f& end);
+
+        Matrix4f getViewProjectionMatrix() const;
+
+        Matrix4f getInverseViewProjectionMatrix() const;
     };
 
     template <typename It>

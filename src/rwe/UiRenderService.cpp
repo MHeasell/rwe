@@ -4,19 +4,14 @@
 
 namespace rwe
 {
-    UiRenderService::UiRenderService(GraphicsContext* graphics, ShaderService* shaders, const UiCamera& camera)
-        : graphics(graphics), shaders(shaders), camera(camera)
+    UiRenderService::UiRenderService(GraphicsContext* graphics, ShaderService* shaders, const AbstractViewport* viewport)
+        : graphics(graphics), shaders(shaders), viewport(viewport)
     {
-    }
-
-    const UiCamera& UiRenderService::getCamera() const
-    {
-        return camera;
     }
 
     void UiRenderService::fillScreen(const Color& color)
     {
-        fillColor(0.0f, 0.0f, camera.getWidth(), camera.getHeight(), color);
+        fillColor(0.0f, 0.0f, viewport->width(), viewport->height(), color);
     }
 
     void UiRenderService::drawSprite(float x, float y, const Sprite& sprite)
@@ -32,7 +27,7 @@ namespace rwe
 
         const auto& shader = shaders->basicTexture;
         graphics->bindShader(shader.handle.get());
-        graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * matrix);
+        graphics->setUniformMatrix(shader.mvpMatrix, getViewProjectionMatrix() * matrix);
         graphics->setUniformVec4(shader.tint, tint.r / 255.0f, tint.g / 255.0f, tint.b / 255.0f, tint.a / 255.0f);
         graphics->bindTexture(sprite.texture.get());
 
@@ -201,7 +196,7 @@ namespace rwe
 
         const auto& shader = shaders->basicColor;
         graphics->bindShader(shader.handle.get());
-        graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * matrixStack.top());
+        graphics->setUniformMatrix(shader.mvpMatrix, getViewProjectionMatrix() * matrixStack.top());
         graphics->setUniformFloat(shader.alpha, static_cast<float>(color.a) / 255.0f);
         graphics->drawTriangles(mesh);
     }
@@ -311,8 +306,18 @@ namespace rwe
 
         const auto& shader = shaders->basicColor;
         graphics->bindShader(shader.handle.get());
-        graphics->setUniformMatrix(shader.mvpMatrix, camera.getViewProjectionMatrix() * matrixStack.top());
+        graphics->setUniformMatrix(shader.mvpMatrix, getViewProjectionMatrix() * matrixStack.top());
         graphics->setUniformFloat(shader.alpha, 1.0f);
         graphics->drawLines(mesh);
+    }
+
+    Matrix4f UiRenderService::getViewProjectionMatrix() const
+    {
+        return Matrix4f::orthographicProjection(0.0f, viewport->width(), viewport->height(), 0.0f, 100.0f, -100.0f);
+    }
+
+    Matrix4f UiRenderService::getInverseViewProjectionMatrix() const
+    {
+        return Matrix4f::inverseOrthographicProjection(0.0f, viewport->width(), viewport->height(), 0.0f, 100.0f, -100.0f);
     }
 }

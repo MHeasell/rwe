@@ -3,6 +3,7 @@
 #include <boost/range/adaptor/map.hpp>
 #include <fstream>
 #include <functional>
+#include <rwe/CroppedViewport.h>
 #include <rwe/GameScene_util.h>
 #include <rwe/Index.h>
 #include <rwe/Mesh.h>
@@ -93,8 +94,6 @@ namespace rwe
         CabinetCamera camera,
         SharedTextureHandle unitTextureAtlas,
         std::vector<SharedTextureHandle>&& unitTeamTextureAtlases,
-        UiRenderService&& worldUiRenderService,
-        UiRenderService&& chromeUiRenderService,
         GameSimulation&& simulation,
         MapTerrainGraphics&& terrainGraphics,
         MovementClassCollisionService&& collisionService,
@@ -110,11 +109,11 @@ namespace rwe
         TdfBlock* audioLookup,
         std::optional<std::ofstream>&& stateLogStream)
         : sceneContext(sceneContext),
-          worldViewport(Viewport(GuiSizeLeft, GuiSizeTop, sceneContext.viewport->width() - GuiSizeLeft - GuiSizeRight, sceneContext.viewport->height() - GuiSizeTop - GuiSizeBottom)),
+          worldViewport(CroppedViewport(this->sceneContext.viewport, GuiSizeLeft, GuiSizeTop, GuiSizeRight, GuiSizeBottom)),
           playerCommandService(std::move(playerCommandService)),
           worldRenderService(this->sceneContext.graphics, this->sceneContext.shaders, std::move(meshDatabase), &this->unitDatabase, camera, unitTextureAtlas, std::move(unitTeamTextureAtlases)),
-          worldUiRenderService(std::move(worldUiRenderService)),
-          chromeUiRenderService(std::move(chromeUiRenderService)),
+          worldUiRenderService(this->sceneContext.graphics, this->sceneContext.shaders, &this->worldViewport),
+          chromeUiRenderService(this->sceneContext.graphics, this->sceneContext.shaders, this->sceneContext.viewport),
           simulation(std::move(simulation)),
           terrainGraphics(std::move(terrainGraphics)),
           collisionService(std::move(collisionService)),
@@ -412,7 +411,7 @@ namespace rwe
 
     void GameScene::renderBuildBoxes(const Unit& unit, const Color& color)
     {
-        auto worldToUi = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
+        auto worldToUi = worldUiRenderService.getInverseViewProjectionMatrix()
             * worldRenderService.getCamera().getViewProjectionMatrix();
         for (const auto& order : unit.orders)
         {
@@ -444,7 +443,7 @@ namespace rwe
     {
         const auto& unit = getUnit(unitId);
         auto pos = unit.position;
-        auto worldToUi = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
+        auto worldToUi = worldUiRenderService.getInverseViewProjectionMatrix()
             * worldRenderService.getCamera().getViewProjectionMatrix();
         for (const auto& order : unit.orders)
         {
@@ -666,7 +665,7 @@ namespace rwe
                     continue;
                 }
 
-                auto uiPos = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
+                auto uiPos = worldUiRenderService.getInverseViewProjectionMatrix()
                     * worldRenderService.getCamera().getViewProjectionMatrix()
                     * simVectorToFloat(unit.position);
                 worldUiRenderService.drawHealthBar(uiPos.x, uiPos.y, static_cast<float>(unit.hitPoints) / static_cast<float>(unit.maxHitPoints));
@@ -683,7 +682,7 @@ namespace rwe
                 topLeftWorld.x + ((SimScalar(hoverBuildInfo->rect.width) * MapTerrain::HeightTileWidthInWorldUnits) / 2_ss),
                 topLeftWorld.z + ((SimScalar(hoverBuildInfo->rect.height) * MapTerrain::HeightTileHeightInWorldUnits) / 2_ss));
 
-            auto topLeftUi = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
+            auto topLeftUi = worldUiRenderService.getInverseViewProjectionMatrix()
                 * worldRenderService.getCamera().getViewProjectionMatrix()
                 * simVectorToFloat(topLeftWorld);
             worldUiRenderService.drawBoxOutline(
@@ -723,14 +722,14 @@ namespace rwe
             auto intersect = simulation.intersectLineWithTerrain(floatToSimLine(ray.toLine()));
             if (intersect)
             {
-                auto cursorTerrainPos = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
+                auto cursorTerrainPos = worldUiRenderService.getInverseViewProjectionMatrix()
                     * worldRenderService.getCamera().getViewProjectionMatrix()
                     * simVectorToFloat(*intersect);
                 worldUiRenderService.fillColor(cursorTerrainPos.x - 2, cursorTerrainPos.y - 2, 4, 4, Color(0, 0, 255));
 
                 intersect->y = simulation.terrain.getHeightAt(intersect->x, intersect->z);
 
-                auto heightTestedTerrainPos = worldUiRenderService.getCamera().getInverseViewProjectionMatrix()
+                auto heightTestedTerrainPos = worldUiRenderService.getInverseViewProjectionMatrix()
                     * worldRenderService.getCamera().getViewProjectionMatrix()
                     * simVectorToFloat(*intersect);
                 worldUiRenderService.fillColor(heightTestedTerrainPos.x - 2, heightTestedTerrainPos.y - 2, 4, 4, Color(255, 0, 0));

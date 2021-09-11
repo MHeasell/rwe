@@ -35,4 +35,6 @@ namespace rwe
          */
         Ray3f screenToWorldRay(const Vector2f& point) const;
     };
+
+    Ray3f screenToWorldRayUtil(const Matrix4f& inverseViewProjectionMatrix, const Vector2f& point);
 }

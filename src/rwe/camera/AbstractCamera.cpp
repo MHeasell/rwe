@@ -25,8 +25,13 @@ namespace rwe
     Ray3f AbstractCamera::screenToWorldRay(const Vector2f& point) const
     {
         const auto& transform = getInverseViewProjectionMatrix();
-        auto startPoint = transform * Vector3f(point.x, point.y, -1.0f);
-        auto endPoint = transform * Vector3f(point.x, point.y, 1.0f);
+        return screenToWorldRayUtil(transform, point);
+    }
+
+    Ray3f screenToWorldRayUtil(const Matrix4f& inverseViewProjectionMatrix, const Vector2f& point)
+    {
+        auto startPoint = inverseViewProjectionMatrix * Vector3f(point.x, point.y, -1.0f);
+        auto endPoint = inverseViewProjectionMatrix * Vector3f(point.x, point.y, 1.0f);
         auto direction = endPoint - startPoint;
         return Ray3f(startPoint, direction);
     }

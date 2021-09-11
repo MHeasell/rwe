@@ -315,8 +315,6 @@ set(SOURCE_FILES
     src/rwe/camera/AbstractCamera.h
     src/rwe/camera/CabinetCamera.cpp
     src/rwe/camera/CabinetCamera.h
-    src/rwe/camera/UiCamera.cpp
-    src/rwe/camera/UiCamera.h
     src/rwe/cob/CobAngle.h
     src/rwe/cob/CobAngularSpeed.h
     src/rwe/cob/CobAxis.h

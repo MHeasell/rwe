@@ -14,6 +14,8 @@
 
 namespace rwe
 {
+    const Viewport MenuUiViewport(0, 0, 640, 480);
+
     std::unordered_map<std::string, FeatureDefinition> loadAllFeatureDefinitions(AbstractVirtualFileSystem& vfs)
     {
         std::unordered_map<std::string, FeatureDefinition> features;
@@ -53,8 +55,8 @@ namespace rwe
         AudioService::LoopToken&& bgm,
         GameParameters gameParameters)
         : sceneContext(sceneContext),
-          scaledUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(640.0, 480.0f)),
-          nativeUiRenderService(sceneContext.graphics, sceneContext.shaders, UiCamera(sceneContext.viewport->width(), sceneContext.viewport->height())),
+          scaledUiRenderService(sceneContext.graphics, sceneContext.shaders, &MenuUiViewport),
+          nativeUiRenderService(sceneContext.graphics, sceneContext.shaders, sceneContext.viewport),
           audioLookup(audioLookup),
           bgm(std::move(bgm)),
           gameParameters(std::move(gameParameters)),
@@ -208,10 +210,6 @@ namespace rwe
         CabinetCamera worldCamera(worldViewportWidth, worldViewportHeight);
         worldCamera.setPosition(Vector3f(0.0f, 0.0f, 0.0f));
 
-        UiCamera worldUiCamera(worldViewportWidth, worldViewportHeight);
-
-        UiCamera chromeUiCamera(sceneContext.viewport->width(), sceneContext.viewport->height());
-
         MovementClassCollisionService collisionService;
 
         // compute cached walkable grids for each movement class
@@ -267,9 +265,6 @@ namespace rwe
 
         auto gameNetworkService = std::make_unique<GameNetworkService>(*localPlayerId, std::stoi(gameParameters.localNetworkPort), endpointInfos, playerCommandService.get());
 
-        UiRenderService worldUiRenderService(sceneContext.graphics, sceneContext.shaders, worldUiCamera);
-        UiRenderService chromeUiRenderService(sceneContext.graphics, sceneContext.shaders, chromeUiCamera);
-
         auto minimapDots = sceneContext.textureService->getGafEntry("anims/FX.GAF", "radlogo");
         if (minimapDots->sprites.size() != 10)
         {
@@ -304,8 +299,6 @@ namespace rwe
             worldCamera,
             atlasInfo.textureAtlas,
             std::move(atlasInfo.teamTextureAtlases),
-            std::move(worldUiRenderService),
-            std::move(chromeUiRenderService),
             std::move(simulation),
             std::move(mapInfo.terrainGraphics),
             std::move(collisionService),
