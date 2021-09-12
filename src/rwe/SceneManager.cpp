@@ -175,8 +175,10 @@ namespace rwe
             sdl->glSwapWindow(window);
 
             auto finishTime = timeService->getTicks();
-            lastFrameDurationMs = finishTime - startTime;
+            auto lastFrameDurationMs = finishTime - startTime;
             lastFrameStartTime = startTime;
+            frameTimes[frameTimesOffset] = lastFrameDurationMs;
+            frameTimesOffset = (frameTimesOffset + 1) % 500;
         }
     }
 
@@ -193,7 +195,8 @@ namespace rwe
         }
 
         ImGui::Begin("Global Debug", &showDebugWindow);
-        ImGui::Text("Last frame time: %dms", lastFrameDurationMs);
+        ImGui::Text("Last frame time: %.0fms", frameTimes[(frameTimesOffset + 499) % 500]);
+        ImGui::PlotLines("Frame Times", frameTimes.data(), frameTimes.size(), frameTimesOffset);
         ImGui::Separator();
         ImGui::Checkbox("Left click interface mode", &globalConfig->leftClickInterfaceMode);
         ImGui::Separator();

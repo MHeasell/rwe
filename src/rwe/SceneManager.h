@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 #include <rwe/CursorService.h>
 #include <rwe/GlobalConfig.h>
@@ -56,7 +57,9 @@ namespace rwe
         bool showDemoWindow{false};
 
         unsigned int lastFrameStartTime{0};
-        unsigned int lastFrameDurationMs{0};
+
+        std::array<float, 500> frameTimes;
+        int frameTimesOffset{0};
 
     public:
         // Number of milliseconds between each game tick.
