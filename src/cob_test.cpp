@@ -149,9 +149,10 @@ private:
     T begin;
     T it;
     const T end;
+    const std::unordered_map<int, std::string>* labels;
 
 public:
-    CobInstructionPrinter(T begin, const T end) : begin(begin), it(begin), end(end)
+    CobInstructionPrinter(T begin, const T end, const std::unordered_map<int, std::string>& labels) : begin(begin), it(begin), end(end), labels(&labels)
     {
     }
 
@@ -169,6 +170,11 @@ public:
             else
             {
                 std::cout << instruction->second;
+            }
+
+            if (auto labelIt = labels->find(instruction->first); labelIt != labels->end())
+            {
+                std::cout << "  # " << labelIt->second;
             }
 
             std::cout << std::endl;
@@ -191,6 +197,12 @@ private:
 
 void printCob(const rwe::CobScript& cob)
 {
+    std::unordered_map<int, std::string> functionsMap;
+    for (const auto& f : cob.functions)
+    {
+        functionsMap.insert({f.address, f.name});
+    }
+
     std::cout << "Pieces:" << std::endl;
     for (rwe::Index i = 0; i < rwe::getSize(cob.pieces); ++i)
     {
@@ -214,7 +226,7 @@ void printCob(const rwe::CobScript& cob)
 
     std::cout << "Instructions: " << std::endl;
 
-    CobInstructionPrinter<std::vector<unsigned int>::const_iterator>(cob.instructions.begin(), cob.instructions.end()).printInstructions();
+    CobInstructionPrinter<std::vector<unsigned int>::const_iterator>(cob.instructions.begin(), cob.instructions.end(), functionsMap).printInstructions();
 }
 
 int main(int argc, char* argv[])
