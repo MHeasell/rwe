@@ -531,4 +531,28 @@ namespace rwe
             drawProjectileUnitMesh(unitDatabase, meshDatabase, camera, objectInfo->objectName, matrix, PlayerColorIndex(0), true, unitTextureAtlas, unitTeamTextureAtlases, batch);
         }
     }
+
+    void updateExplosions(const MeshDatabase& meshDatabase, GameTime currentTime, std::vector<Explosion>& explosions)
+    {
+        auto end = explosions.end();
+        for (auto it = explosions.begin(); it != end;)
+        {
+            auto& exp = *it;
+            const auto anim = meshDatabase.getSpriteSeries(exp.explosionGaf, exp.explosionAnim).value();
+            if (exp.isFinished(currentTime, anim->sprites.size()))
+            {
+                exp = std::move(*--end);
+                continue;
+            }
+
+            if (exp.floats)
+            {
+                // TODO: drift with the wind
+                exp.position.y += 0.5f;
+            }
+
+            ++it;
+        }
+        explosions.erase(end, explosions.end());
+    }
 }

@@ -198,8 +198,6 @@ namespace rwe
 
         void drawExplosions(GameTime currentTime, const std::vector<Explosion>& explosions);
 
-        void updateExplosions(GameTime currentTime, std::vector<Explosion>& explosions);
-
         void drawBatch(const ColoredMeshBatch& batch, const Matrix4f& vpMatrix);
 
         void drawUnitMeshBatch(const UnitMeshBatch& batch, float seaLevel, float time);

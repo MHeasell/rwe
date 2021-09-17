@@ -479,8 +479,6 @@ namespace rwe
 
         void updateProjectiles();
 
-        void updateExplosions();
-
         void applyDamageInRadius(const SimVector& position, SimScalar radius, const Projectile& projectile);
 
         void applyDamage(UnitId unitId, unsigned int damagePoints);

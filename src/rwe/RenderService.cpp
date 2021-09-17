@@ -597,30 +597,6 @@ namespace rwe
         graphics->drawTriangles(*sprite.mesh);
     }
 
-    void RenderService::updateExplosions(GameTime currentTime, std::vector<Explosion>& explosions)
-    {
-        auto end = explosions.end();
-        for (auto it = explosions.begin(); it != end;)
-        {
-            auto& exp = *it;
-            const auto anim = meshDatabase->getSpriteSeries(exp.explosionGaf, exp.explosionAnim).value();
-            if (exp.isFinished(currentTime, anim->sprites.size()))
-            {
-                exp = std::move(*--end);
-                continue;
-            }
-
-            if (exp.floats)
-            {
-                // TODO: drift with the wind
-                exp.position.y += 0.5f;
-            }
-
-            ++it;
-        }
-        explosions.erase(end, explosions.end());
-    }
-
     void RenderService::drawBatch(const ColoredMeshBatch& batch, const Matrix4f& vpMatrix)
     {
         if (!batch.lines.empty() || !batch.triangles.empty())

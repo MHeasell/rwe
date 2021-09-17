@@ -2206,7 +2206,7 @@ namespace rwe
 
         updateProjectiles();
 
-        worldRenderService.updateExplosions(simulation.gameTime, explosions);
+        updateExplosions(meshDatabase, simulation.gameTime, explosions);
 
         // if a commander died this frame, kill the player that owns it
         for (const auto& p : simulation.units)
