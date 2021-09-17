@@ -112,7 +112,10 @@ namespace rwe
           worldViewport(CroppedViewport(this->sceneContext.viewport, GuiSizeLeft, GuiSizeTop, GuiSizeRight, GuiSizeBottom)),
           playerCommandService(std::move(playerCommandService)),
           worldCamera(camera),
-          worldRenderService(this->sceneContext.graphics, this->sceneContext.shaders, std::move(meshDatabase), &this->unitDatabase, &this->worldCamera, unitTextureAtlas, std::move(unitTeamTextureAtlases)),
+          meshDatabase(std::move(meshDatabase)),
+          unitTextureAtlas(unitTextureAtlas),
+          unitTeamTextureAtlases(std::move(unitTeamTextureAtlases)),
+          worldRenderService(this->sceneContext.graphics, this->sceneContext.shaders, &this->meshDatabase, &this->unitDatabase, &this->worldCamera, &this->unitTextureAtlas, &this->unitTeamTextureAtlases),
           worldUiRenderService(this->sceneContext.graphics, this->sceneContext.shaders, &this->worldViewport),
           chromeUiRenderService(this->sceneContext.graphics, this->sceneContext.shaders, this->sceneContext.viewport),
           simulation(std::move(simulation)),
@@ -579,11 +582,11 @@ namespace rwe
         UnitMeshBatch unitMeshBatch;
         for (const auto& unit : (simulation.units | boost::adaptors::map_values))
         {
-            drawUnit(&unitDatabase, worldRenderService.meshDatabase, worldCamera, unit, getPlayer(unit.owner).color, interpolationFraction, worldRenderService.unitTextureAtlas.get(), worldRenderService.unitTeamTextureAtlases, unitMeshBatch);
+            drawUnit(&unitDatabase, meshDatabase, worldCamera, unit, getPlayer(unit.owner).color, interpolationFraction, unitTextureAtlas.get(), unitTeamTextureAtlases, unitMeshBatch);
         }
         for (const auto& feature : (simulation.features | boost::adaptors::map_values))
         {
-            drawMeshFeature(&unitDatabase, worldRenderService.meshDatabase, worldCamera, feature, worldRenderService.unitTextureAtlas.get(), worldRenderService.unitTeamTextureAtlases, unitMeshBatch);
+            drawMeshFeature(&unitDatabase, meshDatabase, worldCamera, feature, unitTextureAtlas.get(), unitTeamTextureAtlases, unitMeshBatch);
         }
         worldRenderService.drawUnitMeshBatch(unitMeshBatch, simScalarToFloat(seaLevel), simulation.gameTime.value);
 

@@ -63,25 +63,25 @@ namespace rwe
     RenderService::RenderService(
         GraphicsContext* graphics,
         ShaderService* shaders,
-        MeshDatabase&& meshDatabase,
+        const MeshDatabase* meshDatabase,
         UnitDatabase* unitDatabase,
         const CabinetCamera* camera,
-        SharedTextureHandle unitTextureAtlas,
-        std::vector<SharedTextureHandle>&& unitTeamTextureAtlases)
+        const SharedTextureHandle* unitTextureAtlas,
+        const std::vector<SharedTextureHandle>* unitTeamTextureAtlases)
         : graphics(graphics),
           shaders(shaders),
-          meshDatabase(std::move(meshDatabase)),
+          meshDatabase(meshDatabase),
           unitDatabase(unitDatabase),
           camera(camera),
           unitTextureAtlas(unitTextureAtlas),
-          unitTeamTextureAtlases(std::move(unitTeamTextureAtlases))
+          unitTeamTextureAtlases(unitTeamTextureAtlases)
     {
     }
 
     void
     RenderService::drawSelectionRect(const Unit& unit, float frac)
     {
-        auto selectionMesh = meshDatabase.getSelectionMesh(unit.objectName);
+        auto selectionMesh = meshDatabase->getSelectionMesh(unit.objectName);
 
         auto position = lerp(simVectorToFloat(unit.previousPosition), simVectorToFloat(unit.position), frac);
 
@@ -135,7 +135,7 @@ namespace rwe
 
             auto matrix = modelMatrix * getPieceTransform(pieceDef.name, modelDefinition->get(), meshes, frac);
 
-            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
+            const auto& resolvedMesh = *meshDatabase->getUnitPieceMesh(objectName, pieceDef.name).value();
             drawShaderMeshShadow(resolvedMesh, matrix, groundHeight);
         }
     }
@@ -151,7 +151,7 @@ namespace rwe
         for (const auto& pieceDef : modelDefinition->get().pieces)
         {
             auto matrix = modelMatrix * getPieceTransform(pieceDef.name, modelDefinition->get());
-            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
+            const auto& resolvedMesh = *meshDatabase->getUnitPieceMesh(objectName, pieceDef.name).value();
             drawShaderMesh(resolvedMesh, matrix, seaLevel, shaded, playerColorIndex);
         }
     }
@@ -167,7 +167,7 @@ namespace rwe
         for (const auto& pieceDef : modelDefinition->get().pieces)
         {
             auto matrix = modelMatrix * getPieceTransform(pieceDef.name, modelDefinition->get());
-            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
+            const auto& resolvedMesh = *meshDatabase->getUnitPieceMesh(objectName, pieceDef.name).value();
             drawShaderMeshShadow(resolvedMesh, matrix, groundHeight);
         }
     }
@@ -382,7 +382,7 @@ namespace rwe
                     Matrix4f conversionMatrix = Matrix4f::scale(Vector3f(1.0f, -2.0f, 1.0f));
                     const auto& shader = shaders->basicTexture;
                     graphics->bindShader(shader.handle.get());
-                    const auto spriteSeries = meshDatabase.getSpriteSeries(s.gaf, s.anim).value();
+                    const auto spriteSeries = meshDatabase->getSpriteSeries(s.gaf, s.anim).value();
                     const auto& sprite = *spriteSeries->sprites[getFrameIndex(currentTime, spriteSeries->sprites.size())];
                     auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix * sprite.getTransform();
                     graphics->bindTexture(sprite.texture.get());
@@ -398,7 +398,7 @@ namespace rwe
                     Matrix4f conversionMatrix = Matrix4f::scale(Vector3f(1.0f, -2.0f, 1.0f));
                     const auto& shader = shaders->basicTexture;
                     graphics->bindShader(shader.handle.get());
-                    const auto spriteSeries = meshDatabase.getSpriteSeries("FX", "flamestream").value();
+                    const auto spriteSeries = meshDatabase->getSpriteSeries("FX", "flamestream").value();
                     auto timeSinceSpawn = currentTime - projectile.createdAt;
                     auto fullLifetime = projectile.dieOnFrame.value() - projectile.createdAt;
                     auto percentComplete = static_cast<float>(timeSinceSpawn.value) / static_cast<float>(fullLifetime.value);
@@ -444,7 +444,7 @@ namespace rwe
 
         for (const auto& exp : explosions)
         {
-            auto spriteSeries = meshDatabase.getSpriteSeries(exp.explosionGaf, exp.explosionAnim).value();
+            auto spriteSeries = meshDatabase->getSpriteSeries(exp.explosionGaf, exp.explosionAnim).value();
 
             if (!exp.isStarted(currentTime) || exp.isFinished(currentTime, spriteSeries->sprites.size()))
             {
@@ -488,10 +488,10 @@ namespace rwe
             graphics->setUniformFloat(textureShader.seaLevel, seaLevel);
             graphics->setUniformBool(textureShader.shade, shaded);
 
-            graphics->bindTexture(unitTextureAtlas.get());
+            graphics->bindTexture(unitTextureAtlas->get());
             graphics->drawTriangles(mesh.vertices);
 
-            graphics->bindTexture(unitTeamTextureAtlases.at(playerColorIndex.value).get());
+            graphics->bindTexture(unitTeamTextureAtlases->at(playerColorIndex.value).get());
             graphics->drawTriangles(mesh.teamVertices);
         }
     }
@@ -523,10 +523,10 @@ namespace rwe
             graphics->setUniformFloat(buildShader.percentComplete, percentComplete);
             graphics->setUniformFloat(buildShader.time, time);
 
-            graphics->bindTexture(unitTextureAtlas.get());
+            graphics->bindTexture(unitTextureAtlas->get());
             graphics->drawTriangles(mesh.vertices);
 
-            graphics->bindTexture(unitTeamTextureAtlases.at(playerColorIndex.value).get());
+            graphics->bindTexture(unitTeamTextureAtlases->at(playerColorIndex.value).get());
             graphics->drawTriangles(mesh.teamVertices);
         }
     }
@@ -603,7 +603,7 @@ namespace rwe
         for (auto it = explosions.begin(); it != end;)
         {
             auto& exp = *it;
-            const auto anim = meshDatabase.getSpriteSeries(exp.explosionGaf, exp.explosionAnim).value();
+            const auto anim = meshDatabase->getSpriteSeries(exp.explosionGaf, exp.explosionAnim).value();
             if (exp.isFinished(currentTime, anim->sprites.size()))
             {
                 exp = std::move(*--end);

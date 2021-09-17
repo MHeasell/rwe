@@ -78,19 +78,19 @@ namespace rwe
 
         const CabinetCamera* const camera;
 
-    public:
-        MeshDatabase meshDatabase;
-        SharedTextureHandle unitTextureAtlas;
-        std::vector<SharedTextureHandle> unitTeamTextureAtlases;
+        const MeshDatabase* const meshDatabase;
+        const SharedTextureHandle* const unitTextureAtlas;
+        const std::vector<SharedTextureHandle>* const unitTeamTextureAtlases;
 
+    public:
         RenderService(
             GraphicsContext* graphics,
             ShaderService* shaders,
-            MeshDatabase&& meshDatabase,
+            const MeshDatabase* meshDatabase,
             UnitDatabase* unitDatabase,
             const CabinetCamera* camera,
-            SharedTextureHandle unitTextureAtlas,
-            std::vector<SharedTextureHandle>&& unitTeamTextureAtlases);
+            const SharedTextureHandle* unitTextureAtlas,
+            const std::vector<SharedTextureHandle>* unitTeamTextureAtlases);
 
         void drawUnitShadow(const Unit& unit, float groundHeight, float frac);
         void drawUnitMeshShadow(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float groundHeight, float frac);

@@ -193,6 +193,10 @@ namespace rwe
 
         CabinetCamera worldCamera;
 
+        MeshDatabase meshDatabase;
+        SharedTextureHandle unitTextureAtlas;
+        std::vector<SharedTextureHandle> unitTeamTextureAtlases;
+
         RenderService worldRenderService;
         UiRenderService worldUiRenderService;
         UiRenderService chromeUiRenderService;
