@@ -76,7 +76,7 @@ namespace rwe
         ShaderService* shaders;
         UnitDatabase* const unitDatabase;
 
-        CabinetCamera camera;
+        const CabinetCamera* const camera;
 
     public:
         MeshDatabase meshDatabase;
@@ -88,12 +88,9 @@ namespace rwe
             ShaderService* shaders,
             MeshDatabase&& meshDatabase,
             UnitDatabase* unitDatabase,
-            const CabinetCamera& camera,
+            const CabinetCamera* camera,
             SharedTextureHandle unitTextureAtlas,
             std::vector<SharedTextureHandle>&& unitTeamTextureAtlases);
-
-        CabinetCamera& getCamera();
-        const CabinetCamera& getCamera() const;
 
         void drawUnitShadow(const Unit& unit, float groundHeight, float frac);
         void drawUnitMeshShadow(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float groundHeight, float frac);

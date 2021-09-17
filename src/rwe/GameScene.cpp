@@ -111,7 +111,8 @@ namespace rwe
         : sceneContext(sceneContext),
           worldViewport(CroppedViewport(this->sceneContext.viewport, GuiSizeLeft, GuiSizeTop, GuiSizeRight, GuiSizeBottom)),
           playerCommandService(std::move(playerCommandService)),
-          worldRenderService(this->sceneContext.graphics, this->sceneContext.shaders, std::move(meshDatabase), &this->unitDatabase, camera, unitTextureAtlas, std::move(unitTeamTextureAtlases)),
+          worldCamera(camera),
+          worldRenderService(this->sceneContext.graphics, this->sceneContext.shaders, std::move(meshDatabase), &this->unitDatabase, &this->worldCamera, unitTextureAtlas, std::move(unitTeamTextureAtlases)),
           worldUiRenderService(this->sceneContext.graphics, this->sceneContext.shaders, &this->worldViewport),
           chromeUiRenderService(this->sceneContext.graphics, this->sceneContext.shaders, this->sceneContext.viewport),
           simulation(std::move(simulation)),
@@ -371,7 +372,7 @@ namespace rwe
         // draw minimap
         chromeUiRenderService.drawSpriteAbs(minimapRect, *minimap);
 
-        auto cameraInverse = worldRenderService.getCamera().getInverseViewProjectionMatrix();
+        auto cameraInverse = worldCamera.getInverseViewProjectionMatrix();
         auto worldToMinimap = worldToMinimapMatrix(simulation.terrain, minimapRect);
 
         // draw minimap dots
@@ -412,7 +413,7 @@ namespace rwe
     void GameScene::renderBuildBoxes(const Unit& unit, const Color& color)
     {
         auto worldToUi = worldUiRenderService.getInverseViewProjectionMatrix()
-            * worldRenderService.getCamera().getViewProjectionMatrix();
+            * worldCamera.getViewProjectionMatrix();
         for (const auto& order : unit.orders)
         {
             if (const auto buildOrder = std::get_if<BuildOrder>(&order))
@@ -444,7 +445,7 @@ namespace rwe
         const auto& unit = getUnit(unitId);
         auto pos = unit.position;
         auto worldToUi = worldUiRenderService.getInverseViewProjectionMatrix()
-            * worldRenderService.getCamera().getViewProjectionMatrix();
+            * worldCamera.getViewProjectionMatrix();
         for (const auto& order : unit.orders)
         {
             auto nextPos = match(
@@ -541,7 +542,7 @@ namespace rwe
 
         if (occupiedGridVisible)
         {
-            drawOccupiedGrid(worldRenderService.getCamera(), simulation.terrain, simulation.occupiedGrid, terrainOverlayBatch);
+            drawOccupiedGrid(worldCamera, simulation.terrain, simulation.occupiedGrid, terrainOverlayBatch);
         }
         if (pathfindingVisualisationVisible)
         {
@@ -554,11 +555,11 @@ namespace rwe
             if (unit.movementClass)
             {
                 const auto& grid = collisionService.getGrid(*unit.movementClass);
-                drawMovementClassCollisionGrid(simulation.terrain, grid, worldRenderService.getCamera(), terrainOverlayBatch);
+                drawMovementClassCollisionGrid(simulation.terrain, grid, worldCamera, terrainOverlayBatch);
             }
         }
 
-        worldRenderService.drawBatch(terrainOverlayBatch, worldRenderService.getCamera().getViewProjectionMatrix());
+        worldRenderService.drawBatch(terrainOverlayBatch, worldCamera.getViewProjectionMatrix());
 
         sceneContext.graphics->disableDepthBuffer();
 
@@ -578,11 +579,11 @@ namespace rwe
         UnitMeshBatch unitMeshBatch;
         for (const auto& unit : (simulation.units | boost::adaptors::map_values))
         {
-            drawUnit(&unitDatabase, worldRenderService.meshDatabase, worldRenderService.getCamera(), unit, getPlayer(unit.owner).color, interpolationFraction, worldRenderService.unitTextureAtlas.get(), worldRenderService.unitTeamTextureAtlases, unitMeshBatch);
+            drawUnit(&unitDatabase, worldRenderService.meshDatabase, worldCamera, unit, getPlayer(unit.owner).color, interpolationFraction, worldRenderService.unitTextureAtlas.get(), worldRenderService.unitTeamTextureAtlases, unitMeshBatch);
         }
         for (const auto& feature : (simulation.features | boost::adaptors::map_values))
         {
-            drawMeshFeature(&unitDatabase, worldRenderService.meshDatabase, worldRenderService.getCamera(), feature, worldRenderService.unitTextureAtlas.get(), worldRenderService.unitTeamTextureAtlases, unitMeshBatch);
+            drawMeshFeature(&unitDatabase, worldRenderService.meshDatabase, worldCamera, feature, worldRenderService.unitTextureAtlas.get(), worldRenderService.unitTeamTextureAtlases, unitMeshBatch);
         }
         worldRenderService.drawUnitMeshBatch(unitMeshBatch, simScalarToFloat(seaLevel), simulation.gameTime.value);
 
@@ -666,7 +667,7 @@ namespace rwe
                 }
 
                 auto uiPos = worldUiRenderService.getInverseViewProjectionMatrix()
-                    * worldRenderService.getCamera().getViewProjectionMatrix()
+                    * worldCamera.getViewProjectionMatrix()
                     * simVectorToFloat(unit.position);
                 worldUiRenderService.drawHealthBar(uiPos.x, uiPos.y, static_cast<float>(unit.hitPoints) / static_cast<float>(unit.maxHitPoints));
             }
@@ -683,7 +684,7 @@ namespace rwe
                 topLeftWorld.z + ((SimScalar(hoverBuildInfo->rect.height) * MapTerrain::HeightTileHeightInWorldUnits) / 2_ss));
 
             auto topLeftUi = worldUiRenderService.getInverseViewProjectionMatrix()
-                * worldRenderService.getCamera().getViewProjectionMatrix()
+                * worldCamera.getViewProjectionMatrix()
                 * simVectorToFloat(topLeftWorld);
             worldUiRenderService.drawBoxOutline(
                 topLeftUi.x,
@@ -700,8 +701,7 @@ namespace rwe
             if (auto selectingState = std::get_if<NormalCursorMode::SelectingState>(&normalCursorMode->state))
             {
                 const auto& start = selectingState->startPosition;
-                const auto& camera = worldRenderService.getCamera();
-                const auto cameraPosition = camera.getPosition();
+                const auto cameraPosition = worldCamera.getPosition();
                 Point cameraRelativeStart(start.x - cameraPosition.x, start.y - cameraPosition.z);
 
                 auto worldViewportPos = sceneContext.viewport->toOtherViewport(worldViewport, getMousePosition());
@@ -718,19 +718,19 @@ namespace rwe
         if (cursorTerrainDotVisible)
         {
             // draw a dot where we think the cursor intersects terrain
-            auto ray = worldRenderService.getCamera().screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
+            auto ray = worldCamera.screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
             auto intersect = simulation.intersectLineWithTerrain(floatToSimLine(ray.toLine()));
             if (intersect)
             {
                 auto cursorTerrainPos = worldUiRenderService.getInverseViewProjectionMatrix()
-                    * worldRenderService.getCamera().getViewProjectionMatrix()
+                    * worldCamera.getViewProjectionMatrix()
                     * simVectorToFloat(*intersect);
                 worldUiRenderService.fillColor(cursorTerrainPos.x - 2, cursorTerrainPos.y - 2, 4, 4, Color(0, 0, 255));
 
                 intersect->y = simulation.terrain.getHeightAt(intersect->x, intersect->z);
 
                 auto heightTestedTerrainPos = worldUiRenderService.getInverseViewProjectionMatrix()
-                    * worldRenderService.getCamera().getViewProjectionMatrix()
+                    * worldCamera.getViewProjectionMatrix()
                     * simVectorToFloat(*intersect);
                 worldUiRenderService.fillColor(heightTestedTerrainPos.x - 2, heightTestedTerrainPos.y - 2, 4, 4, Color(255, 0, 0));
             }
@@ -1171,7 +1171,7 @@ namespace rwe
                     {
                         Point p(event.x, event.y);
                         auto worldViewportPos = sceneContext.viewport->toOtherViewport(worldViewport, p);
-                        const auto cameraPosition = worldRenderService.getCamera().getPosition();
+                        const auto cameraPosition = worldCamera.getPosition();
                         Point originRelativePos(cameraPosition.x + worldViewportPos.x, cameraPosition.z + worldViewportPos.y);
                         cursorMode.next(NormalCursorMode{NormalCursorMode::SelectingState(sceneTime, originRelativePos)});
                     }
@@ -1272,7 +1272,7 @@ namespace rwe
                         [&](const NormalCursorMode::SelectingState& state) {
                             Point p(event.x, event.y);
                             auto worldViewportPos = sceneContext.viewport->toOtherViewport(worldViewport, p);
-                            const auto cameraPosition = worldRenderService.getCamera().getPosition();
+                            const auto cameraPosition = worldCamera.getPosition();
                             Point originRelativePos(cameraPosition.x + worldViewportPos.x, cameraPosition.z + worldViewportPos.y);
 
                             if (sceneTime - state.startTime < SceneTime(30) && state.startPosition.maxSingleDimensionDistance(originRelativePos) < 32)
@@ -1422,8 +1422,7 @@ namespace rwe
     {
         millisecondsBuffer += millisecondsElapsed;
 
-        auto& camera = worldRenderService.getCamera();
-        auto cameraConstraint = computeCameraConstraint(simulation.terrain, camera);
+        auto cameraConstraint = computeCameraConstraint(simulation.terrain, worldCamera);
 
         // update camera position from keyboard arrows
         {
@@ -1437,10 +1436,10 @@ namespace rwe
 
                 auto dx = directionX * speed;
                 auto dz = directionZ * speed;
-                auto& cameraPos = camera.getRawPosition();
+                auto& cameraPos = worldCamera.getRawPosition();
                 auto newPos = cameraConstraint.clamp(Vector2f(cameraPos.x + dx, cameraPos.z + dz));
 
-                camera.setPositionXZ(newPos);
+                worldCamera.setPositionXZ(newPos);
             }
         }
 
@@ -1466,10 +1465,10 @@ namespace rwe
 
                 auto dx = directionX * speed;
                 auto dz = directionZ * speed;
-                auto& cameraPos = camera.getRawPosition();
+                auto& cameraPos = worldCamera.getRawPosition();
                 auto newPos = cameraConstraint.clamp(Vector2f(cameraPos.x + dx, cameraPos.z + dz));
 
-                camera.setPositionXZ(newPos);
+                worldCamera.setPositionXZ(newPos);
             }
         }
 
@@ -1489,7 +1488,7 @@ namespace rwe
                 auto mousePos = getMousePosition();
                 auto worldPos = minimapToWorld * Vector3f(static_cast<float>(mousePos.x) + 0.5f, static_cast<float>(mousePos.y) + 0.5, 0.0f);
                 auto newCameraPos = cameraConstraint.clamp(Vector2f(worldPos.x, worldPos.z));
-                camera.setPositionXZ(newCameraPos);
+                worldCamera.setPositionXZ(newCameraPos);
             }
         }
 
@@ -1517,7 +1516,7 @@ namespace rwe
                     //  r = common ratio i.e. 1/2, the ratio the distance should decrease every 1/30 seconds
                     //  n = # of OTA frames = seconds elapsed / (1/30 s per OTA frame) = (time_ms / 1000) * 30 = 3 * time_ms / 100
 
-                    const auto& cameraPos = camera.getRawPosition();
+                    const auto& cameraPos = worldCamera.getRawPosition();
                     const auto unitPos = simVectorToFloat(unit->get().position);
                     const auto cameraPosDelta = unitPos - cameraPos;
 
@@ -1536,7 +1535,7 @@ namespace rwe
                     }
 
                     auto newPos = cameraConstraint.clamp(Vector2f(newDelta_x + cameraPos.x, newDelta_z + cameraPos.z));
-                    camera.setPositionXZ(newPos);
+                    worldCamera.setPositionXZ(newPos);
                 }
             }
         }
@@ -1552,7 +1551,7 @@ namespace rwe
 
         if (auto buildCursor = std::get_if<BuildCursorMode>(&cursorMode.getValue()); buildCursor != nullptr && isCursorOverWorld())
         {
-            auto ray = worldRenderService.getCamera().screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
+            auto ray = worldCamera.screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
             auto intersect = simulation.intersectLineWithTerrain(floatToSimLine(ray.toLine()));
 
             if (intersect)
@@ -1765,7 +1764,7 @@ namespace rwe
 
     void GameScene::setCameraPosition(const Vector3f& newPosition)
     {
-        worldRenderService.getCamera().setPosition(newPosition);
+        worldCamera.setPosition(newPosition);
     }
 
     const MapTerrain& GameScene::getTerrain() const
@@ -2276,7 +2275,7 @@ namespace rwe
 
         if (isCursorOverWorld())
         {
-            auto ray = worldRenderService.getCamera().screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
+            auto ray = worldCamera.screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
             return getFirstCollidingUnit(ray);
         }
 
@@ -2359,7 +2358,7 @@ namespace rwe
 
         if (isCursorOverWorld())
         {
-            auto ray = worldRenderService.getCamera().screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
+            auto ray = worldCamera.screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
             return simulation.intersectLineWithTerrain(floatToSimLine(ray.toLine()));
         }
 
@@ -3332,10 +3331,9 @@ namespace rwe
 
     void GameScene::selectUnitsInBandbox(const DiscreteRect& box)
     {
-        const auto& camera = worldRenderService.getCamera();
-        const auto cameraPos = camera.getPosition();
+        const auto cameraPos = worldCamera.getPosition();
         auto cameraBox = box.translate(-cameraPos.x, -cameraPos.z);
-        const auto& matrix = camera.getViewProjectionMatrix();
+        const auto& matrix = worldCamera.getViewProjectionMatrix();
         std::unordered_set<UnitId> units;
 
         for (const auto& e : simulation.units)

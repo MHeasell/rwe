@@ -191,6 +191,8 @@ namespace rwe
 
         std::unique_ptr<PlayerCommandService> playerCommandService;
 
+        CabinetCamera worldCamera;
+
         RenderService worldRenderService;
         UiRenderService worldUiRenderService;
         UiRenderService chromeUiRenderService;
