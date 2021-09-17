@@ -65,14 +65,14 @@ namespace rwe
         ShaderService* shaders,
         const MeshDatabase* meshDatabase,
         UnitDatabase* unitDatabase,
-        const CabinetCamera* camera,
+        const Matrix4f* viewProjectionMatrix,
         const SharedTextureHandle* unitTextureAtlas,
         const std::vector<SharedTextureHandle>* unitTeamTextureAtlases)
         : graphics(graphics),
           shaders(shaders),
           meshDatabase(meshDatabase),
           unitDatabase(unitDatabase),
-          camera(camera),
+          viewProjectionMatrix(viewProjectionMatrix),
           unitTextureAtlas(unitTextureAtlas),
           unitTeamTextureAtlases(unitTeamTextureAtlases)
     {
@@ -98,7 +98,7 @@ namespace rwe
 
         const auto& shader = shaders->basicColor;
         graphics->bindShader(shader.handle.get());
-        graphics->setUniformMatrix(shader.mvpMatrix, camera->getViewProjectionMatrix() * matrix);
+        graphics->setUniformMatrix(shader.mvpMatrix, (*viewProjectionMatrix) * matrix);
         graphics->setUniformFloat(shader.alpha, 1.0f);
         graphics->drawLineLoop(*selectionMesh.value());
     }
@@ -110,7 +110,7 @@ namespace rwe
 
         const auto& shader = shaders->basicColor;
         graphics->bindShader(shader.handle.get());
-        graphics->setUniformMatrix(shader.mvpMatrix, camera->getViewProjectionMatrix());
+        graphics->setUniformMatrix(shader.mvpMatrix, *viewProjectionMatrix);
         graphics->setUniformFloat(shader.alpha, 1.0f);
         graphics->drawLines(mesh);
     }
@@ -228,7 +228,7 @@ namespace rwe
 
         const auto& shader = shaders->mapTerrain;
         graphics->bindShader(shader.handle.get());
-        graphics->setUniformMatrix(shader.mvpMatrix, camera->getViewProjectionMatrix());
+        graphics->setUniformMatrix(shader.mvpMatrix, *viewProjectionMatrix);
 
         for (const auto& batch : batches)
         {
@@ -261,11 +261,11 @@ namespace rwe
         }
     }
 
-    void RenderService::drawMapTerrain(const MapTerrainGraphics& terrain)
+    void RenderService::drawMapTerrain(const CabinetCamera& camera, const MapTerrainGraphics& terrain)
     {
-        Vector3f cameraExtents(camera->getWidth() / 2.0f, 0.0f, camera->getHeight() / 2.0f);
-        auto topLeft = terrain.worldToTileCoordinate(floatToSimVector(camera->getPosition() - cameraExtents));
-        auto bottomRight = terrain.worldToTileCoordinate(floatToSimVector(camera->getPosition() + cameraExtents));
+        Vector3f cameraExtents(camera.getWidth() / 2.0f, 0.0f, camera.getHeight() / 2.0f);
+        auto topLeft = terrain.worldToTileCoordinate(floatToSimVector(camera.getPosition() - cameraExtents));
+        auto bottomRight = terrain.worldToTileCoordinate(floatToSimVector(camera.getPosition() + cameraExtents));
         auto x1 = static_cast<unsigned int>(std::clamp<int>(topLeft.x, 0, terrain.getTiles().getWidth() - 1));
         auto y1 = static_cast<unsigned int>(std::clamp<int>(topLeft.y, 0, terrain.getTiles().getHeight() - 1));
         auto x2 = static_cast<unsigned int>(std::clamp<int>(bottomRight.x, 0, terrain.getTiles().getWidth() - 1));
@@ -363,7 +363,7 @@ namespace rwe
 
                     const auto& shader = shaders->basicColor;
                     graphics->bindShader(shader.handle.get());
-                    graphics->setUniformMatrix(shader.mvpMatrix, camera->getViewProjectionMatrix());
+                    graphics->setUniformMatrix(shader.mvpMatrix, *viewProjectionMatrix);
                     graphics->setUniformFloat(shader.alpha, 1.0f);
 
                     graphics->drawLines(mesh);
@@ -386,7 +386,7 @@ namespace rwe
                     const auto& sprite = *spriteSeries->sprites[getFrameIndex(currentTime, spriteSeries->sprites.size())];
                     auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix * sprite.getTransform();
                     graphics->bindTexture(sprite.texture.get());
-                    graphics->setUniformMatrix(shader.mvpMatrix, camera->getViewProjectionMatrix() * modelMatrix);
+                    graphics->setUniformMatrix(shader.mvpMatrix, (*viewProjectionMatrix) * modelMatrix);
                     graphics->setUniformVec4(shader.tint, 1.0f, 1.0f, 1.0f, 1.0f);
                     graphics->drawTriangles(*sprite.mesh);
                 },
@@ -407,7 +407,7 @@ namespace rwe
                     const auto& sprite = *spriteSeries->sprites[frameIndex];
                     auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix * sprite.getTransform();
                     graphics->bindTexture(sprite.texture.get());
-                    graphics->setUniformMatrix(shader.mvpMatrix, camera->getViewProjectionMatrix() * modelMatrix);
+                    graphics->setUniformMatrix(shader.mvpMatrix, (*viewProjectionMatrix) * modelMatrix);
                     graphics->setUniformVec4(shader.tint, 1.0f, 1.0f, 1.0f, 0.5f);
                     graphics->drawTriangles(*sprite.mesh);
                 },
@@ -424,7 +424,7 @@ namespace rwe
 
                     const auto& shader = shaders->basicColor;
                     graphics->bindShader(shader.handle.get());
-                    graphics->setUniformMatrix(shader.mvpMatrix, camera->getViewProjectionMatrix());
+                    graphics->setUniformMatrix(shader.mvpMatrix, *viewProjectionMatrix);
                     graphics->setUniformFloat(shader.alpha, 1.0f);
 
                     graphics->drawLines(mesh);
@@ -470,7 +470,7 @@ namespace rwe
 
             const auto& shader = shaders->basicTexture;
             graphics->bindTexture(sprite.texture.get());
-            graphics->setUniformMatrix(shader.mvpMatrix, camera->getViewProjectionMatrix() * modelMatrix);
+            graphics->setUniformMatrix(shader.mvpMatrix, (*viewProjectionMatrix) * modelMatrix);
             graphics->setUniformVec4(shader.tint, 1.0f, 1.0f, 1.0f, alpha);
             graphics->drawTriangles(*sprite.mesh);
         }
@@ -478,7 +478,7 @@ namespace rwe
 
     void RenderService::drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, PlayerColorIndex playerColorIndex)
     {
-        auto mvpMatrix = camera->getViewProjectionMatrix() * matrix;
+        auto mvpMatrix = (*viewProjectionMatrix) * matrix;
 
         {
             const auto& textureShader = shaders->unitTexture;
@@ -498,7 +498,7 @@ namespace rwe
 
     void RenderService::drawShaderMeshShadow(const ShaderMesh& mesh, const Matrix4f& matrix, float groundHeight)
     {
-        auto vpMatrix = camera->getViewProjectionMatrix();
+        const auto& vpMatrix = *viewProjectionMatrix;
         const auto& shader = shaders->unitShadow;
         graphics->bindShader(shader.handle.get());
         graphics->setUniformMatrix(shader.vpMatrix, vpMatrix);
@@ -510,7 +510,7 @@ namespace rwe
 
     void RenderService::drawBuildingShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex)
     {
-        auto mvpMatrix = camera->getViewProjectionMatrix() * matrix;
+        auto mvpMatrix = (*viewProjectionMatrix) * matrix;
 
         {
             const auto& buildShader = shaders->unitBuild;
@@ -561,7 +561,7 @@ namespace rwe
 
         const auto& shader = shaders->basicTexture;
         graphics->bindTexture(sprite.texture.get());
-        graphics->setUniformMatrix(shader.mvpMatrix, camera->getViewProjectionMatrix() * modelMatrix);
+        graphics->setUniformMatrix(shader.mvpMatrix, (*viewProjectionMatrix) * modelMatrix);
         graphics->setUniformVec4(shader.tint, 1.0f, 1.0f, 1.0f, alpha);
         graphics->drawTriangles(*sprite.mesh);
     }
@@ -592,7 +592,7 @@ namespace rwe
 
         const auto& shader = shaders->basicTexture;
         graphics->bindTexture(sprite.texture.get());
-        graphics->setUniformMatrix(shader.mvpMatrix, camera->getViewProjectionMatrix() * modelMatrix);
+        graphics->setUniformMatrix(shader.mvpMatrix, (*viewProjectionMatrix) * modelMatrix);
         graphics->setUniformVec4(shader.tint, 1.0f, 1.0f, 1.0f, alpha);
         graphics->drawTriangles(*sprite.mesh);
     }

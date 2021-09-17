@@ -76,7 +76,7 @@ namespace rwe
         ShaderService* shaders;
         UnitDatabase* const unitDatabase;
 
-        const CabinetCamera* const camera;
+        const Matrix4f* const viewProjectionMatrix;
 
         const MeshDatabase* const meshDatabase;
         const SharedTextureHandle* const unitTextureAtlas;
@@ -88,7 +88,7 @@ namespace rwe
             ShaderService* shaders,
             const MeshDatabase* meshDatabase,
             UnitDatabase* unitDatabase,
-            const CabinetCamera* camera,
+            const Matrix4f* viewProjectionMatrix,
             const SharedTextureHandle* unitTextureAtlas,
             const std::vector<SharedTextureHandle>* unitTeamTextureAtlases);
 
@@ -99,7 +99,7 @@ namespace rwe
         void drawSelectionRect(const Unit& unit, float frac);
         void drawNanolatheLine(const Vector3f& start, const Vector3f& end);
 
-        void drawMapTerrain(const MapTerrainGraphics& terrain);
+        void drawMapTerrain(const CabinetCamera& camera, const MapTerrainGraphics& terrain);
 
         template <typename Range>
         void drawFlatFeatures(const Range& features)

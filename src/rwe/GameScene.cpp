@@ -531,11 +531,12 @@ namespace rwe
 
     void GameScene::renderWorld()
     {
-        RenderService worldRenderService(sceneContext.graphics, sceneContext.shaders, &meshDatabase, &unitDatabase, &worldCamera, &unitTextureAtlas, &unitTeamTextureAtlases);
+        const auto& viewProjectionMatrix = worldCamera.getViewProjectionMatrix();
+        RenderService worldRenderService(sceneContext.graphics, sceneContext.shaders, &meshDatabase, &unitDatabase, &viewProjectionMatrix, &unitTextureAtlas, &unitTeamTextureAtlases);
 
         sceneContext.graphics->disableDepthBuffer();
 
-        worldRenderService.drawMapTerrain(terrainGraphics);
+        worldRenderService.drawMapTerrain(worldCamera, terrainGraphics);
 
         worldRenderService.drawFlatFeatureShadows(simulation.features | boost::adaptors::map_values);
         worldRenderService.drawFlatFeatures(simulation.features | boost::adaptors::map_values);
