@@ -115,7 +115,6 @@ namespace rwe
           meshDatabase(std::move(meshDatabase)),
           unitTextureAtlas(unitTextureAtlas),
           unitTeamTextureAtlases(std::move(unitTeamTextureAtlases)),
-          worldRenderService(this->sceneContext.graphics, this->sceneContext.shaders, &this->meshDatabase, &this->unitDatabase, &this->worldCamera, &this->unitTextureAtlas, &this->unitTeamTextureAtlases),
           worldUiRenderService(this->sceneContext.graphics, this->sceneContext.shaders, &this->worldViewport),
           chromeUiRenderService(this->sceneContext.graphics, this->sceneContext.shaders, this->sceneContext.viewport),
           simulation(std::move(simulation)),
@@ -532,6 +531,8 @@ namespace rwe
 
     void GameScene::renderWorld()
     {
+        RenderService worldRenderService(sceneContext.graphics, sceneContext.shaders, &meshDatabase, &unitDatabase, &worldCamera, &unitTextureAtlas, &unitTeamTextureAtlases);
+
         sceneContext.graphics->disableDepthBuffer();
 
         worldRenderService.drawMapTerrain(terrainGraphics);

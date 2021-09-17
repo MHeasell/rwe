@@ -197,7 +197,6 @@ namespace rwe
         SharedTextureHandle unitTextureAtlas;
         std::vector<SharedTextureHandle> unitTeamTextureAtlases;
 
-        RenderService worldRenderService;
         UiRenderService worldUiRenderService;
         UiRenderService chromeUiRenderService;
 
