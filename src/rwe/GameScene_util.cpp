@@ -161,14 +161,14 @@ namespace rwe
         pushLine(batch.lines, worldEndF, arm2, floatColor);
     }
 
-    void drawOccupiedGrid(const CabinetCamera& camera, const MapTerrain& terrain, const OccupiedGrid& occupiedGrid, ColoredMeshBatch& batch)
+    void drawOccupiedGrid(const Vector3f& cameraPosition, float viewportWidth, float viewportHeight, const MapTerrain& terrain, const OccupiedGrid& occupiedGrid, ColoredMeshBatch& batch)
     {
-        auto halfWidth = camera.getWidth() / 2.0f;
-        auto halfHeight = camera.getHeight() / 2.0f;
-        auto left = camera.getPosition().x - halfWidth;
-        auto top = camera.getPosition().z - halfHeight;
-        auto right = camera.getPosition().x + halfWidth;
-        auto bottom = camera.getPosition().z + halfHeight;
+        auto halfWidth = viewportWidth / 2.0f;
+        auto halfHeight = viewportHeight / 2.0f;
+        auto left = cameraPosition.x - halfWidth;
+        auto top = cameraPosition.z - halfHeight;
+        auto right = cameraPosition.x + halfWidth;
+        auto bottom = cameraPosition.z + halfHeight;
 
         assert(left < right);
         assert(top < bottom);
@@ -248,15 +248,17 @@ namespace rwe
     void drawMovementClassCollisionGrid(
         const MapTerrain& terrain,
         const Grid<char>& movementClassGrid,
-        const CabinetCamera& camera,
+        const Vector3f& cameraPosition,
+        float viewportWidth,
+        float viewportHeight,
         ColoredMeshBatch& batch)
     {
-        auto halfWidth = camera.getWidth() / 2.0f;
-        auto halfHeight = camera.getHeight() / 2.0f;
-        auto left = camera.getPosition().x - halfWidth;
-        auto top = camera.getPosition().z - halfHeight;
-        auto right = camera.getPosition().x + halfWidth;
-        auto bottom = camera.getPosition().z + halfHeight;
+        auto halfWidth = viewportWidth / 2.0f;
+        auto halfHeight = viewportHeight / 2.0f;
+        auto left = cameraPosition.x - halfWidth;
+        auto top = cameraPosition.z - halfHeight;
+        auto right = cameraPosition.x + halfWidth;
+        auto bottom = cameraPosition.z + halfHeight;
 
         assert(left < right);
         assert(top < bottom);
@@ -360,7 +362,7 @@ namespace rwe
     }
 
     void drawShaderMesh(
-        const CabinetCamera& camera,
+        const Matrix4f& viewProjectionMatrix,
         const ShaderMesh& mesh,
         const Matrix4f& matrix,
         bool shaded,
@@ -369,7 +371,7 @@ namespace rwe
         std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
         std::vector<UnitTextureMeshRenderInfo>& batch)
     {
-        auto mvpMatrix = camera.getViewProjectionMatrix() * matrix;
+        auto mvpMatrix = viewProjectionMatrix * matrix;
 
         batch.push_back(UnitTextureMeshRenderInfo{&mesh.vertices, matrix, mvpMatrix, shaded, unitTextureAtlas});
         batch.push_back(UnitTextureMeshRenderInfo{&mesh.teamVertices, matrix, mvpMatrix, shaded, unitTeamTextureAtlases.at(playerColorIndex.value).get()});
@@ -378,7 +380,7 @@ namespace rwe
     void drawUnitMesh(
         const UnitDatabase* unitDatabase,
         const MeshDatabase& meshDatabase,
-        const CabinetCamera& camera,
+        const Matrix4f& viewProjectionMatrix,
         const std::string& objectName,
         const std::vector<UnitMesh>& meshes,
         const Matrix4f& modelMatrix,
@@ -407,12 +409,12 @@ namespace rwe
             auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition->get(), meshes, frac);
 
             const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
-            drawShaderMesh(camera, resolvedMesh, matrix, mesh.shaded, playerColorIndex, unitTextureAtlas, unitTeamTextureAtlases, batch.meshes);
+            drawShaderMesh(viewProjectionMatrix, resolvedMesh, matrix, mesh.shaded, playerColorIndex, unitTextureAtlas, unitTeamTextureAtlases, batch.meshes);
         }
     }
 
     void drawBuildingShaderMesh(
-        const CabinetCamera& camera,
+        const Matrix4f& viewProjectionMatrix,
         const ShaderMesh& mesh,
         const Matrix4f& matrix,
         bool shaded,
@@ -423,7 +425,7 @@ namespace rwe
         std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
         std::vector<UnitBuildingMeshRenderInfo>& batch)
     {
-        auto mvpMatrix = camera.getViewProjectionMatrix() * matrix;
+        auto mvpMatrix = viewProjectionMatrix * matrix;
         batch.push_back(UnitBuildingMeshRenderInfo{&mesh.vertices, matrix, mvpMatrix, shaded, unitTextureAtlas, percentComplete, unitY});
         batch.push_back(UnitBuildingMeshRenderInfo{&mesh.teamVertices, matrix, mvpMatrix, shaded, unitTeamTextureAtlases.at(playerColorIndex.value).get(), percentComplete, unitY});
     }
@@ -431,7 +433,7 @@ namespace rwe
     void drawBuildingUnitMesh(
         const UnitDatabase* unitDatabase,
         const MeshDatabase& meshDatabase,
-        const CabinetCamera& camera,
+        const Matrix4f& viewProjectionMatrix,
         const std::string& objectName,
         const std::vector<UnitMesh>& meshes,
         const Matrix4f& modelMatrix,
@@ -461,14 +463,14 @@ namespace rwe
             auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition->get(), meshes, frac);
 
             const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
-            drawBuildingShaderMesh(camera, resolvedMesh, matrix, mesh.shaded, percentComplete, unitY, playerColorIndex, unitTextureAtlas, unitTeamTextureAtlases, batch.buildingMeshes);
+            drawBuildingShaderMesh(viewProjectionMatrix, resolvedMesh, matrix, mesh.shaded, percentComplete, unitY, playerColorIndex, unitTextureAtlas, unitTeamTextureAtlases, batch.buildingMeshes);
         }
     }
 
     void drawProjectileUnitMesh(
         const UnitDatabase* unitDatabase,
         const MeshDatabase& meshDatabase,
-        const CabinetCamera& camera,
+        const Matrix4f& viewProjectionMatrix,
         const std::string& objectName,
         const Matrix4f& modelMatrix,
         PlayerColorIndex playerColorIndex,
@@ -487,14 +489,14 @@ namespace rwe
         {
             auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition->get());
             const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
-            drawShaderMesh(camera, resolvedMesh, matrix, shaded, playerColorIndex, unitTextureAtlas, unitTeamTextureAtlases, batch.meshes);
+            drawShaderMesh(viewProjectionMatrix, resolvedMesh, matrix, shaded, playerColorIndex, unitTextureAtlas, unitTeamTextureAtlases, batch.meshes);
         }
     }
 
     void drawUnit(
         const UnitDatabase* unitDatabase,
         const MeshDatabase& meshDatabase,
-        const CabinetCamera& camera,
+        const Matrix4f& viewProjectionMatrix,
         const Unit& unit,
         PlayerColorIndex playerColorIndex,
         float frac,
@@ -507,18 +509,18 @@ namespace rwe
         auto transform = Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
         if (unit.isBeingBuilt())
         {
-            drawBuildingUnitMesh(unitDatabase, meshDatabase, camera, unit.objectName, unit.pieces, transform, unit.getPreciseCompletePercent(), position.y, playerColorIndex, frac, unitTextureAtlas, unitTeamTextureAtlases, batch);
+            drawBuildingUnitMesh(unitDatabase, meshDatabase, viewProjectionMatrix, unit.objectName, unit.pieces, transform, unit.getPreciseCompletePercent(), position.y, playerColorIndex, frac, unitTextureAtlas, unitTeamTextureAtlases, batch);
         }
         else
         {
-            drawUnitMesh(unitDatabase, meshDatabase, camera, unit.objectName, unit.pieces, transform, playerColorIndex, frac, unitTextureAtlas, unitTeamTextureAtlases, batch);
+            drawUnitMesh(unitDatabase, meshDatabase, viewProjectionMatrix, unit.objectName, unit.pieces, transform, playerColorIndex, frac, unitTextureAtlas, unitTeamTextureAtlases, batch);
         }
     }
 
     void drawMeshFeature(
         const UnitDatabase* unitDatabase,
         const MeshDatabase& meshDatabase,
-        const CabinetCamera& camera,
+        const Matrix4f& viewProjectionMatrix,
         const MapFeature& feature,
         TextureIdentifier unitTextureAtlas,
         std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
@@ -528,7 +530,7 @@ namespace rwe
         if (auto objectInfo = std::get_if<FeatureObjectInfo>(&feature.renderInfo); objectInfo != nullptr)
         {
             auto matrix = Matrix4f::translation(simVectorToFloat(feature.position)) * Matrix4f::rotationY(0.0f, -1.0f);
-            drawProjectileUnitMesh(unitDatabase, meshDatabase, camera, objectInfo->objectName, matrix, PlayerColorIndex(0), true, unitTextureAtlas, unitTeamTextureAtlases, batch);
+            drawProjectileUnitMesh(unitDatabase, meshDatabase, viewProjectionMatrix, objectInfo->objectName, matrix, PlayerColorIndex(0), true, unitTextureAtlas, unitTeamTextureAtlases, batch);
         }
     }
 

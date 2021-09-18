@@ -99,7 +99,7 @@ namespace rwe
         void drawSelectionRect(const Unit& unit, float frac);
         void drawNanolatheLine(const Vector3f& start, const Vector3f& end);
 
-        void drawMapTerrain(const CabinetCamera& camera, const MapTerrainGraphics& terrain);
+        void drawMapTerrain(const Vector3f& cameraPosition, float viewportWidth, float viewportHeight, const MapTerrainGraphics& terrain);
 
         template <typename Range>
         void drawFlatFeatures(const Range& features)

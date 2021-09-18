@@ -19,14 +19,14 @@ namespace rwe
     void
     drawTerrainArrow(const MapTerrain& terrain, const Point& start, const Point& end, const Color& color, ColoredMeshBatch& batch);
 
-    void drawOccupiedGrid(const CabinetCamera& camera, const MapTerrain& terrain, const OccupiedGrid& occupiedGrid, ColoredMeshBatch& batch);
+    void drawOccupiedGrid(const Vector3f& cameraPosition, float viewportWidth, float viewportHeight, const MapTerrain& terrain, const OccupiedGrid& occupiedGrid, ColoredMeshBatch& batch);
 
-    void drawMovementClassCollisionGrid(const MapTerrain& terrain, const Grid<char>& movementClassGrid, const CabinetCamera& camera, ColoredMeshBatch& batch);
+    void drawMovementClassCollisionGrid(const MapTerrain& terrain, const Grid<char>& movementClassGrid, const Vector3f& cameraPosition, float viewportWidth, float viewportHeight, ColoredMeshBatch& batch);
 
     void drawUnit(
         const UnitDatabase* unitDatabase,
         const MeshDatabase& meshDatabase,
-        const CabinetCamera& camera,
+        const Matrix4f& viewProjectionMatrix,
         const Unit& unit,
         PlayerColorIndex playerColorIndex,
         float frac,
@@ -37,7 +37,7 @@ namespace rwe
     void drawMeshFeature(
         const UnitDatabase* unitDatabase,
         const MeshDatabase& meshDatabase,
-        const CabinetCamera& camera,
+        const Matrix4f& viewProjectionMatrix,
         const MapFeature& feature,
         TextureIdentifier unitTextureAtlas,
         std::vector<SharedTextureHandle>& unitTeamTextureAtlases,

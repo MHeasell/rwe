@@ -536,7 +536,7 @@ namespace rwe
 
         sceneContext.graphics->disableDepthBuffer();
 
-        worldRenderService.drawMapTerrain(worldCamera, terrainGraphics);
+        worldRenderService.drawMapTerrain(worldCamera.getPosition(), worldCamera.getWidth(), worldCamera.getHeight(), terrainGraphics);
 
         worldRenderService.drawFlatFeatureShadows(simulation.features | boost::adaptors::map_values);
         worldRenderService.drawFlatFeatures(simulation.features | boost::adaptors::map_values);
@@ -547,7 +547,7 @@ namespace rwe
 
         if (occupiedGridVisible)
         {
-            drawOccupiedGrid(worldCamera, simulation.terrain, simulation.occupiedGrid, terrainOverlayBatch);
+            drawOccupiedGrid(worldCamera.getPosition(), worldCamera.getWidth(), worldCamera.getHeight(), simulation.terrain, simulation.occupiedGrid, terrainOverlayBatch);
         }
         if (pathfindingVisualisationVisible)
         {
@@ -560,7 +560,7 @@ namespace rwe
             if (unit.movementClass)
             {
                 const auto& grid = collisionService.getGrid(*unit.movementClass);
-                drawMovementClassCollisionGrid(simulation.terrain, grid, worldCamera, terrainOverlayBatch);
+                drawMovementClassCollisionGrid(simulation.terrain, grid, worldCamera.getPosition(), worldCamera.getWidth(), worldCamera.getHeight(), terrainOverlayBatch);
             }
         }
 
@@ -584,11 +584,11 @@ namespace rwe
         UnitMeshBatch unitMeshBatch;
         for (const auto& unit : (simulation.units | boost::adaptors::map_values))
         {
-            drawUnit(&unitDatabase, meshDatabase, worldCamera, unit, getPlayer(unit.owner).color, interpolationFraction, unitTextureAtlas.get(), unitTeamTextureAtlases, unitMeshBatch);
+            drawUnit(&unitDatabase, meshDatabase, viewProjectionMatrix, unit, getPlayer(unit.owner).color, interpolationFraction, unitTextureAtlas.get(), unitTeamTextureAtlases, unitMeshBatch);
         }
         for (const auto& feature : (simulation.features | boost::adaptors::map_values))
         {
-            drawMeshFeature(&unitDatabase, meshDatabase, worldCamera, feature, unitTextureAtlas.get(), unitTeamTextureAtlases, unitMeshBatch);
+            drawMeshFeature(&unitDatabase, meshDatabase, viewProjectionMatrix, feature, unitTextureAtlas.get(), unitTeamTextureAtlases, unitMeshBatch);
         }
         worldRenderService.drawUnitMeshBatch(unitMeshBatch, simScalarToFloat(seaLevel), simulation.gameTime.value);
 
@@ -1396,10 +1396,10 @@ namespace rwe
         currentPanel->mouseWheel(event);
     }
 
-    Rectangle2f computeCameraConstraint(const MapTerrain& terrain, const CabinetCamera& camera)
+    Rectangle2f computeCameraConstraint(const MapTerrain& terrain, float viewportWidth, float viewportHeight)
     {
-        auto cameraHalfWidth = camera.getWidth() / 2.0f;
-        auto cameraHalfHeight = camera.getHeight() / 2.0f;
+        auto cameraHalfWidth = viewportWidth / 2.0f;
+        auto cameraHalfHeight = viewportHeight / 2.0f;
 
         auto top = simScalarToFloat(terrain.topInWorldUnits()) + cameraHalfHeight;
         auto left = simScalarToFloat(terrain.leftInWorldUnits()) + cameraHalfWidth;
@@ -1427,7 +1427,7 @@ namespace rwe
     {
         millisecondsBuffer += millisecondsElapsed;
 
-        auto cameraConstraint = computeCameraConstraint(simulation.terrain, worldCamera);
+        auto cameraConstraint = computeCameraConstraint(simulation.terrain, worldCamera.getWidth(), worldCamera.getHeight());
 
         // update camera position from keyboard arrows
         {

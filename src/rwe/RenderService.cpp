@@ -261,11 +261,11 @@ namespace rwe
         }
     }
 
-    void RenderService::drawMapTerrain(const CabinetCamera& camera, const MapTerrainGraphics& terrain)
+    void RenderService::drawMapTerrain(const Vector3f& cameraPosition, float viewportWidth, float viewportHeight, const MapTerrainGraphics& terrain)
     {
-        Vector3f cameraExtents(camera.getWidth() / 2.0f, 0.0f, camera.getHeight() / 2.0f);
-        auto topLeft = terrain.worldToTileCoordinate(floatToSimVector(camera.getPosition() - cameraExtents));
-        auto bottomRight = terrain.worldToTileCoordinate(floatToSimVector(camera.getPosition() + cameraExtents));
+        Vector3f cameraExtents(viewportWidth / 2.0f, 0.0f, viewportHeight / 2.0f);
+        auto topLeft = terrain.worldToTileCoordinate(floatToSimVector(cameraPosition - cameraExtents));
+        auto bottomRight = terrain.worldToTileCoordinate(floatToSimVector(cameraPosition + cameraExtents));
         auto x1 = static_cast<unsigned int>(std::clamp<int>(topLeft.x, 0, terrain.getTiles().getWidth() - 1));
         auto y1 = static_cast<unsigned int>(std::clamp<int>(topLeft.y, 0, terrain.getTiles().getHeight() - 1));
         auto x2 = static_cast<unsigned int>(std::clamp<int>(bottomRight.x, 0, terrain.getTiles().getWidth() - 1));
