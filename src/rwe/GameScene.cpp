@@ -564,7 +564,7 @@ namespace rwe
             }
         }
 
-        worldRenderService.drawBatch(terrainOverlayBatch, worldCamera.getViewProjectionMatrix());
+        worldRenderService.drawBatch(terrainOverlayBatch, viewProjectionMatrix);
 
         sceneContext.graphics->disableDepthBuffer();
 
@@ -672,7 +672,7 @@ namespace rwe
                 }
 
                 auto uiPos = worldUiRenderService.getInverseViewProjectionMatrix()
-                    * worldCamera.getViewProjectionMatrix()
+                    * viewProjectionMatrix
                     * simVectorToFloat(unit.position);
                 worldUiRenderService.drawHealthBar(uiPos.x, uiPos.y, static_cast<float>(unit.hitPoints) / static_cast<float>(unit.maxHitPoints));
             }
@@ -689,7 +689,7 @@ namespace rwe
                 topLeftWorld.z + ((SimScalar(hoverBuildInfo->rect.height) * MapTerrain::HeightTileHeightInWorldUnits) / 2_ss));
 
             auto topLeftUi = worldUiRenderService.getInverseViewProjectionMatrix()
-                * worldCamera.getViewProjectionMatrix()
+                * viewProjectionMatrix
                 * simVectorToFloat(topLeftWorld);
             worldUiRenderService.drawBoxOutline(
                 topLeftUi.x,
@@ -728,14 +728,14 @@ namespace rwe
             if (intersect)
             {
                 auto cursorTerrainPos = worldUiRenderService.getInverseViewProjectionMatrix()
-                    * worldCamera.getViewProjectionMatrix()
+                    * viewProjectionMatrix
                     * simVectorToFloat(*intersect);
                 worldUiRenderService.fillColor(cursorTerrainPos.x - 2, cursorTerrainPos.y - 2, 4, 4, Color(0, 0, 255));
 
                 intersect->y = simulation.terrain.getHeightAt(intersect->x, intersect->z);
 
                 auto heightTestedTerrainPos = worldUiRenderService.getInverseViewProjectionMatrix()
-                    * worldCamera.getViewProjectionMatrix()
+                    * viewProjectionMatrix
                     * simVectorToFloat(*intersect);
                 worldUiRenderService.fillColor(heightTestedTerrainPos.x - 2, heightTestedTerrainPos.y - 2, 4, 4, Color(255, 0, 0));
             }
