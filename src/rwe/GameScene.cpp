@@ -908,6 +908,14 @@ namespace rwe
         {
             right = true;
         }
+        else if (keysym.sym == SDLK_LCTRL)
+        {
+            leftCtrlDown = true;
+        }
+        else if (keysym.sym == SDLK_RCTRL)
+        {
+            rightCtrlDown = true;
+        }
         else if (keysym.sym == SDLK_LSHIFT)
         {
             leftShiftDown = true;
@@ -927,6 +935,32 @@ namespace rwe
         else if (keysym.scancode == SDL_SCANCODE_GRAVE)
         {
             healthBarsVisible = !healthBarsVisible;
+        }
+        else if (keysym.sym == SDLK_t)
+        {
+            startTrack();
+        }
+        else if (keysym.sym == SDLK_c)
+        {
+            if (isCtrlDown())
+            {
+                const auto& localSideData = sceneContext.sideData->at(getPlayer(localPlayerId).side);
+                if (!isShiftDown())
+                {
+                    clearUnitSelection();
+                }
+                // Select commanders (edge case: debug mode allows spawning multiple commanders)
+                for (const auto& [unitId, unit] : simulation.units)
+                {
+                    if (unit.isCommander() && unit.isOwnedBy(localPlayerId))
+                    {
+                        selectAdditionalUnit(unitId);
+                        // For multiple commanders, OTA selects all but always tracks only the last spawned (it won't cycle with repeated ctrl-c)
+                        trackedUnitId = unitId;
+                    }
+                }
+                trackingOn = true;
+            }
         }
     }
 
@@ -949,6 +983,14 @@ namespace rwe
         else if (keysym.sym == SDLK_RIGHT)
         {
             right = false;
+        }
+        else if (keysym.sym == SDLK_LCTRL)
+        {
+            leftCtrlDown = false;
+        }
+        else if (keysym.sym == SDLK_RCTRL)
+        {
+            rightCtrlDown = false;
         }
         else if (keysym.sym == SDLK_LSHIFT)
         {
@@ -1390,12 +1432,17 @@ namespace rwe
             int directionX = (right ? 1 : 0) - (left ? 1 : 0);
             int directionZ = (down ? 1 : 0) - (up ? 1 : 0);
 
-            auto dx = directionX * speed;
-            auto dz = directionZ * speed;
-            auto& cameraPos = camera.getRawPosition();
-            auto newPos = cameraConstraint.clamp(Vector2f(cameraPos.x + dx, cameraPos.z + dz));
+            if (directionX || directionZ)
+            {
+                trackingOn = false;
 
-            camera.setPosition(Vector3f(newPos.x, cameraPos.y, newPos.y));
+                auto dx = directionX * speed;
+                auto dz = directionZ * speed;
+                auto& cameraPos = camera.getRawPosition();
+                auto newPos = cameraConstraint.clamp(Vector2f(cameraPos.x + dx, cameraPos.z + dz));
+
+                camera.setPositionXZ(newPos);
+            }
         }
 
         // update camera position from edge scroll
@@ -1414,12 +1461,17 @@ namespace rwe
                 ? 1
                 : 0;
 
-            auto dx = directionX * speed;
-            auto dz = directionZ * speed;
-            auto& cameraPos = camera.getRawPosition();
-            auto newPos = cameraConstraint.clamp(Vector2f(cameraPos.x + dx, cameraPos.z + dz));
+            if (directionX || directionZ)
+            {
+                trackingOn = false;
 
-            camera.setPosition(Vector3f(newPos.x, cameraPos.y, newPos.y));
+                auto dx = directionX * speed;
+                auto dz = directionZ * speed;
+                auto& cameraPos = camera.getRawPosition();
+                auto newPos = cameraConstraint.clamp(Vector2f(cameraPos.x + dx, cameraPos.z + dz));
+
+                camera.setPositionXZ(newPos);
+            }
         }
 
         // handle minimap dragging
@@ -1427,6 +1479,8 @@ namespace rwe
         {
             if (std::holds_alternative<NormalCursorMode::DraggingMinimapState>(cursor->state))
             {
+                trackingOn = false;
+
                 // ok, the cursor is dragging the minimap.
                 // work out where the cursor is on the minimap,
                 // convert that to the world, then set the camera's position to there
@@ -1436,7 +1490,55 @@ namespace rwe
                 auto mousePos = getMousePosition();
                 auto worldPos = minimapToWorld * Vector3f(static_cast<float>(mousePos.x) + 0.5f, static_cast<float>(mousePos.y) + 0.5, 0.0f);
                 auto newCameraPos = cameraConstraint.clamp(Vector2f(worldPos.x, worldPos.z));
-                camera.setPosition(Vector3f(newCameraPos.x, camera.getRawPosition().y, newCameraPos.y));
+                camera.setPositionXZ(newCameraPos);
+            }
+        }
+
+        // handle tracking
+        {
+            // TODO (kwh) - tracking of projectiles not yet implemented. E.g. while tracking Bertha or Nuke Silo,
+            // screen should follow a projectile until it hits, then return to the tracking group
+
+            if (trackingOn)
+            {
+                // get tracked unit position, or stop tracking if it's gone
+                auto unit = tryGetUnit(trackedUnitId);
+                if (unit && !unit->get().isDead())
+                {
+                    // Move camera... OTA behavior:
+                    // For each x and z component (not euclidean distance), halve the distance from camera to unit each frame,
+                    //  but limit to a max of 320 pixels per frame, at 30fps for normal speed (Scroll speed followed game speed, eg +10 scrolls faster).
+                    // Presumably 320 to make scrolling look continuous on the lowest res setting of 640x480
+
+                    // We will use millisecondsElapsed to interpolate for smoother scrolling at high fps in rwe,
+                    // while maintaining similar scroll speed on the map; Speed is linear and clamped at 320 pixels/(1/30)s = 9600 pix/s,
+                    const float maxScroll = 9.6f * millisecondsElapsed;
+                    // To interpolate halving distance every 1/30s, we'll use the definition of geometric progression: a_n = a*r^(n); where:
+                    //  a_n = distance (pixels) from the unit we should be after n 1/30s frames, a = current distance from the unit
+                    //  r = common ratio i.e. 1/2, the ratio the distance should decrease every 1/30 seconds
+                    //  n = # of OTA frames = seconds elapsed / (1/30 s per OTA frame) = (time_ms / 1000) * 30 = 3 * time_ms / 100
+                    
+                    const auto& cameraPos = camera.getRawPosition();
+                    const auto unitPos = simVectorToFloat(unit->get().position);
+                    const auto cameraPosDelta = unitPos - cameraPos;
+                    
+                    float decayFactor = 1.0f - std::powf(.5f, .03f * millisecondsElapsed);
+
+                    float newDelta_x = cameraPosDelta.x * decayFactor;
+                    if (std::abs(newDelta_x) > maxScroll)
+                    {
+                        newDelta_x = newDelta_x < 0 ? -maxScroll : maxScroll;
+                    }
+
+                    float newDelta_z = cameraPosDelta.z * decayFactor;
+                    if (std::abs(newDelta_z) > maxScroll)
+                    {
+                        newDelta_z = newDelta_z < 0 ? -maxScroll : maxScroll;
+                    }
+
+                    auto newPos = cameraConstraint.clamp(Vector2f(newDelta_x + cameraPos.x, newDelta_z + cameraPos.z));
+                    camera.setPositionXZ(newPos);
+                }
             }
         }
 
@@ -2374,6 +2476,41 @@ namespace rwe
                 fireOrders.next(orders);
             }
         }
+    }
+
+    void GameScene::startTrack()
+    {
+        if (selectedUnits.size())
+        {
+            // sort selection by unit id so repeated 'T' keydown cycles through all units in a group consistently
+            std::vector<UnitId> unitIds;
+            for (const auto& u : selectedUnits)
+            {
+                unitIds.push_back(u);
+            }
+            std::sort(unitIds.begin(), unitIds.end());
+
+            // If already tracking, check if currently tracked unit is in this selection. If it is, select the next id in the group.
+            auto it = std::find(unitIds.begin(), unitIds.end(), trackedUnitId);
+            if (trackingOn && it != unitIds.end() && ++it != unitIds.end())
+            {
+                trackedUnitId = *it;
+            }
+            else
+            {
+                trackedUnitId = unitIds[0];
+            }
+            trackingOn = true;
+        }
+        else
+        {
+            trackingOn = false;
+        }
+    }
+
+    bool GameScene::isCtrlDown() const
+    {
+        return leftCtrlDown || rightCtrlDown;
     }
 
     bool GameScene::isShiftDown() const

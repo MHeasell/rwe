@@ -110,6 +110,11 @@ namespace rwe
         updateCachedMatrices();
     }
 
+    void CabinetCamera::setPositionXZ(const Vector2f& newPosition)
+    {
+        setPosition(Vector3f(newPosition.x, position.y, newPosition.y));
+    }
+
     const Matrix4f& CabinetCamera::getViewProjectionMatrix() const
     {
         return viewProjection;
