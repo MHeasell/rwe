@@ -70,8 +70,18 @@ namespace rwe
         return SimVector(sin(rotation), 0_ss, cos(rotation));
     }
 
+    std::unordered_map<std::string, int> createPieceIndex(const std::vector<UnitMesh>& pieces)
+    {
+        std::unordered_map<std::string, int> m;
+        for (Index i = 0; i < getSize(pieces); ++i)
+        {
+            m.insert_or_assign(toUpper(pieces[i].name), i);
+        }
+        return m;
+    }
+
     Unit::Unit(const std::vector<UnitMesh>& pieces, std::unique_ptr<CobEnvironment>&& cobEnvironment)
-        : pieces(pieces), cobEnvironment(std::move(cobEnvironment))
+        : pieces(pieces), pieceNameToIndices(createPieceIndex(this->pieces)), cobEnvironment(std::move(cobEnvironment))
     {
     }
 
@@ -631,21 +641,23 @@ namespace rwe
 
     std::optional<std::reference_wrapper<const UnitMesh>> Unit::findPiece(const std::string& pieceName) const
     {
-        auto pieceIt = std::find_if(pieces.begin(), pieces.end(), [&](const auto& p) { return boost::iequals(p.name, pieceName); });
-        if (pieceIt == pieces.end())
+        auto pieceIndexIt = pieceNameToIndices.find(toUpper(pieceName));
+        if (pieceIndexIt == pieceNameToIndices.end())
         {
             return std::nullopt;
         }
-        return *pieceIt;
+
+        return pieces[pieceIndexIt->second];
     }
 
     std::optional<std::reference_wrapper<UnitMesh>> Unit::findPiece(const std::string& pieceName)
     {
-        auto pieceIt = std::find_if(pieces.begin(), pieces.end(), [&](const auto& p) { return boost::iequals(p.name, pieceName); });
-        if (pieceIt == pieces.end())
+        auto pieceIndexIt = pieceNameToIndices.find(toUpper(pieceName));
+        if (pieceIndexIt == pieceNameToIndices.end())
         {
             return std::nullopt;
         }
-        return *pieceIt;
+
+        return pieces[pieceIndexIt->second];
     }
 }

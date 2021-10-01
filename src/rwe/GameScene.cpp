@@ -1819,14 +1819,14 @@ namespace rwe
     {
         const auto& unit = getUnit(unitId);
         const auto& modelDef = unitDatabase.getUnitModelDefinition(unit.objectName).value().get();
-        return getPieceTransform(pieceName, modelDef.pieces, unit.pieces);
+        return getPieceTransform(pieceName, modelDef, unit.pieces);
     }
 
     SimVector GameScene::getUnitPiecePosition(UnitId unitId, const std::string& pieceName) const
     {
         const auto& unit = getUnit(unitId);
         const auto& modelDef = unitDatabase.getUnitModelDefinition(unit.objectName).value().get();
-        auto pieceTransform = getPieceTransform(pieceName, modelDef.pieces, unit.pieces);
+        auto pieceTransform = getPieceTransform(pieceName, modelDef, unit.pieces);
         return unit.getTransform() * pieceTransform * SimVector(0_ss, 0_ss, 0_ss);
     }
 

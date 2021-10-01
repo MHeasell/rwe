@@ -138,6 +138,7 @@ namespace rwe
         std::string unitType;
         std::string objectName;
         std::vector<UnitMesh> pieces;
+        std::unordered_map<std::string, int> pieceNameToIndices;
         SimVector position;
         SimVector previousPosition;
         std::unique_ptr<CobEnvironment> cobEnvironment;

@@ -149,9 +149,9 @@ namespace rwe
         assert(objects.size() == 1);
         auto selectionMesh = selectionMeshFrom3do(objects.front());
 
-        UnitModelDefinition d;
-        d.pieces = unitMeshFrom3do(objects.front());
-        d.height = simScalarFromFixed(findHighestVertex(objects.front()).y);
+        auto d = createUnitModelDefinition(
+            simScalarFromFixed(findHighestVertex(objects.front()).y),
+            unitMeshFrom3do(objects.front()));
 
         std::vector<std::pair<std::string, std::shared_ptr<ShaderMesh>>> meshes;
         extractMeshes(objects.front(), meshes);
@@ -171,9 +171,9 @@ namespace rwe
         auto objects = parse3doObjects(s, s.tellg());
         assert(objects.size() == 1);
 
-        UnitModelDefinition d;
-        d.pieces = unitMeshFrom3do(objects.front());
-        d.height = simScalarFromFixed(findHighestVertex(objects.front()).y);
+        auto d = createUnitModelDefinition(
+            simScalarFromFixed(findHighestVertex(objects.front()).y),
+            unitMeshFrom3do(objects.front()));
 
         std::vector<std::pair<std::string, std::shared_ptr<ShaderMesh>>> meshes;
         extractMeshes(objects.front(), meshes);

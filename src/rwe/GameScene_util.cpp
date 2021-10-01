@@ -74,26 +74,28 @@ namespace rwe
         pushLine(vs, Line3f(start, end), color);
     }
 
-    Matrix4x<SimScalar> getPieceTransform(const std::string& pieceName, const std::vector<UnitPieceDefinition>& pieceDefinitions, const std::vector<UnitMesh>& pieces)
+    Matrix4x<SimScalar> getPieceTransform(const std::string& pieceName, const UnitModelDefinition& modelDefinition, const std::vector<UnitMesh>& pieces)
     {
-        assert(pieceDefinitions.size() == pieces.size());
+        assert(modelDefinition.pieces.size() == pieces.size());
 
         std::optional<std::string> parentPiece = pieceName;
         auto matrix = Matrix4x<SimScalar>::identity();
 
         do
         {
-            auto pieceDefIt = std::find_if(pieceDefinitions.begin(), pieceDefinitions.end(), [&](const auto& p) { return boost::iequals(p.name, *parentPiece); });
-            if (pieceDefIt == pieceDefinitions.end())
+            auto pieceIndexIt = modelDefinition.pieceIndicesByName.find(toUpper(*parentPiece));
+            if (pieceIndexIt == modelDefinition.pieceIndicesByName.end())
             {
                 throw std::runtime_error("missing piece definition: " + *parentPiece);
             }
 
-            parentPiece = pieceDefIt->parent;
+            const auto& pieceDef = modelDefinition.pieces.at(pieceIndexIt->second);
 
-            auto pieceStateIt = pieces.begin() + (pieceDefIt - pieceDefinitions.begin());
+            parentPiece = pieceDef.parent;
 
-            auto position = pieceDefIt->origin + pieceStateIt->offset;
+            auto pieceStateIt = pieces.begin() + pieceIndexIt->second;
+
+            auto position = pieceDef.origin + pieceStateIt->offset;
             auto rotationX = pieceStateIt->rotationX;
             auto rotationY = pieceStateIt->rotationY;
             auto rotationZ = pieceStateIt->rotationZ;
@@ -304,26 +306,27 @@ namespace rwe
         }
     }
 
-    Matrix4f getPieceTransformForRender(const std::string& pieceName, const std::vector<UnitPieceDefinition>& pieceDefinitions, const std::vector<UnitMesh>& pieces, float frac)
+    Matrix4f getPieceTransformForRender(const std::string& pieceName, const UnitModelDefinition& modelDefinition, const std::vector<UnitMesh>& pieces, float frac)
     {
-        assert(pieceDefinitions.size() == pieces.size());
+        assert(modelDefinition.pieces.size() == pieces.size());
 
         std::optional<std::string> parentPiece = pieceName;
         auto matrix = Matrix4f::identity();
 
         do
         {
-            auto pieceDefIt = std::find_if(pieceDefinitions.begin(), pieceDefinitions.end(), [&](const auto& p) { return boost::iequals(p.name, *parentPiece); });
-            if (pieceDefIt == pieceDefinitions.end())
+            auto pieceIndexIt = modelDefinition.pieceIndicesByName.find(toUpper(*parentPiece));
+            if (pieceIndexIt == modelDefinition.pieceIndicesByName.end())
             {
                 throw std::runtime_error("missing piece definition: " + *parentPiece);
             }
+            const auto& pieceDef = modelDefinition.pieces[pieceIndexIt->second];
 
-            parentPiece = pieceDefIt->parent;
+            parentPiece = pieceDef.parent;
 
-            auto pieceStateIt = pieces.begin() + (pieceDefIt - pieceDefinitions.begin());
+            auto pieceStateIt = pieces.begin() + pieceIndexIt->second;
 
-            auto position = lerp(simVectorToFloat(pieceDefIt->origin + pieceStateIt->previousOffset), simVectorToFloat(pieceDefIt->origin + pieceStateIt->offset), frac);
+            auto position = lerp(simVectorToFloat(pieceDef.origin + pieceStateIt->previousOffset), simVectorToFloat(pieceDef.origin + pieceStateIt->offset), frac);
             auto rotationX = angleLerp(toRadians(pieceStateIt->previousRotationX).value, toRadians(pieceStateIt->rotationX).value, frac);
             auto rotationY = angleLerp(toRadians(pieceStateIt->previousRotationY).value, toRadians(pieceStateIt->rotationY).value, frac);
             auto rotationZ = angleLerp(toRadians(pieceStateIt->previousRotationZ).value, toRadians(pieceStateIt->rotationZ).value, frac);
@@ -333,22 +336,24 @@ namespace rwe
         return matrix;
     }
 
-    Matrix4f getPieceTransformForRender(const std::string& pieceName, const std::vector<UnitPieceDefinition>& pieceDefinitions)
+    Matrix4f getPieceTransformForRender(const std::string& pieceName, const UnitModelDefinition& modelDefinition)
     {
         std::optional<std::string> parentPiece = pieceName;
         auto pos = SimVector(0_ss, 0_ss, 0_ss);
 
         do
         {
-            auto pieceDefIt = std::find_if(pieceDefinitions.begin(), pieceDefinitions.end(), [&](const auto& p) { return boost::iequals(p.name, *parentPiece); });
-            if (pieceDefIt == pieceDefinitions.end())
+            auto pieceIndexIt = modelDefinition.pieceIndicesByName.find(toUpper(*parentPiece));
+            if (pieceIndexIt == modelDefinition.pieceIndicesByName.end())
             {
                 throw std::runtime_error("missing piece definition: " + *parentPiece);
             }
 
-            parentPiece = pieceDefIt->parent;
+            const auto& pieceDef = modelDefinition.pieces[pieceIndexIt->second];
 
-            pos += pieceDefIt->origin;
+            parentPiece = pieceDef.parent;
+
+            pos += pieceDef.origin;
         } while (parentPiece);
 
         return Matrix4f::translation(simVectorToFloat(pos));
@@ -399,7 +404,7 @@ namespace rwe
                 continue;
             }
 
-            auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition->get().pieces, meshes, frac);
+            auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition->get(), meshes, frac);
 
             const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
             drawShaderMesh(camera, resolvedMesh, matrix, mesh.shaded, playerColorIndex, unitTextureAtlas, unitTeamTextureAtlases, batch.meshes);
@@ -453,7 +458,7 @@ namespace rwe
                 continue;
             }
 
-            auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition->get().pieces, meshes, frac);
+            auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition->get(), meshes, frac);
 
             const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
             drawBuildingShaderMesh(camera, resolvedMesh, matrix, mesh.shaded, percentComplete, unitY, playerColorIndex, unitTextureAtlas, unitTeamTextureAtlases, batch.buildingMeshes);
@@ -480,7 +485,7 @@ namespace rwe
 
         for (const auto& pieceDef : modelDefinition->get().pieces)
         {
-            auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition->get().pieces);
+            auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition->get());
             const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
             drawShaderMesh(camera, resolvedMesh, matrix, shaded, playerColorIndex, unitTextureAtlas, unitTeamTextureAtlases, batch.meshes);
         }
