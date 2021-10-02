@@ -10,6 +10,7 @@
 #include <rwe/AudioService.h>
 #include <rwe/CroppedViewport.h>
 #include <rwe/CursorService.h>
+#include <rwe/GameCameraState.h>
 #include <rwe/GameNetworkService.h>
 #include <rwe/InGameSoundsInfo.h>
 #include <rwe/MeshService.h>
@@ -191,7 +192,7 @@ namespace rwe
 
         std::unique_ptr<PlayerCommandService> playerCommandService;
 
-        CabinetCamera worldCamera;
+        GameCameraState worldCameraState;
 
         MeshDatabase meshDatabase;
         SharedTextureHandle unitTextureAtlas;
@@ -292,7 +293,7 @@ namespace rwe
             const SceneContext& sceneContext,
             std::unique_ptr<PlayerCommandService>&& playerCommandService,
             MeshDatabase&& meshDatabase,
-            CabinetCamera camera,
+            const GameCameraState& cameraState,
             SharedTextureHandle unitTextureAtlas,
             std::vector<SharedTextureHandle>&& unitTeamTextureAtlases,
             GameSimulation&& simulation,

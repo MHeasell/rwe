@@ -2,6 +2,7 @@
 #include <rwe/Index.h>
 #include <rwe/LoadingScene.h>
 #include <rwe/MainMenuModel.h>
+#include <rwe/camera_util.h>
 #include <rwe/config.h>
 #include <rwe/io/gui/gui.h>
 #include <rwe/io/ota/ota.h>

@@ -7,6 +7,7 @@
 #include <rwe/GameScene_util.h>
 #include <rwe/Index.h>
 #include <rwe/Mesh.h>
+#include <rwe/camera_util.h>
 #include <rwe/dump_util.h>
 #include <rwe/match.h>
 #include <rwe/matrix_util.h>
@@ -85,13 +86,77 @@ namespace rwe
         return false;
     }
 
+    Matrix4f computeView(const Vector3f& cameraPosition)
+    {
+        auto translation = Matrix4f::translation(-cameraPosition);
+        auto rotation = Matrix4f::rotationToAxes(Vector3f(1.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+        return rotation * translation;
+    }
+
+    Matrix4f computeInverseView(const Vector3f& cameraPosition)
+    {
+        auto translation = Matrix4f::translation(cameraPosition);
+        auto rotation = Matrix4f::rotationToAxes(Vector3f(1.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f)).transposed();
+        return translation * rotation;
+    }
+
+    Matrix4f computeProjection(float width, float height)
+    {
+        float halfWidth = width / 2.0f;
+        float halfHeight = height / 2.0f;
+
+        auto cabinet = Matrix4f::cabinetProjection(0.0f, 0.5f);
+
+        auto ortho = Matrix4f::orthographicProjection(
+            -halfWidth,
+            halfWidth,
+            -halfHeight,
+            halfHeight,
+            -1000.0f,
+            1000.0f);
+
+        return ortho * cabinet;
+    }
+
+    Matrix4f computeInverseProjection(float width, float height)
+    {
+        float halfWidth = width / 2.0f;
+        float halfHeight = height / 2.0f;
+
+        auto inverseCabinet = Matrix4f::cabinetProjection(0.0f, -0.5f);
+
+        auto inverseOrtho = Matrix4f::inverseOrthographicProjection(
+            -halfWidth,
+            halfWidth,
+            -halfHeight,
+            halfHeight,
+            -1000.0f,
+            1000.0f);
+
+        return inverseCabinet * inverseOrtho;
+    }
+
+    Matrix4f computeViewProjectionMatrix(const GameCameraState& cameraState, int screenWidth, int screenHeight)
+    {
+        auto view = computeView(cameraState.getRoundedPosition());
+        auto projection = computeProjection(cameraState.scaleDimension(screenWidth), cameraState.scaleDimension(screenHeight));
+        return projection * view;
+    }
+
+    Matrix4f computeInverseViewProjectionMatrix(const GameCameraState& cameraState, int screenWidth, int screenHeight)
+    {
+        auto inverseView = computeInverseView(cameraState.getRoundedPosition());
+        auto inverseProjection = computeInverseProjection(cameraState.scaleDimension(screenWidth), cameraState.scaleDimension(screenHeight));
+        return inverseView * inverseProjection;
+    }
+
     const Rectangle2f GameScene::minimapViewport = Rectangle2f::fromTopLeft(0.0f, 0.0f, GuiSizeLeft, GuiSizeLeft);
 
     GameScene::GameScene(
         const SceneContext& sceneContext,
         std::unique_ptr<PlayerCommandService>&& playerCommandService,
         MeshDatabase&& meshDatabase,
-        CabinetCamera camera,
+        const GameCameraState& cameraState,
         SharedTextureHandle unitTextureAtlas,
         std::vector<SharedTextureHandle>&& unitTeamTextureAtlases,
         GameSimulation&& simulation,
@@ -111,7 +176,7 @@ namespace rwe
         : sceneContext(sceneContext),
           worldViewport(CroppedViewport(this->sceneContext.viewport, GuiSizeLeft, GuiSizeTop, GuiSizeRight, GuiSizeBottom)),
           playerCommandService(std::move(playerCommandService)),
-          worldCamera(camera),
+          worldCameraState(cameraState),
           meshDatabase(std::move(meshDatabase)),
           unitTextureAtlas(unitTextureAtlas),
           unitTeamTextureAtlases(std::move(unitTeamTextureAtlases)),
@@ -374,7 +439,7 @@ namespace rwe
         // draw minimap
         chromeUiRenderService.drawSpriteAbs(minimapRect, *minimap);
 
-        auto cameraInverse = worldCamera.getInverseViewProjectionMatrix();
+        auto cameraInverse = computeInverseViewProjectionMatrix(worldCameraState, worldViewport.width(), worldViewport.height());
         auto worldToMinimap = worldToMinimapMatrix(simulation.terrain, minimapRect);
 
         // draw minimap dots
@@ -415,7 +480,7 @@ namespace rwe
     void GameScene::renderBuildBoxes(const Unit& unit, const Color& color)
     {
         auto worldToUi = worldUiRenderService.getInverseViewProjectionMatrix()
-            * worldCamera.getViewProjectionMatrix();
+            * computeViewProjectionMatrix(worldCameraState, worldViewport.width(), worldViewport.height());
         for (const auto& order : unit.orders)
         {
             if (const auto buildOrder = std::get_if<BuildOrder>(&order))
@@ -447,7 +512,7 @@ namespace rwe
         const auto& unit = getUnit(unitId);
         auto pos = unit.position;
         auto worldToUi = worldUiRenderService.getInverseViewProjectionMatrix()
-            * worldCamera.getViewProjectionMatrix();
+            * computeViewProjectionMatrix(worldCameraState, worldViewport.width(), worldViewport.height());
         for (const auto& order : unit.orders)
         {
             auto nextPos = match(
@@ -531,12 +596,12 @@ namespace rwe
 
     void GameScene::renderWorld()
     {
-        const auto& viewProjectionMatrix = worldCamera.getViewProjectionMatrix();
+        const auto& viewProjectionMatrix = computeViewProjectionMatrix(worldCameraState, worldViewport.width(), worldViewport.height());
         RenderService worldRenderService(sceneContext.graphics, sceneContext.shaders, &meshDatabase, &unitDatabase, &viewProjectionMatrix, &unitTextureAtlas, &unitTeamTextureAtlases);
 
         sceneContext.graphics->disableDepthBuffer();
 
-        worldRenderService.drawMapTerrain(worldCamera.getPosition(), worldCamera.getWidth(), worldCamera.getHeight(), terrainGraphics);
+        worldRenderService.drawMapTerrain(worldCameraState.getRoundedPosition(), worldCameraState.scaleDimension(worldViewport.width()), worldCameraState.scaleDimension(worldViewport.height()), terrainGraphics);
 
         worldRenderService.drawFlatFeatureShadows(simulation.features | boost::adaptors::map_values);
         worldRenderService.drawFlatFeatures(simulation.features | boost::adaptors::map_values);
@@ -547,7 +612,7 @@ namespace rwe
 
         if (occupiedGridVisible)
         {
-            drawOccupiedGrid(worldCamera.getPosition(), worldCamera.getWidth(), worldCamera.getHeight(), simulation.terrain, simulation.occupiedGrid, terrainOverlayBatch);
+            drawOccupiedGrid(worldCameraState.getRoundedPosition(), worldCameraState.scaleDimension(worldViewport.width()), worldCameraState.scaleDimension(worldViewport.height()), simulation.terrain, simulation.occupiedGrid, terrainOverlayBatch);
         }
         if (pathfindingVisualisationVisible)
         {
@@ -560,7 +625,7 @@ namespace rwe
             if (unit.movementClass)
             {
                 const auto& grid = collisionService.getGrid(*unit.movementClass);
-                drawMovementClassCollisionGrid(simulation.terrain, grid, worldCamera.getPosition(), worldCamera.getWidth(), worldCamera.getHeight(), terrainOverlayBatch);
+                drawMovementClassCollisionGrid(simulation.terrain, grid, worldCameraState.getRoundedPosition(), worldCameraState.scaleDimension(worldViewport.width()), worldCameraState.scaleDimension(worldViewport.height()), terrainOverlayBatch);
             }
         }
 
@@ -706,7 +771,7 @@ namespace rwe
             if (auto selectingState = std::get_if<NormalCursorMode::SelectingState>(&normalCursorMode->state))
             {
                 const auto& start = selectingState->startPosition;
-                const auto cameraPosition = worldCamera.getPosition();
+                const auto cameraPosition = worldCameraState.getRoundedPosition();
                 Point cameraRelativeStart(start.x - cameraPosition.x, start.y - cameraPosition.z);
 
                 auto worldViewportPos = sceneContext.viewport->toOtherViewport(worldViewport, getMousePosition());
@@ -723,7 +788,7 @@ namespace rwe
         if (cursorTerrainDotVisible)
         {
             // draw a dot where we think the cursor intersects terrain
-            auto ray = worldCamera.screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
+            auto ray = screenToWorldRayUtil(computeInverseViewProjectionMatrix(worldCameraState, worldViewport.width(), worldViewport.height()), screenToWorldClipSpace(getMousePosition()));
             auto intersect = simulation.intersectLineWithTerrain(floatToSimLine(ray.toLine()));
             if (intersect)
             {
@@ -1176,7 +1241,7 @@ namespace rwe
                     {
                         Point p(event.x, event.y);
                         auto worldViewportPos = sceneContext.viewport->toOtherViewport(worldViewport, p);
-                        const auto cameraPosition = worldCamera.getPosition();
+                        const auto cameraPosition = worldCameraState.getRoundedPosition();
                         Point originRelativePos(cameraPosition.x + worldViewportPos.x, cameraPosition.z + worldViewportPos.y);
                         cursorMode.next(NormalCursorMode{NormalCursorMode::SelectingState(sceneTime, originRelativePos)});
                     }
@@ -1277,7 +1342,7 @@ namespace rwe
                         [&](const NormalCursorMode::SelectingState& state) {
                             Point p(event.x, event.y);
                             auto worldViewportPos = sceneContext.viewport->toOtherViewport(worldViewport, p);
-                            const auto cameraPosition = worldCamera.getPosition();
+                            const auto cameraPosition = worldCameraState.getRoundedPosition();
                             Point originRelativePos(cameraPosition.x + worldViewportPos.x, cameraPosition.z + worldViewportPos.y);
 
                             if (sceneTime - state.startTime < SceneTime(30) && state.startPosition.maxSingleDimensionDistance(originRelativePos) < 32)
@@ -1427,7 +1492,7 @@ namespace rwe
     {
         millisecondsBuffer += millisecondsElapsed;
 
-        auto cameraConstraint = computeCameraConstraint(simulation.terrain, worldCamera.getWidth(), worldCamera.getHeight());
+        auto cameraConstraint = computeCameraConstraint(simulation.terrain, worldCameraState.scaleDimension(worldViewport.width()), worldCameraState.scaleDimension(worldViewport.height()));
 
         // update camera position from keyboard arrows
         {
@@ -1441,10 +1506,10 @@ namespace rwe
 
                 auto dx = directionX * speed;
                 auto dz = directionZ * speed;
-                auto& cameraPos = worldCamera.getRawPosition();
+                auto& cameraPos = worldCameraState.position;
                 auto newPos = cameraConstraint.clamp(Vector2f(cameraPos.x + dx, cameraPos.z + dz));
 
-                worldCamera.setPositionXZ(newPos);
+                worldCameraState.position = Vector3f(newPos.x, cameraPos.y, newPos.y);
             }
         }
 
@@ -1470,10 +1535,10 @@ namespace rwe
 
                 auto dx = directionX * speed;
                 auto dz = directionZ * speed;
-                auto& cameraPos = worldCamera.getRawPosition();
+                auto& cameraPos = worldCameraState.position;
                 auto newPos = cameraConstraint.clamp(Vector2f(cameraPos.x + dx, cameraPos.z + dz));
 
-                worldCamera.setPositionXZ(newPos);
+                worldCameraState.position = Vector3f(newPos.x, cameraPos.y, newPos.y);
             }
         }
 
@@ -1493,7 +1558,7 @@ namespace rwe
                 auto mousePos = getMousePosition();
                 auto worldPos = minimapToWorld * Vector3f(static_cast<float>(mousePos.x) + 0.5f, static_cast<float>(mousePos.y) + 0.5, 0.0f);
                 auto newCameraPos = cameraConstraint.clamp(Vector2f(worldPos.x, worldPos.z));
-                worldCamera.setPositionXZ(newCameraPos);
+                worldCameraState.position = Vector3f(newCameraPos.x, worldCameraState.position.y, newCameraPos.y);
             }
         }
 
@@ -1521,7 +1586,7 @@ namespace rwe
                     //  r = common ratio i.e. 1/2, the ratio the distance should decrease every 1/30 seconds
                     //  n = # of OTA frames = seconds elapsed / (1/30 s per OTA frame) = (time_ms / 1000) * 30 = 3 * time_ms / 100
 
-                    const auto& cameraPos = worldCamera.getRawPosition();
+                    const auto& cameraPos = worldCameraState.position;
                     const auto unitPos = simVectorToFloat(unit->get().position);
                     const auto cameraPosDelta = unitPos - cameraPos;
 
@@ -1540,7 +1605,7 @@ namespace rwe
                     }
 
                     auto newPos = cameraConstraint.clamp(Vector2f(newDelta_x + cameraPos.x, newDelta_z + cameraPos.z));
-                    worldCamera.setPositionXZ(newPos);
+                    worldCameraState.position = Vector3f(newPos.x, worldCameraState.position.y, newPos.y);
                 }
             }
         }
@@ -1556,7 +1621,7 @@ namespace rwe
 
         if (auto buildCursor = std::get_if<BuildCursorMode>(&cursorMode.getValue()); buildCursor != nullptr && isCursorOverWorld())
         {
-            auto ray = worldCamera.screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
+            auto ray = screenToWorldRayUtil(computeInverseViewProjectionMatrix(worldCameraState, worldViewport.width(), worldViewport.height()), screenToWorldClipSpace(getMousePosition()));
             auto intersect = simulation.intersectLineWithTerrain(floatToSimLine(ray.toLine()));
 
             if (intersect)
@@ -1769,7 +1834,7 @@ namespace rwe
 
     void GameScene::setCameraPosition(const Vector3f& newPosition)
     {
-        worldCamera.setPosition(newPosition);
+        worldCameraState.position = newPosition;
     }
 
     const MapTerrain& GameScene::getTerrain() const
@@ -2280,7 +2345,7 @@ namespace rwe
 
         if (isCursorOverWorld())
         {
-            auto ray = worldCamera.screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
+            auto ray = screenToWorldRayUtil(computeInverseViewProjectionMatrix(worldCameraState, worldViewport.width(), worldViewport.height()), screenToWorldClipSpace(getMousePosition()));
             return getFirstCollidingUnit(ray);
         }
 
@@ -2363,7 +2428,7 @@ namespace rwe
 
         if (isCursorOverWorld())
         {
-            auto ray = worldCamera.screenToWorldRay(screenToWorldClipSpace(getMousePosition()));
+            auto ray = screenToWorldRayUtil(computeInverseViewProjectionMatrix(worldCameraState, worldViewport.width(), worldViewport.height()), screenToWorldClipSpace(getMousePosition()));
             return simulation.intersectLineWithTerrain(floatToSimLine(ray.toLine()));
         }
 
@@ -3336,9 +3401,9 @@ namespace rwe
 
     void GameScene::selectUnitsInBandbox(const DiscreteRect& box)
     {
-        const auto cameraPos = worldCamera.getPosition();
+        const auto cameraPos = worldCameraState.getRoundedPosition();
         auto cameraBox = box.translate(-cameraPos.x, -cameraPos.z);
-        const auto& matrix = worldCamera.getViewProjectionMatrix();
+        const auto& matrix = computeViewProjectionMatrix(worldCameraState, worldViewport.width(), worldViewport.height());
         std::unordered_set<UnitId> units;
 
         for (const auto& e : simulation.units)

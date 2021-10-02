@@ -1,6 +1,5 @@
 #pragma once
 
-#include <rwe/camera/CabinetCamera.h>
 #include <rwe/geometry/Line3f.h>
 #include <rwe/grid/Grid.h>
 #include <rwe/grid/Point.h>

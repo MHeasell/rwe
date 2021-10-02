@@ -204,11 +204,7 @@ namespace rwe
 
         auto minimap = sceneContext.textureService->getMinimap(mapName);
 
-        auto worldViewportWidth = sceneContext.viewport->width() - GameScene::GuiSizeLeft - GameScene::GuiSizeRight;
-        auto worldViewportHeight = sceneContext.viewport->height() - GameScene::GuiSizeTop - GameScene::GuiSizeBottom;
-
-        CabinetCamera worldCamera(worldViewportWidth, worldViewportHeight);
-        worldCamera.setPosition(Vector3f(0.0f, 0.0f, 0.0f));
+        GameCameraState worldCameraState;
 
         MovementClassCollisionService collisionService;
 
@@ -296,7 +292,7 @@ namespace rwe
             sceneContext,
             std::move(playerCommandService),
             std::move(meshDatabase),
-            worldCamera,
+            worldCameraState,
             atlasInfo.textureAtlas,
             std::move(atlasInfo.teamTextureAtlases),
             std::move(simulation),

@@ -225,6 +225,8 @@ set(SOURCE_FILES
     src/rwe/CroppedViewport.h
     src/rwe/CursorService.cpp
     src/rwe/CursorService.h
+    src/rwe/GameCameraState.cpp
+    src/rwe/GameCameraState.h
     src/rwe/GameHash.cpp
     src/rwe/GameHash.h
     src/rwe/GameHash_util.cpp
@@ -311,10 +313,8 @@ set(SOURCE_FILES
     src/rwe/Viewport.h
     src/rwe/atlas_util.cpp
     src/rwe/atlas_util.h
-    src/rwe/camera/AbstractCamera.cpp
-    src/rwe/camera/AbstractCamera.h
-    src/rwe/camera/CabinetCamera.cpp
-    src/rwe/camera/CabinetCamera.h
+    src/rwe/camera_util.cpp
+    src/rwe/camera_util.h
     src/rwe/cob/CobAngle.h
     src/rwe/cob/CobAngularSpeed.h
     src/rwe/cob/CobAxis.h
@@ -747,7 +747,6 @@ set(TEST_FILES
     src/rwe/SideData.test.cpp
     src/rwe/VectorMap.test.cpp
     src/rwe/Viewport.test.cpp
-    src/rwe/camera/CabinetCamera.test.cpp
     src/rwe/cob/cob_util.test.cpp
     src/rwe/dump_util.test.cpp
     src/rwe/geometry/BoundingBox3f.test.cpp

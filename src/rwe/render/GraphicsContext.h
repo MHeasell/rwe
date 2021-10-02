@@ -5,7 +5,6 @@
 #include <memory>
 #include <rwe/ColorPalette.h>
 #include <rwe/Mesh.h>
-#include <rwe/camera/AbstractCamera.h>
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/math/Vector3f.h>
 #include <rwe/render/GlMesh.h>
