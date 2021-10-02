@@ -3528,7 +3528,10 @@ namespace rwe
         }
         else if (selectedUnits.size() > 0)
         {
-            playUiSound(*sounds.selectMultipleUnits);
+            if (sounds.selectMultipleUnits)
+            {
+                playUiSound(*sounds.selectMultipleUnits);
+            }
         }
 
         onSelectedUnitsChanged();
