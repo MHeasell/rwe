@@ -288,6 +288,8 @@ namespace rwe
 
         int millisecondsBuffer{0};
 
+        bool guiVisible{true};
+
     public:
         GameScene(
             const SceneContext& sceneContext,
@@ -508,6 +510,8 @@ namespace rwe
         {
             actions.emplace_back(GameSceneTimeAction(sceneTime + interval, std::forward<T>(f)));
         }
+
+        void renderUi();
 
         void renderMinimap();
 

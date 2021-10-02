@@ -20,4 +20,12 @@ namespace rwe
     {
         return base->height() - topInset - bottomInset;
     }
+
+    void CroppedViewport::setInset(int newLeftInset, int newTopInset, int newRightInset, int newBottomInset)
+    {
+        leftInset = newLeftInset;
+        topInset = newTopInset;
+        rightInset = newRightInset;
+        bottomInset = newBottomInset;
+    }
 }

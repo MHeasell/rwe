@@ -18,5 +18,7 @@ namespace rwe
         int y() const override;
         unsigned int width() const override;
         unsigned int height() const override;
+
+        void setInset(int newLeftInset, int newTopInset, int newRightInset, int newBottomInset);
     };
 }

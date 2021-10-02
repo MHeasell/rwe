@@ -242,11 +242,40 @@ namespace rwe
 
     void GameScene::render()
     {
-        const auto& localSideData = sceneContext.sideData->at(getPlayer(localPlayerId).side);
+        sceneContext.graphics->setViewport(0, 0, sceneContext.viewport->width(), sceneContext.viewport->height());
+
+        if (guiVisible)
+        {
+            renderUi();
+        }
+
+        sceneContext.graphics->enableDepthBuffer();
+
+        auto viewportPos = worldViewport.toOtherViewport(*sceneContext.viewport, 0, worldViewport.height());
+        sceneContext.graphics->setViewport(
+            viewportPos.x,
+            sceneContext.viewport->height() - viewportPos.y,
+            worldViewport.width(),
+            worldViewport.height());
+        renderWorld();
+        sceneContext.graphics->disableDepthBuffer();
 
         sceneContext.graphics->setViewport(0, 0, sceneContext.viewport->width(), sceneContext.viewport->height());
 
+        // oh yeah also regulate sound
+        std::scoped_lock<std::mutex> lock(playingUnitChannelsLock);
+        auto volume = computeSoundVolume(playingUnitChannels.size());
+        for (auto channel : playingUnitChannels)
+        {
+            sceneContext.audioService->setVolume(channel, volume);
+        }
+    }
+
+    void GameScene::renderUi()
+    {
         renderMinimap();
+
+        const auto& localSideData = sceneContext.sideData->at(getPlayer(localPlayerId).side);
 
         // render top bar
         const auto& intGafName = localSideData.intGaf;
@@ -412,26 +441,6 @@ namespace rwe
         }
 
         currentPanel->render(chromeUiRenderService);
-        sceneContext.graphics->enableDepthBuffer();
-
-        auto viewportPos = worldViewport.toOtherViewport(*sceneContext.viewport, 0, worldViewport.height());
-        sceneContext.graphics->setViewport(
-            viewportPos.x,
-            sceneContext.viewport->height() - viewportPos.y,
-            worldViewport.width(),
-            worldViewport.height());
-        renderWorld();
-        sceneContext.graphics->disableDepthBuffer();
-
-        sceneContext.graphics->setViewport(0, 0, sceneContext.viewport->width(), sceneContext.viewport->height());
-
-        // oh yeah also regulate sound
-        std::scoped_lock<std::mutex> lock(playingUnitChannelsLock);
-        auto volume = computeSoundVolume(playingUnitChannels.size());
-        for (auto channel : playingUnitChannels)
-        {
-            sceneContext.audioService->setVolume(channel, volume);
-        }
     }
 
     void GameScene::renderMinimap()
@@ -911,6 +920,17 @@ namespace rwe
 
         ImGui::Begin("Game Debug", &showDebugWindow);
         ImGui::Checkbox("Health bars", &healthBarsVisible);
+        if (ImGui::Checkbox("GUI", &guiVisible))
+        {
+            if (guiVisible)
+            {
+                worldViewport.setInset(GuiSizeLeft, GuiSizeTop, GuiSizeRight, GuiSizeBottom);
+            }
+            else
+            {
+                worldViewport.setInset(0, 0, 0, 0);
+            }
+        }
         ImGui::Separator();
         ImGui::Checkbox("Cursor terrain dot", &cursorTerrainDotVisible);
         ImGui::Checkbox("Occupied grid", &occupiedGridVisible);
