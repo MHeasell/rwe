@@ -373,8 +373,14 @@ namespace rwe
     {
         auto mvpMatrix = viewProjectionMatrix * matrix;
 
-        batch.push_back(UnitTextureMeshRenderInfo{&mesh.vertices, matrix, mvpMatrix, shaded, unitTextureAtlas});
-        batch.push_back(UnitTextureMeshRenderInfo{&mesh.teamVertices, matrix, mvpMatrix, shaded, unitTeamTextureAtlases.at(playerColorIndex.value).get()});
+        if (mesh.vertices)
+        {
+            batch.emplace_back(&*mesh.vertices, matrix, mvpMatrix, shaded, unitTextureAtlas);
+        }
+        if (mesh.teamVertices)
+        {
+            batch.emplace_back(&*mesh.teamVertices, matrix, mvpMatrix, shaded, unitTeamTextureAtlases.at(playerColorIndex.value).get());
+        }
     }
 
     void drawUnitMesh(
@@ -426,8 +432,14 @@ namespace rwe
         std::vector<UnitBuildingMeshRenderInfo>& batch)
     {
         auto mvpMatrix = viewProjectionMatrix * matrix;
-        batch.push_back(UnitBuildingMeshRenderInfo{&mesh.vertices, matrix, mvpMatrix, shaded, unitTextureAtlas, percentComplete, unitY});
-        batch.push_back(UnitBuildingMeshRenderInfo{&mesh.teamVertices, matrix, mvpMatrix, shaded, unitTeamTextureAtlases.at(playerColorIndex.value).get(), percentComplete, unitY});
+        if (mesh.vertices)
+        {
+            batch.emplace_back(&*mesh.vertices, matrix, mvpMatrix, shaded, unitTextureAtlas, percentComplete, unitY);
+        }
+        if (mesh.teamVertices)
+        {
+            batch.emplace_back(&*mesh.teamVertices, matrix, mvpMatrix, shaded, unitTeamTextureAtlases.at(playerColorIndex.value).get(), percentComplete, unitY);
+        }
     }
 
     void drawBuildingUnitMesh(

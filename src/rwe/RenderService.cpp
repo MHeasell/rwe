@@ -480,6 +480,7 @@ namespace rwe
     {
         auto mvpMatrix = (*viewProjectionMatrix) * matrix;
 
+        if (mesh.vertices || mesh.teamVertices)
         {
             const auto& textureShader = shaders->unitTexture;
             graphics->bindShader(textureShader.handle.get());
@@ -488,30 +489,46 @@ namespace rwe
             graphics->setUniformFloat(textureShader.seaLevel, seaLevel);
             graphics->setUniformBool(textureShader.shade, shaded);
 
-            graphics->bindTexture(unitTextureAtlas->get());
-            graphics->drawTriangles(mesh.vertices);
+            if (mesh.vertices)
+            {
+                graphics->bindTexture(unitTextureAtlas->get());
+                graphics->drawTriangles(*mesh.vertices);
+            }
 
-            graphics->bindTexture(unitTeamTextureAtlases->at(playerColorIndex.value).get());
-            graphics->drawTriangles(mesh.teamVertices);
+            if (mesh.teamVertices)
+            {
+                graphics->bindTexture(unitTeamTextureAtlases->at(playerColorIndex.value).get());
+                graphics->drawTriangles(*mesh.teamVertices);
+            }
         }
     }
 
     void RenderService::drawShaderMeshShadow(const ShaderMesh& mesh, const Matrix4f& matrix, float groundHeight)
     {
-        const auto& vpMatrix = *viewProjectionMatrix;
-        const auto& shader = shaders->unitShadow;
-        graphics->bindShader(shader.handle.get());
-        graphics->setUniformMatrix(shader.vpMatrix, vpMatrix);
-        graphics->setUniformMatrix(shader.modelMatrix, matrix);
-        graphics->setUniformFloat(shader.groundHeight, groundHeight);
-        graphics->drawTriangles(mesh.vertices);
-        graphics->drawTriangles(mesh.teamVertices);
+        if (mesh.vertices || mesh.teamVertices)
+        {
+            const auto& vpMatrix = *viewProjectionMatrix;
+            const auto& shader = shaders->unitShadow;
+            graphics->bindShader(shader.handle.get());
+            graphics->setUniformMatrix(shader.vpMatrix, vpMatrix);
+            graphics->setUniformMatrix(shader.modelMatrix, matrix);
+            graphics->setUniformFloat(shader.groundHeight, groundHeight);
+            if (mesh.vertices)
+            {
+                graphics->drawTriangles(*mesh.vertices);
+            }
+            if (mesh.teamVertices)
+            {
+                graphics->drawTriangles(*mesh.teamVertices);
+            }
+        }
     }
 
     void RenderService::drawBuildingShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex)
     {
         auto mvpMatrix = (*viewProjectionMatrix) * matrix;
 
+        if (mesh.vertices || mesh.teamVertices)
         {
             const auto& buildShader = shaders->unitBuild;
             graphics->bindShader(buildShader.handle.get());
@@ -523,11 +540,17 @@ namespace rwe
             graphics->setUniformFloat(buildShader.percentComplete, percentComplete);
             graphics->setUniformFloat(buildShader.time, time);
 
-            graphics->bindTexture(unitTextureAtlas->get());
-            graphics->drawTriangles(mesh.vertices);
+            if (mesh.vertices)
+            {
+                graphics->bindTexture(unitTextureAtlas->get());
+                graphics->drawTriangles(*mesh.vertices);
+            }
 
-            graphics->bindTexture(unitTeamTextureAtlases->at(playerColorIndex.value).get());
-            graphics->drawTriangles(mesh.teamVertices);
+            if (mesh.teamVertices)
+            {
+                graphics->bindTexture(unitTeamTextureAtlases->at(playerColorIndex.value).get());
+                graphics->drawTriangles(*mesh.teamVertices);
+            }
         }
     }
 

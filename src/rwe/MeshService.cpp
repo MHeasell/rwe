@@ -249,30 +249,39 @@ namespace rwe
 
     ShaderMesh MeshService::convertMesh(const Mesh& mesh)
     {
-        std::vector<GlTexturedNormalVertex> texturedVerticesBuffer;
-        texturedVerticesBuffer.reserve(mesh.faces.size() * 3);
-
-        for (const auto& t : mesh.faces)
+        std::optional<GlMesh> texturedMesh;
+        if (!mesh.faces.empty())
         {
-            auto normal = getNormal(t);
-            texturedVerticesBuffer.emplace_back(t.a.position, t.a.textureCoord, normal);
-            texturedVerticesBuffer.emplace_back(t.b.position, t.b.textureCoord, normal);
-            texturedVerticesBuffer.emplace_back(t.c.position, t.c.textureCoord, normal);
+            std::vector<GlTexturedNormalVertex> texturedVerticesBuffer;
+            texturedVerticesBuffer.reserve(mesh.faces.size() * 3);
+
+            for (const auto& t : mesh.faces)
+            {
+                auto normal = getNormal(t);
+                texturedVerticesBuffer.emplace_back(t.a.position, t.a.textureCoord, normal);
+                texturedVerticesBuffer.emplace_back(t.b.position, t.b.textureCoord, normal);
+                texturedVerticesBuffer.emplace_back(t.c.position, t.c.textureCoord, normal);
+            }
+
+            texturedMesh = graphics->createTexturedNormalMesh(texturedVerticesBuffer, GL_STATIC_DRAW);
         }
 
-        auto texturedMesh = graphics->createTexturedNormalMesh(texturedVerticesBuffer, GL_STATIC_DRAW);
-
-        std::vector<GlTexturedNormalVertex> teamTexturedVerticesBuffer;
-        teamTexturedVerticesBuffer.reserve(mesh.teamFaces.size() * 3);
-        for (const auto& t : mesh.teamFaces)
+        std::optional<GlMesh> teamTexturedMesh;
+        if (!mesh.teamFaces.empty())
         {
-            auto normal = getNormal(t);
-            teamTexturedVerticesBuffer.emplace_back(t.a.position, t.a.textureCoord, normal);
-            teamTexturedVerticesBuffer.emplace_back(t.b.position, t.b.textureCoord, normal);
-            teamTexturedVerticesBuffer.emplace_back(t.c.position, t.c.textureCoord, normal);
-        }
 
-        auto teamTexturedMesh = graphics->createTexturedNormalMesh(teamTexturedVerticesBuffer, GL_STATIC_DRAW);
+            std::vector<GlTexturedNormalVertex> teamTexturedVerticesBuffer;
+            teamTexturedVerticesBuffer.reserve(mesh.teamFaces.size() * 3);
+            for (const auto& t : mesh.teamFaces)
+            {
+                auto normal = getNormal(t);
+                teamTexturedVerticesBuffer.emplace_back(t.a.position, t.a.textureCoord, normal);
+                teamTexturedVerticesBuffer.emplace_back(t.b.position, t.b.textureCoord, normal);
+                teamTexturedVerticesBuffer.emplace_back(t.c.position, t.c.textureCoord, normal);
+            }
+
+            teamTexturedMesh = graphics->createTexturedNormalMesh(teamTexturedVerticesBuffer, GL_STATIC_DRAW);
+        }
 
         return ShaderMesh(std::move(texturedMesh), std::move(teamTexturedMesh));
     }

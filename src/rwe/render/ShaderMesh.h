@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <rwe/render/GlMesh.h>
 #include <rwe/render/TextureHandle.h>
 #include <rwe/render/VaoHandle.h>
@@ -9,11 +10,11 @@ namespace rwe
 {
     struct ShaderMesh
     {
-        GlMesh vertices;
-        GlMesh teamVertices;
+        std::optional<GlMesh> vertices;
+        std::optional<GlMesh> teamVertices;
 
         ShaderMesh(
-            GlMesh&& vertices,
-            GlMesh&& teamVertices);
+            std::optional<GlMesh>&& vertices,
+            std::optional<GlMesh>&& teamVertices);
     };
 }

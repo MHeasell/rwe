@@ -3,8 +3,8 @@
 namespace rwe
 {
     ShaderMesh::ShaderMesh(
-        GlMesh&& vertices,
-        GlMesh&& teamVertices)
+        std::optional<GlMesh>&& vertices,
+        std::optional<GlMesh>&& teamVertices)
         : vertices(std::move(vertices)),
           teamVertices(std::move(teamVertices))
     {
