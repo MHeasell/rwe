@@ -16,11 +16,6 @@ namespace rwe
 
         SimScalar reloadTime;
 
-        bool startSmoke;
-        bool endSmoke;
-
-        std::optional<GameTime> smokeTrail;
-
         /** The number of shots in a burst. */
         int burst;
 
@@ -33,8 +28,6 @@ namespace rwe
         SimAngle tolerance;
 
         SimAngle pitchTolerance;
-
-        ProjectileRenderType renderType;
 
         /** Projectile velocity in pixels/tick. */
         SimScalar velocity;
@@ -51,9 +44,6 @@ namespace rwe
 
         /** The range in frames that projectile lifetime may randomly vary by. */
         std::optional<GameTime> randomDecay;
-
-        /** If true, weapon start sound plays on each shot of the burst. Otherwise plays only on first shot. */
-        bool soundTrigger;
 
         /** If true, projectile does not explode when hitting the ground but instead continues travelling. */
         bool groundBounce;

@@ -2022,10 +2022,10 @@ namespace rwe
     void GameScene::playWeaponStartSound(const Vector3f& position, const std::string& weaponType)
     {
 
-        const auto& weaponTdf = unitDatabase.getWeapon(weaponType);
-        if (!weaponTdf.soundStart.empty())
+        const auto& weaponMediaInfo = unitDatabase.getWeapon(weaponType);
+        if (weaponMediaInfo.soundStart)
         {
-            auto sound = unitDatabase.tryGetSoundHandle(weaponTdf.soundStart);
+            auto sound = unitDatabase.tryGetSoundHandle(*weaponMediaInfo.soundStart);
             if (sound)
             {
                 playSoundAt(position, *sound);
@@ -2035,14 +2035,14 @@ namespace rwe
 
     void GameScene::playWeaponImpactSound(const Vector3f& position, const std::string& weaponType, ImpactType impactType)
     {
-        const auto& weaponTdf = unitDatabase.getWeapon(weaponType);
+        const auto& weaponMediaInfo = unitDatabase.getWeapon(weaponType);
         switch (impactType)
         {
             case ImpactType::Normal:
             {
-                if (!weaponTdf.soundHit.empty())
+                if (weaponMediaInfo.soundHit)
                 {
-                    auto sound = unitDatabase.tryGetSoundHandle(weaponTdf.soundHit);
+                    auto sound = unitDatabase.tryGetSoundHandle(*weaponMediaInfo.soundHit);
                     if (sound)
                     {
                         playSoundAt(position, *sound);
@@ -2052,9 +2052,9 @@ namespace rwe
             }
             case ImpactType::Water:
             {
-                if (!weaponTdf.soundWater.empty())
+                if (weaponMediaInfo.soundWater)
                 {
-                    auto sound = unitDatabase.tryGetSoundHandle(weaponTdf.soundWater);
+                    auto sound = unitDatabase.tryGetSoundHandle(*weaponMediaInfo.soundWater);
                     if (sound)
                     {
                         playSoundAt(position, *sound);
@@ -2067,18 +2067,17 @@ namespace rwe
 
     void GameScene::spawnWeaponImpactExplosion(const Vector3f& position, const std::string& weaponType, ImpactType impactType)
     {
+        const auto& weaponMediaInfo = unitDatabase.getWeapon(weaponType);
 
-        const auto& weaponTdf = unitDatabase.getWeapon(weaponType);
         switch (impactType)
         {
             case ImpactType::Normal:
             {
-
-                if (!weaponTdf.explosionGaf.empty() && !weaponTdf.explosionArt.empty())
+                if (weaponMediaInfo.explosionAnim)
                 {
-                    spawnExplosion(position, weaponTdf.explosionGaf, weaponTdf.explosionArt);
+                    spawnExplosion(position, *weaponMediaInfo.explosionAnim);
                 }
-                if (weaponTdf.endSmoke)
+                if (weaponMediaInfo.endSmoke)
                 {
                     createLightSmoke(position);
                 }
@@ -2086,9 +2085,9 @@ namespace rwe
             }
             case ImpactType::Water:
             {
-                if (!weaponTdf.waterExplosionGaf.empty() && !weaponTdf.waterExplosionArt.empty())
+                if (weaponMediaInfo.waterExplosionAnim)
                 {
-                    spawnExplosion(position, weaponTdf.waterExplosionGaf, weaponTdf.waterExplosionArt);
+                    spawnExplosion(position, *weaponMediaInfo.waterExplosionAnim);
                 }
                 break;
             }
@@ -2674,6 +2673,11 @@ namespace rwe
         return simulation;
     }
 
+    const UnitDatabase& GameScene::getUnitDatabase() const
+    {
+        return unitDatabase;
+    }
+
     bool GameScene::isEnemy(UnitId id) const
     {
         // TODO: consider allies/teams here
@@ -2690,11 +2694,13 @@ namespace rwe
         auto gameTime = getGameTime();
         for (auto& [id, projectile] : simulation.projectiles)
         {
+            const auto& weaponMediaInfo = unitDatabase.getWeapon(projectile.weaponType);
+
             // remove if it's time to die
             if (projectile.dieOnFrame && *projectile.dieOnFrame <= gameTime)
             {
                 projectile.isDead = true;
-                if (projectile.endSmoke)
+                if (weaponMediaInfo.endSmoke)
                 {
                     createLightSmoke(simVectorToFloat(projectile.position));
                 }
@@ -2709,9 +2715,9 @@ namespace rwe
             projectile.position += projectile.velocity;
 
             // emit smoke trail
-            if (projectile.smokeTrail)
+            if (weaponMediaInfo.smokeTrail)
             {
-                if (gameTime > projectile.lastSmoke + *projectile.smokeTrail)
+                if (gameTime > projectile.lastSmoke + *weaponMediaInfo.smokeTrail)
                 {
                     createLightSmoke(simVectorToFloat(projectile.position));
                     projectile.lastSmoke = gameTime;
@@ -3715,12 +3721,12 @@ namespace rwe
         return sceneContext.globalConfig->leftClickInterfaceMode;
     }
 
-    void GameScene::spawnExplosion(const Vector3f& position, const std::string& gaf, const std::string& anim)
+    void GameScene::spawnExplosion(const Vector3f& position, const AnimLocation& anim)
     {
         Explosion exp;
         exp.position = position;
-        exp.explosionGaf = gaf;
-        exp.explosionAnim = anim;
+        exp.explosionGaf = anim.gafName;
+        exp.explosionAnim = anim.animName;
         exp.startTime = simulation.gameTime;
         exp.finishTime = ExplosionFinishTimeEndOfFrames();
         exp.frameDuration = GameTime(2);

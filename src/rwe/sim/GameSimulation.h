@@ -95,6 +95,8 @@ namespace rwe
 
         MapTerrain terrain;
 
+        std::unordered_map<std::string, WeaponDefinition> weaponDefinitions;
+
         OccupiedGrid occupiedGrid;
 
         Grid<unsigned char> metalGrid;

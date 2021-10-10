@@ -345,8 +345,10 @@ namespace rwe
             const auto& projectile = e.second;
             auto position = lerp(simVectorToFloat(projectile.previousPosition), simVectorToFloat(projectile.position), frac);
 
+            const auto& weaponMediaInfo = unitDatabase->getWeapon(projectile.weaponType);
+
             match(
-                projectile.renderType,
+                weaponMediaInfo.renderType,
                 [&](const ProjectileRenderTypeLaser& l) {
                     Vector3f pixelOffset(0.0f, 0.0f, -1.0f);
 

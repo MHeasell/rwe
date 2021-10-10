@@ -311,6 +311,8 @@ set(SOURCE_FILES
     src/rwe/VectorMap.h
     src/rwe/Viewport.cpp
     src/rwe/Viewport.h
+    src/rwe/WeaponMediaInfo.cpp
+    src/rwe/WeaponMediaInfo.h
     src/rwe/atlas_util.cpp
     src/rwe/atlas_util.h
     src/rwe/camera_util.cpp

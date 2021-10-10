@@ -64,8 +64,6 @@ namespace rwe
     {
         std::string weaponType;
 
-        WeaponDefinition weaponDefinition;
-
         /** The game time at which the weapon next becomes ready to fire. */
         GameTime readyTime{0};
 

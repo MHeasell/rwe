@@ -432,39 +432,37 @@ namespace rwe
     Projectile GameSimulation::createProjectileFromWeapon(
         PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction, SimScalar distanceToTarget)
     {
+        const auto& weaponDefinition = weaponDefinitions.at(weapon.weaponType);
+
         Projectile projectile;
         projectile.weaponType = weapon.weaponType;
         projectile.owner = owner;
         projectile.position = position;
         projectile.previousPosition = position;
         projectile.origin = position;
-        projectile.velocity = direction * weapon.weaponDefinition.velocity;
-        projectile.gravity = weapon.weaponDefinition.physicsType == ProjectilePhysicsType::Ballistic;
+        projectile.velocity = direction * weaponDefinition.velocity;
+        projectile.gravity = weaponDefinition.physicsType == ProjectilePhysicsType::Ballistic;
 
-        projectile.renderType = weapon.weaponDefinition.renderType;
-
-        projectile.endSmoke = weapon.weaponDefinition.endSmoke;
-        projectile.smokeTrail = weapon.weaponDefinition.smokeTrail;
         projectile.lastSmoke = gameTime;
 
-        projectile.damage = weapon.weaponDefinition.damage;
+        projectile.damage = weaponDefinition.damage;
 
-        projectile.damageRadius = weapon.weaponDefinition.damageRadius;
+        projectile.damageRadius = weaponDefinition.damageRadius;
 
-        if (weapon.weaponDefinition.weaponTimer)
+        if (weaponDefinition.weaponTimer)
         {
-            auto randomDecay = weapon.weaponDefinition.randomDecay.value().value;
+            auto randomDecay = weaponDefinition.randomDecay.value().value;
             std::uniform_int_distribution<unsigned int> dist(0, randomDecay);
             auto randomVal = dist(rng);
-            projectile.dieOnFrame = gameTime + *weapon.weaponDefinition.weaponTimer - GameTime(randomDecay / 2) + GameTime(randomVal);
+            projectile.dieOnFrame = gameTime + *weaponDefinition.weaponTimer - GameTime(randomDecay / 2) + GameTime(randomVal);
         }
-        else if (weapon.weaponDefinition.physicsType == ProjectilePhysicsType::LineOfSight)
+        else if (weaponDefinition.physicsType == ProjectilePhysicsType::LineOfSight)
         {
-            projectile.dieOnFrame = gameTime + GameTime(simScalarToUInt(distanceToTarget / weapon.weaponDefinition.velocity) + 1);
+            projectile.dieOnFrame = gameTime + GameTime(simScalarToUInt(distanceToTarget / weaponDefinition.velocity) + 1);
         }
 
         projectile.createdAt = gameTime;
-        projectile.groundBounce = weapon.weaponDefinition.groundBounce;
+        projectile.groundBounce = weaponDefinition.groundBounce;
 
         return projectile;
     }

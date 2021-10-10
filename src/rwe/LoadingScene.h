@@ -148,7 +148,7 @@ namespace rwe
 
         const SideData& getSideData(const std::string& side) const;
 
-        std::pair<UnitDatabase, MeshDatabase> createUnitDatabase(MeshService& meshService);
+        std::tuple<UnitDatabase, MeshDatabase, std::unordered_map<std::string, WeaponDefinition>> createUnitDatabase(MeshService& meshService);
 
         void preloadSound(UnitDatabase& db, const std::string& soundName);
 

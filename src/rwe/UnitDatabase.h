@@ -5,10 +5,10 @@
 #include <rwe/AudioService.h>
 #include <rwe/SoundClass.h>
 #include <rwe/UnitModelDefinition.h>
+#include <rwe/WeaponMediaInfo.h>
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/io/cob/Cob.h>
 #include <rwe/io/fbi/UnitFbi.h>
-#include <rwe/io/weapontdf/WeaponTdf.h>
 #include <rwe/render/ShaderMesh.h>
 #include <rwe/sim/MovementClass.h>
 #include <utility>
@@ -25,7 +25,7 @@ namespace rwe
 
         std::unordered_map<std::string, CobScript> cobMap;
 
-        std::unordered_map<std::string, WeaponTdf> weaponMap;
+        std::unordered_map<std::string, WeaponMediaInfo> weaponMap;
 
         std::unordered_map<std::string, SoundClass> soundClassMap;
 
@@ -50,11 +50,11 @@ namespace rwe
 
         void addUnitScript(const std::string& unitName, CobScript&& cob);
 
-        const WeaponTdf& getWeapon(const std::string& weaponName) const;
+        const WeaponMediaInfo& getWeapon(const std::string& weaponName) const;
 
-        std::optional<std::reference_wrapper<const WeaponTdf>> tryGetWeapon(const std::string& weaponName) const;
+        std::optional<std::reference_wrapper<const WeaponMediaInfo>> tryGetWeapon(const std::string& weaponName) const;
 
-        void addWeapon(const std::string& name, WeaponTdf&& weapon);
+        void addWeapon(const std::string& name, WeaponMediaInfo&& weapon);
 
         const SoundClass& getSoundClassOrDefault(const std::string& className) const;
 

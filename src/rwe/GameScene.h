@@ -385,6 +385,8 @@ namespace rwe
 
         const GameSimulation& getSimulation() const;
 
+        const UnitDatabase& getUnitDatabase() const;
+
         void doProjectileImpact(const Projectile& projectile, ImpactType impactType);
 
         void createLightSmoke(const Vector3f& position);
@@ -582,7 +584,7 @@ namespace rwe
 
         bool leftClickMode() const;
 
-        void spawnExplosion(const Vector3f& position, const std::string& gaf, const std::string& anim);
+        void spawnExplosion(const Vector3f& position, const AnimLocation& anim);
 
         void spawnSmoke(const Vector3f& position, const std::string& gaf, const std::string& anim, ExplosionFinishTime duration, GameTime frameDuration);
     };

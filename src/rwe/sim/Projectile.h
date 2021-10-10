@@ -26,19 +26,6 @@ namespace rwe
 
         bool gravity;
 
-        ProjectileRenderType renderType;
-
-        /** If true, creates smoke on impact. */
-        bool endSmoke;
-
-        /**
-         * If set, smoke is emitted from the projectile.
-         * The set value indicates the delay in ticks between each emission.
-         * A value of 0 indicates that smoke is emitted every tick,
-         * a value of 1 is every other tick, etc.
-         */
-        std::optional<GameTime> smokeTrail;
-
         /** The last time the projectile emitted smoke. */
         GameTime lastSmoke;
 

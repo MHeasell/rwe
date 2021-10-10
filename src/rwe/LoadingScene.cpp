@@ -167,7 +167,7 @@ namespace rwe
         auto atlasInfo = createTextureAtlases(sceneContext.vfs, sceneContext.graphics, sceneContext.palette);
         MeshService meshService(sceneContext.vfs, sceneContext.graphics, std::move(atlasInfo.textureAtlasMap), std::move(atlasInfo.teamTextureAtlasMap), std::move(atlasInfo.colorAtlasMap));
 
-        auto [unitDatabase, meshDatabase] = createUnitDatabase(meshService);
+        auto [unitDatabase, meshDatabase, weaponDefinitions] = createUnitDatabase(meshService);
 
         auto otaRaw = sceneContext.vfs->readFile(std::string("maps/").append(mapName).append(".ota"));
         if (!otaRaw)
@@ -205,6 +205,8 @@ namespace rwe
         auto minimap = sceneContext.textureService->getMinimap(mapName);
 
         GameCameraState worldCameraState;
+
+        simulation.weaponDefinitions = std::move(weaponDefinitions);
 
         MovementClassCollisionService collisionService;
 
@@ -592,10 +594,208 @@ namespace rwe
         return it->second;
     }
 
-    std::pair<UnitDatabase, MeshDatabase> LoadingScene::createUnitDatabase(MeshService& meshService)
+    Vector3f colorToVector(const Color& color)
+    {
+        return Vector3f(
+            static_cast<float>(color.r) / 255.0f,
+            static_cast<float>(color.g) / 255.0f,
+            static_cast<float>(color.b) / 255.0f);
+    }
+
+    unsigned int colorDistance(const Color& a, const Color& b)
+    {
+        auto dr = a.r > b.r ? a.r - b.r : b.r - a.r;
+        auto dg = a.g > b.g ? a.g - b.g : b.g - a.g;
+        auto db = a.b > b.b ? a.b - b.b : b.b - a.b;
+        return dr + dg + db;
+    }
+
+    Vector3f getLaserColorUtil(const std::vector<Color>& palette, const std::vector<Color>& guiPalette, unsigned int colorIndex)
+    {
+        // In TA, lasers use the GUIPAL colors,
+        // but these must be mapped to a color available
+        // in the in-game PALETTE.
+        const auto& guiColor = guiPalette.at(colorIndex);
+
+        auto elem = std::min_element(
+            palette.begin(),
+            palette.end(),
+            [&guiColor](const auto& a, const auto& b) { return colorDistance(guiColor, a) < colorDistance(guiColor, b); });
+
+        return colorToVector(*elem);
+    }
+
+    std::optional<std::string> getFxName(unsigned int code)
+    {
+        switch (code)
+        {
+            case 0:
+                return "cannonshell";
+            case 1:
+                return "plasmasm";
+            case 2:
+                return "plasmamd";
+            case 3:
+                return "ultrashell";
+            case 4:
+                return "plasmasm";
+            default:
+                return std::nullopt;
+        }
+    }
+
+    WeaponDefinition parseWeaponDefinition(const WeaponTdf& tdf)
+    {
+        WeaponDefinition weaponDefinition;
+
+        weaponDefinition.maxRange = SimScalar(tdf.range);
+        weaponDefinition.reloadTime = SimScalar(tdf.reloadTime);
+        weaponDefinition.tolerance = SimAngle(tdf.tolerance);
+        weaponDefinition.pitchTolerance = SimAngle(tdf.pitchTolerance);
+        weaponDefinition.velocity = SimScalar(static_cast<float>(tdf.weaponVelocity) / 30.0f);
+
+        weaponDefinition.burst = tdf.burst;
+        weaponDefinition.burstInterval = SimScalar(tdf.burstRate);
+        weaponDefinition.sprayAngle = SimAngle(tdf.sprayAngle);
+
+        weaponDefinition.physicsType = tdf.lineOfSight
+            ? ProjectilePhysicsType::LineOfSight
+            : tdf.ballistic ? ProjectilePhysicsType::Ballistic
+                            : ProjectilePhysicsType::LineOfSight;
+
+        weaponDefinition.commandFire = tdf.commandFire;
+
+        for (const auto& p : tdf.damage)
+        {
+            weaponDefinition.damage.insert_or_assign(toUpper(p.first), p.second);
+        }
+
+        weaponDefinition.damageRadius = SimScalar(static_cast<float>(tdf.areaOfEffect) / 2.0f);
+
+        if (tdf.weaponTimer != 0.0f)
+        {
+            weaponDefinition.weaponTimer = GameTime(static_cast<unsigned int>(tdf.weaponTimer * 30.0f));
+        }
+
+        weaponDefinition.groundBounce = tdf.groundBounce;
+
+        weaponDefinition.randomDecay = GameTime(static_cast<unsigned int>(tdf.randomDecay * 30.0f));
+
+        return weaponDefinition;
+    }
+
+    WeaponMediaInfo parseWeaponMediaInfo(const std::vector<Color>& palette, const std::vector<Color>& guiPalette, const WeaponTdf& tdf)
+    {
+        WeaponMediaInfo mediaInfo;
+
+        mediaInfo.soundTrigger = tdf.soundTrigger;
+
+        if (!tdf.soundStart.empty())
+        {
+            mediaInfo.soundStart = tdf.soundStart;
+        }
+        if (!tdf.soundHit.empty())
+        {
+            mediaInfo.soundHit = tdf.soundHit;
+        }
+        if (!tdf.soundWater.empty())
+        {
+            mediaInfo.soundWater = tdf.soundWater;
+        }
+
+        mediaInfo.startSmoke = tdf.startSmoke;
+        mediaInfo.endSmoke = tdf.endSmoke;
+        if (tdf.smokeTrail)
+        {
+            mediaInfo.smokeTrail = GameTime(static_cast<unsigned int>(tdf.smokeDelay * 30.0f));
+        }
+
+        switch (tdf.renderType)
+        {
+            case 0:
+            {
+                mediaInfo.renderType = ProjectileRenderTypeLaser{
+                    getLaserColorUtil(palette, guiPalette, tdf.color),
+                    getLaserColorUtil(palette, guiPalette, tdf.color2),
+                    SimScalar(tdf.duration * 30.0f * 2.0f), // duration seems to match better if doubled
+                };
+                break;
+            }
+            case 1:
+            {
+                mediaInfo.renderType = ProjectileRenderTypeModel{
+                    tdf.model, ProjectileRenderTypeModel::RotationMode::HalfZ};
+                break;
+            }
+            case 3:
+            {
+                mediaInfo.renderType = ProjectileRenderTypeModel{
+                    tdf.model, ProjectileRenderTypeModel::RotationMode::QuarterY};
+                break;
+            }
+            case 4:
+            {
+                auto fxName = getFxName(tdf.color);
+                if (fxName)
+                {
+
+                    mediaInfo.renderType = ProjectileRenderTypeSprite{"fx", *fxName};
+                }
+                else
+                {
+                    mediaInfo.renderType = ProjectileRenderTypeNone{};
+                }
+
+                break;
+            }
+            case 5:
+            {
+                mediaInfo.renderType = ProjectileRenderTypeFlamethrower{};
+                break;
+            }
+            case 6:
+            {
+                mediaInfo.renderType = ProjectileRenderTypeModel{
+                    tdf.model, ProjectileRenderTypeModel::RotationMode::None};
+                break;
+            }
+            case 7:
+            {
+                mediaInfo.renderType = ProjectileRenderTypeLightning{
+                    getLaserColorUtil(palette, guiPalette, tdf.color),
+                    SimScalar(tdf.duration * 30.0f * 2.0f), // duration seems to match better if doubled
+                };
+                break;
+            }
+            default:
+            {
+                mediaInfo.renderType = ProjectileRenderTypeLaser{
+                    Vector3f(0.0f, 0.0f, 0.0f),
+                    Vector3f(0.0f, 0.0f, 0.0f),
+                    SimScalar(4.0f)};
+                break;
+            }
+        }
+
+        if (!tdf.explosionGaf.empty() && !tdf.explosionArt.empty())
+        {
+            mediaInfo.explosionAnim = AnimLocation{tdf.explosionGaf, tdf.explosionArt};
+        }
+
+        if (!tdf.waterExplosionGaf.empty() && !tdf.waterExplosionArt.empty())
+        {
+            mediaInfo.waterExplosionAnim = AnimLocation{tdf.waterExplosionGaf, tdf.waterExplosionArt};
+        }
+
+        return mediaInfo;
+    }
+
+
+    std::tuple<UnitDatabase, MeshDatabase, std::unordered_map<std::string, WeaponDefinition>> LoadingScene::createUnitDatabase(MeshService& meshService)
     {
         UnitDatabase db;
         MeshDatabase meshDb;
+        std::unordered_map<std::string, WeaponDefinition> weaponDefinitions;
 
         // read sound categories
         {
@@ -671,32 +871,37 @@ namespace rwe
 
                 for (auto& pair : entries)
                 {
-                    preloadSound(db, pair.second.soundStart);
-                    preloadSound(db, pair.second.soundHit);
-                    preloadSound(db, pair.second.soundWater);
+                    auto weaponDefinition = parseWeaponDefinition(pair.second);
+                    auto weaponMediaInfo = parseWeaponMediaInfo(*sceneContext.palette, *sceneContext.guiPalette, pair.second);
 
-                    if (!pair.second.model.empty())
+                    preloadSound(db, weaponMediaInfo.soundStart);
+                    preloadSound(db, weaponMediaInfo.soundHit);
+                    preloadSound(db, weaponMediaInfo.soundWater);
+
+                    if (auto modelRenderType = std::get_if<ProjectileRenderTypeModel>(&weaponMediaInfo.renderType); modelRenderType != nullptr)
                     {
-                        auto meshInfo = meshService.loadProjectileMesh(pair.second.model);
-                        db.addUnitModelDefinition(pair.second.model, std::move(meshInfo.modelDefinition));
+                        auto meshInfo = meshService.loadProjectileMesh(modelRenderType->objectName);
+                        db.addUnitModelDefinition(modelRenderType->objectName, std::move(meshInfo.modelDefinition));
                         for (const auto& m : meshInfo.pieceMeshes)
                         {
-                            meshDb.addUnitPieceMesh(pair.second.model, m.first, m.second);
+                            meshDb.addUnitPieceMesh(modelRenderType->objectName, m.first, m.second);
                         }
                     }
 
-                    if (!pair.second.explosionGaf.empty() && !pair.second.explosionArt.empty())
+                    if (weaponMediaInfo.explosionAnim)
                     {
-                        auto anim = sceneContext.textureService->getGafEntry("anims/" + pair.second.explosionGaf + ".gaf", pair.second.explosionArt);
-                        meshDb.addSpriteSeries(pair.second.explosionGaf, pair.second.explosionArt, anim);
+                        auto anim = sceneContext.textureService->getGafEntry("anims/" + weaponMediaInfo.explosionAnim->gafName + ".gaf", weaponMediaInfo.explosionAnim->animName);
+                        meshDb.addSpriteSeries(weaponMediaInfo.explosionAnim->gafName, weaponMediaInfo.explosionAnim->animName, anim);
                     }
-                    if (!pair.second.waterExplosionGaf.empty() && !pair.second.waterExplosionArt.empty())
+                    if (weaponMediaInfo.waterExplosionAnim)
                     {
-                        auto anim = sceneContext.textureService->getGafEntry("anims/" + pair.second.waterExplosionGaf + ".gaf", pair.second.waterExplosionArt);
-                        meshDb.addSpriteSeries(pair.second.waterExplosionGaf, pair.second.waterExplosionArt, anim);
+                        auto anim = sceneContext.textureService->getGafEntry("anims/" + weaponMediaInfo.waterExplosionAnim->gafName + ".gaf", weaponMediaInfo.waterExplosionAnim->animName);
+                        meshDb.addSpriteSeries(weaponMediaInfo.waterExplosionAnim->gafName, weaponMediaInfo.waterExplosionAnim->animName, anim);
                     }
 
-                    db.addWeapon(pair.first, std::move(pair.second));
+                    db.addWeapon(toUpper(pair.first), std::move(weaponMediaInfo));
+
+                    weaponDefinitions.insert({toUpper(pair.first), std::move(weaponDefinition)});
                 }
             }
         }
@@ -792,7 +997,7 @@ namespace rwe
             meshDb.addSpriteSeries("FX", "flamestream", anim);
         }
 
-        return std::make_pair(db, meshDb);
+        return std::make_tuple(db, meshDb, weaponDefinitions);
     }
 
     void LoadingScene::preloadSound(UnitDatabase& db, const std::optional<std::string>& soundName)
