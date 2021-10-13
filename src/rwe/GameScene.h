@@ -231,9 +231,14 @@ namespace rwe
         bool up{false};
         bool down{false};
 
+        bool leftCtrlDown{false};
+        bool rightCtrlDown{false};
         bool leftShiftDown{false};
         bool rightShiftDown{false};
 
+        bool trackingOn{false};
+        UnitId trackedUnitId;
+      
         std::optional<UnitId> hoveredUnit;
         std::unordered_set<UnitId> selectedUnits;
 
@@ -443,6 +448,10 @@ namespace rwe
         void stopUnit(UnitId unitId);
 
         void setFireOrders(UnitId unitId, UnitFireOrders orders);
+
+        void startTrack();
+
+        bool isCtrlDown() const;
 
         bool isShiftDown() const;
 

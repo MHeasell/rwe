@@ -42,6 +42,8 @@ namespace rwe
 
         void setPosition(const Vector3f& newPosition);
 
+        void setPositionXZ(const Vector2f& newPosition);
+
         const Matrix4f& getViewProjectionMatrix() const override;
 
         const Matrix4f& getInverseViewProjectionMatrix() const override;

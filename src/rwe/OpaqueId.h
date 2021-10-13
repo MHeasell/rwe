@@ -23,6 +23,12 @@ namespace rwe
         {
             return !(rhs == *this);
         }
+
+        bool operator<(const OpaqueId& rhs) const
+        {
+            return value < rhs.value;
+        }
+
     };
 }
 
