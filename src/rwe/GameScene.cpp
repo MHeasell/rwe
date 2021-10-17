@@ -650,8 +650,28 @@ namespace rwe
         }
 
         auto seaLevel = simulation.terrain.getSeaLevel();
-        worldRenderService.drawUnitShadows(simulation.terrain, simulation.units | boost::adaptors::map_values, interpolationFraction, seaLevel);
-        worldRenderService.drawFeatureMeshShadows(simulation.terrain, simulation.features | boost::adaptors::map_values, seaLevel);
+
+        UnitShadowMeshBatch unitShadowMeshBatch;
+        for (const auto& unit : (simulation.units | boost::adaptors::map_values))
+        {
+            auto groundHeight = simulation.terrain.getHeightAt(unit.position.x, unit.position.z);
+            if (unit.floater || unit.canHover)
+            {
+                groundHeight = rweMax(groundHeight, seaLevel);
+            }
+            drawUnitShadow(&unitDatabase, meshDatabase, viewProjectionMatrix, unit, interpolationFraction, simScalarToFloat(groundHeight), unitTextureAtlas.get(), unitTeamTextureAtlases, unitShadowMeshBatch);
+        }
+        for (const auto& feature : (simulation.features | boost::adaptors::map_values))
+        {
+            const auto& position = feature.position;
+            auto groundHeight = simulation.terrain.getHeightAt(position.x, position.z);
+            if (position.y >= seaLevel && groundHeight < seaLevel)
+            {
+                groundHeight = seaLevel;
+            }
+            drawFeatureMeshShadow(&unitDatabase, meshDatabase, viewProjectionMatrix, feature, simScalarToFloat(groundHeight), unitTextureAtlas.get(), unitTeamTextureAtlases, unitShadowMeshBatch);
+        }
+        worldRenderService.drawUnitMeshBatchShadows(unitShadowMeshBatch);
 
         sceneContext.graphics->enableDepthBuffer();
 

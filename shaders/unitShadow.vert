@@ -5,7 +5,9 @@ uniform mat4 modelMatrix;
 uniform float groundHeight;
 
 in vec3 position;
+in vec2 texCoord;
 
+out vec2 fragTexCoord;
 out float height;
 
 void main(void)
@@ -21,6 +23,6 @@ void main(void)
         1.0);
 
     gl_Position = vpMatrix * shadowPosition;
-
+    fragTexCoord = texCoord;
     height = worldPosition.y;
 }

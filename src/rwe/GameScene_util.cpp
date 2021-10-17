@@ -383,6 +383,25 @@ namespace rwe
         }
     }
 
+    void drawShaderMeshShadow(
+        const Matrix4f& viewProjectionMatrix,
+        const ShaderMesh& mesh,
+        const Matrix4f& matrix,
+        float groundHeight,
+        TextureIdentifier unitTextureAtlas,
+        std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
+        std::vector<UnitTextureShadowMeshRenderInfo>& batch)
+    {
+        if (mesh.vertices)
+        {
+            batch.emplace_back(&*mesh.vertices, matrix, viewProjectionMatrix, unitTextureAtlas, groundHeight);
+        }
+        if (mesh.teamVertices)
+        {
+            batch.emplace_back(&*mesh.teamVertices, matrix, viewProjectionMatrix, unitTeamTextureAtlases.at(0).get(), groundHeight);
+        }
+    }
+
     void drawUnitMesh(
         const UnitDatabase* unitDatabase,
         const MeshDatabase& meshDatabase,
@@ -416,6 +435,70 @@ namespace rwe
 
             const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
             drawShaderMesh(viewProjectionMatrix, resolvedMesh, matrix, mesh.shaded, playerColorIndex, unitTextureAtlas, unitTeamTextureAtlases, batch.meshes);
+        }
+    }
+
+    void drawUnitShadowMesh(
+        const UnitDatabase* unitDatabase,
+        const MeshDatabase& meshDatabase,
+        const Matrix4f& viewProjectionMatrix,
+        const std::string& objectName,
+        const std::vector<UnitMesh>& meshes,
+        const Matrix4f& modelMatrix,
+        float frac,
+        float groundHeight,
+        TextureIdentifier unitTextureAtlas,
+        std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
+        UnitShadowMeshBatch& batch)
+    {
+        auto modelDefinition = unitDatabase->getUnitModelDefinition(objectName);
+        if (!modelDefinition)
+        {
+            throw std::runtime_error("missing model definition: " + objectName);
+        }
+        assert(modelDefinition->get().pieces.size() == meshes.size());
+
+        for (Index i = 0; i < getSize(modelDefinition->get().pieces); ++i)
+        {
+            const auto& pieceDef = modelDefinition->get().pieces[i];
+            const auto& mesh = meshes[i];
+            if (!mesh.visible)
+            {
+                continue;
+            }
+
+            auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition->get(), meshes, frac);
+
+            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
+            drawShaderMeshShadow(viewProjectionMatrix, resolvedMesh, matrix, groundHeight, unitTextureAtlas, unitTeamTextureAtlases, batch.meshes);
+        }
+    }
+
+    void drawUnitShadowMeshNoPieces(
+        const UnitDatabase* unitDatabase,
+        const MeshDatabase& meshDatabase,
+        const Matrix4f& viewProjectionMatrix,
+        const std::string& objectName,
+        const Matrix4f& modelMatrix,
+        float groundHeight,
+        TextureIdentifier unitTextureAtlas,
+        std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
+        UnitShadowMeshBatch& batch)
+    {
+        auto modelDefinition = unitDatabase->getUnitModelDefinition(objectName);
+        if (!modelDefinition)
+        {
+            throw std::runtime_error("missing model definition: " + objectName);
+        }
+
+        for (Index i = 0; i < getSize(modelDefinition->get().pieces); ++i)
+        {
+            const auto& pieceDef = modelDefinition->get().pieces[i];
+
+            auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition->get());
+
+            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
+            drawShaderMeshShadow(viewProjectionMatrix, resolvedMesh, matrix, groundHeight, unitTextureAtlas, unitTeamTextureAtlases, batch.meshes);
         }
     }
 
@@ -544,6 +627,46 @@ namespace rwe
             auto matrix = Matrix4f::translation(simVectorToFloat(feature.position)) * Matrix4f::rotationY(0.0f, -1.0f);
             drawProjectileUnitMesh(unitDatabase, meshDatabase, viewProjectionMatrix, objectInfo->objectName, matrix, PlayerColorIndex(0), true, unitTextureAtlas, unitTeamTextureAtlases, batch);
         }
+    }
+
+    void drawUnitShadow(
+        const UnitDatabase* unitDatabase,
+        const MeshDatabase& meshDatabase,
+        const Matrix4f& viewProjectionMatrix,
+        const Unit& unit,
+        float frac,
+        float groundHeight,
+        TextureIdentifier unitTextureAtlas,
+        std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
+        UnitShadowMeshBatch& batch)
+    {
+        auto position = lerp(simVectorToFloat(unit.previousPosition), simVectorToFloat(unit.position), frac);
+        auto rotation = angleLerp(toRadians(unit.previousRotation).value, toRadians(unit.rotation).value, frac);
+        auto transform = Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
+
+        drawUnitShadowMesh(unitDatabase, meshDatabase, viewProjectionMatrix, unit.objectName, unit.pieces, transform, frac, groundHeight, unitTextureAtlas, unitTeamTextureAtlases, batch);
+    }
+
+    void drawFeatureMeshShadow(
+        const UnitDatabase* unitDatabase,
+        const MeshDatabase& meshDatabase,
+        const Matrix4f& viewProjectionMatrix,
+        const MapFeature& feature,
+        float groundHeight,
+        TextureIdentifier unitTextureAtlas,
+        std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
+        UnitShadowMeshBatch& batch)
+    {
+        auto objectInfo = std::get_if<FeatureObjectInfo>(&feature.renderInfo);
+        if (objectInfo == nullptr)
+        {
+            return;
+        }
+
+        const auto& position = feature.position;
+        auto matrix = Matrix4f::translation(simVectorToFloat(position)) * Matrix4f::rotationY(0.0f, -1.0f);
+
+        drawUnitShadowMeshNoPieces(unitDatabase, meshDatabase, viewProjectionMatrix, objectInfo->objectName, matrix, groundHeight, unitTextureAtlas, unitTeamTextureAtlases, batch);
     }
 
     void updateExplosions(const MeshDatabase& meshDatabase, GameTime currentTime, std::vector<Explosion>& explosions)

@@ -115,31 +115,6 @@ namespace rwe
         graphics->drawLines(mesh);
     }
 
-    void RenderService::drawUnitMeshShadow(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float groundHeight, float frac)
-    {
-        auto modelDefinition = unitDatabase->getUnitModelDefinition(objectName);
-        if (!modelDefinition)
-        {
-            throw std::runtime_error("missing model definition: " + objectName);
-        }
-        assert(modelDefinition->get().pieces.size() == meshes.size());
-
-        for (Index i = 0; i < getSize(modelDefinition->get().pieces); ++i)
-        {
-            const auto& pieceDef = modelDefinition->get().pieces[i];
-            const auto& mesh = meshes[i];
-            if (!mesh.visible)
-            {
-                continue;
-            }
-
-            auto matrix = modelMatrix * getPieceTransform(pieceDef.name, modelDefinition->get(), meshes, frac);
-
-            const auto& resolvedMesh = *meshDatabase->getUnitPieceMesh(objectName, pieceDef.name).value();
-            drawShaderMeshShadow(resolvedMesh, matrix, groundHeight);
-        }
-    }
-
     void RenderService::drawProjectileUnitMesh(const std::string& objectName, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex, bool shaded)
     {
         auto modelDefinition = unitDatabase->getUnitModelDefinition(objectName);
@@ -153,22 +128,6 @@ namespace rwe
             auto matrix = modelMatrix * getPieceTransform(pieceDef.name, modelDefinition->get());
             const auto& resolvedMesh = *meshDatabase->getUnitPieceMesh(objectName, pieceDef.name).value();
             drawShaderMesh(resolvedMesh, matrix, seaLevel, shaded, playerColorIndex);
-        }
-    }
-
-    void RenderService::drawFeatureUnitMeshShadow(const std::string& objectName, const Matrix4f& modelMatrix, float groundHeight)
-    {
-        auto modelDefinition = unitDatabase->getUnitModelDefinition(objectName);
-        if (!modelDefinition)
-        {
-            throw std::runtime_error("missing model definition: " + objectName);
-        }
-
-        for (const auto& pieceDef : modelDefinition->get().pieces)
-        {
-            auto matrix = modelMatrix * getPieceTransform(pieceDef.name, modelDefinition->get());
-            const auto& resolvedMesh = *meshDatabase->getUnitPieceMesh(objectName, pieceDef.name).value();
-            drawShaderMeshShadow(resolvedMesh, matrix, groundHeight);
         }
     }
 
@@ -272,15 +231,6 @@ namespace rwe
         auto y2 = static_cast<unsigned int>(std::clamp<int>(bottomRight.y, 0, terrain.getTiles().getHeight() - 1));
 
         drawMapTerrain(terrain, x1, y1, (x2 + 1) - x1, (y2 + 1) - y1);
-    }
-
-    void RenderService::drawUnitShadow(const Unit& unit, float groundHeight, float frac)
-    {
-        auto position = lerp(simVectorToFloat(unit.previousPosition), simVectorToFloat(unit.position), frac);
-        auto rotation = angleLerp(toRadians(unit.previousRotation).value, toRadians(unit.rotation).value, frac);
-        auto matrix = Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
-
-        drawUnitMeshShadow(unit.objectName, unit.pieces, matrix, groundHeight, frac);
     }
 
     void RenderService::fillScreen(float r, float g, float b, float a)
@@ -505,27 +455,6 @@ namespace rwe
         }
     }
 
-    void RenderService::drawShaderMeshShadow(const ShaderMesh& mesh, const Matrix4f& matrix, float groundHeight)
-    {
-        if (mesh.vertices || mesh.teamVertices)
-        {
-            const auto& vpMatrix = *viewProjectionMatrix;
-            const auto& shader = shaders->unitShadow;
-            graphics->bindShader(shader.handle.get());
-            graphics->setUniformMatrix(shader.vpMatrix, vpMatrix);
-            graphics->setUniformMatrix(shader.modelMatrix, matrix);
-            graphics->setUniformFloat(shader.groundHeight, groundHeight);
-            if (mesh.vertices)
-            {
-                graphics->drawTriangles(*mesh.vertices);
-            }
-            if (mesh.teamVertices)
-            {
-                graphics->drawTriangles(*mesh.teamVertices);
-            }
-        }
-    }
-
     void RenderService::drawBuildingShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex)
     {
         auto mvpMatrix = (*viewProjectionMatrix) * matrix;
@@ -684,5 +613,39 @@ namespace rwe
                 graphics->drawTriangles(*m.mesh);
             }
         }
+    }
+
+    void RenderService::drawUnitMeshBatchShadows(const UnitShadowMeshBatch& batch)
+    {
+        if (batch.meshes.empty())
+        {
+            return;
+        }
+
+        graphics->enableStencilBuffer();
+        graphics->clearStencilBuffer();
+        graphics->useStencilBufferForWrites();
+        graphics->disableColorBuffer();
+
+        const auto& shader = shaders->unitShadow;
+        graphics->bindShader(shader.handle.get());
+
+        for (const auto& m : batch.meshes)
+        {
+            graphics->setUniformFloat(shader.groundHeight, m.groundHeight);
+            graphics->setUniformMatrix(shader.vpMatrix, m.vpMatrix);
+            graphics->setUniformMatrix(shader.modelMatrix, m.modelMatrix);
+
+            graphics->bindTexture(m.texture);
+            graphics->drawTriangles(*m.mesh);
+        }
+
+        graphics->useStencilBufferAsMask();
+        graphics->enableColorBuffer();
+
+        fillScreen(0.0f, 0.0f, 0.0f, 0.5f);
+
+        graphics->enableColorBuffer();
+        graphics->disableStencilBuffer();
     }
 }

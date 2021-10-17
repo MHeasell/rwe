@@ -63,10 +63,24 @@ namespace rwe
         float unitY;
     };
 
+    struct UnitTextureShadowMeshRenderInfo
+    {
+        const GlMesh* mesh;
+        Matrix4f modelMatrix;
+        Matrix4f vpMatrix;
+        TextureIdentifier texture;
+        float groundHeight;
+    };
+
     struct UnitMeshBatch
     {
         std::vector<UnitTextureMeshRenderInfo> meshes;
         std::vector<UnitBuildingMeshRenderInfo> buildingMeshes;
+    };
+
+    struct UnitShadowMeshBatch
+    {
+        std::vector<UnitTextureShadowMeshRenderInfo> meshes;
     };
 
     class RenderService
@@ -92,10 +106,7 @@ namespace rwe
             const SharedTextureHandle* unitTextureAtlas,
             const std::vector<SharedTextureHandle>* unitTeamTextureAtlases);
 
-        void drawUnitShadow(const Unit& unit, float groundHeight, float frac);
-        void drawUnitMeshShadow(const std::string& objectName, const std::vector<UnitMesh>& meshes, const Matrix4f& modelMatrix, float groundHeight, float frac);
         void drawProjectileUnitMesh(const std::string& objectName, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex, bool shaded);
-        void drawFeatureUnitMeshShadow(const std::string& objectName, const Matrix4f& modelMatrix, float groundHeight);
         void drawSelectionRect(const Unit& unit, float frac);
         void drawNanolatheLine(const Vector3f& start, const Vector3f& end);
 
@@ -127,71 +138,6 @@ namespace rwe
 
         void drawMapTerrain(const MapTerrainGraphics& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
 
-        template <typename Range>
-        void drawUnitShadows(const MapTerrain& terrain, const Range& units, float frac, SimScalar seaLevel)
-        {
-            graphics->enableStencilBuffer();
-            graphics->clearStencilBuffer();
-            graphics->useStencilBufferForWrites();
-            graphics->disableColorBuffer();
-
-            for (const Unit& unit : units)
-            {
-                auto position = lerp(simVectorToFloat(unit.previousPosition), simVectorToFloat(unit.position), frac);
-                auto groundHeight = terrain.getHeightAt(floatToSimScalar(position.x), floatToSimScalar(position.z));
-                if (unit.floater || unit.canHover)
-                {
-                    groundHeight = rweMax(groundHeight, seaLevel);
-                }
-                drawUnitShadow(unit, simScalarToFloat(groundHeight), frac);
-            }
-
-            graphics->useStencilBufferAsMask();
-            graphics->enableColorBuffer();
-
-            fillScreen(0.0f, 0.0f, 0.0f, 0.5f);
-
-            graphics->enableColorBuffer();
-            graphics->disableStencilBuffer();
-        }
-
-        template <typename Range>
-        void drawFeatureMeshShadows(const MapTerrain& terrain, const Range& features, SimScalar seaLevel)
-        {
-            graphics->enableStencilBuffer();
-            graphics->clearStencilBuffer();
-            graphics->useStencilBufferForWrites();
-            graphics->disableColorBuffer();
-
-            for (const MapFeature& feature : features)
-            {
-                auto objectInfo = std::get_if<FeatureObjectInfo>(&feature.renderInfo);
-                if (objectInfo == nullptr)
-                {
-                    continue;
-                }
-
-                const auto& position = feature.position;
-                auto groundHeight = terrain.getHeightAt(position.x, position.z);
-                if (position.y >= seaLevel && groundHeight < seaLevel)
-                {
-                    groundHeight = seaLevel;
-                }
-
-                auto matrix = Matrix4f::translation(simVectorToFloat(position)) * Matrix4f::rotationY(0.0f, -1.0f);
-
-                drawFeatureUnitMeshShadow(objectInfo->objectName, matrix, simScalarToFloat(groundHeight));
-            }
-
-            graphics->useStencilBufferAsMask();
-            graphics->enableColorBuffer();
-
-            fillScreen(0.0f, 0.0f, 0.0f, 0.5f);
-
-            graphics->enableColorBuffer();
-            graphics->disableStencilBuffer();
-        }
-
         void fillScreen(float r, float g, float b, float a);
 
         void drawProjectiles(const VectorMap<Projectile, ProjectileIdTag>& projectiles, float seaLevel, GameTime currentTime, float frac);
@@ -202,10 +148,10 @@ namespace rwe
 
         void drawUnitMeshBatch(const UnitMeshBatch& batch, float seaLevel, float time);
 
+        void drawUnitMeshBatchShadows(const UnitShadowMeshBatch& batch);
+
     private:
         void drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, PlayerColorIndex playerColorIndex);
-
-        void drawShaderMeshShadow(const ShaderMesh& mesh, const Matrix4f& matrix, float groundHeight);
 
         void drawBuildingShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex);
 
