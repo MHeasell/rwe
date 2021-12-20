@@ -610,7 +610,7 @@ namespace rwe
 
         sceneContext.graphics->disableDepthBuffer();
 
-        worldRenderService.drawMapTerrain(worldCameraState.getRoundedPosition(), worldCameraState.scaleDimension(worldViewport.width()), worldCameraState.scaleDimension(worldViewport.height()), terrainGraphics);
+        worldRenderService.drawMapTerrain(terrainGraphics, worldCameraState.getRoundedPosition(), worldCameraState.scaleDimension(worldViewport.width()), worldCameraState.scaleDimension(worldViewport.height()));
 
         SpriteBatch flatFeatureBatch;
         SpriteBatch flatFeatureShadowBatch;

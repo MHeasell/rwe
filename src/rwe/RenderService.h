@@ -106,7 +106,7 @@ namespace rwe
         void drawSelectionRect(const Unit& unit, float frac);
         void drawNanolatheLine(const Vector3f& start, const Vector3f& end);
 
-        void drawMapTerrain(const Vector3f& cameraPosition, float viewportWidth, float viewportHeight, const MapTerrainGraphics& terrain);
+        void drawMapTerrain(const MapTerrainGraphics& terrain, const Vector3f& cameraPosition, float viewportWidth, float viewportHeight);
 
         void drawMapTerrain(const MapTerrainGraphics& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
 

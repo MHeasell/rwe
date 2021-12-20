@@ -164,7 +164,7 @@ namespace rwe
         }
     }
 
-    void RenderService::drawMapTerrain(const Vector3f& cameraPosition, float viewportWidth, float viewportHeight, const MapTerrainGraphics& terrain)
+    void RenderService::drawMapTerrain(const MapTerrainGraphics& terrain, const Vector3f& cameraPosition, float viewportWidth, float viewportHeight)
     {
         Vector3f cameraExtents(viewportWidth / 2.0f, 0.0f, viewportHeight / 2.0f);
         auto topLeft = terrain.worldToTileCoordinate(floatToSimVector(cameraPosition - cameraExtents));
