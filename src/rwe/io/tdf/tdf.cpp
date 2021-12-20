@@ -1,8 +1,8 @@
 #include "tdf.h"
 
 #include <rwe/io/tdf/ListTdfAdapter.h>
-#include <rwe/io/tdf/SimpleTdfAdapter.h>
 #include <rwe/io/tdf/NetSchemaTdfAdapter.h>
+#include <rwe/io/tdf/SimpleTdfAdapter.h>
 
 namespace rwe
 {

@@ -238,7 +238,7 @@ namespace rwe
 
         bool trackingOn{false};
         UnitId trackedUnitId;
-      
+
         std::optional<UnitId> hoveredUnit;
         std::unordered_set<UnitId> selectedUnits;
 

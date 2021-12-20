@@ -357,7 +357,8 @@ namespace rwe
             {
                 return false;
             }
-            ++_it; ++_it;
+            ++_it;
+            ++_it;
             return true;
         }
 
@@ -365,6 +366,5 @@ namespace rwe
         {
             return _it.isEnd();
         }
-
     };
 }

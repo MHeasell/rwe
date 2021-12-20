@@ -1,6 +1,5 @@
 #pragma once
 
-#include "TextureArrayHandle.h"
 #include <GL/glew.h>
 #include <SDL.h>
 #include <memory>
@@ -14,6 +13,7 @@
 #include <rwe/render/ShaderProgramHandle.h>
 #include <rwe/render/Sprite.h>
 #include <rwe/render/SpriteSeries.h>
+#include <rwe/render/TextureArrayHandle.h>
 #include <rwe/render/TextureHandle.h>
 #include <rwe/render/UniformLocation.h>
 #include <rwe/sim/MapFeature.h>

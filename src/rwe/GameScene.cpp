@@ -1517,11 +1517,11 @@ namespace rwe
                     //  a_n = distance (pixels) from the unit we should be after n 1/30s frames, a = current distance from the unit
                     //  r = common ratio i.e. 1/2, the ratio the distance should decrease every 1/30 seconds
                     //  n = # of OTA frames = seconds elapsed / (1/30 s per OTA frame) = (time_ms / 1000) * 30 = 3 * time_ms / 100
-                    
+
                     const auto& cameraPos = camera.getRawPosition();
                     const auto unitPos = simVectorToFloat(unit->get().position);
                     const auto cameraPosDelta = unitPos - cameraPos;
-                    
+
                     float decayFactor = 1.0f - std::powf(.5f, .03f * millisecondsElapsed);
 
                     float newDelta_x = cameraPosDelta.x * decayFactor;
@@ -2518,7 +2518,8 @@ namespace rwe
         return leftShiftDown || rightShiftDown;
     }
 
-    void GameScene::handleEscapeDown() {
+    void GameScene::handleEscapeDown()
+    {
         match(
             cursorMode.getValue(),
             [this](const NormalCursorMode&) {

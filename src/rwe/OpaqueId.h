@@ -28,7 +28,6 @@ namespace rwe
         {
             return value < rhs.value;
         }
-
     };
 }
 

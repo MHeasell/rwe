@@ -9,6 +9,7 @@ namespace rwe
     private:
         bool hasNetSchema;
         int schemaNestedLevel;
+
     public:
         void onStart() override;
 
