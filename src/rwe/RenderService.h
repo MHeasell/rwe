@@ -148,7 +148,7 @@ namespace rwe
 
         void drawUnitMeshBatch(const UnitMeshBatch& batch, float seaLevel, float time);
 
-        void drawUnitMeshBatchShadows(const UnitShadowMeshBatch& batch);
+        void drawUnitShadowMeshBatch(const UnitShadowMeshBatch& batch);
 
     private:
         void drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, PlayerColorIndex playerColorIndex);

@@ -529,7 +529,7 @@ namespace rwe
         }
     }
 
-    void RenderService::drawUnitMeshBatchShadows(const UnitShadowMeshBatch& batch)
+    void RenderService::drawUnitShadowMeshBatch(const UnitShadowMeshBatch& batch)
     {
         if (batch.meshes.empty())
         {

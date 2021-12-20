@@ -671,7 +671,7 @@ namespace rwe
             }
             drawFeatureMeshShadow(&unitDatabase, meshDatabase, viewProjectionMatrix, feature, simScalarToFloat(groundHeight), unitTextureAtlas.get(), unitTeamTextureAtlases, unitShadowMeshBatch);
         }
-        worldRenderService.drawUnitMeshBatchShadows(unitShadowMeshBatch);
+        worldRenderService.drawUnitShadowMeshBatch(unitShadowMeshBatch);
 
         sceneContext.graphics->enableDepthBuffer();
 
