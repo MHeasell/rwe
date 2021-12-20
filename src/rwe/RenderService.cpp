@@ -6,37 +6,6 @@
 
 namespace rwe
 {
-    Matrix4f getPieceTransform(const std::string& pieceName, const UnitModelDefinition& modelDefinition, const std::vector<UnitMesh>& pieces, float frac)
-    {
-        assert(modelDefinition.pieces.size() == pieces.size());
-
-        std::optional<std::string> parentPiece = pieceName;
-        auto matrix = Matrix4f::identity();
-
-        do
-        {
-            auto pieceIndexIt = modelDefinition.pieceIndicesByName.find(toUpper(*parentPiece));
-            if (pieceIndexIt == modelDefinition.pieceIndicesByName.end())
-            {
-                throw std::runtime_error("missing piece definition: " + *parentPiece);
-            }
-
-            const auto& pieceDef = modelDefinition.pieces[pieceIndexIt->second];
-
-            parentPiece = pieceDef.parent;
-
-            auto pieceStateIt = pieces.begin() + pieceIndexIt->second;
-
-            auto position = lerp(simVectorToFloat(pieceDef.origin + pieceStateIt->previousOffset), simVectorToFloat(pieceDef.origin + pieceStateIt->offset), frac);
-            auto rotationX = angleLerp(toRadians(pieceStateIt->previousRotationX).value, toRadians(pieceStateIt->rotationX).value, frac);
-            auto rotationY = angleLerp(toRadians(pieceStateIt->previousRotationY).value, toRadians(pieceStateIt->rotationY).value, frac);
-            auto rotationZ = angleLerp(toRadians(pieceStateIt->previousRotationZ).value, toRadians(pieceStateIt->rotationZ).value, frac);
-            matrix = Matrix4f::translation(position) * Matrix4f::rotationZXY(Vector3f(rotationX, rotationY, rotationZ)) * matrix;
-        } while (parentPiece);
-
-        return matrix;
-    }
-
     Matrix4f getPieceTransform(const std::string& pieceName, const UnitModelDefinition& modelDefinition)
     {
         std::optional<std::string> parentPiece = pieceName;
@@ -131,11 +100,6 @@ namespace rwe
         }
     }
 
-    GlMesh RenderService::createTemporaryLinesMesh(const std::vector<Line3f>& lines)
-    {
-        return createTemporaryLinesMesh(lines, Vector3f(1.0f, 1.0f, 1.0f));
-    }
-
     GlMesh RenderService::createTemporaryLinesMesh(const std::vector<Line3f>& lines, const Vector3f& color)
     {
         std::vector<GlColoredVertex> buffer;
@@ -145,26 +109,6 @@ namespace rwe
         {
             buffer.emplace_back(l.start, color);
             buffer.emplace_back(l.end, color);
-        }
-
-        return graphics->createColoredMesh(buffer, GL_STREAM_DRAW);
-    }
-
-    GlMesh RenderService::createTemporaryTriMesh(const std::vector<Triangle3f>& tris)
-    {
-        return createTemporaryTriMesh(tris, Vector3f(1.0f, 1.0f, 1.0f));
-    }
-
-    GlMesh RenderService::createTemporaryTriMesh(const std::vector<Triangle3f>& tris, const Vector3f& color)
-    {
-        std::vector<GlColoredVertex> buffer;
-        buffer.reserve(tris.size() * 3); // 3 verts per triangle
-
-        for (const auto& l : tris)
-        {
-            buffer.emplace_back(l.a, color);
-            buffer.emplace_back(l.b, color);
-            buffer.emplace_back(l.c, color);
         }
 
         return graphics->createColoredMesh(buffer, GL_STREAM_DRAW);
@@ -440,36 +384,6 @@ namespace rwe
             graphics->setUniformMatrix(textureShader.modelMatrix, matrix);
             graphics->setUniformFloat(textureShader.seaLevel, seaLevel);
             graphics->setUniformBool(textureShader.shade, shaded);
-
-            if (mesh.vertices)
-            {
-                graphics->bindTexture(unitTextureAtlas->get());
-                graphics->drawTriangles(*mesh.vertices);
-            }
-
-            if (mesh.teamVertices)
-            {
-                graphics->bindTexture(unitTeamTextureAtlases->at(playerColorIndex.value).get());
-                graphics->drawTriangles(*mesh.teamVertices);
-            }
-        }
-    }
-
-    void RenderService::drawBuildingShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex)
-    {
-        auto mvpMatrix = (*viewProjectionMatrix) * matrix;
-
-        if (mesh.vertices || mesh.teamVertices)
-        {
-            const auto& buildShader = shaders->unitBuild;
-            graphics->bindShader(buildShader.handle.get());
-            graphics->setUniformMatrix(buildShader.mvpMatrix, mvpMatrix);
-            graphics->setUniformMatrix(buildShader.modelMatrix, matrix);
-            graphics->setUniformFloat(buildShader.unitY, unitY);
-            graphics->setUniformFloat(buildShader.seaLevel, seaLevel);
-            graphics->setUniformBool(buildShader.shade, shaded);
-            graphics->setUniformFloat(buildShader.percentComplete, percentComplete);
-            graphics->setUniformFloat(buildShader.time, time);
 
             if (mesh.vertices)
             {

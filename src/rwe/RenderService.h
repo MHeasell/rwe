@@ -153,14 +153,7 @@ namespace rwe
     private:
         void drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, PlayerColorIndex playerColorIndex);
 
-        void drawBuildingShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, float percentComplete, float unitY, float time, PlayerColorIndex playerColorIndex);
-
-        GlMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines);
-
         GlMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines, const Vector3f& color);
-
-        GlMesh createTemporaryTriMesh(const std::vector<Triangle3f>& tris);
-        GlMesh createTemporaryTriMesh(const std::vector<Triangle3f>& tris, const Vector3f& color);
 
         void drawFeatureShadowInternal(const MapFeature& feature);
         void drawFeatureInternal(const MapFeature& feature);
