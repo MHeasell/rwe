@@ -612,8 +612,18 @@ namespace rwe
 
         worldRenderService.drawMapTerrain(worldCameraState.getRoundedPosition(), worldCameraState.scaleDimension(worldViewport.width()), worldCameraState.scaleDimension(worldViewport.height()), terrainGraphics);
 
-        worldRenderService.drawFlatFeatureShadows(simulation.features | boost::adaptors::map_values);
-        worldRenderService.drawFlatFeatures(simulation.features | boost::adaptors::map_values);
+        SpriteBatch flatFeatureBatch;
+        SpriteBatch flatFeatureShadowBatch;
+        for (const auto& f : simulation.features)
+        {
+            if (!f.second.isStanding())
+            {
+                drawFeature(f.second, viewProjectionMatrix, flatFeatureBatch);
+                drawFeatureShadow(f.second, viewProjectionMatrix, flatFeatureShadowBatch);
+            }
+        }
+        worldRenderService.drawSpriteBatch(flatFeatureShadowBatch);
+        worldRenderService.drawSpriteBatch(flatFeatureBatch);
 
         sceneContext.graphics->enableDepthBuffer();
 
@@ -690,8 +700,18 @@ namespace rwe
 
         sceneContext.graphics->disableDepthWrites();
 
-        worldRenderService.drawStandingFeatureShadows(simulation.features | boost::adaptors::map_values);
-        worldRenderService.drawStandingFeatures(simulation.features | boost::adaptors::map_values);
+        SpriteBatch featureBatch;
+        SpriteBatch featureShadowBatch;
+        for (const auto& f : simulation.features)
+        {
+            if (f.second.isStanding())
+            {
+                drawFeature(f.second, viewProjectionMatrix, featureBatch);
+                drawFeatureShadow(f.second, viewProjectionMatrix, featureShadowBatch);
+            }
+        }
+        worldRenderService.drawSpriteBatch(featureShadowBatch);
+        worldRenderService.drawSpriteBatch(featureBatch);
 
         sceneContext.graphics->disableDepthTest();
         for (const auto& unit : (simulation.units | boost::adaptors::map_values))

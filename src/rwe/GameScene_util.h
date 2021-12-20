@@ -64,5 +64,8 @@ namespace rwe
         std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
         UnitShadowMeshBatch& batch);
 
+    void drawFeature(const MapFeature& feature, const Matrix4f& viewProjectionMatrix, SpriteBatch& batch);
+    void drawFeatureShadow(const MapFeature& feature, const Matrix4f& viewProjectionMatrix, SpriteBatch& batch);
+
     void updateExplosions(const MeshDatabase& meshDatabase, GameTime currentTime, std::vector<Explosion>& explosions);
 }

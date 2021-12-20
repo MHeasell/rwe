@@ -21,22 +21,6 @@
 
 namespace rwe
 {
-    struct IsFeatureStanding
-    {
-        bool operator()(const MapFeature& f) const
-        {
-            return f.isStanding();
-        }
-    };
-
-    struct IsFeatureNotStanding
-    {
-        bool operator()(const MapFeature& f) const
-        {
-            return !f.isStanding();
-        }
-    };
-
     struct ColoredMeshBatch
     {
         std::vector<GlColoredVertex> lines;
@@ -83,6 +67,18 @@ namespace rwe
         std::vector<UnitTextureShadowMeshRenderInfo> meshes;
     };
 
+    struct SpriteRenderInfo
+    {
+        const Sprite* sprite;
+        Matrix4f mvpMatrix;
+        bool translucent;
+    };
+
+    struct SpriteBatch
+    {
+        std::vector<SpriteRenderInfo> sprites;
+    };
+
     class RenderService
     {
     private:
@@ -112,30 +108,6 @@ namespace rwe
 
         void drawMapTerrain(const Vector3f& cameraPosition, float viewportWidth, float viewportHeight, const MapTerrainGraphics& terrain);
 
-        template <typename Range>
-        void drawFlatFeatures(const Range& features)
-        {
-            drawFlatFeaturesInternal(features.begin(), features.end());
-        }
-
-        template <typename Range>
-        void drawFlatFeatureShadows(const Range& features)
-        {
-            drawFlatFeatureShadowsInternal(features.begin(), features.end());
-        }
-
-        template <typename Range>
-        void drawStandingFeatures(const Range& features)
-        {
-            drawStandingFeaturesInternal(features.begin(), features.end());
-        }
-
-        template <typename Range>
-        void drawStandingFeatureShadows(const Range& features)
-        {
-            drawStandingFeatureShadowsInternal(features.begin(), features.end());
-        }
-
         void drawMapTerrain(const MapTerrainGraphics& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
 
         void fillScreen(float r, float g, float b, float a);
@@ -150,70 +122,11 @@ namespace rwe
 
         void drawUnitShadowMeshBatch(const UnitShadowMeshBatch& batch);
 
+        void drawSpriteBatch(const SpriteBatch& batch);
+
     private:
         void drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, PlayerColorIndex playerColorIndex);
 
         GlMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines, const Vector3f& color);
-
-        void drawFeatureShadowInternal(const MapFeature& feature);
-        void drawFeatureInternal(const MapFeature& feature);
-
-        template <typename It>
-        void drawFeatureShadowsInternal(It begin, It end)
-        {
-            graphics->bindShader(shaders->basicTexture.handle.get());
-            for (auto it = begin; it != end; ++it)
-            {
-                const MapFeature& feature = *it;
-                drawFeatureShadowInternal(feature);
-            }
-        }
-
-        template <typename It>
-        void drawFeaturesInternal(It begin, It end)
-        {
-            graphics->bindShader(shaders->basicTexture.handle.get());
-            for (auto it = begin; it != end; ++it)
-            {
-                const MapFeature& feature = *it;
-                drawFeatureInternal(feature);
-            }
-        }
-
-        template <typename It>
-        void drawFlatFeaturesInternal(It begin, It end)
-        {
-            auto fBegin = boost::make_filter_iterator<IsFeatureNotStanding>(begin, end);
-            auto fEnd = boost::make_filter_iterator<IsFeatureNotStanding>(end, end);
-
-            drawFeaturesInternal(fBegin, fEnd);
-        }
-
-        template <typename It>
-        void drawStandingFeaturesInternal(It begin, It end)
-        {
-            auto fBegin = boost::make_filter_iterator<IsFeatureStanding>(begin, end);
-            auto fEnd = boost::make_filter_iterator<IsFeatureStanding>(end, end);
-
-            drawFeaturesInternal(fBegin, fEnd);
-        }
-
-        template <typename It>
-        void drawStandingFeatureShadowsInternal(It begin, It end)
-        {
-            auto fBegin = boost::make_filter_iterator<IsFeatureStanding>(begin, end);
-            auto fEnd = boost::make_filter_iterator<IsFeatureStanding>(end, end);
-
-            drawFeatureShadowsInternal(fBegin, fEnd);
-        }
-
-        template <typename It>
-        void drawFlatFeatureShadowsInternal(It begin, It end)
-        {
-            auto fBegin = boost::make_filter_iterator<IsFeatureNotStanding>(begin, end);
-            auto fEnd = boost::make_filter_iterator<IsFeatureNotStanding>(end, end);
-
-            drawFeatureShadowsInternal(fBegin, fEnd);
-        }
     };
 }

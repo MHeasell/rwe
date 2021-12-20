@@ -669,6 +669,64 @@ namespace rwe
         drawUnitShadowMeshNoPieces(unitDatabase, meshDatabase, viewProjectionMatrix, objectInfo->objectName, matrix, groundHeight, unitTextureAtlas, unitTeamTextureAtlases, batch);
     }
 
+    void drawFeature(const MapFeature& feature, const Matrix4f& viewProjectionMatrix, SpriteBatch& batch)
+    {
+        auto spriteInfo = std::get_if<FeatureSpriteInfo>(&feature.renderInfo);
+        if (spriteInfo == nullptr)
+        {
+            return;
+        }
+
+        auto position = simVectorToFloat(feature.position);
+        const auto& sprite = *spriteInfo->animation->sprites[0];
+
+        Vector3f snappedPosition(std::round(position.x), truncateToInterval(position.y, 2.0f), std::round(position.z));
+
+        // Convert to a model position that makes sense in the game world.
+        // For standing (blocking) features we stretch y-dimension values by 2x
+        // to correct for TA camera distortion.
+        Matrix4f conversionMatrix = feature.isStanding()
+            ? Matrix4f::scale(Vector3f(1.0f, -2.0f, 1.0f))
+            : Matrix4f::rotationX(-Pif / 2.0f) * Matrix4f::scale(Vector3f(1.0f, -1.0f, 1.0f));
+
+        auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix * sprite.getTransform();
+
+        auto mvpMatrix = viewProjectionMatrix * modelMatrix;
+
+        batch.sprites.emplace_back(&sprite, mvpMatrix, spriteInfo->transparentAnimation);
+    }
+
+    void drawFeatureShadow(const MapFeature& feature, const Matrix4f& viewProjectionMatrix, SpriteBatch& batch)
+    {
+        auto spriteInfo = std::get_if<FeatureSpriteInfo>(&feature.renderInfo);
+        if (spriteInfo == nullptr)
+        {
+            return;
+        }
+
+        if (!spriteInfo->shadowAnimation)
+        {
+            return;
+        }
+        auto position = simVectorToFloat(feature.position);
+        const auto& sprite = *(*spriteInfo->shadowAnimation)->sprites[0];
+
+        Vector3f snappedPosition(std::round(position.x), truncateToInterval(position.y, 2.0f), std::round(position.z));
+
+        // Convert to a model position that makes sense in the game world.
+        // For standing (blocking) features we stretch y-dimension values by 2x
+        // to correct for TA camera distortion.
+        Matrix4f conversionMatrix = feature.isStanding()
+            ? Matrix4f::scale(Vector3f(1.0f, -2.0f, 1.0f))
+            : Matrix4f::rotationX(-Pif / 2.0f) * Matrix4f::scale(Vector3f(1.0f, -1.0f, 1.0f));
+
+        auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix * sprite.getTransform();
+
+        auto mvpMatrix = viewProjectionMatrix * modelMatrix;
+
+        batch.sprites.emplace_back(&sprite, mvpMatrix, spriteInfo->transparentShadow);
+    }
+
     void updateExplosions(const MeshDatabase& meshDatabase, GameTime currentTime, std::vector<Explosion>& explosions)
     {
         auto end = explosions.end();
