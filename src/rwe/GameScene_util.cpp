@@ -732,6 +732,34 @@ namespace rwe
         pushLine(batch.lines, start, end, Vector3f(0.0f, 1.0f, 0.0f));
     }
 
+    void drawExplosion(const MeshDatabase& meshDatabase, GameTime currentTime, const Matrix4f& viewProjectionMatrix, const Explosion& exp, SpriteBatch& batch)
+    {
+        auto spriteSeries = meshDatabase.getSpriteSeries(exp.explosionGaf, exp.explosionAnim).value();
+
+        if (!exp.isStarted(currentTime) || exp.isFinished(currentTime, spriteSeries->sprites.size()))
+        {
+            return;
+        }
+
+        auto frameIndex = exp.getFrameIndex(currentTime, spriteSeries->sprites.size());
+        const auto& sprite = *spriteSeries->sprites[frameIndex];
+
+        Vector3f snappedPosition(
+            std::round(exp.position.x),
+            truncateToInterval(exp.position.y, 2.0f),
+            std::round(exp.position.z));
+
+        // Convert to a model position that makes sense in the game world.
+        // For standing (blocking) features we stretch y-dimension values by 2x
+        // to correct for TA camera distortion.
+        Matrix4f conversionMatrix = Matrix4f::scale(Vector3f(1.0f, -2.0f, 1.0f));
+
+        auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix * sprite.getTransform();
+        auto mvpMatrix = viewProjectionMatrix * modelMatrix;
+
+        batch.sprites.push_back(SpriteRenderInfo{&sprite, mvpMatrix, exp.translucent});
+    }
+
     void updateExplosions(const MeshDatabase& meshDatabase, GameTime currentTime, std::vector<Explosion>& explosions)
     {
         auto end = explosions.end();

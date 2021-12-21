@@ -728,7 +728,12 @@ namespace rwe
         }
         worldRenderService.drawBatch(nanoLinesBatch, viewProjectionMatrix);
 
-        worldRenderService.drawExplosions(simulation.gameTime, explosions);
+        SpriteBatch explosionsBatch;
+        for (const auto& exp : explosions)
+        {
+            drawExplosion(meshDatabase, simulation.gameTime, viewProjectionMatrix, exp, explosionsBatch);
+        }
+        worldRenderService.drawSpriteBatch(explosionsBatch);
         sceneContext.graphics->enableDepthTest();
 
         sceneContext.graphics->enableDepthWrites();

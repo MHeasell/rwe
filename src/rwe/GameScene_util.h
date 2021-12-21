@@ -69,5 +69,7 @@ namespace rwe
 
     void drawNanoLine(const Vector3f& start, const Vector3f& end, ColoredMeshBatch& batch);
 
+    void drawExplosion(const MeshDatabase& meshDatabase, GameTime currentTime, const Matrix4f& viewProjectionMatrix, const Explosion& exp, SpriteBatch& batch);
+
     void updateExplosions(const MeshDatabase& meshDatabase, GameTime currentTime, std::vector<Explosion>& explosions);
 }

@@ -113,8 +113,6 @@ namespace rwe
 
         void drawProjectiles(const VectorMap<Projectile, ProjectileIdTag>& projectiles, float seaLevel, GameTime currentTime, float frac);
 
-        void drawExplosions(GameTime currentTime, const std::vector<Explosion>& explosions);
-
         void drawBatch(const ColoredMeshBatch& batch, const Matrix4f& vpMatrix);
 
         void drawUnitMeshBatch(const UnitMeshBatch& batch, float seaLevel, float time);

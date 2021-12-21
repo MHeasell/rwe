@@ -308,44 +308,6 @@ namespace rwe
         }
     }
 
-    void RenderService::drawExplosions(GameTime currentTime, const std::vector<Explosion>& explosions)
-    {
-        graphics->bindShader(shaders->basicTexture.handle.get());
-
-        for (const auto& exp : explosions)
-        {
-            auto spriteSeries = meshDatabase->getSpriteSeries(exp.explosionGaf, exp.explosionAnim).value();
-
-            if (!exp.isStarted(currentTime) || exp.isFinished(currentTime, spriteSeries->sprites.size()))
-            {
-                continue;
-            }
-
-            auto frameIndex = exp.getFrameIndex(currentTime, spriteSeries->sprites.size());
-            const auto& sprite = *spriteSeries->sprites[frameIndex];
-
-            float alpha = exp.translucent ? 0.5f : 1.0f;
-
-            Vector3f snappedPosition(
-                std::round(exp.position.x),
-                truncateToInterval(exp.position.y, 2.0f),
-                std::round(exp.position.z));
-
-            // Convert to a model position that makes sense in the game world.
-            // For standing (blocking) features we stretch y-dimension values by 2x
-            // to correct for TA camera distortion.
-            Matrix4f conversionMatrix = Matrix4f::scale(Vector3f(1.0f, -2.0f, 1.0f));
-
-            auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix * sprite.getTransform();
-
-            const auto& shader = shaders->basicTexture;
-            graphics->bindTexture(sprite.texture.get());
-            graphics->setUniformMatrix(shader.mvpMatrix, (*viewProjectionMatrix) * modelMatrix);
-            graphics->setUniformVec4(shader.tint, 1.0f, 1.0f, 1.0f, alpha);
-            graphics->drawTriangles(*sprite.mesh);
-        }
-    }
-
     void RenderService::drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, PlayerColorIndex playerColorIndex)
     {
         auto mvpMatrix = (*viewProjectionMatrix) * matrix;
