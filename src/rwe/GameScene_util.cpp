@@ -375,11 +375,11 @@ namespace rwe
 
         if (mesh.vertices)
         {
-            batch.emplace_back(&*mesh.vertices, matrix, mvpMatrix, shaded, unitTextureAtlas);
+            batch.push_back(UnitTextureMeshRenderInfo{&*mesh.vertices, matrix, mvpMatrix, shaded, unitTextureAtlas});
         }
         if (mesh.teamVertices)
         {
-            batch.emplace_back(&*mesh.teamVertices, matrix, mvpMatrix, shaded, unitTeamTextureAtlases.at(playerColorIndex.value).get());
+            batch.push_back(UnitTextureMeshRenderInfo{&*mesh.teamVertices, matrix, mvpMatrix, shaded, unitTeamTextureAtlases.at(playerColorIndex.value).get()});
         }
     }
 
@@ -394,11 +394,11 @@ namespace rwe
     {
         if (mesh.vertices)
         {
-            batch.emplace_back(&*mesh.vertices, matrix, viewProjectionMatrix, unitTextureAtlas, groundHeight);
+            batch.push_back(UnitTextureShadowMeshRenderInfo{&*mesh.vertices, matrix, viewProjectionMatrix, unitTextureAtlas, groundHeight});
         }
         if (mesh.teamVertices)
         {
-            batch.emplace_back(&*mesh.teamVertices, matrix, viewProjectionMatrix, unitTeamTextureAtlases.at(0).get(), groundHeight);
+            batch.push_back(UnitTextureShadowMeshRenderInfo{&*mesh.teamVertices, matrix, viewProjectionMatrix, unitTeamTextureAtlases.at(0).get(), groundHeight});
         }
     }
 
@@ -517,11 +517,11 @@ namespace rwe
         auto mvpMatrix = viewProjectionMatrix * matrix;
         if (mesh.vertices)
         {
-            batch.emplace_back(&*mesh.vertices, matrix, mvpMatrix, shaded, unitTextureAtlas, percentComplete, unitY);
+            batch.push_back(UnitBuildingMeshRenderInfo{&*mesh.vertices, matrix, mvpMatrix, shaded, unitTextureAtlas, percentComplete, unitY});
         }
         if (mesh.teamVertices)
         {
-            batch.emplace_back(&*mesh.teamVertices, matrix, mvpMatrix, shaded, unitTeamTextureAtlases.at(playerColorIndex.value).get(), percentComplete, unitY);
+            batch.push_back(UnitBuildingMeshRenderInfo{&*mesh.teamVertices, matrix, mvpMatrix, shaded, unitTeamTextureAtlases.at(playerColorIndex.value).get(), percentComplete, unitY});
         }
     }
 
@@ -693,7 +693,7 @@ namespace rwe
 
         auto mvpMatrix = viewProjectionMatrix * modelMatrix;
 
-        batch.sprites.emplace_back(&sprite, mvpMatrix, spriteInfo->transparentAnimation);
+        batch.sprites.push_back(SpriteRenderInfo{&sprite, mvpMatrix, spriteInfo->transparentAnimation});
     }
 
     void drawFeatureShadow(const MapFeature& feature, const Matrix4f& viewProjectionMatrix, SpriteBatch& batch)
@@ -724,7 +724,7 @@ namespace rwe
 
         auto mvpMatrix = viewProjectionMatrix * modelMatrix;
 
-        batch.sprites.emplace_back(&sprite, mvpMatrix, spriteInfo->transparentShadow);
+        batch.sprites.push_back(SpriteRenderInfo{&sprite, mvpMatrix, spriteInfo->transparentShadow});
     }
 
     void updateExplosions(const MeshDatabase& meshDatabase, GameTime currentTime, std::vector<Explosion>& explosions)
