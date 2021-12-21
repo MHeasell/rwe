@@ -1650,7 +1650,7 @@ namespace rwe
                     const auto unitPos = simVectorToFloat(unit->get().position);
                     const auto cameraPosDelta = unitPos - cameraPos;
 
-                    float decayFactor = 1.0f - std::powf(.5f, .03f * millisecondsElapsed);
+                    float decayFactor = 1.0f - std::pow(.5f, .03f * millisecondsElapsed);
 
                     float newDelta_x = cameraPosDelta.x * decayFactor;
                     if (std::abs(newDelta_x) > maxScroll)
