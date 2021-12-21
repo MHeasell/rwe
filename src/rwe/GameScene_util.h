@@ -67,5 +67,7 @@ namespace rwe
     void drawFeature(const MapFeature& feature, const Matrix4f& viewProjectionMatrix, SpriteBatch& batch);
     void drawFeatureShadow(const MapFeature& feature, const Matrix4f& viewProjectionMatrix, SpriteBatch& batch);
 
+    void drawNanoLine(const Vector3f& start, const Vector3f& end, ColoredMeshBatch& batch);
+
     void updateExplosions(const MeshDatabase& meshDatabase, GameTime currentTime, std::vector<Explosion>& explosions);
 }

@@ -104,7 +104,6 @@ namespace rwe
 
         void drawProjectileUnitMesh(const std::string& objectName, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex, bool shaded);
         void drawSelectionRect(const Unit& unit, float frac);
-        void drawNanolatheLine(const Vector3f& start, const Vector3f& end);
 
         void drawMapTerrain(const MapTerrainGraphics& terrain, const Vector3f& cameraPosition, float viewportWidth, float viewportHeight);
 
@@ -126,7 +125,5 @@ namespace rwe
 
     private:
         void drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, PlayerColorIndex playerColorIndex);
-
-        GlMesh createTemporaryLinesMesh(const std::vector<Line3f>& lines, const Vector3f& color);
     };
 }

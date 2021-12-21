@@ -72,18 +72,6 @@ namespace rwe
         graphics->drawLineLoop(*selectionMesh.value());
     }
 
-    void RenderService::drawNanolatheLine(const Vector3f& start, const Vector3f& end)
-    {
-        std::vector<Line3f> lines{Line3f(start, end)};
-        auto mesh = createTemporaryLinesMesh(lines, Vector3f(0.0f, 1.0f, 0.0f));
-
-        const auto& shader = shaders->basicColor;
-        graphics->bindShader(shader.handle.get());
-        graphics->setUniformMatrix(shader.mvpMatrix, *viewProjectionMatrix);
-        graphics->setUniformFloat(shader.alpha, 1.0f);
-        graphics->drawLines(mesh);
-    }
-
     void RenderService::drawProjectileUnitMesh(const std::string& objectName, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex, bool shaded)
     {
         auto modelDefinition = unitDatabase->getUnitModelDefinition(objectName);
@@ -98,20 +86,6 @@ namespace rwe
             const auto& resolvedMesh = *meshDatabase->getUnitPieceMesh(objectName, pieceDef.name).value();
             drawShaderMesh(resolvedMesh, matrix, seaLevel, shaded, playerColorIndex);
         }
-    }
-
-    GlMesh RenderService::createTemporaryLinesMesh(const std::vector<Line3f>& lines, const Vector3f& color)
-    {
-        std::vector<GlColoredVertex> buffer;
-        buffer.reserve(lines.size() * 2); // 2 verts per line
-
-        for (const auto& l : lines)
-        {
-            buffer.emplace_back(l.start, color);
-            buffer.emplace_back(l.end, color);
-        }
-
-        return graphics->createColoredMesh(buffer, GL_STREAM_DRAW);
     }
 
     void RenderService::drawMapTerrain(const MapTerrainGraphics& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height)

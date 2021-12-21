@@ -714,6 +714,7 @@ namespace rwe
         worldRenderService.drawSpriteBatch(featureBatch);
 
         sceneContext.graphics->disableDepthTest();
+        ColoredMeshBatch nanoLinesBatch;
         for (const auto& unit : (simulation.units | boost::adaptors::map_values))
         {
             if (auto nanolatheTarget = unit.getActiveNanolatheTarget())
@@ -721,10 +722,12 @@ namespace rwe
                 auto targetUnitOption = tryGetUnit(nanolatheTarget->first);
                 if (targetUnitOption)
                 {
-                    worldRenderService.drawNanolatheLine(simVectorToFloat(nanolatheTarget->second), simVectorToFloat(targetUnitOption->get().position));
+                    drawNanoLine(simVectorToFloat(nanolatheTarget->second), simVectorToFloat(targetUnitOption->get().position), nanoLinesBatch);
                 }
             }
         }
+        worldRenderService.drawBatch(nanoLinesBatch, viewProjectionMatrix);
+
         worldRenderService.drawExplosions(simulation.gameTime, explosions);
         sceneContext.graphics->enableDepthTest();
 

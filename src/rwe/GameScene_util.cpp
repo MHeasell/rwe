@@ -727,6 +727,11 @@ namespace rwe
         batch.sprites.push_back(SpriteRenderInfo{&sprite, mvpMatrix, spriteInfo->transparentShadow});
     }
 
+    void drawNanoLine(const Vector3f& start, const Vector3f& end, ColoredMeshBatch& batch)
+    {
+        pushLine(batch.lines, start, end, Vector3f(0.0f, 1.0f, 0.0f));
+    }
+
     void updateExplosions(const MeshDatabase& meshDatabase, GameTime currentTime, std::vector<Explosion>& explosions)
     {
         auto end = explosions.end();
