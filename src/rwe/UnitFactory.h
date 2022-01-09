@@ -19,6 +19,7 @@ namespace rwe
         MovementClassCollisionService* const collisionService;
         const ColorPalette* palette;
         const ColorPalette* guiPalette;
+        const GameSimulation* simulation;
 
     public:
         UnitFactory(
@@ -27,7 +28,8 @@ namespace rwe
             MeshService&& meshService,
             MovementClassCollisionService* collisionService,
             const ColorPalette* palette,
-            const ColorPalette* guiPalette);
+            const ColorPalette* guiPalette,
+            const GameSimulation* simulation);
 
     public:
         Unit createUnit(const std::string& unitType, PlayerId owner, const SimVector& position, std::optional<const std::reference_wrapper<SimAngle>> rotation);

@@ -213,7 +213,7 @@ namespace rwe
             const auto& projectile = e.second;
             auto position = lerp(simVectorToFloat(projectile.previousPosition), simVectorToFloat(projectile.position), frac);
 
-            const auto& weaponMediaInfo = unitDatabase->getWeapon(projectile.weaponType);
+            const auto& weaponMediaInfo = meshDatabase->getWeapon(projectile.weaponType);
 
             match(
                 weaponMediaInfo.renderType,

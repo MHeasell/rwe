@@ -150,9 +150,9 @@ namespace rwe
 
         std::tuple<UnitDatabase, MeshDatabase, std::unordered_map<std::string, WeaponDefinition>> createUnitDatabase(MeshService& meshService);
 
-        void preloadSound(UnitDatabase& db, const std::string& soundName);
+        void preloadSound(MeshDatabase& meshDb, const std::string& soundName);
 
-        void preloadSound(UnitDatabase& db, const std::optional<std::string>& soundName);
+        void preloadSound(MeshDatabase& meshDb, const std::optional<std::string>& soundName);
 
         std::optional<AudioService::SoundHandle> lookUpSound(const std::string& key);
 

@@ -817,28 +817,28 @@ namespace rwe
             for (auto& s : sounds)
             {
                 const auto& c = s.second;
-                preloadSound(db, c.select1);
-                preloadSound(db, c.unitComplete);
-                preloadSound(db, c.activate);
-                preloadSound(db, c.deactivate);
-                preloadSound(db, c.ok1);
-                preloadSound(db, c.arrived1);
-                preloadSound(db, c.cant1);
-                preloadSound(db, c.underAttack);
-                preloadSound(db, c.build);
-                preloadSound(db, c.repair);
-                preloadSound(db, c.working);
-                preloadSound(db, c.cloak);
-                preloadSound(db, c.uncloak);
-                preloadSound(db, c.capture);
-                preloadSound(db, c.count5);
-                preloadSound(db, c.count4);
-                preloadSound(db, c.count3);
-                preloadSound(db, c.count2);
-                preloadSound(db, c.count1);
-                preloadSound(db, c.count0);
-                preloadSound(db, c.cancelDestruct);
-                db.addSoundClass(s.first, std::move(s.second));
+                preloadSound(meshDb, c.select1);
+                preloadSound(meshDb, c.unitComplete);
+                preloadSound(meshDb, c.activate);
+                preloadSound(meshDb, c.deactivate);
+                preloadSound(meshDb, c.ok1);
+                preloadSound(meshDb, c.arrived1);
+                preloadSound(meshDb, c.cant1);
+                preloadSound(meshDb, c.underAttack);
+                preloadSound(meshDb, c.build);
+                preloadSound(meshDb, c.repair);
+                preloadSound(meshDb, c.working);
+                preloadSound(meshDb, c.cloak);
+                preloadSound(meshDb, c.uncloak);
+                preloadSound(meshDb, c.capture);
+                preloadSound(meshDb, c.count5);
+                preloadSound(meshDb, c.count4);
+                preloadSound(meshDb, c.count3);
+                preloadSound(meshDb, c.count2);
+                preloadSound(meshDb, c.count1);
+                preloadSound(meshDb, c.count0);
+                preloadSound(meshDb, c.cancelDestruct);
+                meshDb.addSoundClass(s.first, std::move(s.second));
             }
         }
 
@@ -880,9 +880,9 @@ namespace rwe
                     auto weaponDefinition = parseWeaponDefinition(pair.second);
                     auto weaponMediaInfo = parseWeaponMediaInfo(*sceneContext.palette, *sceneContext.guiPalette, pair.second);
 
-                    preloadSound(db, weaponMediaInfo.soundStart);
-                    preloadSound(db, weaponMediaInfo.soundHit);
-                    preloadSound(db, weaponMediaInfo.soundWater);
+                    preloadSound(meshDb, weaponMediaInfo.soundStart);
+                    preloadSound(meshDb, weaponMediaInfo.soundHit);
+                    preloadSound(meshDb, weaponMediaInfo.soundWater);
 
                     if (auto modelRenderType = std::get_if<ProjectileRenderTypeModel>(&weaponMediaInfo.renderType); modelRenderType != nullptr)
                     {
@@ -905,7 +905,7 @@ namespace rwe
                         meshDb.addSpriteSeries(weaponMediaInfo.waterExplosionAnim->gafName, weaponMediaInfo.waterExplosionAnim->animName, anim);
                     }
 
-                    db.addWeapon(toUpper(pair.first), std::move(weaponMediaInfo));
+                    meshDb.addWeapon(toUpper(pair.first), std::move(weaponMediaInfo));
 
                     weaponDefinitions.insert({toUpper(pair.first), std::move(weaponDefinition)});
                 }
@@ -949,7 +949,7 @@ namespace rwe
                     meshDb.addUnitPieceMesh(fbi.objectName, m.first, m.second);
                 }
 
-                db.addSelectionMesh(fbi.objectName, std::make_shared<CollisionMesh>(std::move(meshInfo.selectionMesh.collisionMesh)));
+                meshDb.addSelectionCollisionMesh(fbi.objectName, std::make_shared<CollisionMesh>(std::move(meshInfo.selectionMesh.collisionMesh)));
                 meshDb.addSelectionMesh(fbi.objectName, std::make_shared<GlMesh>(std::move(meshInfo.selectionMesh.visualMesh)));
             }
         }
@@ -1006,17 +1006,17 @@ namespace rwe
         return std::make_tuple(db, meshDb, weaponDefinitions);
     }
 
-    void LoadingScene::preloadSound(UnitDatabase& db, const std::optional<std::string>& soundName)
+    void LoadingScene::preloadSound(MeshDatabase& meshDb, const std::optional<std::string>& soundName)
     {
         if (!soundName)
         {
             return;
         }
 
-        preloadSound(db, *soundName);
+        preloadSound(meshDb, *soundName);
     }
 
-    void LoadingScene::preloadSound(UnitDatabase& db, const std::string& soundName)
+    void LoadingScene::preloadSound(MeshDatabase& meshDb, const std::string& soundName)
     {
         auto sound = sceneContext.audioService->loadSound(soundName);
         if (!sound)
@@ -1024,7 +1024,7 @@ namespace rwe
             return; // sometimes sound categories name invalid sounds
         }
 
-        db.addSound(soundName, *sound);
+        meshDb.addSound(soundName, *sound);
     }
 
     std::optional<AudioService::SoundHandle> LoadingScene::lookUpSound(const std::string& key)

@@ -423,7 +423,7 @@ namespace rwe
         }
 
         const auto& weaponDefinition = scene->getSimulation().weaponDefinitions.at(weapon->weaponType);
-        const auto& weaponMediaInfo = scene->getUnitDatabase().getWeapon(weapon->weaponType);
+        const auto& weaponMediaInfo = scene->getMeshDatabase().getWeapon(weapon->weaponType);
 
         auto attackInfo = std::get_if<UnitWeaponStateAttacking>(&weapon->state);
         if (!attackInfo)

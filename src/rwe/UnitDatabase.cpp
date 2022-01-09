@@ -40,89 +40,6 @@ namespace rwe
         cobMap.insert({toUpper(unitName), std::move(cob)});
     }
 
-    std::optional<std::reference_wrapper<const WeaponMediaInfo>> UnitDatabase::tryGetWeapon(const std::string& weaponName) const
-    {
-        auto it = weaponMap.find(toUpper(weaponName));
-        if (it == weaponMap.end())
-        {
-            return std::nullopt;
-        }
-
-        return it->second;
-    }
-
-    const WeaponMediaInfo& UnitDatabase::getWeapon(const std::string& weaponName) const
-    {
-        auto it = weaponMap.find(toUpper(weaponName));
-        if (it == weaponMap.end())
-        {
-            throw std::runtime_error("No weapon found with name " + weaponName);
-        }
-
-        return it->second;
-    }
-
-    void UnitDatabase::addWeapon(const std::string& weaponName, WeaponMediaInfo&& weapon)
-    {
-        weaponMap.insert({toUpper(weaponName), std::move(weapon)});
-    }
-
-    const SoundClass defaultSoundClass = SoundClass();
-
-    const SoundClass& UnitDatabase::getSoundClassOrDefault(const std::string& className) const
-    {
-        auto it = soundClassMap.find(className);
-        if (it == soundClassMap.end())
-        {
-            return defaultSoundClass;
-        }
-
-        return it->second;
-    }
-
-    const SoundClass& UnitDatabase::getSoundClass(const std::string& className) const
-    {
-        auto it = soundClassMap.find(className);
-        if (it == soundClassMap.end())
-        {
-            throw std::runtime_error("No sound class found with name " + className);
-        }
-
-        return it->second;
-    }
-
-    void UnitDatabase::addSoundClass(const std::string& className, SoundClass&& soundClass)
-    {
-        soundClassMap.insert({className, std::move(soundClass)});
-    }
-
-    const AudioService::SoundHandle& UnitDatabase::getSoundHandle(const std::string& sound) const
-    {
-        auto it = soundMap.find(sound);
-        if (it == soundMap.end())
-        {
-            throw std::runtime_error("No sound found with name " + sound);
-        }
-
-        return it->second;
-    }
-
-    std::optional<AudioService::SoundHandle> UnitDatabase::tryGetSoundHandle(const std::string& sound) const
-    {
-        auto it = soundMap.find(sound);
-        if (it == soundMap.end())
-        {
-            return std::nullopt;
-        }
-
-        return it->second;
-    }
-
-    void UnitDatabase::addSound(const std::string& soundName, const AudioService::SoundHandle& sound)
-    {
-        soundMap.insert({soundName, sound});
-    }
-
     const MovementClass& UnitDatabase::getMovementClass(const std::string& className) const
     {
         auto it = movementClassMap.find(className);
@@ -185,20 +102,5 @@ namespace rwe
     {
         auto it = unitModelDefinitionsMap.find(objectName);
         return it != unitModelDefinitionsMap.end();
-    }
-
-    void UnitDatabase::addSelectionMesh(const std::string& objectName, std::shared_ptr<CollisionMesh> mesh)
-    {
-        selectionMeshesMap.insert({objectName, mesh});
-    }
-
-    std::optional<std::shared_ptr<CollisionMesh>> UnitDatabase::getSelectionMesh(const std::string& objectName) const
-    {
-        auto it = selectionMeshesMap.find(objectName);
-        if (it == selectionMeshesMap.end())
-        {
-            return std::nullopt;
-        }
-        return it->second;
     }
 }

@@ -397,6 +397,7 @@ namespace rwe
         const GameSimulation& getSimulation() const;
 
         const UnitDatabase& getUnitDatabase() const;
+        const MeshDatabase& getMeshDatabase() const;
 
         void doProjectileImpact(const Projectile& projectile, ImpactType impactType);
 

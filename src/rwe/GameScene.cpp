@@ -188,7 +188,7 @@ namespace rwe
           terrainGraphics(std::move(terrainGraphics)),
           collisionService(std::move(collisionService)),
           unitDatabase(std::move(unitDatabase)),
-          unitFactory(sceneContext.textureService, &this->unitDatabase, std::move(meshService), &this->collisionService, sceneContext.palette, sceneContext.guiPalette),
+          unitFactory(sceneContext.textureService, &this->unitDatabase, std::move(meshService), &this->collisionService, sceneContext.palette, sceneContext.guiPalette, &this->simulation),
           featuresMap(std::move(featuresMap)),
           gameNetworkService(std::move(gameNetworkService)),
           pathFindingService(&this->simulation, &this->collisionService),
@@ -2116,21 +2116,21 @@ namespace rwe
         }
     }
 
-    std::optional<AudioService::SoundHandle> getSound(const UnitDatabase& db, const std::string& unitType, UnitSoundType soundType)
+    std::optional<AudioService::SoundHandle> getSound(const UnitDatabase& db, const MeshDatabase& meshDb, const std::string& unitType, UnitSoundType soundType)
     {
         const auto& fbi = db.getUnitInfo(unitType);
-        const auto& soundClass = db.getSoundClassOrDefault(fbi.soundCategory);
+        const auto& soundClass = meshDb.getSoundClassOrDefault(fbi.soundCategory);
         const auto& soundId = getSoundName(soundClass, soundType);
         if (soundId)
         {
-            return db.tryGetSoundHandle(*soundId);
+            return meshDb.tryGetSoundHandle(*soundId);
         }
         return std::nullopt;
     }
 
     void GameScene::playUnitNotificationSound(const PlayerId& playerId, const std::string& unitType, UnitSoundType soundType)
     {
-        auto sound = getSound(unitDatabase, unitType, soundType);
+        auto sound = getSound(unitDatabase, meshDatabase, unitType, soundType);
         if (sound)
         {
             playNotificationSound(playerId, *sound);
@@ -2149,10 +2149,10 @@ namespace rwe
     void GameScene::playWeaponStartSound(const Vector3f& position, const std::string& weaponType)
     {
 
-        const auto& weaponMediaInfo = unitDatabase.getWeapon(weaponType);
+        const auto& weaponMediaInfo = meshDatabase.getWeapon(weaponType);
         if (weaponMediaInfo.soundStart)
         {
-            auto sound = unitDatabase.tryGetSoundHandle(*weaponMediaInfo.soundStart);
+            auto sound = meshDatabase.tryGetSoundHandle(*weaponMediaInfo.soundStart);
             if (sound)
             {
                 playSoundAt(position, *sound);
@@ -2162,14 +2162,14 @@ namespace rwe
 
     void GameScene::playWeaponImpactSound(const Vector3f& position, const std::string& weaponType, ImpactType impactType)
     {
-        const auto& weaponMediaInfo = unitDatabase.getWeapon(weaponType);
+        const auto& weaponMediaInfo = meshDatabase.getWeapon(weaponType);
         switch (impactType)
         {
             case ImpactType::Normal:
             {
                 if (weaponMediaInfo.soundHit)
                 {
-                    auto sound = unitDatabase.tryGetSoundHandle(*weaponMediaInfo.soundHit);
+                    auto sound = meshDatabase.tryGetSoundHandle(*weaponMediaInfo.soundHit);
                     if (sound)
                     {
                         playSoundAt(position, *sound);
@@ -2181,7 +2181,7 @@ namespace rwe
             {
                 if (weaponMediaInfo.soundWater)
                 {
-                    auto sound = unitDatabase.tryGetSoundHandle(*weaponMediaInfo.soundWater);
+                    auto sound = meshDatabase.tryGetSoundHandle(*weaponMediaInfo.soundWater);
                     if (sound)
                     {
                         playSoundAt(position, *sound);
@@ -2194,7 +2194,7 @@ namespace rwe
 
     void GameScene::spawnWeaponImpactExplosion(const Vector3f& position, const std::string& weaponType, ImpactType impactType)
     {
-        const auto& weaponMediaInfo = unitDatabase.getWeapon(weaponType);
+        const auto& weaponMediaInfo = meshDatabase.getWeapon(weaponType);
 
         switch (impactType)
         {
@@ -2534,7 +2534,7 @@ namespace rwe
         for (const auto& entry : simulation.units)
         {
             const auto& fbi = unitDatabase.getUnitInfo(entry.second.unitType);
-            auto selectionMesh = unitDatabase.getSelectionMesh(fbi.objectName);
+            auto selectionMesh = meshDatabase.getSelectionCollisionMesh(fbi.objectName);
             auto distance = selectionIntersect(entry.second, *selectionMesh.value(), ray);
             if (distance && distance < bestDistance)
             {
@@ -2600,7 +2600,7 @@ namespace rwe
         else
         {
             const auto& unit = getUnit(unitId);
-            auto handle = getSound(unitDatabase, unit.unitType, UnitSoundType::Ok1);
+            auto handle = getSound(unitDatabase, meshDatabase, unit.unitType, UnitSoundType::Ok1);
             if (handle)
             {
                 playUiSound(*handle);
@@ -2629,7 +2629,7 @@ namespace rwe
         localPlayerCommandBuffer.push_back(PlayerUnitCommand(unitId, PlayerUnitCommand::Stop()));
 
         const auto& unit = getUnit(unitId);
-        auto handle = getSound(unitDatabase, unit.unitType, UnitSoundType::Ok1);
+        auto handle = getSound(unitDatabase, meshDatabase, unit.unitType, UnitSoundType::Ok1);
         if (handle)
         {
             playUiSound(*handle);
@@ -2809,6 +2809,11 @@ namespace rwe
         return unitDatabase;
     }
 
+    const MeshDatabase& GameScene::getMeshDatabase() const
+    {
+        return meshDatabase;
+    }
+
     bool GameScene::isEnemy(UnitId id) const
     {
         // TODO: consider allies/teams here
@@ -2825,7 +2830,7 @@ namespace rwe
         auto gameTime = getGameTime();
         for (auto& [id, projectile] : simulation.projectiles)
         {
-            const auto& weaponMediaInfo = unitDatabase.getWeapon(projectile.weaponType);
+            const auto& weaponMediaInfo = meshDatabase.getWeapon(projectile.weaponType);
 
             // remove if it's time to die
             if (projectile.dieOnFrame && *projectile.dieOnFrame <= gameTime)
@@ -3656,7 +3661,7 @@ namespace rwe
         selectedUnits.insert(unitId);
 
         const auto& unit = getUnit(unitId);
-        auto selectionSound = getSound(unitDatabase, unit.unitType, UnitSoundType::Select1);
+        auto selectionSound = getSound(unitDatabase, meshDatabase, unit.unitType, UnitSoundType::Select1);
         if (selectionSound)
         {
             playUiSound(*selectionSound);
@@ -3690,7 +3695,7 @@ namespace rwe
         if (selectedUnits.size() == 1)
         {
             const auto& unit = getUnit(*units.begin());
-            auto selectionSound = getSound(unitDatabase, unit.unitType, UnitSoundType::Select1);
+            auto selectionSound = getSound(unitDatabase, meshDatabase, unit.unitType, UnitSoundType::Select1);
             if (selectionSound)
             {
                 playUiSound(*selectionSound);

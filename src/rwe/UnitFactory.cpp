@@ -10,13 +10,15 @@ namespace rwe
         MeshService&& meshService,
         MovementClassCollisionService* collisionService,
         const ColorPalette* palette,
-        const ColorPalette* guiPalette)
+        const ColorPalette* guiPalette,
+        const GameSimulation* simulation)
         : textureService(textureService),
           unitDatabase(unitDatabase),
           meshService(std::move(meshService)),
           collisionService(collisionService),
           palette(palette),
-          guiPalette(guiPalette)
+          guiPalette(guiPalette),
+          simulation(simulation)
     {
     }
 
@@ -311,7 +313,7 @@ namespace rwe
 
     std::optional<UnitWeapon> UnitFactory::tryCreateWeapon(const std::string& weaponType)
     {
-        if (!unitDatabase->tryGetWeapon(toUpper(weaponType)).has_value())
+        if (!simulation->weaponDefinitions.contains(toUpper(weaponType)))
         {
             return std::nullopt;
         }

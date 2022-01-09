@@ -2,14 +2,10 @@
 
 #include <boost/functional/hash.hpp>
 #include <memory>
-#include <rwe/AudioService.h>
-#include <rwe/SoundClass.h>
 #include <rwe/UnitModelDefinition.h>
-#include <rwe/WeaponMediaInfo.h>
-#include <rwe/geometry/CollisionMesh.h>
 #include <rwe/io/cob/Cob.h>
 #include <rwe/io/fbi/UnitFbi.h>
-#include <rwe/render/ShaderMesh.h>
+#include <rwe/io/gui/gui.h>
 #include <rwe/sim/MovementClass.h>
 #include <utility>
 
@@ -25,19 +21,11 @@ namespace rwe
 
         std::unordered_map<std::string, CobScript> cobMap;
 
-        std::unordered_map<std::string, WeaponMediaInfo> weaponMap;
-
-        std::unordered_map<std::string, SoundClass> soundClassMap;
-
         std::unordered_map<std::string, MovementClass> movementClassMap;
-
-        std::unordered_map<std::string, AudioService::SoundHandle> soundMap;
 
         std::unordered_map<std::string, std::vector<std::vector<GuiEntry>>> builderGuisMap;
 
         std::unordered_map<std::string, UnitModelDefinition> unitModelDefinitionsMap;
-
-        std::unordered_map<std::string, std::shared_ptr<CollisionMesh>> selectionMeshesMap;
 
     public:
         bool hasUnitInfo(const std::string& unitName) const;
@@ -50,27 +38,9 @@ namespace rwe
 
         void addUnitScript(const std::string& unitName, CobScript&& cob);
 
-        const WeaponMediaInfo& getWeapon(const std::string& weaponName) const;
-
-        std::optional<std::reference_wrapper<const WeaponMediaInfo>> tryGetWeapon(const std::string& weaponName) const;
-
-        void addWeapon(const std::string& name, WeaponMediaInfo&& weapon);
-
-        const SoundClass& getSoundClassOrDefault(const std::string& className) const;
-
-        const SoundClass& getSoundClass(const std::string& className) const;
-
-        void addSoundClass(const std::string& className, SoundClass&& soundClass);
-
         const MovementClass& getMovementClass(const std::string& className) const;
 
         void addMovementClass(const std::string& className, MovementClass&& movementClass);
-
-        const AudioService::SoundHandle& getSoundHandle(const std::string& sound) const;
-
-        std::optional<AudioService::SoundHandle> tryGetSoundHandle(const std::string& sound) const;
-
-        void addSound(const std::string& soundName, const AudioService::SoundHandle& sound);
 
         std::optional<std::reference_wrapper<const std::vector<std::vector<GuiEntry>>>> tryGetBuilderGui(const std::string& unitName) const;
 
@@ -85,9 +55,5 @@ namespace rwe
         std::optional<std::reference_wrapper<const UnitModelDefinition>> getUnitModelDefinition(const std::string& objectName) const;
 
         bool hasUnitModelDefinition(const std::string& objectName) const;
-
-        void addSelectionMesh(const std::string& objectName, std::shared_ptr<CollisionMesh> mesh);
-
-        std::optional<std::shared_ptr<CollisionMesh>> getSelectionMesh(const std::string& objectName) const;
     };
 }
