@@ -31,6 +31,10 @@ for my $filename (@ARGV) {
         if ($filename =~ /\.cpp$/ && $line eq "#include \"$header_filename\"") {
             print $tmpfh "$line\n";
         }
+        elsif ($line =~ /^#include "(rwe\/[^"]+)"$/) {
+            my $file = $1;
+            print $tmpfh "#include <$file>\n";
+        }
         elsif ($line =~ /^#include "([^"]+)"$/) {
             my $file = $1;
             my $fixed_file = catfile($basedir, $file);
