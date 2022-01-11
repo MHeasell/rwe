@@ -5,9 +5,11 @@
 #include <rwe/UnitModelDefinition.h>
 #include <rwe/io/cob/Cob.h>
 #include <rwe/io/fbi/UnitFbi.h>
+#include <rwe/io/featuretdf/FeatureTdf.h>
 #include <rwe/io/gui/gui.h>
 #include <rwe/sim/MovementClass.h>
 #include <utility>
+
 
 namespace rwe
 {
@@ -26,6 +28,8 @@ namespace rwe
         std::unordered_map<std::string, std::vector<std::vector<GuiEntry>>> builderGuisMap;
 
         std::unordered_map<std::string, UnitModelDefinition> unitModelDefinitionsMap;
+
+        std::unordered_map<std::string, FeatureTdf> featureMap;
 
     public:
         bool hasUnitInfo(const std::string& unitName) const;
@@ -55,5 +59,9 @@ namespace rwe
         std::optional<std::reference_wrapper<const UnitModelDefinition>> getUnitModelDefinition(const std::string& objectName) const;
 
         bool hasUnitModelDefinition(const std::string& objectName) const;
+
+        const FeatureTdf& getFeature(const std::string& featureName) const;
+
+        void addFeature(const std::string& featureName, const FeatureTdf& definition);
     };
 }

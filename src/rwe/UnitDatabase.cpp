@@ -103,4 +103,20 @@ namespace rwe
         auto it = unitModelDefinitionsMap.find(objectName);
         return it != unitModelDefinitionsMap.end();
     }
+
+    const FeatureTdf& UnitDatabase::getFeature(const std::string& featureName) const
+    {
+        auto it = featureMap.find(toUpper(featureName));
+        if (it == featureMap.end())
+        {
+            throw std::runtime_error("No TDF data found for feature " + featureName);
+        }
+
+        return it->second;
+    }
+
+    void UnitDatabase::addFeature(const std::string& featureName, const FeatureTdf& definition)
+    {
+        featureMap.insert({toUpper(featureName), definition});
+    }
 }

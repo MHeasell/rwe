@@ -17,33 +17,6 @@ namespace rwe
 {
     const Viewport MenuUiViewport(0, 0, 640, 480);
 
-    std::unordered_map<std::string, FeatureTdf> loadAllFeatureDefinitions(AbstractVirtualFileSystem& vfs)
-    {
-        std::unordered_map<std::string, FeatureTdf> features;
-
-        auto files = vfs.getFileNamesRecursive("features", ".tdf");
-
-        for (const auto& name : files)
-        {
-            auto bytes = vfs.readFile("features/" + name);
-            if (!bytes)
-            {
-                throw std::runtime_error("Failed to read feature " + name);
-            }
-
-            std::string tdfString(bytes->data(), bytes->size());
-
-            auto tdfRoot = parseTdfFromString(tdfString);
-            for (const auto& e : tdfRoot.blocks)
-            {
-                auto featureDefinition = parseFeatureDefinition(*e.second);
-                features.insert_or_assign(e.first, std::move(featureDefinition));
-            }
-        }
-
-        return features;
-    }
-
     GameParameters::GameParameters(const std::string& mapName, unsigned int schemaIndex)
         : mapName(mapName),
           schemaIndex(schemaIndex)
@@ -179,30 +152,14 @@ namespace rwe
         std::string otaStr(otaRaw->begin(), otaRaw->end());
         auto ota = parseOta(parseTdfFromString(otaStr));
 
-        // Load features
-        auto featuresMap = loadAllFeatureDefinitions(*sceneContext.vfs);
-        for (const auto& pair : featuresMap)
-        {
-            const auto& featureDefinition = pair.second;
-            if (!featureDefinition.object.empty())
-            {
-                if (!unitDatabase.hasUnitModelDefinition(featureDefinition.object))
-                {
-                    auto meshInfo = meshService.loadProjectileMesh(featureDefinition.object);
-                    unitDatabase.addUnitModelDefinition(featureDefinition.object, std::move(meshInfo.modelDefinition));
-                    for (const auto& m : meshInfo.pieceMeshes)
-                    {
-                        meshDatabase.addUnitPieceMesh(featureDefinition.object, m.first, m.second);
-                    }
-                }
-            }
-        }
-
-        auto mapInfo = loadMap(featuresMap, mapName, ota, schemaIndex);
+        auto mapInfo = loadMap(mapName, ota, schemaIndex);
         GameSimulation simulation(std::move(mapInfo.terrain), mapInfo.surfaceMetal);
-        for (auto& feature : mapInfo.features)
+        for (const auto& [pos, featureName] : mapInfo.features)
         {
-            simulation.addFeature(std::move(feature));
+            const auto& featureTdf = unitDatabase.getFeature(featureName);
+            auto resolvedPos = computeFeaturePosition(simulation.terrain, featureTdf, pos.x, pos.y);
+            auto featureInstance = createFeature(resolvedPos, featureTdf);
+            simulation.addFeature(std::move(featureInstance));
         }
         auto seedSeq = seedFromGameParameters(gameParameters);
         simulation.rng.seed(seedSeq);
@@ -306,7 +263,6 @@ namespace rwe
             std::move(mapInfo.terrainGraphics),
             std::move(collisionService),
             std::move(unitDatabase),
-            std::move(featuresMap),
             std::move(meshService),
             std::move(gameNetworkService),
             minimap,
@@ -367,7 +323,19 @@ namespace rwe
         return gameScene;
     }
 
-    LoadingScene::LoadMapResult LoadingScene::loadMap(const std::unordered_map<std::string, FeatureTdf>& featuresMap, const std::string& mapName, const OtaRecord& ota, unsigned int schemaIndex)
+
+    std::vector<std::string> getFeatureNames(TntArchive& tnt)
+    {
+        std::vector<std::string> features;
+
+        tnt.readFeatures([&](const auto& featureName) {
+            features.push_back(featureName);
+        });
+
+        return features;
+    }
+
+    LoadingScene::LoadMapResult LoadingScene::loadMap(const std::string& mapName, const OtaRecord& ota, unsigned int schemaIndex)
     {
         auto tntBytes = sceneContext.vfs->readFile("maps/" + mapName + ".tnt");
         if (!tntBytes)
@@ -397,9 +365,8 @@ namespace rwe
 
         const auto& schema = ota.schemas.at(schemaIndex);
 
-        auto featureTemplates = getFeatures(featuresMap, tnt);
-
-        std::vector<MapFeature> features;
+        auto featureNames = getFeatureNames(tnt);
+        std::vector<std::pair<Point, std::string>> features;
 
         for (std::size_t y = 0; y < mapAttributes.getHeight(); ++y)
         {
@@ -413,10 +380,7 @@ namespace rwe
                     case TntTileAttributes::FeatureVoid:
                         break;
                     default:
-                        const auto& featureTemplate = featureTemplates[e.feature];
-                        auto pos = computeFeaturePosition(terrain, featureTemplate, x, y);
-                        auto feature = createFeature(pos, featureTemplate);
-                        features.push_back(std::move(feature));
+                        features.emplace_back(Point(x, y), featureNames.at(e.feature));
                 }
             }
         }
@@ -424,10 +388,7 @@ namespace rwe
         // add features from the OTA schema
         for (const auto& f : schema.features)
         {
-            const auto& featureTemplate = featuresMap.at(f.featureName);
-            auto pos = computeFeaturePosition(terrain, featureTemplate, f.xPos, f.zPos);
-            auto feature = createFeature(pos, featureTemplate);
-            features.push_back(std::move(feature));
+            features.emplace_back(Point(f.xPos, f.zPos), f.featureName);
         }
 
         return LoadMapResult{std::move(terrain), static_cast<unsigned char>(schema.surfaceMetal), std::move(features), std::move(terrainGraphics)};
@@ -951,6 +912,42 @@ namespace rwe
 
                 meshDb.addSelectionCollisionMesh(fbi.objectName, std::make_shared<CollisionMesh>(std::move(meshInfo.selectionMesh.collisionMesh)));
                 meshDb.addSelectionMesh(fbi.objectName, std::make_shared<GlMesh>(std::move(meshInfo.selectionMesh.visualMesh)));
+            }
+        }
+
+        // read feature TDFs
+        {
+            auto files = sceneContext.vfs->getFileNamesRecursive("features", ".tdf");
+
+            for (const auto& name : files)
+            {
+                auto bytes = sceneContext.vfs->readFile("features/" + name);
+                if (!bytes)
+                {
+                    throw std::runtime_error("Failed to read feature " + name);
+                }
+
+                std::string tdfString(bytes->data(), bytes->size());
+
+                auto tdfRoot = parseTdfFromString(tdfString);
+                for (const auto& e : tdfRoot.blocks)
+                {
+                    auto featureDefinition = parseFeatureDefinition(*e.second);
+                    db.addFeature(e.first, featureDefinition);
+
+                    if (!featureDefinition.object.empty())
+                    {
+                        if (!db.hasUnitModelDefinition(featureDefinition.object))
+                        {
+                            auto meshInfo = meshService.loadProjectileMesh(featureDefinition.object);
+                            db.addUnitModelDefinition(featureDefinition.object, std::move(meshInfo.modelDefinition));
+                            for (const auto& m : meshInfo.pieceMeshes)
+                            {
+                                meshDb.addUnitPieceMesh(featureDefinition.object, m.first, m.second);
+                            }
+                        }
+                    }
+                }
             }
         }
 

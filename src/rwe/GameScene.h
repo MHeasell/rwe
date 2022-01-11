@@ -211,8 +211,6 @@ namespace rwe
         UnitDatabase unitDatabase;
         UnitFactory unitFactory;
 
-        std::unordered_map<std::string, FeatureTdf> featuresMap;
-
         std::unique_ptr<GameNetworkService> gameNetworkService;
 
         PathFindingService pathFindingService;
@@ -310,7 +308,6 @@ namespace rwe
             MapTerrainGraphics&& terrainGraphics,
             MovementClassCollisionService&& collisionService,
             UnitDatabase&& unitDatabase,
-            std::unordered_map<std::string, FeatureTdf>&& featuresMap,
             MeshService&& meshService,
             std::unique_ptr<GameNetworkService>&& gameNetworkService,
             const std::shared_ptr<Sprite>& minimap,

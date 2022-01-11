@@ -164,7 +164,6 @@ namespace rwe
         MapTerrainGraphics&& terrainGraphics,
         MovementClassCollisionService&& collisionService,
         UnitDatabase&& unitDatabase,
-        std::unordered_map<std::string, FeatureTdf>&& featuresMap,
         MeshService&& meshService,
         std::unique_ptr<GameNetworkService>&& gameNetworkService,
         const std::shared_ptr<Sprite>& minimap,
@@ -189,7 +188,6 @@ namespace rwe
           collisionService(std::move(collisionService)),
           unitDatabase(std::move(unitDatabase)),
           unitFactory(sceneContext.textureService, &this->unitDatabase, std::move(meshService), &this->collisionService, sceneContext.palette, sceneContext.guiPalette, &this->simulation),
-          featuresMap(std::move(featuresMap)),
           gameNetworkService(std::move(gameNetworkService)),
           pathFindingService(&this->simulation, &this->collisionService),
           cobExecutionService(),
@@ -1972,7 +1970,7 @@ namespace rwe
 
     void GameScene::trySpawnFeature(const std::string& featureType, const SimVector& position, SimAngle rotation)
     {
-        const auto& featureDefinition = featuresMap.at(featureType);
+        const auto& featureDefinition = unitDatabase.getFeature(featureType);
         auto feature = createFeature(*sceneContext.textureService, position, featureDefinition);
 
         // FIXME: simulation needs to support failing to spawn in a feature

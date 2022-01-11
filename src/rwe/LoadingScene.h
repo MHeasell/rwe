@@ -128,11 +128,11 @@ namespace rwe
         {
             MapTerrain terrain;
             unsigned char surfaceMetal;
-            std::vector<MapFeature> features;
+            std::vector<std::pair<Point, std::string>> features;
             MapTerrainGraphics terrainGraphics;
         };
 
-        LoadMapResult loadMap(const std::unordered_map<std::string, FeatureTdf>& featuresMap, const std::string& mapName, const rwe::OtaRecord& ota, unsigned int schemaIndex);
+        LoadMapResult loadMap(const std::string& mapName, const rwe::OtaRecord& ota, unsigned int schemaIndex);
 
         std::vector<TextureArrayRegion> getTileTextures(TntArchive& tnt);
 
