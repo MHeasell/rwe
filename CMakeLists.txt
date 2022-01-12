@@ -225,6 +225,8 @@ set(SOURCE_FILES
     src/rwe/CroppedViewport.h
     src/rwe/CursorService.cpp
     src/rwe/CursorService.h
+    src/rwe/FeatureMediaInfo.cpp
+    src/rwe/FeatureMediaInfo.h
     src/rwe/FlashEffect.cpp
     src/rwe/FlashEffect.h
     src/rwe/GameCameraState.cpp
@@ -499,6 +501,8 @@ set(SOURCE_FILES
     src/rwe/sim/Energy.h
     src/rwe/sim/Explosion.cpp
     src/rwe/sim/Explosion.h
+    src/rwe/sim/FeatureDefinition.cpp
+    src/rwe/sim/FeatureDefinition.h
     src/rwe/sim/FeatureId.h
     src/rwe/sim/GameSimulation.cpp
     src/rwe/sim/GameSimulation.h

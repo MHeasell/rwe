@@ -4,6 +4,7 @@
 #include <boost/functional/hash.hpp>
 #include <memory>
 #include <rwe/AudioService.h>
+#include <rwe/FeatureMediaInfo.h>
 #include <rwe/SoundClass.h>
 #include <rwe/WeaponMediaInfo.h>
 #include <rwe/geometry/CollisionMesh.h>
@@ -69,6 +70,8 @@ namespace rwe
 
         std::unordered_map<std::string, std::shared_ptr<CollisionMesh>> selectionCollisionMeshesMap;
 
+        std::unordered_map<std::string, FeatureMediaInfo> featureMap;
+
     public:
         void addUnitPieceMesh(const std::string& unitName, const std::string& pieceName, std::shared_ptr<ShaderMesh> pieceMesh);
 
@@ -103,5 +106,9 @@ namespace rwe
         void addSelectionCollisionMesh(const std::string& objectName, std::shared_ptr<CollisionMesh> mesh);
 
         std::optional<std::shared_ptr<CollisionMesh>> getSelectionCollisionMesh(const std::string& objectName) const;
+
+        const FeatureMediaInfo& getFeature(const std::string& FeatureName) const;
+
+        void addFeature(const std::string& name, FeatureMediaInfo&& feature);
     };
 }

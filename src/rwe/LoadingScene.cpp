@@ -1,5 +1,6 @@
 #include "LoadingScene.h"
 #include <boost/interprocess/streams/bufferstream.hpp>
+#include <rwe/FeatureMediaInfo.h>
 #include <rwe/GameNetworkService.h>
 #include <rwe/Index.h>
 #include <rwe/MapTerrainGraphics.h>
@@ -156,9 +157,10 @@ namespace rwe
         GameSimulation simulation(std::move(mapInfo.terrain), mapInfo.surfaceMetal);
         for (const auto& [pos, featureName] : mapInfo.features)
         {
-            const auto& featureTdf = unitDatabase.getFeature(featureName);
-            auto resolvedPos = computeFeaturePosition(simulation.terrain, featureTdf, pos.x, pos.y);
-            auto featureInstance = createFeature(resolvedPos, featureTdf);
+            const auto& featureDefinition = unitDatabase.getFeature(featureName);
+            const auto& featureMediaInfo = meshDatabase.getFeature(featureName);
+            auto resolvedPos = computeFeaturePosition(simulation.terrain, featureDefinition, pos.x, pos.y);
+            auto featureInstance = createFeature(resolvedPos, featureDefinition, featureMediaInfo);
             simulation.addFeature(std::move(featureInstance));
         }
         auto seedSeq = seedFromGameParameters(gameParameters);
@@ -464,7 +466,7 @@ namespace rwe
         return features;
     }
 
-    MapFeature LoadingScene::createFeature(const SimVector& pos, const FeatureTdf& definition)
+    MapFeature LoadingScene::createFeature(const SimVector& pos, const FeatureDefinition& definition, const FeatureMediaInfo& mediaInfo)
     {
         MapFeature f;
         f.footprintX = definition.footprintX;
@@ -475,29 +477,29 @@ namespace rwe
         f.metal = definition.metal;
         f.position = pos;
 
-        if (!definition.object.empty())
+        if (!mediaInfo.object.empty())
         {
-            f.renderInfo = FeatureObjectInfo{definition.object};
+            f.renderInfo = FeatureObjectInfo{mediaInfo.object};
         }
         else
         {
             FeatureSpriteInfo spriteInfo;
-            spriteInfo.transparentAnimation = definition.animTrans;
-            spriteInfo.transparentShadow = definition.shadTrans;
-            if (!definition.fileName.empty() && !definition.seqName.empty())
+            spriteInfo.transparentAnimation = mediaInfo.animTrans;
+            spriteInfo.transparentShadow = mediaInfo.shadTrans;
+            if (!mediaInfo.fileName.empty() && !mediaInfo.seqName.empty())
             {
-                spriteInfo.animation = sceneContext.textureService->getGafEntry("anims/" + definition.fileName + ".GAF", definition.seqName);
+                spriteInfo.animation = sceneContext.textureService->getGafEntry("anims/" + mediaInfo.fileName + ".GAF", mediaInfo.seqName);
             }
             if (!spriteInfo.animation)
             {
                 spriteInfo.animation = sceneContext.textureService->getDefaultSpriteSeries();
             }
 
-            if (!definition.fileName.empty() && !definition.seqNameShad.empty())
+            if (!mediaInfo.fileName.empty() && !mediaInfo.seqNameShad.empty())
             {
                 // Some third-party features have broken shadow anim names (e.g. "empty"),
                 // ignore them if they don't exist.
-                spriteInfo.shadowAnimation = sceneContext.textureService->tryGetGafEntry("anims/" + definition.fileName + ".GAF", definition.seqNameShad);
+                spriteInfo.shadowAnimation = sceneContext.textureService->tryGetGafEntry("anims/" + mediaInfo.fileName + ".GAF", mediaInfo.seqNameShad);
             }
             f.renderInfo = std::move(spriteInfo);
         }
@@ -522,7 +524,7 @@ namespace rwe
 
     SimVector LoadingScene::computeFeaturePosition(
         const MapTerrain& terrain,
-        const FeatureTdf& featureDefinition,
+        const FeatureDefinition& featureDefinition,
         std::size_t x,
         std::size_t y) const
     {
@@ -649,6 +651,75 @@ namespace rwe
         weaponDefinition.randomDecay = GameTime(static_cast<unsigned int>(tdf.randomDecay * 30.0f));
 
         return weaponDefinition;
+    }
+
+    FeatureDefinition parseFeatureDefinition(const FeatureTdf& tdf)
+    {
+        FeatureDefinition f;
+
+        f.footprintX = tdf.footprintX;
+        f.footprintZ = tdf.footprintZ;
+        f.height = tdf.height;
+
+        f.reclaimable = tdf.reclaimable;
+        f.autoreclaimable = tdf.autoreclaimable;
+        f.featureReclamate = tdf.featureReclamate;
+        f.metal = tdf.metal;
+        f.energy = tdf.energy;
+
+        f.flamable = tdf.flamable;
+        f.featureBurnt = tdf.featureBurnt;
+        f.burnMin = tdf.burnMin;
+        f.burnMax = tdf.burnMax;
+        f.sparkTime = tdf.sparkTime;
+        f.spreadChance = tdf.spreadChance;
+        f.burnWeapon = tdf.burnWeapon;
+
+        f.geothermal = tdf.geothermal;
+
+        f.hitDensity = tdf.hitDensity;
+
+        f.reproduce = tdf.reproduce;
+        f.reproduceArea = tdf.reproduceArea;
+
+        f.noDisplayInfo = tdf.noDisplayInfo;
+
+        f.permanent = tdf.permanent;
+
+        f.blocking = tdf.blocking;
+
+        f.indestructible = tdf.indestructible;
+        f.damage = tdf.damage;
+        f.featureDead = tdf.featureDead;
+
+        return f;
+    }
+
+    FeatureMediaInfo parseFeatureMediaInfo(const FeatureTdf& tdf)
+    {
+        FeatureMediaInfo f;
+
+        f.world = tdf.world;
+        f.description = tdf.description;
+        f.category = tdf.category;
+
+        f.animating = tdf.animating;
+        f.fileName = tdf.fileName;
+        f.seqName = tdf.seqName;
+        f.animTrans = tdf.animTrans;
+        f.seqNameShad = tdf.seqNameShad;
+        f.shadTrans = tdf.shadTrans;
+
+        f.object = tdf.object;
+
+        f.seqNameReclamate = tdf.seqNameReclamate;
+
+        f.seqNameBurn = tdf.seqNameBurn;
+        f.seqNameBurnShad = tdf.seqNameBurnShad;
+
+        f.seqNameDie = tdf.seqNameDie;
+
+        return f;
     }
 
     WeaponMediaInfo parseWeaponMediaInfo(const std::vector<Color>& palette, const std::vector<Color>& guiPalette, const WeaponTdf& tdf)
@@ -932,21 +1003,25 @@ namespace rwe
                 auto tdfRoot = parseTdfFromString(tdfString);
                 for (const auto& e : tdfRoot.blocks)
                 {
-                    auto featureDefinition = parseFeatureDefinition(*e.second);
+                    auto featureTdf = parseFeatureTdf(*e.second);
+                    auto featureDefinition = parseFeatureDefinition(featureTdf);
+                    auto featureMediaInfo = parseFeatureMediaInfo(featureTdf);
                     db.addFeature(e.first, featureDefinition);
 
-                    if (!featureDefinition.object.empty())
+                    if (!featureMediaInfo.object.empty())
                     {
-                        if (!db.hasUnitModelDefinition(featureDefinition.object))
+                        if (!db.hasUnitModelDefinition(featureMediaInfo.object))
                         {
-                            auto meshInfo = meshService.loadProjectileMesh(featureDefinition.object);
-                            db.addUnitModelDefinition(featureDefinition.object, std::move(meshInfo.modelDefinition));
+                            auto meshInfo = meshService.loadProjectileMesh(featureMediaInfo.object);
+                            db.addUnitModelDefinition(featureMediaInfo.object, std::move(meshInfo.modelDefinition));
                             for (const auto& m : meshInfo.pieceMeshes)
                             {
-                                meshDb.addUnitPieceMesh(featureDefinition.object, m.first, m.second);
+                                meshDb.addUnitPieceMesh(featureMediaInfo.object, m.first, m.second);
                             }
                         }
                     }
+
+                    meshDb.addFeature(e.first, std::move(featureMediaInfo));
                 }
             }
         }

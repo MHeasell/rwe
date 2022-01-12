@@ -144,4 +144,20 @@ namespace rwe
         }
         return it->second;
     }
+
+    const FeatureMediaInfo& MeshDatabase::getFeature(const std::string& featureName) const
+    {
+        auto it = featureMap.find(toUpper(featureName));
+        if (it == featureMap.end())
+        {
+            throw std::runtime_error("No feature found with name " + featureName);
+        }
+
+        return it->second;
+    }
+
+    void MeshDatabase::addFeature(const std::string& featureName, FeatureMediaInfo&& feature)
+    {
+        featureMap.insert({toUpper(featureName), std::move(feature)});
+    }
 }

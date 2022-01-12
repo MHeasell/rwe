@@ -1926,7 +1926,7 @@ namespace rwe
         return std::nullopt;
     }
 
-    MapFeature createFeature(TextureService& textureService, const SimVector& pos, const FeatureTdf& definition)
+    MapFeature createFeature(TextureService& textureService, const SimVector& pos, const FeatureDefinition& definition, const FeatureMediaInfo& mediaInfo)
     {
         MapFeature f;
         f.footprintX = definition.footprintX;
@@ -1937,29 +1937,29 @@ namespace rwe
         f.metal = definition.metal;
         f.position = pos;
 
-        if (!definition.object.empty())
+        if (!mediaInfo.object.empty())
         {
-            f.renderInfo = FeatureObjectInfo{definition.object};
+            f.renderInfo = FeatureObjectInfo{mediaInfo.object};
         }
         else
         {
             FeatureSpriteInfo spriteInfo;
-            spriteInfo.transparentAnimation = definition.animTrans;
-            spriteInfo.transparentShadow = definition.shadTrans;
-            if (!definition.fileName.empty() && !definition.seqName.empty())
+            spriteInfo.transparentAnimation = mediaInfo.animTrans;
+            spriteInfo.transparentShadow = mediaInfo.shadTrans;
+            if (!mediaInfo.fileName.empty() && !mediaInfo.seqName.empty())
             {
-                spriteInfo.animation = textureService.getGafEntry("anims/" + definition.fileName + ".GAF", definition.seqName);
+                spriteInfo.animation = textureService.getGafEntry("anims/" + mediaInfo.fileName + ".GAF", mediaInfo.seqName);
             }
             if (!spriteInfo.animation)
             {
                 spriteInfo.animation = textureService.getDefaultSpriteSeries();
             }
 
-            if (!definition.fileName.empty() && !definition.seqNameShad.empty())
+            if (!mediaInfo.fileName.empty() && !mediaInfo.seqNameShad.empty())
             {
                 // Some third-party features have broken shadow anim names (e.g. "empty"),
                 // ignore them if they don't exist.
-                spriteInfo.shadowAnimation = textureService.tryGetGafEntry("anims/" + definition.fileName + ".GAF", definition.seqNameShad);
+                spriteInfo.shadowAnimation = textureService.tryGetGafEntry("anims/" + mediaInfo.fileName + ".GAF", mediaInfo.seqNameShad);
             }
             f.renderInfo = std::move(spriteInfo);
         }
@@ -1971,7 +1971,8 @@ namespace rwe
     void GameScene::trySpawnFeature(const std::string& featureType, const SimVector& position, SimAngle rotation)
     {
         const auto& featureDefinition = unitDatabase.getFeature(featureType);
-        auto feature = createFeature(*sceneContext.textureService, position, featureDefinition);
+        const auto& featureMediaInfo = meshDatabase.getFeature(featureType);
+        auto feature = createFeature(*sceneContext.textureService, position, featureDefinition, featureMediaInfo);
 
         // FIXME: simulation needs to support failing to spawn in a feature
         simulation.addFeature(std::move(feature));

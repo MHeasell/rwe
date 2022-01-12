@@ -104,7 +104,7 @@ namespace rwe
         return it != unitModelDefinitionsMap.end();
     }
 
-    const FeatureTdf& UnitDatabase::getFeature(const std::string& featureName) const
+    const FeatureDefinition& UnitDatabase::getFeature(const std::string& featureName) const
     {
         auto it = featureMap.find(toUpper(featureName));
         if (it == featureMap.end())
@@ -115,7 +115,7 @@ namespace rwe
         return it->second;
     }
 
-    void UnitDatabase::addFeature(const std::string& featureName, const FeatureTdf& definition)
+    void UnitDatabase::addFeature(const std::string& featureName, const FeatureDefinition& definition)
     {
         featureMap.insert({toUpper(featureName), definition});
     }

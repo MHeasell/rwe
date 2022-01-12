@@ -5,5 +5,5 @@
 
 namespace rwe
 {
-    FeatureTdf parseFeatureDefinition(const TdfBlock& tdf);
+    FeatureTdf parseFeatureTdf(const TdfBlock& tdf);
 }

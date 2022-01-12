@@ -11,7 +11,7 @@ namespace rwe
         return os;
     }
 
-    TEST_CASE("parseFeatureDefinition")
+    TEST_CASE("parseFeatureTdf")
     {
         SECTION("basic test")
         {
@@ -61,7 +61,7 @@ namespace rwe
 
             auto block = tdfRoot.findBlock("Tree1");
             REQUIRE(block);
-            auto f = parseFeatureDefinition(*block);
+            auto f = parseFeatureTdf(*block);
 
             REQUIRE(f.world == "greenworld");
             REQUIRE(f.description == "Tree");
