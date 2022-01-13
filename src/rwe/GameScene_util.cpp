@@ -621,8 +621,9 @@ namespace rwe
         std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
         UnitMeshBatch& batch)
     {
+        const auto& featureMediaInfo = meshDatabase.getFeature(feature.featureName);
 
-        if (auto objectInfo = std::get_if<FeatureObjectInfo>(&feature.renderInfo); objectInfo != nullptr)
+        if (auto objectInfo = std::get_if<FeatureObjectInfo>(&featureMediaInfo.renderInfo); objectInfo != nullptr)
         {
             auto matrix = Matrix4f::translation(simVectorToFloat(feature.position)) * Matrix4f::rotationY(0.0f, -1.0f);
             drawProjectileUnitMesh(unitDatabase, meshDatabase, viewProjectionMatrix, objectInfo->objectName, matrix, PlayerColorIndex(0), true, unitTextureAtlas, unitTeamTextureAtlases, batch);
@@ -657,7 +658,9 @@ namespace rwe
         std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
         UnitShadowMeshBatch& batch)
     {
-        auto objectInfo = std::get_if<FeatureObjectInfo>(&feature.renderInfo);
+        const auto& featureMediaInfo = meshDatabase.getFeature(feature.featureName);
+
+        auto objectInfo = std::get_if<FeatureObjectInfo>(&featureMediaInfo.renderInfo);
         if (objectInfo == nullptr)
         {
             return;
@@ -669,9 +672,17 @@ namespace rwe
         drawUnitShadowMeshNoPieces(unitDatabase, meshDatabase, viewProjectionMatrix, objectInfo->objectName, matrix, groundHeight, unitTextureAtlas, unitTeamTextureAtlases, batch);
     }
 
-    void drawFeature(const MapFeature& feature, const Matrix4f& viewProjectionMatrix, SpriteBatch& batch)
+    void drawFeature(
+        const UnitDatabase& unitDatabase,
+        const MeshDatabase& meshDatabase,
+        const MapFeature& feature,
+        const Matrix4f& viewProjectionMatrix,
+        SpriteBatch& batch)
     {
-        auto spriteInfo = std::get_if<FeatureSpriteInfo>(&feature.renderInfo);
+        const auto& featureDefinition = unitDatabase.getFeature(feature.featureName);
+        const auto& featureMediaInfo = meshDatabase.getFeature(feature.featureName);
+
+        auto spriteInfo = std::get_if<FeatureSpriteInfo>(&featureMediaInfo.renderInfo);
         if (spriteInfo == nullptr)
         {
             return;
@@ -685,7 +696,7 @@ namespace rwe
         // Convert to a model position that makes sense in the game world.
         // For standing (blocking) features we stretch y-dimension values by 2x
         // to correct for TA camera distortion.
-        Matrix4f conversionMatrix = feature.isStanding()
+        Matrix4f conversionMatrix = featureDefinition.isStanding()
             ? Matrix4f::scale(Vector3f(1.0f, -2.0f, 1.0f))
             : Matrix4f::rotationX(-Pif / 2.0f) * Matrix4f::scale(Vector3f(1.0f, -1.0f, 1.0f));
 
@@ -696,9 +707,17 @@ namespace rwe
         batch.sprites.push_back(SpriteRenderInfo{&sprite, mvpMatrix, spriteInfo->transparentAnimation});
     }
 
-    void drawFeatureShadow(const MapFeature& feature, const Matrix4f& viewProjectionMatrix, SpriteBatch& batch)
+    void drawFeatureShadow(
+        const UnitDatabase& unitDatabase,
+        const MeshDatabase& meshDatabase,
+        const MapFeature& feature,
+        const Matrix4f& viewProjectionMatrix,
+        SpriteBatch& batch)
     {
-        auto spriteInfo = std::get_if<FeatureSpriteInfo>(&feature.renderInfo);
+        const auto& featureDefinition = unitDatabase.getFeature(feature.featureName);
+        const auto& featureMediaInfo = meshDatabase.getFeature(feature.featureName);
+
+        auto spriteInfo = std::get_if<FeatureSpriteInfo>(&featureMediaInfo.renderInfo);
         if (spriteInfo == nullptr)
         {
             return;
@@ -716,7 +735,7 @@ namespace rwe
         // Convert to a model position that makes sense in the game world.
         // For standing (blocking) features we stretch y-dimension values by 2x
         // to correct for TA camera distortion.
-        Matrix4f conversionMatrix = feature.isStanding()
+        Matrix4f conversionMatrix = featureDefinition.isStanding()
             ? Matrix4f::scale(Vector3f(1.0f, -2.0f, 1.0f))
             : Matrix4f::rotationX(-Pif / 2.0f) * Matrix4f::scale(Vector3f(1.0f, -1.0f, 1.0f));
 

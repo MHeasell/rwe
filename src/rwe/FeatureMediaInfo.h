@@ -1,22 +1,34 @@
 #pragma once
 
+#include <memory>
+#include <optional>
+#include <rwe/render/SpriteSeries.h>
 #include <string>
+
 namespace rwe
 {
+    struct FeatureSpriteInfo
+    {
+        std::shared_ptr<SpriteSeries> animation;
+        bool transparentAnimation;
+        std::optional<std::shared_ptr<SpriteSeries>> shadowAnimation;
+        bool transparentShadow;
+    };
+
+    struct FeatureObjectInfo
+    {
+        std::string objectName;
+    };
+
+    using FeatureRenderInfo = std::variant<FeatureSpriteInfo, FeatureObjectInfo>;
+
     struct FeatureMediaInfo
     {
         std::string world;
         std::string description;
         std::string category;
 
-        bool animating;
-        std::string fileName;
-        std::string seqName;
-        bool animTrans;
-        std::string seqNameShad;
-        bool shadTrans;
-
-        std::string object;
+        FeatureRenderInfo renderInfo;
 
         std::string seqNameReclamate;
 

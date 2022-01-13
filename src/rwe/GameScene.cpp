@@ -25,7 +25,7 @@ namespace rwe
         return Line3x<SimScalar>(floatToSimVector(line.start), floatToSimVector(line.end));
     }
 
-    bool projectileCollides(const GameSimulation& sim, const Projectile& projectile, const OccupiedCell& cellValue)
+    bool projectileCollides(const UnitDatabase& db, const GameSimulation& sim, const Projectile& projectile, const OccupiedCell& cellValue)
     {
         auto collidesWithOccupiedCell = match(
             cellValue.occupiedType,
@@ -47,9 +47,10 @@ namespace rwe
             },
             [&](const OccupiedFeature& v) {
                 const auto& feature = sim.getFeature(v.id);
+                const auto& featureDefinition = db.getFeature(feature.featureName);
 
                 // ignore if the projectile is above or below the feature
-                if (projectile.position.y < feature.position.y || projectile.position.y > feature.position.y + feature.height)
+                if (projectile.position.y < feature.position.y || projectile.position.y > feature.position.y + featureDefinition.height)
                 {
                     return false;
                 }
@@ -618,10 +619,11 @@ namespace rwe
         SpriteBatch flatFeatureShadowBatch;
         for (const auto& f : simulation.features)
         {
-            if (!f.second.isStanding())
+            const auto& featureDefinition = unitDatabase.getFeature(f.second.featureName);
+            if (!featureDefinition.isStanding())
             {
-                drawFeature(f.second, viewProjectionMatrix, flatFeatureBatch);
-                drawFeatureShadow(f.second, viewProjectionMatrix, flatFeatureShadowBatch);
+                drawFeature(unitDatabase, meshDatabase, f.second, viewProjectionMatrix, flatFeatureBatch);
+                drawFeatureShadow(unitDatabase, meshDatabase, f.second, viewProjectionMatrix, flatFeatureShadowBatch);
             }
         }
         worldRenderService.drawSpriteBatch(flatFeatureShadowBatch);
@@ -706,10 +708,11 @@ namespace rwe
         SpriteBatch featureShadowBatch;
         for (const auto& f : simulation.features)
         {
-            if (f.second.isStanding())
+            const auto& featureDefinition = unitDatabase.getFeature(f.second.featureName);
+            if (featureDefinition.isStanding())
             {
-                drawFeature(f.second, viewProjectionMatrix, featureBatch);
-                drawFeatureShadow(f.second, viewProjectionMatrix, featureShadowBatch);
+                drawFeature(unitDatabase, meshDatabase, f.second, viewProjectionMatrix, featureBatch);
+                drawFeatureShadow(unitDatabase, meshDatabase, f.second, viewProjectionMatrix, featureShadowBatch);
             }
         }
         worldRenderService.drawSpriteBatch(featureShadowBatch);
@@ -1926,56 +1929,21 @@ namespace rwe
         return std::nullopt;
     }
 
-    MapFeature createFeature(TextureService& textureService, const SimVector& pos, const FeatureDefinition& definition, const FeatureMediaInfo& mediaInfo)
+    MapFeature createFeature(const SimVector& pos, const std::string& featureName)
     {
         MapFeature f;
-        f.footprintX = definition.footprintX;
-        f.footprintZ = definition.footprintZ;
-        f.height = SimScalar(definition.height);
-        f.isBlocking = definition.blocking;
-        f.isIndestructible = definition.indestructible;
-        f.metal = definition.metal;
         f.position = pos;
-
-        if (!mediaInfo.object.empty())
-        {
-            f.renderInfo = FeatureObjectInfo{mediaInfo.object};
-        }
-        else
-        {
-            FeatureSpriteInfo spriteInfo;
-            spriteInfo.transparentAnimation = mediaInfo.animTrans;
-            spriteInfo.transparentShadow = mediaInfo.shadTrans;
-            if (!mediaInfo.fileName.empty() && !mediaInfo.seqName.empty())
-            {
-                spriteInfo.animation = textureService.getGafEntry("anims/" + mediaInfo.fileName + ".GAF", mediaInfo.seqName);
-            }
-            if (!spriteInfo.animation)
-            {
-                spriteInfo.animation = textureService.getDefaultSpriteSeries();
-            }
-
-            if (!mediaInfo.fileName.empty() && !mediaInfo.seqNameShad.empty())
-            {
-                // Some third-party features have broken shadow anim names (e.g. "empty"),
-                // ignore them if they don't exist.
-                spriteInfo.shadowAnimation = textureService.tryGetGafEntry("anims/" + mediaInfo.fileName + ".GAF", mediaInfo.seqNameShad);
-            }
-            f.renderInfo = std::move(spriteInfo);
-        }
-
-
+        f.featureName = featureName;
         return f;
     }
 
     void GameScene::trySpawnFeature(const std::string& featureType, const SimVector& position, SimAngle rotation)
     {
+        auto feature = createFeature(position, featureType);
         const auto& featureDefinition = unitDatabase.getFeature(featureType);
-        const auto& featureMediaInfo = meshDatabase.getFeature(featureType);
-        auto feature = createFeature(*sceneContext.textureService, position, featureDefinition, featureMediaInfo);
 
         // FIXME: simulation needs to support failing to spawn in a feature
-        simulation.addFeature(std::move(feature));
+        simulation.addFeature(featureDefinition, std::move(feature));
     }
 
     void GameScene::setCameraPosition(const Vector3f& newPosition)
@@ -2897,7 +2865,7 @@ namespace rwe
                 auto cellValue = simulation.occupiedGrid.tryGet(heightMapPos);
                 if (cellValue)
                 {
-                    auto collides = projectileCollides(simulation, projectile, cellValue->get());
+                    auto collides = projectileCollides(unitDatabase, simulation, projectile, cellValue->get());
                     if (collides)
                     {
                         doProjectileImpact(projectile, ImpactType::Normal);

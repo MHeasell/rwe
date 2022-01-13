@@ -85,21 +85,24 @@ namespace rwe
     {
     }
 
-    FeatureId GameSimulation::addFeature(MapFeature&& newFeature)
+    // FIXME: the signature of this is really awkward,
+    // caller shouldn't have to supply feature definition.
+    // One day we should fix this so that the sim knows all the definitions.
+    FeatureId GameSimulation::addFeature(const FeatureDefinition& featureDefinition, MapFeature&& newFeature)
     {
         auto featureId = FeatureId(features.emplace(std::move(newFeature)));
 
         auto& f = features.tryGet(featureId)->get();
-        if (f.isBlocking)
+        if (featureDefinition.blocking)
         {
-            auto footprintRegion = computeFootprintRegion(f.position, f.footprintX, f.footprintZ);
+            auto footprintRegion = computeFootprintRegion(f.position, featureDefinition.footprintX, featureDefinition.footprintZ);
             occupiedGrid.forEach(occupiedGrid.clipRegion(footprintRegion), [featureId](auto& cell) { cell.occupiedType = OccupiedFeature(featureId); });
         }
 
-        if (!f.isBlocking && f.isIndestructible && f.metal)
+        if (!featureDefinition.blocking && featureDefinition.indestructible && featureDefinition.metal)
         {
-            auto footprintRegion = computeFootprintRegion(f.position, f.footprintX, f.footprintZ);
-            metalGrid.set(metalGrid.clipRegion(footprintRegion), f.metal);
+            auto footprintRegion = computeFootprintRegion(f.position, featureDefinition.footprintX, featureDefinition.footprintZ);
+            metalGrid.set(metalGrid.clipRegion(footprintRegion), featureDefinition.metal);
         }
 
         return featureId;

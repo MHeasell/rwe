@@ -158,10 +158,9 @@ namespace rwe
         for (const auto& [pos, featureName] : mapInfo.features)
         {
             const auto& featureDefinition = unitDatabase.getFeature(featureName);
-            const auto& featureMediaInfo = meshDatabase.getFeature(featureName);
             auto resolvedPos = computeFeaturePosition(simulation.terrain, featureDefinition, pos.x, pos.y);
-            auto featureInstance = createFeature(resolvedPos, featureDefinition, featureMediaInfo);
-            simulation.addFeature(std::move(featureInstance));
+            auto featureInstance = createFeature(resolvedPos, featureName);
+            simulation.addFeature(featureDefinition, std::move(featureInstance));
         }
         auto seedSeq = seedFromGameParameters(gameParameters);
         simulation.rng.seed(seedSeq);
@@ -466,45 +465,11 @@ namespace rwe
         return features;
     }
 
-    MapFeature LoadingScene::createFeature(const SimVector& pos, const FeatureDefinition& definition, const FeatureMediaInfo& mediaInfo)
+    MapFeature LoadingScene::createFeature(const SimVector& pos, const std::string& featureName)
     {
         MapFeature f;
-        f.footprintX = definition.footprintX;
-        f.footprintZ = definition.footprintZ;
-        f.height = SimScalar(definition.height);
-        f.isBlocking = definition.blocking;
-        f.isIndestructible = definition.indestructible;
-        f.metal = definition.metal;
         f.position = pos;
-
-        if (!mediaInfo.object.empty())
-        {
-            f.renderInfo = FeatureObjectInfo{mediaInfo.object};
-        }
-        else
-        {
-            FeatureSpriteInfo spriteInfo;
-            spriteInfo.transparentAnimation = mediaInfo.animTrans;
-            spriteInfo.transparentShadow = mediaInfo.shadTrans;
-            if (!mediaInfo.fileName.empty() && !mediaInfo.seqName.empty())
-            {
-                spriteInfo.animation = sceneContext.textureService->getGafEntry("anims/" + mediaInfo.fileName + ".GAF", mediaInfo.seqName);
-            }
-            if (!spriteInfo.animation)
-            {
-                spriteInfo.animation = sceneContext.textureService->getDefaultSpriteSeries();
-            }
-
-            if (!mediaInfo.fileName.empty() && !mediaInfo.seqNameShad.empty())
-            {
-                // Some third-party features have broken shadow anim names (e.g. "empty"),
-                // ignore them if they don't exist.
-                spriteInfo.shadowAnimation = sceneContext.textureService->tryGetGafEntry("anims/" + mediaInfo.fileName + ".GAF", mediaInfo.seqNameShad);
-            }
-            f.renderInfo = std::move(spriteInfo);
-        }
-
-
+        f.featureName = featureName;
         return f;
     }
 
@@ -659,7 +624,7 @@ namespace rwe
 
         f.footprintX = tdf.footprintX;
         f.footprintZ = tdf.footprintZ;
-        f.height = tdf.height;
+        f.height = SimScalar(tdf.height);
 
         f.reclaimable = tdf.reclaimable;
         f.autoreclaimable = tdf.autoreclaimable;
@@ -695,7 +660,7 @@ namespace rwe
         return f;
     }
 
-    FeatureMediaInfo parseFeatureMediaInfo(const FeatureTdf& tdf)
+    FeatureMediaInfo parseFeatureMediaInfo(TextureService& textureService, const FeatureTdf& tdf)
     {
         FeatureMediaInfo f;
 
@@ -703,14 +668,32 @@ namespace rwe
         f.description = tdf.description;
         f.category = tdf.category;
 
-        f.animating = tdf.animating;
-        f.fileName = tdf.fileName;
-        f.seqName = tdf.seqName;
-        f.animTrans = tdf.animTrans;
-        f.seqNameShad = tdf.seqNameShad;
-        f.shadTrans = tdf.shadTrans;
+        if (!tdf.object.empty())
+        {
+            f.renderInfo = FeatureObjectInfo{tdf.object};
+        }
+        else
+        {
+            FeatureSpriteInfo spriteInfo;
+            spriteInfo.transparentAnimation = tdf.animTrans;
+            spriteInfo.transparentShadow = tdf.shadTrans;
+            if (!tdf.fileName.empty() && !tdf.seqName.empty())
+            {
+                spriteInfo.animation = textureService.getGafEntry("anims/" + tdf.fileName + ".GAF", tdf.seqName);
+            }
+            if (!spriteInfo.animation)
+            {
+                spriteInfo.animation = textureService.getDefaultSpriteSeries();
+            }
 
-        f.object = tdf.object;
+            if (!tdf.fileName.empty() && !tdf.seqNameShad.empty())
+            {
+                // Some third-party features have broken shadow anim names (e.g. "empty"),
+                // ignore them if they don't exist.
+                spriteInfo.shadowAnimation = textureService.tryGetGafEntry("anims/" + tdf.fileName + ".GAF", tdf.seqNameShad);
+            }
+            f.renderInfo = std::move(spriteInfo);
+        }
 
         f.seqNameReclamate = tdf.seqNameReclamate;
 
@@ -1005,18 +988,18 @@ namespace rwe
                 {
                     auto featureTdf = parseFeatureTdf(*e.second);
                     auto featureDefinition = parseFeatureDefinition(featureTdf);
-                    auto featureMediaInfo = parseFeatureMediaInfo(featureTdf);
+                    auto featureMediaInfo = parseFeatureMediaInfo(*sceneContext.textureService, featureTdf);
                     db.addFeature(e.first, featureDefinition);
 
-                    if (!featureMediaInfo.object.empty())
+                    if (auto objectInfo = std::get_if<FeatureObjectInfo>(&featureMediaInfo.renderInfo); objectInfo != nullptr)
                     {
-                        if (!db.hasUnitModelDefinition(featureMediaInfo.object))
+                        if (!db.hasUnitModelDefinition(objectInfo->objectName))
                         {
-                            auto meshInfo = meshService.loadProjectileMesh(featureMediaInfo.object);
-                            db.addUnitModelDefinition(featureMediaInfo.object, std::move(meshInfo.modelDefinition));
+                            auto meshInfo = meshService.loadProjectileMesh(objectInfo->objectName);
+                            db.addUnitModelDefinition(objectInfo->objectName, std::move(meshInfo.modelDefinition));
                             for (const auto& m : meshInfo.pieceMeshes)
                             {
-                                meshDb.addUnitPieceMesh(featureMediaInfo.object, m.first, m.second);
+                                meshDb.addUnitPieceMesh(objectInfo->objectName, m.first, m.second);
                             }
                         }
                     }

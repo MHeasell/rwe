@@ -1,13 +1,15 @@
 #pragma once
 
+#include <rwe/sim/SimScalar.h>
 #include <string>
+
 namespace rwe
 {
     struct FeatureDefinition
     {
-        unsigned int footprintX;
-        unsigned int footprintZ;
-        unsigned int height;
+        int footprintX;
+        int footprintZ;
+        SimScalar height;
 
         bool reclaimable;
         bool autoreclaimable;
@@ -39,5 +41,7 @@ namespace rwe
         bool indestructible;
         unsigned int damage;
         std::string featureDead;
+
+        bool isStanding() const;
     };
 }

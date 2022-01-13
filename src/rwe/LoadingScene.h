@@ -142,7 +142,7 @@ namespace rwe
 
         std::vector<FeatureTdf> getFeatures(const std::unordered_map<std::string, FeatureTdf>& featuresMap, TntArchive& tnt);
 
-        MapFeature createFeature(const SimVector& pos, const FeatureDefinition& definition, const FeatureMediaInfo& mediaInfo);
+        MapFeature createFeature(const SimVector& pos, const std::string& featureName);
 
         SimVector computeFeaturePosition(const MapTerrain& terrain, const FeatureDefinition& featureDefinition, std::size_t x, std::size_t y) const;
 

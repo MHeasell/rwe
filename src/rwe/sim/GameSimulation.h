@@ -5,6 +5,7 @@
 #include <rwe/PlayerColorIndex.h>
 #include <rwe/VectorMap.h>
 #include <rwe/sim/Explosion.h>
+#include <rwe/sim/FeatureDefinition.h>
 #include <rwe/sim/FeatureId.h>
 #include <rwe/sim/GameTime.h>
 #include <rwe/sim/MapFeature.h>
@@ -119,7 +120,7 @@ namespace rwe
 
         explicit GameSimulation(MapTerrain&& terrain, unsigned char surfaceMetal);
 
-        FeatureId addFeature(MapFeature&& newFeature);
+        FeatureId addFeature(const FeatureDefinition& featureDefinition, MapFeature&& newFeature);
 
         PlayerId addPlayer(const GamePlayerInfo& info);
 
