@@ -60,6 +60,8 @@ namespace rwe
 
         bool hasUnitModelDefinition(const std::string& objectName) const;
 
+        bool hasFeature(const std::string& featureName) const;
+
         const FeatureDefinition& getFeature(const std::string& featureName) const;
 
         void addFeature(const std::string& featureName, const FeatureDefinition& definition);

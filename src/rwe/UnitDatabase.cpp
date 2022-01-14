@@ -119,4 +119,9 @@ namespace rwe
     {
         featureMap.insert({toUpper(featureName), definition});
     }
+
+    bool UnitDatabase::hasFeature(const std::string& featureName) const
+    {
+        return featureMap.find(toUpper(featureName)) != featureMap.end();
+    }
 }

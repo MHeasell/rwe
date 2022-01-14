@@ -142,18 +142,23 @@ namespace rwe
         auto atlasInfo = createTextureAtlases(sceneContext.vfs, sceneContext.graphics, sceneContext.palette);
         MeshService meshService(sceneContext.vfs, sceneContext.graphics, std::move(atlasInfo.textureAtlasMap), std::move(atlasInfo.teamTextureAtlasMap), std::move(atlasInfo.colorAtlasMap));
 
-        auto [unitDatabase, meshDatabase, weaponDefinitions] = createUnitDatabase(meshService);
-
         auto otaRaw = sceneContext.vfs->readFile(std::string("maps/").append(mapName).append(".ota"));
         if (!otaRaw)
         {
             throw std::runtime_error("Failed to read OTA file");
         }
-
         std::string otaStr(otaRaw->begin(), otaRaw->end());
         auto ota = parseOta(parseTdfFromString(otaStr));
 
         auto mapInfo = loadMap(mapName, ota, schemaIndex);
+        std::unordered_set<std::string> requiredFeatureNames;
+        for (const auto& f : mapInfo.features)
+        {
+            requiredFeatureNames.insert(f.second);
+        }
+
+        auto [unitDatabase, meshDatabase, weaponDefinitions] = createUnitDatabase(meshService, requiredFeatureNames);
+
         GameSimulation simulation(std::move(mapInfo.terrain), mapInfo.surfaceMetal);
         for (const auto& [pos, featureName] : mapInfo.features)
         {
@@ -812,7 +817,7 @@ namespace rwe
     }
 
 
-    std::tuple<UnitDatabase, MeshDatabase, std::unordered_map<std::string, WeaponDefinition>> LoadingScene::createUnitDatabase(MeshService& meshService)
+    std::tuple<UnitDatabase, MeshDatabase, std::unordered_map<std::string, WeaponDefinition>> LoadingScene::createUnitDatabase(MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures)
     {
         UnitDatabase db;
         MeshDatabase meshDb;
@@ -927,6 +932,12 @@ namespace rwe
             }
         }
 
+        std::unordered_set<std::string> requiredFeaturesSet;
+        for (const auto& f : requiredFeatures)
+        {
+            requiredFeaturesSet.insert(toUpper(f));
+        }
+
         // read unit FBIs
         {
             auto fbis = sceneContext.vfs->getFileNames(sceneContext.pathMapping->units, ".fbi");
@@ -966,12 +977,19 @@ namespace rwe
 
                 meshDb.addSelectionCollisionMesh(fbi.objectName, std::make_shared<CollisionMesh>(std::move(meshInfo.selectionMesh.collisionMesh)));
                 meshDb.addSelectionMesh(fbi.objectName, std::make_shared<GlMesh>(std::move(meshInfo.selectionMesh.visualMesh)));
+
+                if (!fbi.corpse.empty())
+                {
+                    requiredFeaturesSet.insert(toUpper(fbi.corpse));
+                }
             }
         }
 
         // read feature TDFs
         {
             auto files = sceneContext.vfs->getFileNamesRecursive("features", ".tdf");
+
+            std::unordered_map<std::string, FeatureTdf> featureTdfs;
 
             for (const auto& name : files)
             {
@@ -987,9 +1005,39 @@ namespace rwe
                 for (const auto& e : tdfRoot.blocks)
                 {
                     auto featureTdf = parseFeatureTdf(*e.second);
+                    featureTdfs.insert({toUpper(e.first), featureTdf});
+                }
+            }
+
+            // actually parse and load assets for features that we require
+            while (!requiredFeaturesSet.empty())
+            {
+                std::unordered_set<std::string> nextRequiredFeaturesSet;
+                for (const auto& featureName : requiredFeaturesSet)
+                {
+                    if (db.hasFeature(featureName))
+                    {
+                        // Avoid looping forever if there is a reference cycle
+                        // between features.
+                        continue;
+                    }
+
+                    const auto& featureTdf = featureTdfs.at(featureName);
                     auto featureDefinition = parseFeatureDefinition(featureTdf);
                     auto featureMediaInfo = parseFeatureMediaInfo(*sceneContext.textureService, featureTdf);
-                    db.addFeature(e.first, featureDefinition);
+                    if (!featureDefinition.featureDead.empty())
+                    {
+                        nextRequiredFeaturesSet.insert(toUpper(featureDefinition.featureDead));
+                    }
+                    if (!featureDefinition.featureBurnt.empty())
+                    {
+                        nextRequiredFeaturesSet.insert(toUpper(featureDefinition.featureBurnt));
+                    }
+                    if (!featureDefinition.featureReclamate.empty())
+                    {
+                        nextRequiredFeaturesSet.insert(toUpper(featureDefinition.featureReclamate));
+                    }
+                    db.addFeature(featureName, featureDefinition);
 
                     if (auto objectInfo = std::get_if<FeatureObjectInfo>(&featureMediaInfo.renderInfo); objectInfo != nullptr)
                     {
@@ -1004,8 +1052,9 @@ namespace rwe
                         }
                     }
 
-                    meshDb.addFeature(e.first, std::move(featureMediaInfo));
+                    meshDb.addFeature(featureName, std::move(featureMediaInfo));
                 }
+                requiredFeaturesSet = std::move(nextRequiredFeaturesSet);
             }
         }
 
