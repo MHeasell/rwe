@@ -297,6 +297,7 @@ set(SOURCE_FILES
     src/rwe/SharedHandle.h
     src/rwe/SideData.cpp
     src/rwe/SideData.h
+    src/rwe/SimpleVectorMap.h
     src/rwe/SoundClass.cpp
     src/rwe/SoundClass.h
     src/rwe/TextureService.cpp
@@ -503,6 +504,7 @@ set(SOURCE_FILES
     src/rwe/sim/Explosion.h
     src/rwe/sim/FeatureDefinition.cpp
     src/rwe/sim/FeatureDefinition.h
+    src/rwe/sim/FeatureDefinitionId.h
     src/rwe/sim/FeatureId.h
     src/rwe/sim/GameSimulation.cpp
     src/rwe/sim/GameSimulation.h

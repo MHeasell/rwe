@@ -5,6 +5,7 @@
 #include <memory>
 #include <rwe/AudioService.h>
 #include <rwe/FeatureMediaInfo.h>
+#include <rwe/SimpleVectorMap.h>
 #include <rwe/SoundClass.h>
 #include <rwe/WeaponMediaInfo.h>
 #include <rwe/geometry/CollisionMesh.h>
@@ -12,6 +13,7 @@
 #include <rwe/render/ShaderMesh.h>
 #include <rwe/render/SpriteSeries.h>
 #include <rwe/rwe_string.h>
+#include <rwe/sim/FeatureDefinitionId.h>
 #include <utility>
 
 namespace rwe
@@ -70,7 +72,7 @@ namespace rwe
 
         std::unordered_map<std::string, std::shared_ptr<CollisionMesh>> selectionCollisionMeshesMap;
 
-        std::unordered_map<std::string, FeatureMediaInfo> featureMap;
+        SimpleVectorMap<FeatureMediaInfo, FeatureDefinitionIdTag> featureMap;
 
     public:
         void addUnitPieceMesh(const std::string& unitName, const std::string& pieceName, std::shared_ptr<ShaderMesh> pieceMesh);
@@ -107,8 +109,10 @@ namespace rwe
 
         std::optional<std::shared_ptr<CollisionMesh>> getSelectionCollisionMesh(const std::string& objectName) const;
 
-        const FeatureMediaInfo& getFeature(const std::string& FeatureName) const;
+        const FeatureMediaInfo& getFeature(FeatureDefinitionId featureId) const;
 
-        void addFeature(const std::string& name, FeatureMediaInfo&& feature);
+        FeatureMediaInfo& getFeature(FeatureDefinitionId featureId);
+
+        FeatureDefinitionId addFeature(FeatureMediaInfo&& feature);
     };
 }

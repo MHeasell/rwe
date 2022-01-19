@@ -145,19 +145,18 @@ namespace rwe
         return it->second;
     }
 
-    const FeatureMediaInfo& MeshDatabase::getFeature(const std::string& featureName) const
+    const FeatureMediaInfo& MeshDatabase::getFeature(FeatureDefinitionId featureId) const
     {
-        auto it = featureMap.find(toUpper(featureName));
-        if (it == featureMap.end())
-        {
-            throw std::runtime_error("No feature found with name " + featureName);
-        }
-
-        return it->second;
+        return featureMap.get(featureId);
     }
 
-    void MeshDatabase::addFeature(const std::string& featureName, FeatureMediaInfo&& feature)
+    FeatureMediaInfo& MeshDatabase::getFeature(FeatureDefinitionId featureId)
     {
-        featureMap.insert({toUpper(featureName), std::move(feature)});
+        return featureMap.get(featureId);
+    }
+
+    FeatureDefinitionId MeshDatabase::addFeature(FeatureMediaInfo&& feature)
+    {
+        return featureMap.insert(std::move(feature));
     }
 }

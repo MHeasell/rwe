@@ -104,24 +104,40 @@ namespace rwe
         return it != unitModelDefinitionsMap.end();
     }
 
-    const FeatureDefinition& UnitDatabase::getFeature(const std::string& featureName) const
-    {
-        auto it = featureMap.find(toUpper(featureName));
-        if (it == featureMap.end())
-        {
-            throw std::runtime_error("No TDF data found for feature " + featureName);
-        }
-
-        return it->second;
-    }
-
-    void UnitDatabase::addFeature(const std::string& featureName, const FeatureDefinition& definition)
-    {
-        featureMap.insert({toUpper(featureName), definition});
-    }
-
     bool UnitDatabase::hasFeature(const std::string& featureName) const
     {
-        return featureMap.find(toUpper(featureName)) != featureMap.end();
+        return featureNameIndex.find(toUpper(featureName)) != featureNameIndex.end();
+    }
+
+    std::optional<FeatureDefinitionId> UnitDatabase::tryGetFeatureId(const std::string& featureName) const
+    {
+        if (auto it = featureNameIndex.find(toUpper(featureName)); it != featureNameIndex.end())
+        {
+            return it->second;
+        }
+
+        return std::nullopt;
+    }
+
+    const FeatureDefinition& UnitDatabase::getFeature(FeatureDefinitionId id) const
+    {
+        return featureMap.get(id);
+    }
+
+    FeatureDefinition& UnitDatabase::getFeature(FeatureDefinitionId id)
+    {
+        return featureMap.get(id);
+    }
+
+    FeatureDefinitionId UnitDatabase::addFeature(const std::string& featureName, const FeatureDefinition& definition)
+    {
+        auto id = featureMap.insert(definition);
+        featureNameIndex.insert({toUpper(featureName), id});
+        return id;
+    }
+
+    FeatureDefinitionId UnitDatabase::getNextFeatureDefinitionId() const
+    {
+        return featureMap.getNextId();
     }
 }

@@ -1929,18 +1929,11 @@ namespace rwe
         return std::nullopt;
     }
 
-    MapFeature createFeature(const SimVector& pos, const std::string& featureName)
-    {
-        MapFeature f;
-        f.position = pos;
-        f.featureName = featureName;
-        return f;
-    }
-
     void GameScene::trySpawnFeature(const std::string& featureType, const SimVector& position, SimAngle rotation)
     {
-        auto feature = createFeature(position, featureType);
-        const auto& featureDefinition = unitDatabase.getFeature(featureType);
+        auto featureId = unitDatabase.tryGetFeatureId(featureType).value();
+        auto feature = MapFeature{featureId, position};
+        const auto& featureDefinition = unitDatabase.getFeature(featureId);
 
         // FIXME: simulation needs to support failing to spawn in a feature
         simulation.addFeature(featureDefinition, std::move(feature));

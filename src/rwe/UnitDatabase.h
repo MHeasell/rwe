@@ -2,6 +2,7 @@
 
 #include <boost/functional/hash.hpp>
 #include <memory>
+#include <rwe/SimpleVectorMap.h>
 #include <rwe/UnitModelDefinition.h>
 #include <rwe/io/cob/Cob.h>
 #include <rwe/io/fbi/UnitFbi.h>
@@ -29,7 +30,8 @@ namespace rwe
 
         std::unordered_map<std::string, UnitModelDefinition> unitModelDefinitionsMap;
 
-        std::unordered_map<std::string, FeatureDefinition> featureMap;
+        SimpleVectorMap<FeatureDefinition, FeatureDefinitionIdTag> featureMap;
+        std::unordered_map<std::string, FeatureDefinitionId> featureNameIndex;
 
     public:
         bool hasUnitInfo(const std::string& unitName) const;
@@ -62,8 +64,14 @@ namespace rwe
 
         bool hasFeature(const std::string& featureName) const;
 
-        const FeatureDefinition& getFeature(const std::string& featureName) const;
+        std::optional<FeatureDefinitionId> tryGetFeatureId(const std::string& featureName) const;
 
-        void addFeature(const std::string& featureName, const FeatureDefinition& definition);
+        const FeatureDefinition& getFeature(FeatureDefinitionId id) const;
+
+        FeatureDefinition& getFeature(FeatureDefinitionId id);
+
+        FeatureDefinitionId addFeature(const std::string& featureName, const FeatureDefinition& definition);
+
+        FeatureDefinitionId getNextFeatureDefinitionId() const;
     };
 }

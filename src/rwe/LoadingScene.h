@@ -142,8 +142,6 @@ namespace rwe
 
         std::vector<FeatureTdf> getFeatures(const std::unordered_map<std::string, FeatureTdf>& featuresMap, TntArchive& tnt);
 
-        MapFeature createFeature(const SimVector& pos, const std::string& featureName);
-
         SimVector computeFeaturePosition(const MapTerrain& terrain, const FeatureDefinition& featureDefinition, std::size_t x, std::size_t y) const;
 
         const SideData& getSideData(const std::string& side) const;
@@ -157,5 +155,7 @@ namespace rwe
         std::optional<AudioService::SoundHandle> lookUpSound(const std::string& key);
 
         std::optional<std::vector<std::vector<GuiEntry>>> loadBuilderGui(const std::string& unitName);
+
+        void loadFeature(MeshService& meshService, UnitDatabase& unitDatabase, MeshDatabase& meshDatabase, const std::unordered_map<std::string, FeatureTdf> tdfs, const std::string& initialFeatureName);
     };
 }

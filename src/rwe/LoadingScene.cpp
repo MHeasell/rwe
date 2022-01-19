@@ -4,6 +4,7 @@
 #include <rwe/GameNetworkService.h>
 #include <rwe/Index.h>
 #include <rwe/MapTerrainGraphics.h>
+#include <rwe/SimpleVectorMap.h>
 #include <rwe/atlas_util.h>
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/io/fbi/io.h>
@@ -12,6 +13,7 @@
 #include <rwe/io/tdf/tdf.h>
 #include <rwe/io/tnt/TntArchive.h>
 #include <rwe/io/weapontdf/WeaponTdf.h>
+#include <rwe/sim/FeatureDefinitionId.h>
 #include <rwe/ui/UiLabel.h>
 
 namespace rwe
@@ -162,9 +164,10 @@ namespace rwe
         GameSimulation simulation(std::move(mapInfo.terrain), mapInfo.surfaceMetal);
         for (const auto& [pos, featureName] : mapInfo.features)
         {
-            const auto& featureDefinition = unitDatabase.getFeature(featureName);
+            auto featureId = unitDatabase.tryGetFeatureId(featureName).value();
+            const auto& featureDefinition = unitDatabase.getFeature(featureId);
             auto resolvedPos = computeFeaturePosition(simulation.terrain, featureDefinition, pos.x, pos.y);
-            auto featureInstance = createFeature(resolvedPos, featureName);
+            auto featureInstance = MapFeature{featureId, resolvedPos};
             simulation.addFeature(featureDefinition, std::move(featureInstance));
         }
         auto seedSeq = seedFromGameParameters(gameParameters);
@@ -470,14 +473,6 @@ namespace rwe
         return features;
     }
 
-    MapFeature LoadingScene::createFeature(const SimVector& pos, const std::string& featureName)
-    {
-        MapFeature f;
-        f.position = pos;
-        f.featureName = featureName;
-        return f;
-    }
-
     Grid<unsigned char> LoadingScene::getHeightGrid(const Grid<TntTileAttributes>& attrs) const
     {
         const auto& sourceData = attrs.getVector();
@@ -621,48 +616,6 @@ namespace rwe
         weaponDefinition.randomDecay = GameTime(static_cast<unsigned int>(tdf.randomDecay * 30.0f));
 
         return weaponDefinition;
-    }
-
-    FeatureDefinition parseFeatureDefinition(const FeatureTdf& tdf)
-    {
-        FeatureDefinition f;
-
-        f.footprintX = tdf.footprintX;
-        f.footprintZ = tdf.footprintZ;
-        f.height = SimScalar(tdf.height);
-
-        f.reclaimable = tdf.reclaimable;
-        f.autoreclaimable = tdf.autoreclaimable;
-        f.featureReclamate = tdf.featureReclamate;
-        f.metal = tdf.metal;
-        f.energy = tdf.energy;
-
-        f.flamable = tdf.flamable;
-        f.featureBurnt = tdf.featureBurnt;
-        f.burnMin = tdf.burnMin;
-        f.burnMax = tdf.burnMax;
-        f.sparkTime = tdf.sparkTime;
-        f.spreadChance = tdf.spreadChance;
-        f.burnWeapon = tdf.burnWeapon;
-
-        f.geothermal = tdf.geothermal;
-
-        f.hitDensity = tdf.hitDensity;
-
-        f.reproduce = tdf.reproduce;
-        f.reproduceArea = tdf.reproduceArea;
-
-        f.noDisplayInfo = tdf.noDisplayInfo;
-
-        f.permanent = tdf.permanent;
-
-        f.blocking = tdf.blocking;
-
-        f.indestructible = tdf.indestructible;
-        f.damage = tdf.damage;
-        f.featureDead = tdf.featureDead;
-
-        return f;
     }
 
     FeatureMediaInfo parseFeatureMediaInfo(TextureService& textureService, const FeatureTdf& tdf)
@@ -816,6 +769,108 @@ namespace rwe
         return mediaInfo;
     }
 
+    FeatureDefinitionId getFeatureId(FeatureDefinitionId& nextId, UnitDatabase& unitDatabase, std::deque<std::string>& openQueue, std::unordered_map<std::string, FeatureDefinitionId>& openSet, const std::string& featureName)
+    {
+        if (auto existingId = unitDatabase.tryGetFeatureId(featureName); existingId)
+        {
+            return *existingId;
+        }
+
+        if (auto it = openSet.find(toUpper(featureName)); it != openSet.end())
+        {
+            return it->second;
+        }
+
+        auto id = nextId;
+        openQueue.push_back(featureName);
+        openSet.insert({toUpper(featureName), nextId});
+        nextId = FeatureDefinitionId(nextId.value + 1);
+        return id;
+    }
+
+    void LoadingScene::loadFeature(MeshService& meshService, UnitDatabase& unitDatabase, MeshDatabase& meshDatabase, const std::unordered_map<std::string, FeatureTdf> tdfs, const std::string& initialFeatureName)
+    {
+        auto nextId = unitDatabase.getNextFeatureDefinitionId();
+        std::unordered_map<std::string, FeatureDefinitionId> openSet{{toUpper(initialFeatureName), nextId}};
+        nextId = FeatureDefinitionId(nextId.value + 1);
+        for (std::deque<std::string> featuresToLoad{{initialFeatureName}}; !featuresToLoad.empty(); featuresToLoad.pop_front())
+        {
+            const auto& featureName = featuresToLoad.front();
+
+            const auto& tdf = tdfs.at(toUpper(featureName));
+
+            FeatureDefinition f;
+
+            f.name = featureName;
+
+            f.footprintX = tdf.footprintX;
+            f.footprintZ = tdf.footprintZ;
+            f.height = SimScalar(tdf.height);
+
+            f.reclaimable = tdf.reclaimable;
+            f.autoreclaimable = tdf.autoreclaimable;
+            if (!tdf.featureReclamate.empty())
+            {
+                f.featureReclamate = getFeatureId(nextId, unitDatabase, featuresToLoad, openSet, tdf.featureReclamate);
+            }
+            f.metal = tdf.metal;
+            f.energy = tdf.energy;
+
+            f.flamable = tdf.flamable;
+            if (!tdf.featureBurnt.empty())
+            {
+                f.featureBurnt = getFeatureId(nextId, unitDatabase, featuresToLoad, openSet, tdf.featureBurnt);
+            }
+            f.burnMin = tdf.burnMin;
+            f.burnMax = tdf.burnMax;
+            f.sparkTime = tdf.sparkTime;
+            f.spreadChance = tdf.spreadChance;
+            f.burnWeapon = tdf.burnWeapon;
+
+            f.geothermal = tdf.geothermal;
+
+            f.hitDensity = tdf.hitDensity;
+
+            f.reproduce = tdf.reproduce;
+            f.reproduceArea = tdf.reproduceArea;
+
+            f.noDisplayInfo = tdf.noDisplayInfo;
+
+            f.permanent = tdf.permanent;
+
+            f.blocking = tdf.blocking;
+
+            f.indestructible = tdf.indestructible;
+            f.damage = tdf.damage;
+            if (!tdf.featureDead.empty())
+            {
+                f.featureDead = getFeatureId(nextId, unitDatabase, featuresToLoad, openSet, tdf.featureDead);
+            }
+
+            auto id = unitDatabase.addFeature(featureName, f);
+
+            auto featureMediaInfo = parseFeatureMediaInfo(*sceneContext.textureService, tdf);
+
+            if (auto objectInfo = std::get_if<FeatureObjectInfo>(&featureMediaInfo.renderInfo); objectInfo != nullptr)
+            {
+                if (!unitDatabase.hasUnitModelDefinition(objectInfo->objectName))
+                {
+                    auto meshInfo = meshService.loadProjectileMesh(objectInfo->objectName);
+                    unitDatabase.addUnitModelDefinition(objectInfo->objectName, std::move(meshInfo.modelDefinition));
+                    for (const auto& m : meshInfo.pieceMeshes)
+                    {
+                        meshDatabase.addUnitPieceMesh(objectInfo->objectName, m.first, m.second);
+                    }
+                }
+            }
+
+            auto meshDbId = meshDatabase.addFeature(std::move(featureMediaInfo));
+            if (meshDbId != id)
+            {
+                throw std::logic_error("feature databases out of sync");
+            }
+        }
+    }
 
     std::tuple<UnitDatabase, MeshDatabase, std::unordered_map<std::string, WeaponDefinition>> LoadingScene::createUnitDatabase(MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures)
     {
@@ -1010,51 +1065,9 @@ namespace rwe
             }
 
             // actually parse and load assets for features that we require
-            while (!requiredFeaturesSet.empty())
+            for (const auto& featureName : requiredFeaturesSet)
             {
-                std::unordered_set<std::string> nextRequiredFeaturesSet;
-                for (const auto& featureName : requiredFeaturesSet)
-                {
-                    if (db.hasFeature(featureName))
-                    {
-                        // Avoid looping forever if there is a reference cycle
-                        // between features.
-                        continue;
-                    }
-
-                    const auto& featureTdf = featureTdfs.at(featureName);
-                    auto featureDefinition = parseFeatureDefinition(featureTdf);
-                    auto featureMediaInfo = parseFeatureMediaInfo(*sceneContext.textureService, featureTdf);
-                    if (!featureDefinition.featureDead.empty())
-                    {
-                        nextRequiredFeaturesSet.insert(toUpper(featureDefinition.featureDead));
-                    }
-                    if (!featureDefinition.featureBurnt.empty())
-                    {
-                        nextRequiredFeaturesSet.insert(toUpper(featureDefinition.featureBurnt));
-                    }
-                    if (!featureDefinition.featureReclamate.empty())
-                    {
-                        nextRequiredFeaturesSet.insert(toUpper(featureDefinition.featureReclamate));
-                    }
-                    db.addFeature(featureName, featureDefinition);
-
-                    if (auto objectInfo = std::get_if<FeatureObjectInfo>(&featureMediaInfo.renderInfo); objectInfo != nullptr)
-                    {
-                        if (!db.hasUnitModelDefinition(objectInfo->objectName))
-                        {
-                            auto meshInfo = meshService.loadProjectileMesh(objectInfo->objectName);
-                            db.addUnitModelDefinition(objectInfo->objectName, std::move(meshInfo.modelDefinition));
-                            for (const auto& m : meshInfo.pieceMeshes)
-                            {
-                                meshDb.addUnitPieceMesh(objectInfo->objectName, m.first, m.second);
-                            }
-                        }
-                    }
-
-                    meshDb.addFeature(featureName, std::move(featureMediaInfo));
-                }
-                requiredFeaturesSet = std::move(nextRequiredFeaturesSet);
+                loadFeature(meshService, db, meshDb, featureTdfs, featureName);
             }
         }
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <optional>
+#include <rwe/sim/FeatureDefinitionId.h>
 #include <rwe/sim/SimScalar.h>
 #include <string>
 
@@ -7,18 +9,20 @@ namespace rwe
 {
     struct FeatureDefinition
     {
+        std::string name;
+
         int footprintX;
         int footprintZ;
         SimScalar height;
 
         bool reclaimable;
         bool autoreclaimable;
-        std::string featureReclamate;
+        std::optional<FeatureDefinitionId> featureReclamate;
         unsigned int metal;
         unsigned int energy;
 
         bool flamable;
-        std::string featureBurnt;
+        std::optional<FeatureDefinitionId> featureBurnt;
         unsigned int burnMin;
         unsigned int burnMax;
         unsigned int sparkTime;
@@ -40,7 +44,7 @@ namespace rwe
 
         bool indestructible;
         unsigned int damage;
-        std::string featureDead;
+        std::optional<FeatureDefinitionId> featureDead;
 
         bool isStanding() const;
     };
