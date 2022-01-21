@@ -10,5 +10,6 @@ namespace rwe
     {
         FeatureDefinitionId featureName;
         SimVector position;
+        SimAngle rotation{0};
     };
 }

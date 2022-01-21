@@ -167,7 +167,7 @@ namespace rwe
             auto featureId = unitDatabase.tryGetFeatureId(featureName).value();
             const auto& featureDefinition = unitDatabase.getFeature(featureId);
             auto resolvedPos = computeFeaturePosition(simulation.terrain, featureDefinition, pos.x, pos.y);
-            auto featureInstance = MapFeature{featureId, resolvedPos};
+            auto featureInstance = MapFeature{featureId, resolvedPos, fromRadians(RadiansAngle::fromUnwrappedAngle(Pif))};
             simulation.addFeature(featureDefinition, std::move(featureInstance));
         }
         auto seedSeq = seedFromGameParameters(gameParameters);
