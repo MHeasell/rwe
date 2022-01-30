@@ -54,6 +54,12 @@ namespace rwe
         UniformLocation time;
     };
 
+    struct WorldPostShader
+    {
+        ShaderProgramHandle handle;
+        UniformLocation dodgeMask;
+    };
+
     class ShaderService
     {
     public:
@@ -71,5 +77,6 @@ namespace rwe
         UnitTextureShader unitTexture;
         UnitShadowShader unitShadow;
         UnitBuildShader unitBuild;
+        WorldPostShader worldPost;
     };
 }

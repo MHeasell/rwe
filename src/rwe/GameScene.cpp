@@ -210,6 +210,8 @@ namespace rwe
 
         sceneContext.audioService->reserveChannels(reservedChannelsCount);
         gameNetworkService->start();
+
+        recreateWorldRenderTextures();
     }
 
     float computeSoundCeiling(int soundCount)
@@ -242,8 +244,6 @@ namespace rwe
 
     void GameScene::render()
     {
-        sceneContext.graphics->setViewport(0, 0, sceneContext.viewport->width(), sceneContext.viewport->height());
-
         if (guiVisible)
         {
             renderUi();
@@ -251,16 +251,8 @@ namespace rwe
 
         sceneContext.graphics->enableDepthBuffer();
 
-        auto viewportPos = worldViewport.toOtherViewport(*sceneContext.viewport, 0, worldViewport.height());
-        sceneContext.graphics->setViewport(
-            viewportPos.x,
-            sceneContext.viewport->height() - viewportPos.y,
-            worldViewport.width(),
-            worldViewport.height());
         renderWorld();
         sceneContext.graphics->disableDepthBuffer();
-
-        sceneContext.graphics->setViewport(0, 0, sceneContext.viewport->width(), sceneContext.viewport->height());
 
         // oh yeah also regulate sound
         std::scoped_lock<std::mutex> lock(playingUnitChannelsLock);
@@ -605,6 +597,15 @@ namespace rwe
 
     void GameScene::renderWorld()
     {
+        sceneContext.graphics->bindFrameBuffer(worldFrameBuffer.frameBuffer.get());
+        sceneContext.graphics->setViewport(
+            0,
+            0,
+            worldViewport.width(),
+            worldViewport.height());
+
+        sceneContext.graphics->clear();
+
         const auto& viewProjectionMatrix = computeViewProjectionMatrix(worldCameraState, worldViewport.width(), worldViewport.height());
         RenderService worldRenderService(sceneContext.graphics, sceneContext.shaders, &meshDatabase, &unitDatabase, &viewProjectionMatrix, &unitTextureAtlas, &unitTeamTextureAtlases);
 
@@ -728,6 +729,29 @@ namespace rwe
         }
         worldRenderService.drawBatch(nanoLinesBatch, viewProjectionMatrix);
 
+        sceneContext.graphics->bindFrameBufferColorBuffer(dodgeMask.get());
+        sceneContext.graphics->clearColor();
+        worldRenderService.drawFlashes();
+        sceneContext.graphics->bindFrameBufferColorBuffer(worldFrameBuffer.texture.get());
+
+        sceneContext.graphics->unbindFrameBuffer();
+        auto viewportPos = worldViewport.toOtherViewport(*sceneContext.viewport, 0, worldViewport.height());
+        sceneContext.graphics->setViewport(
+            viewportPos.x,
+            sceneContext.viewport->height() - viewportPos.y,
+            worldViewport.width(),
+            worldViewport.height());
+
+        sceneContext.graphics->disableDepthBuffer();
+        auto quadMesh = sceneContext.graphics->createUnitTexturedQuadFlipped(Rectangle2f::fromTLBR(1.0f, 0.0f, 0.0f, 1.0f));
+        sceneContext.graphics->bindShader(sceneContext.shaders->worldPost.handle.get());
+        sceneContext.graphics->setUniformInt(sceneContext.shaders->worldPost.dodgeMask, 1);
+        sceneContext.graphics->bindTexture(worldFrameBuffer.texture.get());
+        sceneContext.graphics->setActiveTextureSlot1();
+        sceneContext.graphics->bindTexture(dodgeMask.get());
+        sceneContext.graphics->setActiveTextureSlot0();
+        sceneContext.graphics->drawTriangles(quadMesh);
+
         SpriteBatch explosionsBatch;
         for (const auto& exp : explosions)
         {
@@ -739,8 +763,6 @@ namespace rwe
         sceneContext.graphics->enableDepthWrites();
 
         // in-world UI/overlay rendering
-        sceneContext.graphics->disableDepthBuffer();
-
         if (isShiftDown())
         {
             auto singleSelectedUnit = getSingleSelectedUnit();
@@ -864,6 +886,8 @@ namespace rwe
         }
 
         sceneContext.graphics->enableDepthBuffer();
+
+        sceneContext.graphics->setViewport(0, 0, sceneContext.viewport->width(), sceneContext.viewport->height());
     }
 
     const char* stateToString(const UnitState& state)
@@ -978,6 +1002,7 @@ namespace rwe
             {
                 worldViewport.setInset(0, 0, 0, 0);
             }
+            recreateWorldRenderTextures();
         }
         ImGui::Separator();
         ImGui::Checkbox("Cursor terrain dot", &cursorTerrainDotVisible);
@@ -3795,5 +3820,11 @@ namespace rwe
         exp.floats = true;
 
         explosions.push_back(exp);
+    }
+
+    void GameScene::recreateWorldRenderTextures()
+    {
+        worldFrameBuffer = sceneContext.graphics->createFrameBuffer(worldViewport.width(), worldViewport.height());
+        dodgeMask = sceneContext.graphics->createEmptyTexture(worldViewport.width(), worldViewport.height());
     }
 }

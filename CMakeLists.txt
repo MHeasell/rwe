@@ -463,12 +463,14 @@ set(SOURCE_FILES
     src/rwe/proto/serialization.cpp
     src/rwe/proto/serialization.h
     src/rwe/range_util.h
+    src/rwe/render/FrameBufferHandle.h
     src/rwe/render/GlIdentifier.h
     src/rwe/render/GlMesh.cpp
     src/rwe/render/GlMesh.h
     src/rwe/render/GraphicsContext.cpp
     src/rwe/render/GraphicsContext.h
     src/rwe/render/OpenGlVersion.h
+    src/rwe/render/RenderBufferHandle.h
     src/rwe/render/ShaderHandle.h
     src/rwe/render/ShaderMesh.cpp
     src/rwe/render/ShaderMesh.h

@@ -290,6 +290,10 @@ namespace rwe
 
         bool guiVisible{true};
 
+        FrameBufferInfo worldFrameBuffer;
+
+        TextureHandle dodgeMask;
+
     public:
         GameScene(
             const SceneContext& sceneContext,
@@ -587,5 +591,7 @@ namespace rwe
         void spawnExplosion(const Vector3f& position, const AnimLocation& anim);
 
         void spawnSmoke(const Vector3f& position, const std::string& gaf, const std::string& anim, ExplosionFinishTime duration, GameTime frameDuration);
+
+        void recreateWorldRenderTextures();
     };
 }

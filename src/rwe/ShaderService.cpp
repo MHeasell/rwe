@@ -47,6 +47,9 @@ namespace rwe
         s.unitBuild.percentComplete = graphics.getUniformLocation(s.unitBuild.handle.get(), "percentComplete");
         s.unitBuild.time = graphics.getUniformLocation(s.unitBuild.handle.get(), "time");
 
+        s.worldPost.handle = loadShader(graphics, "shaders/worldPost.vert", "shaders/worldPost.frag", texturedVertexAttribs);
+        s.worldPost.dodgeMask = graphics.getUniformLocation(s.worldPost.handle.get(), "dodgeMask");
+
         return s;
     }
 

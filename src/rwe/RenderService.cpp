@@ -308,6 +308,11 @@ namespace rwe
         }
     }
 
+    void RenderService::drawFlashes()
+    {
+        // TODO: implement
+    }
+
     void RenderService::drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, PlayerColorIndex playerColorIndex)
     {
         auto mvpMatrix = (*viewProjectionMatrix) * matrix;

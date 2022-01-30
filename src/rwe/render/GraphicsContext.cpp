@@ -56,6 +56,11 @@ namespace rwe
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
+    void GraphicsContext::clearColor()
+    {
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
+
     TextureHandle GraphicsContext::createTexture(const Grid<Color>& image)
     {
         return createTexture(image.getWidth(), image.getHeight(), image.getData());
@@ -92,6 +97,35 @@ namespace rwe
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        return handle;
+    }
+
+    TextureHandle GraphicsContext::createEmptyTexture(unsigned int width, unsigned int height)
+    {
+        GLuint texture;
+        glGenTextures(1, &texture);
+        TextureIdentifier id(texture);
+        TextureHandle handle(id);
+
+        glBindTexture(GL_TEXTURE_2D, texture);
+
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RGBA8,
+            width,
+            height,
+            0,
+            GL_RGBA,
+            GL_UNSIGNED_BYTE,
+            nullptr);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -462,6 +496,16 @@ namespace rwe
         glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
     }
 
+    void GraphicsContext::bindFrameBuffer(FrameBufferIdentifier frameBuffer)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer.value);
+    }
+
+    void GraphicsContext::unbindFrameBuffer()
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
     void GraphicsContext::enableBlending()
     {
         glEnable(GL_BLEND);
@@ -479,9 +523,19 @@ namespace rwe
         return UniformLocation(loc);
     }
 
+    void GraphicsContext::setUniformInt(UniformLocation location, int value)
+    {
+        glUniform1i(location.value, value);
+    }
+
     void GraphicsContext::setUniformFloat(UniformLocation location, float value)
     {
         glUniform1f(location.value, value);
+    }
+
+    void GraphicsContext::setUniformVec3(UniformLocation location, float a, float b, float c)
+    {
+        glUniform3f(location.value, a, b, c);
     }
 
     void GraphicsContext::setUniformVec4(UniformLocation location, float a, float b, float c, float d)
@@ -545,6 +599,23 @@ namespace rwe
         return createTexturedMesh(vertices, GL_STATIC_DRAW);
     }
 
+    GlMesh GraphicsContext::createUnitTexturedQuadFlipped(const Rectangle2f& textureRegion)
+    {
+        std::vector<GlTexturedVertex> vertices{
+            // clang-format off
+            {{-1.0f, -1.0f, 0.0f}, {textureRegion.left(), textureRegion.bottom()}},
+            {{ 1.0f,  1.0f, 0.0f}, {textureRegion.right(), textureRegion.top()}},
+            {{-1.0f,  1.0f, 0.0f}, {textureRegion.left(), textureRegion.top()}},
+
+            {{-1.0f, -1.0f, 0.0f}, {textureRegion.left(), textureRegion.bottom()}},
+            {{ 1.0f, -1.0f, 0.0f}, {textureRegion.right(), textureRegion.bottom()}},
+            {{ 1.0f,  1.0, 0.0f}, {textureRegion.right(), textureRegion.top()}},
+            // clang-format on
+        };
+
+        return createTexturedMesh(vertices, GL_STATIC_DRAW);
+    }
+
     void GraphicsContext::enableStencilBuffer()
     {
         glEnable(GL_STENCIL_TEST);
@@ -585,5 +656,69 @@ namespace rwe
     void GraphicsContext::setViewport(int x, int y, int width, int height)
     {
         glViewport(x, y, width, height);
+    }
+
+    FrameBufferInfo GraphicsContext::createFrameBuffer(int width, int height)
+    {
+        GLuint texture;
+        glActiveTexture(GL_TEXTURE0);
+        glGenTextures(1, &texture);
+        TextureIdentifier textureId(texture);
+        TextureHandle textureHandle(textureId);
+
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        GLuint depthBuffer;
+        glGenRenderbuffers(1, &depthBuffer);
+        RenderBufferIdentifier depthBufferId(depthBuffer);
+        RenderBufferHandle depthBufferHandle(depthBufferId);
+
+        glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_STENCIL, width, height);
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+        GLuint frameBuffer;
+        glGenFramebuffers(1, &frameBuffer);
+        FrameBufferIdentifier frameBufferId(frameBuffer);
+        FrameBufferHandle frameBufferHandle(frameBufferId);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+
+        GLenum status;
+        if ((status = glCheckFramebufferStatus(GL_FRAMEBUFFER)) != GL_FRAMEBUFFER_COMPLETE)
+        {
+            throw GraphicsException("glCheckFrameBufferStatus error:" + std::to_string(status));
+        }
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        return FrameBufferInfo{
+            std::move(textureHandle),
+            std::move(depthBufferHandle),
+            std::move(frameBufferHandle),
+        };
+    }
+
+    void GraphicsContext::bindFrameBufferColorBuffer(TextureIdentifier texture)
+    {
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.value, 0);
+    }
+
+    void GraphicsContext::setActiveTextureSlot0()
+    {
+        glActiveTexture(GL_TEXTURE0);
+    }
+
+    void GraphicsContext::setActiveTextureSlot1()
+    {
+        glActiveTexture(GL_TEXTURE1);
     }
 }
