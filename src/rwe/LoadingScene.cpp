@@ -6,6 +6,7 @@
 #include <rwe/atlas_util.h>
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/io/fbi/io.h>
+#include <rwe/io/featuretdf/io.h>
 #include <rwe/io/ota/ota.h>
 #include <rwe/io/tdf/tdf.h>
 #include <rwe/io/tnt/TntArchive.h>
@@ -35,7 +36,7 @@ namespace rwe
             auto tdfRoot = parseTdfFromString(tdfString);
             for (const auto& e : tdfRoot.blocks)
             {
-                auto featureDefinition = FeatureDefinition::fromTdf(*e.second);
+                auto featureDefinition = parseFeatureDefinition(*e.second);
                 features.insert_or_assign(e.first, std::move(featureDefinition));
             }
         }

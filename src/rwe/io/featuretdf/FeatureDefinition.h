@@ -8,8 +8,6 @@ namespace rwe
 {
     struct FeatureDefinition
     {
-        static FeatureDefinition fromTdf(const TdfBlock& tdf);
-
         std::string world;
         std::string description;
         std::string category;

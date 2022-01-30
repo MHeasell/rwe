@@ -383,8 +383,9 @@ set(SOURCE_FILES
     src/rwe/io/fbi/UnitFbi.h
     src/rwe/io/fbi/io.cpp
     src/rwe/io/fbi/io.h
-    src/rwe/io/featuretdf/FeatureDefinition.cpp
     src/rwe/io/featuretdf/FeatureDefinition.h
+    src/rwe/io/featuretdf/io.cpp
+    src/rwe/io/featuretdf/io.h
     src/rwe/io/fnt/Fnt.cpp
     src/rwe/io/fnt/Fnt.h
     src/rwe/io/gaf/GafArchive.cpp
@@ -766,7 +767,7 @@ set(TEST_FILES
     src/rwe/grid/EightWayDirection.test.cpp
     src/rwe/grid/Grid.test.cpp
     src/rwe/grid/Point.test.cpp
-    src/rwe/io/featuretdf/FeatureDefinition.test.cpp
+    src/rwe/io/featuretdf/io.test.cpp
     src/rwe/io/gui/gui.test.cpp
     src/rwe/io/ota/ota.test.cpp
     src/rwe/io/tdf/ListTdfAdapter.test.cpp

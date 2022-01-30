@@ -1,5 +1,5 @@
 #include <catch2/catch.hpp>
-#include <rwe/io/featuretdf/FeatureDefinition.h>
+#include <rwe/io/featuretdf/io.h>
 #include <rwe/io/tdf/tdf.h>
 #include <rwe/optional_io.h>
 
@@ -11,9 +11,9 @@ namespace rwe
         return os;
     }
 
-    TEST_CASE("FeatureDefinition")
+    TEST_CASE("parseFeatureDefinition")
     {
-        SECTION("fromTdf")
+        SECTION("basic test")
         {
             std::string input = R"TDF(
 [Tree1]
@@ -61,7 +61,7 @@ namespace rwe
 
             auto block = tdfRoot.findBlock("Tree1");
             REQUIRE(block);
-            auto f = FeatureDefinition::fromTdf(*block);
+            auto f = parseFeatureDefinition(*block);
 
             REQUIRE(f.world == "greenworld");
             REQUIRE(f.description == "Tree");

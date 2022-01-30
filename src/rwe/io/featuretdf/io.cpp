@@ -1,8 +1,8 @@
-#include "FeatureDefinition.h"
+#include "io.h"
 
 namespace rwe
 {
-    FeatureDefinition FeatureDefinition::fromTdf(const TdfBlock& tdf)
+    FeatureDefinition parseFeatureDefinition(const TdfBlock& tdf)
     {
         FeatureDefinition f;
 
