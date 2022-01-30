@@ -85,6 +85,8 @@ namespace rwe
 
         tdf.readOrDefault("YardMap", u.yardMap);
 
+        tdf.readOrDefault("Corpse", u.corpse);
+
         return u;
     }
 }

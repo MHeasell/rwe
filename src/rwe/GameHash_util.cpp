@@ -153,6 +153,15 @@ namespace rwe
         return GameHash(0);
     }
 
+    GameHash computeHashOf(const Unit::LifeStateAlive&)
+    {
+        return GameHash(0);
+    }
+    GameHash computeHashOf(const Unit::LifeStateDead&)
+    {
+        return GameHash(0);
+    }
+
     GameHash computeHashOf(const MovingState& m)
     {
         return combineHashes(

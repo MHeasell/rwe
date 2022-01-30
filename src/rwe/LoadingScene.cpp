@@ -180,23 +180,27 @@ namespace rwe
 
         // Load features
         auto featuresMap = loadAllFeatureDefinitions(*sceneContext.vfs);
+        for (const auto& pair : featuresMap)
+        {
+            const auto& featureDefinition = pair.second;
+            if (!featureDefinition.object.empty())
+            {
+                if (!unitDatabase.hasUnitModelDefinition(featureDefinition.object))
+                {
+                    auto meshInfo = meshService.loadProjectileMesh(featureDefinition.object);
+                    unitDatabase.addUnitModelDefinition(featureDefinition.object, std::move(meshInfo.modelDefinition));
+                    for (const auto& m : meshInfo.pieceMeshes)
+                    {
+                        meshDatabase.addUnitPieceMesh(featureDefinition.object, m.first, m.second);
+                    }
+                }
+            }
+        }
+
         auto mapInfo = loadMap(featuresMap, mapName, ota, schemaIndex);
         GameSimulation simulation(std::move(mapInfo.terrain), mapInfo.surfaceMetal);
         for (auto& feature : mapInfo.features)
         {
-            if (auto objectInfo = std::get_if<FeatureObjectInfo>(&feature.renderInfo); objectInfo != nullptr)
-            {
-                if (!unitDatabase.hasUnitModelDefinition(objectInfo->objectName))
-                {
-                    auto meshInfo = meshService.loadProjectileMesh(objectInfo->objectName);
-                    unitDatabase.addUnitModelDefinition(objectInfo->objectName, std::move(meshInfo.modelDefinition));
-                    for (const auto& m : meshInfo.pieceMeshes)
-                    {
-                        meshDatabase.addUnitPieceMesh(objectInfo->objectName, m.first, m.second);
-                    }
-                }
-            }
-
             simulation.addFeature(std::move(feature));
         }
         auto seedSeq = seedFromGameParameters(gameParameters);
@@ -301,6 +305,7 @@ namespace rwe
             std::move(mapInfo.terrainGraphics),
             std::move(collisionService),
             std::move(unitDatabase),
+            std::move(featuresMap),
             std::move(meshService),
             std::move(gameNetworkService),
             minimap,

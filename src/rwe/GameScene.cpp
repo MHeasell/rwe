@@ -9,6 +9,7 @@
 #include <rwe/Mesh.h>
 #include <rwe/camera_util.h>
 #include <rwe/dump_util.h>
+#include <rwe/io/featuretdf/FeatureDefinition.h>
 #include <rwe/match.h>
 #include <rwe/matrix_util.h>
 #include <rwe/resource_io.h>
@@ -163,6 +164,7 @@ namespace rwe
         MapTerrainGraphics&& terrainGraphics,
         MovementClassCollisionService&& collisionService,
         UnitDatabase&& unitDatabase,
+        std::unordered_map<std::string, FeatureDefinition>&& featuresMap,
         MeshService&& meshService,
         std::unique_ptr<GameNetworkService>&& gameNetworkService,
         const std::shared_ptr<Sprite>& minimap,
@@ -187,6 +189,7 @@ namespace rwe
           collisionService(std::move(collisionService)),
           unitDatabase(std::move(unitDatabase)),
           unitFactory(sceneContext.textureService, &this->unitDatabase, std::move(meshService), &this->collisionService, sceneContext.palette, sceneContext.guiPalette),
+          featuresMap(std::move(featuresMap)),
           gameNetworkService(std::move(gameNetworkService)),
           pathFindingService(&this->simulation, &this->collisionService),
           cobExecutionService(),
@@ -1925,6 +1928,57 @@ namespace rwe
         return std::nullopt;
     }
 
+    MapFeature createFeature(TextureService& textureService, const SimVector& pos, const FeatureDefinition& definition)
+    {
+        MapFeature f;
+        f.footprintX = definition.footprintX;
+        f.footprintZ = definition.footprintZ;
+        f.height = SimScalar(definition.height);
+        f.isBlocking = definition.blocking;
+        f.isIndestructible = definition.indestructible;
+        f.metal = definition.metal;
+        f.position = pos;
+
+        if (!definition.object.empty())
+        {
+            f.renderInfo = FeatureObjectInfo{definition.object};
+        }
+        else
+        {
+            FeatureSpriteInfo spriteInfo;
+            spriteInfo.transparentAnimation = definition.animTrans;
+            spriteInfo.transparentShadow = definition.shadTrans;
+            if (!definition.fileName.empty() && !definition.seqName.empty())
+            {
+                spriteInfo.animation = textureService.getGafEntry("anims/" + definition.fileName + ".GAF", definition.seqName);
+            }
+            if (!spriteInfo.animation)
+            {
+                spriteInfo.animation = textureService.getDefaultSpriteSeries();
+            }
+
+            if (!definition.fileName.empty() && !definition.seqNameShad.empty())
+            {
+                // Some third-party features have broken shadow anim names (e.g. "empty"),
+                // ignore them if they don't exist.
+                spriteInfo.shadowAnimation = textureService.tryGetGafEntry("anims/" + definition.fileName + ".GAF", definition.seqNameShad);
+            }
+            f.renderInfo = std::move(spriteInfo);
+        }
+
+
+        return f;
+    }
+
+    void GameScene::trySpawnFeature(const std::string& featureType, const SimVector& position, SimAngle rotation)
+    {
+        const auto& featureDefinition = featuresMap.at(featureType);
+        auto feature = createFeature(*sceneContext.textureService, position, featureDefinition);
+
+        // FIXME: simulation needs to support failing to spawn in a feature
+        simulation.addFeature(std::move(feature));
+    }
+
     void GameScene::setCameraPosition(const Vector3f& newPosition)
     {
         worldCameraState.position = newPosition;
@@ -3032,47 +3086,70 @@ namespace rwe
         }
     }
 
+    struct CorpseSpawnInfo
+    {
+        std::string featureName;
+        SimVector position;
+        SimAngle rotation;
+    };
+
     void GameScene::deleteDeadUnits()
     {
+        std::vector<CorpseSpawnInfo> corpsesToSpawn;
+
         for (auto it = simulation.units.begin(); it != simulation.units.end();)
         {
             const auto& unit = it->second;
-            if (unit.isDead())
+            auto deadState = std::get_if<Unit::LifeStateDead>(&unit.lifeState);
+            if (deadState == nullptr)
             {
-                deselectUnit(it->first);
+                ++it;
+                continue;
+            }
 
-                if (hoveredUnit && *hoveredUnit == it->first)
-                {
-                    hoveredUnit = std::nullopt;
-                }
+            const auto& unitFbi = unitDatabase.getUnitInfo(unit.unitType);
+            if (!unitFbi.corpse.empty())
+            {
+                corpsesToSpawn.push_back(CorpseSpawnInfo{
+                    unitFbi.corpse,
+                    unit.position,
+                    unit.rotation});
+            }
 
-                auto footprintRect = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
-                auto footprintRegion = simulation.occupiedGrid.tryToRegion(footprintRect);
-                assert(!!footprintRegion);
-                if (unit.isMobile)
-                {
-                    simulation.occupiedGrid.forEach(*footprintRegion, [](auto& cell) {
-                        cell.occupiedType = OccupiedNone();
-                    });
-                }
-                else
-                {
-                    simulation.occupiedGrid.forEach(*footprintRegion, [&](auto& cell) {
-                        if (cell.buildingCell && cell.buildingCell->unit == it->first)
-                        {
-                            cell.buildingCell = std::nullopt;
-                        }
-                    });
-                }
+            deselectUnit(it->first);
 
+            if (hoveredUnit && *hoveredUnit == it->first)
+            {
+                hoveredUnit = std::nullopt;
+            }
 
-                unitGuiInfos.erase(it->first);
-                it = simulation.units.erase(it);
+            auto footprintRect = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+            auto footprintRegion = simulation.occupiedGrid.tryToRegion(footprintRect);
+            assert(!!footprintRegion);
+            if (unit.isMobile)
+            {
+                simulation.occupiedGrid.forEach(*footprintRegion, [](auto& cell) {
+                    cell.occupiedType = OccupiedNone();
+                });
             }
             else
             {
-                ++it;
+                simulation.occupiedGrid.forEach(*footprintRegion, [&](auto& cell) {
+                    if (cell.buildingCell && cell.buildingCell->unit == it->first)
+                    {
+                        cell.buildingCell = std::nullopt;
+                    }
+                });
             }
+
+
+            unitGuiInfos.erase(it->first);
+            it = simulation.units.erase(it);
+        }
+
+        for (const auto& spawnInfo : corpsesToSpawn)
+        {
+            trySpawnFeature(spawnInfo.featureName, spawnInfo.position, spawnInfo.rotation);
         }
     }
 
@@ -3159,7 +3236,7 @@ namespace rwe
 
         unit.markAsDead();
 
-        // TODO: spawn debris particles, corpse
+        // TODO: spawn debris particles (from Killed script)
         if (unit.explosionWeapon)
         {
             auto impactType = unit.position.y < simulation.terrain.getSeaLevel() ? ImpactType::Water : ImpactType::Normal;
@@ -3172,7 +3249,7 @@ namespace rwe
     {
         auto& unit = simulation.getUnit(unitId);
 
-        unit.markAsDead();
+        unit.markAsDeadNoCorpse();
     }
 
     void GameScene::killPlayer(PlayerId playerId)

@@ -128,6 +128,16 @@ namespace rwe
     {
         return nlohmann::json();
     }
+
+    nlohmann::json dumpJson(const Unit::LifeStateAlive&)
+    {
+        return nlohmann::json();
+    }
+    nlohmann::json dumpJson(const Unit::LifeStateDead&)
+    {
+        return nlohmann::json();
+    }
+
     nlohmann::json dumpJson(const MovingState& m)
     {
         return nlohmann::json{

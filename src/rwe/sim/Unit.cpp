@@ -371,12 +371,17 @@ namespace rwe
 
     bool Unit::isDead() const
     {
-        return lifeState == LifeState::Dead;
+        return std::holds_alternative<LifeStateDead>(lifeState);
     }
 
     void Unit::markAsDead()
     {
-        lifeState = LifeState::Dead;
+        lifeState = LifeStateDead{true};
+    }
+
+    void Unit::markAsDeadNoCorpse()
+    {
+        lifeState = LifeStateDead{false};
     }
 
     void Unit::finishBuilding()

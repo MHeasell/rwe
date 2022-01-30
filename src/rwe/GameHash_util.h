@@ -37,6 +37,9 @@ namespace rwe
     GameHash computeHashOf(const UnitCreationStatusDone&);
     GameHash computeHashOf(const UnitCreationStatusFailed&);
 
+    GameHash computeHashOf(const Unit::LifeStateAlive&);
+    GameHash computeHashOf(const Unit::LifeStateDead&);
+
     GameHash computeHashOf(const MovingState& m);
 
     GameHash computeHashOf(const DiscreteRect& r);

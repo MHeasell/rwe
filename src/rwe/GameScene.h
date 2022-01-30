@@ -28,6 +28,7 @@
 #include <rwe/Viewport.h>
 #include <rwe/cob/CobExecutionService.h>
 #include <rwe/grid/DiscreteRect.h>
+#include <rwe/io/featuretdf/FeatureDefinition.h>
 #include <rwe/observable/BehaviorSubject.h>
 #include <rwe/pathfinding/PathFindingService.h>
 #include <rwe/sim/GameSimulation.h>
@@ -210,6 +211,8 @@ namespace rwe
         UnitDatabase unitDatabase;
         UnitFactory unitFactory;
 
+        std::unordered_map<std::string, FeatureDefinition> featuresMap;
+
         std::unique_ptr<GameNetworkService> gameNetworkService;
 
         PathFindingService pathFindingService;
@@ -307,6 +310,7 @@ namespace rwe
             MapTerrainGraphics&& terrainGraphics,
             MovementClassCollisionService&& collisionService,
             UnitDatabase&& unitDatabase,
+            std::unordered_map<std::string, FeatureDefinition>&& featuresMap,
             MeshService&& meshService,
             std::unique_ptr<GameNetworkService>&& gameNetworkService,
             const std::shared_ptr<Sprite>& minimap,
@@ -339,6 +343,8 @@ namespace rwe
         std::optional<UnitId> spawnUnit(const std::string& unitType, PlayerId owner, const SimVector& position, std::optional<const std::reference_wrapper<SimAngle>> rotation);
 
         std::optional<std::reference_wrapper<Unit>> spawnCompletedUnit(const std::string& unitType, PlayerId owner, const SimVector& position);
+
+        void trySpawnFeature(const std::string& featureType, const SimVector& position, SimAngle rotation);
 
         void setCameraPosition(const Vector3f& newPosition);
 

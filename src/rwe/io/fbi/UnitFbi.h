@@ -76,5 +76,7 @@ namespace rwe
         bool showPlayerName;
 
         std::string yardMap;
+
+        std::string corpse;
     };
 }

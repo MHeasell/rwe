@@ -127,11 +127,14 @@ namespace rwe
     class Unit
     {
     public:
-        enum class LifeState
+        struct LifeStateAlive
         {
-            Alive,
-            Dead,
         };
+        struct LifeStateDead
+        {
+            bool leaveCorpse;
+        };
+        using LifeState = std::variant<LifeStateAlive, LifeStateDead>;
 
     public:
         std::string name;
@@ -204,7 +207,7 @@ namespace rwe
         unsigned int hitPoints{0};
         unsigned int maxHitPoints;
 
-        LifeState lifeState{LifeState::Alive};
+        LifeState lifeState{LifeStateAlive()};
 
         std::deque<UnitOrder> orders;
         UnitState behaviourState;
@@ -330,6 +333,7 @@ namespace rwe
         bool isDead() const;
 
         void markAsDead();
+        void markAsDeadNoCorpse();
 
         void finishBuilding();
 
