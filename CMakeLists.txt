@@ -383,7 +383,7 @@ set(SOURCE_FILES
     src/rwe/io/fbi/UnitFbi.h
     src/rwe/io/fbi/io.cpp
     src/rwe/io/fbi/io.h
-    src/rwe/io/featuretdf/FeatureDefinition.h
+    src/rwe/io/featuretdf/FeatureTdf.h
     src/rwe/io/featuretdf/io.cpp
     src/rwe/io/featuretdf/io.h
     src/rwe/io/fnt/Fnt.cpp

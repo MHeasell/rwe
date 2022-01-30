@@ -28,7 +28,7 @@
 #include <rwe/Viewport.h>
 #include <rwe/cob/CobExecutionService.h>
 #include <rwe/grid/DiscreteRect.h>
-#include <rwe/io/featuretdf/FeatureDefinition.h>
+#include <rwe/io/featuretdf/FeatureTdf.h>
 #include <rwe/observable/BehaviorSubject.h>
 #include <rwe/pathfinding/PathFindingService.h>
 #include <rwe/sim/GameSimulation.h>
@@ -211,7 +211,7 @@ namespace rwe
         UnitDatabase unitDatabase;
         UnitFactory unitFactory;
 
-        std::unordered_map<std::string, FeatureDefinition> featuresMap;
+        std::unordered_map<std::string, FeatureTdf> featuresMap;
 
         std::unique_ptr<GameNetworkService> gameNetworkService;
 
@@ -310,7 +310,7 @@ namespace rwe
             MapTerrainGraphics&& terrainGraphics,
             MovementClassCollisionService&& collisionService,
             UnitDatabase&& unitDatabase,
-            std::unordered_map<std::string, FeatureDefinition>&& featuresMap,
+            std::unordered_map<std::string, FeatureTdf>&& featuresMap,
             MeshService&& meshService,
             std::unique_ptr<GameNetworkService>&& gameNetworkService,
             const std::shared_ptr<Sprite>& minimap,

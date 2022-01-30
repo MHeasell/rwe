@@ -1,9 +1,9 @@
 #pragma once
 
-#include "FeatureDefinition.h"
+#include "FeatureTdf.h"
 #include <rwe/io/tdf/TdfBlock.h>
 
 namespace rwe
 {
-    FeatureDefinition parseFeatureDefinition(const TdfBlock& tdf);
+    FeatureTdf parseFeatureDefinition(const TdfBlock& tdf);
 }

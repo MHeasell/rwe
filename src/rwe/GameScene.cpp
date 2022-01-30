@@ -9,7 +9,7 @@
 #include <rwe/Mesh.h>
 #include <rwe/camera_util.h>
 #include <rwe/dump_util.h>
-#include <rwe/io/featuretdf/FeatureDefinition.h>
+#include <rwe/io/featuretdf/FeatureTdf.h>
 #include <rwe/match.h>
 #include <rwe/matrix_util.h>
 #include <rwe/resource_io.h>
@@ -164,7 +164,7 @@ namespace rwe
         MapTerrainGraphics&& terrainGraphics,
         MovementClassCollisionService&& collisionService,
         UnitDatabase&& unitDatabase,
-        std::unordered_map<std::string, FeatureDefinition>&& featuresMap,
+        std::unordered_map<std::string, FeatureTdf>&& featuresMap,
         MeshService&& meshService,
         std::unique_ptr<GameNetworkService>&& gameNetworkService,
         const std::shared_ptr<Sprite>& minimap,
@@ -1928,7 +1928,7 @@ namespace rwe
         return std::nullopt;
     }
 
-    MapFeature createFeature(TextureService& textureService, const SimVector& pos, const FeatureDefinition& definition)
+    MapFeature createFeature(TextureService& textureService, const SimVector& pos, const FeatureTdf& definition)
     {
         MapFeature f;
         f.footprintX = definition.footprintX;

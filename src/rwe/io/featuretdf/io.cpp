@@ -2,9 +2,9 @@
 
 namespace rwe
 {
-    FeatureDefinition parseFeatureDefinition(const TdfBlock& tdf)
+    FeatureTdf parseFeatureDefinition(const TdfBlock& tdf)
     {
-        FeatureDefinition f;
+        FeatureTdf f;
 
         std::string emptyString;
 

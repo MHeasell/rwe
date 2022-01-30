@@ -12,7 +12,7 @@
 #include <rwe/SideData.h>
 #include <rwe/TextureService.h>
 #include <rwe/UnitDatabase.h>
-#include <rwe/io/featuretdf/FeatureDefinition.h>
+#include <rwe/io/featuretdf/FeatureTdf.h>
 #include <rwe/io/ota/ota.h>
 #include <rwe/io/tnt/TntArchive.h>
 #include <rwe/render/TextureArrayRegion.h>
@@ -132,7 +132,7 @@ namespace rwe
             MapTerrainGraphics terrainGraphics;
         };
 
-        LoadMapResult loadMap(const std::unordered_map<std::string, FeatureDefinition>& featuresMap, const std::string& mapName, const rwe::OtaRecord& ota, unsigned int schemaIndex);
+        LoadMapResult loadMap(const std::unordered_map<std::string, FeatureTdf>& featuresMap, const std::string& mapName, const rwe::OtaRecord& ota, unsigned int schemaIndex);
 
         std::vector<TextureArrayRegion> getTileTextures(TntArchive& tnt);
 
@@ -140,11 +140,11 @@ namespace rwe
 
         Grid<unsigned char> getHeightGrid(const Grid<TntTileAttributes>& attrs) const;
 
-        std::vector<FeatureDefinition> getFeatures(const std::unordered_map<std::string, FeatureDefinition>& featuresMap, TntArchive& tnt);
+        std::vector<FeatureTdf> getFeatures(const std::unordered_map<std::string, FeatureTdf>& featuresMap, TntArchive& tnt);
 
-        MapFeature createFeature(const SimVector& pos, const FeatureDefinition& definition);
+        MapFeature createFeature(const SimVector& pos, const FeatureTdf& definition);
 
-        SimVector computeFeaturePosition(const MapTerrain& terrain, const FeatureDefinition& featureDefinition, std::size_t x, std::size_t y) const;
+        SimVector computeFeaturePosition(const MapTerrain& terrain, const FeatureTdf& featureDefinition, std::size_t x, std::size_t y) const;
 
         const SideData& getSideData(const std::string& side) const;
 

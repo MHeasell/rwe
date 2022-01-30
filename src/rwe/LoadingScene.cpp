@@ -17,9 +17,9 @@ namespace rwe
 {
     const Viewport MenuUiViewport(0, 0, 640, 480);
 
-    std::unordered_map<std::string, FeatureDefinition> loadAllFeatureDefinitions(AbstractVirtualFileSystem& vfs)
+    std::unordered_map<std::string, FeatureTdf> loadAllFeatureDefinitions(AbstractVirtualFileSystem& vfs)
     {
-        std::unordered_map<std::string, FeatureDefinition> features;
+        std::unordered_map<std::string, FeatureTdf> features;
 
         auto files = vfs.getFileNamesRecursive("features", ".tdf");
 
@@ -367,7 +367,7 @@ namespace rwe
         return gameScene;
     }
 
-    LoadingScene::LoadMapResult LoadingScene::loadMap(const std::unordered_map<std::string, FeatureDefinition>& featuresMap, const std::string& mapName, const OtaRecord& ota, unsigned int schemaIndex)
+    LoadingScene::LoadMapResult LoadingScene::loadMap(const std::unordered_map<std::string, FeatureTdf>& featuresMap, const std::string& mapName, const OtaRecord& ota, unsigned int schemaIndex)
     {
         auto tntBytes = sceneContext.vfs->readFile("maps/" + mapName + ".tnt");
         if (!tntBytes)
@@ -491,9 +491,9 @@ namespace rwe
         return dataGrid;
     }
 
-    std::vector<FeatureDefinition> LoadingScene::getFeatures(const std::unordered_map<std::string, FeatureDefinition>& featuresMap, TntArchive& tnt)
+    std::vector<FeatureTdf> LoadingScene::getFeatures(const std::unordered_map<std::string, FeatureTdf>& featuresMap, TntArchive& tnt)
     {
-        std::vector<FeatureDefinition> features;
+        std::vector<FeatureTdf> features;
 
         tnt.readFeatures([&](const auto& featureName) {
             const auto& feature = featuresMap.at(featureName);
@@ -503,7 +503,7 @@ namespace rwe
         return features;
     }
 
-    MapFeature LoadingScene::createFeature(const SimVector& pos, const FeatureDefinition& definition)
+    MapFeature LoadingScene::createFeature(const SimVector& pos, const FeatureTdf& definition)
     {
         MapFeature f;
         f.footprintX = definition.footprintX;
@@ -561,7 +561,7 @@ namespace rwe
 
     SimVector LoadingScene::computeFeaturePosition(
         const MapTerrain& terrain,
-        const FeatureDefinition& featureDefinition,
+        const FeatureTdf& featureDefinition,
         std::size_t x,
         std::size_t y) const
     {

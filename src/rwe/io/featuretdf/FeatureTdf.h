@@ -6,7 +6,7 @@
 
 namespace rwe
 {
-    struct FeatureDefinition
+    struct FeatureTdf
     {
         std::string world;
         std::string description;
