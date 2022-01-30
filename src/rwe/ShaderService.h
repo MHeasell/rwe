@@ -54,6 +54,14 @@ namespace rwe
         UniformLocation time;
     };
 
+    struct FlashEffectShader
+    {
+        ShaderProgramHandle handle;
+        UniformLocation mvpMatrix;
+        UniformLocation intensity;
+        UniformLocation color;
+    };
+
     struct WorldPostShader
     {
         ShaderProgramHandle handle;
@@ -77,6 +85,7 @@ namespace rwe
         UnitTextureShader unitTexture;
         UnitShadowShader unitShadow;
         UnitBuildShader unitBuild;
+        FlashEffectShader flashEffect;
         WorldPostShader worldPost;
     };
 }

@@ -47,6 +47,11 @@ namespace rwe
         s.unitBuild.percentComplete = graphics.getUniformLocation(s.unitBuild.handle.get(), "percentComplete");
         s.unitBuild.time = graphics.getUniformLocation(s.unitBuild.handle.get(), "time");
 
+        s.flashEffect.handle = loadShader(graphics, "shaders/flashEffect.vert", "shaders/flashEffect.frag", texturedVertexAttribs);
+        s.flashEffect.mvpMatrix = graphics.getUniformLocation(s.flashEffect.handle.get(), "mvpMatrix");
+        s.flashEffect.intensity = graphics.getUniformLocation(s.flashEffect.handle.get(), "intensity");
+        s.flashEffect.color = graphics.getUniformLocation(s.flashEffect.handle.get(), "color");
+
         s.worldPost.handle = loadShader(graphics, "shaders/worldPost.vert", "shaders/worldPost.frag", texturedVertexAttribs);
         s.worldPost.dodgeMask = graphics.getUniformLocation(s.worldPost.handle.get(), "dodgeMask");
 

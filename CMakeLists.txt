@@ -225,6 +225,8 @@ set(SOURCE_FILES
     src/rwe/CroppedViewport.h
     src/rwe/CursorService.cpp
     src/rwe/CursorService.h
+    src/rwe/FlashEffect.cpp
+    src/rwe/FlashEffect.h
     src/rwe/GameCameraState.cpp
     src/rwe/GameCameraState.h
     src/rwe/GameHash.cpp

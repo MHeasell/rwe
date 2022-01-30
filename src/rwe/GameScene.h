@@ -288,6 +288,7 @@ namespace rwe
 
         int millisecondsBuffer{0};
 
+        std::vector<FlashEffect> flashes;
         bool guiVisible{true};
 
         FrameBufferInfo worldFrameBuffer;
@@ -487,6 +488,8 @@ namespace rwe
 
         void updateProjectiles();
 
+        void updateFlashes();
+
         void applyDamageInRadius(const SimVector& position, SimScalar radius, const Projectile& projectile);
 
         void applyDamage(UnitId unitId, unsigned int damagePoints);
@@ -589,6 +592,8 @@ namespace rwe
         bool leftClickMode() const;
 
         void spawnExplosion(const Vector3f& position, const AnimLocation& anim);
+
+        void spawnFlash(const Vector3f& position);
 
         void spawnSmoke(const Vector3f& position, const std::string& gaf, const std::string& anim, ExplosionFinishTime duration, GameTime frameDuration);
 

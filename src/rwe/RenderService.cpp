@@ -308,9 +308,42 @@ namespace rwe
         }
     }
 
-    void RenderService::drawFlashes()
+    void RenderService::drawFlashes(GameTime currentTime, const std::vector<FlashEffect>& flashes)
     {
-        // TODO: implement
+        const auto& shader = shaders->flashEffect;
+        graphics->bindShader(shader.handle.get());
+
+        auto quadMesh = graphics->createUnitTexturedQuad(Rectangle2f::fromTLBR(1.0f, 0.0f, 0.0f, 1.0f));
+
+        graphics->unbindTexture();
+
+        for (const auto& flash : flashes)
+        {
+            auto fractionComplete = flash.getFractionComplete(currentTime);
+            if (!fractionComplete)
+            {
+                continue;
+            }
+
+            Vector3f snappedPosition(
+                std::round(flash.position.x),
+                truncateToInterval(flash.position.y, 2.0f),
+                std::round(flash.position.z));
+
+            // Convert to a model position that makes sense in the game world.
+            // For standing (blocking) features we stretch y-dimension values by 2x
+            // to correct for TA camera distortion.
+            Matrix4f conversionMatrix = Matrix4f::scale(Vector3f(1.0f, -2.0f, 1.0f));
+
+            auto fractionRemaining = 1.0f - *fractionComplete;
+
+            auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix * Matrix4f::scale(flash.maxRadius * fractionRemaining);
+
+            graphics->setUniformMatrix(shader.mvpMatrix, (*viewProjectionMatrix) * modelMatrix);
+            graphics->setUniformFloat(shader.intensity, flash.maxIntensity * fractionRemaining);
+            graphics->setUniformVec3(shader.color, flash.color.x, flash.color.y, flash.color.z);
+            graphics->drawTriangles(quadMesh);
+        }
     }
 
     void RenderService::drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, PlayerColorIndex playerColorIndex)

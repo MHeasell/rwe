@@ -731,7 +731,7 @@ namespace rwe
 
         sceneContext.graphics->bindFrameBufferColorBuffer(dodgeMask.get());
         sceneContext.graphics->clearColor();
-        worldRenderService.drawFlashes();
+        worldRenderService.drawFlashes(simulation.gameTime, flashes);
         sceneContext.graphics->bindFrameBufferColorBuffer(worldFrameBuffer.texture.get());
 
         sceneContext.graphics->unbindFrameBuffer();
@@ -2165,6 +2165,8 @@ namespace rwe
                 break;
             }
         }
+
+        spawnFlash(position);
     }
 
     void GameScene::onChannelFinished(int channel)
@@ -2364,6 +2366,8 @@ namespace rwe
         }
 
         updateProjectiles();
+
+        updateFlashes();
 
         updateExplosions(meshDatabase, simulation.gameTime, explosions);
 
@@ -2844,6 +2848,16 @@ namespace rwe
                 }
             }
         }
+    }
+
+    void GameScene::updateFlashes()
+    {
+        flashes.erase(
+            std::remove_if(
+                flashes.begin(),
+                flashes.end(),
+                [&](const auto& flash) { return flash.isFinished(simulation.gameTime); }),
+            flashes.end());
     }
 
     void GameScene::doProjectileImpact(const Projectile& projectile, ImpactType impactType)
@@ -3805,6 +3819,18 @@ namespace rwe
         exp.frameDuration = GameTime(2);
 
         explosions.push_back(exp);
+    }
+
+    void GameScene::spawnFlash(const Vector3f& position)
+    {
+        FlashEffect flash;
+        flash.position = position;
+        flash.startTime = simulation.gameTime;
+        flash.duration = GameTime(15);
+        flash.maxRadius = 30.0f;
+        flash.color = Vector3f(1.0f, 1.0f, 1.0f);
+        flash.maxIntensity = 1.0f;
+        flashes.push_back(flash);
     }
 
     void GameScene::spawnSmoke(const Vector3f& position, const std::string& gaf, const std::string& anim, ExplosionFinishTime duration, GameTime frameDuration)

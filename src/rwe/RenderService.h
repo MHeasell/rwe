@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/iterator/filter_iterator.hpp>
+#include <rwe/FlashEffect.h>
 #include <rwe/MapTerrainGraphics.h>
 #include <rwe/MeshDatabase.h>
 #include <rwe/PlayerColorIndex.h>
@@ -113,7 +114,7 @@ namespace rwe
 
         void drawProjectiles(const VectorMap<Projectile, ProjectileIdTag>& projectiles, float seaLevel, GameTime currentTime, float frac);
 
-        void drawFlashes();
+        void drawFlashes(GameTime currentTime, const std::vector<FlashEffect>& flashes);
 
         void drawBatch(const ColoredMeshBatch& batch, const Matrix4f& vpMatrix);
 
