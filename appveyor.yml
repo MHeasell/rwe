@@ -17,7 +17,7 @@ configuration:
   - Release
 
 environment:
-  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
   matrix:
     - RWE_COMPILER: MSVC
     - RWE_COMPILER: MSYS
