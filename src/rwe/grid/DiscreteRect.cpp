@@ -82,19 +82,19 @@ namespace rwe
         // point is left of the rectangle
         if (px <= minX)
         {
-            auto distanceX = static_cast<unsigned int>(minX - px);
+            auto distanceX = minX - px;
 
             // top-left corner
             if (py <= minY)
             {
-                auto distanceY = static_cast<unsigned int>(minY - py);
+                auto distanceY = minY - py;
                 return OctileDistance::fromXAndY(distanceX, distanceY);
             }
 
             // bottom-left corner
             if (py >= maxY)
             {
-                auto distanceY = static_cast<unsigned int>(py - maxY);
+                auto distanceY = py - maxY;
                 return OctileDistance::fromXAndY(distanceX, distanceY);
             }
 
@@ -105,19 +105,19 @@ namespace rwe
         // point is right of the rectangle
         if (px >= maxX)
         {
-            auto distanceX = static_cast<unsigned int>(px - maxX);
+            auto distanceX = px - maxX;
 
             // top-right corner
             if (py <= minY)
             {
-                auto distanceY = static_cast<unsigned int>(minY - py);
+                auto distanceY = minY - py;
                 return OctileDistance::fromXAndY(distanceX, distanceY);
             }
 
             // bottom-right corner
             if (py >= maxY)
             {
-                auto distanceY = static_cast<unsigned int>(py - maxY);
+                auto distanceY = py - maxY;
                 return OctileDistance::fromXAndY(distanceX, distanceY);
             }
 
@@ -128,33 +128,39 @@ namespace rwe
         // top edge
         if (py <= minY)
         {
-            auto distanceY = static_cast<unsigned int>(minY - py);
+            auto distanceY = minY - py;
             return OctileDistance(distanceY, 0);
         }
 
         // bottom edge
         if (py >= maxY)
         {
-            auto distanceY = static_cast<unsigned int>(py - maxY);
+            auto distanceY = py - maxY;
             return OctileDistance(distanceY, 0);
         }
 
         // inside
-        auto distance = std::min<unsigned int>(
-            {static_cast<unsigned int>(px - minX),
-                static_cast<unsigned int>(maxX - px),
-                static_cast<unsigned int>(py - minY),
-                static_cast<unsigned int>(maxY - py)});
+        auto distance = std::min({px - minX, maxX - px, py - minY, maxY - py});
         return OctileDistance(distance, 0);
     }
 
-    DiscreteRect DiscreteRect::expand(unsigned int amount) const
+    DiscreteRect DiscreteRect::expand(int amount) const
     {
+        if (amount < 0)
+        {
+            throw std::logic_error("invalid parameters");
+        }
+
         return expand(amount, amount);
     }
 
-    DiscreteRect DiscreteRect::expand(unsigned int dx, unsigned int dy) const
+    DiscreteRect DiscreteRect::expand(int dx, int dy) const
     {
+        if (dx < 0 || dy < 0)
+        {
+            throw std::logic_error("invalid parameters");
+        }
+
         return DiscreteRect(x - dx, y - dy, width + (2 * dx), height + (2 * dy));
     }
 
@@ -163,8 +169,8 @@ namespace rwe
         auto left = std::max(x, rhs.x);
         auto top = std::max(y, rhs.y);
 
-        auto right = std::min(x + static_cast<int>(width), rhs.x + static_cast<int>(rhs.width));
-        auto bottom = std::min(y + static_cast<int>(height), rhs.y + static_cast<int>(rhs.height));
+        auto right = std::min(x + width, rhs.x + rhs.width);
+        auto bottom = std::min(y + height, rhs.y + rhs.height);
 
         auto intersectWidth = right - left;
         auto intersectHeight = bottom - top;
@@ -174,7 +180,7 @@ namespace rwe
             return std::nullopt;
         }
 
-        return DiscreteRect(left, top, static_cast<unsigned int>(intersectWidth), static_cast<unsigned int>(intersectHeight));
+        return DiscreteRect(left, top, intersectWidth, intersectHeight);
     }
 
     DiscreteRect DiscreteRect::translate(int dx, int dy) const
@@ -184,14 +190,19 @@ namespace rwe
 
     bool DiscreteRect::contains(const Point& p) const
     {
-        return p.x >= x && p.y >= y && p.x < (x + static_cast<int>(width)) && p.y < (y + static_cast<int>(height));
+        return p.x >= x && p.y >= y && p.x < (x + width) && p.y < (y + height);
     }
 
-    DiscreteRect DiscreteRect::expandTopLeft(unsigned int expandWidth, unsigned int expandHeight) const
+    DiscreteRect DiscreteRect::expandTopLeft(int expandWidth, int expandHeight) const
     {
+        if (expandWidth < 0 || expandHeight < 0)
+        {
+            throw std::logic_error("invalid parameters");
+        }
+
         return DiscreteRect(
-            x - static_cast<int>(expandWidth),
-            y - static_cast<int>(expandHeight),
+            x - expandWidth,
+            y - expandHeight,
             width + expandWidth,
             height + expandHeight);
     }

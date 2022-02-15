@@ -11,14 +11,18 @@ namespace rwe
     {
         static DiscreteRect fromPoints(const Point& p1, const Point& p2);
 
-        int x;
-        int y;
-        unsigned int width;
-        unsigned int height;
+        int x{0};
+        int y{0};
+        int width{0};
+        int height{0};
 
         DiscreteRect() = default;
-        DiscreteRect(int x, int y, unsigned int width, unsigned int height) : x(x), y(y), width(width), height(height)
+        DiscreteRect(int x, int y, int width, int height) : x(x), y(y), width(width), height(height)
         {
+            if (this->width < 0 || this->height < 0)
+            {
+                throw std::logic_error("invalid parameters");
+            }
         }
 
         bool operator==(const DiscreteRect& rhs) const
@@ -64,9 +68,9 @@ namespace rwe
 
         OctileDistance octileDistanceToTopLeftTouching(int px, int py) const;
 
-        DiscreteRect expand(unsigned int amount) const;
+        DiscreteRect expand(int amount) const;
 
-        DiscreteRect expand(unsigned int dx, unsigned int dy) const;
+        DiscreteRect expand(int dx, int dy) const;
 
         DiscreteRect translate(int dx, int dy) const;
 
@@ -78,7 +82,7 @@ namespace rwe
          */
         std::optional<DiscreteRect> intersection(const DiscreteRect& rhs) const;
 
-        DiscreteRect expandTopLeft(unsigned int expandWidth, unsigned int expandHeight) const;
+        DiscreteRect expandTopLeft(int expandWidth, int expandHeight) const;
     };
 }
 
