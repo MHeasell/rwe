@@ -217,12 +217,12 @@ namespace rwe
             return data.data();
         }
 
-        const std::vector<T> getVector() const
+        const std::vector<T>& getVector() const
         {
             return data;
         }
 
-        std::vector<T> getVector()
+        std::vector<T>& getVector()
         {
             return data;
         }
