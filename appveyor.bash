@@ -14,7 +14,7 @@ pacman -Syq
 # then you'll get exit code 127 when you try to call it.
 # We'll rely on the one bundled with the machine image instead.
 pacman -Sq --needed --noconfirm \
-    base-devel \
+    autoconf \
     unzip \
     mingw-w64-x86_64-toolchain
 pacman --version
