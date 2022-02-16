@@ -5,41 +5,36 @@
 
 namespace rwe
 {
-    TEST_CASE("packCoords")
+    TEST_CASE("cobPackCoords")
     {
         SECTION("packs trivial positive values")
         {
-            auto a = 5_ss; // 0x0005
-            auto b = 3_ss; // 0x0003
-            REQUIRE(packCoords(a, b) == 0x00050003);
+            auto a = CobPosition::fromInt(5); // 0x0005
+            auto b = CobPosition::fromInt(3); // 0x0003
+            REQUIRE(cobPackCoords(a, b) == 0x00050003);
         }
 
         SECTION("packs negative values")
         {
-            auto a = -5_ss; // 0xfffb
-            auto b = -3_ss; // 0xfffd
-            REQUIRE(packCoords(a, b) == 0xfffbfffd);
+            auto a = CobPosition::fromInt(-5); // 0xfffb
+            auto b = CobPosition::fromInt(-3); // 0xfffd
+            REQUIRE(cobPackCoords(a, b) == 0xfffbfffd);
         }
 
         SECTION("packs very low negative values")
         {
-            auto a = -28675_ss; // 0x8ffd
-            auto b = -24412_ss; // 0xa0a4
-            REQUIRE(packCoords(a, b) == 0x8ffda0a4);
+            auto a = CobPosition::fromInt(-28675); // 0x8ffd
+            auto b = CobPosition::fromInt(-24412); // 0xa0a4
+            REQUIRE(cobPackCoords(a, b) == 0x8ffda0a4);
         }
     }
 
-    TEST_CASE("unpackCoords")
+    TEST_CASE("cobUnpackCoords")
     {
         rc::prop("pack followed by unpack is the identity", [](int16_t a, int16_t b) {
-            // all int16 values can be represented exactly by floats
-            auto fA = SimScalar(a);
-            auto fB = SimScalar(b);
-
-            auto result = unpackCoords(packCoords(fA, fB));
-
-            RC_ASSERT(result.first == fA);
-            RC_ASSERT(result.second == fB);
+            auto result = cobUnpackCoords(cobPackCoords(CobPosition::fromInt(a), CobPosition::fromInt(b)));
+            RC_ASSERT(result.first == CobPosition::fromInt(a));
+            RC_ASSERT(result.second == CobPosition::fromInt(b));
         });
     }
 

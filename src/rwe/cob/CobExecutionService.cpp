@@ -36,6 +36,21 @@ namespace rwe
         return env._script->pieces.at(objectId);
     }
 
+    CobPosition simScalarToCobPosition(SimScalar v)
+    {
+        return CobPosition(static_cast<int32_t>(v.value * 65536.0f));
+    }
+
+    SimScalar cobPositionToSimScalar(CobPosition v)
+    {
+        return SimScalar(static_cast<float>(v.value) / 65536.0f);
+    }
+
+    int packCoords(SimScalar x, SimScalar z)
+    {
+        return static_cast<int>(cobPackCoords(simScalarToCobPosition(x), simScalarToCobPosition(z)));
+    }
+
     using InterruptedReason = std::variant<CobEnvironment::PieceCommandStatus, CobEnvironment::QueryStatus, CobEnvironment::SetQueryStatus>;
 
     std::optional<InterruptedReason> executeThreads(CobEnvironment& env, UnitId unitId, GameTime gameTime)
@@ -97,11 +112,11 @@ namespace rwe
                 auto position = m.axis == CobAxis::X ? -m.position : m.position;
                 if (m.speed)
                 {
-                    simulation.moveObject(unitId, objectName, toAxis(m.axis), position.toWorldDistance(), m.speed->toSimScalar());
+                    simulation.moveObject(unitId, objectName, toAxis(m.axis), cobPositionToSimScalar(position), m.speed->toSimScalar());
                 }
                 else
                 {
-                    simulation.moveObjectNow(unitId, objectName, toAxis(m.axis), position.toWorldDistance());
+                    simulation.moveObjectNow(unitId, objectName, toAxis(m.axis), cobPositionToSimScalar(position));
                 }
             },
             [&](const CobEnvironment::PieceCommandStatus::Turn& t) {
@@ -171,13 +186,13 @@ namespace rwe
                 auto pieceId = q.piece;
                 const auto& pieceName = getObjectName(env, pieceId);
                 auto pos = scene.getUnitPiecePosition(unitId, pieceName);
-                return static_cast<int>(packCoords(pos.x, pos.z));
+                return packCoords(pos.x, pos.z);
             },
             [&](const CobEnvironment::QueryStatus::PieceY& q) {
                 auto pieceId = q.piece;
                 const auto& pieceName = getObjectName(env, pieceId);
                 auto pos = scene.getUnitPiecePosition(unitId, pieceName);
-                return simScalarToFixed(pos.y);
+                return simScalarToCobPosition(pos.y).value;
             },
             [&](const CobEnvironment::QueryStatus::UnitXZ& q) {
                 auto targetUnitId = q.targetUnitId;
@@ -188,7 +203,7 @@ namespace rwe
                     return 0;
                 }
                 const auto& pos = targetUnitOption->get().position;
-                return static_cast<int>(packCoords(pos.x, pos.z));
+                return packCoords(pos.x, pos.z);
             },
             [&](const CobEnvironment::QueryStatus::UnitY& q) {
                 auto targetUnitId = q.targetUnitId;
@@ -199,7 +214,7 @@ namespace rwe
                     return 0;
                 }
                 const auto& pos = targetUnitOption->get().position;
-                return simScalarToFixed(pos.y);
+                return simScalarToCobPosition(pos.y).value;
             },
             [&](const CobEnvironment::QueryStatus::UnitHeight& q) {
                 auto targetUnitId = q.targetUnitId;
@@ -209,10 +224,10 @@ namespace rwe
                     // FIXME: not sure if correct return value when unit does not exist
                     return 0;
                 }
-                return simScalarToFixed(targetUnitOption->get().height);
+                return simScalarToCobPosition(targetUnitOption->get().height).value;
             },
             [&](const CobEnvironment::QueryStatus::XZAtan& q) {
-                auto pair = unpackCoords(q.coords);
+                auto pair = cobUnpackCoords(q.coords);
                 const auto& unit = sim.getUnit(unitId);
 
                 // Surprisingly, the result of XZAtan is offset by the unit's current rotation.
@@ -222,13 +237,13 @@ namespace rwe
                 // We therefore subtract a half turn to convert to what scripts expect.
                 // TODO: test whether this is also the case for buildings
                 auto correctedUnitRotation = unit.rotation - HalfTurn;
-                auto result = atan2(pair.first, pair.second) - correctedUnitRotation;
+                auto result = atan2(cobPositionToSimScalar(pair.first), cobPositionToSimScalar(pair.second)) - correctedUnitRotation;
                 return static_cast<int>(toCobAngle(result).value);
             },
             [&](const CobEnvironment::QueryStatus::GroundHeight& q) {
-                auto pair = unpackCoords(q.coords);
-                auto result = sim.terrain.getHeightAt(pair.first, pair.second);
-                return simScalarToFixed(result);
+                auto pair = cobUnpackCoords(q.coords);
+                auto result = sim.terrain.getHeightAt(cobPositionToSimScalar(pair.first), cobPositionToSimScalar(pair.second));
+                return simScalarToCobPosition(result).value;
             },
             [&](const CobEnvironment::QueryStatus::BuildPercentLeft&) {
                 const auto& unit = sim.getUnit(unitId);

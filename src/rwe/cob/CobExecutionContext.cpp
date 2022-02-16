@@ -39,9 +39,9 @@ namespace rwe
             case CobValueId::XZHypot:
             {
                 auto coords = arg1;
-                auto pair = unpackCoords(coords);
-                auto result = hypot(pair.first, pair.second);
-                return CobPosition::fromWorldDistance(result).value;
+                auto pair = cobUnpackCoords(coords);
+                auto result = cobHypot(pair.first, pair.second);
+                return result.value;
             }
             case CobValueId::Atan:
             {
@@ -51,8 +51,8 @@ namespace rwe
             {
                 auto a = CobPosition(arg1);
                 auto b = CobPosition(arg2);
-                auto result = hypot(a.toWorldDistance(), b.toWorldDistance());
-                return CobPosition::fromWorldDistance(result).value;
+                auto result = cobHypot(a, b);
+                return result.value;
             }
             case CobValueId::GroundHeight:
                 return CobEnvironment::QueryStatus::GroundHeight{arg1};

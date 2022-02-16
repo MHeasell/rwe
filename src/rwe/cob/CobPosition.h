@@ -20,14 +20,19 @@ namespace rwe
             return static_cast<float>(value) / 65536.0f;
         }
 
-        SimScalar toWorldDistance() const
+        int toInt() const
         {
-            return SimScalar(toFloat());
+            return value / 65536;
         }
 
-        static CobPosition fromWorldDistance(SimScalar d)
+        static CobPosition fromFloat(float v)
         {
-            return CobPosition(d.value * 65536.0f);
+            return CobPosition(v * 65536.0f);
+        }
+
+        static CobPosition fromInt(int v)
+        {
+            return CobPosition(v * 65536);
         }
     };
 }
