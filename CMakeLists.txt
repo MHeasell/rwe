@@ -144,7 +144,7 @@ else()
 
     set(Boost_USE_STATIC_LIBS ON)
     set(Boost_NO_BOOST_CMAKE ON)
-    find_package(Boost 1.54.0 REQUIRED COMPONENTS filesystem program_options)
+    find_package(Boost 1.74.0 REQUIRED COMPONENTS filesystem program_options)
 
     find_package(SDL2 REQUIRED)
     find_windows_dll(SDL2_DLL "SDL2.dll")
