@@ -16,6 +16,7 @@ pacman -Syq
 pacman -Sq --needed --noconfirm \
     autoconf \
     automake \
+    libtool \
     unzip \
     mingw-w64-x86_64-toolchain
 pacman --version
