@@ -15,6 +15,7 @@ pacman -Syq
 # We'll rely on the one bundled with the machine image instead.
 pacman -Sq --needed --noconfirm \
     autoconf \
+    automake \
     unzip \
     mingw-w64-x86_64-toolchain
 pacman --version
