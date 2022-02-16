@@ -702,14 +702,26 @@ namespace rwe
             }
             case 1:
             {
-                mediaInfo.renderType = ProjectileRenderTypeModel{
-                    tdf.model, ProjectileRenderTypeModel::RotationMode::HalfZ};
+                if (tdf.model.empty()) {
+                    mediaInfo.renderType = ProjectileRenderTypeNone{};
+                }
+                else
+                {
+                    mediaInfo.renderType = ProjectileRenderTypeModel{
+                        tdf.model, ProjectileRenderTypeModel::RotationMode::HalfZ};
+                }
                 break;
             }
             case 3:
             {
-                mediaInfo.renderType = ProjectileRenderTypeModel{
-                    tdf.model, ProjectileRenderTypeModel::RotationMode::QuarterY};
+                if (tdf.model.empty()) {
+                    mediaInfo.renderType = ProjectileRenderTypeNone{};
+                }
+                else
+                {
+                    mediaInfo.renderType = ProjectileRenderTypeModel{
+                        tdf.model, ProjectileRenderTypeModel::RotationMode::QuarterY};
+                }
                 break;
             }
             case 4:
@@ -734,8 +746,14 @@ namespace rwe
             }
             case 6:
             {
-                mediaInfo.renderType = ProjectileRenderTypeModel{
-                    tdf.model, ProjectileRenderTypeModel::RotationMode::None};
+                if (tdf.model.empty()) {
+                    mediaInfo.renderType = ProjectileRenderTypeNone{};
+                }
+                else
+                {
+                    mediaInfo.renderType = ProjectileRenderTypeModel{
+                        tdf.model, ProjectileRenderTypeModel::RotationMode::None};
+                }
                 break;
             }
             case 7:
