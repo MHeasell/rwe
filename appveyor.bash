@@ -4,6 +4,8 @@
 
 set -euo pipefail
 
+pacman --version
+
 # Refresh packages list
 pacman -Syq
 
