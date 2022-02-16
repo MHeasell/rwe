@@ -39,6 +39,6 @@ before_install:
   - eval "${MATRIX_EVAL}"
 
 install:
-  - nvm install 10
+  - nvm install 17
 
 script: ./travis.bash

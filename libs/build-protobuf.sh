@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
-
+echo "starting build-protobuf.sh"
 install_dir="${PWD}/_protobuf-install"
 
 if [ ! -f "$install_dir/done" ]; then
@@ -11,3 +11,4 @@ if [ ! -f "$install_dir/done" ]; then
     make install
     touch "$install_dir/done"
 fi
+echo "leaving build-protobuf.sh"
