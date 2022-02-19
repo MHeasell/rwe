@@ -485,31 +485,36 @@ namespace rwe
     SimVector LoadingScene::computeFeaturePosition(
         const MapTerrain& terrain,
         const FeatureDefinition& featureDefinition,
-        std::size_t x,
-        std::size_t y) const
+        int x,
+        int y) const
     {
         const auto& heightmap = terrain.getHeightMap();
 
-        unsigned int height = 0;
+        int height = 0;
         if (x < heightmap.getWidth() - 1 && y < heightmap.getHeight() - 1)
         {
             height = computeMidpointHeight(heightmap, x, y);
         }
 
         auto position = terrain.heightmapIndexToWorldCorner(x, y);
-        position.y = SimScalar(height);
+        position.y = intToSimScalar(height);
 
-        position.x += (SimScalar(featureDefinition.footprintX) * MapTerrain::HeightTileWidthInWorldUnits) / 2_ss;
-        position.z += (SimScalar(featureDefinition.footprintZ) * MapTerrain::HeightTileHeightInWorldUnits) / 2_ss;
+        position.x += (intToSimScalar(featureDefinition.footprintX) * MapTerrain::HeightTileWidthInWorldUnits) / 2_ss;
+        position.z += (intToSimScalar(featureDefinition.footprintZ) * MapTerrain::HeightTileHeightInWorldUnits) / 2_ss;
 
         return position;
     }
 
-    unsigned int LoadingScene::computeMidpointHeight(const Grid<unsigned char>& heightmap, std::size_t x, std::size_t y)
+    int LoadingScene::computeMidpointHeight(const Grid<unsigned char>& heightmap, int x, int y)
     {
         assert(x < heightmap.getWidth() - 1);
         assert(y < heightmap.getHeight() - 1);
-        return (heightmap.get(x, y) + heightmap.get(x + 1, y) + heightmap.get(x, y + 1) + heightmap.get(x + 1, y + 1)) / 4u;
+
+        auto p1 = static_cast<int>(heightmap.get(x, y));
+        auto p2 = static_cast<int>(heightmap.get(x + 1, y));
+        auto p3 = static_cast<int>(heightmap.get(x, y + 1));
+        auto p4 = static_cast<int>(heightmap.get(x + 1, y + 1));
+        return (p1 + p2 + p3 + p4) / 4;
     }
 
     const SideData& LoadingScene::getSideData(const std::string& side) const

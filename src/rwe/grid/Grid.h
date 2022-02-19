@@ -4,6 +4,7 @@
 #include <cassert>
 #include <functional>
 #include <optional>
+#include <rwe/Index.h>
 #include <rwe/grid/DiscreteRect.h>
 #include <stdexcept>
 #include <vector>
@@ -152,7 +153,7 @@ namespace rwe
                 throw std::logic_error("invalid parameters");
             }
 
-            if (this->data.size() != this->width * this->height)
+            if (getSize(this->data) != this->width * this->height)
             {
                 throw std::logic_error("invalid parameters");
             }

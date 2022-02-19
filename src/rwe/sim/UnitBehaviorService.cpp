@@ -52,7 +52,7 @@ namespace rwe
         cobExecutionService->run(*scene, scene->getSimulation(), unitId);
 
         // measure z distances for ballistics
-        for (int i = 0; i < unit.weapons.size(); ++i)
+        for (int i = 0; i < getSize(unit.weapons); ++i)
         {
             auto& weapon = unit.weapons[i];
             if (!weapon)

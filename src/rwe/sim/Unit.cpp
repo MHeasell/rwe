@@ -617,7 +617,7 @@ namespace rwe
     int Unit::getBuildQueueTotal(const std::string& unitType) const
     {
         int sum = 0;
-        for (const auto e : buildQueue)
+        for (const auto& e : buildQueue)
         {
             if (e.first == unitType)
             {

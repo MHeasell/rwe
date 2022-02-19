@@ -32,16 +32,16 @@ namespace rwe
     RenderService::RenderService(
         GraphicsContext* graphics,
         ShaderService* shaders,
-        const MeshDatabase* meshDatabase,
         UnitDatabase* unitDatabase,
         const Matrix4f* viewProjectionMatrix,
+        const MeshDatabase* meshDatabase,
         const SharedTextureHandle* unitTextureAtlas,
         const std::vector<SharedTextureHandle>* unitTeamTextureAtlases)
         : graphics(graphics),
           shaders(shaders),
-          meshDatabase(meshDatabase),
           unitDatabase(unitDatabase),
           viewProjectionMatrix(viewProjectionMatrix),
+          meshDatabase(meshDatabase),
           unitTextureAtlas(unitTextureAtlas),
           unitTeamTextureAtlases(unitTeamTextureAtlases)
     {

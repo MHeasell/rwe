@@ -97,9 +97,9 @@ namespace rwe
         RenderService(
             GraphicsContext* graphics,
             ShaderService* shaders,
-            const MeshDatabase* meshDatabase,
             UnitDatabase* unitDatabase,
             const Matrix4f* viewProjectionMatrix,
+            const MeshDatabase* meshDatabase,
             const SharedTextureHandle* unitTextureAtlas,
             const std::vector<SharedTextureHandle>* unitTeamTextureAtlases);
 

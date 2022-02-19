@@ -71,23 +71,23 @@ namespace rwe
 
     SimScalar MapTerrain::leftInWorldUnits() const
     {
-        return -((SimScalar(heights.getWidth()) / 2_ss) * HeightTileWidthInWorldUnits);
+        return -((intToSimScalar(heights.getWidth()) / 2_ss) * HeightTileWidthInWorldUnits);
     }
 
     SimScalar MapTerrain::rightCutoffInWorldUnits() const
     {
-        auto right = (SimScalar(heights.getWidth()) / 2_ss) * HeightTileWidthInWorldUnits;
+        auto right = (intToSimScalar(heights.getWidth()) / 2_ss) * HeightTileWidthInWorldUnits;
         return right - (HeightTileWidthInWorldUnits * 2_ss);
     }
 
     SimScalar MapTerrain::topInWorldUnits() const
     {
-        return -((SimScalar(heights.getHeight()) / 2_ss) * HeightTileHeightInWorldUnits);
+        return -((intToSimScalar(heights.getHeight()) / 2_ss) * HeightTileHeightInWorldUnits);
     }
 
     SimScalar MapTerrain::bottomCutoffInWorldUnits() const
     {
-        auto bottom = (SimScalar(heights.getHeight()) / 2_ss) * HeightTileHeightInWorldUnits;
+        auto bottom = (intToSimScalar(heights.getHeight()) / 2_ss) * HeightTileHeightInWorldUnits;
         return bottom - (HeightTileHeightInWorldUnits * 8_ss);
     }
 
@@ -98,12 +98,12 @@ namespace rwe
 
     SimScalar MapTerrain::getWidthInWorldUnits() const
     {
-        return SimScalar(heights.getWidth()) * HeightTileWidthInWorldUnits;
+        return intToSimScalar(heights.getWidth()) * HeightTileWidthInWorldUnits;
     }
 
     SimScalar MapTerrain::getHeightInWorldUnits() const
     {
-        return SimScalar(heights.getHeight()) * HeightTileHeightInWorldUnits;
+        return intToSimScalar(heights.getHeight()) * HeightTileHeightInWorldUnits;
     }
 
     SimVector MapTerrain::topLeftCoordinateToWorld(const SimVector& pos) const
@@ -124,9 +124,9 @@ namespace rwe
         auto tilePos = worldToHeightmapCoordinate(SimVector(x, 0_ss, z));
         if (
             tilePos.x < 0
-            || static_cast<std::size_t>(tilePos.x) >= heights.getWidth() - 1
+            || tilePos.x >= heights.getWidth() - 1
             || tilePos.y < 0
-            || static_cast<std::size_t>(tilePos.y) >= heights.getHeight() - 1)
+            || tilePos.y >= heights.getHeight() - 1)
         {
             return 0_ss;
         }
@@ -149,13 +149,13 @@ namespace rwe
 
         auto xDirection = ray.direction.x > 0_ss ? 1 : -1;
         auto zDirection = ray.direction.z > 0_ss ? 1 : -1;
-        auto xPlaneOffset = (HeightTileWidthInWorldUnits / 2_ss) * SimScalar(xDirection);
-        auto zPlaneOffset = (HeightTileHeightInWorldUnits / 2_ss) * SimScalar(zDirection);
+        auto xPlaneOffset = (HeightTileWidthInWorldUnits / 2_ss) * intToSimScalar(xDirection);
+        auto zPlaneOffset = (HeightTileHeightInWorldUnits / 2_ss) * intToSimScalar(zDirection);
 
         while (true)
         {
-            auto neighbourX = (heightmapPosition.x - SimScalar(startCell.x)) > 0.5_ssf ? 1 : -1;
-            auto neighbourY = (heightmapPosition.z - SimScalar(startCell.y)) > 0.5_ssf ? 1 : -1;
+            auto neighbourX = (heightmapPosition.x - intToSimScalar(startCell.x)) > 0.5_ssf ? 1 : -1;
+            auto neighbourY = (heightmapPosition.z - intToSimScalar(startCell.y)) > 0.5_ssf ? 1 : -1;
 
             // Due to floating-point precision issues,
             // when the line passes very close to a cell boundary
@@ -221,7 +221,7 @@ namespace rwe
                 }
 
                 startCell.x += xDirection;
-                heightmapPosition.x += SimScalar(xDirection);
+                heightmapPosition.x += intToSimScalar(xDirection);
             }
             else
             {
@@ -231,7 +231,7 @@ namespace rwe
                 }
 
                 startCell.y += zDirection;
-                heightmapPosition.z += SimScalar(zDirection);
+                heightmapPosition.z += intToSimScalar(zDirection);
             }
         }
     }
@@ -294,7 +294,7 @@ namespace rwe
     {
         return x >= 0
             && y >= 0
-            && static_cast<std::size_t>(x) < heights.getWidth() - 1
-            && static_cast<std::size_t>(y) < heights.getHeight() - 1;
+            && x < heights.getWidth() - 1
+            && y < heights.getHeight() - 1;
     }
 }
