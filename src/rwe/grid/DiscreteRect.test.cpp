@@ -120,7 +120,9 @@ namespace rwe
                     REQUIRE(!r.isAdjacentTo(DiscreteRect(2, -1, 3, 2)));
                 }
 
-                rc::prop("a unit rectangle is adjacent if the point is", [](int x, int y, unsigned int w, unsigned int h, int x2, int y2) {
+                rc::prop("a unit rectangle is adjacent if the point is", [](int x, int y, int x2, int y2) {
+                    auto w = *rc::gen::nonNegative<int>();
+                    auto h = *rc::gen::nonNegative<int>();
                     DiscreteRect r(x, y, w, h);
                     RC_ASSERT(r.isAdjacentTo(DiscreteRect(x2, y2, 1, 1)) == r.isAdjacentTo(x2, y2));
                 });
