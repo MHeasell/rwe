@@ -313,7 +313,7 @@ namespace rwe
 
     std::optional<UnitWeapon> UnitFactory::tryCreateWeapon(const std::string& weaponType)
     {
-        if (!simulation->weaponDefinitions.contains(toUpper(weaponType)))
+        if (simulation->weaponDefinitions.find(toUpper(weaponType)) == simulation->weaponDefinitions.end())
         {
             return std::nullopt;
         }
