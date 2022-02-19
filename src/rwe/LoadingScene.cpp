@@ -702,7 +702,8 @@ namespace rwe
             }
             case 1:
             {
-                if (tdf.model.empty()) {
+                if (tdf.model.empty())
+                {
                     mediaInfo.renderType = ProjectileRenderTypeNone{};
                 }
                 else
@@ -714,7 +715,8 @@ namespace rwe
             }
             case 3:
             {
-                if (tdf.model.empty()) {
+                if (tdf.model.empty())
+                {
                     mediaInfo.renderType = ProjectileRenderTypeNone{};
                 }
                 else
@@ -746,7 +748,8 @@ namespace rwe
             }
             case 6:
             {
-                if (tdf.model.empty()) {
+                if (tdf.model.empty())
+                {
                     mediaInfo.renderType = ProjectileRenderTypeNone{};
                 }
                 else
