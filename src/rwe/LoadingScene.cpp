@@ -377,22 +377,17 @@ namespace rwe
         auto featureNames = getFeatureNames(tnt);
         std::vector<std::pair<Point, std::string>> features;
 
-        for (std::size_t y = 0; y < mapAttributes.getHeight(); ++y)
-        {
-            for (std::size_t x = 0; x < mapAttributes.getWidth(); ++x)
+        mapAttributes.forEachIndexed([&](auto c, const auto& e) {
+            switch (e.feature)
             {
-                const auto& e = mapAttributes.get(x, y);
-                switch (e.feature)
-                {
-                    case TntTileAttributes::FeatureNone:
-                    case TntTileAttributes::FeatureUnknown:
-                    case TntTileAttributes::FeatureVoid:
-                        break;
-                    default:
-                        features.emplace_back(Point(x, y), featureNames.at(e.feature));
-                }
+                case TntTileAttributes::FeatureNone:
+                case TntTileAttributes::FeatureUnknown:
+                case TntTileAttributes::FeatureVoid:
+                    break;
+                default:
+                    features.emplace_back(Point(c.x, c.y), featureNames.at(e.feature));
             }
-        }
+        });
 
         // add features from the OTA schema
         for (const auto& f : schema.features)
