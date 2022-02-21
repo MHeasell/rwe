@@ -192,7 +192,7 @@ namespace rwe
         // FIXME: this should probably be a regex match instead of this crude brute-force search
         for (int i = 0; i < 10; ++i)
         {
-            if (input == fmt::format(fmt::runtime(format), i))
+            if (input == fmt::format(format, i))
             {
                 return i;
             }
