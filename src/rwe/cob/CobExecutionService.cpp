@@ -148,6 +148,25 @@ namespace rwe
             },
             [&](const CobEnvironment::PieceCommandStatus::DisableShading&) {
                 simulation.disableShading(unitId, objectName);
+            },
+            [&](const CobEnvironment::PieceCommandStatus::EmitSfx& s) {
+                switch (s.sfxType)
+                {
+                    case CobSfxType::WhiteSmoke:
+                        scene.emitLightSmokeFromPiece(unitId, objectName);
+                        break;
+                    case CobSfxType::BlackSmoke:
+                        scene.emitBlackSmokeFromPiece(unitId, objectName);
+                        break;
+                    case CobSfxType::Vtol:
+                    case CobSfxType::Thrust:
+                    case CobSfxType::Wake1:
+                    case CobSfxType::Wake2:
+                    case CobSfxType::ReverseWake1:
+                    case CobSfxType::ReverseWake2:
+                        // TODO: support these SFX types
+                        break;
+                }
             });
     }
 

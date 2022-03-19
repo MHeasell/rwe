@@ -2994,6 +2994,18 @@ namespace rwe
         spawnSmoke(position, "FX", "smoke 1", ParticleFinishTimeFixedTime{simulation.gameTime + GameTime(30)}, GameTime(15));
     }
 
+    void GameScene::emitLightSmokeFromPiece(UnitId unitId, const std::string& pieceName)
+    {
+        auto position = getUnitPiecePosition(unitId, pieceName);
+        spawnSmoke(simVectorToFloat(position), "FX", "smoke 1", ParticleFinishTimeEndOfFrames(), GameTime(2));
+    }
+
+    void GameScene::emitBlackSmokeFromPiece(UnitId unitId, const std::string& pieceName)
+    {
+        auto position = getUnitPiecePosition(unitId, pieceName);
+        spawnSmoke(simVectorToFloat(position), "FX", "smoke 2", ParticleFinishTimeEndOfFrames(), GameTime(2));
+    }
+
     void GameScene::activateUnit(UnitId unitId)
     {
         auto unit = tryGetUnit(unitId);

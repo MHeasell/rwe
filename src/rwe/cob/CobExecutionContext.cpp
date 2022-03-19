@@ -260,8 +260,13 @@ namespace rwe
                     explode();
                     break;
                 case OpCode::EMIT_SFX:
-                    emitSmoke();
-                    break;
+                {
+                    auto object = nextInstruction();
+                    auto sfxType = popSfxType();
+                    return CobEnvironment::PieceCommandStatus{
+                        object,
+                        CobEnvironment::PieceCommandStatus::EmitSfx{sfxType}};
+                }
                 case OpCode::SHOW:
                 {
                     auto object = nextInstruction();
@@ -541,13 +546,6 @@ namespace rwe
         // TODO: this
     }
 
-    void CobExecutionContext::emitSmoke()
-    {
-        /*auto piece = */ nextInstruction();
-        /*auto smokeType = */ pop();
-        // TODO: this
-    }
-
     void CobExecutionContext::enableCaching()
     {
         nextInstruction(); // object
@@ -727,6 +725,11 @@ namespace rwe
     CobValueId CobExecutionContext::popValueId()
     {
         return static_cast<CobValueId>(pop());
+    }
+
+    CobSfxType CobExecutionContext::popSfxType()
+    {
+        return static_cast<CobSfxType>(pop());
     }
 
     void CobExecutionContext::push(int val)

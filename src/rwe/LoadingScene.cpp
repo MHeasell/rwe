@@ -1117,6 +1117,8 @@ namespace rwe
         {
             auto anim = sceneContext.textureService->getGafEntry("anims/FX.GAF", "smoke 1");
             meshDb.addSpriteSeries("FX", "smoke 1", anim);
+            auto anim2 = sceneContext.textureService->getGafEntry("anims/FX.GAF", "smoke 2");
+            meshDb.addSpriteSeries("FX", "smoke 2", anim2);
         }
 
         // preload weapon sprites

@@ -402,6 +402,10 @@ namespace rwe
 
         void createWeaponSmoke(const Vector3f& position);
 
+        void emitLightSmokeFromPiece(UnitId unitId, const std::string& pieceName);
+
+        void emitBlackSmokeFromPiece(UnitId unitId, const std::string& pieceName);
+
         void activateUnit(UnitId unitId);
         void deactivateUnit(UnitId unitId);
 

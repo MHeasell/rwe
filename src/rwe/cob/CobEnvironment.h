@@ -6,6 +6,7 @@
 #include <rwe/cob/CobAngularSpeed.h>
 #include <rwe/cob/CobAxis.h>
 #include <rwe/cob/CobPosition.h>
+#include <rwe/cob/CobSfxType.h>
 #include <rwe/cob/CobSleepDuration.h>
 #include <rwe/cob/CobSpeed.h>
 #include <rwe/cob/CobThread.h>
@@ -109,7 +110,11 @@ namespace rwe
             struct DisableShading
             {
             };
-            using CommandType = std::variant<Move, Turn, Spin, StopSpin, Show, Hide, EnableShading, DisableShading>;
+            struct EmitSfx
+            {
+                CobSfxType sfxType;
+            };
+            using CommandType = std::variant<Move, Turn, Spin, StopSpin, Show, Hide, EnableShading, DisableShading, EmitSfx>;
 
             unsigned int piece;
             CommandType command;

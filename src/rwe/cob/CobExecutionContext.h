@@ -3,6 +3,7 @@
 #include <rwe/cob/CobAngularSpeed.h>
 #include <rwe/cob/CobEnvironment.h>
 #include <rwe/cob/CobPosition.h>
+#include <rwe/cob/CobSfxType.h>
 #include <rwe/cob/CobSleepDuration.h>
 #include <rwe/cob/CobSpeed.h>
 #include <rwe/cob/CobValueId.h>
@@ -70,8 +71,6 @@ namespace rwe
         // control object pieces
         void explode();
 
-        void emitSmoke();
-
         void enableCaching();
 
         void disableCaching();
@@ -120,6 +119,7 @@ namespace rwe
         unsigned int popSignal();
         unsigned int popSignalMask();
         CobValueId popValueId();
+        CobSfxType popSfxType();
         void push(int val);
 
         unsigned int nextInstruction();
