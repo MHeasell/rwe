@@ -8,7 +8,7 @@ namespace rwe
         return currentTime >= startTime;
     }
 
-    unsigned int Particle::getFrameIndex(GameTime currentTime, int totalFrames) const
+    unsigned int Particle::getFrameIndex(GameTime currentTime, GameTime frameDuration, int totalFrames) const
     {
         assert(currentTime >= startTime);
         auto deltaTime = currentTime - startTime;
@@ -16,7 +16,7 @@ namespace rwe
         return frameIndex;
     }
 
-    bool Particle::isFinished(GameTime currentTime, int numberOfFrames) const
+    bool Particle::isFinished(GameTime currentTime, const ParticleFinishTime& finishTime, GameTime frameDuration, int numberOfFrames) const
     {
         auto concreteFinishTime = match(
             finishTime,

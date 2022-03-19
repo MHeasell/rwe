@@ -17,21 +17,34 @@ namespace rwe
         GameTime time;
     };
     using ParticleFinishTime = std::variant<ParticleFinishTimeEndOfFrames, ParticleFinishTimeFixedTime>;
+
+    struct ParticleRenderTypeSprite
+    {
+        std::string gafName;
+        std::string animName;
+        ParticleFinishTime finishTime;
+        GameTime frameDuration{4};
+        bool translucent{false};
+    };
+
+    struct ParticleRenderTypeWake
+    {
+        GameTime finishTime;
+    };
+
+    using ParticleRenderType = std::variant<ParticleRenderTypeSprite, ParticleRenderTypeWake>;
+
     struct Particle
     {
         Vector3f position;
-        std::string gafName;
-        std::string animName;
+        ParticleRenderType renderType;
         GameTime startTime;
-        ParticleFinishTime finishTime;
-        GameTime frameDuration{4};
 
         /** If true, the particle moves upwards each tick, as smoke. */
         bool floats{false};
-        bool translucent{false};
 
         bool isStarted(GameTime currentTime) const;
-        unsigned int getFrameIndex(GameTime currentTime, int totalFrames) const;
-        bool isFinished(GameTime currentTime, int numberOfFrames) const;
+        unsigned int getFrameIndex(GameTime currentTime, GameTime frameDuration, int totalFrames) const;
+        bool isFinished(GameTime currentTime, const ParticleFinishTime& finishTime, GameTime frameDuration, int numberOfFrames) const;
     };
 }

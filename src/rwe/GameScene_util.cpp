@@ -753,14 +753,21 @@ namespace rwe
 
     void drawParticle(const MeshDatabase& meshDatabase, GameTime currentTime, const Matrix4f& viewProjectionMatrix, const Particle& particle, SpriteBatch& batch)
     {
-        auto spriteSeries = meshDatabase.getSpriteSeries(particle.gafName, particle.animName).value();
+        auto spriteRenderInfo = std::get_if<ParticleRenderTypeSprite>(&particle.renderType);
+        if (spriteRenderInfo == nullptr)
+        {
+            // TODO: support wake render type
+            return;
+        }
 
-        if (!particle.isStarted(currentTime) || particle.isFinished(currentTime, spriteSeries->sprites.size()))
+        auto spriteSeries = meshDatabase.getSpriteSeries(spriteRenderInfo->gafName, spriteRenderInfo->animName).value();
+
+        if (!particle.isStarted(currentTime) || particle.isFinished(currentTime, spriteRenderInfo->finishTime, spriteRenderInfo->frameDuration, spriteSeries->sprites.size()))
         {
             return;
         }
 
-        auto frameIndex = particle.getFrameIndex(currentTime, spriteSeries->sprites.size());
+        auto frameIndex = particle.getFrameIndex(currentTime, spriteRenderInfo->frameDuration, spriteSeries->sprites.size());
         const auto& sprite = *spriteSeries->sprites[frameIndex];
 
         Vector3f snappedPosition(
@@ -776,7 +783,7 @@ namespace rwe
         auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix * sprite.getTransform();
         auto mvpMatrix = viewProjectionMatrix * modelMatrix;
 
-        batch.sprites.push_back(SpriteRenderInfo{&sprite, mvpMatrix, particle.translucent});
+        batch.sprites.push_back(SpriteRenderInfo{&sprite, mvpMatrix, spriteRenderInfo->translucent});
     }
 
     void updateParticles(const MeshDatabase& meshDatabase, GameTime currentTime, std::vector<Particle>& particles)
@@ -785,8 +792,17 @@ namespace rwe
         for (auto it = particles.begin(); it != end;)
         {
             auto& particle = *it;
-            const auto anim = meshDatabase.getSpriteSeries(particle.gafName, particle.animName).value();
-            if (particle.isFinished(currentTime, anim->sprites.size()))
+            auto isFinished = match(
+                particle.renderType,
+                [&](const ParticleRenderTypeSprite& s) {
+                    const auto anim = meshDatabase.getSpriteSeries(s.gafName, s.animName).value();
+                    return particle.isFinished(currentTime, s.finishTime, s.frameDuration, anim->sprites.size());
+                },
+                [&](const ParticleRenderTypeWake& w) {
+                    return currentTime >= w.finishTime;
+                });
+
+            if (isFinished)
             {
                 particle = std::move(*--end);
                 continue;

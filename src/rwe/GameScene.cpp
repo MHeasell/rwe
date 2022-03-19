@@ -3854,11 +3854,14 @@ namespace rwe
     {
         Particle particle;
         particle.position = position;
-        particle.gafName = anim.gafName;
-        particle.animName = anim.animName;
+        particle.renderType = ParticleRenderTypeSprite{
+            anim.gafName,
+            anim.animName,
+            ParticleFinishTimeEndOfFrames(),
+            GameTime(2),
+            false,
+        };
         particle.startTime = simulation.gameTime;
-        particle.finishTime = ParticleFinishTimeEndOfFrames();
-        particle.frameDuration = GameTime(2);
 
         particles.push_back(particle);
     }
@@ -3879,12 +3882,14 @@ namespace rwe
     {
         Particle particle;
         particle.position = position;
-        particle.gafName = gaf;
-        particle.animName = anim;
+        particle.renderType = ParticleRenderTypeSprite{
+            gaf,
+            anim,
+            duration,
+            frameDuration,
+            true,
+        };
         particle.startTime = simulation.gameTime;
-        particle.finishTime = duration;
-        particle.frameDuration = frameDuration;
-        particle.translucent = true;
         particle.floats = true;
 
         particles.push_back(particle);
