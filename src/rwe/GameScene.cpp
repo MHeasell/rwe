@@ -756,12 +756,15 @@ namespace rwe
         sceneContext.graphics->setActiveTextureSlot0();
         sceneContext.graphics->drawTriangles(quadMesh);
 
-        SpriteBatch particlesBatch;
+        SpriteBatch spriteParticlesBatch;
+        ColoredMeshBatch squareParticlesBatch;
         for (const auto& particle : particles)
         {
-            drawParticle(meshDatabase, simulation.gameTime, viewProjectionMatrix, particle, particlesBatch);
+            drawSpriteParticle(meshDatabase, simulation.gameTime, viewProjectionMatrix, particle, spriteParticlesBatch);
+            drawWakeParticle(meshDatabase, simulation.gameTime, viewProjectionMatrix, particle, squareParticlesBatch);
         }
-        worldRenderService.drawSpriteBatch(particlesBatch);
+        worldRenderService.drawSpriteBatch(spriteParticlesBatch);
+        worldRenderService.drawBatch(squareParticlesBatch, viewProjectionMatrix);
         sceneContext.graphics->enableDepthTest();
 
         sceneContext.graphics->enableDepthWrites();

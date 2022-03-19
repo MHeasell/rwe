@@ -751,12 +751,33 @@ namespace rwe
         pushLine(batch.lines, start, end, Vector3f(0.0f, 1.0f, 0.0f));
     }
 
-    void drawParticle(const MeshDatabase& meshDatabase, GameTime currentTime, const Matrix4f& viewProjectionMatrix, const Particle& particle, SpriteBatch& batch)
+    void drawWakeParticle(const MeshDatabase& meshDatabase, GameTime currentTime, const Matrix4f& viewProjectionMatrix, const Particle& particle, ColoredMeshBatch& batch)
+    {
+        auto wakeRenderInfo = std::get_if<ParticleRenderTypeWake>(&particle.renderType);
+        if (wakeRenderInfo == nullptr)
+        {
+            return;
+        }
+
+        if (!particle.isStarted(currentTime) || currentTime >= wakeRenderInfo->finishTime)
+        {
+            return;
+        }
+
+        const auto topLeft = particle.position + Vector3f(-0.5f, 0.0f, 0.0f);
+        const auto topRight = particle.position + Vector3f(0.5f, 0.0f, 0.0f);
+        const auto bottomLeft = particle.position + Vector3f(0.0f, 0.0f, -0.5f);
+        const auto bottomRight = particle.position + Vector3f(0.0f, 0.0f, 0.5f);
+
+        pushTriangle(batch.triangles, topLeft, bottomLeft, bottomRight);
+        pushTriangle(batch.triangles, topLeft, bottomRight, topRight);
+    }
+
+    void drawSpriteParticle(const MeshDatabase& meshDatabase, GameTime currentTime, const Matrix4f& viewProjectionMatrix, const Particle& particle, SpriteBatch& batch)
     {
         auto spriteRenderInfo = std::get_if<ParticleRenderTypeSprite>(&particle.renderType);
         if (spriteRenderInfo == nullptr)
         {
-            // TODO: support wake render type
             return;
         }
 

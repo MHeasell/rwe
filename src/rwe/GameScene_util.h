@@ -79,7 +79,9 @@ namespace rwe
 
     void drawNanoLine(const Vector3f& start, const Vector3f& end, ColoredMeshBatch& batch);
 
-    void drawParticle(const MeshDatabase& meshDatabase, GameTime currentTime, const Matrix4f& viewProjectionMatrix, const Particle& particle, SpriteBatch& batch);
+    void drawSpriteParticle(const MeshDatabase& meshDatabase, GameTime currentTime, const Matrix4f& viewProjectionMatrix, const Particle& particle, SpriteBatch& batch);
+
+    void drawWakeParticle(const MeshDatabase& meshDatabase, GameTime currentTime, const Matrix4f& viewProjectionMatrix, const Particle& particle, ColoredMeshBatch& batch);
 
     void updateParticles(const MeshDatabase& meshDatabase, GameTime currentTime, std::vector<Particle>& particles);
 }
