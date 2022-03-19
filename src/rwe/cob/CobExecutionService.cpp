@@ -192,7 +192,7 @@ namespace rwe
             },
             [&](const CobEnvironment::QueryStatus::Health&) {
                 const auto& unit = sim.getUnit(unitId);
-                return static_cast<int>(unit.hitPoints / unit.maxHitPoints);
+                return static_cast<int>((unit.hitPoints * 100) / unit.maxHitPoints);
             },
             [&](const CobEnvironment::QueryStatus::InBuildStance&) {
                 const auto& unit = sim.getUnit(unitId);
