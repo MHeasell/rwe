@@ -500,8 +500,6 @@ set(SOURCE_FILES
     src/rwe/rwe_time.cpp
     src/rwe/rwe_time.h
     src/rwe/sim/Energy.h
-    src/rwe/sim/Explosion.cpp
-    src/rwe/sim/Explosion.h
     src/rwe/sim/FeatureDefinition.cpp
     src/rwe/sim/FeatureDefinition.h
     src/rwe/sim/FeatureDefinitionId.h
@@ -520,6 +518,8 @@ set(SOURCE_FILES
     src/rwe/sim/MovementClassId.h
     src/rwe/sim/OccupiedGrid.cpp
     src/rwe/sim/OccupiedGrid.h
+    src/rwe/sim/Particle.cpp
+    src/rwe/sim/Particle.h
     src/rwe/sim/PlayerId.h
     src/rwe/sim/Projectile.cpp
     src/rwe/sim/Projectile.h

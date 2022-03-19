@@ -285,7 +285,7 @@ namespace rwe
         std::mutex playingUnitChannelsLock;
         std::unordered_set<int> playingUnitChannels;
 
-        std::vector<Explosion> explosions;
+        std::vector<Particle> particles;
 
         int millisecondsBuffer{0};
 
@@ -599,7 +599,7 @@ namespace rwe
 
         void spawnFlash(const Vector3f& position);
 
-        void spawnSmoke(const Vector3f& position, const std::string& gaf, const std::string& anim, ExplosionFinishTime duration, GameTime frameDuration);
+        void spawnSmoke(const Vector3f& position, const std::string& gaf, const std::string& anim, ParticleFinishTime duration, GameTime frameDuration);
 
         void recreateWorldRenderTextures();
     };

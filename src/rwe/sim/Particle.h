@@ -9,21 +9,21 @@
 
 namespace rwe
 {
-    struct ExplosionFinishTimeEndOfFrames
+    struct ParticleFinishTimeEndOfFrames
     {
     };
-    struct ExplosionFinishTimeFixedTime
+    struct ParticleFinishTimeFixedTime
     {
         GameTime time;
     };
-    using ExplosionFinishTime = std::variant<ExplosionFinishTimeEndOfFrames, ExplosionFinishTimeFixedTime>;
-    struct Explosion
+    using ParticleFinishTime = std::variant<ParticleFinishTimeEndOfFrames, ParticleFinishTimeFixedTime>;
+    struct Particle
     {
         Vector3f position;
-        std::string explosionGaf;
-        std::string explosionAnim;
+        std::string gafName;
+        std::string animName;
         GameTime startTime;
-        ExplosionFinishTime finishTime;
+        ParticleFinishTime finishTime;
         GameTime frameDuration{4};
 
         /** If true, the particle moves upwards each tick, as smoke. */

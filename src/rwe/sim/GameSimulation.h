@@ -4,13 +4,13 @@
 #include <rwe/GameHash.h>
 #include <rwe/PlayerColorIndex.h>
 #include <rwe/VectorMap.h>
-#include <rwe/sim/Explosion.h>
 #include <rwe/sim/FeatureDefinition.h>
 #include <rwe/sim/FeatureId.h>
 #include <rwe/sim/GameTime.h>
 #include <rwe/sim/MapFeature.h>
 #include <rwe/sim/MapTerrain.h>
 #include <rwe/sim/OccupiedGrid.h>
+#include <rwe/sim/Particle.h>
 #include <rwe/sim/PlayerId.h>
 #include <rwe/sim/Projectile.h>
 #include <rwe/sim/ProjectileId.h>

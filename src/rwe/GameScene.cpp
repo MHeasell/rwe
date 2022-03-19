@@ -756,12 +756,12 @@ namespace rwe
         sceneContext.graphics->setActiveTextureSlot0();
         sceneContext.graphics->drawTriangles(quadMesh);
 
-        SpriteBatch explosionsBatch;
-        for (const auto& exp : explosions)
+        SpriteBatch particlesBatch;
+        for (const auto& particle : particles)
         {
-            drawExplosion(meshDatabase, simulation.gameTime, viewProjectionMatrix, exp, explosionsBatch);
+            drawParticle(meshDatabase, simulation.gameTime, viewProjectionMatrix, particle, particlesBatch);
         }
-        worldRenderService.drawSpriteBatch(explosionsBatch);
+        worldRenderService.drawSpriteBatch(particlesBatch);
         sceneContext.graphics->enableDepthTest();
 
         sceneContext.graphics->enableDepthWrites();
@@ -2383,7 +2383,7 @@ namespace rwe
 
         updateFlashes();
 
-        updateExplosions(meshDatabase, simulation.gameTime, explosions);
+        updateParticles(meshDatabase, simulation.gameTime, particles);
 
         // if a commander died this frame, kill the player that owns it
         for (const auto& p : simulation.units)
@@ -2982,13 +2982,13 @@ namespace rwe
 
     void GameScene::createLightSmoke(const Vector3f& position)
     {
-        spawnSmoke(position, "FX", "smoke 1", ExplosionFinishTimeEndOfFrames(), GameTime(2));
+        spawnSmoke(position, "FX", "smoke 1", ParticleFinishTimeEndOfFrames(), GameTime(2));
     }
 
     void GameScene::createWeaponSmoke(const Vector3f& position)
     {
         auto anim = sceneContext.textureService->getGafEntry("anims/FX.GAF", "smoke 1");
-        spawnSmoke(position, "FX", "smoke 1", ExplosionFinishTimeFixedTime{simulation.gameTime + GameTime(30)}, GameTime(15));
+        spawnSmoke(position, "FX", "smoke 1", ParticleFinishTimeFixedTime{simulation.gameTime + GameTime(30)}, GameTime(15));
     }
 
     void GameScene::activateUnit(UnitId unitId)
@@ -3852,15 +3852,15 @@ namespace rwe
 
     void GameScene::spawnExplosion(const Vector3f& position, const AnimLocation& anim)
     {
-        Explosion exp;
-        exp.position = position;
-        exp.explosionGaf = anim.gafName;
-        exp.explosionAnim = anim.animName;
-        exp.startTime = simulation.gameTime;
-        exp.finishTime = ExplosionFinishTimeEndOfFrames();
-        exp.frameDuration = GameTime(2);
+        Particle particle;
+        particle.position = position;
+        particle.gafName = anim.gafName;
+        particle.animName = anim.animName;
+        particle.startTime = simulation.gameTime;
+        particle.finishTime = ParticleFinishTimeEndOfFrames();
+        particle.frameDuration = GameTime(2);
 
-        explosions.push_back(exp);
+        particles.push_back(particle);
     }
 
     void GameScene::spawnFlash(const Vector3f& position)
@@ -3875,19 +3875,19 @@ namespace rwe
         flashes.push_back(flash);
     }
 
-    void GameScene::spawnSmoke(const Vector3f& position, const std::string& gaf, const std::string& anim, ExplosionFinishTime duration, GameTime frameDuration)
+    void GameScene::spawnSmoke(const Vector3f& position, const std::string& gaf, const std::string& anim, ParticleFinishTime duration, GameTime frameDuration)
     {
-        Explosion exp;
-        exp.position = position;
-        exp.explosionGaf = gaf;
-        exp.explosionAnim = anim;
-        exp.startTime = simulation.gameTime;
-        exp.finishTime = duration;
-        exp.frameDuration = frameDuration;
-        exp.translucent = true;
-        exp.floats = true;
+        Particle particle;
+        particle.position = position;
+        particle.gafName = gaf;
+        particle.animName = anim;
+        particle.startTime = simulation.gameTime;
+        particle.finishTime = duration;
+        particle.frameDuration = frameDuration;
+        particle.translucent = true;
+        particle.floats = true;
 
-        explosions.push_back(exp);
+        particles.push_back(particle);
     }
 
     void GameScene::recreateWorldRenderTextures()

@@ -12,9 +12,9 @@
 #include <rwe/pathfinding/OctileDistance.h>
 #include <rwe/pathfinding/PathCost.h>
 #include <rwe/render/GraphicsContext.h>
-#include <rwe/sim/Explosion.h>
 #include <rwe/sim/GameTime.h>
 #include <rwe/sim/OccupiedGrid.h>
+#include <rwe/sim/Particle.h>
 #include <rwe/sim/Projectile.h>
 #include <rwe/sim/ProjectileId.h>
 #include <rwe/sim/Unit.h>

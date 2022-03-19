@@ -751,22 +751,22 @@ namespace rwe
         pushLine(batch.lines, start, end, Vector3f(0.0f, 1.0f, 0.0f));
     }
 
-    void drawExplosion(const MeshDatabase& meshDatabase, GameTime currentTime, const Matrix4f& viewProjectionMatrix, const Explosion& exp, SpriteBatch& batch)
+    void drawParticle(const MeshDatabase& meshDatabase, GameTime currentTime, const Matrix4f& viewProjectionMatrix, const Particle& particle, SpriteBatch& batch)
     {
-        auto spriteSeries = meshDatabase.getSpriteSeries(exp.explosionGaf, exp.explosionAnim).value();
+        auto spriteSeries = meshDatabase.getSpriteSeries(particle.gafName, particle.animName).value();
 
-        if (!exp.isStarted(currentTime) || exp.isFinished(currentTime, spriteSeries->sprites.size()))
+        if (!particle.isStarted(currentTime) || particle.isFinished(currentTime, spriteSeries->sprites.size()))
         {
             return;
         }
 
-        auto frameIndex = exp.getFrameIndex(currentTime, spriteSeries->sprites.size());
+        auto frameIndex = particle.getFrameIndex(currentTime, spriteSeries->sprites.size());
         const auto& sprite = *spriteSeries->sprites[frameIndex];
 
         Vector3f snappedPosition(
-            std::round(exp.position.x),
-            truncateToInterval(exp.position.y, 2.0f),
-            std::round(exp.position.z));
+            std::round(particle.position.x),
+            truncateToInterval(particle.position.y, 2.0f),
+            std::round(particle.position.z));
 
         // Convert to a model position that makes sense in the game world.
         // For standing (blocking) features we stretch y-dimension values by 2x
@@ -776,30 +776,30 @@ namespace rwe
         auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix * sprite.getTransform();
         auto mvpMatrix = viewProjectionMatrix * modelMatrix;
 
-        batch.sprites.push_back(SpriteRenderInfo{&sprite, mvpMatrix, exp.translucent});
+        batch.sprites.push_back(SpriteRenderInfo{&sprite, mvpMatrix, particle.translucent});
     }
 
-    void updateExplosions(const MeshDatabase& meshDatabase, GameTime currentTime, std::vector<Explosion>& explosions)
+    void updateParticles(const MeshDatabase& meshDatabase, GameTime currentTime, std::vector<Particle>& particles)
     {
-        auto end = explosions.end();
-        for (auto it = explosions.begin(); it != end;)
+        auto end = particles.end();
+        for (auto it = particles.begin(); it != end;)
         {
-            auto& exp = *it;
-            const auto anim = meshDatabase.getSpriteSeries(exp.explosionGaf, exp.explosionAnim).value();
-            if (exp.isFinished(currentTime, anim->sprites.size()))
+            auto& particle = *it;
+            const auto anim = meshDatabase.getSpriteSeries(particle.gafName, particle.animName).value();
+            if (particle.isFinished(currentTime, anim->sprites.size()))
             {
-                exp = std::move(*--end);
+                particle = std::move(*--end);
                 continue;
             }
 
-            if (exp.floats)
+            if (particle.floats)
             {
                 // TODO: drift with the wind
-                exp.position.y += 0.5f;
+                particle.position.y += 0.5f;
             }
 
             ++it;
         }
-        explosions.erase(end, explosions.end());
+        particles.erase(end, particles.end());
     }
 }
