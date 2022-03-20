@@ -37,11 +37,9 @@ namespace rwe
     struct Particle
     {
         Vector3f position;
+        Vector3f velocity;
         ParticleRenderType renderType;
         GameTime startTime;
-
-        /** If true, the particle moves upwards each tick, as smoke. */
-        bool floats{false};
 
         bool isStarted(GameTime currentTime) const;
         unsigned int getFrameIndex(GameTime currentTime, GameTime frameDuration, int totalFrames) const;

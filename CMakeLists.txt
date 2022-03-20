@@ -311,6 +311,8 @@ set(SOURCE_FILES
     src/rwe/UnitFactory.h
     src/rwe/UnitModelDefinition.cpp
     src/rwe/UnitModelDefinition.h
+    src/rwe/UnitPieceMeshInfo.cpp
+    src/rwe/UnitPieceMeshInfo.h
     src/rwe/UnitSoundType.h
     src/rwe/VectorMap.cpp
     src/rwe/VectorMap.h

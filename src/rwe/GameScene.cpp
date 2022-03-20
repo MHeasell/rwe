@@ -1996,6 +1996,14 @@ namespace rwe
         return getPieceTransform(pieceName, modelDef, unit.pieces);
     }
 
+    Matrix4x<SimScalar> GameScene::getUnitPieceTransform(UnitId unitId, const std::string& pieceName) const
+    {
+        const auto& unit = getUnit(unitId);
+        const auto& modelDef = unitDatabase.getUnitModelDefinition(unit.objectName).value().get();
+        auto pieceTransform = getPieceTransform(pieceName, modelDef, unit.pieces);
+        return unit.getTransform() * pieceTransform;
+    }
+
     SimVector GameScene::getUnitPiecePosition(UnitId unitId, const std::string& pieceName) const
     {
         const auto& unit = getUnit(unitId);
@@ -3002,6 +3010,18 @@ namespace rwe
         spawnSmoke(simVectorToFloat(position), "FX", "smoke 2", ParticleFinishTimeEndOfFrames(), GameTime(2));
     }
 
+    void GameScene::emitWake1FromPiece(UnitId unitId, const std::string& pieceName)
+    {
+        const auto& unit = getUnit(unitId);
+        auto pieceTransform = toFloatMatrix(getUnitPieceTransform(unitId, pieceName));
+        const auto& pieceMesh = meshDatabase.getUnitPieceMesh(unit.objectName, pieceName).value().get();
+        auto spawnPosition = pieceTransform * pieceMesh.firstVertexPosition;
+        auto otherVertexPosition = pieceTransform * pieceMesh.secondVertexPosition;
+        auto velocity = (otherVertexPosition - spawnPosition) / 30.0f;
+
+        spawnWake(spawnPosition, velocity, GameTime(30));
+    }
+
     void GameScene::activateUnit(UnitId unitId)
     {
         auto unit = tryGetUnit(unitId);
@@ -3865,6 +3885,7 @@ namespace rwe
     {
         Particle particle;
         particle.position = position;
+        particle.velocity = Vector3f(0.0f, 0.0f, 0.0f);
         particle.renderType = ParticleRenderTypeSprite{
             anim.gafName,
             anim.animName,
@@ -3893,6 +3914,7 @@ namespace rwe
     {
         Particle particle;
         particle.position = position;
+        particle.velocity = Vector3f(0.0f, 0.5f, 0.0f);
         particle.renderType = ParticleRenderTypeSprite{
             gaf,
             anim,
@@ -3901,7 +3923,18 @@ namespace rwe
             true,
         };
         particle.startTime = simulation.gameTime;
-        particle.floats = true;
+
+        particles.push_back(particle);
+    }
+
+    void GameScene::spawnWake(const Vector3f& position, const Vector3f& velocity, GameTime duration)
+    {
+        Particle particle;
+        particle.position = position;
+        particle.velocity = velocity;
+        particle.renderType = ParticleRenderTypeWake{
+            simulation.gameTime + duration};
+        particle.startTime = simulation.gameTime;
 
         particles.push_back(particle);
     }

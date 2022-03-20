@@ -365,6 +365,8 @@ namespace rwe
 
         Matrix4x<SimScalar> getUnitPieceLocalTransform(UnitId unitId, const std::string& pieceName) const;
 
+        Matrix4x<SimScalar> getUnitPieceTransform(UnitId unitId, const std::string& pieceName) const;
+
         SimVector getUnitPiecePosition(UnitId unitId, const std::string& pieceName) const;
 
         GameTime getGameTime() const;
@@ -405,6 +407,8 @@ namespace rwe
         void emitLightSmokeFromPiece(UnitId unitId, const std::string& pieceName);
 
         void emitBlackSmokeFromPiece(UnitId unitId, const std::string& pieceName);
+
+        void emitWake1FromPiece(UnitId unitId, const std::string& pieceName);
 
         void activateUnit(UnitId unitId);
         void deactivateUnit(UnitId unitId);
@@ -604,6 +608,8 @@ namespace rwe
         void spawnFlash(const Vector3f& position);
 
         void spawnSmoke(const Vector3f& position, const std::string& gaf, const std::string& anim, ParticleFinishTime duration, GameTime frameDuration);
+
+        void spawnWake(const Vector3f& position, const Vector3f& velocity, GameTime duration);
 
         void recreateWorldRenderTextures();
     };

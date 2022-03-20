@@ -158,9 +158,11 @@ namespace rwe
                     case CobSfxType::BlackSmoke:
                         scene.emitBlackSmokeFromPiece(unitId, objectName);
                         break;
+                    case CobSfxType::Wake1:
+                        scene.emitWake1FromPiece(unitId, objectName);
+                        break;
                     case CobSfxType::Vtol:
                     case CobSfxType::Thrust:
-                    case CobSfxType::Wake1:
                     case CobSfxType::Wake2:
                     case CobSfxType::ReverseWake1:
                     case CobSfxType::ReverseWake2:

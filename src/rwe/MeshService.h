@@ -6,6 +6,7 @@
 #include <rwe/SelectionMesh.h>
 #include <rwe/TextureService.h>
 #include <rwe/UnitModelDefinition.h>
+#include <rwe/UnitPieceMeshInfo.h>
 #include <rwe/io/_3do/_3do.h>
 #include <rwe/render/ShaderMesh.h>
 #include <rwe/sim/UnitMesh.h>
@@ -34,14 +35,14 @@ namespace rwe
         struct UnitMeshInfo
         {
             UnitModelDefinition modelDefinition;
-            std::vector<std::pair<std::string, std::shared_ptr<ShaderMesh>>> pieceMeshes;
+            std::vector<std::pair<std::string, UnitPieceMeshInfo>> pieceMeshes;
             SelectionMesh selectionMesh;
         };
 
         struct ProjectileMeshInfo
         {
             UnitModelDefinition modelDefinition;
-            std::vector<std::pair<std::string, std::shared_ptr<ShaderMesh>>> pieceMeshes;
+            std::vector<std::pair<std::string, UnitPieceMeshInfo>> pieceMeshes;
         };
 
         UnitMeshInfo loadUnitMesh(const std::string& name);
@@ -56,7 +57,7 @@ namespace rwe
         TextureRegionInfo getTextureRegion(const std::string& name);
         Vector2f getColorTexturePoint(unsigned int colorIndex);
 
-        void extractMeshes(const _3do::Object& o, std::vector<std::pair<std::string, std::shared_ptr<ShaderMesh>>>& v);
+        void extractMeshes(const _3do::Object& o, std::vector<std::pair<std::string, UnitPieceMeshInfo>>& v);
 
         Mesh meshFrom3do(const _3do::Object& o);
 

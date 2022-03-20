@@ -7,10 +7,10 @@
 #include <rwe/FeatureMediaInfo.h>
 #include <rwe/SimpleVectorMap.h>
 #include <rwe/SoundClass.h>
+#include <rwe/UnitPieceMeshInfo.h>
 #include <rwe/WeaponMediaInfo.h>
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/render/GlMesh.h>
-#include <rwe/render/ShaderMesh.h>
 #include <rwe/render/SpriteSeries.h>
 #include <rwe/rwe_string.h>
 #include <rwe/sim/FeatureDefinitionId.h>
@@ -59,7 +59,7 @@ namespace rwe
         };
 
     private:
-        std::unordered_map<std::pair<std::string, std::string>, std::shared_ptr<ShaderMesh>, CaseInsensitivePairHash, CaseInsensitivePairEquals> unitPieceMeshesMap;
+        std::unordered_map<std::pair<std::string, std::string>, UnitPieceMeshInfo, CaseInsensitivePairHash, CaseInsensitivePairEquals> unitPieceMeshesMap;
         std::unordered_map<std::string, std::shared_ptr<GlMesh>, CaseInsensitiveHash, CaseInsensitiveEquals> selectionMeshesMap;
 
         std::unordered_map<std::pair<std::string, std::string>, std::shared_ptr<SpriteSeries>, CaseInsensitivePairHash, CaseInsensitivePairEquals> spritesMap;
@@ -75,9 +75,9 @@ namespace rwe
         SimpleVectorMap<FeatureMediaInfo, FeatureDefinitionIdTag> featureMap;
 
     public:
-        void addUnitPieceMesh(const std::string& unitName, const std::string& pieceName, std::shared_ptr<ShaderMesh> pieceMesh);
+        void addUnitPieceMesh(const std::string& unitName, const std::string& pieceName, const UnitPieceMeshInfo& pieceMesh);
 
-        std::optional<std::shared_ptr<ShaderMesh>> getUnitPieceMesh(const std::string& objectName, const std::string& pieceName) const;
+        std::optional<std::reference_wrapper<const UnitPieceMeshInfo>> getUnitPieceMesh(const std::string& objectName, const std::string& pieceName) const;
 
         std::optional<std::shared_ptr<GlMesh>> getSelectionMesh(const std::string& objectName) const;
 

@@ -125,10 +125,14 @@ namespace rwe
         return unitMeshFrom3do(o, std::nullopt);
     }
 
-    void MeshService::extractMeshes(const _3do::Object& o, std::vector<std::pair<std::string, std::shared_ptr<ShaderMesh>>>& v)
+    void MeshService::extractMeshes(const _3do::Object& o, std::vector<std::pair<std::string, UnitPieceMeshInfo>>& v)
     {
+        auto firstVertex = o.vertices.size() > 0 ? vertexToVector(o.vertices[0]) : Vector3f(0.0f, 0.0f, 0.0f);
+        auto secondVertex = o.vertices.size() > 1 ? vertexToVector(o.vertices[1]) : Vector3f(1.0f, 0.0f, 0.0f);
         auto mesh = meshFrom3do(o);
-        v.emplace_back(o.name, std::make_shared<ShaderMesh>(convertMesh(mesh)));
+        auto shaderMesh = convertMesh(mesh);
+
+        v.push_back(std::make_pair(o.name, UnitPieceMeshInfo{std::make_shared<ShaderMesh>(std::move(shaderMesh)), firstVertex, secondVertex}));
 
         for (const auto& c : o.children)
         {
@@ -153,7 +157,7 @@ namespace rwe
             simScalarFromFixed(findHighestVertex(objects.front()).y),
             unitMeshFrom3do(objects.front()));
 
-        std::vector<std::pair<std::string, std::shared_ptr<ShaderMesh>>> meshes;
+        std::vector<std::pair<std::string, UnitPieceMeshInfo>> meshes;
         extractMeshes(objects.front(), meshes);
 
         return UnitMeshInfo{std::move(d), std::move(meshes), std::move(selectionMesh)};
@@ -175,7 +179,7 @@ namespace rwe
             simScalarFromFixed(findHighestVertex(objects.front()).y),
             unitMeshFrom3do(objects.front()));
 
-        std::vector<std::pair<std::string, std::shared_ptr<ShaderMesh>>> meshes;
+        std::vector<std::pair<std::string, UnitPieceMeshInfo>> meshes;
         extractMeshes(objects.front(), meshes);
 
         return ProjectileMeshInfo{std::move(d), std::move(meshes)};

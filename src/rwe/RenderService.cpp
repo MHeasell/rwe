@@ -83,7 +83,7 @@ namespace rwe
         for (const auto& pieceDef : modelDefinition->get().pieces)
         {
             auto matrix = modelMatrix * getPieceTransform(pieceDef.name, modelDefinition->get());
-            const auto& resolvedMesh = *meshDatabase->getUnitPieceMesh(objectName, pieceDef.name).value();
+            const auto& resolvedMesh = *meshDatabase->getUnitPieceMesh(objectName, pieceDef.name).value().get().mesh;
             drawShaderMesh(resolvedMesh, matrix, seaLevel, shaded, playerColorIndex);
         }
     }

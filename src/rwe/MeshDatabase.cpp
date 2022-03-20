@@ -17,12 +17,12 @@ namespace rwe
         return it->second;
     }
 
-    void MeshDatabase::addUnitPieceMesh(const std::string& unitName, const std::string& pieceName, std::shared_ptr<ShaderMesh> pieceMesh)
+    void MeshDatabase::addUnitPieceMesh(const std::string& unitName, const std::string& pieceName, const UnitPieceMeshInfo& pieceMesh)
     {
         unitPieceMeshesMap.insert({{unitName, pieceName}, pieceMesh});
     }
 
-    std::optional<std::shared_ptr<ShaderMesh>> MeshDatabase::getUnitPieceMesh(const std::string& objectName, const std::string& pieceName) const
+    std::optional<std::reference_wrapper<const UnitPieceMeshInfo>> MeshDatabase::getUnitPieceMesh(const std::string& objectName, const std::string& pieceName) const
     {
         auto it = unitPieceMeshesMap.find({objectName, pieceName});
         if (it == unitPieceMeshesMap.end())

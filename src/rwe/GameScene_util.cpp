@@ -433,7 +433,7 @@ namespace rwe
 
             auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition->get(), meshes, frac);
 
-            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
+            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value().get().mesh;
             drawShaderMesh(viewProjectionMatrix, resolvedMesh, matrix, mesh.shaded, playerColorIndex, unitTextureAtlas, unitTeamTextureAtlases, batch.meshes);
         }
     }
@@ -469,7 +469,7 @@ namespace rwe
 
             auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition->get(), meshes, frac);
 
-            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
+            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value().get().mesh;
             drawShaderMeshShadow(viewProjectionMatrix, resolvedMesh, matrix, groundHeight, unitTextureAtlas, unitTeamTextureAtlases, batch.meshes);
         }
     }
@@ -497,7 +497,7 @@ namespace rwe
 
             auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition->get());
 
-            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
+            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value().get().mesh;
             drawShaderMeshShadow(viewProjectionMatrix, resolvedMesh, matrix, groundHeight, unitTextureAtlas, unitTeamTextureAtlases, batch.meshes);
         }
     }
@@ -557,7 +557,7 @@ namespace rwe
 
             auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition->get(), meshes, frac);
 
-            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
+            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value().get().mesh;
             drawBuildingShaderMesh(viewProjectionMatrix, resolvedMesh, matrix, mesh.shaded, percentComplete, unitY, playerColorIndex, unitTextureAtlas, unitTeamTextureAtlases, batch.buildingMeshes);
         }
     }
@@ -583,7 +583,7 @@ namespace rwe
         for (const auto& pieceDef : modelDefinition->get().pieces)
         {
             auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition->get());
-            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value();
+            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value().get().mesh;
             drawShaderMesh(viewProjectionMatrix, resolvedMesh, matrix, shaded, playerColorIndex, unitTextureAtlas, unitTeamTextureAtlases, batch.meshes);
         }
     }
@@ -764,10 +764,10 @@ namespace rwe
             return;
         }
 
-        const auto topLeft = particle.position + Vector3f(-0.5f, 0.0f, 0.0f);
-        const auto topRight = particle.position + Vector3f(0.5f, 0.0f, 0.0f);
-        const auto bottomLeft = particle.position + Vector3f(0.0f, 0.0f, -0.5f);
-        const auto bottomRight = particle.position + Vector3f(0.0f, 0.0f, 0.5f);
+        const auto topLeft = particle.position + Vector3f(-1.5f, 0.0f, -1.5f);
+        const auto topRight = particle.position + Vector3f(1.5f, 0.0f, -1.5f);
+        const auto bottomLeft = particle.position + Vector3f(-1.5f, 0.0f, 1.5f);
+        const auto bottomRight = particle.position + Vector3f(1.5f, 0.0f, 1.5f);
 
         pushTriangle(batch.triangles, topLeft, bottomLeft, bottomRight);
         pushTriangle(batch.triangles, topLeft, bottomRight, topRight);
@@ -829,11 +829,7 @@ namespace rwe
                 continue;
             }
 
-            if (particle.floats)
-            {
-                // TODO: drift with the wind
-                particle.position.y += 0.5f;
-            }
+            particle.position += particle.velocity;
 
             ++it;
         }
