@@ -629,6 +629,13 @@ namespace rwe
         worldRenderService.drawSpriteBatch(flatFeatureShadowBatch);
         worldRenderService.drawSpriteBatch(flatFeatureBatch);
 
+        ColoredMeshBatch squareParticlesBatch;
+        for (const auto& particle : particles)
+        {
+            drawWakeParticle(meshDatabase, simulation.gameTime, viewProjectionMatrix, particle, squareParticlesBatch);
+        }
+        worldRenderService.drawBatch(squareParticlesBatch, viewProjectionMatrix);
+
         ColoredMeshBatch terrainOverlayBatch;
 
         if (occupiedGridVisible)
@@ -753,14 +760,11 @@ namespace rwe
         sceneContext.graphics->drawTriangles(quadMesh);
 
         SpriteBatch spriteParticlesBatch;
-        ColoredMeshBatch squareParticlesBatch;
         for (const auto& particle : particles)
         {
             drawSpriteParticle(meshDatabase, simulation.gameTime, viewProjectionMatrix, particle, spriteParticlesBatch);
-            drawWakeParticle(meshDatabase, simulation.gameTime, viewProjectionMatrix, particle, squareParticlesBatch);
         }
         worldRenderService.drawSpriteBatch(spriteParticlesBatch);
-        worldRenderService.drawBatch(squareParticlesBatch, viewProjectionMatrix);
         sceneContext.graphics->enableDepthTest();
 
         sceneContext.graphics->enableDepthWrites();
