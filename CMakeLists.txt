@@ -158,7 +158,9 @@ else()
     find_package(PNG REQUIRED)
     find_windows_dll(PNG_DLL "libpng16-16.dll")
 
-    find_windows_dll(FLAC_DLL "libFLAC-8.dll")
+    find_windows_dll(FLAC_DLL "libFLAC.dll")
+    find_windows_dll(JBIG_DLL "libjbig-0.dll")
+    find_windows_dll(LERC_DLL "libLerc.dll")
     find_windows_dll(JPEG_DLL "libjpeg-8.dll")
     find_windows_dll(MPG_DLL "libmpg123-0.dll")
     find_windows_dll(OGG_DLL "libogg-0.dll")
@@ -652,6 +654,8 @@ if(WIN32 AND NOT MSVC)
     target_copy_file(librwe ${MODPLUG_DLL}) # MSYS2 SDL2_mixer depends on modplug
     target_copy_file(librwe ${OPUSFILE_DLL}) # MSYS2 SDL2_mixer depends on opusfile
     target_copy_file(librwe ${SSP_DLL}) # MSYS2 SDL2_mixer libflac depends on ssp
+    target_copy_file(librwe ${JBIG_DLL}) # MSYS2 SDL2_image depends on jbig
+    target_copy_file(librwe ${LERC_DLL}) # MSYS2 SDL2_image depends on Lerc
     target_copy_file(librwe ${OPUS_DLL})
     target_copy_file(librwe ${READLINE_DLL})
     target_copy_file(librwe ${SNDFILE_DLL})
