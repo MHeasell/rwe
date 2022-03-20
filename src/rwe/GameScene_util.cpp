@@ -764,13 +764,19 @@ namespace rwe
             return;
         }
 
-        const auto topLeft = particle.position + Vector3f(-1.5f, 0.0f, -1.5f);
-        const auto topRight = particle.position + Vector3f(1.5f, 0.0f, -1.5f);
-        const auto bottomLeft = particle.position + Vector3f(-1.5f, 0.0f, 1.5f);
-        const auto bottomRight = particle.position + Vector3f(1.5f, 0.0f, 1.5f);
+        const auto topLeft = particle.position + Vector3f(-1.0f, 0.0f, -1.0f);
+        const auto topRight = particle.position + Vector3f(1.0f, 0.0f, -1.0f);
+        const auto bottomLeft = particle.position + Vector3f(-1.0f, 0.0f, 1.0f);
+        const auto bottomRight = particle.position + Vector3f(1.0f, 0.0f, 1.0f);
 
-        pushTriangle(batch.triangles, topLeft, bottomLeft, bottomRight);
-        pushTriangle(batch.triangles, topLeft, bottomRight, topRight);
+        Vector3f startColor(1.0f, 1.0f, 1.0f);
+        Vector3f finishColor(0.4f, 0.5f, 1.0f);
+        auto duration = wakeRenderInfo->finishTime - particle.startTime;
+        auto timeElapsed = currentTime - particle.startTime;
+        auto color = lerp(startColor, finishColor, static_cast<float>(timeElapsed.value) / static_cast<float>(duration.value));
+
+        pushTriangle(batch.triangles, topLeft, bottomLeft, bottomRight, color);
+        pushTriangle(batch.triangles, topLeft, bottomRight, topRight, color);
     }
 
     void drawSpriteParticle(const MeshDatabase& meshDatabase, GameTime currentTime, const Matrix4f& viewProjectionMatrix, const Particle& particle, SpriteBatch& batch)

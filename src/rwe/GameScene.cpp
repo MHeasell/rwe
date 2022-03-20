@@ -3014,6 +3014,11 @@ namespace rwe
         spawnSmoke(simVectorToFloat(position), "FX", "smoke 2", ParticleFinishTimeEndOfFrames(), GameTime(2));
     }
 
+    float randomFloat(float low, float high)
+    {
+        return low + ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * (high - low));
+    }
+
     void GameScene::emitWake1FromPiece(UnitId unitId, const std::string& pieceName)
     {
         const auto& unit = getUnit(unitId);
@@ -3021,9 +3026,26 @@ namespace rwe
         const auto& pieceMesh = meshDatabase.getUnitPieceMesh(unit.objectName, pieceName).value().get();
         auto spawnPosition = pieceTransform * pieceMesh.firstVertexPosition;
         auto otherVertexPosition = pieceTransform * pieceMesh.secondVertexPosition;
-        auto velocity = (otherVertexPosition - spawnPosition) / 30.0f;
 
-        spawnWake(spawnPosition, velocity, GameTime(30));
+        // Travel at around 10px per second -- so 1/3rd of a pixel per tick.
+        // Last for about 4 seconds, travelling 40 pixels in total.
+        auto velocity = (otherVertexPosition - spawnPosition).normalized() / 3.0f;
+        auto duration = GameTime(120);
+
+        const auto variation = 4.0f;
+
+        auto spawnPosition1 = Vector3f(
+            spawnPosition.x + randomFloat(-variation, variation),
+            spawnPosition.y,
+            spawnPosition.z + randomFloat(-variation, variation));
+
+        auto spawnPosition2 = Vector3f(
+            spawnPosition.x + randomFloat(-variation, variation),
+            spawnPosition.y,
+            spawnPosition.z + randomFloat(-variation, variation));
+
+        spawnWake(spawnPosition1, velocity, duration);
+        spawnWake(spawnPosition2, velocity, duration);
     }
 
     void GameScene::activateUnit(UnitId unitId)
