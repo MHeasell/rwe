@@ -629,8 +629,6 @@ namespace rwe
         worldRenderService.drawSpriteBatch(flatFeatureShadowBatch);
         worldRenderService.drawSpriteBatch(flatFeatureBatch);
 
-        sceneContext.graphics->enableDepthBuffer();
-
         ColoredMeshBatch terrainOverlayBatch;
 
         if (occupiedGridVisible)
@@ -653,8 +651,6 @@ namespace rwe
         }
 
         worldRenderService.drawBatch(terrainOverlayBatch, viewProjectionMatrix);
-
-        sceneContext.graphics->disableDepthBuffer();
 
         auto interpolationFraction = static_cast<float>(millisecondsBuffer) / static_cast<float>(SimMillisecondsPerTick);
         for (const auto& selectedUnitId : selectedUnits)

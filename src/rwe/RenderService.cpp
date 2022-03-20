@@ -377,8 +377,6 @@ namespace rwe
     {
         if (!batch.lines.empty() || !batch.triangles.empty())
         {
-            graphics->disableDepthBuffer();
-
             const auto& shader = shaders->basicColor;
             graphics->bindShader(shader.handle.get());
             graphics->setUniformFloat(shader.alpha, 1.0f);
@@ -395,8 +393,6 @@ namespace rwe
                 auto mesh = graphics->createColoredMesh(batch.triangles, GL_STREAM_DRAW);
                 graphics->drawTriangles(mesh);
             }
-
-            graphics->enableDepthBuffer();
         }
     }
 
