@@ -28,6 +28,17 @@ namespace rwe
         std::vector<GlColoredVertex> triangles;
     };
 
+    struct ColoredMeshRenderInfo
+    {
+        const GlMesh* mesh;
+        Matrix4f mvpMatrix;
+    };
+
+    struct ColoredMeshesBatch
+    {
+        std::vector<ColoredMeshRenderInfo> meshes;
+    };
+
     struct UnitTextureMeshRenderInfo
     {
         const GlMesh* mesh;
@@ -103,8 +114,6 @@ namespace rwe
             const SharedTextureHandle* unitTextureAtlas,
             const std::vector<SharedTextureHandle>* unitTeamTextureAtlases);
 
-        void drawSelectionRect(const Unit& unit, float frac);
-
         void drawMapTerrain(const MapTerrainGraphics& terrain, const Vector3f& cameraPosition, float viewportWidth, float viewportHeight);
 
         void drawMapTerrain(const MapTerrainGraphics& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
@@ -120,6 +129,8 @@ namespace rwe
         void drawUnitShadowMeshBatch(const UnitShadowMeshBatch& batch);
 
         void drawSpriteBatch(const SpriteBatch& batch);
+
+        void drawLineLoopsBatch(const ColoredMeshesBatch& batch);
 
     private:
         void drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, PlayerColorIndex playerColorIndex);

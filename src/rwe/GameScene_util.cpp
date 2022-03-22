@@ -958,4 +958,25 @@ namespace rwe
                 });
         }
     }
+
+    void drawSelectionRect(const MeshDatabase& meshDatabase, const Matrix4f& viewProjectionMatrix, const Unit& unit, float frac, ColoredMeshesBatch& batch)
+    {
+        auto selectionMesh = meshDatabase.getSelectionMesh(unit.objectName);
+
+        auto position = lerp(simVectorToFloat(unit.previousPosition), simVectorToFloat(unit.position), frac);
+
+        // try to ensure that the selection rectangle vertices
+        // are aligned with the middle of pixels,
+        // to prevent discontinuities in the drawn lines.
+        Vector3f snappedPosition(
+            snapToInterval(position.x, 1.0f) + 0.5f,
+            snapToInterval(position.y, 2.0f),
+            snapToInterval(position.z, 1.0f) + 0.5f);
+
+        auto rotation = angleLerp(toRadians(unit.previousRotation).value, toRadians(unit.rotation).value, frac);
+        auto matrix = Matrix4f::translation(snappedPosition) * Matrix4f::rotationY(rotation);
+        auto mvpMatrix = viewProjectionMatrix * matrix;
+
+        batch.meshes.push_back(ColoredMeshRenderInfo{selectionMesh.value().get(), mvpMatrix});
+    }
 }

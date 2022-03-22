@@ -660,11 +660,13 @@ namespace rwe
         worldRenderService.drawBatch(terrainOverlayBatch, viewProjectionMatrix);
 
         auto interpolationFraction = static_cast<float>(millisecondsBuffer) / static_cast<float>(SimMillisecondsPerTick);
+        ColoredMeshesBatch selectionRectBatch;
         for (const auto& selectedUnitId : selectedUnits)
         {
             const auto& unit = getUnit(selectedUnitId);
-            worldRenderService.drawSelectionRect(unit, interpolationFraction);
+            drawSelectionRect(meshDatabase, viewProjectionMatrix, unit, interpolationFraction, selectionRectBatch);
         }
+        worldRenderService.drawLineLoopsBatch(selectionRectBatch);
 
         auto seaLevel = simulation.terrain.getSeaLevel();
 

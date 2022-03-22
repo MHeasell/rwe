@@ -97,4 +97,6 @@ namespace rwe
         ColoredMeshBatch& coloredMeshbatch,
         SpriteBatch& spriteBatch,
         UnitMeshBatch& unitMeshBatch);
+
+    void drawSelectionRect(const MeshDatabase& meshDatabase, const Matrix4f& viewProjectionMatrix, const Unit& unit, float frac, ColoredMeshesBatch& batch);
 }

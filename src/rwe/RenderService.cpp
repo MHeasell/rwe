@@ -47,31 +47,6 @@ namespace rwe
     {
     }
 
-    void
-    RenderService::drawSelectionRect(const Unit& unit, float frac)
-    {
-        auto selectionMesh = meshDatabase->getSelectionMesh(unit.objectName);
-
-        auto position = lerp(simVectorToFloat(unit.previousPosition), simVectorToFloat(unit.position), frac);
-
-        // try to ensure that the selection rectangle vertices
-        // are aligned with the middle of pixels,
-        // to prevent discontinuities in the drawn lines.
-        Vector3f snappedPosition(
-            snapToInterval(position.x, 1.0f) + 0.5f,
-            snapToInterval(position.y, 2.0f),
-            snapToInterval(position.z, 1.0f) + 0.5f);
-
-        auto rotation = angleLerp(toRadians(unit.previousRotation).value, toRadians(unit.rotation).value, frac);
-        auto matrix = Matrix4f::translation(snappedPosition) * Matrix4f::rotationY(rotation);
-
-        const auto& shader = shaders->basicColor;
-        graphics->bindShader(shader.handle.get());
-        graphics->setUniformMatrix(shader.mvpMatrix, (*viewProjectionMatrix) * matrix);
-        graphics->setUniformFloat(shader.alpha, 1.0f);
-        graphics->drawLineLoop(*selectionMesh.value());
-    }
-
     void RenderService::drawMapTerrain(const MapTerrainGraphics& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
     {
         std::unordered_map<TextureArrayIdentifier, std::vector<std::pair<unsigned int, unsigned int>>> batches;
@@ -331,6 +306,17 @@ namespace rwe
             graphics->setUniformMatrix(shader.mvpMatrix, s.mvpMatrix);
             graphics->setUniformVec4(shader.tint, 1.0f, 1.0f, 1.0f, alpha);
             graphics->drawTriangles(*s.sprite->mesh);
+        }
+    }
+    void RenderService::drawLineLoopsBatch(const ColoredMeshesBatch& batch)
+    {
+        const auto& shader = shaders->basicColor;
+        graphics->bindShader(shader.handle.get());
+        for (const auto& m : batch.meshes)
+        {
+            graphics->setUniformMatrix(shader.mvpMatrix, m.mvpMatrix);
+            graphics->setUniformFloat(shader.alpha, 1.0f);
+            graphics->drawLineLoop(*m.mesh);
         }
     }
 }
