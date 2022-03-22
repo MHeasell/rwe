@@ -13,6 +13,7 @@
 #include <rwe/GameCameraState.h>
 #include <rwe/GameNetworkService.h>
 #include <rwe/InGameSoundsInfo.h>
+#include <rwe/MeshDatabase.h>
 #include <rwe/MeshService.h>
 #include <rwe/PlayerCommand.h>
 #include <rwe/PlayerCommandService.h>
@@ -26,6 +27,7 @@
 #include <rwe/UnitFactory.h>
 #include <rwe/UnitSoundType.h>
 #include <rwe/Viewport.h>
+#include <rwe/WeaponMediaInfo.h>
 #include <rwe/cob/CobExecutionService.h>
 #include <rwe/grid/DiscreteRect.h>
 #include <rwe/io/featuretdf/FeatureTdf.h>

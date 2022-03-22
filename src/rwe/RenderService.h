@@ -1,23 +1,10 @@
 #pragma once
 
-#include <boost/iterator/filter_iterator.hpp>
 #include <rwe/FlashEffect.h>
 #include <rwe/MapTerrainGraphics.h>
-#include <rwe/MeshDatabase.h>
-#include <rwe/PlayerColorIndex.h>
 #include <rwe/ShaderService.h>
-#include <rwe/UnitDatabase.h>
-#include <rwe/VectorMap.h>
-#include <rwe/pathfinding/AStarPathFinder.h>
-#include <rwe/pathfinding/OctileDistance.h>
-#include <rwe/pathfinding/PathCost.h>
 #include <rwe/render/GraphicsContext.h>
 #include <rwe/sim/GameTime.h>
-#include <rwe/sim/OccupiedGrid.h>
-#include <rwe/sim/Particle.h>
-#include <rwe/sim/Projectile.h>
-#include <rwe/sim/ProjectileId.h>
-#include <rwe/sim/Unit.h>
 #include <vector>
 
 namespace rwe
@@ -96,23 +83,14 @@ namespace rwe
     private:
         GraphicsContext* graphics;
         ShaderService* shaders;
-        UnitDatabase* const unitDatabase;
 
         const Matrix4f* const viewProjectionMatrix;
-
-        const MeshDatabase* const meshDatabase;
-        const SharedTextureHandle* const unitTextureAtlas;
-        const std::vector<SharedTextureHandle>* const unitTeamTextureAtlases;
 
     public:
         RenderService(
             GraphicsContext* graphics,
             ShaderService* shaders,
-            UnitDatabase* unitDatabase,
-            const Matrix4f* viewProjectionMatrix,
-            const MeshDatabase* meshDatabase,
-            const SharedTextureHandle* unitTextureAtlas,
-            const std::vector<SharedTextureHandle>* unitTeamTextureAtlases);
+            const Matrix4f* viewProjectionMatrix);
 
         void drawMapTerrain(const MapTerrainGraphics& terrain, const Vector3f& cameraPosition, float viewportWidth, float viewportHeight);
 
@@ -131,8 +109,5 @@ namespace rwe
         void drawSpriteBatch(const SpriteBatch& batch);
 
         void drawLineLoopsBatch(const ColoredMeshesBatch& batch);
-
-    private:
-        void drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, PlayerColorIndex playerColorIndex);
     };
 }

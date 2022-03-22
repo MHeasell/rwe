@@ -1,10 +1,21 @@
 #pragma once
 
+#include <rwe/MeshDatabase.h>
+#include <rwe/PlayerColorIndex.h>
 #include <rwe/RenderService.h>
+#include <rwe/UnitDatabase.h>
+#include <rwe/UnitModelDefinition.h>
+#include <rwe/VectorMap.h>
 #include <rwe/math/Matrix4x.h>
+#include <rwe/pathfinding/AStarPathFinder.h>
 #include <rwe/pathfinding/PathCost.h>
 #include <rwe/sim/MapTerrain.h>
+#include <rwe/sim/OccupiedGrid.h>
+#include <rwe/sim/Particle.h>
+#include <rwe/sim/Projectile.h>
+#include <rwe/sim/ProjectileId.h>
 #include <rwe/sim/SimScalar.h>
+#include <rwe/sim/Unit.h>
 #include <rwe/sim/UnitMesh.h>
 #include <rwe/sim/UnitPieceDefinition.h>
 #include <vector>

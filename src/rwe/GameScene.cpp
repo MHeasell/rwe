@@ -609,7 +609,7 @@ namespace rwe
         sceneContext.graphics->clear();
 
         const auto& viewProjectionMatrix = computeViewProjectionMatrix(worldCameraState, worldViewport.width(), worldViewport.height());
-        RenderService worldRenderService(sceneContext.graphics, sceneContext.shaders, &unitDatabase, &viewProjectionMatrix, &meshDatabase, &unitTextureAtlas, &unitTeamTextureAtlases);
+        RenderService worldRenderService(sceneContext.graphics, sceneContext.shaders, &viewProjectionMatrix);
 
         sceneContext.graphics->disableDepthBuffer();
 

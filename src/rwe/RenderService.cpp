@@ -1,49 +1,14 @@
 #include "RenderService.h"
-#include <rwe/Index.h>
-#include <rwe/match.h>
-#include <rwe/math/rwe_math.h>
-#include <rwe/matrix_util.h>
 
 namespace rwe
 {
-    Matrix4f getPieceTransform(const std::string& pieceName, const UnitModelDefinition& modelDefinition)
-    {
-        std::optional<std::string> parentPiece = pieceName;
-        auto pos = SimVector(0_ss, 0_ss, 0_ss);
-
-        do
-        {
-            auto pieceIndexIt = modelDefinition.pieceIndicesByName.find(toUpper(*parentPiece));
-            if (pieceIndexIt == modelDefinition.pieceIndicesByName.end())
-            {
-                throw std::runtime_error("missing piece definition: " + *parentPiece);
-            }
-
-            const auto& pieceDef = modelDefinition.pieces[pieceIndexIt->second];
-
-            parentPiece = pieceDef.parent;
-
-            pos += pieceDef.origin;
-        } while (parentPiece);
-
-        return Matrix4f::translation(simVectorToFloat(pos));
-    }
-
     RenderService::RenderService(
         GraphicsContext* graphics,
         ShaderService* shaders,
-        UnitDatabase* unitDatabase,
-        const Matrix4f* viewProjectionMatrix,
-        const MeshDatabase* meshDatabase,
-        const SharedTextureHandle* unitTextureAtlas,
-        const std::vector<SharedTextureHandle>* unitTeamTextureAtlases)
+        const Matrix4f* viewProjectionMatrix)
         : graphics(graphics),
           shaders(shaders),
-          unitDatabase(unitDatabase),
-          viewProjectionMatrix(viewProjectionMatrix),
-          meshDatabase(meshDatabase),
-          unitTextureAtlas(unitTextureAtlas),
-          unitTeamTextureAtlases(unitTeamTextureAtlases)
+          viewProjectionMatrix(viewProjectionMatrix)
     {
     }
 
@@ -170,33 +135,6 @@ namespace rwe
             graphics->setUniformFloat(shader.intensity, flash.maxIntensity * fractionRemaining);
             graphics->setUniformVec3(shader.color, flash.color.x, flash.color.y, flash.color.z);
             graphics->drawTriangles(quadMesh);
-        }
-    }
-
-    void RenderService::drawShaderMesh(const ShaderMesh& mesh, const Matrix4f& matrix, float seaLevel, bool shaded, PlayerColorIndex playerColorIndex)
-    {
-        auto mvpMatrix = (*viewProjectionMatrix) * matrix;
-
-        if (mesh.vertices || mesh.teamVertices)
-        {
-            const auto& textureShader = shaders->unitTexture;
-            graphics->bindShader(textureShader.handle.get());
-            graphics->setUniformMatrix(textureShader.mvpMatrix, mvpMatrix);
-            graphics->setUniformMatrix(textureShader.modelMatrix, matrix);
-            graphics->setUniformFloat(textureShader.seaLevel, seaLevel);
-            graphics->setUniformBool(textureShader.shade, shaded);
-
-            if (mesh.vertices)
-            {
-                graphics->bindTexture(unitTextureAtlas->get());
-                graphics->drawTriangles(*mesh.vertices);
-            }
-
-            if (mesh.teamVertices)
-            {
-                graphics->bindTexture(unitTeamTextureAtlases->at(playerColorIndex.value).get());
-                graphics->drawTriangles(*mesh.teamVertices);
-            }
         }
     }
 
