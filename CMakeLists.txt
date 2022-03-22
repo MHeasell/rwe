@@ -445,6 +445,8 @@ set(SOURCE_FILES
     src/rwe/math/rwe_math.h
     src/rwe/matrix_util.cpp
     src/rwe/matrix_util.h
+    src/rwe/mesh_util.cpp
+    src/rwe/mesh_util.h
     src/rwe/network_util.cpp
     src/rwe/network_util.h
     src/rwe/observable/BehaviorSubject.h

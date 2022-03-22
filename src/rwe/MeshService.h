@@ -1,17 +1,17 @@
 #pragma once
 
-#include <boost/functional/hash.hpp>
-#include <memory>
-#include <rwe/PlayerColorIndex.h>
 #include <rwe/SelectionMesh.h>
 #include <rwe/TextureService.h>
 #include <rwe/UnitModelDefinition.h>
 #include <rwe/UnitPieceMeshInfo.h>
 #include <rwe/io/_3do/_3do.h>
-#include <rwe/render/ShaderMesh.h>
-#include <rwe/sim/UnitMesh.h>
+#include <rwe/math/Vector2f.h>
+#include <rwe/render/GraphicsContext.h>
 #include <rwe/vfs/AbstractVirtualFileSystem.h>
-
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
 namespace rwe
 {
@@ -39,32 +39,14 @@ namespace rwe
             SelectionMesh selectionMesh;
         };
 
+        UnitMeshInfo loadUnitMesh(const std::string& name);
+
         struct ProjectileMeshInfo
         {
             UnitModelDefinition modelDefinition;
             std::vector<std::pair<std::string, UnitPieceMeshInfo>> pieceMeshes;
         };
 
-        UnitMeshInfo loadUnitMesh(const std::string& name);
         ProjectileMeshInfo loadProjectileMesh(const std::string& name);
-
-    private:
-        struct TextureRegionInfo
-        {
-            bool isTeamColor;
-            Rectangle2f region;
-        };
-        TextureRegionInfo getTextureRegion(const std::string& name);
-        Vector2f getColorTexturePoint(unsigned int colorIndex);
-
-        void extractMeshes(const _3do::Object& o, std::vector<std::pair<std::string, UnitPieceMeshInfo>>& v);
-
-        Mesh meshFrom3do(const _3do::Object& o);
-
-        SelectionMesh selectionMeshFrom3do(const _3do::Object& o);
-
-        GlMesh createSelectionMesh(const Vector3f& a, const Vector3f& b, const Vector3f& c, const Vector3f& d);
-
-        ShaderMesh convertMesh(const Mesh& mesh);
     };
 }
