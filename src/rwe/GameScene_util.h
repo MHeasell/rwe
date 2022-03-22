@@ -84,4 +84,17 @@ namespace rwe
     void drawWakeParticle(const MeshDatabase& meshDatabase, GameTime currentTime, const Matrix4f& viewProjectionMatrix, const Particle& particle, ColoredMeshBatch& batch);
 
     void updateParticles(const MeshDatabase& meshDatabase, GameTime currentTime, std::vector<Particle>& particles);
+
+    void drawProjectiles(
+        const UnitDatabase& unitDatabase,
+        const MeshDatabase& meshDatabase,
+        const Matrix4f& viewProjectionMatrix,
+        const VectorMap<Projectile, ProjectileIdTag>& projectiles,
+        GameTime currentTime,
+        float frac,
+        TextureIdentifier unitTextureAtlas,
+        std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
+        ColoredMeshBatch& coloredMeshbatch,
+        SpriteBatch& spriteBatch,
+        UnitMeshBatch& unitMeshBatch);
 }

@@ -841,4 +841,121 @@ namespace rwe
         }
         particles.erase(end, particles.end());
     }
+
+    /**
+     * Assumes input vector is normalised.
+     */
+    Matrix4f pointDirection(const Vector3f& direction)
+    {
+        auto right = direction.cross(Vector3f(0.0f, 1.0f, 0.0f)).normalizedOr(Vector3f(1.0f, 0.0f, 0.0f));
+        auto realUp = right.cross(direction);
+        return Matrix4f::rotationToAxes(right, realUp, direction);
+    }
+
+    Matrix4f rotationModeToMatrix(ProjectileRenderTypeModel::RotationMode r)
+    {
+        switch (r)
+        {
+            case ProjectileRenderTypeModel::RotationMode::HalfZ:
+                return Matrix4f::rotationZ(0.0f, -1.0f); // 180 degrees
+            case ProjectileRenderTypeModel::RotationMode::QuarterY:
+                return Matrix4f::rotationY(1.0f, 0.0f); // 90 degrees
+            case ProjectileRenderTypeModel::RotationMode::None:
+                return Matrix4f::identity();
+            default:
+                throw std::logic_error("Unknown RotationMode");
+        }
+    }
+
+    unsigned int getFrameIndex(GameTime currentTime, unsigned int numFrames)
+    {
+        return (currentTime.value / 2) % numFrames;
+    }
+
+    void drawProjectiles(
+        const UnitDatabase& unitDatabase,
+        const MeshDatabase& meshDatabase,
+        const Matrix4f& viewProjectionMatrix,
+        const VectorMap<Projectile, ProjectileIdTag>& projectiles,
+        GameTime currentTime,
+        float frac,
+        TextureIdentifier unitTextureAtlas,
+        std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
+        ColoredMeshBatch& coloredMeshbatch,
+        SpriteBatch& spriteBatch,
+        UnitMeshBatch& unitMeshBatch)
+    {
+        for (const auto& e : projectiles)
+        {
+            const auto& projectile = e.second;
+            auto position = lerp(simVectorToFloat(projectile.previousPosition), simVectorToFloat(projectile.position), frac);
+
+            const auto& weaponMediaInfo = meshDatabase.getWeapon(projectile.weaponType);
+
+            match(
+                weaponMediaInfo.renderType,
+                [&](const ProjectileRenderTypeLaser& l) {
+                    Vector3f pixelOffset(0.0f, 0.0f, -1.0f);
+
+                    std::vector<GlColoredVertex> laserVertices;
+                    auto backPosition = lerp(simVectorToFloat(projectile.getPreviousBackPosition(l.duration)), simVectorToFloat(projectile.getBackPosition(l.duration)), frac);
+
+                    coloredMeshbatch.lines.emplace_back(position, l.color);
+                    coloredMeshbatch.lines.emplace_back(backPosition, l.color);
+
+                    coloredMeshbatch.lines.emplace_back(position + pixelOffset, l.color2);
+                    coloredMeshbatch.lines.emplace_back(backPosition + pixelOffset, l.color2);
+                },
+                [&](const ProjectileRenderTypeModel& m) {
+                    auto transform = Matrix4f::translation(position)
+                        * pointDirection(simVectorToFloat(projectile.velocity).normalized())
+                        * rotationModeToMatrix(m.rotationMode);
+                    drawProjectileUnitMesh(&unitDatabase, meshDatabase, viewProjectionMatrix, m.objectName, transform, PlayerColorIndex(0), false, unitTextureAtlas, unitTeamTextureAtlases, unitMeshBatch);
+                },
+                [&](const ProjectileRenderTypeSprite& s) {
+                    Vector3f snappedPosition(
+                        std::round(position.x),
+                        truncateToInterval(position.y, 2.0f),
+                        std::round(position.z));
+                    Matrix4f conversionMatrix = Matrix4f::scale(Vector3f(1.0f, -2.0f, 1.0f));
+                    const auto spriteSeries = meshDatabase.getSpriteSeries(s.gaf, s.anim).value();
+                    const auto& sprite = *spriteSeries->sprites[getFrameIndex(currentTime, spriteSeries->sprites.size())];
+                    auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix * sprite.getTransform();
+                    auto mvpMatrix = viewProjectionMatrix * modelMatrix;
+                    spriteBatch.sprites.push_back(SpriteRenderInfo{&sprite, mvpMatrix, false});
+                },
+                [&](const ProjectileRenderTypeFlamethrower&) {
+                    Vector3f snappedPosition(
+                        std::round(position.x),
+                        truncateToInterval(position.y, 2.0f),
+                        std::round(position.z));
+                    Matrix4f conversionMatrix = Matrix4f::scale(Vector3f(1.0f, -2.0f, 1.0f));
+                    const auto spriteSeries = meshDatabase.getSpriteSeries("FX", "flamestream").value();
+                    auto timeSinceSpawn = currentTime - projectile.createdAt;
+                    auto fullLifetime = projectile.dieOnFrame.value() - projectile.createdAt;
+                    auto percentComplete = static_cast<float>(timeSinceSpawn.value) / static_cast<float>(fullLifetime.value);
+                    auto frameIndex = static_cast<unsigned int>(percentComplete * spriteSeries->sprites.size());
+                    assert(frameIndex < spriteSeries->sprites.size());
+                    const auto& sprite = *spriteSeries->sprites[frameIndex];
+                    auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix * sprite.getTransform();
+                    auto mvpMatrix = viewProjectionMatrix * modelMatrix;
+                    spriteBatch.sprites.push_back(SpriteRenderInfo{&sprite, mvpMatrix, true});
+                },
+                [&](const ProjectileRenderTypeLightning& l) {
+                    Vector3f pixelOffset(0.0f, 0.0f, -1.0f);
+
+                    std::vector<GlColoredVertex> laserVertices;
+                    auto backPosition = lerp(simVectorToFloat(projectile.getPreviousBackPosition(l.duration)), simVectorToFloat(projectile.getBackPosition(l.duration)), frac);
+
+                    coloredMeshbatch.lines.emplace_back(position, l.color);
+                    coloredMeshbatch.lines.emplace_back(backPosition, l.color);
+                },
+                [&](const ProjectileRenderTypeMindgun&) {
+                    // TODO: implement mindgun if anyone actually uses it
+                },
+                [&](const ProjectileRenderTypeNone&) {
+                    // do nothing
+                });
+        }
+    }
 }

@@ -703,7 +703,13 @@ namespace rwe
         }
         worldRenderService.drawUnitMeshBatch(unitMeshBatch, simScalarToFloat(seaLevel), simulation.gameTime.value);
 
-        worldRenderService.drawProjectiles(simulation.projectiles, simScalarToFloat(seaLevel), simulation.gameTime, interpolationFraction);
+        ColoredMeshBatch lineProjectilesBatch;
+        SpriteBatch spriteProjectilesBatch;
+        UnitMeshBatch meshProjectilesBatch;
+        drawProjectiles(unitDatabase, meshDatabase, viewProjectionMatrix, simulation.projectiles, simulation.gameTime, interpolationFraction, unitTextureAtlas.get(), unitTeamTextureAtlases, lineProjectilesBatch, spriteProjectilesBatch, meshProjectilesBatch);
+        worldRenderService.drawBatch(lineProjectilesBatch, viewProjectionMatrix);
+        worldRenderService.drawUnitMeshBatch(meshProjectilesBatch, simScalarToFloat(seaLevel), simulation.gameTime.value);
+        worldRenderService.drawSpriteBatch(spriteProjectilesBatch);
 
         sceneContext.graphics->disableDepthWrites();
 

@@ -103,7 +103,6 @@ namespace rwe
             const SharedTextureHandle* unitTextureAtlas,
             const std::vector<SharedTextureHandle>* unitTeamTextureAtlases);
 
-        void drawProjectileUnitMesh(const std::string& objectName, const Matrix4f& modelMatrix, float seaLevel, PlayerColorIndex playerColorIndex, bool shaded);
         void drawSelectionRect(const Unit& unit, float frac);
 
         void drawMapTerrain(const MapTerrainGraphics& terrain, const Vector3f& cameraPosition, float viewportWidth, float viewportHeight);
@@ -111,8 +110,6 @@ namespace rwe
         void drawMapTerrain(const MapTerrainGraphics& terrain, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
 
         void fillScreen(float r, float g, float b, float a);
-
-        void drawProjectiles(const VectorMap<Projectile, ProjectileIdTag>& projectiles, float seaLevel, GameTime currentTime, float frac);
 
         void drawFlashes(GameTime currentTime, const std::vector<FlashEffect>& flashes);
 
