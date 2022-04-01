@@ -288,4 +288,22 @@ namespace rwe
             REQUIRE(v.xz() == Vector2f(1.0f, 3.0f));
         }
     }
+
+    TEST_CASE("areCloserThan")
+    {
+        SECTION("return true when vectors are within epsilon of each other")
+        {
+            Vector3f a(0.0f, 0.0f, 0.0f);
+            Vector3f b(0.0f, 0.0f, 1.0f);
+            REQUIRE(areCloserThan(a, b, 1.1f));
+            REQUIRE(!areCloserThan(a, b, 1.0f));
+        }
+        SECTION("considers multiple dimensions")
+        {
+            Vector3f a(0.0f, 0.0f, 0.0f);
+            Vector3f b(3.0f, 4.0f, 0.0f);
+            REQUIRE(areCloserThan(a, b, 5.1f));
+            REQUIRE(!areCloserThan(a, b, 5.0f));
+        }
+    }
 }

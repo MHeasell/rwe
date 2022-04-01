@@ -69,8 +69,6 @@ namespace rwe
     {
         auto& unit = scene->getSimulation().getUnit(unitId);
 
-        auto previousSpeed = unit.currentSpeed;
-
         // Clear steering targets.
         unit.targetAngle = unit.rotation;
         unit.targetSpeed = 0_ss;
@@ -126,16 +124,20 @@ namespace rwe
         {
             applyUnitSteering(unitId);
 
-            if (unit.currentSpeed > 0_ss && previousSpeed == 0_ss)
+            auto previouslyWasMoving = !areCloserThan(unit.previousPosition, unit.position, 0.1_ssf);
+
+            updateUnitPosition(unitId);
+
+            auto currentlyIsMoving = !areCloserThan(unit.previousPosition, unit.position, 0.1_ssf);
+
+            if (currentlyIsMoving && !previouslyWasMoving)
             {
                 unit.cobEnvironment->createThread("StartMoving");
             }
-            else if (unit.currentSpeed == 0_ss && previousSpeed > 0_ss)
+            else if (!currentlyIsMoving && previouslyWasMoving)
             {
                 unit.cobEnvironment->createThread("StopMoving");
             }
-
-            updateUnitPosition(unitId);
         }
     }
 

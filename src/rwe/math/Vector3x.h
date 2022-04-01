@@ -240,4 +240,15 @@ namespace rwe
 
         return (a * e * i) + (b * f * g) + (c * d * h) - (c * e * g) - (b * d * i) - (a * f * h);
     }
+
+    /**
+     * Returns true if vectors A and B are closer than epsilon units apart
+     * as measured by straight-line distance between the two vectors.
+     */
+    template <typename Val>
+    bool areCloserThan(const Vector3x<Val>& a, const Vector3x<Val>& b, Val epsilon)
+    {
+        auto distanceSq = a.distanceSquared(b);
+        return distanceSq < (epsilon * epsilon);
+    }
 }
