@@ -65,8 +65,6 @@ namespace rwe
 
         void clearBuild(UnitId unitId);
 
-        bool followPath(Unit& unit, PathFollowingInfo& path);
-
         void updateWeapon(UnitId id, unsigned int weaponIndex);
 
         SimVector changeDirectionByRandomAngle(const SimVector& direction, SimAngle maxAngle);

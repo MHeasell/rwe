@@ -210,7 +210,43 @@ namespace rwe
         return {heading, pitches->second};
     }
 
-    bool UnitBehaviorService::followPath(Unit& unit, PathFollowingInfo& path)
+    void seek(Unit& unit, const SimVector& destination)
+    {
+        SimVector xzPosition(unit.position.x, 0_ss, unit.position.z);
+        SimVector xzDestination(destination.x, 0_ss, destination.z);
+
+        // steer towards the goal
+        auto xzDirection = xzDestination - xzPosition;
+        unit.targetAngle = Unit::toRotation(xzDirection);
+
+        // scale desired speed proportionally to how aligned we are
+        // with the target direction
+        auto normalizedUnitDirection = Unit::toDirection(unit.rotation);
+        auto normalizedXzDirection = xzDirection.normalized();
+        auto speedFactor = rweMax(0_ss, normalizedUnitDirection.dot(normalizedXzDirection));
+        unit.targetSpeed = unit.maxSpeed * speedFactor;
+    }
+
+    void arrive(Unit& unit, const SimVector& destination)
+    {
+        SimVector xzPosition(unit.position.x, 0_ss, unit.position.z);
+        SimVector xzDestination(destination.x, 0_ss, destination.z);
+        auto distanceSquared = xzPosition.distanceSquared(xzDestination);
+        auto brakingDistance = (unit.currentSpeed * unit.currentSpeed) / (2_ss * unit.brakeRate);
+
+        if (distanceSquared > (brakingDistance * brakingDistance))
+        {
+            seek(unit, destination);
+            return;
+        }
+
+        // slow down when approaching the destination
+        auto xzDirection = xzDestination - xzPosition;
+        unit.targetAngle = Unit::toRotation(xzDirection);
+        unit.targetSpeed = 0_ss;
+    }
+
+    bool followPath(Unit& unit, PathFollowingInfo& path)
     {
         const auto& destination = *path.currentWaypoint;
         SimVector xzPosition(unit.position.x, 0_ss, unit.position.z);
@@ -219,41 +255,24 @@ namespace rwe
 
         auto isFinalDestination = path.currentWaypoint == (path.path.waypoints.end() - 1);
 
-        if (distanceSquared < (8_ss * 8_ss))
+        if (isFinalDestination)
         {
-            if (isFinalDestination)
+            if (distanceSquared < (8_ss * 8_ss))
             {
                 return true;
             }
-            else
-            {
-                ++path.currentWaypoint;
-            }
+
+            arrive(unit, destination);
+            return false;
         }
-        else
+
+        if (distanceSquared < (16_ss * 16_ss))
         {
-            // steer towards the goal
-            auto xzDirection = xzDestination - xzPosition;
-            unit.targetAngle = Unit::toRotation(xzDirection);
-
-            // drive at full speed until we need to brake
-            // to turn or to arrive at the goal
-            auto brakingDistance = (unit.currentSpeed * unit.currentSpeed) / (2_ss * unit.brakeRate);
-
-            if (isWithinTurningCircle(xzDirection, unit.currentSpeed, unit.turnRate, unit.rotation))
-            {
-                unit.targetSpeed = 0_ss;
-            }
-            else if (isFinalDestination && distanceSquared <= (brakingDistance * brakingDistance))
-            {
-                unit.targetSpeed = 0_ss;
-            }
-            else
-            {
-                unit.targetSpeed = unit.maxSpeed;
-            }
+            ++path.currentWaypoint;
+            return false;
         }
 
+        seek(unit, destination);
         return false;
     }
 
