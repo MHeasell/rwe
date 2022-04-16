@@ -58,6 +58,10 @@ namespace rwe
 
     SimScalar rweMax(SimScalar a, SimScalar b);
 
+    SimScalar rweMin(SimScalar a, SimScalar b);
+
+    SimScalar rweAtan2(SimScalar a, SimScalar b);
+
     inline SimScalar angularToRadians(SimScalar s)
     {
         return SimScalar((s.value / 65536.0f) * 2.0f * 3.14159265358979323846f);

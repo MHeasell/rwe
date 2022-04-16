@@ -138,7 +138,7 @@ namespace rwe
          */
         Val angleTo(const Vector2x& rhs) const
         {
-            return std::atan2(det(rhs), dot(rhs));
+            return rweAtan2(det(rhs), dot(rhs));
         }
     };
 

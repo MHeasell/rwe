@@ -19,4 +19,14 @@ namespace rwe
     {
         return SimScalar(std::max(a.value, b.value));
     }
+
+    SimScalar rweMin(SimScalar a, SimScalar b)
+    {
+        return SimScalar(std::min(a.value, b.value));
+    }
+
+    SimScalar rweAtan2(SimScalar a, SimScalar b)
+    {
+        return SimScalar(std::atan2(a.value, b.value));
+    }
 }

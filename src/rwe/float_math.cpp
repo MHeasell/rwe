@@ -18,4 +18,9 @@ namespace rwe
     {
         return (1.0f - t) * a + t * b;
     }
+
+    float rweAtan2(float a, float b)
+    {
+        return std::atan2(a, b);
+    }
 }
