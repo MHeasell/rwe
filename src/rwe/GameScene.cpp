@@ -996,6 +996,9 @@ namespace rwe
         ImGui::LabelText("x", "%f", unit.position.x.value);
         ImGui::LabelText("y", "%f", unit.position.y.value);
         ImGui::LabelText("z", "%f", unit.position.z.value);
+
+        ImGui::LabelText("Target Angle", "%d", unit.steeringInfo.targetAngle.value);
+        ImGui::LabelText("Target Speed", "%f", unit.steeringInfo.targetSpeed.value);
     }
 
     void GameScene::renderDebugWindow()

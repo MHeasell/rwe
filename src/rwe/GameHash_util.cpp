@@ -79,8 +79,7 @@ namespace rwe
             u.rotation,
             u.turnRate,
             u.currentSpeed,
-            u.targetAngle,
-            u.targetSpeed,
+            u.steeringInfo,
             u.hitPoints,
             u.lifeState,
             u.behaviourState,
@@ -97,6 +96,11 @@ namespace rwe
             u.previousMetalConsumptionBuffer,
             u.energyConsumptionBuffer,
             u.metalConsumptionBuffer);
+    }
+
+    GameHash computeHashOf(const SteeringInfo& s)
+    {
+        return combineHashes(s.targetAngle, s.targetSpeed);
     }
 
     GameHash computeHashOf(const Vector3f& v)

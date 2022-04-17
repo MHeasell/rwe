@@ -70,8 +70,10 @@ namespace rwe
         auto& unit = scene->getSimulation().getUnit(unitId);
 
         // Clear steering targets.
-        unit.targetAngle = unit.rotation;
-        unit.targetSpeed = 0_ss;
+        unit.steeringInfo = SteeringInfo{
+            unit.rotation,
+            0_ss,
+        };
 
         // Run unit and weapon AI
         if (!unit.isBeingBuilt())
@@ -210,24 +212,25 @@ namespace rwe
         return {heading, pitches->second};
     }
 
-    void seek(Unit& unit, const SimVector& destination)
+    SteeringInfo seek(const Unit& unit, const SimVector& destination)
     {
         SimVector xzPosition(unit.position.x, 0_ss, unit.position.z);
         SimVector xzDestination(destination.x, 0_ss, destination.z);
-
-        // steer towards the goal
         auto xzDirection = xzDestination - xzPosition;
-        unit.targetAngle = Unit::toRotation(xzDirection);
 
         // scale desired speed proportionally to how aligned we are
         // with the target direction
         auto normalizedUnitDirection = Unit::toDirection(unit.rotation);
         auto normalizedXzDirection = xzDirection.normalized();
         auto speedFactor = rweMax(0_ss, normalizedUnitDirection.dot(normalizedXzDirection));
-        unit.targetSpeed = unit.maxSpeed * speedFactor;
+
+        return SteeringInfo{
+            Unit::toRotation(xzDirection),
+            unit.maxSpeed * speedFactor,
+        };
     }
 
-    void arrive(Unit& unit, const SimVector& destination)
+    SteeringInfo arrive(const Unit& unit, const SimVector& destination)
     {
         SimVector xzPosition(unit.position.x, 0_ss, unit.position.z);
         SimVector xzDestination(destination.x, 0_ss, destination.z);
@@ -236,14 +239,15 @@ namespace rwe
 
         if (distanceSquared > (brakingDistance * brakingDistance))
         {
-            seek(unit, destination);
-            return;
+            return seek(unit, destination);
         }
 
         // slow down when approaching the destination
         auto xzDirection = xzDestination - xzPosition;
-        unit.targetAngle = Unit::toRotation(xzDirection);
-        unit.targetSpeed = 0_ss;
+        return SteeringInfo{
+            Unit::toRotation(xzDirection),
+            0_ss,
+        };
     }
 
     bool followPath(Unit& unit, PathFollowingInfo& path)
@@ -262,7 +266,7 @@ namespace rwe
                 return true;
             }
 
-            arrive(unit, destination);
+            unit.steeringInfo = arrive(unit, destination);
             return false;
         }
 
@@ -272,7 +276,7 @@ namespace rwe
             return false;
         }
 
-        seek(unit, destination);
+        unit.steeringInfo = seek(unit, destination);
         return false;
     }
 
@@ -536,19 +540,21 @@ namespace rwe
         auto& unit = scene->getSimulation().getUnit(id);
         auto turnRateThisFrame = SimAngle(unit.turnRate.value);
         unit.previousRotation = unit.rotation;
-        unit.rotation = turnTowards(unit.rotation, unit.targetAngle, turnRateThisFrame);
+        unit.rotation = turnTowards(unit.rotation, unit.steeringInfo.targetAngle, turnRateThisFrame);
     }
 
     void UnitBehaviorService::updateUnitSpeed(UnitId id)
     {
         auto& unit = scene->getSimulation().getUnit(id);
 
-        if (unit.targetSpeed > unit.currentSpeed)
+        const auto& steeringInfo = unit.steeringInfo;
+
+        if (steeringInfo.targetSpeed > unit.currentSpeed)
         {
             // accelerate to target speed
-            if (unit.targetSpeed - unit.currentSpeed <= unit.acceleration)
+            if (steeringInfo.targetSpeed - unit.currentSpeed <= unit.acceleration)
             {
-                unit.currentSpeed = unit.targetSpeed;
+                unit.currentSpeed = steeringInfo.targetSpeed;
             }
             else
             {
@@ -558,9 +564,9 @@ namespace rwe
         else
         {
             // brake to target speed
-            if (unit.currentSpeed - unit.targetSpeed <= unit.brakeRate)
+            if (unit.currentSpeed - steeringInfo.targetSpeed <= unit.brakeRate)
             {
-                unit.currentSpeed = unit.targetSpeed;
+                unit.currentSpeed = steeringInfo.targetSpeed;
             }
             else
             {

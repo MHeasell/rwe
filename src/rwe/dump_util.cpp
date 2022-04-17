@@ -57,8 +57,7 @@ namespace rwe
             {"rotation", dumpJson(u.rotation)},
             {"turnRate", dumpJson(u.turnRate)},
             {"currentSpeed", dumpJson(u.currentSpeed)},
-            {"targetAngle", dumpJson(u.targetAngle)},
-            {"targetSpeed", dumpJson(u.targetSpeed)},
+            {"steeringInfo", dumpJson(u.steeringInfo)},
             {"hitPoints", dumpJson(u.hitPoints)},
             {"lifeState", dumpJson(u.lifeState)},
             {"behaviourState", dumpJson(u.behaviourState)},
@@ -76,6 +75,15 @@ namespace rwe
             {"energyConsumptionBuffer", dumpJson(u.energyConsumptionBuffer)},
             {"metalConsumptionBuffer", dumpJson(u.metalConsumptionBuffer)}};
     }
+
+    nlohmann::json dumpJson(const SteeringInfo& s)
+    {
+        return nlohmann::json{
+            {"targetAngle", dumpJson(s.targetAngle)},
+            {"targetSpeed", dumpJson(s.targetSpeed)},
+        };
+    }
+
     nlohmann::json dumpJson(const Vector3f& v)
     {
         return nlohmann::json{

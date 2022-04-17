@@ -25,6 +25,8 @@ namespace rwe
 
     GameHash computeHashOf(const Unit& u);
 
+    GameHash computeHashOf(const SteeringInfo& s);
+
     GameHash computeHashOf(const Projectile& projectile);
 
     GameHash computeHashOf(const IdleState&);

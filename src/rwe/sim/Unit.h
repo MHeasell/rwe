@@ -124,6 +124,15 @@ namespace rwe
 
     bool isPassable(YardMapCell cell, bool yardMapOpen);
 
+    struct SteeringInfo
+    {
+        /** The angle we are trying to steer towards. */
+        SimAngle targetAngle{0};
+
+        /** The speed we are trying to accelerate/decelerate to */
+        SimScalar targetSpeed{0};
+    };
+
     class Unit
     {
     public:
@@ -186,11 +195,7 @@ namespace rwe
          */
         SimScalar brakeRate;
 
-        /** The angle we are trying to steer towards. */
-        SimAngle targetAngle{0};
-
-        /** The speed we are trying to accelerate/decelerate to */
-        SimScalar targetSpeed{0};
+        SteeringInfo steeringInfo;
 
         std::optional<MovementClassId> movementClass;
 

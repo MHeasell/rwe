@@ -25,6 +25,8 @@ namespace rwe
 
     nlohmann::json dumpJson(const Unit& u);
 
+    nlohmann::json dumpJson(const SteeringInfo& s);
+
     nlohmann::json dumpJson(const Vector3f& v);
 
     template <typename Val>
