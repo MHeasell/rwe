@@ -952,53 +952,93 @@ namespace rwe
 
     void renderUnitInfoSection(const Unit& unit)
     {
-        ImGui::LabelText("State", "%s", stateToString(unit.behaviourState));
-        ImGui::Text("Cob vars");
-        for (Index i = 0; i < getSize(unit.cobEnvironment->_statics); ++i)
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        if (ImGui::CollapsingHeader("Unit Info"))
         {
-            ImGui::Text("%lld: %d", i, unit.cobEnvironment->_statics[i]);
+            ImGui::LabelText("State", "%s", stateToString(unit.behaviourState));
+
+            ImGui::LabelText("Floater", "%s", unit.floater ? "true" : "false");
+            ImGui::LabelText("x", "%f", unit.position.x.value);
+            ImGui::LabelText("y", "%f", unit.position.y.value);
+            ImGui::LabelText("z", "%f", unit.position.z.value);
+
+            ImGui::LabelText("Target Angle", "%d", unit.steeringInfo.targetAngle.value);
+            ImGui::LabelText("Target Speed", "%f", unit.steeringInfo.targetSpeed.value);
         }
 
-        ImGui::Text("Cob threads");
-        for (Index i = 0; i < getSize(unit.cobEnvironment->threads); ++i)
+        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+        if (ImGui::CollapsingHeader("COB Scripts"))
         {
-            const auto& thread = *unit.cobEnvironment->threads[i];
-            ImGui::Text("%lld: %s (%u)", i, thread.name.c_str(), thread.signalMask);
+            ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+            if (ImGui::TreeNode("Static Variables"))
+            {
+                for (Index i = 0; i < getSize(unit.cobEnvironment->_statics); ++i)
+                {
+                    ImGui::Text("%lld: %d", i, unit.cobEnvironment->_statics[i]);
+                }
+                ImGui::TreePop();
+            }
+
+            ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+            if (ImGui::TreeNode("Threads"))
+            {
+                ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+                if (ImGui::TreeNode("All"))
+                {
+
+                    for (Index i = 0; i < getSize(unit.cobEnvironment->threads); ++i)
+                    {
+                        const auto& thread = *unit.cobEnvironment->threads[i];
+                        ImGui::Text("%lld: %s (%u)", i, thread.name.c_str(), thread.signalMask);
+                    }
+                    ImGui::TreePop();
+                }
+
+                ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+                if (ImGui::TreeNode("Ready"))
+                {
+                    for (Index i = 0; i < getSize(unit.cobEnvironment->readyQueue); ++i)
+                    {
+                        ImGui::Text("%s", unit.cobEnvironment->readyQueue[i]->name.c_str());
+                    }
+                    ImGui::TreePop();
+                }
+
+                ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+                if (ImGui::TreeNode("Blocked"))
+                {
+                    for (Index i = 0; i < getSize(unit.cobEnvironment->blockedQueue); ++i)
+                    {
+                        const auto& pair = unit.cobEnvironment->blockedQueue[i];
+                        ImGui::Text("%s, %s", pair.second->name.c_str(), blockedStatusToString(pair.first).c_str());
+                    }
+                    ImGui::TreePop();
+                }
+
+                ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+                if (ImGui::TreeNode("Sleeping"))
+                {
+                    for (Index i = 0; i < getSize(unit.cobEnvironment->sleepingQueue); ++i)
+                    {
+                        const auto& pair = unit.cobEnvironment->sleepingQueue[i];
+                        ImGui::Text("%s, wake time: %d", pair.second->name.c_str(), pair.first.value);
+                    }
+                    ImGui::TreePop();
+                }
+
+                ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+                if (ImGui::TreeNode("Finished"))
+                {
+                    for (Index i = 0; i < getSize(unit.cobEnvironment->finishedQueue); ++i)
+                    {
+                        ImGui::Text("%s", unit.cobEnvironment->finishedQueue[i]->name.c_str());
+                    }
+                    ImGui::TreePop();
+                }
+
+                ImGui::TreePop();
+            }
         }
-
-        ImGui::Text("ready threads");
-        for (Index i = 0; i < getSize(unit.cobEnvironment->readyQueue); ++i)
-        {
-            ImGui::Text("%s", unit.cobEnvironment->readyQueue[i]->name.c_str());
-        }
-
-        ImGui::Text("blocked threads");
-        for (Index i = 0; i < getSize(unit.cobEnvironment->blockedQueue); ++i)
-        {
-            const auto& pair = unit.cobEnvironment->blockedQueue[i];
-            ImGui::Text("%s, %s", pair.second->name.c_str(), blockedStatusToString(pair.first).c_str());
-        }
-
-        ImGui::Text("sleeping threads");
-        for (Index i = 0; i < getSize(unit.cobEnvironment->sleepingQueue); ++i)
-        {
-            const auto& pair = unit.cobEnvironment->sleepingQueue[i];
-            ImGui::Text("%s, wake time: %d", pair.second->name.c_str(), pair.first.value);
-        }
-
-        ImGui::Text("finished threads");
-        for (Index i = 0; i < getSize(unit.cobEnvironment->finishedQueue); ++i)
-        {
-            ImGui::Text("%s", unit.cobEnvironment->finishedQueue[i]->name.c_str());
-        }
-
-        ImGui::LabelText("Floater", "%s", unit.floater ? "true" : "false");
-        ImGui::LabelText("x", "%f", unit.position.x.value);
-        ImGui::LabelText("y", "%f", unit.position.y.value);
-        ImGui::LabelText("z", "%f", unit.position.z.value);
-
-        ImGui::LabelText("Target Angle", "%d", unit.steeringInfo.targetAngle.value);
-        ImGui::LabelText("Target Speed", "%f", unit.steeringInfo.targetSpeed.value);
     }
 
     void GameScene::renderDebugWindow()
@@ -1047,22 +1087,19 @@ namespace rwe
             ImGui::LabelText("Sound volume", "%d", computeSoundVolume(getSize(playingUnitChannels)));
         }
 
-        if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit)
+        if (ImGui::CollapsingHeader("Selected Unit"))
         {
-            const auto& unit = getUnit(*selectedUnit);
-
-            ImGui::Separator();
-            ImGui::Text("Selected Unit");
-            renderUnitInfoSection(unit);
-        }
-
-        if (hoveredUnit)
-        {
-            const auto& unit = getUnit(*hoveredUnit);
-
-            ImGui::Separator();
-            ImGui::Text("Hovered Unit");
-            renderUnitInfoSection(unit);
+            ImGui::Indent();
+            if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit)
+            {
+                const auto& unit = getUnit(*selectedUnit);
+                renderUnitInfoSection(unit);
+            }
+            else
+            {
+                ImGui::Text("None");
+            }
+            ImGui::Unindent();
         }
 
         ImGui::End();
