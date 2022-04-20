@@ -14,9 +14,14 @@ namespace rwe
         return Vector2x<SimScalar>(sin(angle), cos(angle)) * length;
     }
 
+    SimScalar getTurnRadius(SimScalar speed, SimScalar turnRate)
+    {
+        return speed / angularToRadians(turnRate);
+    }
+
     bool isWithinTurningCircle(const SimVector& dest, SimScalar speed, SimScalar turnRate, SimAngle currentDirection)
     {
-        auto turnRadius = speed / angularToRadians(turnRate);
+        auto turnRadius = getTurnRadius(speed, turnRate);
 
         auto anticlockwiseCircleAngle = currentDirection + QuarterTurn;
         auto clockwiseCircleAngle = currentDirection - QuarterTurn;
@@ -223,6 +228,14 @@ namespace rwe
         auto normalizedUnitDirection = Unit::toDirection(unit.rotation);
         auto normalizedXzDirection = xzDirection.normalized();
         auto speedFactor = rweMax(0_ss, normalizedUnitDirection.dot(normalizedXzDirection));
+
+        // Bias the speed factor towards zero if we are within our turn radius of the goal.
+        // This is to try and discourage units from orbiting their destination.
+        auto turnRadius = getTurnRadius(unit.maxSpeed, unit.turnRate);
+        if (xzDirection.lengthSquared() <= turnRadius * turnRadius)
+        {
+            speedFactor = speedFactor * speedFactor;
+        }
 
         return SteeringInfo{
             Unit::toRotation(xzDirection),
