@@ -6,6 +6,7 @@
 #include <rwe/observable/Observable.h>
 #include <rwe/observable/Subject.h>
 #include <rwe/observable/Subscription.h>
+#include <rwe/ui/events.h>
 #include <vector>
 
 namespace rwe

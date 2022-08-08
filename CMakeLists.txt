@@ -580,6 +580,8 @@ set(SOURCE_FILES
     src/rwe/ui/UiStagedButton.h
     src/rwe/ui/UiSurface.cpp
     src/rwe/ui/UiSurface.h
+    src/rwe/ui/events.cpp
+    src/rwe/ui/events.h
     src/rwe/util.cpp
     src/rwe/util.h
     src/rwe/vertex_height.cpp
