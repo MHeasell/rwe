@@ -8,13 +8,13 @@
 #include <rwe/SideData.h>
 #include <rwe/TextureService.h>
 #include <rwe/io/tdf/TdfBlock.h>
-#include <rwe/scene/SceneManager.h>
+#include <rwe/scene/Scene.h>
 #include <rwe/ui/UiFactory.h>
 #include <rwe/ui/UiPanel.h>
 
 namespace rwe
 {
-    class MainMenuScene : public SceneManager::Scene
+    class MainMenuScene : public Scene
     {
     private:
         SceneContext sceneContext;

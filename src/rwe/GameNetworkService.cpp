@@ -6,7 +6,6 @@
 #include <rwe/network_util.h>
 #include <rwe/proto/serialization.h>
 #include <rwe/range_util.h>
-#include <rwe/scene/SceneManager.h>
 #include <rwe/sim/SimTicksPerSecond.h>
 #include <spdlog/spdlog.h>
 #include <thread>

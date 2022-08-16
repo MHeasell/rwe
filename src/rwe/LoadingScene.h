@@ -15,7 +15,6 @@
 #include <rwe/io/ota/ota.h>
 #include <rwe/io/tnt/TntArchive.h>
 #include <rwe/render/TextureArrayRegion.h>
-#include <rwe/scene/SceneManager.h>
 #include <rwe/sim/Energy.h>
 #include <rwe/sim/Metal.h>
 #include <rwe/sim/SimVector.h>
@@ -85,7 +84,7 @@ namespace rwe
         GameParameters(const std::string& mapName, unsigned int schemaIndex);
     };
 
-    class LoadingScene : public SceneManager::Scene
+    class LoadingScene : public Scene
     {
     private:
         SceneContext sceneContext;

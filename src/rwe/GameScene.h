@@ -32,7 +32,8 @@
 #include <rwe/io/featuretdf/FeatureTdf.h>
 #include <rwe/observable/BehaviorSubject.h>
 #include <rwe/pathfinding/PathFindingService.h>
-#include <rwe/scene/SceneManager.h>
+#include <rwe/scene/Scene.h>
+#include <rwe/scene/util.h>
 #include <rwe/sim/GameSimulation.h>
 #include <rwe/sim/OccupiedGrid.h>
 #include <rwe/sim/PlayerId.h>
@@ -164,10 +165,10 @@ namespace rwe
         bool isValid;
     };
 
-    class GameScene : public SceneManager::Scene
+    class GameScene : public Scene
     {
     public:
-        static inline const SimScalar SecondsPerTick = SimScalar(SceneManager::TickInterval) / 1000_ss;
+        static inline const SimScalar SecondsPerTick = SimScalar(SceneTickInterval) / 1000_ss;
 
         static constexpr int GuiSizeLeft = 128;
         static constexpr int GuiSizeRight = 0;

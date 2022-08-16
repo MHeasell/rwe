@@ -1,5 +1,5 @@
 #include "SceneManager.h"
-#include "rwe/SceneContext.h"
+#include <rwe/SceneContext.h>
 
 namespace rwe
 {
@@ -47,7 +47,7 @@ namespace rwe
         nextScene = std::move(scene);
     }
 
-    void dispatchToScene(const SDL_Event& event, SceneManager::Scene& currentScene)
+    void dispatchToScene(const SDL_Event& event, Scene& currentScene)
     {
         switch (event.type)
         {
