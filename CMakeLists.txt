@@ -293,8 +293,6 @@ set(SOURCE_FILES
     src/rwe/RenderService.h
     src/rwe/Result.h
     src/rwe/SceneContext.h
-    src/rwe/SceneManager.cpp
-    src/rwe/SceneManager.h
     src/rwe/SceneTime.cpp
     src/rwe/SceneTime.h
     src/rwe/SdlContextManager.cpp
@@ -512,6 +510,8 @@ set(SOURCE_FILES
     src/rwe/rwe_string.h
     src/rwe/rwe_time.cpp
     src/rwe/rwe_time.h
+    src/rwe/scene/SceneManager.cpp
+    src/rwe/scene/SceneManager.h
     src/rwe/sim/Energy.h
     src/rwe/sim/FeatureDefinition.cpp
     src/rwe/sim/FeatureDefinition.h

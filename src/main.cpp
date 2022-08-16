@@ -12,7 +12,6 @@
 #include <rwe/PlayerColorIndex.h>
 #include <rwe/Result.h>
 #include <rwe/SceneContext.h>
-#include <rwe/SceneManager.h>
 #include <rwe/SdlContextManager.h>
 #include <rwe/ShaderService.h>
 #include <rwe/Viewport.h>
@@ -23,6 +22,7 @@
 #include <rwe/render/GraphicsContext.h>
 #include <rwe/render/OpenGlVersion.h>
 #include <rwe/rwe_time.h>
+#include <rwe/scene/SceneManager.h>
 #include <rwe/sim/Energy.h>
 #include <rwe/sim/Metal.h>
 #include <rwe/ui/UiFactory.h>

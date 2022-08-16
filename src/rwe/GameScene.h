@@ -19,7 +19,6 @@
 #include <rwe/PlayerCommandService.h>
 #include <rwe/RenderService.h>
 #include <rwe/SceneContext.h>
-#include <rwe/SceneManager.h>
 #include <rwe/SceneTime.h>
 #include <rwe/TextureService.h>
 #include <rwe/UiRenderService.h>
@@ -33,6 +32,7 @@
 #include <rwe/io/featuretdf/FeatureTdf.h>
 #include <rwe/observable/BehaviorSubject.h>
 #include <rwe/pathfinding/PathFindingService.h>
+#include <rwe/scene/SceneManager.h>
 #include <rwe/sim/GameSimulation.h>
 #include <rwe/sim/OccupiedGrid.h>
 #include <rwe/sim/PlayerId.h>

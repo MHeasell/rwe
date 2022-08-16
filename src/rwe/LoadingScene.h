@@ -8,7 +8,6 @@
 #include <rwe/MapTerrainGraphics.h>
 #include <rwe/PlayerColorIndex.h>
 #include <rwe/SceneContext.h>
-#include <rwe/SceneManager.h>
 #include <rwe/SideData.h>
 #include <rwe/TextureService.h>
 #include <rwe/UnitDatabase.h>
@@ -16,6 +15,7 @@
 #include <rwe/io/ota/ota.h>
 #include <rwe/io/tnt/TntArchive.h>
 #include <rwe/render/TextureArrayRegion.h>
+#include <rwe/scene/SceneManager.h>
 #include <rwe/sim/Energy.h>
 #include <rwe/sim/Metal.h>
 #include <rwe/sim/SimVector.h>

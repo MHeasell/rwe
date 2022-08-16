@@ -5,10 +5,10 @@
 #include <rwe/CursorService.h>
 #include <rwe/RenderService.h>
 #include <rwe/SceneContext.h>
-#include <rwe/SceneManager.h>
 #include <rwe/SideData.h>
 #include <rwe/TextureService.h>
 #include <rwe/io/tdf/TdfBlock.h>
+#include <rwe/scene/SceneManager.h>
 #include <rwe/ui/UiFactory.h>
 #include <rwe/ui/UiPanel.h>
 
