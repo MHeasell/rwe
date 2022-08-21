@@ -9,26 +9,9 @@
 
 namespace rwe
 {
-    Vector2x<SimScalar> Vector2xFromLengthAndAngle(SimScalar length, SimAngle angle)
-    {
-        return Vector2x<SimScalar>(sin(angle), cos(angle)) * length;
-    }
-
     SimScalar getTurnRadius(SimScalar speed, SimScalar turnRate)
     {
         return speed / angularToRadians(turnRate);
-    }
-
-    bool isWithinTurningCircle(const SimVector& dest, SimScalar speed, SimScalar turnRate, SimAngle currentDirection)
-    {
-        auto turnRadius = getTurnRadius(speed, turnRate);
-
-        auto anticlockwiseCircleAngle = currentDirection + QuarterTurn;
-        auto clockwiseCircleAngle = currentDirection - QuarterTurn;
-        auto anticlockwiseCircle = Circle2x<SimScalar>(turnRadius, Vector2xFromLengthAndAngle(turnRadius, anticlockwiseCircleAngle));
-        auto clockwiseCircle = Circle2x<SimScalar>(turnRadius, Vector2xFromLengthAndAngle(turnRadius, clockwiseCircleAngle));
-
-        return anticlockwiseCircle.contains(dest.xz()) || clockwiseCircle.contains(dest.xz());
     }
 
     UnitBehaviorService::UnitBehaviorService(
