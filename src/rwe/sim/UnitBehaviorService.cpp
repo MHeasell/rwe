@@ -1029,7 +1029,7 @@ namespace rwe
                 {
                     if (targetUnit.isBeingBuilt() && !targetUnit.isDead())
                     {
-                        scene->quietlyKillUnit(state.targetUnit->first);
+                        sim.quietlyKillUnit(state.targetUnit->first);
                     }
                     state.targetUnit = std::nullopt;
                     return false;
@@ -1115,7 +1115,7 @@ namespace rwe
                     state.status,
                     [&](const UnitCreationStatusDone& d)
                     {
-                        scene->quietlyKillUnit(d.unitId);
+                        sim.quietlyKillUnit(d.unitId);
                     },
                     [&](const auto&)
                     {
@@ -1128,7 +1128,7 @@ namespace rwe
             {
                 if (state.targetUnit)
                 {
-                    scene->quietlyKillUnit(state.targetUnit->first);
+                    sim.quietlyKillUnit(state.targetUnit->first);
                     unit.cobEnvironment->createThread("StopBuilding");
                 }
                 sim.deactivateUnit(unitId);

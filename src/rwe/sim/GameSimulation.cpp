@@ -590,4 +590,10 @@ namespace rwe
         unit.deactivate();
         events.push_back(UnitDeactivatedEvent{unitId});
     }
+
+    void GameSimulation::quietlyKillUnit(UnitId unitId)
+    {
+        auto& unit = getUnit(unitId);
+        unit.markAsDeadNoCorpse();
+    }
 }

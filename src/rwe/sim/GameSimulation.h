@@ -247,5 +247,7 @@ namespace rwe
         void activateUnit(UnitId unitId);
 
         void deactivateUnit(UnitId unitId);
+
+        void quietlyKillUnit(UnitId unitId);
     };
 }

@@ -419,8 +419,6 @@ namespace rwe
 
         void setYardOpen(UnitId unitId, bool value);
 
-        void quietlyKillUnit(UnitId unitId);
-
         void setBuggerOff(UnitId unitId, bool value);
 
         void onChannelFinished(int channel);
