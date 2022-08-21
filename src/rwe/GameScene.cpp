@@ -2952,6 +2952,30 @@ namespace rwe
                 [&](const UnitArrivedEvent& e) {
                     const auto& unit = simulation.getUnit(e.unitId);
                     playUnitNotificationSound(unit.owner, unit.unitType, UnitSoundType::Arrived1);
+                },
+                [&](const UnitActivatedEvent& e) {
+                    auto unit = tryGetUnit(e.unitId);
+                    if (unit)
+                    {
+                        playUnitNotificationSound(unit->get().owner, unit->get().unitType, UnitSoundType::Activate);
+
+                        if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && *selectedUnit == e.unitId)
+                        {
+                            onOff.next(true);
+                        }
+                    }
+                },
+                [&](const UnitDeactivatedEvent& e) {
+                    auto unit = tryGetUnit(e.unitId);
+                    if (unit)
+                    {
+                        playUnitNotificationSound(unit->get().owner, unit->get().unitType, UnitSoundType::Deactivate);
+
+                        if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && *selectedUnit == e.unitId)
+                        {
+                            onOff.next(false);
+                        }
+                    }
                 });
         }
 
@@ -3124,36 +3148,6 @@ namespace rwe
 
         spawnWake(spawnPosition1, velocity, duration);
         spawnWake(spawnPosition2, velocity, duration);
-    }
-
-    void GameScene::activateUnit(UnitId unitId)
-    {
-        auto unit = tryGetUnit(unitId);
-        if (unit)
-        {
-            unit->get().activate();
-            playUnitNotificationSound(unit->get().owner, unit->get().unitType, UnitSoundType::Activate);
-
-            if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && *selectedUnit == unitId)
-            {
-                onOff.next(true);
-            }
-        }
-    }
-
-    void GameScene::deactivateUnit(UnitId unitId)
-    {
-        auto unit = tryGetUnit(unitId);
-        if (unit)
-        {
-            unit->get().deactivate();
-            playUnitNotificationSound(unit->get().owner, unit->get().unitType, UnitSoundType::Deactivate);
-
-            if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && *selectedUnit == unitId)
-            {
-                onOff.next(false);
-            }
-        }
     }
 
     void GameScene::modifyBuildQueue(UnitId unitId, const std::string& unitType, int count)
@@ -3971,11 +3965,11 @@ namespace rwe
             [&](const PlayerUnitCommand::SetOnOff& c) {
                 if (c.on)
                 {
-                    activateUnit(unitCommand.unit);
+                    simulation.activateUnit(unitCommand.unit);
                 }
                 else
                 {
-                    deactivateUnit(unitCommand.unit);
+                    simulation.deactivateUnit(unitCommand.unit);
                 }
             });
     }

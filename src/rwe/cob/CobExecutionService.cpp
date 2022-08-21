@@ -332,11 +332,11 @@ namespace rwe
             [&](const CobEnvironment::SetQueryStatus::Activation& q) {
                 if (q.value)
                 {
-                    scene.activateUnit(unitId);
+                    sim.activateUnit(unitId);
                 }
                 else
                 {
-                    scene.deactivateUnit(unitId);
+                    sim.deactivateUnit(unitId);
                 }
             },
             [&](const CobEnvironment::SetQueryStatus::StandingMoveOrders&) {

@@ -104,7 +104,17 @@ namespace rwe
         UnitId unitId;
     };
 
-    using GameEvent = std::variant<FireWeaponEvent, UnitArrivedEvent>;
+    struct UnitActivatedEvent
+    {
+        UnitId unitId;
+    };
+
+    struct UnitDeactivatedEvent
+    {
+        UnitId unitId;
+    };
+
+    using GameEvent = std::variant<FireWeaponEvent, UnitArrivedEvent, UnitActivatedEvent, UnitDeactivatedEvent>;
 
     struct GameSimulation
     {
@@ -233,5 +243,9 @@ namespace rwe
         void tellToBuggerOff(const UnitId& unitId, const DiscreteRect& rect);
 
         GameHash computeHash() const;
+
+        void activateUnit(UnitId unitId);
+
+        void deactivateUnit(UnitId unitId);
     };
 }

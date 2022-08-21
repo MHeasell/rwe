@@ -576,4 +576,18 @@ namespace rwe
     {
         return computeHashOf(*this);
     }
+
+    void GameSimulation::activateUnit(UnitId unitId)
+    {
+        auto& unit = getUnit(unitId);
+        unit.activate();
+        events.push_back(UnitActivatedEvent{unitId});
+    }
+
+    void GameSimulation::deactivateUnit(UnitId unitId)
+    {
+        auto& unit = getUnit(unitId);
+        unit.deactivate();
+        events.push_back(UnitDeactivatedEvent{unitId});
+    }
 }

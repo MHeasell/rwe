@@ -975,7 +975,7 @@ namespace rwe
             unit.factoryState,
             [&](const FactoryStateIdle&)
             {
-                scene->activateUnit(unitId);
+                sim.activateUnit(unitId);
                 unit.factoryState = FactoryStateBuilding();
                 return false;
             },
@@ -1038,7 +1038,7 @@ namespace rwe
                 if (targetUnit.isDead())
                 {
                     unit.cobEnvironment->createThread("StopBuilding");
-                    scene->deactivateUnit(unitId);
+                    sim.deactivateUnit(unitId);
                     unit.factoryState = FactoryStateIdle();
                     return true;
                 }
@@ -1055,7 +1055,7 @@ namespace rwe
                         targetUnit.replaceOrders(unit.orders);
                     }
                     unit.cobEnvironment->createThread("StopBuilding");
-                    scene->deactivateUnit(unitId);
+                    sim.deactivateUnit(unitId);
                     unit.factoryState = FactoryStateIdle();
                     return true;
                 }
@@ -1090,7 +1090,7 @@ namespace rwe
                     scene->playUnitNotificationSound(targetUnit.owner, targetUnit.unitType, UnitSoundType::UnitComplete);
                     if (targetUnit.activateWhenBuilt)
                     {
-                        scene->activateUnit(state.targetUnit->first);
+                        sim.activateUnit(state.targetUnit->first);
                     }
                 }
 
@@ -1100,7 +1100,8 @@ namespace rwe
 
     void UnitBehaviorService::clearBuild(UnitId unitId)
     {
-        auto& unit = scene->getSimulation().getUnit(unitId);
+        auto& sim = scene->getSimulation();
+        auto& unit = sim.getUnit(unitId);
 
         match(
             unit.factoryState,
@@ -1120,7 +1121,7 @@ namespace rwe
                     {
                         // do nothing
                     });
-                scene->deactivateUnit(unitId);
+                sim.deactivateUnit(unitId);
                 unit.factoryState = FactoryStateIdle();
             },
             [&](const FactoryStateBuilding& state)
@@ -1130,7 +1131,7 @@ namespace rwe
                     scene->quietlyKillUnit(state.targetUnit->first);
                     unit.cobEnvironment->createThread("StopBuilding");
                 }
-                scene->deactivateUnit(unitId);
+                sim.deactivateUnit(unitId);
                 unit.factoryState = FactoryStateIdle();
             });
     }
@@ -1400,7 +1401,7 @@ namespace rwe
                     scene->playUnitNotificationSound(targetUnit.owner, targetUnit.unitType, UnitSoundType::UnitComplete);
                     if (targetUnit.activateWhenBuilt)
                     {
-                        scene->activateUnit(buildingState.targetUnit);
+                        sim.activateUnit(buildingState.targetUnit);
                     }
                     changeState(unit, IdleState());
                     return true;

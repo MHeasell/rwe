@@ -413,9 +413,6 @@ namespace rwe
 
         void emitWake1FromPiece(UnitId unitId, const std::string& pieceName);
 
-        void activateUnit(UnitId unitId);
-        void deactivateUnit(UnitId unitId);
-
         void modifyBuildQueue(UnitId unitId, const std::string& unitType, int count);
 
         void setBuildStance(UnitId unitId, bool value);
