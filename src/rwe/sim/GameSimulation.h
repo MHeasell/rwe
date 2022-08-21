@@ -114,7 +114,12 @@ namespace rwe
         UnitId unitId;
     };
 
-    using GameEvent = std::variant<FireWeaponEvent, UnitArrivedEvent, UnitActivatedEvent, UnitDeactivatedEvent>;
+    struct UnitCompleteEvent
+    {
+        UnitId unitId;
+    };
+
+    using GameEvent = std::variant<FireWeaponEvent, UnitArrivedEvent, UnitActivatedEvent, UnitDeactivatedEvent, UnitCompleteEvent>;
 
     struct GameSimulation
     {

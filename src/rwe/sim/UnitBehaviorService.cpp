@@ -1086,8 +1086,8 @@ namespace rwe
 
                 if (targetUnit.addBuildProgress(unit.workerTimePerTick))
                 {
-                    // play sound when the unit is completed
-                    scene->playUnitNotificationSound(targetUnit.owner, targetUnit.unitType, UnitSoundType::UnitComplete);
+                    sim.events.push_back(UnitCompleteEvent{state.targetUnit->first});
+
                     if (targetUnit.activateWhenBuilt)
                     {
                         sim.activateUnit(state.targetUnit->first);
@@ -1397,12 +1397,13 @@ namespace rwe
 
                 if (targetUnit.addBuildProgress(unit.workerTimePerTick))
                 {
-                    // play sound when the unit is completed
-                    scene->playUnitNotificationSound(targetUnit.owner, targetUnit.unitType, UnitSoundType::UnitComplete);
+                    sim.events.push_back(UnitCompleteEvent{buildingState.targetUnit});
+
                     if (targetUnit.activateWhenBuilt)
                     {
                         sim.activateUnit(buildingState.targetUnit);
                     }
+
                     changeState(unit, IdleState());
                     return true;
                 }

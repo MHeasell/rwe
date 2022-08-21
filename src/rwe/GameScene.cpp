@@ -2976,6 +2976,10 @@ namespace rwe
                             onOff.next(false);
                         }
                     }
+                },
+                [&](const UnitCompleteEvent& e) {
+                    const auto& unit = getUnit(e.unitId);
+                    playUnitNotificationSound(unit.owner, unit.unitType, UnitSoundType::UnitComplete);
                 });
         }
 
