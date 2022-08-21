@@ -99,7 +99,12 @@ namespace rwe
         SimVector firePoint;
     };
 
-    using GameEvent = std::variant<FireWeaponEvent>;
+    struct UnitArrivedEvent
+    {
+        UnitId unitId;
+    };
+
+    using GameEvent = std::variant<FireWeaponEvent, UnitArrivedEvent>;
 
     struct GameSimulation
     {

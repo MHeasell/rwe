@@ -2948,6 +2948,10 @@ namespace rwe
                     {
                         createWeaponSmoke(simVectorToFloat(e.firePoint));
                     }
+                },
+                [&](const UnitArrivedEvent& e) {
+                    const auto& unit = simulation.getUnit(e.unitId);
+                    playUnitNotificationSound(unit.owner, unit.unitType, UnitSoundType::Arrived1);
                 });
         }
 

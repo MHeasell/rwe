@@ -846,7 +846,8 @@ namespace rwe
 
     bool UnitBehaviorService::handleMoveOrder(UnitId unitId, const MoveOrder& moveOrder)
     {
-        auto& unit = scene->getSimulation().getUnit(unitId);
+        auto& sim = scene->getSimulation();
+        auto& unit = sim.getUnit(unitId);
         if (!unit.isMobile)
         {
             return false;
@@ -854,7 +855,7 @@ namespace rwe
 
         if (moveTo(unitId, moveOrder.destination))
         {
-            scene->playUnitNotificationSound(unit.owner, unit.unitType, UnitSoundType::Arrived1);
+            sim.events.push_back(UnitArrivedEvent{unitId});
             return true;
         }
 
