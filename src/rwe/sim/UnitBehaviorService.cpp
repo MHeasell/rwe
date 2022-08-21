@@ -278,21 +278,22 @@ namespace rwe
 
     void UnitBehaviorService::updateWeapon(UnitId id, unsigned int weaponIndex)
     {
-        auto& unit = scene->getSimulation().getUnit(id);
+        auto& sim = scene->getSimulation();
+        auto& unit = sim.getUnit(id);
         auto& weapon = unit.weapons[weaponIndex];
         if (!weapon)
         {
             return;
         }
 
-        const auto& weaponDefinition = scene->getSimulation().weaponDefinitions.at(weapon->weaponType);
+        const auto& weaponDefinition = sim.weaponDefinitions.at(weapon->weaponType);
 
         if (auto idleState = std::get_if<UnitWeaponStateIdle>(&weapon->state); idleState != nullptr)
         {
             // attempt to acquire a target
             if (!weaponDefinition.commandFire && unit.fireOrders == UnitFireOrders::FireAtWill)
             {
-                for (const auto& entry : scene->getSimulation().units)
+                for (const auto& entry : sim.units)
                 {
                     auto otherUnitId = entry.first;
                     const auto& otherUnit = entry.second;
@@ -436,7 +437,7 @@ namespace rwe
     void UnitBehaviorService::tryFireWeapon(UnitId id, unsigned int weaponIndex)
     {
         auto& sim = scene->getSimulation();
-        auto& unit = scene->getSimulation().getUnit(id);
+        auto& unit = sim.getUnit(id);
         auto& weapon = unit.weapons[weaponIndex];
 
         if (!weapon)
