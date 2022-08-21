@@ -2980,6 +2980,22 @@ namespace rwe
                 [&](const UnitCompleteEvent& e) {
                     const auto& unit = getUnit(e.unitId);
                     playUnitNotificationSound(unit.owner, unit.unitType, UnitSoundType::UnitComplete);
+                },
+                [&](const EmitParticleFromPieceEvent& e) {
+                    switch (e.sfxType)
+                    {
+                        case EmitParticleFromPieceEvent::SfxType::LightSmoke:
+                            emitLightSmokeFromPiece(e.unitId, e.pieceName);
+                            break;
+                        case EmitParticleFromPieceEvent::SfxType::BlackSmoke:
+                            emitBlackSmokeFromPiece(e.unitId, e.pieceName);
+                            break;
+                        case EmitParticleFromPieceEvent::SfxType::Wake1:
+                            emitWake1FromPiece(e.unitId, e.pieceName);
+                            break;
+                        default:
+                            throw std::logic_error("unknown particle type");
+                    }
                 });
         }
 

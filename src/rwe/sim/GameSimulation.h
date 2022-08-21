@@ -119,7 +119,21 @@ namespace rwe
         UnitId unitId;
     };
 
-    using GameEvent = std::variant<FireWeaponEvent, UnitArrivedEvent, UnitActivatedEvent, UnitDeactivatedEvent, UnitCompleteEvent>;
+    struct EmitParticleFromPieceEvent
+    {
+        enum class SfxType
+        {
+            LightSmoke,
+            BlackSmoke,
+            Wake1,
+        };
+
+        SfxType sfxType;
+        UnitId unitId;
+        std::string pieceName;
+    };
+
+    using GameEvent = std::variant<FireWeaponEvent, UnitArrivedEvent, UnitActivatedEvent, UnitDeactivatedEvent, UnitCompleteEvent, EmitParticleFromPieceEvent>;
 
     struct GameSimulation
     {

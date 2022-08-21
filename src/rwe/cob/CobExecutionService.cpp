@@ -102,7 +102,7 @@ namespace rwe
         return std::nullopt;
     }
 
-    void handlePieceCommand(GameScene& scene, GameSimulation& simulation, const CobEnvironment& env, UnitId unitId, const CobEnvironment::PieceCommandStatus& result)
+    void handlePieceCommand(GameSimulation& simulation, const CobEnvironment& env, UnitId unitId, const CobEnvironment::PieceCommandStatus& result)
     {
         const auto& objectName = getObjectName(env, result.piece);
         match(
@@ -153,13 +153,13 @@ namespace rwe
                 switch (s.sfxType)
                 {
                     case CobSfxType::WhiteSmoke:
-                        scene.emitLightSmokeFromPiece(unitId, objectName);
+                        simulation.events.push_back(EmitParticleFromPieceEvent{EmitParticleFromPieceEvent::SfxType::LightSmoke, unitId, objectName});
                         break;
                     case CobSfxType::BlackSmoke:
-                        scene.emitBlackSmokeFromPiece(unitId, objectName);
+                        simulation.events.push_back(EmitParticleFromPieceEvent{EmitParticleFromPieceEvent::SfxType::BlackSmoke, unitId, objectName});
                         break;
                     case CobSfxType::Wake1:
-                        scene.emitWake1FromPiece(unitId, objectName);
+                        simulation.events.push_back(EmitParticleFromPieceEvent{EmitParticleFromPieceEvent::SfxType::Wake1, unitId, objectName});
                         break;
                     case CobSfxType::Vtol:
                     case CobSfxType::Thrust:
@@ -432,7 +432,7 @@ namespace rwe
             match(
                 *result,
                 [&](const CobEnvironment::PieceCommandStatus& s) {
-                    handlePieceCommand(scene, simulation, env, unitId, s);
+                    handlePieceCommand(simulation, env, unitId, s);
                 },
                 [&](const CobEnvironment::QueryStatus& s) {
                     auto result = handleQuery(scene, simulation, env, unitId, s);
