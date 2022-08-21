@@ -503,6 +503,8 @@ namespace rwe
 
         void updateProjectiles();
 
+        void processSimEvents();
+
         void updateFlashes();
 
         void applyDamageInRadius(const SimVector& position, SimScalar radius, const Projectile& projectile);

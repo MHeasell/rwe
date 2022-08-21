@@ -2480,6 +2480,8 @@ namespace rwe
         {
             *stateLogStream << dumpJson(simulation) << std::endl;
         }
+
+        processSimEvents();
     }
 
     std::optional<UnitId> GameScene::getUnitUnderCursor() const
@@ -2926,6 +2928,30 @@ namespace rwe
                 }
             }
         }
+    }
+
+    void GameScene::processSimEvents()
+    {
+        for (const auto& event : simulation.events)
+        {
+            match(
+                event,
+                [&](const FireWeaponEvent& e) {
+                    const auto& weaponMediaInfo = meshDatabase.getWeapon(e.weaponType);
+
+                    if (e.shotNumber == 0 || weaponMediaInfo.soundTrigger)
+                    {
+                        playWeaponStartSound(simVectorToFloat(e.firePoint), e.weaponType);
+                    }
+
+                    if (e.shotNumber == 0 && weaponMediaInfo.startSmoke)
+                    {
+                        createWeaponSmoke(simVectorToFloat(e.firePoint));
+                    }
+                });
+        }
+
+        simulation.events.clear();
     }
 
     void GameScene::updateFlashes()

@@ -88,6 +88,19 @@ namespace rwe
     };
     using WinStatus = std::variant<WinStatusWon, WinStatusDraw, WinStatusUndecided>;
 
+    struct FireWeaponEvent
+    {
+        std::string weaponType;
+        /**
+         * The number of this shot within the weapon's current burst.
+         * If this is the first shot of the burst, it will be 0.
+         */
+        int shotNumber;
+        SimVector firePoint;
+    };
+
+    using GameEvent = std::variant<FireWeaponEvent>;
+
     struct GameSimulation
     {
         std::minstd_rand rng;
@@ -117,6 +130,8 @@ namespace rwe
         std::deque<UnitId> unitCreationRequests;
 
         GameTime gameTime{0};
+
+        std::vector<GameEvent> events;
 
         explicit GameSimulation(MapTerrain&& terrain, unsigned char surfaceMetal);
 

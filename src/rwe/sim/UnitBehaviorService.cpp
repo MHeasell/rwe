@@ -446,7 +446,6 @@ namespace rwe
         }
 
         const auto& weaponDefinition = sim.weaponDefinitions.at(weapon->weaponType);
-        const auto& weaponMediaInfo = scene->getMeshDatabase().getWeapon(weapon->weaponType);
 
         auto attackInfo = std::get_if<UnitWeaponStateAttacking>(&weapon->state);
         if (!attackInfo)
@@ -502,20 +501,13 @@ namespace rwe
 
         sim.spawnProjectile(unit.owner, *weapon, firingPoint, direction, (fireInfo->targetPosition - firingPoint).length());
 
-        if (fireInfo->burstsFired == 0 || weaponMediaInfo.soundTrigger)
-        {
-            scene->playWeaponStartSound(simVectorToFloat(firingPoint), weapon->weaponType);
-        }
+        sim.events.push_back(FireWeaponEvent{weapon->weaponType, fireInfo->burstsFired, firingPoint});
 
         // If we just started the burst, set the reload timer
         if (fireInfo->burstsFired == 0)
         {
             unit.cobEnvironment->createThread(getFireScriptName(weaponIndex));
             weapon->readyTime = gameTime + deltaSecondsToTicks(weaponDefinition.reloadTime);
-            if (weaponMediaInfo.startSmoke)
-            {
-                scene->createWeaponSmoke(simVectorToFloat(firingPoint));
-            }
         }
 
         ++fireInfo->burstsFired;
