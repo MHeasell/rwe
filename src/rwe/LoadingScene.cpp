@@ -159,7 +159,7 @@ namespace rwe
             requiredFeatureNames.insert(f.second);
         }
 
-        auto [unitDatabase, meshDatabase, weaponDefinitions] = createUnitDatabase(meshService, requiredFeatureNames);
+        auto [unitDatabase, meshDatabase, unitDefinitions, weaponDefinitions] = createUnitDatabase(meshService, requiredFeatureNames);
 
         GameSimulation simulation(std::move(mapInfo.terrain), mapInfo.surfaceMetal);
         for (const auto& [pos, featureName] : mapInfo.features)
@@ -177,6 +177,7 @@ namespace rwe
 
         GameCameraState worldCameraState;
 
+        simulation.unitDefinitions = std::move(unitDefinitions);
         simulation.weaponDefinitions = std::move(weaponDefinitions);
 
         MovementClassCollisionService collisionService;
@@ -618,6 +619,71 @@ namespace rwe
         return weaponDefinition;
     }
 
+    UnitDefinition parseUnitDefinition(const UnitFbi& fbi)
+    {
+        UnitDefinition u;
+
+        u.unitName = fbi.unitName;
+        u.objectName = fbi.objectName;
+        u.movementClass = fbi.movementClass;
+        u.turnRate = toWorldAnglePerTick(fbi.turnRate);
+        u.maxVelocity = SimScalar(fbi.maxVelocity.value);
+        u.acceleration = SimScalar(fbi.acceleration.value);
+        u.brakeRate = SimScalar(fbi.brakeRate.value);
+
+        u.footprintX = fbi.footprintX;
+        u.footprintZ = fbi.footprintZ;
+        u.maxSlope = fbi.maxSlope;
+        u.maxWaterSlope = fbi.maxWaterSlope;
+        u.minWaterDepth = fbi.minWaterDepth;
+        u.maxWaterDepth = fbi.maxWaterDepth;
+
+        u.canAttack = fbi.canAttack;
+        u.canMove = fbi.canMove;
+        u.canGuard = fbi.canGuard;
+
+        u.commander = fbi.commander;
+
+        u.maxDamage = fbi.maxDamage;
+
+        u.bmCode = fbi.bmCode;
+
+        u.floater = fbi.floater;
+        u.canHover = fbi.canHover;
+
+        u.weapon1 = fbi.weapon1;
+        u.weapon2 = fbi.weapon2;
+        u.weapon3 = fbi.weapon3;
+
+        u.explodeAs = fbi.explodeAs;
+
+        u.builder = fbi.builder;
+        u.buildTime = fbi.buildTime;
+        u.buildCostEnergy = fbi.buildCostEnergy;
+        u.buildCostMetal = fbi.buildCostMetal;
+
+        u.workerTime = fbi.workerTime;
+
+        u.buildDistance = fbi.buildDistance;
+
+        u.onOffable = fbi.onOffable;
+        u.activateWhenBuilt = fbi.activateWhenBuilt;
+
+        u.energyMake = fbi.energyMake;
+        u.metalMake = fbi.metalMake;
+        u.energyUse = fbi.energyUse;
+        u.metalUse = fbi.metalUse;
+
+        u.makesMetal = fbi.makesMetal;
+        u.extractsMetal = fbi.extractsMetal;
+
+        u.yardMap = fbi.yardMap;
+
+        u.corpse = fbi.corpse;
+
+        return u;
+    }
+
     FeatureMediaInfo parseFeatureMediaInfo(TextureService& textureService, const FeatureTdf& tdf)
     {
         FeatureMediaInfo f;
@@ -893,10 +959,11 @@ namespace rwe
         }
     }
 
-    std::tuple<UnitDatabase, MeshDatabase, std::unordered_map<std::string, WeaponDefinition>> LoadingScene::createUnitDatabase(MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures)
+    std::tuple<UnitDatabase, MeshDatabase, std::unordered_map<std::string, UnitDefinition>, std::unordered_map<std::string, WeaponDefinition>> LoadingScene::createUnitDatabase(MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures)
     {
         UnitDatabase db;
         MeshDatabase meshDb;
+        std::unordered_map<std::string, UnitDefinition> unitDefinitions;
         std::unordered_map<std::string, WeaponDefinition> weaponDefinitions;
 
         // read sound categories
@@ -1029,6 +1096,9 @@ namespace rwe
                 std::string fbiString(bytes->data(), bytes->size());
                 auto fbi = parseUnitFbi(parseTdfFromString(fbiString));
 
+                auto unitDefinition = parseUnitDefinition(fbi);
+                unitDefinitions.insert({toUpper(fbi.unitName), std::move(unitDefinition)});
+
                 // if it's a builder, also attempt to read its gui pages
                 if (fbi.builder)
                 {
@@ -1143,7 +1213,7 @@ namespace rwe
             meshDb.addSpriteSeries("FX", "flamestream", anim);
         }
 
-        return std::make_tuple(db, meshDb, weaponDefinitions);
+        return std::make_tuple(db, meshDb, unitDefinitions, weaponDefinitions);
     }
 
     void LoadingScene::preloadSound(MeshDatabase& meshDb, const std::optional<std::string>& soundName)

@@ -15,6 +15,7 @@
 #include <rwe/sim/Projectile.h>
 #include <rwe/sim/ProjectileId.h>
 #include <rwe/sim/Unit.h>
+#include <rwe/sim/UnitDefinition.h>
 #include <unordered_map>
 
 namespace rwe
@@ -142,6 +143,8 @@ namespace rwe
         WinStatus gameStatus{WinStatusUndecided()};
 
         MapTerrain terrain;
+
+        std::unordered_map<std::string, UnitDefinition> unitDefinitions;
 
         std::unordered_map<std::string, WeaponDefinition> weaponDefinitions;
 

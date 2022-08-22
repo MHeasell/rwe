@@ -550,6 +550,7 @@ set(SOURCE_FILES
     src/rwe/sim/Unit.h
     src/rwe/sim/UnitBehaviorService.cpp
     src/rwe/sim/UnitBehaviorService.h
+    src/rwe/sim/UnitDefinition.h
     src/rwe/sim/UnitFireOrders.h
     src/rwe/sim/UnitId.h
     src/rwe/sim/UnitMesh.cpp
