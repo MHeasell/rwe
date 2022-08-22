@@ -2,11 +2,11 @@
 
 #include <rwe/SelectionMesh.h>
 #include <rwe/TextureService.h>
-#include <rwe/UnitModelDefinition.h>
 #include <rwe/UnitPieceMeshInfo.h>
 #include <rwe/io/_3do/_3do.h>
 #include <rwe/math/Vector2f.h>
 #include <rwe/render/GraphicsContext.h>
+#include <rwe/sim/UnitModelDefinition.h>
 #include <rwe/vfs/AbstractVirtualFileSystem.h>
 #include <string>
 #include <unordered_map>

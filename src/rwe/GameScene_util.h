@@ -4,7 +4,6 @@
 #include <rwe/PlayerColorIndex.h>
 #include <rwe/RenderService.h>
 #include <rwe/UnitDatabase.h>
-#include <rwe/UnitModelDefinition.h>
 #include <rwe/VectorMap.h>
 #include <rwe/math/Matrix4x.h>
 #include <rwe/pathfinding/AStarPathFinder.h>
@@ -17,6 +16,7 @@
 #include <rwe/sim/SimScalar.h>
 #include <rwe/sim/Unit.h>
 #include <rwe/sim/UnitMesh.h>
+#include <rwe/sim/UnitModelDefinition.h>
 #include <rwe/sim/UnitPieceDefinition.h>
 #include <vector>
 

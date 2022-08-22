@@ -315,8 +315,6 @@ set(SOURCE_FILES
     src/rwe/UnitDatabase.h
     src/rwe/UnitFactory.cpp
     src/rwe/UnitFactory.h
-    src/rwe/UnitModelDefinition.cpp
-    src/rwe/UnitModelDefinition.h
     src/rwe/UnitPieceMeshInfo.cpp
     src/rwe/UnitPieceMeshInfo.h
     src/rwe/UnitSoundType.h
@@ -555,6 +553,8 @@ set(SOURCE_FILES
     src/rwe/sim/UnitId.h
     src/rwe/sim/UnitMesh.cpp
     src/rwe/sim/UnitMesh.h
+    src/rwe/sim/UnitModelDefinition.cpp
+    src/rwe/sim/UnitModelDefinition.h
     src/rwe/sim/UnitOrder.h
     src/rwe/sim/UnitPieceDefinition.cpp
     src/rwe/sim/UnitPieceDefinition.h

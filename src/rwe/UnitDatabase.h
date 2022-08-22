@@ -3,12 +3,12 @@
 #include <boost/functional/hash.hpp>
 #include <memory>
 #include <rwe/SimpleVectorMap.h>
-#include <rwe/UnitModelDefinition.h>
 #include <rwe/io/cob/Cob.h>
 #include <rwe/io/fbi/UnitFbi.h>
 #include <rwe/io/gui/gui.h>
 #include <rwe/sim/FeatureDefinition.h>
 #include <rwe/sim/MovementClass.h>
+#include <rwe/sim/UnitModelDefinition.h>
 #include <utility>
 
 
