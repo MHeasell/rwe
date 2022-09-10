@@ -280,5 +280,11 @@ namespace rwe
         Matrix4x<SimScalar> getUnitPieceTransform(UnitId unitId, const std::string& pieceName) const;
 
         SimVector getUnitPiecePosition(UnitId unitId, const std::string& pieceName) const;
+
+        void setBuildStance(UnitId unitId, bool value);
+
+        void setYardOpen(UnitId unitId, bool value);
+
+        void setBuggerOff(UnitId unitId, bool value);
     };
 }

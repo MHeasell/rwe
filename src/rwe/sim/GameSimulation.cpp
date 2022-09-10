@@ -620,4 +620,22 @@ namespace rwe
         auto pieceTransform = getPieceTransform(pieceName, modelDef, unit.pieces);
         return unit.getTransform() * pieceTransform * SimVector(0_ss, 0_ss, 0_ss);
     }
+
+    void GameSimulation::setBuildStance(UnitId unitId, bool value)
+    {
+        getUnit(unitId).inBuildStance = value;
+    }
+
+    void GameSimulation::setYardOpen(UnitId unitId, bool value)
+    {
+        trySetYardOpen(unitId, value);
+    }
+
+    void GameSimulation::setBuggerOff(UnitId unitId, bool value)
+    {
+        if (value)
+        {
+            emitBuggerOff(unitId);
+        }
+    }
 }

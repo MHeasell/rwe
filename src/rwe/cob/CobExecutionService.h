@@ -9,6 +9,6 @@ namespace rwe
     class CobExecutionService
     {
     public:
-        void run(GameScene& scene, GameSimulation& simulation, UnitId unitId);
+        void run(GameSimulation& simulation, UnitId unitId);
     };
 }

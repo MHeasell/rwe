@@ -172,7 +172,7 @@ namespace rwe
             });
     }
 
-    int handleQuery(GameScene& scene, GameSimulation& sim, const CobEnvironment& env, UnitId unitId, const CobEnvironment::QueryStatus& result)
+    int handleQuery(GameSimulation& sim, const CobEnvironment& env, UnitId unitId, const CobEnvironment::QueryStatus& result)
     {
         return match(
             result.query,
@@ -325,7 +325,7 @@ namespace rwe
             });
     }
 
-    void handleSetQuery(GameScene& scene, GameSimulation& sim, const CobEnvironment& env, UnitId unitId, const CobEnvironment::SetQueryStatus& result)
+    void handleSetQuery(GameSimulation& sim, const CobEnvironment& env, UnitId unitId, const CobEnvironment::SetQueryStatus& result)
     {
         match(
             result.query,
@@ -346,23 +346,23 @@ namespace rwe
                 // TODO
             },
             [&](const CobEnvironment::SetQueryStatus::InBuildStance& q) {
-                scene.setBuildStance(unitId, q.value);
+                sim.setBuildStance(unitId, q.value);
             },
             [&](const CobEnvironment::SetQueryStatus::Busy&) {
                 // TODO
             },
             [&](const CobEnvironment::SetQueryStatus::YardOpen& q) {
-                scene.setYardOpen(unitId, q.value);
+                sim.setYardOpen(unitId, q.value);
             },
             [&](const CobEnvironment::SetQueryStatus::BuggerOff& q) {
-                scene.setBuggerOff(unitId, q.value);
+                sim.setBuggerOff(unitId, q.value);
             },
             [&](const CobEnvironment::SetQueryStatus::Armored&) {
                 // TODO
             });
     }
 
-    void CobExecutionService::run(GameScene& scene, GameSimulation& simulation, UnitId unitId)
+    void CobExecutionService::run(GameSimulation& simulation, UnitId unitId)
     {
         auto& unit = simulation.getUnit(unitId);
         auto& env = *unit.cobEnvironment;
@@ -435,11 +435,11 @@ namespace rwe
                     handlePieceCommand(simulation, env, unitId, s);
                 },
                 [&](const CobEnvironment::QueryStatus& s) {
-                    auto result = handleQuery(scene, simulation, env, unitId, s);
+                    auto result = handleQuery(simulation, env, unitId, s);
                     env.pushResult(result);
                 },
                 [&](const CobEnvironment::SetQueryStatus& s) {
-                    handleSetQuery(scene, simulation, env, unitId, s);
+                    handleSetQuery(simulation, env, unitId, s);
                 });
         }
 

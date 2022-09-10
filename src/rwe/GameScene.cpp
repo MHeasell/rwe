@@ -192,7 +192,7 @@ namespace rwe
           gameNetworkService(std::move(gameNetworkService)),
           pathFindingService(&this->simulation, &this->collisionService),
           cobExecutionService(),
-          unitBehaviorService(this, &this->unitFactory, &this->cobExecutionService),
+          unitBehaviorService(&this->simulation, &this->unitFactory, &this->cobExecutionService),
           minimap(minimap),
           minimapDots(minimapDots),
           minimapDotHighlight(minimapDotHighlight),
@@ -2412,7 +2412,7 @@ namespace rwe
                 piece.update(SimScalar(SimMillisecondsPerTick) / 1000_ss);
             }
 
-            cobExecutionService.run(*this, simulation, unitId);
+            cobExecutionService.run(simulation, unitId);
         }
 
         updateProjectiles();
@@ -3156,24 +3156,6 @@ namespace rwe
 
             updateUnconfirmedBuildQueueDelta(unitId, unitType, -count);
             refreshBuildGuiTotal(unitId, unitType);
-        }
-    }
-
-    void GameScene::setBuildStance(UnitId unitId, bool value)
-    {
-        getUnit(unitId).inBuildStance = value;
-    }
-
-    void GameScene::setYardOpen(UnitId unitId, bool value)
-    {
-        simulation.trySetYardOpen(unitId, value);
-    }
-
-    void GameScene::setBuggerOff(UnitId unitId, bool value)
-    {
-        if (value)
-        {
-            simulation.emitBuggerOff(unitId);
         }
     }
 

@@ -16,13 +16,13 @@ namespace rwe
     class UnitBehaviorService
     {
     private:
-        GameScene* const scene;
+        GameSimulation* const sim;
         UnitFactory* const unitFactory;
         CobExecutionService* const cobExecutionService;
 
     public:
         UnitBehaviorService(
-            GameScene* scene,
+            GameSimulation* sim,
             UnitFactory* unitFactory,
             CobExecutionService* cobExecutionService);
 

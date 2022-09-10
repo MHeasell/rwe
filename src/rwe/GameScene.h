@@ -409,12 +409,6 @@ namespace rwe
 
         void modifyBuildQueue(UnitId unitId, const std::string& unitType, int count);
 
-        void setBuildStance(UnitId unitId, bool value);
-
-        void setYardOpen(UnitId unitId, bool value);
-
-        void setBuggerOff(UnitId unitId, bool value);
-
         void onChannelFinished(int channel);
 
     private:

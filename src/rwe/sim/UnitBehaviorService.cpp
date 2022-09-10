@@ -15,29 +15,28 @@ namespace rwe
     }
 
     UnitBehaviorService::UnitBehaviorService(
-        GameScene* scene,
+        GameSimulation* sim,
         UnitFactory* unitFactory,
         CobExecutionService* cobExecutionService)
-        : scene(scene), unitFactory(unitFactory), cobExecutionService(cobExecutionService)
+        : sim(sim), unitFactory(unitFactory), cobExecutionService(cobExecutionService)
     {
     }
 
     void UnitBehaviorService::onCreate(UnitId unitId)
     {
-        auto& sim = scene->getSimulation();
-        auto& unit = sim.getUnit(unitId);
+        auto& unit = sim->getUnit(unitId);
 
         unit.cobEnvironment->createThread("Create", std::vector<int>());
 
         // set speed for metal extractors
         if (unit.extractsMetal != Metal(0))
         {
-            auto footprint = sim.computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
-            auto metalValue = sim.metalGrid.accumulate(sim.metalGrid.clipRegion(footprint), 0u, std::plus<>());
+            auto footprint = sim->computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+            auto metalValue = sim->metalGrid.accumulate(sim->metalGrid.clipRegion(footprint), 0u, std::plus<>());
             unit.cobEnvironment->createThread("SetSpeed", {static_cast<int>(metalValue)});
         }
 
-        cobExecutionService->run(*scene, scene->getSimulation(), unitId);
+        cobExecutionService->run(*sim, unitId);
 
         // measure z distances for ballistics
         for (int i = 0; i < getSize(unit.weapons); ++i)
@@ -55,7 +54,7 @@ namespace rwe
 
     void UnitBehaviorService::update(UnitId unitId)
     {
-        auto& unit = scene->getSimulation().getUnit(unitId);
+        auto& unit = sim->getUnit(unitId);
 
         // Clear steering targets.
         unit.steeringInfo = SteeringInfo{
@@ -278,22 +277,21 @@ namespace rwe
 
     void UnitBehaviorService::updateWeapon(UnitId id, unsigned int weaponIndex)
     {
-        auto& sim = scene->getSimulation();
-        auto& unit = sim.getUnit(id);
+        auto& unit = sim->getUnit(id);
         auto& weapon = unit.weapons[weaponIndex];
         if (!weapon)
         {
             return;
         }
 
-        const auto& weaponDefinition = sim.weaponDefinitions.at(weapon->weaponType);
+        const auto& weaponDefinition = sim->weaponDefinitions.at(weapon->weaponType);
 
         if (auto idleState = std::get_if<UnitWeaponStateIdle>(&weapon->state); idleState != nullptr)
         {
             // attempt to acquire a target
             if (!weaponDefinition.commandFire && unit.fireOrders == UnitFireOrders::FireAtWill)
             {
-                for (const auto& entry : sim.units)
+                for (const auto& entry : sim->units)
                 {
                     auto otherUnitId = entry.first;
                     const auto& otherUnit = entry.second;
@@ -424,7 +422,7 @@ namespace rwe
     {
         std::uniform_int_distribution dist(SimAngle(0).value, maxAngle.value);
         std::uniform_int_distribution dist2(0, 1);
-        auto& rng = scene->getSimulation().rng;
+        auto& rng = sim->rng;
         auto angle = SimAngle(dist(rng));
         if (dist2(rng))
         {
@@ -436,8 +434,7 @@ namespace rwe
 
     void UnitBehaviorService::tryFireWeapon(UnitId id, unsigned int weaponIndex)
     {
-        auto& sim = scene->getSimulation();
-        auto& unit = sim.getUnit(id);
+        auto& unit = sim->getUnit(id);
         auto& weapon = unit.weapons[weaponIndex];
 
         if (!weapon)
@@ -445,7 +442,7 @@ namespace rwe
             return;
         }
 
-        const auto& weaponDefinition = sim.weaponDefinitions.at(weapon->weaponType);
+        const auto& weaponDefinition = sim->weaponDefinitions.at(weapon->weaponType);
 
         auto attackInfo = std::get_if<UnitWeaponStateAttacking>(&weapon->state);
         if (!attackInfo)
@@ -460,7 +457,7 @@ namespace rwe
         }
 
         // wait for the weapon to reload before firing first burst
-        auto gameTime = sim.gameTime;
+        auto gameTime = sim->gameTime;
         if (fireInfo->burstsFired == 0 && gameTime < weapon->readyTime)
         {
             return;
@@ -499,9 +496,9 @@ namespace rwe
             direction = changeDirectionByRandomAngle(direction, weaponDefinition.sprayAngle);
         }
 
-        sim.spawnProjectile(unit.owner, *weapon, firingPoint, direction, (fireInfo->targetPosition - firingPoint).length());
+        sim->spawnProjectile(unit.owner, *weapon, firingPoint, direction, (fireInfo->targetPosition - firingPoint).length());
 
-        sim.events.push_back(FireWeaponEvent{weapon->weaponType, fireInfo->burstsFired, firingPoint});
+        sim->events.push_back(FireWeaponEvent{weapon->weaponType, fireInfo->burstsFired, firingPoint});
 
         // If we just started the burst, set the reload timer
         if (fireInfo->burstsFired == 0)
@@ -527,7 +524,7 @@ namespace rwe
 
     void UnitBehaviorService::updateUnitRotation(UnitId id)
     {
-        auto& unit = scene->getSimulation().getUnit(id);
+        auto& unit = sim->getUnit(id);
         auto turnRateThisFrame = SimAngle(unit.turnRate.value);
         unit.previousRotation = unit.rotation;
         unit.rotation = turnTowards(unit.rotation, unit.steeringInfo.targetAngle, turnRateThisFrame);
@@ -535,8 +532,7 @@ namespace rwe
 
     void UnitBehaviorService::updateUnitSpeed(UnitId id)
     {
-        auto& sim = scene->getSimulation();
-        auto& unit = sim.getUnit(id);
+        auto& unit = sim->getUnit(id);
 
         const auto& steeringInfo = unit.steeringInfo;
 
@@ -566,7 +562,7 @@ namespace rwe
         }
 
         auto effectiveMaxSpeed = unit.maxSpeed;
-        if (unit.position.y < sim.terrain.getSeaLevel())
+        if (unit.position.y < sim->terrain.getSeaLevel())
         {
             effectiveMaxSpeed /= 2_ss;
         }
@@ -575,8 +571,7 @@ namespace rwe
 
     void UnitBehaviorService::updateUnitPosition(UnitId unitId)
     {
-        auto& sim = scene->getSimulation();
-        auto& unit = sim.getUnit(unitId);
+        auto& unit = sim->getUnit(unitId);
 
         unit.previousPosition = unit.position;
 
@@ -587,10 +582,10 @@ namespace rwe
         if (unit.currentSpeed > 0_ss)
         {
             auto newPosition = unit.position + (direction * unit.currentSpeed);
-            newPosition.y = sim.terrain.getHeightAt(newPosition.x, newPosition.z);
+            newPosition.y = sim->terrain.getHeightAt(newPosition.x, newPosition.z);
             if (unit.floater || unit.canHover)
             {
-                newPosition.y = rweMax(newPosition.y, sim.terrain.getSeaLevel());
+                newPosition.y = rweMax(newPosition.y, sim->terrain.getSeaLevel());
             }
 
             if (!tryApplyMovementToPosition(unitId, newPosition))
@@ -614,13 +609,13 @@ namespace rwe
                     newPos1 = unit.position + (direction * maskX * unit.currentSpeed);
                     newPos2 = unit.position + (direction * maskZ * unit.currentSpeed);
                 }
-                newPos1.y = sim.terrain.getHeightAt(newPos1.x, newPos1.z);
-                newPos2.y = sim.terrain.getHeightAt(newPos2.x, newPos2.z);
+                newPos1.y = sim->terrain.getHeightAt(newPos1.x, newPos1.z);
+                newPos2.y = sim->terrain.getHeightAt(newPos2.x, newPos2.z);
 
                 if (unit.floater || unit.canHover)
                 {
-                    newPos1.y = rweMax(newPos1.y, sim.terrain.getSeaLevel());
-                    newPos2.y = rweMax(newPos2.y, sim.terrain.getSeaLevel());
+                    newPos1.y = rweMax(newPos1.y, sim->terrain.getSeaLevel());
+                    newPos2.y = rweMax(newPos2.y, sim->terrain.getSeaLevel());
                 }
 
                 if (!tryApplyMovementToPosition(unitId, newPos1))
@@ -633,13 +628,12 @@ namespace rwe
 
     bool UnitBehaviorService::tryApplyMovementToPosition(UnitId id, const SimVector& newPosition)
     {
-        auto& sim = scene->getSimulation();
-        auto& unit = sim.getUnit(id);
+        auto& unit = sim->getUnit(id);
 
         // check for collision at the new position
-        auto newFootprintRegion = sim.computeFootprintRegion(newPosition, unit.footprintX, unit.footprintZ);
+        auto newFootprintRegion = sim->computeFootprintRegion(newPosition, unit.footprintX, unit.footprintZ);
 
-        if (sim.isCollisionAt(newFootprintRegion, id))
+        if (sim->isCollisionAt(newFootprintRegion, id))
         {
             return false;
         }
@@ -647,22 +641,22 @@ namespace rwe
         // Unlike for pathfinding, TA doesn't care about the unit's actual movement class for collision checks,
         // it only cares about the attributes defined directly on the unit.
         // Jam these into an ad-hoc movement class to pass into our walkability check.
-        if (!isGridPointWalkable(sim.terrain, unit.getAdHocMovementClass(), newFootprintRegion.x, newFootprintRegion.y))
+        if (!isGridPointWalkable(sim->terrain, unit.getAdHocMovementClass(), newFootprintRegion.x, newFootprintRegion.y))
         {
             return false;
         }
 
         // we passed all collision checks, update accordingly
-        auto footprintRegion = sim.computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
-        sim.moveUnitOccupiedArea(footprintRegion, newFootprintRegion, id);
+        auto footprintRegion = sim->computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+        sim->moveUnitOccupiedArea(footprintRegion, newFootprintRegion, id);
 
-        auto seaLevel = sim.terrain.getSeaLevel();
-        auto oldTerrainHeight = sim.terrain.getHeightAt(unit.position.x, unit.position.z);
+        auto seaLevel = sim->terrain.getSeaLevel();
+        auto oldTerrainHeight = sim->terrain.getHeightAt(unit.position.x, unit.position.z);
         auto oldPosBelowSea = oldTerrainHeight < seaLevel;
 
         unit.position = newPosition;
 
-        auto newTerrainHeight = sim.terrain.getHeightAt(unit.position.x, unit.position.z);
+        auto newTerrainHeight = sim->terrain.getHeightAt(unit.position.x, unit.position.z);
         auto newPosBelowSea = newTerrainHeight < seaLevel;
 
         if (oldPosBelowSea && !newPosBelowSea)
@@ -739,7 +733,7 @@ namespace rwe
 
     std::optional<int> UnitBehaviorService::runCobQuery(UnitId id, const std::string& name)
     {
-        auto& unit = scene->getSimulation().getUnit(id);
+        auto& unit = sim->getUnit(id);
         auto thread = unit.cobEnvironment->createNonScheduledThread(name, {0});
         if (!thread)
         {
@@ -758,7 +752,7 @@ namespace rwe
 
     SimVector UnitBehaviorService::getAimingPoint(UnitId id, unsigned int weaponIndex)
     {
-        const auto& unit = scene->getSimulation().getUnit(id);
+        const auto& unit = sim->getUnit(id);
         return unit.getTransform() * getLocalAimingPoint(id, weaponIndex);
     }
 
@@ -776,7 +770,7 @@ namespace rwe
 
     SimVector UnitBehaviorService::getFiringPoint(UnitId id, unsigned int weaponIndex)
     {
-        const auto& unit = scene->getSimulation().getUnit(id);
+        const auto& unit = sim->getUnit(id);
         return unit.getTransform() * getLocalFiringPoint(id, weaponIndex);
     }
 
@@ -798,7 +792,7 @@ namespace rwe
         auto pieceId = runCobQuery(id, "SweetSpot");
         if (!pieceId)
         {
-            return scene->getSimulation().getUnit(id).position;
+            return sim->getUnit(id).position;
         }
 
         return getPiecePosition(id, *pieceId);
@@ -806,7 +800,7 @@ namespace rwe
 
     std::optional<SimVector> UnitBehaviorService::tryGetSweetSpot(UnitId id)
     {
-        if (!scene->getSimulation().unitExists(id))
+        if (!sim->unitExists(id))
         {
             return std::nullopt;
         }
@@ -846,8 +840,7 @@ namespace rwe
 
     bool UnitBehaviorService::handleMoveOrder(UnitId unitId, const MoveOrder& moveOrder)
     {
-        auto& sim = scene->getSimulation();
-        auto& unit = sim.getUnit(unitId);
+        auto& unit = sim->getUnit(unitId);
         if (!unit.isMobile)
         {
             return false;
@@ -855,7 +848,7 @@ namespace rwe
 
         if (moveTo(unitId, moveOrder.destination))
         {
-            sim.events.push_back(UnitArrivedEvent{unitId});
+            sim->events.push_back(UnitArrivedEvent{unitId});
             return true;
         }
 
@@ -869,15 +862,14 @@ namespace rwe
 
     bool UnitBehaviorService::attackTarget(UnitId unitId, const AttackTarget& target)
     {
-        auto& sim = scene->getSimulation();
-        auto& unit = sim.getUnit(unitId);
+        auto& unit = sim->getUnit(unitId);
 
         if (!unit.weapons[0])
         {
             return true;
         }
 
-        const auto& weaponDefinition = sim.weaponDefinitions.at(unit.weapons[0]->weaponType);
+        const auto& weaponDefinition = sim->weaponDefinitions.at(unit.weapons[0]->weaponType);
 
         auto targetPosition = getTargetPosition(target);
         if (!targetPosition)
@@ -915,7 +907,7 @@ namespace rwe
 
     bool UnitBehaviorService::handleBuggerOffOrder(UnitId unitId, const BuggerOffOrder& buggerOffOrder)
     {
-        auto& unit = scene->getSimulation().getUnit(unitId);
+        auto& unit = sim->getUnit(unitId);
         return moveTo(unitId, buggerOffOrder.rect.expand((unit.footprintX * 3) - 4, (unit.footprintZ * 3) - 4));
     }
 
@@ -926,10 +918,9 @@ namespace rwe
 
     bool UnitBehaviorService::handleGuardOrder(UnitId unitId, const GuardOrder& guardOrder)
     {
-        auto& sim = scene->getSimulation();
-        auto& unit = sim.getUnit(unitId);
+        auto& unit = sim->getUnit(unitId);
 
-        auto target = sim.tryGetUnit(guardOrder.target);
+        auto target = sim->tryGetUnit(guardOrder.target);
         // TODO: real allied check here
         if (!target || !target->get().isOwnedBy(unit.owner))
         {
@@ -968,14 +959,13 @@ namespace rwe
 
     bool UnitBehaviorService::handleBuild(UnitId unitId, const std::string& unitType)
     {
-        auto& sim = scene->getSimulation();
-        auto& unit = sim.getUnit(unitId);
+        auto& unit = sim->getUnit(unitId);
 
         return match(
             unit.factoryState,
             [&](const FactoryStateIdle&)
             {
-                sim.activateUnit(unitId);
+                sim->activateUnit(unitId);
                 unit.factoryState = FactoryStateBuilding();
                 return false;
             },
@@ -1007,19 +997,19 @@ namespace rwe
                 }
 
                 auto buildPieceInfo = getBuildPieceInfo(unitId);
-                // buildPieceInfo.position.y = sim.terrain.getHeightAt(buildPieceInfo.position.x, buildPieceInfo.position.z);
+                // buildPieceInfo.position.y = sim->terrain.getHeightAt(buildPieceInfo.position.x, buildPieceInfo.position.z);
                 if (!state.targetUnit)
                 {
                     unit.factoryState = FactoryStateCreatingUnit{unitType, unit.owner, buildPieceInfo.position, buildPieceInfo.rotation};
-                    sim.unitCreationRequests.push_back(unitId);
+                    sim->unitCreationRequests.push_back(unitId);
                     return false;
                 }
 
-                auto targetUnitOption = sim.tryGetUnit(state.targetUnit->first);
+                auto targetUnitOption = sim->tryGetUnit(state.targetUnit->first);
                 if (!targetUnitOption)
                 {
                     unit.factoryState = FactoryStateCreatingUnit{unitType, unit.owner, buildPieceInfo.position, buildPieceInfo.rotation};
-                    sim.unitCreationRequests.push_back(unitId);
+                    sim->unitCreationRequests.push_back(unitId);
                     return false;
                 }
 
@@ -1029,7 +1019,7 @@ namespace rwe
                 {
                     if (targetUnit.isBeingBuilt() && !targetUnit.isDead())
                     {
-                        sim.quietlyKillUnit(state.targetUnit->first);
+                        sim->quietlyKillUnit(state.targetUnit->first);
                     }
                     state.targetUnit = std::nullopt;
                     return false;
@@ -1038,7 +1028,7 @@ namespace rwe
                 if (targetUnit.isDead())
                 {
                     unit.cobEnvironment->createThread("StopBuilding");
-                    sim.deactivateUnit(unitId);
+                    sim->deactivateUnit(unitId);
                     unit.factoryState = FactoryStateIdle();
                     return true;
                 }
@@ -1047,7 +1037,7 @@ namespace rwe
                 {
                     if (unit.orders.empty())
                     {
-                        auto footprintRect = sim.computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+                        auto footprintRect = sim->computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
                         targetUnit.addOrder(BuggerOffOrder(footprintRect));
                     }
                     else
@@ -1055,21 +1045,21 @@ namespace rwe
                         targetUnit.replaceOrders(unit.orders);
                     }
                     unit.cobEnvironment->createThread("StopBuilding");
-                    sim.deactivateUnit(unitId);
+                    sim->deactivateUnit(unitId);
                     unit.factoryState = FactoryStateIdle();
                     return true;
                 }
 
                 if (targetUnit.floater || targetUnit.canHover)
                 {
-                    buildPieceInfo.position.y = rweMax(buildPieceInfo.position.y, sim.terrain.getSeaLevel());
+                    buildPieceInfo.position.y = rweMax(buildPieceInfo.position.y, sim->terrain.getSeaLevel());
                 }
 
                 tryApplyMovementToPosition(state.targetUnit->first, buildPieceInfo.position);
                 targetUnit.rotation = buildPieceInfo.rotation;
 
                 auto costs = targetUnit.getBuildCostInfo(unit.workerTimePerTick);
-                auto gotResources = sim.addResourceDelta(
+                auto gotResources = sim->addResourceDelta(
                     unitId,
                     -Energy(targetUnit.energyCost.value * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime)),
                     -Metal(targetUnit.metalCost.value * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime)),
@@ -1086,11 +1076,11 @@ namespace rwe
 
                 if (targetUnit.addBuildProgress(unit.workerTimePerTick))
                 {
-                    sim.events.push_back(UnitCompleteEvent{state.targetUnit->first});
+                    sim->events.push_back(UnitCompleteEvent{state.targetUnit->first});
 
                     if (targetUnit.activateWhenBuilt)
                     {
-                        sim.activateUnit(state.targetUnit->first);
+                        sim->activateUnit(state.targetUnit->first);
                     }
                 }
 
@@ -1100,8 +1090,7 @@ namespace rwe
 
     void UnitBehaviorService::clearBuild(UnitId unitId)
     {
-        auto& sim = scene->getSimulation();
-        auto& unit = sim.getUnit(unitId);
+        auto& unit = sim->getUnit(unitId);
 
         match(
             unit.factoryState,
@@ -1115,23 +1104,23 @@ namespace rwe
                     state.status,
                     [&](const UnitCreationStatusDone& d)
                     {
-                        sim.quietlyKillUnit(d.unitId);
+                        sim->quietlyKillUnit(d.unitId);
                     },
                     [&](const auto&)
                     {
                         // do nothing
                     });
-                sim.deactivateUnit(unitId);
+                sim->deactivateUnit(unitId);
                 unit.factoryState = FactoryStateIdle();
             },
             [&](const FactoryStateBuilding& state)
             {
                 if (state.targetUnit)
                 {
-                    sim.quietlyKillUnit(state.targetUnit->first);
+                    sim->quietlyKillUnit(state.targetUnit->first);
                     unit.cobEnvironment->createThread("StopBuilding");
                 }
-                sim.deactivateUnit(unitId);
+                sim->deactivateUnit(unitId);
                 unit.factoryState = FactoryStateIdle();
             });
     }
@@ -1141,7 +1130,7 @@ namespace rwe
         auto pieceId = runCobQuery(id, "QueryNanoPiece");
         if (!pieceId)
         {
-            return scene->getSimulation().getUnit(id).position;
+            return sim->getUnit(id).position;
         }
 
         return getPiecePosition(id, *pieceId);
@@ -1149,18 +1138,17 @@ namespace rwe
 
     SimVector UnitBehaviorService::getPieceLocalPosition(UnitId id, unsigned int pieceId)
     {
-        auto& sim = scene->getSimulation();
-        auto& unit = sim.getUnit(id);
+        auto& unit = sim->getUnit(id);
 
         const auto& pieceName = unit.cobEnvironment->_script->pieces.at(pieceId);
-        auto pieceTransform = sim.getUnitPieceLocalTransform(id, pieceName);
+        auto pieceTransform = sim->getUnitPieceLocalTransform(id, pieceName);
 
         return pieceTransform * SimVector(0_ss, 0_ss, 0_ss);
     }
 
     SimVector UnitBehaviorService::getPiecePosition(UnitId id, unsigned int pieceId)
     {
-        auto& unit = scene->getSimulation().getUnit(id);
+        auto& unit = sim->getUnit(id);
 
         return unit.getTransform() * getPieceLocalPosition(id, pieceId);
     }
@@ -1172,11 +1160,10 @@ namespace rwe
 
     SimAngle UnitBehaviorService::getPieceXZRotation(UnitId id, unsigned int pieceId)
     {
-        auto& sim = scene->getSimulation();
-        auto& unit = sim.getUnit(id);
+        auto& unit = sim->getUnit(id);
 
         const auto& pieceName = unit.cobEnvironment->_script->pieces.at(pieceId);
-        auto pieceTransform = sim.getUnitPieceLocalTransform(id, pieceName);
+        auto pieceTransform = sim->getUnitPieceLocalTransform(id, pieceName);
 
         auto mat = unit.getTransform() * pieceTransform;
 
@@ -1198,7 +1185,7 @@ namespace rwe
         auto pieceId = runCobQuery(id, "QueryBuildInfo");
         if (!pieceId)
         {
-            const auto& unit = scene->getSimulation().getUnit(id);
+            const auto& unit = sim->getUnit(id);
             return BuildPieceInfo{unit.position, unit.rotation};
         }
 
@@ -1217,22 +1204,20 @@ namespace rwe
 
     MovingStateGoal UnitBehaviorService::attackTargetToMovingStateGoal(const AttackTarget& target)
     {
-        const auto& sim = scene->getSimulation();
         return match(
             target,
             [&](const SimVector& target)
             { return MovingStateGoal(target); },
             [&](UnitId unitId)
             {
-                const auto& targetUnit = sim.getUnit(unitId);
-                return MovingStateGoal(sim.computeFootprintRegion(targetUnit.position, targetUnit.footprintX, targetUnit.footprintZ));
+                const auto& targetUnit = sim->getUnit(unitId);
+                return MovingStateGoal(sim->computeFootprintRegion(targetUnit.position, targetUnit.footprintX, targetUnit.footprintZ));
             });
     }
 
     bool UnitBehaviorService::moveTo(UnitId unitId, const MovingStateGoal& goal)
     {
-        auto& sim = scene->getSimulation();
-        auto& unit = sim.getUnit(unitId);
+        auto& unit = sim->getUnit(unitId);
 
         auto movingState = std::get_if<MovingState>(&unit.behaviourState);
 
@@ -1240,7 +1225,7 @@ namespace rwe
         {
             // request a path to follow
             changeState(unit, MovingState{goal, std::nullopt, true});
-            sim.requestPath(unitId);
+            sim->requestPath(unitId);
             return false;
         }
 
@@ -1249,9 +1234,9 @@ namespace rwe
         {
             // only request a new path if we don't have one yet,
             // or we've already had our current one for a bit
-            if (!movingState->path || (sim.gameTime - movingState->path->pathCreationTime) >= GameTime(30))
+            if (!movingState->path || (sim->gameTime - movingState->path->pathCreationTime) >= GameTime(30))
             {
-                sim.requestPath(unitId);
+                sim->requestPath(unitId);
                 movingState->pathRequested = true;
             }
         }
@@ -1273,8 +1258,7 @@ namespace rwe
 
     UnitCreationStatus UnitBehaviorService::createNewUnit(UnitId unitId, const std::string& unitType, const SimVector& position)
     {
-        auto& sim = scene->getSimulation();
-        auto& unit = sim.getUnit(unitId);
+        auto& unit = sim->getUnit(unitId);
 
         if (auto s = std::get_if<CreatingUnitState>(&unit.behaviourState))
         {
@@ -1285,13 +1269,13 @@ namespace rwe
         }
 
         auto footprint = unitFactory->getUnitFootprint(unitType);
-        auto footprintRect = sim.computeFootprintRegion(position, footprint.x, footprint.y);
+        auto footprintRect = sim->computeFootprintRegion(position, footprint.x, footprint.y);
         if (moveTo(unitId, footprintRect))
         {
             // TODO: add an additional distance check here -- we may have done  the best
             // we can to move but been prevented by some obstacle, so we are too far away still.
             changeState(unit, CreatingUnitState{unitType, unit.owner, position});
-            sim.unitCreationRequests.push_back(unitId);
+            sim->unitCreationRequests.push_back(unitId);
         }
 
         return UnitCreationStatusPending();
@@ -1299,7 +1283,7 @@ namespace rwe
 
     bool UnitBehaviorService::buildUnit(UnitId unitId, const std::string& unitType, const SimVector& position)
     {
-        auto& unit = scene->getSimulation().getUnit(unitId);
+        auto& unit = sim->getUnit(unitId);
         if (!unit.buildOrderUnitId)
         {
             auto result = createNewUnit(unitId, unitType, position);
@@ -1321,8 +1305,8 @@ namespace rwe
 
     bool UnitBehaviorService::buildExistingUnit(UnitId unitId, UnitId targetUnitId)
     {
-        auto& unit = scene->getSimulation().getUnit(unitId);
-        auto targetUnitRef = scene->getSimulation().tryGetUnit(targetUnitId);
+        auto& unit = sim->getUnit(unitId);
+        auto targetUnitRef = sim->tryGetUnit(targetUnitId);
 
         if (!targetUnitRef || targetUnitRef->get().isDead() || !targetUnitRef->get().isBeingBuilt())
         {
@@ -1355,9 +1339,8 @@ namespace rwe
     }
     bool UnitBehaviorService::deployBuildArm(UnitId unitId, UnitId targetUnitId)
     {
-        auto& sim = scene->getSimulation();
-        auto& unit = sim.getUnit(unitId);
-        auto targetUnitRef = sim.tryGetUnit(targetUnitId);
+        auto& unit = sim->getUnit(unitId);
+        auto targetUnitRef = sim->tryGetUnit(targetUnitId);
         if (!targetUnitRef || targetUnitRef->get().isDead() || !targetUnitRef->get().isBeingBuilt())
         {
             changeState(unit, IdleState());
@@ -1382,7 +1365,7 @@ namespace rwe
                 }
 
                 auto costs = targetUnit.getBuildCostInfo(unit.workerTimePerTick);
-                auto gotResources = sim.addResourceDelta(
+                auto gotResources = sim->addResourceDelta(
                     unitId,
                     -Energy(targetUnit.energyCost.value * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime)),
                     -Metal(targetUnit.metalCost.value * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime)),
@@ -1399,11 +1382,11 @@ namespace rwe
 
                 if (targetUnit.addBuildProgress(unit.workerTimePerTick))
                 {
-                    sim.events.push_back(UnitCompleteEvent{buildingState.targetUnit});
+                    sim->events.push_back(UnitCompleteEvent{buildingState.targetUnit});
 
                     if (targetUnit.activateWhenBuilt)
                     {
-                        sim.activateUnit(buildingState.targetUnit);
+                        sim->activateUnit(buildingState.targetUnit);
                     }
 
                     changeState(unit, IdleState());
