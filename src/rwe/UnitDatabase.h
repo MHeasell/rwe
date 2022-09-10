@@ -19,7 +19,7 @@ namespace rwe
     public:
         using MovementClassIterator = typename std::unordered_map<std::string, MovementClass>::const_iterator;
 
-    private:
+    public:
         std::unordered_map<std::string, UnitFbi> map;
 
         std::unordered_map<std::string, CobScript> cobMap;

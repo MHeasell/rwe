@@ -179,6 +179,7 @@ namespace rwe
 
         simulation.unitDefinitions = std::move(unitDefinitions);
         simulation.weaponDefinitions = std::move(weaponDefinitions);
+        simulation.unitModelDefinitions = unitDatabase.unitModelDefinitionsMap;
 
         MovementClassCollisionService collisionService;
 

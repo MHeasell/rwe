@@ -146,6 +146,8 @@ namespace rwe
 
         std::unordered_map<std::string, UnitDefinition> unitDefinitions;
 
+        std::unordered_map<std::string, UnitModelDefinition> unitModelDefinitions;
+
         std::unordered_map<std::string, WeaponDefinition> weaponDefinitions;
 
         OccupiedGrid occupiedGrid;
