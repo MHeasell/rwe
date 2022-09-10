@@ -16,6 +16,7 @@
 #include <rwe/sim/ProjectileId.h>
 #include <rwe/sim/Unit.h>
 #include <rwe/sim/UnitDefinition.h>
+#include <rwe/sim/UnitModelDefinition.h>
 #include <unordered_map>
 
 namespace rwe
@@ -273,5 +274,11 @@ namespace rwe
         void deactivateUnit(UnitId unitId);
 
         void quietlyKillUnit(UnitId unitId);
+
+        Matrix4x<SimScalar> getUnitPieceLocalTransform(UnitId unitId, const std::string& pieceName) const;
+
+        Matrix4x<SimScalar> getUnitPieceTransform(UnitId unitId, const std::string& pieceName) const;
+
+        SimVector getUnitPiecePosition(UnitId unitId, const std::string& pieceName) const;
     };
 }

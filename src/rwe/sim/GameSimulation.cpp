@@ -3,6 +3,7 @@
 #include <rwe/collection_util.h>
 #include <rwe/match.h>
 #include <rwe/sim/SimScalar.h>
+#include <rwe/sim/util.h>
 
 #include <rwe/GameHash_util.h>
 #include <rwe/sim/movement.h>
@@ -595,5 +596,28 @@ namespace rwe
     {
         auto& unit = getUnit(unitId);
         unit.markAsDeadNoCorpse();
+    }
+
+    Matrix4x<SimScalar> GameSimulation::getUnitPieceLocalTransform(UnitId unitId, const std::string& pieceName) const
+    {
+        const auto& unit = getUnit(unitId);
+        const auto& modelDef = unitModelDefinitions.at(unit.objectName);
+        return getPieceTransform(pieceName, modelDef, unit.pieces);
+    }
+
+    Matrix4x<SimScalar> GameSimulation::getUnitPieceTransform(UnitId unitId, const std::string& pieceName) const
+    {
+        const auto& unit = getUnit(unitId);
+        const auto& modelDef = unitModelDefinitions.at(unit.objectName);
+        auto pieceTransform = getPieceTransform(pieceName, modelDef, unit.pieces);
+        return unit.getTransform() * pieceTransform;
+    }
+
+    SimVector GameSimulation::getUnitPiecePosition(UnitId unitId, const std::string& pieceName) const
+    {
+        const auto& unit = getUnit(unitId);
+        const auto& modelDef = unitModelDefinitions.at(unit.objectName);
+        auto pieceTransform = getPieceTransform(pieceName, modelDef, unit.pieces);
+        return unit.getTransform() * pieceTransform * SimVector(0_ss, 0_ss, 0_ss);
     }
 }

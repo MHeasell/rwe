@@ -1149,10 +1149,11 @@ namespace rwe
 
     SimVector UnitBehaviorService::getPieceLocalPosition(UnitId id, unsigned int pieceId)
     {
-        auto& unit = scene->getSimulation().getUnit(id);
+        auto& sim = scene->getSimulation();
+        auto& unit = sim.getUnit(id);
 
         const auto& pieceName = unit.cobEnvironment->_script->pieces.at(pieceId);
-        auto pieceTransform = scene->getUnitPieceLocalTransform(id, pieceName);
+        auto pieceTransform = sim.getUnitPieceLocalTransform(id, pieceName);
 
         return pieceTransform * SimVector(0_ss, 0_ss, 0_ss);
     }
@@ -1171,10 +1172,11 @@ namespace rwe
 
     SimAngle UnitBehaviorService::getPieceXZRotation(UnitId id, unsigned int pieceId)
     {
-        auto& unit = scene->getSimulation().getUnit(id);
+        auto& sim = scene->getSimulation();
+        auto& unit = sim.getUnit(id);
 
         const auto& pieceName = unit.cobEnvironment->_script->pieces.at(pieceId);
-        auto pieceTransform = scene->getUnitPieceLocalTransform(id, pieceName);
+        auto pieceTransform = sim.getUnitPieceLocalTransform(id, pieceName);
 
         auto mat = unit.getTransform() * pieceTransform;
 

@@ -2041,29 +2041,6 @@ namespace rwe
         return simulation.isPieceTurning(unitId, name, axis);
     }
 
-    Matrix4x<SimScalar> GameScene::getUnitPieceLocalTransform(UnitId unitId, const std::string& pieceName) const
-    {
-        const auto& unit = getUnit(unitId);
-        const auto& modelDef = unitDatabase.getUnitModelDefinition(unit.objectName).value().get();
-        return getPieceTransform(pieceName, modelDef, unit.pieces);
-    }
-
-    Matrix4x<SimScalar> GameScene::getUnitPieceTransform(UnitId unitId, const std::string& pieceName) const
-    {
-        const auto& unit = getUnit(unitId);
-        const auto& modelDef = unitDatabase.getUnitModelDefinition(unit.objectName).value().get();
-        auto pieceTransform = getPieceTransform(pieceName, modelDef, unit.pieces);
-        return unit.getTransform() * pieceTransform;
-    }
-
-    SimVector GameScene::getUnitPiecePosition(UnitId unitId, const std::string& pieceName) const
-    {
-        const auto& unit = getUnit(unitId);
-        const auto& modelDef = unitDatabase.getUnitModelDefinition(unit.objectName).value().get();
-        auto pieceTransform = getPieceTransform(pieceName, modelDef, unit.pieces);
-        return unit.getTransform() * pieceTransform * SimVector(0_ss, 0_ss, 0_ss);
-    }
-
     GameTime
     GameScene::getGameTime() const
     {
@@ -3126,13 +3103,13 @@ namespace rwe
 
     void GameScene::emitLightSmokeFromPiece(UnitId unitId, const std::string& pieceName)
     {
-        auto position = getUnitPiecePosition(unitId, pieceName);
+        auto position = simulation.getUnitPiecePosition(unitId, pieceName);
         spawnSmoke(simVectorToFloat(position), "FX", "smoke 1", ParticleFinishTimeEndOfFrames(), GameTime(2));
     }
 
     void GameScene::emitBlackSmokeFromPiece(UnitId unitId, const std::string& pieceName)
     {
-        auto position = getUnitPiecePosition(unitId, pieceName);
+        auto position = simulation.getUnitPiecePosition(unitId, pieceName);
         spawnSmoke(simVectorToFloat(position), "FX", "smoke 2", ParticleFinishTimeEndOfFrames(), GameTime(2));
     }
 
@@ -3144,7 +3121,7 @@ namespace rwe
     void GameScene::emitWake1FromPiece(UnitId unitId, const std::string& pieceName)
     {
         const auto& unit = getUnit(unitId);
-        auto pieceTransform = toFloatMatrix(getUnitPieceTransform(unitId, pieceName));
+        auto pieceTransform = toFloatMatrix(simulation.getUnitPieceTransform(unitId, pieceName));
         const auto& pieceMesh = meshDatabase.getUnitPieceMesh(unit.objectName, pieceName).value().get();
         auto spawnPosition = pieceTransform * pieceMesh.firstVertexPosition;
         auto otherVertexPosition = pieceTransform * pieceMesh.secondVertexPosition;

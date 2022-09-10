@@ -366,12 +366,6 @@ namespace rwe
 
         bool isPieceTurning(UnitId unitId, const std::string& name, Axis axis) const;
 
-        Matrix4x<SimScalar> getUnitPieceLocalTransform(UnitId unitId, const std::string& pieceName) const;
-
-        Matrix4x<SimScalar> getUnitPieceTransform(UnitId unitId, const std::string& pieceName) const;
-
-        SimVector getUnitPiecePosition(UnitId unitId, const std::string& pieceName) const;
-
         GameTime getGameTime() const;
 
         bool isCollisionAt(const DiscreteRect& rect, UnitId self) const;

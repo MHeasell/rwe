@@ -565,6 +565,8 @@ set(SOURCE_FILES
     src/rwe/sim/movement.h
     src/rwe/sim/unit_util.cpp
     src/rwe/sim/unit_util.h
+    src/rwe/sim/util.cpp
+    src/rwe/sim/util.h
     src/rwe/ui/UiComponent.cpp
     src/rwe/ui/UiComponent.h
     src/rwe/ui/UiFactory.cpp

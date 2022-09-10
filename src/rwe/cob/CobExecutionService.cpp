@@ -206,13 +206,13 @@ namespace rwe
             [&](const CobEnvironment::QueryStatus::PieceXZ& q) {
                 auto pieceId = q.piece;
                 const auto& pieceName = getObjectName(env, pieceId);
-                auto pos = scene.getUnitPiecePosition(unitId, pieceName);
+                auto pos = sim.getUnitPiecePosition(unitId, pieceName);
                 return packCoords(pos.x, pos.z);
             },
             [&](const CobEnvironment::QueryStatus::PieceY& q) {
                 auto pieceId = q.piece;
                 const auto& pieceName = getObjectName(env, pieceId);
-                auto pos = scene.getUnitPiecePosition(unitId, pieceName);
+                auto pos = sim.getUnitPiecePosition(unitId, pieceName);
                 return simScalarToCobPosition(pos.y).value;
             },
             [&](const CobEnvironment::QueryStatus::UnitXZ& q) {
