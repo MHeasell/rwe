@@ -219,13 +219,13 @@ namespace rwe
 
         void disableShading(UnitId unitId, const std::string& name);
 
-        UnitState& getUnit(UnitId id);
+        UnitState& getUnitState(UnitId id);
 
-        const UnitState& getUnit(UnitId id) const;
+        const UnitState& getUnitState(UnitId id) const;
 
-        std::optional<std::reference_wrapper<UnitState>> tryGetUnit(UnitId id);
+        std::optional<std::reference_wrapper<UnitState>> tryGetUnitState(UnitId id);
 
-        std::optional<std::reference_wrapper<const UnitState>> tryGetUnit(UnitId id) const;
+        std::optional<std::reference_wrapper<const UnitState>> tryGetUnitState(UnitId id) const;
 
         bool unitExists(UnitId id) const;
 

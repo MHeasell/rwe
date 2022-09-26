@@ -280,7 +280,7 @@ namespace rwe
 
     void GameSimulation::showObject(UnitId unitId, const std::string& name)
     {
-        auto mesh = getUnit(unitId).findPiece(name);
+        auto mesh = getUnitState(unitId).findPiece(name);
         if (mesh)
         {
             mesh->get().visible = true;
@@ -289,7 +289,7 @@ namespace rwe
 
     void GameSimulation::hideObject(UnitId unitId, const std::string& name)
     {
-        auto mesh = getUnit(unitId).findPiece(name);
+        auto mesh = getUnitState(unitId).findPiece(name);
         if (mesh)
         {
             mesh->get().visible = false;
@@ -298,7 +298,7 @@ namespace rwe
 
     void GameSimulation::enableShading(UnitId unitId, const std::string& name)
     {
-        auto mesh = getUnit(unitId).findPiece(name);
+        auto mesh = getUnitState(unitId).findPiece(name);
         if (mesh)
         {
             mesh->get().shaded = true;
@@ -307,33 +307,33 @@ namespace rwe
 
     void GameSimulation::disableShading(UnitId unitId, const std::string& name)
     {
-        auto mesh = getUnit(unitId).findPiece(name);
+        auto mesh = getUnitState(unitId).findPiece(name);
         if (mesh)
         {
             mesh->get().shaded = false;
         }
     }
 
-    UnitState& GameSimulation::getUnit(UnitId id)
+    UnitState& GameSimulation::getUnitState(UnitId id)
     {
         auto it = units.find(id);
         assert(it != units.end());
         return it->second;
     }
 
-    const UnitState& GameSimulation::getUnit(UnitId id) const
+    const UnitState& GameSimulation::getUnitState(UnitId id) const
     {
         auto it = units.find(id);
         assert(it != units.end());
         return it->second;
     }
 
-    std::optional<std::reference_wrapper<UnitState>> GameSimulation::tryGetUnit(UnitId id)
+    std::optional<std::reference_wrapper<UnitState>> GameSimulation::tryGetUnitState(UnitId id)
     {
         return tryFind(units, id);
     }
 
-    std::optional<std::reference_wrapper<const UnitState>> GameSimulation::tryGetUnit(UnitId id) const
+    std::optional<std::reference_wrapper<const UnitState>> GameSimulation::tryGetUnitState(UnitId id) const
     {
         return tryFind(units, id);
     }
@@ -370,42 +370,42 @@ namespace rwe
 
     void GameSimulation::moveObject(UnitId unitId, const std::string& name, Axis axis, SimScalar position, SimScalar speed)
     {
-        getUnit(unitId).moveObject(name, axis, position, speed);
+        getUnitState(unitId).moveObject(name, axis, position, speed);
     }
 
     void GameSimulation::moveObjectNow(UnitId unitId, const std::string& name, Axis axis, SimScalar position)
     {
-        getUnit(unitId).moveObjectNow(name, axis, position);
+        getUnitState(unitId).moveObjectNow(name, axis, position);
     }
 
     void GameSimulation::turnObject(UnitId unitId, const std::string& name, Axis axis, SimAngle angle, SimScalar speed)
     {
-        getUnit(unitId).turnObject(name, axis, angle, speed);
+        getUnitState(unitId).turnObject(name, axis, angle, speed);
     }
 
     void GameSimulation::turnObjectNow(UnitId unitId, const std::string& name, Axis axis, SimAngle angle)
     {
-        getUnit(unitId).turnObjectNow(name, axis, angle);
+        getUnitState(unitId).turnObjectNow(name, axis, angle);
     }
 
     void GameSimulation::spinObject(UnitId unitId, const std::string& name, Axis axis, SimScalar speed, SimScalar acceleration)
     {
-        getUnit(unitId).spinObject(name, axis, speed, acceleration);
+        getUnitState(unitId).spinObject(name, axis, speed, acceleration);
     }
 
     void GameSimulation::stopSpinObject(UnitId unitId, const std::string& name, Axis axis, SimScalar deceleration)
     {
-        getUnit(unitId).stopSpinObject(name, axis, deceleration);
+        getUnitState(unitId).stopSpinObject(name, axis, deceleration);
     }
 
     bool GameSimulation::isPieceMoving(UnitId unitId, const std::string& name, Axis axis) const
     {
-        return getUnit(unitId).isMoveInProgress(name, axis);
+        return getUnitState(unitId).isMoveInProgress(name, axis);
     }
 
     bool GameSimulation::isPieceTurning(UnitId unitId, const std::string& name, Axis axis) const
     {
-        return getUnit(unitId).isTurnInProgress(name, axis);
+        return getUnitState(unitId).isTurnInProgress(name, axis);
     }
 
     std::optional<SimVector> GameSimulation::intersectLineWithTerrain(const Line3x<SimScalar>& line) const
@@ -527,7 +527,7 @@ namespace rwe
 
     bool GameSimulation::addResourceDelta(const UnitId& unitId, const Energy& apparentEnergy, const Metal& apparentMetal, const Energy& actualEnergy, const Metal& actualMetal)
     {
-        auto& unit = getUnit(unitId);
+        auto& unit = getUnitState(unitId);
         auto& player = getPlayer(unit.owner);
 
         unit.addEnergyDelta(apparentEnergy);
@@ -537,7 +537,7 @@ namespace rwe
 
     bool GameSimulation::trySetYardOpen(const UnitId& unitId, bool open)
     {
-        auto& unit = getUnit(unitId);
+        auto& unit = getUnitState(unitId);
         const auto& unitDefinition = unitDefinitions.at(unit.unitType);
         auto footprintRect = computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
         auto footprintRegion = occupiedGrid.tryToRegion(footprintRect);
@@ -560,7 +560,7 @@ namespace rwe
 
     void GameSimulation::emitBuggerOff(const UnitId& unitId)
     {
-        auto& unit = getUnit(unitId);
+        auto& unit = getUnitState(unitId);
         const auto& unitDefinition = unitDefinitions.at(unit.unitType);
         auto footprintRect = computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
         auto footprintRegion = occupiedGrid.tryToRegion(footprintRect);
@@ -581,7 +581,7 @@ namespace rwe
 
     void GameSimulation::tellToBuggerOff(const UnitId& unitId, const DiscreteRect& rect)
     {
-        auto& unit = getUnit(unitId);
+        auto& unit = getUnitState(unitId);
         if (unit.orders.empty())
         {
             unit.addOrder(BuggerOffOrder(rect));
@@ -595,27 +595,27 @@ namespace rwe
 
     void GameSimulation::activateUnit(UnitId unitId)
     {
-        auto& unit = getUnit(unitId);
+        auto& unit = getUnitState(unitId);
         unit.activate();
         events.push_back(UnitActivatedEvent{unitId});
     }
 
     void GameSimulation::deactivateUnit(UnitId unitId)
     {
-        auto& unit = getUnit(unitId);
+        auto& unit = getUnitState(unitId);
         unit.deactivate();
         events.push_back(UnitDeactivatedEvent{unitId});
     }
 
     void GameSimulation::quietlyKillUnit(UnitId unitId)
     {
-        auto& unit = getUnit(unitId);
+        auto& unit = getUnitState(unitId);
         unit.markAsDeadNoCorpse();
     }
 
     Matrix4x<SimScalar> GameSimulation::getUnitPieceLocalTransform(UnitId unitId, const std::string& pieceName) const
     {
-        const auto& unit = getUnit(unitId);
+        const auto& unit = getUnitState(unitId);
         const auto& unitDefinition = unitDefinitions.at(unit.unitType);
         const auto& modelDef = unitModelDefinitions.at(unitDefinition.objectName);
         return getPieceTransform(pieceName, modelDef, unit.pieces);
@@ -623,7 +623,7 @@ namespace rwe
 
     Matrix4x<SimScalar> GameSimulation::getUnitPieceTransform(UnitId unitId, const std::string& pieceName) const
     {
-        const auto& unit = getUnit(unitId);
+        const auto& unit = getUnitState(unitId);
         const auto& unitDefinition = unitDefinitions.at(unit.unitType);
         const auto& modelDef = unitModelDefinitions.at(unitDefinition.objectName);
         auto pieceTransform = getPieceTransform(pieceName, modelDef, unit.pieces);
@@ -632,7 +632,7 @@ namespace rwe
 
     SimVector GameSimulation::getUnitPiecePosition(UnitId unitId, const std::string& pieceName) const
     {
-        const auto& unit = getUnit(unitId);
+        const auto& unit = getUnitState(unitId);
         const auto& unitDefinition = unitDefinitions.at(unit.unitType);
         const auto& modelDef = unitModelDefinitions.at(unitDefinition.objectName);
         auto pieceTransform = getPieceTransform(pieceName, modelDef, unit.pieces);
@@ -641,7 +641,7 @@ namespace rwe
 
     void GameSimulation::setBuildStance(UnitId unitId, bool value)
     {
-        getUnit(unitId).inBuildStance = value;
+        getUnitState(unitId).inBuildStance = value;
     }
 
     void GameSimulation::setYardOpen(UnitId unitId, bool value)

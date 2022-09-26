@@ -24,7 +24,7 @@ namespace rwe
 
     void UnitBehaviorService::onCreate(UnitId unitId)
     {
-        auto& unit = sim->getUnit(unitId);
+        auto& unit = sim->getUnitState(unitId);
         const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
 
         unit.cobEnvironment->createThread("Create", std::vector<int>());
@@ -55,7 +55,7 @@ namespace rwe
 
     void UnitBehaviorService::update(UnitId unitId)
     {
-        auto& unit = sim->getUnit(unitId);
+        auto& unit = sim->getUnitState(unitId);
         const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
 
         // Clear steering targets.
@@ -279,7 +279,7 @@ namespace rwe
 
     void UnitBehaviorService::updateWeapon(UnitId id, unsigned int weaponIndex)
     {
-        auto& unit = sim->getUnit(id);
+        auto& unit = sim->getUnitState(id);
         auto& weapon = unit.weapons[weaponIndex];
         if (!weapon)
         {
@@ -436,7 +436,7 @@ namespace rwe
 
     void UnitBehaviorService::tryFireWeapon(UnitId id, unsigned int weaponIndex)
     {
-        auto& unit = sim->getUnit(id);
+        auto& unit = sim->getUnitState(id);
         auto& weapon = unit.weapons[weaponIndex];
 
         if (!weapon)
@@ -526,7 +526,7 @@ namespace rwe
 
     void UnitBehaviorService::updateUnitRotation(UnitId id)
     {
-        auto& unit = sim->getUnit(id);
+        auto& unit = sim->getUnitState(id);
         const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
         auto turnRateThisFrame = SimAngle(unitDefinition.turnRate.value);
         unit.previousRotation = unit.rotation;
@@ -535,7 +535,7 @@ namespace rwe
 
     void UnitBehaviorService::updateUnitSpeed(UnitId id)
     {
-        auto& unit = sim->getUnit(id);
+        auto& unit = sim->getUnitState(id);
         const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
 
         const auto& steeringInfo = unit.steeringInfo;
@@ -575,7 +575,7 @@ namespace rwe
 
     void UnitBehaviorService::updateUnitPosition(UnitId unitId)
     {
-        auto& unit = sim->getUnit(unitId);
+        auto& unit = sim->getUnitState(unitId);
         const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
 
         unit.previousPosition = unit.position;
@@ -633,7 +633,7 @@ namespace rwe
 
     bool UnitBehaviorService::tryApplyMovementToPosition(UnitId id, const SimVector& newPosition)
     {
-        auto& unit = sim->getUnit(id);
+        auto& unit = sim->getUnitState(id);
         const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
 
         // check for collision at the new position
@@ -739,7 +739,7 @@ namespace rwe
 
     std::optional<int> UnitBehaviorService::runCobQuery(UnitId id, const std::string& name)
     {
-        auto& unit = sim->getUnit(id);
+        auto& unit = sim->getUnitState(id);
         auto thread = unit.cobEnvironment->createNonScheduledThread(name, {0});
         if (!thread)
         {
@@ -758,7 +758,7 @@ namespace rwe
 
     SimVector UnitBehaviorService::getAimingPoint(UnitId id, unsigned int weaponIndex)
     {
-        const auto& unit = sim->getUnit(id);
+        const auto& unit = sim->getUnitState(id);
         return unit.getTransform() * getLocalAimingPoint(id, weaponIndex);
     }
 
@@ -776,7 +776,7 @@ namespace rwe
 
     SimVector UnitBehaviorService::getFiringPoint(UnitId id, unsigned int weaponIndex)
     {
-        const auto& unit = sim->getUnit(id);
+        const auto& unit = sim->getUnitState(id);
         return unit.getTransform() * getLocalFiringPoint(id, weaponIndex);
     }
 
@@ -798,7 +798,7 @@ namespace rwe
         auto pieceId = runCobQuery(id, "SweetSpot");
         if (!pieceId)
         {
-            return sim->getUnit(id).position;
+            return sim->getUnitState(id).position;
         }
 
         return getPiecePosition(id, *pieceId);
@@ -846,7 +846,7 @@ namespace rwe
 
     bool UnitBehaviorService::handleMoveOrder(UnitId unitId, const MoveOrder& moveOrder)
     {
-        auto& unit = sim->getUnit(unitId);
+        auto& unit = sim->getUnitState(unitId);
         const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
         if (!unitDefinition.isMobile)
         {
@@ -869,7 +869,7 @@ namespace rwe
 
     bool UnitBehaviorService::attackTarget(UnitId unitId, const AttackTarget& target)
     {
-        auto& unit = sim->getUnit(unitId);
+        auto& unit = sim->getUnitState(unitId);
 
         if (!unit.weapons[0])
         {
@@ -914,7 +914,7 @@ namespace rwe
 
     bool UnitBehaviorService::handleBuggerOffOrder(UnitId unitId, const BuggerOffOrder& buggerOffOrder)
     {
-        auto& unit = sim->getUnit(unitId);
+        auto& unit = sim->getUnitState(unitId);
         const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
         auto [footprintX, footprintZ] = sim->getFootprintXZ(unitDefinition.movementCollisionInfo);
         return moveTo(unitId, buggerOffOrder.rect.expand((footprintX * 3) - 4, (footprintZ * 3) - 4));
@@ -927,10 +927,10 @@ namespace rwe
 
     bool UnitBehaviorService::handleGuardOrder(UnitId unitId, const GuardOrder& guardOrder)
     {
-        auto& unit = sim->getUnit(unitId);
+        auto& unit = sim->getUnitState(unitId);
         const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
 
-        auto target = sim->tryGetUnit(guardOrder.target);
+        auto target = sim->tryGetUnitState(guardOrder.target);
         // TODO: real allied check here
         if (!target || !target->get().isOwnedBy(unit.owner))
         {
@@ -969,7 +969,7 @@ namespace rwe
 
     bool UnitBehaviorService::handleBuild(UnitId unitId, const std::string& unitType)
     {
-        auto& unit = sim->getUnit(unitId);
+        auto& unit = sim->getUnitState(unitId);
         const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
 
 
@@ -1017,7 +1017,7 @@ namespace rwe
                     return false;
                 }
 
-                auto targetUnitOption = sim->tryGetUnit(state.targetUnit->first);
+                auto targetUnitOption = sim->tryGetUnitState(state.targetUnit->first);
                 if (!targetUnitOption)
                 {
                     unit.factoryState = FactoryBehaviorStateCreatingUnit{unitType, unit.owner, buildPieceInfo.position, buildPieceInfo.rotation};
@@ -1103,7 +1103,7 @@ namespace rwe
 
     void UnitBehaviorService::clearBuild(UnitId unitId)
     {
-        auto& unit = sim->getUnit(unitId);
+        auto& unit = sim->getUnitState(unitId);
 
         match(
             unit.factoryState,
@@ -1143,7 +1143,7 @@ namespace rwe
         auto pieceId = runCobQuery(id, "QueryNanoPiece");
         if (!pieceId)
         {
-            return sim->getUnit(id).position;
+            return sim->getUnitState(id).position;
         }
 
         return getPiecePosition(id, *pieceId);
@@ -1151,7 +1151,7 @@ namespace rwe
 
     SimVector UnitBehaviorService::getPieceLocalPosition(UnitId id, unsigned int pieceId)
     {
-        auto& unit = sim->getUnit(id);
+        auto& unit = sim->getUnitState(id);
 
         const auto& pieceName = unit.cobEnvironment->_script->pieces.at(pieceId);
         auto pieceTransform = sim->getUnitPieceLocalTransform(id, pieceName);
@@ -1161,7 +1161,7 @@ namespace rwe
 
     SimVector UnitBehaviorService::getPiecePosition(UnitId id, unsigned int pieceId)
     {
-        auto& unit = sim->getUnit(id);
+        auto& unit = sim->getUnitState(id);
 
         return unit.getTransform() * getPieceLocalPosition(id, pieceId);
     }
@@ -1173,7 +1173,7 @@ namespace rwe
 
     SimAngle UnitBehaviorService::getPieceXZRotation(UnitId id, unsigned int pieceId)
     {
-        auto& unit = sim->getUnit(id);
+        auto& unit = sim->getUnitState(id);
 
         const auto& pieceName = unit.cobEnvironment->_script->pieces.at(pieceId);
         auto pieceTransform = sim->getUnitPieceLocalTransform(id, pieceName);
@@ -1198,7 +1198,7 @@ namespace rwe
         auto pieceId = runCobQuery(id, "QueryBuildInfo");
         if (!pieceId)
         {
-            const auto& unit = sim->getUnit(id);
+            const auto& unit = sim->getUnitState(id);
             return BuildPieceInfo{unit.position, unit.rotation};
         }
 
@@ -1223,7 +1223,7 @@ namespace rwe
             { return MovingStateGoal(target); },
             [&](UnitId unitId)
             {
-                const auto& targetUnit = sim->getUnit(unitId);
+                const auto& targetUnit = sim->getUnitState(unitId);
                 const auto& targetUnitDefinition = sim->unitDefinitions.at(targetUnit.unitType);
                 return MovingStateGoal(sim->computeFootprintRegion(targetUnit.position, targetUnitDefinition.movementCollisionInfo));
             });
@@ -1231,7 +1231,7 @@ namespace rwe
 
     bool UnitBehaviorService::moveTo(UnitId unitId, const MovingStateGoal& goal)
     {
-        auto& unit = sim->getUnit(unitId);
+        auto& unit = sim->getUnitState(unitId);
         const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
 
         auto movingState = std::get_if<UnitBehaviorStateMoving>(&unit.behaviourState);
@@ -1273,7 +1273,7 @@ namespace rwe
 
     UnitCreationStatus UnitBehaviorService::createNewUnit(UnitId unitId, const std::string& unitType, const SimVector& position)
     {
-        auto& unit = sim->getUnit(unitId);
+        auto& unit = sim->getUnitState(unitId);
 
         if (auto s = std::get_if<UnitBehaviorStateCreatingUnit>(&unit.behaviourState))
         {
@@ -1298,7 +1298,7 @@ namespace rwe
 
     bool UnitBehaviorService::buildUnit(UnitId unitId, const std::string& unitType, const SimVector& position)
     {
-        auto& unit = sim->getUnit(unitId);
+        auto& unit = sim->getUnitState(unitId);
         if (!unit.buildOrderUnitId)
         {
             auto result = createNewUnit(unitId, unitType, position);
@@ -1320,9 +1320,9 @@ namespace rwe
 
     bool UnitBehaviorService::buildExistingUnit(UnitId unitId, UnitId targetUnitId)
     {
-        auto& unit = sim->getUnit(unitId);
+        auto& unit = sim->getUnitState(unitId);
         const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
-        auto targetUnitRef = sim->tryGetUnit(targetUnitId);
+        auto targetUnitRef = sim->tryGetUnitState(targetUnitId);
 
         if (!targetUnitRef || targetUnitRef->get().isDead() || !targetUnitRef->get().isBeingBuilt(unitDefinition))
         {
@@ -1355,9 +1355,9 @@ namespace rwe
     }
     bool UnitBehaviorService::deployBuildArm(UnitId unitId, UnitId targetUnitId)
     {
-        auto& unit = sim->getUnit(unitId);
+        auto& unit = sim->getUnitState(unitId);
         const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
-        auto targetUnitRef = sim->tryGetUnit(targetUnitId);
+        auto targetUnitRef = sim->tryGetUnitState(targetUnitId);
         if (!targetUnitRef || targetUnitRef->get().isDead() || !targetUnitRef->get().isBeingBuilt(sim->unitDefinitions.at(targetUnitRef->get().unitType)))
         {
             changeState(unit, UnitBehaviorStateIdle());

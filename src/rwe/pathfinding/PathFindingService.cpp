@@ -21,7 +21,7 @@ namespace rwe
         {
             auto& request = requests.front();
 
-            auto& unit = simulation->getUnit(request.unitId);
+            auto& unit = simulation->getUnitState(request.unitId);
 
             if (auto movingState = std::get_if<UnitBehaviorStateMoving>(&unit.behaviourState); movingState != nullptr)
             {
@@ -37,7 +37,7 @@ namespace rwe
 
     UnitPath PathFindingService::findPath(UnitId unitId, const DiscreteRect& destination)
     {
-        const auto& unit = simulation->getUnit(unitId);
+        const auto& unit = simulation->getUnitState(unitId);
         const auto& unitDefinition = simulation->unitDefinitions.at(unit.unitType);
 
         auto start = simulation->computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
@@ -73,7 +73,7 @@ namespace rwe
 
     UnitPath PathFindingService::findPath(UnitId unitId, const SimVector& destination)
     {
-        const auto& unit = simulation->getUnit(unitId);
+        const auto& unit = simulation->getUnitState(unitId);
         const auto& unitDefinition = simulation->unitDefinitions.at(unit.unitType);
 
         auto start = simulation->computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);

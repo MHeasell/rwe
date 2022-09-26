@@ -22,28 +22,28 @@ namespace rwe
 {
     bool unitCanAttack(const GameSimulation& sim, UnitId unitId)
     {
-        const auto& unit = sim.getUnit(unitId);
+        const auto& unit = sim.getUnitState(unitId);
         const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
         return unitDefinition.canAttack;
     }
 
     bool unitCanMove(const GameSimulation& sim, UnitId unitId)
     {
-        const auto& unit = sim.getUnit(unitId);
+        const auto& unit = sim.getUnitState(unitId);
         const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
         return unitDefinition.canMove;
     }
 
     bool unitCanGuard(const GameSimulation& sim, UnitId unitId)
     {
-        const auto& unit = sim.getUnit(unitId);
+        const auto& unit = sim.getUnitState(unitId);
         const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
         return unitDefinition.canGuard;
     }
 
     bool unitIsBuilder(const GameSimulation& sim, UnitId unitId)
     {
-        const auto& unit = sim.getUnit(unitId);
+        const auto& unit = sim.getUnitState(unitId);
         const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
         return unitDefinition.builder;
     }
@@ -54,21 +54,21 @@ namespace rwe
         {
             return false;
         }
-        const auto& unit = sim.getUnit(*singleSelectedUnit);
+        const auto& unit = sim.getUnitState(*singleSelectedUnit);
         const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
         return unitDefinition.builder;
     }
 
     bool unitIsBeingBuilt(const GameSimulation& sim, UnitId unitId)
     {
-        const auto& unit = sim.getUnit(unitId);
+        const auto& unit = sim.getUnitState(unitId);
         const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
         return unit.isBeingBuilt(unitDefinition);
     }
 
     bool unitIsSelectableBy(const GameSimulation& sim, UnitId unitId, PlayerId playerId)
     {
-        const auto& unit = sim.getUnit(unitId);
+        const auto& unit = sim.getUnitState(unitId);
         const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
         return unit.isSelectableBy(unitDefinition, playerId);
     }
@@ -79,7 +79,7 @@ namespace rwe
         {
             return false;
         }
-        const auto& unit = sim.getUnit(*singleSelectedUnit);
+        const auto& unit = sim.getUnitState(*singleSelectedUnit);
         if (!unit.isOwnedBy(playerId))
         {
             return false;
@@ -104,7 +104,7 @@ namespace rwe
             cellValue.occupiedType,
             [&](const OccupiedUnit& v)
             {
-                const auto& unit = sim.getUnit(v.id);
+                const auto& unit = sim.getUnitState(v.id);
 
                 if (unit.isOwnedBy(projectile.owner))
                 {
@@ -148,7 +148,7 @@ namespace rwe
 
         if (cellValue.buildingCell && !cellValue.buildingCell->passable)
         {
-            const auto& unit = sim.getUnit(cellValue.buildingCell->unit);
+            const auto& unit = sim.getUnitState(cellValue.buildingCell->unit);
 
             if (unit.isOwnedBy(projectile.owner))
             {
@@ -750,7 +750,7 @@ namespace rwe
 
         if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && movementClassGridVisible)
         {
-            const auto& unit = simulation.getUnit(*selectedUnit);
+            const auto& unit = simulation.getUnitState(*selectedUnit);
             const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
             match(
                 unitDefinition.movementCollisionInfo,
@@ -2912,22 +2912,22 @@ namespace rwe
 
     UnitState& GameScene::getUnit(UnitId id)
     {
-        return simulation.getUnit(id);
+        return simulation.getUnitState(id);
     }
 
     const UnitState& GameScene::getUnit(UnitId id) const
     {
-        return simulation.getUnit(id);
+        return simulation.getUnitState(id);
     }
 
     std::optional<std::reference_wrapper<UnitState>> GameScene::tryGetUnit(UnitId id)
     {
-        return simulation.tryGetUnit(id);
+        return simulation.tryGetUnitState(id);
     }
 
     std::optional<std::reference_wrapper<const UnitState>> GameScene::tryGetUnit(UnitId id) const
     {
-        return simulation.tryGetUnit(id);
+        return simulation.tryGetUnitState(id);
     }
 
     GamePlayerInfo& GameScene::getPlayer(PlayerId player)
@@ -3093,7 +3093,7 @@ namespace rwe
                 },
                 [&](const UnitArrivedEvent& e)
                 {
-                    const auto& unit = simulation.getUnit(e.unitId);
+                    const auto& unit = simulation.getUnitState(e.unitId);
                     playUnitNotificationSound(unit.owner, unit.unitType, UnitSoundType::Arrived1);
                 },
                 [&](const UnitActivatedEvent& e)
@@ -3225,7 +3225,7 @@ namespace rwe
                 return;
             }
 
-            const auto& unit = simulation.getUnit(*u);
+            const auto& unit = simulation.getUnitState(*u);
 
             // skip dead units
             if (unit.isDead())
@@ -3250,7 +3250,7 @@ namespace rwe
 
     void GameScene::applyDamage(UnitId unitId, unsigned int damagePoints)
     {
-        auto& unit = simulation.getUnit(unitId);
+        auto& unit = simulation.getUnitState(unitId);
         if (unit.hitPoints <= damagePoints)
         {
             killUnit(unitId);
@@ -3479,7 +3479,7 @@ namespace rwe
 
     void GameScene::killUnit(UnitId unitId)
     {
-        auto& unit = simulation.getUnit(unitId);
+        auto& unit = simulation.getUnitState(unitId);
         const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
 
         unit.markAsDead();

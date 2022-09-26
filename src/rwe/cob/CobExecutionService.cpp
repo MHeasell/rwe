@@ -183,7 +183,7 @@ namespace rwe
                 return value;
             },
             [&](const CobEnvironment::QueryStatus::Activation&) {
-                const auto& unit = sim.getUnit(unitId);
+                const auto& unit = sim.getUnitState(unitId);
                 return static_cast<int>(unit.activated);
             },
             [&](const CobEnvironment::QueryStatus::StandingFireOrders&) {
@@ -193,12 +193,12 @@ namespace rwe
                 return 0; // TODO
             },
             [&](const CobEnvironment::QueryStatus::Health&) {
-                const auto& unit = sim.getUnit(unitId);
+                const auto& unit = sim.getUnitState(unitId);
                 const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
                 return static_cast<int>((unit.hitPoints * 100) / unitDefinition.maxHitPoints);
             },
             [&](const CobEnvironment::QueryStatus::InBuildStance&) {
-                const auto& unit = sim.getUnit(unitId);
+                const auto& unit = sim.getUnitState(unitId);
                 return static_cast<int>(unit.inBuildStance);
             },
             [&](const CobEnvironment::QueryStatus::Busy&) {
@@ -218,7 +218,7 @@ namespace rwe
             },
             [&](const CobEnvironment::QueryStatus::UnitXZ& q) {
                 auto targetUnitId = q.targetUnitId;
-                auto targetUnitOption = sim.tryGetUnit(targetUnitId);
+                auto targetUnitOption = sim.tryGetUnitState(targetUnitId);
                 if (!targetUnitOption)
                 {
                     // FIXME: not sure if correct return value when unit does not exist
@@ -229,7 +229,7 @@ namespace rwe
             },
             [&](const CobEnvironment::QueryStatus::UnitY& q) {
                 auto targetUnitId = q.targetUnitId;
-                auto targetUnitOption = sim.tryGetUnit(targetUnitId);
+                auto targetUnitOption = sim.tryGetUnitState(targetUnitId);
                 if (!targetUnitOption)
                 {
                     // FIXME: not sure if correct return value when unit does not exist
@@ -240,7 +240,7 @@ namespace rwe
             },
             [&](const CobEnvironment::QueryStatus::UnitHeight& q) {
                 auto targetUnitId = q.targetUnitId;
-                auto targetUnitOption = sim.tryGetUnit(targetUnitId);
+                auto targetUnitOption = sim.tryGetUnitState(targetUnitId);
                 if (!targetUnitOption)
                 {
                     // FIXME: not sure if correct return value when unit does not exist
@@ -252,7 +252,7 @@ namespace rwe
             },
             [&](const CobEnvironment::QueryStatus::XZAtan& q) {
                 auto pair = cobUnpackCoords(q.coords);
-                const auto& unit = sim.getUnit(unitId);
+                const auto& unit = sim.getUnitState(unitId);
 
                 // Surprisingly, the result of XZAtan is offset by the unit's current rotation.
                 // The other interesting thing is that in TA, at least for mobile units,
@@ -270,12 +270,12 @@ namespace rwe
                 return simScalarToCobPosition(result).value;
             },
             [&](const CobEnvironment::QueryStatus::BuildPercentLeft&) {
-                const auto& unit = sim.getUnit(unitId);
+                const auto& unit = sim.getUnitState(unitId);
                 const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
                 return static_cast<int>(unit.getBuildPercentLeft(unitDefinition));
             },
             [&](const CobEnvironment::QueryStatus::YardOpen&) {
-                const auto& unit = sim.getUnit(unitId);
+                const auto& unit = sim.getUnitState(unitId);
                 return static_cast<int>(unit.yardOpen);
             },
             [&](const CobEnvironment::QueryStatus::BuggerOff&) {
@@ -298,7 +298,7 @@ namespace rwe
             },
             [&](const CobEnvironment::QueryStatus::UnitTeam& q) {
                 auto targetUnitId = q.targetUnitId;
-                auto targetUnitOption = sim.tryGetUnit(targetUnitId);
+                auto targetUnitOption = sim.tryGetUnitState(targetUnitId);
                 if (!targetUnitOption)
                 {
                     // FIXME: unsure if correct return value when unit does not exist
@@ -308,7 +308,7 @@ namespace rwe
                 return static_cast<int>(targetUnitOption->get().owner.value);
             },
             [&](const CobEnvironment::QueryStatus::UnitBuildPercentLeft& q) {
-                auto targetUnitOption = sim.tryGetUnit(q.targetUnitId);
+                auto targetUnitOption = sim.tryGetUnitState(q.targetUnitId);
                 if (!targetUnitOption)
                 {
                     // FIXME: unsure if correct return value when unit does not exist
@@ -318,8 +318,8 @@ namespace rwe
                 return static_cast<int>(targetUnitOption->get().getBuildPercentLeft(unitDefinition));
             },
             [&](const CobEnvironment::QueryStatus::UnitAllied& q) {
-                const auto& unit = sim.getUnit(unitId);
-                auto targetUnitOption = sim.tryGetUnit(q.targetUnitId);
+                const auto& unit = sim.getUnitState(unitId);
+                auto targetUnitOption = sim.tryGetUnitState(q.targetUnitId);
                 if (!targetUnitOption)
                 {
                     // FIXME: unsure if correct return value when unit does not exist
@@ -369,7 +369,7 @@ namespace rwe
 
     void CobExecutionService::run(GameSimulation& simulation, UnitId unitId)
     {
-        auto& unit = simulation.getUnit(unitId);
+        auto& unit = simulation.getUnitState(unitId);
         auto& env = *unit.cobEnvironment;
 
         assert(env.isNotCorrupt());
