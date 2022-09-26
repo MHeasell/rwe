@@ -107,15 +107,15 @@ namespace rwe
 
         return j;
     }
-    nlohmann::json dumpJson(const IdleState&)
+    nlohmann::json dumpJson(const UnitBehaviorStateIdle&)
     {
         return nlohmann::json();
     }
-    nlohmann::json dumpJson(const BuildingState&)
+    nlohmann::json dumpJson(const UnitBehaviorStateBuilding&)
     {
         return nlohmann::json();
     }
-    nlohmann::json dumpJson(const CreatingUnitState& s)
+    nlohmann::json dumpJson(const UnitBehaviorStateCreatingUnit& s)
     {
         return nlohmann::json{
             {"unitType", dumpJson(s.unitType)},
@@ -145,7 +145,7 @@ namespace rwe
         return nlohmann::json();
     }
 
-    nlohmann::json dumpJson(const MovingState& m)
+    nlohmann::json dumpJson(const UnitBehaviorStateMoving& m)
     {
         return nlohmann::json{
             {"destination", dumpJson(m.destination)},

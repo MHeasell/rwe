@@ -41,11 +41,11 @@ namespace rwe
 
     nlohmann::json dumpJson(const Projectile& projectile);
 
-    nlohmann::json dumpJson(const IdleState&);
+    nlohmann::json dumpJson(const UnitBehaviorStateIdle&);
 
-    nlohmann::json dumpJson(const BuildingState&);
+    nlohmann::json dumpJson(const UnitBehaviorStateBuilding&);
 
-    nlohmann::json dumpJson(const CreatingUnitState&);
+    nlohmann::json dumpJson(const UnitBehaviorStateCreatingUnit&);
 
     nlohmann::json dumpJson(const UnitCreationStatusPending&);
     nlohmann::json dumpJson(const UnitCreationStatusDone&);
@@ -54,7 +54,7 @@ namespace rwe
     nlohmann::json dumpJson(const Unit::LifeStateAlive&);
     nlohmann::json dumpJson(const Unit::LifeStateDead&);
 
-    nlohmann::json dumpJson(const MovingState& m);
+    nlohmann::json dumpJson(const UnitBehaviorStateMoving& m);
 
     nlohmann::json dumpJson(const DiscreteRect& r);
 

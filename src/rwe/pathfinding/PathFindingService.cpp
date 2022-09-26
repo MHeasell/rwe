@@ -23,7 +23,7 @@ namespace rwe
 
             auto& unit = simulation->getUnit(request.unitId);
 
-            if (auto movingState = std::get_if<MovingState>(&unit.behaviourState); movingState != nullptr)
+            if (auto movingState = std::get_if<UnitBehaviorStateMoving>(&unit.behaviourState); movingState != nullptr)
             {
                 UnitPath path = std::visit(FindPathVisitor(this, request.unitId), movingState->destination);
                 movingState->path = PathFollowingInfo(std::move(path), simulation->gameTime);

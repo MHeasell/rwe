@@ -1018,23 +1018,23 @@ namespace rwe
         sceneContext.graphics->setViewport(0, 0, sceneContext.viewport->width(), sceneContext.viewport->height());
     }
 
-    const char* stateToString(const UnitState& state)
+    const char* stateToString(const UnitBehaviorState& state)
     {
         return match(
             state,
-            [&](const IdleState&)
+            [&](const UnitBehaviorStateIdle&)
             {
                 return "idle";
             },
-            [&](const BuildingState&)
+            [&](const UnitBehaviorStateBuilding&)
             {
                 return "building";
             },
-            [&](const MovingState&)
+            [&](const UnitBehaviorStateMoving&)
             {
                 return "moving";
             },
-            [&](const CreatingUnitState&)
+            [&](const UnitBehaviorStateCreatingUnit&)
             {
                 return "creating unit";
             });
@@ -3424,7 +3424,7 @@ namespace rwe
                 continue;
             }
 
-            if (auto s = std::get_if<CreatingUnitState>(&unit->get().behaviourState); s != nullptr)
+            if (auto s = std::get_if<UnitBehaviorStateCreatingUnit>(&unit->get().behaviourState); s != nullptr)
             {
 
                 if (!std::holds_alternative<UnitCreationStatusPending>(s->status))
@@ -3444,7 +3444,7 @@ namespace rwe
                 s->status = UnitCreationStatusDone{*newUnitId};
             }
 
-            if (auto s = std::get_if<FactoryStateCreatingUnit>(&unit->get().factoryState); s != nullptr)
+            if (auto s = std::get_if<FactoryBehaviorStateCreatingUnit>(&unit->get().factoryState); s != nullptr)
             {
                 if (!std::holds_alternative<UnitCreationStatusPending>(s->status))
                 {

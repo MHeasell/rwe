@@ -612,13 +612,13 @@ namespace rwe
 
     std::optional<std::pair<UnitId, SimVector>> Unit::getActiveNanolatheTarget() const
     {
-        auto buildingState = std::get_if<BuildingState>(&behaviourState);
+        auto buildingState = std::get_if<UnitBehaviorStateBuilding>(&behaviourState);
         if (buildingState && buildingState->nanoParticleOrigin)
         {
             return std::make_pair(buildingState->targetUnit, *buildingState->nanoParticleOrigin);
         }
 
-        auto factoryBuildingState = std::get_if<FactoryStateBuilding>(&factoryState);
+        auto factoryBuildingState = std::get_if<FactoryBehaviorStateBuilding>(&factoryState);
         if (factoryBuildingState && factoryBuildingState->targetUnit && factoryBuildingState->targetUnit->second)
         {
             return std::make_pair(factoryBuildingState->targetUnit->first, *factoryBuildingState->targetUnit->second);

@@ -38,14 +38,14 @@ namespace rwe
 
     using MovingStateGoal = std::variant<SimVector, DiscreteRect>;
 
-    struct MovingState
+    struct UnitBehaviorStateMoving
     {
         MovingStateGoal destination;
         std::optional<PathFollowingInfo> path;
         bool pathRequested;
     };
 
-    struct IdleState
+    struct UnitBehaviorStateIdle
     {
     };
 
@@ -63,7 +63,7 @@ namespace rwe
     };
 
     using UnitCreationStatus = std::variant<UnitCreationStatusPending, UnitCreationStatusFailed, UnitCreationStatusDone>;
-    struct CreatingUnitState
+    struct UnitBehaviorStateCreatingUnit
     {
         std::string unitType;
         PlayerId owner;
@@ -71,19 +71,19 @@ namespace rwe
         UnitCreationStatus status{UnitCreationStatusPending()};
     };
 
-    struct BuildingState
+    struct UnitBehaviorStateBuilding
     {
         UnitId targetUnit;
         std::optional<SimVector> nanoParticleOrigin;
     };
 
-    using UnitState = std::variant<IdleState, MovingState, CreatingUnitState, BuildingState>;
+    using UnitBehaviorState = std::variant<UnitBehaviorStateIdle, UnitBehaviorStateMoving, UnitBehaviorStateCreatingUnit, UnitBehaviorStateBuilding>;
 
-    struct FactoryStateIdle
+    struct FactoryBehaviorStateIdle
     {
     };
 
-    struct FactoryStateCreatingUnit
+    struct FactoryBehaviorStateCreatingUnit
     {
         std::string unitType;
         PlayerId owner;
@@ -92,13 +92,13 @@ namespace rwe
         UnitCreationStatus status{UnitCreationStatusPending()};
     };
 
-    struct FactoryStateBuilding
+    struct FactoryBehaviorStateBuilding
     {
         // the vector is the origin of nano particles
         std::optional<std::pair<UnitId, std::optional<SimVector>>> targetUnit;
     };
 
-    using FactoryState = std::variant<FactoryStateIdle, FactoryStateCreatingUnit, FactoryStateBuilding>;
+    using FactoryBehaviorState = std::variant<FactoryBehaviorStateIdle, FactoryBehaviorStateCreatingUnit, FactoryBehaviorStateBuilding>;
 
     UnitOrder createMoveOrder(const SimVector& destination);
 
@@ -160,7 +160,7 @@ namespace rwe
         LifeState lifeState{LifeStateAlive()};
 
         std::deque<UnitOrder> orders;
-        UnitState behaviourState;
+        UnitBehaviorState behaviourState;
 
         /**
          * State we remember related to the current order.
@@ -195,7 +195,7 @@ namespace rwe
         Metal metalConsumptionBuffer{0};
 
         std::deque<std::pair<std::string, int>> buildQueue;
-        FactoryState factoryState;
+        FactoryBehaviorState factoryState;
 
         static SimAngle toRotation(const SimVector& direction);
 

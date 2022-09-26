@@ -102,7 +102,7 @@ namespace rwe
             }
             else
             {
-                changeState(unit, IdleState());
+                changeState(unit, UnitBehaviorStateIdle());
             }
 
             for (Index i = 0; i < getSize(unit.weapons); ++i)
@@ -941,14 +941,14 @@ namespace rwe
 
 
         // assist building
-        if (auto bs = std::get_if<BuildingState>(&targetUnit.behaviourState); unitDefinition.builder && bs)
+        if (auto bs = std::get_if<UnitBehaviorStateBuilding>(&targetUnit.behaviourState); unitDefinition.builder && bs)
         {
             buildExistingUnit(unitId, bs->targetUnit);
             return false;
         }
 
         // assist factory building
-        if (auto fs = std::get_if<FactoryStateBuilding>(&targetUnit.factoryState); unitDefinition.builder && fs)
+        if (auto fs = std::get_if<FactoryBehaviorStateBuilding>(&targetUnit.factoryState); unitDefinition.builder && fs)
         {
             if (fs->targetUnit)
             {
@@ -975,13 +975,13 @@ namespace rwe
 
         return match(
             unit.factoryState,
-            [&](const FactoryStateIdle&)
+            [&](const FactoryBehaviorStateIdle&)
             {
                 sim->activateUnit(unitId);
-                unit.factoryState = FactoryStateBuilding();
+                unit.factoryState = FactoryBehaviorStateBuilding();
                 return false;
             },
-            [&](FactoryStateCreatingUnit& state)
+            [&](FactoryBehaviorStateCreatingUnit& state)
             {
                 return match(
                     state.status,
@@ -992,16 +992,16 @@ namespace rwe
                     [&](const UnitCreationStatusDone& s)
                     {
                         unit.cobEnvironment->createThread("StartBuilding");
-                        unit.factoryState = FactoryStateBuilding{std::make_pair(s.unitId, std::optional<SimVector>())};
+                        unit.factoryState = FactoryBehaviorStateBuilding{std::make_pair(s.unitId, std::optional<SimVector>())};
                         return false;
                     },
                     [&](const UnitCreationStatusFailed&)
                     {
-                        unit.factoryState = FactoryStateBuilding();
+                        unit.factoryState = FactoryBehaviorStateBuilding();
                         return false;
                     });
             },
-            [&](FactoryStateBuilding& state)
+            [&](FactoryBehaviorStateBuilding& state)
             {
                 if (!unit.inBuildStance)
                 {
@@ -1012,7 +1012,7 @@ namespace rwe
                 // buildPieceInfo.position.y = sim->terrain.getHeightAt(buildPieceInfo.position.x, buildPieceInfo.position.z);
                 if (!state.targetUnit)
                 {
-                    unit.factoryState = FactoryStateCreatingUnit{unitType, unit.owner, buildPieceInfo.position, buildPieceInfo.rotation};
+                    unit.factoryState = FactoryBehaviorStateCreatingUnit{unitType, unit.owner, buildPieceInfo.position, buildPieceInfo.rotation};
                     sim->unitCreationRequests.push_back(unitId);
                     return false;
                 }
@@ -1020,7 +1020,7 @@ namespace rwe
                 auto targetUnitOption = sim->tryGetUnit(state.targetUnit->first);
                 if (!targetUnitOption)
                 {
-                    unit.factoryState = FactoryStateCreatingUnit{unitType, unit.owner, buildPieceInfo.position, buildPieceInfo.rotation};
+                    unit.factoryState = FactoryBehaviorStateCreatingUnit{unitType, unit.owner, buildPieceInfo.position, buildPieceInfo.rotation};
                     sim->unitCreationRequests.push_back(unitId);
                     return false;
                 }
@@ -1042,7 +1042,7 @@ namespace rwe
                 {
                     unit.cobEnvironment->createThread("StopBuilding");
                     sim->deactivateUnit(unitId);
-                    unit.factoryState = FactoryStateIdle();
+                    unit.factoryState = FactoryBehaviorStateIdle();
                     return true;
                 }
 
@@ -1059,7 +1059,7 @@ namespace rwe
                     }
                     unit.cobEnvironment->createThread("StopBuilding");
                     sim->deactivateUnit(unitId);
-                    unit.factoryState = FactoryStateIdle();
+                    unit.factoryState = FactoryBehaviorStateIdle();
                     return true;
                 }
 
@@ -1107,11 +1107,11 @@ namespace rwe
 
         match(
             unit.factoryState,
-            [&](const FactoryStateIdle&)
+            [&](const FactoryBehaviorStateIdle&)
             {
                 // do nothing
             },
-            [&](const FactoryStateCreatingUnit& state)
+            [&](const FactoryBehaviorStateCreatingUnit& state)
             {
                 match(
                     state.status,
@@ -1124,9 +1124,9 @@ namespace rwe
                         // do nothing
                     });
                 sim->deactivateUnit(unitId);
-                unit.factoryState = FactoryStateIdle();
+                unit.factoryState = FactoryBehaviorStateIdle();
             },
-            [&](const FactoryStateBuilding& state)
+            [&](const FactoryBehaviorStateBuilding& state)
             {
                 if (state.targetUnit)
                 {
@@ -1134,7 +1134,7 @@ namespace rwe
                     unit.cobEnvironment->createThread("StopBuilding");
                 }
                 sim->deactivateUnit(unitId);
-                unit.factoryState = FactoryStateIdle();
+                unit.factoryState = FactoryBehaviorStateIdle();
             });
     }
 
@@ -1234,12 +1234,12 @@ namespace rwe
         auto& unit = sim->getUnit(unitId);
         const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
 
-        auto movingState = std::get_if<MovingState>(&unit.behaviourState);
+        auto movingState = std::get_if<UnitBehaviorStateMoving>(&unit.behaviourState);
 
         if (!movingState || movingState->destination != goal)
         {
             // request a path to follow
-            changeState(unit, MovingState{goal, std::nullopt, true});
+            changeState(unit, UnitBehaviorStateMoving{goal, std::nullopt, true});
             sim->requestPath(unitId);
             return false;
         }
@@ -1263,7 +1263,7 @@ namespace rwe
             {
                 // we finished following the path,
                 // clear our state
-                changeState(unit, IdleState());
+                changeState(unit, UnitBehaviorStateIdle());
                 return true;
             }
         }
@@ -1275,7 +1275,7 @@ namespace rwe
     {
         auto& unit = sim->getUnit(unitId);
 
-        if (auto s = std::get_if<CreatingUnitState>(&unit.behaviourState))
+        if (auto s = std::get_if<UnitBehaviorStateCreatingUnit>(&unit.behaviourState))
         {
             if (s->unitType == unitType && s->position == position)
             {
@@ -1289,7 +1289,7 @@ namespace rwe
         {
             // TODO: add an additional distance check here -- we may have done  the best
             // we can to move but been prevented by some obstacle, so we are too far away still.
-            changeState(unit, CreatingUnitState{unitType, unit.owner, position});
+            changeState(unit, UnitBehaviorStateCreatingUnit{unitType, unit.owner, position});
             sim->unitCreationRequests.push_back(unitId);
         }
 
@@ -1326,7 +1326,7 @@ namespace rwe
 
         if (!targetUnitRef || targetUnitRef->get().isDead() || !targetUnitRef->get().isBeingBuilt(unitDefinition))
         {
-            changeState(unit, IdleState());
+            changeState(unit, UnitBehaviorStateIdle());
             return true;
         }
         auto& targetUnit = targetUnitRef->get();
@@ -1345,9 +1345,9 @@ namespace rwe
         return deployBuildArm(unitId, targetUnitId);
     }
 
-    void UnitBehaviorService::changeState(Unit& unit, const UnitState& newState)
+    void UnitBehaviorService::changeState(Unit& unit, const UnitBehaviorState& newState)
     {
-        if (std::holds_alternative<BuildingState>(unit.behaviourState))
+        if (std::holds_alternative<UnitBehaviorStateBuilding>(unit.behaviourState))
         {
             unit.cobEnvironment->createThread("StopBuilding");
         }
@@ -1360,7 +1360,7 @@ namespace rwe
         auto targetUnitRef = sim->tryGetUnit(targetUnitId);
         if (!targetUnitRef || targetUnitRef->get().isDead() || !targetUnitRef->get().isBeingBuilt(sim->unitDefinitions.at(targetUnitRef->get().unitType)))
         {
-            changeState(unit, IdleState());
+            changeState(unit, UnitBehaviorStateIdle());
             return true;
         }
         auto& targetUnit = targetUnitRef->get();
@@ -1368,11 +1368,11 @@ namespace rwe
 
         return match(
             unit.behaviourState,
-            [&](BuildingState& buildingState)
+            [&](UnitBehaviorStateBuilding& buildingState)
             {
                 if (targetUnitId != buildingState.targetUnit)
                 {
-                    changeState(unit, IdleState());
+                    changeState(unit, UnitBehaviorStateIdle());
                     return buildExistingUnit(unitId, targetUnitId);
                 }
 
@@ -1407,7 +1407,7 @@ namespace rwe
                         sim->activateUnit(buildingState.targetUnit);
                     }
 
-                    changeState(unit, IdleState());
+                    changeState(unit, UnitBehaviorStateIdle());
                     return true;
                 }
                 return false;
@@ -1419,7 +1419,7 @@ namespace rwe
                 auto heading = headingAndPitch.first;
                 auto pitch = headingAndPitch.second;
 
-                changeState(unit, BuildingState{targetUnitId, std::nullopt});
+                changeState(unit, UnitBehaviorStateBuilding{targetUnitId, std::nullopt});
                 unit.cobEnvironment->createThread("StartBuilding", {toCobAngle(heading).value, toCobAngle(pitch).value});
                 return false;
             });

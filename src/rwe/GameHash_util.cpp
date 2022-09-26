@@ -123,17 +123,17 @@ namespace rwe
         return h;
     }
 
-    GameHash computeHashOf(const IdleState&)
+    GameHash computeHashOf(const UnitBehaviorStateIdle&)
     {
         return GameHash(0);
     }
 
-    GameHash computeHashOf(const BuildingState&)
+    GameHash computeHashOf(const UnitBehaviorStateBuilding&)
     {
         return GameHash(0);
     }
 
-    GameHash computeHashOf(const CreatingUnitState& s)
+    GameHash computeHashOf(const UnitBehaviorStateCreatingUnit& s)
     {
         return combineHashes(
             s.position,
@@ -165,7 +165,7 @@ namespace rwe
         return GameHash(0);
     }
 
-    GameHash computeHashOf(const MovingState& m)
+    GameHash computeHashOf(const UnitBehaviorStateMoving& m)
     {
         return combineHashes(
             m.destination,

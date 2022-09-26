@@ -29,11 +29,11 @@ namespace rwe
 
     GameHash computeHashOf(const Projectile& projectile);
 
-    GameHash computeHashOf(const IdleState&);
+    GameHash computeHashOf(const UnitBehaviorStateIdle&);
 
-    GameHash computeHashOf(const BuildingState& s);
+    GameHash computeHashOf(const UnitBehaviorStateBuilding& s);
 
-    GameHash computeHashOf(const CreatingUnitState&);
+    GameHash computeHashOf(const UnitBehaviorStateCreatingUnit&);
 
     GameHash computeHashOf(const UnitCreationStatusPending&);
     GameHash computeHashOf(const UnitCreationStatusDone&);
@@ -42,7 +42,7 @@ namespace rwe
     GameHash computeHashOf(const Unit::LifeStateAlive&);
     GameHash computeHashOf(const Unit::LifeStateDead&);
 
-    GameHash computeHashOf(const MovingState& m);
+    GameHash computeHashOf(const UnitBehaviorStateMoving& m);
 
     GameHash computeHashOf(const DiscreteRect& r);
 
