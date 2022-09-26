@@ -2,6 +2,7 @@
 
 #include <rwe/sim/Energy.h>
 #include <rwe/sim/Metal.h>
+#include <rwe/sim/MovementClassId.h>
 #include <rwe/sim/SimScalar.h>
 #include <string>
 #include <variant>
