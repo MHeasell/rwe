@@ -118,8 +118,10 @@ namespace rwe
 
     std::optional<UnitId> GameSimulation::tryAddUnit(Unit&& unit)
     {
+        const auto& unitDefinition = unitDefinitions.at(unit.unitType);
+
         // set footprint area as occupied by the unit
-        auto footprintRect = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+        auto footprintRect = computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
         if (isCollisionAt(footprintRect))
         {
             return std::nullopt;
@@ -131,14 +133,14 @@ namespace rwe
         auto footprintRegion = occupiedGrid.tryToRegion(footprintRect);
         assert(!!footprintRegion);
 
-        if (insertedUnit.isMobile)
+        if (unitDefinition.isMobile)
         {
             occupiedGrid.forEach(*footprintRegion, [unitId](auto& cell) { cell.occupiedType = OccupiedUnit(unitId); });
         }
         else
         {
-            assert(!!insertedUnit.yardMap);
-            occupiedGrid.forEach2(footprintRegion->x, footprintRegion->y, *insertedUnit.yardMap, [&](auto& cell, const auto& yardMapCell) {
+            assert(!!unitDefinition.yardMap);
+            occupiedGrid.forEach2(footprintRegion->x, footprintRegion->y, *unitDefinition.yardMap, [&](auto& cell, const auto& yardMapCell) {
                 cell.buildingCell = BuildingOccupiedCell{unitId, isPassable(yardMapCell, insertedUnit.yardOpen)};
             });
         }
@@ -173,6 +175,12 @@ namespace rwe
         auto cell = terrain.worldToHeightmapCoordinateNearest(topLeft);
 
         return DiscreteRect(cell.x, cell.y, footprintX, footprintZ);
+    }
+
+    DiscreteRect GameSimulation::computeFootprintRegion(const SimVector& position, const UnitDefinition::MovementCollisionInfo& collisionInfo) const
+    {
+        auto [footprintX, footprintZ] = getFootprintXZ(collisionInfo);
+        return computeFootprintRegion(position, footprintX, footprintZ);
     }
 
     bool GameSimulation::isCollisionAt(const DiscreteRect& rect) const
@@ -436,10 +444,15 @@ namespace rwe
     Projectile GameSimulation::createProjectileFromWeapon(
         PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction, SimScalar distanceToTarget)
     {
-        const auto& weaponDefinition = weaponDefinitions.at(weapon.weaponType);
+        return createProjectileFromWeapon(owner, weapon.weaponType, position, direction, distanceToTarget);
+    }
+
+    Projectile GameSimulation::createProjectileFromWeapon(PlayerId owner, const std::string& weaponType, const SimVector& position, const SimVector& direction, SimScalar distanceToTarget)
+    {
+        const auto& weaponDefinition = weaponDefinitions.at(weaponType);
 
         Projectile projectile;
-        projectile.weaponType = weapon.weaponType;
+        projectile.weaponType = weaponType;
         projectile.owner = owner;
         projectile.position = position;
         projectile.previousPosition = position;
@@ -525,17 +538,18 @@ namespace rwe
     bool GameSimulation::trySetYardOpen(const UnitId& unitId, bool open)
     {
         auto& unit = getUnit(unitId);
-        auto footprintRect = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+        const auto& unitDefinition = unitDefinitions.at(unit.unitType);
+        auto footprintRect = computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
         auto footprintRegion = occupiedGrid.tryToRegion(footprintRect);
         assert(!!footprintRegion);
 
-        assert(!!unit.yardMap);
-        if (isYardmapBlocked(footprintRegion->x, footprintRegion->y, *unit.yardMap, open))
+        assert(!!unitDefinition.yardMap);
+        if (isYardmapBlocked(footprintRegion->x, footprintRegion->y, *unitDefinition.yardMap, open))
         {
             return false;
         }
 
-        occupiedGrid.forEach2(footprintRegion->x, footprintRegion->y, *unit.yardMap, [&](auto& cell, const auto& yardMapCell) {
+        occupiedGrid.forEach2(footprintRegion->x, footprintRegion->y, *unitDefinition.yardMap, [&](auto& cell, const auto& yardMapCell) {
             cell.buildingCell = BuildingOccupiedCell{unitId, isPassable(yardMapCell, open)};
         });
 
@@ -547,7 +561,8 @@ namespace rwe
     void GameSimulation::emitBuggerOff(const UnitId& unitId)
     {
         auto& unit = getUnit(unitId);
-        auto footprintRect = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+        const auto& unitDefinition = unitDefinitions.at(unit.unitType);
+        auto footprintRect = computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
         auto footprintRegion = occupiedGrid.tryToRegion(footprintRect);
         assert(!!footprintRegion);
 
@@ -601,14 +616,16 @@ namespace rwe
     Matrix4x<SimScalar> GameSimulation::getUnitPieceLocalTransform(UnitId unitId, const std::string& pieceName) const
     {
         const auto& unit = getUnit(unitId);
-        const auto& modelDef = unitModelDefinitions.at(unit.objectName);
+        const auto& unitDefinition = unitDefinitions.at(unit.unitType);
+        const auto& modelDef = unitModelDefinitions.at(unitDefinition.objectName);
         return getPieceTransform(pieceName, modelDef, unit.pieces);
     }
 
     Matrix4x<SimScalar> GameSimulation::getUnitPieceTransform(UnitId unitId, const std::string& pieceName) const
     {
         const auto& unit = getUnit(unitId);
-        const auto& modelDef = unitModelDefinitions.at(unit.objectName);
+        const auto& unitDefinition = unitDefinitions.at(unit.unitType);
+        const auto& modelDef = unitModelDefinitions.at(unitDefinition.objectName);
         auto pieceTransform = getPieceTransform(pieceName, modelDef, unit.pieces);
         return unit.getTransform() * pieceTransform;
     }
@@ -616,7 +633,8 @@ namespace rwe
     SimVector GameSimulation::getUnitPiecePosition(UnitId unitId, const std::string& pieceName) const
     {
         const auto& unit = getUnit(unitId);
-        const auto& modelDef = unitModelDefinitions.at(unit.objectName);
+        const auto& unitDefinition = unitDefinitions.at(unit.unitType);
+        const auto& modelDef = unitModelDefinitions.at(unitDefinition.objectName);
         auto pieceTransform = getPieceTransform(pieceName, modelDef, unit.pieces);
         return unit.getTransform() * pieceTransform * SimVector(0_ss, 0_ss, 0_ss);
     }
@@ -637,5 +655,37 @@ namespace rwe
         {
             emitBuggerOff(unitId);
         }
+    }
+
+    MovementClass GameSimulation::getAdHocMovementClass(const UnitDefinition::MovementCollisionInfo& info) const
+    {
+        return match(
+            info,
+            [&](const UnitDefinition::AdHocMovementClass& mc) {
+                return MovementClass{
+                    "",
+                    mc.footprintX,
+                    mc.footprintZ,
+                    mc.minWaterDepth,
+                    mc.maxWaterDepth,
+                    mc.maxSlope,
+                    mc.maxWaterSlope};
+            },
+            [&](const UnitDefinition::NamedMovementClass& mc) {
+                return movementClassDefinitions.at(mc.movementClassId);
+            });
+    }
+
+    std::pair<unsigned int, unsigned int> GameSimulation::getFootprintXZ(const UnitDefinition::MovementCollisionInfo& info) const
+    {
+        return match(
+            info,
+            [&](const UnitDefinition::AdHocMovementClass& mc) {
+                return std::make_pair(mc.footprintX, mc.footprintZ);
+            },
+            [&](const UnitDefinition::NamedMovementClass& mc) {
+                const auto& mcDef = movementClassDefinitions.at(mc.movementClassId);
+                return std::make_pair(mcDef.footprintX, mcDef.footprintZ);
+            });
     }
 }

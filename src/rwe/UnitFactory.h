@@ -3,6 +3,7 @@
 #include <rwe/MeshService.h>
 #include <rwe/MovementClassCollisionService.h>
 #include <rwe/UnitDatabase.h>
+#include <rwe/sim/GameSimulation.h>
 #include <rwe/sim/MovementClass.h>
 #include <rwe/sim/SimVector.h>
 #include <rwe/sim/Unit.h>

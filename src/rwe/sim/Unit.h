@@ -18,6 +18,7 @@
 #include <rwe/sim/SimAngle.h>
 #include <rwe/sim/SimScalar.h>
 #include <rwe/sim/SimVector.h>
+#include <rwe/sim/UnitDefinition.h>
 #include <rwe/sim/UnitFireOrders.h>
 #include <rwe/sim/UnitMesh.h>
 #include <rwe/sim/UnitOrder.h>
@@ -105,21 +106,6 @@ namespace rwe
 
     UnitOrder createAttackGroundOrder(const SimVector& target);
 
-    enum class YardMapCell
-    {
-        GroundPassableWhenOpen,
-        WaterPassableWhenOpen,
-        GroundNoFeature,
-        GroundGeoPassableWhenOpen,
-        Geo,
-        Ground,
-        GroundPassableWhenClosed,
-        Water,
-        GroundPassable,
-        WaterPassable,
-        Passable
-    };
-
     bool isWater(YardMapCell cell);
 
     bool isPassable(YardMapCell cell, bool yardMapOpen);
@@ -146,20 +132,13 @@ namespace rwe
         using LifeState = std::variant<LifeStateAlive, LifeStateDead>;
 
     public:
-        std::string name;
         std::string unitType;
-        std::string objectName;
         std::vector<UnitMesh> pieces;
         std::unordered_map<std::string, int> pieceNameToIndices;
         SimVector position;
         SimVector previousPosition;
         std::unique_ptr<CobEnvironment> cobEnvironment;
         PlayerId owner;
-
-        /**
-         * The height of the unit. Typically computed from the mesh.
-         */
-        SimScalar height;
 
         /**
          * Anticlockwise rotation of the unit around the Y axis in radians.
@@ -169,48 +148,14 @@ namespace rwe
         SimAngle rotation{0};
         SimAngle previousRotation{0};
 
-
-        /**
-         * Rate at which the unit turns in world angular units/tick.
-         */
-        SimScalar turnRate;
-
         /**
          * Rate at which the unit is travelling forwards in game units/tick.
          */
         SimScalar currentSpeed{0};
 
-        /**
-         * Maximum speed the unit can travel forwards in game units/tick.
-         */
-        SimScalar maxSpeed;
-
-        /**
-         * Speed at which the unit accelerates in game units/tick.
-         */
-        SimScalar acceleration;
-
-        /**
-         * Speed at which the unit brakes in game units/tick.
-         */
-        SimScalar brakeRate;
-
         SteeringInfo steeringInfo;
 
-        std::optional<MovementClassId> movementClass;
-
-        unsigned int footprintX;
-        unsigned int footprintZ;
-        unsigned int maxSlope;
-        unsigned int maxWaterSlope;
-        unsigned int minWaterDepth;
-        unsigned int maxWaterDepth;
-
-        /** If true, the unit is considered a commander for victory conditions. */
-        bool commander;
-
         unsigned int hitPoints{0};
-        unsigned int maxHitPoints;
 
         LifeState lifeState{LifeStateAlive()};
 
@@ -227,8 +172,6 @@ namespace rwe
         bool inBuildStance{false};
         bool yardOpen{false};
 
-        std::optional<Grid<YardMapCell>> yardMap;
-
         /**
          * True if the unit attempted to move last frame
          * and its movement was limited (or prevented entirely) by a collision.
@@ -237,43 +180,12 @@ namespace rwe
 
         std::array<std::optional<UnitWeapon>, 3> weapons;
 
-        bool canAttack;
-        bool canMove;
-        bool canGuard;
-
-        std::optional<UnitWeapon> explosionWeapon;
-
         UnitFireOrders fireOrders{UnitFireOrders::FireAtWill};
-
-        bool builder;
-
-        unsigned int buildTime;
-        Energy energyCost;
-        Metal metalCost;
 
         unsigned int buildTimeCompleted{0};
 
-        unsigned int workerTimePerTick;
-
-        SimScalar buildDistance;
-
-        bool onOffable;
-        bool activateWhenBuilt;
-
-        Energy energyUse;
-        Metal metalUse;
-
-        Energy energyMake;
-        Metal metalMake;
-
-        Energy energyStorage;
-        Metal metalStorage;
-
         bool activated{false};
         bool isSufficientlyPowered{false};
-
-        bool hideDamage{false};
-        bool showPlayerName{false};
 
         Energy energyProductionBuffer{0};
         Metal metalProductionBuffer{0};
@@ -282,15 +194,8 @@ namespace rwe
         Energy energyConsumptionBuffer{0};
         Metal metalConsumptionBuffer{0};
 
-        bool isMobile;
-
-        bool floater;
-        bool canHover;
-
         std::deque<std::pair<std::string, int>> buildQueue;
         FactoryState factoryState;
-
-        Metal extractsMetal;
 
         static SimAngle toRotation(const SimVector& direction);
 
@@ -298,11 +203,11 @@ namespace rwe
 
         Unit(const std::vector<UnitMesh>& pieces, std::unique_ptr<CobEnvironment>&& cobEnvironment);
 
-        bool isBeingBuilt() const;
+        bool isBeingBuilt(const UnitDefinition& unitDefinition) const;
 
-        unsigned int getBuildPercentLeft() const;
+        unsigned int getBuildPercentLeft(const UnitDefinition& unitDefinition) const;
 
-        float getPreciseCompletePercent() const;
+        float getPreciseCompletePercent(const UnitDefinition& unitDefinition) const;
 
         struct BuildCostInfo
         {
@@ -311,11 +216,9 @@ namespace rwe
             Metal metalCost;
         };
 
-        BuildCostInfo getBuildCostInfo(unsigned int buildTimeContribution);
+        BuildCostInfo getBuildCostInfo(const UnitDefinition& unitDefinition, unsigned int buildTimeContribution);
 
-        bool addBuildProgress(unsigned int buildTimeContribution);
-
-        bool isCommander() const;
+        bool addBuildProgress(const UnitDefinition& unitDefinition, unsigned int buildTimeContribution);
 
         void moveObject(const std::string& pieceName, Axis axis, SimScalar targetPosition, SimScalar speed);
 
@@ -340,7 +243,7 @@ namespace rwe
         void markAsDead();
         void markAsDeadNoCorpse();
 
-        void finishBuilding();
+        void finishBuilding(const UnitDefinition& unitDefinition);
 
         void clearOrders();
 
@@ -356,13 +259,11 @@ namespace rwe
         Matrix4x<SimScalar> getTransform() const;
         Matrix4x<SimScalar> getInverseTransform() const;
 
-        bool isSelectableBy(PlayerId player) const;
+        bool isSelectableBy(const UnitDefinition& unitDefinition, PlayerId player) const;
 
         void activate();
 
         void deactivate();
-
-        MovementClass getAdHocMovementClass() const;
 
         Metal getMetalMake() const;
         Energy getEnergyMake() const;

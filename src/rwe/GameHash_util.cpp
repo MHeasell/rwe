@@ -77,7 +77,6 @@ namespace rwe
             u.position,
             u.owner,
             u.rotation,
-            u.turnRate,
             u.currentSpeed,
             u.steeringInfo,
             u.hitPoints,

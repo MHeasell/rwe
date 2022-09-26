@@ -55,7 +55,6 @@ namespace rwe
             {"position", dumpJson(u.position)},
             {"owner", dumpJson(u.owner)},
             {"rotation", dumpJson(u.rotation)},
-            {"turnRate", dumpJson(u.turnRate)},
             {"currentSpeed", dumpJson(u.currentSpeed)},
             {"steeringInfo", dumpJson(u.steeringInfo)},
             {"hitPoints", dumpJson(u.hitPoints)},

@@ -20,6 +20,79 @@
 
 namespace rwe
 {
+    bool unitCanAttack(const GameSimulation& sim, UnitId unitId)
+    {
+        const auto& unit = sim.getUnit(unitId);
+        const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
+        return unitDefinition.canAttack;
+    }
+
+    bool unitCanMove(const GameSimulation& sim, UnitId unitId)
+    {
+        const auto& unit = sim.getUnit(unitId);
+        const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
+        return unitDefinition.canMove;
+    }
+
+    bool unitCanGuard(const GameSimulation& sim, UnitId unitId)
+    {
+        const auto& unit = sim.getUnit(unitId);
+        const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
+        return unitDefinition.canGuard;
+    }
+
+    bool unitIsBuilder(const GameSimulation& sim, UnitId unitId)
+    {
+        const auto& unit = sim.getUnit(unitId);
+        const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
+        return unitDefinition.builder;
+    }
+
+    bool unitIsBuilder(const GameSimulation& sim, std::optional<UnitId> singleSelectedUnit)
+    {
+        if (!singleSelectedUnit)
+        {
+            return false;
+        }
+        const auto& unit = sim.getUnit(*singleSelectedUnit);
+        const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
+        return unitDefinition.builder;
+    }
+
+    bool unitIsBeingBuilt(const GameSimulation& sim, UnitId unitId)
+    {
+        const auto& unit = sim.getUnit(unitId);
+        const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
+        return unit.isBeingBuilt(unitDefinition);
+    }
+
+    bool unitIsSelectableBy(const GameSimulation& sim, UnitId unitId, PlayerId playerId)
+    {
+        const auto& unit = sim.getUnit(unitId);
+        const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
+        return unit.isSelectableBy(unitDefinition, playerId);
+    }
+
+    bool unitIsOwnedByPlayerAndIsBuilder(const GameSimulation& sim, PlayerId playerId, std::optional<UnitId> singleSelectedUnit)
+    {
+        if (!singleSelectedUnit)
+        {
+            return false;
+        }
+        const auto& unit = sim.getUnit(*singleSelectedUnit);
+        if (!unit.isOwnedBy(playerId))
+        {
+            return false;
+        }
+        const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
+        return unitDefinition.builder;
+    }
+
+    bool shouldShowAllBuildBoxes(const GameSimulation& sim, PlayerId localPlayerId, std::optional<UnitId> singleSelectedUnit, std::optional<UnitId> hoveredUnit)
+    {
+        return unitIsBuilder(sim, singleSelectedUnit) || unitIsOwnedByPlayerAndIsBuilder(sim, localPlayerId, hoveredUnit);
+    }
+
     Line3x<SimScalar> floatToSimLine(const Line3f& line)
     {
         return Line3x<SimScalar>(floatToSimVector(line.start), floatToSimVector(line.end));
@@ -29,7 +102,8 @@ namespace rwe
     {
         auto collidesWithOccupiedCell = match(
             cellValue.occupiedType,
-            [&](const OccupiedUnit& v) {
+            [&](const OccupiedUnit& v)
+            {
                 const auto& unit = sim.getUnit(v.id);
 
                 if (unit.isOwnedBy(projectile.owner))
@@ -37,15 +111,19 @@ namespace rwe
                     return false;
                 }
 
+                const auto& fbi = db.getUnitInfo(unit.unitType);
+                const auto& modelDefinition = db.getUnitModelDefinition(fbi.objectName).value().get();
+
                 // ignore if the projectile is above or below the unit
-                if (projectile.position.y < unit.position.y || projectile.position.y > unit.position.y + unit.height)
+                if (projectile.position.y < unit.position.y || projectile.position.y > unit.position.y + modelDefinition.height)
                 {
                     return false;
                 }
 
                 return true;
             },
-            [&](const OccupiedFeature& v) {
+            [&](const OccupiedFeature& v)
+            {
                 const auto& feature = sim.getFeature(v.id);
                 const auto& featureDefinition = db.getFeature(feature.featureName);
 
@@ -58,7 +136,8 @@ namespace rwe
                 return true;
             },
 
-            [&](const OccupiedNone&) {
+            [&](const OccupiedNone&)
+            {
                 return false;
             });
 
@@ -76,8 +155,11 @@ namespace rwe
                 return false;
             }
 
+            const auto& fbi = db.getUnitInfo(unit.unitType);
+            const auto& modelDefinition = db.getUnitModelDefinition(fbi.objectName).value().get();
+
             // ignore if the projectile is above or below the unit
-            if (projectile.position.y < unit.position.y || projectile.position.y > unit.position.y + unit.height)
+            if (projectile.position.y < unit.position.y || projectile.position.y > unit.position.y + modelDefinition.height)
             {
                 return false;
             }
@@ -163,7 +245,6 @@ namespace rwe
         std::vector<SharedTextureHandle>&& unitTeamTextureAtlases,
         GameSimulation&& simulation,
         MapTerrainGraphics&& terrainGraphics,
-        MovementClassCollisionService&& collisionService,
         UnitDatabase&& unitDatabase,
         MeshService&& meshService,
         std::unique_ptr<GameNetworkService>&& gameNetworkService,
@@ -186,11 +267,10 @@ namespace rwe
           chromeUiRenderService(this->sceneContext.graphics, this->sceneContext.shaders, this->sceneContext.viewport),
           simulation(std::move(simulation)),
           terrainGraphics(std::move(terrainGraphics)),
-          collisionService(std::move(collisionService)),
           unitDatabase(std::move(unitDatabase)),
-          unitFactory(sceneContext.textureService, &this->unitDatabase, std::move(meshService), &this->collisionService, sceneContext.palette, sceneContext.guiPalette, &this->simulation),
+          unitFactory(sceneContext.textureService, &this->unitDatabase, std::move(meshService), &this->simulation.movementClassCollisionService, sceneContext.palette, sceneContext.guiPalette, &this->simulation),
           gameNetworkService(std::move(gameNetworkService)),
-          pathFindingService(&this->simulation, &this->collisionService),
+          pathFindingService(&this->simulation, &this->simulation.movementClassCollisionService),
           cobExecutionService(),
           unitBehaviorService(&this->simulation, &this->unitFactory, &this->cobExecutionService),
           minimap(minimap),
@@ -384,6 +464,7 @@ namespace rwe
         if (hoveredUnit)
         {
             const auto& unit = getUnit(*hoveredUnit);
+            const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
             if (logos)
             {
                 const auto& rect = localSideData.logo2.toDiscreteRect();
@@ -394,14 +475,14 @@ namespace rwe
             {
                 const auto& rect = localSideData.unitName;
                 const auto& playerName = getPlayer(unit.owner).name;
-                const auto& text = unit.showPlayerName && playerName ? *playerName : unit.name;
+                const auto& text = unitDefinition.showPlayerName && playerName ? *playerName : unitDefinition.unitName;
                 chromeUiRenderService.drawTextCenteredX(rect.x1, extraBottom + rect.y1, text, *guiFont);
             }
 
-            if (unit.isOwnedBy(localPlayerId) || !unit.hideDamage)
+            if (unit.isOwnedBy(localPlayerId) || !unitDefinition.hideDamage)
             {
                 const auto& rect = localSideData.damageBar.toDiscreteRect();
-                chromeUiRenderService.drawHealthBar2(rect.x, extraBottom + rect.y, rect.width, rect.height, static_cast<float>(unit.hitPoints) / static_cast<float>(unit.maxHitPoints));
+                chromeUiRenderService.drawHealthBar2(rect.x, extraBottom + rect.y, rect.width, rect.height, static_cast<float>(unit.hitPoints) / static_cast<float>(unitDefinition.maxHitPoints));
             }
 
             if (unit.isOwnedBy(localPlayerId))
@@ -520,21 +601,28 @@ namespace rwe
         {
             auto nextPos = match(
                 order,
-                [&](const BuildOrder& o) { return o.position; },
-                [&](const MoveOrder& o) { return o.destination; },
-                [&](const AttackOrder& o) { return match(
-                                                o.target,
-                                                [&](const SimVector& v) { return v; },
-                                                [&](const UnitId& u) {
-                                                    auto unitOption = tryGetUnit(u);
-                                                    if (!unitOption)
-                                                    {
-                                                        return pos;
-                                                    }
-                                                    return unitOption->get().position;
-                                                }); },
-                [&](const BuggerOffOrder&) { return pos; },
-                [&](const CompleteBuildOrder& o) {
+                [&](const BuildOrder& o)
+                { return o.position; },
+                [&](const MoveOrder& o)
+                { return o.destination; },
+                [&](const AttackOrder& o)
+                { return match(
+                      o.target,
+                      [&](const SimVector& v)
+                      { return v; },
+                      [&](const UnitId& u)
+                      {
+                          auto unitOption = tryGetUnit(u);
+                          if (!unitOption)
+                          {
+                              return pos;
+                          }
+                          return unitOption->get().position;
+                      }); },
+                [&](const BuggerOffOrder&)
+                { return pos; },
+                [&](const CompleteBuildOrder& o)
+                {
                     auto unitOption = tryGetUnit(o.target);
                     if (!unitOption)
                     {
@@ -542,7 +630,8 @@ namespace rwe
                     }
                     return unitOption->get().position;
                 },
-                [&](const GuardOrder& o) {
+                [&](const GuardOrder& o)
+                {
                     auto unitOption = tryGetUnit(o.target);
                     if (!unitOption)
                     {
@@ -553,12 +642,18 @@ namespace rwe
 
             auto waypointIcon = match(
                 order,
-                [&](const BuildOrder&) { return std::optional<CursorType>(); },
-                [&](const MoveOrder&) { return std::optional<CursorType>(CursorType::Move); },
-                [&](const AttackOrder&) { return std::optional<CursorType>(CursorType::Attack); },
-                [&](const BuggerOffOrder&) { return std::optional<CursorType>(); },
-                [&](const CompleteBuildOrder&) { return std::optional<CursorType>(CursorType::Repair); },
-                [&](const GuardOrder&) { return std::optional<CursorType>(CursorType::Guard); });
+                [&](const BuildOrder&)
+                { return std::optional<CursorType>(); },
+                [&](const MoveOrder&)
+                { return std::optional<CursorType>(CursorType::Move); },
+                [&](const AttackOrder&)
+                { return std::optional<CursorType>(CursorType::Attack); },
+                [&](const BuggerOffOrder&)
+                { return std::optional<CursorType>(); },
+                [&](const CompleteBuildOrder&)
+                { return std::optional<CursorType>(CursorType::Repair); },
+                [&](const GuardOrder&)
+                { return std::optional<CursorType>(CursorType::Guard); });
 
             // draw waypoint icons
             if (waypointIcon)
@@ -578,12 +673,18 @@ namespace rwe
             {
                 auto drawLine = match(
                     order,
-                    [&](const BuildOrder&) { return true; },
-                    [&](const MoveOrder&) { return true; },
-                    [&](const AttackOrder&) { return false; },
-                    [&](const BuggerOffOrder&) { return false; },
-                    [&](const CompleteBuildOrder&) { return true; },
-                    [&](const GuardOrder&) { return true; });
+                    [&](const BuildOrder&)
+                    { return true; },
+                    [&](const MoveOrder&)
+                    { return true; },
+                    [&](const AttackOrder&)
+                    { return false; },
+                    [&](const BuggerOffOrder&)
+                    { return false; },
+                    [&](const CompleteBuildOrder&)
+                    { return true; },
+                    [&](const GuardOrder&)
+                    { return true; });
 
                 if (drawLine)
                 {
@@ -650,11 +751,17 @@ namespace rwe
         if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && movementClassGridVisible)
         {
             const auto& unit = simulation.getUnit(*selectedUnit);
-            if (unit.movementClass)
-            {
-                const auto& grid = collisionService.getGrid(*unit.movementClass);
-                drawMovementClassCollisionGrid(simulation.terrain, grid, worldCameraState.getRoundedPosition(), worldCameraState.scaleDimension(worldViewport.width()), worldCameraState.scaleDimension(worldViewport.height()), terrainOverlayBatch);
-            }
+            const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
+            match(
+                unitDefinition.movementCollisionInfo,
+                [&](const UnitDefinition::NamedMovementClass& c)
+                {
+                    const auto& grid = simulation.movementClassCollisionService.getGrid(c.movementClassId);
+                    drawMovementClassCollisionGrid(simulation.terrain, grid, worldCameraState.getRoundedPosition(), worldCameraState.scaleDimension(worldViewport.width()), worldCameraState.scaleDimension(worldViewport.height()), terrainOverlayBatch);
+                },
+                [&](const auto&) {
+
+                });
         }
 
         worldRenderService.drawBatch(terrainOverlayBatch, viewProjectionMatrix);
@@ -664,7 +771,8 @@ namespace rwe
         for (const auto& selectedUnitId : selectedUnits)
         {
             const auto& unit = getUnit(selectedUnitId);
-            drawSelectionRect(meshDatabase, viewProjectionMatrix, unit, interpolationFraction, selectionRectBatch);
+            const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
+            drawSelectionRect(meshDatabase, viewProjectionMatrix, unit, unitDefinition, interpolationFraction, selectionRectBatch);
         }
         worldRenderService.drawLineLoopsBatch(selectionRectBatch);
 
@@ -673,12 +781,14 @@ namespace rwe
         UnitShadowMeshBatch unitShadowMeshBatch;
         for (const auto& unit : (simulation.units | boost::adaptors::map_values))
         {
+            const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
+
             auto groundHeight = simulation.terrain.getHeightAt(unit.position.x, unit.position.z);
-            if (unit.floater || unit.canHover)
+            if (unitDefinition.floater || unitDefinition.canHover)
             {
                 groundHeight = rweMax(groundHeight, seaLevel);
             }
-            drawUnitShadow(&unitDatabase, meshDatabase, viewProjectionMatrix, unit, interpolationFraction, simScalarToFloat(groundHeight), unitTextureAtlas.get(), unitTeamTextureAtlases, unitShadowMeshBatch);
+            drawUnitShadow(&unitDatabase, meshDatabase, viewProjectionMatrix, unit, unitDefinition, interpolationFraction, simScalarToFloat(groundHeight), unitTextureAtlas.get(), unitTeamTextureAtlases, unitShadowMeshBatch);
         }
         for (const auto& feature : (simulation.features | boost::adaptors::map_values))
         {
@@ -697,7 +807,8 @@ namespace rwe
         UnitMeshBatch unitMeshBatch;
         for (const auto& unit : (simulation.units | boost::adaptors::map_values))
         {
-            drawUnit(&unitDatabase, meshDatabase, viewProjectionMatrix, unit, getPlayer(unit.owner).color, interpolationFraction, unitTextureAtlas.get(), unitTeamTextureAtlases, unitMeshBatch);
+            const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
+            drawUnit(&unitDatabase, meshDatabase, viewProjectionMatrix, unit, unitDefinition, getPlayer(unit.owner).color, interpolationFraction, unitTextureAtlas.get(), unitTeamTextureAtlases, unitMeshBatch);
         }
         for (const auto& feature : (simulation.features | boost::adaptors::map_values))
         {
@@ -783,7 +894,7 @@ namespace rwe
             auto singleSelectedUnit = getSingleSelectedUnit();
 
             // if unit is a builder, show all other buildings being built
-            if ((singleSelectedUnit && getUnit(*singleSelectedUnit).builder) || (hoveredUnit && getUnit(*hoveredUnit).isOwnedBy(localPlayerId) && getUnit(*hoveredUnit).builder))
+            if (shouldShowAllBuildBoxes(simulation, localPlayerId, singleSelectedUnit, hoveredUnit))
             {
                 for (const auto& [_, unit] : simulation.units)
                 {
@@ -830,10 +941,12 @@ namespace rwe
                     continue;
                 }
 
+                const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
+
                 auto uiPos = worldUiRenderService.getInverseViewProjectionMatrix()
                     * viewProjectionMatrix
                     * simVectorToFloat(unit.position);
-                worldUiRenderService.drawHealthBar(uiPos.x, uiPos.y, static_cast<float>(unit.hitPoints) / static_cast<float>(unit.maxHitPoints));
+                worldUiRenderService.drawHealthBar(uiPos.x, uiPos.y, static_cast<float>(unit.hitPoints) / static_cast<float>(unitDefinition.maxHitPoints));
             }
         }
 
@@ -909,16 +1022,20 @@ namespace rwe
     {
         return match(
             state,
-            [&](const IdleState&) {
+            [&](const IdleState&)
+            {
                 return "idle";
             },
-            [&](const BuildingState&) {
+            [&](const BuildingState&)
+            {
                 return "building";
             },
-            [&](const MovingState&) {
+            [&](const MovingState&)
+            {
                 return "moving";
             },
-            [&](const CreatingUnitState&) {
+            [&](const CreatingUnitState&)
+            {
                 return "creating unit";
             });
     }
@@ -942,10 +1059,12 @@ namespace rwe
     {
         return match(
             status.condition,
-            [&](const CobEnvironment::BlockedStatus::Move& m) {
+            [&](const CobEnvironment::BlockedStatus::Move& m)
+            {
                 return "wait-for-move piece " + std::to_string(m.object) + " along " + cobAxisToString(m.axis);
             },
-            [&](const CobEnvironment::BlockedStatus::Turn& t) {
+            [&](const CobEnvironment::BlockedStatus::Turn& t)
+            {
                 return "wait-for-turn piece " + std::to_string(t.object) + " around " + cobAxisToString(t.axis);
             });
     }
@@ -957,7 +1076,6 @@ namespace rwe
         {
             ImGui::LabelText("State", "%s", stateToString(unit.behaviourState));
 
-            ImGui::LabelText("Floater", "%s", unit.floater ? "true" : "false");
             ImGui::LabelText("x", "%f", unit.position.x.value);
             ImGui::LabelText("y", "%f", unit.position.y.value);
             ImGui::LabelText("z", "%f", unit.position.z.value);
@@ -1071,6 +1189,7 @@ namespace rwe
         if (ImGui::InputText("Spawn Unit", unitSpawnText, IM_ARRAYSIZE(unitSpawnText), ImGuiInputTextFlags_EnterReturnsTrue))
         {
             std::string text(unitSpawnText);
+            text = toUpper(text);
             if (!text.empty() && unitFactory.isValidUnitType(text) && unitSpawnPlayer >= 0 && unitSpawnPlayer < getSize(simulation.players))
             {
                 if (auto terrainPos = getMouseTerrainCoordinate())
@@ -1169,7 +1288,8 @@ namespace rwe
                 // Select commanders (edge case: debug mode allows spawning multiple commanders)
                 for (const auto& [unitId, unit] : simulation.units)
                 {
-                    if (unit.isCommander() && unit.isOwnedBy(localPlayerId))
+                    const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
+                    if (unitDefinition.commander && unit.isOwnedBy(localPlayerId))
                     {
                         selectAdditionalUnit(unitId);
                         // For multiple commanders, OTA selects all but always tracks only the last spawned (it won't cycle with repeated ctrl-c)
@@ -1227,7 +1347,8 @@ namespace rwe
         {
             match(
                 cursorMode.getValue(),
-                [&](const AttackCursorMode&) {
+                [&](const AttackCursorMode&)
+                {
                     for (const auto& selectedUnit : selectedUnits)
                     {
                         if (hoveredUnit)
@@ -1260,7 +1381,8 @@ namespace rwe
                         }
                     }
                 },
-                [&](const MoveCursorMode&) {
+                [&](const MoveCursorMode&)
+                {
                     for (const auto& selectedUnit : selectedUnits)
                     {
                         auto coord = getMouseTerrainCoordinate();
@@ -1278,7 +1400,8 @@ namespace rwe
                         }
                     }
                 },
-                [&](const GuardCursorMode&) {
+                [&](const GuardCursorMode&)
+                {
                     for (const auto& selectedUnit : selectedUnits)
                     {
                         if (hoveredUnit && isFriendly(*hoveredUnit))
@@ -1295,7 +1418,8 @@ namespace rwe
                         }
                     }
                 },
-                [&](const BuildCursorMode& buildCursor) {
+                [&](const BuildCursorMode& buildCursor)
+                {
                     if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit)
                     {
                         if (hoverBuildInfo)
@@ -1328,7 +1452,8 @@ namespace rwe
                         }
                     }
                 },
-                [&](const NormalCursorMode&) {
+                [&](const NormalCursorMode&)
+                {
                     if (isCursorOverMinimap())
                     {
                         if (leftClickMode())
@@ -1350,7 +1475,7 @@ namespace rwe
                                     }
                                     else
                                     {
-                                        if (getUnit(*hoveredUnit).isBeingBuilt())
+                                        if (const auto& u = getUnit(*hoveredUnit); u.isBeingBuilt(simulation.unitDefinitions.at(u.unitType)))
                                         {
                                             if (isShiftDown())
                                             {
@@ -1399,19 +1524,24 @@ namespace rwe
         {
             match(
                 cursorMode.getValue(),
-                [&](const AttackCursorMode&) {
+                [&](const AttackCursorMode&)
+                {
                     cursorMode.next(NormalCursorMode());
                 },
-                [&](const MoveCursorMode&) {
+                [&](const MoveCursorMode&)
+                {
                     cursorMode.next(NormalCursorMode());
                 },
-                [&](const GuardCursorMode&) {
+                [&](const GuardCursorMode&)
+                {
                     cursorMode.next(NormalCursorMode());
                 },
-                [&](const BuildCursorMode&) {
+                [&](const BuildCursorMode&)
+                {
                     cursorMode.next(NormalCursorMode());
                 },
-                [&](const NormalCursorMode&) {
+                [&](const NormalCursorMode&)
+                {
                     if (leftClickMode())
                     {
                         if (isCursorOverMinimap())
@@ -1442,7 +1572,7 @@ namespace rwe
                                 }
                                 else
                                 {
-                                    if (getUnit(*hoveredUnit).isBeingBuilt())
+                                    if (const auto& u = getUnit(*hoveredUnit); u.isBeingBuilt(simulation.unitDefinitions.at(u.unitType)))
                                     {
                                         if (isShiftDown())
                                         {
@@ -1484,10 +1614,12 @@ namespace rwe
         {
             match(
                 cursorMode.getValue(),
-                [&](const NormalCursorMode& normalCursor) {
+                [&](const NormalCursorMode& normalCursor)
+                {
                     match(
                         normalCursor.state,
-                        [&](const NormalCursorMode::SelectingState& state) {
+                        [&](const NormalCursorMode::SelectingState& state)
+                        {
                             Point p(event.x, event.y);
                             auto worldViewportPos = sceneContext.viewport->toOtherViewport(worldViewport, p);
                             const auto cameraPosition = worldCameraState.getRoundedPosition();
@@ -1495,7 +1627,7 @@ namespace rwe
 
                             if (sceneTime - state.startTime < SceneTime(30) && state.startPosition.maxSingleDimensionDistance(originRelativePos) < 32)
                             {
-                                if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
+                                if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(simulation.unitDefinitions.at(getUnit(*hoveredUnit).unitType), localPlayerId))
                                 {
                                     if (isShiftDown())
                                     {
@@ -1524,7 +1656,7 @@ namespace rwe
                                     }
                                     else
                                     {
-                                        if (getUnit(*hoveredUnit).isBeingBuilt())
+                                        if (const auto& u = getUnit(*hoveredUnit); u.isBeingBuilt(simulation.unitDefinitions.at(u.unitType)))
                                         {
                                             for (const auto& selectedUnit : selectedUnits)
                                             {
@@ -1573,13 +1705,15 @@ namespace rwe
 
                             cursorMode.next(NormalCursorMode{NormalCursorMode::UpState()});
                         },
-                        [&](const NormalCursorMode::DraggingMinimapState&) {
+                        [&](const NormalCursorMode::DraggingMinimapState&)
+                        {
                             cursorMode.next(NormalCursorMode{NormalCursorMode::UpState()});
                         },
                         [&](const NormalCursorMode::UpState&) {
                         });
                 },
-                [&](const auto&) {
+                [&](const auto&)
+                {
                     // do nothing
                 });
         }
@@ -1587,10 +1721,12 @@ namespace rwe
         {
             match(
                 cursorMode.getValue(),
-                [&](const NormalCursorMode& m) {
+                [&](const NormalCursorMode& m)
+                {
                     match(
                         m.state,
-                        [&](const NormalCursorMode::DraggingMinimapState&) {
+                        [&](const NormalCursorMode::DraggingMinimapState&)
+                        {
                             cursorMode.next(NormalCursorMode{NormalCursorMode::UpState()});
                         },
                         [](const auto&) {});
@@ -1801,34 +1937,44 @@ namespace rwe
         {
             match(
                 cursorMode.getValue(),
-                [&](const AttackCursorMode&) {
+                [&](const AttackCursorMode&)
+                {
                     sceneContext.cursor->useCursor(CursorType::Attack);
                 },
-                [&](const MoveCursorMode&) {
+                [&](const MoveCursorMode&)
+                {
                     sceneContext.cursor->useCursor(CursorType::Move);
                 },
-                [&](const GuardCursorMode&) {
+                [&](const GuardCursorMode&)
+                {
                     sceneContext.cursor->useCursor(CursorType::Guard);
                 },
-                [&](const BuildCursorMode&) {
+                [&](const BuildCursorMode&)
+                {
                     sceneContext.cursor->useCursor(CursorType::Normal);
                 },
-                [&](const NormalCursorMode&) {
+                [&](const NormalCursorMode&)
+                {
                     if (leftClickMode())
                     {
-                        if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
+                        if (hoveredUnit && unitIsSelectableBy(simulation, *hoveredUnit, localPlayerId))
                         {
                             sceneContext.cursor->useCursor(CursorType::Select);
                         }
-                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).canAttack; }) && hoveredUnit && isEnemy(*hoveredUnit))
+                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id)
+                                     { return unitCanAttack(simulation, id); })
+                            && hoveredUnit && isEnemy(*hoveredUnit))
                         {
                             sceneContext.cursor->useCursor(CursorType::Attack);
                         }
-                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).builder; }) && hoveredUnit && getUnit(*hoveredUnit).isBeingBuilt())
+                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id)
+                                     { return unitIsBuilder(simulation, id); })
+                            && hoveredUnit && unitIsBeingBuilt(simulation, *hoveredUnit))
                         {
                             sceneContext.cursor->useCursor(CursorType::Repair);
                         }
-                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).canMove; }))
+                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id)
+                                     { return unitCanMove(simulation, id); }))
                         {
                             sceneContext.cursor->useCursor(CursorType::Move);
                         }
@@ -1839,19 +1985,25 @@ namespace rwe
                     }
                     else
                     {
-                        if (hoveredUnit && getUnit(*hoveredUnit).isSelectableBy(localPlayerId))
+                        if (hoveredUnit && unitIsSelectableBy(simulation, *hoveredUnit, localPlayerId))
                         {
                             sceneContext.cursor->useCursor(CursorType::Select);
                         }
-                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).canAttack; }) && hoveredUnit && isEnemy(*hoveredUnit))
+                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id)
+                                     { return unitCanAttack(simulation, id); })
+                            && hoveredUnit && isEnemy(*hoveredUnit))
                         {
                             sceneContext.cursor->useCursor(CursorType::Red);
                         }
-                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).builder; }) && hoveredUnit && isFriendly(*hoveredUnit) && getUnit(*hoveredUnit).isBeingBuilt())
+                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id)
+                                     { return unitIsBuilder(simulation, id); })
+                            && hoveredUnit && isFriendly(*hoveredUnit) && unitIsBeingBuilt(simulation, *hoveredUnit))
                         {
                             sceneContext.cursor->useCursor(CursorType::Green);
                         }
-                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return getUnit(id).canGuard; }) && hoveredUnit && isFriendly(*hoveredUnit))
+                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id)
+                                     { return unitCanGuard(simulation, id); })
+                            && hoveredUnit && isFriendly(*hoveredUnit))
                         {
                             sceneContext.cursor->useCursor(CursorType::Green);
                         }
@@ -1943,7 +2095,8 @@ namespace rwe
     {
         auto unitFbi = unitDatabase.getUnitInfo(unitType);
         auto unit = unitFactory.createUnit(unitType, owner, position, rotation);
-        if (unit.floater || unit.canHover)
+        const auto& unitDefinition = simulation.unitDefinitions.at(unitType);
+        if (unitDefinition.floater || unitDefinition.canHover)
         {
             unit.position.y = rweMax(simulation.terrain.getSeaLevel(), unit.position.y);
             unit.previousPosition.y = unit.position.y;
@@ -1958,7 +2111,7 @@ namespace rwe
 
             // initialise local-player-specific UI data
             const auto& unit = getUnit(*unitId);
-            unitGuiInfos.insert_or_assign(*unitId, UnitGuiInfo{unit.builder ? UnitGuiInfo::Section::Build : UnitGuiInfo::Section::Orders, 0});
+            unitGuiInfos.insert_or_assign(*unitId, UnitGuiInfo{unitDefinition.builder ? UnitGuiInfo::Section::Build : UnitGuiInfo::Section::Orders, 0});
         }
 
         return unitId;
@@ -1970,9 +2123,10 @@ namespace rwe
         if (unitId)
         {
             auto& unit = getUnit(*unitId);
+            const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
             // units start as unbuilt nanoframes,
             // we we need to convert it immediately into a completed unit.
-            unit.finishBuilding();
+            unit.finishBuilding(unitDefinition);
 
             return unit;
         }
@@ -2314,10 +2468,11 @@ namespace rwe
             for (auto& entry : simulation.units)
             {
                 auto& unit = entry.second;
-                if (!unit.isBeingBuilt())
+                const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
+                if (!unit.isBeingBuilt(unitDefinition))
                 {
-                    getPlayer(unit.owner).maxMetal += unit.metalStorage;
-                    getPlayer(unit.owner).maxEnergy += unit.energyStorage;
+                    getPlayer(unit.owner).maxMetal += unitDefinition.metalStorage;
+                    getPlayer(unit.owner).maxEnergy += unitDefinition.energyStorage;
                 }
             }
 
@@ -2371,12 +2526,13 @@ namespace rwe
             {
                 const auto& unitId = entry.first;
                 auto& unit = entry.second;
+                const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
 
                 unit.resetResourceBuffers();
 
-                if (!unit.isBeingBuilt())
+                if (!unit.isBeingBuilt(unitDefinition))
                 {
-                    simulation.addResourceDelta(unitId, unit.energyMake, unit.metalMake);
+                    simulation.addResourceDelta(unitId, unitDefinition.energyMake, unitDefinition.metalMake);
                 }
 
                 if (unit.activated)
@@ -2384,15 +2540,15 @@ namespace rwe
                     if (unit.isSufficientlyPowered)
                     {
                         // extract metal
-                        if (unit.extractsMetal != Metal(0))
+                        if (unitDefinition.extractsMetal != Metal(0))
                         {
-                            auto footprint = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+                            auto footprint = simulation.computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
                             auto metalValue = simulation.metalGrid.accumulate(simulation.metalGrid.clipRegion(footprint), 0u, std::plus<>());
-                            simulation.addResourceDelta(unitId, Energy(0), Metal(metalValue * unit.extractsMetal.value));
+                            simulation.addResourceDelta(unitId, Energy(0), Metal(metalValue * unitDefinition.extractsMetal.value));
                         }
                     }
 
-                    unit.isSufficientlyPowered = simulation.addResourceDelta(unitId, -unit.energyUse, -unit.metalUse);
+                    unit.isSufficientlyPowered = simulation.addResourceDelta(unitId, -unitDefinition.energyUse, -unitDefinition.metalUse);
                 }
             }
         }
@@ -2424,7 +2580,8 @@ namespace rwe
         // if a commander died this frame, kill the player that owns it
         for (const auto& p : simulation.units)
         {
-            if (p.second.isCommander() && p.second.isDead())
+            const auto& unitDefinition = simulation.unitDefinitions.at(p.second.unitType);
+            if (unitDefinition.commander && p.second.isDead())
             {
                 killPlayer(p.second.owner);
             }
@@ -2433,13 +2590,18 @@ namespace rwe
         auto winStatus = simulation.computeWinStatus();
         match(
             winStatus,
-            [&](const WinStatusWon&) {
-                delay(SceneTime(5 * 30), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
+            [&](const WinStatusWon&)
+            {
+                delay(SceneTime(5 * 30), [sm = sceneContext.sceneManager]()
+                    { sm->requestExit(); });
             },
-            [&](const WinStatusDraw&) {
-                delay(SceneTime(5 * 30), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
+            [&](const WinStatusDraw&)
+            {
+                delay(SceneTime(5 * 30), [sm = sceneContext.sceneManager]()
+                    { sm->requestExit(); });
             },
-            [&](const WinStatusUndecided&) {
+            [&](const WinStatusUndecided&)
+            {
                 // do nothing, game still in progress
             });
 
@@ -2738,10 +2900,12 @@ namespace rwe
     {
         match(
             cursorMode.getValue(),
-            [this](const NormalCursorMode&) {
+            [this](const NormalCursorMode&)
+            {
                 clearUnitSelection();
             },
-            [this](const auto&) {
+            [this](const auto&)
+            {
                 cursorMode.next(NormalCursorMode());
             });
     }
@@ -2913,7 +3077,8 @@ namespace rwe
         {
             match(
                 event,
-                [&](const FireWeaponEvent& e) {
+                [&](const FireWeaponEvent& e)
+                {
                     const auto& weaponMediaInfo = meshDatabase.getWeapon(e.weaponType);
 
                     if (e.shotNumber == 0 || weaponMediaInfo.soundTrigger)
@@ -2926,11 +3091,13 @@ namespace rwe
                         createWeaponSmoke(simVectorToFloat(e.firePoint));
                     }
                 },
-                [&](const UnitArrivedEvent& e) {
+                [&](const UnitArrivedEvent& e)
+                {
                     const auto& unit = simulation.getUnit(e.unitId);
                     playUnitNotificationSound(unit.owner, unit.unitType, UnitSoundType::Arrived1);
                 },
-                [&](const UnitActivatedEvent& e) {
+                [&](const UnitActivatedEvent& e)
+                {
                     auto unit = tryGetUnit(e.unitId);
                     if (unit)
                     {
@@ -2942,7 +3109,8 @@ namespace rwe
                         }
                     }
                 },
-                [&](const UnitDeactivatedEvent& e) {
+                [&](const UnitDeactivatedEvent& e)
+                {
                     auto unit = tryGetUnit(e.unitId);
                     if (unit)
                     {
@@ -2954,11 +3122,13 @@ namespace rwe
                         }
                     }
                 },
-                [&](const UnitCompleteEvent& e) {
+                [&](const UnitCompleteEvent& e)
+                {
                     const auto& unit = getUnit(e.unitId);
                     playUnitNotificationSound(unit.owner, unit.unitType, UnitSoundType::UnitComplete);
                 },
-                [&](const EmitParticleFromPieceEvent& e) {
+                [&](const EmitParticleFromPieceEvent& e)
+                {
                     switch (e.sfxType)
                     {
                         case EmitParticleFromPieceEvent::SfxType::LightSmoke:
@@ -2985,7 +3155,8 @@ namespace rwe
             std::remove_if(
                 flashes.begin(),
                 flashes.end(),
-                [&](const auto& flash) { return flash.isFinished(simulation.gameTime); }),
+                [&](const auto& flash)
+                { return flash.isFinished(simulation.gameTime); }),
             flashes.end());
     }
 
@@ -3019,7 +3190,8 @@ namespace rwe
         auto region = GridRegion::fromCoordinates(minCell, maxCell);
 
         // for each cell
-        region.forEach([&](const auto& coords) {
+        region.forEach([&](const auto& coords)
+            {
             // check if it's in range
             auto cellCenter = simulation.terrain.heightmapIndexToWorldCenter(coords.x, coords.y);
             Rectangle2x<SimScalar> cellRectangle(
@@ -3073,8 +3245,7 @@ namespace rwe
             auto damageScale = std::clamp(1_ss - (rweSqrt(unitDistanceSquared) / radius), 0_ss, 1_ss);
             auto rawDamage = projectile.getDamage(unit.unitType);
             auto scaledDamage = simScalarToUInt(SimScalar(rawDamage) * damageScale);
-            applyDamage(*u, scaledDamage);
-        });
+            applyDamage(*u, scaledDamage); });
     }
 
     void GameScene::applyDamage(UnitId unitId, unsigned int damagePoints)
@@ -3121,8 +3292,9 @@ namespace rwe
     void GameScene::emitWake1FromPiece(UnitId unitId, const std::string& pieceName)
     {
         const auto& unit = getUnit(unitId);
+        const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
         auto pieceTransform = toFloatMatrix(simulation.getUnitPieceTransform(unitId, pieceName));
-        const auto& pieceMesh = meshDatabase.getUnitPieceMesh(unit.objectName, pieceName).value().get();
+        const auto& pieceMesh = meshDatabase.getUnitPieceMesh(unitDefinition.objectName, pieceName).value().get();
         auto spawnPosition = pieceTransform * pieceMesh.firstVertexPosition;
         auto otherVertexPosition = pieceTransform * pieceMesh.secondVertexPosition;
 
@@ -3173,6 +3345,7 @@ namespace rwe
         for (auto it = simulation.units.begin(); it != simulation.units.end();)
         {
             const auto& unit = it->second;
+            const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
             auto deadState = std::get_if<Unit::LifeStateDead>(&unit.lifeState);
             if (deadState == nullptr)
             {
@@ -3196,23 +3369,22 @@ namespace rwe
                 hoveredUnit = std::nullopt;
             }
 
-            auto footprintRect = computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+            auto footprintRect = simulation.computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
             auto footprintRegion = simulation.occupiedGrid.tryToRegion(footprintRect);
             assert(!!footprintRegion);
-            if (unit.isMobile)
+            if (unitDefinition.isMobile)
             {
-                simulation.occupiedGrid.forEach(*footprintRegion, [](auto& cell) {
-                    cell.occupiedType = OccupiedNone();
-                });
+                simulation.occupiedGrid.forEach(*footprintRegion, [](auto& cell)
+                    { cell.occupiedType = OccupiedNone(); });
             }
             else
             {
-                simulation.occupiedGrid.forEach(*footprintRegion, [&](auto& cell) {
+                simulation.occupiedGrid.forEach(*footprintRegion, [&](auto& cell)
+                    {
                     if (cell.buildingCell && cell.buildingCell->unit == it->first)
                     {
                         cell.buildingCell = std::nullopt;
-                    }
-                });
+                    } });
             }
 
 
@@ -3295,9 +3467,11 @@ namespace rwe
 
     BoundingBox3x<SimScalar> GameScene::createBoundingBox(const Unit& unit) const
     {
-        auto footprint = simulation.computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+        const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
+        const auto& modelDefinition = simulation.unitModelDefinitions.at(unitDefinition.objectName);
+        auto footprint = simulation.computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
         auto min = SimVector(SimScalar(footprint.x), unit.position.y, SimScalar(footprint.y));
-        auto max = SimVector(SimScalar(footprint.x + footprint.width), unit.position.y + unit.height, SimScalar(footprint.y + footprint.height));
+        auto max = SimVector(SimScalar(footprint.x + footprint.width), unit.position.y + modelDefinition.height, SimScalar(footprint.y + footprint.height));
         auto worldMin = simulation.terrain.heightmapToWorldSpace(min);
         auto worldMax = simulation.terrain.heightmapToWorldSpace(max);
         return BoundingBox3x<SimScalar>::fromMinMax(worldMin, worldMax);
@@ -3306,14 +3480,15 @@ namespace rwe
     void GameScene::killUnit(UnitId unitId)
     {
         auto& unit = simulation.getUnit(unitId);
+        const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
 
         unit.markAsDead();
 
         // TODO: spawn debris particles (from Killed script)
-        if (unit.explosionWeapon)
+        if (!unitDefinition.explodeAs.empty())
         {
             auto impactType = unit.position.y < simulation.terrain.getSeaLevel() ? ImpactType::Water : ImpactType::Normal;
-            auto projectile = simulation.createProjectileFromWeapon(unit.owner, *unit.explosionWeapon, unit.position, SimVector(0_ss, -1_ss, 0_ss), 0_ss);
+            auto projectile = simulation.createProjectileFromWeapon(unit.owner, unitDefinition.explodeAs, unit.position, SimVector(0_ss, -1_ss, 0_ss), 0_ss);
             doProjectileImpact(projectile, impactType);
         }
     }
@@ -3372,28 +3547,26 @@ namespace rwe
     {
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "ATTACK"))
         {
-            p->get().addSubscription(cursorMode.subscribe([&p = p->get()](const auto& v) {
-                p.setToggledOn(std::holds_alternative<AttackCursorMode>(v));
-            }));
+            p->get().addSubscription(cursorMode.subscribe([&p = p->get()](const auto& v)
+                { p.setToggledOn(std::holds_alternative<AttackCursorMode>(v)); }));
         }
 
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "MOVE"))
         {
-            p->get().addSubscription(cursorMode.subscribe([&p = p->get()](const auto& v) {
-                p.setToggledOn(std::holds_alternative<MoveCursorMode>(v));
-            }));
+            p->get().addSubscription(cursorMode.subscribe([&p = p->get()](const auto& v)
+                { p.setToggledOn(std::holds_alternative<MoveCursorMode>(v)); }));
         }
 
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "DEFEND"))
         {
-            p->get().addSubscription(cursorMode.subscribe([&p = p->get()](const auto& v) {
-                p.setToggledOn(std::holds_alternative<GuardCursorMode>(v));
-            }));
+            p->get().addSubscription(cursorMode.subscribe([&p = p->get()](const auto& v)
+                { p.setToggledOn(std::holds_alternative<GuardCursorMode>(v)); }));
         }
 
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "FIREORD"))
         {
-            p->get().addSubscription(fireOrders.subscribe([&p = p->get()](const auto& v) {
+            p->get().addSubscription(fireOrders.subscribe([&p = p->get()](const auto& v)
+                {
                 switch (v)
                 {
                     case UnitFireOrders::HoldFire:
@@ -3407,23 +3580,21 @@ namespace rwe
                         break;
                     default:
                         throw std::logic_error("Invalid FireOrders value");
-                }
-            }));
+                } }));
         }
 
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "ONOFF"))
         {
-            p->get().addSubscription(onOff.subscribe([&p = p->get()](const auto& v) {
-                p.setStage(v ? 1 : 0);
-            }));
+            p->get().addSubscription(onOff.subscribe([&p = p->get()](const auto& v)
+                { p.setStage(v ? 1 : 0); }));
         }
 
-        currentPanel->groupMessages().subscribe([this](const auto& msg) {
+        currentPanel->groupMessages().subscribe([this](const auto& msg)
+            {
             if (auto activateMessage = std::get_if<ActivateMessage>(&msg.message); activateMessage != nullptr)
             {
                 onMessage(msg.controlName, activateMessage->type);
-            }
-        });
+            } });
     }
 
     UnitFireOrders nextFireOrders(UnitFireOrders orders)
@@ -3622,7 +3793,8 @@ namespace rwe
             if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit)
             {
                 const auto& unit = getUnit(*selectedUnit);
-                if (unit.isMobile)
+                const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
+                if (unitDefinition.isMobile)
                 {
                     cursorMode.next(BuildCursorMode{message});
                 }
@@ -3664,7 +3836,8 @@ namespace rwe
 
         for (const auto& e : simulation.units)
         {
-            if (!e.second.isSelectableBy(localPlayerId))
+            const auto& unitDefinition = simulation.unitDefinitions.at(e.second.unitType);
+            if (!e.second.isSelectableBy(unitDefinition, localPlayerId))
             {
                 continue;
             }
@@ -3899,13 +4072,16 @@ namespace rwe
     {
         match(
             playerCommand,
-            [&](const PlayerUnitCommand& c) {
+            [&](const PlayerUnitCommand& c)
+            {
                 processUnitCommand(c);
             },
-            [](const PlayerPauseGameCommand&) {
+            [](const PlayerPauseGameCommand&)
+            {
                 // TODO
             },
-            [](const PlayerUnpauseGameCommand&) {
+            [](const PlayerUnpauseGameCommand&)
+            {
                 // TODO
             });
     }
@@ -3914,7 +4090,8 @@ namespace rwe
     {
         match(
             unitCommand.command,
-            [&](const PlayerUnitCommand::IssueOrder& c) {
+            [&](const PlayerUnitCommand::IssueOrder& c)
+            {
                 switch (c.issueKind)
                 {
                     case PlayerUnitCommand::IssueOrder::IssueKind::Immediate:
@@ -3925,16 +4102,20 @@ namespace rwe
                         break;
                 }
             },
-            [&](const PlayerUnitCommand::ModifyBuildQueue& c) {
+            [&](const PlayerUnitCommand::ModifyBuildQueue& c)
+            {
                 modifyBuildQueue(unitCommand.unit, c.unitType, c.count);
             },
-            [&](const PlayerUnitCommand::Stop&) {
+            [&](const PlayerUnitCommand::Stop&)
+            {
                 stopUnit(unitCommand.unit);
             },
-            [&](const PlayerUnitCommand::SetFireOrders& c) {
+            [&](const PlayerUnitCommand::SetFireOrders& c)
+            {
                 setFireOrders(unitCommand.unit, c.orders);
             },
-            [&](const PlayerUnitCommand::SetOnOff& c) {
+            [&](const PlayerUnitCommand::SetOnOff& c)
+            {
                 if (c.on)
                 {
                     simulation.activateUnit(unitCommand.unit);

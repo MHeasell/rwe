@@ -194,7 +194,8 @@ namespace rwe
             },
             [&](const CobEnvironment::QueryStatus::Health&) {
                 const auto& unit = sim.getUnit(unitId);
-                return static_cast<int>((unit.hitPoints * 100) / unit.maxHitPoints);
+                const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
+                return static_cast<int>((unit.hitPoints * 100) / unitDefinition.maxHitPoints);
             },
             [&](const CobEnvironment::QueryStatus::InBuildStance&) {
                 const auto& unit = sim.getUnit(unitId);
@@ -245,7 +246,9 @@ namespace rwe
                     // FIXME: not sure if correct return value when unit does not exist
                     return 0;
                 }
-                return simScalarToCobPosition(targetUnitOption->get().height).value;
+                const auto& unitDefinition = sim.unitDefinitions.at(targetUnitOption->get().unitType);
+                const auto& modelDefinition = sim.unitModelDefinitions.at(unitDefinition.objectName);
+                return simScalarToCobPosition(modelDefinition.height).value;
             },
             [&](const CobEnvironment::QueryStatus::XZAtan& q) {
                 auto pair = cobUnpackCoords(q.coords);
@@ -268,7 +271,8 @@ namespace rwe
             },
             [&](const CobEnvironment::QueryStatus::BuildPercentLeft&) {
                 const auto& unit = sim.getUnit(unitId);
-                return static_cast<int>(unit.getBuildPercentLeft());
+                const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
+                return static_cast<int>(unit.getBuildPercentLeft(unitDefinition));
             },
             [&](const CobEnvironment::QueryStatus::YardOpen&) {
                 const auto& unit = sim.getUnit(unitId);
@@ -310,7 +314,8 @@ namespace rwe
                     // FIXME: unsure if correct return value when unit does not exist
                     return 0;
                 }
-                return static_cast<int>(targetUnitOption->get().getBuildPercentLeft());
+                const auto& unitDefinition = sim.unitDefinitions.at(targetUnitOption->get().unitType);
+                return static_cast<int>(targetUnitOption->get().getBuildPercentLeft(unitDefinition));
             },
             [&](const CobEnvironment::QueryStatus::UnitAllied& q) {
                 const auto& unit = sim.getUnit(unitId);

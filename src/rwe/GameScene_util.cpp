@@ -554,6 +554,7 @@ namespace rwe
         const MeshDatabase& meshDatabase,
         const Matrix4f& viewProjectionMatrix,
         const Unit& unit,
+        const UnitDefinition& unitDefinition,
         PlayerColorIndex playerColorIndex,
         float frac,
         TextureIdentifier unitTextureAtlas,
@@ -563,13 +564,13 @@ namespace rwe
         auto position = lerp(simVectorToFloat(unit.previousPosition), simVectorToFloat(unit.position), frac);
         auto rotation = angleLerp(toRadians(unit.previousRotation).value, toRadians(unit.rotation).value, frac);
         auto transform = Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
-        if (unit.isBeingBuilt())
+        if (unit.isBeingBuilt(unitDefinition))
         {
-            drawBuildingUnitMesh(unitDatabase, meshDatabase, viewProjectionMatrix, unit.objectName, unit.pieces, transform, unit.getPreciseCompletePercent(), position.y, playerColorIndex, frac, unitTextureAtlas, unitTeamTextureAtlases, batch);
+            drawBuildingUnitMesh(unitDatabase, meshDatabase, viewProjectionMatrix, unitDefinition.objectName, unit.pieces, transform, unit.getPreciseCompletePercent(unitDefinition), position.y, playerColorIndex, frac, unitTextureAtlas, unitTeamTextureAtlases, batch);
         }
         else
         {
-            drawUnitMesh(unitDatabase, meshDatabase, viewProjectionMatrix, unit.objectName, unit.pieces, transform, playerColorIndex, frac, unitTextureAtlas, unitTeamTextureAtlases, batch);
+            drawUnitMesh(unitDatabase, meshDatabase, viewProjectionMatrix, unitDefinition.objectName, unit.pieces, transform, playerColorIndex, frac, unitTextureAtlas, unitTeamTextureAtlases, batch);
         }
     }
 
@@ -596,6 +597,7 @@ namespace rwe
         const MeshDatabase& meshDatabase,
         const Matrix4f& viewProjectionMatrix,
         const Unit& unit,
+        const UnitDefinition& unitDefinition,
         float frac,
         float groundHeight,
         TextureIdentifier unitTextureAtlas,
@@ -606,7 +608,7 @@ namespace rwe
         auto rotation = angleLerp(toRadians(unit.previousRotation).value, toRadians(unit.rotation).value, frac);
         auto transform = Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
 
-        drawUnitShadowMesh(unitDatabase, meshDatabase, viewProjectionMatrix, unit.objectName, unit.pieces, transform, frac, groundHeight, unitTextureAtlas, unitTeamTextureAtlases, batch);
+        drawUnitShadowMesh(unitDatabase, meshDatabase, viewProjectionMatrix, unitDefinition.objectName, unit.pieces, transform, frac, groundHeight, unitTextureAtlas, unitTeamTextureAtlases, batch);
     }
 
     void drawFeatureMeshShadow(
@@ -920,9 +922,9 @@ namespace rwe
         }
     }
 
-    void drawSelectionRect(const MeshDatabase& meshDatabase, const Matrix4f& viewProjectionMatrix, const Unit& unit, float frac, ColoredMeshesBatch& batch)
+    void drawSelectionRect(const MeshDatabase& meshDatabase, const Matrix4f& viewProjectionMatrix, const Unit& unit, const UnitDefinition& unitDefinition, float frac, ColoredMeshesBatch& batch)
     {
-        auto selectionMesh = meshDatabase.getSelectionMesh(unit.objectName);
+        auto selectionMesh = meshDatabase.getSelectionMesh(unitDefinition.objectName);
 
         auto position = lerp(simVectorToFloat(unit.previousPosition), simVectorToFloat(unit.position), frac);
 

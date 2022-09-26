@@ -2,6 +2,7 @@
 
 #include <random>
 #include <rwe/GameHash.h>
+#include <rwe/MovementClassCollisionService.h>
 #include <rwe/PlayerColorIndex.h>
 #include <rwe/VectorMap.h>
 #include <rwe/sim/FeatureDefinition.h>
@@ -9,6 +10,7 @@
 #include <rwe/sim/GameTime.h>
 #include <rwe/sim/MapFeature.h>
 #include <rwe/sim/MapTerrain.h>
+#include <rwe/sim/MovementClassId.h>
 #include <rwe/sim/OccupiedGrid.h>
 #include <rwe/sim/Particle.h>
 #include <rwe/sim/PlayerId.h>
@@ -151,6 +153,9 @@ namespace rwe
 
         std::unordered_map<std::string, WeaponDefinition> weaponDefinitions;
 
+        std::unordered_map<MovementClassId, MovementClass> movementClassDefinitions;
+        MovementClassCollisionService movementClassCollisionService;
+
         OccupiedGrid occupiedGrid;
 
         Grid<unsigned char> metalGrid;
@@ -193,6 +198,8 @@ namespace rwe
         bool canBeBuiltAt(const MovementClass& mc, unsigned int x, unsigned int y) const;
 
         DiscreteRect computeFootprintRegion(const SimVector& position, unsigned int footprintX, unsigned int footprintZ) const;
+
+        DiscreteRect computeFootprintRegion(const SimVector& position, const UnitDefinition::MovementCollisionInfo& collisionInfo) const;
 
         bool isCollisionAt(const DiscreteRect& rect) const;
 
@@ -254,6 +261,8 @@ namespace rwe
 
         Projectile createProjectileFromWeapon(PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction, SimScalar distanceToTarget);
 
+        Projectile createProjectileFromWeapon(PlayerId owner, const std::string& weaponType, const SimVector& position, const SimVector& direction, SimScalar distanceToTarget);
+
         void spawnProjectile(PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction, SimScalar distanceToTarget);
 
         WinStatus computeWinStatus() const;
@@ -286,5 +295,9 @@ namespace rwe
         void setYardOpen(UnitId unitId, bool value);
 
         void setBuggerOff(UnitId unitId, bool value);
+
+        MovementClass getAdHocMovementClass(const UnitDefinition::MovementCollisionInfo& info) const;
+
+        std::pair<unsigned int, unsigned int> getFootprintXZ(const UnitDefinition::MovementCollisionInfo& info) const;
     };
 }

@@ -4,14 +4,46 @@
 #include <rwe/sim/Metal.h>
 #include <rwe/sim/SimScalar.h>
 #include <string>
+#include <variant>
 
 namespace rwe
 {
+    enum class YardMapCell
+    {
+        GroundPassableWhenOpen,
+        WaterPassableWhenOpen,
+        GroundNoFeature,
+        GroundGeoPassableWhenOpen,
+        Geo,
+        Ground,
+        GroundPassableWhenClosed,
+        Water,
+        GroundPassable,
+        WaterPassable,
+        Passable
+    };
+
     struct UnitDefinition
     {
+        struct NamedMovementClass
+        {
+            MovementClassId movementClassId;
+        };
+        struct AdHocMovementClass
+        {
+            unsigned int footprintX;
+            unsigned int footprintZ;
+            unsigned int maxSlope;
+            unsigned int maxWaterSlope;
+            unsigned int minWaterDepth;
+            unsigned int maxWaterDepth;
+        };
+        using MovementCollisionInfo = std::variant<NamedMovementClass, AdHocMovementClass>;
+
         std::string unitName;
         std::string objectName;
-        std::string movementClass;
+
+        MovementCollisionInfo movementCollisionInfo;
 
         /**
          * Rate at which the unit turns in world angular units/tick.
@@ -33,13 +65,6 @@ namespace rwe
          */
         SimScalar brakeRate;
 
-        unsigned int footprintX;
-        unsigned int footprintZ;
-        unsigned int maxSlope;
-        unsigned int maxWaterSlope;
-        unsigned int minWaterDepth;
-        unsigned int maxWaterDepth;
-
         bool canAttack;
         bool canMove;
         bool canGuard;
@@ -47,9 +72,9 @@ namespace rwe
         /** If true, the unit is considered a commander for victory conditions. */
         bool commander;
 
-        unsigned int maxDamage;
+        unsigned int maxHitPoints;
 
-        bool bmCode;
+        bool isMobile;
 
         bool floater;
         bool canHover;
@@ -65,9 +90,9 @@ namespace rwe
         Energy buildCostEnergy;
         Metal buildCostMetal;
 
-        unsigned int workerTime;
+        unsigned int workerTimePerTick;
 
-        unsigned int buildDistance;
+        SimScalar buildDistance;
 
         bool onOffable;
         bool activateWhenBuilt;
@@ -80,8 +105,14 @@ namespace rwe
         Metal makesMetal;
         Metal extractsMetal;
 
-        std::string yardMap;
+        Energy energyStorage;
+        Metal metalStorage;
+
+        std::optional<Grid<YardMapCell>> yardMap;
 
         std::string corpse;
+
+        bool hideDamage;
+        bool showPlayerName;
     };
 }

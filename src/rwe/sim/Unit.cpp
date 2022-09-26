@@ -85,36 +85,36 @@ namespace rwe
     {
     }
 
-    bool Unit::isBeingBuilt() const
+    bool Unit::isBeingBuilt(const UnitDefinition& unitDefinition) const
     {
-        return buildTimeCompleted < buildTime;
+        return buildTimeCompleted < unitDefinition.buildTime;
     }
 
-    unsigned int Unit::getBuildPercentLeft() const
+    unsigned int Unit::getBuildPercentLeft(const UnitDefinition& unitDefinition) const
     {
-        return 100u - ((buildTimeCompleted * 100u) / buildTime);
+        return 100u - ((buildTimeCompleted * 100u) / unitDefinition.buildTime);
     }
 
-    float Unit::getPreciseCompletePercent() const
+    float Unit::getPreciseCompletePercent(const UnitDefinition& unitDefinition) const
     {
-        return static_cast<float>(buildTimeCompleted) / static_cast<float>(buildTime);
+        return static_cast<float>(buildTimeCompleted) / static_cast<float>(unitDefinition.buildTime);
     }
 
-    Unit::BuildCostInfo Unit::getBuildCostInfo(unsigned int buildTimeContribution)
+    Unit::BuildCostInfo Unit::getBuildCostInfo(const UnitDefinition& unitDefinition, unsigned int buildTimeContribution)
     {
-        auto remainingBuildTime = buildTime - buildTimeCompleted;
+        auto remainingBuildTime = unitDefinition.buildTime - buildTimeCompleted;
         if (buildTimeContribution > remainingBuildTime)
         {
             buildTimeContribution = remainingBuildTime;
         }
 
-        auto oldProgressEnergy = Energy((buildTimeCompleted * energyCost.value) / buildTime);
-        auto oldProgressMetal = Metal((buildTimeCompleted * metalCost.value) / buildTime);
+        auto oldProgressEnergy = Energy((buildTimeCompleted * unitDefinition.buildCostEnergy.value) / unitDefinition.buildTime);
+        auto oldProgressMetal = Metal((buildTimeCompleted * unitDefinition.buildCostMetal.value) / unitDefinition.buildTime);
 
         auto newBuildTimeCompleted = buildTimeCompleted + buildTimeContribution;
 
-        auto newProgressEnergy = Energy((newBuildTimeCompleted * energyCost.value) / buildTime);
-        auto newProgressMetal = Metal((newBuildTimeCompleted * metalCost.value) / buildTime);
+        auto newProgressEnergy = Energy((newBuildTimeCompleted * unitDefinition.buildCostEnergy.value) / unitDefinition.buildTime);
+        auto newProgressMetal = Metal((newBuildTimeCompleted * unitDefinition.buildCostMetal.value) / unitDefinition.buildTime);
 
         auto deltaEnergy = newProgressEnergy - oldProgressEnergy;
         auto deltaMetal = newProgressMetal - oldProgressMetal;
@@ -122,38 +122,33 @@ namespace rwe
         return BuildCostInfo{buildTimeContribution, deltaEnergy, deltaMetal};
     }
 
-    bool Unit::addBuildProgress(unsigned int buildTimeContribution)
+    bool Unit::addBuildProgress(const UnitDefinition& unitDefinition, unsigned int buildTimeContribution)
     {
-        auto remainingBuildTime = buildTime - buildTimeCompleted;
+        auto remainingBuildTime = unitDefinition.buildTime - buildTimeCompleted;
         if (buildTimeContribution > remainingBuildTime)
         {
             buildTimeContribution = remainingBuildTime;
         }
 
-        auto oldProgressHp = (buildTimeCompleted * maxHitPoints) / buildTime;
+        auto oldProgressHp = (buildTimeCompleted * unitDefinition.maxHitPoints) / unitDefinition.buildTime;
 
         buildTimeCompleted += buildTimeContribution;
 
-        auto newProgressHp = (buildTimeCompleted * maxHitPoints) / buildTime;
+        auto newProgressHp = (buildTimeCompleted * unitDefinition.maxHitPoints) / unitDefinition.buildTime;
 
         auto deltaHp = newProgressHp - oldProgressHp;
 
         // add HP up to the maximum
-        if (hitPoints + deltaHp >= maxHitPoints)
+        if (hitPoints + deltaHp >= unitDefinition.maxHitPoints)
         {
-            hitPoints = maxHitPoints;
+            hitPoints = unitDefinition.maxHitPoints;
         }
         else
         {
             hitPoints += deltaHp;
         }
 
-        return buildTimeCompleted == buildTime;
-    }
-
-    bool Unit::isCommander() const
-    {
-        return commander;
+        return buildTimeCompleted == unitDefinition.buildTime;
     }
 
     void Unit::moveObject(const std::string& pieceName, Axis axis, SimScalar targetPosition, SimScalar speed)
@@ -384,11 +379,11 @@ namespace rwe
         lifeState = LifeStateDead{false};
     }
 
-    void Unit::finishBuilding()
+    void Unit::finishBuilding(const UnitDefinition& unitDefinition)
     {
         // FIXME: ignores damage taken during building
-        hitPoints = maxHitPoints;
-        buildTimeCompleted = buildTime;
+        hitPoints = unitDefinition.maxHitPoints;
+        buildTimeCompleted = unitDefinition.buildTime;
     }
 
     void Unit::clearOrders()
@@ -515,9 +510,9 @@ namespace rwe
         return Matrix4x<SimScalar>::rotationY(sin(-rotation), cos(-rotation)) * Matrix4x<SimScalar>::translation(-position);
     }
 
-    bool Unit::isSelectableBy(rwe::PlayerId player) const
+    bool Unit::isSelectableBy(const UnitDefinition& unitDefinition, rwe::PlayerId player) const
     {
-        return !isDead() && isOwnedBy(player) && !isBeingBuilt();
+        return !isDead() && isOwnedBy(player) && !isBeingBuilt(unitDefinition);
     }
 
     void Unit::activate()
@@ -530,18 +525,6 @@ namespace rwe
     {
         activated = false;
         cobEnvironment->createThread("Deactivate");
-    }
-
-    MovementClass Unit::getAdHocMovementClass() const
-    {
-        MovementClass mc;
-        mc.minWaterDepth = minWaterDepth;
-        mc.maxWaterDepth = maxWaterDepth;
-        mc.maxSlope = maxSlope;
-        mc.maxWaterSlope = maxWaterSlope;
-        mc.footprintX = footprintX;
-        mc.footprintZ = footprintZ;
-        return mc;
     }
 
     Metal Unit::getMetalMake() const

@@ -15,6 +15,7 @@
 #include <rwe/sim/ProjectileId.h>
 #include <rwe/sim/SimScalar.h>
 #include <rwe/sim/Unit.h>
+#include <rwe/sim/UnitDefinition.h>
 #include <rwe/sim/UnitMesh.h>
 #include <rwe/sim/UnitModelDefinition.h>
 #include <rwe/sim/UnitPieceDefinition.h>
@@ -37,6 +38,7 @@ namespace rwe
         const MeshDatabase& meshDatabase,
         const Matrix4f& viewProjectionMatrix,
         const Unit& unit,
+        const UnitDefinition& unitDefinition,
         PlayerColorIndex playerColorIndex,
         float frac,
         TextureIdentifier unitTextureAtlas,
@@ -57,6 +59,7 @@ namespace rwe
         const MeshDatabase& meshDatabase,
         const Matrix4f& viewProjectionMatrix,
         const Unit& unit,
+        const UnitDefinition& unitDefinition,
         float frac,
         float groundHeight,
         TextureIdentifier unitTextureAtlas,
@@ -107,5 +110,5 @@ namespace rwe
         SpriteBatch& spriteBatch,
         UnitMeshBatch& unitMeshBatch);
 
-    void drawSelectionRect(const MeshDatabase& meshDatabase, const Matrix4f& viewProjectionMatrix, const Unit& unit, float frac, ColoredMeshesBatch& batch);
+    void drawSelectionRect(const MeshDatabase& meshDatabase, const Matrix4f& viewProjectionMatrix, const Unit& unit, const UnitDefinition& unitDefinition, float frac, ColoredMeshesBatch& batch);
 }

@@ -159,7 +159,7 @@ namespace rwe
             requiredFeatureNames.insert(f.second);
         }
 
-        auto [unitDatabase, meshDatabase, unitDefinitions, weaponDefinitions] = createUnitDatabase(meshService, requiredFeatureNames);
+        auto [unitDatabase, meshDatabase, unitDefinitions, weaponDefinitions, movementClassDefinitions, movementClassCollisionService] = createUnitDatabase(mapInfo.terrain, meshService, requiredFeatureNames);
 
         GameSimulation simulation(std::move(mapInfo.terrain), mapInfo.surfaceMetal);
         for (const auto& [pos, featureName] : mapInfo.features)
@@ -179,21 +179,9 @@ namespace rwe
 
         simulation.unitDefinitions = std::move(unitDefinitions);
         simulation.weaponDefinitions = std::move(weaponDefinitions);
+        simulation.movementClassDefinitions = std::move(movementClassDefinitions);
+        simulation.movementClassCollisionService = std::move(movementClassCollisionService);
         simulation.unitModelDefinitions = unitDatabase.unitModelDefinitionsMap;
-
-        MovementClassCollisionService collisionService;
-
-        // compute cached walkable grids for each movement class
-        {
-            UnitDatabase::MovementClassIterator it = unitDatabase.movementClassBegin();
-            UnitDatabase::MovementClassIterator end = unitDatabase.movementClassEnd();
-            for (; it != end; ++it)
-            {
-                const auto& name = it->first;
-                const auto& mc = it->second;
-                collisionService.registerMovementClass(name, computeWalkableGrid(simulation, mc));
-            }
-        }
 
         std::optional<PlayerId> localPlayerId;
 
@@ -272,7 +260,6 @@ namespace rwe
             std::move(atlasInfo.teamTextureAtlases),
             std::move(simulation),
             std::move(mapInfo.terrainGraphics),
-            std::move(collisionService),
             std::move(unitDatabase),
             std::move(meshService),
             std::move(gameNetworkService),
@@ -319,8 +306,9 @@ namespace rwe
             std::optional<std::reference_wrapper<Unit>> commander = gameScene->spawnCompletedUnit(sideData.commander, *gamePlayers[i], worldStartPos);
             if (commander)
             {
-                commander->get().energyStorage += Energy(player->energy);
-                commander->get().metalStorage += Metal(player->metal);
+                auto& playerInfo = gameScene->getSimulation().getPlayer(*gamePlayers[i]);
+                playerInfo.maxEnergy += Energy(player->energy);
+                playerInfo.maxMetal += Metal(player->metal);
             }
         }
 
@@ -620,24 +608,77 @@ namespace rwe
         return weaponDefinition;
     }
 
-    UnitDefinition parseUnitDefinition(const UnitFbi& fbi)
+    std::optional<YardMapCell> parseYardMapCell(char c)
+    {
+        switch (c)
+        {
+            case 'c':
+                return YardMapCell::GroundGeoPassableWhenOpen;
+            case 'C':
+                return YardMapCell::WaterPassableWhenOpen;
+            case 'f':
+                return YardMapCell::GroundNoFeature;
+            case 'g':
+                return YardMapCell::GroundGeoPassableWhenOpen;
+            case 'G':
+                return YardMapCell::Geo;
+            case 'o':
+                return YardMapCell::Ground;
+            case 'O':
+                return YardMapCell::GroundPassableWhenClosed;
+            case 'w':
+                return YardMapCell::Water;
+            case 'y':
+                return YardMapCell::GroundPassable;
+            case 'Y':
+                return YardMapCell::WaterPassable;
+            case '.':
+                return YardMapCell::Passable;
+            case ' ':
+                return std::nullopt;
+            case '\r':
+                return std::nullopt;
+            case '\n':
+                return std::nullopt;
+            case '\t':
+                return std::nullopt;
+            default:
+                return YardMapCell::Ground;
+        }
+    }
+
+    std::vector<YardMapCell> parseYardMapCells(const std::string& yardMap)
+    {
+        std::vector<YardMapCell> cells;
+        for (const auto& c : yardMap)
+        {
+            auto cell = parseYardMapCell(c);
+            if (cell)
+            {
+                cells.push_back(*cell);
+            }
+        }
+        return cells;
+    }
+
+    Grid<YardMapCell> parseYardMap(unsigned int width, unsigned int height, const std::string& yardMap)
+    {
+        auto cells = parseYardMapCells(yardMap);
+        cells.resize(width * height, YardMapCell::Ground);
+        return Grid<YardMapCell>(width, height, std::move(cells));
+    }
+
+    UnitDefinition parseUnitDefinition(const UnitFbi& fbi, MovementClassCollisionService& collisionService)
     {
         UnitDefinition u;
 
-        u.unitName = fbi.unitName;
+        u.unitName = fbi.name;
         u.objectName = fbi.objectName;
-        u.movementClass = fbi.movementClass;
+
         u.turnRate = toWorldAnglePerTick(fbi.turnRate);
         u.maxVelocity = SimScalar(fbi.maxVelocity.value);
         u.acceleration = SimScalar(fbi.acceleration.value);
         u.brakeRate = SimScalar(fbi.brakeRate.value);
-
-        u.footprintX = fbi.footprintX;
-        u.footprintZ = fbi.footprintZ;
-        u.maxSlope = fbi.maxSlope;
-        u.maxWaterSlope = fbi.maxWaterSlope;
-        u.minWaterDepth = fbi.minWaterDepth;
-        u.maxWaterDepth = fbi.maxWaterDepth;
 
         u.canAttack = fbi.canAttack;
         u.canMove = fbi.canMove;
@@ -645,9 +686,9 @@ namespace rwe
 
         u.commander = fbi.commander;
 
-        u.maxDamage = fbi.maxDamage;
+        u.maxHitPoints = fbi.maxDamage;
 
-        u.bmCode = fbi.bmCode;
+        u.isMobile = fbi.bmCode;
 
         u.floater = fbi.floater;
         u.canHover = fbi.canHover;
@@ -663,9 +704,9 @@ namespace rwe
         u.buildCostEnergy = fbi.buildCostEnergy;
         u.buildCostMetal = fbi.buildCostMetal;
 
-        u.workerTime = fbi.workerTime;
+        u.workerTimePerTick = fbi.workerTime / 30;
 
-        u.buildDistance = fbi.buildDistance;
+        u.buildDistance = SimScalar(fbi.buildDistance);
 
         u.onOffable = fbi.onOffable;
         u.activateWhenBuilt = fbi.activateWhenBuilt;
@@ -678,9 +719,37 @@ namespace rwe
         u.makesMetal = fbi.makesMetal;
         u.extractsMetal = fbi.extractsMetal;
 
-        u.yardMap = fbi.yardMap;
+        u.energyStorage = fbi.energyStorage;
+        u.metalStorage = fbi.metalStorage;
 
         u.corpse = fbi.corpse;
+
+        u.hideDamage = fbi.hideDamage;
+        u.showPlayerName = fbi.showPlayerName;
+
+        auto movementClassId = collisionService.resolveMovementClass(fbi.movementClass);
+
+        if (movementClassId)
+        {
+            u.movementCollisionInfo = UnitDefinition::NamedMovementClass{*movementClassId};
+        }
+        else
+        {
+            u.movementCollisionInfo = UnitDefinition::AdHocMovementClass{
+                fbi.footprintX,
+                fbi.footprintZ,
+                fbi.maxSlope,
+                fbi.maxWaterSlope,
+                fbi.minWaterDepth,
+                fbi.maxWaterDepth,
+            };
+
+            u.yardMap = parseYardMap(fbi.footprintX, fbi.footprintZ, fbi.yardMap);
+            if (u.yardMap->any(isWater))
+            {
+                u.floater = true;
+            }
+        }
 
         return u;
     }
@@ -960,12 +1029,14 @@ namespace rwe
         }
     }
 
-    std::tuple<UnitDatabase, MeshDatabase, std::unordered_map<std::string, UnitDefinition>, std::unordered_map<std::string, WeaponDefinition>> LoadingScene::createUnitDatabase(MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures)
+    std::tuple<UnitDatabase, MeshDatabase, std::unordered_map<std::string, UnitDefinition>, std::unordered_map<std::string, WeaponDefinition>, std::unordered_map<MovementClassId, MovementClass>, MovementClassCollisionService> LoadingScene::createUnitDatabase(const MapTerrain& terrain, MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures)
     {
         UnitDatabase db;
         MeshDatabase meshDb;
         std::unordered_map<std::string, UnitDefinition> unitDefinitions;
         std::unordered_map<std::string, WeaponDefinition> weaponDefinitions;
+        MovementClassCollisionService movementClassCollisionService;
+        std::unordered_map<MovementClassId, MovementClass> movementClassDefinitions;
 
         // read sound categories
         {
@@ -1020,6 +1091,8 @@ namespace rwe
             for (auto& c : classes)
             {
                 auto name = c.second.name;
+                auto movementClassId = movementClassCollisionService.registerMovementClass(name, computeWalkableGrid(terrain, c.second));
+                movementClassDefinitions.insert({movementClassId, c.second});
                 db.addMovementClass(name, std::move(c.second));
             }
         }
@@ -1097,7 +1170,7 @@ namespace rwe
                 std::string fbiString(bytes->data(), bytes->size());
                 auto fbi = parseUnitFbi(parseTdfFromString(fbiString));
 
-                auto unitDefinition = parseUnitDefinition(fbi);
+                auto unitDefinition = parseUnitDefinition(fbi, movementClassCollisionService);
                 unitDefinitions.insert({toUpper(fbi.unitName), std::move(unitDefinition)});
 
                 // if it's a builder, also attempt to read its gui pages
@@ -1214,7 +1287,7 @@ namespace rwe
             meshDb.addSpriteSeries("FX", "flamestream", anim);
         }
 
-        return std::make_tuple(db, meshDb, unitDefinitions, weaponDefinitions);
+        return std::make_tuple(db, meshDb, unitDefinitions, weaponDefinitions, movementClassDefinitions, movementClassCollisionService);
     }
 
     void LoadingScene::preloadSound(MeshDatabase& meshDb, const std::optional<std::string>& soundName)

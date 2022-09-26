@@ -209,8 +209,6 @@ namespace rwe
 
         MapTerrainGraphics terrainGraphics;
 
-        MovementClassCollisionService collisionService;
-
         UnitDatabase unitDatabase;
         UnitFactory unitFactory;
 
@@ -309,7 +307,6 @@ namespace rwe
             std::vector<SharedTextureHandle>&& unitTeamTextureAtlases,
             GameSimulation&& simulation,
             MapTerrainGraphics&& terrainGraphics,
-            MovementClassCollisionService&& collisionService,
             UnitDatabase&& unitDatabase,
             MeshService&& meshService,
             std::unique_ptr<GameNetworkService>&& gameNetworkService,

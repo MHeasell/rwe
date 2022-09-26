@@ -2,7 +2,7 @@
 
 #include <rwe/grid/Grid.h>
 #include <rwe/grid/Point.h>
-#include <rwe/sim/GameSimulation.h>
+#include <rwe/sim/MapTerrain.h>
 #include <rwe/sim/MovementClass.h>
 #include <rwe/sim/MovementClassId.h>
 #include <unordered_map>
@@ -27,6 +27,5 @@ namespace rwe
         const Grid<char>& getGrid(MovementClassId movementClass) const;
     };
 
-    Grid<char> computeWalkableGrid(const GameSimulation& sim, const MovementClass& movementClass);
-
+    Grid<char> computeWalkableGrid(const MapTerrain& terrain, const MovementClass& movementClass);
 }

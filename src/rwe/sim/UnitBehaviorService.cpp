@@ -25,13 +25,14 @@ namespace rwe
     void UnitBehaviorService::onCreate(UnitId unitId)
     {
         auto& unit = sim->getUnit(unitId);
+        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
 
         unit.cobEnvironment->createThread("Create", std::vector<int>());
 
         // set speed for metal extractors
-        if (unit.extractsMetal != Metal(0))
+        if (unitDefinition.extractsMetal != Metal(0))
         {
-            auto footprint = sim->computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+            auto footprint = sim->computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
             auto metalValue = sim->metalGrid.accumulate(sim->metalGrid.clipRegion(footprint), 0u, std::plus<>());
             unit.cobEnvironment->createThread("SetSpeed", {static_cast<int>(metalValue)});
         }
@@ -55,6 +56,7 @@ namespace rwe
     void UnitBehaviorService::update(UnitId unitId)
     {
         auto& unit = sim->getUnit(unitId);
+        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
 
         // Clear steering targets.
         unit.steeringInfo = SteeringInfo{
@@ -63,7 +65,7 @@ namespace rwe
         };
 
         // Run unit and weapon AI
-        if (!unit.isBeingBuilt())
+        if (!unit.isBeingBuilt(unitDefinition))
         {
             // check our build queue
             if (!unit.buildQueue.empty())
@@ -109,7 +111,7 @@ namespace rwe
             }
         }
 
-        if (unit.isMobile)
+        if (unitDefinition.isMobile)
         {
             applyUnitSteering(unitId);
 
@@ -199,7 +201,7 @@ namespace rwe
         return {heading, pitches->second};
     }
 
-    SteeringInfo seek(const Unit& unit, const SimVector& destination)
+    SteeringInfo seek(const Unit& unit, const UnitDefinition& unitDefinition, const SimVector& destination)
     {
         SimVector xzPosition(unit.position.x, 0_ss, unit.position.z);
         SimVector xzDestination(destination.x, 0_ss, destination.z);
@@ -213,7 +215,7 @@ namespace rwe
 
         // Bias the speed factor towards zero if we are within our turn radius of the goal.
         // This is to try and discourage units from orbiting their destination.
-        auto turnRadius = getTurnRadius(unit.maxSpeed, unit.turnRate);
+        auto turnRadius = getTurnRadius(unitDefinition.maxVelocity, unitDefinition.turnRate);
         if (xzDirection.lengthSquared() <= turnRadius * turnRadius)
         {
             speedFactor = speedFactor * speedFactor;
@@ -221,20 +223,20 @@ namespace rwe
 
         return SteeringInfo{
             Unit::toRotation(xzDirection),
-            unit.maxSpeed * speedFactor,
+            unitDefinition.maxVelocity * speedFactor,
         };
     }
 
-    SteeringInfo arrive(const Unit& unit, const SimVector& destination)
+    SteeringInfo arrive(const Unit& unit, const UnitDefinition& unitDefinition, const SimVector& destination)
     {
         SimVector xzPosition(unit.position.x, 0_ss, unit.position.z);
         SimVector xzDestination(destination.x, 0_ss, destination.z);
         auto distanceSquared = xzPosition.distanceSquared(xzDestination);
-        auto brakingDistance = (unit.currentSpeed * unit.currentSpeed) / (2_ss * unit.brakeRate);
+        auto brakingDistance = (unit.currentSpeed * unit.currentSpeed) / (2_ss * unitDefinition.brakeRate);
 
         if (distanceSquared > (brakingDistance * brakingDistance))
         {
-            return seek(unit, destination);
+            return seek(unit, unitDefinition, destination);
         }
 
         // slow down when approaching the destination
@@ -245,7 +247,7 @@ namespace rwe
         };
     }
 
-    bool followPath(Unit& unit, PathFollowingInfo& path)
+    bool followPath(Unit& unit, const UnitDefinition& unitDefinition, PathFollowingInfo& path)
     {
         const auto& destination = *path.currentWaypoint;
         SimVector xzPosition(unit.position.x, 0_ss, unit.position.z);
@@ -261,7 +263,7 @@ namespace rwe
                 return true;
             }
 
-            unit.steeringInfo = arrive(unit, destination);
+            unit.steeringInfo = arrive(unit, unitDefinition, destination);
             return false;
         }
 
@@ -271,7 +273,7 @@ namespace rwe
             return false;
         }
 
-        unit.steeringInfo = seek(unit, destination);
+        unit.steeringInfo = seek(unit, unitDefinition, destination);
         return false;
     }
 
@@ -525,7 +527,8 @@ namespace rwe
     void UnitBehaviorService::updateUnitRotation(UnitId id)
     {
         auto& unit = sim->getUnit(id);
-        auto turnRateThisFrame = SimAngle(unit.turnRate.value);
+        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
+        auto turnRateThisFrame = SimAngle(unitDefinition.turnRate.value);
         unit.previousRotation = unit.rotation;
         unit.rotation = turnTowards(unit.rotation, unit.steeringInfo.targetAngle, turnRateThisFrame);
     }
@@ -533,35 +536,36 @@ namespace rwe
     void UnitBehaviorService::updateUnitSpeed(UnitId id)
     {
         auto& unit = sim->getUnit(id);
+        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
 
         const auto& steeringInfo = unit.steeringInfo;
 
         if (steeringInfo.targetSpeed > unit.currentSpeed)
         {
             // accelerate to target speed
-            if (steeringInfo.targetSpeed - unit.currentSpeed <= unit.acceleration)
+            if (steeringInfo.targetSpeed - unit.currentSpeed <= unitDefinition.acceleration)
             {
                 unit.currentSpeed = steeringInfo.targetSpeed;
             }
             else
             {
-                unit.currentSpeed += unit.acceleration;
+                unit.currentSpeed += unitDefinition.acceleration;
             }
         }
         else
         {
             // brake to target speed
-            if (unit.currentSpeed - steeringInfo.targetSpeed <= unit.brakeRate)
+            if (unit.currentSpeed - steeringInfo.targetSpeed <= unitDefinition.brakeRate)
             {
                 unit.currentSpeed = steeringInfo.targetSpeed;
             }
             else
             {
-                unit.currentSpeed -= unit.brakeRate;
+                unit.currentSpeed -= unitDefinition.brakeRate;
             }
         }
 
-        auto effectiveMaxSpeed = unit.maxSpeed;
+        auto effectiveMaxSpeed = unitDefinition.maxVelocity;
         if (unit.position.y < sim->terrain.getSeaLevel())
         {
             effectiveMaxSpeed /= 2_ss;
@@ -572,6 +576,7 @@ namespace rwe
     void UnitBehaviorService::updateUnitPosition(UnitId unitId)
     {
         auto& unit = sim->getUnit(unitId);
+        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
 
         unit.previousPosition = unit.position;
 
@@ -583,7 +588,7 @@ namespace rwe
         {
             auto newPosition = unit.position + (direction * unit.currentSpeed);
             newPosition.y = sim->terrain.getHeightAt(newPosition.x, newPosition.z);
-            if (unit.floater || unit.canHover)
+            if (unitDefinition.floater || unitDefinition.canHover)
             {
                 newPosition.y = rweMax(newPosition.y, sim->terrain.getSeaLevel());
             }
@@ -612,7 +617,7 @@ namespace rwe
                 newPos1.y = sim->terrain.getHeightAt(newPos1.x, newPos1.z);
                 newPos2.y = sim->terrain.getHeightAt(newPos2.x, newPos2.z);
 
-                if (unit.floater || unit.canHover)
+                if (unitDefinition.floater || unitDefinition.canHover)
                 {
                     newPos1.y = rweMax(newPos1.y, sim->terrain.getSeaLevel());
                     newPos2.y = rweMax(newPos2.y, sim->terrain.getSeaLevel());
@@ -629,9 +634,10 @@ namespace rwe
     bool UnitBehaviorService::tryApplyMovementToPosition(UnitId id, const SimVector& newPosition)
     {
         auto& unit = sim->getUnit(id);
+        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
 
         // check for collision at the new position
-        auto newFootprintRegion = sim->computeFootprintRegion(newPosition, unit.footprintX, unit.footprintZ);
+        auto newFootprintRegion = sim->computeFootprintRegion(newPosition, unitDefinition.movementCollisionInfo);
 
         if (sim->isCollisionAt(newFootprintRegion, id))
         {
@@ -641,13 +647,13 @@ namespace rwe
         // Unlike for pathfinding, TA doesn't care about the unit's actual movement class for collision checks,
         // it only cares about the attributes defined directly on the unit.
         // Jam these into an ad-hoc movement class to pass into our walkability check.
-        if (!isGridPointWalkable(sim->terrain, unit.getAdHocMovementClass(), newFootprintRegion.x, newFootprintRegion.y))
+        if (!isGridPointWalkable(sim->terrain, sim->getAdHocMovementClass(unitDefinition.movementCollisionInfo), newFootprintRegion.x, newFootprintRegion.y))
         {
             return false;
         }
 
         // we passed all collision checks, update accordingly
-        auto footprintRegion = sim->computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+        auto footprintRegion = sim->computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
         sim->moveUnitOccupiedArea(footprintRegion, newFootprintRegion, id);
 
         auto seaLevel = sim->terrain.getSeaLevel();
@@ -841,7 +847,8 @@ namespace rwe
     bool UnitBehaviorService::handleMoveOrder(UnitId unitId, const MoveOrder& moveOrder)
     {
         auto& unit = sim->getUnit(unitId);
-        if (!unit.isMobile)
+        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
+        if (!unitDefinition.isMobile)
         {
             return false;
         }
@@ -908,7 +915,9 @@ namespace rwe
     bool UnitBehaviorService::handleBuggerOffOrder(UnitId unitId, const BuggerOffOrder& buggerOffOrder)
     {
         auto& unit = sim->getUnit(unitId);
-        return moveTo(unitId, buggerOffOrder.rect.expand((unit.footprintX * 3) - 4, (unit.footprintZ * 3) - 4));
+        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
+        auto [footprintX, footprintZ] = sim->getFootprintXZ(unitDefinition.movementCollisionInfo);
+        return moveTo(unitId, buggerOffOrder.rect.expand((footprintX * 3) - 4, (footprintZ * 3) - 4));
     }
 
     bool UnitBehaviorService::handleCompleteBuildOrder(rwe::UnitId unitId, const rwe::CompleteBuildOrder& buildOrder)
@@ -919,6 +928,7 @@ namespace rwe
     bool UnitBehaviorService::handleGuardOrder(UnitId unitId, const GuardOrder& guardOrder)
     {
         auto& unit = sim->getUnit(unitId);
+        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
 
         auto target = sim->tryGetUnit(guardOrder.target);
         // TODO: real allied check here
@@ -931,14 +941,14 @@ namespace rwe
 
 
         // assist building
-        if (auto bs = std::get_if<BuildingState>(&targetUnit.behaviourState); unit.builder && bs)
+        if (auto bs = std::get_if<BuildingState>(&targetUnit.behaviourState); unitDefinition.builder && bs)
         {
             buildExistingUnit(unitId, bs->targetUnit);
             return false;
         }
 
         // assist factory building
-        if (auto fs = std::get_if<FactoryStateBuilding>(&targetUnit.factoryState); unit.builder && fs)
+        if (auto fs = std::get_if<FactoryStateBuilding>(&targetUnit.factoryState); unitDefinition.builder && fs)
         {
             if (fs->targetUnit)
             {
@@ -948,7 +958,7 @@ namespace rwe
         }
 
         // stay close
-        if (unit.canMove && unit.position.distanceSquared(targetUnit.position) > SimScalar(200 * 200))
+        if (unitDefinition.canMove && unit.position.distanceSquared(targetUnit.position) > SimScalar(200 * 200))
         {
             moveTo(unitId, targetUnit.position);
             return false;
@@ -960,6 +970,8 @@ namespace rwe
     bool UnitBehaviorService::handleBuild(UnitId unitId, const std::string& unitType)
     {
         auto& unit = sim->getUnit(unitId);
+        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
+
 
         return match(
             unit.factoryState,
@@ -1014,10 +1026,11 @@ namespace rwe
                 }
 
                 auto& targetUnit = targetUnitOption->get();
+                const auto& targetUnitDefinition = sim->unitDefinitions.at(targetUnit.unitType);
 
                 if (targetUnit.unitType != unitType)
                 {
-                    if (targetUnit.isBeingBuilt() && !targetUnit.isDead())
+                    if (targetUnit.isBeingBuilt(targetUnitDefinition) && !targetUnit.isDead())
                     {
                         sim->quietlyKillUnit(state.targetUnit->first);
                     }
@@ -1033,11 +1046,11 @@ namespace rwe
                     return true;
                 }
 
-                if (!targetUnit.isBeingBuilt())
+                if (!targetUnit.isBeingBuilt(targetUnitDefinition))
                 {
                     if (unit.orders.empty())
                     {
-                        auto footprintRect = sim->computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+                        auto footprintRect = sim->computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
                         targetUnit.addOrder(BuggerOffOrder(footprintRect));
                     }
                     else
@@ -1050,7 +1063,7 @@ namespace rwe
                     return true;
                 }
 
-                if (targetUnit.floater || targetUnit.canHover)
+                if (targetUnitDefinition.floater || targetUnitDefinition.canHover)
                 {
                     buildPieceInfo.position.y = rweMax(buildPieceInfo.position.y, sim->terrain.getSeaLevel());
                 }
@@ -1058,11 +1071,11 @@ namespace rwe
                 tryApplyMovementToPosition(state.targetUnit->first, buildPieceInfo.position);
                 targetUnit.rotation = buildPieceInfo.rotation;
 
-                auto costs = targetUnit.getBuildCostInfo(unit.workerTimePerTick);
+                auto costs = targetUnit.getBuildCostInfo(targetUnitDefinition, unitDefinition.workerTimePerTick);
                 auto gotResources = sim->addResourceDelta(
                     unitId,
-                    -Energy(targetUnit.energyCost.value * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime)),
-                    -Metal(targetUnit.metalCost.value * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime)),
+                    -Energy(targetUnitDefinition.buildCostEnergy.value * static_cast<float>(unitDefinition.workerTimePerTick) / static_cast<float>(targetUnitDefinition.buildTime)),
+                    -Metal(targetUnitDefinition.buildCostMetal.value * static_cast<float>(unitDefinition.workerTimePerTick) / static_cast<float>(targetUnitDefinition.buildTime)),
                     -costs.energyCost,
                     -costs.metalCost);
 
@@ -1074,11 +1087,11 @@ namespace rwe
                 }
                 state.targetUnit->second = getNanoPoint(unitId);
 
-                if (targetUnit.addBuildProgress(unit.workerTimePerTick))
+                if (targetUnit.addBuildProgress(targetUnitDefinition, unitDefinition.workerTimePerTick))
                 {
                     sim->events.push_back(UnitCompleteEvent{state.targetUnit->first});
 
-                    if (targetUnit.activateWhenBuilt)
+                    if (targetUnitDefinition.activateWhenBuilt)
                     {
                         sim->activateUnit(state.targetUnit->first);
                     }
@@ -1211,13 +1224,15 @@ namespace rwe
             [&](UnitId unitId)
             {
                 const auto& targetUnit = sim->getUnit(unitId);
-                return MovingStateGoal(sim->computeFootprintRegion(targetUnit.position, targetUnit.footprintX, targetUnit.footprintZ));
+                const auto& targetUnitDefinition = sim->unitDefinitions.at(targetUnit.unitType);
+                return MovingStateGoal(sim->computeFootprintRegion(targetUnit.position, targetUnitDefinition.movementCollisionInfo));
             });
     }
 
     bool UnitBehaviorService::moveTo(UnitId unitId, const MovingStateGoal& goal)
     {
         auto& unit = sim->getUnit(unitId);
+        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
 
         auto movingState = std::get_if<MovingState>(&unit.behaviourState);
 
@@ -1244,7 +1259,7 @@ namespace rwe
         // if a path is available, attempt to follow it
         if (movingState->path)
         {
-            if (followPath(unit, *movingState->path))
+            if (followPath(unit, unitDefinition, *movingState->path))
             {
                 // we finished following the path,
                 // clear our state
@@ -1306,9 +1321,10 @@ namespace rwe
     bool UnitBehaviorService::buildExistingUnit(UnitId unitId, UnitId targetUnitId)
     {
         auto& unit = sim->getUnit(unitId);
+        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
         auto targetUnitRef = sim->tryGetUnit(targetUnitId);
 
-        if (!targetUnitRef || targetUnitRef->get().isDead() || !targetUnitRef->get().isBeingBuilt())
+        if (!targetUnitRef || targetUnitRef->get().isDead() || !targetUnitRef->get().isBeingBuilt(unitDefinition))
         {
             changeState(unit, IdleState());
             return true;
@@ -1319,7 +1335,7 @@ namespace rwe
         // Experiment has shown that the distance from which a new building
         // can be started (when caged in) is greater than assist distance,
         // and it appears both measures something more advanced than center <-> center distance.
-        if (unit.position.distanceSquared(targetUnit.position) > (unit.buildDistance * unit.buildDistance))
+        if (unit.position.distanceSquared(targetUnit.position) > (unitDefinition.buildDistance * unitDefinition.buildDistance))
         {
             moveTo(unitId, targetUnit.position);
             return false;
@@ -1340,13 +1356,15 @@ namespace rwe
     bool UnitBehaviorService::deployBuildArm(UnitId unitId, UnitId targetUnitId)
     {
         auto& unit = sim->getUnit(unitId);
+        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
         auto targetUnitRef = sim->tryGetUnit(targetUnitId);
-        if (!targetUnitRef || targetUnitRef->get().isDead() || !targetUnitRef->get().isBeingBuilt())
+        if (!targetUnitRef || targetUnitRef->get().isDead() || !targetUnitRef->get().isBeingBuilt(sim->unitDefinitions.at(targetUnitRef->get().unitType)))
         {
             changeState(unit, IdleState());
             return true;
         }
         auto& targetUnit = targetUnitRef->get();
+        const auto& targetUnitDefinition = sim->unitDefinitions.at(targetUnit.unitType);
 
         return match(
             unit.behaviourState,
@@ -1364,11 +1382,11 @@ namespace rwe
                     return false;
                 }
 
-                auto costs = targetUnit.getBuildCostInfo(unit.workerTimePerTick);
+                auto costs = targetUnit.getBuildCostInfo(targetUnitDefinition, unitDefinition.workerTimePerTick);
                 auto gotResources = sim->addResourceDelta(
                     unitId,
-                    -Energy(targetUnit.energyCost.value * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime)),
-                    -Metal(targetUnit.metalCost.value * static_cast<float>(unit.workerTimePerTick) / static_cast<float>(targetUnit.buildTime)),
+                    -Energy(targetUnitDefinition.buildCostEnergy.value * static_cast<float>(unitDefinition.workerTimePerTick) / static_cast<float>(targetUnitDefinition.buildTime)),
+                    -Metal(targetUnitDefinition.buildCostMetal.value * static_cast<float>(unitDefinition.workerTimePerTick) / static_cast<float>(targetUnitDefinition.buildTime)),
                     -costs.energyCost,
                     -costs.metalCost);
 
@@ -1380,11 +1398,11 @@ namespace rwe
                 }
                 buildingState.nanoParticleOrigin = getNanoPoint(unitId);
 
-                if (targetUnit.addBuildProgress(unit.workerTimePerTick))
+                if (targetUnit.addBuildProgress(targetUnitDefinition, unitDefinition.workerTimePerTick))
                 {
                     sim->events.push_back(UnitCompleteEvent{buildingState.targetUnit});
 
-                    if (targetUnit.activateWhenBuilt)
+                    if (targetUnitDefinition.activateWhenBuilt)
                     {
                         sim->activateUnit(buildingState.targetUnit);
                     }

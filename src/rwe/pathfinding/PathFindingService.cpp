@@ -38,12 +38,16 @@ namespace rwe
     UnitPath PathFindingService::findPath(UnitId unitId, const DiscreteRect& destination)
     {
         const auto& unit = simulation->getUnit(unitId);
+        const auto& unitDefinition = simulation->unitDefinitions.at(unit.unitType);
 
-        auto start = simulation->computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
+        auto start = simulation->computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
         // expand the goal rect to take into account our own collision rect
-        auto goal = destination.expandTopLeft(unit.footprintX, unit.footprintZ);
+        auto goal = destination.expandTopLeft(start.width, start.height);
 
-        UnitPerimeterPathFinder pathFinder(simulation, collisionService, unitId, unit.movementClass, unit.footprintX, unit.footprintZ, goal);
+        auto movementClassId = match(
+            unitDefinition.movementCollisionInfo, [&](const UnitDefinition::NamedMovementClass& mc) { return std::make_optional(mc.movementClassId); }, [&](const auto&) { return std::optional<MovementClassId>(); });
+
+        UnitPerimeterPathFinder pathFinder(simulation, collisionService, unitId, movementClassId, start.width, start.height, goal);
 
         auto path = pathFinder.findPath(Point(start.x, start.y));
         lastPathDebugInfo = AStarPathInfo<Point, PathCost>{path.type, path.path, std::move(path.closedVertices)};
@@ -61,7 +65,7 @@ namespace rwe
         std::vector<SimVector> waypoints;
         for (auto it = ++simplifiedPath.cbegin(); it != simplifiedPath.cend(); ++it)
         {
-            waypoints.push_back(getWorldCenter(DiscreteRect(it->x, it->y, unit.footprintX, unit.footprintZ)));
+            waypoints.push_back(getWorldCenter(DiscreteRect(it->x, it->y, start.width, start.height)));
         }
 
         return UnitPath{std::move(waypoints)};
@@ -70,11 +74,15 @@ namespace rwe
     UnitPath PathFindingService::findPath(UnitId unitId, const SimVector& destination)
     {
         const auto& unit = simulation->getUnit(unitId);
+        const auto& unitDefinition = simulation->unitDefinitions.at(unit.unitType);
 
-        auto start = simulation->computeFootprintRegion(unit.position, unit.footprintX, unit.footprintZ);
-        auto goal = simulation->computeFootprintRegion(destination, unit.footprintX, unit.footprintZ);
+        auto start = simulation->computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
+        auto goal = simulation->computeFootprintRegion(destination, unitDefinition.movementCollisionInfo);
 
-        UnitPathFinder pathFinder(simulation, collisionService, unitId, unit.movementClass, unit.footprintX, unit.footprintZ, Point(goal.x, goal.y));
+        auto movementClassId = match(
+            unitDefinition.movementCollisionInfo, [&](const UnitDefinition::NamedMovementClass& mc) { return std::make_optional(mc.movementClassId); }, [&](const auto&) { return std::optional<MovementClassId>(); });
+
+        UnitPathFinder pathFinder(simulation, collisionService, unitId, movementClassId, start.width, start.height, Point(goal.x, goal.y));
 
         auto path = pathFinder.findPath(Point(start.x, start.y));
         lastPathDebugInfo = AStarPathInfo<Point, PathCost>{path.type, path.path, std::move(path.closedVertices)};
@@ -97,7 +105,7 @@ namespace rwe
         std::vector<SimVector> waypoints;
         for (auto it = ++simplifiedPath.cbegin(); it != simplifiedPath.cend(); ++it)
         {
-            waypoints.push_back(getWorldCenter(DiscreteRect(it->x, it->y, unit.footprintX, unit.footprintZ)));
+            waypoints.push_back(getWorldCenter(DiscreteRect(it->x, it->y, start.width, start.height)));
         }
         waypoints.back() = destination;
 

@@ -22,65 +22,6 @@ namespace rwe
     {
     }
 
-    std::optional<YardMapCell> parseYardMapCell(char c)
-    {
-        switch (c)
-        {
-            case 'c':
-                return YardMapCell::GroundGeoPassableWhenOpen;
-            case 'C':
-                return YardMapCell::WaterPassableWhenOpen;
-            case 'f':
-                return YardMapCell::GroundNoFeature;
-            case 'g':
-                return YardMapCell::GroundGeoPassableWhenOpen;
-            case 'G':
-                return YardMapCell::Geo;
-            case 'o':
-                return YardMapCell::Ground;
-            case 'O':
-                return YardMapCell::GroundPassableWhenClosed;
-            case 'w':
-                return YardMapCell::Water;
-            case 'y':
-                return YardMapCell::GroundPassable;
-            case 'Y':
-                return YardMapCell::WaterPassable;
-            case '.':
-                return YardMapCell::Passable;
-            case ' ':
-                return std::nullopt;
-            case '\r':
-                return std::nullopt;
-            case '\n':
-                return std::nullopt;
-            case '\t':
-                return std::nullopt;
-            default:
-                return YardMapCell::Ground;
-        }
-    }
-    std::vector<YardMapCell> parseYardMapCells(const std::string& yardMap)
-    {
-        std::vector<YardMapCell> cells;
-        for (const auto& c : yardMap)
-        {
-            auto cell = parseYardMapCell(c);
-            if (cell)
-            {
-                cells.push_back(*cell);
-            }
-        }
-        return cells;
-    }
-
-    Grid<YardMapCell> parseYardMap(unsigned int width, unsigned int height, const std::string& yardMap)
-    {
-        auto cells = parseYardMapCells(yardMap);
-        cells.resize(width * height, YardMapCell::Ground);
-        return Grid<YardMapCell>(width, height, std::move(cells));
-    }
-
     std::vector<UnitMesh> createUnitMeshes(const UnitDatabase& db, const std::string& objectName)
     {
         auto def = db.getUnitModelDefinition(objectName);
@@ -132,13 +73,10 @@ namespace rwe
         const auto& script = unitDatabase->getUnitScript(fbi.unitName);
         auto cobEnv = std::make_unique<CobEnvironment>(&script);
         Unit unit(meshes, std::move(cobEnv));
-        unit.name = fbi.name;
         unit.unitType = toUpper(unitType);
-        unit.objectName = fbi.objectName;
         unit.owner = owner;
         unit.position = position;
         unit.previousPosition = position;
-        unit.height = modelDefinition->get().height;
 
         if (rotation)
         {
@@ -150,89 +88,6 @@ namespace rwe
             // spawn the unit facing the other way
             unit.rotation = HalfTurn;
             unit.previousRotation = HalfTurn;
-        }
-
-        // These units are per-tick.
-        unit.turnRate = toWorldAnglePerTick(fbi.turnRate);
-        unit.maxSpeed = SimScalar(fbi.maxVelocity.value);
-        unit.acceleration = SimScalar(fbi.acceleration.value);
-        unit.brakeRate = SimScalar(fbi.brakeRate.value);
-
-        unit.canAttack = fbi.canAttack;
-        unit.canMove = fbi.canMove;
-        unit.canGuard = fbi.canGuard;
-
-        unit.commander = fbi.commander;
-
-        unit.maxHitPoints = fbi.maxDamage;
-
-        unit.builder = fbi.builder;
-
-        // Build time is per second, assuming 30 ticks per second.
-        unit.buildTime = fbi.buildTime;
-        unit.energyCost = fbi.buildCostEnergy;
-        unit.metalCost = fbi.buildCostMetal;
-
-        // Worker time is per second, assuming 30 ticks per second.
-        unit.workerTimePerTick = fbi.workerTime / 30;
-
-        unit.buildDistance = SimScalar(fbi.buildDistance);
-
-        unit.onOffable = fbi.onOffable;
-        unit.activateWhenBuilt = fbi.activateWhenBuilt;
-
-        unit.energyMake = fbi.energyMake;
-        unit.energyUse = fbi.energyUse;
-
-        unit.metalMake = fbi.metalMake;
-        unit.metalUse = fbi.metalUse - fbi.makesMetal;
-
-        unit.extractsMetal = fbi.extractsMetal;
-
-        unit.energyStorage = fbi.energyStorage;
-        unit.metalStorage = fbi.metalStorage;
-
-        unit.hideDamage = fbi.hideDamage;
-        unit.showPlayerName = fbi.showPlayerName;
-
-        unit.isMobile = fbi.bmCode;
-
-        unit.floater = fbi.floater;
-        unit.canHover = fbi.canHover;
-
-        if (movementClassOption)
-        {
-            auto movementClass = &movementClassOption->get();
-
-            auto resolvedMovementClass = collisionService->resolveMovementClass(movementClass->name);
-            if (!resolvedMovementClass)
-            {
-                throw std::runtime_error("Failed to resolve movement class " + movementClass->name);
-            }
-
-            unit.movementClass = *resolvedMovementClass;
-            unit.footprintX = movementClass->footprintX;
-            unit.footprintZ = movementClass->footprintZ;
-            unit.maxSlope = movementClass->maxSlope;
-            unit.maxWaterSlope = movementClass->maxWaterSlope;
-            unit.minWaterDepth = movementClass->minWaterDepth;
-            unit.maxWaterDepth = movementClass->maxWaterDepth;
-        }
-        else
-        {
-            unit.movementClass = std::nullopt;
-            unit.footprintX = fbi.footprintX;
-            unit.footprintZ = fbi.footprintZ;
-            unit.maxSlope = fbi.maxSlope;
-            unit.maxWaterSlope = fbi.maxWaterSlope;
-            unit.minWaterDepth = fbi.minWaterDepth;
-            unit.maxWaterDepth = fbi.maxWaterDepth;
-        }
-
-        unit.yardMap = parseYardMap(unit.footprintX, unit.footprintZ, fbi.yardMap);
-        if (unit.yardMap->any(isWater))
-        {
-            unit.floater = true;
         }
 
         // add weapons
@@ -247,11 +102,6 @@ namespace rwe
         if (!fbi.weapon3.empty())
         {
             unit.weapons[2] = tryCreateWeapon(fbi.weapon3);
-        }
-
-        if (!fbi.explodeAs.empty())
-        {
-            unit.explosionWeapon = tryCreateWeapon(fbi.explodeAs);
         }
 
         return unit;
