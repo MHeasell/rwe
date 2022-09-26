@@ -13,7 +13,7 @@ namespace rwe
         return id;
     }
 
-    std::optional<MovementClassId> MovementClassCollisionService::resolveMovementClass(const std::string& name)
+    std::optional<MovementClassId> MovementClassCollisionService::resolveMovementClass(const std::string& name) const
     {
         return tryFindValue(movementClassNameMap, name);
     }

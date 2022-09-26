@@ -20,7 +20,7 @@ namespace rwe
     public:
         MovementClassId registerMovementClass(const std::string& className, Grid<char>&& walkableGrid);
 
-        std::optional<MovementClassId> resolveMovementClass(const std::string& name);
+        std::optional<MovementClassId> resolveMovementClass(const std::string& name) const;
 
         bool isWalkable(MovementClassId movementClass, const Point& position) const;
 
