@@ -116,7 +116,7 @@ namespace rwe
         return id;
     }
 
-    std::optional<UnitId> GameSimulation::tryAddUnit(Unit&& unit)
+    std::optional<UnitId> GameSimulation::tryAddUnit(UnitState&& unit)
     {
         const auto& unitDefinition = unitDefinitions.at(unit.unitType);
 
@@ -314,26 +314,26 @@ namespace rwe
         }
     }
 
-    Unit& GameSimulation::getUnit(UnitId id)
+    UnitState& GameSimulation::getUnit(UnitId id)
     {
         auto it = units.find(id);
         assert(it != units.end());
         return it->second;
     }
 
-    const Unit& GameSimulation::getUnit(UnitId id) const
+    const UnitState& GameSimulation::getUnit(UnitId id) const
     {
         auto it = units.find(id);
         assert(it != units.end());
         return it->second;
     }
 
-    std::optional<std::reference_wrapper<Unit>> GameSimulation::tryGetUnit(UnitId id)
+    std::optional<std::reference_wrapper<UnitState>> GameSimulation::tryGetUnit(UnitId id)
     {
         return tryFind(units, id);
     }
 
-    std::optional<std::reference_wrapper<const Unit>> GameSimulation::tryGetUnit(UnitId id) const
+    std::optional<std::reference_wrapper<const UnitState>> GameSimulation::tryGetUnit(UnitId id) const
     {
         return tryFind(units, id);
     }

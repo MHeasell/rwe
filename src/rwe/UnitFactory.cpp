@@ -41,7 +41,7 @@ namespace rwe
         return pieces;
     }
 
-    Unit UnitFactory::createUnit(
+    UnitState UnitFactory::createUnit(
         const std::string& unitType,
         PlayerId owner,
         const SimVector& position,
@@ -72,7 +72,7 @@ namespace rwe
 
         const auto& script = unitDatabase->getUnitScript(fbi.unitName);
         auto cobEnv = std::make_unique<CobEnvironment>(&script);
-        Unit unit(meshes, std::move(cobEnv));
+        UnitState unit(meshes, std::move(cobEnv));
         unit.unitType = toUpper(unitType);
         unit.owner = owner;
         unit.position = position;

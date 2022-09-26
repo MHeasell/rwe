@@ -544,8 +544,6 @@ set(SOURCE_FILES
     src/rwe/sim/SimScalar.h
     src/rwe/sim/SimTicksPerSecond.h
     src/rwe/sim/SimVector.h
-    src/rwe/sim/Unit.cpp
-    src/rwe/sim/Unit.h
     src/rwe/sim/UnitBehaviorService.cpp
     src/rwe/sim/UnitBehaviorService.h
     src/rwe/sim/UnitDefinition.h
@@ -558,6 +556,8 @@ set(SOURCE_FILES
     src/rwe/sim/UnitOrder.h
     src/rwe/sim/UnitPieceDefinition.cpp
     src/rwe/sim/UnitPieceDefinition.h
+    src/rwe/sim/UnitState.cpp
+    src/rwe/sim/UnitState.h
     src/rwe/sim/UnitWeapon.h
     src/rwe/sim/WeaponDefinition.cpp
     src/rwe/sim/WeaponDefinition.h

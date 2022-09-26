@@ -1,4 +1,4 @@
-#include "Unit.h"
+#include "UnitState.h"
 #include <rwe/GameScene.h>
 #include <rwe/Index.h>
 #include <rwe/geometry/Plane3f.h>
@@ -60,12 +60,12 @@ namespace rwe
         }
     }
 
-    SimAngle Unit::toRotation(const SimVector& direction)
+    SimAngle UnitState::toRotation(const SimVector& direction)
     {
         return atan2(direction.x, direction.z);
     }
 
-    SimVector Unit::toDirection(SimAngle rotation)
+    SimVector UnitState::toDirection(SimAngle rotation)
     {
         return SimVector(sin(rotation), 0_ss, cos(rotation));
     }
@@ -80,27 +80,27 @@ namespace rwe
         return m;
     }
 
-    Unit::Unit(const std::vector<UnitMesh>& pieces, std::unique_ptr<CobEnvironment>&& cobEnvironment)
+    UnitState::UnitState(const std::vector<UnitMesh>& pieces, std::unique_ptr<CobEnvironment>&& cobEnvironment)
         : pieces(pieces), pieceNameToIndices(createPieceIndex(this->pieces)), cobEnvironment(std::move(cobEnvironment))
     {
     }
 
-    bool Unit::isBeingBuilt(const UnitDefinition& unitDefinition) const
+    bool UnitState::isBeingBuilt(const UnitDefinition& unitDefinition) const
     {
         return buildTimeCompleted < unitDefinition.buildTime;
     }
 
-    unsigned int Unit::getBuildPercentLeft(const UnitDefinition& unitDefinition) const
+    unsigned int UnitState::getBuildPercentLeft(const UnitDefinition& unitDefinition) const
     {
         return 100u - ((buildTimeCompleted * 100u) / unitDefinition.buildTime);
     }
 
-    float Unit::getPreciseCompletePercent(const UnitDefinition& unitDefinition) const
+    float UnitState::getPreciseCompletePercent(const UnitDefinition& unitDefinition) const
     {
         return static_cast<float>(buildTimeCompleted) / static_cast<float>(unitDefinition.buildTime);
     }
 
-    Unit::BuildCostInfo Unit::getBuildCostInfo(const UnitDefinition& unitDefinition, unsigned int buildTimeContribution)
+    UnitState::BuildCostInfo UnitState::getBuildCostInfo(const UnitDefinition& unitDefinition, unsigned int buildTimeContribution)
     {
         auto remainingBuildTime = unitDefinition.buildTime - buildTimeCompleted;
         if (buildTimeContribution > remainingBuildTime)
@@ -122,7 +122,7 @@ namespace rwe
         return BuildCostInfo{buildTimeContribution, deltaEnergy, deltaMetal};
     }
 
-    bool Unit::addBuildProgress(const UnitDefinition& unitDefinition, unsigned int buildTimeContribution)
+    bool UnitState::addBuildProgress(const UnitDefinition& unitDefinition, unsigned int buildTimeContribution)
     {
         auto remainingBuildTime = unitDefinition.buildTime - buildTimeCompleted;
         if (buildTimeContribution > remainingBuildTime)
@@ -151,7 +151,7 @@ namespace rwe
         return buildTimeCompleted == unitDefinition.buildTime;
     }
 
-    void Unit::moveObject(const std::string& pieceName, Axis axis, SimScalar targetPosition, SimScalar speed)
+    void UnitState::moveObject(const std::string& pieceName, Axis axis, SimScalar targetPosition, SimScalar speed)
     {
         auto piece = findPiece(pieceName);
         if (!piece)
@@ -175,7 +175,7 @@ namespace rwe
         }
     }
 
-    void Unit::moveObjectNow(const std::string& pieceName, Axis axis, SimScalar targetPosition)
+    void UnitState::moveObjectNow(const std::string& pieceName, Axis axis, SimScalar targetPosition)
     {
         auto piece = findPiece(pieceName);
         if (!piece)
@@ -200,7 +200,7 @@ namespace rwe
         }
     }
 
-    void Unit::turnObject(const std::string& pieceName, Axis axis, SimAngle targetAngle, SimScalar speed)
+    void UnitState::turnObject(const std::string& pieceName, Axis axis, SimAngle targetAngle, SimScalar speed)
     {
         auto piece = findPiece(pieceName);
         if (!piece)
@@ -224,7 +224,7 @@ namespace rwe
         }
     }
 
-    void Unit::turnObjectNow(const std::string& pieceName, Axis axis, SimAngle targetAngle)
+    void UnitState::turnObjectNow(const std::string& pieceName, Axis axis, SimAngle targetAngle)
     {
         auto piece = findPiece(pieceName);
         if (!piece)
@@ -249,7 +249,7 @@ namespace rwe
         }
     }
 
-    void Unit::spinObject(const std::string& pieceName, Axis axis, SimScalar speed, SimScalar acceleration)
+    void UnitState::spinObject(const std::string& pieceName, Axis axis, SimScalar speed, SimScalar acceleration)
     {
         auto piece = findPiece(pieceName);
         if (!piece)
@@ -294,7 +294,7 @@ namespace rwe
         existingOp = UnitMesh::StopSpinOperation(spinOp->currentSpeed, deceleration);
     }
 
-    void Unit::stopSpinObject(const std::string& pieceName, Axis axis, SimScalar deceleration)
+    void UnitState::stopSpinObject(const std::string& pieceName, Axis axis, SimScalar deceleration)
     {
 
         auto piece = findPiece(pieceName);
@@ -317,7 +317,7 @@ namespace rwe
         }
     }
 
-    bool Unit::isMoveInProgress(const std::string& pieceName, Axis axis) const
+    bool UnitState::isMoveInProgress(const std::string& pieceName, Axis axis) const
     {
         auto piece = findPiece(pieceName);
         if (!piece)
@@ -338,7 +338,7 @@ namespace rwe
         throw std::logic_error("Invalid axis");
     }
 
-    bool Unit::isTurnInProgress(const std::string& pieceName, Axis axis) const
+    bool UnitState::isTurnInProgress(const std::string& pieceName, Axis axis) const
     {
         auto piece = findPiece(pieceName);
         if (!piece)
@@ -359,34 +359,34 @@ namespace rwe
         throw std::logic_error("Invalid axis");
     }
 
-    bool Unit::isOwnedBy(PlayerId playerId) const
+    bool UnitState::isOwnedBy(PlayerId playerId) const
     {
         return owner == playerId;
     }
 
-    bool Unit::isDead() const
+    bool UnitState::isDead() const
     {
         return std::holds_alternative<LifeStateDead>(lifeState);
     }
 
-    void Unit::markAsDead()
+    void UnitState::markAsDead()
     {
         lifeState = LifeStateDead{true};
     }
 
-    void Unit::markAsDeadNoCorpse()
+    void UnitState::markAsDeadNoCorpse()
     {
         lifeState = LifeStateDead{false};
     }
 
-    void Unit::finishBuilding(const UnitDefinition& unitDefinition)
+    void UnitState::finishBuilding(const UnitDefinition& unitDefinition)
     {
         // FIXME: ignores damage taken during building
         hitPoints = unitDefinition.maxHitPoints;
         buildTimeCompleted = unitDefinition.buildTime;
     }
 
-    void Unit::clearOrders()
+    void UnitState::clearOrders()
     {
         orders.clear();
         buildOrderUnitId = std::nullopt;
@@ -395,12 +395,12 @@ namespace rwe
         clearWeaponTargets();
     }
 
-    void Unit::replaceOrders(const std::deque<UnitOrder>& newOrders)
+    void UnitState::replaceOrders(const std::deque<UnitOrder>& newOrders)
     {
         orders = newOrders;
     }
 
-    void Unit::addOrder(const UnitOrder& order)
+    void UnitState::addOrder(const UnitOrder& order)
     {
         orders.push_back(order);
     }
@@ -450,7 +450,7 @@ namespace rwe
         bool operator()(const UnitWeaponStateAttacking& state) const { return std::visit(TargetIsPositionVisitor(position), state.target); }
     };
 
-    void Unit::setWeaponTarget(unsigned int weaponIndex, UnitId target)
+    void UnitState::setWeaponTarget(unsigned int weaponIndex, UnitId target)
     {
         auto& weapon = weapons[weaponIndex];
         if (!weapon)
@@ -465,7 +465,7 @@ namespace rwe
         }
     }
 
-    void Unit::setWeaponTarget(unsigned int weaponIndex, const SimVector& target)
+    void UnitState::setWeaponTarget(unsigned int weaponIndex, const SimVector& target)
     {
         auto& weapon = weapons[weaponIndex];
         if (!weapon)
@@ -480,7 +480,7 @@ namespace rwe
         }
     }
 
-    void Unit::clearWeaponTarget(unsigned int weaponIndex)
+    void UnitState::clearWeaponTarget(unsigned int weaponIndex)
     {
         auto& weapon = weapons[weaponIndex];
         if (!weapon)
@@ -492,7 +492,7 @@ namespace rwe
         cobEnvironment->createThread("TargetCleared", {static_cast<int>(weaponIndex)});
     }
 
-    void Unit::clearWeaponTargets()
+    void UnitState::clearWeaponTargets()
     {
         for (Index i = 0; i < getSize(weapons); ++i)
         {
@@ -500,54 +500,54 @@ namespace rwe
         }
     }
 
-    Matrix4x<SimScalar> Unit::getTransform() const
+    Matrix4x<SimScalar> UnitState::getTransform() const
     {
         return Matrix4x<SimScalar>::translation(position) * Matrix4x<SimScalar>::rotationY(sin(rotation), cos(rotation));
     }
 
-    Matrix4x<SimScalar> Unit::getInverseTransform() const
+    Matrix4x<SimScalar> UnitState::getInverseTransform() const
     {
         return Matrix4x<SimScalar>::rotationY(sin(-rotation), cos(-rotation)) * Matrix4x<SimScalar>::translation(-position);
     }
 
-    bool Unit::isSelectableBy(const UnitDefinition& unitDefinition, rwe::PlayerId player) const
+    bool UnitState::isSelectableBy(const UnitDefinition& unitDefinition, rwe::PlayerId player) const
     {
         return !isDead() && isOwnedBy(player) && !isBeingBuilt(unitDefinition);
     }
 
-    void Unit::activate()
+    void UnitState::activate()
     {
         activated = true;
         cobEnvironment->createThread("Activate");
     }
 
-    void Unit::deactivate()
+    void UnitState::deactivate()
     {
         activated = false;
         cobEnvironment->createThread("Deactivate");
     }
 
-    Metal Unit::getMetalMake() const
+    Metal UnitState::getMetalMake() const
     {
         return metalProductionBuffer;
     }
 
-    Energy Unit::getEnergyMake() const
+    Energy UnitState::getEnergyMake() const
     {
         return energyProductionBuffer;
     }
 
-    Metal Unit::getMetalUse() const
+    Metal UnitState::getMetalUse() const
     {
         return previousMetalConsumptionBuffer;
     }
 
-    Energy Unit::getEnergyUse() const
+    Energy UnitState::getEnergyUse() const
     {
         return previousEnergyConsumptionBuffer;
     }
 
-    void Unit::addMetalDelta(const Metal& metal)
+    void UnitState::addMetalDelta(const Metal& metal)
     {
         if (metal >= Metal(0))
         {
@@ -559,7 +559,7 @@ namespace rwe
         }
     }
 
-    void Unit::addEnergyDelta(const Energy& energy)
+    void UnitState::addEnergyDelta(const Energy& energy)
     {
         if (energy >= Energy(0))
         {
@@ -571,7 +571,7 @@ namespace rwe
         }
     }
 
-    void Unit::resetResourceBuffers()
+    void UnitState::resetResourceBuffers()
     {
         energyProductionBuffer = Energy(0);
         metalProductionBuffer = Metal(0);
@@ -581,7 +581,7 @@ namespace rwe
         metalConsumptionBuffer = Metal(0);
     }
 
-    void Unit::modifyBuildQueue(const std::string& buildUnitType, int count)
+    void UnitState::modifyBuildQueue(const std::string& buildUnitType, int count)
     {
         if (count > 0)
         {
@@ -592,12 +592,12 @@ namespace rwe
         removeFromBuildQueue(buildQueue, buildUnitType, -count);
     }
 
-    std::unordered_map<std::string, int> Unit::getBuildQueueTotals() const
+    std::unordered_map<std::string, int> UnitState::getBuildQueueTotals() const
     {
         return getBuildQueueTotalsStatic(buildQueue);
     }
 
-    int Unit::getBuildQueueTotal(const std::string& unitType) const
+    int UnitState::getBuildQueueTotal(const std::string& unitType) const
     {
         int sum = 0;
         for (const auto& e : buildQueue)
@@ -610,7 +610,7 @@ namespace rwe
         return sum;
     }
 
-    std::optional<std::pair<UnitId, SimVector>> Unit::getActiveNanolatheTarget() const
+    std::optional<std::pair<UnitId, SimVector>> UnitState::getActiveNanolatheTarget() const
     {
         auto buildingState = std::get_if<UnitBehaviorStateBuilding>(&behaviourState);
         if (buildingState && buildingState->nanoParticleOrigin)
@@ -627,7 +627,7 @@ namespace rwe
         return std::nullopt;
     }
 
-    std::optional<std::reference_wrapper<const UnitMesh>> Unit::findPiece(const std::string& pieceName) const
+    std::optional<std::reference_wrapper<const UnitMesh>> UnitState::findPiece(const std::string& pieceName) const
     {
         auto pieceIndexIt = pieceNameToIndices.find(toUpper(pieceName));
         if (pieceIndexIt == pieceNameToIndices.end())
@@ -638,7 +638,7 @@ namespace rwe
         return pieces[pieceIndexIt->second];
     }
 
-    std::optional<std::reference_wrapper<UnitMesh>> Unit::findPiece(const std::string& pieceName)
+    std::optional<std::reference_wrapper<UnitMesh>> UnitState::findPiece(const std::string& pieceName)
     {
         auto pieceIndexIt = pieceNameToIndices.find(toUpper(pieceName));
         if (pieceIndexIt == pieceNameToIndices.end())

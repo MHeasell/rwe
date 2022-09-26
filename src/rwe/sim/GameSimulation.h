@@ -16,9 +16,9 @@
 #include <rwe/sim/PlayerId.h>
 #include <rwe/sim/Projectile.h>
 #include <rwe/sim/ProjectileId.h>
-#include <rwe/sim/Unit.h>
 #include <rwe/sim/UnitDefinition.h>
 #include <rwe/sim/UnitModelDefinition.h>
+#include <rwe/sim/UnitState.h>
 #include <unordered_map>
 
 namespace rwe
@@ -166,7 +166,7 @@ namespace rwe
 
         UnitId nextUnitId{0};
 
-        VectorMap<Unit, UnitIdTag> units;
+        VectorMap<UnitState, UnitIdTag> units;
 
         VectorMap<Projectile, ProjectileIdTag> projectiles;
 
@@ -188,7 +188,7 @@ namespace rwe
          * Returns true if the unit was really added, false otherwise.
          * A unit might not be added because it violates collision constraints.
          */
-        std::optional<UnitId> tryAddUnit(Unit&& unit);
+        std::optional<UnitId> tryAddUnit(UnitState&& unit);
 
         /**
          * Returns true if a unit with the given movementclass attributes
@@ -219,13 +219,13 @@ namespace rwe
 
         void disableShading(UnitId unitId, const std::string& name);
 
-        Unit& getUnit(UnitId id);
+        UnitState& getUnit(UnitId id);
 
-        const Unit& getUnit(UnitId id) const;
+        const UnitState& getUnit(UnitId id) const;
 
-        std::optional<std::reference_wrapper<Unit>> tryGetUnit(UnitId id);
+        std::optional<std::reference_wrapper<UnitState>> tryGetUnit(UnitId id);
 
-        std::optional<std::reference_wrapper<const Unit>> tryGetUnit(UnitId id) const;
+        std::optional<std::reference_wrapper<const UnitState>> tryGetUnit(UnitId id) const;
 
         bool unitExists(UnitId id) const;
 

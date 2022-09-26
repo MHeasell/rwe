@@ -553,7 +553,7 @@ namespace rwe
         const UnitDatabase* unitDatabase,
         const MeshDatabase& meshDatabase,
         const Matrix4f& viewProjectionMatrix,
-        const Unit& unit,
+        const UnitState& unit,
         const UnitDefinition& unitDefinition,
         PlayerColorIndex playerColorIndex,
         float frac,
@@ -596,7 +596,7 @@ namespace rwe
         const UnitDatabase* unitDatabase,
         const MeshDatabase& meshDatabase,
         const Matrix4f& viewProjectionMatrix,
-        const Unit& unit,
+        const UnitState& unit,
         const UnitDefinition& unitDefinition,
         float frac,
         float groundHeight,
@@ -922,7 +922,7 @@ namespace rwe
         }
     }
 
-    void drawSelectionRect(const MeshDatabase& meshDatabase, const Matrix4f& viewProjectionMatrix, const Unit& unit, const UnitDefinition& unitDefinition, float frac, ColoredMeshesBatch& batch)
+    void drawSelectionRect(const MeshDatabase& meshDatabase, const Matrix4f& viewProjectionMatrix, const UnitState& unit, const UnitDefinition& unitDefinition, float frac, ColoredMeshesBatch& batch)
     {
         auto selectionMesh = meshDatabase.getSelectionMesh(unitDefinition.objectName);
 

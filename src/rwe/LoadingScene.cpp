@@ -303,7 +303,7 @@ namespace rwe
             }
 
             const auto& sideData = getSideData(player->side);
-            std::optional<std::reference_wrapper<Unit>> commander = gameScene->spawnCompletedUnit(sideData.commander, *gamePlayers[i], worldStartPos);
+            auto commander = gameScene->spawnCompletedUnit(sideData.commander, *gamePlayers[i], worldStartPos);
             if (commander)
             {
                 auto& playerInfo = gameScene->getSimulation().getPlayer(*gamePlayers[i]);

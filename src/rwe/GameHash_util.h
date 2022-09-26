@@ -23,7 +23,7 @@ namespace rwe
 
     GameHash computeHashOf(const GamePlayerInfo& p);
 
-    GameHash computeHashOf(const Unit& u);
+    GameHash computeHashOf(const UnitState& u);
 
     GameHash computeHashOf(const SteeringInfo& s);
 
@@ -39,8 +39,8 @@ namespace rwe
     GameHash computeHashOf(const UnitCreationStatusDone&);
     GameHash computeHashOf(const UnitCreationStatusFailed&);
 
-    GameHash computeHashOf(const Unit::LifeStateAlive&);
-    GameHash computeHashOf(const Unit::LifeStateDead&);
+    GameHash computeHashOf(const UnitState::LifeStateAlive&);
+    GameHash computeHashOf(const UnitState::LifeStateDead&);
 
     GameHash computeHashOf(const UnitBehaviorStateMoving& m);
 

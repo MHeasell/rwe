@@ -561,7 +561,7 @@ namespace rwe
         }
     }
 
-    void GameScene::renderBuildBoxes(const Unit& unit, const Color& color)
+    void GameScene::renderBuildBoxes(const UnitState& unit, const Color& color)
     {
         auto worldToUi = worldUiRenderService.getInverseViewProjectionMatrix()
             * computeViewProjectionMatrix(worldCameraState, worldViewport.width(), worldViewport.height());
@@ -926,7 +926,7 @@ namespace rwe
 
         if (healthBarsVisible)
         {
-            for (const Unit& unit : (simulation.units | boost::adaptors::map_values))
+            for (const UnitState& unit : (simulation.units | boost::adaptors::map_values))
             {
                 if (!unit.isOwnedBy(localPlayerId))
                 {
@@ -1069,7 +1069,7 @@ namespace rwe
             });
     }
 
-    void renderUnitInfoSection(const Unit& unit)
+    void renderUnitInfoSection(const UnitState& unit)
     {
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
         if (ImGui::CollapsingHeader("Unit Info"))
@@ -2117,7 +2117,7 @@ namespace rwe
         return unitId;
     }
 
-    std::optional<std::reference_wrapper<Unit>> GameScene::spawnCompletedUnit(const std::string& unitType, PlayerId owner, const SimVector& position)
+    std::optional<std::reference_wrapper<UnitState>> GameScene::spawnCompletedUnit(const std::string& unitType, PlayerId owner, const SimVector& position)
     {
         auto unitId = spawnUnit(unitType, owner, position, std::nullopt);
         if (unitId)
@@ -2706,7 +2706,7 @@ namespace rwe
         return it;
     }
 
-    std::optional<float> GameScene::selectionIntersect(const Unit& unit, const CollisionMesh& mesh, const Ray3f& ray) const
+    std::optional<float> GameScene::selectionIntersect(const UnitState& unit, const CollisionMesh& mesh, const Ray3f& ray) const
     {
         auto inverseTransform = toFloatMatrix(unit.getInverseTransform());
         auto line = ray.toLine();
@@ -2910,22 +2910,22 @@ namespace rwe
             });
     }
 
-    Unit& GameScene::getUnit(UnitId id)
+    UnitState& GameScene::getUnit(UnitId id)
     {
         return simulation.getUnit(id);
     }
 
-    const Unit& GameScene::getUnit(UnitId id) const
+    const UnitState& GameScene::getUnit(UnitId id) const
     {
         return simulation.getUnit(id);
     }
 
-    std::optional<std::reference_wrapper<Unit>> GameScene::tryGetUnit(UnitId id)
+    std::optional<std::reference_wrapper<UnitState>> GameScene::tryGetUnit(UnitId id)
     {
         return simulation.tryGetUnit(id);
     }
 
-    std::optional<std::reference_wrapper<const Unit>> GameScene::tryGetUnit(UnitId id) const
+    std::optional<std::reference_wrapper<const UnitState>> GameScene::tryGetUnit(UnitId id) const
     {
         return simulation.tryGetUnit(id);
     }
@@ -3346,7 +3346,7 @@ namespace rwe
         {
             const auto& unit = it->second;
             const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
-            auto deadState = std::get_if<Unit::LifeStateDead>(&unit.lifeState);
+            auto deadState = std::get_if<UnitState::LifeStateDead>(&unit.lifeState);
             if (deadState == nullptr)
             {
                 ++it;
@@ -3465,7 +3465,7 @@ namespace rwe
         simulation.unitCreationRequests.clear();
     }
 
-    BoundingBox3x<SimScalar> GameScene::createBoundingBox(const Unit& unit) const
+    BoundingBox3x<SimScalar> GameScene::createBoundingBox(const UnitState& unit) const
     {
         const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
         const auto& modelDefinition = simulation.unitModelDefinitions.at(unitDefinition.objectName);

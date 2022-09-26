@@ -121,7 +121,7 @@ namespace rwe
 
         bool buildExistingUnit(UnitId unitId, UnitId targetUnitId);
 
-        void changeState(Unit& unit, const UnitBehaviorState& newState);
+        void changeState(UnitState& unit, const UnitBehaviorState& newState);
 
         bool deployBuildArm(UnitId unitId, UnitId targetUnitId);
     };

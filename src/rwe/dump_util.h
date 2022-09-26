@@ -23,7 +23,7 @@ namespace rwe
 
     nlohmann::json dumpJson(const GamePlayerInfo& p);
 
-    nlohmann::json dumpJson(const Unit& u);
+    nlohmann::json dumpJson(const UnitState& u);
 
     nlohmann::json dumpJson(const SteeringInfo& s);
 
@@ -51,8 +51,8 @@ namespace rwe
     nlohmann::json dumpJson(const UnitCreationStatusDone&);
     nlohmann::json dumpJson(const UnitCreationStatusFailed&);
 
-    nlohmann::json dumpJson(const Unit::LifeStateAlive&);
-    nlohmann::json dumpJson(const Unit::LifeStateDead&);
+    nlohmann::json dumpJson(const UnitState::LifeStateAlive&);
+    nlohmann::json dumpJson(const UnitState::LifeStateDead&);
 
     nlohmann::json dumpJson(const UnitBehaviorStateMoving& m);
 
@@ -113,7 +113,8 @@ namespace rwe
     {
         nlohmann::json j;
         j["variant"] = v.index();
-        j["data"] = match(v, [](const auto& x) { return dumpJson(x); });
+        j["data"] = match(v, [](const auto& x)
+            { return dumpJson(x); });
         return j;
     }
 }

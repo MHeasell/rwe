@@ -48,7 +48,7 @@ namespace rwe
             {"metalProductionBuffer", dumpJson(p.metalProductionBuffer)},
             {"energyProductionBuffer", dumpJson(p.energyProductionBuffer)}};
     }
-    nlohmann::json dumpJson(const Unit& u)
+    nlohmann::json dumpJson(const UnitState& u)
     {
         return nlohmann::json{
             {"unitType", dumpJson(u.unitType)},
@@ -136,11 +136,11 @@ namespace rwe
         return nlohmann::json();
     }
 
-    nlohmann::json dumpJson(const Unit::LifeStateAlive&)
+    nlohmann::json dumpJson(const UnitState::LifeStateAlive&)
     {
         return nlohmann::json();
     }
-    nlohmann::json dumpJson(const Unit::LifeStateDead&)
+    nlohmann::json dumpJson(const UnitState::LifeStateDead&)
     {
         return nlohmann::json();
     }

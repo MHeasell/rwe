@@ -14,11 +14,11 @@
 #include <rwe/sim/Projectile.h>
 #include <rwe/sim/ProjectileId.h>
 #include <rwe/sim/SimScalar.h>
-#include <rwe/sim/Unit.h>
 #include <rwe/sim/UnitDefinition.h>
 #include <rwe/sim/UnitMesh.h>
 #include <rwe/sim/UnitModelDefinition.h>
 #include <rwe/sim/UnitPieceDefinition.h>
+#include <rwe/sim/UnitState.h>
 #include <vector>
 
 namespace rwe
@@ -37,7 +37,7 @@ namespace rwe
         const UnitDatabase* unitDatabase,
         const MeshDatabase& meshDatabase,
         const Matrix4f& viewProjectionMatrix,
-        const Unit& unit,
+        const UnitState& unit,
         const UnitDefinition& unitDefinition,
         PlayerColorIndex playerColorIndex,
         float frac,
@@ -58,7 +58,7 @@ namespace rwe
         const UnitDatabase* unitDatabase,
         const MeshDatabase& meshDatabase,
         const Matrix4f& viewProjectionMatrix,
-        const Unit& unit,
+        const UnitState& unit,
         const UnitDefinition& unitDefinition,
         float frac,
         float groundHeight,
@@ -110,5 +110,5 @@ namespace rwe
         SpriteBatch& spriteBatch,
         UnitMeshBatch& unitMeshBatch);
 
-    void drawSelectionRect(const MeshDatabase& meshDatabase, const Matrix4f& viewProjectionMatrix, const Unit& unit, const UnitDefinition& unitDefinition, float frac, ColoredMeshesBatch& batch);
+    void drawSelectionRect(const MeshDatabase& meshDatabase, const Matrix4f& viewProjectionMatrix, const UnitState& unit, const UnitDefinition& unitDefinition, float frac, ColoredMeshesBatch& batch);
 }

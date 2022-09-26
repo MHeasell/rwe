@@ -70,7 +70,7 @@ namespace rwe
             p.energyProductionBuffer);
     }
 
-    GameHash computeHashOf(const Unit& u)
+    GameHash computeHashOf(const UnitState& u)
     {
         return combineHashes(
             u.unitType,
@@ -156,11 +156,11 @@ namespace rwe
         return GameHash(0);
     }
 
-    GameHash computeHashOf(const Unit::LifeStateAlive&)
+    GameHash computeHashOf(const UnitState::LifeStateAlive&)
     {
         return GameHash(0);
     }
-    GameHash computeHashOf(const Unit::LifeStateDead&)
+    GameHash computeHashOf(const UnitState::LifeStateDead&)
     {
         return GameHash(0);
     }

@@ -38,9 +38,9 @@
 #include <rwe/sim/OccupiedGrid.h>
 #include <rwe/sim/PlayerId.h>
 #include <rwe/sim/SimScalar.h>
-#include <rwe/sim/Unit.h>
 #include <rwe/sim/UnitBehaviorService.h>
 #include <rwe/sim/UnitId.h>
+#include <rwe/sim/UnitState.h>
 #include <rwe/ui/UiFactory.h>
 #include <rwe/ui/UiPanel.h>
 #include <variant>
@@ -339,7 +339,7 @@ namespace rwe
 
         std::optional<UnitId> spawnUnit(const std::string& unitType, PlayerId owner, const SimVector& position, std::optional<const std::reference_wrapper<SimAngle>> rotation);
 
-        std::optional<std::reference_wrapper<Unit>> spawnCompletedUnit(const std::string& unitType, PlayerId owner, const SimVector& position);
+        std::optional<std::reference_wrapper<UnitState>> spawnCompletedUnit(const std::string& unitType, PlayerId owner, const SimVector& position);
 
         void trySpawnFeature(const std::string& featureType, const SimVector& position, SimAngle rotation);
 
@@ -433,7 +433,7 @@ namespace rwe
          * The value returned is the distance along the ray
          * where the intersection occurred.
          */
-        std::optional<float> selectionIntersect(const Unit& unit, const CollisionMesh& mesh, const Ray3f& ray) const;
+        std::optional<float> selectionIntersect(const UnitState& unit, const CollisionMesh& mesh, const Ray3f& ray) const;
 
         std::optional<SimVector> getMouseTerrainCoordinate() const;
 
@@ -465,13 +465,13 @@ namespace rwe
 
         void handleEscapeDown();
 
-        Unit& getUnit(UnitId id);
+        UnitState& getUnit(UnitId id);
 
-        const Unit& getUnit(UnitId id) const;
+        const UnitState& getUnit(UnitId id) const;
 
-        std::optional<std::reference_wrapper<Unit>> tryGetUnit(UnitId id);
+        std::optional<std::reference_wrapper<UnitState>> tryGetUnit(UnitId id);
 
-        std::optional<std::reference_wrapper<const Unit>> tryGetUnit(UnitId id) const;
+        std::optional<std::reference_wrapper<const UnitState>> tryGetUnit(UnitId id) const;
 
         GamePlayerInfo& getPlayer(PlayerId player);
 
@@ -497,7 +497,7 @@ namespace rwe
 
         void spawnNewUnits();
 
-        BoundingBox3x<SimScalar> createBoundingBox(const Unit& unit) const;
+        BoundingBox3x<SimScalar> createBoundingBox(const UnitState& unit) const;
 
         void killUnit(UnitId unitId);
 
@@ -527,7 +527,7 @@ namespace rwe
 
         void renderUnitOrders(UnitId unitId, bool drawLines);
 
-        void renderBuildBoxes(const Unit& unit, const Color& color);
+        void renderBuildBoxes(const UnitState& unit, const Color& color);
 
         void attachOrdersMenuEventHandlers();
 

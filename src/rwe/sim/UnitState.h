@@ -119,7 +119,7 @@ namespace rwe
         SimScalar targetSpeed{0};
     };
 
-    class Unit
+    class UnitState
     {
     public:
         struct LifeStateAlive
@@ -201,7 +201,7 @@ namespace rwe
 
         static SimVector toDirection(SimAngle rotation);
 
-        Unit(const std::vector<UnitMesh>& pieces, std::unique_ptr<CobEnvironment>&& cobEnvironment);
+        UnitState(const std::vector<UnitMesh>& pieces, std::unique_ptr<CobEnvironment>&& cobEnvironment);
 
         bool isBeingBuilt(const UnitDefinition& unitDefinition) const;
 

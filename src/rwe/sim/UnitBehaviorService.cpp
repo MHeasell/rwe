@@ -150,12 +150,12 @@ namespace rwe
         auto aimVector = to - from;
         if (aimVector.lengthSquared() == 0_ss)
         {
-            aimVector = Unit::toDirection(rotation);
+            aimVector = UnitState::toDirection(rotation);
         }
 
         SimVector aimVectorXZ(aimVector.x, 0_ss, aimVector.z);
 
-        auto heading = Unit::toRotation(aimVectorXZ);
+        auto heading = UnitState::toRotation(aimVectorXZ);
         heading = heading - rotation;
 
         auto pitch = atan2(aimVector.y, aimVectorXZ.length());
@@ -184,12 +184,12 @@ namespace rwe
         auto aimVector = to - from;
         if (aimVector.lengthSquared() == 0_ss)
         {
-            aimVector = Unit::toDirection(rotation);
+            aimVector = UnitState::toDirection(rotation);
         }
 
         SimVector aimVectorXZ(aimVector.x, 0_ss, aimVector.z);
 
-        auto heading = Unit::toRotation(aimVectorXZ);
+        auto heading = UnitState::toRotation(aimVectorXZ);
         heading = heading - rotation;
 
         auto pitches = computeFiringAngles(speed, gravity, aimVectorXZ.length() - zOffset, aimVector.y);
@@ -201,7 +201,7 @@ namespace rwe
         return {heading, pitches->second};
     }
 
-    SteeringInfo seek(const Unit& unit, const UnitDefinition& unitDefinition, const SimVector& destination)
+    SteeringInfo seek(const UnitState& unit, const UnitDefinition& unitDefinition, const SimVector& destination)
     {
         SimVector xzPosition(unit.position.x, 0_ss, unit.position.z);
         SimVector xzDestination(destination.x, 0_ss, destination.z);
@@ -209,7 +209,7 @@ namespace rwe
 
         // scale desired speed proportionally to how aligned we are
         // with the target direction
-        auto normalizedUnitDirection = Unit::toDirection(unit.rotation);
+        auto normalizedUnitDirection = UnitState::toDirection(unit.rotation);
         auto normalizedXzDirection = xzDirection.normalized();
         auto speedFactor = rweMax(0_ss, normalizedUnitDirection.dot(normalizedXzDirection));
 
@@ -222,12 +222,12 @@ namespace rwe
         }
 
         return SteeringInfo{
-            Unit::toRotation(xzDirection),
+            UnitState::toRotation(xzDirection),
             unitDefinition.maxVelocity * speedFactor,
         };
     }
 
-    SteeringInfo arrive(const Unit& unit, const UnitDefinition& unitDefinition, const SimVector& destination)
+    SteeringInfo arrive(const UnitState& unit, const UnitDefinition& unitDefinition, const SimVector& destination)
     {
         SimVector xzPosition(unit.position.x, 0_ss, unit.position.z);
         SimVector xzDestination(destination.x, 0_ss, destination.z);
@@ -242,12 +242,12 @@ namespace rwe
         // slow down when approaching the destination
         auto xzDirection = xzDestination - xzPosition;
         return SteeringInfo{
-            Unit::toRotation(xzDirection),
+            UnitState::toRotation(xzDirection),
             0_ss,
         };
     }
 
-    bool followPath(Unit& unit, const UnitDefinition& unitDefinition, PathFollowingInfo& path)
+    bool followPath(UnitState& unit, const UnitDefinition& unitDefinition, PathFollowingInfo& path)
     {
         const auto& destination = *path.currentWaypoint;
         SimVector xzPosition(unit.position.x, 0_ss, unit.position.z);
@@ -580,7 +580,7 @@ namespace rwe
 
         unit.previousPosition = unit.position;
 
-        auto direction = Unit::toDirection(unit.rotation);
+        auto direction = UnitState::toDirection(unit.rotation);
 
         unit.inCollision = false;
 
@@ -1345,7 +1345,7 @@ namespace rwe
         return deployBuildArm(unitId, targetUnitId);
     }
 
-    void UnitBehaviorService::changeState(Unit& unit, const UnitBehaviorState& newState)
+    void UnitBehaviorService::changeState(UnitState& unit, const UnitBehaviorState& newState)
     {
         if (std::holds_alternative<UnitBehaviorStateBuilding>(unit.behaviourState))
         {

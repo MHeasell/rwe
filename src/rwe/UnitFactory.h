@@ -6,7 +6,7 @@
 #include <rwe/sim/GameSimulation.h>
 #include <rwe/sim/MovementClass.h>
 #include <rwe/sim/SimVector.h>
-#include <rwe/sim/Unit.h>
+#include <rwe/sim/UnitState.h>
 #include <string>
 
 namespace rwe
@@ -33,7 +33,7 @@ namespace rwe
             const GameSimulation* simulation);
 
     public:
-        Unit createUnit(const std::string& unitType, PlayerId owner, const SimVector& position, std::optional<const std::reference_wrapper<SimAngle>> rotation);
+        UnitState createUnit(const std::string& unitType, PlayerId owner, const SimVector& position, std::optional<const std::reference_wrapper<SimAngle>> rotation);
 
         std::optional<std::reference_wrapper<const std::vector<GuiEntry>>> getBuilderGui(const std::string& unitType, unsigned int page) const;
 
