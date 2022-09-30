@@ -47,21 +47,16 @@ namespace rwe
         const SimVector& position,
         std::optional<const std::reference_wrapper<SimAngle>> rotation)
     {
-        const auto& fbi = unitDatabase->getUnitInfo(unitType);
-        std::optional<std::reference_wrapper<const MovementClass>> movementClassOption;
-        if (!fbi.movementClass.empty())
-        {
-            movementClassOption = unitDatabase->getMovementClass(fbi.movementClass);
-        }
+        const auto& unitDefinition = simulation->unitDefinitions.at(unitType);
 
-        auto meshes = createUnitMeshes(*unitDatabase, fbi.objectName);
-        auto modelDefinition = unitDatabase->getUnitModelDefinition(fbi.objectName);
+        auto meshes = createUnitMeshes(*unitDatabase, unitDefinition.objectName);
+        auto modelDefinition = unitDatabase->getUnitModelDefinition(unitDefinition.objectName);
         if (!modelDefinition)
         {
             throw std::runtime_error("Missing model definition");
         }
 
-        if (fbi.bmCode) // unit is mobile
+        if (unitDefinition.isMobile)
         {
             // don't shade mobile units
             for (auto& m : meshes)
@@ -70,7 +65,7 @@ namespace rwe
             }
         }
 
-        const auto& script = unitDatabase->getUnitScript(fbi.unitName);
+        const auto& script = unitDatabase->getUnitScript(unitType);
         auto cobEnv = std::make_unique<CobEnvironment>(&script);
         UnitState unit(meshes, std::move(cobEnv));
         unit.unitType = toUpper(unitType);
@@ -83,7 +78,7 @@ namespace rwe
             unit.rotation = *rotation;
             unit.previousRotation = *rotation;
         }
-        else if (fbi.bmCode) // unit is mobile
+        else if (unitDefinition.isMobile)
         {
             // spawn the unit facing the other way
             unit.rotation = HalfTurn;
@@ -91,17 +86,17 @@ namespace rwe
         }
 
         // add weapons
-        if (!fbi.weapon1.empty())
+        if (!unitDefinition.weapon1.empty())
         {
-            unit.weapons[0] = tryCreateWeapon(fbi.weapon1);
+            unit.weapons[0] = tryCreateWeapon(unitDefinition.weapon1);
         }
-        if (!fbi.weapon2.empty())
+        if (!unitDefinition.weapon2.empty())
         {
-            unit.weapons[1] = tryCreateWeapon(fbi.weapon2);
+            unit.weapons[1] = tryCreateWeapon(unitDefinition.weapon2);
         }
-        if (!fbi.weapon3.empty())
+        if (!unitDefinition.weapon3.empty())
         {
-            unit.weapons[2] = tryCreateWeapon(fbi.weapon3);
+            unit.weapons[2] = tryCreateWeapon(unitDefinition.weapon3);
         }
 
         return unit;
