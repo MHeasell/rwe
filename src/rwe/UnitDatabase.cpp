@@ -24,22 +24,6 @@ namespace rwe
         map.insert({toUpper(unitName), info});
     }
 
-    const CobScript& UnitDatabase::getUnitScript(const std::string& unitName) const
-    {
-        auto it = cobMap.find(toUpper(unitName));
-        if (it == cobMap.end())
-        {
-            throw std::runtime_error("No script data found for unit " + unitName);
-        }
-
-        return it->second;
-    }
-
-    void UnitDatabase::addUnitScript(const std::string& unitName, CobScript&& cob)
-    {
-        cobMap.insert({toUpper(unitName), std::move(cob)});
-    }
-
     const MovementClass& UnitDatabase::getMovementClass(const std::string& className) const
     {
         auto it = movementClassMap.find(className);

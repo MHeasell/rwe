@@ -20,6 +20,31 @@ namespace rwe
 {
     const Viewport MenuUiViewport(0, 0, 640, 480);
 
+    std::unordered_map<std::string, CobScript> loadCobScripts(AbstractVirtualFileSystem& vfs)
+    {
+        std::unordered_map<std::string, CobScript> output;
+
+        auto scripts = vfs.getFileNames("scripts", ".cob");
+
+        for (const auto& scriptName : scripts)
+        {
+            auto bytes = vfs.readFile("scripts/" + scriptName);
+            if (!bytes)
+            {
+                throw std::runtime_error("File in listing could not be read: " + scriptName);
+            }
+
+            boost::interprocess::bufferstream s(bytes->data(), bytes->size());
+            auto cob = parseCob(s);
+
+            auto scriptNameWithoutExtension = scriptName.substr(0, scriptName.size() - 4);
+
+            output.insert({toUpper(scriptNameWithoutExtension), std::move(cob)});
+        }
+
+        return output;
+    }
+
     GameParameters::GameParameters(const std::string& mapName, unsigned int schemaIndex)
         : mapName(mapName),
           schemaIndex(schemaIndex)
@@ -182,6 +207,7 @@ namespace rwe
         simulation.movementClassDefinitions = std::move(movementClassDefinitions);
         simulation.movementClassCollisionService = std::move(movementClassCollisionService);
         simulation.unitModelDefinitions = unitDatabase.unitModelDefinitionsMap;
+        simulation.unitScriptDefinitions = loadCobScripts(*sceneContext.vfs);
 
         std::optional<PlayerId> localPlayerId;
 
@@ -1233,27 +1259,6 @@ namespace rwe
             for (const auto& featureName : requiredFeaturesSet)
             {
                 loadFeature(meshService, db, meshDb, featureTdfs, featureName);
-            }
-        }
-
-        // read unit scripts
-        {
-            auto scripts = sceneContext.vfs->getFileNames("scripts", ".cob");
-
-            for (const auto& scriptName : scripts)
-            {
-                auto bytes = sceneContext.vfs->readFile("scripts/" + scriptName);
-                if (!bytes)
-                {
-                    throw std::runtime_error("File in listing could not be read: " + scriptName);
-                }
-
-                boost::interprocess::bufferstream s(bytes->data(), bytes->size());
-                auto cob = parseCob(s);
-
-                auto scriptNameWithoutExtension = scriptName.substr(0, scriptName.size() - 4);
-
-                db.addUnitScript(scriptNameWithoutExtension, std::move(cob));
             }
         }
 

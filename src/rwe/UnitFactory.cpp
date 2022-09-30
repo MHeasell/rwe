@@ -65,7 +65,7 @@ namespace rwe
             }
         }
 
-        const auto& script = unitDatabase->getUnitScript(unitType);
+        const auto& script = simulation->unitScriptDefinitions.at(unitType);
         auto cobEnv = std::make_unique<CobEnvironment>(&script);
         UnitState unit(meshes, std::move(cobEnv));
         unit.unitType = toUpper(unitType);

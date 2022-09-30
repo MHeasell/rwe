@@ -22,8 +22,6 @@ namespace rwe
     public:
         std::unordered_map<std::string, UnitFbi> map;
 
-        std::unordered_map<std::string, CobScript> cobMap;
-
         std::unordered_map<std::string, MovementClass> movementClassMap;
 
         std::unordered_map<std::string, std::vector<std::vector<GuiEntry>>> builderGuisMap;
@@ -39,10 +37,6 @@ namespace rwe
         const UnitFbi& getUnitInfo(const std::string& unitName) const;
 
         void addUnitInfo(const std::string& unitName, const UnitFbi& info);
-
-        const CobScript& getUnitScript(const std::string& unitName) const;
-
-        void addUnitScript(const std::string& unitName, CobScript&& cob);
 
         const MovementClass& getMovementClass(const std::string& className) const;
 

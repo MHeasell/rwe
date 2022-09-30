@@ -151,6 +151,8 @@ namespace rwe
 
         std::unordered_map<std::string, UnitModelDefinition> unitModelDefinitions;
 
+        std::unordered_map<std::string, CobScript> unitScriptDefinitions;
+
         std::unordered_map<std::string, WeaponDefinition> weaponDefinitions;
 
         std::unordered_map<MovementClassId, MovementClass> movementClassDefinitions;
