@@ -4,8 +4,6 @@
 
 namespace rwe
 {
-    class GameScene;
-
     class CobExecutionService
     {
     public:

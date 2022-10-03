@@ -1,5 +1,4 @@
 #include "CobExecutionService.h"
-#include <rwe/GameScene.h>
 #include <rwe/cob/CobExecutionContext.h>
 #include <rwe/cob/cob_util.h>
 #include <rwe/match.h>
