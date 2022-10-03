@@ -272,7 +272,7 @@ namespace rwe
           gameNetworkService(std::move(gameNetworkService)),
           pathFindingService(&this->simulation, &this->simulation.movementClassCollisionService),
           cobExecutionService(),
-          unitBehaviorService(&this->simulation, &this->unitFactory, &this->cobExecutionService),
+          unitBehaviorService(&this->simulation, &this->cobExecutionService),
           minimap(minimap),
           minimapDots(minimapDots),
           minimapDotHighlight(minimapDotHighlight),

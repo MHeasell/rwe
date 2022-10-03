@@ -17,13 +17,11 @@ namespace rwe
     {
     private:
         GameSimulation* const sim;
-        UnitFactory* const unitFactory;
         CobExecutionService* const cobExecutionService;
 
     public:
         UnitBehaviorService(
             GameSimulation* sim,
-            UnitFactory* unitFactory,
             CobExecutionService* cobExecutionService);
 
         void onCreate(UnitId unitId);

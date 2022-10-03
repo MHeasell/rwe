@@ -16,9 +16,8 @@ namespace rwe
 
     UnitBehaviorService::UnitBehaviorService(
         GameSimulation* sim,
-        UnitFactory* unitFactory,
         CobExecutionService* cobExecutionService)
-        : sim(sim), unitFactory(unitFactory), cobExecutionService(cobExecutionService)
+        : sim(sim), cobExecutionService(cobExecutionService)
     {
     }
 
@@ -1283,8 +1282,8 @@ namespace rwe
             }
         }
 
-        auto footprint = unitFactory->getUnitFootprint(unitType);
-        auto footprintRect = sim->computeFootprintRegion(position, footprint.x, footprint.y);
+        const auto& targetUnitDefinition = sim->unitDefinitions.at(unitType);
+        auto footprintRect = sim->computeFootprintRegion(position, targetUnitDefinition.movementCollisionInfo);
         if (moveTo(unitId, footprintRect))
         {
             // TODO: add an additional distance check here -- we may have done  the best
