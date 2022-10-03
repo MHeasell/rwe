@@ -5,19 +5,11 @@
 namespace rwe
 {
     UnitFactory::UnitFactory(
-        TextureService* textureService,
         UnitDatabase* unitDatabase,
         MeshService&& meshService,
-        MovementClassCollisionService* collisionService,
-        const ColorPalette* palette,
-        const ColorPalette* guiPalette,
         const GameSimulation* simulation)
-        : textureService(textureService),
-          unitDatabase(unitDatabase),
+        : unitDatabase(unitDatabase),
           meshService(std::move(meshService)),
-          collisionService(collisionService),
-          palette(palette),
-          guiPalette(guiPalette),
           simulation(simulation)
     {
     }

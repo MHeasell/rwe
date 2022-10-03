@@ -268,7 +268,7 @@ namespace rwe
           simulation(std::move(simulation)),
           terrainGraphics(std::move(terrainGraphics)),
           unitDatabase(std::move(unitDatabase)),
-          unitFactory(sceneContext.textureService, &this->unitDatabase, std::move(meshService), &this->simulation.movementClassCollisionService, sceneContext.palette, sceneContext.guiPalette, &this->simulation),
+          unitFactory(&this->unitDatabase, std::move(meshService), &this->simulation),
           gameNetworkService(std::move(gameNetworkService)),
           pathFindingService(&this->simulation, &this->simulation.movementClassCollisionService),
           cobExecutionService(),
