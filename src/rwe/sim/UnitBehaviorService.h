@@ -1,7 +1,6 @@
 #pragma once
 
 #include <rwe/UnitFactory.h>
-#include <rwe/cob/CobExecutionService.h>
 #include <rwe/pathfinding/PathFindingService.h>
 #include <rwe/sim/SimAngle.h>
 #include <rwe/sim/SimScalar.h>
@@ -17,12 +16,9 @@ namespace rwe
     {
     private:
         GameSimulation* const sim;
-        CobExecutionService* const cobExecutionService;
 
     public:
-        UnitBehaviorService(
-            GameSimulation* sim,
-            CobExecutionService* cobExecutionService);
+        UnitBehaviorService(GameSimulation* sim);
 
         void onCreate(UnitId unitId);
 

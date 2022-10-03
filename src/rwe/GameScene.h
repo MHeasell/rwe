@@ -27,7 +27,6 @@
 #include <rwe/UnitSoundType.h>
 #include <rwe/Viewport.h>
 #include <rwe/WeaponMediaInfo.h>
-#include <rwe/cob/CobExecutionService.h>
 #include <rwe/grid/DiscreteRect.h>
 #include <rwe/io/featuretdf/FeatureTdf.h>
 #include <rwe/observable/BehaviorSubject.h>
@@ -215,7 +214,6 @@ namespace rwe
         std::unique_ptr<GameNetworkService> gameNetworkService;
 
         PathFindingService pathFindingService;
-        CobExecutionService cobExecutionService;
         UnitBehaviorService unitBehaviorService;
 
         std::shared_ptr<Sprite> minimap;

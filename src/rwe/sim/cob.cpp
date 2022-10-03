@@ -1,7 +1,11 @@
-#include "CobExecutionService.h"
+#include "cob.h"
+#include <optional>
+#include <rwe/cob/CobAxis.h>
 #include <rwe/cob/CobExecutionContext.h>
+#include <rwe/cob/CobPosition.h>
+#include <rwe/cob/CobTime.h>
 #include <rwe/cob/cob_util.h>
-#include <rwe/match.h>
+#include <rwe/sim/SimScalar.h>
 
 namespace rwe
 {
@@ -366,7 +370,7 @@ namespace rwe
             });
     }
 
-    void CobExecutionService::run(GameSimulation& simulation, UnitId unitId)
+    void runUnitCobScripts(GameSimulation& simulation, UnitId unitId)
     {
         auto& unit = simulation.getUnitState(unitId);
         auto& env = *unit.cobEnvironment;

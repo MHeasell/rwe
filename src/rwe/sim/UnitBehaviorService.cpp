@@ -1,10 +1,10 @@
 #include "UnitBehaviorService.h"
-#include <rwe/GameScene.h>
 #include <rwe/Index.h>
 #include <rwe/cob/CobExecutionContext.h>
 #include <rwe/geometry/Circle2x.h>
 #include <rwe/match.h>
 #include <rwe/math/rwe_math.h>
+#include <rwe/sim/cob.h>
 #include <rwe/sim/movement.h>
 
 namespace rwe
@@ -14,10 +14,8 @@ namespace rwe
         return speed / angularToRadians(turnRate);
     }
 
-    UnitBehaviorService::UnitBehaviorService(
-        GameSimulation* sim,
-        CobExecutionService* cobExecutionService)
-        : sim(sim), cobExecutionService(cobExecutionService)
+    UnitBehaviorService::UnitBehaviorService(GameSimulation* sim)
+        : sim(sim)
     {
     }
 
@@ -36,7 +34,7 @@ namespace rwe
             unit.cobEnvironment->createThread("SetSpeed", {static_cast<int>(metalValue)});
         }
 
-        cobExecutionService->run(*sim, unitId);
+        runUnitCobScripts(*sim, unitId);
 
         // measure z distances for ballistics
         for (int i = 0; i < getSize(unit.weapons); ++i)

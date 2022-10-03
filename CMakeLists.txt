@@ -336,8 +336,6 @@ set(SOURCE_FILES
     src/rwe/cob/CobEnvironment.h
     src/rwe/cob/CobExecutionContext.cpp
     src/rwe/cob/CobExecutionContext.h
-    src/rwe/cob/CobExecutionService.cpp
-    src/rwe/cob/CobExecutionService.h
     src/rwe/cob/CobFunction.cpp
     src/rwe/cob/CobFunction.h
     src/rwe/cob/CobOpCode.h
@@ -561,6 +559,8 @@ set(SOURCE_FILES
     src/rwe/sim/UnitWeapon.h
     src/rwe/sim/WeaponDefinition.cpp
     src/rwe/sim/WeaponDefinition.h
+    src/rwe/sim/cob.cpp
+    src/rwe/sim/cob.h
     src/rwe/sim/movement.cpp
     src/rwe/sim/movement.h
     src/rwe/sim/unit_util.cpp

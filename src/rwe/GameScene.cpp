@@ -14,6 +14,7 @@
 #include <rwe/matrix_util.h>
 #include <rwe/resource_io.h>
 #include <rwe/sim/SimTicksPerSecond.h>
+#include <rwe/sim/cob.h>
 #include <rwe/ui/UiStagedButton.h>
 #include <spdlog/spdlog.h>
 #include <unordered_set>
@@ -271,8 +272,7 @@ namespace rwe
           unitFactory(&this->unitDatabase, std::move(meshService), &this->simulation),
           gameNetworkService(std::move(gameNetworkService)),
           pathFindingService(&this->simulation, &this->simulation.movementClassCollisionService),
-          cobExecutionService(),
-          unitBehaviorService(&this->simulation, &this->cobExecutionService),
+          unitBehaviorService(&this->simulation),
           minimap(minimap),
           minimapDots(minimapDots),
           minimapDotHighlight(minimapDotHighlight),
@@ -2570,7 +2570,7 @@ namespace rwe
                 piece.update(SimScalar(SimMillisecondsPerTick) / 1000_ss);
             }
 
-            cobExecutionService.run(simulation, unitId);
+            runUnitCobScripts(simulation, unitId);
         }
 
         updateProjectiles();
