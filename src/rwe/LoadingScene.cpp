@@ -184,7 +184,7 @@ namespace rwe
             requiredFeatureNames.insert(f.second);
         }
 
-        auto [unitDatabase, meshDatabase, unitDefinitions, weaponDefinitions, movementClassDefinitions, movementClassCollisionService] = createUnitDatabase(mapInfo.terrain, meshService, requiredFeatureNames);
+        auto [unitDatabase, meshDatabase, dataMaps, movementClassCollisionService] = createUnitDatabase(mapInfo.terrain, meshService, requiredFeatureNames);
 
         GameSimulation simulation(std::move(mapInfo.terrain), mapInfo.surfaceMetal);
         for (const auto& [pos, featureName] : mapInfo.features)
@@ -202,11 +202,11 @@ namespace rwe
 
         GameCameraState worldCameraState;
 
-        simulation.unitDefinitions = std::move(unitDefinitions);
-        simulation.weaponDefinitions = std::move(weaponDefinitions);
-        simulation.movementClassDefinitions = std::move(movementClassDefinitions);
+        simulation.unitDefinitions = std::move(dataMaps.unitDefinitions);
+        simulation.weaponDefinitions = std::move(dataMaps.weaponDefinitions);
+        simulation.movementClassDefinitions = std::move(dataMaps.movementClassDefinitions);
         simulation.movementClassCollisionService = std::move(movementClassCollisionService);
-        simulation.unitModelDefinitions = unitDatabase.unitModelDefinitionsMap;
+        simulation.unitModelDefinitions = dataMaps.modelDefinitions;
         simulation.unitScriptDefinitions = loadCobScripts(*sceneContext.vfs);
 
         std::optional<PlayerId> localPlayerId;
@@ -753,6 +753,8 @@ namespace rwe
         u.hideDamage = fbi.hideDamage;
         u.showPlayerName = fbi.showPlayerName;
 
+        u.soundCategory = fbi.soundCategory;
+
         auto movementClassId = collisionService.resolveMovementClass(fbi.movementClass);
 
         if (movementClassId)
@@ -778,51 +780,6 @@ namespace rwe
         }
 
         return u;
-    }
-
-    FeatureMediaInfo parseFeatureMediaInfo(TextureService& textureService, const FeatureTdf& tdf)
-    {
-        FeatureMediaInfo f;
-
-        f.world = tdf.world;
-        f.description = tdf.description;
-        f.category = tdf.category;
-
-        if (!tdf.object.empty())
-        {
-            f.renderInfo = FeatureObjectInfo{tdf.object};
-        }
-        else
-        {
-            FeatureSpriteInfo spriteInfo;
-            spriteInfo.transparentAnimation = tdf.animTrans;
-            spriteInfo.transparentShadow = tdf.shadTrans;
-            if (!tdf.fileName.empty() && !tdf.seqName.empty())
-            {
-                spriteInfo.animation = textureService.getGafEntry("anims/" + tdf.fileName + ".GAF", tdf.seqName);
-            }
-            if (!spriteInfo.animation)
-            {
-                spriteInfo.animation = textureService.getDefaultSpriteSeries();
-            }
-
-            if (!tdf.fileName.empty() && !tdf.seqNameShad.empty())
-            {
-                // Some third-party features have broken shadow anim names (e.g. "empty"),
-                // ignore them if they don't exist.
-                spriteInfo.shadowAnimation = textureService.tryGetGafEntry("anims/" + tdf.fileName + ".GAF", tdf.seqNameShad);
-            }
-            f.renderInfo = std::move(spriteInfo);
-        }
-
-        f.seqNameReclamate = tdf.seqNameReclamate;
-
-        f.seqNameBurn = tdf.seqNameBurn;
-        f.seqNameBurnShad = tdf.seqNameBurnShad;
-
-        f.seqNameDie = tdf.seqNameDie;
-
-        return f;
     }
 
     WeaponMediaInfo parseWeaponMediaInfo(const std::vector<Color>& palette, const std::vector<Color>& guiPalette, const WeaponTdf& tdf)
@@ -971,7 +928,63 @@ namespace rwe
         return id;
     }
 
-    void LoadingScene::loadFeature(MeshService& meshService, UnitDatabase& unitDatabase, MeshDatabase& meshDatabase, const std::unordered_map<std::string, FeatureTdf> tdfs, const std::string& initialFeatureName)
+    void LoadingScene::loadFeatureMedia(MeshService& meshService, std::unordered_map<std::string, UnitModelDefinition>& modelDefinitions, MeshDatabase& meshDatabase, const FeatureTdf& tdf)
+    {
+        FeatureMediaInfo f;
+
+        f.world = tdf.world;
+        f.description = tdf.description;
+        f.category = tdf.category;
+
+        if (!tdf.object.empty())
+        {
+            auto normalizedObjectName = toUpper(tdf.object);
+
+            if (modelDefinitions.find(toUpper(tdf.object)) == modelDefinitions.end())
+            {
+                auto meshInfo = meshService.loadProjectileMesh(tdf.object);
+                modelDefinitions.insert({toUpper(tdf.object), std::move(meshInfo.modelDefinition)});
+                for (const auto& m : meshInfo.pieceMeshes)
+                {
+                    meshDatabase.addUnitPieceMesh(tdf.object, m.first, m.second);
+                }
+            }
+            f.renderInfo = FeatureObjectInfo{tdf.object};
+        }
+        else
+        {
+            FeatureSpriteInfo spriteInfo;
+            spriteInfo.transparentAnimation = tdf.animTrans;
+            spriteInfo.transparentShadow = tdf.shadTrans;
+            if (!tdf.fileName.empty() && !tdf.seqName.empty())
+            {
+                spriteInfo.animation = sceneContext.textureService->getGafEntry("anims/" + tdf.fileName + ".GAF", tdf.seqName);
+            }
+            if (!spriteInfo.animation)
+            {
+                spriteInfo.animation = sceneContext.textureService->getDefaultSpriteSeries();
+            }
+
+            if (!tdf.fileName.empty() && !tdf.seqNameShad.empty())
+            {
+                // Some third-party features have broken shadow anim names (e.g. "empty"),
+                // ignore them if they don't exist.
+                spriteInfo.shadowAnimation = sceneContext.textureService->tryGetGafEntry("anims/" + tdf.fileName + ".GAF", tdf.seqNameShad);
+            }
+            f.renderInfo = std::move(spriteInfo);
+        }
+
+        f.seqNameReclamate = tdf.seqNameReclamate;
+
+        f.seqNameBurn = tdf.seqNameBurn;
+        f.seqNameBurnShad = tdf.seqNameBurnShad;
+
+        f.seqNameDie = tdf.seqNameDie;
+
+        meshDatabase.addFeature(std::move(f));
+    }
+
+    void LoadingScene::loadFeature(MeshService& meshService, UnitDatabase& unitDatabase, MeshDatabase& meshDatabase, const std::unordered_map<std::string, FeatureTdf>& tdfs, std::unordered_map<std::string, UnitModelDefinition>& modelDefinitions, const std::string& initialFeatureName)
     {
         auto nextId = unitDatabase.getNextFeatureDefinitionId();
         std::unordered_map<std::string, FeatureDefinitionId> openSet{{toUpper(initialFeatureName), nextId}};
@@ -1032,37 +1045,16 @@ namespace rwe
 
             auto id = unitDatabase.addFeature(featureName, f);
 
-            auto featureMediaInfo = parseFeatureMediaInfo(*sceneContext.textureService, tdf);
-
-            if (auto objectInfo = std::get_if<FeatureObjectInfo>(&featureMediaInfo.renderInfo); objectInfo != nullptr)
-            {
-                if (!unitDatabase.hasUnitModelDefinition(objectInfo->objectName))
-                {
-                    auto meshInfo = meshService.loadProjectileMesh(objectInfo->objectName);
-                    unitDatabase.addUnitModelDefinition(objectInfo->objectName, std::move(meshInfo.modelDefinition));
-                    for (const auto& m : meshInfo.pieceMeshes)
-                    {
-                        meshDatabase.addUnitPieceMesh(objectInfo->objectName, m.first, m.second);
-                    }
-                }
-            }
-
-            auto meshDbId = meshDatabase.addFeature(std::move(featureMediaInfo));
-            if (meshDbId != id)
-            {
-                throw std::logic_error("feature databases out of sync");
-            }
+            loadFeatureMedia(meshService, modelDefinitions, meshDatabase, tdf);
         }
     }
 
-    std::tuple<UnitDatabase, MeshDatabase, std::unordered_map<std::string, UnitDefinition>, std::unordered_map<std::string, WeaponDefinition>, std::unordered_map<MovementClassId, MovementClass>, MovementClassCollisionService> LoadingScene::createUnitDatabase(const MapTerrain& terrain, MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures)
+    std::tuple<UnitDatabase, MeshDatabase, LoadingScene::DataMaps, MovementClassCollisionService> LoadingScene::createUnitDatabase(const MapTerrain& terrain, MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures)
     {
         UnitDatabase db;
         MeshDatabase meshDb;
-        std::unordered_map<std::string, UnitDefinition> unitDefinitions;
-        std::unordered_map<std::string, WeaponDefinition> weaponDefinitions;
+        DataMaps dataMaps;
         MovementClassCollisionService movementClassCollisionService;
-        std::unordered_map<MovementClassId, MovementClass> movementClassDefinitions;
 
         // read sound categories
         {
@@ -1118,8 +1110,7 @@ namespace rwe
             {
                 auto name = c.second.name;
                 auto movementClassId = movementClassCollisionService.registerMovementClass(name, computeWalkableGrid(terrain, c.second));
-                movementClassDefinitions.insert({movementClassId, c.second});
-                db.addMovementClass(name, std::move(c.second));
+                dataMaps.movementClassDefinitions.insert({movementClassId, c.second});
             }
         }
 
@@ -1150,7 +1141,7 @@ namespace rwe
                     if (auto modelRenderType = std::get_if<ProjectileRenderTypeModel>(&weaponMediaInfo.renderType); modelRenderType != nullptr)
                     {
                         auto meshInfo = meshService.loadProjectileMesh(modelRenderType->objectName);
-                        db.addUnitModelDefinition(modelRenderType->objectName, std::move(meshInfo.modelDefinition));
+                        dataMaps.modelDefinitions.insert({toUpper(modelRenderType->objectName), std::move(meshInfo.modelDefinition)});
                         for (const auto& m : meshInfo.pieceMeshes)
                         {
                             meshDb.addUnitPieceMesh(modelRenderType->objectName, m.first, m.second);
@@ -1170,7 +1161,7 @@ namespace rwe
 
                     meshDb.addWeapon(toUpper(pair.first), std::move(weaponMediaInfo));
 
-                    weaponDefinitions.insert({toUpper(pair.first), std::move(weaponDefinition)});
+                    dataMaps.weaponDefinitions.insert({toUpper(pair.first), std::move(weaponDefinition)});
                 }
             }
         }
@@ -1197,7 +1188,7 @@ namespace rwe
                 auto fbi = parseUnitFbi(parseTdfFromString(fbiString));
 
                 auto unitDefinition = parseUnitDefinition(fbi, movementClassCollisionService);
-                unitDefinitions.insert({toUpper(fbi.unitName), std::move(unitDefinition)});
+                dataMaps.unitDefinitions.insert({toUpper(fbi.unitName), std::move(unitDefinition)});
 
                 // if it's a builder, also attempt to read its gui pages
                 if (fbi.builder)
@@ -1212,10 +1203,8 @@ namespace rwe
                     // Need a database of download.tdf mappings first...
                 }
 
-                db.addUnitInfo(fbi.unitName, fbi);
-
                 auto meshInfo = meshService.loadUnitMesh(fbi.objectName);
-                db.addUnitModelDefinition(fbi.objectName, std::move(meshInfo.modelDefinition));
+                dataMaps.modelDefinitions.insert({toUpper(fbi.objectName), std::move(meshInfo.modelDefinition)});
                 for (const auto& m : meshInfo.pieceMeshes)
                 {
                     meshDb.addUnitPieceMesh(fbi.objectName, m.first, m.second);
@@ -1258,7 +1247,7 @@ namespace rwe
             // actually parse and load assets for features that we require
             for (const auto& featureName : requiredFeaturesSet)
             {
-                loadFeature(meshService, db, meshDb, featureTdfs, featureName);
+                loadFeature(meshService, db, meshDb, featureTdfs, dataMaps.modelDefinitions, featureName);
             }
         }
 
@@ -1292,7 +1281,7 @@ namespace rwe
             meshDb.addSpriteSeries("FX", "flamestream", anim);
         }
 
-        return std::make_tuple(db, meshDb, unitDefinitions, weaponDefinitions, movementClassDefinitions, movementClassCollisionService);
+        return std::make_tuple(std::move(db), std::move(meshDb), std::move(dataMaps), std::move(movementClassCollisionService));
     }
 
     void LoadingScene::preloadSound(MeshDatabase& meshDb, const std::optional<std::string>& soundName)

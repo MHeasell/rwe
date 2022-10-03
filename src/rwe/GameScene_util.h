@@ -8,6 +8,7 @@
 #include <rwe/math/Matrix4x.h>
 #include <rwe/pathfinding/AStarPathFinder.h>
 #include <rwe/pathfinding/PathCost.h>
+#include <rwe/sim/GameSimulation.h>
 #include <rwe/sim/MapTerrain.h>
 #include <rwe/sim/OccupiedGrid.h>
 #include <rwe/sim/Particle.h>
@@ -34,11 +35,11 @@ namespace rwe
     void drawMovementClassCollisionGrid(const MapTerrain& terrain, const Grid<char>& movementClassGrid, const Vector3f& cameraPosition, float viewportWidth, float viewportHeight, ColoredMeshBatch& batch);
 
     void drawUnit(
-        const UnitDatabase* unitDatabase,
         const MeshDatabase& meshDatabase,
         const Matrix4f& viewProjectionMatrix,
         const UnitState& unit,
         const UnitDefinition& unitDefinition,
+        const UnitModelDefinition& modelDefinition,
         PlayerColorIndex playerColorIndex,
         float frac,
         TextureIdentifier unitTextureAtlas,
@@ -46,7 +47,7 @@ namespace rwe
         UnitMeshBatch& batch);
 
     void drawMeshFeature(
-        const UnitDatabase* unitDatabase,
+        const std::unordered_map<std::string, UnitModelDefinition>& modelDefinitions,
         const MeshDatabase& meshDatabase,
         const Matrix4f& viewProjectionMatrix,
         const MapFeature& feature,
@@ -55,11 +56,11 @@ namespace rwe
         UnitMeshBatch& batch);
 
     void drawUnitShadow(
-        const UnitDatabase* unitDatabase,
         const MeshDatabase& meshDatabase,
         const Matrix4f& viewProjectionMatrix,
         const UnitState& unit,
         const UnitDefinition& unitDefinition,
+        const UnitModelDefinition& modelDefinition,
         float frac,
         float groundHeight,
         TextureIdentifier unitTextureAtlas,
@@ -67,7 +68,7 @@ namespace rwe
         UnitShadowMeshBatch& batch);
 
     void drawFeatureMeshShadow(
-        const UnitDatabase* unitDatabase,
+        const std::unordered_map<std::string, UnitModelDefinition>& modelDefinitions,
         const MeshDatabase& meshDatabase,
         const Matrix4f& viewProjectionMatrix,
         const MapFeature& feature,
@@ -98,7 +99,7 @@ namespace rwe
     void updateParticles(const MeshDatabase& meshDatabase, GameTime currentTime, std::vector<Particle>& particles);
 
     void drawProjectiles(
-        const UnitDatabase& unitDatabase,
+        const GameSimulation& sim,
         const MeshDatabase& meshDatabase,
         const Matrix4f& viewProjectionMatrix,
         const VectorMap<Projectile, ProjectileIdTag>& projectiles,

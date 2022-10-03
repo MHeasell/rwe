@@ -364,10 +364,10 @@ namespace rwe
     }
 
     void drawUnitMesh(
-        const UnitDatabase* unitDatabase,
         const MeshDatabase& meshDatabase,
         const Matrix4f& viewProjectionMatrix,
         const std::string& objectName,
+        const UnitModelDefinition& modelDefinition,
         const std::vector<UnitMesh>& meshes,
         const Matrix4f& modelMatrix,
         PlayerColorIndex playerColorIndex,
@@ -376,23 +376,18 @@ namespace rwe
         std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
         UnitMeshBatch& batch)
     {
-        auto modelDefinition = unitDatabase->getUnitModelDefinition(objectName);
-        if (!modelDefinition)
-        {
-            throw std::runtime_error("missing model definition: " + objectName);
-        }
-        assert(modelDefinition->get().pieces.size() == meshes.size());
+        assert(modelDefinition.pieces.size() == meshes.size());
 
-        for (Index i = 0; i < getSize(modelDefinition->get().pieces); ++i)
+        for (Index i = 0; i < getSize(modelDefinition.pieces); ++i)
         {
-            const auto& pieceDef = modelDefinition->get().pieces[i];
+            const auto& pieceDef = modelDefinition.pieces[i];
             const auto& mesh = meshes[i];
             if (!mesh.visible)
             {
                 continue;
             }
 
-            auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition->get(), meshes, frac);
+            auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition, meshes, frac);
 
             const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value().get().mesh;
             drawShaderMesh(viewProjectionMatrix, resolvedMesh, matrix, mesh.shaded, playerColorIndex, unitTextureAtlas, unitTeamTextureAtlases, batch.meshes);
@@ -400,10 +395,10 @@ namespace rwe
     }
 
     void drawUnitShadowMesh(
-        const UnitDatabase* unitDatabase,
         const MeshDatabase& meshDatabase,
         const Matrix4f& viewProjectionMatrix,
         const std::string& objectName,
+        const UnitModelDefinition& modelDefinition,
         const std::vector<UnitMesh>& meshes,
         const Matrix4f& modelMatrix,
         float frac,
@@ -412,23 +407,18 @@ namespace rwe
         std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
         UnitShadowMeshBatch& batch)
     {
-        auto modelDefinition = unitDatabase->getUnitModelDefinition(objectName);
-        if (!modelDefinition)
-        {
-            throw std::runtime_error("missing model definition: " + objectName);
-        }
-        assert(modelDefinition->get().pieces.size() == meshes.size());
+        assert(modelDefinition.pieces.size() == meshes.size());
 
-        for (Index i = 0; i < getSize(modelDefinition->get().pieces); ++i)
+        for (Index i = 0; i < getSize(modelDefinition.pieces); ++i)
         {
-            const auto& pieceDef = modelDefinition->get().pieces[i];
+            const auto& pieceDef = modelDefinition.pieces[i];
             const auto& mesh = meshes[i];
             if (!mesh.visible)
             {
                 continue;
             }
 
-            auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition->get(), meshes, frac);
+            auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition, meshes, frac);
 
             const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value().get().mesh;
             drawShaderMeshShadow(viewProjectionMatrix, resolvedMesh, matrix, groundHeight, unitTextureAtlas, unitTeamTextureAtlases, batch.meshes);
@@ -436,27 +426,21 @@ namespace rwe
     }
 
     void drawUnitShadowMeshNoPieces(
-        const UnitDatabase* unitDatabase,
         const MeshDatabase& meshDatabase,
         const Matrix4f& viewProjectionMatrix,
         const std::string& objectName,
+        const UnitModelDefinition& modelDefinition,
         const Matrix4f& modelMatrix,
         float groundHeight,
         TextureIdentifier unitTextureAtlas,
         std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
         UnitShadowMeshBatch& batch)
     {
-        auto modelDefinition = unitDatabase->getUnitModelDefinition(objectName);
-        if (!modelDefinition)
+        for (Index i = 0; i < getSize(modelDefinition.pieces); ++i)
         {
-            throw std::runtime_error("missing model definition: " + objectName);
-        }
+            const auto& pieceDef = modelDefinition.pieces[i];
 
-        for (Index i = 0; i < getSize(modelDefinition->get().pieces); ++i)
-        {
-            const auto& pieceDef = modelDefinition->get().pieces[i];
-
-            auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition->get());
+            auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition);
 
             const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value().get().mesh;
             drawShaderMeshShadow(viewProjectionMatrix, resolvedMesh, matrix, groundHeight, unitTextureAtlas, unitTeamTextureAtlases, batch.meshes);
@@ -487,10 +471,10 @@ namespace rwe
     }
 
     void drawBuildingUnitMesh(
-        const UnitDatabase* unitDatabase,
         const MeshDatabase& meshDatabase,
         const Matrix4f& viewProjectionMatrix,
         const std::string& objectName,
+        const UnitModelDefinition& modelDefinition,
         const std::vector<UnitMesh>& meshes,
         const Matrix4f& modelMatrix,
         float percentComplete,
@@ -501,22 +485,16 @@ namespace rwe
         std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
         UnitMeshBatch& batch)
     {
-        auto modelDefinition = unitDatabase->getUnitModelDefinition(objectName);
-        if (!modelDefinition)
+        for (Index i = 0; i < getSize(modelDefinition.pieces); ++i)
         {
-            throw std::runtime_error("missing model definition: " + objectName);
-        }
-
-        for (Index i = 0; i < getSize(modelDefinition->get().pieces); ++i)
-        {
-            const auto& pieceDef = modelDefinition->get().pieces[i];
+            const auto& pieceDef = modelDefinition.pieces[i];
             const auto& mesh = meshes[i];
             if (!mesh.visible)
             {
                 continue;
             }
 
-            auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition->get(), meshes, frac);
+            auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition, meshes, frac);
 
             const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value().get().mesh;
             drawBuildingShaderMesh(viewProjectionMatrix, resolvedMesh, matrix, mesh.shaded, percentComplete, unitY, playerColorIndex, unitTextureAtlas, unitTeamTextureAtlases, batch.buildingMeshes);
@@ -524,10 +502,10 @@ namespace rwe
     }
 
     void drawProjectileUnitMesh(
-        const UnitDatabase* unitDatabase,
         const MeshDatabase& meshDatabase,
         const Matrix4f& viewProjectionMatrix,
         const std::string& objectName,
+        const UnitModelDefinition& modelDefinition,
         const Matrix4f& modelMatrix,
         PlayerColorIndex playerColorIndex,
         bool shaded,
@@ -535,26 +513,20 @@ namespace rwe
         std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
         UnitMeshBatch& batch)
     {
-        auto modelDefinition = unitDatabase->getUnitModelDefinition(objectName);
-        if (!modelDefinition)
+        for (const auto& pieceDef : modelDefinition.pieces)
         {
-            throw std::runtime_error("missing model definition: " + objectName);
-        }
-
-        for (const auto& pieceDef : modelDefinition->get().pieces)
-        {
-            auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition->get());
+            auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition);
             const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value().get().mesh;
             drawShaderMesh(viewProjectionMatrix, resolvedMesh, matrix, shaded, playerColorIndex, unitTextureAtlas, unitTeamTextureAtlases, batch.meshes);
         }
     }
 
     void drawUnit(
-        const UnitDatabase* unitDatabase,
         const MeshDatabase& meshDatabase,
         const Matrix4f& viewProjectionMatrix,
         const UnitState& unit,
         const UnitDefinition& unitDefinition,
+        const UnitModelDefinition& modelDefinition,
         PlayerColorIndex playerColorIndex,
         float frac,
         TextureIdentifier unitTextureAtlas,
@@ -566,16 +538,16 @@ namespace rwe
         auto transform = Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
         if (unit.isBeingBuilt(unitDefinition))
         {
-            drawBuildingUnitMesh(unitDatabase, meshDatabase, viewProjectionMatrix, unitDefinition.objectName, unit.pieces, transform, unit.getPreciseCompletePercent(unitDefinition), position.y, playerColorIndex, frac, unitTextureAtlas, unitTeamTextureAtlases, batch);
+            drawBuildingUnitMesh(meshDatabase, viewProjectionMatrix, unitDefinition.objectName, modelDefinition, unit.pieces, transform, unit.getPreciseCompletePercent(unitDefinition), position.y, playerColorIndex, frac, unitTextureAtlas, unitTeamTextureAtlases, batch);
         }
         else
         {
-            drawUnitMesh(unitDatabase, meshDatabase, viewProjectionMatrix, unitDefinition.objectName, unit.pieces, transform, playerColorIndex, frac, unitTextureAtlas, unitTeamTextureAtlases, batch);
+            drawUnitMesh(meshDatabase, viewProjectionMatrix, unitDefinition.objectName, modelDefinition, unit.pieces, transform, playerColorIndex, frac, unitTextureAtlas, unitTeamTextureAtlases, batch);
         }
     }
 
     void drawMeshFeature(
-        const UnitDatabase* unitDatabase,
+        const std::unordered_map<std::string, UnitModelDefinition>& modelDefinitions,
         const MeshDatabase& meshDatabase,
         const Matrix4f& viewProjectionMatrix,
         const MapFeature& feature,
@@ -587,17 +559,18 @@ namespace rwe
 
         if (auto objectInfo = std::get_if<FeatureObjectInfo>(&featureMediaInfo.renderInfo); objectInfo != nullptr)
         {
+            const auto& modelDefinition = modelDefinitions.at(objectInfo->objectName);
             auto matrix = Matrix4f::translation(simVectorToFloat(feature.position)) * Matrix4f::rotationY(toRadians(feature.rotation).value);
-            drawProjectileUnitMesh(unitDatabase, meshDatabase, viewProjectionMatrix, objectInfo->objectName, matrix, PlayerColorIndex(0), true, unitTextureAtlas, unitTeamTextureAtlases, batch);
+            drawProjectileUnitMesh(meshDatabase, viewProjectionMatrix, objectInfo->objectName, modelDefinition, matrix, PlayerColorIndex(0), true, unitTextureAtlas, unitTeamTextureAtlases, batch);
         }
     }
 
     void drawUnitShadow(
-        const UnitDatabase* unitDatabase,
         const MeshDatabase& meshDatabase,
         const Matrix4f& viewProjectionMatrix,
         const UnitState& unit,
         const UnitDefinition& unitDefinition,
+        const UnitModelDefinition& modelDefinition,
         float frac,
         float groundHeight,
         TextureIdentifier unitTextureAtlas,
@@ -608,11 +581,11 @@ namespace rwe
         auto rotation = angleLerp(toRadians(unit.previousRotation).value, toRadians(unit.rotation).value, frac);
         auto transform = Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
 
-        drawUnitShadowMesh(unitDatabase, meshDatabase, viewProjectionMatrix, unitDefinition.objectName, unit.pieces, transform, frac, groundHeight, unitTextureAtlas, unitTeamTextureAtlases, batch);
+        drawUnitShadowMesh(meshDatabase, viewProjectionMatrix, unitDefinition.objectName, modelDefinition, unit.pieces, transform, frac, groundHeight, unitTextureAtlas, unitTeamTextureAtlases, batch);
     }
 
     void drawFeatureMeshShadow(
-        const UnitDatabase* unitDatabase,
+        const std::unordered_map<std::string, UnitModelDefinition>& modelDefinitions,
         const MeshDatabase& meshDatabase,
         const Matrix4f& viewProjectionMatrix,
         const MapFeature& feature,
@@ -629,10 +602,12 @@ namespace rwe
             return;
         }
 
+        const auto& modelDefinition = modelDefinitions.at(objectInfo->objectName);
+
         const auto& position = feature.position;
         auto matrix = Matrix4f::translation(simVectorToFloat(position)) * Matrix4f::rotationY(toRadians(feature.rotation).value);
 
-        drawUnitShadowMeshNoPieces(unitDatabase, meshDatabase, viewProjectionMatrix, objectInfo->objectName, matrix, groundHeight, unitTextureAtlas, unitTeamTextureAtlases, batch);
+        drawUnitShadowMeshNoPieces(meshDatabase, viewProjectionMatrix, objectInfo->objectName, modelDefinition, matrix, groundHeight, unitTextureAtlas, unitTeamTextureAtlases, batch);
     }
 
     void drawFeature(
@@ -836,7 +811,7 @@ namespace rwe
     }
 
     void drawProjectiles(
-        const UnitDatabase& unitDatabase,
+        const GameSimulation& sim,
         const MeshDatabase& meshDatabase,
         const Matrix4f& viewProjectionMatrix,
         const VectorMap<Projectile, ProjectileIdTag>& projectiles,
@@ -873,7 +848,8 @@ namespace rwe
                     auto transform = Matrix4f::translation(position)
                         * pointDirection(simVectorToFloat(projectile.velocity).normalized())
                         * rotationModeToMatrix(m.rotationMode);
-                    drawProjectileUnitMesh(&unitDatabase, meshDatabase, viewProjectionMatrix, m.objectName, transform, PlayerColorIndex(0), false, unitTextureAtlas, unitTeamTextureAtlases, unitMeshBatch);
+                    const auto& modelDefinition = sim.unitModelDefinitions.at(m.objectName);
+                    drawProjectileUnitMesh(meshDatabase, viewProjectionMatrix, m.objectName, modelDefinition, transform, PlayerColorIndex(0), false, unitTextureAtlas, unitTeamTextureAtlases, unitMeshBatch);
                 },
                 [&](const ProjectileRenderTypeSprite& s) {
                     Vector3f snappedPosition(

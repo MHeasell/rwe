@@ -115,5 +115,7 @@ namespace rwe
 
         bool hideDamage;
         bool showPlayerName;
+
+        std::string soundCategory;
     };
 }

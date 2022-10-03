@@ -145,7 +145,15 @@ namespace rwe
 
         const SideData& getSideData(const std::string& side) const;
 
-        std::tuple<UnitDatabase, MeshDatabase, std::unordered_map<std::string, UnitDefinition>, std::unordered_map<std::string, WeaponDefinition>, std::unordered_map<MovementClassId, MovementClass>, MovementClassCollisionService> createUnitDatabase(const MapTerrain& terrain, MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures);
+        struct DataMaps
+        {
+            std::unordered_map<std::string, UnitDefinition> unitDefinitions;
+            std::unordered_map<std::string, UnitModelDefinition> modelDefinitions;
+            std::unordered_map<std::string, WeaponDefinition> weaponDefinitions;
+            std::unordered_map<MovementClassId, MovementClass> movementClassDefinitions;
+        };
+
+        std::tuple<UnitDatabase, MeshDatabase, DataMaps, MovementClassCollisionService> createUnitDatabase(const MapTerrain& terrain, MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures);
 
         void preloadSound(MeshDatabase& meshDb, const std::string& soundName);
 
@@ -155,6 +163,7 @@ namespace rwe
 
         std::optional<std::vector<std::vector<GuiEntry>>> loadBuilderGui(const std::string& unitName);
 
-        void loadFeature(MeshService& meshService, UnitDatabase& unitDatabase, MeshDatabase& meshDatabase, const std::unordered_map<std::string, FeatureTdf> tdfs, const std::string& initialFeatureName);
+        void loadFeature(MeshService& meshService, UnitDatabase& unitDatabase, MeshDatabase& meshDatabase, const std::unordered_map<std::string, FeatureTdf>& tdfs, std::unordered_map<std::string, UnitModelDefinition>& modelDefinitions, const std::string& initialFeatureName);
+        void loadFeatureMedia(MeshService& meshService, std::unordered_map<std::string, UnitModelDefinition>& modelDefinitions, MeshDatabase& meshDatabase, const FeatureTdf& tdf);
     };
 }

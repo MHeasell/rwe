@@ -22,15 +22,11 @@ namespace rwe
     {
     }
 
-    std::vector<UnitMesh> createUnitMeshes(const UnitDatabase& db, const std::string& objectName)
+    std::vector<UnitMesh> createUnitMeshes(const GameSimulation& sim, const std::string& objectName)
     {
-        auto def = db.getUnitModelDefinition(objectName);
-        if (!def)
-        {
-            throw std::runtime_error("No definition for object");
-        }
+        const auto& def = sim.unitModelDefinitions.at(objectName);
 
-        const auto& pieceDefs = def->get().pieces;
+        const auto& pieceDefs = def.pieces;
 
         std::vector<UnitMesh> pieces(pieceDefs.size());
         for (Index i = 0; i < getSize(pieces); ++i)
@@ -49,12 +45,8 @@ namespace rwe
     {
         const auto& unitDefinition = simulation->unitDefinitions.at(unitType);
 
-        auto meshes = createUnitMeshes(*unitDatabase, unitDefinition.objectName);
-        auto modelDefinition = unitDatabase->getUnitModelDefinition(unitDefinition.objectName);
-        if (!modelDefinition)
-        {
-            throw std::runtime_error("Missing model definition");
-        }
+        auto meshes = createUnitMeshes(*simulation, unitDefinition.objectName);
+        auto modelDefinition = simulation->unitModelDefinitions.at(unitDefinition.objectName);
 
         if (unitDefinition.isMobile)
         {
@@ -133,27 +125,20 @@ namespace rwe
 
     Point UnitFactory::getUnitFootprint(const std::string& unitType) const
     {
-        const auto& fbi = unitDatabase->getUnitInfo(unitType);
-        return Point(fbi.footprintX, fbi.footprintZ);
+        const auto& unitDefinition = simulation->unitDefinitions.at(unitType);
+        auto [footprintX, footprintZ] = simulation->getFootprintXZ(unitDefinition.movementCollisionInfo);
+        return Point(footprintX, footprintZ);
     }
 
     MovementClass UnitFactory::getAdHocMovementClass(const std::string& unitType) const
     {
-        const auto& fbi = unitDatabase->getUnitInfo(unitType);
-
-        MovementClass mc;
-        mc.minWaterDepth = fbi.minWaterDepth;
-        mc.maxWaterDepth = fbi.maxWaterDepth;
-        mc.maxSlope = fbi.maxSlope;
-        mc.maxWaterSlope = fbi.maxWaterSlope;
-        mc.footprintX = fbi.footprintX;
-        mc.footprintZ = fbi.footprintZ;
-        return mc;
+        const auto& unitDefinition = simulation->unitDefinitions.at(unitType);
+        return simulation->getAdHocMovementClass(unitDefinition.movementCollisionInfo);
     }
 
     bool UnitFactory::isValidUnitType(const std::string& unitType) const
     {
-        return unitDatabase->hasUnitInfo(unitType);
+        return simulation->unitDefinitions.find(unitType) != simulation->unitDefinitions.end();
     }
 
     std::optional<UnitWeapon> UnitFactory::tryCreateWeapon(const std::string& weaponType)

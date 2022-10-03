@@ -111,8 +111,8 @@ namespace rwe
                     return false;
                 }
 
-                const auto& fbi = db.getUnitInfo(unit.unitType);
-                const auto& modelDefinition = db.getUnitModelDefinition(fbi.objectName).value().get();
+                const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
+                const auto& modelDefinition = sim.unitModelDefinitions.at(unitDefinition.objectName);
 
                 // ignore if the projectile is above or below the unit
                 if (projectile.position.y < unit.position.y || projectile.position.y > unit.position.y + modelDefinition.height)
@@ -155,8 +155,8 @@ namespace rwe
                 return false;
             }
 
-            const auto& fbi = db.getUnitInfo(unit.unitType);
-            const auto& modelDefinition = db.getUnitModelDefinition(fbi.objectName).value().get();
+            const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
+            const auto& modelDefinition = sim.unitModelDefinitions.at(unitDefinition.objectName);
 
             // ignore if the projectile is above or below the unit
             if (projectile.position.y < unit.position.y || projectile.position.y > unit.position.y + modelDefinition.height)
@@ -782,13 +782,14 @@ namespace rwe
         for (const auto& unit : (simulation.units | boost::adaptors::map_values))
         {
             const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
+            const auto& modelDefinition = simulation.unitModelDefinitions.at(unitDefinition.objectName);
 
             auto groundHeight = simulation.terrain.getHeightAt(unit.position.x, unit.position.z);
             if (unitDefinition.floater || unitDefinition.canHover)
             {
                 groundHeight = rweMax(groundHeight, seaLevel);
             }
-            drawUnitShadow(&unitDatabase, meshDatabase, viewProjectionMatrix, unit, unitDefinition, interpolationFraction, simScalarToFloat(groundHeight), unitTextureAtlas.get(), unitTeamTextureAtlases, unitShadowMeshBatch);
+            drawUnitShadow(meshDatabase, viewProjectionMatrix, unit, unitDefinition, modelDefinition, interpolationFraction, simScalarToFloat(groundHeight), unitTextureAtlas.get(), unitTeamTextureAtlases, unitShadowMeshBatch);
         }
         for (const auto& feature : (simulation.features | boost::adaptors::map_values))
         {
@@ -798,7 +799,8 @@ namespace rwe
             {
                 groundHeight = seaLevel;
             }
-            drawFeatureMeshShadow(&unitDatabase, meshDatabase, viewProjectionMatrix, feature, simScalarToFloat(groundHeight), unitTextureAtlas.get(), unitTeamTextureAtlases, unitShadowMeshBatch);
+
+            drawFeatureMeshShadow(simulation.unitModelDefinitions, meshDatabase, viewProjectionMatrix, feature, simScalarToFloat(groundHeight), unitTextureAtlas.get(), unitTeamTextureAtlases, unitShadowMeshBatch);
         }
         worldRenderService.drawUnitShadowMeshBatch(unitShadowMeshBatch);
 
@@ -808,18 +810,19 @@ namespace rwe
         for (const auto& unit : (simulation.units | boost::adaptors::map_values))
         {
             const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
-            drawUnit(&unitDatabase, meshDatabase, viewProjectionMatrix, unit, unitDefinition, getPlayer(unit.owner).color, interpolationFraction, unitTextureAtlas.get(), unitTeamTextureAtlases, unitMeshBatch);
+            const auto& unitModelDefinition = simulation.unitModelDefinitions.at(unitDefinition.objectName);
+            drawUnit(meshDatabase, viewProjectionMatrix, unit, unitDefinition, unitModelDefinition, getPlayer(unit.owner).color, interpolationFraction, unitTextureAtlas.get(), unitTeamTextureAtlases, unitMeshBatch);
         }
         for (const auto& feature : (simulation.features | boost::adaptors::map_values))
         {
-            drawMeshFeature(&unitDatabase, meshDatabase, viewProjectionMatrix, feature, unitTextureAtlas.get(), unitTeamTextureAtlases, unitMeshBatch);
+            drawMeshFeature(simulation.unitModelDefinitions, meshDatabase, viewProjectionMatrix, feature, unitTextureAtlas.get(), unitTeamTextureAtlases, unitMeshBatch);
         }
         worldRenderService.drawUnitMeshBatch(unitMeshBatch, simScalarToFloat(seaLevel), simulation.gameTime.value);
 
         ColoredMeshBatch lineProjectilesBatch;
         SpriteBatch spriteProjectilesBatch;
         UnitMeshBatch meshProjectilesBatch;
-        drawProjectiles(unitDatabase, meshDatabase, viewProjectionMatrix, simulation.projectiles, simulation.gameTime, interpolationFraction, unitTextureAtlas.get(), unitTeamTextureAtlases, lineProjectilesBatch, spriteProjectilesBatch, meshProjectilesBatch);
+        drawProjectiles(simulation, meshDatabase, viewProjectionMatrix, simulation.projectiles, simulation.gameTime, interpolationFraction, unitTextureAtlas.get(), unitTeamTextureAtlases, lineProjectilesBatch, spriteProjectilesBatch, meshProjectilesBatch);
         worldRenderService.drawBatch(lineProjectilesBatch, viewProjectionMatrix);
         worldRenderService.drawUnitMeshBatch(meshProjectilesBatch, simScalarToFloat(seaLevel), simulation.gameTime.value);
         worldRenderService.drawSpriteBatch(spriteProjectilesBatch);
@@ -2093,7 +2096,6 @@ namespace rwe
 
     std::optional<UnitId> GameScene::spawnUnit(const std::string& unitType, PlayerId owner, const SimVector& position, std::optional<const std::reference_wrapper<SimAngle>> rotation)
     {
-        auto unitFbi = unitDatabase.getUnitInfo(unitType);
         auto unit = unitFactory.createUnit(unitType, owner, position, rotation);
         const auto& unitDefinition = simulation.unitDefinitions.at(unitType);
         if (unitDefinition.floater || unitDefinition.canHover)
@@ -2266,10 +2268,10 @@ namespace rwe
         }
     }
 
-    std::optional<AudioService::SoundHandle> getSound(const UnitDatabase& db, const MeshDatabase& meshDb, const std::string& unitType, UnitSoundType soundType)
+    std::optional<AudioService::SoundHandle> getSound(const GameSimulation& sim, const MeshDatabase& meshDb, const std::string& unitType, UnitSoundType soundType)
     {
-        const auto& fbi = db.getUnitInfo(unitType);
-        const auto& soundClass = meshDb.getSoundClassOrDefault(fbi.soundCategory);
+        const auto& unitDefinition = sim.unitDefinitions.at(unitType);
+        const auto& soundClass = meshDb.getSoundClassOrDefault(unitDefinition.soundCategory);
         const auto& soundId = getSoundName(soundClass, soundType);
         if (soundId)
         {
@@ -2280,7 +2282,7 @@ namespace rwe
 
     void GameScene::playUnitNotificationSound(const PlayerId& playerId, const std::string& unitType, UnitSoundType soundType)
     {
-        auto sound = getSound(unitDatabase, meshDatabase, unitType, soundType);
+        auto sound = getSound(simulation, meshDatabase, unitType, soundType);
         if (sound)
         {
             playNotificationSound(playerId, *sound);
@@ -2693,8 +2695,8 @@ namespace rwe
 
         for (const auto& entry : simulation.units)
         {
-            const auto& fbi = unitDatabase.getUnitInfo(entry.second.unitType);
-            auto selectionMesh = meshDatabase.getSelectionCollisionMesh(fbi.objectName);
+            const auto& unitDefinition = simulation.unitDefinitions.at(entry.second.unitType);
+            auto selectionMesh = meshDatabase.getSelectionCollisionMesh(unitDefinition.objectName);
             auto distance = selectionIntersect(entry.second, *selectionMesh.value(), ray);
             if (distance && distance < bestDistance)
             {
@@ -2760,7 +2762,7 @@ namespace rwe
         else
         {
             const auto& unit = getUnit(unitId);
-            auto handle = getSound(unitDatabase, meshDatabase, unit.unitType, UnitSoundType::Ok1);
+            auto handle = getSound(simulation, meshDatabase, unit.unitType, UnitSoundType::Ok1);
             if (handle)
             {
                 playUiSound(*handle);
@@ -2789,7 +2791,7 @@ namespace rwe
         localPlayerCommandBuffer.push_back(PlayerUnitCommand(unitId, PlayerUnitCommand::Stop()));
 
         const auto& unit = getUnit(unitId);
-        auto handle = getSound(unitDatabase, meshDatabase, unit.unitType, UnitSoundType::Ok1);
+        auto handle = getSound(simulation, meshDatabase, unit.unitType, UnitSoundType::Ok1);
         if (handle)
         {
             playUiSound(*handle);
@@ -3353,11 +3355,10 @@ namespace rwe
                 continue;
             }
 
-            const auto& unitFbi = unitDatabase.getUnitInfo(unit.unitType);
-            if (!unitFbi.corpse.empty())
+            if (!unitDefinition.corpse.empty())
             {
                 corpsesToSpawn.push_back(CorpseSpawnInfo{
-                    unitFbi.corpse,
+                    unitDefinition.corpse,
                     unit.position,
                     unit.rotation});
             }
@@ -3895,7 +3896,7 @@ namespace rwe
         selectedUnits.insert(unitId);
 
         const auto& unit = getUnit(unitId);
-        auto selectionSound = getSound(unitDatabase, meshDatabase, unit.unitType, UnitSoundType::Select1);
+        auto selectionSound = getSound(simulation, meshDatabase, unit.unitType, UnitSoundType::Select1);
         if (selectionSound)
         {
             playUiSound(*selectionSound);
@@ -3929,7 +3930,7 @@ namespace rwe
         if (selectedUnits.size() == 1)
         {
             const auto& unit = getUnit(*units.begin());
-            auto selectionSound = getSound(unitDatabase, meshDatabase, unit.unitType, UnitSoundType::Select1);
+            auto selectionSound = getSound(simulation, meshDatabase, unit.unitType, UnitSoundType::Select1);
             if (selectionSound)
             {
                 playUiSound(*selectionSound);
