@@ -37,7 +37,6 @@
 #include <rwe/sim/OccupiedGrid.h>
 #include <rwe/sim/PlayerId.h>
 #include <rwe/sim/SimScalar.h>
-#include <rwe/sim/UnitBehaviorService.h>
 #include <rwe/sim/UnitId.h>
 #include <rwe/sim/UnitState.h>
 #include <rwe/ui/UiFactory.h>
@@ -214,7 +213,6 @@ namespace rwe
         std::unique_ptr<GameNetworkService> gameNetworkService;
 
         PathFindingService pathFindingService;
-        UnitBehaviorService unitBehaviorService;
 
         std::shared_ptr<Sprite> minimap;
         std::shared_ptr<SpriteSeries> minimapDots;

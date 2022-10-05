@@ -14,6 +14,7 @@
 #include <rwe/matrix_util.h>
 #include <rwe/resource_io.h>
 #include <rwe/sim/SimTicksPerSecond.h>
+#include <rwe/sim/UnitBehaviorService.h>
 #include <rwe/sim/cob.h>
 #include <rwe/ui/UiStagedButton.h>
 #include <spdlog/spdlog.h>
@@ -272,7 +273,6 @@ namespace rwe
           unitFactory(&this->unitDatabase, std::move(meshService), &this->simulation),
           gameNetworkService(std::move(gameNetworkService)),
           pathFindingService(&this->simulation, &this->simulation.movementClassCollisionService),
-          unitBehaviorService(&this->simulation),
           minimap(minimap),
           minimapDots(minimapDots),
           minimapDotHighlight(minimapDotHighlight),
@@ -2109,7 +2109,7 @@ namespace rwe
 
         if (unitId)
         {
-            unitBehaviorService.onCreate(*unitId);
+            UnitBehaviorService(&simulation).onCreate(*unitId);
 
             // initialise local-player-specific UI data
             const auto& unit = getUnit(*unitId);
@@ -2563,7 +2563,7 @@ namespace rwe
             auto unitId = entry.first;
             auto& unit = entry.second;
 
-            unitBehaviorService.update(unitId);
+            UnitBehaviorService(&simulation).update(unitId);
 
             for (auto& piece : unit.pieces)
             {
