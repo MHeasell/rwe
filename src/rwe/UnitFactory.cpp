@@ -6,10 +6,8 @@ namespace rwe
 {
     UnitFactory::UnitFactory(
         UnitDatabase* unitDatabase,
-        MeshService&& meshService,
         const GameSimulation* simulation)
         : unitDatabase(unitDatabase),
-          meshService(std::move(meshService)),
           simulation(simulation)
     {
     }

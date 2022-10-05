@@ -270,7 +270,7 @@ namespace rwe
           simulation(std::move(simulation)),
           terrainGraphics(std::move(terrainGraphics)),
           unitDatabase(std::move(unitDatabase)),
-          unitFactory(&this->unitDatabase, std::move(meshService), &this->simulation),
+          unitFactory(&this->unitDatabase, &this->simulation),
           gameNetworkService(std::move(gameNetworkService)),
           pathFindingService(&this->simulation, &this->simulation.movementClassCollisionService),
           minimap(minimap),

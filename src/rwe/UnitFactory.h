@@ -1,7 +1,6 @@
 #pragma once
 
 #include <optional>
-#include <rwe/MeshService.h>
 #include <rwe/UnitDatabase.h>
 #include <rwe/sim/GameSimulation.h>
 #include <rwe/sim/MovementClass.h>
@@ -15,13 +14,11 @@ namespace rwe
     {
     private:
         UnitDatabase* const unitDatabase;
-        MeshService meshService;
         const GameSimulation* simulation;
 
     public:
         UnitFactory(
             UnitDatabase* unitDatabase,
-            MeshService&& meshService,
             const GameSimulation* simulation);
 
     public:
