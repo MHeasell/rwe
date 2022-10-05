@@ -3,6 +3,7 @@
 #include <rwe/collection_util.h>
 #include <rwe/match.h>
 #include <rwe/sim/SimScalar.h>
+#include <rwe/sim/UnitBehaviorService.h>
 #include <rwe/sim/util.h>
 
 #include <rwe/GameHash_util.h>
@@ -114,6 +115,113 @@ namespace rwe
         PlayerId id(players.size());
         players.push_back(info);
         return id;
+    }
+
+    std::optional<UnitWeapon> tryCreateWeapon(const GameSimulation& sim, const std::string& weaponType)
+    {
+        if (sim.weaponDefinitions.find(toUpper(weaponType)) == sim.weaponDefinitions.end())
+        {
+            return std::nullopt;
+        }
+
+        UnitWeapon weapon;
+        weapon.weaponType = toUpper(weaponType);
+        return weapon;
+    }
+
+    std::vector<UnitMesh> createUnitMeshes(const GameSimulation& sim, const std::string& objectName)
+    {
+        const auto& def = sim.unitModelDefinitions.at(objectName);
+
+        const auto& pieceDefs = def.pieces;
+
+        std::vector<UnitMesh> pieces(pieceDefs.size());
+        for (Index i = 0; i < getSize(pieces); ++i)
+        {
+            pieces[i].name = pieceDefs[i].name;
+        }
+
+        return pieces;
+    }
+
+    UnitState createUnit(
+        GameSimulation& simulation,
+        const std::string& unitType,
+        PlayerId owner,
+        const SimVector& position,
+        std::optional<SimAngle> rotation)
+    {
+        const auto& unitDefinition = simulation.unitDefinitions.at(unitType);
+
+        auto meshes = createUnitMeshes(simulation, unitDefinition.objectName);
+        auto modelDefinition = simulation.unitModelDefinitions.at(unitDefinition.objectName);
+
+        if (unitDefinition.isMobile)
+        {
+            // don't shade mobile units
+            for (auto& m : meshes)
+            {
+                m.shaded = false;
+            }
+        }
+
+        const auto& script = simulation.unitScriptDefinitions.at(unitType);
+        auto cobEnv = std::make_unique<CobEnvironment>(&script);
+        UnitState unit(meshes, std::move(cobEnv));
+        unit.unitType = toUpper(unitType);
+        unit.owner = owner;
+        unit.position = position;
+        unit.previousPosition = position;
+
+        if (rotation)
+        {
+            unit.rotation = *rotation;
+            unit.previousRotation = *rotation;
+        }
+        else if (unitDefinition.isMobile)
+        {
+            // spawn the unit facing the other way
+            unit.rotation = HalfTurn;
+            unit.previousRotation = HalfTurn;
+        }
+
+        // add weapons
+        if (!unitDefinition.weapon1.empty())
+        {
+            unit.weapons[0] = tryCreateWeapon(simulation, unitDefinition.weapon1);
+        }
+        if (!unitDefinition.weapon2.empty())
+        {
+            unit.weapons[1] = tryCreateWeapon(simulation, unitDefinition.weapon2);
+        }
+        if (!unitDefinition.weapon3.empty())
+        {
+            unit.weapons[2] = tryCreateWeapon(simulation, unitDefinition.weapon3);
+        }
+
+        return unit;
+    }
+
+    std::optional<UnitId> GameSimulation::trySpawnUnit(const std::string& unitType, PlayerId owner, const SimVector& position, std::optional<SimAngle> rotation)
+    {
+        auto unit = createUnit(*this, unitType, owner, position, rotation);
+        const auto& unitDefinition = unitDefinitions.at(unitType);
+        if (unitDefinition.floater || unitDefinition.canHover)
+        {
+            unit.position.y = rweMax(terrain.getSeaLevel(), unit.position.y);
+            unit.previousPosition.y = unit.position.y;
+        }
+
+        // TODO: if we failed to add the unit throw some warning
+        auto unitId = tryAddUnit(std::move(unit));
+
+        if (unitId)
+        {
+            UnitBehaviorService(this).onCreate(*unitId);
+            events.push_back(UnitSpawnedEvent{*unitId});
+        }
+
+        return unitId;
     }
 
     std::optional<UnitId> GameSimulation::tryAddUnit(UnitState&& unit)

@@ -1,6 +1,5 @@
 #include "UnitFactory.h"
 #include <algorithm>
-#include <rwe/Index.h>
 
 namespace rwe
 {
@@ -10,78 +9,6 @@ namespace rwe
         : unitDatabase(unitDatabase),
           simulation(simulation)
     {
-    }
-
-    std::vector<UnitMesh> createUnitMeshes(const GameSimulation& sim, const std::string& objectName)
-    {
-        const auto& def = sim.unitModelDefinitions.at(objectName);
-
-        const auto& pieceDefs = def.pieces;
-
-        std::vector<UnitMesh> pieces(pieceDefs.size());
-        for (Index i = 0; i < getSize(pieces); ++i)
-        {
-            pieces[i].name = pieceDefs[i].name;
-        }
-
-        return pieces;
-    }
-
-    UnitState UnitFactory::createUnit(
-        const std::string& unitType,
-        PlayerId owner,
-        const SimVector& position,
-        std::optional<const std::reference_wrapper<SimAngle>> rotation)
-    {
-        const auto& unitDefinition = simulation->unitDefinitions.at(unitType);
-
-        auto meshes = createUnitMeshes(*simulation, unitDefinition.objectName);
-        auto modelDefinition = simulation->unitModelDefinitions.at(unitDefinition.objectName);
-
-        if (unitDefinition.isMobile)
-        {
-            // don't shade mobile units
-            for (auto& m : meshes)
-            {
-                m.shaded = false;
-            }
-        }
-
-        const auto& script = simulation->unitScriptDefinitions.at(unitType);
-        auto cobEnv = std::make_unique<CobEnvironment>(&script);
-        UnitState unit(meshes, std::move(cobEnv));
-        unit.unitType = toUpper(unitType);
-        unit.owner = owner;
-        unit.position = position;
-        unit.previousPosition = position;
-
-        if (rotation)
-        {
-            unit.rotation = *rotation;
-            unit.previousRotation = *rotation;
-        }
-        else if (unitDefinition.isMobile)
-        {
-            // spawn the unit facing the other way
-            unit.rotation = HalfTurn;
-            unit.previousRotation = HalfTurn;
-        }
-
-        // add weapons
-        if (!unitDefinition.weapon1.empty())
-        {
-            unit.weapons[0] = tryCreateWeapon(unitDefinition.weapon1);
-        }
-        if (!unitDefinition.weapon2.empty())
-        {
-            unit.weapons[1] = tryCreateWeapon(unitDefinition.weapon2);
-        }
-        if (!unitDefinition.weapon3.empty())
-        {
-            unit.weapons[2] = tryCreateWeapon(unitDefinition.weapon3);
-        }
-
-        return unit;
     }
 
     std::optional<std::reference_wrapper<const std::vector<GuiEntry>>> UnitFactory::getBuilderGui(const std::string& unitType, unsigned int page) const
@@ -129,17 +56,5 @@ namespace rwe
     bool UnitFactory::isValidUnitType(const std::string& unitType) const
     {
         return simulation->unitDefinitions.find(unitType) != simulation->unitDefinitions.end();
-    }
-
-    std::optional<UnitWeapon> UnitFactory::tryCreateWeapon(const std::string& weaponType)
-    {
-        if (simulation->weaponDefinitions.find(toUpper(weaponType)) == simulation->weaponDefinitions.end())
-        {
-            return std::nullopt;
-        }
-
-        UnitWeapon weapon;
-        weapon.weaponType = toUpper(weaponType);
-        return weapon;
     }
 }

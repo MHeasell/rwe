@@ -123,6 +123,11 @@ namespace rwe
         UnitId unitId;
     };
 
+    struct UnitSpawnedEvent
+    {
+        UnitId unitId;
+    };
+
     struct EmitParticleFromPieceEvent
     {
         enum class SfxType
@@ -137,7 +142,7 @@ namespace rwe
         std::string pieceName;
     };
 
-    using GameEvent = std::variant<FireWeaponEvent, UnitArrivedEvent, UnitActivatedEvent, UnitDeactivatedEvent, UnitCompleteEvent, EmitParticleFromPieceEvent>;
+    using GameEvent = std::variant<FireWeaponEvent, UnitArrivedEvent, UnitActivatedEvent, UnitDeactivatedEvent, UnitCompleteEvent, EmitParticleFromPieceEvent, UnitSpawnedEvent>;
 
     struct GameSimulation
     {
@@ -185,6 +190,8 @@ namespace rwe
         FeatureId addFeature(const FeatureDefinition& featureDefinition, MapFeature&& newFeature);
 
         PlayerId addPlayer(const GamePlayerInfo& info);
+
+        std::optional<UnitId> trySpawnUnit(const std::string& unitType, PlayerId owner, const SimVector& position, std::optional<SimAngle> rotation);
 
         /**
          * Returns true if the unit was really added, false otherwise.

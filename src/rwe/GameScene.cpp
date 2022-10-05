@@ -2096,27 +2096,7 @@ namespace rwe
 
     std::optional<UnitId> GameScene::spawnUnit(const std::string& unitType, PlayerId owner, const SimVector& position, std::optional<const std::reference_wrapper<SimAngle>> rotation)
     {
-        auto unit = unitFactory.createUnit(unitType, owner, position, rotation);
-        const auto& unitDefinition = simulation.unitDefinitions.at(unitType);
-        if (unitDefinition.floater || unitDefinition.canHover)
-        {
-            unit.position.y = rweMax(simulation.terrain.getSeaLevel(), unit.position.y);
-            unit.previousPosition.y = unit.position.y;
-        }
-
-        // TODO: if we failed to add the unit throw some warning
-        auto unitId = simulation.tryAddUnit(std::move(unit));
-
-        if (unitId)
-        {
-            UnitBehaviorService(&simulation).onCreate(*unitId);
-
-            // initialise local-player-specific UI data
-            const auto& unit = getUnit(*unitId);
-            unitGuiInfos.insert_or_assign(*unitId, UnitGuiInfo{unitDefinition.builder ? UnitGuiInfo::Section::Build : UnitGuiInfo::Section::Orders, 0});
-        }
-
-        return unitId;
+        return simulation.trySpawnUnit(unitType, owner, position, rotation);
     }
 
     std::optional<std::reference_wrapper<UnitState>> GameScene::spawnCompletedUnit(const std::string& unitType, PlayerId owner, const SimVector& position)
@@ -3145,6 +3125,12 @@ namespace rwe
                         default:
                             throw std::logic_error("unknown particle type");
                     }
+                },
+                [&](const UnitSpawnedEvent& e) {
+                    // initialise local-player-specific UI data
+                    const auto& unit = getUnit(e.unitId);
+                    const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
+                    unitGuiInfos.insert_or_assign(e.unitId, UnitGuiInfo{unitDefinition.builder ? UnitGuiInfo::Section::Build : UnitGuiInfo::Section::Orders, 0});
                 });
         }
 

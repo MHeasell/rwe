@@ -22,8 +22,6 @@ namespace rwe
             const GameSimulation* simulation);
 
     public:
-        UnitState createUnit(const std::string& unitType, PlayerId owner, const SimVector& position, std::optional<const std::reference_wrapper<SimAngle>> rotation);
-
         std::optional<std::reference_wrapper<const std::vector<GuiEntry>>> getBuilderGui(const std::string& unitType, unsigned int page) const;
 
         /** If the unit has no build gui, this will be zero. */
@@ -34,8 +32,5 @@ namespace rwe
         MovementClass getAdHocMovementClass(const std::string& unitType) const;
 
         bool isValidUnitType(const std::string& unitType) const;
-
-    private:
-        std::optional<UnitWeapon> tryCreateWeapon(const std::string& weaponType);
     };
 }
