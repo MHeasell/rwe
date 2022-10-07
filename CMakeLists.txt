@@ -313,8 +313,6 @@ set(SOURCE_FILES
     src/rwe/UniqueHandle.h
     src/rwe/UnitDatabase.cpp
     src/rwe/UnitDatabase.h
-    src/rwe/UnitFactory.cpp
-    src/rwe/UnitFactory.h
     src/rwe/UnitPieceMeshInfo.cpp
     src/rwe/UnitPieceMeshInfo.h
     src/rwe/UnitSoundType.h

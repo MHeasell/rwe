@@ -23,7 +23,6 @@
 #include <rwe/TextureService.h>
 #include <rwe/UiRenderService.h>
 #include <rwe/UnitDatabase.h>
-#include <rwe/UnitFactory.h>
 #include <rwe/UnitSoundType.h>
 #include <rwe/Viewport.h>
 #include <rwe/WeaponMediaInfo.h>
@@ -207,7 +206,6 @@ namespace rwe
         MapTerrainGraphics terrainGraphics;
 
         UnitDatabase unitDatabase;
-        UnitFactory unitFactory;
 
         std::unique_ptr<GameNetworkService> gameNetworkService;
 

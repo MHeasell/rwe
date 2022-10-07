@@ -1,12 +1,17 @@
 #pragma once
 
-#include <rwe/UnitFactory.h>
+#include <optional>
 #include <rwe/pathfinding/PathFindingService.h>
+#include <rwe/sim/ProjectilePhysicsType.h>
 #include <rwe/sim/SimAngle.h>
 #include <rwe/sim/SimScalar.h>
 #include <rwe/sim/SimVector.h>
 #include <rwe/sim/UnitId.h>
 #include <rwe/sim/UnitOrder.h>
+#include <rwe/sim/UnitState.h>
+#include <rwe/sim/UnitWeapon.h>
+#include <string>
+#include <utility>
 
 namespace rwe
 {

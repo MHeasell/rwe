@@ -22,6 +22,41 @@
 
 namespace rwe
 {
+    bool isValidUnitType(const GameSimulation& simulation, const std::string& unitType)
+    {
+        return simulation.unitDefinitions.find(unitType) != simulation.unitDefinitions.end();
+    }
+
+    std::optional<std::reference_wrapper<const std::vector<GuiEntry>>> getBuilderGui(const UnitDatabase& db, const std::string& unitType, unsigned int page)
+    {
+        const auto& pages = db.tryGetBuilderGui(unitType);
+        if (!pages)
+        {
+            return std::nullopt;
+        }
+
+        const auto& unwrappedPages = pages->get();
+
+        if (page >= unwrappedPages.size())
+        {
+            return std::nullopt;
+        }
+
+        return unwrappedPages[page];
+    }
+
+    /** If the unit has no build gui, this will be zero. */
+    unsigned int getBuildPageCount(const UnitDatabase& db, const std::string& unitType)
+    {
+        const auto& pages = db.tryGetBuilderGui(unitType);
+        if (!pages)
+        {
+            return 0;
+        }
+
+        return pages->get().size();
+    }
+
     bool unitCanAttack(const GameSimulation& sim, UnitId unitId)
     {
         const auto& unit = sim.getUnitState(unitId);
@@ -270,7 +305,6 @@ namespace rwe
           simulation(std::move(simulation)),
           terrainGraphics(std::move(terrainGraphics)),
           unitDatabase(std::move(unitDatabase)),
-          unitFactory(&this->unitDatabase, &this->simulation),
           gameNetworkService(std::move(gameNetworkService)),
           minimap(minimap),
           minimapDots(minimapDots),
@@ -569,9 +603,9 @@ namespace rwe
             if (const auto buildOrder = std::get_if<BuildOrder>(&order))
             {
                 const auto& unitType = buildOrder->unitType;
-                auto mc = unitFactory.getAdHocMovementClass(unitType);
-                auto footprint = unitFactory.getUnitFootprint(unitType);
-                auto footprintRect = computeFootprintRegion(buildOrder->position, footprint.x, footprint.y);
+                const auto& unitDefinition = simulation.unitDefinitions.at(unitType);
+                auto mc = simulation.getAdHocMovementClass(unitDefinition.movementCollisionInfo);
+                auto footprintRect = simulation.computeFootprintRegion(buildOrder->position, unitDefinition.movementCollisionInfo);
 
                 auto topLeftWorld = simulation.terrain.heightmapIndexToWorldCorner(footprintRect.x, footprintRect.y);
                 topLeftWorld.y = simulation.terrain.getHeightAt(
@@ -1192,7 +1226,7 @@ namespace rwe
         {
             std::string text(unitSpawnText);
             text = toUpper(text);
-            if (!text.empty() && unitFactory.isValidUnitType(text) && unitSpawnPlayer >= 0 && unitSpawnPlayer < getSize(simulation.players))
+            if (!text.empty() && isValidUnitType(simulation, text) && unitSpawnPlayer >= 0 && unitSpawnPlayer < getSize(simulation.players))
             {
                 if (auto terrainPos = getMouseTerrainCoordinate())
                 {
@@ -1912,11 +1946,11 @@ namespace rwe
 
             if (intersect)
             {
-                auto mc = unitFactory.getAdHocMovementClass(buildCursor->unitType);
                 const auto& unitType = buildCursor->unitType;
                 const auto& pos = *intersect;
-                auto footprint = unitFactory.getUnitFootprint(unitType);
-                auto footprintRect = computeFootprintRegion(pos, footprint.x, footprint.y);
+                const auto& unitDefinition = simulation.unitDefinitions.at(unitType);
+                auto mc = simulation.getAdHocMovementClass(unitDefinition.movementCollisionInfo);
+                auto footprintRect = simulation.computeFootprintRegion(pos, unitDefinition.movementCollisionInfo);
                 auto isValid = simulation.canBeBuiltAt(mc, footprintRect.x, footprintRect.y);
                 hoverBuildInfo = HoverBuildInfo{footprintRect, isValid};
             }
@@ -3701,10 +3735,10 @@ namespace rwe
 
                 const auto& unit = getUnit(*selectedUnit);
                 auto& guiInfo = unitGuiInfos.at(*selectedUnit);
-                auto pages = unitFactory.getBuildPageCount(unit.unitType);
+                auto pages = getBuildPageCount(unitDatabase, unit.unitType);
                 guiInfo.currentBuildPage = (guiInfo.currentBuildPage + 1) % pages;
 
-                auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);
+                auto buildPanelDefinition = getBuilderGui(unitDatabase, unit.unitType, guiInfo.currentBuildPage);
                 if (buildPanelDefinition)
                 {
                     setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
@@ -3722,11 +3756,11 @@ namespace rwe
 
                 const auto& unit = getUnit(*selectedUnit);
                 auto& guiInfo = unitGuiInfos.at(*selectedUnit);
-                auto pages = unitFactory.getBuildPageCount(unit.unitType);
+                auto pages = getBuildPageCount(unitDatabase, unit.unitType);
                 assert(pages != 0);
                 guiInfo.currentBuildPage = guiInfo.currentBuildPage == 0 ? pages - 1 : guiInfo.currentBuildPage - 1;
 
-                auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);
+                auto buildPanelDefinition = getBuilderGui(unitDatabase, unit.unitType, guiInfo.currentBuildPage);
                 if (buildPanelDefinition)
                 {
                     setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
@@ -3746,7 +3780,7 @@ namespace rwe
                 auto& guiInfo = unitGuiInfos.at(*selectedUnit);
                 guiInfo.section = UnitGuiInfo::Section::Build;
 
-                auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);
+                auto buildPanelDefinition = getBuilderGui(unitDatabase, unit.unitType, guiInfo.currentBuildPage);
                 if (buildPanelDefinition)
                 {
                     setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
@@ -3769,7 +3803,7 @@ namespace rwe
                 setNextPanel(uiFactory.panelFromGuiFile(sidePrefix + "GEN"));
             }
         }
-        else if (unitFactory.isValidUnitType(message))
+        else if (isValidUnitType(simulation, message))
         {
             if (sounds.addBuild)
             {
@@ -3946,7 +3980,7 @@ namespace rwe
             onOff.next(unit.activated);
 
             const auto& guiInfo = getGuiInfo(*unitId);
-            auto buildPanelDefinition = unitFactory.getBuilderGui(unit.unitType, guiInfo.currentBuildPage);
+            auto buildPanelDefinition = getBuilderGui(unitDatabase, unit.unitType, guiInfo.currentBuildPage);
             if (guiInfo.section == UnitGuiInfo::Section::Build && buildPanelDefinition)
             {
                 setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
