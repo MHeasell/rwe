@@ -3,30 +3,33 @@
 #include <rwe/pathfinding/UnitPathFinder.h>
 #include <rwe/pathfinding/UnitPerimeterPathFinder.h>
 #include <rwe/pathfinding/pathfinding_utils.h>
+#include <rwe/sim/GameSimulation.h>
 
 namespace rwe
 {
     static const unsigned int MaxTasksPerTick = 10;
 
-    PathFindingService::PathFindingService(GameSimulation* simulation, MovementClassCollisionService* collisionService)
-        : simulation(simulation), collisionService(collisionService)
+    void PathFindingService::update(GameSimulation& simulation)
     {
-    }
-
-    void PathFindingService::update()
-    {
-        auto& requests = simulation->pathRequests;
+        auto& requests = simulation.pathRequests;
         unsigned int tasksDone = 0;
         while (!requests.empty() && tasksDone < MaxTasksPerTick)
         {
             auto& request = requests.front();
 
-            auto& unit = simulation->getUnitState(request.unitId);
+            auto& unit = simulation.getUnitState(request.unitId);
 
             if (auto movingState = std::get_if<UnitBehaviorStateMoving>(&unit.behaviourState); movingState != nullptr)
             {
-                UnitPath path = std::visit(FindPathVisitor(this, request.unitId), movingState->destination);
-                movingState->path = PathFollowingInfo(std::move(path), simulation->gameTime);
+                auto path = match(
+                    movingState->destination,
+                    [&](const SimVector& pos) {
+                        return findPath(simulation, request.unitId, pos);
+                    },
+                    [&](const DiscreteRect& pos) {
+                        return findPath(simulation, request.unitId, pos);
+                    });
+                movingState->path = PathFollowingInfo(std::move(path), simulation.gameTime);
                 movingState->pathRequested = false;
             }
 
@@ -35,19 +38,19 @@ namespace rwe
         }
     }
 
-    UnitPath PathFindingService::findPath(UnitId unitId, const DiscreteRect& destination)
+    UnitPath PathFindingService::findPath(const GameSimulation& simulation, UnitId unitId, const DiscreteRect& destination)
     {
-        const auto& unit = simulation->getUnitState(unitId);
-        const auto& unitDefinition = simulation->unitDefinitions.at(unit.unitType);
+        const auto& unit = simulation.getUnitState(unitId);
+        const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
 
-        auto start = simulation->computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
+        auto start = simulation.computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
         // expand the goal rect to take into account our own collision rect
         auto goal = destination.expandTopLeft(start.width, start.height);
 
         auto movementClassId = match(
             unitDefinition.movementCollisionInfo, [&](const UnitDefinition::NamedMovementClass& mc) { return std::make_optional(mc.movementClassId); }, [&](const auto&) { return std::optional<MovementClassId>(); });
 
-        UnitPerimeterPathFinder pathFinder(simulation, collisionService, unitId, movementClassId, start.width, start.height, goal);
+        UnitPerimeterPathFinder pathFinder(&simulation, &simulation.movementClassCollisionService, unitId, movementClassId, start.width, start.height, goal);
 
         auto path = pathFinder.findPath(Point(start.x, start.y));
         lastPathDebugInfo = AStarPathInfo<Point, PathCost>{path.type, path.path, std::move(path.closedVertices)};
@@ -65,24 +68,24 @@ namespace rwe
         std::vector<SimVector> waypoints;
         for (auto it = ++simplifiedPath.cbegin(); it != simplifiedPath.cend(); ++it)
         {
-            waypoints.push_back(getWorldCenter(DiscreteRect(it->x, it->y, start.width, start.height)));
+            waypoints.push_back(getWorldCenter(simulation, DiscreteRect(it->x, it->y, start.width, start.height)));
         }
 
         return UnitPath{std::move(waypoints)};
     }
 
-    UnitPath PathFindingService::findPath(UnitId unitId, const SimVector& destination)
+    UnitPath PathFindingService::findPath(const GameSimulation& simulation, UnitId unitId, const SimVector& destination)
     {
-        const auto& unit = simulation->getUnitState(unitId);
-        const auto& unitDefinition = simulation->unitDefinitions.at(unit.unitType);
+        const auto& unit = simulation.getUnitState(unitId);
+        const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
 
-        auto start = simulation->computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
-        auto goal = simulation->computeFootprintRegion(destination, unitDefinition.movementCollisionInfo);
+        auto start = simulation.computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
+        auto goal = simulation.computeFootprintRegion(destination, unitDefinition.movementCollisionInfo);
 
         auto movementClassId = match(
             unitDefinition.movementCollisionInfo, [&](const UnitDefinition::NamedMovementClass& mc) { return std::make_optional(mc.movementClassId); }, [&](const auto&) { return std::optional<MovementClassId>(); });
 
-        UnitPathFinder pathFinder(simulation, collisionService, unitId, movementClassId, start.width, start.height, Point(goal.x, goal.y));
+        UnitPathFinder pathFinder(&simulation, &simulation.movementClassCollisionService, unitId, movementClassId, start.width, start.height, Point(goal.x, goal.y));
 
         auto path = pathFinder.findPath(Point(start.x, start.y));
         lastPathDebugInfo = AStarPathInfo<Point, PathCost>{path.type, path.path, std::move(path.closedVertices)};
@@ -105,22 +108,22 @@ namespace rwe
         std::vector<SimVector> waypoints;
         for (auto it = ++simplifiedPath.cbegin(); it != simplifiedPath.cend(); ++it)
         {
-            waypoints.push_back(getWorldCenter(DiscreteRect(it->x, it->y, start.width, start.height)));
+            waypoints.push_back(getWorldCenter(simulation, DiscreteRect(it->x, it->y, start.width, start.height)));
         }
         waypoints.back() = destination;
 
         return UnitPath{std::move(waypoints)};
     }
 
-    SimVector PathFindingService::getWorldCenter(const DiscreteRect& rect)
+    SimVector PathFindingService::getWorldCenter(const GameSimulation& simulation, const DiscreteRect& rect)
     {
-        auto corner = simulation->terrain.heightmapIndexToWorldCorner(rect.x, rect.y);
+        auto corner = simulation.terrain.heightmapIndexToWorldCorner(rect.x, rect.y);
 
         auto halfWorldWidth = (SimScalar(rect.width) * MapTerrain::HeightTileWidthInWorldUnits) / 2_ss;
         auto halfWorldHeight = (SimScalar(rect.height) * MapTerrain::HeightTileHeightInWorldUnits) / 2_ss;
 
         auto center = corner + SimVector(halfWorldWidth, 0_ss, halfWorldHeight);
-        center.y = simulation->terrain.getHeightAt(center.x, center.z);
+        center.y = simulation.terrain.getHeightAt(center.x, center.z);
         return center;
     }
 }

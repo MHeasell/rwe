@@ -272,7 +272,6 @@ namespace rwe
           unitDatabase(std::move(unitDatabase)),
           unitFactory(&this->unitDatabase, &this->simulation),
           gameNetworkService(std::move(gameNetworkService)),
-          pathFindingService(&this->simulation, &this->simulation.movementClassCollisionService),
           minimap(minimap),
           minimapDots(minimapDots),
           minimapDotHighlight(minimapDotHighlight),
@@ -745,7 +744,7 @@ namespace rwe
         }
         if (pathfindingVisualisationVisible)
         {
-            drawPathfindingVisualisation(simulation.terrain, pathFindingService.lastPathDebugInfo, terrainOverlayBatch);
+            drawPathfindingVisualisation(simulation.terrain, simulation.pathFindingService.lastPathDebugInfo, terrainOverlayBatch);
         }
 
         if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit && movementClassGridVisible)
@@ -2535,7 +2534,7 @@ namespace rwe
             }
         }
 
-        pathFindingService.update();
+        simulation.pathFindingService.update(simulation);
 
         // run unit scripts
         for (auto& entry : simulation.units)

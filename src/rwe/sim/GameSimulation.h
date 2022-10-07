@@ -5,6 +5,7 @@
 #include <rwe/MovementClassCollisionService.h>
 #include <rwe/PlayerColorIndex.h>
 #include <rwe/VectorMap.h>
+#include <rwe/pathfinding/PathFindingService.h>
 #include <rwe/sim/FeatureDefinition.h>
 #include <rwe/sim/FeatureId.h>
 #include <rwe/sim/GameTime.h>
@@ -163,6 +164,8 @@ namespace rwe
         std::unordered_map<MovementClassId, MovementClass> movementClassDefinitions;
         MovementClassCollisionService movementClassCollisionService;
 
+        PathFindingService pathFindingService;
+
         OccupiedGrid occupiedGrid;
 
         Grid<unsigned char> metalGrid;
@@ -185,7 +188,7 @@ namespace rwe
 
         std::vector<GameEvent> events;
 
-        explicit GameSimulation(MapTerrain&& terrain, unsigned char surfaceMetal);
+        explicit GameSimulation(MapTerrain&& terrain, MovementClassCollisionService&& movementClassCollisionService, unsigned char surfaceMetal);
 
         FeatureId addFeature(const FeatureDefinition& featureDefinition, MapFeature&& newFeature);
 

@@ -13,6 +13,7 @@
 #include <rwe/io/tdf/tdf.h>
 #include <rwe/io/tnt/TntArchive.h>
 #include <rwe/io/weapontdf/WeaponTdf.h>
+#include <rwe/pathfinding/PathFindingService.h>
 #include <rwe/sim/FeatureDefinitionId.h>
 #include <rwe/ui/UiLabel.h>
 
@@ -186,7 +187,7 @@ namespace rwe
 
         auto [unitDatabase, meshDatabase, dataMaps, movementClassCollisionService] = createUnitDatabase(mapInfo.terrain, meshService, requiredFeatureNames);
 
-        GameSimulation simulation(std::move(mapInfo.terrain), mapInfo.surfaceMetal);
+        GameSimulation simulation(std::move(mapInfo.terrain), std::move(movementClassCollisionService), mapInfo.surfaceMetal);
         for (const auto& [pos, featureName] : mapInfo.features)
         {
             auto featureId = unitDatabase.tryGetFeatureId(featureName).value();
@@ -205,7 +206,6 @@ namespace rwe
         simulation.unitDefinitions = std::move(dataMaps.unitDefinitions);
         simulation.weaponDefinitions = std::move(dataMaps.weaponDefinitions);
         simulation.movementClassDefinitions = std::move(dataMaps.movementClassDefinitions);
-        simulation.movementClassCollisionService = std::move(movementClassCollisionService);
         simulation.unitModelDefinitions = dataMaps.modelDefinitions;
         simulation.unitScriptDefinitions = loadCobScripts(*sceneContext.vfs);
 

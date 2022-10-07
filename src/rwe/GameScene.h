@@ -30,7 +30,6 @@
 #include <rwe/grid/DiscreteRect.h>
 #include <rwe/io/featuretdf/FeatureTdf.h>
 #include <rwe/observable/BehaviorSubject.h>
-#include <rwe/pathfinding/PathFindingService.h>
 #include <rwe/scene/Scene.h>
 #include <rwe/scene/util.h>
 #include <rwe/sim/GameSimulation.h>
@@ -211,8 +210,6 @@ namespace rwe
         UnitFactory unitFactory;
 
         std::unique_ptr<GameNetworkService> gameNetworkService;
-
-        PathFindingService pathFindingService;
 
         std::shared_ptr<Sprite> minimap;
         std::shared_ptr<SpriteSeries> minimapDots;
