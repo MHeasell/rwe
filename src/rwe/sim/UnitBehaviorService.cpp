@@ -633,6 +633,13 @@ namespace rwe
         auto& unit = sim->getUnitState(id);
         const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
 
+        // No collision for flying units.
+        if (unit.isFlying)
+        {
+            unit.position = newPosition;
+            return true;
+        }
+
         // check for collision at the new position
         auto newFootprintRegion = sim->computeFootprintRegion(newPosition, unitDefinition.movementCollisionInfo);
 
@@ -1226,7 +1233,7 @@ namespace rwe
             });
     }
 
-    bool UnitBehaviorService::moveTo(UnitId unitId, const MovingStateGoal& goal)
+    bool UnitBehaviorService::groundUnitMoveTo(UnitId unitId, const MovingStateGoal& goal)
     {
         auto& unit = sim->getUnitState(unitId);
         const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
@@ -1266,6 +1273,47 @@ namespace rwe
         }
 
         return false;
+    }
+
+    bool UnitBehaviorService::flyingUnitMoveTo(UnitId unitId, const MovingStateGoal& goal)
+    {
+        auto& unit = sim->getUnitState(unitId);
+        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
+
+        auto movingState = std::get_if<UnitBehaviorStateMoving>(&unit.behaviourState);
+
+        if (std::holds_alternative<UnitBehaviorStateFlying>(unit.behaviourState))
+        {
+            return flyTowardsGoal(unitId, goal);
+        }
+
+        if (std::holds_alternative<UnitBehaviorStateTakingOff>(unit.behaviourState))
+        {
+            if (climbToCruiseAltitude(unitId))
+            {
+                changeState(unit, UnitBehaviorStateFlying());
+            }
+            return false;
+        }
+
+        // Transition the unit from ground to air layer
+        transitionFromGroundToAir(unitId);
+        changeState(unit, UnitBehaviorStateTakingOff());
+        return false;
+    }
+
+    bool UnitBehaviorService::moveTo(UnitId unitId, const MovingStateGoal& goal)
+    {
+        auto& unit = sim->getUnitState(unitId);
+        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
+        if (unitDefinition.canFly)
+        {
+            return flyingUnitMoveTo(unitId, goal);
+        }
+        else
+        {
+            return groundUnitMoveTo(unitId, goal);
+        }
     }
 
     UnitCreationStatus UnitBehaviorService::createNewUnit(UnitId unitId, const std::string& unitType, const SimVector& position)
@@ -1420,5 +1468,63 @@ namespace rwe
                 unit.cobEnvironment->createThread("StartBuilding", {toCobAngle(heading).value, toCobAngle(pitch).value});
                 return false;
             });
+    }
+
+    bool UnitBehaviorService::climbToCruiseAltitude(UnitId unitId)
+    {
+        auto& unit = sim->getUnitState(unitId);
+        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
+
+        auto terrainHeight = sim->terrain.getHeightAt(unit.position.x, unit.position.z);
+
+        auto targetHeight = terrainHeight + unitDefinition.cruiseAltitude;
+
+        unit.position.y = rweMin(unit.position.y + 1_ss, targetHeight);
+
+        return unit.position.y == targetHeight;
+    }
+
+    void UnitBehaviorService::transitionFromGroundToAir(UnitId unitId)
+    {
+        auto& unit = sim->getUnitState(unitId);
+        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
+
+        unit.activate();
+
+        unit.isFlying = true;
+        auto footprintRect = sim->computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
+        auto footprintRegion = sim->occupiedGrid.tryToRegion(footprintRect);
+        assert(!!footprintRegion);
+        sim->occupiedGrid.forEach(*footprintRegion, [](auto& cell) {
+            cell.occupiedType = OccupiedNone();
+        });
+    }
+
+    bool UnitBehaviorService::flyTowardsGoal(UnitId unitId, const MovingStateGoal& goal)
+    {
+        auto& unit = sim->getUnitState(unitId);
+        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
+
+        auto destination = match(
+            goal,
+            [&](const SimVector& pos) {
+                return pos;
+            },
+            [&](const DiscreteRect& rect) {
+                // TODO: find closest point on rect to current pos
+                return SimVector(0_ss, 0_ss, 0_ss);
+            });
+
+        SimVector xzPosition(unit.position.x, 0_ss, unit.position.z);
+        SimVector xzDestination(destination.x, 0_ss, destination.z);
+        auto distanceSquared = xzPosition.distanceSquared(xzDestination);
+
+        if (distanceSquared < (8_ss * 8_ss))
+        {
+            return true;
+        }
+
+        unit.steeringInfo = arrive(unit, unitDefinition, destination);
+        return false;
     }
 }

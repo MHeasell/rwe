@@ -43,6 +43,10 @@ namespace rwe
         bool floater;
         bool canHover;
 
+        bool canFly;
+
+        unsigned int cruiseAlt;
+
         std::string weapon1;
         std::string weapon2;
         std::string weapon3;

@@ -80,6 +80,11 @@ namespace rwe
         bool floater;
         bool canHover;
 
+        bool canFly;
+
+        /** Distance above the ground that the unit flies at. */
+        SimScalar cruiseAltitude;
+
         std::string weapon1;
         std::string weapon2;
         std::string weapon3;

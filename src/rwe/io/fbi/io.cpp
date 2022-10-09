@@ -52,6 +52,10 @@ namespace rwe
         tdf.readOrDefault("Floater", u.floater);
         tdf.readOrDefault("CanHover", u.canHover);
 
+        tdf.readOrDefault("CanFly", u.canFly);
+
+        tdf.readOrDefault("CruiseAlt", u.cruiseAlt);
+
         tdf.readOrDefault("Weapon1", u.weapon1);
         tdf.readOrDefault("Weapon2", u.weapon2);
         tdf.readOrDefault("Weapon3", u.weapon3);

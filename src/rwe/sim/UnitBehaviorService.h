@@ -110,6 +110,10 @@ namespace rwe
 
         MovingStateGoal attackTargetToMovingStateGoal(const AttackTarget& target);
 
+        bool groundUnitMoveTo(UnitId unitId, const MovingStateGoal& goal);
+
+        bool flyingUnitMoveTo(UnitId unitId, const MovingStateGoal& goal);
+
         bool moveTo(UnitId unitId, const MovingStateGoal& goal);
 
         bool attackTarget(UnitId unitId, const AttackTarget& target);
@@ -123,5 +127,11 @@ namespace rwe
         void changeState(UnitState& unit, const UnitBehaviorState& newState);
 
         bool deployBuildArm(UnitId unitId, UnitId targetUnitId);
+
+        bool climbToCruiseAltitude(UnitId unitId);
+
+        void transitionFromGroundToAir(UnitId unitId);
+
+        bool flyTowardsGoal(UnitId unitId, const MovingStateGoal& goal);
     };
 }

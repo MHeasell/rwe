@@ -47,6 +47,10 @@ namespace rwe
 
     nlohmann::json dumpJson(const UnitBehaviorStateCreatingUnit&);
 
+    nlohmann::json dumpJson(const UnitBehaviorStateTakingOff&);
+    nlohmann::json dumpJson(const UnitBehaviorStateFlying&);
+    nlohmann::json dumpJson(const UnitBehaviorStateLanding&);
+
     nlohmann::json dumpJson(const UnitCreationStatusPending&);
     nlohmann::json dumpJson(const UnitCreationStatusDone&);
     nlohmann::json dumpJson(const UnitCreationStatusFailed&);

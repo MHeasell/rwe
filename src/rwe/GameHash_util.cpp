@@ -81,6 +81,7 @@ namespace rwe
             u.steeringInfo,
             u.hitPoints,
             u.lifeState,
+            u.isFlying,
             u.behaviourState,
             u.inBuildStance,
             u.yardOpen,
@@ -140,6 +141,21 @@ namespace rwe
             s.owner,
             s.unitType,
             s.status);
+    }
+
+    GameHash computeHashOf(const UnitBehaviorStateTakingOff&)
+    {
+        return GameHash(0);
+    }
+
+    GameHash computeHashOf(const UnitBehaviorStateLanding&)
+    {
+        return GameHash(0);
+    }
+
+    GameHash computeHashOf(const UnitBehaviorStateFlying&)
+    {
+        return GameHash(0);
     }
 
     GameHash computeHashOf(const UnitCreationStatusPending&)

@@ -1073,6 +1073,15 @@ namespace rwe
             [&](const UnitBehaviorStateCreatingUnit&)
             {
                 return "creating unit";
+            },
+            [&](const UnitBehaviorStateTakingOff&) {
+                return "taking off";
+            },
+            [&](const UnitBehaviorStateLanding&) {
+                return "landing";
+            },
+            [&](const UnitBehaviorStateFlying&) {
+                return "flying";
             });
     }
 

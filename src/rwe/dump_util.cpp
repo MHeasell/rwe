@@ -123,6 +123,18 @@ namespace rwe
             {"position", dumpJson(s.position)},
         };
     }
+    nlohmann::json dumpJson(const UnitBehaviorStateTakingOff& s)
+    {
+        return nlohmann::json();
+    }
+    nlohmann::json dumpJson(const UnitBehaviorStateLanding& s)
+    {
+        return nlohmann::json();
+    }
+    nlohmann::json dumpJson(const UnitBehaviorStateFlying& s)
+    {
+        return nlohmann::json();
+    }
     nlohmann::json dumpJson(const UnitCreationStatusPending&)
     {
         return nlohmann::json();

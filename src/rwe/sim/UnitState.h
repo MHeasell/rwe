@@ -38,6 +38,18 @@ namespace rwe
 
     using MovingStateGoal = std::variant<SimVector, DiscreteRect>;
 
+    struct UnitBehaviorStateTakingOff
+    {
+    };
+
+    struct UnitBehaviorStateLanding
+    {
+    };
+
+    struct UnitBehaviorStateFlying
+    {
+    };
+
     struct UnitBehaviorStateMoving
     {
         MovingStateGoal destination;
@@ -77,7 +89,14 @@ namespace rwe
         std::optional<SimVector> nanoParticleOrigin;
     };
 
-    using UnitBehaviorState = std::variant<UnitBehaviorStateIdle, UnitBehaviorStateMoving, UnitBehaviorStateCreatingUnit, UnitBehaviorStateBuilding>;
+    using UnitBehaviorState = std::variant<
+        UnitBehaviorStateIdle,
+        UnitBehaviorStateMoving,
+        UnitBehaviorStateCreatingUnit,
+        UnitBehaviorStateBuilding,
+        UnitBehaviorStateTakingOff,
+        UnitBehaviorStateFlying,
+        UnitBehaviorStateLanding>;
 
     struct FactoryBehaviorStateIdle
     {
@@ -158,6 +177,8 @@ namespace rwe
         unsigned int hitPoints{0};
 
         LifeState lifeState{LifeStateAlive()};
+
+        bool isFlying{false};
 
         std::deque<UnitOrder> orders;
         UnitBehaviorState behaviourState;

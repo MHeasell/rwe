@@ -719,6 +719,10 @@ namespace rwe
         u.floater = fbi.floater;
         u.canHover = fbi.canHover;
 
+        u.canFly = fbi.canFly;
+
+        u.cruiseAltitude = SimScalar(fbi.cruiseAlt);
+
         u.weapon1 = fbi.weapon1;
         u.weapon2 = fbi.weapon2;
         u.weapon3 = fbi.weapon3;
