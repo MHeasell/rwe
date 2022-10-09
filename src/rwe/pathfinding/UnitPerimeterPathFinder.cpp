@@ -3,8 +3,8 @@
 namespace rwe
 {
     UnitPerimeterPathFinder::UnitPerimeterPathFinder(
-        GameSimulation* simulation,
-        MovementClassCollisionService* collisionService,
+        const GameSimulation* simulation,
+        const MovementClassCollisionService* collisionService,
         const UnitId& self,
         const std::optional<MovementClassId>& movementClass,
         unsigned int footprintX,

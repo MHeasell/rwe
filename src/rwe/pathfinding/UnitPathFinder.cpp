@@ -3,8 +3,8 @@
 namespace rwe
 {
     UnitPathFinder::UnitPathFinder(
-        GameSimulation* simulation,
-        MovementClassCollisionService* collisionService,
+        const GameSimulation* simulation,
+        const MovementClassCollisionService* collisionService,
         UnitId self,
         std::optional<MovementClassId> movementClass,
         unsigned int footprintX,

@@ -17,8 +17,8 @@ namespace rwe
     class AbstractUnitPathFinder : public AStarPathFinder<Point, PathCost>
     {
     private:
-        GameSimulation* const simulation;
-        MovementClassCollisionService* const collisionService;
+        const GameSimulation* const simulation;
+        const MovementClassCollisionService* const collisionService;
         const UnitId self;
         const std::optional<MovementClassId> movementClass;
         const unsigned int footprintX;
@@ -26,8 +26,8 @@ namespace rwe
 
     public:
         AbstractUnitPathFinder(
-            GameSimulation* simulation,
-            MovementClassCollisionService* collisionService,
+            const GameSimulation* simulation,
+            const MovementClassCollisionService* collisionService,
             UnitId self,
             std::optional<MovementClassId> movementClass,
             unsigned int footprintX,
