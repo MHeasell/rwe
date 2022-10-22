@@ -622,7 +622,11 @@ namespace rwe
 
         if (distanceSquared > decelerationDistance)
         {
-            auto newVelocity = physics.currentVelocity + (direction * unitDefinition.acceleration);
+            auto targetVelocity = direction * unitDefinition.maxVelocity;
+            auto velocityDelta = targetVelocity - physics.currentVelocity;
+            auto deltaDirection = velocityDelta.normalizedOr(SimVector(0_ss, 0_ss, 0_ss));
+
+            auto newVelocity = physics.currentVelocity + (deltaDirection * unitDefinition.acceleration);
             if (newVelocity.lengthSquared() > (unitDefinition.maxVelocity * unitDefinition.maxVelocity))
             {
                 newVelocity = newVelocity.normalized() * unitDefinition.maxVelocity;
@@ -631,11 +635,8 @@ namespace rwe
         }
         else
         {
-            auto newVelocity = physics.currentVelocity - (direction * unitDefinition.acceleration);
-            if (newVelocity.lengthSquared() > (unitDefinition.maxVelocity * unitDefinition.maxVelocity))
-            {
-                newVelocity = newVelocity.normalized() * unitDefinition.maxVelocity;
-            }
+            auto currentDirection = physics.currentVelocity.normalizedOr(SimVector(0_ss, 0_ss, 0_ss));
+            auto newVelocity = physics.currentVelocity - (currentDirection * unitDefinition.acceleration);
             newVelocity = SimVector(
                 rweMax(0_ss, newVelocity.x),
                 rweMax(0_ss, newVelocity.y),
