@@ -1,7 +1,6 @@
 #include "UnitBehaviorService.h"
 #include <rwe/Index.h>
 #include <rwe/cob/CobExecutionContext.h>
-#include <rwe/geometry/Circle2x.h>
 #include <rwe/match.h>
 #include <rwe/math/rwe_math.h>
 #include <rwe/sim/cob.h>
@@ -9,6 +8,11 @@
 
 namespace rwe
 {
+    SimAngle angleTo(const Vector2x<SimScalar>& lhs, const Vector2x<SimScalar>& rhs)
+    {
+        return atan2(lhs.det(rhs), lhs.dot(rhs));
+    }
+
     SimScalar getTurnRadius(SimScalar speed, SimScalar turnRate)
     {
         return speed / angularToRadians(turnRate);
@@ -56,10 +60,20 @@ namespace rwe
         const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
 
         // Clear steering targets.
-        unit.steeringInfo = SteeringInfo{
-            unit.rotation,
-            0_ss,
-        };
+        match(
+            unit.physics,
+            [&](GroundPhysics& p) {
+                p.steeringInfo = SteeringInfo{
+                    unit.rotation,
+                    0_ss,
+                };
+            },
+            [&](AirPhysics& p) {
+                p.airSteeringInfo = AirSteeringInfo{unit.position};
+            },
+            [&](AirTakingOffPhysics&) {
+                // do nothing
+            });
 
         // Run unit and weapon AI
         if (!unit.isBeingBuilt(unitDefinition))
@@ -224,12 +238,12 @@ namespace rwe
         };
     }
 
-    SteeringInfo arrive(const UnitState& unit, const UnitDefinition& unitDefinition, const SimVector& destination)
+    SteeringInfo arrive(const UnitState& unit, const UnitDefinition& unitDefinition, const GroundPhysics& physics, const SimVector& destination)
     {
         SimVector xzPosition(unit.position.x, 0_ss, unit.position.z);
         SimVector xzDestination(destination.x, 0_ss, destination.z);
         auto distanceSquared = xzPosition.distanceSquared(xzDestination);
-        auto brakingDistance = (unit.currentSpeed * unit.currentSpeed) / (2_ss * unitDefinition.brakeRate);
+        auto brakingDistance = (physics.currentSpeed * physics.currentSpeed) / (2_ss * unitDefinition.brakeRate);
 
         if (distanceSquared > (brakingDistance * brakingDistance))
         {
@@ -244,7 +258,7 @@ namespace rwe
         };
     }
 
-    bool followPath(UnitState& unit, const UnitDefinition& unitDefinition, PathFollowingInfo& path)
+    bool followPath(UnitState& unit, const UnitDefinition& unitDefinition, GroundPhysics& physics, PathFollowingInfo& path)
     {
         const auto& destination = *path.currentWaypoint;
         SimVector xzPosition(unit.position.x, 0_ss, unit.position.z);
@@ -260,7 +274,7 @@ namespace rwe
                 return true;
             }
 
-            unit.steeringInfo = arrive(unit, unitDefinition, destination);
+            physics.steeringInfo = arrive(unit, unitDefinition, physics, destination);
             return false;
         }
 
@@ -270,7 +284,7 @@ namespace rwe
             return false;
         }
 
-        unit.steeringInfo = seek(unit, unitDefinition, destination);
+        physics.steeringInfo = seek(unit, unitDefinition, destination);
         return false;
     }
 
@@ -527,7 +541,70 @@ namespace rwe
         const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
         auto turnRateThisFrame = SimAngle(unitDefinition.turnRate.value);
         unit.previousRotation = unit.rotation;
-        unit.rotation = turnTowards(unit.rotation, unit.steeringInfo.targetAngle, turnRateThisFrame);
+
+        match(
+            unit.physics,
+            [&](const GroundPhysics& p) {
+                unit.rotation = turnTowards(unit.rotation, p.steeringInfo.targetAngle, turnRateThisFrame);
+            },
+            [&](const AirPhysics& p) {
+                auto direction = p.airSteeringInfo.targetPosition - unit.position;
+                auto targetAngle = UnitState::toRotation(direction);
+                unit.rotation = turnTowards(unit.rotation, targetAngle, turnRateThisFrame);
+            },
+            [&](const AirTakingOffPhysics&) {
+                // do nothing
+            });
+    }
+
+    SimScalar computeNewGroundUnitSpeed(const MapTerrain& terrain, const UnitState& unit, const UnitDefinition& unitDefinition, const GroundPhysics& physics)
+    {
+        SimScalar newSpeed;
+        if (physics.steeringInfo.targetSpeed > physics.currentSpeed)
+        {
+            // accelerate to target speed
+            if (physics.steeringInfo.targetSpeed - physics.currentSpeed <= unitDefinition.acceleration)
+            {
+                newSpeed = physics.steeringInfo.targetSpeed;
+            }
+            else
+            {
+                newSpeed = physics.currentSpeed + unitDefinition.acceleration;
+            }
+        }
+        else
+        {
+            // brake to target speed
+            if (physics.currentSpeed - physics.steeringInfo.targetSpeed <= unitDefinition.brakeRate)
+            {
+                newSpeed = physics.steeringInfo.targetSpeed;
+            }
+            else
+            {
+                newSpeed = physics.currentSpeed - unitDefinition.brakeRate;
+            }
+        }
+
+        auto effectiveMaxSpeed = unitDefinition.maxVelocity;
+        if (unit.position.y < terrain.getSeaLevel())
+        {
+            effectiveMaxSpeed /= 2_ss;
+        }
+        newSpeed = std::clamp(newSpeed, 0_ss, effectiveMaxSpeed);
+
+        return newSpeed;
+    }
+
+    SimVector computeNewAirUnitVelocity(const UnitState& unit, const UnitDefinition& unitDefinition, const AirPhysics& physics)
+    {
+        auto direction = (physics.airSteeringInfo.targetPosition - unit.position).normalizedOr(SimVector(0_ss, 0_ss, 0_ss));
+        auto newVelocity = physics.currentVelocity + (direction * unitDefinition.acceleration);
+        if (newVelocity.lengthSquared() > (unitDefinition.maxVelocity * unitDefinition.maxVelocity))
+        {
+            newVelocity = newVelocity.normalized() * unitDefinition.maxVelocity;
+        }
+
+        return newVelocity;
     }
 
     void UnitBehaviorService::updateUnitSpeed(UnitId id)
@@ -535,55 +612,26 @@ namespace rwe
         auto& unit = sim->getUnitState(id);
         const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
 
-        const auto& steeringInfo = unit.steeringInfo;
-
-        if (steeringInfo.targetSpeed > unit.currentSpeed)
-        {
-            // accelerate to target speed
-            if (steeringInfo.targetSpeed - unit.currentSpeed <= unitDefinition.acceleration)
-            {
-                unit.currentSpeed = steeringInfo.targetSpeed;
-            }
-            else
-            {
-                unit.currentSpeed += unitDefinition.acceleration;
-            }
-        }
-        else
-        {
-            // brake to target speed
-            if (unit.currentSpeed - steeringInfo.targetSpeed <= unitDefinition.brakeRate)
-            {
-                unit.currentSpeed = steeringInfo.targetSpeed;
-            }
-            else
-            {
-                unit.currentSpeed -= unitDefinition.brakeRate;
-            }
-        }
-
-        auto effectiveMaxSpeed = unitDefinition.maxVelocity;
-        if (unit.position.y < sim->terrain.getSeaLevel())
-        {
-            effectiveMaxSpeed /= 2_ss;
-        }
-        unit.currentSpeed = std::clamp(unit.currentSpeed, 0_ss, effectiveMaxSpeed);
+        match(
+            unit.physics,
+            [&](GroundPhysics& p) {
+                p.currentSpeed = computeNewGroundUnitSpeed(sim->terrain, unit, unitDefinition, p);
+            },
+            [&](AirPhysics& p) {
+                p.currentVelocity = computeNewAirUnitVelocity(unit, unitDefinition, p);
+            },
+            [&](const AirTakingOffPhysics&) {
+                // do nothing
+            });
     }
 
-    void UnitBehaviorService::updateUnitPosition(UnitId unitId)
+    void UnitBehaviorService::updateGroundUnitPosition(UnitId unitId, UnitState& unit, const UnitDefinition& unitDefinition, const GroundPhysics& physics)
     {
-        auto& unit = sim->getUnitState(unitId);
-        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
-
-        unit.previousPosition = unit.position;
-
         auto direction = UnitState::toDirection(unit.rotation);
 
-        unit.inCollision = false;
-
-        if (unit.currentSpeed > 0_ss)
+        if (physics.currentSpeed > 0_ss)
         {
-            auto newPosition = unit.position + (direction * unit.currentSpeed);
+            auto newPosition = unit.position + (direction * physics.currentSpeed);
             newPosition.y = sim->terrain.getHeightAt(newPosition.x, newPosition.z);
             if (unitDefinition.floater || unitDefinition.canHover)
             {
@@ -603,13 +651,13 @@ namespace rwe
                 SimVector newPos2;
                 if (direction.x > direction.z)
                 {
-                    newPos1 = unit.position + (direction * maskZ * unit.currentSpeed);
-                    newPos2 = unit.position + (direction * maskX * unit.currentSpeed);
+                    newPos1 = unit.position + (direction * maskZ * physics.currentSpeed);
+                    newPos2 = unit.position + (direction * maskX * physics.currentSpeed);
                 }
                 else
                 {
-                    newPos1 = unit.position + (direction * maskX * unit.currentSpeed);
-                    newPos2 = unit.position + (direction * maskZ * unit.currentSpeed);
+                    newPos1 = unit.position + (direction * maskX * physics.currentSpeed);
+                    newPos2 = unit.position + (direction * maskZ * physics.currentSpeed);
                 }
                 newPos1.y = sim->terrain.getHeightAt(newPos1.x, newPos1.z);
                 newPos2.y = sim->terrain.getHeightAt(newPos2.x, newPos2.z);
@@ -628,13 +676,40 @@ namespace rwe
         }
     }
 
+    void UnitBehaviorService::updateAirUnitPosition(UnitId unitId, UnitState& unit, const UnitDefinition& unitDefinition, const AirPhysics& physics)
+    {
+        auto newPosition = unit.position + physics.currentVelocity;
+        tryApplyMovementToPosition(unitId, newPosition);
+    }
+
+    void UnitBehaviorService::updateUnitPosition(UnitId unitId)
+    {
+        auto& unit = sim->getUnitState(unitId);
+        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
+
+        unit.previousPosition = unit.position;
+        unit.inCollision = false;
+
+        match(
+            unit.physics,
+            [&](const GroundPhysics& p) {
+                updateGroundUnitPosition(unitId, unit, unitDefinition, p);
+            },
+            [&](const AirPhysics& p) {
+                updateAirUnitPosition(unitId, unit, unitDefinition, p);
+            },
+            [&](const AirTakingOffPhysics&) {
+                climbToCruiseAltitude(unitId);
+            });
+    }
+
     bool UnitBehaviorService::tryApplyMovementToPosition(UnitId id, const SimVector& newPosition)
     {
         auto& unit = sim->getUnitState(id);
         const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
 
         // No collision for flying units.
-        if (unit.isFlying)
+        if (std::holds_alternative<AirPhysics>(unit.physics))
         {
             unit.position = newPosition;
             return true;
@@ -1170,11 +1245,6 @@ namespace rwe
         return unit.getTransform() * getPieceLocalPosition(id, pieceId);
     }
 
-    SimAngle angleTo(const Vector2x<SimScalar>& lhs, const Vector2x<SimScalar>& rhs)
-    {
-        return atan2(lhs.det(rhs), lhs.dot(rhs));
-    }
-
     SimAngle UnitBehaviorService::getPieceXZRotation(UnitId id, unsigned int pieceId)
     {
         auto& unit = sim->getUnitState(id);
@@ -1263,7 +1333,12 @@ namespace rwe
         // if a path is available, attempt to follow it
         if (movingState->path)
         {
-            if (followPath(unit, unitDefinition, *movingState->path))
+            auto groundPhysics = std::get_if<GroundPhysics>(&unit.physics);
+            if (groundPhysics == nullptr)
+            {
+                throw std::logic_error("ground unit does not have ground physics");
+            }
+            if (followPath(unit, unitDefinition, *groundPhysics, *movingState->path))
             {
                 // we finished following the path,
                 // clear our state
@@ -1289,9 +1364,14 @@ namespace rwe
 
         if (std::holds_alternative<UnitBehaviorStateTakingOff>(unit.behaviourState))
         {
-            if (climbToCruiseAltitude(unitId))
+            auto terrainHeight = sim->terrain.getHeightAt(unit.position.x, unit.position.z);
+            auto targetHeight = terrainHeight + unitDefinition.cruiseAltitude;
+            unit.position.y = rweMin(unit.position.y + 1_ss, targetHeight);
+
+            if (unit.position.y == targetHeight)
             {
                 changeState(unit, UnitBehaviorStateFlying());
+                unit.physics = AirPhysics{AirSteeringInfo{unit.position}, SimVector(0_ss, 0_ss, 0_ss)};
             }
             return false;
         }
@@ -1491,7 +1571,7 @@ namespace rwe
 
         unit.activate();
 
-        unit.isFlying = true;
+        unit.physics = AirTakingOffPhysics();
         auto footprintRect = sim->computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
         auto footprintRegion = sim->occupiedGrid.tryToRegion(footprintRect);
         assert(!!footprintRegion);
@@ -1524,7 +1604,13 @@ namespace rwe
             return true;
         }
 
-        unit.steeringInfo = arrive(unit, unitDefinition, destination);
+        auto airPhysics = std::get_if<AirPhysics>(&unit.physics);
+        if (airPhysics == nullptr)
+        {
+            throw std::logic_error("cannot fly towards goal because unit does not have air physics");
+        }
+
+        airPhysics->airSteeringInfo.targetPosition = destination;
         return false;
     }
 }

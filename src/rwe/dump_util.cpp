@@ -55,8 +55,7 @@ namespace rwe
             {"position", dumpJson(u.position)},
             {"owner", dumpJson(u.owner)},
             {"rotation", dumpJson(u.rotation)},
-            {"currentSpeed", dumpJson(u.currentSpeed)},
-            {"steeringInfo", dumpJson(u.steeringInfo)},
+            {"physics", dumpJson(u.physics)},
             {"hitPoints", dumpJson(u.hitPoints)},
             {"lifeState", dumpJson(u.lifeState)},
             {"behaviourState", dumpJson(u.behaviourState)},
@@ -75,11 +74,39 @@ namespace rwe
             {"metalConsumptionBuffer", dumpJson(u.metalConsumptionBuffer)}};
     }
 
+    nlohmann::json dumpJson(const GroundPhysics& p)
+    {
+        return nlohmann::json{
+            {"steeringInfo", dumpJson(p.steeringInfo)},
+            {"currentSpeed", dumpJson(p.currentSpeed)},
+        };
+    }
+
+    nlohmann::json dumpJson(const AirPhysics& p)
+    {
+        return nlohmann::json{
+            {"airSteeringInfo", dumpJson(p.airSteeringInfo)},
+            {"currentVelocity", dumpJson(p.currentVelocity)},
+        };
+    }
+
+    nlohmann::json dumpJson(const AirTakingOffPhysics& p)
+    {
+        return nlohmann::json{};
+    }
+
     nlohmann::json dumpJson(const SteeringInfo& s)
     {
         return nlohmann::json{
             {"targetAngle", dumpJson(s.targetAngle)},
             {"targetSpeed", dumpJson(s.targetSpeed)},
+        };
+    }
+
+    nlohmann::json dumpJson(const AirSteeringInfo& s)
+    {
+        return nlohmann::json{
+            {"targetPosition", dumpJson(s.targetPosition)},
         };
     }
 

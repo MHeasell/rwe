@@ -77,11 +77,9 @@ namespace rwe
             u.position,
             u.owner,
             u.rotation,
-            u.currentSpeed,
-            u.steeringInfo,
+            u.physics,
             u.hitPoints,
             u.lifeState,
-            u.isFlying,
             u.behaviourState,
             u.inBuildStance,
             u.yardOpen,
@@ -98,9 +96,29 @@ namespace rwe
             u.metalConsumptionBuffer);
     }
 
+    GameHash computeHashOf(const GroundPhysics& p)
+    {
+        return combineHashes(p.steeringInfo, p.currentSpeed);
+    }
+
+    GameHash computeHashOf(const AirPhysics& p)
+    {
+        return combineHashes(p.airSteeringInfo, p.currentVelocity);
+    }
+
+    GameHash computeHashOf(const AirTakingOffPhysics& p)
+    {
+        return GameHash(0);
+    }
+
     GameHash computeHashOf(const SteeringInfo& s)
     {
         return combineHashes(s.targetAngle, s.targetSpeed);
+    }
+
+    GameHash computeHashOf(const AirSteeringInfo& s)
+    {
+        return combineHashes(s.targetPosition);
     }
 
     GameHash computeHashOf(const Vector3f& v)

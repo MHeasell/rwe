@@ -138,6 +138,37 @@ namespace rwe
         SimScalar targetSpeed{0};
     };
 
+    struct AirSteeringInfo
+    {
+        SimVector targetPosition;
+    };
+
+    struct GroundPhysics
+    {
+        SteeringInfo steeringInfo;
+
+        /**
+         * Rate at which the unit is travelling forwards in game units/tick.
+         */
+        SimScalar currentSpeed{0};
+    };
+
+    struct AirTakingOffPhysics
+    {
+    };
+
+    struct AirPhysics
+    {
+        AirSteeringInfo airSteeringInfo;
+
+        /**
+         * Rate at which the unit is moving in game units/tick.
+         */
+        SimVector currentVelocity{0_ss, 0_ss, 0_ss};
+    };
+
+    using UnitPhysicsInfo = std::variant<GroundPhysics, AirPhysics, AirTakingOffPhysics>;
+
     class UnitState
     {
     public:
@@ -167,18 +198,11 @@ namespace rwe
         SimAngle rotation{0};
         SimAngle previousRotation{0};
 
-        /**
-         * Rate at which the unit is travelling forwards in game units/tick.
-         */
-        SimScalar currentSpeed{0};
-
-        SteeringInfo steeringInfo;
+        UnitPhysicsInfo physics{GroundPhysics()};
 
         unsigned int hitPoints{0};
 
         LifeState lifeState{LifeStateAlive()};
-
-        bool isFlying{false};
 
         std::deque<UnitOrder> orders;
         UnitBehaviorState behaviourState;
