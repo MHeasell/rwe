@@ -1625,7 +1625,10 @@ namespace rwe
             throw std::logic_error("cannot fly towards goal because unit does not have air physics");
         }
 
-        airPhysics->airSteeringInfo.targetPosition = destination;
+        auto targetHeight = sim->terrain.getHeightAt(destination.x, destination.z) + unitDefinition.cruiseAltitude;
+        SimVector destinationAtAltitude(destination.x, targetHeight, destination.z);
+
+        airPhysics->airSteeringInfo.targetPosition = destinationAtAltitude;
         return false;
     }
 }
