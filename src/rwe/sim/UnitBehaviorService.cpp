@@ -703,13 +703,28 @@ namespace rwe
             });
     }
 
+    bool isFlying(const UnitPhysicsInfo& physics)
+    {
+        return match(
+            physics,
+            [&](const GroundPhysics&) {
+                return false;
+            },
+            [&](const AirPhysics&) {
+                return true;
+            },
+            [&](const AirTakingOffPhysics&) {
+                return true;
+            });
+    }
+
     bool UnitBehaviorService::tryApplyMovementToPosition(UnitId id, const SimVector& newPosition)
     {
         auto& unit = sim->getUnitState(id);
         const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
 
         // No collision for flying units.
-        if (std::holds_alternative<AirPhysics>(unit.physics))
+        if (isFlying(unit.physics))
         {
             unit.position = newPosition;
             return true;
