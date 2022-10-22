@@ -124,7 +124,7 @@ namespace rwe
             z /= n;
         }
 
-        Vector3x normalized()
+        Vector3x normalized() const
         {
             Val n = length();
             if (n == Val(0))
@@ -135,7 +135,7 @@ namespace rwe
             return Vector3x(x / n, y / n, z / n);
         }
 
-        Vector3x normalizedOr(const Vector3x& defaultValue)
+        Vector3x normalizedOr(const Vector3x& defaultValue) const
         {
             auto n = length();
             if (n == Val(0))
