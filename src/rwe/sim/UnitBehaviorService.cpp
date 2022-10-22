@@ -600,17 +600,22 @@ namespace rwe
         return newSpeed;
     }
 
+    SimVector decelerate(SimVector currentVelocity, SimScalar deceleration)
+    {
+        auto currentDirection = currentVelocity.normalizedOr(SimVector(0_ss, 0_ss, 0_ss));
+        if (currentDirection == SimVector(0_ss, 0_ss, 0_ss))
+        {
+            return SimVector(0_ss, 0_ss, 0_ss);
+        }
+        auto newVelocity = currentVelocity - (currentDirection * deceleration);
+        return newVelocity;
+    }
+
     SimVector computeNewAirUnitVelocity(const UnitState& unit, const UnitDefinition& unitDefinition, const AirPhysics& physics)
     {
         if (!physics.airSteeringInfo.targetPosition)
         {
-            auto currentDirection = physics.currentVelocity.normalizedOr(SimVector(0_ss, 0_ss, 0_ss));
-            auto newVelocity = physics.currentVelocity - (currentDirection * unitDefinition.acceleration);
-            newVelocity = SimVector(
-                rweMax(0_ss, newVelocity.x),
-                rweMax(0_ss, newVelocity.y),
-                rweMax(0_ss, newVelocity.z));
-            return newVelocity;
+            return decelerate(physics.currentVelocity, unitDefinition.acceleration);
         }
 
         auto rawDirection = *physics.airSteeringInfo.targetPosition - unit.position;
@@ -620,7 +625,7 @@ namespace rwe
         auto currentSpeedSquared = physics.currentVelocity.lengthSquared();
         auto decelerationDistance = currentSpeedSquared / (2_ss * unitDefinition.acceleration);
 
-        if (distanceSquared > decelerationDistance)
+        if (distanceSquared > (decelerationDistance * decelerationDistance))
         {
             auto targetVelocity = direction * unitDefinition.maxVelocity;
             auto velocityDelta = targetVelocity - physics.currentVelocity;
@@ -635,13 +640,7 @@ namespace rwe
         }
         else
         {
-            auto currentDirection = physics.currentVelocity.normalizedOr(SimVector(0_ss, 0_ss, 0_ss));
-            auto newVelocity = physics.currentVelocity - (currentDirection * unitDefinition.acceleration);
-            newVelocity = SimVector(
-                rweMax(0_ss, newVelocity.x),
-                rweMax(0_ss, newVelocity.y),
-                rweMax(0_ss, newVelocity.z));
-            return newVelocity;
+            return decelerate(physics.currentVelocity, unitDefinition.acceleration);
         }
     }
 
