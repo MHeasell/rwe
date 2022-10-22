@@ -548,7 +548,12 @@ namespace rwe
                 unit.rotation = turnTowards(unit.rotation, p.steeringInfo.targetAngle, turnRateThisFrame);
             },
             [&](const AirPhysics& p) {
-                auto direction = p.airSteeringInfo.targetPosition - unit.position;
+                if (!p.airSteeringInfo.targetPosition)
+                {
+                    // keep rotation as-is if not trying to go anywhere
+                    return;
+                }
+                auto direction = *p.airSteeringInfo.targetPosition - unit.position;
                 auto targetAngle = UnitState::toRotation(direction);
                 unit.rotation = turnTowards(unit.rotation, targetAngle, turnRateThisFrame);
             },
@@ -597,14 +602,46 @@ namespace rwe
 
     SimVector computeNewAirUnitVelocity(const UnitState& unit, const UnitDefinition& unitDefinition, const AirPhysics& physics)
     {
-        auto direction = (physics.airSteeringInfo.targetPosition - unit.position).normalizedOr(SimVector(0_ss, 0_ss, 0_ss));
-        auto newVelocity = physics.currentVelocity + (direction * unitDefinition.acceleration);
-        if (newVelocity.lengthSquared() > (unitDefinition.maxVelocity * unitDefinition.maxVelocity))
+        if (!physics.airSteeringInfo.targetPosition)
         {
-            newVelocity = newVelocity.normalized() * unitDefinition.maxVelocity;
+            auto currentDirection = physics.currentVelocity.normalizedOr(SimVector(0_ss, 0_ss, 0_ss));
+            auto newVelocity = physics.currentVelocity - (currentDirection * unitDefinition.acceleration);
+            newVelocity = SimVector(
+                rweMax(0_ss, newVelocity.x),
+                rweMax(0_ss, newVelocity.y),
+                rweMax(0_ss, newVelocity.z));
+            return newVelocity;
         }
 
-        return newVelocity;
+        auto rawDirection = *physics.airSteeringInfo.targetPosition - unit.position;
+        auto distanceSquared = rawDirection.lengthSquared();
+        auto direction = rawDirection.normalizedOr(SimVector(0_ss, 0_ss, 0_ss));
+
+        auto currentSpeedSquared = physics.currentVelocity.lengthSquared();
+        auto decelerationDistance = currentSpeedSquared / (2_ss * unitDefinition.acceleration);
+
+        if (distanceSquared > decelerationDistance)
+        {
+            auto newVelocity = physics.currentVelocity + (direction * unitDefinition.acceleration);
+            if (newVelocity.lengthSquared() > (unitDefinition.maxVelocity * unitDefinition.maxVelocity))
+            {
+                newVelocity = newVelocity.normalized() * unitDefinition.maxVelocity;
+            }
+            return newVelocity;
+        }
+        else
+        {
+            auto newVelocity = physics.currentVelocity - (direction * unitDefinition.acceleration);
+            if (newVelocity.lengthSquared() > (unitDefinition.maxVelocity * unitDefinition.maxVelocity))
+            {
+                newVelocity = newVelocity.normalized() * unitDefinition.maxVelocity;
+            }
+            newVelocity = SimVector(
+                rweMax(0_ss, newVelocity.x),
+                rweMax(0_ss, newVelocity.y),
+                rweMax(0_ss, newVelocity.z));
+            return newVelocity;
+        }
     }
 
     void UnitBehaviorService::updateUnitSpeed(UnitId id)

@@ -140,7 +140,7 @@ namespace rwe
 
     struct AirSteeringInfo
     {
-        SimVector targetPosition;
+        std::optional<SimVector> targetPosition;
     };
 
     struct GroundPhysics
