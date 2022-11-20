@@ -132,7 +132,7 @@ namespace rwe
         bool shouldTakeOff{false};
     };
 
-    struct GroundPhysics
+    struct UnitPhysicsInfoGround
     {
         SteeringInfo steeringInfo;
 
@@ -142,7 +142,7 @@ namespace rwe
         SimScalar currentSpeed{0};
     };
 
-    struct AirFlyingPhysics
+    struct AirMovementStateFlying
     {
         std::optional<SimVector> targetPosition;
 
@@ -155,24 +155,24 @@ namespace rwe
         SimVector currentVelocity{0_ss, 0_ss, 0_ss};
     };
 
-    struct AirTakingOffPhysics
+    struct AirMovementStateTakingOff
     {
     };
 
-    struct AirLandingPhysics
+    struct AirMovementStateLanding
     {
         bool landingFailed{false};
         bool shouldAbort{false};
     };
 
-    using AirMovementState = std::variant<AirTakingOffPhysics, AirFlyingPhysics, AirLandingPhysics>;
+    using AirMovementState = std::variant<AirMovementStateTakingOff, AirMovementStateFlying, AirMovementStateLanding>;
 
-    struct AirPhysics
+    struct UnitPhysicsInfoAir
     {
-        AirMovementState movementState{AirTakingOffPhysics()};
+        AirMovementState movementState{AirMovementStateTakingOff()};
     };
 
-    using UnitPhysicsInfo = std::variant<GroundPhysics, AirPhysics>;
+    using UnitPhysicsInfo = std::variant<UnitPhysicsInfoGround, UnitPhysicsInfoAir>;
 
     class UnitState
     {
@@ -203,7 +203,7 @@ namespace rwe
         SimAngle rotation{0};
         SimAngle previousRotation{0};
 
-        UnitPhysicsInfo physics{GroundPhysics()};
+        UnitPhysicsInfo physics{UnitPhysicsInfoGround()};
 
         unsigned int hitPoints{0};
 

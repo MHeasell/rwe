@@ -74,7 +74,7 @@ namespace rwe
         void updateUnitRotation(UnitId id);
         void updateUnitSpeed(UnitId id);
 
-        void updateGroundUnitPosition(UnitId unitId, UnitState& unit, const UnitDefinition& unitDefinition, const GroundPhysics& physics);
+        void updateGroundUnitPosition(UnitId unitId, UnitState& unit, const UnitDefinition& unitDefinition, const UnitPhysicsInfoGround& physics);
         void updateUnitPosition(UnitId unitId);
 
         bool tryApplyMovementToPosition(UnitId id, const SimVector& newPosition);

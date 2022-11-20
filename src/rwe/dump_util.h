@@ -25,11 +25,11 @@ namespace rwe
 
     nlohmann::json dumpJson(const UnitState& u);
 
-    nlohmann::json dumpJson(const GroundPhysics& p);
-    nlohmann::json dumpJson(const AirPhysics& p);
-    nlohmann::json dumpJson(const AirTakingOffPhysics& p);
-    nlohmann::json dumpJson(const AirLandingPhysics& p);
-    nlohmann::json dumpJson(const AirFlyingPhysics& p);
+    nlohmann::json dumpJson(const UnitPhysicsInfoGround& p);
+    nlohmann::json dumpJson(const UnitPhysicsInfoAir& p);
+    nlohmann::json dumpJson(const AirMovementStateTakingOff& p);
+    nlohmann::json dumpJson(const AirMovementStateLanding& p);
+    nlohmann::json dumpJson(const AirMovementStateFlying& p);
 
     nlohmann::json dumpJson(const SteeringInfo& s);
 

@@ -96,27 +96,27 @@ namespace rwe
             u.metalConsumptionBuffer);
     }
 
-    GameHash computeHashOf(const GroundPhysics& p)
+    GameHash computeHashOf(const UnitPhysicsInfoGround& p)
     {
         return combineHashes(p.steeringInfo, p.currentSpeed);
     }
 
-    GameHash computeHashOf(const AirPhysics& p)
+    GameHash computeHashOf(const UnitPhysicsInfoAir& p)
     {
         return combineHashes(p.movementState);
     }
 
-    GameHash computeHashOf(const AirTakingOffPhysics& p)
+    GameHash computeHashOf(const AirMovementStateTakingOff& p)
     {
         return GameHash(0);
     }
 
-    GameHash computeHashOf(const AirLandingPhysics& p)
+    GameHash computeHashOf(const AirMovementStateLanding& p)
     {
         return GameHash(0);
     }
 
-    GameHash computeHashOf(const AirFlyingPhysics& p)
+    GameHash computeHashOf(const AirMovementStateFlying& p)
     {
         return GameHash(0);
     }

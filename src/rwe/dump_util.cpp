@@ -74,7 +74,7 @@ namespace rwe
             {"metalConsumptionBuffer", dumpJson(u.metalConsumptionBuffer)}};
     }
 
-    nlohmann::json dumpJson(const GroundPhysics& p)
+    nlohmann::json dumpJson(const UnitPhysicsInfoGround& p)
     {
         return nlohmann::json{
             {"steeringInfo", dumpJson(p.steeringInfo)},
@@ -82,24 +82,24 @@ namespace rwe
         };
     }
 
-    nlohmann::json dumpJson(const AirPhysics& p)
+    nlohmann::json dumpJson(const UnitPhysicsInfoAir& p)
     {
         return nlohmann::json{
             {"movementState", dumpJson(p.movementState)},
         };
     }
 
-    nlohmann::json dumpJson(const AirTakingOffPhysics& p)
+    nlohmann::json dumpJson(const AirMovementStateTakingOff& p)
     {
         return nlohmann::json{};
     }
 
-    nlohmann::json dumpJson(const AirLandingPhysics& p)
+    nlohmann::json dumpJson(const AirMovementStateLanding& p)
     {
         return nlohmann::json{};
     }
 
-    nlohmann::json dumpJson(const AirFlyingPhysics& p)
+    nlohmann::json dumpJson(const AirMovementStateFlying& p)
     {
         return nlohmann::json{};
     }

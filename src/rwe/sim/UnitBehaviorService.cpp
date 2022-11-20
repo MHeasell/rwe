@@ -68,22 +68,22 @@ namespace rwe
         // Clear steering targets.
         match(
             unit.physics,
-            [&](GroundPhysics& p) {
+            [&](UnitPhysicsInfoGround& p) {
                 p.steeringInfo = SteeringInfo{
                     unit.rotation,
                     0_ss,
                 };
             },
-            [&](AirPhysics& p) {
+            [&](UnitPhysicsInfoAir& p) {
                 match(
                     p.movementState,
-                    [&](AirFlyingPhysics& s) {
+                    [&](AirMovementStateFlying& s) {
                         s.targetPosition = unit.position;
                     },
-                    [&](const AirTakingOffPhysics&) {
+                    [&](const AirMovementStateTakingOff&) {
                         // do nothing
                     },
-                    [&](const AirLandingPhysics&) {
+                    [&](const AirMovementStateLanding&) {
                         // do nothing
                     });
             });
@@ -124,11 +124,11 @@ namespace rwe
                     unit.buildOrderUnitId = std::nullopt;
                 }
             }
-            else if (auto airPhysics = std::get_if<AirPhysics>(&unit.physics); airPhysics != nullptr)
+            else if (auto airPhysics = std::get_if<UnitPhysicsInfoAir>(&unit.physics); airPhysics != nullptr)
             {
                 match(
                     airPhysics->movementState,
-                    [&](AirFlyingPhysics& m) {
+                    [&](AirMovementStateFlying& m) {
                         if (auto flyingToLandingBehavior = std::get_if<UnitBehaviorStateFlyingToLandingSpot>(&unit.behaviourState); flyingToLandingBehavior != nullptr)
                         {
                             if (moveTo(unitId, flyingToLandingBehavior->landingLocation))
@@ -146,10 +146,10 @@ namespace rwe
                             }
                         }
                     },
-                    [&](const AirLandingPhysics&) {
+                    [&](const AirMovementStateLanding&) {
                         // do nothing
                     },
-                    [&](const AirTakingOffPhysics&) {
+                    [&](const AirMovementStateTakingOff&) {
                         // do nothing
                     });
             }
@@ -186,29 +186,29 @@ namespace rwe
             // do physics transitions
             match(
                 unit.physics,
-                [&](const GroundPhysics& p) {
+                [&](const UnitPhysicsInfoGround& p) {
                     if (p.steeringInfo.shouldTakeOff)
                     {
                         transitionFromGroundToAir(unitId);
                     }
                 },
-                [&](AirPhysics& p) {
+                [&](UnitPhysicsInfoAir& p) {
                     match(
                         p.movementState,
-                        [&](const AirTakingOffPhysics&) {
+                        [&](const AirMovementStateTakingOff&) {
                             auto terrainHeight = sim->terrain.getHeightAt(unit.position.x, unit.position.z);
                             auto targetHeight = terrainHeight + unitDefinition.cruiseAltitude;
 
                             if (unit.position.y == targetHeight)
                             {
-                                p.movementState = AirFlyingPhysics();
+                                p.movementState = AirMovementStateFlying();
                             }
                         },
-                        [&](AirLandingPhysics& m) {
+                        [&](AirMovementStateLanding& m) {
                             if (m.shouldAbort)
                             {
                                 unit.activate();
-                                p.movementState = AirFlyingPhysics();
+                                p.movementState = AirMovementStateFlying();
                             }
                             else
                             {
@@ -222,10 +222,10 @@ namespace rwe
                                 }
                             }
                         },
-                        [&](const AirFlyingPhysics& m) {
+                        [&](const AirMovementStateFlying& m) {
                             if (m.shouldLand)
                             {
-                                p.movementState = AirLandingPhysics();
+                                p.movementState = AirMovementStateLanding();
                                 unit.deactivate();
                             }
                         });
@@ -328,7 +328,7 @@ namespace rwe
         };
     }
 
-    SteeringInfo arrive(const UnitState& unit, const UnitDefinition& unitDefinition, const GroundPhysics& physics, const SimVector& destination)
+    SteeringInfo arrive(const UnitState& unit, const UnitDefinition& unitDefinition, const UnitPhysicsInfoGround& physics, const SimVector& destination)
     {
         SimVector xzPosition(unit.position.x, 0_ss, unit.position.z);
         SimVector xzDestination(destination.x, 0_ss, destination.z);
@@ -348,7 +348,7 @@ namespace rwe
         };
     }
 
-    bool followPath(UnitState& unit, const UnitDefinition& unitDefinition, GroundPhysics& physics, PathFollowingInfo& path)
+    bool followPath(UnitState& unit, const UnitDefinition& unitDefinition, UnitPhysicsInfoGround& physics, PathFollowingInfo& path)
     {
         const auto& destination = *path.currentWaypoint;
         SimVector xzPosition(unit.position.x, 0_ss, unit.position.z);
@@ -634,19 +634,19 @@ namespace rwe
 
         match(
             unit.physics,
-            [&](const GroundPhysics& p) {
+            [&](const UnitPhysicsInfoGround& p) {
                 unit.rotation = turnTowards(unit.rotation, p.steeringInfo.targetAngle, turnRateThisFrame);
             },
-            [&](const AirPhysics& p) {
+            [&](const UnitPhysicsInfoAir& p) {
                 match(
                     p.movementState,
-                    [&](const AirTakingOffPhysics&) {
+                    [&](const AirMovementStateTakingOff&) {
                         // do nothing
                     },
-                    [&](const AirLandingPhysics&) {
+                    [&](const AirMovementStateLanding&) {
                         // do nothing
                     },
-                    [&](const AirFlyingPhysics& m) {
+                    [&](const AirMovementStateFlying& m) {
                         if (!m.targetPosition)
                         {
                             // keep rotation as-is if not trying to go anywhere
@@ -659,7 +659,7 @@ namespace rwe
             });
     }
 
-    SimScalar computeNewGroundUnitSpeed(const MapTerrain& terrain, const UnitState& unit, const UnitDefinition& unitDefinition, const GroundPhysics& physics)
+    SimScalar computeNewGroundUnitSpeed(const MapTerrain& terrain, const UnitState& unit, const UnitDefinition& unitDefinition, const UnitPhysicsInfoGround& physics)
     {
         SimScalar newSpeed;
         if (physics.steeringInfo.targetSpeed > physics.currentSpeed)
@@ -708,7 +708,7 @@ namespace rwe
         return newVelocity;
     }
 
-    SimVector computeNewAirUnitVelocity(const UnitState& unit, const UnitDefinition& unitDefinition, const AirFlyingPhysics& physics)
+    SimVector computeNewAirUnitVelocity(const UnitState& unit, const UnitDefinition& unitDefinition, const AirMovementStateFlying& physics)
     {
         if (!physics.targetPosition)
         {
@@ -748,25 +748,25 @@ namespace rwe
 
         match(
             unit.physics,
-            [&](GroundPhysics& p) {
+            [&](UnitPhysicsInfoGround& p) {
                 p.currentSpeed = computeNewGroundUnitSpeed(sim->terrain, unit, unitDefinition, p);
             },
-            [&](AirPhysics& p) {
+            [&](UnitPhysicsInfoAir& p) {
                 match(
                     p.movementState,
-                    [&](AirFlyingPhysics& m) {
+                    [&](AirMovementStateFlying& m) {
                         m.currentVelocity = computeNewAirUnitVelocity(unit, unitDefinition, m);
                     },
-                    [&](const AirTakingOffPhysics&) {
+                    [&](const AirMovementStateTakingOff&) {
                         // do nothing
                     },
-                    [&](const AirLandingPhysics&) {
+                    [&](const AirMovementStateLanding&) {
                         // do nothing
                     });
             });
     }
 
-    void UnitBehaviorService::updateGroundUnitPosition(UnitId unitId, UnitState& unit, const UnitDefinition& unitDefinition, const GroundPhysics& physics)
+    void UnitBehaviorService::updateGroundUnitPosition(UnitId unitId, UnitState& unit, const UnitDefinition& unitDefinition, const UnitPhysicsInfoGround& physics)
     {
         auto direction = UnitState::toDirection(unit.rotation);
 
@@ -827,20 +827,20 @@ namespace rwe
 
         match(
             unit.physics,
-            [&](const GroundPhysics& p) {
+            [&](const UnitPhysicsInfoGround& p) {
                 updateGroundUnitPosition(unitId, unit, unitDefinition, p);
             },
-            [&](const AirPhysics& p) {
+            [&](const UnitPhysicsInfoAir& p) {
                 match(
                     p.movementState,
-                    [&](const AirFlyingPhysics& m) {
+                    [&](const AirMovementStateFlying& m) {
                         auto newPosition = unit.position + m.currentVelocity;
                         tryApplyMovementToPosition(unitId, newPosition);
                     },
-                    [&](const AirTakingOffPhysics&) {
+                    [&](const AirMovementStateTakingOff&) {
                         climbToCruiseAltitude(unitId);
                     },
-                    [&](const AirLandingPhysics&) {
+                    [&](const AirMovementStateLanding&) {
                         descendToGroundLevel(unitId);
                     });
             });
@@ -850,16 +850,16 @@ namespace rwe
     {
         return match(
             physics,
-            [&](const GroundPhysics&) {
+            [&](const UnitPhysicsInfoGround&) {
                 return false;
             },
-            [&](const AirPhysics&) {
+            [&](const UnitPhysicsInfoAir&) {
                 return true;
             },
-            [&](const AirTakingOffPhysics&) {
+            [&](const AirMovementStateTakingOff&) {
                 return true;
             },
-            [&](const AirLandingPhysics&) {
+            [&](const AirMovementStateLanding&) {
                 return true;
             });
     }
@@ -1494,7 +1494,7 @@ namespace rwe
         // if a path is available, attempt to follow it
         if (movingState->path)
         {
-            auto groundPhysics = std::get_if<GroundPhysics>(&unit.physics);
+            auto groundPhysics = std::get_if<UnitPhysicsInfoGround>(&unit.physics);
             if (groundPhysics == nullptr)
             {
                 throw std::logic_error("ground unit does not have ground physics");
@@ -1518,11 +1518,11 @@ namespace rwe
 
         return match(
             unit.physics,
-            [&](GroundPhysics& p) {
+            [&](UnitPhysicsInfoGround& p) {
                 p.steeringInfo.shouldTakeOff = true;
                 return false;
             },
-            [&](const AirPhysics& p) {
+            [&](const UnitPhysicsInfoAir& p) {
                 return flyTowardsGoal(unitId, goal);
             });
     }
@@ -1728,7 +1728,7 @@ namespace rwe
 
         unit.activate();
 
-        unit.physics = AirPhysics();
+        unit.physics = UnitPhysicsInfoAir();
         auto footprintRect = sim->computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
         auto footprintRegion = sim->occupiedGrid.tryToRegion(footprintRect);
         assert(!!footprintRegion);
@@ -1756,7 +1756,7 @@ namespace rwe
             cell.occupiedType = OccupiedUnit(unitId);
         });
 
-        unit.physics = GroundPhysics();
+        unit.physics = UnitPhysicsInfoGround();
 
         return true;
     }
@@ -1785,7 +1785,7 @@ namespace rwe
             return true;
         }
 
-        auto airPhysics = std::get_if<AirPhysics>(&unit.physics);
+        auto airPhysics = std::get_if<UnitPhysicsInfoAir>(&unit.physics);
         if (airPhysics == nullptr)
         {
             throw std::logic_error("cannot fly towards goal because unit does not have air physics");
@@ -1793,16 +1793,16 @@ namespace rwe
 
         match(
             airPhysics->movementState,
-            [&](AirFlyingPhysics& m) {
+            [&](AirMovementStateFlying& m) {
                 auto targetHeight = sim->terrain.getHeightAt(destination.x, destination.z) + unitDefinition.cruiseAltitude;
                 SimVector destinationAtAltitude(destination.x, targetHeight, destination.z);
 
                 m.targetPosition = destinationAtAltitude;
             },
-            [&](const AirTakingOffPhysics&) {
+            [&](const AirMovementStateTakingOff&) {
                 // do nothing
             },
-            [&](AirLandingPhysics& m) {
+            [&](AirMovementStateLanding& m) {
                 m.shouldAbort = true;
             });
 
