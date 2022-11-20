@@ -12,7 +12,7 @@
 
 namespace rwe
 {
-    class GameSimulation;
+    struct GameSimulation;
 
     class PathFindingService
     {
