@@ -103,7 +103,7 @@ namespace rwe
 
     GameHash computeHashOf(const AirPhysics& p)
     {
-        return combineHashes(p.airSteeringInfo, p.currentVelocity);
+        return combineHashes(p.movementState);
     }
 
     GameHash computeHashOf(const AirTakingOffPhysics& p)
@@ -111,14 +111,19 @@ namespace rwe
         return GameHash(0);
     }
 
+    GameHash computeHashOf(const AirLandingPhysics& p)
+    {
+        return GameHash(0);
+    }
+
+    GameHash computeHashOf(const AirFlyingPhysics& p)
+    {
+        return GameHash(0);
+    }
+
     GameHash computeHashOf(const SteeringInfo& s)
     {
         return combineHashes(s.targetAngle, s.targetSpeed);
-    }
-
-    GameHash computeHashOf(const AirSteeringInfo& s)
-    {
-        return combineHashes(s.targetPosition);
     }
 
     GameHash computeHashOf(const Vector3f& v)
@@ -161,19 +166,9 @@ namespace rwe
             s.status);
     }
 
-    GameHash computeHashOf(const UnitBehaviorStateTakingOff&)
+    GameHash computeHashOf(const UnitBehaviorStateFlyingToLandingSpot& s)
     {
-        return GameHash(0);
-    }
-
-    GameHash computeHashOf(const UnitBehaviorStateLanding&)
-    {
-        return GameHash(0);
-    }
-
-    GameHash computeHashOf(const UnitBehaviorStateFlying&)
-    {
-        return GameHash(0);
+        return combineHashes(s.landingLocation);
     }
 
     GameHash computeHashOf(const UnitCreationStatusPending&)

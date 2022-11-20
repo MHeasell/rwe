@@ -1074,14 +1074,8 @@ namespace rwe
             {
                 return "creating unit";
             },
-            [&](const UnitBehaviorStateTakingOff&) {
-                return "taking off";
-            },
-            [&](const UnitBehaviorStateLanding&) {
-                return "landing";
-            },
-            [&](const UnitBehaviorStateFlying&) {
-                return "flying";
+            [&](const UnitBehaviorStateFlyingToLandingSpot&) {
+                return "seeking landing spot";
             });
     }
 

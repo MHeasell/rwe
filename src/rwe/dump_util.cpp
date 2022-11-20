@@ -85,12 +85,21 @@ namespace rwe
     nlohmann::json dumpJson(const AirPhysics& p)
     {
         return nlohmann::json{
-            {"airSteeringInfo", dumpJson(p.airSteeringInfo)},
-            {"currentVelocity", dumpJson(p.currentVelocity)},
+            {"movementState", dumpJson(p.movementState)},
         };
     }
 
     nlohmann::json dumpJson(const AirTakingOffPhysics& p)
+    {
+        return nlohmann::json{};
+    }
+
+    nlohmann::json dumpJson(const AirLandingPhysics& p)
+    {
+        return nlohmann::json{};
+    }
+
+    nlohmann::json dumpJson(const AirFlyingPhysics& p)
     {
         return nlohmann::json{};
     }
@@ -100,13 +109,6 @@ namespace rwe
         return nlohmann::json{
             {"targetAngle", dumpJson(s.targetAngle)},
             {"targetSpeed", dumpJson(s.targetSpeed)},
-        };
-    }
-
-    nlohmann::json dumpJson(const AirSteeringInfo& s)
-    {
-        return nlohmann::json{
-            {"targetPosition", dumpJson(s.targetPosition)},
         };
     }
 
@@ -150,15 +152,7 @@ namespace rwe
             {"position", dumpJson(s.position)},
         };
     }
-    nlohmann::json dumpJson(const UnitBehaviorStateTakingOff& s)
-    {
-        return nlohmann::json();
-    }
-    nlohmann::json dumpJson(const UnitBehaviorStateLanding& s)
-    {
-        return nlohmann::json();
-    }
-    nlohmann::json dumpJson(const UnitBehaviorStateFlying& s)
+    nlohmann::json dumpJson(const UnitBehaviorStateFlyingToLandingSpot& s)
     {
         return nlohmann::json();
     }

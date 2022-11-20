@@ -38,16 +38,9 @@ namespace rwe
 
     using MovingStateGoal = std::variant<SimVector, DiscreteRect>;
 
-    struct UnitBehaviorStateTakingOff
+    struct UnitBehaviorStateFlyingToLandingSpot
     {
-    };
-
-    struct UnitBehaviorStateLanding
-    {
-    };
-
-    struct UnitBehaviorStateFlying
-    {
+        SimVector landingLocation;
     };
 
     struct UnitBehaviorStateMoving
@@ -94,9 +87,7 @@ namespace rwe
         UnitBehaviorStateMoving,
         UnitBehaviorStateCreatingUnit,
         UnitBehaviorStateBuilding,
-        UnitBehaviorStateTakingOff,
-        UnitBehaviorStateFlying,
-        UnitBehaviorStateLanding>;
+        UnitBehaviorStateFlyingToLandingSpot>;
 
     struct FactoryBehaviorStateIdle
     {
@@ -136,11 +127,9 @@ namespace rwe
 
         /** The speed we are trying to accelerate/decelerate to */
         SimScalar targetSpeed{0};
-    };
 
-    struct AirSteeringInfo
-    {
-        std::optional<SimVector> targetPosition;
+        /** True if the unit should attempt to take off into the air */
+        bool shouldTakeOff{false};
     };
 
     struct GroundPhysics
@@ -153,13 +142,12 @@ namespace rwe
         SimScalar currentSpeed{0};
     };
 
-    struct AirTakingOffPhysics
+    struct AirFlyingPhysics
     {
-    };
+        std::optional<SimVector> targetPosition;
 
-    struct AirPhysics
-    {
-        AirSteeringInfo airSteeringInfo;
+        /** True if the unit should attempt to land at current position. */
+        bool shouldLand{false};
 
         /**
          * Rate at which the unit is moving in game units/tick.
@@ -167,7 +155,24 @@ namespace rwe
         SimVector currentVelocity{0_ss, 0_ss, 0_ss};
     };
 
-    using UnitPhysicsInfo = std::variant<GroundPhysics, AirPhysics, AirTakingOffPhysics>;
+    struct AirTakingOffPhysics
+    {
+    };
+
+    struct AirLandingPhysics
+    {
+        bool landingFailed{false};
+        bool shouldAbort{false};
+    };
+
+    using AirMovementState = std::variant<AirTakingOffPhysics, AirFlyingPhysics, AirLandingPhysics>;
+
+    struct AirPhysics
+    {
+        AirMovementState movementState{AirTakingOffPhysics()};
+    };
+
+    using UnitPhysicsInfo = std::variant<GroundPhysics, AirPhysics>;
 
     class UnitState
     {

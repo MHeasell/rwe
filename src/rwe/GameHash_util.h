@@ -28,9 +28,10 @@ namespace rwe
     GameHash computeHashOf(const GroundPhysics& p);
     GameHash computeHashOf(const AirPhysics& p);
     GameHash computeHashOf(const AirTakingOffPhysics& p);
+    GameHash computeHashOf(const AirLandingPhysics& p);
+    GameHash computeHashOf(const AirFlyingPhysics& p);
 
     GameHash computeHashOf(const SteeringInfo& s);
-    GameHash computeHashOf(const AirSteeringInfo& s);
 
     GameHash computeHashOf(const Projectile& projectile);
 
@@ -39,6 +40,8 @@ namespace rwe
     GameHash computeHashOf(const UnitBehaviorStateBuilding& s);
 
     GameHash computeHashOf(const UnitBehaviorStateCreatingUnit&);
+
+    GameHash computeHashOf(const UnitBehaviorStateFlyingToLandingSpot&);
 
     GameHash computeHashOf(const UnitCreationStatusPending&);
     GameHash computeHashOf(const UnitCreationStatusDone&);

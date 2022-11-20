@@ -54,6 +54,12 @@ namespace rwe
         }
     }
 
+    std::optional<SimVector> findLandingLocation(const GameSimulation& sim, const UnitState& unitState, const UnitDefinition& unitDefinition)
+    {
+        // TODO: make this smarter
+        return unitState.position;
+    }
+
     void UnitBehaviorService::update(UnitId unitId)
     {
         auto& unit = sim->getUnitState(unitId);
@@ -69,10 +75,17 @@ namespace rwe
                 };
             },
             [&](AirPhysics& p) {
-                p.airSteeringInfo = AirSteeringInfo{unit.position};
-            },
-            [&](AirTakingOffPhysics&) {
-                // do nothing
+                match(
+                    p.movementState,
+                    [&](AirFlyingPhysics& s) {
+                        s.targetPosition = unit.position;
+                    },
+                    [&](const AirTakingOffPhysics&) {
+                        // do nothing
+                    },
+                    [&](const AirLandingPhysics&) {
+                        // do nothing
+                    });
             });
 
         // Run unit and weapon AI
@@ -111,6 +124,35 @@ namespace rwe
                     unit.buildOrderUnitId = std::nullopt;
                 }
             }
+            else if (auto airPhysics = std::get_if<AirPhysics>(&unit.physics); airPhysics != nullptr)
+            {
+                match(
+                    airPhysics->movementState,
+                    [&](AirFlyingPhysics& m) {
+                        if (auto flyingToLandingBehavior = std::get_if<UnitBehaviorStateFlyingToLandingSpot>(&unit.behaviourState); flyingToLandingBehavior != nullptr)
+                        {
+                            if (moveTo(unitId, flyingToLandingBehavior->landingLocation))
+                            {
+                                m.shouldLand = true;
+                            }
+                        }
+                        else
+                        {
+                            // look for somewhere to land and start landing there
+                            auto landingLocation = findLandingLocation(*sim, unit, unitDefinition);
+                            if (landingLocation)
+                            {
+                                changeState(unit, UnitBehaviorStateFlyingToLandingSpot{*landingLocation});
+                            }
+                        }
+                    },
+                    [&](const AirLandingPhysics&) {
+                        // do nothing
+                    },
+                    [&](const AirTakingOffPhysics&) {
+                        // do nothing
+                    });
+            }
             else
             {
                 changeState(unit, UnitBehaviorStateIdle());
@@ -140,6 +182,54 @@ namespace rwe
             {
                 unit.cobEnvironment->createThread("StopMoving");
             }
+
+            // do physics transitions
+            match(
+                unit.physics,
+                [&](const GroundPhysics& p) {
+                    if (p.steeringInfo.shouldTakeOff)
+                    {
+                        transitionFromGroundToAir(unitId);
+                    }
+                },
+                [&](AirPhysics& p) {
+                    match(
+                        p.movementState,
+                        [&](const AirTakingOffPhysics&) {
+                            auto terrainHeight = sim->terrain.getHeightAt(unit.position.x, unit.position.z);
+                            auto targetHeight = terrainHeight + unitDefinition.cruiseAltitude;
+
+                            if (unit.position.y == targetHeight)
+                            {
+                                p.movementState = AirFlyingPhysics();
+                            }
+                        },
+                        [&](AirLandingPhysics& m) {
+                            if (m.shouldAbort)
+                            {
+                                unit.activate();
+                                p.movementState = AirFlyingPhysics();
+                            }
+                            else
+                            {
+                                auto targetHeight = sim->terrain.getHeightAt(unit.position.x, unit.position.z);
+                                if (unit.position.y == targetHeight)
+                                {
+                                    if (!tryTransitionFromAirToGround(unitId))
+                                    {
+                                        m.landingFailed = true;
+                                    }
+                                }
+                            }
+                        },
+                        [&](const AirFlyingPhysics& m) {
+                            if (m.shouldLand)
+                            {
+                                p.movementState = AirLandingPhysics();
+                                unit.deactivate();
+                            }
+                        });
+                });
         }
     }
 
@@ -548,17 +638,24 @@ namespace rwe
                 unit.rotation = turnTowards(unit.rotation, p.steeringInfo.targetAngle, turnRateThisFrame);
             },
             [&](const AirPhysics& p) {
-                if (!p.airSteeringInfo.targetPosition)
-                {
-                    // keep rotation as-is if not trying to go anywhere
-                    return;
-                }
-                auto direction = *p.airSteeringInfo.targetPosition - unit.position;
-                auto targetAngle = UnitState::toRotation(direction);
-                unit.rotation = turnTowards(unit.rotation, targetAngle, turnRateThisFrame);
-            },
-            [&](const AirTakingOffPhysics&) {
-                // do nothing
+                match(
+                    p.movementState,
+                    [&](const AirTakingOffPhysics&) {
+                        // do nothing
+                    },
+                    [&](const AirLandingPhysics&) {
+                        // do nothing
+                    },
+                    [&](const AirFlyingPhysics& m) {
+                        if (!m.targetPosition)
+                        {
+                            // keep rotation as-is if not trying to go anywhere
+                            return;
+                        }
+                        auto direction = *m.targetPosition - unit.position;
+                        auto targetAngle = UnitState::toRotation(direction);
+                        unit.rotation = turnTowards(unit.rotation, targetAngle, turnRateThisFrame);
+                    });
             });
     }
 
@@ -611,14 +708,14 @@ namespace rwe
         return newVelocity;
     }
 
-    SimVector computeNewAirUnitVelocity(const UnitState& unit, const UnitDefinition& unitDefinition, const AirPhysics& physics)
+    SimVector computeNewAirUnitVelocity(const UnitState& unit, const UnitDefinition& unitDefinition, const AirFlyingPhysics& physics)
     {
-        if (!physics.airSteeringInfo.targetPosition)
+        if (!physics.targetPosition)
         {
             return decelerate(physics.currentVelocity, unitDefinition.acceleration);
         }
 
-        auto rawDirection = *physics.airSteeringInfo.targetPosition - unit.position;
+        auto rawDirection = *physics.targetPosition - unit.position;
         auto distanceSquared = rawDirection.lengthSquared();
         auto direction = rawDirection.normalizedOr(SimVector(0_ss, 0_ss, 0_ss));
 
@@ -655,10 +752,17 @@ namespace rwe
                 p.currentSpeed = computeNewGroundUnitSpeed(sim->terrain, unit, unitDefinition, p);
             },
             [&](AirPhysics& p) {
-                p.currentVelocity = computeNewAirUnitVelocity(unit, unitDefinition, p);
-            },
-            [&](const AirTakingOffPhysics&) {
-                // do nothing
+                match(
+                    p.movementState,
+                    [&](AirFlyingPhysics& m) {
+                        m.currentVelocity = computeNewAirUnitVelocity(unit, unitDefinition, m);
+                    },
+                    [&](const AirTakingOffPhysics&) {
+                        // do nothing
+                    },
+                    [&](const AirLandingPhysics&) {
+                        // do nothing
+                    });
             });
     }
 
@@ -713,12 +817,6 @@ namespace rwe
         }
     }
 
-    void UnitBehaviorService::updateAirUnitPosition(UnitId unitId, UnitState& unit, const UnitDefinition& unitDefinition, const AirPhysics& physics)
-    {
-        auto newPosition = unit.position + physics.currentVelocity;
-        tryApplyMovementToPosition(unitId, newPosition);
-    }
-
     void UnitBehaviorService::updateUnitPosition(UnitId unitId)
     {
         auto& unit = sim->getUnitState(unitId);
@@ -733,10 +831,18 @@ namespace rwe
                 updateGroundUnitPosition(unitId, unit, unitDefinition, p);
             },
             [&](const AirPhysics& p) {
-                updateAirUnitPosition(unitId, unit, unitDefinition, p);
-            },
-            [&](const AirTakingOffPhysics&) {
-                climbToCruiseAltitude(unitId);
+                match(
+                    p.movementState,
+                    [&](const AirFlyingPhysics& m) {
+                        auto newPosition = unit.position + m.currentVelocity;
+                        tryApplyMovementToPosition(unitId, newPosition);
+                    },
+                    [&](const AirTakingOffPhysics&) {
+                        climbToCruiseAltitude(unitId);
+                    },
+                    [&](const AirLandingPhysics&) {
+                        descendToGroundLevel(unitId);
+                    });
             });
     }
 
@@ -751,6 +857,9 @@ namespace rwe
                 return true;
             },
             [&](const AirTakingOffPhysics&) {
+                return true;
+            },
+            [&](const AirLandingPhysics&) {
                 return true;
             });
     }
@@ -1407,31 +1516,15 @@ namespace rwe
         auto& unit = sim->getUnitState(unitId);
         const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
 
-        auto movingState = std::get_if<UnitBehaviorStateMoving>(&unit.behaviourState);
-
-        if (std::holds_alternative<UnitBehaviorStateFlying>(unit.behaviourState))
-        {
-            return flyTowardsGoal(unitId, goal);
-        }
-
-        if (std::holds_alternative<UnitBehaviorStateTakingOff>(unit.behaviourState))
-        {
-            auto terrainHeight = sim->terrain.getHeightAt(unit.position.x, unit.position.z);
-            auto targetHeight = terrainHeight + unitDefinition.cruiseAltitude;
-            unit.position.y = rweMin(unit.position.y + 1_ss, targetHeight);
-
-            if (unit.position.y == targetHeight)
-            {
-                changeState(unit, UnitBehaviorStateFlying());
-                unit.physics = AirPhysics{AirSteeringInfo{unit.position}, SimVector(0_ss, 0_ss, 0_ss)};
-            }
-            return false;
-        }
-
-        // Transition the unit from ground to air layer
-        transitionFromGroundToAir(unitId);
-        changeState(unit, UnitBehaviorStateTakingOff());
-        return false;
+        return match(
+            unit.physics,
+            [&](GroundPhysics& p) {
+                p.steeringInfo.shouldTakeOff = true;
+                return false;
+            },
+            [&](const AirPhysics& p) {
+                return flyTowardsGoal(unitId, goal);
+            });
     }
 
     bool UnitBehaviorService::moveTo(UnitId unitId, const MovingStateGoal& goal)
@@ -1616,6 +1709,18 @@ namespace rwe
         return unit.position.y == targetHeight;
     }
 
+    bool UnitBehaviorService::descendToGroundLevel(UnitId unitId)
+    {
+        auto& unit = sim->getUnitState(unitId);
+        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
+
+        auto terrainHeight = sim->terrain.getHeightAt(unit.position.x, unit.position.z);
+
+        unit.position.y = rweMax(unit.position.y - 1_ss, terrainHeight);
+
+        return unit.position.y == terrainHeight;
+    }
+
     void UnitBehaviorService::transitionFromGroundToAir(UnitId unitId)
     {
         auto& unit = sim->getUnitState(unitId);
@@ -1623,13 +1728,37 @@ namespace rwe
 
         unit.activate();
 
-        unit.physics = AirTakingOffPhysics();
+        unit.physics = AirPhysics();
         auto footprintRect = sim->computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
         auto footprintRegion = sim->occupiedGrid.tryToRegion(footprintRect);
         assert(!!footprintRegion);
         sim->occupiedGrid.forEach(*footprintRegion, [](auto& cell) {
             cell.occupiedType = OccupiedNone();
         });
+    }
+
+    bool UnitBehaviorService::tryTransitionFromAirToGround(UnitId unitId)
+    {
+        auto& unit = sim->getUnitState(unitId);
+        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
+
+
+        auto footprintRect = sim->computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
+        auto footprintRegion = sim->occupiedGrid.tryToRegion(footprintRect);
+        assert(!!footprintRegion);
+
+        if (sim->isCollisionAt(*footprintRegion))
+        {
+            return false;
+        }
+
+        sim->occupiedGrid.forEach(*footprintRegion, [&](auto& cell) {
+            cell.occupiedType = OccupiedUnit(unitId);
+        });
+
+        unit.physics = GroundPhysics();
+
+        return true;
     }
 
     bool UnitBehaviorService::flyTowardsGoal(UnitId unitId, const MovingStateGoal& goal)
@@ -1662,10 +1791,21 @@ namespace rwe
             throw std::logic_error("cannot fly towards goal because unit does not have air physics");
         }
 
-        auto targetHeight = sim->terrain.getHeightAt(destination.x, destination.z) + unitDefinition.cruiseAltitude;
-        SimVector destinationAtAltitude(destination.x, targetHeight, destination.z);
+        match(
+            airPhysics->movementState,
+            [&](AirFlyingPhysics& m) {
+                auto targetHeight = sim->terrain.getHeightAt(destination.x, destination.z) + unitDefinition.cruiseAltitude;
+                SimVector destinationAtAltitude(destination.x, targetHeight, destination.z);
 
-        airPhysics->airSteeringInfo.targetPosition = destinationAtAltitude;
+                m.targetPosition = destinationAtAltitude;
+            },
+            [&](const AirTakingOffPhysics&) {
+                // do nothing
+            },
+            [&](AirLandingPhysics& m) {
+                m.shouldAbort = true;
+            });
+
         return false;
     }
 }

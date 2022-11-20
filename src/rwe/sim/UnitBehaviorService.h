@@ -75,7 +75,6 @@ namespace rwe
         void updateUnitSpeed(UnitId id);
 
         void updateGroundUnitPosition(UnitId unitId, UnitState& unit, const UnitDefinition& unitDefinition, const GroundPhysics& physics);
-        void updateAirUnitPosition(UnitId unitId, UnitState& unit, const UnitDefinition& unitDefinition, const AirPhysics& physics);
         void updateUnitPosition(UnitId unitId);
 
         bool tryApplyMovementToPosition(UnitId id, const SimVector& newPosition);
@@ -132,7 +131,10 @@ namespace rwe
 
         bool climbToCruiseAltitude(UnitId unitId);
 
+        bool descendToGroundLevel(UnitId unitId);
+
         void transitionFromGroundToAir(UnitId unitId);
+        bool tryTransitionFromAirToGround(UnitId unitId);
 
         bool flyTowardsGoal(UnitId unitId, const MovingStateGoal& goal);
     };
