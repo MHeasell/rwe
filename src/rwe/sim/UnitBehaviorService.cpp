@@ -1557,7 +1557,7 @@ namespace rwe
         auto footprintRect = sim->computeFootprintRegion(position, targetUnitDefinition.movementCollisionInfo);
         if (moveTo(unitId, footprintRect))
         {
-            // TODO: add an additional distance check here -- we may have done  the best
+            // TODO: add an additional distance check here -- we may have done the best
             // we can to move but been prevented by some obstacle, so we are too far away still.
             changeState(unit, UnitBehaviorStateCreatingUnit{unitType, unit.owner, position});
             sim->unitCreationRequests.push_back(unitId);
