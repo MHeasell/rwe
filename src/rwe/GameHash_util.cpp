@@ -80,6 +80,7 @@ namespace rwe
             u.physics,
             u.hitPoints,
             u.lifeState,
+            u.navigationState,
             u.behaviourState,
             u.inBuildStance,
             u.yardOpen,
@@ -166,11 +167,6 @@ namespace rwe
             s.status);
     }
 
-    GameHash computeHashOf(const UnitBehaviorStateFlyingToLandingSpot& s)
-    {
-        return combineHashes(s.landingLocation);
-    }
-
     GameHash computeHashOf(const UnitCreationStatusPending&)
     {
         return GameHash(0);
@@ -194,11 +190,31 @@ namespace rwe
         return GameHash(0);
     }
 
-    GameHash computeHashOf(const UnitBehaviorStateMoving& m)
+    GameHash computeHashOf(const NavigationGoalLandingLocation&)
+    {
+        return GameHash(0);
+    }
+
+    GameHash computeHashOf(const NavigationStateIdle&)
+    {
+        return GameHash(0);
+    }
+
+    GameHash computeHashOf(const NavigationStateMoving& m)
     {
         return combineHashes(
             m.destination,
             m.pathRequested);
+    }
+
+    GameHash computeHashOf(const NavigationStateMovingToLandingSpot& m)
+    {
+        return combineHashes(m.landingLocation);
+    }
+
+    GameHash computeHashOf(const NavigationStateInfo& i)
+    {
+        return combineHashes(i.desiredDestination, i.state);
     }
 
     GameHash computeHashOf(const DiscreteRect& r)

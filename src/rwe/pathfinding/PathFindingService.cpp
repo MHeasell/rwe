@@ -19,7 +19,7 @@ namespace rwe
 
             auto& unit = simulation.getUnitState(request.unitId);
 
-            if (auto movingState = std::get_if<UnitBehaviorStateMoving>(&unit.behaviourState); movingState != nullptr)
+            if (auto movingState = std::get_if<NavigationStateMoving>(&unit.navigationState.state); movingState != nullptr)
             {
                 auto path = match(
                     movingState->destination,

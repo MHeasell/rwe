@@ -1066,16 +1066,9 @@ namespace rwe
             {
                 return "building";
             },
-            [&](const UnitBehaviorStateMoving&)
-            {
-                return "moving";
-            },
             [&](const UnitBehaviorStateCreatingUnit&)
             {
                 return "creating unit";
-            },
-            [&](const UnitBehaviorStateFlyingToLandingSpot&) {
-                return "seeking landing spot";
             });
     }
 

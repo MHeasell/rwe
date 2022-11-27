@@ -41,7 +41,6 @@ namespace rwe
 
     GameHash computeHashOf(const UnitBehaviorStateCreatingUnit&);
 
-    GameHash computeHashOf(const UnitBehaviorStateFlyingToLandingSpot&);
 
     GameHash computeHashOf(const UnitCreationStatusPending&);
     GameHash computeHashOf(const UnitCreationStatusDone&);
@@ -50,7 +49,12 @@ namespace rwe
     GameHash computeHashOf(const UnitState::LifeStateAlive&);
     GameHash computeHashOf(const UnitState::LifeStateDead&);
 
-    GameHash computeHashOf(const UnitBehaviorStateMoving& m);
+    GameHash computeHashOf(const NavigationGoalLandingLocation&);
+
+    GameHash computeHashOf(const NavigationStateIdle&);
+    GameHash computeHashOf(const NavigationStateMoving& m);
+    GameHash computeHashOf(const NavigationStateMovingToLandingSpot&);
+    GameHash computeHashOf(const NavigationStateInfo& i);
 
     GameHash computeHashOf(const DiscreteRect& r);
 

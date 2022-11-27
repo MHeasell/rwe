@@ -36,19 +36,12 @@ namespace rwe
             : path(std::move(path)), pathCreationTime(creationTime), currentWaypoint(this->path.waypoints.begin()) {}
     };
 
+    struct NavigationGoalLandingLocation
+    {
+    };
+
+    using NavigationGoal = std::variant<SimVector, DiscreteRect, NavigationGoalLandingLocation>;
     using MovingStateGoal = std::variant<SimVector, DiscreteRect>;
-
-    struct UnitBehaviorStateFlyingToLandingSpot
-    {
-        SimVector landingLocation;
-    };
-
-    struct UnitBehaviorStateMoving
-    {
-        MovingStateGoal destination;
-        std::optional<PathFollowingInfo> path;
-        bool pathRequested;
-    };
 
     struct UnitBehaviorStateIdle
     {
@@ -84,10 +77,32 @@ namespace rwe
 
     using UnitBehaviorState = std::variant<
         UnitBehaviorStateIdle,
-        UnitBehaviorStateMoving,
         UnitBehaviorStateCreatingUnit,
-        UnitBehaviorStateBuilding,
-        UnitBehaviorStateFlyingToLandingSpot>;
+        UnitBehaviorStateBuilding>;
+
+    struct NavigationStateIdle
+    {
+    };
+
+    struct NavigationStateMoving
+    {
+        MovingStateGoal destination;
+        std::optional<PathFollowingInfo> path;
+        bool pathRequested;
+    };
+
+    struct NavigationStateMovingToLandingSpot
+    {
+        SimVector landingLocation;
+    };
+
+    using NavigationState = std::variant<NavigationStateIdle, NavigationStateMoving, NavigationStateMovingToLandingSpot>;
+
+    struct NavigationStateInfo
+    {
+        std::optional<NavigationGoal> desiredDestination;
+        NavigationState state;
+    };
 
     struct FactoryBehaviorStateIdle
     {
@@ -211,6 +226,8 @@ namespace rwe
 
         std::deque<UnitOrder> orders;
         UnitBehaviorState behaviourState;
+
+        NavigationStateInfo navigationState;
 
         /**
          * State we remember related to the current order.

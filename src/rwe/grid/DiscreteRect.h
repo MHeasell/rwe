@@ -35,6 +35,23 @@ namespace rwe
             return !(rhs == *this);
         }
 
+        int left() const
+        {
+            return x;
+        }
+        int right() const
+        {
+            return x + width;
+        }
+        int top() const
+        {
+            return y;
+        }
+        int bottom() const
+        {
+            return y + width;
+        }
+
         /**
          * Returns true if the given coordinates are adjacent to this rectangle.
          * Coordinates are considered adjacent if they touch the perimeter

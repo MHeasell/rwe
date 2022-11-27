@@ -88,6 +88,9 @@ namespace rwe
                     });
             });
 
+        // clear navigation targets
+        unit.navigationState.desiredDestination = std::nullopt;
+
         // Run unit and weapon AI
         if (!unit.isBeingBuilt(unitDefinition))
         {
@@ -129,21 +132,9 @@ namespace rwe
                 match(
                     airPhysics->movementState,
                     [&](AirMovementStateFlying& m) {
-                        if (auto flyingToLandingBehavior = std::get_if<UnitBehaviorStateFlyingToLandingSpot>(&unit.behaviourState); flyingToLandingBehavior != nullptr)
+                        if (navigateTo(unitId, NavigationGoalLandingLocation()))
                         {
-                            if (moveTo(unitId, flyingToLandingBehavior->landingLocation))
-                            {
-                                m.shouldLand = true;
-                            }
-                        }
-                        else
-                        {
-                            // look for somewhere to land and start landing there
-                            auto landingLocation = findLandingLocation(*sim, unit, unitDefinition);
-                            if (landingLocation)
-                            {
-                                changeState(unit, UnitBehaviorStateFlyingToLandingSpot{*landingLocation});
-                            }
+                            m.shouldLand = true;
                         }
                     },
                     [&](const AirMovementStateLanding&) {
@@ -166,6 +157,8 @@ namespace rwe
 
         if (unitDefinition.isMobile)
         {
+            updateNavigation(unitId);
+
             applyUnitSteering(unitId);
 
             auto previouslyWasMoving = !areCloserThan(unit.previousPosition, unit.position, 0.1_ssf);
@@ -231,6 +224,54 @@ namespace rwe
                         });
                 });
         }
+    }
+
+    void UnitBehaviorService::updateNavigation(UnitId unitId)
+    {
+        auto& unitState = sim->getUnitState(unitId);
+        const auto& unitDefinition = sim->unitDefinitions.at(unitState.unitType);
+
+        const auto& goal = unitState.navigationState.desiredDestination;
+
+        if (!goal)
+        {
+            unitState.navigationState.state = NavigationStateIdle();
+            return;
+        }
+
+        auto resolvedGoal = match(
+            *goal,
+            [&](const NavigationGoalLandingLocation&) {
+                const auto llState = std::get_if<NavigationStateMovingToLandingSpot>(&unitState.navigationState.state);
+                if (llState)
+                {
+                    return std::make_optional<MovingStateGoal>(llState->landingLocation);
+                }
+                else
+                {
+                    auto landingLocation = findLandingLocation(*sim, unitState, unitDefinition);
+                    if (!landingLocation)
+                    {
+                        return std::optional<MovingStateGoal>();
+                    }
+                    unitState.navigationState.state = NavigationStateMovingToLandingSpot{*landingLocation};
+                    return std::make_optional<MovingStateGoal>(*landingLocation);
+                }
+            },
+            [&](const SimVector& v) {
+                return std::make_optional<MovingStateGoal>(v);
+            },
+            [&](const DiscreteRect& r) {
+                return std::make_optional<MovingStateGoal>(r);
+            });
+
+        if (!resolvedGoal)
+        {
+            unitState.navigationState.state = NavigationStateIdle();
+            return;
+        }
+
+        moveTo(unitId, *resolvedGoal);
     }
 
     std::pair<SimAngle, SimAngle> UnitBehaviorService::computeHeadingAndPitch(SimAngle rotation, const SimVector& from, const SimVector& to, SimScalar speed, SimScalar gravity, SimScalar zOffset, ProjectilePhysicsType projectileType)
@@ -1093,7 +1134,7 @@ namespace rwe
             return false;
         }
 
-        if (moveTo(unitId, moveOrder.destination))
+        if (navigateTo(unitId, moveOrder.destination))
         {
             sim->events.push_back(UnitArrivedEvent{unitId});
             return true;
@@ -1128,7 +1169,7 @@ namespace rwe
         auto maxRangeSquared = weaponDefinition.maxRange * weaponDefinition.maxRange;
         if (unit.position.distanceSquared(*targetPosition) > maxRangeSquared)
         {
-            moveTo(unitId, *targetPosition);
+            navigateTo(unitId, *targetPosition);
         }
         else
         {
@@ -1157,7 +1198,7 @@ namespace rwe
         auto& unit = sim->getUnitState(unitId);
         const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
         auto [footprintX, footprintZ] = sim->getFootprintXZ(unitDefinition.movementCollisionInfo);
-        return moveTo(unitId, buggerOffOrder.rect.expand((footprintX * 3) - 4, (footprintZ * 3) - 4));
+        return navigateTo(unitId, buggerOffOrder.rect.expand((footprintX * 3) - 4, (footprintZ * 3) - 4));
     }
 
     bool UnitBehaviorService::handleCompleteBuildOrder(rwe::UnitId unitId, const rwe::CompleteBuildOrder& buildOrder)
@@ -1200,7 +1241,7 @@ namespace rwe
         // stay close
         if (unitDefinition.canMove && unit.position.distanceSquared(targetUnit.position) > SimScalar(200 * 200))
         {
-            moveTo(unitId, targetUnit.position);
+            navigateTo(unitId, targetUnit.position);
             return false;
         }
 
@@ -1469,12 +1510,12 @@ namespace rwe
         auto& unit = sim->getUnitState(unitId);
         const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
 
-        auto movingState = std::get_if<UnitBehaviorStateMoving>(&unit.behaviourState);
+        auto movingState = std::get_if<NavigationStateMoving>(&unit.navigationState.state);
 
         if (!movingState || movingState->destination != goal)
         {
             // request a path to follow
-            changeState(unit, UnitBehaviorStateMoving{goal, std::nullopt, true});
+            unit.navigationState.state = NavigationStateMoving{goal, std::nullopt, true};
             sim->requestPath(unitId);
             return false;
         }
@@ -1527,6 +1568,78 @@ namespace rwe
             });
     }
 
+    SimVector findClosestPoint(const DiscreteRect& rect, const SimVector& p)
+    {
+        SimScalar x;
+        if (p.x < SimScalar(rect.left()))
+        {
+            x = SimScalar(rect.left());
+        }
+        else if (p.x > SimScalar(rect.right()))
+        {
+            x = SimScalar(rect.right());
+        }
+        else
+        {
+            x = p.x;
+        }
+
+        SimScalar z;
+        if (p.z < SimScalar(rect.top()))
+        {
+            z = SimScalar(rect.top());
+        }
+        else if (p.x > SimScalar(rect.bottom()))
+        {
+            z = SimScalar(rect.bottom());
+        }
+        else
+        {
+            z = p.z;
+        }
+
+        return SimVector(x, p.y, z);
+    }
+
+    bool UnitBehaviorService::navigateTo(UnitId unitId, const NavigationGoal& goal)
+    {
+        auto& unit = sim->getUnitState(unitId);
+        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
+
+        unit.navigationState.desiredDestination = goal;
+
+        auto destination = match(
+            goal,
+            [&](const SimVector& pos) {
+                return std::make_optional(pos);
+            },
+            [&](const DiscreteRect& rect) {
+                return std::make_optional(findClosestPoint(rect, unit.position));
+            },
+            [&](const NavigationGoalLandingLocation&) {
+                const auto& s = std::get_if<NavigationStateMovingToLandingSpot>(&unit.navigationState.state);
+                if (s)
+                {
+                    return std::make_optional(s->landingLocation);
+                }
+                return std::optional<SimVector>();
+            });
+
+        if (!destination)
+        {
+            return false;
+        }
+
+        SimVector xzPosition(unit.position.x, 0_ss, unit.position.z);
+        SimVector xzDestination(destination->x, 0_ss, destination->z);
+        auto distanceSquared = xzPosition.distanceSquared(xzDestination);
+
+        if (distanceSquared < (8_ss * 8_ss))
+        {
+            return true;
+        }
+    }
+
     bool UnitBehaviorService::moveTo(UnitId unitId, const MovingStateGoal& goal)
     {
         auto& unit = sim->getUnitState(unitId);
@@ -1555,7 +1668,7 @@ namespace rwe
 
         const auto& targetUnitDefinition = sim->unitDefinitions.at(unitType);
         auto footprintRect = sim->computeFootprintRegion(position, targetUnitDefinition.movementCollisionInfo);
-        if (moveTo(unitId, footprintRect))
+        if (navigateTo(unitId, footprintRect))
         {
             // TODO: add an additional distance check here -- we may have done the best
             // we can to move but been prevented by some obstacle, so we are too far away still.
@@ -1607,7 +1720,7 @@ namespace rwe
         // and it appears both measures something more advanced than center <-> center distance.
         if (unit.position.distanceSquared(targetUnit.position) > (unitDefinition.buildDistance * unitDefinition.buildDistance))
         {
-            moveTo(unitId, targetUnit.position);
+            navigateTo(unitId, targetUnit.position);
             return false;
         }
 
@@ -1772,8 +1885,7 @@ namespace rwe
                 return pos;
             },
             [&](const DiscreteRect& rect) {
-                // TODO: find closest point on rect to current pos
-                return SimVector(0_ss, 0_ss, 0_ss);
+                return findClosestPoint(rect, unit.position);
             });
 
         SimVector xzPosition(unit.position.x, 0_ss, unit.position.z);

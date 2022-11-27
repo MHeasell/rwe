@@ -58,6 +58,7 @@ namespace rwe
             {"physics", dumpJson(u.physics)},
             {"hitPoints", dumpJson(u.hitPoints)},
             {"lifeState", dumpJson(u.lifeState)},
+            {"navigationState", dumpJson(u.navigationState)},
             {"behaviourState", dumpJson(u.behaviourState)},
             {"inBuildStance", dumpJson(u.inBuildStance)},
             {"yardOpen", dumpJson(u.yardOpen)},
@@ -152,10 +153,6 @@ namespace rwe
             {"position", dumpJson(s.position)},
         };
     }
-    nlohmann::json dumpJson(const UnitBehaviorStateFlyingToLandingSpot& s)
-    {
-        return nlohmann::json();
-    }
     nlohmann::json dumpJson(const UnitCreationStatusPending&)
     {
         return nlohmann::json();
@@ -178,12 +175,36 @@ namespace rwe
         return nlohmann::json();
     }
 
-    nlohmann::json dumpJson(const UnitBehaviorStateMoving& m)
+    nlohmann::json dumpJson(const NavigationGoalLandingLocation&)
+    {
+        return nlohmann::json();
+    }
+
+    nlohmann::json dumpJson(const NavigationStateIdle& m)
+    {
+        return nlohmann::json();
+    }
+
+    nlohmann::json dumpJson(const NavigationStateMoving& m)
     {
         return nlohmann::json{
             {"destination", dumpJson(m.destination)},
             {"pathRequested", m.pathRequested}};
     }
+
+    nlohmann::json dumpJson(const NavigationStateMovingToLandingSpot& m)
+    {
+        return nlohmann::json{
+            {"landingLocation", dumpJson(m.landingLocation)}};
+    }
+
+    nlohmann::json dumpJson(const NavigationStateInfo& m)
+    {
+        return nlohmann::json{
+            {"desiredDestination", dumpJson(m.desiredDestination)},
+            {"state", dumpJson(m.state)}};
+    }
+
     nlohmann::json dumpJson(const DiscreteRect& r)
     {
         return nlohmann::json{

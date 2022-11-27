@@ -70,6 +70,8 @@ namespace rwe
 
         void tryFireWeapon(UnitId id, unsigned int weaponIndex);
 
+        void updateNavigation(UnitId id);
+
         void applyUnitSteering(UnitId id);
         void updateUnitRotation(UnitId id);
         void updateUnitSpeed(UnitId id);
@@ -114,6 +116,8 @@ namespace rwe
         bool groundUnitMoveTo(UnitId unitId, const MovingStateGoal& goal);
 
         bool flyingUnitMoveTo(UnitId unitId, const MovingStateGoal& goal);
+
+        bool navigateTo(UnitId unitId, const NavigationGoal& goal);
 
         bool moveTo(UnitId unitId, const MovingStateGoal& goal);
 

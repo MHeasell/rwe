@@ -53,8 +53,6 @@ namespace rwe
 
     nlohmann::json dumpJson(const UnitBehaviorStateCreatingUnit&);
 
-    nlohmann::json dumpJson(const UnitBehaviorStateFlyingToLandingSpot&);
-
     nlohmann::json dumpJson(const UnitCreationStatusPending&);
     nlohmann::json dumpJson(const UnitCreationStatusDone&);
     nlohmann::json dumpJson(const UnitCreationStatusFailed&);
@@ -62,7 +60,12 @@ namespace rwe
     nlohmann::json dumpJson(const UnitState::LifeStateAlive&);
     nlohmann::json dumpJson(const UnitState::LifeStateDead&);
 
-    nlohmann::json dumpJson(const UnitBehaviorStateMoving& m);
+    nlohmann::json dumpJson(const NavigationGoalLandingLocation& m);
+
+    nlohmann::json dumpJson(const NavigationStateIdle& m);
+    nlohmann::json dumpJson(const NavigationStateMoving& m);
+    nlohmann::json dumpJson(const NavigationStateMovingToLandingSpot& m);
+    nlohmann::json dumpJson(const NavigationStateInfo& m);
 
     nlohmann::json dumpJson(const DiscreteRect& r);
 
