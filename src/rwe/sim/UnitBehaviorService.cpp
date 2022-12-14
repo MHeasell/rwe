@@ -1055,12 +1055,6 @@ namespace rwe
         return getPieceLocalPosition(id, *pieceId);
     }
 
-    SimVector UnitBehaviorService::getFiringPoint(UnitId id, unsigned int weaponIndex)
-    {
-        const auto& unit = sim->getUnitState(id);
-        return unit.getTransform() * getLocalFiringPoint(id, weaponIndex);
-    }
-
     SimVector UnitBehaviorService::getLocalFiringPoint(UnitId id, unsigned int weaponIndex)
     {
 
@@ -1489,20 +1483,6 @@ namespace rwe
             { return std::make_optional(v); },
             [this](UnitId id)
             { return tryGetSweetSpot(id); });
-    }
-
-    MovingStateGoal UnitBehaviorService::attackTargetToMovingStateGoal(const AttackTarget& target)
-    {
-        return match(
-            target,
-            [&](const SimVector& target)
-            { return MovingStateGoal(target); },
-            [&](UnitId unitId)
-            {
-                const auto& targetUnit = sim->getUnitState(unitId);
-                const auto& targetUnitDefinition = sim->unitDefinitions.at(targetUnit.unitType);
-                return MovingStateGoal(sim->computeFootprintRegion(targetUnit.position, targetUnitDefinition.movementCollisionInfo));
-            });
     }
 
     bool UnitBehaviorService::groundUnitMoveTo(UnitId unitId, const MovingStateGoal& goal)

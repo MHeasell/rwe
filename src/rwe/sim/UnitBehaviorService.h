@@ -91,7 +91,6 @@ namespace rwe
         SimVector getAimingPoint(UnitId id, unsigned int weaponIndex);
         SimVector getLocalAimingPoint(UnitId id, unsigned int weaponIndex);
 
-        SimVector getFiringPoint(UnitId id, unsigned int weaponIndex);
         SimVector getLocalFiringPoint(UnitId id, unsigned int weaponIndex);
 
         SimVector getNanoPoint(UnitId id);
@@ -110,8 +109,6 @@ namespace rwe
         BuildPieceInfo getBuildPieceInfo(UnitId id);
 
         std::optional<SimVector> getTargetPosition(const UnitWeaponAttackTarget& target);
-
-        MovingStateGoal attackTargetToMovingStateGoal(const AttackTarget& target);
 
         bool groundUnitMoveTo(UnitId unitId, const MovingStateGoal& goal);
 
