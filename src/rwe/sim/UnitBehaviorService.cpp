@@ -1601,13 +1601,8 @@ namespace rwe
         return SimVector(x, p.y, z);
     }
 
-    bool UnitBehaviorService::navigateTo(UnitId unitId, const NavigationGoal& goal)
+    bool hasReachedGoal(const UnitState& unit, const NavigationGoal& goal)
     {
-        auto& unit = sim->getUnitState(unitId);
-        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
-
-        unit.navigationState.desiredDestination = goal;
-
         auto destination = match(
             goal,
             [&](const SimVector& pos) {
@@ -1640,6 +1635,16 @@ namespace rwe
         }
 
         return false;
+    }
+
+    bool UnitBehaviorService::navigateTo(UnitId unitId, const NavigationGoal& goal)
+    {
+        auto& unit = sim->getUnitState(unitId);
+        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
+
+        unit.navigationState.desiredDestination = goal;
+
+        return hasReachedGoal(unit, goal);
     }
 
     bool UnitBehaviorService::moveTo(UnitId unitId, const MovingStateGoal& goal)
