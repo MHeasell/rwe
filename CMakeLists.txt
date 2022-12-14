@@ -554,6 +554,8 @@ set(SOURCE_FILES
     src/rwe/sim/UnitPieceDefinition.h
     src/rwe/sim/UnitState.cpp
     src/rwe/sim/UnitState.h
+    src/rwe/sim/UnitState_util.cpp
+    src/rwe/sim/UnitState_util.h
     src/rwe/sim/UnitWeapon.h
     src/rwe/sim/WeaponDefinition.cpp
     src/rwe/sim/WeaponDefinition.h
@@ -561,8 +563,6 @@ set(SOURCE_FILES
     src/rwe/sim/cob.h
     src/rwe/sim/movement.cpp
     src/rwe/sim/movement.h
-    src/rwe/sim/unit_util.cpp
-    src/rwe/sim/unit_util.h
     src/rwe/sim/util.cpp
     src/rwe/sim/util.h
     src/rwe/ui/UiComponent.cpp
@@ -815,7 +815,7 @@ set(TEST_FILES
     src/rwe/rwe_string.test.cpp
     src/rwe/sim/SimAngle.test.cpp
     src/rwe/sim/SimVector.test.cpp
-    src/rwe/sim/unit_util.test.cpp
+    src/rwe/sim/UnitState_util.test.cpp
     src/rwe/util.test.cpp
     )
 

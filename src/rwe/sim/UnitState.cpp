@@ -4,7 +4,7 @@
 #include <rwe/geometry/Plane3f.h>
 #include <rwe/math/rwe_math.h>
 #include <rwe/matrix_util.h>
-#include <rwe/sim/unit_util.h>
+#include <rwe/sim/UnitState_util.h>
 
 namespace rwe
 {

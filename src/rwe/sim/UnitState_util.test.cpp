@@ -1,5 +1,5 @@
 #include <catch2/catch.hpp>
-#include <rwe/sim/unit_util.h>
+#include <rwe/sim/UnitState_util.h>
 
 namespace rwe
 {
