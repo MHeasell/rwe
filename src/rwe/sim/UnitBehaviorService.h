@@ -34,12 +34,6 @@ namespace rwe
         std::optional<SimVector> tryGetSweetSpot(UnitId id);
 
     private:
-        static std::pair<SimAngle, SimAngle> computeHeadingAndPitch(SimAngle rotation, const SimVector& from, const SimVector& to, SimScalar speed, SimScalar gravity, SimScalar zOffset, ProjectilePhysicsType projectileType);
-
-        static std::pair<SimAngle, SimAngle> computeLineOfSightHeadingAndPitch(SimAngle rotation, const SimVector& from, const SimVector& to);
-
-        static std::pair<SimAngle, SimAngle> computeBallisticHeadingAndPitch(SimAngle rotation, const SimVector& from, const SimVector& to, SimScalar speed, SimScalar gravity, SimScalar zOffset);
-
         /** Returns true if the order has been completed. */
         bool handleOrder(UnitId unitId, const UnitOrder& moveOrder);
 
@@ -80,11 +74,6 @@ namespace rwe
         void updateUnitPosition(UnitId unitId);
 
         bool tryApplyMovementToPosition(UnitId id, const SimVector& newPosition);
-
-        std::string getAimScriptName(unsigned int weaponIndex) const;
-        std::string getAimFromScriptName(unsigned int weaponIndex) const;
-        std::string getFireScriptName(unsigned int weaponIndex) const;
-        std::string getQueryScriptName(unsigned int weaponIndex) const;
 
         std::optional<int> runCobQuery(UnitId id, const std::string& name);
 

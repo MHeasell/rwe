@@ -542,6 +542,8 @@ set(SOURCE_FILES
     src/rwe/sim/SimVector.h
     src/rwe/sim/UnitBehaviorService.cpp
     src/rwe/sim/UnitBehaviorService.h
+    src/rwe/sim/UnitBehaviorService_util.cpp
+    src/rwe/sim/UnitBehaviorService_util.h
     src/rwe/sim/UnitDefinition.h
     src/rwe/sim/UnitFireOrders.h
     src/rwe/sim/UnitId.h
