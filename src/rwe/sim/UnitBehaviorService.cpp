@@ -1638,6 +1638,8 @@ namespace rwe
         {
             return true;
         }
+
+        return false;
     }
 
     bool UnitBehaviorService::moveTo(UnitId unitId, const MovingStateGoal& goal)
