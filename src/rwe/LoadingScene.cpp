@@ -944,16 +944,16 @@ namespace rwe
         {
             auto normalizedObjectName = toUpper(tdf.object);
 
-            if (modelDefinitions.find(toUpper(tdf.object)) == modelDefinitions.end())
+            if (modelDefinitions.find(normalizedObjectName) == modelDefinitions.end())
             {
-                auto meshInfo = meshService.loadProjectileMesh(tdf.object);
-                modelDefinitions.insert({toUpper(tdf.object), std::move(meshInfo.modelDefinition)});
+                auto meshInfo = meshService.loadProjectileMesh(normalizedObjectName);
+                modelDefinitions.insert({normalizedObjectName, std::move(meshInfo.modelDefinition)});
                 for (const auto& m : meshInfo.pieceMeshes)
                 {
-                    meshDatabase.addUnitPieceMesh(tdf.object, m.first, m.second);
+                    meshDatabase.addUnitPieceMesh(normalizedObjectName, m.first, m.second);
                 }
             }
-            f.renderInfo = FeatureObjectInfo{tdf.object};
+            f.renderInfo = FeatureObjectInfo{normalizedObjectName};
         }
         else
         {
