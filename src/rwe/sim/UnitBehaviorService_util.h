@@ -19,7 +19,7 @@ namespace rwe
 
     SimScalar getTurnRadius(SimScalar speed, SimScalar turnRate);
 
-    std::optional<SimVector> findLandingLocation(const GameSimulation& sim, const UnitState& unitState, const UnitDefinition& unitDefinition);
+    std::optional<SimVector> findLandingLocation(const GameSimulation& sim, ConstUnitInfo unitInfo);
 
     std::pair<SimAngle, SimAngle> computeHeadingAndPitch(SimAngle rotation, const SimVector& from, const SimVector& to, SimScalar speed, SimScalar gravity, SimScalar zOffset, ProjectilePhysicsType projectileType);
 

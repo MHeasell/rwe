@@ -47,15 +47,14 @@ namespace rwe
 
     void UnitBehaviorService::update(UnitId unitId)
     {
-        auto& unit = sim->getUnitState(unitId);
-        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
+        auto unitInfo = sim->getUnitInfo(unitId);
 
         // Clear steering targets.
         match(
-            unit.physics,
+            unitInfo.state->physics,
             [&](UnitPhysicsInfoGround& p) {
                 p.steeringInfo = SteeringInfo{
-                    unit.rotation,
+                    unitInfo.state->rotation,
                     0_ss,
                 };
             },
@@ -63,7 +62,7 @@ namespace rwe
                 match(
                     p.movementState,
                     [&](AirMovementStateFlying& s) {
-                        s.targetPosition = unit.position;
+                        s.targetPosition = unitInfo.state->position;
                     },
                     [&](const AirMovementStateTakingOff&) {
                         // do nothing
@@ -74,16 +73,16 @@ namespace rwe
             });
 
         // clear navigation targets
-        unit.navigationState.desiredDestination = std::nullopt;
+        unitInfo.state->navigationState.desiredDestination = std::nullopt;
 
         // Run unit and weapon AI
-        if (!unit.isBeingBuilt(unitDefinition))
+        if (!unitInfo.state->isBeingBuilt(*unitInfo.definition))
         {
             // check our build queue
-            if (!unit.buildQueue.empty())
+            if (!unitInfo.state->buildQueue.empty())
             {
-                auto& entry = unit.buildQueue.front();
-                if (handleBuild(unitId, entry.first))
+                auto& entry = unitInfo.state->buildQueue.front();
+                if (handleBuild(unitInfo, entry.first))
                 {
                     if (entry.second > 1)
                     {
@@ -91,33 +90,33 @@ namespace rwe
                     }
                     else
                     {
-                        unit.buildQueue.pop_front();
+                        unitInfo.state->buildQueue.pop_front();
                     }
                 }
             }
             else
             {
-                clearBuild(unitId);
+                clearBuild(unitInfo);
             }
 
             // check our orders
-            if (!unit.orders.empty())
+            if (!unitInfo.state->orders.empty())
             {
-                const auto& order = unit.orders.front();
+                const auto& order = unitInfo.state->orders.front();
 
                 // process move orders
-                if (handleOrder(unitId, order))
+                if (handleOrder(unitInfo, order))
                 {
-                    unit.orders.pop_front();
-                    unit.buildOrderUnitId = std::nullopt;
+                    unitInfo.state->orders.pop_front();
+                    unitInfo.state->buildOrderUnitId = std::nullopt;
                 }
             }
-            else if (auto airPhysics = std::get_if<UnitPhysicsInfoAir>(&unit.physics); airPhysics != nullptr)
+            else if (auto airPhysics = std::get_if<UnitPhysicsInfoAir>(&unitInfo.state->physics); airPhysics != nullptr)
             {
                 match(
                     airPhysics->movementState,
                     [&](AirMovementStateFlying& m) {
-                        if (navigateTo(unitId, NavigationGoalLandingLocation()))
+                        if (navigateTo(unitInfo, NavigationGoalLandingLocation()))
                         {
                             m.shouldLand = true;
                         }
@@ -131,53 +130,53 @@ namespace rwe
             }
             else
             {
-                changeState(unit, UnitBehaviorStateIdle());
+                changeState(*unitInfo.state, UnitBehaviorStateIdle());
             }
 
-            for (Index i = 0; i < getSize(unit.weapons); ++i)
+            for (Index i = 0; i < getSize(unitInfo.state->weapons); ++i)
             {
                 updateWeapon(unitId, i);
             }
         }
 
-        if (unitDefinition.isMobile)
+        if (unitInfo.definition->isMobile)
         {
-            updateNavigation(unitId);
+            updateNavigation(unitInfo);
 
-            applyUnitSteering(unitId);
+            applyUnitSteering(unitInfo);
 
-            auto previouslyWasMoving = !areCloserThan(unit.previousPosition, unit.position, 0.1_ssf);
+            auto previouslyWasMoving = !areCloserThan(unitInfo.state->previousPosition, unitInfo.state->position, 0.1_ssf);
 
-            updateUnitPosition(unitId);
+            updateUnitPosition(unitInfo);
 
-            auto currentlyIsMoving = !areCloserThan(unit.previousPosition, unit.position, 0.1_ssf);
+            auto currentlyIsMoving = !areCloserThan(unitInfo.state->previousPosition, unitInfo.state->position, 0.1_ssf);
 
             if (currentlyIsMoving && !previouslyWasMoving)
             {
-                unit.cobEnvironment->createThread("StartMoving");
+                unitInfo.state->cobEnvironment->createThread("StartMoving");
             }
             else if (!currentlyIsMoving && previouslyWasMoving)
             {
-                unit.cobEnvironment->createThread("StopMoving");
+                unitInfo.state->cobEnvironment->createThread("StopMoving");
             }
 
             // do physics transitions
             match(
-                unit.physics,
+                unitInfo.state->physics,
                 [&](const UnitPhysicsInfoGround& p) {
                     if (p.steeringInfo.shouldTakeOff)
                     {
-                        transitionFromGroundToAir(unitId);
+                        transitionFromGroundToAir(unitInfo);
                     }
                 },
                 [&](UnitPhysicsInfoAir& p) {
                     match(
                         p.movementState,
                         [&](const AirMovementStateTakingOff&) {
-                            auto terrainHeight = sim->terrain.getHeightAt(unit.position.x, unit.position.z);
-                            auto targetHeight = terrainHeight + unitDefinition.cruiseAltitude;
+                            auto terrainHeight = sim->terrain.getHeightAt(unitInfo.state->position.x, unitInfo.state->position.z);
+                            auto targetHeight = terrainHeight + unitInfo.definition->cruiseAltitude;
 
-                            if (unit.position.y == targetHeight)
+                            if (unitInfo.state->position.y == targetHeight)
                             {
                                 p.movementState = AirMovementStateFlying();
                             }
@@ -185,15 +184,15 @@ namespace rwe
                         [&](AirMovementStateLanding& m) {
                             if (m.shouldAbort)
                             {
-                                unit.activate();
+                                unitInfo.state->activate();
                                 p.movementState = AirMovementStateFlying();
                             }
                             else
                             {
-                                auto targetHeight = sim->terrain.getHeightAt(unit.position.x, unit.position.z);
-                                if (unit.position.y == targetHeight)
+                                auto targetHeight = sim->terrain.getHeightAt(unitInfo.state->position.x, unitInfo.state->position.z);
+                                if (unitInfo.state->position.y == targetHeight)
                                 {
-                                    if (!tryTransitionFromAirToGround(unitId))
+                                    if (!tryTransitionFromAirToGround(unitInfo))
                                     {
                                         m.landingFailed = true;
                                     }
@@ -204,42 +203,39 @@ namespace rwe
                             if (m.shouldLand)
                             {
                                 p.movementState = AirMovementStateLanding();
-                                unit.deactivate();
+                                unitInfo.state->deactivate();
                             }
                         });
                 });
         }
     }
 
-    void UnitBehaviorService::updateNavigation(UnitId unitId)
+    void UnitBehaviorService::updateNavigation(UnitInfo unitInfo)
     {
-        auto& unitState = sim->getUnitState(unitId);
-        const auto& unitDefinition = sim->unitDefinitions.at(unitState.unitType);
-
-        const auto& goal = unitState.navigationState.desiredDestination;
+        const auto& goal = unitInfo.state->navigationState.desiredDestination;
 
         if (!goal)
         {
-            unitState.navigationState.state = NavigationStateIdle();
+            unitInfo.state->navigationState.state = NavigationStateIdle();
             return;
         }
 
         auto resolvedGoal = match(
             *goal,
             [&](const NavigationGoalLandingLocation&) {
-                const auto llState = std::get_if<NavigationStateMovingToLandingSpot>(&unitState.navigationState.state);
+                const auto llState = std::get_if<NavigationStateMovingToLandingSpot>(&unitInfo.state->navigationState.state);
                 if (llState)
                 {
                     return std::make_optional<MovingStateGoal>(llState->landingLocation);
                 }
                 else
                 {
-                    auto landingLocation = findLandingLocation(*sim, unitState, unitDefinition);
+                    auto landingLocation = findLandingLocation(*sim, unitInfo);
                     if (!landingLocation)
                     {
                         return std::optional<MovingStateGoal>();
                     }
-                    unitState.navigationState.state = NavigationStateMovingToLandingSpot{*landingLocation};
+                    unitInfo.state->navigationState.state = NavigationStateMovingToLandingSpot{*landingLocation};
                     return std::make_optional<MovingStateGoal>(*landingLocation);
                 }
             },
@@ -252,17 +248,17 @@ namespace rwe
 
         if (!resolvedGoal)
         {
-            unitState.navigationState.state = NavigationStateIdle();
+            unitInfo.state->navigationState.state = NavigationStateIdle();
             return;
         }
 
-        moveTo(unitId, *resolvedGoal);
+        moveTo(unitInfo, *resolvedGoal);
     }
 
-    bool followPath(UnitState& unit, const UnitDefinition& unitDefinition, UnitPhysicsInfoGround& physics, PathFollowingInfo& path)
+    bool followPath(UnitInfo unitInfo, UnitPhysicsInfoGround& physics, PathFollowingInfo& path)
     {
         const auto& destination = *path.currentWaypoint;
-        SimVector xzPosition(unit.position.x, 0_ss, unit.position.z);
+        SimVector xzPosition(unitInfo.state->position.x, 0_ss, unitInfo.state->position.z);
         SimVector xzDestination(destination.x, 0_ss, destination.z);
         auto distanceSquared = xzPosition.distanceSquared(xzDestination);
 
@@ -275,7 +271,7 @@ namespace rwe
                 return true;
             }
 
-            physics.steeringInfo = arrive(unit, unitDefinition, physics, destination);
+            physics.steeringInfo = arrive(*unitInfo.state, *unitInfo.definition, physics, destination);
             return false;
         }
 
@@ -285,7 +281,7 @@ namespace rwe
             return false;
         }
 
-        physics.steeringInfo = seek(unit, unitDefinition, destination);
+        physics.steeringInfo = seek(*unitInfo.state, *unitInfo.definition, destination);
         return false;
     }
 
@@ -518,23 +514,21 @@ namespace rwe
         }
     }
 
-    void UnitBehaviorService::applyUnitSteering(UnitId id)
+    void UnitBehaviorService::applyUnitSteering(UnitInfo unitInfo)
     {
-        updateUnitRotation(id);
-        updateUnitSpeed(id);
+        updateUnitRotation(unitInfo);
+        updateUnitSpeed(unitInfo);
     }
 
-    void UnitBehaviorService::updateUnitRotation(UnitId id)
+    void UnitBehaviorService::updateUnitRotation(UnitInfo unitInfo)
     {
-        auto& unit = sim->getUnitState(id);
-        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
-        auto turnRateThisFrame = SimAngle(unitDefinition.turnRate.value);
-        unit.previousRotation = unit.rotation;
+        auto turnRateThisFrame = SimAngle(unitInfo.definition->turnRate.value);
+        unitInfo.state->previousRotation = unitInfo.state->rotation;
 
         match(
-            unit.physics,
+            unitInfo.state->physics,
             [&](const UnitPhysicsInfoGround& p) {
-                unit.rotation = turnTowards(unit.rotation, p.steeringInfo.targetAngle, turnRateThisFrame);
+                unitInfo.state->rotation = turnTowards(unitInfo.state->rotation, p.steeringInfo.targetAngle, turnRateThisFrame);
             },
             [&](const UnitPhysicsInfoAir& p) {
                 match(
@@ -551,28 +545,25 @@ namespace rwe
                             // keep rotation as-is if not trying to go anywhere
                             return;
                         }
-                        auto direction = *m.targetPosition - unit.position;
+                        auto direction = *m.targetPosition - unitInfo.state->position;
                         auto targetAngle = UnitState::toRotation(direction);
-                        unit.rotation = turnTowards(unit.rotation, targetAngle, turnRateThisFrame);
+                        unitInfo.state->rotation = turnTowards(unitInfo.state->rotation, targetAngle, turnRateThisFrame);
                     });
             });
     }
 
-    void UnitBehaviorService::updateUnitSpeed(UnitId id)
+    void UnitBehaviorService::updateUnitSpeed(UnitInfo unitInfo)
     {
-        auto& unit = sim->getUnitState(id);
-        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
-
         match(
-            unit.physics,
+            unitInfo.state->physics,
             [&](UnitPhysicsInfoGround& p) {
-                p.currentSpeed = computeNewGroundUnitSpeed(sim->terrain, unit, unitDefinition, p);
+                p.currentSpeed = computeNewGroundUnitSpeed(sim->terrain, *unitInfo.state, *unitInfo.definition, p);
             },
             [&](UnitPhysicsInfoAir& p) {
                 match(
                     p.movementState,
                     [&](AirMovementStateFlying& m) {
-                        m.currentVelocity = computeNewAirUnitVelocity(unit, unitDefinition, m);
+                        m.currentVelocity = computeNewAirUnitVelocity(*unitInfo.state, *unitInfo.definition, m);
                     },
                     [&](const AirMovementStateTakingOff&) {
                         // do nothing
@@ -583,22 +574,22 @@ namespace rwe
             });
     }
 
-    void UnitBehaviorService::updateGroundUnitPosition(UnitId unitId, UnitState& unit, const UnitDefinition& unitDefinition, const UnitPhysicsInfoGround& physics)
+    void UnitBehaviorService::updateGroundUnitPosition(UnitInfo unitInfo, const UnitPhysicsInfoGround& physics)
     {
-        auto direction = UnitState::toDirection(unit.rotation);
+        auto direction = UnitState::toDirection(unitInfo.state->rotation);
 
         if (physics.currentSpeed > 0_ss)
         {
-            auto newPosition = unit.position + (direction * physics.currentSpeed);
+            auto newPosition = unitInfo.state->position + (direction * physics.currentSpeed);
             newPosition.y = sim->terrain.getHeightAt(newPosition.x, newPosition.z);
-            if (unitDefinition.floater || unitDefinition.canHover)
+            if (unitInfo.definition->floater || unitInfo.definition->canHover)
             {
                 newPosition.y = rweMax(newPosition.y, sim->terrain.getSeaLevel());
             }
 
-            if (!tryApplyMovementToPosition(unitId, newPosition))
+            if (!tryApplyMovementToPosition(unitInfo, newPosition))
             {
-                unit.inCollision = true;
+                unitInfo.state->inCollision = true;
 
                 // if we failed to move, try in each axis separately
                 // to see if we can complete a "partial" movement
@@ -609,108 +600,102 @@ namespace rwe
                 SimVector newPos2;
                 if (direction.x > direction.z)
                 {
-                    newPos1 = unit.position + (direction * maskZ * physics.currentSpeed);
-                    newPos2 = unit.position + (direction * maskX * physics.currentSpeed);
+                    newPos1 = unitInfo.state->position + (direction * maskZ * physics.currentSpeed);
+                    newPos2 = unitInfo.state->position + (direction * maskX * physics.currentSpeed);
                 }
                 else
                 {
-                    newPos1 = unit.position + (direction * maskX * physics.currentSpeed);
-                    newPos2 = unit.position + (direction * maskZ * physics.currentSpeed);
+                    newPos1 = unitInfo.state->position + (direction * maskX * physics.currentSpeed);
+                    newPos2 = unitInfo.state->position + (direction * maskZ * physics.currentSpeed);
                 }
                 newPos1.y = sim->terrain.getHeightAt(newPos1.x, newPos1.z);
                 newPos2.y = sim->terrain.getHeightAt(newPos2.x, newPos2.z);
 
-                if (unitDefinition.floater || unitDefinition.canHover)
+                if (unitInfo.definition->floater || unitInfo.definition->canHover)
                 {
                     newPos1.y = rweMax(newPos1.y, sim->terrain.getSeaLevel());
                     newPos2.y = rweMax(newPos2.y, sim->terrain.getSeaLevel());
                 }
 
-                if (!tryApplyMovementToPosition(unitId, newPos1))
+                if (!tryApplyMovementToPosition(unitInfo, newPos1))
                 {
-                    tryApplyMovementToPosition(unitId, newPos2);
+                    tryApplyMovementToPosition(unitInfo, newPos2);
                 }
             }
         }
     }
 
-    void UnitBehaviorService::updateUnitPosition(UnitId unitId)
+    void UnitBehaviorService::updateUnitPosition(UnitInfo unitInfo)
     {
-        auto& unit = sim->getUnitState(unitId);
-        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
-
-        unit.previousPosition = unit.position;
-        unit.inCollision = false;
+        unitInfo.state->previousPosition = unitInfo.state->position;
+        unitInfo.state->inCollision = false;
 
         match(
-            unit.physics,
+            unitInfo.state->physics,
             [&](const UnitPhysicsInfoGround& p) {
-                updateGroundUnitPosition(unitId, unit, unitDefinition, p);
+                updateGroundUnitPosition(unitInfo, p);
             },
             [&](const UnitPhysicsInfoAir& p) {
                 match(
                     p.movementState,
                     [&](const AirMovementStateFlying& m) {
-                        auto newPosition = unit.position + m.currentVelocity;
-                        tryApplyMovementToPosition(unitId, newPosition);
+                        auto newPosition = unitInfo.state->position + m.currentVelocity;
+                        tryApplyMovementToPosition(unitInfo, newPosition);
                     },
                     [&](const AirMovementStateTakingOff&) {
-                        climbToCruiseAltitude(unitId);
+                        climbToCruiseAltitude(unitInfo);
                     },
                     [&](const AirMovementStateLanding&) {
-                        descendToGroundLevel(unitId);
+                        descendToGroundLevel(unitInfo);
                     });
             });
     }
 
-    bool UnitBehaviorService::tryApplyMovementToPosition(UnitId id, const SimVector& newPosition)
+    bool UnitBehaviorService::tryApplyMovementToPosition(UnitInfo unitInfo, const SimVector& newPosition)
     {
-        auto& unit = sim->getUnitState(id);
-        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
-
         // No collision for flying units.
-        if (isFlying(unit.physics))
+        if (isFlying(unitInfo.state->physics))
         {
-            unit.position = newPosition;
+            unitInfo.state->position = newPosition;
             return true;
         }
 
         // check for collision at the new position
-        auto newFootprintRegion = sim->computeFootprintRegion(newPosition, unitDefinition.movementCollisionInfo);
+        auto newFootprintRegion = sim->computeFootprintRegion(newPosition, unitInfo.definition->movementCollisionInfo);
 
-        if (sim->isCollisionAt(newFootprintRegion, id))
+        if (sim->isCollisionAt(newFootprintRegion, unitInfo.id))
         {
             return false;
         }
 
         // Unlike for pathfinding, TA doesn't care about the unit's actual movement class for collision checks,
-        // it only cares about the attributes defined directly on the unit.
+        // it only cares about the attributes defined directly on the unitInfo.state->
         // Jam these into an ad-hoc movement class to pass into our walkability check.
-        if (!isGridPointWalkable(sim->terrain, sim->getAdHocMovementClass(unitDefinition.movementCollisionInfo), newFootprintRegion.x, newFootprintRegion.y))
+        if (!isGridPointWalkable(sim->terrain, sim->getAdHocMovementClass(unitInfo.definition->movementCollisionInfo), newFootprintRegion.x, newFootprintRegion.y))
         {
             return false;
         }
 
         // we passed all collision checks, update accordingly
-        auto footprintRegion = sim->computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
-        sim->moveUnitOccupiedArea(footprintRegion, newFootprintRegion, id);
+        auto footprintRegion = sim->computeFootprintRegion(unitInfo.state->position, unitInfo.definition->movementCollisionInfo);
+        sim->moveUnitOccupiedArea(footprintRegion, newFootprintRegion, unitInfo.id);
 
         auto seaLevel = sim->terrain.getSeaLevel();
-        auto oldTerrainHeight = sim->terrain.getHeightAt(unit.position.x, unit.position.z);
+        auto oldTerrainHeight = sim->terrain.getHeightAt(unitInfo.state->position.x, unitInfo.state->position.z);
         auto oldPosBelowSea = oldTerrainHeight < seaLevel;
 
-        unit.position = newPosition;
+        unitInfo.state->position = newPosition;
 
-        auto newTerrainHeight = sim->terrain.getHeightAt(unit.position.x, unit.position.z);
+        auto newTerrainHeight = sim->terrain.getHeightAt(unitInfo.state->position.x, unitInfo.state->position.z);
         auto newPosBelowSea = newTerrainHeight < seaLevel;
 
         if (oldPosBelowSea && !newPosBelowSea)
         {
-            unit.cobEnvironment->createThread("setSFXoccupy", std::vector<int>{4});
+            unitInfo.state->cobEnvironment->createThread("setSFXoccupy", std::vector<int>{4});
         }
         else if (!oldPosBelowSea && newPosBelowSea)
         {
-            unit.cobEnvironment->createThread("setSFXoccupy", std::vector<int>{2});
+            unitInfo.state->cobEnvironment->createThread("setSFXoccupy", std::vector<int>{2});
         }
 
         return true;
@@ -787,69 +772,65 @@ namespace rwe
         return getSweetSpot(id);
     }
 
-    bool UnitBehaviorService::handleOrder(UnitId unitId, const UnitOrder& order)
+    bool UnitBehaviorService::handleOrder(UnitInfo unitInfo, const UnitOrder& order)
     {
         return match(
             order,
-            [this, unitId](const MoveOrder& o)
+            [&](const MoveOrder& o)
             {
-                return handleMoveOrder(unitId, o);
+                return handleMoveOrder(unitInfo, o);
             },
-            [this, unitId](const AttackOrder& o)
+            [&](const AttackOrder& o)
             {
-                return handleAttackOrder(unitId, o);
+                return handleAttackOrder(unitInfo, o);
             },
-            [this, unitId](const BuildOrder& o)
+            [&](const BuildOrder& o)
             {
-                return handleBuildOrder(unitId, o);
+                return handleBuildOrder(unitInfo, o);
             },
-            [this, unitId](const BuggerOffOrder& o)
+            [&](const BuggerOffOrder& o)
             {
-                return handleBuggerOffOrder(unitId, o);
+                return handleBuggerOffOrder(unitInfo, o);
             },
-            [this, unitId](const CompleteBuildOrder& o)
+            [&](const CompleteBuildOrder& o)
             {
-                return handleCompleteBuildOrder(unitId, o);
+                return handleCompleteBuildOrder(unitInfo, o);
             },
-            [this, unitId](const GuardOrder& o)
+            [&](const GuardOrder& o)
             {
-                return handleGuardOrder(unitId, o);
+                return handleGuardOrder(unitInfo, o);
             });
     }
 
-    bool UnitBehaviorService::handleMoveOrder(UnitId unitId, const MoveOrder& moveOrder)
+    bool UnitBehaviorService::handleMoveOrder(UnitInfo unitInfo, const MoveOrder& moveOrder)
     {
-        auto& unit = sim->getUnitState(unitId);
-        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
-        if (!unitDefinition.isMobile)
+        if (!unitInfo.definition->isMobile)
         {
             return false;
         }
 
-        if (navigateTo(unitId, moveOrder.destination))
+        if (navigateTo(unitInfo, moveOrder.destination))
         {
-            sim->events.push_back(UnitArrivedEvent{unitId});
+            sim->events.push_back(UnitArrivedEvent{unitInfo.id});
             return true;
         }
 
         return false;
     }
 
-    bool UnitBehaviorService::handleAttackOrder(UnitId unitId, const AttackOrder& attackOrder)
+    bool UnitBehaviorService::handleAttackOrder(UnitInfo unitInfo, const AttackOrder& attackOrder)
     {
-        return attackTarget(unitId, attackOrder.target);
+        return attackTarget(unitInfo, attackOrder.target);
     }
 
-    bool UnitBehaviorService::attackTarget(UnitId unitId, const AttackTarget& target)
+    bool UnitBehaviorService::attackTarget(UnitInfo unitInfo, const AttackTarget& target)
     {
-        auto& unit = sim->getUnitState(unitId);
-
-        if (!unit.weapons[0])
+        if (!unitInfo.state->weapons[0])
         {
             return true;
         }
 
-        const auto& weaponDefinition = sim->weaponDefinitions.at(unit.weapons[0]->weaponType);
+        const auto& weaponDefinition = sim->weaponDefinitions.at(unitInfo.state->weapons[0]->weaponType);
 
         auto targetPosition = getTargetPosition(target);
         if (!targetPosition)
@@ -859,9 +840,9 @@ namespace rwe
         }
 
         auto maxRangeSquared = weaponDefinition.maxRange * weaponDefinition.maxRange;
-        if (unit.position.distanceSquared(*targetPosition) > maxRangeSquared)
+        if (unitInfo.state->position.distanceSquared(*targetPosition) > maxRangeSquared)
         {
-            navigateTo(unitId, *targetPosition);
+            navigateTo(unitInfo, *targetPosition);
         }
         else
         {
@@ -871,41 +852,36 @@ namespace rwe
                 match(
                     target,
                     [&](const UnitId& u)
-                    { unit.setWeaponTarget(i, u); },
+                    { unitInfo.state->setWeaponTarget(i, u); },
                     [&](const SimVector& v)
-                    { unit.setWeaponTarget(i, v); });
+                    { unitInfo.state->setWeaponTarget(i, v); });
             }
         }
 
         return false;
     }
 
-    bool UnitBehaviorService::handleBuildOrder(UnitId unitId, const BuildOrder& buildOrder)
+    bool UnitBehaviorService::handleBuildOrder(UnitInfo unitInfo, const BuildOrder& buildOrder)
     {
-        return buildUnit(unitId, buildOrder.unitType, buildOrder.position);
+        return buildUnit(unitInfo, buildOrder.unitType, buildOrder.position);
     }
 
-    bool UnitBehaviorService::handleBuggerOffOrder(UnitId unitId, const BuggerOffOrder& buggerOffOrder)
+    bool UnitBehaviorService::handleBuggerOffOrder(UnitInfo unitInfo, const BuggerOffOrder& buggerOffOrder)
     {
-        auto& unit = sim->getUnitState(unitId);
-        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
-        auto [footprintX, footprintZ] = sim->getFootprintXZ(unitDefinition.movementCollisionInfo);
-        return navigateTo(unitId, buggerOffOrder.rect.expand((footprintX * 3) - 4, (footprintZ * 3) - 4));
+        auto [footprintX, footprintZ] = sim->getFootprintXZ(unitInfo.definition->movementCollisionInfo);
+        return navigateTo(unitInfo, buggerOffOrder.rect.expand((footprintX * 3) - 4, (footprintZ * 3) - 4));
     }
 
-    bool UnitBehaviorService::handleCompleteBuildOrder(rwe::UnitId unitId, const rwe::CompleteBuildOrder& buildOrder)
+    bool UnitBehaviorService::handleCompleteBuildOrder(UnitInfo unitInfo, const rwe::CompleteBuildOrder& buildOrder)
     {
-        return buildExistingUnit(unitId, buildOrder.target);
+        return buildExistingUnit(unitInfo, buildOrder.target);
     }
 
-    bool UnitBehaviorService::handleGuardOrder(UnitId unitId, const GuardOrder& guardOrder)
+    bool UnitBehaviorService::handleGuardOrder(UnitInfo unitInfo, const GuardOrder& guardOrder)
     {
-        auto& unit = sim->getUnitState(unitId);
-        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
-
         auto target = sim->tryGetUnitState(guardOrder.target);
         // TODO: real allied check here
-        if (!target || !target->get().isOwnedBy(unit.owner))
+        if (!target || !target->get().isOwnedBy(unitInfo.state->owner))
         {
             // unit is dead or a traitor, abandon order
             return true;
@@ -914,44 +890,40 @@ namespace rwe
 
 
         // assist building
-        if (auto bs = std::get_if<UnitBehaviorStateBuilding>(&targetUnit.behaviourState); unitDefinition.builder && bs)
+        if (auto bs = std::get_if<UnitBehaviorStateBuilding>(&targetUnit.behaviourState); unitInfo.definition->builder && bs)
         {
-            buildExistingUnit(unitId, bs->targetUnit);
+            buildExistingUnit(unitInfo, bs->targetUnit);
             return false;
         }
 
         // assist factory building
-        if (auto fs = std::get_if<FactoryBehaviorStateBuilding>(&targetUnit.factoryState); unitDefinition.builder && fs)
+        if (auto fs = std::get_if<FactoryBehaviorStateBuilding>(&targetUnit.factoryState); unitInfo.definition->builder && fs)
         {
             if (fs->targetUnit)
             {
-                buildExistingUnit(unitId, fs->targetUnit->first);
+                buildExistingUnit(unitInfo, fs->targetUnit->first);
                 return false;
             }
         }
 
         // stay close
-        if (unitDefinition.canMove && unit.position.distanceSquared(targetUnit.position) > SimScalar(200 * 200))
+        if (unitInfo.definition->canMove && unitInfo.state->position.distanceSquared(targetUnit.position) > SimScalar(200 * 200))
         {
-            navigateTo(unitId, targetUnit.position);
+            navigateTo(unitInfo, targetUnit.position);
             return false;
         }
 
         return false;
     }
 
-    bool UnitBehaviorService::handleBuild(UnitId unitId, const std::string& unitType)
+    bool UnitBehaviorService::handleBuild(UnitInfo unitInfo, const std::string& unitType)
     {
-        auto& unit = sim->getUnitState(unitId);
-        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
-
-
         return match(
-            unit.factoryState,
+            unitInfo.state->factoryState,
             [&](const FactoryBehaviorStateIdle&)
             {
-                sim->activateUnit(unitId);
-                unit.factoryState = FactoryBehaviorStateBuilding();
+                sim->activateUnit(unitInfo.id);
+                unitInfo.state->factoryState = FactoryBehaviorStateBuilding();
                 return false;
             },
             [&](FactoryBehaviorStateCreatingUnit& state)
@@ -964,37 +936,37 @@ namespace rwe
                     },
                     [&](const UnitCreationStatusDone& s)
                     {
-                        unit.cobEnvironment->createThread("StartBuilding");
-                        unit.factoryState = FactoryBehaviorStateBuilding{std::make_pair(s.unitId, std::optional<SimVector>())};
+                        unitInfo.state->cobEnvironment->createThread("StartBuilding");
+                        unitInfo.state->factoryState = FactoryBehaviorStateBuilding{std::make_pair(s.unitId, std::optional<SimVector>())};
                         return false;
                     },
                     [&](const UnitCreationStatusFailed&)
                     {
-                        unit.factoryState = FactoryBehaviorStateBuilding();
+                        unitInfo.state->factoryState = FactoryBehaviorStateBuilding();
                         return false;
                     });
             },
             [&](FactoryBehaviorStateBuilding& state)
             {
-                if (!unit.inBuildStance)
+                if (!unitInfo.state->inBuildStance)
                 {
                     return false;
                 }
 
-                auto buildPieceInfo = getBuildPieceInfo(unitId);
+                auto buildPieceInfo = getBuildPieceInfo(unitInfo.id);
                 // buildPieceInfo.position.y = sim->terrain.getHeightAt(buildPieceInfo.position.x, buildPieceInfo.position.z);
                 if (!state.targetUnit)
                 {
-                    unit.factoryState = FactoryBehaviorStateCreatingUnit{unitType, unit.owner, buildPieceInfo.position, buildPieceInfo.rotation};
-                    sim->unitCreationRequests.push_back(unitId);
+                    unitInfo.state->factoryState = FactoryBehaviorStateCreatingUnit{unitType, unitInfo.state->owner, buildPieceInfo.position, buildPieceInfo.rotation};
+                    sim->unitCreationRequests.push_back(unitInfo.id);
                     return false;
                 }
 
                 auto targetUnitOption = sim->tryGetUnitState(state.targetUnit->first);
                 if (!targetUnitOption)
                 {
-                    unit.factoryState = FactoryBehaviorStateCreatingUnit{unitType, unit.owner, buildPieceInfo.position, buildPieceInfo.rotation};
-                    sim->unitCreationRequests.push_back(unitId);
+                    unitInfo.state->factoryState = FactoryBehaviorStateCreatingUnit{unitType, unitInfo.state->owner, buildPieceInfo.position, buildPieceInfo.rotation};
+                    sim->unitCreationRequests.push_back(unitInfo.id);
                     return false;
                 }
 
@@ -1013,26 +985,26 @@ namespace rwe
 
                 if (targetUnit.isDead())
                 {
-                    unit.cobEnvironment->createThread("StopBuilding");
-                    sim->deactivateUnit(unitId);
-                    unit.factoryState = FactoryBehaviorStateIdle();
+                    unitInfo.state->cobEnvironment->createThread("StopBuilding");
+                    sim->deactivateUnit(unitInfo.id);
+                    unitInfo.state->factoryState = FactoryBehaviorStateIdle();
                     return true;
                 }
 
                 if (!targetUnit.isBeingBuilt(targetUnitDefinition))
                 {
-                    if (unit.orders.empty())
+                    if (unitInfo.state->orders.empty())
                     {
-                        auto footprintRect = sim->computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
+                        auto footprintRect = sim->computeFootprintRegion(unitInfo.state->position, unitInfo.definition->movementCollisionInfo);
                         targetUnit.addOrder(BuggerOffOrder(footprintRect));
                     }
                     else
                     {
-                        targetUnit.replaceOrders(unit.orders);
+                        targetUnit.replaceOrders(unitInfo.state->orders);
                     }
-                    unit.cobEnvironment->createThread("StopBuilding");
-                    sim->deactivateUnit(unitId);
-                    unit.factoryState = FactoryBehaviorStateIdle();
+                    unitInfo.state->cobEnvironment->createThread("StopBuilding");
+                    sim->deactivateUnit(unitInfo.id);
+                    unitInfo.state->factoryState = FactoryBehaviorStateIdle();
                     return true;
                 }
 
@@ -1041,14 +1013,14 @@ namespace rwe
                     buildPieceInfo.position.y = rweMax(buildPieceInfo.position.y, sim->terrain.getSeaLevel());
                 }
 
-                tryApplyMovementToPosition(state.targetUnit->first, buildPieceInfo.position);
+                tryApplyMovementToPosition(sim->getUnitInfo(state.targetUnit->first), buildPieceInfo.position);
                 targetUnit.rotation = buildPieceInfo.rotation;
 
-                auto costs = targetUnit.getBuildCostInfo(targetUnitDefinition, unitDefinition.workerTimePerTick);
+                auto costs = targetUnit.getBuildCostInfo(targetUnitDefinition, unitInfo.definition->workerTimePerTick);
                 auto gotResources = sim->addResourceDelta(
-                    unitId,
-                    -Energy(targetUnitDefinition.buildCostEnergy.value * static_cast<float>(unitDefinition.workerTimePerTick) / static_cast<float>(targetUnitDefinition.buildTime)),
-                    -Metal(targetUnitDefinition.buildCostMetal.value * static_cast<float>(unitDefinition.workerTimePerTick) / static_cast<float>(targetUnitDefinition.buildTime)),
+                    unitInfo.id,
+                    -Energy(targetUnitDefinition.buildCostEnergy.value * static_cast<float>(unitInfo.definition->workerTimePerTick) / static_cast<float>(targetUnitDefinition.buildTime)),
+                    -Metal(targetUnitDefinition.buildCostMetal.value * static_cast<float>(unitInfo.definition->workerTimePerTick) / static_cast<float>(targetUnitDefinition.buildTime)),
                     -costs.energyCost,
                     -costs.metalCost);
 
@@ -1058,9 +1030,9 @@ namespace rwe
                     state.targetUnit->second = std::nullopt;
                     return false;
                 }
-                state.targetUnit->second = getNanoPoint(unitId);
+                state.targetUnit->second = getNanoPoint(unitInfo.id);
 
-                if (targetUnit.addBuildProgress(targetUnitDefinition, unitDefinition.workerTimePerTick))
+                if (targetUnit.addBuildProgress(targetUnitDefinition, unitInfo.definition->workerTimePerTick))
                 {
                     sim->events.push_back(UnitCompleteEvent{state.targetUnit->first});
 
@@ -1074,12 +1046,10 @@ namespace rwe
             });
     }
 
-    void UnitBehaviorService::clearBuild(UnitId unitId)
+    void UnitBehaviorService::clearBuild(UnitInfo unitInfo)
     {
-        auto& unit = sim->getUnitState(unitId);
-
         match(
-            unit.factoryState,
+            unitInfo.state->factoryState,
             [&](const FactoryBehaviorStateIdle&)
             {
                 // do nothing
@@ -1096,18 +1066,18 @@ namespace rwe
                     {
                         // do nothing
                     });
-                sim->deactivateUnit(unitId);
-                unit.factoryState = FactoryBehaviorStateIdle();
+                sim->deactivateUnit(unitInfo.id);
+                unitInfo.state->factoryState = FactoryBehaviorStateIdle();
             },
             [&](const FactoryBehaviorStateBuilding& state)
             {
                 if (state.targetUnit)
                 {
                     sim->quietlyKillUnit(state.targetUnit->first);
-                    unit.cobEnvironment->createThread("StopBuilding");
+                    unitInfo.state->cobEnvironment->createThread("StopBuilding");
                 }
-                sim->deactivateUnit(unitId);
-                unit.factoryState = FactoryBehaviorStateIdle();
+                sim->deactivateUnit(unitInfo.id);
+                unitInfo.state->factoryState = FactoryBehaviorStateIdle();
             });
     }
 
@@ -1183,29 +1153,26 @@ namespace rwe
             { return tryGetSweetSpot(id); });
     }
 
-    bool UnitBehaviorService::groundUnitMoveTo(UnitId unitId, const MovingStateGoal& goal)
+    bool UnitBehaviorService::groundUnitMoveTo(UnitInfo unitInfo, const MovingStateGoal& goal)
     {
-        auto& unit = sim->getUnitState(unitId);
-        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
-
-        auto movingState = std::get_if<NavigationStateMoving>(&unit.navigationState.state);
+        auto movingState = std::get_if<NavigationStateMoving>(&unitInfo.state->navigationState.state);
 
         if (!movingState || movingState->destination != goal)
         {
             // request a path to follow
-            unit.navigationState.state = NavigationStateMoving{goal, std::nullopt, true};
-            sim->requestPath(unitId);
+            unitInfo.state->navigationState.state = NavigationStateMoving{goal, std::nullopt, true};
+            sim->requestPath(unitInfo.id);
             return false;
         }
 
         // if we are colliding, request a new path
-        if (unit.inCollision && !movingState->pathRequested)
+        if (unitInfo.state->inCollision && !movingState->pathRequested)
         {
             // only request a new path if we don't have one yet,
             // or we've already had our current one for a bit
             if (!movingState->path || (sim->gameTime - movingState->path->pathCreationTime) >= GameTime(30))
             {
-                sim->requestPath(unitId);
+                sim->requestPath(unitInfo.id);
                 movingState->pathRequested = true;
             }
         }
@@ -1213,16 +1180,16 @@ namespace rwe
         // if a path is available, attempt to follow it
         if (movingState->path)
         {
-            auto groundPhysics = std::get_if<UnitPhysicsInfoGround>(&unit.physics);
+            auto groundPhysics = std::get_if<UnitPhysicsInfoGround>(&unitInfo.state->physics);
             if (groundPhysics == nullptr)
             {
                 throw std::logic_error("ground unit does not have ground physics");
             }
-            if (followPath(unit, unitDefinition, *groundPhysics, *movingState->path))
+            if (followPath(unitInfo, *groundPhysics, *movingState->path))
             {
                 // we finished following the path,
                 // clear our state
-                changeState(unit, UnitBehaviorStateIdle());
+                changeState(*unitInfo.state, UnitBehaviorStateIdle());
                 return true;
             }
         }
@@ -1230,51 +1197,41 @@ namespace rwe
         return false;
     }
 
-    bool UnitBehaviorService::flyingUnitMoveTo(UnitId unitId, const MovingStateGoal& goal)
+    bool UnitBehaviorService::flyingUnitMoveTo(UnitInfo unitInfo, const MovingStateGoal& goal)
     {
-        auto& unit = sim->getUnitState(unitId);
-        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
-
         return match(
-            unit.physics,
+            unitInfo.state->physics,
             [&](UnitPhysicsInfoGround& p) {
                 p.steeringInfo.shouldTakeOff = true;
                 return false;
             },
             [&](const UnitPhysicsInfoAir& p) {
-                return flyTowardsGoal(unitId, goal);
+                return flyTowardsGoal(unitInfo, goal);
             });
     }
 
-    bool UnitBehaviorService::navigateTo(UnitId unitId, const NavigationGoal& goal)
+    bool UnitBehaviorService::navigateTo(UnitInfo unitInfo, const NavigationGoal& goal)
     {
-        auto& unit = sim->getUnitState(unitId);
-        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
+        unitInfo.state->navigationState.desiredDestination = goal;
 
-        unit.navigationState.desiredDestination = goal;
-
-        return hasReachedGoal(unit, goal);
+        return hasReachedGoal(*unitInfo.state, goal);
     }
 
-    bool UnitBehaviorService::moveTo(UnitId unitId, const MovingStateGoal& goal)
+    bool UnitBehaviorService::moveTo(UnitInfo unitInfo, const MovingStateGoal& goal)
     {
-        auto& unit = sim->getUnitState(unitId);
-        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
-        if (unitDefinition.canFly)
+        if (unitInfo.definition->canFly)
         {
-            return flyingUnitMoveTo(unitId, goal);
+            return flyingUnitMoveTo(unitInfo, goal);
         }
         else
         {
-            return groundUnitMoveTo(unitId, goal);
+            return groundUnitMoveTo(unitInfo, goal);
         }
     }
 
-    UnitCreationStatus UnitBehaviorService::createNewUnit(UnitId unitId, const std::string& unitType, const SimVector& position)
+    UnitCreationStatus UnitBehaviorService::createNewUnit(UnitInfo unitInfo, const std::string& unitType, const SimVector& position)
     {
-        auto& unit = sim->getUnitState(unitId);
-
-        if (auto s = std::get_if<UnitBehaviorStateCreatingUnit>(&unit.behaviourState))
+        if (auto s = std::get_if<UnitBehaviorStateCreatingUnit>(&unitInfo.state->behaviourState))
         {
             if (s->unitType == unitType && s->position == position)
             {
@@ -1284,23 +1241,23 @@ namespace rwe
 
         const auto& targetUnitDefinition = sim->unitDefinitions.at(unitType);
         auto footprintRect = sim->computeFootprintRegion(position, targetUnitDefinition.movementCollisionInfo);
-        if (navigateTo(unitId, footprintRect))
+        if (navigateTo(unitInfo, footprintRect))
         {
             // TODO: add an additional distance check here -- we may have done the best
             // we can to move but been prevented by some obstacle, so we are too far away still.
-            changeState(unit, UnitBehaviorStateCreatingUnit{unitType, unit.owner, position});
-            sim->unitCreationRequests.push_back(unitId);
+            changeState(*unitInfo.state, UnitBehaviorStateCreatingUnit{unitType, unitInfo.state->owner, position});
+            sim->unitCreationRequests.push_back(unitInfo.id);
         }
 
         return UnitCreationStatusPending();
     }
 
-    bool UnitBehaviorService::buildUnit(UnitId unitId, const std::string& unitType, const SimVector& position)
+    bool UnitBehaviorService::buildUnit(UnitInfo unitInfo, const std::string& unitType, const SimVector& position)
     {
-        auto& unit = sim->getUnitState(unitId);
+        auto& unit = sim->getUnitState(unitInfo.id);
         if (!unit.buildOrderUnitId)
         {
-            auto result = createNewUnit(unitId, unitType, position);
+            auto result = createNewUnit(unitInfo, unitType, position);
             return match(
                 result,
                 [&](const UnitCreationStatusPending&)
@@ -1310,22 +1267,20 @@ namespace rwe
                 [&](const UnitCreationStatusDone& d)
                 {
                     unit.buildOrderUnitId = d.unitId;
-                    return deployBuildArm(unitId, d.unitId);
+                    return deployBuildArm(unitInfo, d.unitId);
                 });
         }
 
-        return deployBuildArm(unitId, *unit.buildOrderUnitId);
+        return deployBuildArm(unitInfo, *unit.buildOrderUnitId);
     }
 
-    bool UnitBehaviorService::buildExistingUnit(UnitId unitId, UnitId targetUnitId)
+    bool UnitBehaviorService::buildExistingUnit(UnitInfo unitInfo, UnitId targetUnitId)
     {
-        auto& unit = sim->getUnitState(unitId);
-        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
         auto targetUnitRef = sim->tryGetUnitState(targetUnitId);
 
-        if (!targetUnitRef || targetUnitRef->get().isDead() || !targetUnitRef->get().isBeingBuilt(unitDefinition))
+        if (!targetUnitRef || targetUnitRef->get().isDead() || !targetUnitRef->get().isBeingBuilt(*unitInfo.definition))
         {
-            changeState(unit, UnitBehaviorStateIdle());
+            changeState(*unitInfo.state, UnitBehaviorStateIdle());
             return true;
         }
         auto& targetUnit = targetUnitRef->get();
@@ -1334,14 +1289,14 @@ namespace rwe
         // Experiment has shown that the distance from which a new building
         // can be started (when caged in) is greater than assist distance,
         // and it appears both measures something more advanced than center <-> center distance.
-        if (unit.position.distanceSquared(targetUnit.position) > (unitDefinition.buildDistance * unitDefinition.buildDistance))
+        if (unitInfo.state->position.distanceSquared(targetUnit.position) > (unitInfo.definition->buildDistance * unitInfo.definition->buildDistance))
         {
-            navigateTo(unitId, targetUnit.position);
+            navigateTo(unitInfo, targetUnit.position);
             return false;
         }
 
         // we're close enough -- actually build the unit
-        return deployBuildArm(unitId, targetUnitId);
+        return deployBuildArm(unitInfo, targetUnitId);
     }
 
     void UnitBehaviorService::changeState(UnitState& unit, const UnitBehaviorState& newState)
@@ -1352,40 +1307,38 @@ namespace rwe
         }
         unit.behaviourState = newState;
     }
-    bool UnitBehaviorService::deployBuildArm(UnitId unitId, UnitId targetUnitId)
+    bool UnitBehaviorService::deployBuildArm(UnitInfo unitInfo, UnitId targetUnitId)
     {
-        auto& unit = sim->getUnitState(unitId);
-        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
         auto targetUnitRef = sim->tryGetUnitState(targetUnitId);
         if (!targetUnitRef || targetUnitRef->get().isDead() || !targetUnitRef->get().isBeingBuilt(sim->unitDefinitions.at(targetUnitRef->get().unitType)))
         {
-            changeState(unit, UnitBehaviorStateIdle());
+            changeState(*unitInfo.state, UnitBehaviorStateIdle());
             return true;
         }
         auto& targetUnit = targetUnitRef->get();
         const auto& targetUnitDefinition = sim->unitDefinitions.at(targetUnit.unitType);
 
         return match(
-            unit.behaviourState,
+            unitInfo.state->behaviourState,
             [&](UnitBehaviorStateBuilding& buildingState)
             {
                 if (targetUnitId != buildingState.targetUnit)
                 {
-                    changeState(unit, UnitBehaviorStateIdle());
-                    return buildExistingUnit(unitId, targetUnitId);
+                    changeState(*unitInfo.state, UnitBehaviorStateIdle());
+                    return buildExistingUnit(unitInfo, targetUnitId);
                 }
 
-                if (!unit.inBuildStance)
+                if (!unitInfo.state->inBuildStance)
                 {
                     // We are not in the correct stance to build the unit yet, wait.
                     return false;
                 }
 
-                auto costs = targetUnit.getBuildCostInfo(targetUnitDefinition, unitDefinition.workerTimePerTick);
+                auto costs = targetUnit.getBuildCostInfo(targetUnitDefinition, unitInfo.definition->workerTimePerTick);
                 auto gotResources = sim->addResourceDelta(
-                    unitId,
-                    -Energy(targetUnitDefinition.buildCostEnergy.value * static_cast<float>(unitDefinition.workerTimePerTick) / static_cast<float>(targetUnitDefinition.buildTime)),
-                    -Metal(targetUnitDefinition.buildCostMetal.value * static_cast<float>(unitDefinition.workerTimePerTick) / static_cast<float>(targetUnitDefinition.buildTime)),
+                    unitInfo.id,
+                    -Energy(targetUnitDefinition.buildCostEnergy.value * static_cast<float>(unitInfo.definition->workerTimePerTick) / static_cast<float>(targetUnitDefinition.buildTime)),
+                    -Metal(targetUnitDefinition.buildCostMetal.value * static_cast<float>(unitInfo.definition->workerTimePerTick) / static_cast<float>(targetUnitDefinition.buildTime)),
                     -costs.energyCost,
                     -costs.metalCost);
 
@@ -1395,9 +1348,9 @@ namespace rwe
                     buildingState.nanoParticleOrigin = std::nullopt;
                     return false;
                 }
-                buildingState.nanoParticleOrigin = getNanoPoint(unitId);
+                buildingState.nanoParticleOrigin = getNanoPoint(unitInfo.id);
 
-                if (targetUnit.addBuildProgress(targetUnitDefinition, unitDefinition.workerTimePerTick))
+                if (targetUnit.addBuildProgress(targetUnitDefinition, unitInfo.definition->workerTimePerTick))
                 {
                     sim->events.push_back(UnitCompleteEvent{buildingState.targetUnit});
 
@@ -1406,59 +1359,50 @@ namespace rwe
                         sim->activateUnit(buildingState.targetUnit);
                     }
 
-                    changeState(unit, UnitBehaviorStateIdle());
+                    changeState(*unitInfo.state, UnitBehaviorStateIdle());
                     return true;
                 }
                 return false;
             },
             [&](const auto&)
             {
-                auto nanoFromPosition = getNanoPoint(unitId);
-                auto headingAndPitch = computeLineOfSightHeadingAndPitch(unit.rotation, nanoFromPosition, targetUnit.position);
+                auto nanoFromPosition = getNanoPoint(unitInfo.id);
+                auto headingAndPitch = computeLineOfSightHeadingAndPitch(unitInfo.state->rotation, nanoFromPosition, targetUnit.position);
                 auto heading = headingAndPitch.first;
                 auto pitch = headingAndPitch.second;
 
-                changeState(unit, UnitBehaviorStateBuilding{targetUnitId, std::nullopt});
-                unit.cobEnvironment->createThread("StartBuilding", {toCobAngle(heading).value, toCobAngle(pitch).value});
+                changeState(*unitInfo.state, UnitBehaviorStateBuilding{targetUnitId, std::nullopt});
+                unitInfo.state->cobEnvironment->createThread("StartBuilding", {toCobAngle(heading).value, toCobAngle(pitch).value});
                 return false;
             });
     }
 
-    bool UnitBehaviorService::climbToCruiseAltitude(UnitId unitId)
+    bool UnitBehaviorService::climbToCruiseAltitude(UnitInfo unitInfo)
     {
-        auto& unit = sim->getUnitState(unitId);
-        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
+        auto terrainHeight = sim->terrain.getHeightAt(unitInfo.state->position.x, unitInfo.state->position.z);
 
-        auto terrainHeight = sim->terrain.getHeightAt(unit.position.x, unit.position.z);
+        auto targetHeight = terrainHeight + unitInfo.definition->cruiseAltitude;
 
-        auto targetHeight = terrainHeight + unitDefinition.cruiseAltitude;
+        unitInfo.state->position.y = rweMin(unitInfo.state->position.y + 1_ss, targetHeight);
 
-        unit.position.y = rweMin(unit.position.y + 1_ss, targetHeight);
-
-        return unit.position.y == targetHeight;
+        return unitInfo.state->position.y == targetHeight;
     }
 
-    bool UnitBehaviorService::descendToGroundLevel(UnitId unitId)
+    bool UnitBehaviorService::descendToGroundLevel(UnitInfo unitInfo)
     {
-        auto& unit = sim->getUnitState(unitId);
-        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
+        auto terrainHeight = sim->terrain.getHeightAt(unitInfo.state->position.x, unitInfo.state->position.z);
 
-        auto terrainHeight = sim->terrain.getHeightAt(unit.position.x, unit.position.z);
+        unitInfo.state->position.y = rweMax(unitInfo.state->position.y - 1_ss, terrainHeight);
 
-        unit.position.y = rweMax(unit.position.y - 1_ss, terrainHeight);
-
-        return unit.position.y == terrainHeight;
+        return unitInfo.state->position.y == terrainHeight;
     }
 
-    void UnitBehaviorService::transitionFromGroundToAir(UnitId unitId)
+    void UnitBehaviorService::transitionFromGroundToAir(UnitInfo unitInfo)
     {
-        auto& unit = sim->getUnitState(unitId);
-        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
+        unitInfo.state->activate();
 
-        unit.activate();
-
-        unit.physics = UnitPhysicsInfoAir();
-        auto footprintRect = sim->computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
+        unitInfo.state->physics = UnitPhysicsInfoAir();
+        auto footprintRect = sim->computeFootprintRegion(unitInfo.state->position, unitInfo.definition->movementCollisionInfo);
         auto footprintRegion = sim->occupiedGrid.tryToRegion(footprintRect);
         assert(!!footprintRegion);
         sim->occupiedGrid.forEach(*footprintRegion, [](auto& cell) {
@@ -1466,13 +1410,9 @@ namespace rwe
         });
     }
 
-    bool UnitBehaviorService::tryTransitionFromAirToGround(UnitId unitId)
+    bool UnitBehaviorService::tryTransitionFromAirToGround(UnitInfo unitInfo)
     {
-        auto& unit = sim->getUnitState(unitId);
-        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
-
-
-        auto footprintRect = sim->computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
+        auto footprintRect = sim->computeFootprintRegion(unitInfo.state->position, unitInfo.definition->movementCollisionInfo);
         auto footprintRegion = sim->occupiedGrid.tryToRegion(footprintRect);
         assert(!!footprintRegion);
 
@@ -1482,29 +1422,26 @@ namespace rwe
         }
 
         sim->occupiedGrid.forEach(*footprintRegion, [&](auto& cell) {
-            cell.occupiedType = OccupiedUnit(unitId);
+            cell.occupiedType = OccupiedUnit(unitInfo.id);
         });
 
-        unit.physics = UnitPhysicsInfoGround();
+        unitInfo.state->physics = UnitPhysicsInfoGround();
 
         return true;
     }
 
-    bool UnitBehaviorService::flyTowardsGoal(UnitId unitId, const MovingStateGoal& goal)
+    bool UnitBehaviorService::flyTowardsGoal(UnitInfo unitInfo, const MovingStateGoal& goal)
     {
-        auto& unit = sim->getUnitState(unitId);
-        const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
-
         auto destination = match(
             goal,
             [&](const SimVector& pos) {
                 return pos;
             },
             [&](const DiscreteRect& rect) {
-                return findClosestPoint(rect, unit.position);
+                return findClosestPoint(rect, unitInfo.state->position);
             });
 
-        SimVector xzPosition(unit.position.x, 0_ss, unit.position.z);
+        SimVector xzPosition(unitInfo.state->position.x, 0_ss, unitInfo.state->position.z);
         SimVector xzDestination(destination.x, 0_ss, destination.z);
         auto distanceSquared = xzPosition.distanceSquared(xzDestination);
 
@@ -1513,7 +1450,7 @@ namespace rwe
             return true;
         }
 
-        auto airPhysics = std::get_if<UnitPhysicsInfoAir>(&unit.physics);
+        auto airPhysics = std::get_if<UnitPhysicsInfoAir>(&unitInfo.state->physics);
         if (airPhysics == nullptr)
         {
             throw std::logic_error("cannot fly towards goal because unit does not have air physics");
@@ -1522,7 +1459,7 @@ namespace rwe
         match(
             airPhysics->movementState,
             [&](AirMovementStateFlying& m) {
-                auto targetHeight = sim->terrain.getHeightAt(destination.x, destination.z) + unitDefinition.cruiseAltitude;
+                auto targetHeight = sim->terrain.getHeightAt(destination.x, destination.z) + unitInfo.definition->cruiseAltitude;
                 SimVector destinationAtAltitude(destination.x, targetHeight, destination.z);
 
                 m.targetPosition = destinationAtAltitude;

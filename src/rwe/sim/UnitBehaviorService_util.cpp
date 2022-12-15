@@ -26,10 +26,10 @@ namespace rwe
         return speed / angularToRadians(turnRate);
     }
 
-    std::optional<SimVector> findLandingLocation(const GameSimulation& sim, const UnitState& unitState, const UnitDefinition& unitDefinition)
+    std::optional<SimVector> findLandingLocation(const GameSimulation& sim, ConstUnitInfo unitInfo)
     {
         // TODO: make this smarter
-        return unitState.position;
+        return unitInfo.state->position;
     }
 
     std::pair<SimAngle, SimAngle> computeHeadingAndPitch(SimAngle rotation, const SimVector& from, const SimVector& to, SimScalar speed, SimScalar gravity, SimScalar zOffset, ProjectilePhysicsType projectileType)

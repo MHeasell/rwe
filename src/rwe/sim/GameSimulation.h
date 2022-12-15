@@ -145,6 +145,30 @@ namespace rwe
 
     using GameEvent = std::variant<FireWeaponEvent, UnitArrivedEvent, UnitActivatedEvent, UnitDeactivatedEvent, UnitCompleteEvent, EmitParticleFromPieceEvent, UnitSpawnedEvent>;
 
+
+    struct UnitInfo
+    {
+        const UnitId id;
+        UnitState* const state;
+        const UnitDefinition* const definition;
+
+        UnitInfo(UnitId id, UnitState* state, const UnitDefinition* definition)
+            : id(id), state(state), definition(definition) {}
+    };
+
+    struct ConstUnitInfo
+    {
+        const UnitId id;
+        const UnitState* const state;
+        const UnitDefinition* const definition;
+
+        ConstUnitInfo(UnitId id, const UnitState* state, const UnitDefinition* definition)
+            : id(id), state(state), definition(definition) {}
+
+        ConstUnitInfo(UnitInfo unitInfo)
+            : id(unitInfo.id), state(unitInfo.state), definition(unitInfo.definition) {}
+    };
+
     struct GameSimulation
     {
         std::minstd_rand rng;
@@ -234,6 +258,10 @@ namespace rwe
         UnitState& getUnitState(UnitId id);
 
         const UnitState& getUnitState(UnitId id) const;
+
+        UnitInfo getUnitInfo(UnitId id);
+
+        ConstUnitInfo getUnitInfo(UnitId id) const;
 
         std::optional<std::reference_wrapper<UnitState>> tryGetUnitState(UnitId id);
 

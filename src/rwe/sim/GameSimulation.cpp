@@ -437,6 +437,20 @@ namespace rwe
         return it->second;
     }
 
+    UnitInfo GameSimulation::getUnitInfo(UnitId id)
+    {
+        auto& state = getUnitState(id);
+        const auto& definition = unitDefinitions.at(state.unitType);
+        return UnitInfo(id, &state, &definition);
+    }
+
+    ConstUnitInfo GameSimulation::getUnitInfo(UnitId id) const
+    {
+        auto& state = getUnitState(id);
+        const auto& definition = unitDefinitions.at(state.unitType);
+        return ConstUnitInfo(id, &state, &definition);
+    }
+
     std::optional<std::reference_wrapper<UnitState>> GameSimulation::tryGetUnitState(UnitId id)
     {
         return tryFind(units, id);

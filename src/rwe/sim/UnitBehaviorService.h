@@ -2,6 +2,7 @@
 
 #include <optional>
 #include <rwe/pathfinding/PathFindingService.h>
+#include <rwe/sim/GameSimulation.h>
 #include <rwe/sim/ProjectilePhysicsType.h>
 #include <rwe/sim/SimAngle.h>
 #include <rwe/sim/SimScalar.h>
@@ -35,28 +36,28 @@ namespace rwe
 
     private:
         /** Returns true if the order has been completed. */
-        bool handleOrder(UnitId unitId, const UnitOrder& moveOrder);
+        bool handleOrder(UnitInfo unitInfo, const UnitOrder& moveOrder);
 
         /** Returns true if the order has been completed. */
-        bool handleMoveOrder(UnitId unitId, const MoveOrder& moveOrder);
+        bool handleMoveOrder(UnitInfo unitInfo, const MoveOrder& moveOrder);
 
         /** Returns true if the order has been completed. */
-        bool handleAttackOrder(UnitId unitId, const AttackOrder& attackOrder);
+        bool handleAttackOrder(UnitInfo unitInfo, const AttackOrder& attackOrder);
 
         /** Returns true if the order has been completed. */
-        bool handleBuildOrder(UnitId unitId, const BuildOrder& buildOrder);
+        bool handleBuildOrder(UnitInfo unitInfo, const BuildOrder& buildOrder);
 
         /** Returns true if the order has been completed. */
-        bool handleBuggerOffOrder(UnitId unitId, const BuggerOffOrder& buggerOffOrder);
+        bool handleBuggerOffOrder(UnitInfo unitInfo, const BuggerOffOrder& buggerOffOrder);
 
         /** Returns true if the order has been completed. */
-        bool handleCompleteBuildOrder(UnitId unitId, const CompleteBuildOrder& buildOrder);
+        bool handleCompleteBuildOrder(UnitInfo unitInfo, const CompleteBuildOrder& buildOrder);
 
-        bool handleGuardOrder(UnitId unitId, const GuardOrder& guardOrder);
+        bool handleGuardOrder(UnitInfo unitInfo, const GuardOrder& guardOrder);
 
-        bool handleBuild(UnitId unitId, const std::string& unitType);
+        bool handleBuild(UnitInfo unitInfo, const std::string& unitType);
 
-        void clearBuild(UnitId unitId);
+        void clearBuild(UnitInfo unitInfo);
 
         void updateWeapon(UnitId id, unsigned int weaponIndex);
 
@@ -64,16 +65,16 @@ namespace rwe
 
         void tryFireWeapon(UnitId id, unsigned int weaponIndex);
 
-        void updateNavigation(UnitId id);
+        void updateNavigation(UnitInfo unitInfo);
 
-        void applyUnitSteering(UnitId id);
-        void updateUnitRotation(UnitId id);
-        void updateUnitSpeed(UnitId id);
+        void applyUnitSteering(UnitInfo unitInfo);
+        void updateUnitRotation(UnitInfo unitInfo);
+        void updateUnitSpeed(UnitInfo unitInfo);
 
-        void updateGroundUnitPosition(UnitId unitId, UnitState& unit, const UnitDefinition& unitDefinition, const UnitPhysicsInfoGround& physics);
-        void updateUnitPosition(UnitId unitId);
+        void updateGroundUnitPosition(UnitInfo unitInfo, const UnitPhysicsInfoGround& physics);
+        void updateUnitPosition(UnitInfo unitInfo);
 
-        bool tryApplyMovementToPosition(UnitId id, const SimVector& newPosition);
+        bool tryApplyMovementToPosition(UnitInfo unitInfo, const SimVector& newPosition);
 
         std::optional<int> runCobQuery(UnitId id, const std::string& name);
 
@@ -99,33 +100,33 @@ namespace rwe
 
         std::optional<SimVector> getTargetPosition(const UnitWeaponAttackTarget& target);
 
-        bool groundUnitMoveTo(UnitId unitId, const MovingStateGoal& goal);
+        bool groundUnitMoveTo(UnitInfo unitInfo, const MovingStateGoal& goal);
 
-        bool flyingUnitMoveTo(UnitId unitId, const MovingStateGoal& goal);
+        bool flyingUnitMoveTo(UnitInfo unitInfo, const MovingStateGoal& goal);
 
-        bool navigateTo(UnitId unitId, const NavigationGoal& goal);
+        bool navigateTo(UnitInfo unitInfo, const NavigationGoal& goal);
 
-        bool moveTo(UnitId unitId, const MovingStateGoal& goal);
+        bool moveTo(UnitInfo unitInfo, const MovingStateGoal& goal);
 
-        bool attackTarget(UnitId unitId, const AttackTarget& target);
+        bool attackTarget(UnitInfo unitInfo, const AttackTarget& target);
 
-        bool buildUnit(UnitId unitId, const std::string& unitType, const SimVector& position);
+        bool buildUnit(UnitInfo unitInfo, const std::string& unitType, const SimVector& position);
 
-        UnitCreationStatus createNewUnit(UnitId unitId, const std::string& unitType, const SimVector& position);
+        UnitCreationStatus createNewUnit(UnitInfo unitInfo, const std::string& unitType, const SimVector& position);
 
-        bool buildExistingUnit(UnitId unitId, UnitId targetUnitId);
+        bool buildExistingUnit(UnitInfo unitInfo, UnitId targetUnitId);
 
         void changeState(UnitState& unit, const UnitBehaviorState& newState);
 
-        bool deployBuildArm(UnitId unitId, UnitId targetUnitId);
+        bool deployBuildArm(UnitInfo unitInfo, UnitId targetUnitId);
 
-        bool climbToCruiseAltitude(UnitId unitId);
+        bool climbToCruiseAltitude(UnitInfo unitInfo);
 
-        bool descendToGroundLevel(UnitId unitId);
+        bool descendToGroundLevel(UnitInfo unitInfo);
 
-        void transitionFromGroundToAir(UnitId unitId);
-        bool tryTransitionFromAirToGround(UnitId unitId);
+        void transitionFromGroundToAir(UnitInfo unitInfo);
+        bool tryTransitionFromAirToGround(UnitInfo unitInfo);
 
-        bool flyTowardsGoal(UnitId unitId, const MovingStateGoal& goal);
+        bool flyTowardsGoal(UnitInfo unitInfo, const MovingStateGoal& goal);
     };
 }
