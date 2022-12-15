@@ -832,7 +832,7 @@ namespace rwe
                 else
                 {
                     mediaInfo.renderType = ProjectileRenderTypeModel{
-                        tdf.model, ProjectileRenderTypeModel::RotationMode::HalfZ};
+                        toUpper(tdf.model), ProjectileRenderTypeModel::RotationMode::HalfZ};
                 }
                 break;
             }
@@ -845,7 +845,7 @@ namespace rwe
                 else
                 {
                     mediaInfo.renderType = ProjectileRenderTypeModel{
-                        tdf.model, ProjectileRenderTypeModel::RotationMode::QuarterY};
+                        toUpper(tdf.model), ProjectileRenderTypeModel::RotationMode::QuarterY};
                 }
                 break;
             }
@@ -878,7 +878,7 @@ namespace rwe
                 else
                 {
                     mediaInfo.renderType = ProjectileRenderTypeModel{
-                        tdf.model, ProjectileRenderTypeModel::RotationMode::None};
+                        toUpper(tdf.model), ProjectileRenderTypeModel::RotationMode::None};
                 }
                 break;
             }
@@ -1145,7 +1145,7 @@ namespace rwe
                     if (auto modelRenderType = std::get_if<ProjectileRenderTypeModel>(&weaponMediaInfo.renderType); modelRenderType != nullptr)
                     {
                         auto meshInfo = meshService.loadProjectileMesh(modelRenderType->objectName);
-                        dataMaps.modelDefinitions.insert({toUpper(modelRenderType->objectName), std::move(meshInfo.modelDefinition)});
+                        dataMaps.modelDefinitions.insert({modelRenderType->objectName, std::move(meshInfo.modelDefinition)});
                         for (const auto& m : meshInfo.pieceMeshes)
                         {
                             meshDb.addUnitPieceMesh(modelRenderType->objectName, m.first, m.second);
