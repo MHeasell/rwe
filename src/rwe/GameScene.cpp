@@ -135,6 +135,36 @@ namespace rwe
         return Line3x<SimScalar>(floatToSimVector(line.start), floatToSimVector(line.end));
     }
 
+    bool projectileCollidesWithUnit(const GameSimulation& sim, const Projectile& projectile, UnitId unitId)
+    {
+        const auto& unit = sim.getUnitState(unitId);
+
+        if (unit.isOwnedBy(projectile.owner))
+        {
+            return false;
+        }
+
+        const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
+
+        auto footprintRect = sim.computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
+        auto heightMapPos = sim.terrain.worldToHeightmapCoordinate(projectile.position);
+
+        if (!footprintRect.contains(heightMapPos))
+        {
+            return false;
+        }
+
+        const auto& modelDefinition = sim.unitModelDefinitions.at(unitDefinition.objectName);
+
+        // ignore if the projectile is above or below the unit
+        if (projectile.position.y < unit.position.y || projectile.position.y > unit.position.y + modelDefinition.height)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     bool projectileCollides(const UnitDatabase& db, const GameSimulation& sim, const Projectile& projectile, const OccupiedCell& cellValue)
     {
         auto collidesWithOccupiedCell = match(
@@ -3073,6 +3103,18 @@ namespace rwe
                     {
                         doProjectileImpact(projectile, ImpactType::Normal);
                         projectile.isDead = true;
+                        continue;
+                    }
+                }
+
+                // detect collision with flying unit footprint
+                for (auto unitId : simulation.flyingUnitsSet)
+                {
+                    if (projectileCollidesWithUnit(simulation, projectile, unitId))
+                    {
+                        doProjectileImpact(projectile, ImpactType::Normal);
+                        projectile.isDead = true;
+                        break;
                     }
                 }
             }
@@ -3260,6 +3302,8 @@ namespace rwe
             auto rawDamage = projectile.getDamage(unit.unitType);
             auto scaledDamage = simScalarToUInt(SimScalar(rawDamage) * damageScale);
             applyDamage(*u, scaledDamage); });
+
+        // TODO: search for flying units to apply damage to
     }
 
     void GameScene::applyDamage(UnitId unitId, unsigned int damagePoints)
@@ -3387,8 +3431,15 @@ namespace rwe
             assert(!!footprintRegion);
             if (unitDefinition.isMobile)
             {
-                simulation.occupiedGrid.forEach(*footprintRegion, [](auto& cell)
+                if (isFlying(unit.physics))
+                {
+                    simulation.flyingUnitsSet.erase(it->first);
+                }
+                else
+                {
+                    simulation.occupiedGrid.forEach(*footprintRegion, [](auto& cell)
                     { cell.occupiedType = OccupiedNone(); });
+                }
             }
             else
             {
@@ -3399,7 +3450,6 @@ namespace rwe
                         cell.buildingCell = std::nullopt;
                     } });
             }
-
 
             unitGuiInfos.erase(it->first);
             it = simulation.units.erase(it);

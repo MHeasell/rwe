@@ -39,8 +39,6 @@ namespace rwe
 
     SimVector computeNewAirUnitVelocity(const UnitState& unit, const UnitDefinition& unitDefinition, const AirMovementStateFlying& physics);
 
-    bool isFlying(const UnitPhysicsInfo& physics);
-
     SimVector findClosestPoint(const DiscreteRect& rect, const SimVector& p);
 
     bool hasReachedGoal(const UnitState& unit, const NavigationGoal& goal);

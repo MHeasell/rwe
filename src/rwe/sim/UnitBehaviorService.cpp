@@ -1408,6 +1408,7 @@ namespace rwe
         sim->occupiedGrid.forEach(*footprintRegion, [](auto& cell) {
             cell.occupiedType = OccupiedNone();
         });
+        sim->flyingUnitsSet.insert(unitInfo.id);
     }
 
     bool UnitBehaviorService::tryTransitionFromAirToGround(UnitInfo unitInfo)
@@ -1424,6 +1425,7 @@ namespace rwe
         sim->occupiedGrid.forEach(*footprintRegion, [&](auto& cell) {
             cell.occupiedType = OccupiedUnit(unitInfo.id);
         });
+        sim->flyingUnitsSet.erase(unitInfo.id);
 
         unitInfo.state->physics = UnitPhysicsInfoGround();
 

@@ -60,6 +60,24 @@ namespace rwe
         }
     }
 
+    bool isFlying(const UnitPhysicsInfo& physics)
+    {
+        return match(
+            physics,
+            [&](const UnitPhysicsInfoGround&) {
+              return false;
+            },
+            [&](const UnitPhysicsInfoAir&) {
+              return true;
+            },
+            [&](const AirMovementStateTakingOff&) {
+              return true;
+            },
+            [&](const AirMovementStateLanding&) {
+              return true;
+            });
+    }
+
     SimAngle UnitState::toRotation(const SimVector& direction)
     {
         return atan2(direction.x, direction.z);

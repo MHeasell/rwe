@@ -20,6 +20,7 @@
 #include <rwe/sim/UnitDefinition.h>
 #include <rwe/sim/UnitModelDefinition.h>
 #include <rwe/sim/UnitState.h>
+#include <set>
 #include <unordered_map>
 
 namespace rwe
@@ -191,6 +192,7 @@ namespace rwe
         PathFindingService pathFindingService;
 
         OccupiedGrid occupiedGrid;
+        std::set<UnitId> flyingUnitsSet;
 
         Grid<unsigned char> metalGrid;
 

@@ -230,24 +230,6 @@ namespace rwe
         }
     }
 
-    bool isFlying(const UnitPhysicsInfo& physics)
-    {
-        return match(
-            physics,
-            [&](const UnitPhysicsInfoGround&) {
-                return false;
-            },
-            [&](const UnitPhysicsInfoAir&) {
-                return true;
-            },
-            [&](const AirMovementStateTakingOff&) {
-                return true;
-            },
-            [&](const AirMovementStateLanding&) {
-                return true;
-            });
-    }
-
     SimVector findClosestPoint(const DiscreteRect& rect, const SimVector& p)
     {
         SimScalar x;

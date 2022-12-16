@@ -189,6 +189,8 @@ namespace rwe
 
     using UnitPhysicsInfo = std::variant<UnitPhysicsInfoGround, UnitPhysicsInfoAir>;
 
+    bool isFlying(const UnitPhysicsInfo& physics);
+
     class UnitState
     {
     public:
