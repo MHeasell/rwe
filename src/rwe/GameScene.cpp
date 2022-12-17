@@ -3025,11 +3025,81 @@ namespace rwe
         return !isEnemy(id);
     }
 
+    struct ProjectileCollisionInfoTerrain
+    {
+    };
+    struct ProjectileCollisionInfoOutOfBounds
+    {
+    };
+    struct ProjectileCollisionInfoSea
+    {
+    };
+    struct ProjectileCollisionInfoUnitOrFeatureOrBuilding
+    {
+    };
+    using ProjectileCollisionInfo = std::variant<
+        ProjectileCollisionInfoOutOfBounds,
+        ProjectileCollisionInfoTerrain,
+        ProjectileCollisionInfoSea,
+        ProjectileCollisionInfoUnitOrFeatureOrBuilding>;
+
+
+    std::optional<ProjectileCollisionInfo> checkProjectileCollision(const UnitDatabase& unitDatabase, const GameSimulation& simulation, const Projectile& projectile)
+    {
+        // test collision with terrain
+        auto terrainHeight = simulation.terrain.tryGetHeightAt(projectile.position.x, projectile.position.z);
+        if (!terrainHeight)
+        {
+            return ProjectileCollisionInfoOutOfBounds();
+        }
+
+        auto seaLevel = simulation.terrain.getSeaLevel();
+
+        // test collision with sea
+        // FIXME: waterweapons should be allowed in water
+        if (seaLevel > *terrainHeight && projectile.position.y <= seaLevel)
+        {
+            return ProjectileCollisionInfoSea();
+        }
+        else if (projectile.position.y <= *terrainHeight)
+        {
+            return ProjectileCollisionInfoTerrain();
+        }
+        else
+        {
+            // detect collision with something's footprint
+            auto heightMapPos = simulation.terrain.worldToHeightmapCoordinate(projectile.position);
+            auto cellValue = simulation.occupiedGrid.tryGet(heightMapPos);
+            if (cellValue)
+            {
+                auto collides = projectileCollides(unitDatabase, simulation, projectile, cellValue->get());
+                if (collides)
+                {
+                    return ProjectileCollisionInfoUnitOrFeatureOrBuilding();
+                }
+            }
+
+            // detect collision with flying unit footprint
+            for (auto unitId : simulation.flyingUnitsSet)
+            {
+                if (projectileCollidesWithUnit(simulation, projectile, unitId))
+                {
+                    return ProjectileCollisionInfoUnitOrFeatureOrBuilding();
+                }
+            }
+        }
+
+        return std::nullopt;
+    }
+
     void GameScene::updateProjectiles()
     {
         auto gameTime = getGameTime();
-        for (auto& [id, projectile] : simulation.projectiles)
+        for (auto& projectileEntry : simulation.projectiles)
         {
+            const auto& id = projectileEntry.first;
+            auto& projectile = projectileEntry.second;
+
             const auto& weaponMediaInfo = meshDatabase.getWeapon(projectile.weaponType);
 
             // remove if it's time to die
@@ -3060,63 +3130,35 @@ namespace rwe
                 }
             }
 
-            // test collision with terrain
-            auto terrainHeight = simulation.terrain.tryGetHeightAt(projectile.position.x, projectile.position.z);
-            if (!terrainHeight)
+            auto collisionInfo = checkProjectileCollision(unitDatabase, simulation, projectile);
+            if (collisionInfo)
             {
-                // silently remove projectiles that go outside the map
-                projectile.isDead = true;
-                continue;
-            }
-
-            auto seaLevel = simulation.terrain.getSeaLevel();
-
-            // test collision with sea
-            // FIXME: waterweapons should be allowed in water
-            if (seaLevel > *terrainHeight && projectile.position.y <= seaLevel)
-            {
-                doProjectileImpact(projectile, ImpactType::Water);
-                projectile.isDead = true;
-            }
-            else if (projectile.position.y <= *terrainHeight)
-            {
-                if (projectile.groundBounce)
-                {
-                    projectile.velocity.y = 0_ss;
-                    projectile.position.y = projectile.previousPosition.y;
-                }
-                else
-                {
-                    doProjectileImpact(projectile, ImpactType::Normal);
-                    projectile.isDead = true;
-                }
-            }
-            else
-            {
-                // detect collision with something's footprint
-                auto heightMapPos = simulation.terrain.worldToHeightmapCoordinate(projectile.position);
-                auto cellValue = simulation.occupiedGrid.tryGet(heightMapPos);
-                if (cellValue)
-                {
-                    auto collides = projectileCollides(unitDatabase, simulation, projectile, cellValue->get());
-                    if (collides)
-                    {
+                match(
+                    *collisionInfo,
+                    [&](const ProjectileCollisionInfoOutOfBounds&) {
+                        // silently remove projectiles that go outside the map
+                        projectile.isDead = true;
+                    },
+                    [&](const ProjectileCollisionInfoSea&) {
+                        doProjectileImpact(projectile, ImpactType::Water);
+                        projectile.isDead = true;
+                    },
+                    [&](const ProjectileCollisionInfoTerrain&) {
+                        if (projectile.groundBounce)
+                        {
+                            projectile.velocity.y = 0_ss;
+                            projectile.position.y = projectile.previousPosition.y;
+                        }
+                        else
+                        {
+                            doProjectileImpact(projectile, ImpactType::Normal);
+                            projectile.isDead = true;
+                        }
+                    },
+                    [&](const ProjectileCollisionInfoUnitOrFeatureOrBuilding&) {
                         doProjectileImpact(projectile, ImpactType::Normal);
                         projectile.isDead = true;
-                        continue;
-                    }
-                }
-
-                // detect collision with flying unit footprint
-                for (auto unitId : simulation.flyingUnitsSet)
-                {
-                    if (projectileCollidesWithUnit(simulation, projectile, unitId))
-                    {
-                        doProjectileImpact(projectile, ImpactType::Normal);
-                        projectile.isDead = true;
-                        break;
-                    }
-                }
+                    });
             }
         }
     }
