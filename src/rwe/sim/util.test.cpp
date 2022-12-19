@@ -1,5 +1,5 @@
 #include <catch2/catch.hpp>
-#include <rwe/GameScene_util.h>
+#include <rwe/sim/util.h>
 
 namespace rwe
 {

@@ -780,7 +780,6 @@ endif()
 set(TEST_FILES
     src/rwe/BoxTreeSplit.test.cpp
     src/rwe/GameHash_util.test.cpp
-    src/rwe/GameScene_util.test.cpp
     src/rwe/MinHeap.test.cpp
     src/rwe/Result.test.cpp
     src/rwe/SideData.test.cpp
@@ -818,6 +817,7 @@ set(TEST_FILES
     src/rwe/sim/SimAngle.test.cpp
     src/rwe/sim/SimVector.test.cpp
     src/rwe/sim/UnitState_util.test.cpp
+    src/rwe/sim/util.test.cpp
     src/rwe/util.test.cpp
     )
 
