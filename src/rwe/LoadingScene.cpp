@@ -608,10 +608,18 @@ namespace rwe
         weaponDefinition.burstInterval = SimScalar(tdf.burstRate);
         weaponDefinition.sprayAngle = SimAngle(tdf.sprayAngle);
 
-        weaponDefinition.physicsType = tdf.lineOfSight
-            ? ProjectilePhysicsType::LineOfSight
-            : tdf.ballistic ? ProjectilePhysicsType::Ballistic
-                            : ProjectilePhysicsType::LineOfSight;
+        if (tdf.lineOfSight)
+        {
+            weaponDefinition.physicsType = ProjectilePhysicsTypeLineOfSight();
+        }
+        else if (tdf.ballistic)
+        {
+            weaponDefinition.physicsType = ProjectilePhysicsTypeBallistic();
+        }
+        else
+        {
+            weaponDefinition.physicsType = ProjectilePhysicsTypeLineOfSight();
+        }
 
         weaponDefinition.commandFire = tdf.commandFire;
 

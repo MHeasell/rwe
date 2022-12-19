@@ -476,18 +476,15 @@ namespace rwe
 
         auto firingPoint = unit.getTransform() * getPieceLocalPosition(id, *fireInfo->firingPiece);
 
-        SimVector direction;
-        switch (weaponDefinition.physicsType)
-        {
-            case ProjectilePhysicsType::LineOfSight:
-                direction = (fireInfo->targetPosition - firingPoint).normalized();
-                break;
-            case ProjectilePhysicsType::Ballistic:
-                direction = toDirection(fireInfo->heading + unit.rotation, -fireInfo->pitch);
-                break;
-            default:
-                throw std::logic_error("Unknown ProjectilePhysicsType");
-        }
+        auto direction = match(
+            weaponDefinition.physicsType,
+            [&](const ProjectilePhysicsTypeLineOfSight&) {
+                return (fireInfo->targetPosition - firingPoint).normalized();
+            },
+            [&](const ProjectilePhysicsTypeBallistic&) {
+                return toDirection(fireInfo->heading + unit.rotation, -fireInfo->pitch);
+            });
+
 
         if (weaponDefinition.sprayAngle != SimAngle(0))
         {

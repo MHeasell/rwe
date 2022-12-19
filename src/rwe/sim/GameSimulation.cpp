@@ -581,7 +581,6 @@ namespace rwe
         projectile.previousPosition = position;
         projectile.origin = position;
         projectile.velocity = direction * weaponDefinition.velocity;
-        projectile.gravity = weaponDefinition.physicsType == ProjectilePhysicsType::Ballistic;
 
         projectile.lastSmoke = gameTime;
 
@@ -596,7 +595,7 @@ namespace rwe
             auto randomVal = dist(rng);
             projectile.dieOnFrame = gameTime + *weaponDefinition.weaponTimer - GameTime(randomDecay / 2) + GameTime(randomVal);
         }
-        else if (weaponDefinition.physicsType == ProjectilePhysicsType::LineOfSight)
+        else if (std::holds_alternative<ProjectilePhysicsTypeLineOfSight>(weaponDefinition.physicsType))
         {
             projectile.dieOnFrame = gameTime + GameTime(simScalarToUInt(distanceToTarget / weaponDefinition.velocity) + 1);
         }

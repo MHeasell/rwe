@@ -3100,6 +3100,8 @@ namespace rwe
             const auto& id = projectileEntry.first;
             auto& projectile = projectileEntry.second;
 
+            const auto& weaponDefinition = simulation.weaponDefinitions.at(projectile.weaponType);
+
             const auto& weaponMediaInfo = meshDatabase.getWeapon(projectile.weaponType);
 
             // remove if it's time to die
@@ -3113,10 +3115,15 @@ namespace rwe
                 continue;
             }
 
-            if (projectile.gravity)
-            {
-                projectile.velocity.y -= 112_ss / (30_ss * 30_ss);
-            }
+            match(
+                weaponDefinition.physicsType,
+                [&](const ProjectilePhysicsTypeBallistic&) {
+                    projectile.velocity.y -= 112_ss / (30_ss * 30_ss);
+                },
+                [&](const ProjectilePhysicsTypeLineOfSight&) {
+
+                });
+
             projectile.previousPosition = projectile.position;
             projectile.position += projectile.velocity;
 

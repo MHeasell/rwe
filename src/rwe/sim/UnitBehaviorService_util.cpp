@@ -34,15 +34,14 @@ namespace rwe
 
     std::pair<SimAngle, SimAngle> computeHeadingAndPitch(SimAngle rotation, const SimVector& from, const SimVector& to, SimScalar speed, SimScalar gravity, SimScalar zOffset, ProjectilePhysicsType projectileType)
     {
-        switch (projectileType)
-        {
-            case ProjectilePhysicsType::LineOfSight:
+        return match(
+            projectileType,
+            [&](const ProjectilePhysicsTypeLineOfSight&) {
                 return computeLineOfSightHeadingAndPitch(rotation, from, to);
-            case ProjectilePhysicsType::Ballistic:
+            },
+            [&](const ProjectilePhysicsTypeBallistic&) {
                 return computeBallisticHeadingAndPitch(rotation, from, to, speed, gravity, zOffset);
-            default:
-                throw std::logic_error("Unknown ProjectilePhysicsType");
-        }
+            });
     }
 
     std::pair<SimAngle, SimAngle> computeLineOfSightHeadingAndPitch(SimAngle rotation, const SimVector& from, const SimVector& to)

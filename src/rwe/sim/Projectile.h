@@ -24,8 +24,6 @@ namespace rwe
         /** Velocity in game pixels/tick */
         SimVector velocity;
 
-        bool gravity;
-
         /** The last time the projectile emitted smoke. */
         GameTime lastSmoke;
 

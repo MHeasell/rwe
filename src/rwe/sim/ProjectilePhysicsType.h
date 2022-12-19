@@ -1,10 +1,15 @@
 #pragma once
 
+#include <variant>
+
 namespace rwe
 {
-    enum class ProjectilePhysicsType
+    struct ProjectilePhysicsTypeLineOfSight
     {
-        LineOfSight,
-        Ballistic
     };
+    struct ProjectilePhysicsTypeBallistic
+    {
+    };
+
+    using ProjectilePhysicsType = std::variant<ProjectilePhysicsTypeLineOfSight, ProjectilePhysicsTypeBallistic>;
 }
