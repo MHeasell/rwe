@@ -19,6 +19,21 @@ namespace rwe
         return (1.0f - t) * a + t * b;
     }
 
+    float rweCos(float v)
+    {
+        return std::cos(v);
+    }
+
+    float rweSin(float v)
+    {
+        return std::sin(v);
+    }
+
+    float rweAcos(float v)
+    {
+        return std::acos(v);
+    }
+
     float rweAtan2(float a, float b)
     {
         return std::atan2(a, b);

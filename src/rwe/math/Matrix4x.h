@@ -260,6 +260,37 @@ namespace rwe
             return m;
         }
 
+        static Matrix4x rotationAxisAngle(const Vector3x<Val>& axis, Val angle)
+        {
+            auto s = rweSin(angle);
+            auto c = rweCos(angle);
+            auto t = Val(1) - c;
+
+            Matrix4x m;
+
+            m.data[0] = t * axis.x * axis.x + c;
+            m.data[1] = t * axis.x * axis.y + axis.z * s;
+            m.data[2] = t * axis.x * axis.z - axis.y * s;
+            m.data[3] = Val(0);
+
+            m.data[4] = t * axis.x * axis.y - axis.z * s;
+            m.data[5] = t * axis.y * axis.y + c;
+            m.data[6] = t * axis.y * axis.z + axis.x * s;
+            m.data[7] = Val(0);
+
+            m.data[8] = t * axis.x * axis.z + axis.y * s;
+            m.data[9] = t * axis.y * axis.z - axis.x * s;
+            m.data[10] = t * axis.z * axis.z + c;
+            m.data[11] = Val(0);
+
+            m.data[12] = Val(0);
+            m.data[13] = Val(0);
+            m.data[14] = Val(0);
+            m.data[15] = Val(1);
+
+            return m;
+        }
+
 
         /** Anti-clockwise rotation about the X axis. */
         static Matrix4x rotationX(Val angle)

@@ -62,8 +62,19 @@ namespace rwe
 
     SimScalar rweAtan2(SimScalar a, SimScalar b);
 
+    SimScalar rweCos(SimScalar v);
+
+    SimScalar rweSin(SimScalar v);
+
+    SimScalar rweAcos(SimScalar v);
+
     inline SimScalar angularToRadians(SimScalar s)
     {
         return SimScalar((s.value / 65536.0f) * 2.0f * 3.14159265358979323846f);
+    }
+
+    inline SimScalar radiansToAngular(SimScalar s)
+    {
+        return SimScalar(((s.value / 3.14159265358979323846f) / 2.0f) * 65536.0f);
     }
 }

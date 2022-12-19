@@ -1,6 +1,7 @@
 #include <catch2/catch.hpp>
 #include <rwe/math/Matrix4f.h>
 #include <rwe/math/Vector3f.h>
+#include <rwe/util.h>
 
 namespace rwe
 {
@@ -177,6 +178,19 @@ namespace rwe
             REQUIRE(b.data[13] == 7);
             REQUIRE(b.data[14] == 11);
             REQUIRE(b.data[15] == 15);
+        }
+    }
+
+    TEST_CASE("Matrix4f::rotationAxisAngle")
+    {
+        SECTION("produces a matrix that rotates about the given axis")
+        {
+            auto m = Matrix4f::rotationAxisAngle(Vector3f(0.0f, 1.0f, 0.0f), Pif / 2.0f);
+            auto v = Vector3f(5.0f, 0.0f, 3.0f);
+            auto v2 = m * v;
+            REQUIRE(v2.x == Approx(3.0f));
+            REQUIRE(v2.y == Approx(0.0f));
+            REQUIRE(v2.z == Approx(-5.0f));
         }
     }
 }

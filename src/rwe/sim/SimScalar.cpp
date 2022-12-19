@@ -29,4 +29,19 @@ namespace rwe
     {
         return SimScalar(std::atan2(a.value, b.value));
     }
+
+    SimScalar rweCos(SimScalar v)
+    {
+        return SimScalar(std::cos(v.value));
+    }
+
+    SimScalar rweSin(SimScalar v)
+    {
+        return SimScalar(std::sin(v.value));
+    }
+
+    SimScalar rweAcos(SimScalar v)
+    {
+        return SimScalar(std::acos(v.value));
+    }
 }
