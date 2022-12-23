@@ -3092,6 +3092,17 @@ namespace rwe
         return std::nullopt;
     }
 
+    SimVector rotateTowards(const SimVector& v, const SimVector& target, SimScalar maxAngle)
+    {
+        auto normV = v.normalizedOr(SimVector(0_ss, 0_ss, 1_ss));
+        auto targetDirection = target.normalizedOr(SimVector(0_ss, 0_ss, 1_ss));
+        auto cross = normV.cross(targetDirection);
+        auto dot = normV.dot(targetDirection);
+        auto angle = rweMin(rweAcos(dot), angularToRadians(maxAngle));
+
+        return Matrix4x<SimScalar>::rotationAxisAngle(cross, angle) * v;
+    }
+
     void GameScene::updateProjectiles()
     {
         auto gameTime = getGameTime();
@@ -3122,6 +3133,20 @@ namespace rwe
                 },
                 [&](const ProjectilePhysicsTypeLineOfSight&) {
 
+                },
+                [&](const ProjectilePhysicsTypeTracking& t) {
+                    if (!projectile.targetUnit)
+                    {
+                        return;
+                    }
+                    auto targetUnit = simulation.tryGetUnitState(*projectile.targetUnit);
+                    if (!targetUnit)
+                    {
+                        projectile.targetUnit = std::nullopt;
+                        return;
+                    }
+                    auto vectorToTarget = (targetUnit->get().position - projectile.position);
+                    projectile.velocity = rotateTowards(projectile.velocity, vectorToTarget, t.turnRate);
                 });
 
             projectile.previousPosition = projectile.position;
@@ -3600,7 +3625,7 @@ namespace rwe
         if (!unitDefinition.explodeAs.empty())
         {
             auto impactType = unit.position.y < simulation.terrain.getSeaLevel() ? ImpactType::Water : ImpactType::Normal;
-            auto projectile = simulation.createProjectileFromWeapon(unit.owner, unitDefinition.explodeAs, unit.position, SimVector(0_ss, -1_ss, 0_ss), 0_ss);
+            auto projectile = simulation.createProjectileFromWeapon(unit.owner, unitDefinition.explodeAs, unit.position, SimVector(0_ss, -1_ss, 0_ss), 0_ss, std::nullopt);
             doProjectileImpact(projectile, impactType);
         }
     }

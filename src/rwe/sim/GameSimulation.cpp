@@ -565,12 +565,12 @@ namespace rwe
     }
 
     Projectile GameSimulation::createProjectileFromWeapon(
-        PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction, SimScalar distanceToTarget)
+        PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction, SimScalar distanceToTarget, std::optional<UnitId> targetUnit)
     {
-        return createProjectileFromWeapon(owner, weapon.weaponType, position, direction, distanceToTarget);
+        return createProjectileFromWeapon(owner, weapon.weaponType, position, direction, distanceToTarget, targetUnit);
     }
 
-    Projectile GameSimulation::createProjectileFromWeapon(PlayerId owner, const std::string& weaponType, const SimVector& position, const SimVector& direction, SimScalar distanceToTarget)
+    Projectile GameSimulation::createProjectileFromWeapon(PlayerId owner, const std::string& weaponType, const SimVector& position, const SimVector& direction, SimScalar distanceToTarget, std::optional<UnitId> targetUnit)
     {
         const auto& weaponDefinition = weaponDefinitions.at(weaponType);
 
@@ -603,12 +603,14 @@ namespace rwe
         projectile.createdAt = gameTime;
         projectile.groundBounce = weaponDefinition.groundBounce;
 
+        projectile.targetUnit = targetUnit;
+
         return projectile;
     }
 
-    void GameSimulation::spawnProjectile(PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction, SimScalar distanceToTarget)
+    void GameSimulation::spawnProjectile(PlayerId owner, const UnitWeapon& weapon, const SimVector& position, const SimVector& direction, SimScalar distanceToTarget, std::optional<UnitId> targetUnit)
     {
-        projectiles.emplace(createProjectileFromWeapon(owner, weapon, position, direction, distanceToTarget));
+        projectiles.emplace(createProjectileFromWeapon(owner, weapon, position, direction, distanceToTarget, targetUnit));
     }
 
     WinStatus GameSimulation::computeWinStatus() const

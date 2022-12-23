@@ -39,6 +39,9 @@ namespace rwe
             [&](const ProjectilePhysicsTypeLineOfSight&) {
                 return computeLineOfSightHeadingAndPitch(rotation, from, to);
             },
+            [&](const ProjectilePhysicsTypeTracking&) {
+                return computeLineOfSightHeadingAndPitch(rotation, from, to);
+            },
             [&](const ProjectilePhysicsTypeBallistic&) {
                 return computeBallisticHeadingAndPitch(rotation, from, to, speed, gravity, zOffset);
             });

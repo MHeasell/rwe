@@ -6,6 +6,7 @@
 #include <rwe/sim/PlayerId.h>
 #include <rwe/sim/ProjectilePhysicsType.h>
 #include <rwe/sim/SimVector.h>
+#include <rwe/sim/UnitId.h>
 #include <variant>
 
 namespace rwe
@@ -39,6 +40,9 @@ namespace rwe
 
         /** The game time at which the projectile was created. */
         GameTime createdAt;
+
+        /** The unit that this projectile is tracking, if any. */
+        std::optional<UnitId> targetUnit;
 
         SimVector getBackPosition(SimScalar duration) const;
 

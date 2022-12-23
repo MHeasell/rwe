@@ -484,6 +484,9 @@ namespace rwe
             [&](const ProjectilePhysicsTypeLineOfSight&) {
                 return (fireInfo->targetPosition - firingPoint).normalized();
             },
+            [&](const ProjectilePhysicsTypeTracking&) {
+                return (fireInfo->targetPosition - firingPoint).normalized();
+            },
             [&](const ProjectilePhysicsTypeBallistic&) {
                 return toDirection(fireInfo->heading + unit.rotation, -fireInfo->pitch);
             });
@@ -494,7 +497,9 @@ namespace rwe
             direction = changeDirectionByRandomAngle(direction, weaponDefinition.sprayAngle);
         }
 
-        sim->spawnProjectile(unit.owner, *weapon, firingPoint, direction, (fireInfo->targetPosition - firingPoint).length());
+        auto targetUnit = std::get_if<UnitId>(&attackInfo->target);
+        auto targetUnitOption = targetUnit == nullptr ? std::optional<UnitId>() : std::make_optional(*targetUnit);
+        sim->spawnProjectile(unit.owner, *weapon, firingPoint, direction, (fireInfo->targetPosition - firingPoint).length(), targetUnitOption);
 
         sim->events.push_back(FireWeaponEvent{weapon->weaponType, fireInfo->burstsFired, firingPoint});
 
