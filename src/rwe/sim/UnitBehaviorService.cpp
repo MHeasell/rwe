@@ -9,6 +9,11 @@
 
 namespace rwe
 {
+    SimScalar getTargetAltitude(const MapTerrain& terrain, SimScalar x, SimScalar z, const UnitDefinition& unitDefinition)
+    {
+        return rweMax(terrain.getHeightAt(x, z), terrain.getSeaLevel()) + unitDefinition.cruiseAltitude;
+    }
+
     UnitBehaviorService::UnitBehaviorService(GameSimulation* sim)
         : sim(sim)
     {
@@ -173,9 +178,7 @@ namespace rwe
                     match(
                         p.movementState,
                         [&](const AirMovementStateTakingOff&) {
-                            auto terrainHeight = sim->terrain.getHeightAt(unitInfo.state->position.x, unitInfo.state->position.z);
-                            auto targetHeight = terrainHeight + unitInfo.definition->cruiseAltitude;
-
+                            auto targetHeight = getTargetAltitude(sim->terrain, unitInfo.state->position.x, unitInfo.state->position.z, *unitInfo.definition);
                             if (unitInfo.state->position.y == targetHeight)
                             {
                                 p.movementState = AirMovementStateFlying();
@@ -1376,9 +1379,7 @@ namespace rwe
 
     bool UnitBehaviorService::climbToCruiseAltitude(UnitInfo unitInfo)
     {
-        auto terrainHeight = sim->terrain.getHeightAt(unitInfo.state->position.x, unitInfo.state->position.z);
-
-        auto targetHeight = terrainHeight + unitInfo.definition->cruiseAltitude;
+        auto targetHeight = getTargetAltitude(sim->terrain, unitInfo.state->position.x, unitInfo.state->position.z, *unitInfo.definition);
 
         unitInfo.state->position.y = rweMin(unitInfo.state->position.y + 1_ss, targetHeight);
 
@@ -1458,7 +1459,7 @@ namespace rwe
         match(
             airPhysics->movementState,
             [&](AirMovementStateFlying& m) {
-                auto targetHeight = sim->terrain.getHeightAt(destination.x, destination.z) + unitInfo.definition->cruiseAltitude;
+                auto targetHeight = getTargetAltitude(sim->terrain, destination.x, destination.z, *unitInfo.definition);
                 SimVector destinationAtAltitude(destination.x, targetHeight, destination.z);
 
                 m.targetPosition = destinationAtAltitude;
