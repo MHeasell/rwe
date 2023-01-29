@@ -3377,7 +3377,30 @@ namespace rwe
             auto scaledDamage = simScalarToUInt(SimScalar(rawDamage) * damageScale);
             applyDamage(*u, scaledDamage); });
 
-        // TODO: search for flying units to apply damage to
+        // Apply damage to flying units
+        for (const auto& flyingUnitId : simulation.flyingUnitsSet)
+        {
+            const auto& unit = simulation.getUnitState(flyingUnitId);
+
+            // skip units that are dying or dead
+            if (!unit.isAlive())
+            {
+                continue;
+            }
+
+            // check if the unit is in range
+            auto unitDistanceSquared = createBoundingBox(unit).distanceSquared(position);
+            if (unitDistanceSquared > radiusSquared)
+            {
+                continue;
+            }
+
+            // apply appropriate damage
+            auto damageScale = std::clamp(1_ss - (rweSqrt(unitDistanceSquared) / radius), 0_ss, 1_ss);
+            auto rawDamage = projectile.getDamage(unit.unitType);
+            auto scaledDamage = simScalarToUInt(SimScalar(rawDamage) * damageScale);
+            applyDamage(flyingUnitId, scaledDamage);
+        }
     }
 
     void GameScene::applyDamage(UnitId unitId, unsigned int damagePoints)
