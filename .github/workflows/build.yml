@@ -1,0 +1,240 @@
+name: Build
+on:
+  push:
+    branches: [master, gh-actions]
+  pull_request:
+    branches: [master]
+jobs:
+  build-linux:
+    strategy:
+      matrix:
+        include:
+          - configuration: Debug
+            cc: gcc-12
+            cxx: g++-12
+          - configuration: Release
+            cc: gcc-12
+            cxx: g++-12
+          - configuration: Debug
+            cc: clang-15
+            cxx: clang++-15
+          - configuration: Release
+            cc: clang-15
+            cxx: clang++-15
+    runs-on: ubuntu-22.04
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - name: update apt package list
+        run: sudo apt-get update -y
+      - name: install apt packages
+        run: sudo apt-get install -y
+          gcc-12
+          g++-12
+          clang-15
+          libboost-dev
+          libboost-filesystem-dev
+          libboost-program-options-dev
+          libsdl2-dev
+          libsdl2-image-dev
+          libsdl2-mixer-dev
+          libglew-dev
+          zlib1g-dev
+          libpng-dev
+      - name: install node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: npm
+          cache-dependency-path: launcher/package-lock.json
+      - name: install npm packages
+        working-directory: launcher
+        run: npm ci
+      - name: test launcher
+        working-directory: launcher
+        run: |
+          npm run tsc
+          npm test
+          npm run lint
+      - name: package launcher
+        working-directory: launcher
+        run: npm run package
+      - name: restore protobuf
+        id: cache-protobuf-restore
+        uses: actions/cache/restore@v3
+        with:
+          path: libs/_protobuf-install
+          key: ${{ runner.os }}-${{ env.CC }}-protobuf
+      - name: build protobuf
+        working-directory: libs
+        run: ./build-protobuf.sh
+      - name: save protobuf
+        id: cache-protobuf-save
+        uses: actions/cache/save@v3
+        with:
+          path: libs/_protobuf-install
+          key: ${{ steps.cache-protobuf-restore.outputs.cache-primary-key }}
+      - name: build rwe
+        run: |
+          mkdir build
+          pushd build
+          cmake -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ..
+          make -j 2
+          popd
+      - name: test rwe
+        run: ./build/rwe_test
+  build-windows-msvc:
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - name: install python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: install node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: npm
+          cache-dependency-path: launcher/package-lock.json
+      - name: install npm packages
+        working-directory: launcher
+        run: npm ci
+      - name: test launcher
+        working-directory: launcher
+        run: |
+          npm run tsc
+          npm test
+          npm run lint
+      - name: package launcher
+        working-directory: launcher
+        run: npm run package
+      - run: python3 fetch-msvc-libs.py
+      - name: build rwe
+        run: |
+          mkdir build
+          cd build
+          cmake -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ..
+          cmake --build . --config ${{ matrix.configuration }} --parallel 2
+          cd ..
+      - name: test rwe
+        working-directory: build
+        run: .\${{ matrix.configuration }}\rwe_test.exe
+      - name: package rwe
+        working-directory: build
+        run: cmake --build . --target package --config ${{ matrix.configuration }} --parallel 2
+      - name: upload zip artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: RWE Zip ${{ runner.os }} MSVC ${{ matrix.configuration }}
+          path: build/dist/RobotWarEngine-*-Windows-${{ matrix.configuration }}.zip
+          if-no-files-found: error
+      - name: upload installer artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: RWE Installer ${{ runner.os }} MSVC ${{ matrix.configuration }}
+          path: build/dist/RobotWarEngine-*-Windows-${{ matrix.configuration }}.exe
+          if-no-files-found: error
+  build-windows-mingw64:
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - name: install node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: npm
+          cache-dependency-path: launcher/package-lock.json
+      - name: install npm packages
+        working-directory: launcher
+        run: npm ci
+      - name: test launcher
+        working-directory: launcher
+        run: |
+          npm run tsc
+          npm test
+          npm run lint
+      - name: package launcher
+        working-directory: launcher
+        run: npm run package
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          path-type: inherit
+          install: >-
+            autoconf
+            automake
+            libtool
+            make
+            unzip
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-boost
+            mingw-w64-x86_64-SDL2
+            mingw-w64-x86_64-SDL2_image
+            mingw-w64-x86_64-SDL2_mixer
+            mingw-w64-x86_64-glew
+            mingw-w64-x86_64-smpeg2
+            mingw-w64-x86_64-zlib
+            mingw-w64-x86_64-libpng
+            mingw-w64-x86_64-readline
+      - name: restore protobuf
+        id: cache-protobuf-restore
+        uses: actions/cache/restore@v3
+        with:
+          path: libs/_protobuf-install
+          key: ${{ runner.os }}-mingw64-protobuf
+      - name: build protobuf
+        working-directory: libs
+        run: ./build-protobuf.sh
+        shell: msys2 {0}
+      - name: save protobuf
+        id: cache-protobuf-save
+        uses: actions/cache/save@v3
+        with:
+          path: libs/_protobuf-install
+          key: ${{ steps.cache-protobuf-restore.outputs.cache-primary-key }}
+      - name: build rwe
+        run: |
+          mkdir build
+          pushd build
+          cmake -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ..
+          make -j 2
+          popd
+        shell: msys2 {0}
+      - name: test rwe
+        working-directory: build
+        run: ./rwe_test
+        shell: msys2 {0}
+      - name: package rwe
+        working-directory: build
+        run: make package
+        shell: msys2 {0}
+      - name: upload zip artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: RWE Zip ${{ runner.os }} MinGW64 ${{ matrix.configuration }}
+          path: build/dist/RobotWarEngine-*-Windows-${{ matrix.configuration }}.zip
+          if-no-files-found: error
+      - name: upload installer artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: RWE Installer ${{ runner.os }} MinGW64 ${{ matrix.configuration }}
+          path: build/dist/RobotWarEngine-*-Windows-${{ matrix.configuration }}.exe
+          if-no-files-found: error
