@@ -161,10 +161,11 @@ else()
     find_windows_dll(FLAC_DLL "libFLAC.dll")
     find_windows_dll(JBIG_DLL "libjbig-0.dll")
     find_windows_dll(LERC_DLL "libLerc.dll")
+    find_windows_dll(SHARPYUV_DLL "libsharpyuv-0.dll")
     find_windows_dll(JPEG_DLL "libjpeg-8.dll")
     find_windows_dll(MPG_DLL "libmpg123-0.dll")
     find_windows_dll(OGG_DLL "libogg-0.dll")
-    find_windows_dll(TIFF_DLL "libtiff-5.dll")
+    find_windows_dll(TIFF_DLL "libtiff-6.dll")
     find_windows_dll(LZMA_DLL "liblzma-5.dll")
     find_windows_dll(VORBIS_DLL "libvorbis-0.dll")
     find_windows_dll(VORBISFILE_DLL "libvorbisfile-3.dll")
@@ -187,6 +188,12 @@ else()
     find_windows_dll(ICONV_DLL "libiconv-2.dll")
     find_windows_dll(SSP_DLL "libssp-0.dll")
     find_windows_dll(DEFLATE_DLL "libdeflate.dll")
+    find_windows_dll(JXL_DLL "libjxl.dll")
+    find_windows_dll(BROTLIENC_DLL "libbrotlienc.dll")
+    find_windows_dll(BROTLIDEC_DLL "libbrotlidec.dll")
+    find_windows_dll(BROTLICOMMON_DLL "libbrotlicommon.dll")
+    find_windows_dll(HWY_DLL "libhwy.dll")
+    find_windows_dll(LCMS2_DLL "liblcms2-2.dll")
 endif()
 
 # We should have std::chrono everywhere,
@@ -653,11 +660,18 @@ if(WIN32 AND NOT MSVC)
     target_copy_file(librwe ${LZMA_DLL}) # MSYS2 libtiff depends on liblzma
     target_copy_file(librwe ${ZSTD_DLL}) # MSYS2 libtiff depends on zstd
     target_copy_file(librwe ${DEFLATE_DLL}) # MSYS2 libtiff depends on deflate
+    target_copy_file(librwe ${JXL_DLL}) # MSYS2 SDL2_image depends on jxl
+    target_copy_file(librwe ${BROTLIENC_DLL})
+    target_copy_file(librwe ${BROTLIDEC_DLL})
+    target_copy_file(librwe ${BROTLICOMMON_DLL})
+    target_copy_file(librwe ${HWY_DLL})
+    target_copy_file(librwe ${LCMS2_DLL})
     target_copy_file(librwe ${MODPLUG_DLL}) # MSYS2 SDL2_mixer depends on modplug
     target_copy_file(librwe ${OPUSFILE_DLL}) # MSYS2 SDL2_mixer depends on opusfile
     target_copy_file(librwe ${SSP_DLL}) # MSYS2 SDL2_mixer libflac depends on ssp
     target_copy_file(librwe ${JBIG_DLL}) # MSYS2 SDL2_image depends on jbig
     target_copy_file(librwe ${LERC_DLL}) # MSYS2 SDL2_image depends on Lerc
+    target_copy_file(librwe ${SHARPYUV_DLL}) # MSYS2 SDL2_image libwebp depends on sharpyuv
     target_copy_file(librwe ${OPUS_DLL})
     target_copy_file(librwe ${READLINE_DLL})
     target_copy_file(librwe ${SNDFILE_DLL})
