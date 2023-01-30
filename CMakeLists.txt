@@ -805,7 +805,7 @@ set(TEST_FILES
     )
 
 add_executable(rwe_test src/test.cpp ${TEST_FILES})
-target_link_libraries(rwe_test Catch2::Catch2)
+target_include_directories(rwe_test PUBLIC ${PROJECT_SOURCE_DIR}/libs/catch2/single_include)
 target_link_libraries(rwe_test rapidcheck_catch)
 target_link_libraries(rwe_test rapidcheck_boost)
 target_link_libraries(rwe_test librwe)
