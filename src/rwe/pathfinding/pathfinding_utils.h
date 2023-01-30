@@ -4,6 +4,7 @@
 #include <rwe/grid/EightWayDirection.h>
 #include <rwe/grid/Point.h>
 #include <rwe/pathfinding/OctileDistance.h>
+#include <vector>
 
 namespace rwe
 {
