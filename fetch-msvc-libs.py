@@ -67,7 +67,7 @@ if __name__ == "__main__":
 
     log("Verifying file hash...")
     if not check_hash(bundle_name, sha256hash):
-        log("Downloaded file hash did not match", file=sys.stderr)
+        log("Downloaded file hash did not match")
         sys.exit(1)
 
     log("Extracting bundle...")
