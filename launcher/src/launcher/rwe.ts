@@ -128,7 +128,7 @@ function quoteArg(arg: string) {
   return arg;
 }
 
-export function execRwe(args?: RweArgs): Promise<any> {
+export function execRwe(args?: RweArgs): Promise<void> {
   const rweHome = process.env["RWE_HOME"];
   if (!rweHome) {
     return Promise.reject("Cannot launch RWE, RWE_HOME is not defined");
