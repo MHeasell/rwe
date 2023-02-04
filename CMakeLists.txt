@@ -57,10 +57,10 @@ endfunction()
 function(target_copy_file target file)
     if(WIN32)
         add_custom_command(TARGET ${target} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy ${file} ${PROJECT_BINARY_DIR})
+            COMMAND ${CMAKE_COMMAND} -E copy ${file} $<TARGET_FILE_DIR:${target}>)
 
         get_filename_component("${file}_NAME" ${file} NAME)
-        install(FILES ${PROJECT_BINARY_DIR}/${${file}_NAME} DESTINATION ".")
+        install(FILES $<TARGET_FILE_DIR:${target}>/${${file}_NAME} DESTINATION ".")
     endif()
 endfunction()
 
@@ -699,13 +699,11 @@ target_link_libraries(librwe nlohmann_json::nlohmann_json)
 target_include_directories(librwe PUBLIC ${PROJECT_SOURCE_DIR}/libs/imgui)
 target_include_directories(librwe PUBLIC ${PROJECT_SOURCE_DIR}/libs/imgui/examples)
 
-add_custom_target(rwe_shaders)
-add_custom_command(TARGET rwe_shaders PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/shaders" "${PROJECT_BINARY_DIR}/shaders")
+add_custom_command(TARGET librwe PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/shaders" "$<TARGET_FILE_DIR:librwe>/shaders")
 
 add_executable(rwe src/main.cpp)
 target_link_libraries(rwe librwe)
-add_dependencies(rwe rwe_shaders)
 
 add_executable(hpi_test src/hpi_test.cpp)
 target_link_libraries(hpi_test librwe)
