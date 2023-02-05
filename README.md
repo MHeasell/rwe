@@ -7,6 +7,7 @@ that is highly compatible with Total Annihilation data files.
 
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/43armkvatrbaiur5/branch/master?svg=true)](https://ci.appveyor.com/project/MHeasell/rwe/branch/master)
 [![Travis CI build Status](https://travis-ci.org/MHeasell/rwe.svg?branch=master)](https://travis-ci.org/MHeasell/rwe)
+[![GitHub Build Status](https://github.com/MHeasell/rwe/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/MHeasell/rwe/actions/workflows/build.yml)
 
 ## Download
 
