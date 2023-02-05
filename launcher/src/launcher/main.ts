@@ -64,7 +64,9 @@ function createWindow() {
 
   // Open the DevTools.
   if (development) {
-    mainWindow.webContents.openDevTools();
+    mainWindow.webContents.once("dom-ready", () => {
+      mainWindow!.webContents.openDevTools();
+    });
   }
 
   // Emitted when the window is closed.
