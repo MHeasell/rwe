@@ -5,6 +5,7 @@ import {
   Reducer,
   Action,
   Dispatch,
+  StoreEnhancerStoreCreator,
 } from "redux";
 
 export type StateWithSideEffects<S, SE> = {
@@ -44,7 +45,9 @@ type EnhancedReducer<S, SE, A extends Action> = (
 ) => S | StateWithSideEffects<S, SE>;
 
 export const createEnhancer = <SE>(executor: SideEffectExecutor<SE>) => {
-  const myStoreEnhancer: StoreEnhancer = createStore => <S, A extends Action>(
+  const myStoreEnhancer: StoreEnhancer<unknown, unknown> = (
+    createStore: StoreEnhancerStoreCreator<unknown, unknown>
+  ) => <S, A extends Action>(
     reducer: TopLevelEnhancedReducer<S, SE, A>,
     initialState?: PreloadedState<S>
   ): Store<S, A> => {

@@ -18,8 +18,8 @@ module.exports = {
                 "@babel/env",
                 {
                   targets: {
-                    electron: "6.0.9",
-                    node: "12.4.0",
+                    electron: "22.1.0",
+                    node: "18.13.0",
                   },
                 },
               ],
@@ -44,11 +44,13 @@ module.exports = {
     __filename: false,
   },
   plugins: [
-    new CopyWebpackPlugin([
-      {
-        from: "package.json",
-        to: "package.json",
-      },
-    ]),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: "package.json",
+          to: "package.json",
+        },
+      ],
+    }),
   ],
 };

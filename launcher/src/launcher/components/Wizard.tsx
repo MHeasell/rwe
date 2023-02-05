@@ -107,7 +107,7 @@ function WizardManual(props: {
       <Typography>Manually locate your Total Annihilation folder:</Typography>
       <input
         type="file"
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         webkitdirectory="true"
         onChange={e => {

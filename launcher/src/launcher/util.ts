@@ -5,7 +5,7 @@ import * as rx from "rxjs";
 import * as rxop from "rxjs/operators";
 import { chooseOp } from "../common/rxutil";
 import { RweModJson } from "../common/mods";
-import { enumerateValues, HKEY, RegistryValueType } from "registry-js";
+import { enumerateValues, HKEY, RegistryValueType } from "./registry";
 
 const taModFiles = new Map<string, string>([
   [
@@ -89,17 +89,18 @@ const taPathRegistryLocations: [HKEY, string, string][] = [
   ],
 ];
 
-function getSearchDirectories(): string[] {
+function getSearchDirectories(): Promise<string[]> {
   if (process.platform !== "win32") {
-    return [];
+    return Promise.resolve([]);
   }
-  const rawPaths = [
-    ...findRegistryTaInstallLocations(),
-    ...getHardcodedTaPathGuesses(),
-  ];
-  const normalizedPaths = rawPaths.map(x => path.resolve(x.toUpperCase()));
-  const deduplicatedPaths = [...new Set(normalizedPaths).values()];
-  return deduplicatedPaths;
+  const rawPaths = [...getHardcodedTaPathGuesses()];
+
+  return findRegistryTaInstallLocations().then(paths => {
+    rawPaths.push(...paths);
+    const normalizedPaths = rawPaths.map(x => path.resolve(x.toUpperCase()));
+    const deduplicatedPaths = [...new Set(normalizedPaths).values()];
+    return deduplicatedPaths;
+  });
 }
 
 function getHardcodedTaPathGuesses(): string[] {
@@ -131,25 +132,29 @@ function getHardcodedTaPathGuesses(): string[] {
 }
 
 /** May contain duplicate paths -- it's up to the caller to dedupe them. */
-function findRegistryTaInstallLocations(): string[] {
-  return taPathRegistryLocations.flatMap(([hkey, key, name]) => {
-    const values = enumerateValues(hkey, key);
-    const installPathEntry = values.find(x => x.name === name);
-    if (
-      installPathEntry &&
-      installPathEntry.type === RegistryValueType.REG_SZ
-    ) {
-      return [installPathEntry.data];
-    }
-    return [];
-  });
+function findRegistryTaInstallLocations(): Promise<string[]> {
+  const promises = taPathRegistryLocations.map(([hkey, key, name]) =>
+    enumerateValues(hkey, key).then(values => {
+      const installPathEntry = values.find(x => x.name === name);
+      if (
+        installPathEntry &&
+        installPathEntry.type === RegistryValueType.REG_SZ
+      ) {
+        return [installPathEntry.data];
+      }
+      return [];
+    })
+  );
+
+  return Promise.all(promises).then(values => values.flat());
 }
 
 export function automaticallySetUpTaMod(outDir: string): Promise<boolean> {
-  const searchDirectories = getSearchDirectories();
-  console.log("automatically setting up mods");
-  console.log(searchDirectories);
-  return automaticallySetUpTaModManual(outDir, searchDirectories);
+  return getSearchDirectories().then(searchDirectories => {
+    console.log("automatically setting up mods");
+    console.log(searchDirectories);
+    return automaticallySetUpTaModManual(outDir, searchDirectories);
+  });
 }
 
 /**

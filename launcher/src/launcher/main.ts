@@ -45,6 +45,7 @@ function createWindow() {
       // Enabling node integration is safe
       // because we only ever run local, trusted code.
       nodeIntegration: true,
+      contextIsolation: false,
     },
   };
   // disable web security in development, to permit accessing local files
@@ -63,7 +64,9 @@ function createWindow() {
 
   // Open the DevTools.
   if (development) {
-    mainWindow.webContents.openDevTools();
+    mainWindow.webContents.once("dom-ready", () => {
+      mainWindow!.webContents.openDevTools();
+    });
   }
 
   // Emitted when the window is closed.
