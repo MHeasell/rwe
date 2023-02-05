@@ -623,7 +623,7 @@ endif()
 target_include_directories(librwe PUBLIC "libs/utfcpp/source")
 target_include_directories(librwe PUBLIC "libs/spdlog/include")
 
-target_link_libraries(librwe ${OPENGL_LIBRARIES})
+target_link_libraries(librwe OpenGL::GL)
 
 target_copy_file(librwe ${GLEW_DLL})
 if(MSVC)
