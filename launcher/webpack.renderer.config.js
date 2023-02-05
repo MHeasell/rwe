@@ -47,10 +47,6 @@ module.exports = {
           },
         ],
       },
-      {
-        test: /\.node$/,
-        loader: "node-loader",
-      },
     ],
   },
   resolve: {
