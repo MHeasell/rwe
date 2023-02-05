@@ -45,6 +45,7 @@ function createWindow() {
       // Enabling node integration is safe
       // because we only ever run local, trusted code.
       nodeIntegration: true,
+      contextIsolation: false,
     },
   };
   // disable web security in development, to permit accessing local files

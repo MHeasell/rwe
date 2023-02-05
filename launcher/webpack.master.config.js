@@ -19,7 +19,7 @@ module.exports = {
                 "@babel/env",
                 {
                   targets: {
-                    node: "8",
+                    node: "18",
                   },
                 },
               ],
@@ -44,12 +44,13 @@ module.exports = {
     __filename: false,
   },
   plugins: [
-    new CopyWebpackPlugin([
+    new CopyWebpackPlugin({
+        patterns: [
       {
         from: "package.json",
         to: "package.json",
       },
-    ]),
-    new webpack.IgnorePlugin(/^uws$/),
+    ]}),
+    new webpack.IgnorePlugin({ resourceRegExp: /^uws$/ }),
   ],
 };

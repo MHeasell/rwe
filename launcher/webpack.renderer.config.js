@@ -19,8 +19,8 @@ module.exports = {
                 "@babel/env",
                 {
                   targets: {
-                    electron: "6.0.9",
-                    node: "12.4.0",
+                    electron: "22.1.0",
+                    node: "18.13.0",
                   },
                 },
               ],
@@ -49,12 +49,7 @@ module.exports = {
       },
       {
         test: /\.node$/,
-        loader: "awesome-node-loader",
-        options: {
-          rewritePath: process.env.RWE_LAUNCHER_IS_DEV
-            ? path.resolve(__dirname, "dist")
-            : undefined,
-        },
+        loader: "node-loader",
       },
     ],
   },
@@ -73,19 +68,24 @@ module.exports = {
     __filename: false,
   },
   plugins: [
-    new CopyWebpackPlugin([
-      {
-        from: "index.html",
-        to: "index.html",
-      },
-    ]),
-    new webpack.NamedModulesPlugin(),
-    new webpack.HotModuleReplacementPlugin(),
-    new webpack.IgnorePlugin(/^uws$/),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: "index.html",
+          to: "index.html",
+        },
+      ],
+    }),
+    new webpack.IgnorePlugin({ resourceRegExp: /^uws$/ }),
   ],
+  optimization: {
+    moduleIds: "named",
+  },
 
   devServer: {
-    contentBase: "./dist",
+    static: {
+      directory: "./dist",
+    },
     port: 8080,
     hot: true,
   },
