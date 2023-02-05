@@ -39,6 +39,7 @@
     "@types/react-window": "^1.8.1",
     "@types/socket.io": "^2.1.4",
     "@types/socket.io-client": "^1.4.32",
+    "@types/winreg": "^1.2.31",
     "@types/yargs": "^13.0.8",
     "@typescript-eslint/eslint-plugin": "^5.50.0",
     "@typescript-eslint/parser": "^5.50.0",
@@ -81,6 +82,7 @@
     "rxjs": "^6.5.4",
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0",
+    "winreg": "^1.2.4",
     "yargs": "^15.3.1"
   }
 }
