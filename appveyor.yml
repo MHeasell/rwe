@@ -4,7 +4,7 @@ branches:
 
 install:
   - git submodule update --init --recursive
-  - ps: Install-Product node 10
+  - ps: Install-Product node 18
 build_script:
   - ps: Update-AppveyorBuild -Version "$(git describe --dirty=-d)-$env:APPVEYOR_BUILD_NUMBER"
   - '%APPVEYOR_BUILD_FOLDER%\appveyor.bat'
@@ -17,7 +17,7 @@ configuration:
   - Release
 
 environment:
-  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
   matrix:
     - RWE_COMPILER: MSVC
     - RWE_COMPILER: MSYS

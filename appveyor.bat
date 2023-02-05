@@ -16,8 +16,14 @@ rem Build RWE
 cd "%APPVEYOR_BUILD_FOLDER%" || goto :error
 IF "%RWE_COMPILER%"=="MSYS" (
     rem Required for bash to set itself up
-    SET MSYSTEM=MINGW64
 
+    rem Core update (in case any core packages are outdated)
+    C:\msys64\usr\bin\bash -lc "pacman --noconfirm -Syuu" || goto :error
+    rem Normal update
+    C:\msys64\usr\bin\bash -lc "pacman --noconfirm -Syuu" || goto :error
+
+    SET CHERE_INVOKING=yes
+    SET MSYSTEM=MINGW64
     C:\msys64\usr\bin\bash -lc "cd $APPVEYOR_BUILD_FOLDER && ./appveyor.bash" || goto :error
 
     goto :EOF
@@ -30,7 +36,7 @@ IF "%RWE_COMPILER%"=="MSYS" (
     mkdir build || goto :error
     cd build || goto :error
     cmake --version || goto :error
-    cmake -G "Visual Studio 16 2019" -A x64 -DCMAKE_BUILD_TYPE=%Configuration% .. || goto :error
+    cmake -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=%Configuration% .. || goto :error
     msbuild "Robot War Engine.sln" /m /p:Configuration=%Configuration% || goto :error
     %Configuration%\rwe_test.exe || goto :error
 

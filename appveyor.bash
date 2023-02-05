@@ -4,9 +4,6 @@
 
 set -euo pipefail
 
-# Refresh packages list
-pacman -Syq
-
 # Install build tools.
 # Except cmake, because for some reason if you install it
 # then you'll get exit code 127 when you try to call it.
