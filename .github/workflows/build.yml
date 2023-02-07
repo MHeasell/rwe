@@ -199,7 +199,7 @@ jobs:
         uses: actions/cache/restore@v3
         with:
           path: libs/_protobuf-install
-          key: ${{ runner.os }}-mingw64-protobuf
+          key: ${{ runner.os }}-mingw64-protobuf-${{ hashFiles('.git/modules/libs/protobuf/HEAD') }}
       - name: build protobuf
         working-directory: libs
         run: ./build-protobuf.sh
