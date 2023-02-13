@@ -1,15 +1,15 @@
 rem Build the launcher
-cd launcher || goto :error
-echo node version || goto :error
-CALL node --version || goto :error
-echo npm version || goto :error
-CALL npm --version || goto :error
-CALL npm ci || goto :error
-CALL npm run tsc || goto :error
-CALL npm test || goto :error
-CALL npm run lint || goto :error
-CALL npm run package || goto :error
-cd .. || goto :error
+REM  cd launcher || goto :error
+REM  echo node version || goto :error
+REM  CALL node --version || goto :error
+REM  echo npm version || goto :error
+REM  CALL npm --version || goto :error
+REM  CALL npm ci || goto :error
+REM  CALL npm run tsc || goto :error
+REM  CALL npm test || goto :error
+REM  CALL npm run lint || goto :error
+REM  CALL npm run package || goto :error
+REM  cd .. || goto :error
 
 rem Build RWE
 

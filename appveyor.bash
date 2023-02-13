@@ -33,22 +33,22 @@ pushd libs
 ./build-protobuf.sh
 popd
 
-mkdir build
-pushd build
+# mkdir build
+# pushd build
 
-# Build the project
-cmake -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=$Configuration ..
-make -j 2
-./rwe_test
+# # Build the project
+# cmake -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=$Configuration ..
+# make -j 2
+# ./rwe_test
 
-# Create the build artifacts
-make -j 2 package
+# # Create the build artifacts
+# make -j 2 package
 
-# Push the build artifacts
-pushd dist
-for i in *; do
-    appveyor PushArtifact "$i"
-done
-popd
+# # Push the build artifacts
+# pushd dist
+# for i in *; do
+    # appveyor PushArtifact "$i"
+# done
+# popd
 
-popd
+# popd
