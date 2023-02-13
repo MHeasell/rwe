@@ -382,6 +382,11 @@ namespace rwe
         return owner == playerId;
     }
 
+    bool UnitState::isAlive() const
+    {
+        return std::holds_alternative<LifeStateAlive>(lifeState);
+    }
+
     bool UnitState::isDead() const
     {
         return std::holds_alternative<LifeStateDead>(lifeState);

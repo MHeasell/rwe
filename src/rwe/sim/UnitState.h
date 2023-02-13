@@ -307,6 +307,7 @@ namespace rwe
 
         bool isOwnedBy(PlayerId playerId) const;
 
+        bool isAlive() const;
         bool isDead() const;
 
         void markAsDead();
