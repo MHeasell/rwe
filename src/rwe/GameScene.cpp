@@ -2509,8 +2509,17 @@ namespace rwe
                 const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
                 if (!unit.isBeingBuilt(unitDefinition))
                 {
-                    getPlayer(unit.owner).maxMetal += unitDefinition.metalStorage;
-                    getPlayer(unit.owner).maxEnergy += unitDefinition.energyStorage;
+                    auto& playerInfo = getPlayer(unit.owner);
+                    if (unitDefinition.commander)
+                    {
+                        playerInfo.maxMetal += playerInfo.startingMetal;
+                        playerInfo.maxEnergy += playerInfo.startingEnergy;
+                    }
+                    else
+                    {
+                        playerInfo.maxMetal += unitDefinition.metalStorage;
+                        playerInfo.maxEnergy += unitDefinition.energyStorage;
+                    }
                 }
             }
 

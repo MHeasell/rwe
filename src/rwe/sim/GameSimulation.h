@@ -48,8 +48,11 @@ namespace rwe
         Metal metal;
         Energy energy;
 
-        Metal maxMetal{0};
-        Energy maxEnergy{0};
+        Metal maxMetal;
+        Energy maxEnergy;
+
+        Metal startingMetal;
+        Energy startingEnergy;
 
         bool metalStalled{false};
         bool energyStalled{false};
