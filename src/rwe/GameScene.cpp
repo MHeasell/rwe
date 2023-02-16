@@ -169,8 +169,7 @@ namespace rwe
     {
         auto collidesWithOccupiedCell = match(
             cellValue.occupiedType,
-            [&](const OccupiedUnit& v)
-            {
+            [&](const OccupiedUnit& v) {
                 const auto& unit = sim.getUnitState(v.id);
 
                 if (unit.isOwnedBy(projectile.owner))
@@ -189,8 +188,7 @@ namespace rwe
 
                 return true;
             },
-            [&](const OccupiedFeature& v)
-            {
+            [&](const OccupiedFeature& v) {
                 const auto& feature = sim.getFeature(v.id);
                 const auto& featureDefinition = db.getFeature(feature.featureName);
 
@@ -203,8 +201,7 @@ namespace rwe
                 return true;
             },
 
-            [&](const OccupiedNone&)
-            {
+            [&](const OccupiedNone&) {
                 return false;
             });
 
@@ -664,28 +661,21 @@ namespace rwe
         {
             auto nextPos = match(
                 order,
-                [&](const BuildOrder& o)
-                { return o.position; },
-                [&](const MoveOrder& o)
-                { return o.destination; },
-                [&](const AttackOrder& o)
-                { return match(
-                      o.target,
-                      [&](const SimVector& v)
-                      { return v; },
-                      [&](const UnitId& u)
-                      {
-                          auto unitOption = tryGetUnit(u);
-                          if (!unitOption)
-                          {
-                              return pos;
-                          }
-                          return unitOption->get().position;
-                      }); },
-                [&](const BuggerOffOrder&)
-                { return pos; },
-                [&](const CompleteBuildOrder& o)
-                {
+                [&](const BuildOrder& o) { return o.position; },
+                [&](const MoveOrder& o) { return o.destination; },
+                [&](const AttackOrder& o) { return match(
+                                                o.target,
+                                                [&](const SimVector& v) { return v; },
+                                                [&](const UnitId& u) {
+                                                    auto unitOption = tryGetUnit(u);
+                                                    if (!unitOption)
+                                                    {
+                                                        return pos;
+                                                    }
+                                                    return unitOption->get().position;
+                                                }); },
+                [&](const BuggerOffOrder&) { return pos; },
+                [&](const CompleteBuildOrder& o) {
                     auto unitOption = tryGetUnit(o.target);
                     if (!unitOption)
                     {
@@ -693,8 +683,7 @@ namespace rwe
                     }
                     return unitOption->get().position;
                 },
-                [&](const GuardOrder& o)
-                {
+                [&](const GuardOrder& o) {
                     auto unitOption = tryGetUnit(o.target);
                     if (!unitOption)
                     {
@@ -705,18 +694,12 @@ namespace rwe
 
             auto waypointIcon = match(
                 order,
-                [&](const BuildOrder&)
-                { return std::optional<CursorType>(); },
-                [&](const MoveOrder&)
-                { return std::optional<CursorType>(CursorType::Move); },
-                [&](const AttackOrder&)
-                { return std::optional<CursorType>(CursorType::Attack); },
-                [&](const BuggerOffOrder&)
-                { return std::optional<CursorType>(); },
-                [&](const CompleteBuildOrder&)
-                { return std::optional<CursorType>(CursorType::Repair); },
-                [&](const GuardOrder&)
-                { return std::optional<CursorType>(CursorType::Guard); });
+                [&](const BuildOrder&) { return std::optional<CursorType>(); },
+                [&](const MoveOrder&) { return std::optional<CursorType>(CursorType::Move); },
+                [&](const AttackOrder&) { return std::optional<CursorType>(CursorType::Attack); },
+                [&](const BuggerOffOrder&) { return std::optional<CursorType>(); },
+                [&](const CompleteBuildOrder&) { return std::optional<CursorType>(CursorType::Repair); },
+                [&](const GuardOrder&) { return std::optional<CursorType>(CursorType::Guard); });
 
             // draw waypoint icons
             if (waypointIcon)
@@ -736,18 +719,12 @@ namespace rwe
             {
                 auto drawLine = match(
                     order,
-                    [&](const BuildOrder&)
-                    { return true; },
-                    [&](const MoveOrder&)
-                    { return true; },
-                    [&](const AttackOrder&)
-                    { return false; },
-                    [&](const BuggerOffOrder&)
-                    { return false; },
-                    [&](const CompleteBuildOrder&)
-                    { return true; },
-                    [&](const GuardOrder&)
-                    { return true; });
+                    [&](const BuildOrder&) { return true; },
+                    [&](const MoveOrder&) { return true; },
+                    [&](const AttackOrder&) { return false; },
+                    [&](const BuggerOffOrder&) { return false; },
+                    [&](const CompleteBuildOrder&) { return true; },
+                    [&](const GuardOrder&) { return true; });
 
                 if (drawLine)
                 {
@@ -817,8 +794,7 @@ namespace rwe
             const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
             match(
                 unitDefinition.movementCollisionInfo,
-                [&](const UnitDefinition::NamedMovementClass& c)
-                {
+                [&](const UnitDefinition::NamedMovementClass& c) {
                     const auto& grid = simulation.movementClassCollisionService.getGrid(c.movementClassId);
                     drawMovementClassCollisionGrid(simulation.terrain, grid, worldCameraState.getRoundedPosition(), worldCameraState.scaleDimension(worldViewport.width()), worldCameraState.scaleDimension(worldViewport.height()), terrainOverlayBatch);
                 },
@@ -1088,16 +1064,13 @@ namespace rwe
     {
         return match(
             state,
-            [&](const UnitBehaviorStateIdle&)
-            {
+            [&](const UnitBehaviorStateIdle&) {
                 return "idle";
             },
-            [&](const UnitBehaviorStateBuilding&)
-            {
+            [&](const UnitBehaviorStateBuilding&) {
                 return "building";
             },
-            [&](const UnitBehaviorStateCreatingUnit&)
-            {
+            [&](const UnitBehaviorStateCreatingUnit&) {
                 return "creating unit";
             });
     }
@@ -1121,12 +1094,10 @@ namespace rwe
     {
         return match(
             status.condition,
-            [&](const CobEnvironment::BlockedStatus::Move& m)
-            {
+            [&](const CobEnvironment::BlockedStatus::Move& m) {
                 return "wait-for-move piece " + std::to_string(m.object) + " along " + cobAxisToString(m.axis);
             },
-            [&](const CobEnvironment::BlockedStatus::Turn& t)
-            {
+            [&](const CobEnvironment::BlockedStatus::Turn& t) {
                 return "wait-for-turn piece " + std::to_string(t.object) + " around " + cobAxisToString(t.axis);
             });
     }
@@ -1406,8 +1377,7 @@ namespace rwe
         {
             match(
                 cursorMode.getValue(),
-                [&](const AttackCursorMode&)
-                {
+                [&](const AttackCursorMode&) {
                     for (const auto& selectedUnit : selectedUnits)
                     {
                         if (hoveredUnit)
@@ -1440,8 +1410,7 @@ namespace rwe
                         }
                     }
                 },
-                [&](const MoveCursorMode&)
-                {
+                [&](const MoveCursorMode&) {
                     for (const auto& selectedUnit : selectedUnits)
                     {
                         auto coord = getMouseTerrainCoordinate();
@@ -1459,8 +1428,7 @@ namespace rwe
                         }
                     }
                 },
-                [&](const GuardCursorMode&)
-                {
+                [&](const GuardCursorMode&) {
                     for (const auto& selectedUnit : selectedUnits)
                     {
                         if (hoveredUnit && isFriendly(*hoveredUnit))
@@ -1477,8 +1445,7 @@ namespace rwe
                         }
                     }
                 },
-                [&](const BuildCursorMode& buildCursor)
-                {
+                [&](const BuildCursorMode& buildCursor) {
                     if (auto selectedUnit = getSingleSelectedUnit(); selectedUnit)
                     {
                         if (hoverBuildInfo)
@@ -1511,8 +1478,7 @@ namespace rwe
                         }
                     }
                 },
-                [&](const NormalCursorMode&)
-                {
+                [&](const NormalCursorMode&) {
                     if (isCursorOverMinimap())
                     {
                         if (leftClickMode())
@@ -1583,24 +1549,19 @@ namespace rwe
         {
             match(
                 cursorMode.getValue(),
-                [&](const AttackCursorMode&)
-                {
+                [&](const AttackCursorMode&) {
                     cursorMode.next(NormalCursorMode());
                 },
-                [&](const MoveCursorMode&)
-                {
+                [&](const MoveCursorMode&) {
                     cursorMode.next(NormalCursorMode());
                 },
-                [&](const GuardCursorMode&)
-                {
+                [&](const GuardCursorMode&) {
                     cursorMode.next(NormalCursorMode());
                 },
-                [&](const BuildCursorMode&)
-                {
+                [&](const BuildCursorMode&) {
                     cursorMode.next(NormalCursorMode());
                 },
-                [&](const NormalCursorMode&)
-                {
+                [&](const NormalCursorMode&) {
                     if (leftClickMode())
                     {
                         if (isCursorOverMinimap())
@@ -1673,12 +1634,10 @@ namespace rwe
         {
             match(
                 cursorMode.getValue(),
-                [&](const NormalCursorMode& normalCursor)
-                {
+                [&](const NormalCursorMode& normalCursor) {
                     match(
                         normalCursor.state,
-                        [&](const NormalCursorMode::SelectingState& state)
-                        {
+                        [&](const NormalCursorMode::SelectingState& state) {
                             Point p(event.x, event.y);
                             auto worldViewportPos = sceneContext.viewport->toOtherViewport(worldViewport, p);
                             const auto cameraPosition = worldCameraState.getRoundedPosition();
@@ -1764,15 +1723,13 @@ namespace rwe
 
                             cursorMode.next(NormalCursorMode{NormalCursorMode::UpState()});
                         },
-                        [&](const NormalCursorMode::DraggingMinimapState&)
-                        {
+                        [&](const NormalCursorMode::DraggingMinimapState&) {
                             cursorMode.next(NormalCursorMode{NormalCursorMode::UpState()});
                         },
                         [&](const NormalCursorMode::UpState&) {
                         });
                 },
-                [&](const auto&)
-                {
+                [&](const auto&) {
                     // do nothing
                 });
         }
@@ -1780,12 +1737,10 @@ namespace rwe
         {
             match(
                 cursorMode.getValue(),
-                [&](const NormalCursorMode& m)
-                {
+                [&](const NormalCursorMode& m) {
                     match(
                         m.state,
-                        [&](const NormalCursorMode::DraggingMinimapState&)
-                        {
+                        [&](const NormalCursorMode::DraggingMinimapState&) {
                             cursorMode.next(NormalCursorMode{NormalCursorMode::UpState()});
                         },
                         [](const auto&) {});
@@ -1996,44 +1951,36 @@ namespace rwe
         {
             match(
                 cursorMode.getValue(),
-                [&](const AttackCursorMode&)
-                {
+                [&](const AttackCursorMode&) {
                     sceneContext.cursor->useCursor(CursorType::Attack);
                 },
-                [&](const MoveCursorMode&)
-                {
+                [&](const MoveCursorMode&) {
                     sceneContext.cursor->useCursor(CursorType::Move);
                 },
-                [&](const GuardCursorMode&)
-                {
+                [&](const GuardCursorMode&) {
                     sceneContext.cursor->useCursor(CursorType::Guard);
                 },
-                [&](const BuildCursorMode&)
-                {
+                [&](const BuildCursorMode&) {
                     sceneContext.cursor->useCursor(CursorType::Normal);
                 },
-                [&](const NormalCursorMode&)
-                {
+                [&](const NormalCursorMode&) {
                     if (leftClickMode())
                     {
                         if (hoveredUnit && unitIsSelectableBy(simulation, *hoveredUnit, localPlayerId))
                         {
                             sceneContext.cursor->useCursor(CursorType::Select);
                         }
-                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id)
-                                     { return unitCanAttack(simulation, id); })
+                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return unitCanAttack(simulation, id); })
                             && hoveredUnit && isEnemy(*hoveredUnit))
                         {
                             sceneContext.cursor->useCursor(CursorType::Attack);
                         }
-                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id)
-                                     { return unitIsBuilder(simulation, id); })
+                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return unitIsBuilder(simulation, id); })
                             && hoveredUnit && unitIsBeingBuilt(simulation, *hoveredUnit))
                         {
                             sceneContext.cursor->useCursor(CursorType::Repair);
                         }
-                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id)
-                                     { return unitCanMove(simulation, id); }))
+                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return unitCanMove(simulation, id); }))
                         {
                             sceneContext.cursor->useCursor(CursorType::Move);
                         }
@@ -2048,20 +1995,17 @@ namespace rwe
                         {
                             sceneContext.cursor->useCursor(CursorType::Select);
                         }
-                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id)
-                                     { return unitCanAttack(simulation, id); })
+                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return unitCanAttack(simulation, id); })
                             && hoveredUnit && isEnemy(*hoveredUnit))
                         {
                             sceneContext.cursor->useCursor(CursorType::Red);
                         }
-                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id)
-                                     { return unitIsBuilder(simulation, id); })
+                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return unitIsBuilder(simulation, id); })
                             && hoveredUnit && isFriendly(*hoveredUnit) && unitIsBeingBuilt(simulation, *hoveredUnit))
                         {
                             sceneContext.cursor->useCursor(CursorType::Green);
                         }
-                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id)
-                                     { return unitCanGuard(simulation, id); })
+                        else if (std::any_of(selectedUnits.begin(), selectedUnits.end(), [&](const auto& id) { return unitCanGuard(simulation, id); })
                             && hoveredUnit && isFriendly(*hoveredUnit))
                         {
                             sceneContext.cursor->useCursor(CursorType::Green);
@@ -2637,18 +2581,13 @@ namespace rwe
         auto winStatus = simulation.computeWinStatus();
         match(
             winStatus,
-            [&](const WinStatusWon&)
-            {
-                delay(SceneTime(5 * 30), [sm = sceneContext.sceneManager]()
-                    { sm->requestExit(); });
+            [&](const WinStatusWon&) {
+                delay(SceneTime(5 * 30), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
             },
-            [&](const WinStatusDraw&)
-            {
-                delay(SceneTime(5 * 30), [sm = sceneContext.sceneManager]()
-                    { sm->requestExit(); });
+            [&](const WinStatusDraw&) {
+                delay(SceneTime(5 * 30), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
             },
-            [&](const WinStatusUndecided&)
-            {
+            [&](const WinStatusUndecided&) {
                 // do nothing, game still in progress
             });
 
@@ -2947,12 +2886,10 @@ namespace rwe
     {
         match(
             cursorMode.getValue(),
-            [this](const NormalCursorMode&)
-            {
+            [this](const NormalCursorMode&) {
                 clearUnitSelection();
             },
-            [this](const auto&)
-            {
+            [this](const auto&) {
                 cursorMode.next(NormalCursorMode());
             });
     }
@@ -3210,8 +3147,7 @@ namespace rwe
         {
             match(
                 event,
-                [&](const FireWeaponEvent& e)
-                {
+                [&](const FireWeaponEvent& e) {
                     const auto& weaponMediaInfo = meshDatabase.getWeapon(e.weaponType);
 
                     if (e.shotNumber == 0 || weaponMediaInfo.soundTrigger)
@@ -3224,13 +3160,11 @@ namespace rwe
                         createWeaponSmoke(simVectorToFloat(e.firePoint));
                     }
                 },
-                [&](const UnitArrivedEvent& e)
-                {
+                [&](const UnitArrivedEvent& e) {
                     const auto& unit = simulation.getUnitState(e.unitId);
                     playUnitNotificationSound(unit.owner, unit.unitType, UnitSoundType::Arrived1);
                 },
-                [&](const UnitActivatedEvent& e)
-                {
+                [&](const UnitActivatedEvent& e) {
                     auto unit = tryGetUnit(e.unitId);
                     if (unit)
                     {
@@ -3242,8 +3176,7 @@ namespace rwe
                         }
                     }
                 },
-                [&](const UnitDeactivatedEvent& e)
-                {
+                [&](const UnitDeactivatedEvent& e) {
                     auto unit = tryGetUnit(e.unitId);
                     if (unit)
                     {
@@ -3255,13 +3188,11 @@ namespace rwe
                         }
                     }
                 },
-                [&](const UnitCompleteEvent& e)
-                {
+                [&](const UnitCompleteEvent& e) {
                     const auto& unit = getUnit(e.unitId);
                     playUnitNotificationSound(unit.owner, unit.unitType, UnitSoundType::UnitComplete);
                 },
-                [&](const EmitParticleFromPieceEvent& e)
-                {
+                [&](const EmitParticleFromPieceEvent& e) {
                     switch (e.sfxType)
                     {
                         case EmitParticleFromPieceEvent::SfxType::LightSmoke:
@@ -3294,8 +3225,7 @@ namespace rwe
             std::remove_if(
                 flashes.begin(),
                 flashes.end(),
-                [&](const auto& flash)
-                { return flash.isFinished(simulation.gameTime); }),
+                [&](const auto& flash) { return flash.isFinished(simulation.gameTime); }),
             flashes.end());
     }
 
@@ -3329,8 +3259,7 @@ namespace rwe
         auto region = GridRegion::fromCoordinates(minCell, maxCell);
 
         // for each cell
-        region.forEach([&](const auto& coords)
-            {
+        region.forEach([&](const auto& coords) {
             // check if it's in range
             auto cellCenter = simulation.terrain.heightmapIndexToWorldCenter(coords.x, coords.y);
             Rectangle2x<SimScalar> cellRectangle(
@@ -3543,14 +3472,12 @@ namespace rwe
                 }
                 else
                 {
-                    simulation.occupiedGrid.forEach(*footprintRegion, [](auto& cell)
-                    { cell.occupiedType = OccupiedNone(); });
+                    simulation.occupiedGrid.forEach(*footprintRegion, [](auto& cell) { cell.occupiedType = OccupiedNone(); });
                 }
             }
             else
             {
-                simulation.occupiedGrid.forEach(*footprintRegion, [&](auto& cell)
-                    {
+                simulation.occupiedGrid.forEach(*footprintRegion, [&](auto& cell) {
                     if (cell.buildingCell && cell.buildingCell->unit == it->first)
                     {
                         cell.buildingCell = std::nullopt;
@@ -3716,26 +3643,22 @@ namespace rwe
     {
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "ATTACK"))
         {
-            p->get().addSubscription(cursorMode.subscribe([&p = p->get()](const auto& v)
-                { p.setToggledOn(std::holds_alternative<AttackCursorMode>(v)); }));
+            p->get().addSubscription(cursorMode.subscribe([&p = p->get()](const auto& v) { p.setToggledOn(std::holds_alternative<AttackCursorMode>(v)); }));
         }
 
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "MOVE"))
         {
-            p->get().addSubscription(cursorMode.subscribe([&p = p->get()](const auto& v)
-                { p.setToggledOn(std::holds_alternative<MoveCursorMode>(v)); }));
+            p->get().addSubscription(cursorMode.subscribe([&p = p->get()](const auto& v) { p.setToggledOn(std::holds_alternative<MoveCursorMode>(v)); }));
         }
 
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "DEFEND"))
         {
-            p->get().addSubscription(cursorMode.subscribe([&p = p->get()](const auto& v)
-                { p.setToggledOn(std::holds_alternative<GuardCursorMode>(v)); }));
+            p->get().addSubscription(cursorMode.subscribe([&p = p->get()](const auto& v) { p.setToggledOn(std::holds_alternative<GuardCursorMode>(v)); }));
         }
 
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "FIREORD"))
         {
-            p->get().addSubscription(fireOrders.subscribe([&p = p->get()](const auto& v)
-                {
+            p->get().addSubscription(fireOrders.subscribe([&p = p->get()](const auto& v) {
                 switch (v)
                 {
                     case UnitFireOrders::HoldFire:
@@ -3754,12 +3677,10 @@ namespace rwe
 
         if (auto p = findWithSidePrefix<UiStagedButton>(*currentPanel, "ONOFF"))
         {
-            p->get().addSubscription(onOff.subscribe([&p = p->get()](const auto& v)
-                { p.setStage(v ? 1 : 0); }));
+            p->get().addSubscription(onOff.subscribe([&p = p->get()](const auto& v) { p.setStage(v ? 1 : 0); }));
         }
 
-        currentPanel->groupMessages().subscribe([this](const auto& msg)
-            {
+        currentPanel->groupMessages().subscribe([this](const auto& msg) {
             if (auto activateMessage = std::get_if<ActivateMessage>(&msg.message); activateMessage != nullptr)
             {
                 onMessage(msg.controlName, activateMessage->type);
@@ -4241,16 +4162,13 @@ namespace rwe
     {
         match(
             playerCommand,
-            [&](const PlayerUnitCommand& c)
-            {
+            [&](const PlayerUnitCommand& c) {
                 processUnitCommand(c);
             },
-            [](const PlayerPauseGameCommand&)
-            {
+            [](const PlayerPauseGameCommand&) {
                 // TODO
             },
-            [](const PlayerUnpauseGameCommand&)
-            {
+            [](const PlayerUnpauseGameCommand&) {
                 // TODO
             });
     }
@@ -4259,8 +4177,7 @@ namespace rwe
     {
         match(
             unitCommand.command,
-            [&](const PlayerUnitCommand::IssueOrder& c)
-            {
+            [&](const PlayerUnitCommand::IssueOrder& c) {
                 switch (c.issueKind)
                 {
                     case PlayerUnitCommand::IssueOrder::IssueKind::Immediate:
@@ -4271,20 +4188,16 @@ namespace rwe
                         break;
                 }
             },
-            [&](const PlayerUnitCommand::ModifyBuildQueue& c)
-            {
+            [&](const PlayerUnitCommand::ModifyBuildQueue& c) {
                 modifyBuildQueue(unitCommand.unit, c.unitType, c.count);
             },
-            [&](const PlayerUnitCommand::Stop&)
-            {
+            [&](const PlayerUnitCommand::Stop&) {
                 stopUnit(unitCommand.unit);
             },
-            [&](const PlayerUnitCommand::SetFireOrders& c)
-            {
+            [&](const PlayerUnitCommand::SetFireOrders& c) {
                 setFireOrders(unitCommand.unit, c.orders);
             },
-            [&](const PlayerUnitCommand::SetOnOff& c)
-            {
+            [&](const PlayerUnitCommand::SetOnOff& c) {
                 if (c.on)
                 {
                     simulation.activateUnit(unitCommand.unit);

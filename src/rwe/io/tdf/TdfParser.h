@@ -351,7 +351,7 @@ namespace rwe
 
         bool accept2(const char* pTwoChars)
         {
-            //operator+ isn't implemented...
+            // operator+ isn't implemented...
             auto localIt = _it;
             if (*_it != pTwoChars[0] || *(++localIt) != pTwoChars[1])
             {

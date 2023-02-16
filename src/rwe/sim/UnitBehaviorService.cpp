@@ -781,28 +781,22 @@ namespace rwe
     {
         return match(
             order,
-            [&](const MoveOrder& o)
-            {
+            [&](const MoveOrder& o) {
                 return handleMoveOrder(unitInfo, o);
             },
-            [&](const AttackOrder& o)
-            {
+            [&](const AttackOrder& o) {
                 return handleAttackOrder(unitInfo, o);
             },
-            [&](const BuildOrder& o)
-            {
+            [&](const BuildOrder& o) {
                 return handleBuildOrder(unitInfo, o);
             },
-            [&](const BuggerOffOrder& o)
-            {
+            [&](const BuggerOffOrder& o) {
                 return handleBuggerOffOrder(unitInfo, o);
             },
-            [&](const CompleteBuildOrder& o)
-            {
+            [&](const CompleteBuildOrder& o) {
                 return handleCompleteBuildOrder(unitInfo, o);
             },
-            [&](const GuardOrder& o)
-            {
+            [&](const GuardOrder& o) {
                 return handleGuardOrder(unitInfo, o);
             });
     }
@@ -856,10 +850,8 @@ namespace rwe
             {
                 match(
                     target,
-                    [&](const UnitId& u)
-                    { unitInfo.state->setWeaponTarget(i, u); },
-                    [&](const SimVector& v)
-                    { unitInfo.state->setWeaponTarget(i, v); });
+                    [&](const UnitId& u) { unitInfo.state->setWeaponTarget(i, u); },
+                    [&](const SimVector& v) { unitInfo.state->setWeaponTarget(i, v); });
             }
         }
 
@@ -925,34 +917,28 @@ namespace rwe
     {
         return match(
             unitInfo.state->factoryState,
-            [&](const FactoryBehaviorStateIdle&)
-            {
+            [&](const FactoryBehaviorStateIdle&) {
                 sim->activateUnit(unitInfo.id);
                 unitInfo.state->factoryState = FactoryBehaviorStateBuilding();
                 return false;
             },
-            [&](FactoryBehaviorStateCreatingUnit& state)
-            {
+            [&](FactoryBehaviorStateCreatingUnit& state) {
                 return match(
                     state.status,
-                    [&](const UnitCreationStatusPending&)
-                    {
+                    [&](const UnitCreationStatusPending&) {
                         return false;
                     },
-                    [&](const UnitCreationStatusDone& s)
-                    {
+                    [&](const UnitCreationStatusDone& s) {
                         unitInfo.state->cobEnvironment->createThread("StartBuilding");
                         unitInfo.state->factoryState = FactoryBehaviorStateBuilding{std::make_pair(s.unitId, std::optional<SimVector>())};
                         return false;
                     },
-                    [&](const UnitCreationStatusFailed&)
-                    {
+                    [&](const UnitCreationStatusFailed&) {
                         unitInfo.state->factoryState = FactoryBehaviorStateBuilding();
                         return false;
                     });
             },
-            [&](FactoryBehaviorStateBuilding& state)
-            {
+            [&](FactoryBehaviorStateBuilding& state) {
                 if (!unitInfo.state->inBuildStance)
                 {
                     return false;
@@ -1055,27 +1041,22 @@ namespace rwe
     {
         match(
             unitInfo.state->factoryState,
-            [&](const FactoryBehaviorStateIdle&)
-            {
+            [&](const FactoryBehaviorStateIdle&) {
                 // do nothing
             },
-            [&](const FactoryBehaviorStateCreatingUnit& state)
-            {
+            [&](const FactoryBehaviorStateCreatingUnit& state) {
                 match(
                     state.status,
-                    [&](const UnitCreationStatusDone& d)
-                    {
+                    [&](const UnitCreationStatusDone& d) {
                         sim->quietlyKillUnit(d.unitId);
                     },
-                    [&](const auto&)
-                    {
+                    [&](const auto&) {
                         // do nothing
                     });
                 sim->deactivateUnit(unitInfo.id);
                 unitInfo.state->factoryState = FactoryBehaviorStateIdle();
             },
-            [&](const FactoryBehaviorStateBuilding& state)
-            {
+            [&](const FactoryBehaviorStateBuilding& state) {
                 if (state.targetUnit)
                 {
                     sim->quietlyKillUnit(state.targetUnit->first);
@@ -1152,10 +1133,8 @@ namespace rwe
     {
         return match(
             target,
-            [](const SimVector& v)
-            { return std::make_optional(v); },
-            [this](UnitId id)
-            { return tryGetSweetSpot(id); });
+            [](const SimVector& v) { return std::make_optional(v); },
+            [this](UnitId id) { return tryGetSweetSpot(id); });
     }
 
     bool UnitBehaviorService::groundUnitMoveTo(UnitInfo unitInfo, const MovingStateGoal& goal)
@@ -1265,12 +1244,9 @@ namespace rwe
             auto result = createNewUnit(unitInfo, unitType, position);
             return match(
                 result,
-                [&](const UnitCreationStatusPending&)
-                { return false; },
-                [&](const UnitCreationStatusFailed&)
-                { return true; },
-                [&](const UnitCreationStatusDone& d)
-                {
+                [&](const UnitCreationStatusPending&) { return false; },
+                [&](const UnitCreationStatusFailed&) { return true; },
+                [&](const UnitCreationStatusDone& d) {
                     unit.buildOrderUnitId = d.unitId;
                     return deployBuildArm(unitInfo, d.unitId);
                 });
@@ -1325,8 +1301,7 @@ namespace rwe
 
         return match(
             unitInfo.state->behaviourState,
-            [&](UnitBehaviorStateBuilding& buildingState)
-            {
+            [&](UnitBehaviorStateBuilding& buildingState) {
                 if (targetUnitId != buildingState.targetUnit)
                 {
                     changeState(*unitInfo.state, UnitBehaviorStateIdle());
@@ -1369,8 +1344,7 @@ namespace rwe
                 }
                 return false;
             },
-            [&](const auto&)
-            {
+            [&](const auto&) {
                 auto nanoFromPosition = getNanoPoint(unitInfo.id);
                 auto headingAndPitch = computeLineOfSightHeadingAndPitch(unitInfo.state->rotation, nanoFromPosition, targetUnit.position);
                 auto heading = headingAndPitch.first;

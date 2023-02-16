@@ -65,16 +65,16 @@ namespace rwe
         return match(
             physics,
             [&](const UnitPhysicsInfoGround&) {
-              return false;
+                return false;
             },
             [&](const UnitPhysicsInfoAir&) {
-              return true;
+                return true;
             },
             [&](const AirMovementStateTakingOff&) {
-              return true;
+                return true;
             },
             [&](const AirMovementStateLanding&) {
-              return true;
+                return true;
             });
     }
 

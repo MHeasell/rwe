@@ -124,8 +124,7 @@ namespace rwe
     {
         nlohmann::json j;
         j["variant"] = v.index();
-        j["data"] = match(v, [](const auto& x)
-            { return dumpJson(x); });
+        j["data"] = match(v, [](const auto& x) { return dumpJson(x); });
         return j;
     }
 }
