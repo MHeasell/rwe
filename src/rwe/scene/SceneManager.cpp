@@ -121,7 +121,7 @@ namespace rwe
                     continue;
                 }
 
-                if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F12)
+                if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F11)
                 {
                     showDebugWindow = true;
                     continue;

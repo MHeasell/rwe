@@ -1294,7 +1294,7 @@ namespace rwe
         {
             handleEscapeDown();
         }
-        else if (keysym.sym == SDLK_F11)
+        else if (keysym.sym == SDLK_F10)
         {
             showDebugWindow = true;
         }

@@ -44,9 +44,13 @@ Units:
 - To stop units attacking, select them and press S.
 
 Debugging:
-- To show the collision grid, press F9.
-- To show unit pathfinding, press F10. Unit pathfinding will only display when a unit is moving/has arrived at their destination.
-- To show passable/impassible terrain for units, press F11 (Be sure to have the unit selected for this to display!). This will show where units can travel according to their movement class.
+- To show the global debug menu, press F11.
+  This contains debugging options that are relevant globally,
+  regardless of whether the engine is in-game or in a menu.
+- To show the in-game debug menu, press F10.
+  This can only be done while loaded into a game.
+  This contains debugging options specific to the in-game world
+  such as spawning units.
 
 ## Development Status
 
