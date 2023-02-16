@@ -18,6 +18,7 @@ configuration:
 
 environment:
   APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
+  APPVEYOR_SAVE_CACHE_ON_ERROR: true
   matrix:
     - RWE_COMPILER: MSVC
     - RWE_COMPILER: MSYS
