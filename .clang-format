@@ -6,7 +6,23 @@ AlignOperands: false
 BinPackArguments: false
 BinPackParameters: false
 BreakBeforeBinaryOperators: true
-BreakBeforeBraces: Allman  # always break
+BreakBeforeBraces: Custom
+BraceWrapping:
+    AfterCaseLabel: true
+    AfterClass: true
+    AfterControlStatement: Always
+    AfterEnum: true
+    AfterFunction: true
+    AfterNamespace: true
+    AfterStruct: true
+    AfterExternBlock: true
+    BeforeCatch: true
+    BeforeElse: true
+    BeforeLambdaBody: false
+    BeforeWhile: false
+    IndentBraces: false
+    SplitEmptyRecord: true
+    SplitEmptyNamespace: true
 ColumnLimit: 0
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 DerivePointerAlignment: false
@@ -16,7 +32,8 @@ MaxEmptyLinesToKeep: 2
 NamespaceIndentation: All
 PointerAlignment: Left
 SortIncludes: true
-Standard: Cpp11
+Standard: c++17
 TabWidth: 4
 UseTab: Never
 FixNamespaceComments: false
+AllowShortLambdasOnASingleLine: All
