@@ -1,4 +1,5 @@
 #include "GameSimulation.h"
+#include <rwe/sim/SimTicksPerSecond.h>
 #include <rwe/GameHash_util.h>
 #include <rwe/Index.h>
 #include <rwe/collection_util.h>
@@ -1254,6 +1255,116 @@ namespace rwe
             if (unitDefinition.commander && p.second.isDead())
             {
                 killPlayer(p.second.owner);
+            }
+        }
+    }
+
+    void GameSimulation::updateResources()
+    {
+        // run resource updates once per second
+        if (gameTime % GameTime(SimTicksPerSecond) == GameTime(0))
+        {
+            // recalculate max energy and metal storage
+            for (auto& player : players)
+            {
+                player.maxEnergy = Energy(0);
+                player.maxMetal = Metal(0);
+            }
+
+            for (auto& entry : units)
+            {
+                auto& unit = entry.second;
+                const auto& unitDefinition = unitDefinitions.at(unit.unitType);
+                if (!unit.isBeingBuilt(unitDefinition))
+                {
+                    auto& playerInfo = getPlayer(unit.owner);
+                    if (unitDefinition.commander)
+                    {
+                        playerInfo.maxMetal += playerInfo.startingMetal;
+                        playerInfo.maxEnergy += playerInfo.startingEnergy;
+                    }
+                    else
+                    {
+                        playerInfo.maxMetal += unitDefinition.metalStorage;
+                        playerInfo.maxEnergy += unitDefinition.energyStorage;
+                    }
+                }
+            }
+
+            for (auto& player : players)
+            {
+                player.metal += player.metalProductionBuffer;
+                player.metalProductionBuffer = Metal(0);
+                player.energy += player.energyProductionBuffer;
+                player.energyProductionBuffer = Energy(0);
+
+                if (player.metal > Metal(0))
+                {
+                    player.metal -= player.actualMetalConsumptionBuffer;
+                    player.actualMetalConsumptionBuffer = Metal(0);
+                    player.metalStalled = false;
+                }
+                else
+                {
+                    player.metalStalled = true;
+                }
+
+                player.previousDesiredMetalConsumptionBuffer = player.desiredMetalConsumptionBuffer;
+                player.desiredMetalConsumptionBuffer = Metal(0);
+
+                if (player.energy > Energy(0))
+                {
+                    player.energy -= player.actualEnergyConsumptionBuffer;
+                    player.actualEnergyConsumptionBuffer = Energy(0);
+                    player.energyStalled = false;
+                }
+                else
+                {
+                    player.energyStalled = true;
+                }
+
+                player.previousDesiredEnergyConsumptionBuffer = player.desiredEnergyConsumptionBuffer;
+                player.desiredEnergyConsumptionBuffer = Energy(0);
+
+                if (player.metal > player.maxMetal)
+                {
+                    player.metal = player.maxMetal;
+                }
+
+                if (player.energy > player.maxEnergy)
+                {
+                    player.energy = player.maxEnergy;
+                }
+            }
+
+            for (auto& entry : units)
+            {
+                const auto& unitId = entry.first;
+                auto& unit = entry.second;
+                const auto& unitDefinition = unitDefinitions.at(unit.unitType);
+
+                unit.resetResourceBuffers();
+
+                if (!unit.isBeingBuilt(unitDefinition))
+                {
+                    addResourceDelta(unitId, unitDefinition.energyMake, unitDefinition.metalMake);
+                }
+
+                if (unit.activated)
+                {
+                    if (unit.isSufficientlyPowered)
+                    {
+                        // extract metal
+                        if (unitDefinition.extractsMetal != Metal(0))
+                        {
+                            auto footprint = computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
+                            auto metalValue = metalGrid.accumulate(metalGrid.clipRegion(footprint), 0u, std::plus<>());
+                            addResourceDelta(unitId, Energy(0), Metal(metalValue * unitDefinition.extractsMetal.value));
+                        }
+                    }
+
+                    unit.isSufficientlyPowered = addResourceDelta(unitId, -unitDefinition.energyUse, -unitDefinition.metalUse);
+                }
             }
         }
     }

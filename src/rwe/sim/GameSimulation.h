@@ -412,5 +412,7 @@ namespace rwe
         void killPlayer(PlayerId playerId);
 
         void processVictoryCondition();
+
+        void updateResources();
     };
 }
