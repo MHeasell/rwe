@@ -339,25 +339,7 @@ namespace rwe
 
         const MapTerrain& getTerrain() const;
 
-        void showObject(UnitId unitId, const std::string& name);
-
-        void hideObject(UnitId unitId, const std::string& name);
-
-        void moveObject(UnitId unitId, const std::string& name, Axis axis, SimScalar position, SimScalar speed);
-
-        void moveObjectNow(UnitId unitId, const std::string& name, Axis axis, SimScalar position);
-
-        void turnObject(UnitId unitId, const std::string& name, Axis axis, SimAngle angle, SimScalar speed);
-
-        void turnObjectNow(UnitId unitId, const std::string& name, Axis axis, SimAngle angle);
-
-        bool isPieceMoving(UnitId unitId, const std::string& name, Axis axis) const;
-
-        bool isPieceTurning(UnitId unitId, const std::string& name, Axis axis) const;
-
         GameTime getGameTime() const;
-
-        bool isCollisionAt(const DiscreteRect& rect, UnitId self) const;
 
         void playUiSound(const AudioService::SoundHandle& sound);
 
@@ -372,17 +354,6 @@ namespace rwe
         void playWeaponImpactSound(const Vector3f& position, const std::string& weaponType, ImpactType impactType);
 
         void spawnWeaponImpactExplosion(const Vector3f& position, const std::string& weaponType, ImpactType impactType);
-
-        DiscreteRect computeFootprintRegion(const SimVector& position, unsigned int footprintX, unsigned int footprintZ) const;
-
-        void moveUnitOccupiedArea(const DiscreteRect& oldRect, const DiscreteRect& newRect, UnitId unitId);
-
-        GameSimulation& getSimulation();
-
-        const GameSimulation& getSimulation() const;
-
-        const UnitDatabase& getUnitDatabase() const;
-        const MeshDatabase& getMeshDatabase() const;
 
         void doProjectileImpact(const SimVector& position, const std::string& weaponType, ImpactType impactType);
 

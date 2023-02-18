@@ -2037,47 +2037,6 @@ namespace rwe
         return simulation.terrain;
     }
 
-    void GameScene::showObject(UnitId unitId, const std::string& name)
-    {
-        simulation.showObject(unitId, name);
-    }
-
-    void GameScene::hideObject(UnitId unitId, const std::string& name)
-    {
-        simulation.hideObject(unitId, name);
-    }
-
-    void
-    GameScene::moveObject(UnitId unitId, const std::string& name, Axis axis, SimScalar position, SimScalar speed)
-    {
-        simulation.moveObject(unitId, name, axis, position, speed);
-    }
-
-    void GameScene::moveObjectNow(UnitId unitId, const std::string& name, Axis axis, SimScalar position)
-    {
-        simulation.moveObjectNow(unitId, name, axis, position);
-    }
-
-    void GameScene::turnObject(UnitId unitId, const std::string& name, Axis axis, SimAngle angle, SimScalar speed)
-    {
-        simulation.turnObject(unitId, name, axis, angle, speed);
-    }
-
-    void GameScene::turnObjectNow(UnitId unitId, const std::string& name, Axis axis, SimAngle angle)
-    {
-        simulation.turnObjectNow(unitId, name, axis, angle);
-    }
-
-    bool GameScene::isPieceMoving(UnitId unitId, const std::string& name, Axis axis) const
-    {
-        return simulation.isPieceMoving(unitId, name, axis);
-    }
-
-    bool GameScene::isPieceTurning(UnitId unitId, const std::string& name, Axis axis) const
-    {
-        return simulation.isPieceTurning(unitId, name, axis);
-    }
-
     GameTime
     GameScene::getGameTime() const
     {
@@ -2817,42 +2776,6 @@ namespace rwe
     const GamePlayerInfo& GameScene::getPlayer(PlayerId player) const
     {
         return simulation.getPlayer(player);
-    }
-
-    DiscreteRect
-    GameScene::computeFootprintRegion(const SimVector& position, unsigned int footprintX, unsigned int footprintZ) const
-    {
-        return simulation.computeFootprintRegion(position, footprintX, footprintZ);
-    }
-
-    bool GameScene::isCollisionAt(const DiscreteRect& rect, UnitId self) const
-    {
-        return simulation.isCollisionAt(rect, self);
-    }
-
-    void GameScene::moveUnitOccupiedArea(const DiscreteRect& oldRect, const DiscreteRect& newRect, UnitId unitId)
-    {
-        simulation.moveUnitOccupiedArea(oldRect, newRect, unitId);
-    }
-
-    GameSimulation& GameScene::getSimulation()
-    {
-        return simulation;
-    }
-
-    const GameSimulation& GameScene::getSimulation() const
-    {
-        return simulation;
-    }
-
-    const UnitDatabase& GameScene::getUnitDatabase() const
-    {
-        return unitDatabase;
-    }
-
-    const MeshDatabase& GameScene::getMeshDatabase() const
-    {
-        return meshDatabase;
     }
 
     bool GameScene::isEnemy(UnitId id) const
