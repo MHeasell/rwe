@@ -137,12 +137,6 @@ namespace rwe
 
     using CursorMode = std::variant<AttackCursorMode, MoveCursorMode, GuardCursorMode, BuildCursorMode, NormalCursorMode>;
 
-    enum class ImpactType
-    {
-        Normal,
-        Water
-    };
-
     struct UnitGuiInfo
     {
         enum class Section
@@ -288,6 +282,13 @@ namespace rwe
 
         TextureHandle dodgeMask;
 
+        struct ProjectileRenderInfo
+        {
+            GameTime lastSmoke{GameTime(0)};
+        };
+
+        std::unordered_map<ProjectileId, ProjectileRenderInfo> projectileRenderInfos;
+
     public:
         GameScene(
             const SceneContext& sceneContext,
@@ -383,7 +384,7 @@ namespace rwe
         const UnitDatabase& getUnitDatabase() const;
         const MeshDatabase& getMeshDatabase() const;
 
-        void doProjectileImpact(const Projectile& projectile, ImpactType impactType);
+        void doProjectileImpact(const SimVector& position, const std::string& weaponType, ImpactType impactType);
 
         void createLightSmoke(const Vector3f& position);
 
@@ -478,10 +479,6 @@ namespace rwe
 
         void updateFlashes();
 
-        void applyDamageInRadius(const SimVector& position, SimScalar radius, const Projectile& projectile);
-
-        void applyDamage(UnitId unitId, unsigned int damagePoints);
-
         void deleteDeadUnits();
 
         void deleteDeadProjectiles();
@@ -489,10 +486,6 @@ namespace rwe
         void spawnNewUnits();
 
         BoundingBox3x<SimScalar> createBoundingBox(const UnitState& unit) const;
-
-        void killUnit(UnitId unitId);
-
-        void killPlayer(PlayerId playerId);
 
         void processActions();
 

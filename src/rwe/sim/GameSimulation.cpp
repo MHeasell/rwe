@@ -1,14 +1,14 @@
 #include "GameSimulation.h"
+#include <rwe/GameHash_util.h>
 #include <rwe/Index.h>
 #include <rwe/collection_util.h>
 #include <rwe/match.h>
 #include <rwe/sim/SimScalar.h>
 #include <rwe/sim/UnitBehaviorService.h>
-#include <rwe/sim/util.h>
-
-#include <rwe/GameHash_util.h>
 #include <rwe/sim/movement.h>
+#include <rwe/sim/util.h>
 #include <type_traits>
+#include <unordered_set>
 
 namespace rwe
 {
@@ -811,5 +811,450 @@ namespace rwe
                 const auto& mcDef = movementClassDefinitions.at(mc.movementClassId);
                 return std::make_pair(mcDef.footprintX, mcDef.footprintZ);
             });
+    }
+
+    SimVector rotateTowards(const SimVector& v, const SimVector& target, SimScalar maxAngle)
+    {
+        auto normV = v.normalizedOr(SimVector(0_ss, 0_ss, 1_ss));
+        auto targetDirection = target.normalizedOr(SimVector(0_ss, 0_ss, 1_ss));
+        auto cross = normV.cross(targetDirection);
+        auto dot = normV.dot(targetDirection);
+        auto angle = rweMin(rweAcos(dot), angularToRadians(maxAngle));
+
+        return Matrix4x<SimScalar>::rotationAxisAngle(cross, angle) * v;
+    }
+
+    bool projectileCollides(const UnitDatabase& db, const GameSimulation& sim, const Projectile& projectile, const OccupiedCell& cellValue)
+    {
+        auto collidesWithOccupiedCell = match(
+            cellValue.occupiedType,
+            [&](const OccupiedUnit& v) {
+                const auto& unit = sim.getUnitState(v.id);
+
+                if (unit.isOwnedBy(projectile.owner))
+                {
+                    return false;
+                }
+
+                const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
+                const auto& modelDefinition = sim.unitModelDefinitions.at(unitDefinition.objectName);
+
+                // ignore if the projectile is above or below the unit
+                if (projectile.position.y < unit.position.y || projectile.position.y > unit.position.y + modelDefinition.height)
+                {
+                    return false;
+                }
+
+                return true;
+            },
+            [&](const OccupiedFeature& v) {
+                const auto& feature = sim.getFeature(v.id);
+                const auto& featureDefinition = db.getFeature(feature.featureName);
+
+                // ignore if the projectile is above or below the feature
+                if (projectile.position.y < feature.position.y || projectile.position.y > feature.position.y + featureDefinition.height)
+                {
+                    return false;
+                }
+
+                return true;
+            },
+
+            [&](const OccupiedNone&) {
+                return false;
+            });
+
+        if (collidesWithOccupiedCell)
+        {
+            return true;
+        }
+
+        if (cellValue.buildingCell && !cellValue.buildingCell->passable)
+        {
+            const auto& unit = sim.getUnitState(cellValue.buildingCell->unit);
+
+            if (unit.isOwnedBy(projectile.owner))
+            {
+                return false;
+            }
+
+            const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
+            const auto& modelDefinition = sim.unitModelDefinitions.at(unitDefinition.objectName);
+
+            // ignore if the projectile is above or below the unit
+            if (projectile.position.y < unit.position.y || projectile.position.y > unit.position.y + modelDefinition.height)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    bool projectileCollidesWithUnit(const GameSimulation& sim, const Projectile& projectile, UnitId unitId)
+    {
+        const auto& unit = sim.getUnitState(unitId);
+
+        if (unit.isOwnedBy(projectile.owner))
+        {
+            return false;
+        }
+
+        const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
+
+        auto footprintRect = sim.computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
+        auto heightMapPos = sim.terrain.worldToHeightmapCoordinate(projectile.position);
+
+        if (!footprintRect.contains(heightMapPos))
+        {
+            return false;
+        }
+
+        const auto& modelDefinition = sim.unitModelDefinitions.at(unitDefinition.objectName);
+
+        // ignore if the projectile is above or below the unit
+        if (projectile.position.y < unit.position.y || projectile.position.y > unit.position.y + modelDefinition.height)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    struct ProjectileCollisionInfoTerrain
+    {
+    };
+    struct ProjectileCollisionInfoOutOfBounds
+    {
+    };
+    struct ProjectileCollisionInfoSea
+    {
+    };
+    struct ProjectileCollisionInfoUnitOrFeatureOrBuilding
+    {
+    };
+    using ProjectileCollisionInfo = std::variant<
+        ProjectileCollisionInfoOutOfBounds,
+        ProjectileCollisionInfoTerrain,
+        ProjectileCollisionInfoSea,
+        ProjectileCollisionInfoUnitOrFeatureOrBuilding>;
+
+    std::optional<ProjectileCollisionInfo> checkProjectileCollision(const UnitDatabase& unitDatabase, const GameSimulation& simulation, const Projectile& projectile)
+    {
+        // test collision with terrain
+        auto terrainHeight = simulation.terrain.tryGetHeightAt(projectile.position.x, projectile.position.z);
+        if (!terrainHeight)
+        {
+            return ProjectileCollisionInfoOutOfBounds();
+        }
+
+        auto seaLevel = simulation.terrain.getSeaLevel();
+
+        // test collision with sea
+        // FIXME: waterweapons should be allowed in water
+        if (seaLevel > *terrainHeight && projectile.position.y <= seaLevel)
+        {
+            return ProjectileCollisionInfoSea();
+        }
+        else if (projectile.position.y <= *terrainHeight)
+        {
+            return ProjectileCollisionInfoTerrain();
+        }
+        else
+        {
+            // detect collision with something's footprint
+            auto heightMapPos = simulation.terrain.worldToHeightmapCoordinate(projectile.position);
+            auto cellValue = simulation.occupiedGrid.tryGet(heightMapPos);
+            if (cellValue)
+            {
+                auto collides = projectileCollides(unitDatabase, simulation, projectile, cellValue->get());
+                if (collides)
+                {
+                    return ProjectileCollisionInfoUnitOrFeatureOrBuilding();
+                }
+            }
+
+            // detect collision with flying unit footprint
+            for (auto unitId : simulation.flyingUnitsSet)
+            {
+                if (projectileCollidesWithUnit(simulation, projectile, unitId))
+                {
+                    return ProjectileCollisionInfoUnitOrFeatureOrBuilding();
+                }
+            }
+        }
+
+        return std::nullopt;
+    }
+
+    BoundingBox3x<SimScalar> GameSimulation::createBoundingBox(const UnitState& unit) const
+    {
+        const auto& unitDefinition = unitDefinitions.at(unit.unitType);
+        const auto& modelDefinition = unitModelDefinitions.at(unitDefinition.objectName);
+        auto footprint = computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
+        auto min = SimVector(SimScalar(footprint.x), unit.position.y, SimScalar(footprint.y));
+        auto max = SimVector(SimScalar(footprint.x + footprint.width), unit.position.y + modelDefinition.height, SimScalar(footprint.y + footprint.height));
+        auto worldMin = terrain.heightmapToWorldSpace(min);
+        auto worldMax = terrain.heightmapToWorldSpace(max);
+        return BoundingBox3x<SimScalar>::fromMinMax(worldMin, worldMax);
+    }
+
+    void GameSimulation::killUnit(UnitId unitId)
+    {
+        auto& unit = getUnitState(unitId);
+        const auto& unitDefinition = unitDefinitions.at(unit.unitType);
+
+        unit.markAsDead();
+
+        auto deathType = unit.position.y < terrain.getSeaLevel() ? UnitDiedEvent::DeathType::NormalExploded : UnitDiedEvent::DeathType::WaterExploded;
+        events.push_back(UnitDiedEvent{unitId, unit.unitType, unit.position, deathType});
+
+        // TODO: spawn debris particles (from Killed script)
+        if (!unitDefinition.explodeAs.empty())
+        {
+            auto impactType = unit.position.y < terrain.getSeaLevel() ? ImpactType::Water : ImpactType::Normal;
+            auto projectile = createProjectileFromWeapon(unit.owner, unitDefinition.explodeAs, unit.position, SimVector(0_ss, -1_ss, 0_ss), 0_ss, std::nullopt);
+            doProjectileImpact(projectile, impactType);
+        }
+    }
+
+    void GameSimulation::applyDamage(UnitId unitId, unsigned int damagePoints)
+    {
+        auto& unit = getUnitState(unitId);
+        if (unit.hitPoints <= damagePoints)
+        {
+            killUnit(unitId);
+        }
+        else
+        {
+            unit.hitPoints -= damagePoints;
+        }
+    }
+
+    void GameSimulation::applyDamageInRadius(const SimVector& position, SimScalar radius, const Projectile& projectile)
+    {
+        auto minX = position.x - radius;
+        auto maxX = position.x + radius;
+        auto minZ = position.z - radius;
+        auto maxZ = position.z + radius;
+
+        auto minPoint = terrain.worldToHeightmapCoordinate(SimVector(minX, position.y, minZ));
+        auto maxPoint = terrain.worldToHeightmapCoordinate(SimVector(maxX, position.y, maxZ));
+        auto minCell = occupiedGrid.clampToCoords(minPoint);
+        auto maxCell = occupiedGrid.clampToCoords(maxPoint);
+
+        assert(minCell.x <= maxCell.x);
+        assert(minCell.y <= maxCell.y);
+
+        auto radiusSquared = radius * radius;
+
+        std::unordered_set<UnitId> seenUnits;
+
+        auto region = GridRegion::fromCoordinates(minCell, maxCell);
+
+        // for each cell
+        region.forEach([&](const auto& coords) {
+          // check if it's in range
+          auto cellCenter = terrain.heightmapIndexToWorldCenter(coords.x, coords.y);
+          Rectangle2x<SimScalar> cellRectangle(
+              Vector2x<SimScalar>(cellCenter.x, cellCenter.z),
+              Vector2x<SimScalar>(MapTerrain::HeightTileWidthInWorldUnits / 2_ss, MapTerrain::HeightTileHeightInWorldUnits / 2_ss));
+          auto cellDistanceSquared = cellRectangle.distanceSquared(Vector2x<SimScalar>(position.x, position.z));
+          if (cellDistanceSquared > radiusSquared)
+          {
+              return;
+          }
+
+          // check if a unit (or feature) is there
+          auto occupiedType = occupiedGrid.get(coords);
+          auto u = match(
+              occupiedType.occupiedType,
+              [&](const OccupiedUnit& u) { return std::optional(u.id); },
+              [&](const auto&) { return std::optional<UnitId>(); });
+          if (!u && occupiedType.buildingCell && !occupiedType.buildingCell->passable)
+          {
+              u = occupiedType.buildingCell->unit;
+          }
+          if (!u)
+          {
+              return;
+          }
+
+          // check if the unit was seen/mark as seen
+          auto pair = seenUnits.insert(*u);
+          if (!pair.second) // the unit was already present
+          {
+              return;
+          }
+
+          const auto& unit = getUnitState(*u);
+
+          // skip dead units
+          if (unit.isDead())
+          {
+              return;
+          }
+
+          // add in the third dimension component to distance,
+          // check if we are still in range
+          auto unitDistanceSquared = createBoundingBox(unit).distanceSquared(position);
+          if (unitDistanceSquared > radiusSquared)
+          {
+              return;
+          }
+
+          // apply appropriate damage
+          auto damageScale = std::clamp(1_ss - (rweSqrt(unitDistanceSquared) / radius), 0_ss, 1_ss);
+          auto rawDamage = projectile.getDamage(unit.unitType);
+          auto scaledDamage = simScalarToUInt(SimScalar(rawDamage) * damageScale);
+          applyDamage(*u, scaledDamage); });
+
+        // Apply damage to flying units
+        for (const auto& flyingUnitId : flyingUnitsSet)
+        {
+            const auto& unit = getUnitState(flyingUnitId);
+
+            // skip units that are dying or dead
+            if (!unit.isAlive())
+            {
+                continue;
+            }
+
+            // check if the unit is in range
+            auto unitDistanceSquared = createBoundingBox(unit).distanceSquared(position);
+            if (unitDistanceSquared > radiusSquared)
+            {
+                continue;
+            }
+
+            // apply appropriate damage
+            auto damageScale = std::clamp(1_ss - (rweSqrt(unitDistanceSquared) / radius), 0_ss, 1_ss);
+            auto rawDamage = projectile.getDamage(unit.unitType);
+            auto scaledDamage = simScalarToUInt(SimScalar(rawDamage) * damageScale);
+            applyDamage(flyingUnitId, scaledDamage);
+        }
+    }
+
+    void GameSimulation::doProjectileImpact(const Projectile& projectile, ImpactType impactType)
+    {
+        applyDamageInRadius(projectile.position, projectile.damageRadius, projectile);
+    }
+
+    // FIXME: signature of this really sucks, we shouldn't need to take in
+    // a unit database but we need it because feature definitions live there.
+    // Remove once the sim knows about feature definitions.
+    void GameSimulation::updateProjectiles(const UnitDatabase& unitDatabase)
+    {
+        for (auto& projectileEntry : projectiles)
+        {
+            const auto& id = projectileEntry.first;
+            auto& projectile = projectileEntry.second;
+
+            const auto& weaponDefinition = weaponDefinitions.at(projectile.weaponType);
+
+            // remove if it's time to die
+            if (projectile.dieOnFrame && *projectile.dieOnFrame <= gameTime)
+            {
+                projectile.isDead = true;
+                events.push_back(ProjectileDiedEvent{id, projectile.weaponType, projectile.position});
+                continue;
+            }
+
+            match(
+                weaponDefinition.physicsType,
+                [&](const ProjectilePhysicsTypeBallistic&) {
+                    projectile.velocity.y -= 112_ss / (30_ss * 30_ss);
+                },
+                [&](const ProjectilePhysicsTypeLineOfSight&) {
+
+                },
+                [&](const ProjectilePhysicsTypeTracking& t) {
+                    if (!projectile.targetUnit)
+                    {
+                        return;
+                    }
+                    auto targetUnit = tryGetUnitState(*projectile.targetUnit);
+                    if (!targetUnit)
+                    {
+                        projectile.targetUnit = std::nullopt;
+                        return;
+                    }
+                    auto vectorToTarget = (targetUnit->get().position - projectile.position);
+                    projectile.velocity = rotateTowards(projectile.velocity, vectorToTarget, t.turnRate);
+                });
+
+            projectile.previousPosition = projectile.position;
+            projectile.position += projectile.velocity;
+
+            auto collisionInfo = checkProjectileCollision(unitDatabase, *this, projectile);
+            if (collisionInfo)
+            {
+                match(
+                    *collisionInfo,
+                    [&](const ProjectileCollisionInfoOutOfBounds&) {
+                        // silently remove projectiles that go outside the map
+                        projectile.isDead = true;
+                        events.push_back(ProjectileDiedEvent{id, projectile.weaponType, projectile.position, ProjectileDiedEvent::DeathType::OutOfBounds});
+                    },
+                    [&](const ProjectileCollisionInfoSea&) {
+                        doProjectileImpact(projectile, ImpactType::Water);
+                        projectile.isDead = true;
+                        events.push_back(ProjectileDiedEvent{id, projectile.weaponType, projectile.position, ProjectileDiedEvent::DeathType::WaterImpact});
+                    },
+                    [&](const ProjectileCollisionInfoTerrain&) {
+                        if (projectile.groundBounce)
+                        {
+                            projectile.velocity.y = 0_ss;
+                            projectile.position.y = projectile.previousPosition.y;
+                        }
+                        else
+                        {
+                            doProjectileImpact(projectile, ImpactType::Normal);
+                            projectile.isDead = true;
+                            events.push_back(ProjectileDiedEvent{id, projectile.weaponType, projectile.position, ProjectileDiedEvent::DeathType::NormalImpact});
+                        }
+                    },
+                    [&](const ProjectileCollisionInfoUnitOrFeatureOrBuilding&) {
+                        doProjectileImpact(projectile, ImpactType::Normal);
+                        projectile.isDead = true;
+                        events.push_back(ProjectileDiedEvent{id, projectile.weaponType, projectile.position, ProjectileDiedEvent::DeathType::NormalImpact});
+                    });
+            }
+        }
+    }
+
+    void GameSimulation::killPlayer(PlayerId playerId)
+    {
+        getPlayer(playerId).status = GamePlayerStatus::Dead;
+        for (auto& p : units)
+        {
+            auto& unit = p.second;
+            if (unit.isDead())
+            {
+                continue;
+            }
+
+            if (!unit.isOwnedBy(playerId))
+            {
+                continue;
+            }
+
+            killUnit(p.first);
+        }
+    }
+
+    void GameSimulation::processVictoryCondition()
+    {
+        // if a commander died this frame, kill the player that owns it
+        for (const auto& p : units)
+        {
+            const auto& unitDefinition = unitDefinitions.at(p.second.unitType);
+            if (unitDefinition.commander && p.second.isDead())
+            {
+                killPlayer(p.second.owner);
+            }
+        }
     }
 }

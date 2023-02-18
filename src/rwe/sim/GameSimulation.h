@@ -4,6 +4,7 @@
 #include <rwe/GameHash.h>
 #include <rwe/MovementClassCollisionService.h>
 #include <rwe/PlayerColorIndex.h>
+#include <rwe/UnitDatabase.h>
 #include <rwe/VectorMap.h>
 #include <rwe/pathfinding/PathFindingService.h>
 #include <rwe/sim/FeatureDefinition.h>
@@ -133,6 +134,20 @@ namespace rwe
         UnitId unitId;
     };
 
+    struct UnitDiedEvent
+    {
+        UnitId unitId;
+        std::string unitType;
+        SimVector position;
+        enum class DeathType
+        {
+            NormalExploded,
+            WaterExploded,
+            Deleted,
+        };
+        DeathType deathType;
+    };
+
     struct EmitParticleFromPieceEvent
     {
         enum class SfxType
@@ -147,7 +162,38 @@ namespace rwe
         std::string pieceName;
     };
 
-    using GameEvent = std::variant<FireWeaponEvent, UnitArrivedEvent, UnitActivatedEvent, UnitDeactivatedEvent, UnitCompleteEvent, EmitParticleFromPieceEvent, UnitSpawnedEvent>;
+    struct ProjectileSpawnedEvent
+    {
+        ProjectileId projectileId;
+    };
+
+    struct ProjectileDiedEvent
+    {
+        ProjectileId projectileId;
+        std::string weaponType;
+        SimVector position;
+
+        enum class DeathType
+        {
+            OutOfBounds,
+            NormalImpact,
+            WaterImpact,
+            EndOfLife,
+        };
+        DeathType deathType;
+    };
+
+    using GameEvent = std::variant<
+        FireWeaponEvent,
+        UnitArrivedEvent,
+        UnitActivatedEvent,
+        UnitDeactivatedEvent,
+        UnitCompleteEvent,
+        EmitParticleFromPieceEvent,
+        UnitSpawnedEvent,
+        UnitDiedEvent,
+        ProjectileSpawnedEvent,
+        ProjectileDiedEvent>;
 
 
     struct UnitInfo
@@ -171,6 +217,12 @@ namespace rwe
 
         ConstUnitInfo(UnitInfo unitInfo)
             : id(unitInfo.id), state(unitInfo.state), definition(unitInfo.definition) {}
+    };
+
+    enum class ImpactType
+    {
+        Normal,
+        Water
     };
 
     struct GameSimulation
@@ -344,5 +396,21 @@ namespace rwe
         MovementClass getAdHocMovementClass(const UnitDefinition::MovementCollisionInfo& info) const;
 
         std::pair<unsigned int, unsigned int> getFootprintXZ(const UnitDefinition::MovementCollisionInfo& info) const;
+
+        BoundingBox3x<SimScalar> createBoundingBox(const UnitState& unit) const;
+
+        void killUnit(UnitId unitId);
+
+        void applyDamage(UnitId unitId, unsigned int damagePoints);
+
+        void applyDamageInRadius(const SimVector& position, SimScalar radius, const Projectile& projectile);
+
+        void doProjectileImpact(const Projectile& projectile, ImpactType impactType);
+
+        void updateProjectiles(const UnitDatabase& unitDatabase);
+
+        void killPlayer(PlayerId playerId);
+
+        void processVictoryCondition();
     };
 }

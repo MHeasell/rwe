@@ -135,105 +135,6 @@ namespace rwe
         return Line3x<SimScalar>(floatToSimVector(line.start), floatToSimVector(line.end));
     }
 
-    bool projectileCollidesWithUnit(const GameSimulation& sim, const Projectile& projectile, UnitId unitId)
-    {
-        const auto& unit = sim.getUnitState(unitId);
-
-        if (unit.isOwnedBy(projectile.owner))
-        {
-            return false;
-        }
-
-        const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
-
-        auto footprintRect = sim.computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
-        auto heightMapPos = sim.terrain.worldToHeightmapCoordinate(projectile.position);
-
-        if (!footprintRect.contains(heightMapPos))
-        {
-            return false;
-        }
-
-        const auto& modelDefinition = sim.unitModelDefinitions.at(unitDefinition.objectName);
-
-        // ignore if the projectile is above or below the unit
-        if (projectile.position.y < unit.position.y || projectile.position.y > unit.position.y + modelDefinition.height)
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-    bool projectileCollides(const UnitDatabase& db, const GameSimulation& sim, const Projectile& projectile, const OccupiedCell& cellValue)
-    {
-        auto collidesWithOccupiedCell = match(
-            cellValue.occupiedType,
-            [&](const OccupiedUnit& v) {
-                const auto& unit = sim.getUnitState(v.id);
-
-                if (unit.isOwnedBy(projectile.owner))
-                {
-                    return false;
-                }
-
-                const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
-                const auto& modelDefinition = sim.unitModelDefinitions.at(unitDefinition.objectName);
-
-                // ignore if the projectile is above or below the unit
-                if (projectile.position.y < unit.position.y || projectile.position.y > unit.position.y + modelDefinition.height)
-                {
-                    return false;
-                }
-
-                return true;
-            },
-            [&](const OccupiedFeature& v) {
-                const auto& feature = sim.getFeature(v.id);
-                const auto& featureDefinition = db.getFeature(feature.featureName);
-
-                // ignore if the projectile is above or below the feature
-                if (projectile.position.y < feature.position.y || projectile.position.y > feature.position.y + featureDefinition.height)
-                {
-                    return false;
-                }
-
-                return true;
-            },
-
-            [&](const OccupiedNone&) {
-                return false;
-            });
-
-        if (collidesWithOccupiedCell)
-        {
-            return true;
-        }
-
-        if (cellValue.buildingCell && !cellValue.buildingCell->passable)
-        {
-            const auto& unit = sim.getUnitState(cellValue.buildingCell->unit);
-
-            if (unit.isOwnedBy(projectile.owner))
-            {
-                return false;
-            }
-
-            const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
-            const auto& modelDefinition = sim.unitModelDefinitions.at(unitDefinition.objectName);
-
-            // ignore if the projectile is above or below the unit
-            if (projectile.position.y < unit.position.y || projectile.position.y > unit.position.y + modelDefinition.height)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
     Matrix4f computeView(const Vector3f& cameraPosition)
     {
         auto translation = Matrix4f::translation(-cameraPosition);
@@ -2562,21 +2463,15 @@ namespace rwe
             runUnitCobScripts(simulation, unitId);
         }
 
+        simulation.updateProjectiles(unitDatabase);
+
         updateProjectiles();
 
         updateFlashes();
 
         updateParticles(meshDatabase, simulation.gameTime, particles);
 
-        // if a commander died this frame, kill the player that owns it
-        for (const auto& p : simulation.units)
-        {
-            const auto& unitDefinition = simulation.unitDefinitions.at(p.second.unitType);
-            if (unitDefinition.commander && p.second.isDead())
-            {
-                killPlayer(p.second.owner);
-            }
-        }
+        simulation.processVictoryCondition();
 
         auto winStatus = simulation.computeWinStatus();
         match(
@@ -2971,172 +2866,22 @@ namespace rwe
         return !isEnemy(id);
     }
 
-    struct ProjectileCollisionInfoTerrain
-    {
-    };
-    struct ProjectileCollisionInfoOutOfBounds
-    {
-    };
-    struct ProjectileCollisionInfoSea
-    {
-    };
-    struct ProjectileCollisionInfoUnitOrFeatureOrBuilding
-    {
-    };
-    using ProjectileCollisionInfo = std::variant<
-        ProjectileCollisionInfoOutOfBounds,
-        ProjectileCollisionInfoTerrain,
-        ProjectileCollisionInfoSea,
-        ProjectileCollisionInfoUnitOrFeatureOrBuilding>;
-
-
-    std::optional<ProjectileCollisionInfo> checkProjectileCollision(const UnitDatabase& unitDatabase, const GameSimulation& simulation, const Projectile& projectile)
-    {
-        // test collision with terrain
-        auto terrainHeight = simulation.terrain.tryGetHeightAt(projectile.position.x, projectile.position.z);
-        if (!terrainHeight)
-        {
-            return ProjectileCollisionInfoOutOfBounds();
-        }
-
-        auto seaLevel = simulation.terrain.getSeaLevel();
-
-        // test collision with sea
-        // FIXME: waterweapons should be allowed in water
-        if (seaLevel > *terrainHeight && projectile.position.y <= seaLevel)
-        {
-            return ProjectileCollisionInfoSea();
-        }
-        else if (projectile.position.y <= *terrainHeight)
-        {
-            return ProjectileCollisionInfoTerrain();
-        }
-        else
-        {
-            // detect collision with something's footprint
-            auto heightMapPos = simulation.terrain.worldToHeightmapCoordinate(projectile.position);
-            auto cellValue = simulation.occupiedGrid.tryGet(heightMapPos);
-            if (cellValue)
-            {
-                auto collides = projectileCollides(unitDatabase, simulation, projectile, cellValue->get());
-                if (collides)
-                {
-                    return ProjectileCollisionInfoUnitOrFeatureOrBuilding();
-                }
-            }
-
-            // detect collision with flying unit footprint
-            for (auto unitId : simulation.flyingUnitsSet)
-            {
-                if (projectileCollidesWithUnit(simulation, projectile, unitId))
-                {
-                    return ProjectileCollisionInfoUnitOrFeatureOrBuilding();
-                }
-            }
-        }
-
-        return std::nullopt;
-    }
-
-    SimVector rotateTowards(const SimVector& v, const SimVector& target, SimScalar maxAngle)
-    {
-        auto normV = v.normalizedOr(SimVector(0_ss, 0_ss, 1_ss));
-        auto targetDirection = target.normalizedOr(SimVector(0_ss, 0_ss, 1_ss));
-        auto cross = normV.cross(targetDirection);
-        auto dot = normV.dot(targetDirection);
-        auto angle = rweMin(rweAcos(dot), angularToRadians(maxAngle));
-
-        return Matrix4x<SimScalar>::rotationAxisAngle(cross, angle) * v;
-    }
-
     void GameScene::updateProjectiles()
     {
-        auto gameTime = getGameTime();
-        for (auto& projectileEntry : simulation.projectiles)
+        for (auto& [projectileId, projectile] : simulation.projectiles)
         {
-            const auto& id = projectileEntry.first;
-            auto& projectile = projectileEntry.second;
-
-            const auto& weaponDefinition = simulation.weaponDefinitions.at(projectile.weaponType);
-
             const auto& weaponMediaInfo = meshDatabase.getWeapon(projectile.weaponType);
-
-            // remove if it's time to die
-            if (projectile.dieOnFrame && *projectile.dieOnFrame <= gameTime)
-            {
-                projectile.isDead = true;
-                if (weaponMediaInfo.endSmoke)
-                {
-                    createLightSmoke(simVectorToFloat(projectile.position));
-                }
-                continue;
-            }
-
-            match(
-                weaponDefinition.physicsType,
-                [&](const ProjectilePhysicsTypeBallistic&) {
-                    projectile.velocity.y -= 112_ss / (30_ss * 30_ss);
-                },
-                [&](const ProjectilePhysicsTypeLineOfSight&) {
-
-                },
-                [&](const ProjectilePhysicsTypeTracking& t) {
-                    if (!projectile.targetUnit)
-                    {
-                        return;
-                    }
-                    auto targetUnit = simulation.tryGetUnitState(*projectile.targetUnit);
-                    if (!targetUnit)
-                    {
-                        projectile.targetUnit = std::nullopt;
-                        return;
-                    }
-                    auto vectorToTarget = (targetUnit->get().position - projectile.position);
-                    projectile.velocity = rotateTowards(projectile.velocity, vectorToTarget, t.turnRate);
-                });
-
-            projectile.previousPosition = projectile.position;
-            projectile.position += projectile.velocity;
+            auto& renderInfo = projectileRenderInfos[projectileId];
 
             // emit smoke trail
             if (weaponMediaInfo.smokeTrail)
             {
+                auto gameTime = getGameTime();
                 if (gameTime > projectile.lastSmoke + *weaponMediaInfo.smokeTrail)
                 {
                     createLightSmoke(simVectorToFloat(projectile.position));
                     projectile.lastSmoke = gameTime;
                 }
-            }
-
-            auto collisionInfo = checkProjectileCollision(unitDatabase, simulation, projectile);
-            if (collisionInfo)
-            {
-                match(
-                    *collisionInfo,
-                    [&](const ProjectileCollisionInfoOutOfBounds&) {
-                        // silently remove projectiles that go outside the map
-                        projectile.isDead = true;
-                    },
-                    [&](const ProjectileCollisionInfoSea&) {
-                        doProjectileImpact(projectile, ImpactType::Water);
-                        projectile.isDead = true;
-                    },
-                    [&](const ProjectileCollisionInfoTerrain&) {
-                        if (projectile.groundBounce)
-                        {
-                            projectile.velocity.y = 0_ss;
-                            projectile.position.y = projectile.previousPosition.y;
-                        }
-                        else
-                        {
-                            doProjectileImpact(projectile, ImpactType::Normal);
-                            projectile.isDead = true;
-                        }
-                    },
-                    [&](const ProjectileCollisionInfoUnitOrFeatureOrBuilding&) {
-                        doProjectileImpact(projectile, ImpactType::Normal);
-                        projectile.isDead = true;
-                    });
             }
         }
     }
@@ -3213,6 +2958,52 @@ namespace rwe
                     const auto& unit = getUnit(e.unitId);
                     const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
                     unitGuiInfos.insert_or_assign(e.unitId, UnitGuiInfo{unitDefinition.builder ? UnitGuiInfo::Section::Build : UnitGuiInfo::Section::Orders, 0});
+                },
+
+                [&](const UnitDiedEvent& e) {
+                    const auto& unitDefinition = simulation.unitDefinitions.at(e.unitType);
+
+                    if (!unitDefinition.explodeAs.empty())
+                    {
+                        switch (e.deathType)
+                        {
+                            case UnitDiedEvent::DeathType::NormalExploded:
+                                doProjectileImpact(e.position, unitDefinition.explodeAs, ImpactType::Normal);
+                                break;
+                            case UnitDiedEvent::DeathType::WaterExploded:
+                                doProjectileImpact(e.position, unitDefinition.explodeAs, ImpactType::Water);
+                                break;
+                            case UnitDiedEvent::DeathType::Deleted:
+                                // do nothing
+                                break;
+                        }
+                    }
+                },
+                [&](const ProjectileSpawnedEvent& e) {
+                    projectileRenderInfos.insert({e.projectileId, ProjectileRenderInfo{getGameTime()}});
+                },
+                [&](const ProjectileDiedEvent& e) {
+                    const auto& weaponMediaInfo = meshDatabase.getWeapon(e.weaponType);
+                    if (weaponMediaInfo.endSmoke)
+                    {
+                        createLightSmoke(simVectorToFloat(e.position));
+                    }
+
+                    projectileRenderInfos.erase(e.projectileId);
+
+                    switch (e.deathType)
+                    {
+                        case ProjectileDiedEvent::DeathType::NormalImpact:
+                            doProjectileImpact(e.position, e.weaponType, ImpactType::Normal);
+                            break;
+                        case ProjectileDiedEvent::DeathType::WaterImpact:
+                            doProjectileImpact(e.position, e.weaponType, ImpactType::Water);
+                            break;
+                        case ProjectileDiedEvent::DeathType::OutOfBounds:
+                        case ProjectileDiedEvent::DeathType::EndOfLife:
+                            // do nothing
+                            break;
+                    }
                 });
         }
 
@@ -3229,129 +3020,10 @@ namespace rwe
             flashes.end());
     }
 
-    void GameScene::doProjectileImpact(const Projectile& projectile, ImpactType impactType)
+    void GameScene::doProjectileImpact(const SimVector& position, const std::string& weaponType, ImpactType impactType)
     {
-        playWeaponImpactSound(simVectorToFloat(projectile.position), projectile.weaponType, impactType);
-        spawnWeaponImpactExplosion(simVectorToFloat(projectile.position), projectile.weaponType, impactType);
-
-        applyDamageInRadius(projectile.position, projectile.damageRadius, projectile);
-    }
-
-    void GameScene::applyDamageInRadius(const SimVector& position, SimScalar radius, const Projectile& projectile)
-    {
-        auto minX = position.x - radius;
-        auto maxX = position.x + radius;
-        auto minZ = position.z - radius;
-        auto maxZ = position.z + radius;
-
-        auto minPoint = simulation.terrain.worldToHeightmapCoordinate(SimVector(minX, position.y, minZ));
-        auto maxPoint = simulation.terrain.worldToHeightmapCoordinate(SimVector(maxX, position.y, maxZ));
-        auto minCell = simulation.occupiedGrid.clampToCoords(minPoint);
-        auto maxCell = simulation.occupiedGrid.clampToCoords(maxPoint);
-
-        assert(minCell.x <= maxCell.x);
-        assert(minCell.y <= maxCell.y);
-
-        auto radiusSquared = radius * radius;
-
-        std::unordered_set<UnitId> seenUnits;
-
-        auto region = GridRegion::fromCoordinates(minCell, maxCell);
-
-        // for each cell
-        region.forEach([&](const auto& coords) {
-            // check if it's in range
-            auto cellCenter = simulation.terrain.heightmapIndexToWorldCenter(coords.x, coords.y);
-            Rectangle2x<SimScalar> cellRectangle(
-                Vector2x<SimScalar>(cellCenter.x, cellCenter.z),
-                Vector2x<SimScalar>(MapTerrain::HeightTileWidthInWorldUnits / 2_ss, MapTerrain::HeightTileHeightInWorldUnits / 2_ss));
-            auto cellDistanceSquared = cellRectangle.distanceSquared(Vector2x<SimScalar>(position.x, position.z));
-            if (cellDistanceSquared > radiusSquared)
-            {
-                return;
-            }
-
-            // check if a unit (or feature) is there
-            auto occupiedType = simulation.occupiedGrid.get(coords);
-            auto u = match(
-                occupiedType.occupiedType,
-                [&](const OccupiedUnit& u) { return std::optional(u.id); },
-                [&](const auto&) { return std::optional<UnitId>(); });
-            if (!u && occupiedType.buildingCell && !occupiedType.buildingCell->passable)
-            {
-                u = occupiedType.buildingCell->unit;
-            }
-            if (!u)
-            {
-                return;
-            }
-
-            // check if the unit was seen/mark as seen
-            auto pair = seenUnits.insert(*u);
-            if (!pair.second) // the unit was already present
-            {
-                return;
-            }
-
-            const auto& unit = simulation.getUnitState(*u);
-
-            // skip dead units
-            if (unit.isDead())
-            {
-                return;
-            }
-
-            // add in the third dimension component to distance,
-            // check if we are still in range
-            auto unitDistanceSquared = createBoundingBox(unit).distanceSquared(position);
-            if (unitDistanceSquared > radiusSquared)
-            {
-                return;
-            }
-
-            // apply appropriate damage
-            auto damageScale = std::clamp(1_ss - (rweSqrt(unitDistanceSquared) / radius), 0_ss, 1_ss);
-            auto rawDamage = projectile.getDamage(unit.unitType);
-            auto scaledDamage = simScalarToUInt(SimScalar(rawDamage) * damageScale);
-            applyDamage(*u, scaledDamage); });
-
-        // Apply damage to flying units
-        for (const auto& flyingUnitId : simulation.flyingUnitsSet)
-        {
-            const auto& unit = simulation.getUnitState(flyingUnitId);
-
-            // skip units that are dying or dead
-            if (!unit.isAlive())
-            {
-                continue;
-            }
-
-            // check if the unit is in range
-            auto unitDistanceSquared = createBoundingBox(unit).distanceSquared(position);
-            if (unitDistanceSquared > radiusSquared)
-            {
-                continue;
-            }
-
-            // apply appropriate damage
-            auto damageScale = std::clamp(1_ss - (rweSqrt(unitDistanceSquared) / radius), 0_ss, 1_ss);
-            auto rawDamage = projectile.getDamage(unit.unitType);
-            auto scaledDamage = simScalarToUInt(SimScalar(rawDamage) * damageScale);
-            applyDamage(flyingUnitId, scaledDamage);
-        }
-    }
-
-    void GameScene::applyDamage(UnitId unitId, unsigned int damagePoints)
-    {
-        auto& unit = simulation.getUnitState(unitId);
-        if (unit.hitPoints <= damagePoints)
-        {
-            killUnit(unitId);
-        }
-        else
-        {
-            unit.hitPoints -= damagePoints;
-        }
+        playWeaponImpactSound(simVectorToFloat(position), weaponType, impactType);
+        spawnWeaponImpactExplosion(simVectorToFloat(position), weaponType, impactType);
     }
 
     void GameScene::createLightSmoke(const Vector3f& position)
@@ -3559,54 +3231,6 @@ namespace rwe
         }
 
         simulation.unitCreationRequests.clear();
-    }
-
-    BoundingBox3x<SimScalar> GameScene::createBoundingBox(const UnitState& unit) const
-    {
-        const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
-        const auto& modelDefinition = simulation.unitModelDefinitions.at(unitDefinition.objectName);
-        auto footprint = simulation.computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
-        auto min = SimVector(SimScalar(footprint.x), unit.position.y, SimScalar(footprint.y));
-        auto max = SimVector(SimScalar(footprint.x + footprint.width), unit.position.y + modelDefinition.height, SimScalar(footprint.y + footprint.height));
-        auto worldMin = simulation.terrain.heightmapToWorldSpace(min);
-        auto worldMax = simulation.terrain.heightmapToWorldSpace(max);
-        return BoundingBox3x<SimScalar>::fromMinMax(worldMin, worldMax);
-    }
-
-    void GameScene::killUnit(UnitId unitId)
-    {
-        auto& unit = simulation.getUnitState(unitId);
-        const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
-
-        unit.markAsDead();
-
-        // TODO: spawn debris particles (from Killed script)
-        if (!unitDefinition.explodeAs.empty())
-        {
-            auto impactType = unit.position.y < simulation.terrain.getSeaLevel() ? ImpactType::Water : ImpactType::Normal;
-            auto projectile = simulation.createProjectileFromWeapon(unit.owner, unitDefinition.explodeAs, unit.position, SimVector(0_ss, -1_ss, 0_ss), 0_ss, std::nullopt);
-            doProjectileImpact(projectile, impactType);
-        }
-    }
-
-    void GameScene::killPlayer(PlayerId playerId)
-    {
-        simulation.getPlayer(playerId).status = GamePlayerStatus::Dead;
-        for (auto& p : simulation.units)
-        {
-            auto& unit = p.second;
-            if (unit.isDead())
-            {
-                continue;
-            }
-
-            if (!unit.isOwnedBy(playerId))
-            {
-                continue;
-            }
-
-            killUnit(p.first);
-        }
     }
 
     void GameScene::processActions()
