@@ -1152,6 +1152,15 @@ namespace rwe
             ImGui::Unindent();
         }
 
+        auto mouseTerrainCoordinate = getMouseTerrainCoordinate();
+
+        if (mouseTerrainCoordinate)
+        {
+            ImGui::LabelText("mouse terrain x", "%f", mouseTerrainCoordinate->x.value);
+            ImGui::LabelText("mouse terrain y", "%f", mouseTerrainCoordinate->y.value);
+            ImGui::LabelText("mouse terrain z", "%f", mouseTerrainCoordinate->z.value);
+        }
+
         ImGui::End();
     }
 
