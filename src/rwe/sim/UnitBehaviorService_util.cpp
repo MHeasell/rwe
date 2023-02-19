@@ -232,16 +232,27 @@ namespace rwe
         }
     }
 
-    SimVector findClosestPoint(const DiscreteRect& rect, const SimVector& p)
+    Rectangle2x<SimScalar> toWorldXZRect(const MapTerrain& terrain, const DiscreteRect& footprintRect)
+    {
+        auto topLeftWorld = terrain.heightmapIndexToWorldCorner(footprintRect.x, footprintRect.y);
+        return Rectangle2x<SimScalar>::fromTopLeft(
+            topLeftWorld.x,
+            topLeftWorld.z,
+            SimScalar(footprintRect.width) * MapTerrain::HeightTileWidthInWorldUnits,
+            SimScalar(footprintRect.height) * MapTerrain::HeightTileHeightInWorldUnits);
+    }
+
+
+    SimVector findClosestPoint(const Rectangle2x<SimScalar>& rect, const SimVector& p)
     {
         SimScalar x;
-        if (p.x < SimScalar(rect.left()))
+        if (p.x < rect.left())
         {
-            x = SimScalar(rect.left());
+            x = rect.left();
         }
-        else if (p.x > SimScalar(rect.right()))
+        else if (p.x > rect.right())
         {
-            x = SimScalar(rect.right());
+            x = rect.right();
         }
         else
         {
@@ -249,13 +260,13 @@ namespace rwe
         }
 
         SimScalar z;
-        if (p.z < SimScalar(rect.top()))
+        if (p.z < rect.top())
         {
-            z = SimScalar(rect.top());
+            z = rect.top();
         }
-        else if (p.x > SimScalar(rect.bottom()))
+        else if (p.z > rect.bottom())
         {
-            z = SimScalar(rect.bottom());
+            z = rect.bottom();
         }
         else
         {
@@ -265,7 +276,22 @@ namespace rwe
         return SimVector(x, p.y, z);
     }
 
-    bool hasReachedGoal(const UnitState& unit, const NavigationGoal& goal)
+    SimVector findClosestPointToFootprintXZ(const MapTerrain& terrain, const DiscreteRect& footprintRect, const SimVector& p)
+    {
+        return findClosestPoint(toWorldXZRect(terrain, footprintRect), p);
+    }
+
+    SimVector findClosestPointToFootprintXZForUnit(const MapTerrain& terrain, const DiscreteRect& targetFootprintRect, const SimVector& p, int unitFootprintX, int unitFootprintZ)
+    {
+        auto targetWorldRect = toWorldXZRect(terrain, targetFootprintRect);
+        auto footprintXWorld = SimScalar(unitFootprintX) * MapTerrain::HeightTileWidthInWorldUnits;
+        auto footprintZWorld = SimScalar(unitFootprintZ) * MapTerrain::HeightTileHeightInWorldUnits;
+        targetWorldRect.extents.x += footprintXWorld / 2_ss;
+        targetWorldRect.extents.y += footprintZWorld / 2_ss;
+        return findClosestPoint(targetWorldRect, p);
+    }
+
+    bool hasReachedGoal(const GameSimulation& sim, const MapTerrain& terrain, const UnitState& unit, const UnitDefinition& unitDefinition, const NavigationGoal& goal)
     {
         auto destination = match(
             goal,
@@ -273,7 +299,8 @@ namespace rwe
                 return std::make_optional(pos);
             },
             [&](const DiscreteRect& rect) {
-                return std::make_optional(findClosestPoint(rect, unit.position));
+                auto footprint = sim.getFootprintXZ(unitDefinition.movementCollisionInfo);
+                return std::make_optional(findClosestPointToFootprintXZForUnit(terrain, rect, unit.position, footprint.first, footprint.second));
             },
             [&](const NavigationGoalLandingLocation&) {
                 const auto& s = std::get_if<NavigationStateMovingToLandingSpot>(&unit.navigationState.state);

@@ -1198,7 +1198,7 @@ namespace rwe
     {
         unitInfo.state->navigationState.desiredDestination = goal;
 
-        return hasReachedGoal(*unitInfo.state, goal);
+        return hasReachedGoal(*sim, sim->terrain, *unitInfo.state, *unitInfo.definition, goal);
     }
 
     bool UnitBehaviorService::moveTo(UnitInfo unitInfo, const MovingStateGoal& goal)
@@ -1417,7 +1417,7 @@ namespace rwe
                 return pos;
             },
             [&](const DiscreteRect& rect) {
-                return findClosestPoint(rect, unitInfo.state->position);
+                return findClosestPointToFootprintXZ(sim->terrain, rect, unitInfo.state->position);
             });
 
         SimVector xzPosition(unitInfo.state->position.x, 0_ss, unitInfo.state->position.z);

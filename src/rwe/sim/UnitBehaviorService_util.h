@@ -2,6 +2,7 @@
 
 #include <rwe/math/Vector2x.h>
 #include <rwe/sim/GameSimulation.h>
+#include <rwe/sim/MapTerrain.h>
 #include <rwe/sim/SimAngle.h>
 #include <rwe/sim/SimScalar.h>
 #include <rwe/sim/SimVector.h>
@@ -39,9 +40,11 @@ namespace rwe
 
     SimVector computeNewAirUnitVelocity(const UnitState& unit, const UnitDefinition& unitDefinition, const AirMovementStateFlying& physics);
 
-    SimVector findClosestPoint(const DiscreteRect& rect, const SimVector& p);
+    SimVector findClosestPointToFootprintXZ(const MapTerrain& terrain, const DiscreteRect& rect, const SimVector& p);
 
-    bool hasReachedGoal(const UnitState& unit, const NavigationGoal& goal);
+    SimVector findClosestPointToFootprintXZForUnit(const MapTerrain& terrain, const DiscreteRect& targetFootprintRect, const SimVector& p, int unitFootprintX, int unitFootprintZ);
+
+    bool hasReachedGoal(const GameSimulation& sim, const MapTerrain& terrain, const UnitState& unit, const UnitDefinition& unitDefinition, const NavigationGoal& goal);
 
     std::string getAimScriptName(unsigned int weaponIndex);
     std::string getAimFromScriptName(unsigned int weaponIndex);
