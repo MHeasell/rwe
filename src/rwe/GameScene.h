@@ -334,8 +334,6 @@ namespace rwe
 
         std::optional<std::reference_wrapper<UnitState>> spawnCompletedUnit(const std::string& unitType, PlayerId owner, const SimVector& position);
 
-        void trySpawnFeature(const std::string& featureType, const SimVector& position, SimAngle rotation);
-
         void setCameraPosition(const Vector3f& newPosition);
 
         const MapTerrain& getTerrain() const;
@@ -450,8 +448,6 @@ namespace rwe
         void processSimEvents();
 
         void updateFlashes();
-
-        void deleteDeadUnits();
 
         void deleteDeadProjectiles();
 

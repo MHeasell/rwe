@@ -2025,16 +2025,6 @@ namespace rwe
         return std::nullopt;
     }
 
-    void GameScene::trySpawnFeature(const std::string& featureType, const SimVector& position, SimAngle rotation)
-    {
-        auto featureId = unitDatabase.tryGetFeatureId(featureType).value();
-        auto feature = MapFeature{featureId, position, rotation};
-        const auto& featureDefinition = unitDatabase.getFeature(featureId);
-
-        // FIXME: simulation needs to support failing to spawn in a feature
-        simulation.addFeature(featureDefinition, std::move(feature));
-    }
-
     void GameScene::setCameraPosition(const Vector3f& newPosition)
     {
         worldCameraState.position = newPosition;
@@ -2348,7 +2338,7 @@ namespace rwe
                 // do nothing, game still in progress
             });
 
-        deleteDeadUnits();
+        simulation.deleteDeadUnits(unitDatabase);
 
         deleteDeadProjectiles();
 
@@ -2804,6 +2794,15 @@ namespace rwe
                                 break;
                         }
                     }
+
+                    deselectUnit(e.unitId);
+
+                    if (hoveredUnit && *hoveredUnit == e.unitId)
+                    {
+                        hoveredUnit = std::nullopt;
+                    }
+
+                    unitGuiInfos.erase(e.unitId);
                 },
                 [&](const ProjectileSpawnedEvent& e) {
                     projectileRenderInfos.insert({e.projectileId, ProjectileRenderInfo{getGameTime()}});
@@ -2928,69 +2927,6 @@ namespace rwe
         SimVector position;
         SimAngle rotation;
     };
-
-    void GameScene::deleteDeadUnits()
-    {
-        std::vector<CorpseSpawnInfo> corpsesToSpawn;
-
-        for (auto it = simulation.units.begin(); it != simulation.units.end();)
-        {
-            const auto& unit = it->second;
-            const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
-            auto deadState = std::get_if<UnitState::LifeStateDead>(&unit.lifeState);
-            if (deadState == nullptr)
-            {
-                ++it;
-                continue;
-            }
-
-            if (!unitDefinition.corpse.empty())
-            {
-                corpsesToSpawn.push_back(CorpseSpawnInfo{
-                    unitDefinition.corpse,
-                    unit.position,
-                    unit.rotation});
-            }
-
-            deselectUnit(it->first);
-
-            if (hoveredUnit && *hoveredUnit == it->first)
-            {
-                hoveredUnit = std::nullopt;
-            }
-
-            auto footprintRect = simulation.computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
-            auto footprintRegion = simulation.occupiedGrid.tryToRegion(footprintRect);
-            assert(!!footprintRegion);
-            if (unitDefinition.isMobile)
-            {
-                if (isFlying(unit.physics))
-                {
-                    simulation.flyingUnitsSet.erase(it->first);
-                }
-                else
-                {
-                    simulation.occupiedGrid.forEach(*footprintRegion, [](auto& cell) { cell.occupiedType = OccupiedNone(); });
-                }
-            }
-            else
-            {
-                simulation.occupiedGrid.forEach(*footprintRegion, [&](auto& cell) {
-                    if (cell.buildingCell && cell.buildingCell->unit == it->first)
-                    {
-                        cell.buildingCell = std::nullopt;
-                    } });
-            }
-
-            unitGuiInfos.erase(it->first);
-            it = simulation.units.erase(it);
-        }
-
-        for (const auto& spawnInfo : corpsesToSpawn)
-        {
-            trySpawnFeature(spawnInfo.featureName, spawnInfo.position, spawnInfo.rotation);
-        }
-    }
 
     void GameScene::deleteDeadProjectiles()
     {

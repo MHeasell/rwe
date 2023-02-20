@@ -1368,4 +1368,76 @@ namespace rwe
             }
         }
     }
+
+    struct CorpseSpawnInfo
+    {
+        std::string featureName;
+        SimVector position;
+        SimAngle rotation;
+    };
+
+    void GameSimulation::trySpawnFeature(const UnitDatabase& unitDatabase, const std::string& featureType, const SimVector& position, SimAngle rotation)
+    {
+        auto featureId = unitDatabase.tryGetFeatureId(featureType).value();
+        auto feature = MapFeature{featureId, position, rotation};
+        const auto& featureDefinition = unitDatabase.getFeature(featureId);
+
+        // FIXME: simulation needs to support failing to spawn in a feature
+        addFeature(featureDefinition, std::move(feature));
+    }
+
+    void GameSimulation::deleteDeadUnits(const UnitDatabase& unitDatabase)
+    {
+        std::vector<CorpseSpawnInfo> corpsesToSpawn;
+
+        for (auto it = units.begin(); it != units.end();)
+        {
+            const auto& unit = it->second;
+            const auto& unitDefinition = unitDefinitions.at(unit.unitType);
+            auto deadState = std::get_if<UnitState::LifeStateDead>(&unit.lifeState);
+            if (deadState == nullptr)
+            {
+                ++it;
+                continue;
+            }
+
+            if (!unitDefinition.corpse.empty())
+            {
+                corpsesToSpawn.push_back(CorpseSpawnInfo{
+                    unitDefinition.corpse,
+                    unit.position,
+                    unit.rotation});
+            }
+
+            auto footprintRect = computeFootprintRegion(unit.position, unitDefinition.movementCollisionInfo);
+            auto footprintRegion = occupiedGrid.tryToRegion(footprintRect);
+            assert(!!footprintRegion);
+            if (unitDefinition.isMobile)
+            {
+                if (isFlying(unit.physics))
+                {
+                    flyingUnitsSet.erase(it->first);
+                }
+                else
+                {
+                    occupiedGrid.forEach(*footprintRegion, [](auto& cell) { cell.occupiedType = OccupiedNone(); });
+                }
+            }
+            else
+            {
+                occupiedGrid.forEach(*footprintRegion, [&](auto& cell) {
+                  if (cell.buildingCell && cell.buildingCell->unit == it->first)
+                  {
+                      cell.buildingCell = std::nullopt;
+                  } });
+            }
+
+            it = units.erase(it);
+        }
+
+        for (const auto& spawnInfo : corpsesToSpawn)
+        {
+            trySpawnFeature(unitDatabase, spawnInfo.featureName, spawnInfo.position, spawnInfo.rotation);
+        }
+    }
 }
