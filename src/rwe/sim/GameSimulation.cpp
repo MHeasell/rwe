@@ -6,6 +6,7 @@
 #include <rwe/sim/SimScalar.h>
 #include <rwe/sim/SimTicksPerSecond.h>
 #include <rwe/sim/UnitBehaviorService.h>
+#include <rwe/sim/cob.h>
 #include <rwe/sim/movement.h>
 #include <rwe/sim/util.h>
 #include <type_traits>
@@ -1506,5 +1507,40 @@ namespace rwe
         }
 
         unitCreationRequests.clear();
+    }
+
+    void GameSimulation::tick(const UnitDatabase& unitDatabase)
+    {
+        gameTime += GameTime(1);
+
+        updateResources();
+
+        pathFindingService.update(*this);
+
+        // run unit scripts
+        for (auto& entry : units)
+        {
+            auto unitId = entry.first;
+            auto& unit = entry.second;
+
+            UnitBehaviorService(this).update(unitId);
+
+            for (auto& piece : unit.pieces)
+            {
+                piece.update(SimScalar(SimMillisecondsPerTick) / 1000_ss);
+            }
+
+            runUnitCobScripts(*this, unitId);
+        }
+
+        updateProjectiles(unitDatabase);
+
+        processVictoryCondition();
+
+        deleteDeadUnits(unitDatabase);
+
+        deleteDeadProjectiles();
+
+        spawnNewUnits();
     }
 }

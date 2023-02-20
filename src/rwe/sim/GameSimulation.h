@@ -428,5 +428,7 @@ namespace rwe
         void deleteDeadProjectiles();
 
         void spawnNewUnits();
+
+        void tick(const UnitDatabase& unitDatabase);
     };
 }

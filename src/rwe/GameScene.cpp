@@ -2289,41 +2289,12 @@ namespace rwe
         }
 
         sceneTime += SceneTime(1);
-        simulation.gameTime += GameTime(1);
 
         processActions();
 
         processPlayerCommands(*playerCommands);
 
-        simulation.updateResources();
-
-        simulation.pathFindingService.update(simulation);
-
-        // run unit scripts
-        for (auto& entry : simulation.units)
-        {
-            auto unitId = entry.first;
-            auto& unit = entry.second;
-
-            UnitBehaviorService(&simulation).update(unitId);
-
-            for (auto& piece : unit.pieces)
-            {
-                piece.update(SimScalar(SimMillisecondsPerTick) / 1000_ss);
-            }
-
-            runUnitCobScripts(simulation, unitId);
-        }
-
-        simulation.updateProjectiles(unitDatabase);
-
-        simulation.processVictoryCondition();
-
-        simulation.deleteDeadUnits(unitDatabase);
-
-        simulation.deleteDeadProjectiles();
-
-        simulation.spawnNewUnits();
+        simulation.tick(unitDatabase);
 
         auto gameHash = simulation.computeHash();
         playerCommandService->pushHash(localPlayerId, gameHash);
