@@ -39,6 +39,7 @@
 #include <rwe/sim/UnitState.h>
 #include <rwe/ui/UiFactory.h>
 #include <rwe/ui/UiPanel.h>
+#include <unordered_set>
 #include <variant>
 
 namespace rwe

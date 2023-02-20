@@ -18,7 +18,6 @@
 #include <rwe/sim/cob.h>
 #include <rwe/ui/UiStagedButton.h>
 #include <spdlog/spdlog.h>
-#include <unordered_set>
 
 namespace rwe
 {
