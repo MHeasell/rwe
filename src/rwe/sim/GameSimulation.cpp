@@ -1,10 +1,10 @@
 #include "GameSimulation.h"
-#include <rwe/sim/SimTicksPerSecond.h>
 #include <rwe/GameHash_util.h>
 #include <rwe/Index.h>
 #include <rwe/collection_util.h>
 #include <rwe/match.h>
 #include <rwe/sim/SimScalar.h>
+#include <rwe/sim/SimTicksPerSecond.h>
 #include <rwe/sim/UnitBehaviorService.h>
 #include <rwe/sim/movement.h>
 #include <rwe/sim/util.h>
