@@ -449,8 +449,6 @@ namespace rwe
 
         void updateFlashes();
 
-        BoundingBox3x<SimScalar> createBoundingBox(const UnitState& unit) const;
-
         void processActions();
 
         void processPlayerCommands(const std::vector<std::pair<PlayerId, std::vector<PlayerCommand>>>& commands);
