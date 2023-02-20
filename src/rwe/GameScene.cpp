@@ -2319,19 +2319,6 @@ namespace rwe
 
         simulation.processVictoryCondition();
 
-        auto winStatus = simulation.computeWinStatus();
-        match(
-            winStatus,
-            [&](const WinStatusWon&) {
-                delay(SceneTime(5 * 30), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
-            },
-            [&](const WinStatusDraw&) {
-                delay(SceneTime(5 * 30), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
-            },
-            [&](const WinStatusUndecided&) {
-                // do nothing, game still in progress
-            });
-
         simulation.deleteDeadUnits(unitDatabase);
 
         simulation.deleteDeadProjectiles();
@@ -2354,6 +2341,19 @@ namespace rwe
         updateFlashes();
 
         updateParticles(meshDatabase, simulation.gameTime, particles);
+
+        auto winStatus = simulation.computeWinStatus();
+        match(
+            winStatus,
+            [&](const WinStatusWon&) {
+                delay(SceneTime(5 * 30), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
+            },
+            [&](const WinStatusDraw&) {
+                delay(SceneTime(5 * 30), [sm = sceneContext.sceneManager]() { sm->requestExit(); });
+            },
+            [&](const WinStatusUndecided&) {
+                // do nothing, game still in progress
+            });
     }
 
     std::optional<UnitId> GameScene::getUnitUnderCursor() const
