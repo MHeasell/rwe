@@ -1440,4 +1440,20 @@ namespace rwe
             trySpawnFeature(unitDatabase, spawnInfo.featureName, spawnInfo.position, spawnInfo.rotation);
         }
     }
+
+    void GameSimulation::deleteDeadProjectiles()
+    {
+        for (auto it = projectiles.begin(); it != projectiles.end();)
+        {
+            const auto& projectile = it->second;
+            if (projectile.isDead)
+            {
+                it = projectiles.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+    }
 }

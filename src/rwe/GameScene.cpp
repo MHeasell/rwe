@@ -2340,7 +2340,7 @@ namespace rwe
 
         simulation.deleteDeadUnits(unitDatabase);
 
-        deleteDeadProjectiles();
+        simulation.deleteDeadProjectiles();
 
         spawnNewUnits();
 
@@ -2927,22 +2927,6 @@ namespace rwe
         SimVector position;
         SimAngle rotation;
     };
-
-    void GameScene::deleteDeadProjectiles()
-    {
-        for (auto it = simulation.projectiles.begin(); it != simulation.projectiles.end();)
-        {
-            const auto& projectile = it->second;
-            if (projectile.isDead)
-            {
-                it = simulation.projectiles.erase(it);
-            }
-            else
-            {
-                ++it;
-            }
-        }
-    }
 
     void GameScene::spawnNewUnits()
     {

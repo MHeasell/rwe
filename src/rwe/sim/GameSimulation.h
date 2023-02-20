@@ -418,5 +418,7 @@ namespace rwe
         void trySpawnFeature(const UnitDatabase& unitDatabase, const std::string& featureType, const SimVector& position, SimAngle rotation);
 
         void deleteDeadUnits(const UnitDatabase& unitDatabase);
+
+        void deleteDeadProjectiles();
     };
 }
