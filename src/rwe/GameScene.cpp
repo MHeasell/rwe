@@ -2317,12 +2317,6 @@ namespace rwe
 
         simulation.updateProjectiles(unitDatabase);
 
-        updateProjectiles();
-
-        updateFlashes();
-
-        updateParticles(meshDatabase, simulation.gameTime, particles);
-
         simulation.processVictoryCondition();
 
         auto winStatus = simulation.computeWinStatus();
@@ -2354,6 +2348,12 @@ namespace rwe
         }
 
         processSimEvents();
+
+        updateProjectiles();
+
+        updateFlashes();
+
+        updateParticles(meshDatabase, simulation.gameTime, particles);
     }
 
     std::optional<UnitId> GameScene::getUnitUnderCursor() const
