@@ -1009,7 +1009,7 @@ namespace rwe
 
         unit.markAsDead();
 
-        auto deathType = unit.position.y < terrain.getSeaLevel() ? UnitDiedEvent::DeathType::NormalExploded : UnitDiedEvent::DeathType::WaterExploded;
+        auto deathType = unit.position.y < terrain.getSeaLevel() ? UnitDiedEvent::DeathType::WaterExploded : UnitDiedEvent::DeathType::NormalExploded;
         events.push_back(UnitDiedEvent{unitId, unit.unitType, unit.position, deathType});
 
         // TODO: spawn debris particles (from Killed script)
