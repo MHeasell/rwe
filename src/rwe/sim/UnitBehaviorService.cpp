@@ -1171,9 +1171,7 @@ namespace rwe
             }
             if (followPath(unitInfo, *groundPhysics, *movingState->path))
             {
-                // we finished following the path,
-                // clear our state
-                changeState(*unitInfo.state, UnitBehaviorStateIdle());
+                // we finished following the path
                 return true;
             }
         }
