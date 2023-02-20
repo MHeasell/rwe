@@ -449,8 +449,6 @@ namespace rwe
 
         void updateFlashes();
 
-        void spawnNewUnits();
-
         BoundingBox3x<SimScalar> createBoundingBox(const UnitState& unit) const;
 
         void processActions();

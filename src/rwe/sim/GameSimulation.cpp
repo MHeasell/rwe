@@ -1456,4 +1456,55 @@ namespace rwe
             }
         }
     }
+
+    void GameSimulation::spawnNewUnits()
+    {
+        for (const auto& unitId : unitCreationRequests)
+        {
+            auto unit = tryGetUnitState(unitId);
+            if (!unit)
+            {
+                continue;
+            }
+
+            if (auto s = std::get_if<UnitBehaviorStateCreatingUnit>(&unit->get().behaviourState); s != nullptr)
+            {
+
+                if (!std::holds_alternative<UnitCreationStatusPending>(s->status))
+                {
+                    continue;
+                }
+
+                auto newUnitId = trySpawnUnit(s->unitType, s->owner, s->position, std::nullopt);
+                if (!newUnitId)
+                {
+                    s->status = UnitCreationStatusFailed();
+                    continue;
+                }
+
+                events.push_back(UnitStartedBuildingEvent{unitId});
+
+                s->status = UnitCreationStatusDone{*newUnitId};
+            }
+
+            if (auto s = std::get_if<FactoryBehaviorStateCreatingUnit>(&unit->get().factoryState); s != nullptr)
+            {
+                if (!std::holds_alternative<UnitCreationStatusPending>(s->status))
+                {
+                    continue;
+                }
+
+                auto newUnitId = trySpawnUnit(s->unitType, s->owner, s->position, s->rotation);
+                if (!newUnitId)
+                {
+                    s->status = UnitCreationStatusFailed();
+                    continue;
+                }
+
+                s->status = UnitCreationStatusDone{*newUnitId};
+            }
+        }
+
+        unitCreationRequests.clear();
+    }
 }

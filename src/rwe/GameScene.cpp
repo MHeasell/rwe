@@ -2342,7 +2342,7 @@ namespace rwe
 
         simulation.deleteDeadProjectiles();
 
-        spawnNewUnits();
+        simulation.spawnNewUnits();
 
         auto gameHash = simulation.computeHash();
         playerCommandService->pushHash(localPlayerId, gameHash);
@@ -2804,6 +2804,10 @@ namespace rwe
 
                     unitGuiInfos.erase(e.unitId);
                 },
+                [&](const UnitStartedBuildingEvent& e) {
+                    const auto& unit = getUnit(e.unitId);
+                    playUnitNotificationSound(unit.owner, unit.unitType, UnitSoundType::Build);
+                },
                 [&](const ProjectileSpawnedEvent& e) {
                     projectileRenderInfos.insert({e.projectileId, ProjectileRenderInfo{getGameTime()}});
                 },
@@ -2927,57 +2931,6 @@ namespace rwe
         SimVector position;
         SimAngle rotation;
     };
-
-    void GameScene::spawnNewUnits()
-    {
-        for (const auto& unitId : simulation.unitCreationRequests)
-        {
-            auto unit = tryGetUnit(unitId);
-            if (!unit)
-            {
-                continue;
-            }
-
-            if (auto s = std::get_if<UnitBehaviorStateCreatingUnit>(&unit->get().behaviourState); s != nullptr)
-            {
-
-                if (!std::holds_alternative<UnitCreationStatusPending>(s->status))
-                {
-                    continue;
-                }
-
-                auto newUnitId = spawnUnit(s->unitType, s->owner, s->position, std::nullopt);
-                if (!newUnitId)
-                {
-                    s->status = UnitCreationStatusFailed();
-                    continue;
-                }
-
-                playUnitNotificationSound(unit->get().owner, unit->get().unitType, UnitSoundType::Build);
-
-                s->status = UnitCreationStatusDone{*newUnitId};
-            }
-
-            if (auto s = std::get_if<FactoryBehaviorStateCreatingUnit>(&unit->get().factoryState); s != nullptr)
-            {
-                if (!std::holds_alternative<UnitCreationStatusPending>(s->status))
-                {
-                    continue;
-                }
-
-                auto newUnitId = spawnUnit(s->unitType, s->owner, s->position, s->rotation);
-                if (!newUnitId)
-                {
-                    s->status = UnitCreationStatusFailed();
-                    continue;
-                }
-
-                s->status = UnitCreationStatusDone{*newUnitId};
-            }
-        }
-
-        simulation.unitCreationRequests.clear();
-    }
 
     void GameScene::processActions()
     {

@@ -148,6 +148,11 @@ namespace rwe
         DeathType deathType;
     };
 
+    struct UnitStartedBuildingEvent
+    {
+        UnitId unitId;
+    };
+
     struct EmitParticleFromPieceEvent
     {
         enum class SfxType
@@ -192,6 +197,7 @@ namespace rwe
         EmitParticleFromPieceEvent,
         UnitSpawnedEvent,
         UnitDiedEvent,
+        UnitStartedBuildingEvent,
         ProjectileSpawnedEvent,
         ProjectileDiedEvent>;
 
@@ -420,5 +426,7 @@ namespace rwe
         void deleteDeadUnits(const UnitDatabase& unitDatabase);
 
         void deleteDeadProjectiles();
+
+        void spawnNewUnits();
     };
 }
