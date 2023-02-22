@@ -188,26 +188,27 @@ namespace rwe
         auto [unitDatabase, meshDatabase, dataMaps, movementClassCollisionService] = createUnitDatabase(mapInfo.terrain, meshService, requiredFeatureNames);
 
         GameSimulation simulation(std::move(mapInfo.terrain), std::move(movementClassCollisionService), mapInfo.surfaceMetal);
-        for (const auto& [pos, featureName] : mapInfo.features)
-        {
-            auto featureId = unitDatabase.tryGetFeatureId(featureName).value();
-            const auto& featureDefinition = unitDatabase.getFeature(featureId);
-            auto resolvedPos = computeFeaturePosition(simulation.terrain, featureDefinition, pos.x, pos.y);
-            auto featureInstance = MapFeature{featureId, resolvedPos, fromRadians(RadiansAngle::fromUnwrappedAngle(Pif))};
-            simulation.addFeature(featureDefinition, std::move(featureInstance));
-        }
-        auto seedSeq = seedFromGameParameters(gameParameters);
-        simulation.rng.seed(seedSeq);
-
-        auto minimap = sceneContext.textureService->getMinimap(mapName);
-
-        GameCameraState worldCameraState;
 
         simulation.unitDefinitions = std::move(dataMaps.unitDefinitions);
         simulation.weaponDefinitions = std::move(dataMaps.weaponDefinitions);
         simulation.movementClassDefinitions = std::move(dataMaps.movementClassDefinitions);
         simulation.unitModelDefinitions = dataMaps.modelDefinitions;
         simulation.unitScriptDefinitions = loadCobScripts(*sceneContext.vfs);
+        simulation.featureDefinitions = std::move(dataMaps.featureDefinitions);
+        simulation.featureNameIndex = std::move(dataMaps.featureNameIndex);
+
+        for (const auto& [pos, featureName] : mapInfo.features)
+        {
+            auto featureId = simulation.tryGetFeatureDefinitionId(featureName).value();
+            simulation.addFeature(featureId, pos.x, pos.y);
+        }
+
+        auto seedSeq = seedFromGameParameters(gameParameters);
+        simulation.rng.seed(seedSeq);
+
+        auto minimap = sceneContext.textureService->getMinimap(mapName);
+
+        GameCameraState worldCameraState;
 
         std::optional<PlayerId> localPlayerId;
 
@@ -490,41 +491,6 @@ namespace rwe
         });
 
         return Grid<unsigned char>(attrs.getWidth(), attrs.getHeight(), std::move(data));
-    }
-
-    SimVector LoadingScene::computeFeaturePosition(
-        const MapTerrain& terrain,
-        const FeatureDefinition& featureDefinition,
-        int x,
-        int y) const
-    {
-        const auto& heightmap = terrain.getHeightMap();
-
-        int height = 0;
-        if (x < heightmap.getWidth() - 1 && y < heightmap.getHeight() - 1)
-        {
-            height = computeMidpointHeight(heightmap, x, y);
-        }
-
-        auto position = terrain.heightmapIndexToWorldCorner(x, y);
-        position.y = intToSimScalar(height);
-
-        position.x += (intToSimScalar(featureDefinition.footprintX) * MapTerrain::HeightTileWidthInWorldUnits) / 2_ss;
-        position.z += (intToSimScalar(featureDefinition.footprintZ) * MapTerrain::HeightTileHeightInWorldUnits) / 2_ss;
-
-        return position;
-    }
-
-    int LoadingScene::computeMidpointHeight(const Grid<unsigned char>& heightmap, int x, int y)
-    {
-        assert(x < heightmap.getWidth() - 1);
-        assert(y < heightmap.getHeight() - 1);
-
-        auto p1 = static_cast<int>(heightmap.get(x, y));
-        auto p2 = static_cast<int>(heightmap.get(x + 1, y));
-        auto p3 = static_cast<int>(heightmap.get(x, y + 1));
-        auto p4 = static_cast<int>(heightmap.get(x + 1, y + 1));
-        return (p1 + p2 + p3 + p4) / 4;
     }
 
     const SideData& LoadingScene::getSideData(const std::string& side) const
@@ -915,11 +881,11 @@ namespace rwe
         return mediaInfo;
     }
 
-    FeatureDefinitionId getFeatureId(FeatureDefinitionId& nextId, UnitDatabase& unitDatabase, std::deque<std::string>& openQueue, std::unordered_map<std::string, FeatureDefinitionId>& openSet, const std::string& featureName)
+    FeatureDefinitionId getFeatureId(FeatureDefinitionId& nextId, const std::unordered_map<std::string, FeatureDefinitionId>& featureNameIndex, std::deque<std::string>& openQueue, std::unordered_map<std::string, FeatureDefinitionId>& openSet, const std::string& featureName)
     {
-        if (auto existingId = unitDatabase.tryGetFeatureId(featureName); existingId)
+        if (auto existingId = featureNameIndex.find(featureName); existingId != featureNameIndex.end())
         {
-            return *existingId;
+            return existingId->second;
         }
 
         if (auto it = openSet.find(toUpper(featureName)); it != openSet.end())
@@ -990,9 +956,9 @@ namespace rwe
         meshDatabase.addFeature(std::move(f));
     }
 
-    void LoadingScene::loadFeature(MeshService& meshService, UnitDatabase& unitDatabase, MeshDatabase& meshDatabase, const std::unordered_map<std::string, FeatureTdf>& tdfs, std::unordered_map<std::string, UnitModelDefinition>& modelDefinitions, const std::string& initialFeatureName)
+    void LoadingScene::loadFeature(MeshService& meshService, MeshDatabase& meshDatabase, const std::unordered_map<std::string, FeatureTdf>& tdfs, DataMaps& dataMaps, const std::string& initialFeatureName)
     {
-        auto nextId = unitDatabase.getNextFeatureDefinitionId();
+        auto nextId = dataMaps.featureDefinitions.getNextId();
         std::unordered_map<std::string, FeatureDefinitionId> openSet{{toUpper(initialFeatureName), nextId}};
         nextId = FeatureDefinitionId(nextId.value + 1);
         for (std::deque<std::string> featuresToLoad{{initialFeatureName}}; !featuresToLoad.empty(); featuresToLoad.pop_front())
@@ -1013,7 +979,7 @@ namespace rwe
             f.autoreclaimable = tdf.autoreclaimable;
             if (!tdf.featureReclamate.empty())
             {
-                f.featureReclamate = getFeatureId(nextId, unitDatabase, featuresToLoad, openSet, tdf.featureReclamate);
+                f.featureReclamate = getFeatureId(nextId, dataMaps.featureNameIndex, featuresToLoad, openSet, tdf.featureReclamate);
             }
             f.metal = tdf.metal;
             f.energy = tdf.energy;
@@ -1021,7 +987,7 @@ namespace rwe
             f.flamable = tdf.flamable;
             if (!tdf.featureBurnt.empty())
             {
-                f.featureBurnt = getFeatureId(nextId, unitDatabase, featuresToLoad, openSet, tdf.featureBurnt);
+                f.featureBurnt = getFeatureId(nextId, dataMaps.featureNameIndex, featuresToLoad, openSet, tdf.featureBurnt);
             }
             f.burnMin = tdf.burnMin;
             f.burnMax = tdf.burnMax;
@@ -1046,12 +1012,13 @@ namespace rwe
             f.damage = tdf.damage;
             if (!tdf.featureDead.empty())
             {
-                f.featureDead = getFeatureId(nextId, unitDatabase, featuresToLoad, openSet, tdf.featureDead);
+                f.featureDead = getFeatureId(nextId, dataMaps.featureNameIndex, featuresToLoad, openSet, tdf.featureDead);
             }
 
-            auto id = unitDatabase.addFeature(featureName, f);
+            auto id = dataMaps.featureDefinitions.insert(f);
+            dataMaps.featureNameIndex.insert({toUpper(featureName), id});
 
-            loadFeatureMedia(meshService, modelDefinitions, meshDatabase, tdf);
+            loadFeatureMedia(meshService, dataMaps.modelDefinitions, meshDatabase, tdf);
         }
     }
 
@@ -1253,7 +1220,7 @@ namespace rwe
             // actually parse and load assets for features that we require
             for (const auto& featureName : requiredFeaturesSet)
             {
-                loadFeature(meshService, db, meshDb, featureTdfs, dataMaps.modelDefinitions, featureName);
+                loadFeature(meshService, meshDb, featureTdfs, dataMaps, featureName);
             }
         }
 

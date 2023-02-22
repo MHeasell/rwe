@@ -660,11 +660,11 @@ namespace rwe
         SpriteBatch flatFeatureShadowBatch;
         for (const auto& f : simulation.features)
         {
-            const auto& featureDefinition = unitDatabase.getFeature(f.second.featureName);
+            const auto& featureDefinition = simulation.getFeatureDefinition(f.second.featureName);
             if (!featureDefinition.isStanding())
             {
-                drawFeature(unitDatabase, meshDatabase, f.second, viewProjectionMatrix, flatFeatureBatch);
-                drawFeatureShadow(unitDatabase, meshDatabase, f.second, viewProjectionMatrix, flatFeatureShadowBatch);
+                drawFeature(meshDatabase, f.second, featureDefinition, viewProjectionMatrix, flatFeatureBatch);
+                drawFeatureShadow(meshDatabase, f.second, featureDefinition, viewProjectionMatrix, flatFeatureShadowBatch);
             }
         }
         worldRenderService.drawSpriteBatch(flatFeatureShadowBatch);
@@ -772,11 +772,11 @@ namespace rwe
         SpriteBatch featureShadowBatch;
         for (const auto& f : simulation.features)
         {
-            const auto& featureDefinition = unitDatabase.getFeature(f.second.featureName);
+            const auto& featureDefinition = simulation.getFeatureDefinition(f.second.featureName);
             if (featureDefinition.isStanding())
             {
-                drawFeature(unitDatabase, meshDatabase, f.second, viewProjectionMatrix, featureBatch);
-                drawFeatureShadow(unitDatabase, meshDatabase, f.second, viewProjectionMatrix, featureShadowBatch);
+                drawFeature(meshDatabase, f.second, featureDefinition, viewProjectionMatrix, featureBatch);
+                drawFeatureShadow(meshDatabase, f.second, featureDefinition, viewProjectionMatrix, featureShadowBatch);
             }
         }
         worldRenderService.drawSpriteBatch(featureShadowBatch);
@@ -2294,7 +2294,7 @@ namespace rwe
 
         processPlayerCommands(*playerCommands);
 
-        simulation.tick(unitDatabase);
+        simulation.tick();
 
         auto gameHash = simulation.computeHash();
         playerCommandService->pushHash(localPlayerId, gameHash);

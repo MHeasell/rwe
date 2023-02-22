@@ -151,6 +151,8 @@ namespace rwe
             std::unordered_map<std::string, UnitModelDefinition> modelDefinitions;
             std::unordered_map<std::string, WeaponDefinition> weaponDefinitions;
             std::unordered_map<MovementClassId, MovementClass> movementClassDefinitions;
+            SimpleVectorMap<FeatureDefinition, FeatureDefinitionIdTag> featureDefinitions;
+            std::unordered_map<std::string, FeatureDefinitionId> featureNameIndex;
         };
 
         std::tuple<UnitDatabase, MeshDatabase, DataMaps, MovementClassCollisionService> createUnitDatabase(const MapTerrain& terrain, MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures);
@@ -163,7 +165,7 @@ namespace rwe
 
         std::optional<std::vector<std::vector<GuiEntry>>> loadBuilderGui(const std::string& unitName);
 
-        void loadFeature(MeshService& meshService, UnitDatabase& unitDatabase, MeshDatabase& meshDatabase, const std::unordered_map<std::string, FeatureTdf>& tdfs, std::unordered_map<std::string, UnitModelDefinition>& modelDefinitions, const std::string& initialFeatureName);
+        void loadFeature(MeshService& meshService, MeshDatabase& meshDatabase, const std::unordered_map<std::string, FeatureTdf>& tdfs, DataMaps& dataMaps, const std::string& initialFeatureName);
         void loadFeatureMedia(MeshService& meshService, std::unordered_map<std::string, UnitModelDefinition>& modelDefinitions, MeshDatabase& meshDatabase, const FeatureTdf& tdf);
     };
 }

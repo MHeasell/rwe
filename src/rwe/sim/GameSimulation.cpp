@@ -90,14 +90,13 @@ namespace rwe
     {
     }
 
-    // FIXME: the signature of this is really awkward,
-    // caller shouldn't have to supply feature definition.
-    // One day we should fix this so that the sim knows all the definitions.
-    FeatureId GameSimulation::addFeature(const FeatureDefinition& featureDefinition, MapFeature&& newFeature)
+    FeatureId GameSimulation::addFeature(MapFeature&& newFeature)
     {
         auto featureId = FeatureId(features.emplace(std::move(newFeature)));
 
         auto& f = features.tryGet(featureId)->get();
+        const auto& featureDefinition = getFeatureDefinition(f.featureName);
+
         if (featureDefinition.blocking)
         {
             auto footprintRegion = computeFootprintRegion(f.position, featureDefinition.footprintX, featureDefinition.footprintZ);
@@ -111,6 +110,49 @@ namespace rwe
         }
 
         return featureId;
+    }
+
+    int computeMidpointHeight(const Grid<unsigned char>& heightmap, int x, int y)
+    {
+        assert(x < heightmap.getWidth() - 1);
+        assert(y < heightmap.getHeight() - 1);
+
+        auto p1 = static_cast<int>(heightmap.get(x, y));
+        auto p2 = static_cast<int>(heightmap.get(x + 1, y));
+        auto p3 = static_cast<int>(heightmap.get(x, y + 1));
+        auto p4 = static_cast<int>(heightmap.get(x + 1, y + 1));
+        return (p1 + p2 + p3 + p4) / 4;
+    }
+
+    SimVector computeFeaturePosition(
+        const MapTerrain& terrain,
+        const FeatureDefinition& featureDefinition,
+        int x,
+        int y)
+    {
+        const auto& heightmap = terrain.getHeightMap();
+
+        int height = 0;
+        if (x < heightmap.getWidth() - 1 && y < heightmap.getHeight() - 1)
+        {
+            height = computeMidpointHeight(heightmap, x, y);
+        }
+
+        auto position = terrain.heightmapIndexToWorldCorner(x, y);
+        position.y = intToSimScalar(height);
+
+        position.x += (intToSimScalar(featureDefinition.footprintX) * MapTerrain::HeightTileWidthInWorldUnits) / 2_ss;
+        position.z += (intToSimScalar(featureDefinition.footprintZ) * MapTerrain::HeightTileHeightInWorldUnits) / 2_ss;
+
+        return position;
+    }
+
+    FeatureId GameSimulation::addFeature(FeatureDefinitionId featureType, int heightmapX, int heightmapZ)
+    {
+        const auto& featureDefinition = getFeatureDefinition(featureType);
+        auto resolvedPos = computeFeaturePosition(terrain, featureDefinition, heightmapX, heightmapZ);
+        auto featureInstance = MapFeature{featureType, resolvedPos, fromRadians(RadiansAngle::fromUnwrappedAngle(Pif))};
+        return addFeature(std::move(featureInstance));
     }
 
     PlayerId GameSimulation::addPlayer(const GamePlayerInfo& info)
@@ -826,7 +868,7 @@ namespace rwe
         return Matrix4x<SimScalar>::rotationAxisAngle(cross, angle) * v;
     }
 
-    bool projectileCollides(const UnitDatabase& db, const GameSimulation& sim, const Projectile& projectile, const OccupiedCell& cellValue)
+    bool projectileCollides(const GameSimulation& sim, const Projectile& projectile, const OccupiedCell& cellValue)
     {
         auto collidesWithOccupiedCell = match(
             cellValue.occupiedType,
@@ -851,7 +893,7 @@ namespace rwe
             },
             [&](const OccupiedFeature& v) {
                 const auto& feature = sim.getFeature(v.id);
-                const auto& featureDefinition = db.getFeature(feature.featureName);
+                const auto& featureDefinition = sim.getFeatureDefinition(feature.featureName);
 
                 // ignore if the projectile is above or below the feature
                 if (projectile.position.y < feature.position.y || projectile.position.y > feature.position.y + featureDefinition.height)
@@ -943,7 +985,7 @@ namespace rwe
         ProjectileCollisionInfoSea,
         ProjectileCollisionInfoUnitOrFeatureOrBuilding>;
 
-    std::optional<ProjectileCollisionInfo> checkProjectileCollision(const UnitDatabase& unitDatabase, const GameSimulation& simulation, const Projectile& projectile)
+    std::optional<ProjectileCollisionInfo> checkProjectileCollision(const GameSimulation& simulation, const Projectile& projectile)
     {
         // test collision with terrain
         auto terrainHeight = simulation.terrain.tryGetHeightAt(projectile.position.x, projectile.position.z);
@@ -971,7 +1013,7 @@ namespace rwe
             auto cellValue = simulation.occupiedGrid.tryGet(heightMapPos);
             if (cellValue)
             {
-                auto collides = projectileCollides(unitDatabase, simulation, projectile, cellValue->get());
+                auto collides = projectileCollides(simulation, projectile, cellValue->get());
                 if (collides)
                 {
                     return ProjectileCollisionInfoUnitOrFeatureOrBuilding();
@@ -1144,10 +1186,7 @@ namespace rwe
         applyDamageInRadius(projectile.position, projectile.damageRadius, projectile);
     }
 
-    // FIXME: signature of this really sucks, we shouldn't need to take in
-    // a unit database but we need it because feature definitions live there.
-    // Remove once the sim knows about feature definitions.
-    void GameSimulation::updateProjectiles(const UnitDatabase& unitDatabase)
+    void GameSimulation::updateProjectiles()
     {
         for (auto& projectileEntry : projectiles)
         {
@@ -1190,7 +1229,7 @@ namespace rwe
             projectile.previousPosition = projectile.position;
             projectile.position += projectile.velocity;
 
-            auto collisionInfo = checkProjectileCollision(unitDatabase, *this, projectile);
+            auto collisionInfo = checkProjectileCollision(*this, projectile);
             if (collisionInfo)
             {
                 match(
@@ -1377,17 +1416,16 @@ namespace rwe
         SimAngle rotation;
     };
 
-    void GameSimulation::trySpawnFeature(const UnitDatabase& unitDatabase, const std::string& featureType, const SimVector& position, SimAngle rotation)
+    void GameSimulation::trySpawnFeature(const std::string& featureType, const SimVector& position, SimAngle rotation)
     {
-        auto featureId = unitDatabase.tryGetFeatureId(featureType).value();
+        auto featureId = tryGetFeatureDefinitionId(featureType).value();
         auto feature = MapFeature{featureId, position, rotation};
-        const auto& featureDefinition = unitDatabase.getFeature(featureId);
 
         // FIXME: simulation needs to support failing to spawn in a feature
-        addFeature(featureDefinition, std::move(feature));
+        addFeature(std::move(feature));
     }
 
-    void GameSimulation::deleteDeadUnits(const UnitDatabase& unitDatabase)
+    void GameSimulation::deleteDeadUnits()
     {
         std::vector<CorpseSpawnInfo> corpsesToSpawn;
 
@@ -1438,7 +1476,7 @@ namespace rwe
 
         for (const auto& spawnInfo : corpsesToSpawn)
         {
-            trySpawnFeature(unitDatabase, spawnInfo.featureName, spawnInfo.position, spawnInfo.rotation);
+            trySpawnFeature(spawnInfo.featureName, spawnInfo.position, spawnInfo.rotation);
         }
     }
 
@@ -1509,7 +1547,7 @@ namespace rwe
         unitCreationRequests.clear();
     }
 
-    void GameSimulation::tick(const UnitDatabase& unitDatabase)
+    void GameSimulation::tick()
     {
         gameTime += GameTime(1);
 
@@ -1533,14 +1571,29 @@ namespace rwe
             runUnitCobScripts(*this, unitId);
         }
 
-        updateProjectiles(unitDatabase);
+        updateProjectiles();
 
         processVictoryCondition();
 
-        deleteDeadUnits(unitDatabase);
+        deleteDeadUnits();
 
         deleteDeadProjectiles();
 
         spawnNewUnits();
+    }
+
+    std::optional<FeatureDefinitionId> GameSimulation::tryGetFeatureDefinitionId(const std::string& featureName) const
+    {
+        if (auto it = featureNameIndex.find(toUpper(featureName)); it != featureNameIndex.end())
+        {
+            return it->second;
+        }
+
+        return std::nullopt;
+    }
+
+    const FeatureDefinition& GameSimulation::getFeatureDefinition(FeatureDefinitionId featureDefinitionId) const
+    {
+        return featureDefinitions.get(featureDefinitionId);
     }
 }

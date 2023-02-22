@@ -22,24 +22,9 @@ namespace rwe
     public:
         std::unordered_map<std::string, std::vector<std::vector<GuiEntry>>> builderGuisMap;
 
-        SimpleVectorMap<FeatureDefinition, FeatureDefinitionIdTag> featureMap;
-        std::unordered_map<std::string, FeatureDefinitionId> featureNameIndex;
-
     public:
         std::optional<std::reference_wrapper<const std::vector<std::vector<GuiEntry>>>> tryGetBuilderGui(const std::string& unitName) const;
 
         void addBuilderGui(const std::string& unitName, std::vector<std::vector<GuiEntry>>&& gui);
-
-        bool hasFeature(const std::string& featureName) const;
-
-        std::optional<FeatureDefinitionId> tryGetFeatureId(const std::string& featureName) const;
-
-        const FeatureDefinition& getFeature(FeatureDefinitionId id) const;
-
-        FeatureDefinition& getFeature(FeatureDefinitionId id);
-
-        FeatureDefinitionId addFeature(const std::string& featureName, const FeatureDefinition& definition);
-
-        FeatureDefinitionId getNextFeatureDefinitionId() const;
     };
 }

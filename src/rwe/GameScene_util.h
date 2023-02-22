@@ -3,7 +3,6 @@
 #include <rwe/MeshDatabase.h>
 #include <rwe/PlayerColorIndex.h>
 #include <rwe/RenderService.h>
-#include <rwe/UnitDatabase.h>
 #include <rwe/VectorMap.h>
 #include <rwe/math/Matrix4x.h>
 #include <rwe/pathfinding/AStarPathFinder.h>
@@ -78,15 +77,15 @@ namespace rwe
         UnitShadowMeshBatch& batch);
 
     void drawFeature(
-        const UnitDatabase& unitDatabase,
         const MeshDatabase& meshDatabase,
         const MapFeature& feature,
+        const FeatureDefinition& featureDefinition,
         const Matrix4f& viewProjectionMatrix,
         SpriteBatch& batch);
     void drawFeatureShadow(
-        const UnitDatabase& unitDatabase,
         const MeshDatabase& meshDatabase,
         const MapFeature& feature,
+        const FeatureDefinition& featureDefinition,
         const Matrix4f& viewProjectionMatrix,
         SpriteBatch& batch);
 

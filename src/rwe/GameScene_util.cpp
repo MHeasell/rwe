@@ -611,13 +611,12 @@ namespace rwe
     }
 
     void drawFeature(
-        const UnitDatabase& unitDatabase,
         const MeshDatabase& meshDatabase,
         const MapFeature& feature,
+        const FeatureDefinition& featureDefinition,
         const Matrix4f& viewProjectionMatrix,
         SpriteBatch& batch)
     {
-        const auto& featureDefinition = unitDatabase.getFeature(feature.featureName);
         const auto& featureMediaInfo = meshDatabase.getFeature(feature.featureName);
 
         auto spriteInfo = std::get_if<FeatureSpriteInfo>(&featureMediaInfo.renderInfo);
@@ -646,13 +645,12 @@ namespace rwe
     }
 
     void drawFeatureShadow(
-        const UnitDatabase& unitDatabase,
         const MeshDatabase& meshDatabase,
         const MapFeature& feature,
+        const FeatureDefinition& featureDefinition,
         const Matrix4f& viewProjectionMatrix,
         SpriteBatch& batch)
     {
-        const auto& featureDefinition = unitDatabase.getFeature(feature.featureName);
         const auto& featureMediaInfo = meshDatabase.getFeature(feature.featureName);
 
         auto spriteInfo = std::get_if<FeatureSpriteInfo>(&featureMediaInfo.renderInfo);

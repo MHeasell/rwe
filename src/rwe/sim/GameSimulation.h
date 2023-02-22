@@ -4,7 +4,7 @@
 #include <rwe/GameHash.h>
 #include <rwe/MovementClassCollisionService.h>
 #include <rwe/PlayerColorIndex.h>
-#include <rwe/UnitDatabase.h>
+#include <rwe/SimpleVectorMap.h>
 #include <rwe/VectorMap.h>
 #include <rwe/pathfinding/PathFindingService.h>
 #include <rwe/sim/FeatureDefinition.h>
@@ -241,6 +241,9 @@ namespace rwe
 
         std::unordered_map<std::string, UnitDefinition> unitDefinitions;
 
+        SimpleVectorMap<FeatureDefinition, FeatureDefinitionIdTag> featureDefinitions;
+        std::unordered_map<std::string, FeatureDefinitionId> featureNameIndex;
+
         std::unordered_map<std::string, UnitModelDefinition> unitModelDefinitions;
 
         std::unordered_map<std::string, CobScript> unitScriptDefinitions;
@@ -277,7 +280,9 @@ namespace rwe
 
         explicit GameSimulation(MapTerrain&& terrain, MovementClassCollisionService&& movementClassCollisionService, unsigned char surfaceMetal);
 
-        FeatureId addFeature(const FeatureDefinition& featureDefinition, MapFeature&& newFeature);
+        FeatureId addFeature(MapFeature&& newFeature);
+
+        FeatureId addFeature(FeatureDefinitionId featureType, int heightmapX, int heightmapZ);
 
         PlayerId addPlayer(const GamePlayerInfo& info);
 
@@ -413,7 +418,7 @@ namespace rwe
 
         void doProjectileImpact(const Projectile& projectile, ImpactType impactType);
 
-        void updateProjectiles(const UnitDatabase& unitDatabase);
+        void updateProjectiles();
 
         void killPlayer(PlayerId playerId);
 
@@ -421,14 +426,18 @@ namespace rwe
 
         void updateResources();
 
-        void trySpawnFeature(const UnitDatabase& unitDatabase, const std::string& featureType, const SimVector& position, SimAngle rotation);
+        void trySpawnFeature(const std::string& featureType, const SimVector& position, SimAngle rotation);
 
-        void deleteDeadUnits(const UnitDatabase& unitDatabase);
+        void deleteDeadUnits();
 
         void deleteDeadProjectiles();
 
         void spawnNewUnits();
 
-        void tick(const UnitDatabase& unitDatabase);
+        void tick();
+
+        std::optional<FeatureDefinitionId> tryGetFeatureDefinitionId(const std::string& featureName) const;
+
+        const FeatureDefinition& getFeatureDefinition(FeatureDefinitionId featureDefinitionId) const;
     };
 }
