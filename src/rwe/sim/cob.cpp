@@ -294,7 +294,7 @@ namespace rwe
                 return 0; // TODO
             },
             [&](const CobEnvironment::QueryStatus::MaxId&) {
-                return static_cast<int>(sim.nextUnitId.value - 1);
+                return 0; // TODO
             },
             [&](const CobEnvironment::QueryStatus::MyId&) {
                 return static_cast<int>(unitId.value);

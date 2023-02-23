@@ -264,8 +264,6 @@ namespace rwe
 
         VectorMap<MapFeature, FeatureIdTag> features;
 
-        UnitId nextUnitId{0};
-
         VectorMap<UnitState, UnitIdTag> units;
 
         VectorMap<Projectile, ProjectileIdTag> projectiles;
