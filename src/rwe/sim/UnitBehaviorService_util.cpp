@@ -242,9 +242,35 @@ namespace rwe
             SimScalar(footprintRect.height) * MapTerrain::HeightTileHeightInWorldUnits);
     }
 
-
-    SimVector findClosestPoint(const Rectangle2x<SimScalar>& rect, const SimVector& p)
+    enum class Edge
     {
+        Top,
+        Left,
+        Bottom,
+        Right
+    };
+
+    Edge findClosestEdge(const Rectangle2x<SimScalar>& rect, const SimVector& p)
+    {
+        auto distanceLeft = rweAbs(rect.left() - p.x);
+        auto distanceRight = rweAbs(rect.right() - p.x);
+        auto distanceTop = rweAbs(rect.top() - p.z);
+        auto distanceBottom = rweAbs(rect.bottom() - p.z);
+
+        if (rweMin(distanceLeft, distanceRight) < rweMin(distanceTop, distanceBottom))
+        {
+            return distanceLeft < distanceRight ? Edge::Left : Edge::Right;
+        }
+        else
+        {
+
+            return distanceTop < distanceBottom ? Edge::Top : Edge::Bottom;
+        }
+    }
+
+    SimVector findClosestPointOnPerimeter(const Rectangle2x<SimScalar>& rect, const SimVector& p)
+    {
+        bool collidesX = false;
         SimScalar x;
         if (p.x < rect.left())
         {
@@ -257,8 +283,10 @@ namespace rwe
         else
         {
             x = p.x;
+            collidesX = true;
         }
 
+        bool collidesZ = false;
         SimScalar z;
         if (p.z < rect.top())
         {
@@ -271,6 +299,28 @@ namespace rwe
         else
         {
             z = p.z;
+            collidesZ = true;
+        }
+
+        // We are inside the rectangle so snap to closest edge
+        if (collidesX && collidesZ)
+        {
+            auto closestEdge = findClosestEdge(rect, p);
+            switch (closestEdge)
+            {
+                case Edge::Top:
+                    z = rect.top();
+                    break;
+                case Edge::Bottom:
+                    z = rect.bottom();
+                    break;
+                case Edge::Left:
+                    x = rect.left();
+                    break;
+                case Edge::Right:
+                    x = rect.right();
+                    break;
+            }
         }
 
         return SimVector(x, p.y, z);
@@ -278,7 +328,7 @@ namespace rwe
 
     SimVector findClosestPointToFootprintXZ(const MapTerrain& terrain, const DiscreteRect& footprintRect, const SimVector& p)
     {
-        return findClosestPoint(toWorldXZRect(terrain, footprintRect), p);
+        return findClosestPointOnPerimeter(toWorldXZRect(terrain, footprintRect), p);
     }
 
     SimVector findClosestPointToFootprintXZForUnit(const MapTerrain& terrain, const DiscreteRect& targetFootprintRect, const SimVector& p, int unitFootprintX, int unitFootprintZ)
@@ -288,7 +338,7 @@ namespace rwe
         auto footprintZWorld = SimScalar(unitFootprintZ) * MapTerrain::HeightTileHeightInWorldUnits;
         targetWorldRect.extents.x += footprintXWorld / 2_ss;
         targetWorldRect.extents.y += footprintZWorld / 2_ss;
-        return findClosestPoint(targetWorldRect, p);
+        return findClosestPointOnPerimeter(targetWorldRect, p);
     }
 
     bool hasReachedGoal(const GameSimulation& sim, const MapTerrain& terrain, const UnitState& unit, const UnitDefinition& unitDefinition, const NavigationGoal& goal)
