@@ -1,6 +1,7 @@
 #pragma once
 
 #include <rwe/MeshDatabase.h>
+#include <rwe/Particle.h>
 #include <rwe/PlayerColorIndex.h>
 #include <rwe/RenderService.h>
 #include <rwe/VectorMap.h>
@@ -10,7 +11,6 @@
 #include <rwe/sim/GameSimulation.h>
 #include <rwe/sim/MapTerrain.h>
 #include <rwe/sim/OccupiedGrid.h>
-#include <rwe/sim/Particle.h>
 #include <rwe/sim/Projectile.h>
 #include <rwe/sim/ProjectileId.h>
 #include <rwe/sim/SimScalar.h>

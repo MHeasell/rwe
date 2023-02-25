@@ -14,7 +14,6 @@
 #include <rwe/sim/MapTerrain.h>
 #include <rwe/sim/MovementClassId.h>
 #include <rwe/sim/OccupiedGrid.h>
-#include <rwe/sim/Particle.h>
 #include <rwe/sim/PlayerId.h>
 #include <rwe/sim/Projectile.h>
 #include <rwe/sim/ProjectileId.h>

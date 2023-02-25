@@ -15,6 +15,7 @@
 #include <rwe/InGameSoundsInfo.h>
 #include <rwe/MeshDatabase.h>
 #include <rwe/MeshService.h>
+#include <rwe/Particle.h>
 #include <rwe/PlayerCommand.h>
 #include <rwe/PlayerCommandService.h>
 #include <rwe/RenderService.h>

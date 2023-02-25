@@ -279,6 +279,8 @@ set(SOURCE_FILES
     src/rwe/OpaqueId.h
     src/rwe/OpaqueId_io.h
     src/rwe/OpaqueUnit.h
+    src/rwe/Particle.cpp
+    src/rwe/Particle.h
     src/rwe/PathMapping.cpp
     src/rwe/PathMapping.h
     src/rwe/PlayerColorIndex.cpp
@@ -527,8 +529,6 @@ set(SOURCE_FILES
     src/rwe/sim/MovementClassId.h
     src/rwe/sim/OccupiedGrid.cpp
     src/rwe/sim/OccupiedGrid.h
-    src/rwe/sim/Particle.cpp
-    src/rwe/sim/Particle.h
     src/rwe/sim/PlayerId.h
     src/rwe/sim/Projectile.cpp
     src/rwe/sim/Projectile.h
