@@ -1,13 +1,12 @@
 #pragma once
 
-#include <deque>
 #include <rwe/MovementClassCollisionService.h>
+#include <rwe/grid/DiscreteRect.h>
 #include <rwe/grid/Point.h>
-#include <rwe/math/Vector3f.h>
 #include <rwe/pathfinding/AStarPathFinder.h>
-#include <rwe/pathfinding/OctileDistance.h>
 #include <rwe/pathfinding/PathCost.h>
 #include <rwe/pathfinding/UnitPath.h>
+#include <rwe/sim/SimVector.h>
 #include <rwe/sim/UnitId.h>
 
 namespace rwe

@@ -1,9 +1,7 @@
 #include "PathFindingService.h"
-#include <future>
 #include <rwe/pathfinding/UnitPathFinder.h>
 #include <rwe/pathfinding/UnitPerimeterPathFinder.h>
 #include <rwe/pathfinding/pathfinding_utils.h>
-#include <rwe/sim/GameSimulation.h>
 
 namespace rwe
 {
