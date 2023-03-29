@@ -4,8 +4,8 @@
 #include <rwe/GameHash.h>
 #include <rwe/MovementClassCollisionService.h>
 #include <rwe/PlayerColorIndex.h>
-#include <rwe/SimpleVectorMap.h>
-#include <rwe/VectorMap.h>
+#include <rwe/collections/SimpleVectorMap.h>
+#include <rwe/collections/VectorMap.h>
 #include <rwe/pathfinding/PathFindingService.h>
 #include <rwe/sim/FeatureDefinition.h>
 #include <rwe/sim/FeatureId.h>

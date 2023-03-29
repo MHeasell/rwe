@@ -4,7 +4,7 @@
 #include <rwe/Particle.h>
 #include <rwe/PlayerColorIndex.h>
 #include <rwe/RenderService.h>
-#include <rwe/VectorMap.h>
+#include <rwe/collections/VectorMap.h>
 #include <rwe/math/Matrix4x.h>
 #include <rwe/pathfinding/AStarPathFinder.h>
 #include <rwe/pathfinding/PathCost.h>

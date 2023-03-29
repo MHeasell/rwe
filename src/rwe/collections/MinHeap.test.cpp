@@ -14,7 +14,7 @@ namespace std
 #include <optional>
 #include <rapidcheck/boost.h>
 #include <rapidcheck/catch.h>
-#include <rwe/MinHeap.h>
+#include <rwe/collections/MinHeap.h>
 #include <rwe/grid/Point.h>
 #include <rwe/optional_io.h>
 #include <rwe/rc_gen_optional.h>

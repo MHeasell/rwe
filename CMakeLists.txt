@@ -272,7 +272,6 @@ set(SOURCE_FILES
     src/rwe/MeshDatabase.h
     src/rwe/MeshService.cpp
     src/rwe/MeshService.h
-    src/rwe/MinHeap.h
     src/rwe/MovementClassCollisionService.cpp
     src/rwe/MovementClassCollisionService.h
     src/rwe/OpaqueField.h
@@ -305,7 +304,6 @@ set(SOURCE_FILES
     src/rwe/SharedHandle.h
     src/rwe/SideData.cpp
     src/rwe/SideData.h
-    src/rwe/SimpleVectorMap.h
     src/rwe/SoundClass.cpp
     src/rwe/SoundClass.h
     src/rwe/TextureService.cpp
@@ -318,8 +316,6 @@ set(SOURCE_FILES
     src/rwe/UnitPieceMeshInfo.cpp
     src/rwe/UnitPieceMeshInfo.h
     src/rwe/UnitSoundType.h
-    src/rwe/VectorMap.cpp
-    src/rwe/VectorMap.h
     src/rwe/Viewport.cpp
     src/rwe/Viewport.h
     src/rwe/WeaponMediaInfo.cpp
@@ -350,6 +346,10 @@ set(SOURCE_FILES
     src/rwe/cob/cob_util.cpp
     src/rwe/cob/cob_util.h
     src/rwe/collection_util.h
+    src/rwe/collections/MinHeap.h
+    src/rwe/collections/SimpleVectorMap.h
+    src/rwe/collections/VectorMap.cpp
+    src/rwe/collections/VectorMap.h
     src/rwe/dump_util.cpp
     src/rwe/dump_util.h
     src/rwe/events.cpp
@@ -780,12 +780,12 @@ endif()
 set(TEST_FILES
     src/rwe/BoxTreeSplit.test.cpp
     src/rwe/GameHash_util.test.cpp
-    src/rwe/MinHeap.test.cpp
     src/rwe/Result.test.cpp
     src/rwe/SideData.test.cpp
-    src/rwe/VectorMap.test.cpp
     src/rwe/Viewport.test.cpp
     src/rwe/cob/cob_util.test.cpp
+    src/rwe/collections/MinHeap.test.cpp
+    src/rwe/collections/VectorMap.test.cpp
     src/rwe/dump_util.test.cpp
     src/rwe/geometry/BoundingBox3f.test.cpp
     src/rwe/geometry/Circle2f.test.cpp

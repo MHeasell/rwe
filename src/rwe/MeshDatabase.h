@@ -5,10 +5,10 @@
 #include <memory>
 #include <rwe/AudioService.h>
 #include <rwe/FeatureMediaInfo.h>
-#include <rwe/SimpleVectorMap.h>
 #include <rwe/SoundClass.h>
 #include <rwe/UnitPieceMeshInfo.h>
 #include <rwe/WeaponMediaInfo.h>
+#include <rwe/collections/SimpleVectorMap.h>
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/render/GlMesh.h>
 #include <rwe/render/SpriteSeries.h>

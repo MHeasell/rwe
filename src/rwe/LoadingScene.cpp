@@ -4,8 +4,8 @@
 #include <rwe/GameNetworkService.h>
 #include <rwe/Index.h>
 #include <rwe/MapTerrainGraphics.h>
-#include <rwe/SimpleVectorMap.h>
 #include <rwe/atlas_util.h>
+#include <rwe/collections/SimpleVectorMap.h>
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/io/fbi/io.h>
 #include <rwe/io/featuretdf/io.h>

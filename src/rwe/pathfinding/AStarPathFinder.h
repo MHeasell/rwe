@@ -2,7 +2,7 @@
 
 #include <deque>
 #include <optional>
-#include <rwe/MinHeap.h>
+#include <rwe/collections/MinHeap.h>
 #include <spdlog/spdlog.h>
 #include <unordered_map>
 #include <vector>

@@ -2,7 +2,7 @@
 
 #include <boost/functional/hash.hpp>
 #include <memory>
-#include <rwe/SimpleVectorMap.h>
+#include <rwe/collections/SimpleVectorMap.h>
 #include <rwe/io/cob/Cob.h>
 #include <rwe/io/fbi/UnitFbi.h>
 #include <rwe/io/gui/gui.h>
