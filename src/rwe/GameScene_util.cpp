@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <boost/algorithm/string/predicate.hpp>
-#include <rwe/Index.h>
+#include <rwe/util/Index.h>
 
 namespace rwe
 {

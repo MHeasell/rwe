@@ -1,10 +1,10 @@
 #include "UnitState.h"
 #include <rwe/GameScene.h>
-#include <rwe/Index.h>
 #include <rwe/geometry/Plane3f.h>
 #include <rwe/math/rwe_math.h>
 #include <rwe/matrix_util.h>
 #include <rwe/sim/UnitState_util.h>
+#include <rwe/util/Index.h>
 
 namespace rwe
 {

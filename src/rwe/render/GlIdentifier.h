@@ -2,7 +2,7 @@
 
 #include <GL/glew.h>
 #include <functional>
-#include <rwe/OpaqueId.h>
+#include <rwe/util/OpaqueId.h>
 
 namespace rwe
 {

@@ -255,7 +255,6 @@ set(SOURCE_FILES
     src/rwe/ImGuiContext.h
     src/rwe/InGameSoundsInfo.cpp
     src/rwe/InGameSoundsInfo.h
-    src/rwe/Index.h
     src/rwe/LoadingNetworkService.cpp
     src/rwe/LoadingNetworkService.h
     src/rwe/LoadingScene.cpp
@@ -274,10 +273,6 @@ set(SOURCE_FILES
     src/rwe/MeshService.h
     src/rwe/MovementClassCollisionService.cpp
     src/rwe/MovementClassCollisionService.h
-    src/rwe/OpaqueField.h
-    src/rwe/OpaqueId.h
-    src/rwe/OpaqueId_io.h
-    src/rwe/OpaqueUnit.h
     src/rwe/Particle.cpp
     src/rwe/Particle.h
     src/rwe/PathMapping.cpp
@@ -292,7 +287,6 @@ set(SOURCE_FILES
     src/rwe/RadiansAngle.h
     src/rwe/RenderService.cpp
     src/rwe/RenderService.h
-    src/rwe/Result.h
     src/rwe/SceneContext.h
     src/rwe/SceneTime.cpp
     src/rwe/SceneTime.h
@@ -301,7 +295,6 @@ set(SOURCE_FILES
     src/rwe/SelectionMesh.h
     src/rwe/ShaderService.cpp
     src/rwe/ShaderService.h
-    src/rwe/SharedHandle.h
     src/rwe/SideData.cpp
     src/rwe/SideData.h
     src/rwe/SoundClass.cpp
@@ -310,7 +303,6 @@ set(SOURCE_FILES
     src/rwe/TextureService.h
     src/rwe/UiRenderService.cpp
     src/rwe/UiRenderService.h
-    src/rwe/UniqueHandle.h
     src/rwe/UnitDatabase.cpp
     src/rwe/UnitDatabase.h
     src/rwe/UnitPieceMeshInfo.cpp
@@ -433,7 +425,6 @@ set(SOURCE_FILES
     src/rwe/io_utils.h
     src/rwe/ip_util.cpp
     src/rwe/ip_util.h
-    src/rwe/match.h
     src/rwe/math/Matrix4f.h
     src/rwe/math/Matrix4x.h
     src/rwe/math/Vector2f.h
@@ -589,6 +580,15 @@ set(SOURCE_FILES
     src/rwe/ui/events.h
     src/rwe/util.cpp
     src/rwe/util.h
+    src/rwe/util/Index.h
+    src/rwe/util/OpaqueField.h
+    src/rwe/util/OpaqueId.h
+    src/rwe/util/OpaqueId_io.h
+    src/rwe/util/OpaqueUnit.h
+    src/rwe/util/Result.h
+    src/rwe/util/SharedHandle.h
+    src/rwe/util/UniqueHandle.h
+    src/rwe/util/match.h
     src/rwe/vertex_height.cpp
     src/rwe/vertex_height.h
     src/rwe/vfs/AbstractVirtualFileSystem.h
@@ -780,7 +780,6 @@ endif()
 set(TEST_FILES
     src/rwe/BoxTreeSplit.test.cpp
     src/rwe/GameHash_util.test.cpp
-    src/rwe/Result.test.cpp
     src/rwe/SideData.test.cpp
     src/rwe/Viewport.test.cpp
     src/rwe/cob/cob_util.test.cpp
@@ -819,6 +818,7 @@ set(TEST_FILES
     src/rwe/sim/UnitState_util.test.cpp
     src/rwe/sim/util.test.cpp
     src/rwe/util.test.cpp
+    src/rwe/util/Result.test.cpp
     )
 
 add_executable(rwe_test src/test.cpp ${TEST_FILES})

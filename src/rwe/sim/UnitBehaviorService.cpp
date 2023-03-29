@@ -1,11 +1,11 @@
 #include "UnitBehaviorService.h"
-#include <rwe/Index.h>
 #include <rwe/cob/CobExecutionContext.h>
-#include <rwe/match.h>
 #include <rwe/math/rwe_math.h>
 #include <rwe/sim/UnitBehaviorService_util.h>
 #include <rwe/sim/cob.h>
 #include <rwe/sim/movement.h>
+#include <rwe/util/Index.h>
+#include <rwe/util/match.h>
 
 namespace rwe
 {

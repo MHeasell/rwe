@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <rwe/OpaqueId.h>
+#include <rwe/util/OpaqueId.h>
 
 namespace rwe
 {

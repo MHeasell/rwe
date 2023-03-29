@@ -2,7 +2,7 @@
 
 #include <deque>
 #include <optional>
-#include <rwe/OpaqueId.h>
+#include <rwe/util/OpaqueId.h>
 #include <utility>
 
 namespace rwe

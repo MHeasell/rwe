@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cassert>
-#include <rwe/UniqueHandle.h>
+#include <rwe/util/UniqueHandle.h>
 
 namespace rwe
 {

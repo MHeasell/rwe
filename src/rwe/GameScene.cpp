@@ -5,18 +5,18 @@
 #include <functional>
 #include <rwe/CroppedViewport.h>
 #include <rwe/GameScene_util.h>
-#include <rwe/Index.h>
 #include <rwe/Mesh.h>
 #include <rwe/camera_util.h>
 #include <rwe/dump_util.h>
 #include <rwe/io/featuretdf/FeatureTdf.h>
-#include <rwe/match.h>
 #include <rwe/matrix_util.h>
 #include <rwe/resource_io.h>
 #include <rwe/sim/SimTicksPerSecond.h>
 #include <rwe/sim/UnitBehaviorService.h>
 #include <rwe/sim/cob.h>
 #include <rwe/ui/UiStagedButton.h>
+#include <rwe/util/Index.h>
+#include <rwe/util/match.h>
 #include <spdlog/spdlog.h>
 
 namespace rwe

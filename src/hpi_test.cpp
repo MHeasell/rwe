@@ -3,7 +3,7 @@
 #include <iostream>
 #include <memory>
 #include <rwe/io/hpi/HpiArchive.h>
-#include <rwe/match.h>
+#include <rwe/util/match.h>
 #include <string>
 
 namespace fs = boost::filesystem;

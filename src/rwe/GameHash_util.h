@@ -2,8 +2,8 @@
 
 #include <cstdint>
 #include <rwe/GameHash.h>
-#include <rwe/match.h>
 #include <rwe/sim/GameSimulation.h>
+#include <rwe/util/match.h>
 
 namespace rwe
 {

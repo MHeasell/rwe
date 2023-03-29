@@ -1,6 +1,6 @@
 #include "UiFactory.h"
-#include <rwe/Index.h>
 #include <rwe/ui/UiSurface.h>
+#include <rwe/util/Index.h>
 
 #include <memory>
 #include <rwe/MainMenuScene.h>

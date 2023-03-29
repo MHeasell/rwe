@@ -1,5 +1,5 @@
 #include <catch2/catch.hpp>
-#include <rwe/Result.h>
+#include <rwe/util/Result.h>
 
 #include <string>
 

@@ -1,5 +1,4 @@
 #include "MainMenuScene.h"
-#include <rwe/Index.h>
 #include <rwe/LoadingScene.h>
 #include <rwe/MainMenuModel.h>
 #include <rwe/camera_util.h>
@@ -9,6 +8,7 @@
 #include <rwe/io/tdf/tdf.h>
 #include <rwe/resource_io.h>
 #include <rwe/ui/UiSurface.h>
+#include <rwe/util/Index.h>
 
 namespace rwe
 {

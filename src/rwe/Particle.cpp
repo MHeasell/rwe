@@ -1,5 +1,5 @@
 #include "Particle.h"
-#include <rwe/match.h>
+#include <rwe/util/match.h>
 
 namespace rwe
 {

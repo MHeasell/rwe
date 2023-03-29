@@ -2,7 +2,6 @@
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include <rwe/FeatureMediaInfo.h>
 #include <rwe/GameNetworkService.h>
-#include <rwe/Index.h>
 #include <rwe/MapTerrainGraphics.h>
 #include <rwe/atlas_util.h>
 #include <rwe/collections/SimpleVectorMap.h>
@@ -16,6 +15,7 @@
 #include <rwe/pathfinding/PathFindingService.h>
 #include <rwe/sim/FeatureDefinitionId.h>
 #include <rwe/ui/UiLabel.h>
+#include <rwe/util/Index.h>
 
 namespace rwe
 {

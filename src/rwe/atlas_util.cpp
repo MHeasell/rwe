@@ -1,9 +1,9 @@
 #include "atlas_util.h"
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include <rwe/BoxTreeSplit.h>
-#include <rwe/Index.h>
 #include <rwe/io/gaf/GafArchive.h>
-#include <rwe/match.h>
+#include <rwe/util/Index.h>
+#include <rwe/util/match.h>
 
 namespace rwe
 {

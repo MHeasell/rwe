@@ -1,11 +1,11 @@
 #include <catch2/catch.hpp>
 #include <rapidcheck.h>
 #include <rapidcheck/catch.h>
-#include <rwe/OpaqueId.h>
-#include <rwe/OpaqueId_io.h>
 #include <rwe/collections/VectorMap.h>
 #include <rwe/optional_io.h>
 #include <rwe/rc_gen_optional.h>
+#include <rwe/util/OpaqueId.h>
+#include <rwe/util/OpaqueId_io.h>
 
 namespace rwe
 {

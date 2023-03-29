@@ -10,7 +10,6 @@
 #include <rwe/MainMenuScene.h>
 #include <rwe/PathMapping.h>
 #include <rwe/PlayerColorIndex.h>
-#include <rwe/Result.h>
 #include <rwe/SceneContext.h>
 #include <rwe/SdlContextManager.h>
 #include <rwe/ShaderService.h>
@@ -27,6 +26,7 @@
 #include <rwe/sim/Metal.h>
 #include <rwe/ui/UiFactory.h>
 #include <rwe/util.h>
+#include <rwe/util/Result.h>
 #include <rwe/vfs/CompositeVirtualFileSystem.h>
 #include <spdlog/spdlog.h>
 

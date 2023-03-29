@@ -1,7 +1,7 @@
 #include "LoadingNetworkService.h"
 #include <algorithm>
-#include <rwe/Index.h>
 #include <rwe/network_util.h>
+#include <rwe/util/Index.h>
 #include <spdlog/spdlog.h>
 
 namespace rwe

@@ -2,9 +2,9 @@
 
 #include <cassert>
 #include <cstdint>
-#include <rwe/OpaqueId.h>
 #include <rwe/RadiansAngle.h>
 #include <rwe/sim/SimScalar.h>
+#include <rwe/util/OpaqueId.h>
 
 namespace rwe
 {

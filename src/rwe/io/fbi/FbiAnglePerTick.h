@@ -1,8 +1,8 @@
 #pragma once
 
 #include <cstdint>
-#include <rwe/OpaqueUnit.h>
 #include <rwe/sim/SimScalar.h>
+#include <rwe/util/OpaqueUnit.h>
 
 namespace rwe
 {

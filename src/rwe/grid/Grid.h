@@ -4,8 +4,8 @@
 #include <cassert>
 #include <functional>
 #include <optional>
-#include <rwe/Index.h>
 #include <rwe/grid/DiscreteRect.h>
+#include <rwe/util/Index.h>
 #include <stdexcept>
 #include <vector>
 

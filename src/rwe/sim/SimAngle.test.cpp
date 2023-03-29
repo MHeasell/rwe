@@ -1,8 +1,8 @@
 #include <catch2/catch.hpp>
 #include <rapidcheck/catch.h>
-#include <rwe/OpaqueId_io.h>
 #include <rwe/sim/SimAngle.h>
 #include <rwe/util.h>
+#include <rwe/util/OpaqueId_io.h>
 
 namespace rc
 {

@@ -4,8 +4,8 @@
 #include <deque>
 #include <functional>
 #include <optional>
-#include <rwe/OpaqueId.h>
-#include <rwe/match.h>
+#include <rwe/util/OpaqueId.h>
+#include <rwe/util/match.h>
 #include <stdexcept>
 #include <utility>
 #include <variant>

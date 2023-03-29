@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rwe/OpaqueField.h>
+#include <rwe/util/OpaqueField.h>
 
 namespace rwe
 {

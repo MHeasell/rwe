@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rwe/OpaqueUnit.h>
+#include <rwe/util/OpaqueUnit.h>
 
 namespace rwe
 {
