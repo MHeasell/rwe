@@ -1,4 +1,5 @@
 #include "CursorService.h"
+#include <rwe/sdl/SdlContext.h>
 
 namespace rwe
 {

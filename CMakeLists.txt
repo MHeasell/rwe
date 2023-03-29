@@ -290,8 +290,6 @@ set(SOURCE_FILES
     src/rwe/SceneContext.h
     src/rwe/SceneTime.cpp
     src/rwe/SceneTime.h
-    src/rwe/SdlContextManager.cpp
-    src/rwe/SdlContextManager.h
     src/rwe/SelectionMesh.h
     src/rwe/ShaderService.cpp
     src/rwe/ShaderService.h
@@ -501,6 +499,14 @@ set(SOURCE_FILES
     src/rwe/scene/SceneManager.cpp
     src/rwe/scene/SceneManager.h
     src/rwe/scene/util.h
+    src/rwe/sdl/SdlContext.h
+    src/rwe/sdl/SdlContextManager.cpp
+    src/rwe/sdl/SdlContextManager.h
+    src/rwe/sdl/SdlException.h
+    src/rwe/sdl/SdlImageContext.h
+    src/rwe/sdl/SdlImageException.h
+    src/rwe/sdl/SdlMixerContext.h
+    src/rwe/sdl/SdlMixerException.h
     src/rwe/sim/Energy.h
     src/rwe/sim/FeatureDefinition.cpp
     src/rwe/sim/FeatureDefinition.h

@@ -2,8 +2,9 @@
 
 #include <functional>
 #include <memory>
-#include <rwe/SdlContextManager.h>
 #include <rwe/observable/Subject.h>
+#include <rwe/sdl/SdlContext.h>
+#include <rwe/sdl/SdlMixerContext.h>
 #include <rwe/vfs/AbstractVirtualFileSystem.h>
 #include <unordered_map>
 

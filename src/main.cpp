@@ -11,7 +11,6 @@
 #include <rwe/PathMapping.h>
 #include <rwe/PlayerColorIndex.h>
 #include <rwe/SceneContext.h>
-#include <rwe/SdlContextManager.h>
 #include <rwe/ShaderService.h>
 #include <rwe/Viewport.h>
 #include <rwe/config.h>
@@ -22,6 +21,8 @@
 #include <rwe/render/OpenGlVersion.h>
 #include <rwe/rwe_time.h>
 #include <rwe/scene/SceneManager.h>
+#include <rwe/sdl/SdlContext.h>
+#include <rwe/sdl/SdlContextManager.h>
 #include <rwe/sim/Energy.h>
 #include <rwe/sim/Metal.h>
 #include <rwe/ui/UiFactory.h>

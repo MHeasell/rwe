@@ -9,6 +9,7 @@
 #include <rwe/Viewport.h>
 #include <rwe/rwe_time.h>
 #include <rwe/scene/SceneManager.h>
+#include <rwe/sdl/SdlContext.h>
 #include <rwe/vfs/AbstractVirtualFileSystem.h>
 
 namespace rwe

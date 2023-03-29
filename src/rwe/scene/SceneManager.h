@@ -5,10 +5,10 @@
 #include <rwe/CursorService.h>
 #include <rwe/GlobalConfig.h>
 #include <rwe/ImGuiContext.h>
-#include <rwe/SdlContextManager.h>
 #include <rwe/render/GraphicsContext.h>
 #include <rwe/rwe_time.h>
 #include <rwe/scene/Scene.h>
+#include <rwe/sdl/SdlContext.h>
 #include <stack>
 
 namespace rwe

@@ -2,11 +2,11 @@
 
 #include <array>
 #include <memory>
-#include <rwe/SdlContextManager.h>
 #include <rwe/UiRenderService.h>
 #include <rwe/render/GraphicsContext.h>
 #include <rwe/render/SpriteSeries.h>
 #include <rwe/rwe_time.h>
+#include <rwe/sdl/SdlContext.h>
 
 namespace rwe
 {

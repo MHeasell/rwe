@@ -1,31 +1,11 @@
 #pragma once
 
 #include <SDL.h>
-#include <SDL_mixer.h>
-#include <functional>
 #include <memory>
-#include <stdexcept>
+#include <rwe/sdl/SdlException.h>
 
 namespace rwe
 {
-    class SDLException : public std::runtime_error
-    {
-    public:
-        explicit SDLException(const char* sdlError);
-    };
-
-    class SDLMixerException : public std::runtime_error
-    {
-    public:
-        explicit SDLMixerException(const char* sdlError);
-    };
-
-    class SDLImageException : public std::runtime_error
-    {
-    public:
-        explicit SDLImageException(const char* sdlError);
-    };
-
     class SdlContext
     {
     public:
@@ -47,9 +27,18 @@ namespace rwe
         using GlContextUniquePtr = std::unique_ptr<void, GlContextDeleter>;
 
     private:
-        SdlContext();
+        SdlContext()
+        {
+            if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) != 0)
+            {
+                throw rwe::SDLException(SDL_GetError());
+            }
+        }
         SdlContext(const SdlContext&) = delete;
-        ~SdlContext();
+        ~SdlContext()
+        {
+            SDL_Quit();
+        }
 
     public:
         std::unique_ptr<SDL_Window, WindowDeleter> createWindow(const char* title, int x, int y, int w, int h, Uint32 flags)
@@ -144,102 +133,5 @@ namespace rwe
 
     private:
         friend class SdlContextManager;
-    };
-
-    class SdlMixerContext
-    {
-    private:
-        SdlMixerContext();
-        SdlMixerContext(const SdlMixerContext&) = delete;
-        ~SdlMixerContext();
-
-        friend class SdlContextManager;
-
-    public:
-        struct MixChunkDeleter
-        {
-            void operator()(Mix_Chunk* chunk) { Mix_FreeChunk(chunk); }
-        };
-
-        std::unique_ptr<Mix_Chunk, MixChunkDeleter> loadWavRw(SDL_RWops* src)
-        {
-            return std::unique_ptr<Mix_Chunk, MixChunkDeleter>(Mix_LoadWAV_RW(src, 0));
-        };
-
-        void allocateChannels(int numChans)
-        {
-            Mix_AllocateChannels(numChans);
-        }
-
-        int playChannel(int channel, Mix_Chunk* chunk, int loops)
-        {
-            return Mix_PlayChannel(channel, chunk, loops);
-        }
-
-        void haltChannel(int channel)
-        {
-            Mix_HaltChannel(channel);
-        }
-
-        int volumeChunk(Mix_Chunk* chunk, int volume)
-        {
-            return Mix_VolumeChunk(chunk, volume);
-        }
-
-        int reserveChannels(int num)
-        {
-            return Mix_ReserveChannels(num);
-        }
-
-        int playing(int channel)
-        {
-            return Mix_Playing(channel);
-        }
-
-        void channelFinished(std::function<void(int)> f)
-        {
-            static auto cachedF = f;
-            void (*callback)(int) = [](int channel) { cachedF(channel); };
-            return Mix_ChannelFinished(callback);
-        }
-
-        int volume(int channel, int volume)
-        {
-            return Mix_Volume(channel, volume);
-        }
-    };
-
-    class SdlImageContext
-    {
-    private:
-        SdlImageContext();
-        SdlImageContext(const SdlImageContext&) = delete;
-        ~SdlImageContext();
-
-        friend class SdlContextManager;
-    };
-
-    /**
-     * Manages the lifetime of SDL contexts.
-     * Contexts accessed via this manager
-     * are only valid for the lifetime of the manager.
-     *
-     * SDL is a global resource so don't instantiate more than one of these.
-     */
-    class SdlContextManager
-    {
-    public:
-        SdlContextManager();
-        SdlContextManager(const SdlContextManager&) = delete;
-
-        const SdlContext* getSdlContext() const;
-        SdlContext* getSdlContext();
-        SdlMixerContext* getSdlMixerContext();
-        const SdlImageContext* getSdlImageContext() const;
-
-    private:
-        SdlContext sdlContext;
-        SdlMixerContext sdlMixerContext;
-        SdlImageContext sdlImageContext;
     };
 }
