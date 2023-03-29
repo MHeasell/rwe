@@ -31,14 +31,20 @@ for my $filename (@ARGV) {
         if ($filename =~ /\.cpp$/ && $line eq "#include \"$header_filename\"") {
             print $tmpfh "$line\n";
         }
-        elsif ($line =~ /^#include "(rwe\/[^"]+)"$/) {
-            my $file = $1;
-            print $tmpfh "#include <$file>\n";
-        }
         elsif ($line =~ /^#include "([^"]+)"$/) {
             my $file = $1;
             my $fixed_file = catfile($basedir, $file);
-            print $tmpfh "#include <$fixed_file>\n";
+
+            # Only fix the include if the referenced file actually exists
+            # at the relative location.
+            # Otherwise just convert to angle brackets,
+            # it's probably a system include.
+            if (-f catfile("src", $fixed_file)) {
+                print $tmpfh "#include <$fixed_file>\n";
+            }
+            else {
+                print $tmpfh "#include <$file>\n";
+            }
         }
         else {
             print $tmpfh "$line\n";
