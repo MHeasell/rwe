@@ -9,7 +9,7 @@ reformat() {
     mv "$1.__reformat-tmp" "$1"
 }
 
-git diff --name-only --diff-filter=d -z '*.cpp' '*.h' |
+git diff --name-only --diff-filter=d -z HEAD -- '*.cpp' '*.h' |
 while read -r -d '' file; do
     "$script_dir/fix-includes.pl" "$file"
     reformat "$file"
