@@ -69,4 +69,27 @@ namespace rwe
     {
         return (std::abs(b - a) < delta);
     }
+
+    float toRadians(float v)
+    {
+        return v * (Pif / 180.0f);
+    }
+
+    float rweLerp(float a, float b, float t)
+    {
+        return (1.0f - t) * a + t * b;
+    }
+
+    float angleLerp(float a, float b, float t)
+    {
+        if (b - a >= Pif)
+        {
+            return rweLerp(a + (2.0f * Pif), b, t);
+        }
+        if (b - a < -Pif)
+        {
+            return rweLerp(a, b + (2.0f * Pif), t);
+        }
+        return rweLerp(a, b, t);
+    }
 }

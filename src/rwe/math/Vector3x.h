@@ -4,7 +4,7 @@
 #include <cmath>
 #include <optional>
 #include <ostream>
-#include <rwe/math/Vector2f.h>
+#include <rwe/math/Vector2x.h>
 
 namespace rwe
 {

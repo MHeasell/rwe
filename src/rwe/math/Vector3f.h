@@ -1,7 +1,5 @@
 #pragma once
 
-#include <optional>
-#include <ostream>
 #include <rwe/float_math.h>
 #include <rwe/math/Vector3x.h>
 

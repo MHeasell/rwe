@@ -2,8 +2,6 @@
 
 #include <array>
 #include <rwe/grid/Point.h>
-#include <rwe/math/rwe_math.h>
-#include <stdexcept>
 
 namespace rwe
 {

@@ -15,18 +15,12 @@ namespace rwe
         Z
     };
 
-    static const float Pif = 3.14159265358979323846f;
-
     std::optional<boost::filesystem::path> getLocalDataPath();
     std::optional<boost::filesystem::path> getSearchPath();
-
-    float toRadians(float v);
 
     RadiansAngle toRadians(CobAngle angle);
 
     float toleranceToRadians(unsigned int angle);
 
     CobAngle toCobAngle(RadiansAngle angle);
-
-    float angleLerp(float a, float b, float t);
 }

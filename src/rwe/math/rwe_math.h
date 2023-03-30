@@ -2,6 +2,8 @@
 
 namespace rwe
 {
+    static const float Pif = 3.14159265358979323846f;
+
     /**
      * Quantizes a value to the nearest multiple of the given interval.
      *
@@ -50,4 +52,10 @@ namespace rwe
     float distanceToRange(float min, float max, float pos);
 
     float distanceSquaredToRange(float min, float max, float pos);
+
+    float toRadians(float v);
+
+    float rweLerp(float a, float b, float t);
+
+    float angleLerp(float a, float b, float t);
 }

@@ -3,17 +3,11 @@
 #include <deque>
 #include <memory>
 #include <optional>
-#include <rwe/AudioService.h>
 #include <rwe/cob/CobEnvironment.h>
-#include <rwe/geometry/BoundingBox3f.h>
-#include <rwe/geometry/CollisionMesh.h>
 #include <rwe/grid/DiscreteRect.h>
-#include <rwe/grid/Grid.h>
 #include <rwe/pathfinding/UnitPath.h>
 #include <rwe/sim/Energy.h>
 #include <rwe/sim/Metal.h>
-#include <rwe/sim/MovementClass.h>
-#include <rwe/sim/MovementClassId.h>
 #include <rwe/sim/PlayerId.h>
 #include <rwe/sim/SimAngle.h>
 #include <rwe/sim/SimScalar.h>
@@ -23,6 +17,7 @@
 #include <rwe/sim/UnitMesh.h>
 #include <rwe/sim/UnitOrder.h>
 #include <rwe/sim/UnitWeapon.h>
+#include <rwe/util.h>
 #include <variant>
 
 namespace rwe

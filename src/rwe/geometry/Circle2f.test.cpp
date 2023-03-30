@@ -3,7 +3,7 @@
 #include <rapidcheck/catch.h>
 #include <rwe/geometry/Circle2f.h>
 #include <rwe/math/Vector2f.h>
-#include <rwe/util.h>
+#include <rwe/math/rwe_math.h>
 
 namespace rwe
 {

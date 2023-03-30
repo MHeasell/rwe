@@ -1,7 +1,7 @@
 #include <catch2/catch.hpp>
+#include <rwe/math/Vector2f.h>
 #include <rwe/math/Vector3f.h>
-#include <rwe/optional_io.h>
-#include <rwe/util.h>
+#include <rwe/math/rwe_math.h>
 #include <sstream>
 
 namespace rwe

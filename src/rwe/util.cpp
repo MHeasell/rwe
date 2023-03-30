@@ -1,5 +1,6 @@
 #include "util.h"
 #include <cmath>
+#include <rwe/math/rwe_math.h>
 
 namespace rwe
 {
@@ -49,11 +50,6 @@ namespace rwe
         return *path;
     }
 
-    float toRadians(float v)
-    {
-        return v * (Pif / 180.0f);
-    }
-
     RadiansAngle toRadians(CobAngle angle)
     {
         return RadiansAngle::fromUnwrappedAngle(static_cast<float>(angle.value) * (Pif / 32768.0f));
@@ -69,16 +65,4 @@ namespace rwe
         return CobAngle(static_cast<uint16_t>(std::round(angle.value * (32768.0f / Pif))));
     }
 
-    float angleLerp(float a, float b, float t)
-    {
-        if (b - a >= Pif)
-        {
-            return rweLerp(a + (2.0f * Pif), b, t);
-        }
-        if (b - a < -Pif)
-        {
-            return rweLerp(a, b + (2.0f * Pif), t);
-        }
-        return rweLerp(a, b, t);
-    }
 }

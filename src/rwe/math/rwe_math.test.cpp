@@ -1,7 +1,6 @@
 #include <catch2/catch.hpp>
 #include <rapidcheck/catch.h>
 #include <rwe/math/rwe_math.h>
-#include <rwe/util.h>
 
 namespace rwe
 {

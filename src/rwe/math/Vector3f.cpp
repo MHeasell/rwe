@@ -1,5 +1,7 @@
 #include "Vector3f.h"
 
+#include <rwe/math/rwe_math.h>
+
 namespace rwe
 {
     /**

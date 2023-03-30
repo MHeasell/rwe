@@ -1,7 +1,7 @@
 #include <catch2/catch.hpp>
 #include <rwe/math/Matrix4f.h>
 #include <rwe/math/Vector3f.h>
-#include <rwe/util.h>
+#include <rwe/math/rwe_math.h>
 
 namespace rwe
 {

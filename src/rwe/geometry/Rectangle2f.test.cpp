@@ -1,5 +1,6 @@
 #include <catch2/catch.hpp>
 #include <rwe/geometry/Rectangle2f.h>
+#include <rwe/math/Vector2f.h>
 
 namespace rwe
 {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <rwe/grid/Grid.h>
 #include <rwe/sim/Energy.h>
 #include <rwe/sim/Metal.h>
 #include <rwe/sim/MovementClassId.h>

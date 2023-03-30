@@ -1,5 +1,5 @@
 #include "EightWayDirection.h"
-#include <rwe/util.h>
+#include <rwe/math/rwe_math.h>
 
 namespace rwe
 {

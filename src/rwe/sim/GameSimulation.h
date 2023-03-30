@@ -6,6 +6,7 @@
 #include <rwe/PlayerColorIndex.h>
 #include <rwe/collections/SimpleVectorMap.h>
 #include <rwe/collections/VectorMap.h>
+#include <rwe/geometry/BoundingBox3x.h>
 #include <rwe/pathfinding/PathFindingService.h>
 #include <rwe/sim/FeatureDefinition.h>
 #include <rwe/sim/FeatureId.h>

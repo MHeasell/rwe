@@ -2,9 +2,7 @@
 
 #include <rwe/math/Vector3f.h>
 #include <rwe/math/Vector3x.h>
-#include <rwe/sim/SimAngle.h>
 #include <rwe/sim/SimScalar.h>
-#include <rwe/util.h>
 
 namespace rwe
 {

@@ -1,7 +1,6 @@
 #include "SimAngle.h"
 #include <cmath>
 #include <rwe/math/rwe_math.h>
-#include <rwe/util.h>
 
 namespace rwe
 {
