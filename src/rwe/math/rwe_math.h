@@ -1,8 +1,5 @@
 #pragma once
 
-#include <rwe/grid/Point.h>
-#include <rwe/math/Vector2f.h>
-
 namespace rwe
 {
     /**
