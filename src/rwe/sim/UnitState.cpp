@@ -169,7 +169,7 @@ namespace rwe
         return buildTimeCompleted == unitDefinition.buildTime;
     }
 
-    void UnitState::moveObject(const std::string& pieceName, Axis axis, SimScalar targetPosition, SimScalar speed)
+    void UnitState::moveObject(const std::string& pieceName, SimAxis axis, SimScalar targetPosition, SimScalar speed)
     {
         auto piece = findPiece(pieceName);
         if (!piece)
@@ -181,19 +181,19 @@ namespace rwe
 
         switch (axis)
         {
-            case Axis::X:
+            case SimAxis::X:
                 piece->get().xMoveOperation = op;
                 break;
-            case Axis::Y:
+            case SimAxis::Y:
                 piece->get().yMoveOperation = op;
                 break;
-            case Axis::Z:
+            case SimAxis::Z:
                 piece->get().zMoveOperation = op;
                 break;
         }
     }
 
-    void UnitState::moveObjectNow(const std::string& pieceName, Axis axis, SimScalar targetPosition)
+    void UnitState::moveObjectNow(const std::string& pieceName, SimAxis axis, SimScalar targetPosition)
     {
         auto piece = findPiece(pieceName);
         if (!piece)
@@ -203,22 +203,22 @@ namespace rwe
 
         switch (axis)
         {
-            case Axis::X:
+            case SimAxis::X:
                 piece->get().offset.x = targetPosition;
                 piece->get().xMoveOperation = std::nullopt;
                 break;
-            case Axis::Y:
+            case SimAxis::Y:
                 piece->get().offset.y = targetPosition;
                 piece->get().yMoveOperation = std::nullopt;
                 break;
-            case Axis::Z:
+            case SimAxis::Z:
                 piece->get().offset.z = targetPosition;
                 piece->get().zMoveOperation = std::nullopt;
                 break;
         }
     }
 
-    void UnitState::turnObject(const std::string& pieceName, Axis axis, SimAngle targetAngle, SimScalar speed)
+    void UnitState::turnObject(const std::string& pieceName, SimAxis axis, SimAngle targetAngle, SimScalar speed)
     {
         auto piece = findPiece(pieceName);
         if (!piece)
@@ -230,19 +230,19 @@ namespace rwe
 
         switch (axis)
         {
-            case Axis::X:
+            case SimAxis::X:
                 piece->get().xTurnOperation = op;
                 break;
-            case Axis::Y:
+            case SimAxis::Y:
                 piece->get().yTurnOperation = op;
                 break;
-            case Axis::Z:
+            case SimAxis::Z:
                 piece->get().zTurnOperation = op;
                 break;
         }
     }
 
-    void UnitState::turnObjectNow(const std::string& pieceName, Axis axis, SimAngle targetAngle)
+    void UnitState::turnObjectNow(const std::string& pieceName, SimAxis axis, SimAngle targetAngle)
     {
         auto piece = findPiece(pieceName);
         if (!piece)
@@ -252,22 +252,22 @@ namespace rwe
 
         switch (axis)
         {
-            case Axis::X:
+            case SimAxis::X:
                 piece->get().rotationX = targetAngle;
                 piece->get().xTurnOperation = std::nullopt;
                 break;
-            case Axis::Y:
+            case SimAxis::Y:
                 piece->get().rotationY = targetAngle;
                 piece->get().yTurnOperation = std::nullopt;
                 break;
-            case Axis::Z:
+            case SimAxis::Z:
                 piece->get().rotationZ = targetAngle;
                 piece->get().zTurnOperation = std::nullopt;
                 break;
         }
     }
 
-    void UnitState::spinObject(const std::string& pieceName, Axis axis, SimScalar speed, SimScalar acceleration)
+    void UnitState::spinObject(const std::string& pieceName, SimAxis axis, SimScalar speed, SimScalar acceleration)
     {
         auto piece = findPiece(pieceName);
         if (!piece)
@@ -279,13 +279,13 @@ namespace rwe
 
         switch (axis)
         {
-            case Axis::X:
+            case SimAxis::X:
                 piece->get().xTurnOperation = op;
                 break;
-            case Axis::Y:
+            case SimAxis::Y:
                 piece->get().yTurnOperation = op;
                 break;
-            case Axis::Z:
+            case SimAxis::Z:
                 piece->get().zTurnOperation = op;
                 break;
         }
@@ -312,7 +312,7 @@ namespace rwe
         existingOp = UnitMesh::StopSpinOperation(spinOp->currentSpeed, deceleration);
     }
 
-    void UnitState::stopSpinObject(const std::string& pieceName, Axis axis, SimScalar deceleration)
+    void UnitState::stopSpinObject(const std::string& pieceName, SimAxis axis, SimScalar deceleration)
     {
 
         auto piece = findPiece(pieceName);
@@ -323,19 +323,19 @@ namespace rwe
 
         switch (axis)
         {
-            case Axis::X:
+            case SimAxis::X:
                 setStopSpinOp(piece->get().xTurnOperation, deceleration);
                 break;
-            case Axis::Y:
+            case SimAxis::Y:
                 setStopSpinOp(piece->get().yTurnOperation, deceleration);
                 break;
-            case Axis::Z:
+            case SimAxis::Z:
                 setStopSpinOp(piece->get().zTurnOperation, deceleration);
                 break;
         }
     }
 
-    bool UnitState::isMoveInProgress(const std::string& pieceName, Axis axis) const
+    bool UnitState::isMoveInProgress(const std::string& pieceName, SimAxis axis) const
     {
         auto piece = findPiece(pieceName);
         if (!piece)
@@ -345,18 +345,18 @@ namespace rwe
 
         switch (axis)
         {
-            case Axis::X:
+            case SimAxis::X:
                 return !!(piece->get().xMoveOperation);
-            case Axis::Y:
+            case SimAxis::Y:
                 return !!(piece->get().yMoveOperation);
-            case Axis::Z:
+            case SimAxis::Z:
                 return !!(piece->get().zMoveOperation);
         }
 
         throw std::logic_error("Invalid axis");
     }
 
-    bool UnitState::isTurnInProgress(const std::string& pieceName, Axis axis) const
+    bool UnitState::isTurnInProgress(const std::string& pieceName, SimAxis axis) const
     {
         auto piece = findPiece(pieceName);
         if (!piece)
@@ -366,11 +366,11 @@ namespace rwe
 
         switch (axis)
         {
-            case Axis::X:
+            case SimAxis::X:
                 return !!(piece->get().xTurnOperation);
-            case Axis::Y:
+            case SimAxis::Y:
                 return !!(piece->get().yTurnOperation);
-            case Axis::Z:
+            case SimAxis::Z:
                 return !!(piece->get().zTurnOperation);
         }
 

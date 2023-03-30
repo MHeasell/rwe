@@ -2,7 +2,7 @@
 
 namespace rwe
 {
-    enum class Axis
+    enum class SimAxis
     {
         X,
         Y,

@@ -5,7 +5,7 @@
 #include <rwe/cob/CobPosition.h>
 #include <rwe/cob/CobTime.h>
 #include <rwe/cob/cob_util.h>
-#include <rwe/sim/Axis.h>
+#include <rwe/sim/SimAxis.h>
 #include <rwe/sim/SimScalar.h>
 
 namespace rwe
@@ -20,16 +20,16 @@ namespace rwe
         return CobTime(time.value + duration.value);
     }
 
-    Axis toAxis(CobAxis axis)
+    SimAxis toSimAxis(CobAxis axis)
     {
         switch (axis)
         {
             case CobAxis::X:
-                return Axis::X;
+                return SimAxis::X;
             case CobAxis::Y:
-                return Axis::Y;
+                return SimAxis::Y;
             case CobAxis::Z:
-                return Axis::Z;
+                return SimAxis::Z;
             default:
                 throw std::logic_error("Invalid CobAxis value");
         }
@@ -116,11 +116,11 @@ namespace rwe
                 auto position = m.axis == CobAxis::X ? -m.position : m.position;
                 if (m.speed)
                 {
-                    simulation.moveObject(unitId, objectName, toAxis(m.axis), cobPositionToSimScalar(position), m.speed->toSimScalar());
+                    simulation.moveObject(unitId, objectName, toSimAxis(m.axis), cobPositionToSimScalar(position), m.speed->toSimScalar());
                 }
                 else
                 {
-                    simulation.moveObjectNow(unitId, objectName, toAxis(m.axis), cobPositionToSimScalar(position));
+                    simulation.moveObjectNow(unitId, objectName, toSimAxis(m.axis), cobPositionToSimScalar(position));
                 }
             },
             [&](const CobEnvironment::PieceCommandStatus::Turn& t) {
@@ -128,18 +128,18 @@ namespace rwe
                 auto angle = t.axis == CobAxis::Z ? -t.angle : t.angle;
                 if (t.speed)
                 {
-                    simulation.turnObject(unitId, objectName, toAxis(t.axis), toWorldAngle(angle), t.speed->toSimScalar());
+                    simulation.turnObject(unitId, objectName, toSimAxis(t.axis), toWorldAngle(angle), t.speed->toSimScalar());
                 }
                 else
                 {
-                    simulation.turnObjectNow(unitId, objectName, toAxis(t.axis), toWorldAngle(angle));
+                    simulation.turnObjectNow(unitId, objectName, toSimAxis(t.axis), toWorldAngle(angle));
                 }
             },
             [&](const CobEnvironment::PieceCommandStatus::Spin& s) {
-                simulation.spinObject(unitId, objectName, toAxis(s.axis), s.targetSpeed.toSimScalar(), s.acceleration.toSimScalar());
+                simulation.spinObject(unitId, objectName, toSimAxis(s.axis), s.targetSpeed.toSimScalar(), s.acceleration.toSimScalar());
             },
             [&](const CobEnvironment::PieceCommandStatus::StopSpin& s) {
-                simulation.stopSpinObject(unitId, objectName, toAxis(s.axis), s.deceleration.toSimScalar());
+                simulation.stopSpinObject(unitId, objectName, toSimAxis(s.axis), s.deceleration.toSimScalar());
             },
             [&](const CobEnvironment::PieceCommandStatus::Show&) {
                 simulation.showObject(unitId, objectName);
@@ -398,11 +398,11 @@ namespace rwe
                 status.condition,
                 [&env, &simulation, unitId](const CobEnvironment::BlockedStatus::Move& condition) {
                     const auto& pieceName = env._script->pieces.at(condition.object);
-                    return !simulation.isPieceMoving(unitId, pieceName, toAxis(condition.axis));
+                    return !simulation.isPieceMoving(unitId, pieceName, toSimAxis(condition.axis));
                 },
                 [&env, &simulation, unitId](const CobEnvironment::BlockedStatus::Turn& condition) {
                     const auto& pieceName = env._script->pieces.at(condition.object);
-                    return !simulation.isPieceTurning(unitId, pieceName, toAxis(condition.axis));
+                    return !simulation.isPieceTurning(unitId, pieceName, toSimAxis(condition.axis));
                 });
 
             if (isUnblocked)

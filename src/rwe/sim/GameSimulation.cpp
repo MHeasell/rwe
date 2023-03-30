@@ -535,42 +535,42 @@ namespace rwe
         return players.at(player.value);
     }
 
-    void GameSimulation::moveObject(UnitId unitId, const std::string& name, Axis axis, SimScalar position, SimScalar speed)
+    void GameSimulation::moveObject(UnitId unitId, const std::string& name, SimAxis axis, SimScalar position, SimScalar speed)
     {
         getUnitState(unitId).moveObject(name, axis, position, speed);
     }
 
-    void GameSimulation::moveObjectNow(UnitId unitId, const std::string& name, Axis axis, SimScalar position)
+    void GameSimulation::moveObjectNow(UnitId unitId, const std::string& name, SimAxis axis, SimScalar position)
     {
         getUnitState(unitId).moveObjectNow(name, axis, position);
     }
 
-    void GameSimulation::turnObject(UnitId unitId, const std::string& name, Axis axis, SimAngle angle, SimScalar speed)
+    void GameSimulation::turnObject(UnitId unitId, const std::string& name, SimAxis axis, SimAngle angle, SimScalar speed)
     {
         getUnitState(unitId).turnObject(name, axis, angle, speed);
     }
 
-    void GameSimulation::turnObjectNow(UnitId unitId, const std::string& name, Axis axis, SimAngle angle)
+    void GameSimulation::turnObjectNow(UnitId unitId, const std::string& name, SimAxis axis, SimAngle angle)
     {
         getUnitState(unitId).turnObjectNow(name, axis, angle);
     }
 
-    void GameSimulation::spinObject(UnitId unitId, const std::string& name, Axis axis, SimScalar speed, SimScalar acceleration)
+    void GameSimulation::spinObject(UnitId unitId, const std::string& name, SimAxis axis, SimScalar speed, SimScalar acceleration)
     {
         getUnitState(unitId).spinObject(name, axis, speed, acceleration);
     }
 
-    void GameSimulation::stopSpinObject(UnitId unitId, const std::string& name, Axis axis, SimScalar deceleration)
+    void GameSimulation::stopSpinObject(UnitId unitId, const std::string& name, SimAxis axis, SimScalar deceleration)
     {
         getUnitState(unitId).stopSpinObject(name, axis, deceleration);
     }
 
-    bool GameSimulation::isPieceMoving(UnitId unitId, const std::string& name, Axis axis) const
+    bool GameSimulation::isPieceMoving(UnitId unitId, const std::string& name, SimAxis axis) const
     {
         return getUnitState(unitId).isMoveInProgress(name, axis);
     }
 
-    bool GameSimulation::isPieceTurning(UnitId unitId, const std::string& name, Axis axis) const
+    bool GameSimulation::isPieceTurning(UnitId unitId, const std::string& name, SimAxis axis) const
     {
         return getUnitState(unitId).isTurnInProgress(name, axis);
     }

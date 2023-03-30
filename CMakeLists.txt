@@ -504,7 +504,6 @@ set(SOURCE_FILES
     src/rwe/sdl/SdlImageException.h
     src/rwe/sdl/SdlMixerContext.h
     src/rwe/sdl/SdlMixerException.h
-    src/rwe/sim/Axis.h
     src/rwe/sim/Energy.h
     src/rwe/sim/FeatureDefinition.cpp
     src/rwe/sim/FeatureDefinition.h
@@ -531,6 +530,7 @@ set(SOURCE_FILES
     src/rwe/sim/ProjectilePhysicsType.h
     src/rwe/sim/SimAngle.cpp
     src/rwe/sim/SimAngle.h
+    src/rwe/sim/SimAxis.h
     src/rwe/sim/SimScalar.cpp
     src/rwe/sim/SimScalar.h
     src/rwe/sim/SimTicksPerSecond.h

@@ -6,11 +6,11 @@
 #include <rwe/cob/CobEnvironment.h>
 #include <rwe/grid/DiscreteRect.h>
 #include <rwe/pathfinding/UnitPath.h>
-#include <rwe/sim/Axis.h>
 #include <rwe/sim/Energy.h>
 #include <rwe/sim/Metal.h>
 #include <rwe/sim/PlayerId.h>
 #include <rwe/sim/SimAngle.h>
+#include <rwe/sim/SimAxis.h>
 #include <rwe/sim/SimScalar.h>
 #include <rwe/sim/SimVector.h>
 #include <rwe/sim/UnitDefinition.h>
@@ -284,21 +284,21 @@ namespace rwe
 
         bool addBuildProgress(const UnitDefinition& unitDefinition, unsigned int buildTimeContribution);
 
-        void moveObject(const std::string& pieceName, Axis axis, SimScalar targetPosition, SimScalar speed);
+        void moveObject(const std::string& pieceName, SimAxis axis, SimScalar targetPosition, SimScalar speed);
 
-        void moveObjectNow(const std::string& pieceName, Axis axis, SimScalar targetPosition);
+        void moveObjectNow(const std::string& pieceName, SimAxis axis, SimScalar targetPosition);
 
-        void turnObject(const std::string& pieceName, Axis axis, SimAngle targetAngle, SimScalar speed);
+        void turnObject(const std::string& pieceName, SimAxis axis, SimAngle targetAngle, SimScalar speed);
 
-        void turnObjectNow(const std::string& pieceName, Axis axis, SimAngle targetAngle);
+        void turnObjectNow(const std::string& pieceName, SimAxis axis, SimAngle targetAngle);
 
-        void spinObject(const std::string& pieceName, Axis axis, SimScalar speed, SimScalar acceleration);
+        void spinObject(const std::string& pieceName, SimAxis axis, SimScalar speed, SimScalar acceleration);
 
-        void stopSpinObject(const std::string& pieceName, Axis axis, SimScalar deceleration);
+        void stopSpinObject(const std::string& pieceName, SimAxis axis, SimScalar deceleration);
 
-        bool isMoveInProgress(const std::string& pieceName, Axis axis) const;
+        bool isMoveInProgress(const std::string& pieceName, SimAxis axis) const;
 
-        bool isTurnInProgress(const std::string& pieceName, Axis axis) const;
+        bool isTurnInProgress(const std::string& pieceName, SimAxis axis) const;
 
         bool isOwnedBy(PlayerId playerId) const;
 

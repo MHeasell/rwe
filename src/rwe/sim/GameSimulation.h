@@ -8,7 +8,6 @@
 #include <rwe/collections/VectorMap.h>
 #include <rwe/geometry/BoundingBox3x.h>
 #include <rwe/pathfinding/PathFindingService.h>
-#include <rwe/sim/Axis.h>
 #include <rwe/sim/FeatureDefinition.h>
 #include <rwe/sim/FeatureId.h>
 #include <rwe/sim/GameTime.h>
@@ -19,6 +18,7 @@
 #include <rwe/sim/PlayerId.h>
 #include <rwe/sim/Projectile.h>
 #include <rwe/sim/ProjectileId.h>
+#include <rwe/sim/SimAxis.h>
 #include <rwe/sim/UnitDefinition.h>
 #include <rwe/sim/UnitModelDefinition.h>
 #include <rwe/sim/UnitState.h>
@@ -344,21 +344,21 @@ namespace rwe
 
         const GamePlayerInfo& getPlayer(PlayerId player) const;
 
-        void moveObject(UnitId unitId, const std::string& name, Axis axis, SimScalar position, SimScalar speed);
+        void moveObject(UnitId unitId, const std::string& name, SimAxis axis, SimScalar position, SimScalar speed);
 
-        void moveObjectNow(UnitId unitId, const std::string& name, Axis axis, SimScalar position);
+        void moveObjectNow(UnitId unitId, const std::string& name, SimAxis axis, SimScalar position);
 
-        void turnObject(UnitId unitId, const std::string& name, Axis axis, SimAngle angle, SimScalar speed);
+        void turnObject(UnitId unitId, const std::string& name, SimAxis axis, SimAngle angle, SimScalar speed);
 
-        void turnObjectNow(UnitId unitId, const std::string& name, Axis axis, SimAngle angle);
+        void turnObjectNow(UnitId unitId, const std::string& name, SimAxis axis, SimAngle angle);
 
-        void spinObject(UnitId unitId, const std::string& name, Axis axis, SimScalar speed, SimScalar acceleration);
+        void spinObject(UnitId unitId, const std::string& name, SimAxis axis, SimScalar speed, SimScalar acceleration);
 
-        void stopSpinObject(UnitId unitId, const std::string& name, Axis axis, SimScalar deceleration);
+        void stopSpinObject(UnitId unitId, const std::string& name, SimAxis axis, SimScalar deceleration);
 
-        bool isPieceMoving(UnitId unitId, const std::string& name, Axis axis) const;
+        bool isPieceMoving(UnitId unitId, const std::string& name, SimAxis axis) const;
 
-        bool isPieceTurning(UnitId unitId, const std::string& name, Axis axis) const;
+        bool isPieceTurning(UnitId unitId, const std::string& name, SimAxis axis) const;
 
         std::optional<SimVector> intersectLineWithTerrain(const Line3x<SimScalar>& line) const;
 
