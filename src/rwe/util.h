@@ -8,13 +8,6 @@
 
 namespace rwe
 {
-    enum class Axis
-    {
-        X,
-        Y,
-        Z
-    };
-
     std::optional<boost::filesystem::path> getLocalDataPath();
     std::optional<boost::filesystem::path> getSearchPath();
 

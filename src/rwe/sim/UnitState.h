@@ -6,6 +6,7 @@
 #include <rwe/cob/CobEnvironment.h>
 #include <rwe/grid/DiscreteRect.h>
 #include <rwe/pathfinding/UnitPath.h>
+#include <rwe/sim/Axis.h>
 #include <rwe/sim/Energy.h>
 #include <rwe/sim/Metal.h>
 #include <rwe/sim/PlayerId.h>
@@ -17,7 +18,6 @@
 #include <rwe/sim/UnitMesh.h>
 #include <rwe/sim/UnitOrder.h>
 #include <rwe/sim/UnitWeapon.h>
-#include <rwe/util.h>
 #include <variant>
 
 namespace rwe

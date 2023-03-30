@@ -5,6 +5,7 @@
 #include <rwe/cob/CobPosition.h>
 #include <rwe/cob/CobTime.h>
 #include <rwe/cob/cob_util.h>
+#include <rwe/sim/Axis.h>
 #include <rwe/sim/SimScalar.h>
 
 namespace rwe

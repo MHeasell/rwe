@@ -8,6 +8,7 @@
 #include <rwe/collections/VectorMap.h>
 #include <rwe/geometry/BoundingBox3x.h>
 #include <rwe/pathfinding/PathFindingService.h>
+#include <rwe/sim/Axis.h>
 #include <rwe/sim/FeatureDefinition.h>
 #include <rwe/sim/FeatureId.h>
 #include <rwe/sim/GameTime.h>
