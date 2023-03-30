@@ -4,6 +4,7 @@
 #include <optional>
 #include <rwe/render/SpriteSeries.h>
 #include <string>
+#include <variant>
 
 namespace rwe
 {
