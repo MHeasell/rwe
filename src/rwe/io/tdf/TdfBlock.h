@@ -4,7 +4,7 @@
 #include <initializer_list>
 #include <memory>
 #include <optional>
-#include <rwe/rwe_string.h>
+#include <rwe/util/rwe_string.h>
 #include <sstream>
 #include <string>
 #include <unordered_map>

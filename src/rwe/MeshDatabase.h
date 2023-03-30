@@ -12,8 +12,8 @@
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/render/GlMesh.h>
 #include <rwe/render/SpriteSeries.h>
-#include <rwe/rwe_string.h>
 #include <rwe/sim/FeatureDefinitionId.h>
+#include <rwe/util/rwe_string.h>
 #include <utility>
 
 namespace rwe

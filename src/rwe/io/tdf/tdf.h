@@ -1,7 +1,7 @@
 #pragma once
 
 #include <rwe/io/tdf/TdfBlock.h>
-#include <rwe/rwe_string.h>
+#include <rwe/util/rwe_string.h>
 #include <vector>
 
 namespace rwe

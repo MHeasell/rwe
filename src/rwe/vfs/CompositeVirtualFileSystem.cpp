@@ -1,7 +1,7 @@
 #include "CompositeVirtualFileSystem.h"
 #include <boost/filesystem.hpp>
 #include <map>
-#include <rwe/rwe_string.h>
+#include <rwe/util/rwe_string.h>
 #include <rwe/vfs/DirectoryFileSystem.h>
 #include <rwe/vfs/HpiFileSystem.h>
 #include <set>

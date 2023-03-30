@@ -4,7 +4,7 @@
 #include <rwe/io/gaf/GafArchive.h>
 #include <rwe/io/pcx/pcx.h>
 #include <rwe/io/tnt/TntArchive.h>
-#include <rwe/rwe_string.h>
+#include <rwe/util/rwe_string.h>
 
 namespace rwe
 {

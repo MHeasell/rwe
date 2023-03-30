@@ -491,8 +491,6 @@ set(SOURCE_FILES
     src/rwe/render/VboHandle.h
     src/rwe/resource_io.cpp
     src/rwe/resource_io.h
-    src/rwe/rwe_string.cpp
-    src/rwe/rwe_string.h
     src/rwe/rwe_time.cpp
     src/rwe/rwe_time.h
     src/rwe/scene/Scene.h
@@ -595,6 +593,8 @@ set(SOURCE_FILES
     src/rwe/util/SharedHandle.h
     src/rwe/util/UniqueHandle.h
     src/rwe/util/match.h
+    src/rwe/util/rwe_string.cpp
+    src/rwe/util/rwe_string.h
     src/rwe/vertex_height.cpp
     src/rwe/vertex_height.h
     src/rwe/vfs/AbstractVirtualFileSystem.h

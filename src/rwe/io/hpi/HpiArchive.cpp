@@ -4,8 +4,8 @@
 #include <optional>
 #include <rwe/io/hpi/hpi_util.h>
 #include <rwe/io_utils.h>
-#include <rwe/rwe_string.h>
 #include <rwe/util/match.h>
+#include <rwe/util/rwe_string.h>
 
 namespace rwe
 {

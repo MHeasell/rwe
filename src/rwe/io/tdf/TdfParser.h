@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <optional>
-#include <rwe/rwe_string.h>
+#include <rwe/util/rwe_string.h>
 #include <stdexcept>
 #include <string>
 #include <utf8.h>

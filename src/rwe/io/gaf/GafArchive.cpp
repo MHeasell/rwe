@@ -3,7 +3,7 @@
 #include <memory>
 #include <rwe/io/gaf/gaf_util.h>
 #include <rwe/io_utils.h>
-#include <rwe/rwe_string.h>
+#include <rwe/util/rwe_string.h>
 
 namespace rwe
 {

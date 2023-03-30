@@ -3,7 +3,7 @@
 #include <rwe/io/_3do/_3do.h>
 #include <rwe/math/Vector2f.h>
 #include <rwe/mesh_util.h>
-#include <rwe/rwe_string.h>
+#include <rwe/util/rwe_string.h>
 #include <rwe/vertex_height.h>
 
 namespace rwe

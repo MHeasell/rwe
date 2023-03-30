@@ -10,7 +10,7 @@
 #include <rwe/io/tdf/tdf.h>
 #include <rwe/io/tnt/TntArchive.h>
 #include <rwe/optional_io.h>
-#include <rwe/rwe_string.h>
+#include <rwe/util/rwe_string.h>
 #include <rwe/vfs/CompositeVirtualFileSystem.h>
 #include <string>
 #include <vector>
