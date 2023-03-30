@@ -5,6 +5,7 @@
 #include <optional>
 #include <rwe/cob/CobEnvironment.h>
 #include <rwe/grid/DiscreteRect.h>
+#include <rwe/math/Matrix4x.h>
 #include <rwe/pathfinding/UnitPath.h>
 #include <rwe/sim/Energy.h>
 #include <rwe/sim/Metal.h>
