@@ -464,7 +464,6 @@ set(SOURCE_FILES
     src/rwe/pathfinding/pathfinding_utils.h
     src/rwe/proto/serialization.cpp
     src/rwe/proto/serialization.h
-    src/rwe/range_util.h
     src/rwe/render/FrameBufferHandle.h
     src/rwe/render/GlIdentifier.h
     src/rwe/render/GlMesh.cpp
@@ -593,6 +592,7 @@ set(SOURCE_FILES
     src/rwe/util/SharedHandle.h
     src/rwe/util/UniqueHandle.h
     src/rwe/util/match.h
+    src/rwe/util/range_util.h
     src/rwe/util/rwe_string.cpp
     src/rwe/util/rwe_string.h
     src/rwe/vertex_height.cpp

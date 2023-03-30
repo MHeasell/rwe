@@ -1,9 +1,9 @@
 #include "GameNetworkService.h"
+#include "rwe/util/range_util.h"
 #include <boost/range/adaptors.hpp>
 #include <rwe/GameHash.h>
 #include <rwe/network_util.h>
 #include <rwe/proto/serialization.h>
-#include <rwe/range_util.h>
 #include <rwe/sim/SimTicksPerSecond.h>
 #include <rwe/util/Index.h>
 #include <rwe/util/OpaqueId_io.h>
