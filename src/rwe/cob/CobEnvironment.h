@@ -19,8 +19,6 @@
 
 namespace rwe
 {
-    class GameScene;
-
     class CobEnvironment
     {
     public:
