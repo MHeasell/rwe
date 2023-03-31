@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rwe/SceneTime.h>
+#include <rwe/game/SceneTime.h>
 #include <rwe/sim/UnitFireOrders.h>
 #include <rwe/sim/UnitId.h>
 #include <rwe/sim/UnitOrder.h>

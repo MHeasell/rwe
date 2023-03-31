@@ -1,10 +1,10 @@
 #include "LoadingScene.h"
 #include <boost/interprocess/streams/bufferstream.hpp>
-#include <rwe/FeatureMediaInfo.h>
-#include <rwe/GameNetworkService.h>
-#include <rwe/MapTerrainGraphics.h>
 #include <rwe/atlas_util.h>
 #include <rwe/collections/SimpleVectorMap.h>
+#include <rwe/game/FeatureMediaInfo.h>
+#include <rwe/game/GameNetworkService.h>
+#include <rwe/game/MapTerrainGraphics.h>
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/io/fbi/io.h>
 #include <rwe/io/featuretdf/io.h>

@@ -1,5 +1,6 @@
 #pragma once
-#include <rwe/ProjectileRenderType.h>
+
+#include <optional>
 #include <rwe/sim/GameTime.h>
 #include <rwe/sim/ProjectilePhysicsType.h>
 #include <rwe/sim/SimAngle.h>

@@ -1,4 +1,4 @@
-#include <rwe/GameHash.h>
+#include "GameHash.h"
 
 namespace rwe
 {

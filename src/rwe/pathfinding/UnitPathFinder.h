@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rwe/MovementClassCollisionService.h>
+#include <rwe/game/MovementClassCollisionService.h>
 #include <rwe/grid/DiscreteRect.h>
 #include <rwe/grid/EightWayDirection.h>
 #include <rwe/pathfinding/AStarPathFinder.h>

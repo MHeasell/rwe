@@ -4,9 +4,9 @@
 #include <rwe/CursorService.h>
 #include <rwe/GlobalConfig.h>
 #include <rwe/PathMapping.h>
-#include <rwe/SideData.h>
 #include <rwe/TextureService.h>
 #include <rwe/Viewport.h>
+#include <rwe/io/sidedatatdf/SideData.h>
 #include <rwe/rwe_time.h>
 #include <rwe/scene/SceneManager.h>
 #include <rwe/sdl/SdlContext.h>

@@ -7,10 +7,10 @@
 #include <future>
 #include <network.pb.h>
 #include <random>
-#include <rwe/GameHash.h>
-#include <rwe/PlayerCommand.h>
-#include <rwe/PlayerCommandService.h>
+#include <rwe/game/PlayerCommand.h>
+#include <rwe/game/PlayerCommandService.h>
 #include <rwe/rwe_time.h>
+#include <rwe/sim/GameHash.h>
 #include <rwe/sim/GameTime.h>
 #include <rwe/sim/PlayerId.h>
 #include <rwe/util/OpaqueId.h>

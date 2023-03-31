@@ -1,8 +1,8 @@
 #pragma once
 
-#include <rwe/FlashEffect.h>
-#include <rwe/MapTerrainGraphics.h>
 #include <rwe/ShaderService.h>
+#include <rwe/game/FlashEffect.h>
+#include <rwe/game/MapTerrainGraphics.h>
 #include <rwe/render/GraphicsContext.h>
 #include <rwe/sim/GameTime.h>
 #include <vector>

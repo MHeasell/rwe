@@ -1,10 +1,10 @@
 #pragma once
 
-#include <rwe/MeshDatabase.h>
-#include <rwe/Particle.h>
-#include <rwe/PlayerColorIndex.h>
 #include <rwe/RenderService.h>
 #include <rwe/collections/VectorMap.h>
+#include <rwe/game/MeshDatabase.h>
+#include <rwe/game/Particle.h>
+#include <rwe/game/PlayerColorIndex.h>
 #include <rwe/math/Matrix4x.h>
 #include <rwe/pathfinding/AStarPathFinder.h>
 #include <rwe/pathfinding/PathCost.h>

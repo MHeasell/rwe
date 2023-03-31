@@ -233,28 +233,10 @@ set(SOURCE_FILES
     src/rwe/CroppedViewport.h
     src/rwe/CursorService.cpp
     src/rwe/CursorService.h
-    src/rwe/FeatureMediaInfo.cpp
-    src/rwe/FeatureMediaInfo.h
-    src/rwe/FlashEffect.cpp
-    src/rwe/FlashEffect.h
-    src/rwe/GameCameraState.cpp
-    src/rwe/GameCameraState.h
-    src/rwe/GameHash.cpp
-    src/rwe/GameHash.h
-    src/rwe/GameHash_util.cpp
-    src/rwe/GameHash_util.h
-    src/rwe/GameNetworkService.cpp
-    src/rwe/GameNetworkService.h
-    src/rwe/GameScene.cpp
-    src/rwe/GameScene.h
-    src/rwe/GameScene_util.cpp
-    src/rwe/GameScene_util.h
     src/rwe/GlobalConfig.cpp
     src/rwe/GlobalConfig.h
     src/rwe/ImGuiContext.cpp
     src/rwe/ImGuiContext.h
-    src/rwe/InGameSoundsInfo.cpp
-    src/rwe/InGameSoundsInfo.h
     src/rwe/LoadingNetworkService.cpp
     src/rwe/LoadingNetworkService.h
     src/rwe/LoadingScene.cpp
@@ -263,53 +245,26 @@ set(SOURCE_FILES
     src/rwe/MainMenuModel.h
     src/rwe/MainMenuScene.cpp
     src/rwe/MainMenuScene.h
-    src/rwe/MapTerrainGraphics.cpp
-    src/rwe/MapTerrainGraphics.h
     src/rwe/Mesh.cpp
     src/rwe/Mesh.h
-    src/rwe/MeshDatabase.cpp
-    src/rwe/MeshDatabase.h
     src/rwe/MeshService.cpp
     src/rwe/MeshService.h
-    src/rwe/MovementClassCollisionService.cpp
-    src/rwe/MovementClassCollisionService.h
-    src/rwe/Particle.cpp
-    src/rwe/Particle.h
     src/rwe/PathMapping.cpp
     src/rwe/PathMapping.h
-    src/rwe/PlayerColorIndex.cpp
-    src/rwe/PlayerColorIndex.h
-    src/rwe/PlayerCommand.h
-    src/rwe/PlayerCommandService.cpp
-    src/rwe/PlayerCommandService.h
-    src/rwe/ProjectileRenderType.h
     src/rwe/RadiansAngle.cpp
     src/rwe/RadiansAngle.h
     src/rwe/RenderService.cpp
     src/rwe/RenderService.h
     src/rwe/SceneContext.h
-    src/rwe/SceneTime.cpp
-    src/rwe/SceneTime.h
     src/rwe/SelectionMesh.h
     src/rwe/ShaderService.cpp
     src/rwe/ShaderService.h
-    src/rwe/SideData.cpp
-    src/rwe/SideData.h
-    src/rwe/SoundClass.cpp
-    src/rwe/SoundClass.h
     src/rwe/TextureService.cpp
     src/rwe/TextureService.h
     src/rwe/UiRenderService.cpp
     src/rwe/UiRenderService.h
-    src/rwe/UnitDatabase.cpp
-    src/rwe/UnitDatabase.h
-    src/rwe/UnitPieceMeshInfo.cpp
-    src/rwe/UnitPieceMeshInfo.h
-    src/rwe/UnitSoundType.h
     src/rwe/Viewport.cpp
     src/rwe/Viewport.h
-    src/rwe/WeaponMediaInfo.cpp
-    src/rwe/WeaponMediaInfo.h
     src/rwe/atlas_util.cpp
     src/rwe/atlas_util.h
     src/rwe/camera_util.cpp
@@ -335,19 +290,55 @@ set(SOURCE_FILES
     src/rwe/cob/CobValueId.h
     src/rwe/cob/cob_util.cpp
     src/rwe/cob/cob_util.h
-    src/rwe/collection_util.h
     src/rwe/collections/MinHeap.h
     src/rwe/collections/SimpleVectorMap.h
     src/rwe/collections/VectorMap.cpp
     src/rwe/collections/VectorMap.h
-    src/rwe/dump_util.cpp
-    src/rwe/dump_util.h
     src/rwe/events.cpp
     src/rwe/events.h
     src/rwe/fixed_point.cpp
     src/rwe/fixed_point.h
     src/rwe/float_math.cpp
     src/rwe/float_math.h
+    src/rwe/game/FeatureMediaInfo.cpp
+    src/rwe/game/FeatureMediaInfo.h
+    src/rwe/game/FlashEffect.cpp
+    src/rwe/game/FlashEffect.h
+    src/rwe/game/GameCameraState.cpp
+    src/rwe/game/GameCameraState.h
+    src/rwe/game/GameNetworkService.cpp
+    src/rwe/game/GameNetworkService.h
+    src/rwe/game/GameScene.cpp
+    src/rwe/game/GameScene.h
+    src/rwe/game/GameScene_util.cpp
+    src/rwe/game/GameScene_util.h
+    src/rwe/game/InGameSoundsInfo.cpp
+    src/rwe/game/InGameSoundsInfo.h
+    src/rwe/game/MapTerrainGraphics.cpp
+    src/rwe/game/MapTerrainGraphics.h
+    src/rwe/game/MeshDatabase.cpp
+    src/rwe/game/MeshDatabase.h
+    src/rwe/game/MovementClassCollisionService.cpp
+    src/rwe/game/MovementClassCollisionService.h
+    src/rwe/game/Particle.cpp
+    src/rwe/game/Particle.h
+    src/rwe/game/PlayerColorIndex.cpp
+    src/rwe/game/PlayerColorIndex.h
+    src/rwe/game/PlayerCommand.h
+    src/rwe/game/PlayerCommandService.cpp
+    src/rwe/game/PlayerCommandService.h
+    src/rwe/game/ProjectileRenderType.h
+    src/rwe/game/SceneTime.cpp
+    src/rwe/game/SceneTime.h
+    src/rwe/game/UnitDatabase.cpp
+    src/rwe/game/UnitDatabase.h
+    src/rwe/game/UnitPieceMeshInfo.cpp
+    src/rwe/game/UnitPieceMeshInfo.h
+    src/rwe/game/UnitSoundType.h
+    src/rwe/game/WeaponMediaInfo.cpp
+    src/rwe/game/WeaponMediaInfo.h
+    src/rwe/game/dump_util.cpp
+    src/rwe/game/dump_util.h
     src/rwe/geometry/BoundingBox3f.h
     src/rwe/geometry/BoundingBox3x.h
     src/rwe/geometry/Circle2f.h
@@ -399,10 +390,16 @@ set(SOURCE_FILES
     src/rwe/io/hpi/hpi_headers.h
     src/rwe/io/hpi/hpi_util.cpp
     src/rwe/io/hpi/hpi_util.h
+    src/rwe/io/io_util.cpp
+    src/rwe/io/io_util.h
     src/rwe/io/ota/ota.cpp
     src/rwe/io/ota/ota.h
     src/rwe/io/pcx/pcx.cpp
     src/rwe/io/pcx/pcx.h
+    src/rwe/io/sidedatatdf/SideData.cpp
+    src/rwe/io/sidedatatdf/SideData.h
+    src/rwe/io/soundtdf/SoundClass.cpp
+    src/rwe/io/soundtdf/SoundClass.h
     src/rwe/io/tdf/ListTdfAdapter.cpp
     src/rwe/io/tdf/ListTdfAdapter.h
     src/rwe/io/tdf/NetSchemaTdfAdapter.cpp
@@ -419,8 +416,6 @@ set(SOURCE_FILES
     src/rwe/io/tnt/TntArchive.h
     src/rwe/io/weapontdf/WeaponTdf.cpp
     src/rwe/io/weapontdf/WeaponTdf.h
-    src/rwe/io_utils.cpp
-    src/rwe/io_utils.h
     src/rwe/ip_util.cpp
     src/rwe/ip_util.h
     src/rwe/math/Matrix4f.h
@@ -509,6 +504,10 @@ set(SOURCE_FILES
     src/rwe/sim/FeatureDefinition.h
     src/rwe/sim/FeatureDefinitionId.h
     src/rwe/sim/FeatureId.h
+    src/rwe/sim/GameHash.cpp
+    src/rwe/sim/GameHash.h
+    src/rwe/sim/GameHash_util.cpp
+    src/rwe/sim/GameHash_util.h
     src/rwe/sim/GameSimulation.cpp
     src/rwe/sim/GameSimulation.h
     src/rwe/sim/GameTime.cpp
@@ -592,6 +591,7 @@ set(SOURCE_FILES
     src/rwe/util/Result.h
     src/rwe/util/SharedHandle.h
     src/rwe/util/UniqueHandle.h
+    src/rwe/util/collection_util.h
     src/rwe/util/match.h
     src/rwe/util/range_util.h
     src/rwe/util/rwe_string.cpp
@@ -786,13 +786,11 @@ endif()
 
 set(TEST_FILES
     src/rwe/BoxTreeSplit.test.cpp
-    src/rwe/GameHash_util.test.cpp
-    src/rwe/SideData.test.cpp
     src/rwe/Viewport.test.cpp
     src/rwe/cob/cob_util.test.cpp
     src/rwe/collections/MinHeap.test.cpp
     src/rwe/collections/VectorMap.test.cpp
-    src/rwe/dump_util.test.cpp
+    src/rwe/game/dump_util.test.cpp
     src/rwe/geometry/BoundingBox3f.test.cpp
     src/rwe/geometry/Circle2f.test.cpp
     src/rwe/geometry/CollisionMesh.test.cpp
@@ -807,6 +805,7 @@ set(TEST_FILES
     src/rwe/io/featuretdf/io.test.cpp
     src/rwe/io/gui/gui.test.cpp
     src/rwe/io/ota/ota.test.cpp
+    src/rwe/io/sidedatatdf/SideData.test.cpp
     src/rwe/io/tdf/ListTdfAdapter.test.cpp
     src/rwe/io/tdf/NetSchemaTdfAdapter.test.cpp
     src/rwe/io/tdf/SimpleTdfAdapter.test.cpp
@@ -819,13 +818,14 @@ set(TEST_FILES
     src/rwe/network_util.test.cpp
     src/rwe/pathfinding/pathfinding_utils.test.cpp
     src/rwe/rc_gen_optional.h
-    src/rwe/rwe_string.test.cpp
+    src/rwe/sim/GameHash_util.test.cpp
     src/rwe/sim/SimAngle.test.cpp
     src/rwe/sim/SimVector.test.cpp
     src/rwe/sim/UnitState_util.test.cpp
     src/rwe/sim/util.test.cpp
     src/rwe/util.test.cpp
     src/rwe/util/Result.test.cpp
+    src/rwe/util/rwe_string.test.cpp
     )
 
 add_executable(rwe_test src/test.cpp ${TEST_FILES})

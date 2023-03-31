@@ -2,7 +2,7 @@
 
 #include <rwe/SelectionMesh.h>
 #include <rwe/TextureService.h>
-#include <rwe/UnitPieceMeshInfo.h>
+#include <rwe/game/UnitPieceMeshInfo.h>
 #include <rwe/io/_3do/_3do.h>
 #include <rwe/math/Vector2f.h>
 #include <rwe/render/GraphicsContext.h>

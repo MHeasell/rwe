@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rwe/SceneTime.h>
+#include <rwe/game/SceneTime.h>
 #include <rwe/rwe_time.h>
 
 namespace rwe

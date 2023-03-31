@@ -9,11 +9,11 @@
 #include <rwe/LoadingScene.h>
 #include <rwe/MainMenuScene.h>
 #include <rwe/PathMapping.h>
-#include <rwe/PlayerColorIndex.h>
 #include <rwe/SceneContext.h>
 #include <rwe/ShaderService.h>
 #include <rwe/Viewport.h>
 #include <rwe/config.h>
+#include <rwe/game/PlayerColorIndex.h>
 #include <rwe/io/gui/gui.h>
 #include <rwe/io/tdf/tdf.h>
 #include <rwe/ip_util.h>

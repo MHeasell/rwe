@@ -4,12 +4,12 @@
 #include <boost/functional/hash.hpp>
 #include <memory>
 #include <rwe/AudioService.h>
-#include <rwe/FeatureMediaInfo.h>
-#include <rwe/SoundClass.h>
-#include <rwe/UnitPieceMeshInfo.h>
-#include <rwe/WeaponMediaInfo.h>
 #include <rwe/collections/SimpleVectorMap.h>
+#include <rwe/game/FeatureMediaInfo.h>
+#include <rwe/game/UnitPieceMeshInfo.h>
+#include <rwe/game/WeaponMediaInfo.h>
 #include <rwe/geometry/CollisionMesh.h>
+#include <rwe/io/soundtdf/SoundClass.h>
 #include <rwe/render/GlMesh.h>
 #include <rwe/render/SpriteSeries.h>
 #include <rwe/sim/FeatureDefinitionId.h>

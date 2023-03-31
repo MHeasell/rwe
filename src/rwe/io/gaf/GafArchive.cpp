@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <memory>
 #include <rwe/io/gaf/gaf_util.h>
-#include <rwe/io_utils.h>
+#include <rwe/io/io_util.h>
 #include <rwe/util/rwe_string.h>
 
 namespace rwe

@@ -4,10 +4,10 @@
 #include <fstream>
 #include <functional>
 #include <rwe/CroppedViewport.h>
-#include <rwe/GameScene_util.h>
 #include <rwe/Mesh.h>
 #include <rwe/camera_util.h>
-#include <rwe/dump_util.h>
+#include <rwe/game/GameScene_util.h>
+#include <rwe/game/dump_util.h>
 #include <rwe/io/featuretdf/FeatureTdf.h>
 #include <rwe/matrix_util.h>
 #include <rwe/resource_io.h>

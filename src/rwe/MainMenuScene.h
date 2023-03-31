@@ -5,8 +5,8 @@
 #include <rwe/CursorService.h>
 #include <rwe/RenderService.h>
 #include <rwe/SceneContext.h>
-#include <rwe/SideData.h>
 #include <rwe/TextureService.h>
+#include <rwe/io/sidedatatdf/SideData.h>
 #include <rwe/io/tdf/TdfBlock.h>
 #include <rwe/scene/Scene.h>
 #include <rwe/ui/UiFactory.h>

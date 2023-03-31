@@ -1,7 +1,5 @@
 #pragma once
 
-#include <rwe/AudioService.h>
-#include <rwe/ProjectileRenderType.h>
 #include <rwe/sim/GameTime.h>
 #include <rwe/sim/PlayerId.h>
 #include <rwe/sim/ProjectilePhysicsType.h>

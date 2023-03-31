@@ -1,6 +1,5 @@
 #include "GameSimulation.h"
-#include <rwe/GameHash_util.h>
-#include <rwe/collection_util.h>
+#include <rwe/sim/GameHash_util.h>
 #include <rwe/sim/SimScalar.h>
 #include <rwe/sim/SimTicksPerSecond.h>
 #include <rwe/sim/UnitBehaviorService.h>
@@ -8,6 +7,7 @@
 #include <rwe/sim/movement.h>
 #include <rwe/sim/util.h>
 #include <rwe/util/Index.h>
+#include <rwe/util/collection_util.h>
 #include <rwe/util/match.h>
 #include <type_traits>
 #include <unordered_set>

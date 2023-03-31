@@ -1,7 +1,7 @@
 #pragma once
 
 #include <network.pb.h>
-#include <rwe/PlayerCommand.h>
+#include <rwe/game/PlayerCommand.h>
 #include <rwe/sim/UnitFireOrders.h>
 #include <vector>
 

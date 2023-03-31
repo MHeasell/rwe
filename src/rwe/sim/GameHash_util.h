@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <rwe/GameHash.h>
+#include <rwe/sim/GameHash.h>
 #include <rwe/sim/GameSimulation.h>
 #include <rwe/util/match.h>
 

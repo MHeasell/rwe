@@ -1,6 +1,6 @@
 #include "MovementClassCollisionService.h"
-#include <rwe/collection_util.h>
 #include <rwe/sim/movement.h>
+#include <rwe/util/collection_util.h>
 
 namespace rwe
 {

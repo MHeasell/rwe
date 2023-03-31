@@ -1,15 +1,15 @@
 #pragma once
 
 #include <random>
-#include <rwe/GameHash.h>
-#include <rwe/MovementClassCollisionService.h>
-#include <rwe/PlayerColorIndex.h>
 #include <rwe/collections/SimpleVectorMap.h>
 #include <rwe/collections/VectorMap.h>
+#include <rwe/game/MovementClassCollisionService.h>
+#include <rwe/game/PlayerColorIndex.h>
 #include <rwe/geometry/BoundingBox3x.h>
 #include <rwe/pathfinding/PathFindingService.h>
 #include <rwe/sim/FeatureDefinition.h>
 #include <rwe/sim/FeatureId.h>
+#include <rwe/sim/GameHash.h>
 #include <rwe/sim/GameTime.h>
 #include <rwe/sim/MapFeature.h>
 #include <rwe/sim/MapTerrain.h>

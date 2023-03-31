@@ -1,7 +1,7 @@
 #include "gaf_util.h"
 
 #include <memory>
-#include <rwe/io_utils.h>
+#include <rwe/io/io_util.h>
 
 namespace rwe
 {

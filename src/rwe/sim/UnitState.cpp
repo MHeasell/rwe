@@ -2,6 +2,7 @@
 #include <rwe/sim/UnitState_util.h>
 #include <rwe/util/Index.h>
 #include <rwe/util/match.h>
+#include <rwe/util/rwe_string.h>
 
 namespace rwe
 {

@@ -1,5 +1,5 @@
 #include <catch2/catch.hpp>
-#include <rwe/GameHash_util.h>
+#include <rwe/sim/GameHash_util.h>
 #include <rwe/util/OpaqueId_io.h>
 
 namespace rwe

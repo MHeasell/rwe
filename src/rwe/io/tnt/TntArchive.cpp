@@ -2,7 +2,7 @@
 
 #include <array>
 #include <cassert>
-#include <rwe/io_utils.h>
+#include <rwe/io/io_util.h>
 
 namespace rwe
 {

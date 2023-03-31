@@ -1,5 +1,5 @@
 #include <catch2/catch.hpp>
-#include <rwe/dump_util.h>
+#include <rwe/game/dump_util.h>
 
 namespace rwe
 {

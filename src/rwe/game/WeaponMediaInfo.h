@@ -1,7 +1,7 @@
 #pragma once
 
 #include <optional>
-#include <rwe/ProjectileRenderType.h>
+#include <rwe/game/ProjectileRenderType.h>
 #include <rwe/sim/GameTime.h>
 #include <string>
 
