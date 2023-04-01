@@ -1,8 +1,5 @@
-//
-// Created by michael on 22/08/2019.
-//
-
 #include "matrix_util.h"
+
 namespace rwe
 {
     Matrix4f toFloatMatrix(Matrix4x<SimScalar> m)
