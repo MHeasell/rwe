@@ -67,6 +67,8 @@ namespace rwe
 
         void mouseWheel(MouseWheelEvent event) override;
 
+        void keyDown(KeyEvent event) override;
+
         void uiMessage(const GroupMessage& message) override;
 
         Observable<std::optional<unsigned int>>& selectedIndex();
@@ -96,10 +98,18 @@ namespace rwe
 
         void setScrollPositionCentered(unsigned int newPosition);
 
+        void setScrollPositionLast(unsigned int newPosition);
+
         unsigned int maxScrollPosition() const;
 
         void scrollUp();
 
         void scrollDown();
+
+        void selectNextListItem();
+
+        void selectPreviousListItem();
+
+        void ensureIndexInView(unsigned int index);
     };
 }

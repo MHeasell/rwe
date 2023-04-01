@@ -110,6 +110,20 @@ namespace rwe
         }
     }
 
+    void UiListBox::keyDown(KeyEvent event)
+    {
+        switch (event.keyCode)
+        {
+            case SDLK_DOWN:
+                selectNextListItem();
+                break;
+
+            case SDLK_UP:
+                selectPreviousListItem();
+                break;
+        }
+    }
+
     unsigned int UiListBox::numberOfLines() const
     {
         auto lines = static_cast<unsigned int>((sizeY) / 12.0f);
@@ -142,6 +156,19 @@ namespace rwe
         if (newPosition > halfLines)
         {
             setScrollPosition(newPosition - halfLines);
+        }
+        else
+        {
+            setScrollPosition(0);
+        }
+    }
+
+    void UiListBox::setScrollPositionLast(unsigned int newPosition)
+    {
+        auto linesToSubtract = numberOfLines() - 1;
+        if (newPosition > linesToSubtract)
+        {
+            setScrollPosition(newPosition - linesToSubtract);
         }
         else
         {
@@ -248,6 +275,45 @@ namespace rwe
         else
         {
             scrollPositionSubject.next(maxScroll);
+        }
+    }
+
+    void UiListBox::selectNextListItem()
+    {
+        auto index = selectedIndexSubject.getValue();
+        if (!index || *index >= items.size() - 1)
+        {
+            return;
+        }
+        auto newIndex = *index + 1;
+        selectedIndexSubject.next(newIndex);
+        ensureIndexInView(newIndex);
+    }
+
+    void UiListBox::selectPreviousListItem()
+    {
+        auto index = selectedIndexSubject.getValue();
+        if (!index || *index < 1)
+        {
+            return;
+        }
+        auto newIndex = *index - 1;
+        selectedIndexSubject.next(newIndex);
+        ensureIndexInView(newIndex);
+    }
+
+    void UiListBox::ensureIndexInView(unsigned int newIndex)
+    {
+        auto firstIndexInView = scrollPositionSubject.getValue();
+        auto lastIndexInView = firstIndexInView + numberOfLines() - 1;
+
+        if (newIndex < firstIndexInView)
+        {
+            setScrollPosition(newIndex);
+        }
+        else if (newIndex > lastIndexInView)
+        {
+            setScrollPositionLast(newIndex);
         }
     }
 }
