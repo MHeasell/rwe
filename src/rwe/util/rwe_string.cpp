@@ -1,8 +1,6 @@
 #include "rwe_string.h"
-
 #include <algorithm>
 #include <cctype>
-#include <utf8.h>
 
 namespace rwe
 {

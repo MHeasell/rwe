@@ -2,10 +2,9 @@
 
 #include <optional>
 #include <string>
+#include <utf8.h>
 #include <utility>
 #include <vector>
-
-#include <utf8.h>
 
 namespace rwe
 {
