@@ -824,7 +824,6 @@ set(TEST_FILES
     src/rwe/sim/SimVector.test.cpp
     src/rwe/sim/UnitState_util.test.cpp
     src/rwe/sim/util.test.cpp
-    src/rwe/util.test.cpp
     src/rwe/util/Result.test.cpp
     src/rwe/util/rwe_string.test.cpp
     )

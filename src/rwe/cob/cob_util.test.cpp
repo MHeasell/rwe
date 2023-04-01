@@ -2,6 +2,19 @@
 #include <rapidcheck.h>
 #include <rapidcheck/catch.h>
 #include <rwe/cob/cob_util.h>
+#include <rwe/math/rwe_math.h>
+
+namespace Catch
+{
+    namespace Detail
+    {
+        std::ostream& operator<<(std::ostream& os, const Approx& a)
+        {
+            os << a.toString();
+            return os;
+        }
+    }
+}
 
 namespace rwe
 {
@@ -46,5 +59,23 @@ namespace rwe
         REQUIRE(cobAtan(0, -1) == 32768);
         REQUIRE(cobAtan(-1, 0) == 49152);
         REQUIRE(cobAtan(0, 1) == 0);
+    }
+
+    TEST_CASE("toRadians")
+    {
+        REQUIRE(toRadians(CobAngle(0)).value == Approx(0.0f));
+        REQUIRE(toRadians(CobAngle(8192)).value == Approx(Pif / 4.0f));
+        REQUIRE(toRadians(CobAngle(16384)).value == Approx(Pif / 2.0f));
+        REQUIRE(toRadians(CobAngle(32768)).value == Approx(-Pif));
+        REQUIRE(toRadians(CobAngle(49152)).value == Approx(-Pif / 2.0f));
+    }
+
+    TEST_CASE("toCobAngle")
+    {
+        rc::prop("toCobAngle inverts toRadians", [](uint16_t a) {
+            CobAngle t(a);
+            auto t2 = toCobAngle(toRadians(t));
+            RC_ASSERT(t2.value == t.value);
+        });
     }
 }

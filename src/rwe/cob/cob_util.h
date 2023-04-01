@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstdint>
+#include <rwe/RadiansAngle.h>
+#include <rwe/cob/CobAngle.h>
 #include <rwe/cob/CobPosition.h>
 #include <utility>
 
@@ -13,4 +15,8 @@ namespace rwe
     int cobAtan(int a, int b);
 
     CobPosition cobHypot(CobPosition a, CobPosition b);
+
+    RadiansAngle toRadians(CobAngle angle);
+
+    CobAngle toCobAngle(RadiansAngle angle);
 }

@@ -50,19 +50,8 @@ namespace rwe
         return *path;
     }
 
-    RadiansAngle toRadians(CobAngle angle)
-    {
-        return RadiansAngle::fromUnwrappedAngle(static_cast<float>(angle.value) * (Pif / 32768.0f));
-    }
-
     float toleranceToRadians(unsigned int angle)
     {
         return static_cast<float>(angle) * (Pif / 32768.0f);
     }
-
-    CobAngle toCobAngle(RadiansAngle angle)
-    {
-        return CobAngle(static_cast<uint16_t>(std::round(angle.value * (32768.0f / Pif))));
-    }
-
 }

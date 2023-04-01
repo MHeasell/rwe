@@ -1,9 +1,8 @@
 #include "cob_util.h"
 #include <cmath>
-#include <rwe/RadiansAngle.h>
 #include <rwe/cob/CobPosition.h>
 #include <rwe/fixed_point.h>
-#include <rwe/util.h>
+#include <rwe/math/rwe_math.h>
 
 namespace rwe
 {
@@ -30,5 +29,15 @@ namespace rwe
     CobPosition cobHypot(CobPosition a, CobPosition b)
     {
         return CobPosition::fromFloat(std::hypot(a.toFloat(), b.toFloat()));
+    }
+
+    RadiansAngle toRadians(CobAngle angle)
+    {
+        return RadiansAngle::fromUnwrappedAngle(static_cast<float>(angle.value) * (Pif / 32768.0f));
+    }
+
+    CobAngle toCobAngle(RadiansAngle angle)
+    {
+        return CobAngle(static_cast<uint16_t>(std::round(angle.value * (32768.0f / Pif))));
     }
 }

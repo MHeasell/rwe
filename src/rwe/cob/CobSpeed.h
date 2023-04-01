@@ -1,23 +1,10 @@
 #pragma once
 
+#include <cstdint>
 #include <rwe/util/OpaqueId.h>
 
 namespace rwe
 {
     struct CobSpeedTag;
-    struct CobSpeed : public OpaqueId<uint32_t, CobSpeedTag>
-    {
-        CobSpeed() = default;
-        explicit CobSpeed(ValueType value) : OpaqueId(value) {}
-
-        float toFloat() const
-        {
-            return static_cast<float>(value) / 65536.0f;
-        }
-
-        SimScalar toSimScalar() const
-        {
-            return SimScalar(toFloat());
-        }
-    };
+    using CobSpeed = OpaqueId<uint32_t, CobSpeedTag>;
 }

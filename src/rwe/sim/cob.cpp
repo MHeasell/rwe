@@ -10,6 +10,31 @@
 
 namespace rwe
 {
+    float toFloat(CobSpeed speed)
+    {
+        return static_cast<float>(speed.value) / 65536.0f;
+    }
+
+    SimScalar toSimScalar(CobSpeed speed)
+    {
+        return SimScalar(toFloat(speed));
+    }
+
+    SimScalar toSimScalar(CobAngularSpeed angularSpeed)
+    {
+        return SimScalar(angularSpeed.value);
+    }
+
+    SimAngle toWorldAngle(CobAngle angle)
+    {
+        return SimAngle(angle.value);
+    }
+
+    CobAngle toCobAngle(SimAngle angle)
+    {
+        return CobAngle(angle.value);
+    }
+
     CobTime toCobTime(GameTime gameTime)
     {
         return CobTime((gameTime.value * 1000) / 30);
@@ -116,7 +141,7 @@ namespace rwe
                 auto position = m.axis == CobAxis::X ? -m.position : m.position;
                 if (m.speed)
                 {
-                    simulation.moveObject(unitId, objectName, toSimAxis(m.axis), cobPositionToSimScalar(position), m.speed->toSimScalar());
+                    simulation.moveObject(unitId, objectName, toSimAxis(m.axis), cobPositionToSimScalar(position), toSimScalar(*m.speed));
                 }
                 else
                 {
@@ -128,7 +153,7 @@ namespace rwe
                 auto angle = t.axis == CobAxis::Z ? -t.angle : t.angle;
                 if (t.speed)
                 {
-                    simulation.turnObject(unitId, objectName, toSimAxis(t.axis), toWorldAngle(angle), t.speed->toSimScalar());
+                    simulation.turnObject(unitId, objectName, toSimAxis(t.axis), toWorldAngle(angle), toSimScalar(*t.speed));
                 }
                 else
                 {
@@ -136,10 +161,10 @@ namespace rwe
                 }
             },
             [&](const CobEnvironment::PieceCommandStatus::Spin& s) {
-                simulation.spinObject(unitId, objectName, toSimAxis(s.axis), s.targetSpeed.toSimScalar(), s.acceleration.toSimScalar());
+                simulation.spinObject(unitId, objectName, toSimAxis(s.axis), toSimScalar(s.targetSpeed), toSimScalar(s.acceleration));
             },
             [&](const CobEnvironment::PieceCommandStatus::StopSpin& s) {
-                simulation.stopSpinObject(unitId, objectName, toSimAxis(s.axis), s.deceleration.toSimScalar());
+                simulation.stopSpinObject(unitId, objectName, toSimAxis(s.axis), toSimScalar(s.deceleration));
             },
             [&](const CobEnvironment::PieceCommandStatus::Show&) {
                 simulation.showObject(unitId, objectName);
