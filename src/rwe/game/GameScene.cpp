@@ -9,11 +9,8 @@
 #include <rwe/game/GameScene_util.h>
 #include <rwe/game/dump_util.h>
 #include <rwe/game/matrix_util.h>
-#include <rwe/io/featuretdf/FeatureTdf.h>
 #include <rwe/resource_io.h>
 #include <rwe/sim/SimTicksPerSecond.h>
-#include <rwe/sim/UnitBehaviorService.h>
-#include <rwe/sim/cob.h>
 #include <rwe/ui/UiStagedButton.h>
 #include <rwe/util/Index.h>
 #include <rwe/util/match.h>
