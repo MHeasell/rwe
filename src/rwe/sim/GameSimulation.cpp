@@ -505,6 +505,11 @@ namespace rwe
         return tryFind(units, id);
     }
 
+    std::optional<std::reference_wrapper<const UnitState>> GameSimulation::tryGetUnitState(CobUnitId id) const
+    {
+        return tryFind(units, UnitId(id.value));
+    }
+
     bool GameSimulation::unitExists(UnitId id) const
     {
         auto it = units.find(id);

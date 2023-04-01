@@ -63,7 +63,7 @@ namespace rwe
         {
             auto thread = env.readyQueue.front();
 
-            CobExecutionContext context(&env, thread, unitId);
+            CobExecutionContext context(&env, thread);
 
             auto result = match(
                 context.execute(),

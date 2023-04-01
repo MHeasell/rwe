@@ -2,6 +2,7 @@
 #include <random>
 #include <rwe/cob/CobConstants.h>
 #include <rwe/cob/CobOpCode.h>
+#include <rwe/cob/CobUnitId.h>
 #include <rwe/cob/cob_util.h>
 #include <stdexcept>
 #include <variant>
@@ -29,11 +30,11 @@ namespace rwe
             case CobValueId::PieceY:
                 return CobEnvironment::QueryStatus::PieceY{arg1};
             case CobValueId::UnitXZ:
-                return CobEnvironment::QueryStatus::UnitXZ{UnitId(arg1)};
+                return CobEnvironment::QueryStatus::UnitXZ{CobUnitId(arg1)};
             case CobValueId::UnitY:
-                return CobEnvironment::QueryStatus::UnitY{UnitId(arg1)};
+                return CobEnvironment::QueryStatus::UnitY{CobUnitId(arg1)};
             case CobValueId::UnitHeight:
-                return CobEnvironment::QueryStatus::UnitHeight{UnitId(arg1)};
+                return CobEnvironment::QueryStatus::UnitHeight{CobUnitId(arg1)};
             case CobValueId::XZAtan:
                 return CobEnvironment::QueryStatus::XZAtan{arg1};
             case CobValueId::XZHypot:
@@ -78,11 +79,11 @@ namespace rwe
             case CobValueId::MyId:
                 return CobEnvironment::QueryStatus::MyId{};
             case CobValueId::UnitTeam:
-                return CobEnvironment::QueryStatus::UnitTeam{UnitId(arg1)};
+                return CobEnvironment::QueryStatus::UnitTeam{CobUnitId(arg1)};
             case CobValueId::UnitBuildPercentLeft:
-                return CobEnvironment::QueryStatus::UnitBuildPercentLeft{UnitId(arg1)};
+                return CobEnvironment::QueryStatus::UnitBuildPercentLeft{CobUnitId(arg1)};
             case CobValueId::UnitAllied:
-                return CobEnvironment::QueryStatus::UnitAllied{UnitId(arg1)};
+                return CobEnvironment::QueryStatus::UnitAllied{CobUnitId(arg1)};
             default:
                 throw std::runtime_error("Unknown unit value ID: " + std::to_string(static_cast<unsigned int>(valueId)));
         }
@@ -113,10 +114,7 @@ namespace rwe
         }
     }
 
-    CobExecutionContext::CobExecutionContext(
-        CobEnvironment* env,
-        CobThread* thread,
-        UnitId unitId) : env(env), thread(thread), unitId(unitId)
+    CobExecutionContext::CobExecutionContext(CobEnvironment* env, CobThread* thread) : env(env), thread(thread)
     {
     }
 

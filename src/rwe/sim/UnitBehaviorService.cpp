@@ -714,7 +714,7 @@ namespace rwe
         {
             return std::nullopt;
         }
-        CobExecutionContext context(unit.cobEnvironment.get(), &*thread, id);
+        CobExecutionContext context(unit.cobEnvironment.get(), &*thread);
         auto status = context.execute();
         if (std::get_if<CobEnvironment::FinishedStatus>(&status) == nullptr)
         {

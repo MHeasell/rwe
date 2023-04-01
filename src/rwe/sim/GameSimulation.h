@@ -1,6 +1,7 @@
 #pragma once
 
 #include <random>
+#include <rwe/cob/CobUnitId.h>
 #include <rwe/collections/SimpleVectorMap.h>
 #include <rwe/collections/VectorMap.h>
 #include <rwe/game/MovementClassCollisionService.h>
@@ -20,6 +21,7 @@
 #include <rwe/sim/ProjectileId.h>
 #include <rwe/sim/SimAxis.h>
 #include <rwe/sim/UnitDefinition.h>
+#include <rwe/sim/UnitId.h>
 #include <rwe/sim/UnitModelDefinition.h>
 #include <rwe/sim/UnitState.h>
 #include <set>
@@ -333,6 +335,8 @@ namespace rwe
         std::optional<std::reference_wrapper<UnitState>> tryGetUnitState(UnitId id);
 
         std::optional<std::reference_wrapper<const UnitState>> tryGetUnitState(UnitId id) const;
+
+        std::optional<std::reference_wrapper<const UnitState>> tryGetUnitState(CobUnitId id) const;
 
         bool unitExists(UnitId id) const;
 

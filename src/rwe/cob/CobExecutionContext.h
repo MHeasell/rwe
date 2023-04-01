@@ -15,10 +15,9 @@ namespace rwe
     private:
         CobEnvironment* const env;
         CobThread* const thread;
-        const UnitId unitId;
 
     public:
-        CobExecutionContext(CobEnvironment* env, CobThread* thread, UnitId unitId);
+        CobExecutionContext(CobEnvironment* env, CobThread* thread);
 
         CobEnvironment::Status execute();
 

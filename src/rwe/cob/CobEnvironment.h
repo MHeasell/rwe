@@ -11,8 +11,8 @@
 #include <rwe/cob/CobSpeed.h>
 #include <rwe/cob/CobThread.h>
 #include <rwe/cob/CobTime.h>
+#include <rwe/cob/CobUnitId.h>
 #include <rwe/io/cob/Cob.h>
-#include <rwe/sim/UnitId.h>
 #include <variant>
 #include <vector>
 
@@ -153,15 +153,15 @@ namespace rwe
             };
             struct UnitXZ
             {
-                UnitId targetUnitId;
+                CobUnitId targetUnitId;
             };
             struct UnitY
             {
-                UnitId targetUnitId;
+                CobUnitId targetUnitId;
             };
             struct UnitHeight
             {
-                UnitId targetUnitId;
+                CobUnitId targetUnitId;
             };
             struct XZAtan
             {
@@ -197,15 +197,15 @@ namespace rwe
             };
             struct UnitTeam
             {
-                UnitId targetUnitId;
+                CobUnitId targetUnitId;
             };
             struct UnitBuildPercentLeft
             {
-                UnitId targetUnitId;
+                CobUnitId targetUnitId;
             };
             struct UnitAllied
             {
-                UnitId targetUnitId;
+                CobUnitId targetUnitId;
             };
 
             using Query = std::variant<Random, Activation, StandingFireOrders, StandingMoveOrders, Health, InBuildStance, Busy, PieceXZ, PieceY, UnitXZ, UnitY, UnitHeight, XZAtan, GroundHeight, BuildPercentLeft, YardOpen, BuggerOff, Armored, VeteranLevel, MinId, MaxId, MyId, UnitTeam, UnitBuildPercentLeft, UnitAllied>;
