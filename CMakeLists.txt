@@ -340,6 +340,8 @@ set(SOURCE_FILES
     src/rwe/game/WeaponMediaInfo.h
     src/rwe/game/dump_util.cpp
     src/rwe/game/dump_util.h
+    src/rwe/game/matrix_util.cpp
+    src/rwe/game/matrix_util.h
     src/rwe/geometry/BoundingBox3f.h
     src/rwe/geometry/BoundingBox3x.h
     src/rwe/geometry/Circle2f.h
@@ -428,8 +430,6 @@ set(SOURCE_FILES
     src/rwe/math/Vector3x.h
     src/rwe/math/rwe_math.cpp
     src/rwe/math/rwe_math.h
-    src/rwe/matrix_util.cpp
-    src/rwe/matrix_util.h
     src/rwe/mesh_util.cpp
     src/rwe/mesh_util.h
     src/rwe/network_util.cpp
