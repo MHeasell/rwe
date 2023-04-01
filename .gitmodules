@@ -16,3 +16,6 @@
 [submodule "libs/catch2"]
 	path = libs/catch2
 	url = https://github.com/catchorg/Catch2.git
+[submodule "libs/utfcpp"]
+	path = libs/utfcpp
+	url = https://github.com/nemtrif/utfcpp.git
