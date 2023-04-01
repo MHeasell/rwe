@@ -1,6 +1,5 @@
 #include "UnitBehaviorService.h"
 #include <rwe/cob/CobExecutionContext.h>
-#include <rwe/math/rwe_math.h>
 #include <rwe/sim/UnitBehaviorService_util.h>
 #include <rwe/sim/cob.h>
 #include <rwe/sim/movement.h>
