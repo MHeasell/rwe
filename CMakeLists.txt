@@ -518,8 +518,8 @@ set(SOURCE_FILES
     src/rwe/sim/MapTerrain.cpp
     src/rwe/sim/MapTerrain.h
     src/rwe/sim/Metal.h
-    src/rwe/sim/MovementClass.cpp
-    src/rwe/sim/MovementClass.h
+    src/rwe/sim/MovementClassDefinition.cpp
+    src/rwe/sim/MovementClassDefinition.h
     src/rwe/sim/MovementClassId.h
     src/rwe/sim/OccupiedGrid.cpp
     src/rwe/sim/OccupiedGrid.h

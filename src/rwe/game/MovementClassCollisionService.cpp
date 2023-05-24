@@ -28,7 +28,7 @@ namespace rwe
         return walkableGrids.at(movementClass);
     }
 
-    Grid<char> computeWalkableGrid(const MapTerrain& terrain, const MovementClass& movementClass)
+    Grid<char> computeWalkableGrid(const MapTerrain& terrain, const MovementClassDefinition& movementClass)
     {
         const auto footprintX = movementClass.footprintX;
         const auto footprintY = movementClass.footprintZ;

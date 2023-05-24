@@ -1,10 +1,10 @@
-#include "MovementClass.h"
+#include "MovementClassDefinition.h"
 
 namespace rwe
 {
-    MovementClass parseMovementClass(const TdfBlock& block)
+    MovementClassDefinition parseMovementClass(const TdfBlock& block)
     {
-        MovementClass m;
+        MovementClassDefinition m;
         m.name = block.expectString("Name");
         m.footprintX = block.expectUint("FootprintX");
         m.footprintZ = block.expectUint("FootprintZ");
@@ -16,9 +16,9 @@ namespace rwe
         return m;
     }
 
-    std::vector<std::pair<std::string, MovementClass>> parseMovementTdf(const TdfBlock& root)
+    std::vector<std::pair<std::string, MovementClassDefinition>> parseMovementTdf(const TdfBlock& root)
     {
-        std::vector<std::pair<std::string, MovementClass>> vec;
+        std::vector<std::pair<std::string, MovementClassDefinition>> vec;
         vec.reserve(root.blocks.size());
 
         for (const auto& e : root.blocks)

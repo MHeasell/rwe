@@ -5,7 +5,7 @@
 
 namespace rwe
 {
-    struct MovementClass
+    struct MovementClassDefinition
     {
         std::string name;
         unsigned int footprintX;
@@ -16,7 +16,7 @@ namespace rwe
         unsigned int maxWaterSlope;
     };
 
-    MovementClass parseMovementClass(const TdfBlock& block);
+    MovementClassDefinition parseMovementClass(const TdfBlock& block);
 
-    std::vector<std::pair<std::string, MovementClass>> parseMovementTdf(const TdfBlock& root);
+    std::vector<std::pair<std::string, MovementClassDefinition>> parseMovementTdf(const TdfBlock& root);
 }

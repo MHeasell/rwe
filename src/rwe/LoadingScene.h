@@ -146,7 +146,7 @@ namespace rwe
             std::unordered_map<std::string, UnitDefinition> unitDefinitions;
             std::unordered_map<std::string, UnitModelDefinition> modelDefinitions;
             std::unordered_map<std::string, WeaponDefinition> weaponDefinitions;
-            std::unordered_map<MovementClassId, MovementClass> movementClassDefinitions;
+            std::unordered_map<MovementClassId, MovementClassDefinition> movementClassDefinitions;
             SimpleVectorMap<FeatureDefinition, FeatureDefinitionIdTag> featureDefinitions;
             std::unordered_map<std::string, FeatureDefinitionId> featureNameIndex;
         };

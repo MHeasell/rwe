@@ -301,7 +301,7 @@ namespace rwe
         return unitId;
     }
 
-    bool GameSimulation::canBeBuiltAt(const rwe::MovementClass& mc, unsigned int x, unsigned int y) const
+    bool GameSimulation::canBeBuiltAt(const rwe::MovementClassDefinition& mc, unsigned int x, unsigned int y) const
     {
         if (isCollisionAt(DiscreteRect(x, y, mc.footprintX, mc.footprintZ)))
         {
@@ -830,12 +830,12 @@ namespace rwe
         }
     }
 
-    MovementClass GameSimulation::getAdHocMovementClass(const UnitDefinition::MovementCollisionInfo& info) const
+    MovementClassDefinition GameSimulation::getAdHocMovementClass(const UnitDefinition::MovementCollisionInfo& info) const
     {
         return match(
             info,
             [&](const UnitDefinition::AdHocMovementClass& mc) {
-                return MovementClass{
+                return MovementClassDefinition{
                     "",
                     mc.footprintX,
                     mc.footprintZ,

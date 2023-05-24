@@ -253,7 +253,7 @@ namespace rwe
 
         std::unordered_map<std::string, WeaponDefinition> weaponDefinitions;
 
-        std::unordered_map<MovementClassId, MovementClass> movementClassDefinitions;
+        std::unordered_map<MovementClassId, MovementClassDefinition> movementClassDefinitions;
         MovementClassCollisionService movementClassCollisionService;
 
         PathFindingService pathFindingService;
@@ -300,7 +300,7 @@ namespace rwe
          * could be built at given location on the map -- i.e. it is valid terrain
          * for the unit and it is not occupied by something else.
          */
-        bool canBeBuiltAt(const MovementClass& mc, unsigned int x, unsigned int y) const;
+        bool canBeBuiltAt(const MovementClassDefinition& mc, unsigned int x, unsigned int y) const;
 
         DiscreteRect computeFootprintRegion(const SimVector& position, unsigned int footprintX, unsigned int footprintZ) const;
 
@@ -407,7 +407,7 @@ namespace rwe
 
         void setBuggerOff(UnitId unitId, bool value);
 
-        MovementClass getAdHocMovementClass(const UnitDefinition::MovementCollisionInfo& info) const;
+        MovementClassDefinition getAdHocMovementClass(const UnitDefinition::MovementCollisionInfo& info) const;
 
         std::pair<unsigned int, unsigned int> getFootprintXZ(const UnitDefinition::MovementCollisionInfo& info) const;
 

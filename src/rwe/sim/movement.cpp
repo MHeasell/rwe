@@ -3,7 +3,7 @@
 namespace rwe
 {
     bool
-    isGridPointWalkable(const MapTerrain& terrain, const MovementClass& movementClass, unsigned int x, unsigned int y)
+    isGridPointWalkable(const MapTerrain& terrain, const MovementClassDefinition& movementClass, unsigned int x, unsigned int y)
     {
         if (isMaxSlopeGreaterThan(terrain.getHeightMap(), simScalarToUInt(terrain.getSeaLevel()), x, y, movementClass.footprintX, movementClass.footprintZ, movementClass.maxSlope, movementClass.maxWaterSlope))
         {
