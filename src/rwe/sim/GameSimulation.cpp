@@ -9,6 +9,7 @@
 #include <rwe/util/Index.h>
 #include <rwe/util/collection_util.h>
 #include <rwe/util/match.h>
+#include <rwe/util/rwe_string.h>
 #include <type_traits>
 #include <unordered_set>
 
