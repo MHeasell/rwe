@@ -1,13 +1,13 @@
-#include "MeshDatabase.h"
+#include "GameMediaDatabase.h"
 
 namespace rwe
 {
-    void MeshDatabase::addSelectionMesh(const std::string& objectName, std::shared_ptr<GlMesh> mesh)
+    void GameMediaDatabase::addSelectionMesh(const std::string& objectName, std::shared_ptr<GlMesh> mesh)
     {
         selectionMeshesMap.insert({objectName, mesh});
     }
 
-    std::optional<std::shared_ptr<GlMesh>> MeshDatabase::getSelectionMesh(const std::string& objectName) const
+    std::optional<std::shared_ptr<GlMesh>> GameMediaDatabase::getSelectionMesh(const std::string& objectName) const
     {
         auto it = selectionMeshesMap.find(objectName);
         if (it == selectionMeshesMap.end())
@@ -17,12 +17,12 @@ namespace rwe
         return it->second;
     }
 
-    void MeshDatabase::addUnitPieceMesh(const std::string& unitName, const std::string& pieceName, const UnitPieceMeshInfo& pieceMesh)
+    void GameMediaDatabase::addUnitPieceMesh(const std::string& unitName, const std::string& pieceName, const UnitPieceMeshInfo& pieceMesh)
     {
         unitPieceMeshesMap.insert({{unitName, pieceName}, pieceMesh});
     }
 
-    std::optional<std::reference_wrapper<const UnitPieceMeshInfo>> MeshDatabase::getUnitPieceMesh(const std::string& objectName, const std::string& pieceName) const
+    std::optional<std::reference_wrapper<const UnitPieceMeshInfo>> GameMediaDatabase::getUnitPieceMesh(const std::string& objectName, const std::string& pieceName) const
     {
         auto it = unitPieceMeshesMap.find({objectName, pieceName});
         if (it == unitPieceMeshesMap.end())
@@ -32,12 +32,12 @@ namespace rwe
         return it->second;
     }
 
-    void MeshDatabase::addSpriteSeries(const std::string& gafName, const std::string& animName, std::shared_ptr<SpriteSeries> sprite)
+    void GameMediaDatabase::addSpriteSeries(const std::string& gafName, const std::string& animName, std::shared_ptr<SpriteSeries> sprite)
     {
         spritesMap.insert({{gafName, animName}, sprite});
     }
 
-    std::optional<std::shared_ptr<SpriteSeries>> MeshDatabase::getSpriteSeries(const std::string& gaf, const std::string& anim) const
+    std::optional<std::shared_ptr<SpriteSeries>> GameMediaDatabase::getSpriteSeries(const std::string& gaf, const std::string& anim) const
     {
         auto it = spritesMap.find({gaf, anim});
         if (it == spritesMap.end())
@@ -47,7 +47,7 @@ namespace rwe
         return it->second;
     }
 
-    const WeaponMediaInfo& MeshDatabase::getWeapon(const std::string& weaponName) const
+    const WeaponMediaInfo& GameMediaDatabase::getWeapon(const std::string& weaponName) const
     {
         auto it = weaponMap.find(toUpper(weaponName));
         if (it == weaponMap.end())
@@ -58,7 +58,7 @@ namespace rwe
         return it->second;
     }
 
-    std::optional<std::reference_wrapper<const WeaponMediaInfo>> MeshDatabase::tryGetWeapon(const std::string& weaponName) const
+    std::optional<std::reference_wrapper<const WeaponMediaInfo>> GameMediaDatabase::tryGetWeapon(const std::string& weaponName) const
     {
         auto it = weaponMap.find(toUpper(weaponName));
         if (it == weaponMap.end())
@@ -69,14 +69,14 @@ namespace rwe
         return it->second;
     }
 
-    void MeshDatabase::addWeapon(const std::string& weaponName, WeaponMediaInfo&& weapon)
+    void GameMediaDatabase::addWeapon(const std::string& weaponName, WeaponMediaInfo&& weapon)
     {
         weaponMap.insert({toUpper(weaponName), std::move(weapon)});
     }
 
     const SoundClass defaultSoundClass = SoundClass();
 
-    const SoundClass& MeshDatabase::getSoundClassOrDefault(const std::string& className) const
+    const SoundClass& GameMediaDatabase::getSoundClassOrDefault(const std::string& className) const
     {
         auto it = soundClassMap.find(className);
         if (it == soundClassMap.end())
@@ -87,7 +87,7 @@ namespace rwe
         return it->second;
     }
 
-    const SoundClass& MeshDatabase::getSoundClass(const std::string& className) const
+    const SoundClass& GameMediaDatabase::getSoundClass(const std::string& className) const
     {
         auto it = soundClassMap.find(className);
         if (it == soundClassMap.end())
@@ -98,12 +98,12 @@ namespace rwe
         return it->second;
     }
 
-    void MeshDatabase::addSoundClass(const std::string& className, SoundClass&& soundClass)
+    void GameMediaDatabase::addSoundClass(const std::string& className, SoundClass&& soundClass)
     {
         soundClassMap.insert({className, std::move(soundClass)});
     }
 
-    const AudioService::SoundHandle& MeshDatabase::getSoundHandle(const std::string& sound) const
+    const AudioService::SoundHandle& GameMediaDatabase::getSoundHandle(const std::string& sound) const
     {
         auto it = soundMap.find(sound);
         if (it == soundMap.end())
@@ -114,7 +114,7 @@ namespace rwe
         return it->second;
     }
 
-    std::optional<AudioService::SoundHandle> MeshDatabase::tryGetSoundHandle(const std::string& sound) const
+    std::optional<AudioService::SoundHandle> GameMediaDatabase::tryGetSoundHandle(const std::string& sound) const
     {
         auto it = soundMap.find(sound);
         if (it == soundMap.end())
@@ -125,17 +125,17 @@ namespace rwe
         return it->second;
     }
 
-    void MeshDatabase::addSound(const std::string& soundName, const AudioService::SoundHandle& sound)
+    void GameMediaDatabase::addSound(const std::string& soundName, const AudioService::SoundHandle& sound)
     {
         soundMap.insert({soundName, sound});
     }
 
-    void MeshDatabase::addSelectionCollisionMesh(const std::string& objectName, std::shared_ptr<CollisionMesh> mesh)
+    void GameMediaDatabase::addSelectionCollisionMesh(const std::string& objectName, std::shared_ptr<CollisionMesh> mesh)
     {
         selectionCollisionMeshesMap.insert({objectName, mesh});
     }
 
-    std::optional<std::shared_ptr<CollisionMesh>> MeshDatabase::getSelectionCollisionMesh(const std::string& objectName) const
+    std::optional<std::shared_ptr<CollisionMesh>> GameMediaDatabase::getSelectionCollisionMesh(const std::string& objectName) const
     {
         auto it = selectionCollisionMeshesMap.find(objectName);
         if (it == selectionCollisionMeshesMap.end())
@@ -145,17 +145,17 @@ namespace rwe
         return it->second;
     }
 
-    const FeatureMediaInfo& MeshDatabase::getFeature(FeatureDefinitionId featureId) const
+    const FeatureMediaInfo& GameMediaDatabase::getFeature(FeatureDefinitionId featureId) const
     {
         return featureMap.get(featureId);
     }
 
-    FeatureMediaInfo& MeshDatabase::getFeature(FeatureDefinitionId featureId)
+    FeatureMediaInfo& GameMediaDatabase::getFeature(FeatureDefinitionId featureId)
     {
         return featureMap.get(featureId);
     }
 
-    FeatureDefinitionId MeshDatabase::addFeature(FeatureMediaInfo&& feature)
+    FeatureDefinitionId GameMediaDatabase::addFeature(FeatureMediaInfo&& feature)
     {
         return featureMap.insert(std::move(feature));
     }

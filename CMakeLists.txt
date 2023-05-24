@@ -309,6 +309,8 @@ set(SOURCE_FILES
     src/rwe/game/FlashEffect.h
     src/rwe/game/GameCameraState.cpp
     src/rwe/game/GameCameraState.h
+    src/rwe/game/GameMediaDatabase.cpp
+    src/rwe/game/GameMediaDatabase.h
     src/rwe/game/GameNetworkService.cpp
     src/rwe/game/GameNetworkService.h
     src/rwe/game/GameScene.cpp
@@ -319,8 +321,6 @@ set(SOURCE_FILES
     src/rwe/game/InGameSoundsInfo.h
     src/rwe/game/MapTerrainGraphics.cpp
     src/rwe/game/MapTerrainGraphics.h
-    src/rwe/game/MeshDatabase.cpp
-    src/rwe/game/MeshDatabase.h
     src/rwe/game/MovementClassCollisionService.cpp
     src/rwe/game/MovementClassCollisionService.h
     src/rwe/game/Particle.cpp

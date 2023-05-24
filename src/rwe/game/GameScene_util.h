@@ -2,7 +2,7 @@
 
 #include <rwe/RenderService.h>
 #include <rwe/collections/VectorMap.h>
-#include <rwe/game/MeshDatabase.h>
+#include <rwe/game/GameMediaDatabase.h>
 #include <rwe/game/Particle.h>
 #include <rwe/game/PlayerColorIndex.h>
 #include <rwe/math/Matrix4x.h>
@@ -34,7 +34,7 @@ namespace rwe
     void drawMovementClassCollisionGrid(const MapTerrain& terrain, const Grid<char>& movementClassGrid, const Vector3f& cameraPosition, float viewportWidth, float viewportHeight, ColoredMeshBatch& batch);
 
     void drawUnit(
-        const MeshDatabase& meshDatabase,
+        const GameMediaDatabase& gameMediaDatabase,
         const Matrix4f& viewProjectionMatrix,
         const UnitState& unit,
         const UnitDefinition& unitDefinition,
@@ -47,7 +47,7 @@ namespace rwe
 
     void drawMeshFeature(
         const std::unordered_map<std::string, UnitModelDefinition>& modelDefinitions,
-        const MeshDatabase& meshDatabase,
+        const GameMediaDatabase& gameMediaDatabase,
         const Matrix4f& viewProjectionMatrix,
         const MapFeature& feature,
         TextureIdentifier unitTextureAtlas,
@@ -55,7 +55,7 @@ namespace rwe
         UnitMeshBatch& batch);
 
     void drawUnitShadow(
-        const MeshDatabase& meshDatabase,
+        const GameMediaDatabase& gameMediaDatabase,
         const Matrix4f& viewProjectionMatrix,
         const UnitState& unit,
         const UnitDefinition& unitDefinition,
@@ -68,7 +68,7 @@ namespace rwe
 
     void drawFeatureMeshShadow(
         const std::unordered_map<std::string, UnitModelDefinition>& modelDefinitions,
-        const MeshDatabase& meshDatabase,
+        const GameMediaDatabase& gameMediaDatabase,
         const Matrix4f& viewProjectionMatrix,
         const MapFeature& feature,
         float groundHeight,
@@ -77,13 +77,13 @@ namespace rwe
         UnitShadowMeshBatch& batch);
 
     void drawFeature(
-        const MeshDatabase& meshDatabase,
+        const GameMediaDatabase& gameMediaDatabase,
         const MapFeature& feature,
         const FeatureDefinition& featureDefinition,
         const Matrix4f& viewProjectionMatrix,
         SpriteBatch& batch);
     void drawFeatureShadow(
-        const MeshDatabase& meshDatabase,
+        const GameMediaDatabase& gameMediaDatabase,
         const MapFeature& feature,
         const FeatureDefinition& featureDefinition,
         const Matrix4f& viewProjectionMatrix,
@@ -91,15 +91,15 @@ namespace rwe
 
     void drawNanoLine(const Vector3f& start, const Vector3f& end, ColoredMeshBatch& batch);
 
-    void drawSpriteParticle(const MeshDatabase& meshDatabase, GameTime currentTime, const Matrix4f& viewProjectionMatrix, const Particle& particle, SpriteBatch& batch);
+    void drawSpriteParticle(const GameMediaDatabase& gameMediaDatabase, GameTime currentTime, const Matrix4f& viewProjectionMatrix, const Particle& particle, SpriteBatch& batch);
 
-    void drawWakeParticle(const MeshDatabase& meshDatabase, GameTime currentTime, const Matrix4f& viewProjectionMatrix, const Particle& particle, ColoredMeshBatch& batch);
+    void drawWakeParticle(const GameMediaDatabase& gameMediaDatabase, GameTime currentTime, const Matrix4f& viewProjectionMatrix, const Particle& particle, ColoredMeshBatch& batch);
 
-    void updateParticles(const MeshDatabase& meshDatabase, GameTime currentTime, std::vector<Particle>& particles);
+    void updateParticles(const GameMediaDatabase& gameMediaDatabase, GameTime currentTime, std::vector<Particle>& particles);
 
     void drawProjectiles(
         const GameSimulation& sim,
-        const MeshDatabase& meshDatabase,
+        const GameMediaDatabase& gameMediaDatabase,
         const Matrix4f& viewProjectionMatrix,
         const VectorMap<Projectile, ProjectileIdTag>& projectiles,
         GameTime currentTime,
@@ -110,5 +110,5 @@ namespace rwe
         SpriteBatch& spriteBatch,
         UnitMeshBatch& unitMeshBatch);
 
-    void drawSelectionRect(const MeshDatabase& meshDatabase, const Matrix4f& viewProjectionMatrix, const UnitState& unit, const UnitDefinition& unitDefinition, float frac, ColoredMeshesBatch& batch);
+    void drawSelectionRect(const GameMediaDatabase& gameMediaDatabase, const Matrix4f& viewProjectionMatrix, const UnitState& unit, const UnitDefinition& unitDefinition, float frac, ColoredMeshesBatch& batch);
 }

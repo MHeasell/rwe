@@ -200,7 +200,7 @@ namespace rwe
     GameScene::GameScene(
         const SceneContext& sceneContext,
         std::unique_ptr<PlayerCommandService>&& playerCommandService,
-        MeshDatabase&& meshDatabase,
+        GameMediaDatabase&& meshDatabase,
         const GameCameraState& cameraState,
         SharedTextureHandle unitTextureAtlas,
         std::vector<SharedTextureHandle>&& unitTeamTextureAtlases,
@@ -221,7 +221,7 @@ namespace rwe
           worldViewport(CroppedViewport(this->sceneContext.viewport, GuiSizeLeft, GuiSizeTop, GuiSizeRight, GuiSizeBottom)),
           playerCommandService(std::move(playerCommandService)),
           worldCameraState(cameraState),
-          meshDatabase(std::move(meshDatabase)),
+          gameMediaDatabase(std::move(meshDatabase)),
           unitTextureAtlas(unitTextureAtlas),
           unitTeamTextureAtlases(std::move(unitTeamTextureAtlases)),
           worldUiRenderService(this->sceneContext.graphics, this->sceneContext.shaders, &this->worldViewport),
@@ -660,8 +660,8 @@ namespace rwe
             const auto& featureDefinition = simulation.getFeatureDefinition(f.second.featureName);
             if (!featureDefinition.isStanding())
             {
-                drawFeature(meshDatabase, f.second, featureDefinition, viewProjectionMatrix, flatFeatureBatch);
-                drawFeatureShadow(meshDatabase, f.second, featureDefinition, viewProjectionMatrix, flatFeatureShadowBatch);
+                drawFeature(gameMediaDatabase, f.second, featureDefinition, viewProjectionMatrix, flatFeatureBatch);
+                drawFeatureShadow(gameMediaDatabase, f.second, featureDefinition, viewProjectionMatrix, flatFeatureShadowBatch);
             }
         }
         worldRenderService.drawSpriteBatch(flatFeatureShadowBatch);
@@ -670,7 +670,7 @@ namespace rwe
         ColoredMeshBatch squareParticlesBatch;
         for (const auto& particle : particles)
         {
-            drawWakeParticle(meshDatabase, simulation.gameTime, viewProjectionMatrix, particle, squareParticlesBatch);
+            drawWakeParticle(gameMediaDatabase, simulation.gameTime, viewProjectionMatrix, particle, squareParticlesBatch);
         }
         worldRenderService.drawBatch(squareParticlesBatch, viewProjectionMatrix);
 
@@ -708,7 +708,7 @@ namespace rwe
         {
             const auto& unit = getUnit(selectedUnitId);
             const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
-            drawSelectionRect(meshDatabase, viewProjectionMatrix, unit, unitDefinition, interpolationFraction, selectionRectBatch);
+            drawSelectionRect(gameMediaDatabase, viewProjectionMatrix, unit, unitDefinition, interpolationFraction, selectionRectBatch);
         }
         worldRenderService.drawLineLoopsBatch(selectionRectBatch);
 
@@ -725,7 +725,7 @@ namespace rwe
             {
                 groundHeight = rweMax(groundHeight, seaLevel);
             }
-            drawUnitShadow(meshDatabase, viewProjectionMatrix, unit, unitDefinition, modelDefinition, interpolationFraction, simScalarToFloat(groundHeight), unitTextureAtlas.get(), unitTeamTextureAtlases, unitShadowMeshBatch);
+            drawUnitShadow(gameMediaDatabase, viewProjectionMatrix, unit, unitDefinition, modelDefinition, interpolationFraction, simScalarToFloat(groundHeight), unitTextureAtlas.get(), unitTeamTextureAtlases, unitShadowMeshBatch);
         }
         for (const auto& feature : (simulation.features | boost::adaptors::map_values))
         {
@@ -736,7 +736,7 @@ namespace rwe
                 groundHeight = seaLevel;
             }
 
-            drawFeatureMeshShadow(simulation.unitModelDefinitions, meshDatabase, viewProjectionMatrix, feature, simScalarToFloat(groundHeight), unitTextureAtlas.get(), unitTeamTextureAtlases, unitShadowMeshBatch);
+            drawFeatureMeshShadow(simulation.unitModelDefinitions, gameMediaDatabase, viewProjectionMatrix, feature, simScalarToFloat(groundHeight), unitTextureAtlas.get(), unitTeamTextureAtlases, unitShadowMeshBatch);
         }
         worldRenderService.drawUnitShadowMeshBatch(unitShadowMeshBatch);
 
@@ -747,18 +747,18 @@ namespace rwe
         {
             const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
             const auto& unitModelDefinition = simulation.unitModelDefinitions.at(unitDefinition.objectName);
-            drawUnit(meshDatabase, viewProjectionMatrix, unit, unitDefinition, unitModelDefinition, getPlayer(unit.owner).color, interpolationFraction, unitTextureAtlas.get(), unitTeamTextureAtlases, unitMeshBatch);
+            drawUnit(gameMediaDatabase, viewProjectionMatrix, unit, unitDefinition, unitModelDefinition, getPlayer(unit.owner).color, interpolationFraction, unitTextureAtlas.get(), unitTeamTextureAtlases, unitMeshBatch);
         }
         for (const auto& feature : (simulation.features | boost::adaptors::map_values))
         {
-            drawMeshFeature(simulation.unitModelDefinitions, meshDatabase, viewProjectionMatrix, feature, unitTextureAtlas.get(), unitTeamTextureAtlases, unitMeshBatch);
+            drawMeshFeature(simulation.unitModelDefinitions, gameMediaDatabase, viewProjectionMatrix, feature, unitTextureAtlas.get(), unitTeamTextureAtlases, unitMeshBatch);
         }
         worldRenderService.drawUnitMeshBatch(unitMeshBatch, simScalarToFloat(seaLevel), simulation.gameTime.value);
 
         ColoredMeshBatch lineProjectilesBatch;
         SpriteBatch spriteProjectilesBatch;
         UnitMeshBatch meshProjectilesBatch;
-        drawProjectiles(simulation, meshDatabase, viewProjectionMatrix, simulation.projectiles, simulation.gameTime, interpolationFraction, unitTextureAtlas.get(), unitTeamTextureAtlases, lineProjectilesBatch, spriteProjectilesBatch, meshProjectilesBatch);
+        drawProjectiles(simulation, gameMediaDatabase, viewProjectionMatrix, simulation.projectiles, simulation.gameTime, interpolationFraction, unitTextureAtlas.get(), unitTeamTextureAtlases, lineProjectilesBatch, spriteProjectilesBatch, meshProjectilesBatch);
         worldRenderService.drawBatch(lineProjectilesBatch, viewProjectionMatrix);
         worldRenderService.drawUnitMeshBatch(meshProjectilesBatch, simScalarToFloat(seaLevel), simulation.gameTime.value);
         worldRenderService.drawSpriteBatch(spriteProjectilesBatch);
@@ -772,8 +772,8 @@ namespace rwe
             const auto& featureDefinition = simulation.getFeatureDefinition(f.second.featureName);
             if (featureDefinition.isStanding())
             {
-                drawFeature(meshDatabase, f.second, featureDefinition, viewProjectionMatrix, featureBatch);
-                drawFeatureShadow(meshDatabase, f.second, featureDefinition, viewProjectionMatrix, featureShadowBatch);
+                drawFeature(gameMediaDatabase, f.second, featureDefinition, viewProjectionMatrix, featureBatch);
+                drawFeatureShadow(gameMediaDatabase, f.second, featureDefinition, viewProjectionMatrix, featureShadowBatch);
             }
         }
         worldRenderService.drawSpriteBatch(featureShadowBatch);
@@ -820,7 +820,7 @@ namespace rwe
         SpriteBatch spriteParticlesBatch;
         for (const auto& particle : particles)
         {
-            drawSpriteParticle(meshDatabase, simulation.gameTime, viewProjectionMatrix, particle, spriteParticlesBatch);
+            drawSpriteParticle(gameMediaDatabase, simulation.gameTime, viewProjectionMatrix, particle, spriteParticlesBatch);
         }
         worldRenderService.drawSpriteBatch(spriteParticlesBatch);
         sceneContext.graphics->enableDepthTest();
@@ -2103,7 +2103,7 @@ namespace rwe
         }
     }
 
-    std::optional<AudioService::SoundHandle> getSound(const GameSimulation& sim, const MeshDatabase& meshDb, const std::string& unitType, UnitSoundType soundType)
+    std::optional<AudioService::SoundHandle> getSound(const GameSimulation& sim, const GameMediaDatabase& meshDb, const std::string& unitType, UnitSoundType soundType)
     {
         const auto& unitDefinition = sim.unitDefinitions.at(unitType);
         const auto& soundClass = meshDb.getSoundClassOrDefault(unitDefinition.soundCategory);
@@ -2117,7 +2117,7 @@ namespace rwe
 
     void GameScene::playUnitNotificationSound(const PlayerId& playerId, const std::string& unitType, UnitSoundType soundType)
     {
-        auto sound = getSound(simulation, meshDatabase, unitType, soundType);
+        auto sound = getSound(simulation, gameMediaDatabase, unitType, soundType);
         if (sound)
         {
             playNotificationSound(playerId, *sound);
@@ -2136,10 +2136,10 @@ namespace rwe
     void GameScene::playWeaponStartSound(const Vector3f& position, const std::string& weaponType)
     {
 
-        const auto& weaponMediaInfo = meshDatabase.getWeapon(weaponType);
+        const auto& weaponMediaInfo = gameMediaDatabase.getWeapon(weaponType);
         if (weaponMediaInfo.soundStart)
         {
-            auto sound = meshDatabase.tryGetSoundHandle(*weaponMediaInfo.soundStart);
+            auto sound = gameMediaDatabase.tryGetSoundHandle(*weaponMediaInfo.soundStart);
             if (sound)
             {
                 playSoundAt(position, *sound);
@@ -2149,14 +2149,14 @@ namespace rwe
 
     void GameScene::playWeaponImpactSound(const Vector3f& position, const std::string& weaponType, ImpactType impactType)
     {
-        const auto& weaponMediaInfo = meshDatabase.getWeapon(weaponType);
+        const auto& weaponMediaInfo = gameMediaDatabase.getWeapon(weaponType);
         switch (impactType)
         {
             case ImpactType::Normal:
             {
                 if (weaponMediaInfo.soundHit)
                 {
-                    auto sound = meshDatabase.tryGetSoundHandle(*weaponMediaInfo.soundHit);
+                    auto sound = gameMediaDatabase.tryGetSoundHandle(*weaponMediaInfo.soundHit);
                     if (sound)
                     {
                         playSoundAt(position, *sound);
@@ -2168,7 +2168,7 @@ namespace rwe
             {
                 if (weaponMediaInfo.soundWater)
                 {
-                    auto sound = meshDatabase.tryGetSoundHandle(*weaponMediaInfo.soundWater);
+                    auto sound = gameMediaDatabase.tryGetSoundHandle(*weaponMediaInfo.soundWater);
                     if (sound)
                     {
                         playSoundAt(position, *sound);
@@ -2181,7 +2181,7 @@ namespace rwe
 
     void GameScene::spawnWeaponImpactExplosion(const Vector3f& position, const std::string& weaponType, ImpactType impactType)
     {
-        const auto& weaponMediaInfo = meshDatabase.getWeapon(weaponType);
+        const auto& weaponMediaInfo = gameMediaDatabase.getWeapon(weaponType);
 
         switch (impactType)
         {
@@ -2308,7 +2308,7 @@ namespace rwe
 
         updateFlashes();
 
-        updateParticles(meshDatabase, simulation.gameTime, particles);
+        updateParticles(gameMediaDatabase, simulation.gameTime, particles);
 
         auto winStatus = simulation.computeWinStatus();
         match(
@@ -2395,7 +2395,7 @@ namespace rwe
         for (const auto& entry : simulation.units)
         {
             const auto& unitDefinition = simulation.unitDefinitions.at(entry.second.unitType);
-            auto selectionMesh = meshDatabase.getSelectionCollisionMesh(unitDefinition.objectName);
+            auto selectionMesh = gameMediaDatabase.getSelectionCollisionMesh(unitDefinition.objectName);
             auto distance = selectionIntersect(entry.second, *selectionMesh.value(), ray);
             if (distance && distance < bestDistance)
             {
@@ -2461,7 +2461,7 @@ namespace rwe
         else
         {
             const auto& unit = getUnit(unitId);
-            auto handle = getSound(simulation, meshDatabase, unit.unitType, UnitSoundType::Ok1);
+            auto handle = getSound(simulation, gameMediaDatabase, unit.unitType, UnitSoundType::Ok1);
             if (handle)
             {
                 playUiSound(*handle);
@@ -2490,7 +2490,7 @@ namespace rwe
         localPlayerCommandBuffer.push_back(PlayerUnitCommand(unitId, PlayerUnitCommand::Stop()));
 
         const auto& unit = getUnit(unitId);
-        auto handle = getSound(simulation, meshDatabase, unit.unitType, UnitSoundType::Ok1);
+        auto handle = getSound(simulation, gameMediaDatabase, unit.unitType, UnitSoundType::Ok1);
         if (handle)
         {
             playUiSound(*handle);
@@ -2654,7 +2654,7 @@ namespace rwe
     {
         for (auto& [projectileId, projectile] : simulation.projectiles)
         {
-            const auto& weaponMediaInfo = meshDatabase.getWeapon(projectile.weaponType);
+            const auto& weaponMediaInfo = gameMediaDatabase.getWeapon(projectile.weaponType);
             auto& renderInfo = projectileRenderInfos[projectileId];
 
             // emit smoke trail
@@ -2677,7 +2677,7 @@ namespace rwe
             match(
                 event,
                 [&](const FireWeaponEvent& e) {
-                    const auto& weaponMediaInfo = meshDatabase.getWeapon(e.weaponType);
+                    const auto& weaponMediaInfo = gameMediaDatabase.getWeapon(e.weaponType);
 
                     if (e.shotNumber == 0 || weaponMediaInfo.soundTrigger)
                     {
@@ -2780,7 +2780,7 @@ namespace rwe
                     projectileRenderInfos.insert({e.projectileId, ProjectileRenderInfo{getGameTime()}});
                 },
                 [&](const ProjectileDiedEvent& e) {
-                    const auto& weaponMediaInfo = meshDatabase.getWeapon(e.weaponType);
+                    const auto& weaponMediaInfo = gameMediaDatabase.getWeapon(e.weaponType);
                     if (weaponMediaInfo.endSmoke)
                     {
                         createLightSmoke(simVectorToFloat(e.position));
@@ -2856,7 +2856,7 @@ namespace rwe
         const auto& unit = getUnit(unitId);
         const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
         auto pieceTransform = toFloatMatrix(simulation.getUnitPieceTransform(unitId, pieceName));
-        const auto& pieceMesh = meshDatabase.getUnitPieceMesh(unitDefinition.objectName, pieceName).value().get();
+        const auto& pieceMesh = gameMediaDatabase.getUnitPieceMesh(unitDefinition.objectName, pieceName).value().get();
         auto spawnPosition = pieceTransform * pieceMesh.firstVertexPosition;
         auto otherVertexPosition = pieceTransform * pieceMesh.secondVertexPosition;
 
@@ -3276,7 +3276,7 @@ namespace rwe
         selectedUnits.insert(unitId);
 
         const auto& unit = getUnit(unitId);
-        auto selectionSound = getSound(simulation, meshDatabase, unit.unitType, UnitSoundType::Select1);
+        auto selectionSound = getSound(simulation, gameMediaDatabase, unit.unitType, UnitSoundType::Select1);
         if (selectionSound)
         {
             playUiSound(*selectionSound);
@@ -3310,7 +3310,7 @@ namespace rwe
         if (selectedUnits.size() == 1)
         {
             const auto& unit = getUnit(*units.begin());
-            auto selectionSound = getSound(simulation, meshDatabase, unit.unitType, UnitSoundType::Select1);
+            auto selectionSound = getSound(simulation, gameMediaDatabase, unit.unitType, UnitSoundType::Select1);
             if (selectionSound)
             {
                 playUiSound(*selectionSound);

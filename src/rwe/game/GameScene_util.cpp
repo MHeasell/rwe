@@ -364,7 +364,7 @@ namespace rwe
     }
 
     void drawUnitMesh(
-        const MeshDatabase& meshDatabase,
+        const GameMediaDatabase& gameMediaDatabase,
         const Matrix4f& viewProjectionMatrix,
         const std::string& objectName,
         const UnitModelDefinition& modelDefinition,
@@ -389,13 +389,13 @@ namespace rwe
 
             auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition, meshes, frac);
 
-            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value().get().mesh;
+            const auto& resolvedMesh = *gameMediaDatabase.getUnitPieceMesh(objectName, pieceDef.name).value().get().mesh;
             drawShaderMesh(viewProjectionMatrix, resolvedMesh, matrix, mesh.shaded, playerColorIndex, unitTextureAtlas, unitTeamTextureAtlases, batch.meshes);
         }
     }
 
     void drawUnitShadowMesh(
-        const MeshDatabase& meshDatabase,
+        const GameMediaDatabase& gameMediaDatabase,
         const Matrix4f& viewProjectionMatrix,
         const std::string& objectName,
         const UnitModelDefinition& modelDefinition,
@@ -420,13 +420,13 @@ namespace rwe
 
             auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition, meshes, frac);
 
-            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value().get().mesh;
+            const auto& resolvedMesh = *gameMediaDatabase.getUnitPieceMesh(objectName, pieceDef.name).value().get().mesh;
             drawShaderMeshShadow(viewProjectionMatrix, resolvedMesh, matrix, groundHeight, unitTextureAtlas, unitTeamTextureAtlases, batch.meshes);
         }
     }
 
     void drawUnitShadowMeshNoPieces(
-        const MeshDatabase& meshDatabase,
+        const GameMediaDatabase& gameMediaDatabase,
         const Matrix4f& viewProjectionMatrix,
         const std::string& objectName,
         const UnitModelDefinition& modelDefinition,
@@ -442,7 +442,7 @@ namespace rwe
 
             auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition);
 
-            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value().get().mesh;
+            const auto& resolvedMesh = *gameMediaDatabase.getUnitPieceMesh(objectName, pieceDef.name).value().get().mesh;
             drawShaderMeshShadow(viewProjectionMatrix, resolvedMesh, matrix, groundHeight, unitTextureAtlas, unitTeamTextureAtlases, batch.meshes);
         }
     }
@@ -471,7 +471,7 @@ namespace rwe
     }
 
     void drawBuildingUnitMesh(
-        const MeshDatabase& meshDatabase,
+        const GameMediaDatabase& gameMediaDatabase,
         const Matrix4f& viewProjectionMatrix,
         const std::string& objectName,
         const UnitModelDefinition& modelDefinition,
@@ -496,13 +496,13 @@ namespace rwe
 
             auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition, meshes, frac);
 
-            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value().get().mesh;
+            const auto& resolvedMesh = *gameMediaDatabase.getUnitPieceMesh(objectName, pieceDef.name).value().get().mesh;
             drawBuildingShaderMesh(viewProjectionMatrix, resolvedMesh, matrix, mesh.shaded, percentComplete, unitY, playerColorIndex, unitTextureAtlas, unitTeamTextureAtlases, batch.buildingMeshes);
         }
     }
 
     void drawProjectileUnitMesh(
-        const MeshDatabase& meshDatabase,
+        const GameMediaDatabase& gameMediaDatabase,
         const Matrix4f& viewProjectionMatrix,
         const std::string& objectName,
         const UnitModelDefinition& modelDefinition,
@@ -516,13 +516,13 @@ namespace rwe
         for (const auto& pieceDef : modelDefinition.pieces)
         {
             auto matrix = modelMatrix * getPieceTransformForRender(pieceDef.name, modelDefinition);
-            const auto& resolvedMesh = *meshDatabase.getUnitPieceMesh(objectName, pieceDef.name).value().get().mesh;
+            const auto& resolvedMesh = *gameMediaDatabase.getUnitPieceMesh(objectName, pieceDef.name).value().get().mesh;
             drawShaderMesh(viewProjectionMatrix, resolvedMesh, matrix, shaded, playerColorIndex, unitTextureAtlas, unitTeamTextureAtlases, batch.meshes);
         }
     }
 
     void drawUnit(
-        const MeshDatabase& meshDatabase,
+        const GameMediaDatabase& gameMediaDatabase,
         const Matrix4f& viewProjectionMatrix,
         const UnitState& unit,
         const UnitDefinition& unitDefinition,
@@ -538,35 +538,35 @@ namespace rwe
         auto transform = Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
         if (unit.isBeingBuilt(unitDefinition))
         {
-            drawBuildingUnitMesh(meshDatabase, viewProjectionMatrix, unitDefinition.objectName, modelDefinition, unit.pieces, transform, unit.getPreciseCompletePercent(unitDefinition), position.y, playerColorIndex, frac, unitTextureAtlas, unitTeamTextureAtlases, batch);
+            drawBuildingUnitMesh(gameMediaDatabase, viewProjectionMatrix, unitDefinition.objectName, modelDefinition, unit.pieces, transform, unit.getPreciseCompletePercent(unitDefinition), position.y, playerColorIndex, frac, unitTextureAtlas, unitTeamTextureAtlases, batch);
         }
         else
         {
-            drawUnitMesh(meshDatabase, viewProjectionMatrix, unitDefinition.objectName, modelDefinition, unit.pieces, transform, playerColorIndex, frac, unitTextureAtlas, unitTeamTextureAtlases, batch);
+            drawUnitMesh(gameMediaDatabase, viewProjectionMatrix, unitDefinition.objectName, modelDefinition, unit.pieces, transform, playerColorIndex, frac, unitTextureAtlas, unitTeamTextureAtlases, batch);
         }
     }
 
     void drawMeshFeature(
         const std::unordered_map<std::string, UnitModelDefinition>& modelDefinitions,
-        const MeshDatabase& meshDatabase,
+        const GameMediaDatabase& gameMediaDatabase,
         const Matrix4f& viewProjectionMatrix,
         const MapFeature& feature,
         TextureIdentifier unitTextureAtlas,
         std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
         UnitMeshBatch& batch)
     {
-        const auto& featureMediaInfo = meshDatabase.getFeature(feature.featureName);
+        const auto& featureMediaInfo = gameMediaDatabase.getFeature(feature.featureName);
 
         if (auto objectInfo = std::get_if<FeatureObjectInfo>(&featureMediaInfo.renderInfo); objectInfo != nullptr)
         {
             const auto& modelDefinition = modelDefinitions.at(objectInfo->objectName);
             auto matrix = Matrix4f::translation(simVectorToFloat(feature.position)) * Matrix4f::rotationY(toRadians(feature.rotation).value);
-            drawProjectileUnitMesh(meshDatabase, viewProjectionMatrix, objectInfo->objectName, modelDefinition, matrix, PlayerColorIndex(0), true, unitTextureAtlas, unitTeamTextureAtlases, batch);
+            drawProjectileUnitMesh(gameMediaDatabase, viewProjectionMatrix, objectInfo->objectName, modelDefinition, matrix, PlayerColorIndex(0), true, unitTextureAtlas, unitTeamTextureAtlases, batch);
         }
     }
 
     void drawUnitShadow(
-        const MeshDatabase& meshDatabase,
+        const GameMediaDatabase& gameMediaDatabase,
         const Matrix4f& viewProjectionMatrix,
         const UnitState& unit,
         const UnitDefinition& unitDefinition,
@@ -581,12 +581,12 @@ namespace rwe
         auto rotation = angleLerp(toRadians(unit.previousRotation).value, toRadians(unit.rotation).value, frac);
         auto transform = Matrix4f::translation(position) * Matrix4f::rotationY(rotation);
 
-        drawUnitShadowMesh(meshDatabase, viewProjectionMatrix, unitDefinition.objectName, modelDefinition, unit.pieces, transform, frac, groundHeight, unitTextureAtlas, unitTeamTextureAtlases, batch);
+        drawUnitShadowMesh(gameMediaDatabase, viewProjectionMatrix, unitDefinition.objectName, modelDefinition, unit.pieces, transform, frac, groundHeight, unitTextureAtlas, unitTeamTextureAtlases, batch);
     }
 
     void drawFeatureMeshShadow(
         const std::unordered_map<std::string, UnitModelDefinition>& modelDefinitions,
-        const MeshDatabase& meshDatabase,
+        const GameMediaDatabase& gameMediaDatabase,
         const Matrix4f& viewProjectionMatrix,
         const MapFeature& feature,
         float groundHeight,
@@ -594,7 +594,7 @@ namespace rwe
         std::vector<SharedTextureHandle>& unitTeamTextureAtlases,
         UnitShadowMeshBatch& batch)
     {
-        const auto& featureMediaInfo = meshDatabase.getFeature(feature.featureName);
+        const auto& featureMediaInfo = gameMediaDatabase.getFeature(feature.featureName);
 
         auto objectInfo = std::get_if<FeatureObjectInfo>(&featureMediaInfo.renderInfo);
         if (objectInfo == nullptr)
@@ -607,17 +607,17 @@ namespace rwe
         const auto& position = feature.position;
         auto matrix = Matrix4f::translation(simVectorToFloat(position)) * Matrix4f::rotationY(toRadians(feature.rotation).value);
 
-        drawUnitShadowMeshNoPieces(meshDatabase, viewProjectionMatrix, objectInfo->objectName, modelDefinition, matrix, groundHeight, unitTextureAtlas, unitTeamTextureAtlases, batch);
+        drawUnitShadowMeshNoPieces(gameMediaDatabase, viewProjectionMatrix, objectInfo->objectName, modelDefinition, matrix, groundHeight, unitTextureAtlas, unitTeamTextureAtlases, batch);
     }
 
     void drawFeature(
-        const MeshDatabase& meshDatabase,
+        const GameMediaDatabase& gameMediaDatabase,
         const MapFeature& feature,
         const FeatureDefinition& featureDefinition,
         const Matrix4f& viewProjectionMatrix,
         SpriteBatch& batch)
     {
-        const auto& featureMediaInfo = meshDatabase.getFeature(feature.featureName);
+        const auto& featureMediaInfo = gameMediaDatabase.getFeature(feature.featureName);
 
         auto spriteInfo = std::get_if<FeatureSpriteInfo>(&featureMediaInfo.renderInfo);
         if (spriteInfo == nullptr)
@@ -645,13 +645,13 @@ namespace rwe
     }
 
     void drawFeatureShadow(
-        const MeshDatabase& meshDatabase,
+        const GameMediaDatabase& gameMediaDatabase,
         const MapFeature& feature,
         const FeatureDefinition& featureDefinition,
         const Matrix4f& viewProjectionMatrix,
         SpriteBatch& batch)
     {
-        const auto& featureMediaInfo = meshDatabase.getFeature(feature.featureName);
+        const auto& featureMediaInfo = gameMediaDatabase.getFeature(feature.featureName);
 
         auto spriteInfo = std::get_if<FeatureSpriteInfo>(&featureMediaInfo.renderInfo);
         if (spriteInfo == nullptr)
@@ -687,7 +687,7 @@ namespace rwe
         pushLine(batch.lines, start, end, Vector3f(0.0f, 1.0f, 0.0f));
     }
 
-    void drawWakeParticle(const MeshDatabase& meshDatabase, GameTime currentTime, const Matrix4f& viewProjectionMatrix, const Particle& particle, ColoredMeshBatch& batch)
+    void drawWakeParticle(const GameMediaDatabase& gameMediaDatabase, GameTime currentTime, const Matrix4f& viewProjectionMatrix, const Particle& particle, ColoredMeshBatch& batch)
     {
         auto wakeRenderInfo = std::get_if<ParticleRenderTypeWake>(&particle.renderType);
         if (wakeRenderInfo == nullptr)
@@ -715,7 +715,7 @@ namespace rwe
         pushTriangle(batch.triangles, topLeft, bottomRight, topRight, color);
     }
 
-    void drawSpriteParticle(const MeshDatabase& meshDatabase, GameTime currentTime, const Matrix4f& viewProjectionMatrix, const Particle& particle, SpriteBatch& batch)
+    void drawSpriteParticle(const GameMediaDatabase& gameMediaDatabase, GameTime currentTime, const Matrix4f& viewProjectionMatrix, const Particle& particle, SpriteBatch& batch)
     {
         auto spriteRenderInfo = std::get_if<ParticleRenderTypeSprite>(&particle.renderType);
         if (spriteRenderInfo == nullptr)
@@ -723,7 +723,7 @@ namespace rwe
             return;
         }
 
-        auto spriteSeries = meshDatabase.getSpriteSeries(spriteRenderInfo->gafName, spriteRenderInfo->animName).value();
+        auto spriteSeries = gameMediaDatabase.getSpriteSeries(spriteRenderInfo->gafName, spriteRenderInfo->animName).value();
 
         if (!particle.isStarted(currentTime) || particle.isFinished(currentTime, spriteRenderInfo->finishTime, spriteRenderInfo->frameDuration, spriteSeries->sprites.size()))
         {
@@ -749,7 +749,7 @@ namespace rwe
         batch.sprites.push_back(SpriteRenderInfo{&sprite, mvpMatrix, spriteRenderInfo->translucent});
     }
 
-    void updateParticles(const MeshDatabase& meshDatabase, GameTime currentTime, std::vector<Particle>& particles)
+    void updateParticles(const GameMediaDatabase& gameMediaDatabase, GameTime currentTime, std::vector<Particle>& particles)
     {
         auto end = particles.end();
         for (auto it = particles.begin(); it != end;)
@@ -758,7 +758,7 @@ namespace rwe
             auto isFinished = match(
                 particle.renderType,
                 [&](const ParticleRenderTypeSprite& s) {
-                    const auto anim = meshDatabase.getSpriteSeries(s.gafName, s.animName).value();
+                    const auto anim = gameMediaDatabase.getSpriteSeries(s.gafName, s.animName).value();
                     return particle.isFinished(currentTime, s.finishTime, s.frameDuration, anim->sprites.size());
                 },
                 [&](const ParticleRenderTypeWake& w) {
@@ -810,7 +810,7 @@ namespace rwe
 
     void drawProjectiles(
         const GameSimulation& sim,
-        const MeshDatabase& meshDatabase,
+        const GameMediaDatabase& gameMediaDatabase,
         const Matrix4f& viewProjectionMatrix,
         const VectorMap<Projectile, ProjectileIdTag>& projectiles,
         GameTime currentTime,
@@ -826,7 +826,7 @@ namespace rwe
             const auto& projectile = e.second;
             auto position = lerp(simVectorToFloat(projectile.previousPosition), simVectorToFloat(projectile.position), frac);
 
-            const auto& weaponMediaInfo = meshDatabase.getWeapon(projectile.weaponType);
+            const auto& weaponMediaInfo = gameMediaDatabase.getWeapon(projectile.weaponType);
 
             match(
                 weaponMediaInfo.renderType,
@@ -847,7 +847,7 @@ namespace rwe
                         * pointDirection(simVectorToFloat(projectile.velocity).normalized())
                         * rotationModeToMatrix(m.rotationMode);
                     const auto& modelDefinition = sim.unitModelDefinitions.at(m.objectName);
-                    drawProjectileUnitMesh(meshDatabase, viewProjectionMatrix, m.objectName, modelDefinition, transform, PlayerColorIndex(0), false, unitTextureAtlas, unitTeamTextureAtlases, unitMeshBatch);
+                    drawProjectileUnitMesh(gameMediaDatabase, viewProjectionMatrix, m.objectName, modelDefinition, transform, PlayerColorIndex(0), false, unitTextureAtlas, unitTeamTextureAtlases, unitMeshBatch);
                 },
                 [&](const ProjectileRenderTypeSprite& s) {
                     Vector3f snappedPosition(
@@ -855,7 +855,7 @@ namespace rwe
                         truncateToInterval(position.y, 2.0f),
                         std::round(position.z));
                     Matrix4f conversionMatrix = Matrix4f::scale(Vector3f(1.0f, -2.0f, 1.0f));
-                    const auto spriteSeries = meshDatabase.getSpriteSeries(s.gaf, s.anim).value();
+                    const auto spriteSeries = gameMediaDatabase.getSpriteSeries(s.gaf, s.anim).value();
                     const auto& sprite = *spriteSeries->sprites[getFrameIndex(currentTime, spriteSeries->sprites.size())];
                     auto modelMatrix = Matrix4f::translation(snappedPosition) * conversionMatrix * sprite.getTransform();
                     auto mvpMatrix = viewProjectionMatrix * modelMatrix;
@@ -867,7 +867,7 @@ namespace rwe
                         truncateToInterval(position.y, 2.0f),
                         std::round(position.z));
                     Matrix4f conversionMatrix = Matrix4f::scale(Vector3f(1.0f, -2.0f, 1.0f));
-                    const auto spriteSeries = meshDatabase.getSpriteSeries("FX", "flamestream").value();
+                    const auto spriteSeries = gameMediaDatabase.getSpriteSeries("FX", "flamestream").value();
                     auto timeSinceSpawn = currentTime - projectile.createdAt;
                     auto fullLifetime = projectile.dieOnFrame.value() - projectile.createdAt;
                     auto percentComplete = static_cast<float>(timeSinceSpawn.value) / static_cast<float>(fullLifetime.value);
@@ -896,9 +896,9 @@ namespace rwe
         }
     }
 
-    void drawSelectionRect(const MeshDatabase& meshDatabase, const Matrix4f& viewProjectionMatrix, const UnitState& unit, const UnitDefinition& unitDefinition, float frac, ColoredMeshesBatch& batch)
+    void drawSelectionRect(const GameMediaDatabase& gameMediaDatabase, const Matrix4f& viewProjectionMatrix, const UnitState& unit, const UnitDefinition& unitDefinition, float frac, ColoredMeshesBatch& batch)
     {
-        auto selectionMesh = meshDatabase.getSelectionMesh(unitDefinition.objectName);
+        auto selectionMesh = gameMediaDatabase.getSelectionMesh(unitDefinition.objectName);
 
         auto position = lerp(simVectorToFloat(unit.previousPosition), simVectorToFloat(unit.position), frac);
 

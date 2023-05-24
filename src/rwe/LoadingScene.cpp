@@ -185,7 +185,7 @@ namespace rwe
             requiredFeatureNames.insert(f.second);
         }
 
-        auto [unitDatabase, meshDatabase, dataMaps, movementClassCollisionService] = createUnitDatabase(mapInfo.terrain, meshService, requiredFeatureNames);
+        auto [unitDatabase, gameMediaDatabase, dataMaps, movementClassCollisionService] = createUnitDatabase(mapInfo.terrain, meshService, requiredFeatureNames);
 
         GameSimulation simulation(std::move(mapInfo.terrain), std::move(movementClassCollisionService), mapInfo.surfaceMetal);
 
@@ -281,7 +281,7 @@ namespace rwe
         auto gameScene = std::make_unique<GameScene>(
             sceneContext,
             std::move(playerCommandService),
-            std::move(meshDatabase),
+            std::move(gameMediaDatabase),
             worldCameraState,
             atlasInfo.textureAtlas,
             std::move(atlasInfo.teamTextureAtlases),
@@ -888,7 +888,7 @@ namespace rwe
         return id;
     }
 
-    void LoadingScene::loadFeatureMedia(MeshService& meshService, std::unordered_map<std::string, UnitModelDefinition>& modelDefinitions, MeshDatabase& meshDatabase, const FeatureTdf& tdf)
+    void LoadingScene::loadFeatureMedia(MeshService& meshService, std::unordered_map<std::string, UnitModelDefinition>& modelDefinitions, GameMediaDatabase& gameMediaDatabase, const FeatureTdf& tdf)
     {
         FeatureMediaInfo f;
 
@@ -906,7 +906,7 @@ namespace rwe
                 modelDefinitions.insert({normalizedObjectName, std::move(meshInfo.modelDefinition)});
                 for (const auto& m : meshInfo.pieceMeshes)
                 {
-                    meshDatabase.addUnitPieceMesh(normalizedObjectName, m.first, m.second);
+                    gameMediaDatabase.addUnitPieceMesh(normalizedObjectName, m.first, m.second);
                 }
             }
             f.renderInfo = FeatureObjectInfo{normalizedObjectName};
@@ -941,10 +941,10 @@ namespace rwe
 
         f.seqNameDie = tdf.seqNameDie;
 
-        meshDatabase.addFeature(std::move(f));
+        gameMediaDatabase.addFeature(std::move(f));
     }
 
-    void LoadingScene::loadFeature(MeshService& meshService, MeshDatabase& meshDatabase, const std::unordered_map<std::string, FeatureTdf>& tdfs, DataMaps& dataMaps, const std::string& initialFeatureName)
+    void LoadingScene::loadFeature(MeshService& meshService, GameMediaDatabase& gameMediaDatabase, const std::unordered_map<std::string, FeatureTdf>& tdfs, DataMaps& dataMaps, const std::string& initialFeatureName)
     {
         auto nextId = dataMaps.featureDefinitions.getNextId();
         std::unordered_map<std::string, FeatureDefinitionId> openSet{{toUpper(initialFeatureName), nextId}};
@@ -1006,14 +1006,14 @@ namespace rwe
             auto id = dataMaps.featureDefinitions.insert(f);
             dataMaps.featureNameIndex.insert({toUpper(featureName), id});
 
-            loadFeatureMedia(meshService, dataMaps.modelDefinitions, meshDatabase, tdf);
+            loadFeatureMedia(meshService, dataMaps.modelDefinitions, gameMediaDatabase, tdf);
         }
     }
 
-    std::tuple<BuilderGuisDatabase, MeshDatabase, LoadingScene::DataMaps, MovementClassCollisionService> LoadingScene::createUnitDatabase(const MapTerrain& terrain, MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures)
+    std::tuple<BuilderGuisDatabase, GameMediaDatabase, LoadingScene::DataMaps, MovementClassCollisionService> LoadingScene::createUnitDatabase(const MapTerrain& terrain, MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures)
     {
         BuilderGuisDatabase builderGuisDatabase;
-        MeshDatabase meshDb;
+        GameMediaDatabase meshDb;
         DataMaps dataMaps;
         MovementClassCollisionService movementClassCollisionService;
 
@@ -1245,7 +1245,7 @@ namespace rwe
         return std::make_tuple(std::move(builderGuisDatabase), std::move(meshDb), std::move(dataMaps), std::move(movementClassCollisionService));
     }
 
-    void LoadingScene::preloadSound(MeshDatabase& meshDb, const std::optional<std::string>& soundName)
+    void LoadingScene::preloadSound(GameMediaDatabase& meshDb, const std::optional<std::string>& soundName)
     {
         if (!soundName)
         {
@@ -1255,7 +1255,7 @@ namespace rwe
         preloadSound(meshDb, *soundName);
     }
 
-    void LoadingScene::preloadSound(MeshDatabase& meshDb, const std::string& soundName)
+    void LoadingScene::preloadSound(GameMediaDatabase& meshDb, const std::string& soundName)
     {
         auto sound = sceneContext.audioService->loadSound(soundName);
         if (!sound)

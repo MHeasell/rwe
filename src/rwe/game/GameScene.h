@@ -18,9 +18,9 @@
 #include <rwe/Viewport.h>
 #include <rwe/game/BuilderGuisDatabase.h>
 #include <rwe/game/GameCameraState.h>
+#include <rwe/game/GameMediaDatabase.h>
 #include <rwe/game/GameNetworkService.h>
 #include <rwe/game/InGameSoundsInfo.h>
-#include <rwe/game/MeshDatabase.h>
 #include <rwe/game/Particle.h>
 #include <rwe/game/PlayerCommand.h>
 #include <rwe/game/PlayerCommandService.h>
@@ -190,7 +190,7 @@ namespace rwe
 
         GameCameraState worldCameraState;
 
-        MeshDatabase meshDatabase;
+        GameMediaDatabase gameMediaDatabase;
         SharedTextureHandle unitTextureAtlas;
         std::vector<SharedTextureHandle> unitTeamTextureAtlases;
 
@@ -295,7 +295,7 @@ namespace rwe
         GameScene(
             const SceneContext& sceneContext,
             std::unique_ptr<PlayerCommandService>&& playerCommandService,
-            MeshDatabase&& meshDatabase,
+            GameMediaDatabase&& meshDatabase,
             const GameCameraState& cameraState,
             SharedTextureHandle unitTextureAtlas,
             std::vector<SharedTextureHandle>&& unitTeamTextureAtlases,

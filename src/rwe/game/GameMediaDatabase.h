@@ -18,7 +18,7 @@
 
 namespace rwe
 {
-    class MeshDatabase
+    class GameMediaDatabase
     {
     private:
         struct CaseInsensitiveHash

@@ -149,17 +149,17 @@ namespace rwe
             std::unordered_map<std::string, FeatureDefinitionId> featureNameIndex;
         };
 
-        std::tuple<BuilderGuisDatabase, MeshDatabase, DataMaps, MovementClassCollisionService> createUnitDatabase(const MapTerrain& terrain, MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures);
+        std::tuple<BuilderGuisDatabase, GameMediaDatabase, DataMaps, MovementClassCollisionService> createUnitDatabase(const MapTerrain& terrain, MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures);
 
-        void preloadSound(MeshDatabase& meshDb, const std::string& soundName);
+        void preloadSound(GameMediaDatabase& meshDb, const std::string& soundName);
 
-        void preloadSound(MeshDatabase& meshDb, const std::optional<std::string>& soundName);
+        void preloadSound(GameMediaDatabase& meshDb, const std::optional<std::string>& soundName);
 
         std::optional<AudioService::SoundHandle> lookUpSound(const std::string& key);
 
         std::optional<std::vector<std::vector<GuiEntry>>> loadBuilderGui(const std::string& unitName);
 
-        void loadFeature(MeshService& meshService, MeshDatabase& meshDatabase, const std::unordered_map<std::string, FeatureTdf>& tdfs, DataMaps& dataMaps, const std::string& initialFeatureName);
-        void loadFeatureMedia(MeshService& meshService, std::unordered_map<std::string, UnitModelDefinition>& modelDefinitions, MeshDatabase& meshDatabase, const FeatureTdf& tdf);
+        void loadFeature(MeshService& meshService, GameMediaDatabase& gameMediaDatabase, const std::unordered_map<std::string, FeatureTdf>& tdfs, DataMaps& dataMaps, const std::string& initialFeatureName);
+        void loadFeatureMedia(MeshService& meshService, std::unordered_map<std::string, UnitModelDefinition>& modelDefinitions, GameMediaDatabase& gameMediaDatabase, const FeatureTdf& tdf);
     };
 }
