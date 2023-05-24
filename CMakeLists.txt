@@ -301,6 +301,8 @@ set(SOURCE_FILES
     src/rwe/fixed_point.h
     src/rwe/float_math.cpp
     src/rwe/float_math.h
+    src/rwe/game/BuilderGuisDatabase.cpp
+    src/rwe/game/BuilderGuisDatabase.h
     src/rwe/game/FeatureMediaInfo.cpp
     src/rwe/game/FeatureMediaInfo.h
     src/rwe/game/FlashEffect.cpp
@@ -331,8 +333,6 @@ set(SOURCE_FILES
     src/rwe/game/ProjectileRenderType.h
     src/rwe/game/SceneTime.cpp
     src/rwe/game/SceneTime.h
-    src/rwe/game/UnitDatabase.cpp
-    src/rwe/game/UnitDatabase.h
     src/rwe/game/UnitPieceMeshInfo.cpp
     src/rwe/game/UnitPieceMeshInfo.h
     src/rwe/game/UnitSoundType.h

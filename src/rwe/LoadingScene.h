@@ -6,10 +6,10 @@
 #include <rwe/LoadingNetworkService.h>
 #include <rwe/SceneContext.h>
 #include <rwe/TextureService.h>
+#include <rwe/game/BuilderGuisDatabase.h>
 #include <rwe/game/GameScene.h>
 #include <rwe/game/MapTerrainGraphics.h>
 #include <rwe/game/PlayerColorIndex.h>
-#include <rwe/game/UnitDatabase.h>
 #include <rwe/io/featuretdf/FeatureTdf.h>
 #include <rwe/io/ota/ota.h>
 #include <rwe/io/sidedatatdf/SideData.h>
@@ -149,7 +149,7 @@ namespace rwe
             std::unordered_map<std::string, FeatureDefinitionId> featureNameIndex;
         };
 
-        std::tuple<UnitDatabase, MeshDatabase, DataMaps, MovementClassCollisionService> createUnitDatabase(const MapTerrain& terrain, MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures);
+        std::tuple<BuilderGuisDatabase, MeshDatabase, DataMaps, MovementClassCollisionService> createUnitDatabase(const MapTerrain& terrain, MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures);
 
         void preloadSound(MeshDatabase& meshDb, const std::string& soundName);
 

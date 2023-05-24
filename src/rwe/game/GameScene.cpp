@@ -23,7 +23,7 @@ namespace rwe
         return simulation.unitDefinitions.find(unitType) != simulation.unitDefinitions.end();
     }
 
-    std::optional<std::reference_wrapper<const std::vector<GuiEntry>>> getBuilderGui(const UnitDatabase& db, const std::string& unitType, unsigned int page)
+    std::optional<std::reference_wrapper<const std::vector<GuiEntry>>> getBuilderGui(const BuilderGuisDatabase& db, const std::string& unitType, unsigned int page)
     {
         const auto& pages = db.tryGetBuilderGui(unitType);
         if (!pages)
@@ -42,7 +42,7 @@ namespace rwe
     }
 
     /** If the unit has no build gui, this will be zero. */
-    unsigned int getBuildPageCount(const UnitDatabase& db, const std::string& unitType)
+    unsigned int getBuildPageCount(const BuilderGuisDatabase& db, const std::string& unitType)
     {
         const auto& pages = db.tryGetBuilderGui(unitType);
         if (!pages)
@@ -206,7 +206,7 @@ namespace rwe
         std::vector<SharedTextureHandle>&& unitTeamTextureAtlases,
         GameSimulation&& simulation,
         MapTerrainGraphics&& terrainGraphics,
-        UnitDatabase&& unitDatabase,
+        BuilderGuisDatabase&& builderGuisDatabase,
         MeshService&& meshService,
         std::unique_ptr<GameNetworkService>&& gameNetworkService,
         const std::shared_ptr<Sprite>& minimap,
@@ -228,7 +228,7 @@ namespace rwe
           chromeUiRenderService(this->sceneContext.graphics, this->sceneContext.shaders, this->sceneContext.viewport),
           simulation(std::move(simulation)),
           terrainGraphics(std::move(terrainGraphics)),
-          unitDatabase(std::move(unitDatabase)),
+          builderGuisDatabase(std::move(builderGuisDatabase)),
           gameNetworkService(std::move(gameNetworkService)),
           minimap(minimap),
           minimapDots(minimapDots),
@@ -3096,10 +3096,10 @@ namespace rwe
 
                 const auto& unit = getUnit(*selectedUnit);
                 auto& guiInfo = unitGuiInfos.at(*selectedUnit);
-                auto pages = getBuildPageCount(unitDatabase, unit.unitType);
+                auto pages = getBuildPageCount(builderGuisDatabase, unit.unitType);
                 guiInfo.currentBuildPage = (guiInfo.currentBuildPage + 1) % pages;
 
-                auto buildPanelDefinition = getBuilderGui(unitDatabase, unit.unitType, guiInfo.currentBuildPage);
+                auto buildPanelDefinition = getBuilderGui(builderGuisDatabase, unit.unitType, guiInfo.currentBuildPage);
                 if (buildPanelDefinition)
                 {
                     setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
@@ -3117,11 +3117,11 @@ namespace rwe
 
                 const auto& unit = getUnit(*selectedUnit);
                 auto& guiInfo = unitGuiInfos.at(*selectedUnit);
-                auto pages = getBuildPageCount(unitDatabase, unit.unitType);
+                auto pages = getBuildPageCount(builderGuisDatabase, unit.unitType);
                 assert(pages != 0);
                 guiInfo.currentBuildPage = guiInfo.currentBuildPage == 0 ? pages - 1 : guiInfo.currentBuildPage - 1;
 
-                auto buildPanelDefinition = getBuilderGui(unitDatabase, unit.unitType, guiInfo.currentBuildPage);
+                auto buildPanelDefinition = getBuilderGui(builderGuisDatabase, unit.unitType, guiInfo.currentBuildPage);
                 if (buildPanelDefinition)
                 {
                     setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
@@ -3141,7 +3141,7 @@ namespace rwe
                 auto& guiInfo = unitGuiInfos.at(*selectedUnit);
                 guiInfo.section = UnitGuiInfo::Section::Build;
 
-                auto buildPanelDefinition = getBuilderGui(unitDatabase, unit.unitType, guiInfo.currentBuildPage);
+                auto buildPanelDefinition = getBuilderGui(builderGuisDatabase, unit.unitType, guiInfo.currentBuildPage);
                 if (buildPanelDefinition)
                 {
                     setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));
@@ -3341,7 +3341,7 @@ namespace rwe
             onOff.next(unit.activated);
 
             const auto& guiInfo = getGuiInfo(*unitId);
-            auto buildPanelDefinition = getBuilderGui(unitDatabase, unit.unitType, guiInfo.currentBuildPage);
+            auto buildPanelDefinition = getBuilderGui(builderGuisDatabase, unit.unitType, guiInfo.currentBuildPage);
             if (guiInfo.section == UnitGuiInfo::Section::Build && buildPanelDefinition)
             {
                 setNextPanel(createBuildPanel(unit.unitType + std::to_string(guiInfo.currentBuildPage + 1), *buildPanelDefinition, unit.getBuildQueueTotals()));

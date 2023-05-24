@@ -1010,9 +1010,9 @@ namespace rwe
         }
     }
 
-    std::tuple<UnitDatabase, MeshDatabase, LoadingScene::DataMaps, MovementClassCollisionService> LoadingScene::createUnitDatabase(const MapTerrain& terrain, MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures)
+    std::tuple<BuilderGuisDatabase, MeshDatabase, LoadingScene::DataMaps, MovementClassCollisionService> LoadingScene::createUnitDatabase(const MapTerrain& terrain, MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures)
     {
-        UnitDatabase db;
+        BuilderGuisDatabase builderGuisDatabase;
         MeshDatabase meshDb;
         DataMaps dataMaps;
         MovementClassCollisionService movementClassCollisionService;
@@ -1157,7 +1157,7 @@ namespace rwe
                     auto guiPages = loadBuilderGui(fbi.unitName);
                     if (guiPages)
                     {
-                        db.addBuilderGui(fbi.unitName, std::move(*guiPages));
+                        builderGuisDatabase.addBuilderGui(fbi.unitName, std::move(*guiPages));
                     }
 
                     // TODO: if no gui defined, attempt to build it dynamically?
@@ -1242,7 +1242,7 @@ namespace rwe
             meshDb.addSpriteSeries("FX", "flamestream", anim);
         }
 
-        return std::make_tuple(std::move(db), std::move(meshDb), std::move(dataMaps), std::move(movementClassCollisionService));
+        return std::make_tuple(std::move(builderGuisDatabase), std::move(meshDb), std::move(dataMaps), std::move(movementClassCollisionService));
     }
 
     void LoadingScene::preloadSound(MeshDatabase& meshDb, const std::optional<std::string>& soundName)

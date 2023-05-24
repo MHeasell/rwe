@@ -8,7 +8,7 @@
 
 namespace rwe
 {
-    class UnitDatabase
+    class BuilderGuisDatabase
     {
     public:
         std::unordered_map<std::string, std::vector<std::vector<GuiEntry>>> builderGuisMap;

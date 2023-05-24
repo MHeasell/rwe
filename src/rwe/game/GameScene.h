@@ -16,6 +16,7 @@
 #include <rwe/TextureService.h>
 #include <rwe/UiRenderService.h>
 #include <rwe/Viewport.h>
+#include <rwe/game/BuilderGuisDatabase.h>
 #include <rwe/game/GameCameraState.h>
 #include <rwe/game/GameNetworkService.h>
 #include <rwe/game/InGameSoundsInfo.h>
@@ -24,7 +25,6 @@
 #include <rwe/game/PlayerCommand.h>
 #include <rwe/game/PlayerCommandService.h>
 #include <rwe/game/SceneTime.h>
-#include <rwe/game/UnitDatabase.h>
 #include <rwe/game/UnitSoundType.h>
 #include <rwe/game/WeaponMediaInfo.h>
 #include <rwe/grid/DiscreteRect.h>
@@ -201,7 +201,7 @@ namespace rwe
 
         MapTerrainGraphics terrainGraphics;
 
-        UnitDatabase unitDatabase;
+        BuilderGuisDatabase builderGuisDatabase;
 
         std::unique_ptr<GameNetworkService> gameNetworkService;
 
@@ -301,7 +301,7 @@ namespace rwe
             std::vector<SharedTextureHandle>&& unitTeamTextureAtlases,
             GameSimulation&& simulation,
             MapTerrainGraphics&& terrainGraphics,
-            UnitDatabase&& unitDatabase,
+            BuilderGuisDatabase&& builderGuisDatabase,
             MeshService&& meshService,
             std::unique_ptr<GameNetworkService>&& gameNetworkService,
             const std::shared_ptr<Sprite>& minimap,
