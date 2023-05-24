@@ -1,5 +1,4 @@
 #include "UnitDatabase.h"
-#include <rwe/util/rwe_string.h>
 
 namespace rwe
 {
