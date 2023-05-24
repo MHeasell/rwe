@@ -185,7 +185,7 @@ namespace rwe
             requiredFeatureNames.insert(f.second);
         }
 
-        auto [dataMaps, movementClassCollisionService] = createUnitDatabase(mapInfo.terrain, meshService, requiredFeatureNames);
+        auto [dataMaps, movementClassCollisionService] = loadDefinitions(mapInfo.terrain, meshService, requiredFeatureNames);
 
         GameSimulation simulation(std::move(mapInfo.terrain), std::move(movementClassCollisionService), mapInfo.surfaceMetal);
 
@@ -1010,7 +1010,7 @@ namespace rwe
         }
     }
 
-    std::tuple<LoadingScene::DataMaps, MovementClassCollisionService> LoadingScene::createUnitDatabase(const MapTerrain& terrain, MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures)
+    std::tuple<LoadingScene::DataMaps, MovementClassCollisionService> LoadingScene::loadDefinitions(const MapTerrain& terrain, MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures)
     {
         DataMaps dataMaps;
         MovementClassCollisionService movementClassCollisionService;

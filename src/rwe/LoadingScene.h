@@ -151,7 +151,7 @@ namespace rwe
             std::unordered_map<std::string, FeatureDefinitionId> featureNameIndex;
         };
 
-        std::tuple<DataMaps, MovementClassCollisionService> createUnitDatabase(const MapTerrain& terrain, MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures);
+        std::tuple<DataMaps, MovementClassCollisionService> loadDefinitions(const MapTerrain& terrain, MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures);
 
         void preloadSound(GameMediaDatabase& meshDb, const std::string& soundName);
 
