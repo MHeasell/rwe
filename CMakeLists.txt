@@ -395,6 +395,9 @@ set(SOURCE_FILES
     src/rwe/io/hpi/hpi_util.h
     src/rwe/io/io_util.cpp
     src/rwe/io/io_util.h
+    src/rwe/io/moveinfotdf/MovementClassTdf.h
+    src/rwe/io/moveinfotdf/io.cpp
+    src/rwe/io/moveinfotdf/io.h
     src/rwe/io/ota/ota.cpp
     src/rwe/io/ota/ota.h
     src/rwe/io/pcx/pcx.cpp
@@ -518,7 +521,6 @@ set(SOURCE_FILES
     src/rwe/sim/MapTerrain.cpp
     src/rwe/sim/MapTerrain.h
     src/rwe/sim/Metal.h
-    src/rwe/sim/MovementClassDefinition.cpp
     src/rwe/sim/MovementClassDefinition.h
     src/rwe/sim/MovementClassId.h
     src/rwe/sim/OccupiedGrid.cpp

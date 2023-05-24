@@ -8,6 +8,8 @@
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/io/fbi/io.h>
 #include <rwe/io/featuretdf/io.h>
+#include <rwe/io/moveinfotdf/MovementClassTdf.h>
+#include <rwe/io/moveinfotdf/io.h>
 #include <rwe/io/ota/ota.h>
 #include <rwe/io/tdf/tdf.h>
 #include <rwe/io/tnt/TntArchive.h>
@@ -542,6 +544,21 @@ namespace rwe
         }
     }
 
+    MovementClassDefinition parseMovementClassDefinition(const MovementClassTdf& tdf)
+    {
+        MovementClassDefinition mc;
+
+        mc.name = tdf.name;
+        mc.footprintX = tdf.footprintX;
+        mc.footprintZ = tdf.footprintZ;
+        mc.minWaterDepth = tdf.minWaterDepth;
+        mc.maxWaterDepth = tdf.maxWaterDepth;
+        mc.maxSlope = tdf.maxSlope;
+        mc.maxWaterSlope = tdf.maxWaterSlope;
+
+        return mc;
+    }
+
     WeaponDefinition parseWeaponDefinition(const WeaponTdf& tdf)
     {
         WeaponDefinition weaponDefinition;
@@ -1064,12 +1081,13 @@ namespace rwe
             }
 
             std::string movementString(bytes->data(), bytes->size());
-            auto classes = parseMovementTdf(parseTdfFromString(movementString));
+            auto classes = parseMoveInfoTdf(parseTdfFromString(movementString));
             for (auto& c : classes)
             {
                 auto name = c.second.name;
-                auto movementClassId = movementClassCollisionService.registerMovementClass(name, computeWalkableGrid(terrain, c.second));
-                dataMaps.movementClassDefinitions.insert({movementClassId, c.second});
+                auto movementClassDefinition = parseMovementClassDefinition(c.second);
+                auto movementClassId = movementClassCollisionService.registerMovementClass(name, computeWalkableGrid(terrain, movementClassDefinition));
+                dataMaps.movementClassDefinitions.insert({movementClassId, movementClassDefinition});
             }
         }
 

@@ -4,7 +4,7 @@
 
 namespace rwe
 {
-    struct MovementClassDefinition
+    struct MovementClassTdf
     {
         std::string name;
         unsigned int footprintX;
