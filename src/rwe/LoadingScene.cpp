@@ -185,7 +185,7 @@ namespace rwe
             requiredFeatureNames.insert(f.second);
         }
 
-        auto [unitDatabase, gameMediaDatabase, dataMaps, movementClassCollisionService] = createUnitDatabase(mapInfo.terrain, meshService, requiredFeatureNames);
+        auto [dataMaps, movementClassCollisionService] = createUnitDatabase(mapInfo.terrain, meshService, requiredFeatureNames);
 
         GameSimulation simulation(std::move(mapInfo.terrain), std::move(movementClassCollisionService), mapInfo.surfaceMetal);
 
@@ -281,13 +281,13 @@ namespace rwe
         auto gameScene = std::make_unique<GameScene>(
             sceneContext,
             std::move(playerCommandService),
-            std::move(gameMediaDatabase),
+            std::move(dataMaps.gameMediaDatabase),
             worldCameraState,
             atlasInfo.textureAtlas,
             std::move(atlasInfo.teamTextureAtlases),
             std::move(simulation),
             std::move(mapInfo.terrainGraphics),
-            std::move(unitDatabase),
+            std::move(dataMaps.builderGuisDatabase),
             std::move(meshService),
             std::move(gameNetworkService),
             minimap,
@@ -1010,10 +1010,8 @@ namespace rwe
         }
     }
 
-    std::tuple<BuilderGuisDatabase, GameMediaDatabase, LoadingScene::DataMaps, MovementClassCollisionService> LoadingScene::createUnitDatabase(const MapTerrain& terrain, MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures)
+    std::tuple<LoadingScene::DataMaps, MovementClassCollisionService> LoadingScene::createUnitDatabase(const MapTerrain& terrain, MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures)
     {
-        BuilderGuisDatabase builderGuisDatabase;
-        GameMediaDatabase meshDb;
         DataMaps dataMaps;
         MovementClassCollisionService movementClassCollisionService;
 
@@ -1031,28 +1029,28 @@ namespace rwe
             for (auto& s : sounds)
             {
                 const auto& c = s.second;
-                preloadSound(meshDb, c.select1);
-                preloadSound(meshDb, c.unitComplete);
-                preloadSound(meshDb, c.activate);
-                preloadSound(meshDb, c.deactivate);
-                preloadSound(meshDb, c.ok1);
-                preloadSound(meshDb, c.arrived1);
-                preloadSound(meshDb, c.cant1);
-                preloadSound(meshDb, c.underAttack);
-                preloadSound(meshDb, c.build);
-                preloadSound(meshDb, c.repair);
-                preloadSound(meshDb, c.working);
-                preloadSound(meshDb, c.cloak);
-                preloadSound(meshDb, c.uncloak);
-                preloadSound(meshDb, c.capture);
-                preloadSound(meshDb, c.count5);
-                preloadSound(meshDb, c.count4);
-                preloadSound(meshDb, c.count3);
-                preloadSound(meshDb, c.count2);
-                preloadSound(meshDb, c.count1);
-                preloadSound(meshDb, c.count0);
-                preloadSound(meshDb, c.cancelDestruct);
-                meshDb.addSoundClass(s.first, std::move(s.second));
+                preloadSound(dataMaps.gameMediaDatabase, c.select1);
+                preloadSound(dataMaps.gameMediaDatabase, c.unitComplete);
+                preloadSound(dataMaps.gameMediaDatabase, c.activate);
+                preloadSound(dataMaps.gameMediaDatabase, c.deactivate);
+                preloadSound(dataMaps.gameMediaDatabase, c.ok1);
+                preloadSound(dataMaps.gameMediaDatabase, c.arrived1);
+                preloadSound(dataMaps.gameMediaDatabase, c.cant1);
+                preloadSound(dataMaps.gameMediaDatabase, c.underAttack);
+                preloadSound(dataMaps.gameMediaDatabase, c.build);
+                preloadSound(dataMaps.gameMediaDatabase, c.repair);
+                preloadSound(dataMaps.gameMediaDatabase, c.working);
+                preloadSound(dataMaps.gameMediaDatabase, c.cloak);
+                preloadSound(dataMaps.gameMediaDatabase, c.uncloak);
+                preloadSound(dataMaps.gameMediaDatabase, c.capture);
+                preloadSound(dataMaps.gameMediaDatabase, c.count5);
+                preloadSound(dataMaps.gameMediaDatabase, c.count4);
+                preloadSound(dataMaps.gameMediaDatabase, c.count3);
+                preloadSound(dataMaps.gameMediaDatabase, c.count2);
+                preloadSound(dataMaps.gameMediaDatabase, c.count1);
+                preloadSound(dataMaps.gameMediaDatabase, c.count0);
+                preloadSound(dataMaps.gameMediaDatabase, c.cancelDestruct);
+                dataMaps.gameMediaDatabase.addSoundClass(s.first, std::move(s.second));
             }
         }
 
@@ -1095,9 +1093,9 @@ namespace rwe
                     auto weaponDefinition = parseWeaponDefinition(pair.second);
                     auto weaponMediaInfo = parseWeaponMediaInfo(*sceneContext.palette, *sceneContext.guiPalette, pair.second);
 
-                    preloadSound(meshDb, weaponMediaInfo.soundStart);
-                    preloadSound(meshDb, weaponMediaInfo.soundHit);
-                    preloadSound(meshDb, weaponMediaInfo.soundWater);
+                    preloadSound(dataMaps.gameMediaDatabase, weaponMediaInfo.soundStart);
+                    preloadSound(dataMaps.gameMediaDatabase, weaponMediaInfo.soundHit);
+                    preloadSound(dataMaps.gameMediaDatabase, weaponMediaInfo.soundWater);
 
                     if (auto modelRenderType = std::get_if<ProjectileRenderTypeModel>(&weaponMediaInfo.renderType); modelRenderType != nullptr)
                     {
@@ -1105,22 +1103,22 @@ namespace rwe
                         dataMaps.modelDefinitions.insert({modelRenderType->objectName, std::move(meshInfo.modelDefinition)});
                         for (const auto& m : meshInfo.pieceMeshes)
                         {
-                            meshDb.addUnitPieceMesh(modelRenderType->objectName, m.first, m.second);
+                            dataMaps.gameMediaDatabase.addUnitPieceMesh(modelRenderType->objectName, m.first, m.second);
                         }
                     }
 
                     if (weaponMediaInfo.explosionAnim)
                     {
                         auto anim = sceneContext.textureService->getGafEntry("anims/" + weaponMediaInfo.explosionAnim->gafName + ".gaf", weaponMediaInfo.explosionAnim->animName);
-                        meshDb.addSpriteSeries(weaponMediaInfo.explosionAnim->gafName, weaponMediaInfo.explosionAnim->animName, anim);
+                        dataMaps.gameMediaDatabase.addSpriteSeries(weaponMediaInfo.explosionAnim->gafName, weaponMediaInfo.explosionAnim->animName, anim);
                     }
                     if (weaponMediaInfo.waterExplosionAnim)
                     {
                         auto anim = sceneContext.textureService->getGafEntry("anims/" + weaponMediaInfo.waterExplosionAnim->gafName + ".gaf", weaponMediaInfo.waterExplosionAnim->animName);
-                        meshDb.addSpriteSeries(weaponMediaInfo.waterExplosionAnim->gafName, weaponMediaInfo.waterExplosionAnim->animName, anim);
+                        dataMaps.gameMediaDatabase.addSpriteSeries(weaponMediaInfo.waterExplosionAnim->gafName, weaponMediaInfo.waterExplosionAnim->animName, anim);
                     }
 
-                    meshDb.addWeapon(toUpper(pair.first), std::move(weaponMediaInfo));
+                    dataMaps.gameMediaDatabase.addWeapon(toUpper(pair.first), std::move(weaponMediaInfo));
 
                     dataMaps.weaponDefinitions.insert({toUpper(pair.first), std::move(weaponDefinition)});
                 }
@@ -1157,7 +1155,7 @@ namespace rwe
                     auto guiPages = loadBuilderGui(fbi.unitName);
                     if (guiPages)
                     {
-                        builderGuisDatabase.addBuilderGui(fbi.unitName, std::move(*guiPages));
+                        dataMaps.builderGuisDatabase.addBuilderGui(fbi.unitName, std::move(*guiPages));
                     }
 
                     // TODO: if no gui defined, attempt to build it dynamically?
@@ -1168,11 +1166,11 @@ namespace rwe
                 dataMaps.modelDefinitions.insert({toUpper(fbi.objectName), std::move(meshInfo.modelDefinition)});
                 for (const auto& m : meshInfo.pieceMeshes)
                 {
-                    meshDb.addUnitPieceMesh(fbi.objectName, m.first, m.second);
+                    dataMaps.gameMediaDatabase.addUnitPieceMesh(fbi.objectName, m.first, m.second);
                 }
 
-                meshDb.addSelectionCollisionMesh(fbi.objectName, std::make_shared<CollisionMesh>(std::move(meshInfo.selectionMesh.collisionMesh)));
-                meshDb.addSelectionMesh(fbi.objectName, std::make_shared<GlMesh>(std::move(meshInfo.selectionMesh.visualMesh)));
+                dataMaps.gameMediaDatabase.addSelectionCollisionMesh(fbi.objectName, std::make_shared<CollisionMesh>(std::move(meshInfo.selectionMesh.collisionMesh)));
+                dataMaps.gameMediaDatabase.addSelectionMesh(fbi.objectName, std::make_shared<GlMesh>(std::move(meshInfo.selectionMesh.visualMesh)));
 
                 if (!fbi.corpse.empty())
                 {
@@ -1208,41 +1206,41 @@ namespace rwe
             // actually parse and load assets for features that we require
             for (const auto& featureName : requiredFeaturesSet)
             {
-                loadFeature(meshService, meshDb, featureTdfs, dataMaps, featureName);
+                loadFeature(meshService, dataMaps.gameMediaDatabase, featureTdfs, dataMaps, featureName);
             }
         }
 
         // preload smoke
         {
             auto anim = sceneContext.textureService->getGafEntry("anims/FX.GAF", "smoke 1");
-            meshDb.addSpriteSeries("FX", "smoke 1", anim);
+            dataMaps.gameMediaDatabase.addSpriteSeries("FX", "smoke 1", anim);
             auto anim2 = sceneContext.textureService->getGafEntry("anims/FX.GAF", "smoke 2");
-            meshDb.addSpriteSeries("FX", "smoke 2", anim2);
+            dataMaps.gameMediaDatabase.addSpriteSeries("FX", "smoke 2", anim2);
         }
 
         // preload weapon sprites
         {
             auto anim = sceneContext.textureService->getGafEntry("anims/FX.GAF", "cannonshell");
-            meshDb.addSpriteSeries("FX", "cannonshell", anim);
+            dataMaps.gameMediaDatabase.addSpriteSeries("FX", "cannonshell", anim);
         }
         {
             auto anim = sceneContext.textureService->getGafEntry("anims/FX.GAF", "plasmasm");
-            meshDb.addSpriteSeries("FX", "plasmasm", anim);
+            dataMaps.gameMediaDatabase.addSpriteSeries("FX", "plasmasm", anim);
         }
         {
             auto anim = sceneContext.textureService->getGafEntry("anims/FX.GAF", "plasmamd");
-            meshDb.addSpriteSeries("FX", "plasmamd", anim);
+            dataMaps.gameMediaDatabase.addSpriteSeries("FX", "plasmamd", anim);
         }
         {
             auto anim = sceneContext.textureService->getGafEntry("anims/FX.GAF", "ultrashell");
-            meshDb.addSpriteSeries("FX", "ultrashell", anim);
+            dataMaps.gameMediaDatabase.addSpriteSeries("FX", "ultrashell", anim);
         }
         {
             auto anim = sceneContext.textureService->getGafEntry("anims/FX.GAF", "flamestream");
-            meshDb.addSpriteSeries("FX", "flamestream", anim);
+            dataMaps.gameMediaDatabase.addSpriteSeries("FX", "flamestream", anim);
         }
 
-        return std::make_tuple(std::move(builderGuisDatabase), std::move(meshDb), std::move(dataMaps), std::move(movementClassCollisionService));
+        return std::make_tuple(std::move(dataMaps), std::move(movementClassCollisionService));
     }
 
     void LoadingScene::preloadSound(GameMediaDatabase& meshDb, const std::optional<std::string>& soundName)

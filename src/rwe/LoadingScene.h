@@ -141,6 +141,8 @@ namespace rwe
 
         struct DataMaps
         {
+            BuilderGuisDatabase builderGuisDatabase;
+            GameMediaDatabase gameMediaDatabase;
             std::unordered_map<std::string, UnitDefinition> unitDefinitions;
             std::unordered_map<std::string, UnitModelDefinition> modelDefinitions;
             std::unordered_map<std::string, WeaponDefinition> weaponDefinitions;
@@ -149,7 +151,7 @@ namespace rwe
             std::unordered_map<std::string, FeatureDefinitionId> featureNameIndex;
         };
 
-        std::tuple<BuilderGuisDatabase, GameMediaDatabase, DataMaps, MovementClassCollisionService> createUnitDatabase(const MapTerrain& terrain, MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures);
+        std::tuple<DataMaps, MovementClassCollisionService> createUnitDatabase(const MapTerrain& terrain, MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures);
 
         void preloadSound(GameMediaDatabase& meshDb, const std::string& soundName);
 
