@@ -467,18 +467,6 @@ namespace rwe
         return dataGrid;
     }
 
-    std::vector<FeatureTdf> LoadingScene::getFeatures(const std::unordered_map<std::string, FeatureTdf>& featuresMap, TntArchive& tnt)
-    {
-        std::vector<FeatureTdf> features;
-
-        tnt.readFeatures([&](const auto& featureName) {
-            const auto& feature = featuresMap.at(featureName);
-            features.push_back(feature);
-        });
-
-        return features;
-    }
-
     Grid<unsigned char> LoadingScene::getHeightGrid(const Grid<TntTileAttributes>& attrs) const
     {
         const auto& sourceData = attrs.getVector();

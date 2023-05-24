@@ -118,8 +118,6 @@ namespace rwe
         void render() override;
 
     private:
-        static int computeMidpointHeight(const Grid<unsigned char>& heightmap, int x, int y);
-
         std::unique_ptr<GameScene> createGameScene(const std::string& mapName, unsigned int schemaIndex);
 
 
@@ -138,10 +136,6 @@ namespace rwe
         Grid<std::size_t> getMapData(TntArchive& tnt);
 
         Grid<unsigned char> getHeightGrid(const Grid<TntTileAttributes>& attrs) const;
-
-        std::vector<FeatureTdf> getFeatures(const std::unordered_map<std::string, FeatureTdf>& featuresMap, TntArchive& tnt);
-
-        SimVector computeFeaturePosition(const MapTerrain& terrain, const FeatureDefinition& featureDefinition, int x, int y) const;
 
         const SideData& getSideData(const std::string& side) const;
 
