@@ -9,7 +9,6 @@
 #include <rwe/game/BuilderGuisDatabase.h>
 #include <rwe/game/GameScene.h>
 #include <rwe/game/MapTerrainGraphics.h>
-#include <rwe/game/MovementClassDatabase.h>
 #include <rwe/game/PlayerColorIndex.h>
 #include <rwe/io/featuretdf/FeatureTdf.h>
 #include <rwe/io/ota/ota.h>
@@ -18,6 +17,7 @@
 #include <rwe/render/TextureArrayRegion.h>
 #include <rwe/sim/Energy.h>
 #include <rwe/sim/Metal.h>
+#include <rwe/sim/MovementClassDatabase.h>
 #include <rwe/sim/SimVector.h>
 #include <rwe/ui/UiFactory.h>
 #include <rwe/ui/UiLightBar.h>

@@ -4,8 +4,6 @@
 #include <rwe/cob/CobUnitId.h>
 #include <rwe/collections/SimpleVectorMap.h>
 #include <rwe/collections/VectorMap.h>
-#include <rwe/game/MovementClassCollisionService.h>
-#include <rwe/game/MovementClassDatabase.h>
 #include <rwe/game/PlayerColorIndex.h>
 #include <rwe/geometry/BoundingBox3x.h>
 #include <rwe/pathfinding/PathFindingService.h>
@@ -15,6 +13,8 @@
 #include <rwe/sim/GameTime.h>
 #include <rwe/sim/MapFeature.h>
 #include <rwe/sim/MapTerrain.h>
+#include <rwe/sim/MovementClassCollisionService.h>
+#include <rwe/sim/MovementClassDatabase.h>
 #include <rwe/sim/MovementClassId.h>
 #include <rwe/sim/OccupiedGrid.h>
 #include <rwe/sim/PlayerId.h>

@@ -321,10 +321,6 @@ set(SOURCE_FILES
     src/rwe/game/InGameSoundsInfo.h
     src/rwe/game/MapTerrainGraphics.cpp
     src/rwe/game/MapTerrainGraphics.h
-    src/rwe/game/MovementClassCollisionService.cpp
-    src/rwe/game/MovementClassCollisionService.h
-    src/rwe/game/MovementClassDatabase.cpp
-    src/rwe/game/MovementClassDatabase.h
     src/rwe/game/Particle.cpp
     src/rwe/game/Particle.h
     src/rwe/game/PlayerColorIndex.cpp
@@ -523,6 +519,10 @@ set(SOURCE_FILES
     src/rwe/sim/MapTerrain.cpp
     src/rwe/sim/MapTerrain.h
     src/rwe/sim/Metal.h
+    src/rwe/sim/MovementClassCollisionService.cpp
+    src/rwe/sim/MovementClassCollisionService.h
+    src/rwe/sim/MovementClassDatabase.cpp
+    src/rwe/sim/MovementClassDatabase.h
     src/rwe/sim/MovementClassDefinition.h
     src/rwe/sim/MovementClassId.h
     src/rwe/sim/OccupiedGrid.cpp
