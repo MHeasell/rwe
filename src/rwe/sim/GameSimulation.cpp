@@ -83,9 +83,8 @@ namespace rwe
         return !(rhs == *this);
     }
 
-    GameSimulation::GameSimulation(MapTerrain&& terrain, MovementClassCollisionService&& movementClassCollisionService, unsigned char surfaceMetal)
+    GameSimulation::GameSimulation(MapTerrain&& terrain, unsigned char surfaceMetal)
         : terrain(std::move(terrain)),
-          movementClassCollisionService(std::move(movementClassCollisionService)),
           occupiedGrid(this->terrain.getHeightMap().getWidth() - 1, this->terrain.getHeightMap().getHeight() - 1, OccupiedCell()),
           metalGrid(this->terrain.getHeightMap().getWidth() - 1, this->terrain.getHeightMap().getHeight() - 1, surfaceMetal)
     {
@@ -846,7 +845,7 @@ namespace rwe
                     mc.maxWaterSlope};
             },
             [&](const UnitDefinition::NamedMovementClass& mc) {
-                return movementClassDefinitions.at(mc.movementClassId);
+                return movementClassDatabase.getMovementClass(mc.movementClassId);
             });
     }
 
@@ -858,7 +857,7 @@ namespace rwe
                 return std::make_pair(mc.footprintX, mc.footprintZ);
             },
             [&](const UnitDefinition::NamedMovementClass& mc) {
-                const auto& mcDef = movementClassDefinitions.at(mc.movementClassId);
+                const auto& mcDef = movementClassDatabase.getMovementClass(mc.movementClassId);
                 return std::make_pair(mcDef.footprintX, mcDef.footprintZ);
             });
     }

@@ -9,6 +9,7 @@
 #include <rwe/game/BuilderGuisDatabase.h>
 #include <rwe/game/GameScene.h>
 #include <rwe/game/MapTerrainGraphics.h>
+#include <rwe/game/MovementClassDatabase.h>
 #include <rwe/game/PlayerColorIndex.h>
 #include <rwe/io/featuretdf/FeatureTdf.h>
 #include <rwe/io/ota/ota.h>
@@ -143,15 +144,15 @@ namespace rwe
         {
             BuilderGuisDatabase builderGuisDatabase;
             GameMediaDatabase gameMediaDatabase;
+            MovementClassDatabase movementClassDatabase;
             std::unordered_map<std::string, UnitDefinition> unitDefinitions;
             std::unordered_map<std::string, UnitModelDefinition> modelDefinitions;
             std::unordered_map<std::string, WeaponDefinition> weaponDefinitions;
-            std::unordered_map<MovementClassId, MovementClassDefinition> movementClassDefinitions;
             SimpleVectorMap<FeatureDefinition, FeatureDefinitionIdTag> featureDefinitions;
             std::unordered_map<std::string, FeatureDefinitionId> featureNameIndex;
         };
 
-        std::tuple<DataMaps, MovementClassCollisionService> loadDefinitions(const MapTerrain& terrain, MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures);
+        DataMaps loadDefinitions(MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures);
 
         void preloadSound(GameMediaDatabase& meshDb, const std::string& soundName);
 

@@ -323,6 +323,8 @@ set(SOURCE_FILES
     src/rwe/game/MapTerrainGraphics.h
     src/rwe/game/MovementClassCollisionService.cpp
     src/rwe/game/MovementClassCollisionService.h
+    src/rwe/game/MovementClassDatabase.cpp
+    src/rwe/game/MovementClassDatabase.h
     src/rwe/game/Particle.cpp
     src/rwe/game/Particle.h
     src/rwe/game/PlayerColorIndex.cpp

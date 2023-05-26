@@ -12,15 +12,10 @@ namespace rwe
     class MovementClassCollisionService
     {
     private:
-        unsigned int nextId{0};
-
-        std::unordered_map<std::string, MovementClassId> movementClassNameMap;
         std::unordered_map<MovementClassId, Grid<char>> walkableGrids;
 
     public:
-        MovementClassId registerMovementClass(const std::string& className, Grid<char>&& walkableGrid);
-
-        std::optional<MovementClassId> resolveMovementClass(const std::string& name) const;
+        void registerMovementClass(MovementClassId id, Grid<char>&& walkableGrid);
 
         bool isWalkable(MovementClassId movementClass, const Point& position) const;
 

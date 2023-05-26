@@ -4,18 +4,9 @@
 
 namespace rwe
 {
-    MovementClassId
-    MovementClassCollisionService::registerMovementClass(const std::string& className, Grid<char>&& walkableGrid)
+    void MovementClassCollisionService::registerMovementClass(MovementClassId id, Grid<char>&& walkableGrid)
     {
-        MovementClassId id(nextId++);
         walkableGrids.insert({id, std::move(walkableGrid)});
-        movementClassNameMap.insert({className, id});
-        return id;
-    }
-
-    std::optional<MovementClassId> MovementClassCollisionService::resolveMovementClass(const std::string& name) const
-    {
-        return tryFindValue(movementClassNameMap, name);
     }
 
     bool MovementClassCollisionService::isWalkable(MovementClassId movementClass, const Point& position) const
@@ -27,7 +18,6 @@ namespace rwe
     {
         return walkableGrids.at(movementClass);
     }
-
     Grid<char> computeWalkableGrid(const MapTerrain& terrain, const MovementClassDefinition& movementClass)
     {
         const auto footprintX = movementClass.footprintX;

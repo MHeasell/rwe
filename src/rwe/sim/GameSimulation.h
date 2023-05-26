@@ -5,6 +5,7 @@
 #include <rwe/collections/SimpleVectorMap.h>
 #include <rwe/collections/VectorMap.h>
 #include <rwe/game/MovementClassCollisionService.h>
+#include <rwe/game/MovementClassDatabase.h>
 #include <rwe/game/PlayerColorIndex.h>
 #include <rwe/geometry/BoundingBox3x.h>
 #include <rwe/pathfinding/PathFindingService.h>
@@ -253,7 +254,7 @@ namespace rwe
 
         std::unordered_map<std::string, WeaponDefinition> weaponDefinitions;
 
-        std::unordered_map<MovementClassId, MovementClassDefinition> movementClassDefinitions;
+        MovementClassDatabase movementClassDatabase;
         MovementClassCollisionService movementClassCollisionService;
 
         PathFindingService pathFindingService;
@@ -279,7 +280,7 @@ namespace rwe
 
         std::vector<GameEvent> events;
 
-        explicit GameSimulation(MapTerrain&& terrain, MovementClassCollisionService&& movementClassCollisionService, unsigned char surfaceMetal);
+        explicit GameSimulation(MapTerrain&& terrain, unsigned char surfaceMetal);
 
         FeatureId addFeature(MapFeature&& newFeature);
 

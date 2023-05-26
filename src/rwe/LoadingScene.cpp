@@ -23,6 +23,16 @@ namespace rwe
 {
     const Viewport MenuUiViewport(0, 0, 640, 480);
 
+    MovementClassCollisionService createMovementClassCollisionService(const MapTerrain& terrain, const MovementClassDatabase& movementClassDatabase)
+    {
+        MovementClassCollisionService service;
+        for (const auto& pair : movementClassDatabase)
+        {
+            service.registerMovementClass(pair.first, computeWalkableGrid(terrain, pair.second));
+        }
+        return service;
+    }
+
     std::unordered_map<std::string, CobScript> loadCobScripts(AbstractVirtualFileSystem& vfs)
     {
         std::unordered_map<std::string, CobScript> output;
@@ -187,13 +197,16 @@ namespace rwe
             requiredFeatureNames.insert(f.second);
         }
 
-        auto [dataMaps, movementClassCollisionService] = loadDefinitions(mapInfo.terrain, meshService, requiredFeatureNames);
+        auto dataMaps = loadDefinitions(meshService, requiredFeatureNames);
 
-        GameSimulation simulation(std::move(mapInfo.terrain), std::move(movementClassCollisionService), mapInfo.surfaceMetal);
+        auto movementClassCollisionService = createMovementClassCollisionService(mapInfo.terrain, dataMaps.movementClassDatabase);
+
+        GameSimulation simulation(std::move(mapInfo.terrain), mapInfo.surfaceMetal);
 
         simulation.unitDefinitions = std::move(dataMaps.unitDefinitions);
         simulation.weaponDefinitions = std::move(dataMaps.weaponDefinitions);
-        simulation.movementClassDefinitions = std::move(dataMaps.movementClassDefinitions);
+        simulation.movementClassDatabase = std::move(dataMaps.movementClassDatabase);
+        simulation.movementClassCollisionService = std::move(movementClassCollisionService);
         simulation.unitModelDefinitions = dataMaps.modelDefinitions;
         simulation.unitScriptDefinitions = loadCobScripts(*sceneContext.vfs);
         simulation.featureDefinitions = std::move(dataMaps.featureDefinitions);
@@ -667,7 +680,7 @@ namespace rwe
         return Grid<YardMapCell>(width, height, std::move(cells));
     }
 
-    UnitDefinition parseUnitDefinition(const UnitFbi& fbi, MovementClassCollisionService& collisionService)
+    UnitDefinition parseUnitDefinition(const UnitFbi& fbi, MovementClassDatabase& movementClassDatabase)
     {
         UnitDefinition u;
 
@@ -732,7 +745,7 @@ namespace rwe
 
         u.soundCategory = fbi.soundCategory;
 
-        auto movementClassId = collisionService.resolveMovementClass(fbi.movementClass);
+        auto movementClassId = movementClassDatabase.resolveMovementClassByName(fbi.movementClass);
 
         if (movementClassId)
         {
@@ -1027,10 +1040,9 @@ namespace rwe
         }
     }
 
-    std::tuple<LoadingScene::DataMaps, MovementClassCollisionService> LoadingScene::loadDefinitions(const MapTerrain& terrain, MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures)
+    LoadingScene::DataMaps LoadingScene::loadDefinitions(MeshService& meshService, const std::unordered_set<std::string>& requiredFeatures)
     {
         DataMaps dataMaps;
-        MovementClassCollisionService movementClassCollisionService;
 
         // read sound categories
         {
@@ -1084,10 +1096,8 @@ namespace rwe
             auto classes = parseMoveInfoTdf(parseTdfFromString(movementString));
             for (auto& c : classes)
             {
-                auto name = c.second.name;
                 auto movementClassDefinition = parseMovementClassDefinition(c.second);
-                auto movementClassId = movementClassCollisionService.registerMovementClass(name, computeWalkableGrid(terrain, movementClassDefinition));
-                dataMaps.movementClassDefinitions.insert({movementClassId, movementClassDefinition});
+                dataMaps.movementClassDatabase.registerMovementClass(movementClassDefinition);
             }
         }
 
@@ -1164,7 +1174,7 @@ namespace rwe
                 std::string fbiString(bytes->data(), bytes->size());
                 auto fbi = parseUnitFbi(parseTdfFromString(fbiString));
 
-                auto unitDefinition = parseUnitDefinition(fbi, movementClassCollisionService);
+                auto unitDefinition = parseUnitDefinition(fbi, dataMaps.movementClassDatabase);
                 dataMaps.unitDefinitions.insert({toUpper(fbi.unitName), std::move(unitDefinition)});
 
                 // if it's a builder, also attempt to read its gui pages
@@ -1258,7 +1268,7 @@ namespace rwe
             dataMaps.gameMediaDatabase.addSpriteSeries("FX", "flamestream", anim);
         }
 
-        return std::make_tuple(std::move(dataMaps), std::move(movementClassCollisionService));
+        return dataMaps;
     }
 
     void LoadingScene::preloadSound(GameMediaDatabase& meshDb, const std::optional<std::string>& soundName)
