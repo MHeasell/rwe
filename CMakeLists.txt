@@ -241,6 +241,8 @@ set(SOURCE_FILES
     src/rwe/LoadingNetworkService.h
     src/rwe/LoadingScene.cpp
     src/rwe/LoadingScene.h
+    src/rwe/LoadingScene_util.cpp
+    src/rwe/LoadingScene_util.h
     src/rwe/MainMenuModel.cpp
     src/rwe/MainMenuModel.h
     src/rwe/MainMenuScene.cpp

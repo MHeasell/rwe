@@ -134,10 +134,6 @@ namespace rwe
 
         std::vector<TextureArrayRegion> getTileTextures(TntArchive& tnt);
 
-        Grid<std::size_t> getMapData(TntArchive& tnt);
-
-        Grid<unsigned char> getHeightGrid(const Grid<TntTileAttributes>& attrs) const;
-
         const SideData& getSideData(const std::string& side) const;
 
         struct DataMaps
