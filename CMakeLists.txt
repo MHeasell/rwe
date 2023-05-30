@@ -185,7 +185,6 @@ else()
     find_windows_dll(WINPTHREAD_DLL "libwinpthread-1.dll")
     find_windows_dll(INTL_DLL "libintl-8.dll")
     find_windows_dll(ICONV_DLL "libiconv-2.dll")
-    find_windows_dll(SSP_DLL "libssp-0.dll")
     find_windows_dll(DEFLATE_DLL "libdeflate.dll")
     find_windows_dll(JXL_DLL "libjxl.dll")
     find_windows_dll(BROTLIENC_DLL "libbrotlienc.dll")
@@ -688,7 +687,6 @@ if(WIN32 AND NOT MSVC)
     target_copy_file(librwe ${LCMS2_DLL})
     target_copy_file(librwe ${MODPLUG_DLL}) # MSYS2 SDL2_mixer depends on modplug
     target_copy_file(librwe ${OPUSFILE_DLL}) # MSYS2 SDL2_mixer depends on opusfile
-    target_copy_file(librwe ${SSP_DLL}) # MSYS2 SDL2_mixer libflac depends on ssp
     target_copy_file(librwe ${JBIG_DLL}) # MSYS2 SDL2_image depends on jbig
     target_copy_file(librwe ${LERC_DLL}) # MSYS2 SDL2_image depends on Lerc
     target_copy_file(librwe ${SHARPYUV_DLL}) # MSYS2 SDL2_image libwebp depends on sharpyuv
