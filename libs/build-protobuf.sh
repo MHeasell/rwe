@@ -1,9 +1,11 @@
-#!/bin/sh
-set -e
+#!/bin/bash
+
+set -euo pipefail
 
 install_dir="${PWD}/_protobuf-install"
 
-cd protobuf
+pushd protobuf
+
 source_protobuf_version="$(git rev-parse HEAD)"
 
 built_protobuf_version=""
@@ -22,8 +24,11 @@ if [ "$source_protobuf_version" != "$built_protobuf_version" ]; then
     ./configure "--prefix=$install_dir"
     make -j`nproc`
     make install
-    echo "$protobuf_version" > "$install_dir/done"
+    echo "$source_protobuf_version" > "$install_dir/done"
+    echo "finished building protobuf: $source_protobuf_version"
 else
     echo "built protobuf matches source protobuf, skipping protobuf build"
     echo "built protobuf: $built_protobuf_version"
 fi
+
+popd
