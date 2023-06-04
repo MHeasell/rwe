@@ -126,6 +126,13 @@ Once built, launch RWE from the top-level directory:
     cd /path/to/rwe
     build/rwe.exe
 
+### Windows with Visual Studio Code
+Install Visual Studio Code, and open it. Under extensions, search for C/C++, and install the C/C++ Extension Pack from Microsoft, which includes CMake Tools and C/C++ development extensions. Now VS Code should be able to recognize C/C++ and compilers, and understand the CMake build configuration used by RWE.
+
+#### Open the project in VS Code:
+File > Open Folder, choose the root directory of the RWE repository (where CMakeLists.txt is). At the bottom of the VS Code window you should see CMake: [Debug]: Ready and probably No Kit Selected. Click No Kit Selected to choose which compiler to use. VS Code should auto-detect compilers on your machine, so if none are listed here, install Visual Studio or MSYS2 first and try again.
+Once a toolset is selected, CMake will configure itself for the project, with its output in the OUTPUT window. When that's done, you should be able to build by clicking the Build button there on the bottom or hit F7.
+
 ### Ubuntu
 
 Install the necessary packages:
