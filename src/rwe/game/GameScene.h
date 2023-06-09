@@ -339,6 +339,7 @@ namespace rwe
 
         const MapTerrain& getTerrain() const;
 
+    private:
         GameTime getGameTime() const;
 
         void playUiSound(const AudioService::SoundHandle& sound);
@@ -371,7 +372,6 @@ namespace rwe
 
         void onChannelFinished(int channel);
 
-    private:
         static Matrix4f worldToMinimapMatrix(const MapTerrain& terrain, const Rectangle2f& minimapRect);
 
         static Matrix4f minimapToWorldMatrix(const MapTerrain& terrain, const Rectangle2f& minimapRect);
