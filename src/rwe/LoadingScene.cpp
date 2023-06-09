@@ -269,7 +269,6 @@ namespace rwe
             std::move(simulation),
             std::move(mapInfo.terrainGraphics),
             std::move(dataMaps.builderGuisDatabase),
-            std::move(meshService),
             std::move(gameNetworkService),
             minimap,
             minimapDots,

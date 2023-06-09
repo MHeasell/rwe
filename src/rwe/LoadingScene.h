@@ -22,9 +22,10 @@
 #include <rwe/ui/UiFactory.h>
 #include <rwe/ui/UiLightBar.h>
 #include <rwe/ui/UiPanel.h>
+#include <rwe/MeshService.h>
 
 namespace rwe
-{
+ {
     struct PlayerControllerTypeHuman
     {
     };

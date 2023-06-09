@@ -207,7 +207,6 @@ namespace rwe
         GameSimulation&& simulation,
         MapTerrainGraphics&& terrainGraphics,
         BuilderGuisDatabase&& builderGuisDatabase,
-        MeshService&& meshService,
         std::unique_ptr<GameNetworkService>&& gameNetworkService,
         const std::shared_ptr<Sprite>& minimap,
         const std::shared_ptr<SpriteSeries>& minimapDots,

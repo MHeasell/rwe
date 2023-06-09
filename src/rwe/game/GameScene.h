@@ -10,7 +10,6 @@
 #include <rwe/AudioService.h>
 #include <rwe/CroppedViewport.h>
 #include <rwe/CursorService.h>
-#include <rwe/MeshService.h>
 #include <rwe/RenderService.h>
 #include <rwe/SceneContext.h>
 #include <rwe/TextureService.h>
@@ -302,7 +301,6 @@ namespace rwe
             GameSimulation&& simulation,
             MapTerrainGraphics&& terrainGraphics,
             BuilderGuisDatabase&& builderGuisDatabase,
-            MeshService&& meshService,
             std::unique_ptr<GameNetworkService>&& gameNetworkService,
             const std::shared_ptr<Sprite>& minimap,
             const std::shared_ptr<SpriteSeries>& minimapDots,
