@@ -65,6 +65,8 @@ namespace rwe
 
         void tryFireWeapon(UnitId id, unsigned int weaponIndex);
 
+        SimVector getUnitPositionWithCache(UnitState& s, UnitId unitId);
+
         void updateNavigation(UnitInfo unitInfo);
 
         void applyUnitSteering(UnitInfo unitInfo);
@@ -99,6 +101,8 @@ namespace rwe
         BuildPieceInfo getBuildPieceInfo(UnitId id);
 
         std::optional<SimVector> getTargetPosition(const UnitWeaponAttackTarget& target);
+
+        PathDestination resolvePathDestination(UnitState& s, const MovingStateGoal& goal);
 
         bool groundUnitMoveTo(UnitInfo unitInfo, const MovingStateGoal& goal);
 

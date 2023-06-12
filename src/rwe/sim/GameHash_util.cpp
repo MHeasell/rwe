@@ -203,7 +203,7 @@ namespace rwe
     GameHash computeHashOf(const NavigationStateMoving& m)
     {
         return combineHashes(
-            m.destination,
+            m.pathDestination,
             m.pathRequested);
     }
 

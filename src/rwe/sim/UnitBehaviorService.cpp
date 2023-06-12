@@ -1,5 +1,6 @@
 #include "UnitBehaviorService.h"
 #include <rwe/cob/CobExecutionContext.h>
+#include <rwe/sim/SimTicksPerSecond.h>
 #include <rwe/sim/UnitBehaviorService_util.h>
 #include <rwe/sim/cob.h>
 #include <rwe/sim/movement.h>
@@ -212,6 +213,29 @@ namespace rwe
         }
     }
 
+    SimVector UnitBehaviorService::getUnitPositionWithCache(UnitState& s, UnitId unitId)
+    {
+        if (s.navigationState.unitPositionCache && s.navigationState.unitPositionCache->unitId == unitId)
+        {
+            const auto& pos = s.navigationState.unitPositionCache->position;
+            const auto& time = s.navigationState.unitPositionCache->cachedAtTime;
+            if (sim->gameTime - time < GameTime(SimTicksPerSecond))
+            {
+                return pos;
+            }
+        }
+
+        const auto& pos = sim->getUnitState(unitId).position;
+        s.navigationState.unitPositionCache = UnitPositionCache{
+            unitId,
+            pos,
+            sim->gameTime,
+        };
+
+        return pos;
+    }
+
+
     void UnitBehaviorService::updateNavigation(UnitInfo unitInfo)
     {
         const auto& goal = unitInfo.state->navigationState.desiredDestination;
@@ -246,6 +270,9 @@ namespace rwe
             },
             [&](const DiscreteRect& r) {
                 return std::make_optional<MovingStateGoal>(r);
+            },
+            [&](const UnitId& u) {
+                return std::make_optional<MovingStateGoal>(u);
             });
 
         if (!resolvedGoal)
@@ -821,6 +848,18 @@ namespace rwe
         return attackTarget(unitInfo, attackOrder.target);
     }
 
+    NavigationGoal attackTargetToNavigationGoal(const AttackTarget& target)
+    {
+        return match(
+            target,
+            [&](const UnitId& t) -> NavigationGoal {
+                return t;
+            },
+            [&](const SimVector& t) -> NavigationGoal {
+                return t;
+            });
+    }
+
     bool UnitBehaviorService::attackTarget(UnitInfo unitInfo, const AttackTarget& target)
     {
         if (!unitInfo.state->weapons[0])
@@ -840,7 +879,7 @@ namespace rwe
         auto maxRangeSquared = weaponDefinition.maxRange * weaponDefinition.maxRange;
         if (unitInfo.state->position.distanceSquared(*targetPosition) > maxRangeSquared)
         {
-            navigateTo(unitInfo, *targetPosition);
+            navigateTo(unitInfo, attackTargetToNavigationGoal(target));
         }
         else
         {
@@ -905,7 +944,7 @@ namespace rwe
         // stay close
         if (unitInfo.definition->canMove && unitInfo.state->position.distanceSquared(targetUnit.position) > SimScalar(200 * 200))
         {
-            navigateTo(unitInfo, targetUnit.position);
+            navigateTo(unitInfo, guardOrder.target);
             return false;
         }
 
@@ -1136,16 +1175,45 @@ namespace rwe
             [this](UnitId id) { return tryGetSweetSpot(id); });
     }
 
+    PathDestination UnitBehaviorService::resolvePathDestination(UnitState& s, const MovingStateGoal& goal)
+    {
+        return match(
+            goal,
+            [&](const SimVector& v) -> PathDestination {
+                return v;
+            },
+            [&](const DiscreteRect& r) -> PathDestination {
+                return r;
+            },
+            [&](const UnitId& u) -> PathDestination {
+                return getUnitPositionWithCache(s, u);
+            });
+    }
+
     bool UnitBehaviorService::groundUnitMoveTo(UnitInfo unitInfo, const MovingStateGoal& goal)
     {
         auto movingState = std::get_if<NavigationStateMoving>(&unitInfo.state->navigationState.state);
 
-        if (!movingState || movingState->destination != goal)
+        if (!movingState || movingState->movementGoal != goal)
         {
             // request a path to follow
-            unitInfo.state->navigationState.state = NavigationStateMoving{goal, std::nullopt, true};
+            unitInfo.state->navigationState.state = NavigationStateMoving{goal, resolvePathDestination(*unitInfo.state, goal), std::nullopt, true};
             sim->requestPath(unitInfo.id);
             return false;
+        }
+
+        // check to see if our goal has moved from its original location
+        auto resolvedDestination = resolvePathDestination(*unitInfo.state, goal);
+        if (resolvedDestination != movingState->pathDestination)
+        {
+            // The resolved position of our goal has changed.
+            // We'll assume that this change isn't too big
+            // i.e. we don't need to throw away our previous path,
+            // we can still continue following it
+            // while we wait for a new path to be computed.
+            movingState->pathDestination = resolvedDestination;
+            sim->requestPath(unitInfo.id);
+            movingState->pathRequested = true;
         }
 
         // if we are colliding, request a new path
@@ -1269,7 +1337,7 @@ namespace rwe
         // and it appears both measures something more advanced than center <-> center distance.
         if (unitInfo.state->position.distanceSquared(targetUnit.position) > (unitInfo.definition->buildDistance * unitInfo.definition->buildDistance))
         {
-            navigateTo(unitInfo, targetUnit.position);
+            navigateTo(unitInfo, targetUnitId);
             return false;
         }
 
@@ -1415,6 +1483,10 @@ namespace rwe
             },
             [&](const DiscreteRect& rect) {
                 return findClosestPointToFootprintXZ(sim->terrain, rect, unitInfo.state->position);
+            },
+            [&](const UnitId& u) {
+                const auto& unit = sim->getUnitState(u);
+                return unit.position;
             });
 
         SimVector xzPosition(unitInfo.state->position.x, 0_ss, unitInfo.state->position.z);

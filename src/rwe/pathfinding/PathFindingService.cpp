@@ -20,7 +20,7 @@ namespace rwe
             if (auto movingState = std::get_if<NavigationStateMoving>(&unit.navigationState.state); movingState != nullptr)
             {
                 auto path = match(
-                    movingState->destination,
+                    movingState->pathDestination,
                     [&](const SimVector& pos) {
                         return findPath(simulation, request.unitId, pos);
                     },
