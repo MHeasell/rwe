@@ -247,6 +247,12 @@ namespace rwe
 
         BehaviorSubject<CursorMode> cursorMode{NormalCursorMode()};
 
+        struct MiddleMousePanningState
+        {
+            Point previousCursorPosition;
+        };
+        std::optional<MiddleMousePanningState> middleMousePanningState;
+
         std::deque<std::optional<GameSceneTimeAction>> actions;
 
         std::vector<PlayerCommand> localPlayerCommandBuffer;

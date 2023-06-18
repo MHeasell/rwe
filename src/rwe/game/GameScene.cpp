@@ -1529,6 +1529,10 @@ namespace rwe
                     }
                 });
         }
+        else if (event.button == MouseButtonEvent::MouseButton::Middle)
+        {
+            middleMousePanningState = MiddleMousePanningState{getMousePosition()};
+        }
     }
 
     void GameScene::onMouseUp(MouseButtonEvent event)
@@ -1652,16 +1656,10 @@ namespace rwe
                 },
                 [](const auto&) {});
         }
-    }
-
-    void GameScene::onMouseMove(MouseMoveEvent event)
-    {
-        currentPanel->mouseMove(event);
-    }
-
-    void GameScene::onMouseWheel(MouseWheelEvent event)
-    {
-        currentPanel->mouseWheel(event);
+        else if (event.button == MouseButtonEvent::MouseButton::Middle)
+        {
+            middleMousePanningState = std::nullopt;
+        }
     }
 
     Rectangle2f computeCameraConstraint(const MapTerrain& terrain, float viewportWidth, float viewportHeight)
@@ -1691,6 +1689,30 @@ namespace rwe
         return Rectangle2f::fromTLBR(top, left, bottom, right);
     }
 
+    void GameScene::onMouseMove(MouseMoveEvent event)
+    {
+        if (middleMousePanningState)
+        {
+            auto cameraConstraint = computeCameraConstraint(simulation.terrain, worldCameraState.scaleDimension(worldViewport.width()), worldCameraState.scaleDimension(worldViewport.height()));
+
+            const auto& cameraPos = worldCameraState.position;
+
+            auto currentCursorPosition = Point(event.x, event.y);
+            auto delta = currentCursorPosition - middleMousePanningState->previousCursorPosition;
+
+            auto newCameraPos = cameraConstraint.clamp(Vector2f(cameraPos.x - delta.x, cameraPos.z - delta.y));
+            worldCameraState.position = Vector3f(newCameraPos.x, cameraPos.y, newCameraPos.y);
+
+            middleMousePanningState->previousCursorPosition = currentCursorPosition;
+        }
+        currentPanel->mouseMove(event);
+    }
+
+    void GameScene::onMouseWheel(MouseWheelEvent event)
+    {
+        currentPanel->mouseWheel(event);
+    }
+
     void GameScene::update(int millisecondsElapsed)
     {
         millisecondsBuffer += millisecondsElapsed;
@@ -1709,7 +1731,7 @@ namespace rwe
 
                 auto dx = directionX * speed;
                 auto dz = directionZ * speed;
-                auto& cameraPos = worldCameraState.position;
+                const auto& cameraPos = worldCameraState.position;
                 auto newPos = cameraConstraint.clamp(Vector2f(cameraPos.x + dx, cameraPos.z + dz));
 
                 worldCameraState.position = Vector3f(newPos.x, cameraPos.y, newPos.y);
