@@ -2689,8 +2689,11 @@ namespace rwe
                     }
                 },
                 [&](const UnitArrivedEvent& e) {
-                    const auto& unit = simulation.getUnitState(e.unitId);
-                    playUnitNotificationSound(unit.owner, unit.unitType, UnitSoundType::Arrived1);
+                    auto unit = tryGetUnit(e.unitId);
+                    if (unit)
+                    {
+                        playUnitNotificationSound(unit->get().owner, unit->get().unitType, UnitSoundType::Arrived1);
+                    }
                 },
                 [&](const UnitActivatedEvent& e) {
                     auto unit = tryGetUnit(e.unitId);
@@ -2717,10 +2720,18 @@ namespace rwe
                     }
                 },
                 [&](const UnitCompleteEvent& e) {
-                    const auto& unit = getUnit(e.unitId);
-                    playUnitNotificationSound(unit.owner, unit.unitType, UnitSoundType::UnitComplete);
+                    auto unit = tryGetUnit(e.unitId);
+                    if (unit)
+                    {
+                        playUnitNotificationSound(unit->get().owner, unit->get().unitType, UnitSoundType::UnitComplete);
+                    }
                 },
                 [&](const EmitParticleFromPieceEvent& e) {
+                    if (!simulation.unitExists(e.unitId))
+                    {
+                        return;
+                    }
+
                     switch (e.sfxType)
                     {
                         case EmitParticleFromPieceEvent::SfxType::LightSmoke:
@@ -2738,9 +2749,12 @@ namespace rwe
                 },
                 [&](const UnitSpawnedEvent& e) {
                     // initialise local-player-specific UI data
-                    const auto& unit = getUnit(e.unitId);
-                    const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
-                    unitGuiInfos.insert_or_assign(e.unitId, UnitGuiInfo{unitDefinition.builder ? UnitGuiInfo::Section::Build : UnitGuiInfo::Section::Orders, 0});
+                    auto unit = tryGetUnit(e.unitId);
+                    if (unit)
+                    {
+                        const auto& unitDefinition = simulation.unitDefinitions.at(unit->get().unitType);
+                        unitGuiInfos.insert_or_assign(e.unitId, UnitGuiInfo{unitDefinition.builder ? UnitGuiInfo::Section::Build : UnitGuiInfo::Section::Orders, 0});
+                    }
                 },
 
                 [&](const UnitDiedEvent& e) {
@@ -2772,8 +2786,11 @@ namespace rwe
                     unitGuiInfos.erase(e.unitId);
                 },
                 [&](const UnitStartedBuildingEvent& e) {
-                    const auto& unit = getUnit(e.unitId);
-                    playUnitNotificationSound(unit.owner, unit.unitType, UnitSoundType::Build);
+                    auto unit = tryGetUnit(e.unitId);
+                    if (unit)
+                    {
+                        playUnitNotificationSound(unit->get().owner, unit->get().unitType, UnitSoundType::Build);
+                    }
                 },
                 [&](const ProjectileSpawnedEvent& e) {
                     projectileRenderInfos.insert({e.projectileId, ProjectileRenderInfo{getGameTime()}});
