@@ -40,7 +40,7 @@ namespace rwe
                 // double the cost on rough terrain
                 distance = distance + distance;
             }
-            unsigned int turns = (!prevDirection || direction == *prevDirection) ? 0 : 1;
+            unsigned int turns = prevDirection ? directionDistance(*prevDirection, direction) : 0;
             PathCost cost(distance, turns);
             vs.push_back(VertexInfo{info.costToReach + cost, neighbour, &info});
         }
