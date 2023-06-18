@@ -15,9 +15,16 @@ namespace rwe
         {
             auto& request = requests.front();
 
-            auto& unit = simulation.getUnitState(request.unitId);
+            auto unit = simulation.tryGetUnitState(request.unitId);
+            if (!unit)
+            {
+                // Unit that made the request no longer exists.
+                // Possibly the unit died. Just skip it.
+                requests.pop_front();
+                continue;
+            }
 
-            if (auto movingState = std::get_if<NavigationStateMoving>(&unit.navigationState.state); movingState != nullptr)
+            if (auto movingState = std::get_if<NavigationStateMoving>(&unit->get().navigationState.state); movingState != nullptr)
             {
                 auto path = match(
                     movingState->pathDestination,
