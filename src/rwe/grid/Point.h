@@ -20,6 +20,11 @@ namespace rwe
 
         Point operator-(const Point& rhs) const;
 
+        Point& operator+=(const Point& rhs);
+
+        Point& operator-=(const Point& rhs);
+
+
         int maxSingleDimensionDistance(const Point& rhs) const;
     };
 }

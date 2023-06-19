@@ -26,6 +26,20 @@ namespace rwe
         return Point(x - rhs.x, y - rhs.y);
     }
 
+    Point& Point::operator+=(const Point& rhs)
+    {
+        this->x += rhs.x;
+        this->y += rhs.y;
+        return *this;
+    }
+
+    Point& Point::operator-=(const Point& rhs)
+    {
+        this->x -= rhs.x;
+        this->y -= rhs.y;
+        return *this;
+    }
+
     std::size_t hash_value(const Point& p)
     {
         return std::hash<Point>()(p);
