@@ -25,7 +25,5 @@ namespace rwe
         UnitPath findPath(const GameSimulation& simulation, UnitId unitId, const DiscreteRect& destination);
 
         SimVector getWorldCenter(const GameSimulation& simulation, const DiscreteRect& discreteRect);
-
-        DiscreteRect expandTopLeft(const DiscreteRect& rect, unsigned int width, unsigned int height);
     };
 }
