@@ -27,6 +27,18 @@ namespace rwe
         Direction::EAST,
         Direction::NORTHEAST};
 
+    static const std::array<Direction, 4> CardinalDirections = {
+        Direction::NORTH,
+        Direction::WEST,
+        Direction::SOUTH,
+        Direction::EAST};
+
+    static const std::array<Direction, 4> DiagonalDirections = {
+        Direction::NORTHWEST,
+        Direction::SOUTHWEST,
+        Direction::SOUTHEAST,
+        Direction::NORTHEAST};
+
     bool isCardinal(Direction d);
 
     bool isDiagonal(Direction d);
