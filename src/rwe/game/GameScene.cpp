@@ -1220,7 +1220,9 @@ namespace rwe
                 {
                     clearUnitSelection();
                 }
+
                 // Select commanders (edge case: debug mode allows spawning multiple commanders)
+                std::optional<UnitId> commanderUnitId;
                 for (const auto& [unitId, unit] : simulation.units)
                 {
                     const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
@@ -1228,10 +1230,14 @@ namespace rwe
                     {
                         selectAdditionalUnit(unitId);
                         // For multiple commanders, OTA selects all but always tracks only the last spawned (it won't cycle with repeated ctrl-c)
-                        trackedUnitId = unitId;
+                        commanderUnitId = unitId;
                     }
                 }
-                trackingOn = true;
+
+                if (commanderUnitId)
+                {
+                    startTrackInternal({*commanderUnitId});
+                }
             }
         }
     }
@@ -1531,7 +1537,7 @@ namespace rwe
         }
         else if (event.button == MouseButtonEvent::MouseButton::Middle)
         {
-            middleMousePanningState = MiddleMousePanningState{getMousePosition()};
+            cameraControlState = CameraControlStateMiddleMousePan{getMousePosition()};
         }
     }
 
@@ -1658,7 +1664,10 @@ namespace rwe
         }
         else if (event.button == MouseButtonEvent::MouseButton::Middle)
         {
-            middleMousePanningState = std::nullopt;
+            if (std::holds_alternative<CameraControlStateMiddleMousePan>(cameraControlState))
+            {
+                cameraControlState = CameraControlStateFree();
+            }
         }
     }
 
@@ -1691,7 +1700,7 @@ namespace rwe
 
     void GameScene::onMouseMove(MouseMoveEvent event)
     {
-        if (middleMousePanningState)
+        if (auto middleMousePanningState = std::get_if<CameraControlStateMiddleMousePan>(&cameraControlState); middleMousePanningState)
         {
             auto cameraConstraint = computeCameraConstraint(simulation.terrain, worldCameraState.scaleDimension(worldViewport.width()), worldCameraState.scaleDimension(worldViewport.height()));
 
@@ -1727,14 +1736,7 @@ namespace rwe
 
             if (directionX || directionZ)
             {
-                trackingOn = false;
-
-                auto dx = directionX * speed;
-                auto dz = directionZ * speed;
-                const auto& cameraPos = worldCameraState.position;
-                auto newPos = cameraConstraint.clamp(Vector2f(cameraPos.x + dx, cameraPos.z + dz));
-
-                worldCameraState.position = Vector3f(newPos.x, cameraPos.y, newPos.y);
+                nudgeCamera(millisecondsElapsed, cameraConstraint, directionX, directionZ);
             }
         }
 
@@ -1756,14 +1758,7 @@ namespace rwe
 
             if (directionX || directionZ)
             {
-                trackingOn = false;
-
-                auto dx = directionX * speed;
-                auto dz = directionZ * speed;
-                auto& cameraPos = worldCameraState.position;
-                auto newPos = cameraConstraint.clamp(Vector2f(cameraPos.x + dx, cameraPos.z + dz));
-
-                worldCameraState.position = Vector3f(newPos.x, cameraPos.y, newPos.y);
+                nudgeCamera(millisecondsElapsed, cameraConstraint, directionX, directionZ);
             }
         }
 
@@ -1772,8 +1767,6 @@ namespace rwe
         {
             if (std::holds_alternative<NormalCursorMode::DraggingMinimapState>(cursor->state))
             {
-                trackingOn = false;
-
                 // ok, the cursor is dragging the minimap.
                 // work out where the cursor is on the minimap,
                 // convert that to the world, then set the camera's position to there
@@ -1782,8 +1775,8 @@ namespace rwe
                 auto minimapToWorld = minimapToWorldMatrix(simulation.terrain, minimapRect);
                 auto mousePos = getMousePosition();
                 auto worldPos = minimapToWorld * Vector3f(static_cast<float>(mousePos.x) + 0.5f, static_cast<float>(mousePos.y) + 0.5, 0.0f);
-                auto newCameraPos = cameraConstraint.clamp(Vector2f(worldPos.x, worldPos.z));
-                worldCameraState.position = Vector3f(newCameraPos.x, worldCameraState.position.y, newCameraPos.y);
+
+                relocateCamera(cameraConstraint, worldPos.x, worldPos.z);
             }
         }
 
@@ -1792,10 +1785,10 @@ namespace rwe
             // TODO (kwh) - tracking of projectiles not yet implemented. E.g. while tracking Bertha or Nuke Silo,
             // screen should follow a projectile until it hits, then return to the tracking group
 
-            if (trackingOn)
+            if (std::holds_alternative<CameraControlStateTrackingUnit>(cameraControlState) && trackedUnitId)
             {
                 // get tracked unit position, or stop tracking if it's gone
-                auto unit = tryGetUnit(trackedUnitId);
+                auto unit = tryGetUnit(*trackedUnitId);
                 if (unit && !unit->get().isDead())
                 {
                     // Move camera... OTA behavior:
@@ -2580,19 +2573,49 @@ namespace rwe
 
     void GameScene::startTrack()
     {
-        if (selectedUnits.size())
+        // sort selection by unit id so repeated 'T' keydown cycles through all units in a group consistently
+        std::vector<UnitId> unitIds;
+        for (const auto& u : selectedUnits)
         {
-            // sort selection by unit id so repeated 'T' keydown cycles through all units in a group consistently
-            std::vector<UnitId> unitIds;
-            for (const auto& u : selectedUnits)
-            {
-                unitIds.push_back(u);
-            }
-            std::sort(unitIds.begin(), unitIds.end());
+            unitIds.push_back(u);
+        }
+        std::sort(unitIds.begin(), unitIds.end());
 
-            // If already tracking, check if currently tracked unit is in this selection. If it is, select the next id in the group.
+        startTrackInternal(unitIds);
+    }
+
+    void GameScene::startTrackInternal(const std::vector<UnitId>& unitIds)
+    {
+        // Only allow tracking in free camera mode or if we are already tracking.
+        auto canStartTracking = match(
+            cameraControlState,
+            [&](const CameraControlStateFree&) {
+                return true;
+            },
+            [&](const CameraControlStateTrackingUnit&) {
+                return true;
+            },
+            [&](const CameraControlStateMiddleMousePan&) {
+                return false;
+            });
+
+        if (!canStartTracking)
+        {
+            return;
+        }
+
+        // If 'T' is pressed and no units are selected, stop tracking.
+        if (unitIds.empty())
+        {
+            cameraControlState = CameraControlStateFree();
+            return;
+        }
+
+        // If already tracking, check if currently tracked unit is in this selection. If it is, select the next id in the group.
+        if (trackedUnitId)
+        {
             auto it = std::find(unitIds.begin(), unitIds.end(), trackedUnitId);
-            if (trackingOn && it != unitIds.end() && ++it != unitIds.end())
+            if (it != unitIds.end() && ++it != unitIds.end())
             {
                 trackedUnitId = *it;
             }
@@ -2600,12 +2623,13 @@ namespace rwe
             {
                 trackedUnitId = unitIds[0];
             }
-            trackingOn = true;
         }
         else
         {
-            trackingOn = false;
+            trackedUnitId = unitIds[0];
         }
+
+        cameraControlState = CameraControlStateTrackingUnit();
     }
 
     bool GameScene::isCtrlDown() const
@@ -3605,5 +3629,67 @@ namespace rwe
     {
         worldFrameBuffer = sceneContext.graphics->createFrameBuffer(worldViewport.width(), worldViewport.height());
         dodgeMask = sceneContext.graphics->createEmptyTexture(worldViewport.width(), worldViewport.height());
+    }
+
+    void GameScene::nudgeCamera(int millisecondsElapsed, const Rectangle2f& cameraConstraint, int directionX, int directionZ)
+    {
+        assert(directionX == 1 || directionX == 0 || directionX == -1);
+        assert(directionZ == 1 || directionZ == 0 || directionZ == -1);
+
+        // The player can only nudge the camera in free mode.
+        // If the camera is in a different mode, try and transition out of it.
+        cameraControlState = match(
+            cameraControlState,
+            [&](const CameraControlStateTrackingUnit&) -> CameraControlState {
+                return CameraControlStateFree();
+            },
+            [&](const CameraControlStateFree& s) -> CameraControlState {
+                return s;
+            },
+            [&](const CameraControlStateMiddleMousePan& s) -> CameraControlState {
+                // Middle mouse pan takes precedence over nudging the camera.
+                return s;
+            });
+
+        // Only nudge the camera if it is now in free mode.
+        match(
+            cameraControlState,
+            [&](const CameraControlStateFree&) {
+                const float speed = CameraPanSpeed * millisecondsElapsed / 1000.0f;
+
+                auto dx = directionX * speed;
+                auto dz = directionZ * speed;
+                const auto& cameraPos = worldCameraState.position;
+                auto newPos = cameraConstraint.clamp(Vector2f(cameraPos.x + dx, cameraPos.z + dz));
+
+                worldCameraState.position = Vector3f(newPos.x, cameraPos.y, newPos.y);
+            },
+            [&](const CameraControlStateTrackingUnit&) {
+                // do nothing
+            },
+            [&](const CameraControlStateMiddleMousePan&) {
+                // do nothing
+            });
+    }
+
+    void GameScene::relocateCamera(const Rectangle2f& cameraConstraint, float x, float z)
+    {
+        // The player can only relocate the camera in free mode.
+        // If the camera is in a different mode, try and transition out of it.
+        cameraControlState = match(
+            cameraControlState,
+            [&](const CameraControlStateTrackingUnit&) -> CameraControlState {
+                return CameraControlStateFree();
+            },
+            [&](const CameraControlStateFree& s) -> CameraControlState {
+                return s;
+            },
+            [&](const CameraControlStateMiddleMousePan& s) -> CameraControlState {
+                // Middle mouse pan takes precedence over relocating the camera.
+                return s;
+            });
+
+        auto newCameraPos = cameraConstraint.clamp(Vector2f(x, z));
+        worldCameraState.position = Vector3f(newCameraPos.x, worldCameraState.position.y, newCameraPos.y);
     }
 }

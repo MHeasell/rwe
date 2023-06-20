@@ -230,8 +230,25 @@ namespace rwe
         bool leftShiftDown{false};
         bool rightShiftDown{false};
 
-        bool trackingOn{false};
-        UnitId trackedUnitId;
+        struct CameraControlStateFree
+        {
+        };
+        struct CameraControlStateTrackingUnit
+        {
+        };
+        struct CameraControlStateMiddleMousePan
+        {
+            Point previousCursorPosition;
+        };
+
+        using CameraControlState = std::variant<CameraControlStateFree, CameraControlStateTrackingUnit, CameraControlStateMiddleMousePan>;
+
+        CameraControlState cameraControlState{CameraControlStateFree()};
+        // We hold onto trackedUnitId outside of CameraControlStateTrackingUnit
+        // because if you exit and re-enter tracking while having
+        // a group of units selected, the original game will resume
+        // tracking the next unit in the group.
+        std::optional<UnitId> trackedUnitId;
 
         std::optional<UnitId> hoveredUnit;
         std::unordered_set<UnitId> selectedUnits;
@@ -246,12 +263,6 @@ namespace rwe
         bool healthBarsVisible{false};
 
         BehaviorSubject<CursorMode> cursorMode{NormalCursorMode()};
-
-        struct MiddleMousePanningState
-        {
-            Point previousCursorPosition;
-        };
-        std::optional<MiddleMousePanningState> middleMousePanningState;
 
         std::deque<std::optional<GameSceneTimeAction>> actions;
 
@@ -426,6 +437,8 @@ namespace rwe
 
         void startTrack();
 
+        void startTrackInternal(const std::vector<UnitId>& unitIds);
+
         bool isCtrlDown() const;
 
         bool isShiftDown() const;
@@ -548,5 +561,18 @@ namespace rwe
         void spawnWake(const Vector3f& position, const Vector3f& velocity, GameTime duration);
 
         void recreateWorldRenderTextures();
+
+        /**
+         * Handler for when the player nudges the camera
+         * e.g. via arrow keys or by moving the mouse cursor
+         * to the edge of the screen.
+         */
+        void nudgeCamera(int millisecondsElapsed, const Rectangle2f& cameraConstraint, int directionX, int directionZ);
+
+        /**
+         * Handler for when the player relocates the camera
+         * e.g. by clicking a location on the minimap.
+         */
+        void relocateCamera(const Rectangle2f& cameraConstraint, float x, float z);
     };
 }
