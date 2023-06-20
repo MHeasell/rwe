@@ -2,6 +2,7 @@
 #include <rwe/pathfinding/UnitPathFinder.h>
 #include <rwe/pathfinding/UnitPerimeterPathFinder.h>
 #include <rwe/pathfinding/pathfinding_utils.h>
+#include <rwe/util/Index.h>
 
 namespace rwe
 {
@@ -9,9 +10,10 @@ namespace rwe
 
     void PathFindingService::update(GameSimulation& simulation)
     {
+        int remainingBudget = 4000;
+
         auto& requests = simulation.pathRequests;
-        unsigned int tasksDone = 0;
-        while (!requests.empty() && tasksDone < MaxTasksPerTick)
+        while (!requests.empty() && remainingBudget > 0)
         {
             auto& request = requests.front();
 
@@ -34,12 +36,16 @@ namespace rwe
                     [&](const DiscreteRect& pos) {
                         return findPath(simulation, request.unitId, pos);
                     });
+
                 movingState->path = PathFollowingInfo(std::move(path), simulation.gameTime);
                 movingState->pathRequested = false;
+
+                // HACK: we know that lastPathDebugInfo is set by the call to findPath,
+                // so we'll exploit it here to deduct from out budget.
+                remainingBudget -= getSize(lastPathDebugInfo.closedVertices);
             }
 
             requests.pop_front();
-            tasksDone += 1;
         }
     }
 
