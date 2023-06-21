@@ -77,7 +77,7 @@ namespace rwe
 
         virtual void uiMessage(const GroupMessage& /*message*/) {}
 
-        bool contains(int x, int y)
+        bool contains(int x, int y) const
         {
             auto minX = posX;
             auto maxX = posX + static_cast<int>(sizeX) - 1;
