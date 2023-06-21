@@ -574,5 +574,7 @@ namespace rwe
          * e.g. by clicking a location on the minimap.
          */
         void relocateCamera(const Rectangle2f& cameraConstraint, float x, float z);
+
+        std::optional<std::string> getUnitBuildButtonUnderCursor() const;
     };
 }

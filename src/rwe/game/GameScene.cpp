@@ -470,6 +470,21 @@ namespace rwe
                 }
             }
         }
+        else if (auto hoveredBuildButtonUnitType = getUnitBuildButtonUnderCursor(); hoveredBuildButtonUnitType)
+        {
+            const auto& unitDefinition = simulation.unitDefinitions.at(*hoveredBuildButtonUnitType);
+
+            {
+                const auto& rect = localSideData._name;
+                auto text = unitDefinition.unitName + "  M:" + formatResource(unitDefinition.buildCostMetal) + " E:" + formatResource(unitDefinition.buildCostEnergy);
+                chromeUiRenderService.drawText(rect.x1, extraBottom + rect.y1, text, *guiFont);
+            }
+
+            {
+                const auto& rect = localSideData.description;
+                chromeUiRenderService.drawText(rect.x1, extraBottom + rect.y1, unitDefinition.unitDescription, *guiFont);
+            }
+        }
 
         currentPanel->render(chromeUiRenderService);
     }
@@ -3691,5 +3706,23 @@ namespace rwe
 
         auto newCameraPos = cameraConstraint.clamp(Vector2f(x, z));
         worldCameraState.position = Vector3f(newCameraPos.x, worldCameraState.position.y, newCameraPos.y);
+    }
+
+    std::optional<std::string> GameScene::getUnitBuildButtonUnderCursor() const
+    {
+        auto cursorPosition = getMousePosition();
+        auto control = currentPanel->findAtPosition<UiStagedButton>(cursorPosition.x, cursorPosition.y);
+        if (!control)
+        {
+            return std::nullopt;
+        }
+
+        const auto& name = control->get().getName();
+        if (!isValidUnitType(simulation, name))
+        {
+            return std::nullopt;
+        }
+
+        return name;
     }
 }

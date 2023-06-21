@@ -17,6 +17,7 @@ namespace rwe
         std::string movementClass;
 
         std::string name;
+        std::string description;
 
         FbiAnglePerTick turnRate;
         FbiDistancePerTick maxVelocity;

@@ -257,6 +257,7 @@ namespace rwe
         UnitDefinition u;
 
         u.unitName = fbi.name;
+        u.unitDescription = fbi.description;
         u.objectName = fbi.objectName;
 
         u.turnRate = toWorldAnglePerTick(fbi.turnRate);

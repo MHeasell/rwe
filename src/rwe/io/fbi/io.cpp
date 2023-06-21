@@ -25,6 +25,7 @@ namespace rwe
         tdf.readOrDefault("MovementClass", u.movementClass);
 
         tdf.readOrDefault("Name", u.name);
+        tdf.readOrDefault("Description", u.description);
 
         tdf.readOrDefault("TurnRate", u.turnRate);
         tdf.readOrDefault("MaxVelocity", u.maxVelocity);
