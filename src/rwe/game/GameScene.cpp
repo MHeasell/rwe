@@ -2050,7 +2050,9 @@ namespace rwe
 
     void GameScene::setCameraPosition(const Vector3f& newPosition)
     {
-        worldCameraState.position = newPosition;
+        auto cameraConstraint = computeCameraConstraint(simulation.terrain, worldCameraState.scaleDimension(worldViewport.width()), worldCameraState.scaleDimension(worldViewport.height()));
+        auto constrainedPosition = cameraConstraint.clamp(Vector2f(newPosition.x, newPosition.z));
+        worldCameraState.position = Vector3f(constrainedPosition.x, newPosition.y, constrainedPosition.y);
     }
 
     const MapTerrain& GameScene::getTerrain() const
