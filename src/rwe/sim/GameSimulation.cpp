@@ -1445,7 +1445,7 @@ namespace rwe
                 continue;
             }
 
-            if (!unitDefinition.corpse.empty())
+            if (deadState->leaveCorpse && !unitDefinition.corpse.empty())
             {
                 corpsesToSpawn.push_back(CorpseSpawnInfo{
                     unitDefinition.corpse,
