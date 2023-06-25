@@ -412,8 +412,11 @@ namespace rwe
                 {
                     // We couldn't launch an aiming script (there isn't one),
                     // just go straight to firing.
-                    aimingState->attackInfo = UnitWeaponStateAttacking::FireInfo{heading, pitch, *targetPosition, std::nullopt, 0, GameTime(0)};
-                    tryFireWeapon(id, weaponIndex);
+                    if (sim->gameTime >= weapon->readyTime)
+                    {
+                        aimingState->attackInfo = UnitWeaponStateAttacking::FireInfo{heading, pitch, *targetPosition, std::nullopt, 0, GameTime(0)};
+                        tryFireWeapon(id, weaponIndex);
+                    }
                 }
             }
             else if (auto aimInfo = std::get_if<UnitWeaponStateAttacking::AimInfo>(&aimingState->attackInfo))
@@ -436,8 +439,12 @@ namespace rwe
                         // if the target is close enough, try to fire
                         if (angleBetweenIsLessOrEqual(heading, aimInfo->lastHeading, weaponDefinition.tolerance) && angleBetweenIsLessOrEqual(pitch, aimInfo->lastPitch, weaponDefinition.pitchTolerance))
                         {
-                            aimingState->attackInfo = UnitWeaponStateAttacking::FireInfo{heading, pitch, *targetPosition, std::nullopt, 0, GameTime(0)};
-                            tryFireWeapon(id, weaponIndex);
+
+                            if (sim->gameTime >= weapon->readyTime)
+                            {
+                                aimingState->attackInfo = UnitWeaponStateAttacking::FireInfo{heading, pitch, *targetPosition, std::nullopt, 0, GameTime(0)};
+                                tryFireWeapon(id, weaponIndex);
+                            }
                         }
                     }
                 }
@@ -483,14 +490,8 @@ namespace rwe
             return;
         }
 
-        // wait for the weapon to reload before firing first burst
-        auto gameTime = sim->gameTime;
-        if (fireInfo->burstsFired == 0 && gameTime < weapon->readyTime)
-        {
-            return;
-        }
-
         // wait for burst reload
+        auto gameTime = sim->gameTime;
         if (gameTime < fireInfo->readyTime)
         {
             return;
