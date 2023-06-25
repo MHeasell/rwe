@@ -6,25 +6,6 @@
 
 namespace rwe
 {
-    class IsOccupiedVisitor
-    {
-    public:
-        bool operator()(const OccupiedNone&) const
-        {
-            return false;
-        }
-
-        bool operator()(const OccupiedUnit&) const
-        {
-            return true;
-        }
-
-        bool operator()(const OccupiedFeature&) const
-        {
-            return true;
-        }
-    };
-
     Vector3f colorToVector3f(const Color& color)
     {
         return Vector3f(static_cast<float>(color.r) / 255.0f, static_cast<float>(color.g) / 255.0f, static_cast<float>(color.b) / 255.0f);
@@ -122,6 +103,18 @@ namespace rwe
         pushLine(batch.lines, worldEndF, arm2, floatColor);
     }
 
+    std::optional<Vector3f> getOccupiedColor(const OccupiedCell& cell)
+    {
+        auto r = cell.mobileUnitId ? 1.0f : 0.0f;
+        auto g = cell.buildingInfo ? 1.0f : 0.0f;
+        auto b = cell.featureId ? 1.0f : 0.0f;
+        if (r == 0.0f && g == 0.0f && b == 0.0f)
+        {
+            return std::nullopt;
+        }
+        return Vector3f(r, g, b);
+    }
+
     void drawOccupiedGrid(const Vector3f& cameraPosition, float viewportWidth, float viewportHeight, const MapTerrain& terrain, const OccupiedGrid& occupiedGrid, ColoredMeshBatch& batch)
     {
         auto halfWidth = viewportWidth / 2.0f;
@@ -166,18 +159,18 @@ namespace rwe
                 pushLine(batch.lines, pos, downPos);
 
                 const auto& cell = occupiedGrid.get(x, y);
-                if (std::visit(IsOccupiedVisitor(), cell.occupiedType))
+                if (auto c = getOccupiedColor(cell); c)
                 {
                     auto downRightPos = simVectorToFloat(terrain.heightmapIndexToWorldCorner(x + 1, y + 1));
                     downRightPos.y = terrain.getHeightMap().get(x + 1, y + 1);
 
-                    pushTriangle(batch.triangles, pos, downPos, downRightPos);
-                    pushTriangle(batch.triangles, pos, downRightPos, rightPos);
+                    pushTriangle(batch.triangles, pos, downPos, downRightPos, *c);
+                    pushTriangle(batch.triangles, pos, downRightPos, rightPos, *c);
                 }
 
                 const auto insetAmount = 4.0f;
 
-                if (cell.buildingCell && !cell.buildingCell->passable)
+                if (cell.buildingInfo && !cell.buildingInfo->passable)
                 {
                     auto topLeftPos = pos + Vector3f(insetAmount, 0.0f, insetAmount);
                     auto topRightPos = rightPos + Vector3f(-insetAmount, 0.0f, insetAmount);
@@ -190,7 +183,7 @@ namespace rwe
                     pushTriangle(batch.triangles, topLeftPos, downRightPos, topRightPos, Vector3f(1.0f, 0.0f, 0.0f));
                 }
 
-                if (cell.buildingCell && cell.buildingCell->passable)
+                if (cell.buildingInfo && cell.buildingInfo->passable)
                 {
                     auto topLeftPos = pos + Vector3f(insetAmount, 0.0f, insetAmount);
                     auto topRightPos = rightPos + Vector3f(-insetAmount, 0.0f, insetAmount);
@@ -199,8 +192,8 @@ namespace rwe
                     downRightPos.y = terrain.getHeightMap().get(x + 1, y + 1);
                     downRightPos += Vector3f(-insetAmount, 0.0f, -insetAmount);
 
-                    pushTriangle(batch.triangles, topLeftPos, bottomLeftPos, downRightPos, Vector3f(0.0f, 1.0f, 0.0f));
-                    pushTriangle(batch.triangles, topLeftPos, downRightPos, topRightPos, Vector3f(0.0f, 1.0f, 0.0f));
+                    pushTriangle(batch.triangles, topLeftPos, bottomLeftPos, downRightPos, Vector3f(1.0f, 1.0f, 1.0f));
+                    pushTriangle(batch.triangles, topLeftPos, downRightPos, topRightPos, Vector3f(1.0f, 1.0f, 1.0f));
                 }
             }
         }

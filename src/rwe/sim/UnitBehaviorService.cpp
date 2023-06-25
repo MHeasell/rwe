@@ -1448,7 +1448,7 @@ namespace rwe
         auto footprintRegion = sim->occupiedGrid.tryToRegion(footprintRect);
         assert(!!footprintRegion);
         sim->occupiedGrid.forEach(*footprintRegion, [](auto& cell) {
-            cell.occupiedType = OccupiedNone();
+            cell.mobileUnitId = std::nullopt;
         });
         sim->flyingUnitsSet.insert(unitInfo.id);
     }
@@ -1465,7 +1465,7 @@ namespace rwe
         }
 
         sim->occupiedGrid.forEach(*footprintRegion, [&](auto& cell) {
-            cell.occupiedType = OccupiedUnit(unitInfo.id);
+            cell.mobileUnitId = unitInfo.id;
         });
         sim->flyingUnitsSet.erase(unitInfo.id);
 

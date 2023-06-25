@@ -282,9 +282,9 @@ namespace rwe
 
         explicit GameSimulation(MapTerrain&& terrain, unsigned char surfaceMetal);
 
-        FeatureId addFeature(MapFeature&& newFeature);
+        std::optional<FeatureId> addFeature(MapFeature&& newFeature);
 
-        FeatureId addFeature(FeatureDefinitionId featureType, int heightmapX, int heightmapZ);
+        std::optional<FeatureId> addFeature(FeatureDefinitionId featureType, int heightmapX, int heightmapZ);
 
         PlayerId addPlayer(const GamePlayerInfo& info);
 
@@ -307,13 +307,15 @@ namespace rwe
 
         DiscreteRect computeFootprintRegion(const SimVector& position, const UnitDefinition::MovementCollisionInfo& collisionInfo) const;
 
+        bool anyFeatureOccupies(const DiscreteRect& rect) const;
+
         bool isCollisionAt(const DiscreteRect& rect) const;
 
         bool isCollisionAt(const GridRegion& region) const;
 
         bool isCollisionAt(const DiscreteRect& rect, UnitId self) const;
 
-        bool isYardmapBlocked(unsigned int x, unsigned int y, const Grid<YardMapCell>& yardMap, bool open) const;
+        bool isYardmapBlocked(unsigned int x, unsigned int y, const Grid<YardMapCell>& yardMap, bool open, UnitId self) const;
 
         bool isAdjacentToObstacle(const DiscreteRect& rect) const;
 

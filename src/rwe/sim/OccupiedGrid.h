@@ -7,38 +7,7 @@
 
 namespace rwe
 {
-    struct OccupiedUnit
-    {
-        UnitId id;
-
-        explicit OccupiedUnit(const UnitId& id);
-
-        bool operator==(const OccupiedUnit& rhs) const;
-
-        bool operator!=(const OccupiedUnit& rhs) const;
-    };
-
-    struct OccupiedFeature
-    {
-        FeatureId id;
-
-        explicit OccupiedFeature(const FeatureId& id);
-
-        bool operator==(const OccupiedFeature& rhs) const;
-
-        bool operator!=(const OccupiedFeature& rhs) const;
-    };
-
-    struct OccupiedNone
-    {
-        bool operator==(const OccupiedNone&) const { return true; }
-
-        bool operator!=(const OccupiedNone&) const { return true; }
-    };
-
-    using OccupiedType = std::variant<OccupiedNone, OccupiedUnit, OccupiedFeature>;
-
-    struct BuildingOccupiedCell
+    struct OccupiedCellBuildingInfo
     {
         UnitId unit;
         bool passable;
@@ -46,8 +15,9 @@ namespace rwe
 
     struct OccupiedCell
     {
-        OccupiedType occupiedType;
-        std::optional<BuildingOccupiedCell> buildingCell;
+        std::optional<UnitId> mobileUnitId;
+        std::optional<OccupiedCellBuildingInfo> buildingInfo;
+        std::optional<FeatureId> featureId;
     };
 
     using OccupiedGrid = Grid<OccupiedCell>;

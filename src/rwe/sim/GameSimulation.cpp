@@ -90,22 +90,27 @@ namespace rwe
     {
     }
 
-    FeatureId GameSimulation::addFeature(MapFeature&& newFeature)
+    std::optional<FeatureId> GameSimulation::addFeature(MapFeature&& newFeature)
     {
+        const auto& featureDefinition = getFeatureDefinition(newFeature.featureName);
+
+        auto footprintRegion = computeFootprintRegion(newFeature.position, featureDefinition.footprintX, featureDefinition.footprintZ);
+
+        if (anyFeatureOccupies(footprintRegion))
+        {
+            return std::nullopt;
+        }
+
         auto featureId = FeatureId(features.emplace(std::move(newFeature)));
 
         auto& f = features.tryGet(featureId)->get();
-        const auto& featureDefinition = getFeatureDefinition(f.featureName);
 
-        if (featureDefinition.blocking)
-        {
-            auto footprintRegion = computeFootprintRegion(f.position, featureDefinition.footprintX, featureDefinition.footprintZ);
-            occupiedGrid.forEach(occupiedGrid.clipRegion(footprintRegion), [featureId](auto& cell) { cell.occupiedType = OccupiedFeature(featureId); });
-        }
+        occupiedGrid.forEach(occupiedGrid.clipRegion(footprintRegion), [&](auto& cell) {
+            cell.featureId = featureId;
+        });
 
         if (!featureDefinition.blocking && featureDefinition.indestructible && featureDefinition.metal)
         {
-            auto footprintRegion = computeFootprintRegion(f.position, featureDefinition.footprintX, featureDefinition.footprintZ);
             metalGrid.set(metalGrid.clipRegion(footprintRegion), featureDefinition.metal);
         }
 
@@ -147,7 +152,7 @@ namespace rwe
         return position;
     }
 
-    FeatureId GameSimulation::addFeature(FeatureDefinitionId featureType, int heightmapX, int heightmapZ)
+    std::optional<FeatureId> GameSimulation::addFeature(FeatureDefinitionId featureType, int heightmapX, int heightmapZ)
     {
         const auto& featureDefinition = getFeatureDefinition(featureType);
         auto resolvedPos = computeFeaturePosition(terrain, featureDefinition, heightmapX, heightmapZ);
@@ -288,13 +293,13 @@ namespace rwe
 
         if (unitDefinition.isMobile)
         {
-            occupiedGrid.forEach(*footprintRegion, [unitId](auto& cell) { cell.occupiedType = OccupiedUnit(unitId); });
+            occupiedGrid.forEach(*footprintRegion, [unitId](auto& cell) { cell.mobileUnitId = unitId; });
         }
         else
         {
             assert(!!unitDefinition.yardMap);
             occupiedGrid.forEach2(footprintRegion->x, footprintRegion->y, *unitDefinition.yardMap, [&](auto& cell, const auto& yardMapCell) {
-                cell.buildingCell = BuildingOccupiedCell{unitId, isPassable(yardMapCell, insertedUnit.yardOpen)};
+                cell.buildingInfo = OccupiedCellBuildingInfo{unitId, isPassable(yardMapCell, insertedUnit.yardOpen)};
             });
         }
 
@@ -336,6 +341,19 @@ namespace rwe
         return computeFootprintRegion(position, footprintX, footprintZ);
     }
 
+    bool GameSimulation::anyFeatureOccupies(const DiscreteRect& rect) const
+    {
+        auto region = occupiedGrid.tryToRegion(rect);
+        if (!region)
+        {
+            return true;
+        }
+
+        return occupiedGrid.any(*region, [&](const auto& cell) {
+            return cell.featureId.has_value();
+        });
+    }
+
     bool GameSimulation::isCollisionAt(const DiscreteRect& rect) const
     {
         auto region = occupiedGrid.tryToRegion(rect);
@@ -350,19 +368,22 @@ namespace rwe
     bool GameSimulation::isCollisionAt(const GridRegion& region) const
     {
         return occupiedGrid.any(region, [&](const auto& cell) {
-            auto isColliding = match(
-                cell.occupiedType,
-                [](const OccupiedNone&) { return false; },
-                [](const OccupiedUnit&) { return true; },
-                [](const OccupiedFeature&) { return true; });
-            if (isColliding)
+            if (cell.mobileUnitId)
             {
                 return true;
             }
-
-            if (cell.buildingCell && !cell.buildingCell->passable)
+            if (cell.buildingInfo && !cell.buildingInfo->passable)
             {
                 return true;
+            }
+            if (cell.featureId)
+            {
+                const auto& f = getFeature(*cell.featureId);
+                const auto& def = getFeatureDefinition(f.featureName);
+                if (def.blocking)
+                {
+                    return true;
+                }
             }
 
             return false;
@@ -378,26 +399,29 @@ namespace rwe
         }
 
         return occupiedGrid.any(*region, [&](const auto& cell) {
-            auto inCollision = match(
-                cell.occupiedType,
-                [&](const OccupiedNone&) { return false; },
-                [&](const OccupiedUnit& u) { return u.id != self; },
-                [&](const OccupiedFeature&) { return true; });
-            if (inCollision)
+            if (cell.mobileUnitId && *cell.mobileUnitId != self)
             {
                 return true;
             }
-
-            if (cell.buildingCell && cell.buildingCell->unit != self && !cell.buildingCell->passable)
+            if (cell.buildingInfo && !cell.buildingInfo->passable)
             {
                 return true;
+            }
+            if (cell.featureId)
+            {
+                const auto& f = getFeature(*cell.featureId);
+                const auto& def = getFeatureDefinition(f.featureName);
+                if (def.blocking)
+                {
+                    return true;
+                }
             }
 
             return false;
         });
     }
 
-    bool GameSimulation::isYardmapBlocked(unsigned int x, unsigned int y, const Grid<YardMapCell>& yardMap, bool open) const
+    bool GameSimulation::isYardmapBlocked(unsigned int x, unsigned int y, const Grid<YardMapCell>& yardMap, bool open, UnitId self) const
     {
         return occupiedGrid.any2(x, y, yardMap, [&](const auto& cell, const auto& yardMapCell) {
             if (isPassable(yardMapCell, open))
@@ -405,14 +429,22 @@ namespace rwe
                 return false;
             }
 
-            auto inCollision = match(
-                cell.occupiedType,
-                [&](const OccupiedNone&) { return false; },
-                [&](const OccupiedUnit&) { return true; },
-                [&](const OccupiedFeature&) { return true; });
-            if (inCollision)
+            if (cell.mobileUnitId)
             {
                 return true;
+            }
+            if (cell.buildingInfo && !cell.buildingInfo->passable && cell.buildingInfo->unit != self)
+            {
+                return true;
+            }
+            if (cell.featureId)
+            {
+                const auto& f = getFeature(*cell.featureId);
+                const auto& def = getFeatureDefinition(f.featureName);
+                if (def.blocking)
+                {
+                    return true;
+                }
             }
 
             return false;
@@ -592,8 +624,8 @@ namespace rwe
         auto newRegion = occupiedGrid.tryToRegion(newRect);
         assert(!!newRegion);
 
-        occupiedGrid.forEach(*oldRegion, [](auto& cell) { cell.occupiedType = OccupiedNone(); });
-        occupiedGrid.forEach(*newRegion, [unitId](auto& cell) { cell.occupiedType = OccupiedUnit(unitId); });
+        occupiedGrid.forEach(*oldRegion, [](auto& cell) { cell.mobileUnitId = std::nullopt; });
+        occupiedGrid.forEach(*newRegion, [unitId](auto& cell) { cell.mobileUnitId = unitId; });
     }
 
     void GameSimulation::requestPath(UnitId unitId)
@@ -717,13 +749,13 @@ namespace rwe
         assert(!!footprintRegion);
 
         assert(!!unitDefinition.yardMap);
-        if (isYardmapBlocked(footprintRegion->x, footprintRegion->y, *unitDefinition.yardMap, open))
+        if (isYardmapBlocked(footprintRegion->x, footprintRegion->y, *unitDefinition.yardMap, open, unitId))
         {
             return false;
         }
 
         occupiedGrid.forEach2(footprintRegion->x, footprintRegion->y, *unitDefinition.yardMap, [&](auto& cell, const auto& yardMapCell) {
-            cell.buildingCell = BuildingOccupiedCell{unitId, isPassable(yardMapCell, open)};
+            cell.buildingInfo = OccupiedCellBuildingInfo{unitId, isPassable(yardMapCell, open)};
         });
 
         unit.yardOpen = open;
@@ -740,14 +772,9 @@ namespace rwe
         assert(!!footprintRegion);
 
         occupiedGrid.forEach(*footprintRegion, [&](const auto& e) {
-            auto unitId = match(
-                e.occupiedType,
-                [&](const OccupiedUnit& u) { return std::optional(u.id); },
-                [&](const auto&) { return std::optional<UnitId>(); });
-
-            if (unitId)
+            if (e.mobileUnitId)
             {
-                tellToBuggerOff(*unitId, footprintRect);
+                tellToBuggerOff(*e.mobileUnitId, footprintRect);
             }
         });
     }
@@ -875,52 +902,9 @@ namespace rwe
 
     bool projectileCollides(const GameSimulation& sim, const Projectile& projectile, const OccupiedCell& cellValue)
     {
-        auto collidesWithOccupiedCell = match(
-            cellValue.occupiedType,
-            [&](const OccupiedUnit& v) {
-                const auto& unit = sim.getUnitState(v.id);
-
-                if (unit.isOwnedBy(projectile.owner))
-                {
-                    return false;
-                }
-
-                const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
-                const auto& modelDefinition = sim.unitModelDefinitions.at(unitDefinition.objectName);
-
-                // ignore if the projectile is above or below the unit
-                if (projectile.position.y < unit.position.y || projectile.position.y > unit.position.y + modelDefinition.height)
-                {
-                    return false;
-                }
-
-                return true;
-            },
-            [&](const OccupiedFeature& v) {
-                const auto& feature = sim.getFeature(v.id);
-                const auto& featureDefinition = sim.getFeatureDefinition(feature.featureName);
-
-                // ignore if the projectile is above or below the feature
-                if (projectile.position.y < feature.position.y || projectile.position.y > feature.position.y + featureDefinition.height)
-                {
-                    return false;
-                }
-
-                return true;
-            },
-
-            [&](const OccupiedNone&) {
-                return false;
-            });
-
-        if (collidesWithOccupiedCell)
+        if (cellValue.mobileUnitId)
         {
-            return true;
-        }
-
-        if (cellValue.buildingCell && !cellValue.buildingCell->passable)
-        {
-            const auto& unit = sim.getUnitState(cellValue.buildingCell->unit);
+            const auto& unit = sim.getUnitState(*cellValue.mobileUnitId);
 
             if (unit.isOwnedBy(projectile.owner))
             {
@@ -938,6 +922,42 @@ namespace rwe
 
             return true;
         }
+
+        if (cellValue.buildingInfo && !cellValue.buildingInfo->passable)
+        {
+            const auto& unit = sim.getUnitState(cellValue.buildingInfo->unit);
+
+            if (unit.isOwnedBy(projectile.owner))
+            {
+                return false;
+            }
+
+            const auto& unitDefinition = sim.unitDefinitions.at(unit.unitType);
+            const auto& modelDefinition = sim.unitModelDefinitions.at(unitDefinition.objectName);
+
+            // ignore if the projectile is above or below the unit
+            if (projectile.position.y < unit.position.y || projectile.position.y > unit.position.y + modelDefinition.height)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        if (cellValue.featureId)
+        {
+            const auto& feature = sim.getFeature(*cellValue.featureId);
+            const auto& featureDefinition = sim.getFeatureDefinition(feature.featureName);
+
+            // ignore if the projectile is above or below the feature
+            if (projectile.position.y < feature.position.y || projectile.position.y > feature.position.y + featureDefinition.height)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
 
         return false;
     }
@@ -1118,13 +1138,11 @@ namespace rwe
 
           // check if a unit (or feature) is there
           auto occupiedType = occupiedGrid.get(coords);
-          auto u = match(
-              occupiedType.occupiedType,
-              [&](const OccupiedUnit& u) { return std::optional(u.id); },
-              [&](const auto&) { return std::optional<UnitId>(); });
-          if (!u && occupiedType.buildingCell && !occupiedType.buildingCell->passable)
+
+          auto u = occupiedType.mobileUnitId;
+          if (!u && occupiedType.buildingInfo && !occupiedType.buildingInfo->passable)
           {
-              u = occupiedType.buildingCell->unit;
+              u = occupiedType.buildingInfo->unit;
           }
           if (!u)
           {
@@ -1426,7 +1444,6 @@ namespace rwe
         auto featureId = tryGetFeatureDefinitionId(featureType).value();
         auto feature = MapFeature{featureId, position, rotation};
 
-        // FIXME: simulation needs to support failing to spawn in a feature
         addFeature(std::move(feature));
     }
 
@@ -1464,15 +1481,15 @@ namespace rwe
                 }
                 else
                 {
-                    occupiedGrid.forEach(*footprintRegion, [](auto& cell) { cell.occupiedType = OccupiedNone(); });
+                    occupiedGrid.forEach(*footprintRegion, [](auto& cell) { cell.mobileUnitId = std::nullopt; });
                 }
             }
             else
             {
                 occupiedGrid.forEach(*footprintRegion, [&](auto& cell) {
-                  if (cell.buildingCell && cell.buildingCell->unit == it->first)
+                  if (cell.buildingInfo && cell.buildingInfo->unit == it->first)
                   {
-                      cell.buildingCell = std::nullopt;
+                      cell.buildingInfo = std::nullopt;
                   } });
             }
 

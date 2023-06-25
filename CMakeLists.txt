@@ -526,7 +526,6 @@ set(SOURCE_FILES
     src/rwe/sim/MovementClassDatabase.h
     src/rwe/sim/MovementClassDefinition.h
     src/rwe/sim/MovementClassId.h
-    src/rwe/sim/OccupiedGrid.cpp
     src/rwe/sim/OccupiedGrid.h
     src/rwe/sim/PlayerId.h
     src/rwe/sim/Projectile.cpp
