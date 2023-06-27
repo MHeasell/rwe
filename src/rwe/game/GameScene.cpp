@@ -2417,6 +2417,7 @@ namespace rwe
 
     std::optional<UnitId> GameScene::getFirstCollidingUnit(const Ray3f& ray) const
     {
+        auto winnerIsMobile = false;
         auto bestDistance = std::numeric_limits<float>::infinity();
         std::optional<UnitId> it;
 
@@ -2425,7 +2426,8 @@ namespace rwe
             const auto& unitDefinition = simulation.unitDefinitions.at(entry.second.unitType);
             auto selectionMesh = gameMediaDatabase.getSelectionCollisionMesh(unitDefinition.objectName);
             auto distance = selectionIntersect(entry.second, *selectionMesh.value(), ray);
-            if (distance && distance < bestDistance)
+            auto isMobile = unitDefinition.isMobile;
+            if (distance && ((!winnerIsMobile && isMobile) || distance < bestDistance))
             {
                 bestDistance = *distance;
                 it = entry.first;
