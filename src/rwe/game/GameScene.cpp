@@ -2429,6 +2429,7 @@ namespace rwe
             auto isMobile = unitDefinition.isMobile;
             if (distance && ((!winnerIsMobile && isMobile) || distance < bestDistance))
             {
+                winnerIsMobile = isMobile;
                 bestDistance = *distance;
                 it = entry.first;
             }
