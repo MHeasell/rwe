@@ -104,13 +104,13 @@ namespace rwe
 
         PathDestination resolvePathDestination(UnitState& s, const MovingStateGoal& goal);
 
-        bool groundUnitMoveTo(UnitInfo unitInfo, const MovingStateGoal& goal);
+        void groundUnitMoveTo(UnitInfo unitInfo, const MovingStateGoal& goal);
 
         bool flyingUnitMoveTo(UnitInfo unitInfo, const MovingStateGoal& goal);
 
         bool navigateTo(UnitInfo unitInfo, const NavigationGoal& goal);
 
-        bool moveTo(UnitInfo unitInfo, const MovingStateGoal& goal);
+        void moveTo(UnitInfo unitInfo, const MovingStateGoal& goal);
 
         bool attackTarget(UnitInfo unitInfo, const AttackTarget& target);
 

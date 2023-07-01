@@ -1191,7 +1191,7 @@ namespace rwe
             });
     }
 
-    bool UnitBehaviorService::groundUnitMoveTo(UnitInfo unitInfo, const MovingStateGoal& goal)
+    void UnitBehaviorService::groundUnitMoveTo(UnitInfo unitInfo, const MovingStateGoal& goal)
     {
         auto movingState = std::get_if<NavigationStateMoving>(&unitInfo.state->navigationState.state);
 
@@ -1200,7 +1200,7 @@ namespace rwe
             // request a path to follow
             unitInfo.state->navigationState.state = NavigationStateMoving{goal, resolvePathDestination(*unitInfo.state, goal), std::nullopt, true};
             sim->requestPath(unitInfo.id);
-            return false;
+            return;
         }
 
         // check to see if our goal has moved from its original location
@@ -1239,12 +1239,17 @@ namespace rwe
             }
             if (followPath(unitInfo, *groundPhysics, *movingState->path))
             {
-                // we finished following the path
-                return true;
+                // We finished following the path.
+                // This doesn't necessarily mean we are at the goal.
+                // The path might have been a partial path.
+                // Request a new path to get us the rest of the way there.
+                if (!movingState->path || (sim->gameTime - movingState->path->pathCreationTime) >= GameTime(30))
+                {
+                    sim->requestPath(unitInfo.id);
+                    movingState->pathRequested = true;
+                }
             }
         }
-
-        return false;
     }
 
     bool UnitBehaviorService::flyingUnitMoveTo(UnitInfo unitInfo, const MovingStateGoal& goal)
@@ -1267,15 +1272,15 @@ namespace rwe
         return hasReachedGoal(*sim, sim->terrain, *unitInfo.state, *unitInfo.definition, goal);
     }
 
-    bool UnitBehaviorService::moveTo(UnitInfo unitInfo, const MovingStateGoal& goal)
+    void UnitBehaviorService::moveTo(UnitInfo unitInfo, const MovingStateGoal& goal)
     {
         if (unitInfo.definition->canFly)
         {
-            return flyingUnitMoveTo(unitInfo, goal);
+            flyingUnitMoveTo(unitInfo, goal);
         }
         else
         {
-            return groundUnitMoveTo(unitInfo, goal);
+            groundUnitMoveTo(unitInfo, goal);
         }
     }
 
