@@ -1094,7 +1094,19 @@ namespace rwe
         auto& unit = getUnitState(unitId);
         if (unit.hitPoints <= damagePoints)
         {
-            killUnit(unitId);
+            const auto& unitDefinition = unitDefinitions.at(unit.unitType);
+            if (unit.isBeingBuilt(unitDefinition))
+            {
+                // Units that are still under construction
+                // die quietly without a corpse.
+                // FIXME: units in TA that are not actively receiving build input
+                // die with an explosion, even though they leave no corpse.
+                quietlyKillUnit(unitId);
+            }
+            else
+            {
+                killUnit(unitId);
+            }
         }
         else
         {
