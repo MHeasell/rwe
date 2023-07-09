@@ -562,6 +562,16 @@ namespace rwe
         return it->second;
     }
 
+    std::optional<std::reference_wrapper<MapFeature>> GameSimulation::tryGetFeature(FeatureId id)
+    {
+        return tryFind(features, id);
+    }
+
+    std::optional<std::reference_wrapper<const MapFeature>> GameSimulation::tryGetFeature(FeatureId id) const
+    {
+        return tryFind(features, id);
+    }
+
     GamePlayerInfo& GameSimulation::getPlayer(PlayerId player)
     {
         return players.at(player.value);

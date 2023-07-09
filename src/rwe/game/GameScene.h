@@ -31,6 +31,7 @@
 #include <rwe/observable/BehaviorSubject.h>
 #include <rwe/scene/Scene.h>
 #include <rwe/scene/util.h>
+#include <rwe/sim/FeatureId.h>
 #include <rwe/sim/GameSimulation.h>
 #include <rwe/sim/OccupiedGrid.h>
 #include <rwe/sim/PlayerId.h>
@@ -251,6 +252,7 @@ namespace rwe
         std::optional<UnitId> trackedUnitId;
 
         std::optional<UnitId> hoveredUnit;
+        std::optional<FeatureId> hoveredFeature;
         std::unordered_set<UnitId> selectedUnits;
 
         std::optional<HoverBuildInfo> hoverBuildInfo;
@@ -394,6 +396,7 @@ namespace rwe
         void tryTickGame();
 
         std::optional<UnitId> getUnitUnderCursor() const;
+        std::optional<FeatureId> getFeatureUnderCursor() const;
 
         Vector2f screenToWorldClipSpace(Point p) const;
 
@@ -404,6 +407,7 @@ namespace rwe
         Point getMousePosition() const;
 
         std::optional<UnitId> getFirstCollidingUnit(const Ray3f& ray) const;
+        std::optional<FeatureId> getFirstCollidingFeature(const Ray3f& ray) const;
 
         /**
          * Returns a value if the given ray intersects this unit

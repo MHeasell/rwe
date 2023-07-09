@@ -347,6 +347,10 @@ namespace rwe
 
         const MapFeature& getFeature(FeatureId id) const;
 
+        std::optional<std::reference_wrapper<MapFeature>> tryGetFeature(FeatureId id);
+
+        std::optional<std::reference_wrapper<const MapFeature>> tryGetFeature(FeatureId id) const;
+
         GamePlayerInfo& getPlayer(PlayerId player);
 
         const GamePlayerInfo& getPlayer(PlayerId player) const;

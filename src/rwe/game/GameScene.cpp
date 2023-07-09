@@ -470,6 +470,31 @@ namespace rwe
                 }
             }
         }
+        else if (hoveredFeature)
+        {
+            const auto& feature = simulation.getFeature(*hoveredFeature);
+            const auto& featureDefinition = simulation.getFeatureDefinition(feature.featureName);
+            const auto& featureMediaInfo = gameMediaDatabase.getFeature(feature.featureName);
+
+            {
+                const auto& rect = localSideData._name;
+                auto text = featureMediaInfo.description;
+                if (featureDefinition.reclaimable)
+                {
+                    text += " ";
+                    if (featureDefinition.metal > 0)
+                    {
+                        text += " M:" + formatResource(Metal(featureDefinition.metal));
+                    }
+
+                    if (featureDefinition.energy > 0)
+                    {
+                        text += " E:" + formatResource(Energy(featureDefinition.energy));
+                    }
+                }
+                chromeUiRenderService.drawText(rect.x1, extraBottom + rect.y1, text, *guiFont);
+            }
+        }
         else if (auto hoveredBuildButtonUnitType = getUnitBuildButtonUnderCursor(); hoveredBuildButtonUnitType)
         {
             const auto& unitDefinition = simulation.unitDefinitions.at(*hoveredBuildButtonUnitType);
@@ -1848,6 +1873,7 @@ namespace rwe
         }
 
         hoveredUnit = getUnitUnderCursor();
+        hoveredFeature = getFeatureUnderCursor();
 
         if (auto buildCursor = std::get_if<BuildCursorMode>(&cursorMode.getValue()); buildCursor != nullptr && isCursorOverWorld())
         {
@@ -2391,6 +2417,17 @@ namespace rwe
         return std::nullopt;
     }
 
+    std::optional<FeatureId> GameScene::getFeatureUnderCursor() const
+    {
+        if (!isCursorOverWorld())
+        {
+            return std::nullopt;
+        }
+
+        auto ray = screenToWorldRayUtil(computeInverseViewProjectionMatrix(worldCameraState, worldViewport.width(), worldViewport.height()), screenToWorldClipSpace(getMousePosition()));
+        return getFirstCollidingFeature(ray);
+    }
+
     Vector2f GameScene::screenToWorldClipSpace(Point p) const
     {
         return worldViewport.toClipSpace(sceneContext.viewport->toOtherViewport(worldViewport, p));
@@ -2436,6 +2473,25 @@ namespace rwe
         }
 
         return it;
+    }
+
+    std::optional<FeatureId> GameScene::getFirstCollidingFeature(const Ray3f& ray) const
+    {
+        auto intersect = simulation.intersectLineWithTerrain(floatToSimLine(ray.toLine()));
+        if (!intersect)
+        {
+            return std::nullopt;
+        }
+
+        auto heightmapPosition = simulation.terrain.worldToHeightmapCoordinate(*intersect);
+
+        auto cellContents = simulation.occupiedGrid.tryGet(heightmapPosition);
+        if (!cellContents)
+        {
+            return std::nullopt;
+        }
+
+        return cellContents->get().featureId;
     }
 
     std::optional<float> GameScene::selectionIntersect(const UnitState& unit, const CollisionMesh& mesh, const Ray3f& ray) const
