@@ -301,7 +301,7 @@ namespace rwe
                 return AttackOrder(deserializeVector(attack.ground()));
             }
 
-            throw std::runtime_error("Failed to deserlialize attack order");
+            throw std::runtime_error("Failed to deserialize attack order");
         }
 
         if (cmd.has_build())
