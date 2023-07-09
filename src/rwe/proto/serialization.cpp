@@ -1,4 +1,5 @@
 #include "serialization.h"
+#include <rwe/util/match.h>
 
 
 namespace rwe
@@ -68,6 +69,19 @@ namespace rwe
         {
             auto& out = *cmd->mutable_guard();
             out.set_unit(o.target.value);
+        }
+
+        void operator()(const ReclaimOrder& o)
+        {
+            auto& out = *cmd->mutable_reclaim();
+            match(
+                o.target,
+                [&](const UnitId& u) {
+                    out.set_unit(u.value);
+                },
+                [&](const FeatureId& f) {
+                    out.set_feature(f.value);
+                });
         }
     };
 
@@ -320,6 +334,20 @@ namespace rwe
         {
             const auto& guard = cmd.guard();
             return GuardOrder(UnitId(guard.unit()));
+        }
+
+        if (cmd.has_reclaim())
+        {
+            const auto& reclaim = cmd.reclaim();
+            if (reclaim.has_unit())
+            {
+                return ReclaimOrder(UnitId(reclaim.unit()));
+            }
+            if (reclaim.has_feature())
+            {
+                return ReclaimOrder(FeatureId(reclaim.feature()));
+            }
+            throw std::runtime_error("Failed to deserialize reclaim order");
         }
 
         throw std::runtime_error("Failed to deserlialize unit order");

@@ -18,6 +18,7 @@ namespace rwe
         Move,
         Guard,
         Repair,
+        Reclaim,
         Red,
         Green,
         NUM_CURSORS

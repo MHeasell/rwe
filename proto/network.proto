@@ -50,6 +50,14 @@ message GuardOrder
     required int32 unit = 1;
 }
 
+message ReclaimOrder
+{
+    oneof target {
+        int32 unit = 1;
+        int32 feature = 2;
+    }
+}
+
 message PlayerUnitCommand
 {
     message IssueOrder
@@ -68,6 +76,7 @@ message PlayerUnitCommand
             BuildOrder build = 4;
             CompleteBuildOrder complete_build = 5;
             GuardOrder guard = 6;
+            ReclaimOrder reclaim = 7;
         }
     }
 

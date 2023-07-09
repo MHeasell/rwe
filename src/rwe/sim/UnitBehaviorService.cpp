@@ -841,6 +841,9 @@ namespace rwe
             },
             [&](const GuardOrder& o) {
                 return handleGuardOrder(unitInfo, o);
+            },
+            [&](const ReclaimOrder& o) {
+                return handleReclaimOrder(unitInfo, o);
             });
     }
 
@@ -966,6 +969,13 @@ namespace rwe
         }
 
         return false;
+    }
+
+    bool UnitBehaviorService::handleReclaimOrder(UnitInfo unitInfo, const ReclaimOrder& reclaimOrder)
+    {
+        return true;
+
+        // TODO: implement reclaim order
     }
 
     bool UnitBehaviorService::handleBuild(UnitInfo unitInfo, const std::string& unitType)

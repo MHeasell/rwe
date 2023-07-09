@@ -1,6 +1,7 @@
 #pragma once
 
 #include <rwe/grid/DiscreteRect.h>
+#include <rwe/sim/FeatureId.h>
 #include <rwe/sim/SimVector.h>
 #include <rwe/sim/UnitId.h>
 #include <variant>
@@ -48,5 +49,12 @@ namespace rwe
         explicit GuardOrder(const UnitId& target) : target(target) {}
     };
 
-    using UnitOrder = std::variant<MoveOrder, AttackOrder, BuildOrder, BuggerOffOrder, CompleteBuildOrder, GuardOrder>;
+    struct ReclaimOrder
+    {
+        std::variant<UnitId, FeatureId> target;
+        explicit ReclaimOrder(const UnitId& target) : target(target) {}
+        explicit ReclaimOrder(const FeatureId& target) : target(target) {}
+    };
+
+    using UnitOrder = std::variant<MoveOrder, AttackOrder, BuildOrder, BuggerOffOrder, CompleteBuildOrder, GuardOrder, ReclaimOrder>;
 }
