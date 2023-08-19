@@ -94,7 +94,7 @@ Download and install MSYS2 (http://www.msys2.org/)
 
 Install the required packages:
 
-    pacman -S make unzip mingw-w64-x86_64-cmake mingw-w64-x86_64-toolchain
+    pacman -S make unzip mingw-w64-x86_64-cmake mingw-w64-x86_64-toolchain "${MINGW_PACKAGE_PREFIX}-autotools"
     pacman -S \
       mingw-w64-x86_64-boost \
       mingw-w64-x86_64-SDL2 \
