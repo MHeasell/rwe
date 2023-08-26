@@ -82,6 +82,7 @@ namespace rwe
         tdf.readOrDefault("ExtractsMetal", u.extractsMetal);
         tdf.readOrDefault("EnergyStorage", u.energyStorage);
         tdf.readOrDefault("MetalStorage", u.metalStorage);
+        tdf.readOrDefault("WindGenerator", u.windGenerator);
 
         tdf.readOrDefault("MakesMetal", u.makesMetal);
 

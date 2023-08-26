@@ -119,6 +119,8 @@ namespace rwe
         Energy energyStorage;
         Metal metalStorage;
 
+        Energy windGenerator;
+
         std::optional<Grid<YardMapCell>> yardMap;
 
         std::string corpse;

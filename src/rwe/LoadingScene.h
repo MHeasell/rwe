@@ -127,6 +127,8 @@ namespace rwe
         {
             MapTerrain terrain;
             unsigned char surfaceMetal;
+            int minWindSpeed;
+            int maxWindSpeed;
             std::vector<std::pair<Point, std::string>> features;
             MapTerrainGraphics terrainGraphics;
         };

@@ -280,7 +280,15 @@ namespace rwe
 
         std::vector<GameEvent> events;
 
-        explicit GameSimulation(MapTerrain&& terrain, unsigned char surfaceMetal);
+        float currentWindGenerationFactor;
+
+        const int minWindSpeed;
+
+        const int maxWindSpeed;
+
+        GameTime nextWindSpeedChange;
+
+        explicit GameSimulation(MapTerrain&& terrain, unsigned char surfaceMetal, int minWindSpeed, int maxWindSpeed);
 
         std::optional<FeatureId> addFeature(MapFeature&& newFeature);
 
@@ -433,6 +441,8 @@ namespace rwe
         void killPlayer(PlayerId playerId);
 
         void processVictoryCondition();
+
+        void updateWind();
 
         void updateResources();
 

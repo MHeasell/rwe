@@ -167,7 +167,7 @@ namespace rwe
 
         auto movementClassCollisionService = createMovementClassCollisionService(mapInfo.terrain, dataMaps.movementClassDatabase);
 
-        GameSimulation simulation(std::move(mapInfo.terrain), mapInfo.surfaceMetal);
+        GameSimulation simulation(std::move(mapInfo.terrain), mapInfo.surfaceMetal, mapInfo.minWindSpeed, mapInfo.maxWindSpeed);
 
         simulation.unitDefinitions = std::move(dataMaps.unitDefinitions);
         simulation.weaponDefinitions = std::move(dataMaps.weaponDefinitions);
@@ -375,7 +375,7 @@ namespace rwe
             features.emplace_back(Point(f.xPos, f.zPos), f.featureName);
         }
 
-        return LoadMapResult{std::move(terrain), static_cast<unsigned char>(schema.surfaceMetal), std::move(features), std::move(terrainGraphics)};
+        return LoadMapResult{std::move(terrain), static_cast<unsigned char>(schema.surfaceMetal), ota.minWindSpeed, ota.maxWindSpeed, std::move(features), std::move(terrainGraphics)};
     }
 
     std::vector<TextureArrayRegion> LoadingScene::getTileTextures(TntArchive& tnt)

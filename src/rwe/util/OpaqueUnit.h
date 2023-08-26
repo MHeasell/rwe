@@ -28,6 +28,12 @@ namespace rwe
             this->value -= b.value;
             return *this;
         };
+        OpaqueUnit<T, Tag> operator*(const OpaqueUnit<T, Tag>& b) const { return OpaqueUnit<T, Tag>(this->value * b.value); };
+        OpaqueUnit<T, Tag>& operator*=(const OpaqueUnit<T, Tag>& b)
+        {
+            this->value *= b.value;
+            return *this;
+        };
         OpaqueUnit<T, Tag> operator%(const OpaqueUnit<T, Tag>& b) const { return OpaqueUnit<T, Tag>(this->value % b.value); };
     };
 }
