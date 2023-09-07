@@ -77,6 +77,8 @@ namespace rwe
         Energy energyStorage;
         Metal metalStorage;
 
+        Energy windGenerator;
+
         bool hideDamage;
         bool showPlayerName;
 

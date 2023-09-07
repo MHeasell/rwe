@@ -83,10 +83,14 @@ namespace rwe
         return !(rhs == *this);
     }
 
-    GameSimulation::GameSimulation(MapTerrain&& terrain, unsigned char surfaceMetal)
+    GameSimulation::GameSimulation(MapTerrain&& terrain, unsigned char surfaceMetal, int minWindSpeed, int maxWindSpeed)
         : terrain(std::move(terrain)),
           occupiedGrid(this->terrain.getHeightMap().getWidth() - 1, this->terrain.getHeightMap().getHeight() - 1, OccupiedCell()),
-          metalGrid(this->terrain.getHeightMap().getWidth() - 1, this->terrain.getHeightMap().getHeight() - 1, surfaceMetal)
+          metalGrid(this->terrain.getHeightMap().getWidth() - 1, this->terrain.getHeightMap().getHeight() - 1, surfaceMetal),
+          currentWindGenerationFactor(0.0f),
+          minWindSpeed(minWindSpeed),
+          maxWindSpeed(maxWindSpeed),
+          nextWindSpeedChange(gameTime)
     {
     }
 
@@ -1344,6 +1348,24 @@ namespace rwe
         }
     }
 
+    void GameSimulation::updateWind()
+    {
+        if (gameTime >= nextWindSpeedChange)
+        {
+            // the wind speed will last between 5 and 14 seconds before changing
+            std::uniform_int_distribution<unsigned int> durationDist(0, 9);
+            auto randomDuration = durationDist(rng);
+            nextWindSpeedChange = gameTime + GameTime((5 + randomDuration) * SimTicksPerSecond);
+
+            // the new wind speed is taken from a uniform distribution between the min and max speeds
+            std::uniform_int_distribution<unsigned int> speedDist(minWindSpeed, maxWindSpeed);
+            const int currentWindSpeed = speedDist(rng);
+
+            constexpr int maxUtilizableWindSpeed = 5000;
+            currentWindGenerationFactor = std::clamp(currentWindSpeed, 0, maxUtilizableWindSpeed) / static_cast<float>(maxUtilizableWindSpeed);
+        }
+    }
+
     void GameSimulation::updateResources()
     {
         // run resource updates once per second
@@ -1437,6 +1459,12 @@ namespace rwe
 
                 if (unit.activated)
                 {
+                    if (unitDefinition.windGenerator != Energy(0))
+                    {
+                        // generate energy from wind
+                        addResourceDelta(unitId, unitDefinition.windGenerator * Energy(currentWindGenerationFactor), Metal(0));
+                    }
+
                     if (unit.isSufficientlyPowered)
                     {
                         // extract metal
@@ -1594,6 +1622,8 @@ namespace rwe
     void GameSimulation::tick()
     {
         gameTime += GameTime(1);
+
+        updateWind();
 
         updateResources();
 

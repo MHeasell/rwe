@@ -311,6 +311,8 @@ namespace rwe
         u.energyStorage = fbi.energyStorage;
         u.metalStorage = fbi.metalStorage;
 
+        u.windGenerator = fbi.windGenerator;
+
         u.corpse = fbi.corpse;
 
         u.hideDamage = fbi.hideDamage;
