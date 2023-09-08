@@ -1474,6 +1474,12 @@ namespace rwe
                             auto metalValue = metalGrid.accumulate(metalGrid.clipRegion(footprint), 0u, std::plus<>());
                             addResourceDelta(unitId, Energy(0), Metal(metalValue * unitDefinition.extractsMetal.value));
                         }
+
+                        // make metal
+                        if (unitDefinition.makesMetal != Metal(0))
+                        {
+                            addResourceDelta(unitId, Energy(0), unitDefinition.makesMetal);
+                        }
                     }
 
                     unit.isSufficientlyPowered = addResourceDelta(unitId, -unitDefinition.energyUse, -unitDefinition.metalUse);
