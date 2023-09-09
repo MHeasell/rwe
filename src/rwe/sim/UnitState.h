@@ -141,6 +141,8 @@ namespace rwe
 
     bool isWater(YardMapCell cell);
 
+    bool isGeo(YardMapCell cell);
+
     bool isPassable(YardMapCell cell, bool yardMapOpen);
 
     struct SteeringInfo

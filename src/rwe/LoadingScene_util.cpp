@@ -320,6 +320,8 @@ namespace rwe
 
         u.soundCategory = fbi.soundCategory;
 
+        u.yardMapContainsGeo = false;
+
         auto movementClassId = movementClassDatabase.resolveMovementClassByName(fbi.movementClass);
 
         if (movementClassId)
@@ -341,6 +343,10 @@ namespace rwe
             if (u.yardMap->any(isWater))
             {
                 u.floater = true;
+            }
+            if (u.yardMap->any(isGeo))
+            {
+                u.yardMapContainsGeo = true;
             }
         }
 

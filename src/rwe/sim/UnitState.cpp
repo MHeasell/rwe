@@ -34,6 +34,11 @@ namespace rwe
         }
     }
 
+    bool isGeo(YardMapCell cell)
+    {
+        return cell == YardMapCell::Geo;
+    }
+
     bool isPassable(YardMapCell cell, bool yardMapOpen)
     {
         switch (cell)
