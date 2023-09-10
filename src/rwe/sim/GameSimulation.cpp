@@ -316,11 +316,9 @@ namespace rwe
         return unitId;
     }
 
-    bool GameSimulation::canBeBuiltAt(const rwe::MovementClassDefinition& mc, bool yardMapContainsGeo, unsigned int x, unsigned int y) const
+    bool GameSimulation::canBeBuiltAt(const rwe::MovementClassDefinition& mc, const std::optional<Grid<YardMapCell>>& yardMap, bool yardMapContainsGeo, unsigned int x, unsigned int y) const
     {
-        auto rect = DiscreteRect(x, y, mc.footprintX, mc.footprintZ);
-
-        if (isCollisionAt(rect))
+        if (isCollisionAt(DiscreteRect(x, y, mc.footprintX, mc.footprintZ)))
         {
             return false;
         }
@@ -330,7 +328,7 @@ namespace rwe
             return false;
         }
 
-        if (yardMapContainsGeo && !containsGeo(rect))
+        if (yardMapContainsGeo && yardMap && !containsAnyGeoMatch(*yardMap, x, y))
         {
             return false;
         }
@@ -371,9 +369,11 @@ namespace rwe
         });
     }
 
-    bool GameSimulation::containsGeo(const DiscreteRect& rect) const
+    bool GameSimulation::containsAnyGeoMatch(const Grid<YardMapCell>& yardMap, unsigned int x, unsigned int y) const
     {
-       return geoGrid.accumulate(geoGrid.clipRegion(rect), 0u, std::logical_or<>());
+        return geoGrid.any2(x, y, yardMap, [](const bool& geo, const YardMapCell& cell) {
+            return geo && isGeo(cell);
+        });
     }
 
     bool GameSimulation::isCollisionAt(const DiscreteRect& rect) const

@@ -311,7 +311,7 @@ namespace rwe
          * could be built at given location on the map -- i.e. it is valid terrain
          * for the unit, it is not occupied by something else, and it contains geo if required.
          */
-        bool canBeBuiltAt(const MovementClassDefinition& mc, bool yardMapContainsGeo, unsigned int x, unsigned int y) const;
+        bool canBeBuiltAt(const MovementClassDefinition& mc, const std::optional<Grid<YardMapCell>>& yardMap, bool yardMapContainsGeo, unsigned int x, unsigned int y) const;
 
         DiscreteRect computeFootprintRegion(const SimVector& position, unsigned int footprintX, unsigned int footprintZ) const;
 
@@ -319,7 +319,7 @@ namespace rwe
 
         bool anyFeatureOccupies(const DiscreteRect& rect) const;
 
-        bool containsGeo(const DiscreteRect& rect) const;
+        bool containsAnyGeoMatch(const Grid<YardMapCell>& yardMap, unsigned int x, unsigned int y) const;
 
         bool isCollisionAt(const DiscreteRect& rect) const;
 

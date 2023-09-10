@@ -1887,7 +1887,7 @@ namespace rwe
                 const auto& unitDefinition = simulation.unitDefinitions.at(unitType);
                 auto mc = simulation.getAdHocMovementClass(unitDefinition.movementCollisionInfo);
                 auto footprintRect = simulation.computeFootprintRegion(pos, unitDefinition.movementCollisionInfo);
-                auto isValid = simulation.canBeBuiltAt(mc, unitDefinition.yardMapContainsGeo, footprintRect.x, footprintRect.y);
+                auto isValid = simulation.canBeBuiltAt(mc, unitDefinition.yardMap, unitDefinition.yardMapContainsGeo, footprintRect.x, footprintRect.y);
                 hoverBuildInfo = HoverBuildInfo{footprintRect, isValid};
             }
             else
