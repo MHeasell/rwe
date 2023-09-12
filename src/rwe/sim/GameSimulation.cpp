@@ -1370,9 +1370,8 @@ namespace rwe
         if (gameTime >= nextWindSpeedChange)
         {
             // the wind speed will last between 5 and 14 seconds before changing
-            std::uniform_int_distribution<int> durationDist(0, 9);
-            auto randomDuration = durationDist(rng);
-            nextWindSpeedChange = gameTime + GameTime((5 + randomDuration) * SimTicksPerSecond);
+            std::uniform_int_distribution<int> durationDist(5, 14);
+            nextWindSpeedChange = gameTime + GameTime(durationDist(rng) * SimTicksPerSecond);
 
             // the new wind speed is taken from a uniform distribution between the min and max speeds
             std::uniform_int_distribution<int> speedDist(minWindSpeed, maxWindSpeed);
