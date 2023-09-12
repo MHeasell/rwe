@@ -368,9 +368,6 @@ set(SOURCE_FILES
     src/rwe/io/_3do/_3do.h
     src/rwe/io/cob/Cob.cpp
     src/rwe/io/cob/Cob.h
-    src/rwe/io/fbi/FbiAnglePerTick.h
-    src/rwe/io/fbi/FbiDistancePerTick.h
-    src/rwe/io/fbi/FbiDistancePerTickSquared.h
     src/rwe/io/fbi/UnitFbi.h
     src/rwe/io/fbi/io.cpp
     src/rwe/io/fbi/io.h

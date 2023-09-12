@@ -260,10 +260,10 @@ namespace rwe
         u.unitDescription = fbi.description;
         u.objectName = fbi.objectName;
 
-        u.turnRate = toWorldAnglePerTick(fbi.turnRate);
-        u.maxVelocity = SimScalar(fbi.maxVelocity.value);
-        u.acceleration = SimScalar(fbi.acceleration.value);
-        u.brakeRate = SimScalar(fbi.brakeRate.value);
+        u.turnRate = SimScalar(fbi.turnRate);
+        u.maxVelocity = SimScalar(fbi.maxVelocity);
+        u.acceleration = SimScalar(fbi.acceleration);
+        u.brakeRate = SimScalar(fbi.brakeRate);
 
         u.canAttack = fbi.canAttack;
         u.canMove = fbi.canMove;
@@ -290,8 +290,8 @@ namespace rwe
 
         u.builder = fbi.builder;
         u.buildTime = fbi.buildTime;
-        u.buildCostEnergy = fbi.buildCostEnergy;
-        u.buildCostMetal = fbi.buildCostMetal;
+        u.buildCostEnergy = Energy(fbi.buildCostEnergy);
+        u.buildCostMetal = Metal(fbi.buildCostMetal);
 
         u.workerTimePerTick = fbi.workerTime / 30;
 
@@ -300,18 +300,18 @@ namespace rwe
         u.onOffable = fbi.onOffable;
         u.activateWhenBuilt = fbi.activateWhenBuilt;
 
-        u.energyMake = fbi.energyMake;
-        u.metalMake = fbi.metalMake;
-        u.energyUse = fbi.energyUse;
-        u.metalUse = fbi.metalUse;
+        u.energyMake = Energy(fbi.energyMake);
+        u.metalMake = Metal(fbi.metalMake);
+        u.energyUse = Energy(fbi.energyUse);
+        u.metalUse = Metal(fbi.metalUse);
 
-        u.makesMetal = fbi.makesMetal;
-        u.extractsMetal = fbi.extractsMetal;
+        u.makesMetal = Metal(fbi.makesMetal);
+        u.extractsMetal = Metal(fbi.extractsMetal);
 
-        u.energyStorage = fbi.energyStorage;
-        u.metalStorage = fbi.metalStorage;
+        u.energyStorage = Energy(fbi.energyStorage);
+        u.metalStorage = Metal(fbi.metalStorage);
 
-        u.windGenerator = fbi.windGenerator;
+        u.windGenerator = Energy(fbi.windGenerator);
 
         u.corpse = fbi.corpse;
 

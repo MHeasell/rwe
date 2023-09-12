@@ -1,10 +1,5 @@
 #pragma once
 
-#include <rwe/io/fbi/FbiAnglePerTick.h>
-#include <rwe/io/fbi/FbiDistancePerTick.h>
-#include <rwe/io/fbi/FbiDistancePerTickSquared.h>
-#include <rwe/sim/Energy.h>
-#include <rwe/sim/Metal.h>
 #include <string>
 
 namespace rwe
@@ -19,10 +14,10 @@ namespace rwe
         std::string name;
         std::string description;
 
-        FbiAnglePerTick turnRate;
-        FbiDistancePerTick maxVelocity;
-        FbiDistancePerTickSquared acceleration;
-        FbiDistancePerTickSquared brakeRate;
+        unsigned int turnRate;
+        float maxVelocity;
+        float acceleration;
+        float brakeRate;
 
         unsigned int footprintX;
         unsigned int footprintZ;
@@ -56,8 +51,8 @@ namespace rwe
 
         bool builder;
         unsigned int buildTime;
-        Energy buildCostEnergy;
-        Metal buildCostMetal;
+        unsigned int buildCostEnergy;
+        unsigned int buildCostMetal;
 
         unsigned int workerTime;
 
@@ -66,18 +61,18 @@ namespace rwe
         bool onOffable;
         bool activateWhenBuilt;
 
-        Energy energyMake;
-        Metal metalMake;
-        Energy energyUse;
-        Metal metalUse;
+        float energyMake;
+        float metalMake;
+        float energyUse;
+        float metalUse;
 
-        Metal makesMetal;
-        Metal extractsMetal;
+        float makesMetal;
+        float extractsMetal;
 
-        Energy energyStorage;
-        Metal metalStorage;
+        unsigned int energyStorage;
+        unsigned int metalStorage;
 
-        Energy windGenerator;
+        unsigned int windGenerator;
 
         bool hideDamage;
         bool showPlayerName;
