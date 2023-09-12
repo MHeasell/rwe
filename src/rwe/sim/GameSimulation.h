@@ -282,7 +282,7 @@ namespace rwe
 
         std::vector<GameEvent> events;
 
-        float currentWindGenerationFactor;
+        SimScalar currentWindGenerationFactor{0_ss};
 
         const int minWindSpeed;
 

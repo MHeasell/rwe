@@ -88,7 +88,6 @@ namespace rwe
           occupiedGrid(this->terrain.getHeightMap().getWidth() - 1, this->terrain.getHeightMap().getHeight() - 1, OccupiedCell()),
           metalGrid(this->terrain.getHeightMap().getWidth() - 1, this->terrain.getHeightMap().getHeight() - 1, surfaceMetal),
           geoGrid(this->terrain.getHeightMap().getWidth() - 1, this->terrain.getHeightMap().getHeight() - 1, false),
-          currentWindGenerationFactor(0.0f),
           minWindSpeed(minWindSpeed),
           maxWindSpeed(maxWindSpeed),
           nextWindSpeedChange(gameTime)
