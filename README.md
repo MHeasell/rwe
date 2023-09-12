@@ -94,7 +94,7 @@ Download and install MSYS2 (http://www.msys2.org/)
 
 Choose to run at the end of install, and in the terminal that opens install the required packages:
 
-    pacman -S make unzip mingw-w64-x86_64-cmake mingw-w64-x86_64-toolchain
+    pacman -S git make unzip mingw-w64-x86_64-cmake mingw-w64-x86_64-toolchain
     pacman -S \
       mingw-w64-x86_64-boost \
       mingw-w64-x86_64-SDL2 \
@@ -103,8 +103,7 @@ Choose to run at the end of install, and in the terminal that opens install the 
       mingw-w64-x86_64-glew \
       mingw-w64-x86_64-smpeg2 \
       mingw-w64-x86_64-zlib \
-      mingw-w64-x86_64-libpng \
-      git
+      mingw-w64-x86_64-libpng
 
 Close the terminal, and open the `MSYS2 MinGW64` terminal
 (a shortcut should be in the start menu under MSYS2 - the default install points to C:\msys64\mingw64.exe starting in C:\msys64 directory)
