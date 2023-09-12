@@ -1375,10 +1375,9 @@ namespace rwe
 
             // the new wind speed is taken from a uniform distribution between the min and max speeds
             std::uniform_int_distribution<int> speedDist(minWindSpeed, maxWindSpeed);
-            auto currentWindSpeed = SimScalar(speedDist(rng));
+            auto currentWindSpeed = speedDist(rng);
 
-            constexpr auto maxUtilizableWindSpeed = 5000_ss;
-            currentWindGenerationFactor = std::clamp(currentWindSpeed, 0_ss, maxUtilizableWindSpeed) / maxUtilizableWindSpeed;
+            currentWindGenerationFactor = SimScalar(currentWindSpeed) / SimScalar(MaxUtilizableWindSpeed);
         }
     }
 

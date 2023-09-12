@@ -167,7 +167,7 @@ namespace rwe
 
         auto movementClassCollisionService = createMovementClassCollisionService(mapInfo.terrain, dataMaps.movementClassDatabase);
 
-        GameSimulation simulation(std::move(mapInfo.terrain), mapInfo.surfaceMetal, mapInfo.minWindSpeed, mapInfo.maxWindSpeed);
+        GameSimulation simulation(std::move(mapInfo.terrain), mapInfo.surfaceMetal, std::max(0, mapInfo.minWindSpeed), std::min(mapInfo.maxWindSpeed, MaxUtilizableWindSpeed));
 
         simulation.unitDefinitions = std::move(dataMaps.unitDefinitions);
         simulation.weaponDefinitions = std::move(dataMaps.weaponDefinitions);

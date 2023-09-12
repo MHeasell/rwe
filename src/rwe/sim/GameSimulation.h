@@ -30,6 +30,8 @@
 
 namespace rwe
 {
+    constexpr int MaxUtilizableWindSpeed = 5000;
+
     enum class GamePlayerStatus
     {
         Alive,
