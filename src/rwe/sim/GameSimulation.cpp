@@ -1376,10 +1376,10 @@ namespace rwe
 
             // the new wind speed is taken from a uniform distribution between the min and max speeds
             std::uniform_int_distribution<unsigned int> speedDist(minWindSpeed, maxWindSpeed);
-            const int currentWindSpeed = speedDist(rng);
+            auto currentWindSpeed = SimScalar(speedDist(rng));
 
-            constexpr int maxUtilizableWindSpeed = 5000;
-            currentWindGenerationFactor = std::clamp(currentWindSpeed, 0, maxUtilizableWindSpeed) / static_cast<float>(maxUtilizableWindSpeed);
+            constexpr auto maxUtilizableWindSpeed = 5000_ss;
+            currentWindGenerationFactor = std::clamp(currentWindSpeed, 0_ss, maxUtilizableWindSpeed) / maxUtilizableWindSpeed;
         }
     }
 
@@ -1479,7 +1479,7 @@ namespace rwe
                     if (unitDefinition.windGenerator != Energy(0))
                     {
                         // generate energy from wind
-                        addResourceDelta(unitId, unitDefinition.windGenerator * Energy(currentWindGenerationFactor), Metal(0));
+                        addResourceDelta(unitId, unitDefinition.windGenerator * currentWindGenerationFactor, Metal(0));
                     }
 
                     if (unit.isSufficientlyPowered)

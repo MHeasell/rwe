@@ -499,6 +499,7 @@ set(SOURCE_FILES
     src/rwe/sdl/SdlImageException.h
     src/rwe/sdl/SdlMixerContext.h
     src/rwe/sdl/SdlMixerException.h
+    src/rwe/sim/Energy.cpp
     src/rwe/sim/Energy.h
     src/rwe/sim/FeatureDefinition.cpp
     src/rwe/sim/FeatureDefinition.h
