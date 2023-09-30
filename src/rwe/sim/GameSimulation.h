@@ -264,6 +264,8 @@ namespace rwe
 
         Grid<unsigned char> metalGrid;
 
+        Grid<bool> geoGrid;
+
         std::vector<GamePlayerInfo> players;
 
         VectorMap<MapFeature, FeatureIdTag> features;
@@ -307,15 +309,17 @@ namespace rwe
         /**
          * Returns true if a unit with the given movementclass attributes
          * could be built at given location on the map -- i.e. it is valid terrain
-         * for the unit and it is not occupied by something else.
+         * for the unit, it is not occupied by something else, and it contains geo if required.
          */
-        bool canBeBuiltAt(const MovementClassDefinition& mc, unsigned int x, unsigned int y) const;
+        bool canBeBuiltAt(const MovementClassDefinition& mc, const std::optional<Grid<YardMapCell>>& yardMap, bool yardMapContainsGeo, unsigned int x, unsigned int y) const;
 
         DiscreteRect computeFootprintRegion(const SimVector& position, unsigned int footprintX, unsigned int footprintZ) const;
 
         DiscreteRect computeFootprintRegion(const SimVector& position, const UnitDefinition::MovementCollisionInfo& collisionInfo) const;
 
         bool anyFeatureOccupies(const DiscreteRect& rect) const;
+
+        bool containsAnyGeoMatch(const Grid<YardMapCell>& yardMap, unsigned int x, unsigned int y) const;
 
         bool isCollisionAt(const DiscreteRect& rect) const;
 

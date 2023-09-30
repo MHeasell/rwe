@@ -87,6 +87,7 @@ namespace rwe
         : terrain(std::move(terrain)),
           occupiedGrid(this->terrain.getHeightMap().getWidth() - 1, this->terrain.getHeightMap().getHeight() - 1, OccupiedCell()),
           metalGrid(this->terrain.getHeightMap().getWidth() - 1, this->terrain.getHeightMap().getHeight() - 1, surfaceMetal),
+          geoGrid(this->terrain.getHeightMap().getWidth() - 1, this->terrain.getHeightMap().getHeight() - 1, false),
           currentWindGenerationFactor(0.0f),
           minWindSpeed(minWindSpeed),
           maxWindSpeed(maxWindSpeed),
@@ -116,6 +117,11 @@ namespace rwe
         if (!featureDefinition.blocking && featureDefinition.indestructible && featureDefinition.metal)
         {
             metalGrid.set(metalGrid.clipRegion(footprintRegion), featureDefinition.metal);
+        }
+
+        if (!featureDefinition.blocking && featureDefinition.indestructible && featureDefinition.geothermal)
+        {
+            geoGrid.set(geoGrid.clipRegion(footprintRegion), true);
         }
 
         return featureId;
@@ -310,7 +316,7 @@ namespace rwe
         return unitId;
     }
 
-    bool GameSimulation::canBeBuiltAt(const rwe::MovementClassDefinition& mc, unsigned int x, unsigned int y) const
+    bool GameSimulation::canBeBuiltAt(const rwe::MovementClassDefinition& mc, const std::optional<Grid<YardMapCell>>& yardMap, bool yardMapContainsGeo, unsigned int x, unsigned int y) const
     {
         if (isCollisionAt(DiscreteRect(x, y, mc.footprintX, mc.footprintZ)))
         {
@@ -318,6 +324,11 @@ namespace rwe
         }
 
         if (!isGridPointWalkable(terrain, mc, x, y))
+        {
+            return false;
+        }
+
+        if (yardMapContainsGeo && yardMap && !containsAnyGeoMatch(*yardMap, x, y))
         {
             return false;
         }
@@ -355,6 +366,13 @@ namespace rwe
 
         return occupiedGrid.any(*region, [&](const auto& cell) {
             return cell.featureId.has_value();
+        });
+    }
+
+    bool GameSimulation::containsAnyGeoMatch(const Grid<YardMapCell>& yardMap, unsigned int x, unsigned int y) const
+    {
+        return geoGrid.any2(x, y, yardMap, [](const bool& geo, const YardMapCell& cell) {
+            return geo && isGeo(cell);
         });
     }
 

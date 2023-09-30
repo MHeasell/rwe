@@ -122,6 +122,7 @@ namespace rwe
         Energy windGenerator;
 
         std::optional<Grid<YardMapCell>> yardMap;
+        bool yardMapContainsGeo;
 
         std::string corpse;
 
