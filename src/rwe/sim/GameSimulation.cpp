@@ -1377,7 +1377,13 @@ namespace rwe
             std::uniform_int_distribution<int> speedDist(minWindSpeed, maxWindSpeed);
             auto currentWindSpeed = speedDist(rng);
 
+            // the new wind direction is a random angle
+            std::uniform_int_distribution<int> directionDist(MinAngle.value, MaxAngle.value);
+            auto currentWindDirection = SimAngle(directionDist(rng));
+
             currentWindGenerationFactor = SimScalar(currentWindSpeed) / SimScalar(MaxUtilizableWindSpeed);
+
+            UnitBehaviorService(this).updateWind(currentWindGenerationFactor, currentWindDirection);
         }
     }
 

@@ -28,6 +28,8 @@ namespace rwe
 
         void onCreate(UnitId unitId);
 
+        void updateWind(SimScalar windSpeed, SimAngle windDirection);
+
         void update(UnitId unitId);
 
         // FIXME: shouldn't really be public

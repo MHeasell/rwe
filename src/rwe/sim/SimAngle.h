@@ -24,6 +24,9 @@ namespace rwe
         return a;
     };
 
+    constexpr SimAngle MinAngle = SimAngle(0);
+    constexpr SimAngle MaxAngle = SimAngle(0xFFFF);
+
     constexpr SimAngle HalfTurn = SimAngle(1u << 15u);
     constexpr SimAngle QuarterTurn = SimAngle(1u << 14u);
     constexpr SimAngle EighthTurn = SimAngle(1u << 13u);

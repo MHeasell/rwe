@@ -20,6 +20,11 @@ namespace rwe
         return SimScalar(toFloat(speed));
     }
 
+    CobSpeed toCobSpeed(SimScalar speed)
+    {
+        return CobSpeed(static_cast<uint32_t>(speed.value * 65536.0f));
+    }
+
     SimScalar toSimScalar(CobAngularSpeed angularSpeed)
     {
         return SimScalar(angularSpeed.value);

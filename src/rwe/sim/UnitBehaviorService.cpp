@@ -50,6 +50,22 @@ namespace rwe
         }
     }
 
+    void UnitBehaviorService::updateWind(SimScalar windGenerationFactor, SimAngle windDirection)
+    {
+        int cobWindSpeed = static_cast<int>(toCobSpeed(windGenerationFactor).value);
+        int cobWindDirection = toCobAngle(windDirection).value;
+
+        for (auto& [id, unit] : sim->units)
+        {
+            const auto& unitDefinition = sim->unitDefinitions.at(unit.unitType);
+            if (unitDefinition.windGenerator != Energy(0))
+            {
+                unit.cobEnvironment->createThread("SetSpeed", {cobWindSpeed});
+                unit.cobEnvironment->createThread("SetDirection", {cobWindDirection});
+            }
+        }
+    }
+
     void UnitBehaviorService::update(UnitId unitId)
     {
         auto unitInfo = sim->getUnitInfo(unitId);
