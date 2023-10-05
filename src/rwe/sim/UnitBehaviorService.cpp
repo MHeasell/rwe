@@ -289,6 +289,11 @@ namespace rwe
             },
             [&](const UnitId& u) {
                 return std::make_optional<MovingStateGoal>(u);
+            },
+            [&](const FeatureId& f) {
+                // Unlike units, features can't change position so we'll just resolve position here.
+                const auto& feature = sim->getFeature(f);
+                return std::make_optional<MovingStateGoal>(feature.position);
             });
 
         if (!resolvedGoal)
@@ -973,9 +978,47 @@ namespace rwe
 
     bool UnitBehaviorService::handleReclaimOrder(UnitInfo unitInfo, const ReclaimOrder& reclaimOrder)
     {
-        return true;
+        auto targetPosition = match(
+            reclaimOrder.target,
+            [&](const UnitId& id) -> std::optional<SimVector> {
+                auto u = sim->tryGetUnitState(id);
+                if (!u)
+                {
+                    return std::nullopt;
+                }
+                return u->get().position;
+            },
+            [&](const FeatureId& id) -> std::optional<SimVector> {
+                const auto& f = sim->tryGetFeature(id);
+                if (!f)
+                {
+                    return std::nullopt;
+                }
+                return f->get().position;
+            });
 
-        // TODO: implement reclaim order
+        if (!targetPosition)
+        {
+            // target has gone away, throw away this order
+            return true;
+        }
+
+        // FIXME: figure out actual range of reclaiming
+        auto maxRangeSquared = 300_ss * 300_ss;
+        if (unitInfo.state->position.distanceSquared(*targetPosition) > maxRangeSquared)
+        {
+            auto navigationGoal = match(
+                reclaimOrder.target, [&](const UnitId& u) -> NavigationGoal { return u; }, [&](const FeatureId& f) -> NavigationGoal { return f; });
+            navigateTo(unitInfo, navigationGoal);
+        }
+        else
+        {
+            // we're in range, start reclaiming
+            // TODO: this
+            return true;
+        }
+
+        return false;
     }
 
     bool UnitBehaviorService::handleBuild(UnitInfo unitInfo, const std::string& unitType)

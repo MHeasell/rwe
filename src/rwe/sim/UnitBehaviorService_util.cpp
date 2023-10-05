@@ -362,6 +362,9 @@ namespace rwe
             },
             [&](const UnitId&) {
                 return std::optional<SimVector>();
+            },
+            [&](const FeatureId&) {
+                return std::optional<SimVector>();
             });
 
         if (!destination)

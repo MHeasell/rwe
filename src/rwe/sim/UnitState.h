@@ -36,7 +36,7 @@ namespace rwe
     {
     };
 
-    using NavigationGoal = std::variant<UnitId, SimVector, DiscreteRect, NavigationGoalLandingLocation>;
+    using NavigationGoal = std::variant<UnitId, FeatureId, SimVector, DiscreteRect, NavigationGoalLandingLocation>;
 
     using MovingStateGoal = std::variant<UnitId, SimVector, DiscreteRect>;
 
