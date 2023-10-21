@@ -19,6 +19,7 @@
 #include <rwe/sim/UnitMesh.h>
 #include <rwe/sim/UnitOrder.h>
 #include <rwe/sim/UnitWeapon.h>
+#include <tuple>
 #include <variant>
 
 namespace rwe
@@ -78,6 +79,7 @@ namespace rwe
     {
         std::variant<UnitId, FeatureId> target;
         std::optional<SimVector> nanoParticleOrigin;
+        std::optional<GameTime> startTime;
     };
 
     using UnitBehaviorState = std::variant<
@@ -368,7 +370,13 @@ namespace rwe
 
         int getBuildQueueTotal(const std::string& unitType) const;
 
-        std::optional<std::pair<UnitId, SimVector>> getActiveNanolatheTarget() const;
+        enum class NanolatheDirection
+        {
+            Forward,
+            Reverse,
+        };
+
+        std::optional<std::tuple<std::variant<UnitId, FeatureId>, SimVector, NanolatheDirection>> getActiveNanolatheTarget() const;
 
         std::optional<std::reference_wrapper<const UnitMesh>> findPiece(const std::string& pieceName) const;
 

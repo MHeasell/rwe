@@ -853,10 +853,38 @@ namespace rwe
         {
             if (auto nanolatheTarget = unit.getActiveNanolatheTarget())
             {
-                auto targetUnitOption = tryGetUnit(nanolatheTarget->first);
-                if (targetUnitOption)
+                auto targetPositionOption = match(
+                    std::get<0>(*nanolatheTarget),
+                    [&](const UnitId& targetUnitId) -> std::optional<SimVector> {
+                        auto targetUnitOption = tryGetUnit(targetUnitId);
+                        if (!targetUnitOption)
+                        {
+                            return std::nullopt;
+                        }
+                        return targetUnitOption->get().position;
+                    },
+                    [&](const FeatureId& targetFeatureId) -> std::optional<SimVector> {
+                        auto targetFeature = simulation.tryGetFeature(targetFeatureId);
+                        if (!targetFeature)
+                        {
+                            return std::nullopt;
+                        }
+                        return targetFeature->get().position;
+                    });
+
+                if (targetPositionOption)
                 {
-                    drawNanoLine(simVectorToFloat(nanolatheTarget->second), simVectorToFloat(targetUnitOption->get().position), nanoLinesBatch);
+                    switch (std::get<2>(*nanolatheTarget))
+                    {
+                        case UnitState::NanolatheDirection::Forward:
+                            drawNanoLine(simVectorToFloat(std::get<1>(*nanolatheTarget)), simVectorToFloat(*targetPositionOption), nanoLinesBatch);
+                            break;
+                        case UnitState::NanolatheDirection::Reverse:
+                            drawReverseNanoLine(simVectorToFloat(std::get<1>(*nanolatheTarget)), simVectorToFloat(*targetPositionOption), nanoLinesBatch);
+                            break;
+                        default:
+                            throw std::logic_error("unhandled nanolathe direction");
+                    }
                 }
             }
         }

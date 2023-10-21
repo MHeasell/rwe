@@ -636,18 +636,24 @@ namespace rwe
         return sum;
     }
 
-    std::optional<std::pair<UnitId, SimVector>> UnitState::getActiveNanolatheTarget() const
+    std::optional<std::tuple<std::variant<UnitId, FeatureId>, SimVector, UnitState::NanolatheDirection>> UnitState::getActiveNanolatheTarget() const
     {
         auto buildingState = std::get_if<UnitBehaviorStateBuilding>(&behaviourState);
         if (buildingState && buildingState->nanoParticleOrigin)
         {
-            return std::make_pair(buildingState->targetUnit, *buildingState->nanoParticleOrigin);
+            return std::make_tuple(buildingState->targetUnit, *buildingState->nanoParticleOrigin, NanolatheDirection::Forward);
         }
 
         auto factoryBuildingState = std::get_if<FactoryBehaviorStateBuilding>(&factoryState);
         if (factoryBuildingState && factoryBuildingState->targetUnit && factoryBuildingState->targetUnit->second)
         {
-            return std::make_pair(factoryBuildingState->targetUnit->first, *factoryBuildingState->targetUnit->second);
+            return std::make_tuple(factoryBuildingState->targetUnit->first, *factoryBuildingState->targetUnit->second, NanolatheDirection::Forward);
+        }
+
+        auto reclaimingState = std::get_if<UnitBehaviorStateReclaiming>(&behaviourState);
+        if (reclaimingState && reclaimingState->nanoParticleOrigin)
+        {
+            return std::make_tuple(reclaimingState->target, *reclaimingState->nanoParticleOrigin, NanolatheDirection::Reverse);
         }
 
         return std::nullopt;

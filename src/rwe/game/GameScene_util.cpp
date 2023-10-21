@@ -680,6 +680,16 @@ namespace rwe
         pushLine(batch.lines, start, end, Vector3f(0.0f, 1.0f, 0.0f));
     }
 
+    /**
+     * Like a regular nano line but reversed, for reclaiming.
+     */
+    void drawReverseNanoLine(const Vector3f& start, const Vector3f& end, ColoredMeshBatch& batch)
+    {
+        // We'll just make it a yellow nano-line for now so we can tell the difference
+        // between this and the regular nano line.
+        pushLine(batch.lines, start, end, Vector3f(1.0f, 1.0f, 0.0f));
+    }
+
     void drawWakeParticle(const GameMediaDatabase& gameMediaDatabase, GameTime currentTime, const Matrix4f& viewProjectionMatrix, const Particle& particle, ColoredMeshBatch& batch)
     {
         auto wakeRenderInfo = std::get_if<ParticleRenderTypeWake>(&particle.renderType);

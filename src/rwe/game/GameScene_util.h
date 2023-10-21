@@ -90,6 +90,7 @@ namespace rwe
         SpriteBatch& batch);
 
     void drawNanoLine(const Vector3f& start, const Vector3f& end, ColoredMeshBatch& batch);
+    void drawReverseNanoLine(const Vector3f& start, const Vector3f& end, ColoredMeshBatch& batch);
 
     void drawSpriteParticle(const GameMediaDatabase& gameMediaDatabase, GameTime currentTime, const Matrix4f& viewProjectionMatrix, const Particle& particle, SpriteBatch& batch);
 
