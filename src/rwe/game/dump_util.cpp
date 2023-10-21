@@ -147,6 +147,12 @@ namespace rwe
             {"targetUnit", dumpJson(s.targetUnit)},
             {"nanoParticleOrigin", dumpJson(s.nanoParticleOrigin)}};
     }
+    nlohmann::json dumpJson(const UnitBehaviorStateReclaiming& s)
+    {
+        return nlohmann::json{
+            {"target", dumpJson(s.target)},
+            {"nanoParticleOrigin", dumpJson(s.nanoParticleOrigin)}};
+    }
     nlohmann::json dumpJson(const UnitBehaviorStateCreatingUnit& s)
     {
         return nlohmann::json{

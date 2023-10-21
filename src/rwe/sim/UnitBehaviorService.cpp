@@ -978,47 +978,7 @@ namespace rwe
 
     bool UnitBehaviorService::handleReclaimOrder(UnitInfo unitInfo, const ReclaimOrder& reclaimOrder)
     {
-        auto targetPosition = match(
-            reclaimOrder.target,
-            [&](const UnitId& id) -> std::optional<SimVector> {
-                auto u = sim->tryGetUnitState(id);
-                if (!u)
-                {
-                    return std::nullopt;
-                }
-                return u->get().position;
-            },
-            [&](const FeatureId& id) -> std::optional<SimVector> {
-                const auto& f = sim->tryGetFeature(id);
-                if (!f)
-                {
-                    return std::nullopt;
-                }
-                return f->get().position;
-            });
-
-        if (!targetPosition)
-        {
-            // target has gone away, throw away this order
-            return true;
-        }
-
-        // FIXME: figure out actual range of reclaiming
-        auto maxRangeSquared = 300_ss * 300_ss;
-        if (unitInfo.state->position.distanceSquared(*targetPosition) > maxRangeSquared)
-        {
-            auto navigationGoal = match(
-                reclaimOrder.target, [&](const UnitId& u) -> NavigationGoal { return u; }, [&](const FeatureId& f) -> NavigationGoal { return f; });
-            navigateTo(unitInfo, navigationGoal);
-        }
-        else
-        {
-            // we're in range, start reclaiming
-            // TODO: this
-            return true;
-        }
-
-        return false;
+        return reclaimTarget(unitInfo, reclaimOrder.target);
     }
 
     bool UnitBehaviorService::handleBuild(UnitInfo unitInfo, const std::string& unitType)
@@ -1395,6 +1355,50 @@ namespace rwe
         return deployBuildArm(unitInfo, *unit.buildOrderUnitId);
     }
 
+    bool UnitBehaviorService::reclaimTarget(UnitInfo unitInfo, std::variant<UnitId, FeatureId> target)
+    {
+        auto targetPosition = match(
+            target,
+            [&](const UnitId& id) -> std::optional<SimVector> {
+                auto u = sim->tryGetUnitState(id);
+                if (!u)
+                {
+                    return std::nullopt;
+                }
+                return u->get().position;
+            },
+            [&](const FeatureId& id) -> std::optional<SimVector> {
+                const auto& f = sim->tryGetFeature(id);
+                if (!f)
+                {
+                    return std::nullopt;
+                }
+                return f->get().position;
+            });
+
+        if (!targetPosition)
+        {
+            // target has gone away, throw away this order
+            return true;
+        }
+
+        // FIXME: figure out actual range of reclaiming
+        auto maxRangeSquared = 300_ss * 300_ss;
+        if (unitInfo.state->position.distanceSquared(*targetPosition) > maxRangeSquared)
+        {
+            auto navigationGoal = match(
+                target, [&](const UnitId& u) -> NavigationGoal { return u; }, [&](const FeatureId& f) -> NavigationGoal { return f; });
+            navigateTo(unitInfo, navigationGoal);
+        }
+        else
+        {
+            // we're in range, start reclaiming
+            return deployReclaimArm(unitInfo, target);
+        }
+
+        return false;
+    }
+
     bool UnitBehaviorService::buildExistingUnit(UnitInfo unitInfo, UnitId targetUnitId)
     {
         auto targetUnitRef = sim->tryGetUnitState(targetUnitId);
@@ -1423,6 +1427,10 @@ namespace rwe
     void UnitBehaviorService::changeState(UnitState& unit, const UnitBehaviorState& newState)
     {
         if (std::holds_alternative<UnitBehaviorStateBuilding>(unit.behaviourState))
+        {
+            unit.cobEnvironment->createThread("StopBuilding");
+        }
+        else if (std::holds_alternative<UnitBehaviorStateReclaiming>(unit.behaviourState))
         {
             unit.cobEnvironment->createThread("StopBuilding");
         }
@@ -1491,6 +1499,74 @@ namespace rwe
                 auto pitch = headingAndPitch.second;
 
                 changeState(*unitInfo.state, UnitBehaviorStateBuilding{targetUnitId, std::nullopt});
+                unitInfo.state->cobEnvironment->createThread("StartBuilding", {toCobAngle(heading).value, toCobAngle(pitch).value});
+                return false;
+            });
+    }
+
+    bool UnitBehaviorService::deployReclaimArm(UnitInfo unitInfo, std::variant<UnitId, FeatureId> target)
+    {
+        auto isValidTarget = match(
+            target,
+            [&](const UnitId& targetUnitId) {
+                auto targetUnitRef = sim->tryGetUnitState(targetUnitId);
+                if (targetUnitRef && targetUnitRef->get().isAlive())
+                {
+                    return true;
+                }
+            },
+            [&](const FeatureId& targetFeatureId) {
+                auto targetFeatureRef = sim->tryGetFeature(targetFeatureId);
+                if (targetFeatureRef)
+                {
+                    return true;
+                }
+            });
+
+        if (!isValidTarget)
+        {
+            changeState(*unitInfo.state, UnitBehaviorStateIdle());
+            return true;
+        }
+
+        return match(
+            unitInfo.state->behaviourState,
+            [&](UnitBehaviorStateReclaiming& reclaimingState) {
+                if (target != reclaimingState.target)
+                {
+                    changeState(*unitInfo.state, UnitBehaviorStateIdle());
+                    return reclaimTarget(unitInfo, target);
+                }
+
+                if (!unitInfo.state->inBuildStance)
+                {
+                    // We are not in the correct stance to build the unit yet, wait.
+                    return false;
+                }
+
+                reclaimingState.nanoParticleOrigin = getNanoPoint(unitInfo.id);
+
+                // TODO: make progress on reclaiming somehow
+
+                return false;
+            },
+            [&](const auto&) {
+                auto nanoFromPosition = getNanoPoint(unitInfo.id);
+                auto targetPosition = match(
+                    target,
+                    [&](const UnitId& targetUnitId) {
+                        const auto& targetUnit = sim->getUnitState(targetUnitId);
+                        return targetUnit.position;
+                    },
+                    [&](const FeatureId& targetFeatureId) {
+                        const auto& targetFeature = sim->getFeature(targetFeatureId);
+                        return targetFeature.position;
+                    });
+                auto headingAndPitch = computeLineOfSightHeadingAndPitch(unitInfo.state->rotation, nanoFromPosition, targetPosition);
+                auto heading = headingAndPitch.first;
+                auto pitch = headingAndPitch.second;
+
+                changeState(*unitInfo.state, UnitBehaviorStateReclaiming{target, std::nullopt});
                 unitInfo.state->cobEnvironment->createThread("StartBuilding", {toCobAngle(heading).value, toCobAngle(pitch).value});
                 return false;
             });

@@ -74,10 +74,17 @@ namespace rwe
         std::optional<SimVector> nanoParticleOrigin;
     };
 
+    struct UnitBehaviorStateReclaiming
+    {
+        std::variant<UnitId, FeatureId> target;
+        std::optional<SimVector> nanoParticleOrigin;
+    };
+
     using UnitBehaviorState = std::variant<
         UnitBehaviorStateIdle,
         UnitBehaviorStateCreatingUnit,
-        UnitBehaviorStateBuilding>;
+        UnitBehaviorStateBuilding,
+        UnitBehaviorStateReclaiming>;
 
     struct NavigationStateIdle
     {
