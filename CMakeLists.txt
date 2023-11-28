@@ -719,6 +719,9 @@ add_custom_command(TARGET librwe PRE_BUILD
 add_executable(rwe src/main.cpp)
 target_link_libraries(rwe librwe)
 
+add_executable(chat_test src/chat_test.cpp)
+target_link_libraries(chat_test librwe)
+
 add_executable(hpi_test src/hpi_test.cpp)
 target_link_libraries(hpi_test librwe)
 
