@@ -19,11 +19,13 @@ if [ "$source_protobuf_version" != "$built_protobuf_version" ]; then
     echo "source protobuf: $source_protobuf_version"
     echo "built protobuf:  $built_protobuf_version"
     echo "cleaning and rebuilding protobuf"
+
     rm -rf "$install_dir"
-    ./autogen.sh
-    ./configure "--prefix=$install_dir"
-    make -j`nproc`
-    make install
+
+    cmake . "-DCMAKE_INSTALL_PREFIX=$install_dir"
+    cmake --build . --parallel=`nproc`
+    cmake --install .
+
     echo "$source_protobuf_version" > "$install_dir/done"
     echo "finished building protobuf: $source_protobuf_version"
 else
