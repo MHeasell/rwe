@@ -1,7 +1,7 @@
 name: Build
 on:
   push:
-    branches: [master, gh-actions]
+    branches: [master, gh-actions, update-protobuf]
   pull_request:
     branches: [master]
 jobs:
