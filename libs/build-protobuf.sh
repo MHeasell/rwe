@@ -22,7 +22,7 @@ if [ "$source_protobuf_version" != "$built_protobuf_version" ]; then
 
     rm -rf "$install_dir"
 
-    cmake . "-DCMAKE_INSTALL_PREFIX=$install_dir"
+    cmake . "-DCMAKE_INSTALL_PREFIX=$install_dir" -DCMAKE_CXX_STANDARD=14
     cmake --build . --parallel=`nproc`
     cmake --install .
 
