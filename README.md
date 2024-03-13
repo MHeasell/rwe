@@ -174,8 +174,11 @@ Now build the code:
     mkdir build
     cd build
     export CC=gcc-7 CXX=g++-7
-    cmake .. -G 'Unix Makefiles'
+    cmake .. -G 'Unix Makefiles' -DCMAKE_EXPORT_COMPILE_COMMANDS=1 
     make
+
+The -DCMAKE_EXPORT_COMPILE_COMMANDS=1 is optional. It generates compile_commands.json which some VS Code plugins like clangd can read in order to automatically configure themselves for the project.
+Note if LLVM/clang is installed, export CC=clang CXX=clang++ should also work.
 
 Install some TA data files (.hpi, .ufo, .ccx, rev31.gp3, etc.)
 to your local data directory:
