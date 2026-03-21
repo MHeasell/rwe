@@ -41,11 +41,6 @@ namespace rwe
         return *this;
     }
 
-    std::size_t hash_value(const Point& p)
-    {
-        return std::hash<Point>()(p);
-    }
-
     int Point::maxSingleDimensionDistance(const Point& rhs) const
     {
         auto delta = *this - rhs;

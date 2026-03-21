@@ -1,6 +1,7 @@
 #pragma once
 
-#include <boost/functional/hash.hpp>
+#include <functional>
+#include <rwe/util/hash_combine.h>
 
 namespace rwe
 {
@@ -37,14 +38,9 @@ namespace std
         std::size_t operator()(const rwe::Point& v) const noexcept
         {
             std::size_t seed = 0;
-            boost::hash_combine(seed, v.x);
-            boost::hash_combine(seed, v.y);
+            rwe::hashCombine(seed, std::hash<int>{}(v.x));
+            rwe::hashCombine(seed, std::hash<int>{}(v.y));
             return seed;
         }
     };
-}
-
-namespace rwe
-{
-    std::size_t hash_value(const Point& p);
 }

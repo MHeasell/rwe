@@ -1,4 +1,3 @@
-#include <boost/functional/hash.hpp>
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include <iostream>
 #include <memory>
@@ -26,7 +25,10 @@ namespace std
     {
         std::size_t operator()(const rwe::FrameId& f) const noexcept
         {
-            return boost::hash<rwe::FrameId>()(f);
+            std::size_t seed = 0;
+            rwe::hashCombine(seed, std::hash<std::string>{}(f.first));
+            rwe::hashCombine(seed, std::hash<unsigned int>{}(f.second));
+            return seed;
         }
     };
 }

@@ -1,9 +1,8 @@
 #pragma once
 
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/functional/hash.hpp>
 #include <memory>
 #include <rwe/AudioService.h>
+#include <rwe/util/hash_combine.h>
 #include <rwe/collections/SimpleVectorMap.h>
 #include <rwe/game/FeatureMediaInfo.h>
 #include <rwe/game/UnitPieceMeshInfo.h>
@@ -44,8 +43,8 @@ namespace rwe
             std::size_t operator()(const std::pair<std::string, std::string>& key) const
             {
                 std::size_t seed = 0;
-                boost::hash_combine(seed, toUpper(key.first));
-                boost::hash_combine(seed, toUpper(key.second));
+                hashCombine(seed, std::hash<std::string>{}(toUpper(key.first)));
+                hashCombine(seed, std::hash<std::string>{}(toUpper(key.second)));
                 return seed;
             }
         };
