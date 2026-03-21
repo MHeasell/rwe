@@ -3,7 +3,7 @@
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include <iostream>
 #include <nlohmann/json.hpp>
-#include <png++/png.hpp>
+#include <rwe/util/png_write.h>
 #include <rwe/fixed_point.h>
 #include <rwe/io/_3do/_3do.h>
 #include <rwe/io/ota/ota.h>
@@ -113,18 +113,7 @@ void writeGetModeListSuccess(const std::vector<std::pair<int, int>>& modes)
 
 namespace rwe
 {
-    void loadPalette(std::istream& in, png::rgb_pixel* buffer)
-    {
-        for (unsigned int i = 0; i < 256; ++i)
-        {
-            in.read(reinterpret_cast<char*>(&(buffer[i].red)), 1);
-            in.read(reinterpret_cast<char*>(&(buffer[i].green)), 1);
-            in.read(reinterpret_cast<char*>(&(buffer[i].blue)), 1);
-            in.seekg(1, std::ios::cur); // skip alpha
-        }
-    }
-
-    void extractMinimap(CompositeVirtualFileSystem& vfs, const png::rgb_pixel* palette, const std::string& source, const std::string& mapName, const std::string& outputPath)
+    void extractMinimap(CompositeVirtualFileSystem& vfs, const RgbPixel* palette, const std::string& source, const std::string& mapName, const std::string& outputPath)
     {
 
         auto tntData = vfs.readFileFromSource(source, "maps/" + mapName + ".tnt");
@@ -137,15 +126,14 @@ namespace rwe
         TntArchive tnt(&tntStream);
         auto minimap = tnt.readMinimap();
 
-        png::image<png::rgb_pixel> image(minimap.width, minimap.height);
-        for (png::uint_32 y = 0; y < image.get_height(); ++y)
+        PngImage image(minimap.width, minimap.height);
+        for (uint32_t y = 0; y < minimap.height; ++y)
         {
-            for (png::uint_32 x = 0; x < image.get_width(); ++x)
+            for (uint32_t x = 0; x < minimap.width; ++x)
             {
                 auto b = static_cast<unsigned char>(minimap.data[(y * minimap.width) + x]);
                 assert(b >= 0 && b < 256);
-                auto px = palette[b];
-                image[y][x] = px;
+                image.at(x, y) = palette[b];
             }
         }
 
@@ -173,7 +161,7 @@ std::optional<std::string> getMinimap(rwe::CompositeVirtualFileSystem& vfs, cons
     }
 
     boost::interprocess::bufferstream paletteBuffer(paletteBytes->data(), paletteBytes->size());
-    png::rgb_pixel palette[256];
+    rwe::RgbPixel palette[256];
     rwe::loadPalette(paletteBuffer, palette);
 
     auto output = fs::temp_directory_path();

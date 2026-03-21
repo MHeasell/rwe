@@ -2,25 +2,12 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
-#include <png++/png.hpp>
 #include <rwe/io/gaf/GafArchive.h>
 #include <rwe/io/tnt/TntArchive.h>
+#include <rwe/util/png_write.h>
 #include <string>
 
 namespace fs = boost::filesystem;
-
-void loadPalette(const std::string& filename, png::rgb_pixel* buffer)
-{
-    std::ifstream in(filename, std::ios::binary);
-
-    for (unsigned int i = 0; i < 256; ++i)
-    {
-        in.read(reinterpret_cast<char*>(&(buffer[i].red)), 1);
-        in.read(reinterpret_cast<char*>(&(buffer[i].green)), 1);
-        in.read(reinterpret_cast<char*>(&(buffer[i].blue)), 1);
-        in.seekg(1, std::ios::cur); // skip alpha
-    }
-}
 
 int featuresCommand(const std::string& tntPath)
 {
@@ -42,8 +29,8 @@ int featuresCommand(const std::string& tntPath)
 
 int tilesCommand(const std::string& palettePath, const std::string& tntPath, const std::string& outputPath)
 {
-    png::rgb_pixel palette[256];
-    loadPalette(palettePath, palette);
+    rwe::RgbPixel palette[256];
+    rwe::loadPalette(palettePath, palette);
 
     std::ifstream file(tntPath, std::ios::binary);
     if (!file.is_open())
@@ -58,15 +45,13 @@ int tilesCommand(const std::string& palettePath, const std::string& tntPath, con
 
     int i = 0;
     tnt.readTiles([&palette, &i, &outPath](const char* tileData) {
-        png::image<png::rgb_pixel> image(32, 32);
-        for (png::uint_32 y = 0; y < image.get_height(); ++y)
+        rwe::PngImage image(32, 32);
+        for (uint32_t y = 0; y < 32; ++y)
         {
-            for (png::uint_32 x = 0; x < image.get_width(); ++x)
+            for (uint32_t x = 0; x < 32; ++x)
             {
                 auto b = static_cast<unsigned char>(tileData[(y * 32) + x]);
-                assert(b >= 0 && b < 256);
-                auto px = palette[b];
-                image[y][x] = px;
+                image.at(x, y) = palette[b];
             }
         }
 
@@ -102,8 +87,8 @@ int infoCommand(const std::string& tntPath)
 
 int minimapCommand(const std::string& palettePath, const std::string& tntPath, const std::string& outputPath)
 {
-    png::rgb_pixel palette[256];
-    loadPalette(palettePath, palette);
+    rwe::RgbPixel palette[256];
+    rwe::loadPalette(palettePath, palette);
 
     std::ifstream file(tntPath, std::ios::binary);
     if (!file.is_open())
@@ -115,15 +100,13 @@ int minimapCommand(const std::string& palettePath, const std::string& tntPath, c
     rwe::TntArchive tnt(&file);
     auto minimap = tnt.readMinimap();
 
-    png::image<png::rgb_pixel> image(minimap.width, minimap.height);
-    for (png::uint_32 y = 0; y < image.get_height(); ++y)
+    rwe::PngImage image(minimap.width, minimap.height);
+    for (uint32_t y = 0; y < minimap.height; ++y)
     {
-        for (png::uint_32 x = 0; x < image.get_width(); ++x)
+        for (uint32_t x = 0; x < minimap.width; ++x)
         {
             auto b = static_cast<unsigned char>(minimap.data[(y * minimap.width) + x]);
-            assert(b >= 0 && b < 256);
-            auto px = palette[b];
-            image[y][x] = px;
+            image.at(x, y) = palette[b];
         }
     }
 
