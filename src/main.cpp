@@ -341,7 +341,7 @@ namespace rwe
                 &allSoundTdf,
                 AudioService::LoopToken(),
                 *gameParameters);
-            sceneManager.setNextScene(std::move(scene));
+            sceneManager.setNextScene(std::shared_ptr<Scene>(std::move(scene)));
         }
         else
         {
@@ -351,7 +351,7 @@ namespace rwe
                 &allSoundTdf,
                 viewport.width(),
                 viewport.height());
-            sceneManager.setNextScene(std::move(scene));
+            sceneManager.setNextScene(std::shared_ptr<Scene>(std::move(scene)));
         }
 
         logger.info("Entering main loop");

@@ -713,7 +713,7 @@ namespace rwe
             std::move(bgm),
             params);
 
-        sceneContext.sceneManager->setNextScene(std::move(scene));
+        sceneContext.sceneManager->setNextScene(std::shared_ptr<Scene>(std::move(scene)));
     }
 
     Point MainMenuScene::toScaledCoordinates(int x, int y) const

@@ -67,7 +67,22 @@ First fetch the source code:
     cd rwe
     git submodule update --init --recursive
 
-Then follow the instructions for your platform.
+### Devbox (Recommended - Linux/macOS)
+
+The easiest way to get a working build environment is with [Devbox](https://www.jetify.com/devbox),
+which uses Nix to provide all dependencies automatically (including protobuf).
+
+    curl -fsSL https://get.jetify.com/devbox | bash  # install devbox (one-time)
+    devbox shell                                       # enter the dev environment
+    mkdir build && cd build
+    cmake .. -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=Debug -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+    make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)
+
+Run the tests:
+
+    ./rwe_test
+
+No manual dependency installation or protobuf compilation step required.
 
 ### Windows with Visual Studio
 

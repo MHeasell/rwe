@@ -130,7 +130,7 @@ namespace rwe
         }
         networkService.start(gameParameters.localNetworkPort);
 
-        sceneContext.sceneManager->setNextScene(createGameScene(gameParameters.mapName, gameParameters.schemaIndex));
+        sceneContext.sceneManager->setNextScene(std::shared_ptr<Scene>(createGameScene(gameParameters.mapName, gameParameters.schemaIndex)));
 
         // wait for other players before starting
         networkService.setDoneLoading();

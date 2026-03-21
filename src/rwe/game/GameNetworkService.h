@@ -82,7 +82,7 @@ namespace rwe
 
         std::thread networkThread;
 
-        boost::asio::io_service ioContext;
+        boost::asio::io_context ioContext;
         boost::asio::ip::udp::resolver resolver;
         boost::asio::ip::udp::socket socket;
         boost::asio::steady_timer sendTimer;

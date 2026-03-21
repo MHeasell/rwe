@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <fstream>
 #include <ostream>
 #include <png.h>
 #include <stdexcept>
@@ -121,7 +122,7 @@ namespace rwe
 
             for (uint32_t y = 0; y < height; ++y)
             {
-                png_write_row(png, reinterpret_cast<const png_bytep>(&pixels[y * width]));
+                png_write_row(png, reinterpret_cast<png_bytep>(const_cast<RgbPixel*>(&pixels[y * width])));
             }
 
             png_write_end(png, nullptr);

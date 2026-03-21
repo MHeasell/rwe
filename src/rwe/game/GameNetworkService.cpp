@@ -43,7 +43,7 @@ namespace rwe
 
     void GameNetworkService::submitCommands(SceneTime currentSceneTime, const GameNetworkService::CommandSet& commands)
     {
-        ioContext.post([this, currentSceneTime, commands]() {
+        boost::asio::post(ioContext,[this, currentSceneTime, commands]() {
             this->currentSceneTime = currentSceneTime;
             for (auto& e : endpoints)
             {
@@ -54,7 +54,7 @@ namespace rwe
 
     void GameNetworkService::submitGameHash(GameHash hash)
     {
-        ioContext.post([this, hash]() {
+        boost::asio::post(ioContext,[this, hash]() {
             for (auto& e : endpoints)
             {
                 e.hashSendBuffer.push_back(hash);
@@ -65,7 +65,7 @@ namespace rwe
     SceneTime GameNetworkService::estimateAvergeSceneTime(SceneTime localSceneTime)
     {
         std::promise<unsigned int> result;
-        ioContext.post([this, localSceneTime, &result]() {
+        boost::asio::post(ioContext,[this, localSceneTime, &result]() {
             auto time = getTimestamp();
             auto otherTimes = choose(endpoints, [](const auto& e) { return e.lastKnownSceneTime; });
 
@@ -79,7 +79,7 @@ namespace rwe
     float GameNetworkService::getMaxAverageRttMillis()
     {
         std::promise<float> result;
-        ioContext.post([this, &result]() {
+        boost::asio::post(ioContext,[this, &result]() {
             auto maxRtt = 0.0f;
             for (const auto& e : endpoints)
             {
@@ -171,7 +171,7 @@ namespace rwe
     void GameNetworkService::sendLoop()
     {
         sendToAll();
-        sendTimer.expires_from_now(std::chrono::milliseconds(100));
+        sendTimer.expires_after(std::chrono::milliseconds(100));
         sendTimer.async_wait([this](const boost::system::error_code& error) {
             if (error)
             {
@@ -203,7 +203,7 @@ namespace rwe
         }
 
         auto message = createProtoMessage(packetId, localPlayerId, currentSceneTime, endpoint.nextCommandToSend, endpoint.nextCommandToReceive, endpoint.nextHashToSend, endpoint.nextHashToReceive, delay, endpoint.sendBuffer, endpoint.hashSendBuffer);
-        auto messageSize = message.ByteSize();
+        auto messageSize = message.ByteSizeLong();
         if (messageSize > getSize(sendBuffer) - 4)
         {
             throw std::runtime_error("Message to be sent was bigger than buffer size");

@@ -25,7 +25,8 @@ namespace rwe
         std::scoped_lock<std::mutex> lock(mutex);
 
         // boost guarantees that resolve returns non-empty
-        remoteEndpoints.emplace_back(playerIndex, *resolver.resolve(boost::asio::ip::udp::resolver::query(host, port)), Status::Loading);
+        auto results = resolver.resolve(host, port);
+        remoteEndpoints.emplace_back(playerIndex, results.begin()->endpoint(), Status::Loading);
     }
 
     void LoadingNetworkService::setDoneLoading()
@@ -158,7 +159,7 @@ namespace rwe
             }
         }
 
-        auto messageSize = outerMessage.ByteSize();
+        auto messageSize = outerMessage.ByteSizeLong();
         if (messageSize > getSize(sendBuffer) - 4)
         {
             throw std::runtime_error("Message to be sent was bigger than buffer size");
@@ -173,7 +174,7 @@ namespace rwe
 
         for (const auto& p : remoteEndpoints)
         {
-            spdlog::get("rwe")->debug("Sending notification to {0} {1}, size {2}", p.endpoint.address().to_string(), p.endpoint.port(), outerMessage.ByteSize());
+            spdlog::get("rwe")->debug("Sending notification to {0} {1}, size {2}", p.endpoint.address().to_string(), p.endpoint.port(), outerMessage.ByteSizeLong());
             socket.send_to(boost::asio::buffer(sendBuffer.data(), messageSize + 4), p.endpoint);
         }
     }
@@ -181,7 +182,7 @@ namespace rwe
     void LoadingNetworkService::notifyStatusLoop()
     {
         notifyStatus();
-        notifyTimer.expires_from_now(std::chrono::milliseconds(100));
+        notifyTimer.expires_after(std::chrono::milliseconds(100));
         notifyTimer.async_wait([this](const boost::system::error_code& error) {
             if (error)
             {
