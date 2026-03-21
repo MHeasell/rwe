@@ -1,6 +1,6 @@
 #include <SDL.h>
 #include <algorithm>
-#include <boost/interprocess/streams/bufferstream.hpp>
+#include <rwe/util/SpanStream.h>
 #include <filesystem>
 #include <iostream>
 #include <nlohmann/json.hpp>
@@ -123,7 +123,7 @@ namespace rwe
             throw std::runtime_error("map tnt not found!");
         }
 
-        boost::interprocess::bufferstream tntStream(tntData->data(), tntData->size());
+        rwe::SpanStream tntStream(tntData->data(), tntData->size());
         TntArchive tnt(&tntStream);
         auto minimap = tnt.readMinimap();
 
@@ -161,7 +161,7 @@ std::optional<std::string> getMinimap(rwe::CompositeVirtualFileSystem& vfs, cons
         return std::nullopt;
     }
 
-    boost::interprocess::bufferstream paletteBuffer(paletteBytes->data(), paletteBytes->size());
+    rwe::SpanStream paletteBuffer(paletteBytes->data(), paletteBytes->size());
     rwe::RgbPixel palette[256];
     rwe::loadPalette(paletteBuffer, palette);
 

@@ -1,6 +1,6 @@
 #include "atlas_util.h"
 #include <algorithm>
-#include <boost/interprocess/streams/bufferstream.hpp>
+#include <rwe/util/SpanStream.h>
 #include <rwe/BoxTreeSplit.h>
 #include <rwe/io/gaf/GafArchive.h>
 #include <rwe/util/Index.h>
@@ -95,7 +95,7 @@ namespace rwe
             throw std::runtime_error("textures/LOGOS.GAF could not be read");
         }
 
-        boost::interprocess::bufferstream stream(bytes->data(), bytes->size());
+        rwe::SpanStream stream(bytes->data(), bytes->size());
         GafArchive gaf(&stream);
 
         std::vector<std::pair<std::string, std::vector<FrameInfo>>> entries;
@@ -192,7 +192,7 @@ namespace rwe
                 throw std::runtime_error("File in listing could not be read: " + gafName);
             }
 
-            boost::interprocess::bufferstream stream(bytes->data(), bytes->size());
+            rwe::SpanStream stream(bytes->data(), bytes->size());
             GafArchive gaf(&stream);
 
 

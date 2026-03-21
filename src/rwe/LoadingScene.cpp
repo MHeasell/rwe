@@ -1,6 +1,6 @@
 #include "LoadingScene.h"
 #include <algorithm>
-#include <boost/interprocess/streams/bufferstream.hpp>
+#include <rwe/util/SpanStream.h>
 #include <rwe/LoadingScene_util.h>
 #include <rwe/atlas_util.h>
 #include <rwe/collections/SimpleVectorMap.h>
@@ -333,7 +333,7 @@ namespace rwe
             throw std::runtime_error("Failed to load map bytes");
         }
 
-        boost::interprocess::bufferstream tntStream(tntBytes->data(), tntBytes->size());
+        rwe::SpanStream tntStream(tntBytes->data(), tntBytes->size());
         TntArchive tnt(&tntStream);
 
         auto tileTextures = getTileTextures(tnt);

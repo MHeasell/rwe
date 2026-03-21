@@ -1,4 +1,4 @@
-#include <boost/interprocess/streams/bufferstream.hpp>
+#include <rwe/util/SpanStream.h>
 #include <iostream>
 #include <memory>
 #include <rwe/util/png_write.h>
@@ -115,7 +115,7 @@ namespace rwe
                 throw std::runtime_error("File in listing could not be read: " + gafName);
             }
 
-            boost::interprocess::bufferstream stream(bytes->data(), bytes->size());
+            rwe::SpanStream stream(bytes->data(), bytes->size());
             GafArchive gaf(&stream);
 
             for (const auto& e : gaf.entries())
