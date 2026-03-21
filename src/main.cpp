@@ -1,5 +1,4 @@
 #include <GL/glew.h>
-#include <boost/program_options.hpp>
 #include <filesystem>
 #include <iostream>
 #include <memory>
@@ -27,12 +26,12 @@
 #include <rwe/sim/Metal.h>
 #include <rwe/ui/UiFactory.h>
 #include <rwe/util.h>
+#include <rwe/util/OpaqueArgs.h>
 #include <rwe/util/Result.h>
 #include <rwe/vfs/CompositeVirtualFileSystem.h>
 #include <spdlog/spdlog.h>
 
 namespace fs = std::filesystem;
-namespace po = boost::program_options;
 
 namespace rwe
 {
@@ -520,78 +519,49 @@ int main(int argc, char* argv[])
         fs::path imGuiIniFilePath(*localDataPath);
         imGuiIniFilePath /= "imgui.ini";
 
-        po::options_description desc("Allowed options");
+        rwe::OpaqueArgs args;
+        args.parse(argc, argv);
+        args.parseConfig(configFilePath.string());
 
-        // clang-format off
-        desc.add_options()
-            ("help", "produce help message")
-            ("log", po::value<std::string>(), "Sets the log output file path")
-            ("state-log", po::value<std::string>(), "Sets the output file for sim-state logs. This is a desync debugging feature.")
-            ("width", po::value<unsigned int>()->default_value(800), "Sets the window width in pixels")
-            ("height", po::value<unsigned int>()->default_value(600), "Sets the window height in pixels")
-            ("fullscreen", po::bool_switch(), "Starts the application in fullscreen mode")
-            ("interface-mode", po::value<std::string>()->default_value("left-click"), "left-click or right-click")
-            ("data-path", po::value<std::vector<std::string>>(), "Sets the location(s) to search for game data")
-            ("map", po::value<std::string>(), "If given, launches straight into a game on the given map")
-            ("port", po::value<std::string>()->default_value("1337"), "Network port to bind to")
-            ("player", po::value<std::vector<std::string>>(), "type;side;color")
-            ("dir-ai", po::value<std::string>()->default_value("ai"), "AI directory name")
-            ("dir-anims", po::value<std::string>()->default_value("anims"), "anims directory name")
-            ("dir-bitmaps", po::value<std::string>()->default_value("bitmaps"), "bitmaps directory name")
-            ("dir-camps", po::value<std::string>()->default_value("camps"), "campaigns directory name")
-            ("dir-downloads", po::value<std::string>()->default_value("downloads"), "downloads directory name")
-            ("dir-features", po::value<std::string>()->default_value("features"), "features directory name")
-            ("dir-fonts", po::value<std::string>()->default_value("fonts"), "fonts directory name")
-            ("dir-gamedata", po::value<std::string>()->default_value("gamedata"), "gamedata directory name")
-            ("dir-guis", po::value<std::string>()->default_value("guis"), "GUIs directory name")
-            ("dir-maps", po::value<std::string>()->default_value("maps"), "maps directory name")
-            ("dir-objects3d", po::value<std::string>()->default_value("objects3d"), "3D objects directory name")
-            ("dir-palettes", po::value<std::string>()->default_value("palettes"), "palettes directory name")
-            ("dir-scripts", po::value<std::string>()->default_value("scripts"), "scripts directory name")
-            ("dir-sounds", po::value<std::string>()->default_value("sounds"), "sounds directory name")
-            ("dir-textures", po::value<std::string>()->default_value("textures"), "textures directory name")
-            ("dir-unitpics", po::value<std::string>()->default_value("unitpics"), "unitpics directory name")
-            ("dir-units", po::value<std::string>()->default_value("units"), "units directory name")
-            ("dir-weapons", po::value<std::string>()->default_value("weapons"), "weapons directory name");
-        // clang-format on
-
-        po::variables_map vm;
-        po::store(po::parse_command_line(argc, argv, desc), vm);
+        if (args.isHelpRequested())
         {
-            std::ifstream configFileStream(configFilePath.string(), std::ios::binary);
-            if (configFileStream.is_open())
-            {
-                po::store(po::parse_config_file(configFileStream, desc), vm);
-            }
-        }
-        po::notify(vm);
-
-        if (vm.count("help"))
-        {
-            std::cout << desc << std::endl;
+            std::cout << "Usage: rwe [options]\n"
+                      << "  --help                Show this message\n"
+                      << "  --log <path>          Log output file path\n"
+                      << "  --state-log <path>    Sim-state log file (desync debugging)\n"
+                      << "  --width <pixels>      Window width (default: 800)\n"
+                      << "  --height <pixels>     Window height (default: 600)\n"
+                      << "  --fullscreen          Start in fullscreen mode\n"
+                      << "  --interface-mode <m>  left-click or right-click (default: left-click)\n"
+                      << "  --data-path <path>    Game data search path (repeatable)\n"
+                      << "  --map <name>          Launch directly into a game on this map\n"
+                      << "  --port <port>         Network port (default: 1337)\n"
+                      << "  --player <spec>       Player spec: name;type;side;color (repeatable)\n"
+                      << "  --dir-<name> <dir>    Override directory name for a data category\n"
+                      << std::endl;
             return 0;
         }
 
-        auto logger = vm.count("log") ? createLogger(fs::path(vm["log"].as<std::string>())) : createLoggerInDir(*localDataPath);
+        auto logger = args.contains("log") ? createLogger(fs::path(args.getString("log"))) : createLoggerInDir(*localDataPath);
         logger->set_level(spdlog::level::debug);
         logger->flush_on(spdlog::level::debug); // always flush
 
         try
         {
             rwe::GlobalConfig config;
-            config.leftClickInterfaceMode = vm["interface-mode"].as<std::string>() != "right-click";
+            config.leftClickInterfaceMode = args.getString("interface-mode", "left-click") != "right-click";
             std::optional<rwe::GameParameters> gameParameters;
-            if (vm.count("map"))
+            if (args.contains("map"))
             {
-                const auto& mapName = vm["map"].as<std::string>();
-                const auto& players = vm["player"].as<std::vector<std::string>>();
+                const auto& mapName = args.getString("map");
+                const auto& players = args.getMulti("player");
 
                 gameParameters = rwe::GameParameters{mapName, 0};
-                if (vm.count("state-log"))
+                if (args.contains("state-log"))
                 {
-                    gameParameters->stateLogFile = vm["state-log"].as<std::string>();
+                    gameParameters->stateLogFile = args.getString("state-log");
                 }
-                gameParameters->localNetworkPort = vm["port"].as<std::string>();
+                gameParameters->localNetworkPort = args.getString("port", "1337");
                 unsigned int playerIndex = 0;
                 if (players.size() > 10)
                 {
@@ -606,38 +576,38 @@ int main(int argc, char* argv[])
 
             std::vector<fs::path> gameDataPaths;
 
-            if (vm.count("data-path"))
+            auto dataPaths = args.getMulti("data-path");
+            if (!dataPaths.empty())
             {
-                const auto& paths = vm["data-path"].as<std::vector<std::string>>();
-                gameDataPaths.insert(gameDataPaths.end(), paths.begin(), paths.end());
+                gameDataPaths.insert(gameDataPaths.end(), dataPaths.begin(), dataPaths.end());
             }
             else
             {
                 gameDataPaths.emplace_back(*localDataPath) /= "Data";
             }
 
-            auto screenWidth = vm["width"].as<unsigned int>();
-            auto screenHeight = vm["height"].as<unsigned int>();
-            auto fullscreen = vm["fullscreen"].as<bool>();
+            auto screenWidth = args.getUint("width", 800);
+            auto screenHeight = args.getUint("height", 600);
+            auto fullscreen = args.getBool("fullscreen");
 
             auto pathMapping = constructDefaultPathMapping();
-            pathMapping.ai = vm["dir-ai"].as<std::string>();
-            pathMapping.anims = vm["dir-anims"].as<std::string>();
-            pathMapping.bitmaps = vm["dir-bitmaps"].as<std::string>();
-            pathMapping.camps = vm["dir-camps"].as<std::string>();
-            pathMapping.downloads = vm["dir-features"].as<std::string>();
-            pathMapping.fonts = vm["dir-fonts"].as<std::string>();
-            pathMapping.gamedata = vm["dir-gamedata"].as<std::string>();
-            pathMapping.guis = vm["dir-guis"].as<std::string>();
-            pathMapping.maps = vm["dir-maps"].as<std::string>();
-            pathMapping.objects3d = vm["dir-objects3d"].as<std::string>();
-            pathMapping.palettes = vm["dir-palettes"].as<std::string>();
-            pathMapping.scripts = vm["dir-scripts"].as<std::string>();
-            pathMapping.sounds = vm["dir-sounds"].as<std::string>();
-            pathMapping.textures = vm["dir-textures"].as<std::string>();
-            pathMapping.unitpics = vm["dir-unitpics"].as<std::string>();
-            pathMapping.units = vm["dir-units"].as<std::string>();
-            pathMapping.weapons = vm["dir-weapons"].as<std::string>();
+            pathMapping.ai = args.getString("dir-ai", "ai");
+            pathMapping.anims = args.getString("dir-anims", "anims");
+            pathMapping.bitmaps = args.getString("dir-bitmaps", "bitmaps");
+            pathMapping.camps = args.getString("dir-camps", "camps");
+            pathMapping.downloads = args.getString("dir-downloads", "downloads");
+            pathMapping.fonts = args.getString("dir-fonts", "fonts");
+            pathMapping.gamedata = args.getString("dir-gamedata", "gamedata");
+            pathMapping.guis = args.getString("dir-guis", "guis");
+            pathMapping.maps = args.getString("dir-maps", "maps");
+            pathMapping.objects3d = args.getString("dir-objects3d", "objects3d");
+            pathMapping.palettes = args.getString("dir-palettes", "palettes");
+            pathMapping.scripts = args.getString("dir-scripts", "scripts");
+            pathMapping.sounds = args.getString("dir-sounds", "sounds");
+            pathMapping.textures = args.getString("dir-textures", "textures");
+            pathMapping.unitpics = args.getString("dir-unitpics", "unitpics");
+            pathMapping.units = args.getString("dir-units", "units");
+            pathMapping.weapons = args.getString("dir-weapons", "weapons");
 
             return rwe::run(*logger, gameDataPaths, pathMapping, gameParameters, screenWidth, screenHeight, fullscreen, imGuiIniFilePath.string(), config);
         }
