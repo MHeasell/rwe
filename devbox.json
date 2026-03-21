@@ -11,7 +11,8 @@
     "libpng",
     "zlib",
     "pkg-config",
-    "git"
+    "git",
+    "libX11.dev"
   ],
   "shell": {
     "init_hook": [
