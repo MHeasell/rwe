@@ -289,6 +289,15 @@ namespace rwe
             }
         }
 
+        SECTION(".bottom")
+        {
+            SECTION("returns y + height for non-square rects")
+            {
+                DiscreteRect r(1, 2, 3, 5);
+                REQUIRE(r.bottom() == 7);
+            }
+        }
+
         SECTION(".translate")
         {
             SECTION("translates the rectangle")

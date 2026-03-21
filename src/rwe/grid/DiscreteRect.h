@@ -49,7 +49,7 @@ namespace rwe
         }
         int bottom() const
         {
-            return y + width;
+            return y + height;
         }
 
         /**
