@@ -1,4 +1,5 @@
 #include "UiScrollBar.h"
+#include <algorithm>
 
 namespace rwe
 {

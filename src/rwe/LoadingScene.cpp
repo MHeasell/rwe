@@ -1,4 +1,5 @@
 #include "LoadingScene.h"
+#include <algorithm>
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include <rwe/LoadingScene_util.h>
 #include <rwe/atlas_util.h>

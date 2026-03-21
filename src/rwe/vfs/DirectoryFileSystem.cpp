@@ -1,4 +1,5 @@
 #include "DirectoryFileSystem.h"
+#include <algorithm>
 
 #include <fstream>
 #include <rwe/util/rwe_string.h>

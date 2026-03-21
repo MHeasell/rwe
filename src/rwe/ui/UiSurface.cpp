@@ -1,4 +1,5 @@
 #include "UiSurface.h"
+#include <algorithm>
 
 namespace rwe
 {

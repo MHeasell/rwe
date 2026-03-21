@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <algorithm>
 #include <optional>
 #include <rwe/grid/Grid.h>
 #include <variant>

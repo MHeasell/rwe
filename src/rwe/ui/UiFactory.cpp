@@ -1,4 +1,5 @@
 #include "UiFactory.h"
+#include <algorithm>
 #include <rwe/ui/UiSurface.h>
 #include <rwe/util/Index.h>
 

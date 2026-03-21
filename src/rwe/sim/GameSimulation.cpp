@@ -1,4 +1,5 @@
 #include "GameSimulation.h"
+#include <algorithm>
 #include <rwe/sim/GameHash_util.h>
 #include <rwe/sim/SimScalar.h>
 #include <rwe/sim/SimTicksPerSecond.h>

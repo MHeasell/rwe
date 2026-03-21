@@ -1,4 +1,5 @@
 #include "GameNetworkService.h"
+#include <algorithm>
 #include <boost/range/adaptors.hpp>
 #include <rwe/network_util.h>
 #include <rwe/proto/serialization.h>

@@ -1,4 +1,5 @@
 #include <SDL.h>
+#include <algorithm>
 #include <boost/filesystem.hpp>
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include <iostream>

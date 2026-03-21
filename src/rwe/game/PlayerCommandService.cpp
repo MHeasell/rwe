@@ -1,4 +1,5 @@
 #include "PlayerCommandService.h"
+#include <algorithm>
 
 namespace rwe
 {

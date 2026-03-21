@@ -1,4 +1,5 @@
 #include "Vector3f.h"
+#include <algorithm>
 
 #include <rwe/math/rwe_math.h>
 

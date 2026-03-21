@@ -1,6 +1,7 @@
 #pragma once
 
 #include <rwe/math/Vector3x.h>
+#include <algorithm>
 
 namespace rwe
 {

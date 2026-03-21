@@ -1,4 +1,5 @@
 #include "TextureService.h"
+#include <algorithm>
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include <rwe/io/fnt/Fnt.h>
 #include <rwe/io/gaf/GafArchive.h>

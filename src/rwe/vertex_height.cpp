@@ -1,4 +1,5 @@
 #include "vertex_height.h"
+#include <algorithm>
 
 namespace rwe
 {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <deque>
+#include <algorithm>
 #include <optional>
 #include <rwe/collections/MinHeap.h>
 #include <spdlog/spdlog.h>

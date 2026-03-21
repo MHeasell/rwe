@@ -1,4 +1,5 @@
 #include "MainMenuScene.h"
+#include <algorithm>
 #include <rwe/LoadingScene.h>
 #include <rwe/MainMenuModel.h>
 #include <rwe/camera_util.h>

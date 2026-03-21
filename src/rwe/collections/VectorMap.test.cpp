@@ -1,4 +1,5 @@
 #include <catch2/catch.hpp>
+#include <algorithm>
 #include <rapidcheck.h>
 #include <rapidcheck/catch.h>
 #include <rwe/collections/VectorMap.h>

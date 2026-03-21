@@ -1,4 +1,5 @@
 #include "LoadingScene_util.h"
+#include <algorithm>
 
 #include <boost/interprocess/streams/bufferstream.hpp>
 #include <rwe/sim/UnitState.h>

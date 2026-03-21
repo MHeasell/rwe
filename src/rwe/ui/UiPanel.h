@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <algorithm>
 #include <rwe/observable/Subject.h>
 #include <rwe/ui/UiComponent.h>
 
