@@ -743,6 +743,17 @@ add_custom_command(TARGET librwe PRE_BUILD
 add_executable(rwe src/main.cpp)
 target_link_libraries(rwe librwe)
 
+if(UNIX AND NOT APPLE)
+    file(WRITE "${CMAKE_BINARY_DIR}/run.sh" "#!/bin/bash
+# The devbox-built binary links against Nix's libglvnd, which can't find
+# the system GPU driver (e.g. Mesa). Prepend system lib paths so it's
+# discovered. Not needed on macOS, which uses Apple's OpenGL framework
+# directly rather than libglvnd.
+LD_LIBRARY_PATH=/usr/lib:/usr/lib64:/usr/lib/x86_64-linux-gnu:\$LD_LIBRARY_PATH exec ./rwe \"\$@\"
+")
+    file(CHMOD "${CMAKE_BINARY_DIR}/run.sh" PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+endif()
+
 add_executable(hpi_test src/hpi_test.cpp)
 target_link_libraries(hpi_test librwe)
 
