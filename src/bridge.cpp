@@ -1,7 +1,7 @@
 #include <SDL.h>
 #include <algorithm>
-#include <boost/filesystem.hpp>
 #include <boost/interprocess/streams/bufferstream.hpp>
+#include <filesystem>
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <rwe/util/png_write.h>
@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 
-namespace fs = boost::filesystem;
+namespace fs = std::filesystem;
 
 using json = nlohmann::json;
 

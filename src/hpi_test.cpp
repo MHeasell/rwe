@@ -1,4 +1,4 @@
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -6,7 +6,7 @@
 #include <rwe/util/match.h>
 #include <string>
 
-namespace fs = boost::filesystem;
+namespace fs = std::filesystem;
 
 std::string schemeName(rwe::HpiArchive::File::CompressionScheme scheme)
 {

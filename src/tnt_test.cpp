@@ -1,4 +1,4 @@
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -7,7 +7,7 @@
 #include <rwe/util/png_write.h>
 #include <string>
 
-namespace fs = boost::filesystem;
+namespace fs = std::filesystem;
 
 int featuresCommand(const std::string& tntPath)
 {

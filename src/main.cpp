@@ -1,6 +1,6 @@
 #include <GL/glew.h>
-#include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
+#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <rwe/AudioService.h>
@@ -31,7 +31,7 @@
 #include <rwe/vfs/CompositeVirtualFileSystem.h>
 #include <spdlog/spdlog.h>
 
-namespace fs = boost::filesystem;
+namespace fs = std::filesystem;
 namespace po = boost::program_options;
 
 namespace rwe

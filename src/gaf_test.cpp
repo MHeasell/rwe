@@ -1,4 +1,5 @@
-#include <boost/filesystem.hpp>
+#include <cassert>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -7,7 +8,7 @@
 #include <rwe/util/png_write.h>
 #include <string>
 
-namespace fs = boost::filesystem;
+namespace fs = std::filesystem;
 
 int listCommand(const std::string& filename)
 {

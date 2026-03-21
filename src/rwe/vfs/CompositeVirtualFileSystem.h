@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <memory>
 #include <rwe/vfs/AbstractVirtualFileSystem.h>
 
@@ -38,6 +38,6 @@ namespace rwe
     };
 
 
-    void addToVfs(CompositeVirtualFileSystem& vfs, const boost::filesystem::path& searchPath);
-    CompositeVirtualFileSystem constructVfs(const boost::filesystem::path& searchPath);
+    void addToVfs(CompositeVirtualFileSystem& vfs, const std::filesystem::path& searchPath);
+    CompositeVirtualFileSystem constructVfs(const std::filesystem::path& searchPath);
 }

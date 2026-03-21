@@ -1,12 +1,12 @@
 #pragma once
 
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 #include <optional>
 
 namespace rwe
 {
-    std::optional<boost::filesystem::path> getLocalDataPath();
-    std::optional<boost::filesystem::path> getSearchPath();
+    std::optional<std::filesystem::path> getLocalDataPath();
+    std::optional<std::filesystem::path> getSearchPath();
 
     float toleranceToRadians(unsigned int angle);
 }
