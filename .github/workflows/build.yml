@@ -26,7 +26,7 @@ jobs:
       CC: ${{ matrix.cc }}
       CXX: ${{ matrix.cxx }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: recursive
@@ -44,7 +44,7 @@ jobs:
           zlib1g-dev
           libpng-dev
       - name: install node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: npm
@@ -63,7 +63,7 @@ jobs:
         run: npm run package
       - name: restore protobuf
         id: cache-protobuf-restore
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           path: libs/_protobuf-install
           key: ${{ runner.os }}-${{ env.CC }}-protobuf
@@ -72,7 +72,7 @@ jobs:
         run: ./build-protobuf.sh
       - name: save protobuf
         id: cache-protobuf-save
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         with:
           path: libs/_protobuf-install
           key: ${{ steps.cache-protobuf-restore.outputs.cache-primary-key }}
@@ -91,7 +91,7 @@ jobs:
         configuration: [Debug, Release]
     runs-on: windows-2022
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: recursive
@@ -100,7 +100,7 @@ jobs:
         with:
           python-version: '3.10'
       - name: install node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: npm
@@ -132,13 +132,13 @@ jobs:
         working-directory: build
         run: cmake --build . --target package --config ${{ matrix.configuration }} --parallel 2
       - name: upload zip artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: RWE Zip ${{ runner.os }} MSVC ${{ matrix.configuration }}
           path: build/dist/RobotWarEngine-*-Windows-${{ matrix.configuration }}.zip
           if-no-files-found: error
       - name: upload installer artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: RWE Installer ${{ runner.os }} MSVC ${{ matrix.configuration }}
           path: build/dist/RobotWarEngine-*-Windows-${{ matrix.configuration }}.exe
@@ -149,12 +149,12 @@ jobs:
         configuration: [Debug, Release]
     runs-on: windows-2022
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: recursive
       - name: install node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: npm
@@ -192,7 +192,7 @@ jobs:
             mingw-w64-x86_64-readline
       - name: restore protobuf
         id: cache-protobuf-restore
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           path: libs/_protobuf-install
           key: ${{ runner.os }}-mingw64-protobuf-${{ hashFiles('.git/modules/libs/protobuf/HEAD') }}
@@ -202,7 +202,7 @@ jobs:
         shell: msys2 {0}
       - name: save protobuf
         id: cache-protobuf-save
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         with:
           path: libs/_protobuf-install
           key: ${{ steps.cache-protobuf-restore.outputs.cache-primary-key }}
@@ -223,13 +223,13 @@ jobs:
         run: make package
         shell: msys2 {0}
       - name: upload zip artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: RWE Zip ${{ runner.os }} MinGW64 ${{ matrix.configuration }}
           path: build/dist/RobotWarEngine-*-Windows-${{ matrix.configuration }}.zip
           if-no-files-found: error
       - name: upload installer artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: RWE Installer ${{ runner.os }} MinGW64 ${{ matrix.configuration }}
           path: build/dist/RobotWarEngine-*-Windows-${{ matrix.configuration }}.exe
