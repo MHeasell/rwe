@@ -19,3 +19,9 @@
 [submodule "libs/asio"]
 	path = libs/asio
 	url = https://github.com/chriskohlhoff/asio.git
+[submodule "libs/sdl3"]
+	path = libs/sdl3
+	url = https://github.com/libsdl-org/SDL.git
+[submodule "libs/sdl3_mixer"]
+	path = libs/sdl3_mixer
+	url = https://github.com/libsdl-org/SDL_mixer.git
