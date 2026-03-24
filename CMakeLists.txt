@@ -628,6 +628,22 @@ endif()
 
 target_include_directories(librwe PUBLIC "libs/utfcpp/source")
 
+target_precompile_headers(librwe PRIVATE
+    <algorithm>
+    <array>
+    <cassert>
+    <cstdint>
+    <functional>
+    <memory>
+    <optional>
+    <stdexcept>
+    <string>
+    <unordered_map>
+    <utility>
+    <variant>
+    <vector>
+)
+
 target_link_libraries(librwe OpenGL::GL)
 
 target_copy_file(librwe ${GLEW_DLL})
@@ -848,6 +864,7 @@ add_executable(rwe_test src/test.cpp ${TEST_FILES})
 target_include_directories(rwe_test PUBLIC ${PROJECT_SOURCE_DIR}/libs/catch2/single_include)
 target_link_libraries(rwe_test rapidcheck_catch)
 target_link_libraries(rwe_test librwe)
+target_precompile_headers(rwe_test REUSE_FROM librwe)
 add_test(NAME rwe_test COMMAND rwe_test)
 
 install(TARGETS rwe rwe_bridge
@@ -859,7 +876,7 @@ install(DIRECTORY shaders DESTINATION .)
 
 install(DIRECTORY launcher/rwe-launcher-win32-x64/ DESTINATION launcher)
 
-set(CPACK_GENERATOR "ZIP;NSIS")
+set(CPACK_GENERATOR "ZIP;WIX")
 
 set(CPACK_PACKAGE_VERSION ${RWE_GIT_DESCRIPTION})
 
@@ -876,8 +893,6 @@ set(CPACK_PACKAGE_VENDOR "Michael Heasell")
 
 set(CPACK_OUTPUT_FILE_PREFIX "dist")
 
-set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
-
-set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
+set(CPACK_WIX_UPGRADE_GUID "9BF7A834-221F-4790-BDB5-136D805BD39E")
 
 include(CPack)

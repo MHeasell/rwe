@@ -38,12 +38,19 @@ jobs:
           gcc-14
           g++-14
           clang-18
+          ccache
           libsdl2-dev
           libsdl2-image-dev
           libsdl2-mixer-dev
           libglew-dev
           zlib1g-dev
           libpng-dev
+      - name: restore ccache
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ccache
+          key: ccache-${{ runner.os }}-${{ env.CC }}-${{ matrix.configuration }}-${{ github.sha }}
+          restore-keys: ccache-${{ runner.os }}-${{ env.CC }}-${{ matrix.configuration }}-
       - name: install node.js
         uses: actions/setup-node@v6
         with:
@@ -81,7 +88,7 @@ jobs:
         run: |
           mkdir build
           pushd build
-          cmake -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ..
+          cmake -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
           make -j 4
           popd
       - name: test rwe
@@ -139,7 +146,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: RWE Installer ${{ runner.os }} MSVC ${{ matrix.configuration }}
-          path: build/dist/RobotWarEngine-*-Windows-${{ matrix.configuration }}.exe
+          path: build/dist/RobotWarEngine-*-Windows-${{ matrix.configuration }}.msi
           if-no-files-found: error
   build-windows-mingw64:
     strategy:
@@ -190,6 +197,13 @@ jobs:
             mingw-w64-x86_64-zlib
             mingw-w64-x86_64-libpng
             mingw-w64-x86_64-readline
+            mingw-w64-x86_64-ccache
+      - name: restore ccache
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ccache
+          key: ccache-${{ runner.os }}-mingw64-${{ matrix.configuration }}-${{ github.sha }}
+          restore-keys: ccache-${{ runner.os }}-mingw64-${{ matrix.configuration }}-
       - name: restore protobuf
         id: cache-protobuf-restore
         uses: actions/cache/restore@v5
@@ -210,7 +224,7 @@ jobs:
         run: |
           mkdir build
           pushd build
-          cmake -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ..
+          cmake -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
           make -j 4
           popd
         shell: msys2 {0}
@@ -232,5 +246,5 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: RWE Installer ${{ runner.os }} MinGW64 ${{ matrix.configuration }}
-          path: build/dist/RobotWarEngine-*-Windows-${{ matrix.configuration }}.exe
+          path: build/dist/RobotWarEngine-*-Windows-${{ matrix.configuration }}.msi
           if-no-files-found: error
