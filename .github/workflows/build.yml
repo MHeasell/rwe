@@ -90,7 +90,7 @@ jobs:
     strategy:
       matrix:
         configuration: [Debug, Release]
-    runs-on: windows-2022
+    runs-on: windows-2025
     steps:
       - uses: actions/checkout@v6
         with:
@@ -145,7 +145,7 @@ jobs:
     strategy:
       matrix:
         configuration: [Debug, Release]
-    runs-on: windows-2022
+    runs-on: windows-2025
     steps:
       - uses: actions/checkout@v6
         with:
