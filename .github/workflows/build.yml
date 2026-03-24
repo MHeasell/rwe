@@ -123,8 +123,8 @@ jobs:
         working-directory: launcher
         run: npm run package
       - run: python3 fetch-msvc-libs.py
-      - name: install sccache
-        run: choco install sccache -y
+      - name: install tools
+        run: choco install sccache nsis -y
       - name: restore sccache
         uses: actions/cache@v5
         with:
@@ -154,7 +154,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: RWE Installer ${{ runner.os }} MSVC ${{ matrix.configuration }}
-          path: build/dist/RobotWarEngine-*-Windows-${{ matrix.configuration }}.msi
+          path: build/dist/RobotWarEngine-*-Windows-${{ matrix.configuration }}.exe
           if-no-files-found: error
   build-windows-mingw64:
     strategy:
@@ -185,6 +185,8 @@ jobs:
       - name: package launcher
         working-directory: launcher
         run: npm run package
+      - name: install nsis
+        run: choco install nsis -y
       - uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW64
@@ -254,5 +256,5 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: RWE Installer ${{ runner.os }} MinGW64 ${{ matrix.configuration }}
-          path: build/dist/RobotWarEngine-*-Windows-${{ matrix.configuration }}.msi
+          path: build/dist/RobotWarEngine-*-Windows-${{ matrix.configuration }}.exe
           if-no-files-found: error
