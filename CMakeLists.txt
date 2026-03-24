@@ -1,4 +1,9 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.16)
+
+# Allow submodules with older cmake_minimum_required to configure under CMake 4.x
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "4.0")
+    set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+endif()
 
 # Generate compile_commands.json for clangd-based editor integration
 # (VS Code, Zed, etc.). The .clangd file in the repo root points
