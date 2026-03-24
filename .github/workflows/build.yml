@@ -37,9 +37,6 @@ jobs:
           gcc-12
           g++-12
           clang-15
-          libboost-dev
-          libboost-filesystem-dev
-          libboost-program-options-dev
           libsdl2-dev
           libsdl2-image-dev
           libsdl2-mixer-dev
@@ -185,7 +182,6 @@ jobs:
             make
             unzip
             mingw-w64-x86_64-toolchain
-            mingw-w64-x86_64-boost
             mingw-w64-x86_64-SDL2
             mingw-w64-x86_64-SDL2_image
             mingw-w64-x86_64-SDL2_mixer

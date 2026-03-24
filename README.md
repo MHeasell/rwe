@@ -95,7 +95,6 @@ Choose to run at the end of install, and in the terminal that opens install the 
 
     pacman -S git make unzip mingw-w64-x86_64-cmake mingw-w64-x86_64-toolchain
     pacman -S \
-      mingw-w64-x86_64-boost \
       mingw-w64-x86_64-SDL2 \
       mingw-w64-x86_64-SDL2_image \
       mingw-w64-x86_64-SDL2_mixer \
@@ -178,9 +177,6 @@ Install the necessary packages:
     sudo apt-get install \
       gcc-7 \
       g++-7 \
-      libboost-dev \
-      libboost-filesystem-dev \
-      libboost-program-options-dev \
       libsdl2-dev \
       libsdl2-image-dev \
       libsdl2-mixer-dev \
