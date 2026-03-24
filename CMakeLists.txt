@@ -207,8 +207,8 @@ file(GLOB IMGUI_SOURCE_FILES
     )
 
 set(IMGUI_IMPL_FILES
-    ${PROJECT_SOURCE_DIR}/libs/imgui/examples/imgui_impl_sdl.cpp
-    ${PROJECT_SOURCE_DIR}/libs/imgui/examples/imgui_impl_opengl3.cpp
+    ${PROJECT_SOURCE_DIR}/libs/imgui/backends/imgui_impl_sdl2.cpp
+    ${PROJECT_SOURCE_DIR}/libs/imgui/backends/imgui_impl_opengl3.cpp
     )
 
 set(SOURCE_FILES
@@ -738,7 +738,7 @@ target_include_directories(librwe PUBLIC ${CMAKE_CURRENT_BINARY_DIR}) # for gene
 target_link_libraries(librwe nlohmann_json::nlohmann_json)
 
 target_include_directories(librwe PUBLIC ${PROJECT_SOURCE_DIR}/libs/imgui)
-target_include_directories(librwe PUBLIC ${PROJECT_SOURCE_DIR}/libs/imgui/examples)
+target_include_directories(librwe PUBLIC ${PROJECT_SOURCE_DIR}/libs/imgui/backends)
 
 add_custom_command(TARGET librwe PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${PROJECT_SOURCE_DIR}/shaders" "$<TARGET_FILE_DIR:librwe>/shaders")
