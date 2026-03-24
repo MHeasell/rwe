@@ -1,4 +1,5 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_approx.hpp>
 #include <rwe/geometry/Plane3f.h>
 #include <rwe/geometry/Ray3f.h>
 #include <rwe/math/Vector3f.h>
@@ -86,13 +87,13 @@ namespace rwe
             // not strictly required by implementation
             // (could use b or c as the point)
             // but no better way to verify at the moment
-            REQUIRE(p.point.x == Approx(0.0f));
-            REQUIRE(p.point.y == Approx(0.0f));
-            REQUIRE(p.point.z == Approx(0.0f));
+            REQUIRE(p.point.x == Catch::Approx(0.0f));
+            REQUIRE(p.point.y == Catch::Approx(0.0f));
+            REQUIRE(p.point.z == Catch::Approx(0.0f));
 
-            REQUIRE(p.normal.x == Approx(0.0f));
-            REQUIRE(p.normal.y == Approx(0.0f));
-            REQUIRE(p.normal.z == Approx(1.0f));
+            REQUIRE(p.normal.x == Catch::Approx(0.0f));
+            REQUIRE(p.normal.y == Catch::Approx(0.0f));
+            REQUIRE(p.normal.z == Catch::Approx(1.0f));
         }
     }
 }

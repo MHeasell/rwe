@@ -1,4 +1,5 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_approx.hpp>
 #include <rapidcheck/catch.h>
 #include <rwe/math/rwe_math.h>
 #include <rwe/sim/SimAngle.h>
@@ -40,9 +41,9 @@ namespace rwe
         SECTION("converts SimAngle to radians")
         {
             REQUIRE(toRadians(SimAngle(0)) == RadiansAngle(0.0f));
-            REQUIRE(toRadians(SimAngle(16384)).value == Approx(Pif / 2.0f));
-            REQUIRE(toRadians(SimAngle(32768)).value == Approx(-Pif));
-            REQUIRE(toRadians(SimAngle(49152)).value == Approx(-Pif / 2.0f));
+            REQUIRE(toRadians(SimAngle(16384)).value == Catch::Approx(Pif / 2.0f));
+            REQUIRE(toRadians(SimAngle(32768)).value == Catch::Approx(-Pif));
+            REQUIRE(toRadians(SimAngle(49152)).value == Catch::Approx(-Pif / 2.0f));
         }
 
         rc::prop("fromRadians inverts toRadians", [](SimAngle a) {

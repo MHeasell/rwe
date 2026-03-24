@@ -1,4 +1,4 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <rwe/io/featuretdf/io.h>
 #include <rwe/io/tdf/tdf.h>
 #include <rwe/optional_io.h>

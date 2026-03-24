@@ -1,4 +1,5 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_approx.hpp>
 #include <rwe/Viewport.h>
 
 namespace rwe
@@ -12,7 +13,7 @@ namespace rwe
                 Viewport vp(0, 0, 8, 6);
                 auto v = vp.toClipSpace(2, 2);
                 REQUIRE(v.x == -0.5f);
-                REQUIRE(v.y == Approx(0.33333333));
+                REQUIRE(v.y == Catch::Approx(0.33333333));
             }
         }
 

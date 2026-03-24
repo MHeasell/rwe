@@ -1,4 +1,5 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_approx.hpp>
 #include <rwe/math/Vector2f.h>
 #include <rwe/math/Vector3f.h>
 #include <rwe/math/rwe_math.h>
@@ -53,9 +54,9 @@ namespace rwe
         {
             Vector3f v(3.0, 4.0, 0.0);
             Vector3f n = v.normalized();
-            REQUIRE(n.x == Approx(0.6f));
-            REQUIRE(n.y == Approx(0.8f));
-            REQUIRE(n.z == Approx(0.0f));
+            REQUIRE(n.x == Catch::Approx(0.6f));
+            REQUIRE(n.y == Catch::Approx(0.8f));
+            REQUIRE(n.z == Catch::Approx(0.0f));
         }
     }
 
@@ -65,9 +66,9 @@ namespace rwe
         {
             Vector3f v(3.0, 4.0, 0.0);
             Vector3f n = v.normalizedOr(Vector3f(1.0f, 0.0f, 0.0f));
-            REQUIRE(n.x == Approx(0.6f));
-            REQUIRE(n.y == Approx(0.8f));
-            REQUIRE(n.z == Approx(0.0f));
+            REQUIRE(n.x == Catch::Approx(0.6f));
+            REQUIRE(n.y == Catch::Approx(0.8f));
+            REQUIRE(n.z == Catch::Approx(0.0f));
         }
         SECTION("when length is zero, returns the default value")
         {
@@ -153,21 +154,21 @@ namespace rwe
                 Vector3f a(1.0f, 0.0f, 0.0f);
                 Vector3f b(1.0f, 0.0f, 0.0f);
                 Vector3f n(0.0f, 0.0f, 1.0f);
-                REQUIRE(angleTo(a, b, n) == Approx(0.0f));
+                REQUIRE(angleTo(a, b, n) == Catch::Approx(0.0f));
             }
             SECTION("Y")
             {
                 Vector3f a(0.0f, 1.0f, 0.0f);
                 Vector3f b(0.0f, 1.0f, 0.0f);
                 Vector3f n(1.0f, 0.0f, 0.0f);
-                REQUIRE(angleTo(a, b, n) == Approx(0.0f));
+                REQUIRE(angleTo(a, b, n) == Catch::Approx(0.0f));
             }
             SECTION("Z")
             {
                 Vector3f a(0.0f, 0.0f, 1.0f);
                 Vector3f b(0.0f, 0.0f, 1.0f);
                 Vector3f n(0.0f, 1.0f, 0.0f);
-                REQUIRE(angleTo(a, b, n) == Approx(0.0f));
+                REQUIRE(angleTo(a, b, n) == Catch::Approx(0.0f));
             }
         }
         SECTION("works for perpendicular vectors")
@@ -177,21 +178,21 @@ namespace rwe
                 Vector3f a(1.0f, 0.0f, 0.0f);
                 Vector3f b(0.0f, 1.0f, 0.0f);
                 Vector3f n(0.0f, 0.0f, 1.0f);
-                REQUIRE(angleTo(a, b, n) == Approx(Pif / 2.0f));
+                REQUIRE(angleTo(a, b, n) == Catch::Approx(Pif / 2.0f));
             }
             SECTION("Z -> X")
             {
                 Vector3f a(0.0f, 0.0f, 1.0f);
                 Vector3f b(1.0f, 0.0f, 0.0f);
                 Vector3f n(0.0f, 1.0f, 0.0f);
-                REQUIRE(angleTo(a, b, n) == Approx(Pif / 2.0f));
+                REQUIRE(angleTo(a, b, n) == Catch::Approx(Pif / 2.0f));
             }
             SECTION("Y -> Z")
             {
                 Vector3f a(0.0f, 1.0f, 0.0f);
                 Vector3f b(0.0f, 0.0f, 1.0f);
                 Vector3f n(1.0f, 0.0f, 0.0f);
-                REQUIRE(angleTo(a, b, n) == Approx(Pif / 2.0f));
+                REQUIRE(angleTo(a, b, n) == Catch::Approx(Pif / 2.0f));
             }
         }
         SECTION("works for perpendicular vectors with negative angle")
@@ -201,21 +202,21 @@ namespace rwe
                 Vector3f a(0.0f, 1.0f, 0.0f);
                 Vector3f b(1.0f, 0.0f, 0.0f);
                 Vector3f n(0.0f, 0.0f, 1.0f);
-                REQUIRE(angleTo(a, b, n) == Approx(-Pif / 2.0f));
+                REQUIRE(angleTo(a, b, n) == Catch::Approx(-Pif / 2.0f));
             }
             SECTION("X -> Z")
             {
                 Vector3f a(1.0f, 0.0f, 0.0f);
                 Vector3f b(0.0f, 0.0f, 1.0f);
                 Vector3f n(0.0f, 1.0f, 0.0f);
-                REQUIRE(angleTo(a, b, n) == Approx(-Pif / 2.0f));
+                REQUIRE(angleTo(a, b, n) == Catch::Approx(-Pif / 2.0f));
             }
             SECTION("Z -> Y")
             {
                 Vector3f a(0.0f, 0.0f, 1.0f);
                 Vector3f b(0.0f, 1.0f, 0.0f);
                 Vector3f n(1.0f, 0.0f, 0.0f);
-                REQUIRE(angleTo(a, b, n) == Approx(-Pif / 2.0f));
+                REQUIRE(angleTo(a, b, n) == Catch::Approx(-Pif / 2.0f));
             }
         }
         SECTION("works for opposite vectors")
@@ -225,7 +226,7 @@ namespace rwe
                 Vector3f a(1.0f, 0.0f, 0.0f);
                 Vector3f b(-1.0f, 0.0f, 0.0f);
                 Vector3f n(0.0f, 0.0f, 1.0f);
-                REQUIRE(angleTo(a, b, n) == Approx(-Pif));
+                REQUIRE(angleTo(a, b, n) == Catch::Approx(-Pif));
             }
 
             SECTION("Y")
@@ -233,7 +234,7 @@ namespace rwe
                 Vector3f a(0.0f, 1.0f, 0.0f);
                 Vector3f b(0.0f, -1.0f, 0.0f);
                 Vector3f n(1.0f, 0.0f, 0.0f);
-                REQUIRE(angleTo(a, b, n) == Approx(-Pif));
+                REQUIRE(angleTo(a, b, n) == Catch::Approx(-Pif));
             }
 
             SECTION("Z")
@@ -241,7 +242,7 @@ namespace rwe
                 Vector3f a(0.0f, 0.0f, 1.0f);
                 Vector3f b(0.0f, 0.0f, -1.0f);
                 Vector3f n(0.0f, 1.0f, 0.0f);
-                REQUIRE(angleTo(a, b, n) == Approx(-Pif));
+                REQUIRE(angleTo(a, b, n) == Catch::Approx(-Pif));
             }
         }
         SECTION("works for vectors not of the same length")
@@ -249,7 +250,7 @@ namespace rwe
             Vector3f a(0.0f, 1.0f, 0.0f);
             Vector3f b(-1.0f, 1.0f, 0.0f);
             Vector3f n(-1.0f, 1.0f, 1.0f);
-            REQUIRE(angleTo(a, b, n) == Approx(Pif / 4.0f));
+            REQUIRE(angleTo(a, b, n) == Catch::Approx(Pif / 4.0f));
         }
         SECTION("it doesnt emit nan")
         {
@@ -259,7 +260,7 @@ namespace rwe
             Vector3f a(171.99025, -0.00849914551, -38.2367249);
             Vector3f b(171.99025, 0, -38.2367249);
             Vector3f n(38.2367249, -0, 171.99025);
-            REQUIRE(angleTo(a, b, n) == Approx(0.0f));
+            REQUIRE(angleTo(a, b, n) == Catch::Approx(0.0f));
         }
     }
 

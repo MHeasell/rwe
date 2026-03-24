@@ -1,4 +1,5 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_approx.hpp>
 #include <rwe/geometry/Plane3f.h>
 #include <rwe/geometry/Ray3f.h>
 #include <rwe/geometry/Triangle3f.h>
@@ -18,9 +19,9 @@ namespace rwe
                 Vector3f(0.0f, 2.0f, 0.0f));
             Vector3f bary = tri.toBarycentric(p);
 
-            REQUIRE(bary.x == Approx(0.5f));
-            REQUIRE(bary.y == Approx(0.5f));
-            REQUIRE(bary.z == Approx(0.0f));
+            REQUIRE(bary.x == Catch::Approx(0.5f));
+            REQUIRE(bary.y == Catch::Approx(0.5f));
+            REQUIRE(bary.z == Catch::Approx(0.0f));
         }
 
         SECTION("barycentric conversion test 2")
@@ -32,9 +33,9 @@ namespace rwe
                 Vector3f(0.0f, 2.0f, 0.0f));
             Vector3f bary = tri.toBarycentric(p);
 
-            REQUIRE(bary.x == Approx(0.5f));
-            REQUIRE(bary.y == Approx(0.25f));
-            REQUIRE(bary.z == Approx(0.25f));
+            REQUIRE(bary.x == Catch::Approx(0.5f));
+            REQUIRE(bary.y == Catch::Approx(0.25f));
+            REQUIRE(bary.z == Catch::Approx(0.25f));
         }
 
         SECTION("barycentric conversion test 3")
@@ -46,9 +47,9 @@ namespace rwe
                 Vector3f(0.5f, 0.5f, 0.5f));
             Vector3f bary = tri.toBarycentric(p);
 
-            REQUIRE(bary.x == Approx(5.5f));
-            REQUIRE(bary.y == Approx(-10.0f));
-            REQUIRE(bary.z == Approx(5.5f));
+            REQUIRE(bary.x == Catch::Approx(5.5f));
+            REQUIRE(bary.y == Catch::Approx(-10.0f));
+            REQUIRE(bary.z == Catch::Approx(5.5f));
         }
     }
 
@@ -63,9 +64,9 @@ namespace rwe
                 Vector3f(0.0f, 2.0f, 0.0f));
             Vector3f cart = tri.toCartesian(p);
 
-            REQUIRE(cart.x == Approx(1.0f));
-            REQUIRE(cart.y == Approx(0.0f));
-            REQUIRE(cart.z == Approx(0.0f));
+            REQUIRE(cart.x == Catch::Approx(1.0f));
+            REQUIRE(cart.y == Catch::Approx(0.0f));
+            REQUIRE(cart.z == Catch::Approx(0.0f));
         }
 
         SECTION("test 2")
@@ -77,9 +78,9 @@ namespace rwe
                 Vector3f(0.0f, 2.0f, 0.0f));
             Vector3f cart = tri.toCartesian(p);
 
-            REQUIRE(cart.x == Approx(0.5f));
-            REQUIRE(cart.y == Approx(0.5f));
-            REQUIRE(cart.z == Approx(0.0f));
+            REQUIRE(cart.x == Catch::Approx(0.5f));
+            REQUIRE(cart.y == Catch::Approx(0.5f));
+            REQUIRE(cart.z == Catch::Approx(0.0f));
         }
 
         SECTION("test 3")
@@ -91,9 +92,9 @@ namespace rwe
                 Vector3f(0.5f, 0.5f, 0.5f));
             Vector3f cart = tri.toCartesian(p);
 
-            REQUIRE(cart.x == Approx(-5.0f));
-            REQUIRE(cart.y == Approx(0.5f));
-            REQUIRE(cart.z == Approx(5.0f));
+            REQUIRE(cart.x == Catch::Approx(-5.0f));
+            REQUIRE(cart.y == Catch::Approx(0.5f));
+            REQUIRE(cart.z == Catch::Approx(5.0f));
         }
     }
 
@@ -110,7 +111,7 @@ namespace rwe
                 Vector3f(0.0f, 0.0f, -1.0f));
             auto intersect = tri.intersect(r);
             REQUIRE(intersect);
-            REQUIRE(*intersect == Approx(10.0f));
+            REQUIRE(*intersect == Catch::Approx(10.0f));
         }
 
         SECTION("hits at the corner of the triangle")
@@ -124,7 +125,7 @@ namespace rwe
                 Vector3f(0.0f, 0.0f, -1.0f));
             auto intersect = tri.intersect(r);
             REQUIRE(intersect);
-            REQUIRE(*intersect == Approx(10.0f));
+            REQUIRE(*intersect == Catch::Approx(10.0f));
         }
 
         SECTION("misses just below the corner of the triangle")
@@ -202,9 +203,9 @@ namespace rwe
                 Vector3f(0.0f, 1.0f, 0.0f));
             auto intersect = tri.intersectLine(Vector3f(0.0f, 0.0f, 10.0f), Vector3f(0.0f, 0.0f, -10.0f));
             REQUIRE(intersect);
-            REQUIRE(intersect->x == Approx(0.0f));
-            REQUIRE(intersect->y == Approx(0.0f));
-            REQUIRE(intersect->z == Approx(0.0f));
+            REQUIRE(intersect->x == Catch::Approx(0.0f));
+            REQUIRE(intersect->y == Catch::Approx(0.0f));
+            REQUIRE(intersect->z == Catch::Approx(0.0f));
         }
 
         SECTION("works for a line in the other direction")
@@ -215,9 +216,9 @@ namespace rwe
                 Vector3f(0.0f, 1.0f, 0.0f));
             auto intersect = tri.intersectLine(Vector3f(0.0f, 0.0f, -10.0f), Vector3f(0.0f, 0.0f, 10.0f));
             REQUIRE(intersect);
-            REQUIRE(intersect->x == Approx(0.0f));
-            REQUIRE(intersect->y == Approx(0.0f));
-            REQUIRE(intersect->z == Approx(0.0f));
+            REQUIRE(intersect->x == Catch::Approx(0.0f));
+            REQUIRE(intersect->y == Catch::Approx(0.0f));
+            REQUIRE(intersect->z == Catch::Approx(0.0f));
         }
 
         SECTION("hits at the corner of the triangle")
@@ -228,9 +229,9 @@ namespace rwe
                 Vector3f(0.0f, 1.0f, 0.0f));
             auto intersect = tri.intersectLine(Vector3f(-1.0f, -1.0f, 10.0f), Vector3f(-1.0f, -1.0f, -10.0f));
             REQUIRE(intersect);
-            REQUIRE(intersect->x == Approx(-1.0f));
-            REQUIRE(intersect->y == Approx(-1.0f));
-            REQUIRE(intersect->z == Approx(0.0f));
+            REQUIRE(intersect->x == Catch::Approx(-1.0f));
+            REQUIRE(intersect->y == Catch::Approx(-1.0f));
+            REQUIRE(intersect->z == Catch::Approx(0.0f));
         }
 
         SECTION("misses just below the corner of the triangle")
@@ -266,13 +267,13 @@ namespace rwe
                 Vector3f(0, 1, 0));
             Plane3f p = tri.toPlane();
 
-            REQUIRE(p.point.x == Approx(-1.0f));
-            REQUIRE(p.point.y == Approx(-1.0f));
-            REQUIRE(p.point.z == Approx(0.0f));
+            REQUIRE(p.point.x == Catch::Approx(-1.0f));
+            REQUIRE(p.point.y == Catch::Approx(-1.0f));
+            REQUIRE(p.point.z == Catch::Approx(0.0f));
 
-            REQUIRE(p.normal.x == Approx(0.0f));
-            REQUIRE(p.normal.y == Approx(0.0f));
-            REQUIRE(p.normal.z == Approx(4.0f));
+            REQUIRE(p.normal.x == Catch::Approx(0.0f));
+            REQUIRE(p.normal.y == Catch::Approx(0.0f));
+            REQUIRE(p.normal.z == Catch::Approx(4.0f));
         }
     }
 }

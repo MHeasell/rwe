@@ -1,20 +1,9 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_approx.hpp>
 #include <rapidcheck.h>
 #include <rapidcheck/catch.h>
 #include <rwe/cob/cob_util.h>
 #include <rwe/math/rwe_math.h>
-
-namespace Catch
-{
-    namespace Detail
-    {
-        std::ostream& operator<<(std::ostream& os, const Approx& a)
-        {
-            os << a.toString();
-            return os;
-        }
-    }
-}
 
 namespace rwe
 {
@@ -65,11 +54,11 @@ namespace rwe
 
         SECTION("toRadians")
         {
-            REQUIRE(toRadians(CobAngle(0)).value == Approx(0.0f));
-            REQUIRE(toRadians(CobAngle(8192)).value == Approx(Pif / 4.0f));
-            REQUIRE(toRadians(CobAngle(16384)).value == Approx(Pif / 2.0f));
-            REQUIRE(toRadians(CobAngle(32768)).value == Approx(-Pif));
-            REQUIRE(toRadians(CobAngle(49152)).value == Approx(-Pif / 2.0f));
+            REQUIRE(toRadians(CobAngle(0)).value == Catch::Approx(0.0f));
+            REQUIRE(toRadians(CobAngle(8192)).value == Catch::Approx(Pif / 4.0f));
+            REQUIRE(toRadians(CobAngle(16384)).value == Catch::Approx(Pif / 2.0f));
+            REQUIRE(toRadians(CobAngle(32768)).value == Catch::Approx(-Pif));
+            REQUIRE(toRadians(CobAngle(49152)).value == Catch::Approx(-Pif / 2.0f));
         }
 
         SECTION("toCobAngle")

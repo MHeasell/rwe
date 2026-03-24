@@ -1,4 +1,5 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_approx.hpp>
 #include <rwe/geometry/Ray3f.h>
 #include <rwe/math/Vector3f.h>
 
@@ -10,9 +11,9 @@ namespace rwe
         {
             Ray3f r(Vector3f(3.0f, 10.0f, 4.0f), Vector3f(0.0f, -2.0f, 0.0f));
             auto i = r.pointAt(3.0f);
-            REQUIRE(i.x == Approx(3.0f));
-            REQUIRE(i.y == Approx(4.0f));
-            REQUIRE(i.z == Approx(4.0f));
+            REQUIRE(i.x == Catch::Approx(3.0f));
+            REQUIRE(i.y == Catch::Approx(4.0f));
+            REQUIRE(i.z == Catch::Approx(4.0f));
         }
     }
 

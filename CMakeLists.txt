@@ -32,14 +32,12 @@ endif()
 project("Robot War Engine" VERSION ${CMAKE_MATCH_1})
 enable_testing()
 
-set(RC_ENABLE_CATCH ON CACHE BOOL "Enables Catch support in RapidCheck" FORCE)
+add_subdirectory("libs/catch2")
+
+set(RC_ENABLE_CATCH OFF CACHE BOOL "Enables Catch support in RapidCheck" FORCE)
 set(RC_ENABLE_BOOST OFF CACHE BOOL "Enables Boost support in RapidCheck" FORCE)
-# rapidcheck relies on result_of, which is deprecated in favour of invoke_result.
-# MSVC hides it from their stdlib unless you supply this option.
-if(MSVC)
-    add_definitions(-D_HAS_DEPRECATED_RESULT_OF)
-endif()
 add_subdirectory("libs/rapidcheck")
+add_subdirectory("libs/rapidcheck/extras/catch")
 
 set(JSON_BuildTests OFF CACHE INTERNAL "")
 set(JSON_Install OFF CACHE INTERNAL "")
@@ -860,8 +858,8 @@ set(TEST_FILES
     src/rwe/util/rwe_string.test.cpp
     )
 
-add_executable(rwe_test src/test.cpp ${TEST_FILES})
-target_include_directories(rwe_test PUBLIC ${PROJECT_SOURCE_DIR}/libs/catch2/single_include)
+add_executable(rwe_test ${TEST_FILES})
+target_link_libraries(rwe_test Catch2::Catch2WithMain)
 target_link_libraries(rwe_test rapidcheck_catch)
 target_link_libraries(rwe_test librwe)
 target_precompile_headers(rwe_test REUSE_FROM librwe)
@@ -870,7 +868,7 @@ add_test(NAME rwe_test COMMAND rwe_test)
 install(TARGETS rwe rwe_bridge
     RUNTIME DESTINATION .
     )
-install(FILES LICENSE README.md DESTINATION .)
+install(FILES LICENSE.txt README.md DESTINATION .)
 
 install(DIRECTORY shaders DESTINATION .)
 
