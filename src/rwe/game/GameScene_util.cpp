@@ -1,7 +1,6 @@
 #include "GameScene_util.h"
 
 #include <algorithm>
-#include <boost/algorithm/string/predicate.hpp>
 #include <rwe/util/Index.h>
 
 namespace rwe

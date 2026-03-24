@@ -1,7 +1,5 @@
 #pragma once
 
-#include <boost/range/adaptor/map.hpp>
-#include <boost/version.hpp>
 #include <deque>
 #include <fstream>
 #include <functional>
@@ -542,7 +540,7 @@ namespace rwe
         template <typename T>
         std::optional<std::reference_wrapper<T>> findWithSidePrefix(UiPanel& p, const std::string& name)
         {
-            for (const auto& side : (*sceneContext.sideData | boost::adaptors::map_values))
+            for (const auto& [_, side] : *sceneContext.sideData)
             {
                 auto control = p.find<T>(side.namePrefix + name);
                 if (control)

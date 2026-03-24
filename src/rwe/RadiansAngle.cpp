@@ -1,4 +1,5 @@
 #include "RadiansAngle.h"
+#include <cassert>
 #include <rwe/math/rwe_math.h>
 #include <rwe/util.h>
 

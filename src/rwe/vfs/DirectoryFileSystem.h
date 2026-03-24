@@ -2,19 +2,19 @@
 
 #include <rwe/vfs/AbstractVirtualFileSystem.h>
 
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 namespace rwe
 {
     class DirectoryFileSystem final : public LeafVirtualFileSystem
     {
     private:
-        boost::filesystem::path path;
+        std::filesystem::path path;
         std::string pathString;
 
     public:
         explicit DirectoryFileSystem(const std::string& path);
-        explicit DirectoryFileSystem(const boost::filesystem::path& path);
+        explicit DirectoryFileSystem(const std::filesystem::path& path);
 
     public:
         const std::string& getPath() const override;

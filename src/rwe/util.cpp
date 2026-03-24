@@ -5,7 +5,7 @@
 namespace rwe
 {
 #ifdef RWE_PLATFORM_WINDOWS
-    std::optional<boost::filesystem::path> getLocalDataPath()
+    std::optional<std::filesystem::path> getLocalDataPath()
     {
         auto appData = std::getenv("APPDATA");
         if (appData == nullptr)
@@ -13,7 +13,7 @@ namespace rwe
             return std::nullopt;
         }
 
-        boost::filesystem::path path(appData);
+        std::filesystem::path path(appData);
         path /= "RWE";
 
         return path;
@@ -21,7 +21,7 @@ namespace rwe
 #endif
 
 #ifdef RWE_PLATFORM_LINUX
-    std::optional<boost::filesystem::path> getLocalDataPath()
+    std::optional<std::filesystem::path> getLocalDataPath()
     {
         auto home = std::getenv("HOME");
         if (home == nullptr)
@@ -29,14 +29,14 @@ namespace rwe
             return std::nullopt;
         }
 
-        boost::filesystem::path path(home);
+        std::filesystem::path path(home);
         path /= ".rwe";
 
         return path;
     }
 #endif
 
-    std::optional<boost::filesystem::path> getSearchPath()
+    std::optional<std::filesystem::path> getSearchPath()
     {
         auto path = getLocalDataPath();
         if (!path)

@@ -1,4 +1,5 @@
 #include "MainMenuScene.h"
+#include <algorithm>
 #include <rwe/LoadingScene.h>
 #include <rwe/MainMenuModel.h>
 #include <rwe/camera_util.h>
@@ -187,12 +188,18 @@ namespace rwe
         sceneContext.sceneManager->requestExit();
     }
 
-    std::optional<int> matchesPlayer(const std::string& format, const std::string& input)
+    std::optional<int> matchesPlayer(const std::string& pattern, const std::string& input)
     {
         // FIXME: this should probably be a regex match instead of this crude brute-force search
         for (int i = 0; i < 10; ++i)
         {
-            if (input == fmt::format(format, i))
+            std::string candidate = pattern;
+            auto pos = candidate.find("{0}");
+            if (pos != std::string::npos)
+            {
+                candidate.replace(pos, 3, std::to_string(i));
+            }
+            if (input == candidate)
             {
                 return i;
             }
@@ -713,7 +720,7 @@ namespace rwe
             std::move(bgm),
             params);
 
-        sceneContext.sceneManager->setNextScene(std::move(scene));
+        sceneContext.sceneManager->setNextScene(std::shared_ptr<Scene>(std::move(scene)));
     }
 
     Point MainMenuScene::toScaledCoordinates(int x, int y) const

@@ -1,4 +1,5 @@
 #include "UnitBehaviorService_util.h"
+#include <algorithm>
 
 #include <stdexcept>
 

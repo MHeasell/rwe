@@ -2,9 +2,9 @@
 #include <cassert>
 #include <fstream>
 #include <iostream>
-#include <png++/png.hpp>
 #include <rwe/io/fnt/Fnt.h>
 #include <rwe/optional_io.h>
+#include <rwe/util/png_write.h>
 #include <vector>
 
 
@@ -14,7 +14,7 @@ void renderFontFile(std::istream& in, std::ostream& out)
 
     std::vector<char> v(512);
 
-    png::image<png::rgb_pixel> image(256, 512);
+    rwe::PngImage image(256, 512);
     for (unsigned int i = 0; i < 256; ++i)
     {
         auto charX = (i % 16) * 16;
@@ -34,12 +34,12 @@ void renderFontFile(std::istream& in, std::ostream& out)
             }
 
             auto val = (static_cast<unsigned char>(v[j / 8u]) >> (7u - (j % 8u))) & 1u;
-            auto pxVal = val ? 255 : 0;
-            image[charY + dy][charX + dx] = png::rgb_pixel(pxVal, pxVal, pxVal);
+            auto pxVal = static_cast<uint8_t>(val ? 255 : 0);
+            image.at(charX + dx, charY + dy) = rwe::RgbPixel{pxVal, pxVal, pxVal};
         }
     }
 
-    image.write_stream(out);
+    image.writeStream(out);
 }
 
 int main(int argc, char* argv[])

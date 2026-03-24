@@ -1,4 +1,5 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_approx.hpp>
 #include <rwe/sim/util.h>
 
 namespace rwe
@@ -73,9 +74,9 @@ namespace rwe
             // still introduces a bit of fp error due to conversion to radians
             auto barExpectedPosition = SimVector(31_ss, 22_ss, -7_ss);
             auto barActualPosition = getPieceTransform("bar", modelDef, pieces) * SimVector(0_ss, 0_ss, 0_ss);
-            REQUIRE(barActualPosition.x.value == Approx(barExpectedPosition.x.value));
-            REQUIRE(barActualPosition.y.value == Approx(barExpectedPosition.y.value));
-            REQUIRE(barActualPosition.z.value == Approx(barExpectedPosition.z.value));
+            REQUIRE(barActualPosition.x.value == Catch::Approx(barExpectedPosition.x.value));
+            REQUIRE(barActualPosition.y.value == Catch::Approx(barExpectedPosition.y.value));
+            REQUIRE(barActualPosition.z.value == Catch::Approx(barExpectedPosition.z.value));
         }
     }
 }

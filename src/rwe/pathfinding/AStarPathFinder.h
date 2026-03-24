@@ -1,9 +1,10 @@
 #pragma once
 
 #include <deque>
+#include <algorithm>
 #include <optional>
 #include <rwe/collections/MinHeap.h>
-#include <spdlog/spdlog.h>
+#include <rwe/util/SimpleLogger.h>
 #include <unordered_map>
 #include <vector>
 
@@ -66,7 +67,7 @@ namespace rwe
 
                 if (isGoal(current.vertex))
                 {
-                    spdlog::get("rwe")->debug("Found goal after visiting {0} vertices", openListPopsPerformed);
+                    LOG_DEBUG << "Found goal after visiting " << openListPopsPerformed << " vertices";
                     return AStarPathInfo<T, Cost>{AStarPathType::Complete, walkPath(current), std::move(closedVertices)};
                 }
 
@@ -88,7 +89,7 @@ namespace rwe
                 }
             }
 
-            spdlog::get("rwe")->debug("Failed to find goal, visited {0} vertices", openListPopsPerformed);
+            LOG_DEBUG << "Failed to find goal, visited " << openListPopsPerformed << " vertices";
             return AStarPathInfo<T, Cost>{AStarPathType::Partial, walkPath(*(closestVertex->second)), std::move(closedVertices)};
         }
 

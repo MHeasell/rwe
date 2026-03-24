@@ -1,4 +1,5 @@
 #include "TntArchive.h"
+#include <algorithm>
 
 #include <array>
 #include <cassert>

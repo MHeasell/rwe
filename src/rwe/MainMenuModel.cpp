@@ -1,4 +1,5 @@
 #include "MainMenuModel.h"
+#include <algorithm>
 
 namespace rwe
 {

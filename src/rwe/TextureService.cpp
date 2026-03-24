@@ -1,5 +1,6 @@
 #include "TextureService.h"
-#include <boost/interprocess/streams/bufferstream.hpp>
+#include <algorithm>
+#include <rwe/util/SpanStream.h>
 #include <rwe/io/fnt/Fnt.h>
 #include <rwe/io/gaf/GafArchive.h>
 #include <rwe/io/pcx/pcx.h>
@@ -110,7 +111,7 @@ namespace rwe
             return std::nullopt;
         }
 
-        boost::interprocess::bufferstream gafStream(gafBytes->data(), gafBytes->size());
+        rwe::SpanStream gafStream(gafBytes->data(), gafBytes->size());
         GafArchive gafArchive(&gafStream);
 
         auto gafEntry = gafArchive.findEntry(normEntryName);
@@ -239,7 +240,7 @@ namespace rwe
             throw std::runtime_error("map tnt not found!");
         }
 
-        boost::interprocess::bufferstream tntStream(tntData->data(), tntData->size());
+        rwe::SpanStream tntStream(tntData->data(), tntData->size());
         TntArchive tnt(&tntStream);
         auto minimap = tnt.readMinimap();
 
@@ -274,7 +275,7 @@ namespace rwe
             throw std::runtime_error("font not found!");
         }
 
-        boost::interprocess::bufferstream fntStream(fntBytes->data(), fntBytes->size());
+        rwe::SpanStream fntStream(fntBytes->data(), fntBytes->size());
         FntArchive fnt(&fntStream);
 
         auto series = std::make_shared<SpriteSeries>();

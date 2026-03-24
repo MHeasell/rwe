@@ -1,4 +1,5 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_approx.hpp>
 #include <rwe/math/Matrix4f.h>
 #include <rwe/math/Vector3f.h>
 #include <rwe/math/rwe_math.h>
@@ -66,25 +67,25 @@ namespace rwe
             Matrix4f b = Matrix4f::inverseOrthographicProjection(-40.0f, 60.0f, -30.0f, 10.0f, 2.0f, 200.0f);
             Matrix4f c = b * a;
 
-            REQUIRE(c.data[0] == Approx(1.0f));
-            REQUIRE(c.data[1] == Approx(0.0f));
-            REQUIRE(c.data[2] == Approx(0.0f));
-            REQUIRE(c.data[3] == Approx(0.0f));
+            REQUIRE(c.data[0] == Catch::Approx(1.0f));
+            REQUIRE(c.data[1] == Catch::Approx(0.0f));
+            REQUIRE(c.data[2] == Catch::Approx(0.0f));
+            REQUIRE(c.data[3] == Catch::Approx(0.0f));
 
-            REQUIRE(c.data[4] == Approx(0.0f));
-            REQUIRE(c.data[5] == Approx(1.0f));
-            REQUIRE(c.data[6] == Approx(0.0f));
-            REQUIRE(c.data[7] == Approx(0.0f));
+            REQUIRE(c.data[4] == Catch::Approx(0.0f));
+            REQUIRE(c.data[5] == Catch::Approx(1.0f));
+            REQUIRE(c.data[6] == Catch::Approx(0.0f));
+            REQUIRE(c.data[7] == Catch::Approx(0.0f));
 
-            REQUIRE(c.data[8] == Approx(0.0f));
-            REQUIRE(c.data[9] == Approx(0.0f));
-            REQUIRE(c.data[10] == Approx(1.0f));
-            REQUIRE(c.data[11] == Approx(0.0f));
+            REQUIRE(c.data[8] == Catch::Approx(0.0f));
+            REQUIRE(c.data[9] == Catch::Approx(0.0f));
+            REQUIRE(c.data[10] == Catch::Approx(1.0f));
+            REQUIRE(c.data[11] == Catch::Approx(0.0f));
 
-            REQUIRE(c.data[12] == Approx(0.0f));
-            REQUIRE(c.data[13] == Approx(0.0f));
-            REQUIRE(c.data[14] == Approx(0.0f));
-            REQUIRE(c.data[15] == Approx(1.0f));
+            REQUIRE(c.data[12] == Catch::Approx(0.0f));
+            REQUIRE(c.data[13] == Catch::Approx(0.0f));
+            REQUIRE(c.data[14] == Catch::Approx(0.0f));
+            REQUIRE(c.data[15] == Catch::Approx(1.0f));
         }
     }
 
@@ -96,25 +97,25 @@ namespace rwe
             Matrix4f b = Matrix4f::cabinetProjection(0.0f, -0.5f);
             Matrix4f c = b * a;
 
-            REQUIRE(c.data[0] == Approx(1.0f));
-            REQUIRE(c.data[1] == Approx(0.0f));
-            REQUIRE(c.data[2] == Approx(0.0f));
-            REQUIRE(c.data[3] == Approx(0.0f));
+            REQUIRE(c.data[0] == Catch::Approx(1.0f));
+            REQUIRE(c.data[1] == Catch::Approx(0.0f));
+            REQUIRE(c.data[2] == Catch::Approx(0.0f));
+            REQUIRE(c.data[3] == Catch::Approx(0.0f));
 
-            REQUIRE(c.data[4] == Approx(0.0f));
-            REQUIRE(c.data[5] == Approx(1.0f));
-            REQUIRE(c.data[6] == Approx(0.0f));
-            REQUIRE(c.data[7] == Approx(0.0f));
+            REQUIRE(c.data[4] == Catch::Approx(0.0f));
+            REQUIRE(c.data[5] == Catch::Approx(1.0f));
+            REQUIRE(c.data[6] == Catch::Approx(0.0f));
+            REQUIRE(c.data[7] == Catch::Approx(0.0f));
 
-            REQUIRE(c.data[8] == Approx(0.0f));
-            REQUIRE(c.data[9] == Approx(0.0f));
-            REQUIRE(c.data[10] == Approx(1.0f));
-            REQUIRE(c.data[11] == Approx(0.0f));
+            REQUIRE(c.data[8] == Catch::Approx(0.0f));
+            REQUIRE(c.data[9] == Catch::Approx(0.0f));
+            REQUIRE(c.data[10] == Catch::Approx(1.0f));
+            REQUIRE(c.data[11] == Catch::Approx(0.0f));
 
-            REQUIRE(c.data[12] == Approx(0.0f));
-            REQUIRE(c.data[13] == Approx(0.0f));
-            REQUIRE(c.data[14] == Approx(0.0f));
-            REQUIRE(c.data[15] == Approx(1.0f));
+            REQUIRE(c.data[12] == Catch::Approx(0.0f));
+            REQUIRE(c.data[13] == Catch::Approx(0.0f));
+            REQUIRE(c.data[14] == Catch::Approx(0.0f));
+            REQUIRE(c.data[15] == Catch::Approx(1.0f));
         }
     }
 
@@ -125,9 +126,9 @@ namespace rwe
             Matrix4f m = Matrix4f::translation(Vector3f(3.0f, 4.0f, 5.0f));
             Vector3f v(11.0f, 15.0f, 19.0f);
             auto u = m * v;
-            REQUIRE(u.x == Approx(14.0f));
-            REQUIRE(u.y == Approx(19.0f));
-            REQUIRE(u.z == Approx(24.0f));
+            REQUIRE(u.x == Catch::Approx(14.0f));
+            REQUIRE(u.y == Catch::Approx(19.0f));
+            REQUIRE(u.z == Catch::Approx(24.0f));
         }
     }
 
@@ -188,9 +189,9 @@ namespace rwe
             auto m = Matrix4f::rotationAxisAngle(Vector3f(0.0f, 1.0f, 0.0f), Pif / 2.0f);
             auto v = Vector3f(5.0f, 0.0f, 3.0f);
             auto v2 = m * v;
-            REQUIRE(v2.x == Approx(3.0f));
-            REQUIRE(v2.y == Approx(0.0f));
-            REQUIRE(v2.z == Approx(-5.0f));
+            REQUIRE(v2.x == Catch::Approx(3.0f));
+            REQUIRE(v2.y == Catch::Approx(0.0f));
+            REQUIRE(v2.z == Catch::Approx(-5.0f));
         }
     }
 }

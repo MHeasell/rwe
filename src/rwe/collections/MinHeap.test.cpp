@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 
 namespace std
 {
@@ -9,10 +10,8 @@ namespace std
     }
 }
 
-#include <boost/functional/hash.hpp>
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <optional>
-#include <rapidcheck/boost.h>
 #include <rapidcheck/catch.h>
 #include <rwe/collections/MinHeap.h>
 #include <rwe/grid/Point.h>
@@ -24,9 +23,12 @@ namespace std
     template <typename A, typename B>
     struct hash<std::pair<A, B>>
     {
-        std::size_t operator()(const std::pair<A, B>& f) const noexcept
+        std::size_t operator()(const std::pair<A, B>& p) const noexcept
         {
-            return boost::hash<std::pair<A, B>>()(f);
+            std::size_t seed = 0;
+            rwe::hashCombine(seed, std::hash<A>{}(p.first));
+            rwe::hashCombine(seed, std::hash<B>{}(p.second));
+            return seed;
         }
     };
 }

@@ -21,13 +21,14 @@ To find the files, click "Environment: RWE\_COMPILER=MSYS; Configuration: Releas
 RWE is currently only available on Windows,
 however the code is also built and tested on Linux.
 Official Linux binaries will be available when the project reaches a stable version.
+MacOS should work via the devbox build below, tho it's not regularly tested.
 
 Source code is hosted on Github:
 
 https://github.com/MHeasell/rwe
 
-## How to Install
-
+## How to Install 
+Windows:
 1. Create the folder `%AppData%/RWE/Data` and copy your TA data files to it (.hpi, .ufo, rev31.gp3, etc.)
 2. Run rwe.exe (if you used the installer, RWE will be in your start menu items)
 
@@ -67,8 +68,6 @@ First fetch the source code:
     cd rwe
     git submodule update --init --recursive
 
-Then follow the instructions for your platform.
-
 ### Windows with Visual Studio
 
 Get the RWE MSVC libraries bundle.
@@ -96,7 +95,6 @@ Choose to run at the end of install, and in the terminal that opens install the 
 
     pacman -S git make unzip mingw-w64-x86_64-cmake mingw-w64-x86_64-toolchain
     pacman -S \
-      mingw-w64-x86_64-boost \
       mingw-w64-x86_64-SDL2 \
       mingw-w64-x86_64-SDL2_image \
       mingw-w64-x86_64-SDL2_mixer \
@@ -134,8 +132,44 @@ Install Visual Studio Code, and open it. Under extensions, search for C/C++, and
 File > Open Folder, choose the root directory of the RWE repository (where CMakeLists.txt is). At the bottom of the VS Code window you should see CMake: [Debug]: Ready and probably No Kit Selected. Click No Kit Selected to choose which compiler to use. VS Code should auto-detect compilers on your machine, so if none are listed here, install Visual Studio or MSYS2 first and try again.
 Once a toolset is selected, CMake will configure itself for the project, with its output in the OUTPUT window. When that's done, you should be able to build by clicking the Build button there on the bottom or hit F7.
 
-### Ubuntu
+### Linux/macOS
+You can build without TA game assets, but to run the game rwe will need to know where they are.
+rwe looks in $HOME/.rwe/Data by default. 
+> After building, you can also override it at runtime, e.g. `./rwe --data-path "$HOME/src/TA/Total Annihilation"`
 
+To copy TA data files (.hpi, .ufo, .ccx, rev31.gp3, etc.) in the default dir:
+```bash
+mkdir -p $HOME/.rwe/Data
+cp /path/to/totala/*.hpi $HOME/.rwe/Data
+cp /path/to/totala/*.ufo $HOME/.rwe/Data
+cp /path/to/totala/*.ccx $HOME/.rwe/Data
+cp /path/to/totala/*.gpf $HOME/.rwe/Data
+cp /path/to/totala/*.gp3 $HOME/.rwe/Data
+```
+Or, symlink: `ln -s "/path/to/totala/" ~/.rwe/Data`
+
+#### Devbox
+The easiest way to get a working build environment is with [Devbox](https://www.jetify.com/devbox),
+which uses Nix to provide dependencies automatically.
+```bash
+curl -fsSL https://get.jetify.com/devbox | bash # installs devbox (one-time)
+# From the rwe repo base dir:
+devbox shell  # Enters the dev environment - uses devbox.json to pull in dependencies. May take a while the first time.
+mkdir build && cd build
+cmake .. -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=Debug
+make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)  # -j isn't necessary, but builds with multiple threads and will reduce build time
+./rwe_test # run tests, of course
+# run the game- this should work for MacOS, tho in Linux the devbox/nix build may have a quirk that gives you OpenGL related errors on launch
+./rwe
+# If you see "Could not get EGL display" or other OpenGL related errors on launch, try this instead of `./rwe`
+# This script just runs rwe with LD_LIBRARY_PATH set to a good guess of which dirs your video drivers exist in.
+./run.sh
+```
+
+
+#### Ubuntu
+> Note: these steps may be a bit out of date, but the Devbox build above should work fine on Ubuntu.
+> If you want a native build environment, take a look at devbox.json to get an idea of the dependencies required.
 Install the necessary packages:
 
     sudo add-apt-repository ppa:ubuntu-toolchain-r/test
@@ -143,9 +177,6 @@ Install the necessary packages:
     sudo apt-get install \
       gcc-7 \
       g++-7 \
-      libboost-dev \
-      libboost-filesystem-dev \
-      libboost-program-options-dev \
       libsdl2-dev \
       libsdl2-image-dev \
       libsdl2-mixer-dev \
@@ -163,7 +194,6 @@ Here's how you might install CMake:
     export PATH=$(pwd)/cmake-3.8.2-Linux-x86_64/bin:$PATH
 
 Compile protobuf:
-
     cd /path/to/rwe
     cd libs
     ./build-protobuf.sh
@@ -174,23 +204,10 @@ Now build the code:
     mkdir build
     cd build
     export CC=gcc-7 CXX=g++-7
-    cmake .. -G 'Unix Makefiles' -DCMAKE_EXPORT_COMPILE_COMMANDS=1 
+    cmake .. -G 'Unix Makefiles'
     make
 
-The -DCMAKE_EXPORT_COMPILE_COMMANDS=1 is optional. It generates compile_commands.json which some VS Code plugins like clangd can read in order to automatically configure themselves for the project.
 Note if LLVM/clang is installed, export CC=clang CXX=clang++ should also work.
-
-Install some TA data files (.hpi, .ufo, .ccx, rev31.gp3, etc.)
-to your local data directory:
-
-    mkdir -p $HOME/.rwe/Data
-    cp /path/to/totala/*.hpi $HOME/.rwe/Data
-    cp /path/to/totala/*.ufo $HOME/.rwe/Data
-    cp /path/to/totala/*.ccx $HOME/.rwe/Data
-    cp /path/to/totala/*.gpf $HOME/.rwe/Data
-    cp /path/to/totala/*.gp3 $HOME/.rwe/Data
-
-Alternatively you can symlink `.rwe/Data` to your TA directory.
 
 Finally, launch RWE from the top-level project directory:
 

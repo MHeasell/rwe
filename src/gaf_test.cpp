@@ -1,27 +1,14 @@
-#include <boost/filesystem.hpp>
+#include <cassert>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <memory>
-#include <png++/png.hpp>
 #include <rwe/io/gaf/GafArchive.h>
+#include <rwe/util/png_write.h>
 #include <string>
 
-namespace fs = boost::filesystem;
-
-void loadPalette(const std::string& filename, png::rgb_pixel* buffer)
-{
-    std::ifstream in(filename, std::ios::binary);
-
-    for (unsigned int i = 0; i < 256; ++i)
-    {
-        in.read(reinterpret_cast<char*>(&(buffer[i].red)), 1);
-        in.read(reinterpret_cast<char*>(&(buffer[i].green)), 1);
-        in.read(reinterpret_cast<char*>(&(buffer[i].blue)), 1);
-        in.seekg(1, std::ios::cur); // skip alpha
-    }
-}
-
+namespace fs = std::filesystem;
 
 int listCommand(const std::string& filename)
 {
@@ -95,14 +82,14 @@ public:
 class GafAdapter : public rwe::GafReaderAdapter
 {
 private:
-    png::rgb_pixel* palette;
+    rwe::RgbPixel* palette;
     std::size_t frameCount;
     std::unique_ptr<char[]> currentFrame;
     rwe::GafFrameData currentFrameHeader;
     fs::path destPath;
 
 public:
-    explicit GafAdapter(png::rgb_pixel* palette, const std::string& destPath) : palette(palette), frameCount(0), currentFrame(), destPath(destPath) {}
+    explicit GafAdapter(rwe::RgbPixel* palette, const std::string& destPath) : palette(palette), frameCount(0), currentFrame(), destPath(destPath) {}
     void beginFrame(const rwe::GafFrameEntry& entry, const rwe::GafFrameData& header) override
     {
         std::cout << "Beginning frame " << frameCount << std::endl;
@@ -141,15 +128,14 @@ public:
 
     void endFrame() override
     {
-        png::image<png::rgb_pixel> image(currentFrameHeader.width, currentFrameHeader.height);
-        for (png::uint_32 y = 0; y < image.get_height(); ++y)
+        rwe::PngImage image(currentFrameHeader.width, currentFrameHeader.height);
+        for (uint32_t y = 0; y < currentFrameHeader.height; ++y)
         {
-            for (png::uint_32 x = 0; x < image.get_width(); ++x)
+            for (uint32_t x = 0; x < currentFrameHeader.width; ++x)
             {
                 auto b = static_cast<unsigned char>(currentFrame[(y * currentFrameHeader.width) + x]);
                 assert(b >= 0 && b < 256);
-                auto px = palette[b];
-                image[y][x] = px;
+                image.at(x, y) = palette[b];
             }
         }
 
@@ -165,8 +151,8 @@ int extractAllCommand(const std::string& palettePath, const std::string& gafPath
 {
     std::cout << "Palette file: " << palettePath << std::endl;
 
-    png::rgb_pixel palette[256];
-    loadPalette(palettePath, palette);
+    rwe::RgbPixel palette[256];
+    rwe::loadPalette(palettePath, palette);
 
     std::cout << "GAF archive: " << gafPath << std::endl;
     std::ifstream file(gafPath, std::ios::binary);
@@ -201,8 +187,8 @@ int extractCommand(const std::string& palettePath, const std::string& gafPath, c
 {
     std::cout << "Palette file: " << palettePath << std::endl;
 
-    png::rgb_pixel palette[256];
-    loadPalette(palettePath, palette);
+    rwe::RgbPixel palette[256];
+    rwe::loadPalette(palettePath, palette);
 
     std::cout << "GAF archive: " << gafPath << std::endl;
     std::ifstream file(gafPath, std::ios::binary);

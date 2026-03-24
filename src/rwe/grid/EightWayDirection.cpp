@@ -1,5 +1,8 @@
 #include "EightWayDirection.h"
+#include <cassert>
+#include <cstdlib>
 #include <rwe/math/rwe_math.h>
+#include <stdexcept>
 
 namespace rwe
 {

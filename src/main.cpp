@@ -1,6 +1,5 @@
 #include <GL/glew.h>
-#include <boost/filesystem.hpp>
-#include <boost/program_options.hpp>
+#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <rwe/AudioService.h>
@@ -27,12 +26,12 @@
 #include <rwe/sim/Metal.h>
 #include <rwe/ui/UiFactory.h>
 #include <rwe/util.h>
+#include <rwe/util/OpaqueArgs.h>
 #include <rwe/util/Result.h>
+#include <rwe/util/SimpleLogger.h>
 #include <rwe/vfs/CompositeVirtualFileSystem.h>
-#include <spdlog/spdlog.h>
 
-namespace fs = boost::filesystem;
-namespace po = boost::program_options;
+namespace fs = std::filesystem;
 
 namespace rwe
 {
@@ -79,13 +78,12 @@ namespace rwe
         }
     }
 
-    Result<SdlContext::GlContextUniquePtr, const char*> createOpenGlContext(SdlContext* sdlContext, SDL_Window* window, spdlog::logger& logger, const OpenGlVersionInfo& requiredVersion)
+    Result<SdlContext::GlContextUniquePtr, const char*> createOpenGlContext(SdlContext* sdlContext, SDL_Window* window, const OpenGlVersionInfo& requiredVersion)
     {
-        logger.info(
-            "Requesting OpenGL version {0}.{1}, {2} profile",
-            requiredVersion.version.majorVersion,
-            requiredVersion.version.minorVersion,
-            getOpenGlProfileName(requiredVersion.profile));
+        LOG_INFO << "Requesting OpenGL version "
+                 << requiredVersion.version.majorVersion << "."
+                 << requiredVersion.version.minorVersion << ", "
+                 << getOpenGlProfileName(requiredVersion.profile) << " profile";
 
         if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, requiredVersion.version.majorVersion) != 0)
         {
@@ -120,14 +118,14 @@ namespace rwe
         return Ok(std::move(glContext));
     };
 
-    int run(spdlog::logger& logger, const std::vector<fs::path>& searchPath, const PathMapping& pathMapping, const std::optional<GameParameters>& gameParameters, unsigned int desiredWindowWidth, unsigned int desiredWindowHeight, bool fullscreen, const std::string& imGuiIniPath, GlobalConfig& globalConfig)
+    int run(const std::vector<fs::path>& searchPath, const PathMapping& pathMapping, const std::optional<GameParameters>& gameParameters, unsigned int desiredWindowWidth, unsigned int desiredWindowHeight, bool fullscreen, const std::string& imGuiIniPath, GlobalConfig& globalConfig)
     {
-        logger.info(ProjectNameVersion);
-        logger.info("Current directory: {0}", fs::current_path().string());
+        LOG_INFO << ProjectNameVersion;
+        LOG_INFO << "Current directory: " << fs::current_path().string();
 
         TimeService timeService(getTimestamp());
 
-        logger.info("Initializing SDL");
+        LOG_INFO << "Initializing SDL";
         SdlContextManager sdlManager;
 
         // Set a reasonable number of audio channels
@@ -191,13 +189,13 @@ namespace rwe
         sdlContext->getWindowSize(window.get(), &windowWidth, &windowHeight);
         Viewport viewport(0, 0, windowWidth, windowHeight);
 
-        logger.info("Initializing OpenGL context");
+        LOG_INFO << "Initializing OpenGL context";
 
-        auto glContextResult = createOpenGlContext(sdlContext, window.get(), logger, OpenGlVersionInfo(3, 2, OpenGlProfile::Core));
+        auto glContextResult = createOpenGlContext(sdlContext, window.get(), OpenGlVersionInfo(3, 2, OpenGlProfile::Core));
         if (!glContextResult)
         {
-            logger.error("Failed to create preferred OpenGL context: {0}", glContextResult.getErr());
-            glContextResult = createOpenGlContext(sdlContext, window.get(), logger, OpenGlVersionInfo(3, 0, OpenGlProfile::Compatibility));
+            LOG_ERROR << "Failed to create preferred OpenGL context: " << glContextResult.getErr();
+            glContextResult = createOpenGlContext(sdlContext, window.get(), OpenGlVersionInfo(3, 0, OpenGlProfile::Compatibility));
             if (!glContextResult)
             {
                 throw std::runtime_error(glContextResult.getErr());
@@ -213,29 +211,29 @@ namespace rwe
         doGlewInit();
 
         // log opengl context info
-        logger.info("OpenGL version: {0}", glGetString(GL_VERSION));
-        logger.info("OpenGL vendor: {0}", glGetString(GL_VENDOR));
-        logger.info("OpenGL renderer: {0}", glGetString(GL_RENDERER));
-        logger.info("OpenGL shading language version: {0}", glGetString(GL_SHADING_LANGUAGE_VERSION));
-        logger.debug("OpenGL extensions:");
+        LOG_INFO << "OpenGL version: " << glGetString(GL_VERSION);
+        LOG_INFO << "OpenGL vendor: " << glGetString(GL_VENDOR);
+        LOG_INFO << "OpenGL renderer: " << glGetString(GL_RENDERER);
+        LOG_INFO << "OpenGL shading language version: " << glGetString(GL_SHADING_LANGUAGE_VERSION);
+        LOG_DEBUG << "OpenGL extensions:";
         int openGlExtensionCount;
         glGetIntegerv(GL_NUM_EXTENSIONS, &openGlExtensionCount);
         for (int i = 0; i < openGlExtensionCount; ++i)
         {
-            logger.debug("  {0}", glGetStringi(GL_EXTENSIONS, i));
+            LOG_DEBUG << "  " << glGetStringi(GL_EXTENSIONS, i);
         }
 
-        logger.info("Initializing Dear ImGui");
+        LOG_INFO << "Initializing Dear ImGui";
         ImGuiContext imGuiContext(imGuiIniPath, window.get(), glContext.get());
 
-        logger.info("Initializing virtual file system");
+        LOG_INFO << "Initializing virtual file system";
         CompositeVirtualFileSystem vfs;
         for (const auto& path : searchPath)
         {
             addToVfs(vfs, path.string());
         }
 
-        logger.info("Loading palette");
+        LOG_INFO << "Loading palette";
         auto paletteBytes = vfs.readFile("palettes/PALETTE.PAL");
         if (!paletteBytes)
         {
@@ -248,7 +246,7 @@ namespace rwe
             throw std::runtime_error("Couldn't read palette");
         }
 
-        logger.info("Loading GUI palette");
+        LOG_INFO << "Loading GUI palette";
         auto guiPaletteBytes = vfs.readFile("palettes/GUIPAL.PAL");
         if (!guiPaletteBytes)
         {
@@ -261,7 +259,7 @@ namespace rwe
             throw std::runtime_error("Couldn't read GUI palette");
         }
 
-        logger.info("Initializing services");
+        LOG_INFO << "Initializing services";
         GraphicsContext graphics;
         graphics.enableCulling();
         graphics.enableBlending();
@@ -273,7 +271,7 @@ namespace rwe
         AudioService audioService(sdlContext, sdlManager.getSdlMixerContext(), &vfs);
 
         // load sound definitions
-        logger.info("Loading global sound definitions");
+        LOG_INFO << "Loading global sound definitions";
         auto allSoundBytes = vfs.readFile("gamedata/ALLSOUND.TDF");
         if (!allSoundBytes)
         {
@@ -283,7 +281,7 @@ namespace rwe
         std::string allSoundString(allSoundBytes->data(), allSoundBytes->size());
         auto allSoundTdf = parseTdfFromString(allSoundString);
 
-        logger.info("Loading cursors");
+        LOG_INFO << "Loading cursors";
         Cursors cursors;
         cursors[*CursorType::Normal] = textureService.getGafEntry("anims/CURSORS.GAF", "cursornormal");
         cursors[*CursorType::Select] = textureService.getGafEntry("anims/CURSORS.GAF", "cursorselect");
@@ -299,7 +297,7 @@ namespace rwe
 
         SceneManager sceneManager(sdlContext, window.get(), &graphics, &timeService, &imGuiContext, &cursor, &globalConfig, UiRenderService(&graphics, &shaders, &viewport), &viewport);
 
-        logger.info("Loading side data");
+        LOG_INFO << "Loading side data";
         auto sideDataBytes = vfs.readFile("gamedata/SIDEDATA.TDF");
         if (!sideDataBytes)
         {
@@ -335,29 +333,29 @@ namespace rwe
 
         if (gameParameters)
         {
-            logger.info("Launching into game on map: {0}", gameParameters->mapName);
+            LOG_INFO << "Launching into game on map: " << gameParameters->mapName;
             auto scene = std::make_unique<LoadingScene>(
                 sceneContext,
                 &allSoundTdf,
                 AudioService::LoopToken(),
                 *gameParameters);
-            sceneManager.setNextScene(std::move(scene));
+            sceneManager.setNextScene(std::shared_ptr<Scene>(std::move(scene)));
         }
         else
         {
-            logger.info("Launching into the main menu");
+            LOG_INFO << "Launching into the main menu";
             auto scene = std::make_unique<MainMenuScene>(
                 sceneContext,
                 &allSoundTdf,
                 viewport.width(),
                 viewport.height());
-            sceneManager.setNextScene(std::move(scene));
+            sceneManager.setNextScene(std::shared_ptr<Scene>(std::move(scene)));
         }
 
-        logger.info("Entering main loop");
+        LOG_INFO << "Entering main loop";
         sceneManager.execute();
 
-        logger.info("Finished main loop, exiting");
+        LOG_INFO << "Finished main loop, exiting";
 
         return 0;
     }
@@ -445,12 +443,12 @@ namespace rwe
     }
 }
 
-auto createLogger(const fs::path& logFile)
+std::shared_ptr<rwe::SimpleLogger> createLogger(const fs::path& logFile)
 {
-    return spdlog::basic_logger_mt("rwe", logFile.string(), true);
+    return std::make_shared<rwe::SimpleLogger>(logFile.string(), true);
 }
 
-auto createLoggerInDir(const fs::path& logDir)
+std::shared_ptr<rwe::SimpleLogger> createLoggerInDir(const fs::path& logDir)
 {
     for (int i = 0; i < 3; ++i)
     {
@@ -466,9 +464,9 @@ auto createLoggerInDir(const fs::path& logDir)
 
         try
         {
-            return spdlog::basic_logger_mt("rwe", logPath.string(), true);
+            return std::make_shared<rwe::SimpleLogger>(logPath.string(), true);
         }
-        catch (const spdlog::spdlog_ex& ex)
+        catch (const std::exception&)
         {
         }
     }
@@ -520,78 +518,48 @@ int main(int argc, char* argv[])
         fs::path imGuiIniFilePath(*localDataPath);
         imGuiIniFilePath /= "imgui.ini";
 
-        po::options_description desc("Allowed options");
+        rwe::OpaqueArgs args;
+        args.parse(argc, argv);
+        args.parseConfig(configFilePath.string());
 
-        // clang-format off
-        desc.add_options()
-            ("help", "produce help message")
-            ("log", po::value<std::string>(), "Sets the log output file path")
-            ("state-log", po::value<std::string>(), "Sets the output file for sim-state logs. This is a desync debugging feature.")
-            ("width", po::value<unsigned int>()->default_value(800), "Sets the window width in pixels")
-            ("height", po::value<unsigned int>()->default_value(600), "Sets the window height in pixels")
-            ("fullscreen", po::bool_switch(), "Starts the application in fullscreen mode")
-            ("interface-mode", po::value<std::string>()->default_value("left-click"), "left-click or right-click")
-            ("data-path", po::value<std::vector<std::string>>(), "Sets the location(s) to search for game data")
-            ("map", po::value<std::string>(), "If given, launches straight into a game on the given map")
-            ("port", po::value<std::string>()->default_value("1337"), "Network port to bind to")
-            ("player", po::value<std::vector<std::string>>(), "type;side;color")
-            ("dir-ai", po::value<std::string>()->default_value("ai"), "AI directory name")
-            ("dir-anims", po::value<std::string>()->default_value("anims"), "anims directory name")
-            ("dir-bitmaps", po::value<std::string>()->default_value("bitmaps"), "bitmaps directory name")
-            ("dir-camps", po::value<std::string>()->default_value("camps"), "campaigns directory name")
-            ("dir-downloads", po::value<std::string>()->default_value("downloads"), "downloads directory name")
-            ("dir-features", po::value<std::string>()->default_value("features"), "features directory name")
-            ("dir-fonts", po::value<std::string>()->default_value("fonts"), "fonts directory name")
-            ("dir-gamedata", po::value<std::string>()->default_value("gamedata"), "gamedata directory name")
-            ("dir-guis", po::value<std::string>()->default_value("guis"), "GUIs directory name")
-            ("dir-maps", po::value<std::string>()->default_value("maps"), "maps directory name")
-            ("dir-objects3d", po::value<std::string>()->default_value("objects3d"), "3D objects directory name")
-            ("dir-palettes", po::value<std::string>()->default_value("palettes"), "palettes directory name")
-            ("dir-scripts", po::value<std::string>()->default_value("scripts"), "scripts directory name")
-            ("dir-sounds", po::value<std::string>()->default_value("sounds"), "sounds directory name")
-            ("dir-textures", po::value<std::string>()->default_value("textures"), "textures directory name")
-            ("dir-unitpics", po::value<std::string>()->default_value("unitpics"), "unitpics directory name")
-            ("dir-units", po::value<std::string>()->default_value("units"), "units directory name")
-            ("dir-weapons", po::value<std::string>()->default_value("weapons"), "weapons directory name");
-        // clang-format on
-
-        po::variables_map vm;
-        po::store(po::parse_command_line(argc, argv, desc), vm);
+        if (args.isHelpRequested())
         {
-            std::ifstream configFileStream(configFilePath.string(), std::ios::binary);
-            if (configFileStream.is_open())
-            {
-                po::store(po::parse_config_file(configFileStream, desc), vm);
-            }
-        }
-        po::notify(vm);
-
-        if (vm.count("help"))
-        {
-            std::cout << desc << std::endl;
+            std::cout << "Usage: rwe [options]\n"
+                      << "  --help                Show this message\n"
+                      << "  --log <path>          Log output file path\n"
+                      << "  --state-log <path>    Sim-state log file (desync debugging)\n"
+                      << "  --width <pixels>      Window width (default: 800)\n"
+                      << "  --height <pixels>     Window height (default: 600)\n"
+                      << "  --fullscreen          Start in fullscreen mode\n"
+                      << "  --interface-mode <m>  left-click or right-click (default: left-click)\n"
+                      << "  --data-path <path>    Game data search path (repeatable)\n"
+                      << "  --map <name>          Launch directly into a game on this map\n"
+                      << "  --port <port>         Network port (default: 1337)\n"
+                      << "  --player <spec>       Player spec: name;type;side;color (repeatable)\n"
+                      << "  --dir-<name> <dir>    Override directory name for a data category\n"
+                      << std::endl;
             return 0;
         }
 
-        auto logger = vm.count("log") ? createLogger(fs::path(vm["log"].as<std::string>())) : createLoggerInDir(*localDataPath);
-        logger->set_level(spdlog::level::debug);
-        logger->flush_on(spdlog::level::debug); // always flush
+        auto logger = args.contains("log") ? createLogger(fs::path(args.getString("log"))) : createLoggerInDir(*localDataPath);
+        rwe::setGlobalLogger(logger);
 
         try
         {
             rwe::GlobalConfig config;
-            config.leftClickInterfaceMode = vm["interface-mode"].as<std::string>() != "right-click";
+            config.leftClickInterfaceMode = args.getString("interface-mode", "left-click") != "right-click";
             std::optional<rwe::GameParameters> gameParameters;
-            if (vm.count("map"))
+            if (args.contains("map"))
             {
-                const auto& mapName = vm["map"].as<std::string>();
-                const auto& players = vm["player"].as<std::vector<std::string>>();
+                const auto& mapName = args.getString("map");
+                const auto& players = args.getMulti("player");
 
                 gameParameters = rwe::GameParameters{mapName, 0};
-                if (vm.count("state-log"))
+                if (args.contains("state-log"))
                 {
-                    gameParameters->stateLogFile = vm["state-log"].as<std::string>();
+                    gameParameters->stateLogFile = args.getString("state-log");
                 }
-                gameParameters->localNetworkPort = vm["port"].as<std::string>();
+                gameParameters->localNetworkPort = args.getString("port", "1337");
                 unsigned int playerIndex = 0;
                 if (players.size() > 10)
                 {
@@ -606,44 +574,44 @@ int main(int argc, char* argv[])
 
             std::vector<fs::path> gameDataPaths;
 
-            if (vm.count("data-path"))
+            auto dataPaths = args.getMulti("data-path");
+            if (!dataPaths.empty())
             {
-                const auto& paths = vm["data-path"].as<std::vector<std::string>>();
-                gameDataPaths.insert(gameDataPaths.end(), paths.begin(), paths.end());
+                gameDataPaths.insert(gameDataPaths.end(), dataPaths.begin(), dataPaths.end());
             }
             else
             {
                 gameDataPaths.emplace_back(*localDataPath) /= "Data";
             }
 
-            auto screenWidth = vm["width"].as<unsigned int>();
-            auto screenHeight = vm["height"].as<unsigned int>();
-            auto fullscreen = vm["fullscreen"].as<bool>();
+            auto screenWidth = args.getUint("width", 800);
+            auto screenHeight = args.getUint("height", 600);
+            auto fullscreen = args.getBool("fullscreen");
 
             auto pathMapping = constructDefaultPathMapping();
-            pathMapping.ai = vm["dir-ai"].as<std::string>();
-            pathMapping.anims = vm["dir-anims"].as<std::string>();
-            pathMapping.bitmaps = vm["dir-bitmaps"].as<std::string>();
-            pathMapping.camps = vm["dir-camps"].as<std::string>();
-            pathMapping.downloads = vm["dir-features"].as<std::string>();
-            pathMapping.fonts = vm["dir-fonts"].as<std::string>();
-            pathMapping.gamedata = vm["dir-gamedata"].as<std::string>();
-            pathMapping.guis = vm["dir-guis"].as<std::string>();
-            pathMapping.maps = vm["dir-maps"].as<std::string>();
-            pathMapping.objects3d = vm["dir-objects3d"].as<std::string>();
-            pathMapping.palettes = vm["dir-palettes"].as<std::string>();
-            pathMapping.scripts = vm["dir-scripts"].as<std::string>();
-            pathMapping.sounds = vm["dir-sounds"].as<std::string>();
-            pathMapping.textures = vm["dir-textures"].as<std::string>();
-            pathMapping.unitpics = vm["dir-unitpics"].as<std::string>();
-            pathMapping.units = vm["dir-units"].as<std::string>();
-            pathMapping.weapons = vm["dir-weapons"].as<std::string>();
+            pathMapping.ai = args.getString("dir-ai", "ai");
+            pathMapping.anims = args.getString("dir-anims", "anims");
+            pathMapping.bitmaps = args.getString("dir-bitmaps", "bitmaps");
+            pathMapping.camps = args.getString("dir-camps", "camps");
+            pathMapping.downloads = args.getString("dir-downloads", "downloads");
+            pathMapping.fonts = args.getString("dir-fonts", "fonts");
+            pathMapping.gamedata = args.getString("dir-gamedata", "gamedata");
+            pathMapping.guis = args.getString("dir-guis", "guis");
+            pathMapping.maps = args.getString("dir-maps", "maps");
+            pathMapping.objects3d = args.getString("dir-objects3d", "objects3d");
+            pathMapping.palettes = args.getString("dir-palettes", "palettes");
+            pathMapping.scripts = args.getString("dir-scripts", "scripts");
+            pathMapping.sounds = args.getString("dir-sounds", "sounds");
+            pathMapping.textures = args.getString("dir-textures", "textures");
+            pathMapping.unitpics = args.getString("dir-unitpics", "unitpics");
+            pathMapping.units = args.getString("dir-units", "units");
+            pathMapping.weapons = args.getString("dir-weapons", "weapons");
 
-            return rwe::run(*logger, gameDataPaths, pathMapping, gameParameters, screenWidth, screenHeight, fullscreen, imGuiIniFilePath.string(), config);
+            return rwe::run(gameDataPaths, pathMapping, gameParameters, screenWidth, screenHeight, fullscreen, imGuiIniFilePath.string(), config);
         }
         catch (const std::exception& e)
         {
-            logger->critical(e.what());
+            LOG_CRITICAL << e.what();
             throw;
         }
     }

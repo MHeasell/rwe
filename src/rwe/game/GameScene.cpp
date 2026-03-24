@@ -1,6 +1,5 @@
 #include "GameScene.h"
 #include <algorithm>
-#include <boost/range/adaptor/map.hpp>
 #include <fstream>
 #include <functional>
 #include <rwe/CroppedViewport.h>
@@ -14,7 +13,7 @@
 #include <rwe/ui/UiStagedButton.h>
 #include <rwe/util/Index.h>
 #include <rwe/util/match.h>
-#include <spdlog/spdlog.h>
+#include <rwe/util/SimpleLogger.h>
 
 namespace rwe
 {
@@ -523,7 +522,7 @@ namespace rwe
         auto worldToMinimap = worldToMinimapMatrix(simulation.terrain, minimapRect);
 
         // draw minimap dots
-        for (const auto& unit : (simulation.units | boost::adaptors::map_values))
+        for (const auto& [_, unit] : simulation.units)
         {
             auto minimapPos = worldToMinimap * simVectorToFloat(unit.position);
             minimapPos.x = std::floor(minimapPos.x);
@@ -754,7 +753,7 @@ namespace rwe
         auto seaLevel = simulation.terrain.getSeaLevel();
 
         UnitShadowMeshBatch unitShadowMeshBatch;
-        for (const auto& unit : (simulation.units | boost::adaptors::map_values))
+        for (const auto& [_, unit] : simulation.units)
         {
             const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
             const auto& modelDefinition = simulation.unitModelDefinitions.at(unitDefinition.objectName);
@@ -766,7 +765,7 @@ namespace rwe
             }
             drawUnitShadow(gameMediaDatabase, viewProjectionMatrix, unit, unitDefinition, modelDefinition, interpolationFraction, simScalarToFloat(groundHeight), unitTextureAtlas.get(), unitTeamTextureAtlases, unitShadowMeshBatch);
         }
-        for (const auto& feature : (simulation.features | boost::adaptors::map_values))
+        for (const auto& [_, feature] : simulation.features)
         {
             const auto& position = feature.position;
             auto groundHeight = simulation.terrain.getHeightAt(position.x, position.z);
@@ -782,13 +781,13 @@ namespace rwe
         sceneContext.graphics->enableDepthBuffer();
 
         UnitMeshBatch unitMeshBatch;
-        for (const auto& unit : (simulation.units | boost::adaptors::map_values))
+        for (const auto& [_, unit] : simulation.units)
         {
             const auto& unitDefinition = simulation.unitDefinitions.at(unit.unitType);
             const auto& unitModelDefinition = simulation.unitModelDefinitions.at(unitDefinition.objectName);
             drawUnit(gameMediaDatabase, viewProjectionMatrix, unit, unitDefinition, unitModelDefinition, getPlayer(unit.owner).color, interpolationFraction, unitTextureAtlas.get(), unitTeamTextureAtlases, unitMeshBatch);
         }
-        for (const auto& feature : (simulation.features | boost::adaptors::map_values))
+        for (const auto& [_, feature] : simulation.features)
         {
             drawMeshFeature(simulation.unitModelDefinitions, gameMediaDatabase, viewProjectionMatrix, feature, unitTextureAtlas.get(), unitTeamTextureAtlases, unitMeshBatch);
         }
@@ -820,7 +819,7 @@ namespace rwe
 
         sceneContext.graphics->disableDepthTest();
         ColoredMeshBatch nanoLinesBatch;
-        for (const auto& unit : (simulation.units | boost::adaptors::map_values))
+        for (const auto& [_, unit] : simulation.units)
         {
             if (auto nanolatheTarget = unit.getActiveNanolatheTarget())
             {
@@ -904,7 +903,7 @@ namespace rwe
 
         if (healthBarsVisible)
         {
-            for (const UnitState& unit : (simulation.units | boost::adaptors::map_values))
+            for (const auto& [_, unit] : simulation.units)
             {
                 if (!unit.isOwnedBy(localPlayerId))
                 {
@@ -1983,7 +1982,7 @@ namespace rwe
 
         auto bufferedCommandCount = playerCommandService->bufferedCommandCount(localPlayerId);
 
-        spdlog::get("rwe")->debug("Buffer levels (real/target) {0}/{1}", bufferedCommandCount, targetCommandBufferSize);
+        LOG_DEBUG << "Buffer levels (real/target) " << bufferedCommandCount << "/" << targetCommandBufferSize;
 
         // If we have too many commands buffered,
         // defer submitting commands this frame
@@ -2335,7 +2334,7 @@ namespace rwe
         auto playerCommands = playerCommandService->tryPopCommands();
         if (!playerCommands)
         {
-            spdlog::get("rwe")->error("Blocked waiting for player commands");
+            LOG_ERROR << "Blocked waiting for player commands";
             return;
         }
 
@@ -3325,7 +3324,7 @@ namespace rwe
 
     bool GameScene::matchesWithSidePrefix(const std::string& suffix, const std::string& value) const
     {
-        for (const auto& side : (*sceneContext.sideData | boost::adaptors::map_values))
+        for (const auto& [_, side] : *sceneContext.sideData)
         {
             if (side.namePrefix + suffix == value)
             {

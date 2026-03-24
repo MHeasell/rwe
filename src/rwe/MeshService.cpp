@@ -1,5 +1,5 @@
 #include "MeshService.h"
-#include <boost/interprocess/streams/bufferstream.hpp>
+#include <rwe/util/SpanStream.h>
 #include <rwe/io/_3do/_3do.h>
 #include <rwe/math/Vector2f.h>
 #include <rwe/mesh_util.h>
@@ -30,7 +30,7 @@ namespace rwe
             throw std::runtime_error("Failed to load object bytes: " + name);
         }
 
-        boost::interprocess::bufferstream s(bytes->data(), bytes->size());
+        rwe::SpanStream s(bytes->data(), bytes->size());
         auto objects = parse3doObjects(s, s.tellg());
         assert(objects.size() == 1);
         auto selectionMesh = selectionMeshFrom3do(*graphics, objects.front());
@@ -53,7 +53,7 @@ namespace rwe
             throw std::runtime_error("Failed to load object bytes: " + name);
         }
 
-        boost::interprocess::bufferstream s(bytes->data(), bytes->size());
+        rwe::SpanStream s(bytes->data(), bytes->size());
         auto objects = parse3doObjects(s, s.tellg());
         assert(objects.size() == 1);
 

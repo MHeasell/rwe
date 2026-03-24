@@ -1,8 +1,7 @@
-#include <boost/functional/hash.hpp>
-#include <boost/interprocess/streams/bufferstream.hpp>
+#include <rwe/util/SpanStream.h>
 #include <iostream>
 #include <memory>
-#include <png++/png.hpp>
+#include <rwe/util/png_write.h>
 #include <rwe/BoxTreeSplit.h>
 #include <rwe/ColorPalette.h>
 #include <rwe/geometry/Rectangle2f.h>
@@ -26,7 +25,10 @@ namespace std
     {
         std::size_t operator()(const rwe::FrameId& f) const noexcept
         {
-            return boost::hash<rwe::FrameId>()(f);
+            std::size_t seed = 0;
+            rwe::hashCombine(seed, std::hash<std::string>{}(f.first));
+            rwe::hashCombine(seed, std::hash<unsigned int>{}(f.second));
+            return seed;
         }
     };
 }
@@ -113,7 +115,7 @@ namespace rwe
                 throw std::runtime_error("File in listing could not be read: " + gafName);
             }
 
-            boost::interprocess::bufferstream stream(bytes->data(), bytes->size());
+            rwe::SpanStream stream(bytes->data(), bytes->size());
             GafArchive gaf(&stream);
 
             for (const auto& e : gaf.entries())
@@ -163,15 +165,15 @@ namespace rwe
 
     void dumpImage(const Grid<Color>& g, const std::string& outFile)
     {
-        auto width = static_cast<unsigned int>(g.getWidth());
-        auto height = static_cast<unsigned int>(g.getHeight());
-        png::image<png::rgb_pixel> image(width, height);
-        for (png::uint_32 y = 0; y < height; ++y)
+        auto width = static_cast<uint32_t>(g.getWidth());
+        auto height = static_cast<uint32_t>(g.getHeight());
+        PngImage image(width, height);
+        for (uint32_t y = 0; y < height; ++y)
         {
-            for (png::uint_32 x = 0; x < width; ++x)
+            for (uint32_t x = 0; x < width; ++x)
             {
                 Color px = g.get(x, y);
-                image[y][x] = png::rgb_pixel(px.r, px.g, px.b);
+                image.at(x, y) = RgbPixel{px.r, px.g, px.b};
             }
         }
 

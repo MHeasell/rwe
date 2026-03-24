@@ -1,12 +1,12 @@
 #include "CompositeVirtualFileSystem.h"
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <map>
 #include <rwe/util/rwe_string.h>
 #include <rwe/vfs/DirectoryFileSystem.h>
 #include <rwe/vfs/HpiFileSystem.h>
 #include <set>
 
-namespace fs = boost::filesystem;
+namespace fs = std::filesystem;
 
 namespace rwe
 {
@@ -144,7 +144,7 @@ namespace rwe
         }
     }
 
-    void addToVfs(CompositeVirtualFileSystem& vfs, const boost::filesystem::path& searchPath)
+    void addToVfs(CompositeVirtualFileSystem& vfs, const std::filesystem::path& searchPath)
     {
         std::vector<std::string> hpiExtensions{".hpi", ".ufo", ".ccx", ".gpf", ".gp3"};
 
@@ -157,7 +157,7 @@ namespace rwe
         }
     }
 
-    CompositeVirtualFileSystem constructVfs(const boost::filesystem::path& searchPath)
+    CompositeVirtualFileSystem constructVfs(const std::filesystem::path& searchPath)
     {
         CompositeVirtualFileSystem vfs;
         addToVfs(vfs, searchPath);

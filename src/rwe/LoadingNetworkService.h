@@ -2,8 +2,7 @@
 
 #include <array>
 #include <atomic>
-#include <boost/asio.hpp>
-#include <boost/asio/steady_timer.hpp> // not in asio.hpp in old boost versions
+#include <asio.hpp>
 #include <chrono>
 #include <functional>
 #include <mutex>
@@ -26,9 +25,9 @@ namespace rwe
         struct PlayerInfo
         {
             int playerIndex;
-            boost::asio::ip::udp::endpoint endpoint;
+            asio::ip::udp::endpoint endpoint;
             Status status;
-            PlayerInfo(int playerIndex, const boost::asio::ip::udp::endpoint& endpoint, Status status) : playerIndex(playerIndex), endpoint(endpoint), status(status) {}
+            PlayerInfo(int playerIndex, const asio::ip::udp::endpoint& endpoint, Status status) : playerIndex(playerIndex), endpoint(endpoint), status(status) {}
         };
 
     private:
@@ -40,13 +39,13 @@ namespace rwe
         std::vector<PlayerInfo> remoteEndpoints;
 
         // state owned by the worker thread
-        boost::asio::io_service ioContext;
-        boost::asio::ip::udp::resolver resolver;
-        boost::asio::ip::udp::socket socket;
+        asio::io_context ioContext;
+        asio::ip::udp::resolver resolver;
+        asio::ip::udp::socket socket;
         std::array<char, 1500> sendBuffer;
         std::array<char, 1500> receiveBuffer;
-        boost::asio::ip::udp::endpoint currentRemoteEndpoint;
-        boost::asio::steady_timer notifyTimer;
+        asio::ip::udp::endpoint currentRemoteEndpoint;
+        asio::steady_timer notifyTimer;
 
     public:
         LoadingNetworkService();
@@ -55,7 +54,7 @@ namespace rwe
 
         void addEndpoint(int playerIndex, const std::string& host, const std::string& port);
 
-        boost::asio::ip::udp::endpoint getEndpoint(int playerIndex);
+        asio::ip::udp::endpoint getEndpoint(int playerIndex);
 
         void setDoneLoading();
 
@@ -68,7 +67,7 @@ namespace rwe
     private:
         void run(const std::string& port);
 
-        void onReceive(const boost::system::error_code& error, std::size_t bytesTransferred);
+        void onReceive(const asio::error_code& error, std::size_t bytesTransferred);
 
         void notifyStatus();
 

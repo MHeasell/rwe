@@ -1,4 +1,4 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <rapidcheck.h>
 #include <rapidcheck/catch.h>
 #include <rwe/grid/Point.h>

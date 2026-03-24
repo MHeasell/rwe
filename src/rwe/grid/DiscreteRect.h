@@ -1,7 +1,8 @@
 #pragma once
 
-#include <boost/functional/hash.hpp>
+#include <functional>
 #include <optional>
+#include <stdexcept>
 #include <rwe/grid/Point.h>
 #include <rwe/pathfinding/OctileDistance.h>
 
@@ -49,7 +50,7 @@ namespace rwe
         }
         int bottom() const
         {
-            return y + width;
+            return y + height;
         }
 
         /**
@@ -111,10 +112,10 @@ namespace std
         std::size_t operator()(const rwe::DiscreteRect& r) const noexcept
         {
             std::size_t seed = 0;
-            boost::hash_combine(seed, r.x);
-            boost::hash_combine(seed, r.y);
-            boost::hash_combine(seed, r.width);
-            boost::hash_combine(seed, r.height);
+            rwe::hashCombine(seed, std::hash<int>{}(r.x));
+            rwe::hashCombine(seed, std::hash<int>{}(r.y));
+            rwe::hashCombine(seed, std::hash<int>{}(r.width));
+            rwe::hashCombine(seed, std::hash<int>{}(r.height));
             return seed;
         }
     };

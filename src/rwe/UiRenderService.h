@@ -1,6 +1,7 @@
 #pragma once
 
 #include <rwe/ShaderService.h>
+#include <algorithm>
 #include <rwe/Viewport.h>
 #include <rwe/render/GraphicsContext.h>
 #include <stack>

@@ -1,4 +1,14 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.16)
+
+# Allow submodules with older cmake_minimum_required to configure under CMake 4.x
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "4.0")
+    set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+endif()
+
+# Generate compile_commands.json for clangd-based editor integration
+# (VS Code, Zed, etc.). The .clangd file in the repo root points
+# editors to look for it in the build/ directory.
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Type of build" FORCE)
@@ -27,14 +37,12 @@ endif()
 project("Robot War Engine" VERSION ${CMAKE_MATCH_1})
 enable_testing()
 
-set(RC_ENABLE_CATCH ON CACHE BOOL "Enables Catch support in RapidCheck" FORCE)
-set(RC_ENABLE_BOOST ON CACHE BOOL "Enables Boost support in RapidCheck" FORCE)
-# rapidcheck relies on result_of, which is deprecated in favour of invoke_result.
-# MSVC hides it from their stdlib unless you supply this option.
-if(MSVC)
-    add_definitions(-D_HAS_DEPRECATED_RESULT_OF)
-endif()
+add_subdirectory("libs/catch2")
+
+set(RC_ENABLE_CATCH OFF CACHE BOOL "Enables Catch support in RapidCheck" FORCE)
+set(RC_ENABLE_BOOST OFF CACHE BOOL "Enables Boost support in RapidCheck" FORCE)
 add_subdirectory("libs/rapidcheck")
+add_subdirectory("libs/rapidcheck/extras/catch")
 
 set(JSON_BuildTests OFF CACHE INTERNAL "")
 set(JSON_Install OFF CACHE INTERNAL "")
@@ -74,7 +82,7 @@ endfunction()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
 if(NOT MSVC)
-    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_STANDARD 20)
 endif()
 
 find_package(OpenGL REQUIRED)
@@ -91,15 +99,6 @@ if(MSVC)
     set(GLEW_DLL "${CMAKE_SOURCE_DIR}/libs/_msvc/glew-2.1.0/bin/Release/x64/glew32.dll")
     set(GLEW_LIBRARIES "${CMAKE_SOURCE_DIR}/libs/_msvc/glew-2.1.0/lib/Release/x64/glew32.lib")
     set(GLEW_INCLUDE_DIRS "libs/_msvc/glew-2.1.0/include")
-
-    set(Boost_INCLUDE_DIRS "libs/_msvc/boost_1_74_0")
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        set(Boost_LIBRARIES "${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_74_0/lib64-msvc-14.2/libboost_filesystem-vc142-mt-gd-x64-1_74.lib;${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_74_0/lib64-msvc-14.2/libboost_system-vc142-mt-gd-x64-1_74.lib;${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_74_0/lib64-msvc-14.2/libboost_program_options-vc142-mt-gd-x64-1_74.lib")
-    else()
-        set(Boost_LIBRARIES "${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_74_0/lib64-msvc-14.2/libboost_filesystem-vc142-mt-x64-1_74.lib;${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_74_0/lib64-msvc-14.2/libboost_system-vc142-mt-x64-1_74.lib;${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_74_0/lib64-msvc-14.2/libboost_program_options-vc142-mt-x64-1_74.lib")
-    endif()
-    add_definitions(-DBOOST_DATE_TIME_NO_LIB)
-    add_definitions(-DBOOST_REGEX_NO_LIB)
 
     set(SDL2_DLL "${CMAKE_SOURCE_DIR}/libs/_msvc/SDL2-2.0.7/lib/x64/SDL2.dll")
     set(SDL2_LIBRARY "${CMAKE_SOURCE_DIR}/libs/_msvc/SDL2-2.0.7/lib/x64/SDL2.lib;${CMAKE_SOURCE_DIR}/libs/_msvc/SDL2-2.0.7/lib/x64/SDL2main.lib")
@@ -131,20 +130,22 @@ if(MSVC)
     set(VORBISFILE_DLL "${CMAKE_SOURCE_DIR}/libs/_msvc/extras/libvorbisfile-3.dll")
     set(WEBP_DLL "${CMAKE_SOURCE_DIR}/libs/_msvc/extras/libwebp-7.dll")
 else()
-    set(Protobuf_LIBRARY "${CMAKE_SOURCE_DIR}/libs/_protobuf-install/lib/libprotobuf.a")
-    set(Protobuf_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/libs/_protobuf-install/include")
-    if(WIN32)
-        set(Protobuf_PROTOC_EXECUTABLE "${CMAKE_SOURCE_DIR}/libs/_protobuf-install/bin/protoc.exe")
+    if(EXISTS "${CMAKE_SOURCE_DIR}/libs/_protobuf-install/lib/libprotobuf.a")
+        set(Protobuf_LIBRARY "${CMAKE_SOURCE_DIR}/libs/_protobuf-install/lib/libprotobuf.a")
+        set(Protobuf_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/libs/_protobuf-install/include")
+        if(WIN32)
+            set(Protobuf_PROTOC_EXECUTABLE "${CMAKE_SOURCE_DIR}/libs/_protobuf-install/bin/protoc.exe")
+        else()
+            set(Protobuf_PROTOC_EXECUTABLE "${CMAKE_SOURCE_DIR}/libs/_protobuf-install/bin/protoc")
+        endif()
     else()
-        set(Protobuf_PROTOC_EXECUTABLE "${CMAKE_SOURCE_DIR}/libs/_protobuf-install/bin/protoc")
+        find_package(Protobuf REQUIRED)
+        set(Protobuf_LIBRARY protobuf::libprotobuf)
+        set(Protobuf_INCLUDE_DIR ${Protobuf_INCLUDE_DIRS})
     endif()
 
     find_package(GLEW REQUIRED)
     find_windows_dll(GLEW_DLL "glew32.dll")
-
-    set(Boost_USE_STATIC_LIBS ON)
-    set(Boost_NO_BOOST_CMAKE ON)
-    find_package(Boost 1.54.0 REQUIRED COMPONENTS filesystem program_options)
 
     find_package(SDL2 REQUIRED)
     find_windows_dll(SDL2_DLL "SDL2.dll")
@@ -193,13 +194,6 @@ else()
     find_windows_dll(HWY_DLL "libhwy.dll")
     find_windows_dll(LCMS2_DLL "liblcms2-2.dll")
 endif()
-
-# We should have std::chrono everywhere,
-# but boost sometimes fails to detect this (e.g. with clang 5 on Ubuntu)
-# and falls back to using boost::chrono.
-# This enables the use of std::chrono explicitly
-# in boost.asio.
-add_definitions(-DBOOST_ASIO_HAS_STD_CHRONO)
 
 set(Protobuf_USE_STATIC_LIBS ON)
 find_package(Protobuf REQUIRED)
@@ -620,8 +614,7 @@ endif()
 add_library(librwe STATIC ${SOURCE_FILES} ${PROTO_SOURCE_FILES} ${PROTO_HEADER_FILES})
 set_target_properties(librwe PROPERTIES PREFIX "")
 if(MSVC)
-    target_compile_options(librwe PUBLIC "/std:c++17" "/EHsc")
-    add_definitions(-D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS)
+    target_compile_options(librwe PUBLIC "/std:c++20" "/EHsc")
 else()
     target_compile_options(librwe PUBLIC "-Wall" "-Wextra")
 endif()
@@ -629,15 +622,30 @@ target_include_directories(librwe PUBLIC "src")
 configure_file("src/rwe/config.h.in" "config/rwe/config.h" @ONLY)
 target_include_directories(librwe PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/config")
 
-target_include_directories(librwe PUBLIC ${Boost_INCLUDE_DIRS})
-target_link_libraries(librwe ${Boost_LIBRARIES})
+target_include_directories(librwe PUBLIC "libs/asio/asio/include")
+add_definitions(-DASIO_STANDALONE)
 if(WIN32)
-    # winsock needed for boost asio on windows
+    # winsock needed for asio on windows
     target_link_libraries(librwe ws2_32)
 endif()
 
 target_include_directories(librwe PUBLIC "libs/utfcpp/source")
-target_include_directories(librwe PUBLIC "libs/spdlog/include")
+
+target_precompile_headers(librwe PRIVATE
+    <algorithm>
+    <array>
+    <cassert>
+    <cstdint>
+    <functional>
+    <memory>
+    <optional>
+    <stdexcept>
+    <string>
+    <unordered_map>
+    <utility>
+    <variant>
+    <vector>
+)
 
 target_link_libraries(librwe OpenGL::GL)
 
@@ -645,8 +653,13 @@ target_copy_file(librwe ${GLEW_DLL})
 if(MSVC)
     target_link_libraries(librwe ${GLEW_LIBRARIES})
     target_include_directories(librwe PUBLIC ${GLEW_INCLUDE_DIRS})
-else()
+elseif(TARGET GLEW::glew)
+    target_link_libraries(librwe GLEW::glew)
+elseif(TARGET GLEW::GLEW)
     target_link_libraries(librwe GLEW::GLEW)
+else()
+    target_link_libraries(librwe ${GLEW_LIBRARIES})
+    target_include_directories(librwe PUBLIC ${GLEW_INCLUDE_DIRS})
 endif()
 
 target_copy_file(librwe ${SDL2_DLL})
@@ -704,7 +717,21 @@ target_copy_file(librwe ${VORBIS_DLL})
 target_copy_file(librwe ${VORBISFILE_DLL})
 target_copy_file(librwe ${WEBP_DLL})
 
-target_link_libraries(librwe ${Protobuf_LIBRARIES})
+if(TARGET protobuf::libprotobuf)
+    message(STATUS "Using protobuf::libprotobuf imported target")
+    target_link_libraries(librwe protobuf::libprotobuf)
+    # protobuf v32+ depends on abseil; link via pkg-config to propagate to consumers of this static lib
+    find_package(PkgConfig)
+    if(PkgConfig_FOUND)
+        pkg_check_modules(ABSL IMPORTED_TARGET absl_log_internal_check_op)
+        if(ABSL_FOUND)
+            target_link_libraries(librwe PkgConfig::ABSL)
+        endif()
+    endif()
+else()
+    message(STATUS "Using Protobuf_LIBRARIES: ${Protobuf_LIBRARIES}")
+    target_link_libraries(librwe ${Protobuf_LIBRARIES})
+endif()
 target_include_directories(librwe PUBLIC ${Protobuf_INCLUDE_DIRS})
 target_include_directories(librwe PUBLIC ${CMAKE_CURRENT_BINARY_DIR}) # for generated headers
 
@@ -719,6 +746,17 @@ add_custom_command(TARGET librwe PRE_BUILD
 add_executable(rwe src/main.cpp)
 target_link_libraries(rwe librwe)
 
+if(UNIX AND NOT APPLE)
+    file(WRITE "${CMAKE_BINARY_DIR}/run.sh" "#!/bin/bash
+# The devbox-built binary links against Nix's libglvnd, which can't find
+# the system GPU driver (e.g. Mesa). Prepend system lib paths so it's
+# discovered. Not needed on macOS, which uses Apple's OpenGL framework
+# directly rather than libglvnd.
+LD_LIBRARY_PATH=/usr/lib:/usr/lib64:/usr/lib/x86_64-linux-gnu:\$LD_LIBRARY_PATH exec ./rwe \"\$@\"
+")
+    file(CHMOD "${CMAKE_BINARY_DIR}/run.sh" PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+endif()
+
 add_executable(hpi_test src/hpi_test.cpp)
 target_link_libraries(hpi_test librwe)
 
@@ -729,7 +767,6 @@ add_executable(gaf_test src/gaf_test.cpp)
 target_link_libraries(gaf_test librwe)
 target_link_libraries(gaf_test ${PNG_LIBRARIES})
 target_include_directories(gaf_test PUBLIC ${PNG_INCLUDE_DIRS})
-target_include_directories(gaf_test PUBLIC libs/png++-0.2.9)
 if(WIN32)
     target_compile_definitions(gaf_test PRIVATE __STDC_LIB_EXT1__=1)
 endif()
@@ -738,7 +775,6 @@ add_executable(pcx_test src/pcx_test.cpp)
 target_link_libraries(pcx_test librwe)
 target_link_libraries(pcx_test ${PNG_LIBRARIES})
 target_include_directories(pcx_test PUBLIC ${PNG_INCLUDE_DIRS})
-target_include_directories(pcx_test PUBLIC libs/png++-0.2.9)
 if(WIN32)
     target_compile_definitions(pcx_test PRIVATE __STDC_LIB_EXT1__=1)
 endif()
@@ -747,7 +783,6 @@ add_executable(tnt_test src/tnt_test.cpp)
 target_link_libraries(tnt_test librwe)
 target_link_libraries(tnt_test ${PNG_LIBRARIES})
 target_include_directories(tnt_test PUBLIC ${PNG_INCLUDE_DIRS})
-target_include_directories(tnt_test PUBLIC libs/png++-0.2.9)
 if(WIN32)
     target_compile_definitions(tnt_test PRIVATE __STDC_LIB_EXT1__=1)
 endif()
@@ -762,7 +797,6 @@ add_executable(fnt_test src/fnt_test.cpp)
 target_link_libraries(fnt_test librwe)
 target_link_libraries(fnt_test ${PNG_LIBRARIES})
 target_include_directories(fnt_test PUBLIC ${PNG_INCLUDE_DIRS})
-target_include_directories(fnt_test PUBLIC libs/png++-0.2.9)
 if(WIN32)
     target_compile_definitions(fnt_test PRIVATE __STDC_LIB_EXT1__=1)
 endif()
@@ -771,7 +805,6 @@ add_executable(texture_test src/texture_test.cpp)
 target_link_libraries(texture_test librwe)
 target_link_libraries(texture_test ${PNG_LIBRARIES})
 target_include_directories(texture_test PUBLIC ${PNG_INCLUDE_DIRS})
-target_include_directories(texture_test PUBLIC libs/png++-0.2.9)
 if(WIN32)
     target_compile_definitions(texture_test PRIVATE __STDC_LIB_EXT1__=1)
 endif()
@@ -781,7 +814,6 @@ target_link_libraries(rwe_bridge PRIVATE librwe)
 target_link_libraries(rwe_bridge PRIVATE nlohmann_json::nlohmann_json)
 target_link_libraries(rwe_bridge PRIVATE ${PNG_LIBRARIES})
 target_include_directories(rwe_bridge PUBLIC ${PNG_INCLUDE_DIRS})
-target_include_directories(rwe_bridge PUBLIC libs/png++-0.2.9)
 if(WIN32)
     target_compile_definitions(rwe_bridge PRIVATE __STDC_LIB_EXT1__=1)
 endif()
@@ -825,15 +857,17 @@ set(TEST_FILES
     src/rwe/sim/SimVector.test.cpp
     src/rwe/sim/UnitState_util.test.cpp
     src/rwe/sim/util.test.cpp
+    src/rwe/util/OpaqueArgs.test.cpp
     src/rwe/util/Result.test.cpp
+    src/rwe/util/SimpleLogger.test.cpp
     src/rwe/util/rwe_string.test.cpp
     )
 
-add_executable(rwe_test src/test.cpp ${TEST_FILES})
-target_include_directories(rwe_test PUBLIC ${PROJECT_SOURCE_DIR}/libs/catch2/single_include)
+add_executable(rwe_test ${TEST_FILES})
+target_link_libraries(rwe_test Catch2::Catch2WithMain)
 target_link_libraries(rwe_test rapidcheck_catch)
-target_link_libraries(rwe_test rapidcheck_boost)
 target_link_libraries(rwe_test librwe)
+target_precompile_headers(rwe_test REUSE_FROM librwe)
 add_test(NAME rwe_test COMMAND rwe_test)
 
 install(TARGETS rwe rwe_bridge

@@ -1,8 +1,33 @@
 #include "network_util.h"
-#include <boost/crc.hpp>
+#include <cstdint>
 
 namespace rwe
 {
+    // CRC32 lookup table (polynomial 0xEDB88320, same as Boost.CRC / zlib)
+    static uint32_t makeCrc32Entry(uint32_t index)
+    {
+        uint32_t crc = index;
+        for (int j = 0; j < 8; ++j)
+        {
+            crc = (crc >> 1) ^ (0xEDB88320u & (-(crc & 1u)));
+        }
+        return crc;
+    }
+
+    struct Crc32Table
+    {
+        uint32_t entries[256];
+        Crc32Table()
+        {
+            for (uint32_t i = 0; i < 256; ++i)
+            {
+                entries[i] = makeCrc32Entry(i);
+            }
+        }
+    };
+
+    static const Crc32Table crc32Table;
+
     float ema(float val, float average, float alpha)
     {
         return (alpha * val) + ((1.0f - alpha) * average);
@@ -23,10 +48,12 @@ namespace rwe
     }
     unsigned int computeCrc(const char* buffer, unsigned int size)
     {
-        // throw in a CRC to verify the message
-        boost::crc_32_type crc;
-        crc.process_bytes(buffer, size);
-        return crc.checksum();
+        uint32_t crc = 0xFFFFFFFFu;
+        for (unsigned int i = 0; i < size; ++i)
+        {
+            crc = crc32Table.entries[(crc ^ static_cast<unsigned char>(buffer[i])) & 0xFFu] ^ (crc >> 8u);
+        }
+        return crc ^ 0xFFFFFFFFu;
     }
 
 }

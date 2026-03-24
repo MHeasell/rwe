@@ -1,4 +1,5 @@
 #include "CobEnvironment.h"
+#include <algorithm>
 #include <cassert>
 
 namespace rwe

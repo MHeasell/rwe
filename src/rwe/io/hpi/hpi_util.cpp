@@ -1,4 +1,5 @@
 #include "hpi_util.h"
+#include <algorithm>
 
 #include <memory>
 #include <rwe/io/hpi/hpi_headers.h>

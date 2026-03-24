@@ -1,6 +1,7 @@
 #include "LoadingScene_util.h"
+#include <algorithm>
 
-#include <boost/interprocess/streams/bufferstream.hpp>
+#include <rwe/util/SpanStream.h>
 #include <rwe/sim/UnitState.h>
 
 namespace rwe
@@ -30,7 +31,7 @@ namespace rwe
                 throw std::runtime_error("File in listing could not be read: " + scriptName);
             }
 
-            boost::interprocess::bufferstream s(bytes->data(), bytes->size());
+            rwe::SpanStream s(bytes->data(), bytes->size());
             auto cob = parseCob(s);
 
             auto scriptNameWithoutExtension = scriptName.substr(0, scriptName.size() - 4);

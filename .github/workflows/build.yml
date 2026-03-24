@@ -10,44 +10,49 @@ jobs:
       matrix:
         include:
           - configuration: Debug
-            cc: gcc-12
-            cxx: g++-12
+            cc: gcc-14
+            cxx: g++-14
           - configuration: Release
-            cc: gcc-12
-            cxx: g++-12
+            cc: gcc-14
+            cxx: g++-14
           - configuration: Debug
-            cc: clang-15
-            cxx: clang++-15
+            cc: clang-18
+            cxx: clang++-18
           - configuration: Release
-            cc: clang-15
-            cxx: clang++-15
-    runs-on: ubuntu-22.04
+            cc: clang-18
+            cxx: clang++-18
+    runs-on: ubuntu-24.04
     env:
       CC: ${{ matrix.cc }}
       CXX: ${{ matrix.cxx }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          submodules: recursive
+      - name: init submodules (shallow)
+        run: git submodule update --init --recursive --depth 1
       - name: update apt package list
         run: sudo apt-get update -y
       - name: install apt packages
         run: sudo apt-get install -y
-          gcc-12
-          g++-12
-          clang-15
-          libboost-dev
-          libboost-filesystem-dev
-          libboost-program-options-dev
+          gcc-14
+          g++-14
+          clang-18
+          ccache
           libsdl2-dev
           libsdl2-image-dev
           libsdl2-mixer-dev
           libglew-dev
           zlib1g-dev
           libpng-dev
+      - name: restore ccache
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ccache
+          key: ccache-${{ runner.os }}-${{ env.CC }}-${{ matrix.configuration }}-${{ github.sha }}
+          restore-keys: ccache-${{ runner.os }}-${{ env.CC }}-${{ matrix.configuration }}-
       - name: install node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
           node-version: 18
           cache: npm
@@ -66,7 +71,7 @@ jobs:
         run: npm run package
       - name: restore protobuf
         id: cache-protobuf-restore
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v5
         with:
           path: libs/_protobuf-install
           key: ${{ runner.os }}-${{ env.CC }}-protobuf
@@ -75,7 +80,7 @@ jobs:
         run: ./build-protobuf.sh
       - name: save protobuf
         id: cache-protobuf-save
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v5
         with:
           path: libs/_protobuf-install
           key: ${{ steps.cache-protobuf-restore.outputs.cache-primary-key }}
@@ -83,8 +88,8 @@ jobs:
         run: |
           mkdir build
           pushd build
-          cmake -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ..
-          make -j 2
+          cmake -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
+          make -j 4
           popd
       - name: test rwe
         run: ./build/rwe_test
@@ -92,18 +97,15 @@ jobs:
     strategy:
       matrix:
         configuration: [Debug, Release]
-    runs-on: windows-2022
+    runs-on: windows-2025-vs2026
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          submodules: recursive
-      - name: install python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
+      - name: init submodules (shallow)
+        run: git submodule update --init --recursive --depth 1
       - name: install node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
           node-version: 18
           cache: npm
@@ -121,27 +123,35 @@ jobs:
         working-directory: launcher
         run: npm run package
       - run: python3 fetch-msvc-libs.py
+      - name: install tools
+        run: choco install sccache nsis -y
+      - name: restore sccache
+        uses: actions/cache@v5
+        with:
+          path: ~\AppData\Local\Mozilla\sccache
+          key: sccache-${{ runner.os }}-msvc-${{ matrix.configuration }}-${{ github.sha }}
+          restore-keys: sccache-${{ runner.os }}-msvc-${{ matrix.configuration }}-
       - name: build rwe
         run: |
           mkdir build
           cd build
-          cmake -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ..
-          cmake --build . --config ${{ matrix.configuration }} --parallel 2
+          cmake -G "Visual Studio 18 2026" -A x64 -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache ..
+          cmake --build . --config ${{ matrix.configuration }} --parallel 4
           cd ..
       - name: test rwe
         working-directory: build
         run: .\${{ matrix.configuration }}\rwe_test.exe
       - name: package rwe
         working-directory: build
-        run: cmake --build . --target package --config ${{ matrix.configuration }} --parallel 2
+        run: cmake --build . --target package --config ${{ matrix.configuration }} --parallel 4
       - name: upload zip artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v6
         with:
           name: RWE Zip ${{ runner.os }} MSVC ${{ matrix.configuration }}
           path: build/dist/RobotWarEngine-*-Windows-${{ matrix.configuration }}.zip
           if-no-files-found: error
       - name: upload installer artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v6
         with:
           name: RWE Installer ${{ runner.os }} MSVC ${{ matrix.configuration }}
           path: build/dist/RobotWarEngine-*-Windows-${{ matrix.configuration }}.exe
@@ -150,14 +160,15 @@ jobs:
     strategy:
       matrix:
         configuration: [Debug, Release]
-    runs-on: windows-2022
+    runs-on: windows-2025
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          submodules: recursive
+      - name: init submodules (shallow)
+        run: git submodule update --init --recursive --depth 1
       - name: install node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
           node-version: 18
           cache: npm
@@ -174,6 +185,8 @@ jobs:
       - name: package launcher
         working-directory: launcher
         run: npm run package
+      - name: install nsis
+        run: choco install nsis -y
       - uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW64
@@ -185,18 +198,25 @@ jobs:
             make
             unzip
             mingw-w64-x86_64-toolchain
-            mingw-w64-x86_64-boost
             mingw-w64-x86_64-SDL2
             mingw-w64-x86_64-SDL2_image
             mingw-w64-x86_64-SDL2_mixer
             mingw-w64-x86_64-glew
             mingw-w64-x86_64-smpeg2
+            mingw-w64-x86_64-libmodplug
             mingw-w64-x86_64-zlib
             mingw-w64-x86_64-libpng
             mingw-w64-x86_64-readline
+            mingw-w64-x86_64-ccache
+      - name: restore ccache
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ccache
+          key: ccache-${{ runner.os }}-mingw64-${{ matrix.configuration }}-${{ github.sha }}
+          restore-keys: ccache-${{ runner.os }}-mingw64-${{ matrix.configuration }}-
       - name: restore protobuf
         id: cache-protobuf-restore
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v5
         with:
           path: libs/_protobuf-install
           key: ${{ runner.os }}-mingw64-protobuf-${{ hashFiles('.git/modules/libs/protobuf/HEAD') }}
@@ -206,7 +226,7 @@ jobs:
         shell: msys2 {0}
       - name: save protobuf
         id: cache-protobuf-save
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v5
         with:
           path: libs/_protobuf-install
           key: ${{ steps.cache-protobuf-restore.outputs.cache-primary-key }}
@@ -214,8 +234,8 @@ jobs:
         run: |
           mkdir build
           pushd build
-          cmake -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ..
-          make -j 2
+          cmake -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ..
+          make -j 4
           popd
         shell: msys2 {0}
       - name: test rwe
@@ -227,13 +247,13 @@ jobs:
         run: make package
         shell: msys2 {0}
       - name: upload zip artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v6
         with:
           name: RWE Zip ${{ runner.os }} MinGW64 ${{ matrix.configuration }}
           path: build/dist/RobotWarEngine-*-Windows-${{ matrix.configuration }}.zip
           if-no-files-found: error
       - name: upload installer artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v6
         with:
           name: RWE Installer ${{ runner.os }} MinGW64 ${{ matrix.configuration }}
           path: build/dist/RobotWarEngine-*-Windows-${{ matrix.configuration }}.exe

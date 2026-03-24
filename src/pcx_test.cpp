@@ -1,13 +1,7 @@
 #include <iostream>
-#include <png++/png.hpp>
 #include <rwe/io/pcx/pcx.h>
+#include <rwe/util/png_write.h>
 #include <string>
-
-class PaletteReadingException : public std::runtime_error
-{
-public:
-    explicit PaletteReadingException(const char* message) : runtime_error(message) {}
-};
 
 int convert(const std::string& inFile, const std::string& outFile)
 {
@@ -28,14 +22,14 @@ int convert(const std::string& inFile, const std::string& outFile)
     auto width = decoder.getWidth();
     auto height = decoder.getHeight();
 
-    png::image<png::rgb_pixel> image(width, height);
-    for (png::uint_32 y = 0; y < height; ++y)
+    rwe::PngImage image(width, height);
+    for (uint32_t y = 0; y < height; ++y)
     {
-        for (png::uint_32 x = 0; x < width; ++x)
+        for (uint32_t x = 0; x < width; ++x)
         {
             auto b = static_cast<unsigned char>(decodedData[(y * width) + x]);
             auto px = palette[b];
-            image[y][x] = png::rgb_pixel(px.red, px.green, px.blue);
+            image.at(x, y) = rwe::RgbPixel{px.red, px.green, px.blue};
         }
     }
 

@@ -1,4 +1,5 @@
 #include "UiListBox.h"
+#include <algorithm>
 
 namespace rwe
 {

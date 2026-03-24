@@ -1,10 +1,11 @@
 #include "DirectoryFileSystem.h"
+#include <algorithm>
 
 #include <fstream>
 #include <rwe/util/rwe_string.h>
 #include <sstream>
 
-namespace fs = boost::filesystem;
+namespace fs = std::filesystem;
 
 namespace rwe
 {
@@ -20,8 +21,8 @@ namespace rwe
      * If we naively try to follow file references on a case-sensitive filesystem
      * we may fail to find the file we wanted.
      */
-    std::optional<boost::filesystem::path> findPathCaseInsensitive(
-        const boost::filesystem::path& root, const boost::filesystem::path& path)
+    std::optional<std::filesystem::path> findPathCaseInsensitive(
+        const std::filesystem::path& root, const std::filesystem::path& path)
     {
         fs::path basePath;
 
@@ -52,7 +53,7 @@ namespace rwe
     {
     }
 
-    DirectoryFileSystem::DirectoryFileSystem(const boost::filesystem::path& path)
+    DirectoryFileSystem::DirectoryFileSystem(const std::filesystem::path& path)
         : path(path), pathString(this->path.string())
     {
     }
@@ -141,7 +142,7 @@ namespace rwe
         for (; it != end; ++it)
         {
             const auto& e = *it;
-            if (e.status().type() == fs::file_type::directory_file)
+            if (e.status().type() == fs::file_type::directory)
             {
                 // recurse into directory
                 auto innerDirectoryName = e.path().filename();

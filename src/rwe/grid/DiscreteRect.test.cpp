@@ -1,4 +1,4 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <rapidcheck/catch.h>
 #include <rwe/grid/DiscreteRect.h>
 #include <rwe/pathfinding/OctileDistance_io.h>
@@ -286,6 +286,15 @@ namespace rwe
                 REQUIRE(DiscreteRect(2, 3, 4, 5).contains(Point(2, 3)));
                 REQUIRE(DiscreteRect(2, 3, 4, 5).contains(Point(2, 7)));
                 REQUIRE(!DiscreteRect(2, 3, 4, 5).contains(Point(2, 8)));
+            }
+        }
+
+        SECTION(".bottom")
+        {
+            SECTION("returns y + height for non-square rects")
+            {
+                DiscreteRect r(1, 2, 3, 5);
+                REQUIRE(r.bottom() == 7);
             }
         }
 

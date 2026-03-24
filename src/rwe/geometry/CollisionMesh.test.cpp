@@ -1,4 +1,4 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <rwe/geometry/CollisionMesh.h>
 #include <rwe/geometry/Ray3f.h>
 #include <rwe/optional_io.h>
