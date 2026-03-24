@@ -43,7 +43,7 @@ namespace rwe
 
     void GameNetworkService::submitCommands(SceneTime currentSceneTime, const GameNetworkService::CommandSet& commands)
     {
-        boost::asio::post(ioContext,[this, currentSceneTime, commands]() {
+        asio::post(ioContext,[this, currentSceneTime, commands]() {
             this->currentSceneTime = currentSceneTime;
             for (auto& e : endpoints)
             {
@@ -54,7 +54,7 @@ namespace rwe
 
     void GameNetworkService::submitGameHash(GameHash hash)
     {
-        boost::asio::post(ioContext,[this, hash]() {
+        asio::post(ioContext,[this, hash]() {
             for (auto& e : endpoints)
             {
                 e.hashSendBuffer.push_back(hash);
@@ -65,7 +65,7 @@ namespace rwe
     SceneTime GameNetworkService::estimateAvergeSceneTime(SceneTime localSceneTime)
     {
         std::promise<unsigned int> result;
-        boost::asio::post(ioContext,[this, localSceneTime, &result]() {
+        asio::post(ioContext,[this, localSceneTime, &result]() {
             auto time = getTimestamp();
             auto otherTimes = choose(endpoints, [](const auto& e) { return e.lastKnownSceneTime; });
 
@@ -79,7 +79,7 @@ namespace rwe
     float GameNetworkService::getMaxAverageRttMillis()
     {
         std::promise<float> result;
-        boost::asio::post(ioContext,[this, &result]() {
+        asio::post(ioContext,[this, &result]() {
             auto maxRtt = 0.0f;
             for (const auto& e : endpoints)
             {
@@ -99,7 +99,7 @@ namespace rwe
     {
         try
         {
-            auto endpoint = boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v6(), port);
+            auto endpoint = asio::ip::udp::endpoint(asio::ip::udp::v6(), port);
             socket.open(endpoint.protocol());
             socket.bind(endpoint);
 
@@ -118,7 +118,7 @@ namespace rwe
     void GameNetworkService::listenForNextMessage()
     {
         socket.async_receive_from(
-            boost::asio::buffer(receiveBuffer.data(), receiveBuffer.size()),
+            asio::buffer(receiveBuffer.data(), receiveBuffer.size()),
             currentRemoteEndpoint,
             [this](const auto& error, const auto& bytesTransferred) {
                 receive(error, bytesTransferred);
@@ -172,10 +172,10 @@ namespace rwe
     {
         sendToAll();
         sendTimer.expires_after(std::chrono::milliseconds(100));
-        sendTimer.async_wait([this](const boost::system::error_code& error) {
+        sendTimer.async_wait([this](const asio::error_code& error) {
             if (error)
             {
-                LOG_ERROR << "Boost error while waiting on timer: " << error.message();
+                LOG_ERROR << "Error while waiting on timer: " << error.message();
                 return;
             }
 
@@ -216,7 +216,7 @@ namespace rwe
         // throw in a CRC to verify the message
         writeInt(&sendBuffer[messageSize], computeCrc(sendBuffer.data(), messageSize));
 
-        socket.send_to(boost::asio::buffer(sendBuffer.data(), messageSize + 4), endpoint.endpoint);
+        socket.send_to(asio::buffer(sendBuffer.data(), messageSize + 4), endpoint.endpoint);
 
         auto nextSequenceNumber = SequenceNumber(endpoint.nextCommandToSend.value + (endpoint.sendBuffer.size()));
         if (endpoint.sendTimes.empty() || endpoint.sendTimes.back().first < nextSequenceNumber)
@@ -225,11 +225,11 @@ namespace rwe
         }
     }
 
-    void GameNetworkService::receive(const boost::system::error_code& error, std::size_t receivedBytes)
+    void GameNetworkService::receive(const asio::error_code& error, std::size_t receivedBytes)
     {
         if (error)
         {
-            LOG_ERROR << "Boost error on receive: " << error.message();
+            LOG_ERROR << "Error on receive: " << error.message();
             return;
         }
 

@@ -2,7 +2,6 @@
   "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.16.0/.schema/devbox.schema.json",
   "packages": [
     "cmake",
-    "boost",
     "protobuf",
     "SDL2",
     "SDL2_image",

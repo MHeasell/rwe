@@ -24,7 +24,7 @@ namespace rwe
     {
         std::scoped_lock<std::mutex> lock(mutex);
 
-        // boost guarantees that resolve returns non-empty
+        // asio guarantees that resolve returns non-empty
         auto results = resolver.resolve(host, port);
         remoteEndpoints.emplace_back(playerIndex, results.begin()->endpoint(), Status::Loading);
     }
@@ -60,7 +60,7 @@ namespace rwe
         try
         {
             LOG_DEBUG << "Opening listen socket on port " << port;
-            auto endpoint = boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v6(), std::stoi(port));
+            auto endpoint = asio::ip::udp::endpoint(asio::ip::udp::v6(), std::stoi(port));
             socket.open(endpoint.protocol());
             socket.bind(endpoint);
 
@@ -76,7 +76,7 @@ namespace rwe
         }
     }
 
-    void LoadingNetworkService::onReceive(const boost::system::error_code& error, std::size_t bytesTransferred)
+    void LoadingNetworkService::onReceive(const asio::error_code& error, std::size_t bytesTransferred)
     {
         if (error)
         {
@@ -175,7 +175,7 @@ namespace rwe
         for (const auto& p : remoteEndpoints)
         {
             LOG_DEBUG << "Sending notification to " << p.endpoint.address().to_string() << " " << p.endpoint.port() << ", size " << outerMessage.ByteSizeLong();
-            socket.send_to(boost::asio::buffer(sendBuffer.data(), messageSize + 4), p.endpoint);
+            socket.send_to(asio::buffer(sendBuffer.data(), messageSize + 4), p.endpoint);
         }
     }
 
@@ -183,7 +183,7 @@ namespace rwe
     {
         notifyStatus();
         notifyTimer.expires_after(std::chrono::milliseconds(100));
-        notifyTimer.async_wait([this](const boost::system::error_code& error) {
+        notifyTimer.async_wait([this](const asio::error_code& error) {
             if (error)
             {
                 LOG_ERROR << "Received error from network notify timer: " << error.message();
@@ -197,14 +197,14 @@ namespace rwe
     {
         // go back to waiting for the next message
         socket.async_receive_from(
-            boost::asio::buffer(receiveBuffer.data(), receiveBuffer.size()),
+            asio::buffer(receiveBuffer.data(), receiveBuffer.size()),
             currentRemoteEndpoint,
             [this](const auto& error, const auto& bytesTransferred) {
                 onReceive(error, bytesTransferred);
                 startListening();
             });
     }
-    boost::asio::ip::udp::endpoint LoadingNetworkService::getEndpoint(int playerIndex)
+    asio::ip::udp::endpoint LoadingNetworkService::getEndpoint(int playerIndex)
     {
         auto it = std::find_if(remoteEndpoints.begin(), remoteEndpoints.end(), [&](const auto& e) { return e.playerIndex == playerIndex; });
         if (it == remoteEndpoints.end())

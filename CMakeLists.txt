@@ -33,7 +33,7 @@ project("Robot War Engine" VERSION ${CMAKE_MATCH_1})
 enable_testing()
 
 set(RC_ENABLE_CATCH ON CACHE BOOL "Enables Catch support in RapidCheck" FORCE)
-set(RC_ENABLE_BOOST ON CACHE BOOL "Enables Boost support in RapidCheck" FORCE)
+set(RC_ENABLE_BOOST OFF CACHE BOOL "Enables Boost support in RapidCheck" FORCE)
 # rapidcheck relies on result_of, which is deprecated in favour of invoke_result.
 # MSVC hides it from their stdlib unless you supply this option.
 if(MSVC)
@@ -97,15 +97,6 @@ if(MSVC)
     set(GLEW_LIBRARIES "${CMAKE_SOURCE_DIR}/libs/_msvc/glew-2.1.0/lib/Release/x64/glew32.lib")
     set(GLEW_INCLUDE_DIRS "libs/_msvc/glew-2.1.0/include")
 
-    set(Boost_INCLUDE_DIRS "libs/_msvc/boost_1_74_0")
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        set(Boost_LIBRARIES "${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_74_0/lib64-msvc-14.2/libboost_filesystem-vc142-mt-gd-x64-1_74.lib;${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_74_0/lib64-msvc-14.2/libboost_system-vc142-mt-gd-x64-1_74.lib;${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_74_0/lib64-msvc-14.2/libboost_program_options-vc142-mt-gd-x64-1_74.lib")
-    else()
-        set(Boost_LIBRARIES "${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_74_0/lib64-msvc-14.2/libboost_filesystem-vc142-mt-x64-1_74.lib;${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_74_0/lib64-msvc-14.2/libboost_system-vc142-mt-x64-1_74.lib;${CMAKE_SOURCE_DIR}/libs/_msvc/boost_1_74_0/lib64-msvc-14.2/libboost_program_options-vc142-mt-x64-1_74.lib")
-    endif()
-    add_definitions(-DBOOST_DATE_TIME_NO_LIB)
-    add_definitions(-DBOOST_REGEX_NO_LIB)
-
     set(SDL2_DLL "${CMAKE_SOURCE_DIR}/libs/_msvc/SDL2-2.0.7/lib/x64/SDL2.dll")
     set(SDL2_LIBRARY "${CMAKE_SOURCE_DIR}/libs/_msvc/SDL2-2.0.7/lib/x64/SDL2.lib;${CMAKE_SOURCE_DIR}/libs/_msvc/SDL2-2.0.7/lib/x64/SDL2main.lib")
     set(SDL2_INCLUDE_DIR "libs/_msvc/SDL2-2.0.7/include")
@@ -152,9 +143,6 @@ else()
 
     find_package(GLEW REQUIRED)
     find_windows_dll(GLEW_DLL "glew32.dll")
-
-    set(Boost_NO_BOOST_CMAKE ON)
-    find_package(Boost 1.54.0 REQUIRED COMPONENTS filesystem program_options)
 
     find_package(SDL2 REQUIRED)
     find_windows_dll(SDL2_DLL "SDL2.dll")
@@ -203,13 +191,6 @@ else()
     find_windows_dll(HWY_DLL "libhwy.dll")
     find_windows_dll(LCMS2_DLL "liblcms2-2.dll")
 endif()
-
-# We should have std::chrono everywhere,
-# but boost sometimes fails to detect this (e.g. with clang 5 on Ubuntu)
-# and falls back to using boost::chrono.
-# This enables the use of std::chrono explicitly
-# in boost.asio.
-add_definitions(-DBOOST_ASIO_HAS_STD_CHRONO)
 
 set(Protobuf_USE_STATIC_LIBS ON)
 find_package(Protobuf REQUIRED)
@@ -638,10 +619,10 @@ target_include_directories(librwe PUBLIC "src")
 configure_file("src/rwe/config.h.in" "config/rwe/config.h" @ONLY)
 target_include_directories(librwe PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/config")
 
-target_include_directories(librwe PUBLIC ${Boost_INCLUDE_DIRS})
-target_link_libraries(librwe ${Boost_LIBRARIES})
+target_include_directories(librwe PUBLIC "libs/asio/asio/include")
+add_definitions(-DASIO_STANDALONE)
 if(WIN32)
-    # winsock needed for boost asio on windows
+    # winsock needed for asio on windows
     target_link_libraries(librwe ws2_32)
 endif()
 
@@ -866,7 +847,6 @@ set(TEST_FILES
 add_executable(rwe_test src/test.cpp ${TEST_FILES})
 target_include_directories(rwe_test PUBLIC ${PROJECT_SOURCE_DIR}/libs/catch2/single_include)
 target_link_libraries(rwe_test rapidcheck_catch)
-target_link_libraries(rwe_test rapidcheck_boost)
 target_link_libraries(rwe_test librwe)
 add_test(NAME rwe_test COMMAND rwe_test)
 

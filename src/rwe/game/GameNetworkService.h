@@ -1,7 +1,6 @@
 #pragma once
 
-#include <boost/asio.hpp>
-#include <boost/asio/steady_timer.hpp> // not in asio.hpp in old boost versions
+#include <asio.hpp>
 #include <chrono>
 #include <deque>
 #include <future>
@@ -28,7 +27,7 @@ namespace rwe
         struct EndpointInfo
         {
             PlayerId playerId;
-            boost::asio::ip::udp::endpoint endpoint;
+            asio::ip::udp::endpoint endpoint;
 
             SequenceNumber nextCommandToSend{0};
             SequenceNumber nextCommandToReceive{0};
@@ -67,7 +66,7 @@ namespace rwe
              */
             float averageRoundTripTime{0};
 
-            EndpointInfo(const PlayerId& playerId, const boost::asio::ip::udp::endpoint& endpoint)
+            EndpointInfo(const PlayerId& playerId, const asio::ip::udp::endpoint& endpoint)
                 : playerId(playerId), endpoint(endpoint)
             {
             }
@@ -82,16 +81,16 @@ namespace rwe
 
         std::thread networkThread;
 
-        boost::asio::io_context ioContext;
-        boost::asio::ip::udp::resolver resolver;
-        boost::asio::ip::udp::socket socket;
-        boost::asio::steady_timer sendTimer;
+        asio::io_context ioContext;
+        asio::ip::udp::resolver resolver;
+        asio::ip::udp::socket socket;
+        asio::steady_timer sendTimer;
 
         std::vector<EndpointInfo> endpoints;
 
         std::array<char, 1500> sendBuffer;
         std::array<char, 1500> receiveBuffer;
-        boost::asio::ip::udp::endpoint currentRemoteEndpoint;
+        asio::ip::udp::endpoint currentRemoteEndpoint;
 
         PlayerCommandService* const playerCommandService;
 
@@ -132,6 +131,6 @@ namespace rwe
 
         void send(EndpointInfo& endpoint);
 
-        void receive(const boost::system::error_code& error, std::size_t receivedBytes);
+        void receive(const asio::error_code& error, std::size_t receivedBytes);
     };
 }
