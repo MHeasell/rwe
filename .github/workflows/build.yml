@@ -10,18 +10,18 @@ jobs:
       matrix:
         include:
           - configuration: Debug
-            cc: gcc-12
-            cxx: g++-12
+            cc: gcc-14
+            cxx: g++-14
           - configuration: Release
-            cc: gcc-12
-            cxx: g++-12
+            cc: gcc-14
+            cxx: g++-14
           - configuration: Debug
-            cc: clang-15
-            cxx: clang++-15
+            cc: clang-18
+            cxx: clang++-18
           - configuration: Release
-            cc: clang-15
-            cxx: clang++-15
-    runs-on: ubuntu-22.04
+            cc: clang-18
+            cxx: clang++-18
+    runs-on: ubuntu-24.04
     env:
       CC: ${{ matrix.cc }}
       CXX: ${{ matrix.cxx }}
@@ -34,9 +34,9 @@ jobs:
         run: sudo apt-get update -y
       - name: install apt packages
         run: sudo apt-get install -y
-          gcc-12
-          g++-12
-          clang-15
+          gcc-14
+          g++-14
+          clang-18
           libsdl2-dev
           libsdl2-image-dev
           libsdl2-mixer-dev
@@ -183,6 +183,7 @@ jobs:
             mingw-w64-x86_64-SDL2_mixer
             mingw-w64-x86_64-glew
             mingw-w64-x86_64-smpeg2
+            mingw-w64-x86_64-libmodplug
             mingw-w64-x86_64-zlib
             mingw-w64-x86_64-libpng
             mingw-w64-x86_64-readline
