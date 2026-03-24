@@ -28,8 +28,8 @@
 #include <rwe/util.h>
 #include <rwe/util/OpaqueArgs.h>
 #include <rwe/util/Result.h>
+#include <rwe/util/SimpleLogger.h>
 #include <rwe/vfs/CompositeVirtualFileSystem.h>
-#include <spdlog/spdlog.h>
 
 namespace fs = std::filesystem;
 
@@ -78,13 +78,12 @@ namespace rwe
         }
     }
 
-    Result<SdlContext::GlContextUniquePtr, const char*> createOpenGlContext(SdlContext* sdlContext, SDL_Window* window, spdlog::logger& logger, const OpenGlVersionInfo& requiredVersion)
+    Result<SdlContext::GlContextUniquePtr, const char*> createOpenGlContext(SdlContext* sdlContext, SDL_Window* window, const OpenGlVersionInfo& requiredVersion)
     {
-        logger.info(
-            "Requesting OpenGL version {0}.{1}, {2} profile",
-            requiredVersion.version.majorVersion,
-            requiredVersion.version.minorVersion,
-            getOpenGlProfileName(requiredVersion.profile));
+        LOG_INFO << "Requesting OpenGL version "
+                 << requiredVersion.version.majorVersion << "."
+                 << requiredVersion.version.minorVersion << ", "
+                 << getOpenGlProfileName(requiredVersion.profile) << " profile";
 
         if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, requiredVersion.version.majorVersion) != 0)
         {
@@ -119,14 +118,14 @@ namespace rwe
         return Ok(std::move(glContext));
     };
 
-    int run(spdlog::logger& logger, const std::vector<fs::path>& searchPath, const PathMapping& pathMapping, const std::optional<GameParameters>& gameParameters, unsigned int desiredWindowWidth, unsigned int desiredWindowHeight, bool fullscreen, const std::string& imGuiIniPath, GlobalConfig& globalConfig)
+    int run(const std::vector<fs::path>& searchPath, const PathMapping& pathMapping, const std::optional<GameParameters>& gameParameters, unsigned int desiredWindowWidth, unsigned int desiredWindowHeight, bool fullscreen, const std::string& imGuiIniPath, GlobalConfig& globalConfig)
     {
-        logger.info(ProjectNameVersion);
-        logger.info("Current directory: {0}", fs::current_path().string());
+        LOG_INFO << ProjectNameVersion;
+        LOG_INFO << "Current directory: " << fs::current_path().string();
 
         TimeService timeService(getTimestamp());
 
-        logger.info("Initializing SDL");
+        LOG_INFO << "Initializing SDL";
         SdlContextManager sdlManager;
 
         // Set a reasonable number of audio channels
@@ -190,13 +189,13 @@ namespace rwe
         sdlContext->getWindowSize(window.get(), &windowWidth, &windowHeight);
         Viewport viewport(0, 0, windowWidth, windowHeight);
 
-        logger.info("Initializing OpenGL context");
+        LOG_INFO << "Initializing OpenGL context";
 
-        auto glContextResult = createOpenGlContext(sdlContext, window.get(), logger, OpenGlVersionInfo(3, 2, OpenGlProfile::Core));
+        auto glContextResult = createOpenGlContext(sdlContext, window.get(), OpenGlVersionInfo(3, 2, OpenGlProfile::Core));
         if (!glContextResult)
         {
-            logger.error("Failed to create preferred OpenGL context: {0}", glContextResult.getErr());
-            glContextResult = createOpenGlContext(sdlContext, window.get(), logger, OpenGlVersionInfo(3, 0, OpenGlProfile::Compatibility));
+            LOG_ERROR << "Failed to create preferred OpenGL context: " << glContextResult.getErr();
+            glContextResult = createOpenGlContext(sdlContext, window.get(), OpenGlVersionInfo(3, 0, OpenGlProfile::Compatibility));
             if (!glContextResult)
             {
                 throw std::runtime_error(glContextResult.getErr());
@@ -212,29 +211,29 @@ namespace rwe
         doGlewInit();
 
         // log opengl context info
-        logger.info("OpenGL version: {0}", glGetString(GL_VERSION));
-        logger.info("OpenGL vendor: {0}", glGetString(GL_VENDOR));
-        logger.info("OpenGL renderer: {0}", glGetString(GL_RENDERER));
-        logger.info("OpenGL shading language version: {0}", glGetString(GL_SHADING_LANGUAGE_VERSION));
-        logger.debug("OpenGL extensions:");
+        LOG_INFO << "OpenGL version: " << glGetString(GL_VERSION);
+        LOG_INFO << "OpenGL vendor: " << glGetString(GL_VENDOR);
+        LOG_INFO << "OpenGL renderer: " << glGetString(GL_RENDERER);
+        LOG_INFO << "OpenGL shading language version: " << glGetString(GL_SHADING_LANGUAGE_VERSION);
+        LOG_DEBUG << "OpenGL extensions:";
         int openGlExtensionCount;
         glGetIntegerv(GL_NUM_EXTENSIONS, &openGlExtensionCount);
         for (int i = 0; i < openGlExtensionCount; ++i)
         {
-            logger.debug("  {0}", glGetStringi(GL_EXTENSIONS, i));
+            LOG_DEBUG << "  " << glGetStringi(GL_EXTENSIONS, i);
         }
 
-        logger.info("Initializing Dear ImGui");
+        LOG_INFO << "Initializing Dear ImGui";
         ImGuiContext imGuiContext(imGuiIniPath, window.get(), glContext.get());
 
-        logger.info("Initializing virtual file system");
+        LOG_INFO << "Initializing virtual file system";
         CompositeVirtualFileSystem vfs;
         for (const auto& path : searchPath)
         {
             addToVfs(vfs, path.string());
         }
 
-        logger.info("Loading palette");
+        LOG_INFO << "Loading palette";
         auto paletteBytes = vfs.readFile("palettes/PALETTE.PAL");
         if (!paletteBytes)
         {
@@ -247,7 +246,7 @@ namespace rwe
             throw std::runtime_error("Couldn't read palette");
         }
 
-        logger.info("Loading GUI palette");
+        LOG_INFO << "Loading GUI palette";
         auto guiPaletteBytes = vfs.readFile("palettes/GUIPAL.PAL");
         if (!guiPaletteBytes)
         {
@@ -260,7 +259,7 @@ namespace rwe
             throw std::runtime_error("Couldn't read GUI palette");
         }
 
-        logger.info("Initializing services");
+        LOG_INFO << "Initializing services";
         GraphicsContext graphics;
         graphics.enableCulling();
         graphics.enableBlending();
@@ -272,7 +271,7 @@ namespace rwe
         AudioService audioService(sdlContext, sdlManager.getSdlMixerContext(), &vfs);
 
         // load sound definitions
-        logger.info("Loading global sound definitions");
+        LOG_INFO << "Loading global sound definitions";
         auto allSoundBytes = vfs.readFile("gamedata/ALLSOUND.TDF");
         if (!allSoundBytes)
         {
@@ -282,7 +281,7 @@ namespace rwe
         std::string allSoundString(allSoundBytes->data(), allSoundBytes->size());
         auto allSoundTdf = parseTdfFromString(allSoundString);
 
-        logger.info("Loading cursors");
+        LOG_INFO << "Loading cursors";
         Cursors cursors;
         cursors[*CursorType::Normal] = textureService.getGafEntry("anims/CURSORS.GAF", "cursornormal");
         cursors[*CursorType::Select] = textureService.getGafEntry("anims/CURSORS.GAF", "cursorselect");
@@ -298,7 +297,7 @@ namespace rwe
 
         SceneManager sceneManager(sdlContext, window.get(), &graphics, &timeService, &imGuiContext, &cursor, &globalConfig, UiRenderService(&graphics, &shaders, &viewport), &viewport);
 
-        logger.info("Loading side data");
+        LOG_INFO << "Loading side data";
         auto sideDataBytes = vfs.readFile("gamedata/SIDEDATA.TDF");
         if (!sideDataBytes)
         {
@@ -334,7 +333,7 @@ namespace rwe
 
         if (gameParameters)
         {
-            logger.info("Launching into game on map: {0}", gameParameters->mapName);
+            LOG_INFO << "Launching into game on map: " << gameParameters->mapName;
             auto scene = std::make_unique<LoadingScene>(
                 sceneContext,
                 &allSoundTdf,
@@ -344,7 +343,7 @@ namespace rwe
         }
         else
         {
-            logger.info("Launching into the main menu");
+            LOG_INFO << "Launching into the main menu";
             auto scene = std::make_unique<MainMenuScene>(
                 sceneContext,
                 &allSoundTdf,
@@ -353,10 +352,10 @@ namespace rwe
             sceneManager.setNextScene(std::shared_ptr<Scene>(std::move(scene)));
         }
 
-        logger.info("Entering main loop");
+        LOG_INFO << "Entering main loop";
         sceneManager.execute();
 
-        logger.info("Finished main loop, exiting");
+        LOG_INFO << "Finished main loop, exiting";
 
         return 0;
     }
@@ -444,12 +443,12 @@ namespace rwe
     }
 }
 
-auto createLogger(const fs::path& logFile)
+std::shared_ptr<rwe::SimpleLogger> createLogger(const fs::path& logFile)
 {
-    return spdlog::basic_logger_mt("rwe", logFile.string(), true);
+    return std::make_shared<rwe::SimpleLogger>(logFile.string(), true);
 }
 
-auto createLoggerInDir(const fs::path& logDir)
+std::shared_ptr<rwe::SimpleLogger> createLoggerInDir(const fs::path& logDir)
 {
     for (int i = 0; i < 3; ++i)
     {
@@ -465,9 +464,9 @@ auto createLoggerInDir(const fs::path& logDir)
 
         try
         {
-            return spdlog::basic_logger_mt("rwe", logPath.string(), true);
+            return std::make_shared<rwe::SimpleLogger>(logPath.string(), true);
         }
-        catch (const spdlog::spdlog_ex& ex)
+        catch (const std::exception&)
         {
         }
     }
@@ -543,8 +542,7 @@ int main(int argc, char* argv[])
         }
 
         auto logger = args.contains("log") ? createLogger(fs::path(args.getString("log"))) : createLoggerInDir(*localDataPath);
-        logger->set_level(spdlog::level::debug);
-        logger->flush_on(spdlog::level::debug); // always flush
+        rwe::setGlobalLogger(logger);
 
         try
         {
@@ -609,11 +607,11 @@ int main(int argc, char* argv[])
             pathMapping.units = args.getString("dir-units", "units");
             pathMapping.weapons = args.getString("dir-weapons", "weapons");
 
-            return rwe::run(*logger, gameDataPaths, pathMapping, gameParameters, screenWidth, screenHeight, fullscreen, imGuiIniFilePath.string(), config);
+            return rwe::run(gameDataPaths, pathMapping, gameParameters, screenWidth, screenHeight, fullscreen, imGuiIniFilePath.string(), config);
         }
         catch (const std::exception& e)
         {
-            logger->critical(e.what());
+            LOG_CRITICAL << e.what();
             throw;
         }
     }

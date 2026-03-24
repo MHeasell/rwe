@@ -8,7 +8,7 @@
 #include <rwe/util/Index.h>
 #include <rwe/util/OpaqueId_io.h>
 #include <rwe/util/range_util.h>
-#include <spdlog/spdlog.h>
+#include <rwe/util/SimpleLogger.h>
 #include <thread>
 
 namespace rwe
@@ -112,7 +112,7 @@ namespace rwe
         }
         catch (const std::exception& e)
         {
-            spdlog::get("rwe")->error("Network thread died with error: {0}", e.what());
+            LOG_ERROR << "Network thread died with error: " << e.what();
         }
     }
 
@@ -176,7 +176,7 @@ namespace rwe
         sendTimer.async_wait([this](const boost::system::error_code& error) {
             if (error)
             {
-                spdlog::get("rwe")->error("Boost error while waiting on timer: {}", error.message());
+                LOG_ERROR << "Boost error while waiting on timer: " << error.message();
                 return;
             }
 
@@ -195,7 +195,7 @@ namespace rwe
     void GameNetworkService::send(GameNetworkService::EndpointInfo& endpoint)
     {
         auto packetId = uniform_dist(gen);
-        spdlog::get("rwe")->debug("Sending packet ID {} to endpoint: {}:{}", packetId, endpoint.endpoint.address().to_string(), endpoint.endpoint.port());
+        LOG_DEBUG << "Sending packet ID " << packetId << " to endpoint: " << endpoint.endpoint.address().to_string() << ":" << endpoint.endpoint.port();
         std::chrono::milliseconds delay(0);
         auto sendTime = getTimestamp();
         if (endpoint.lastReceiveTime)
@@ -230,21 +230,21 @@ namespace rwe
     {
         if (error)
         {
-            spdlog::get("rwe")->error("Boost error on receive: {}", error.message());
+            LOG_ERROR << "Boost error on receive: " << error.message();
             return;
         }
 
         auto receiveTime = getTimestamp();
-        spdlog::get("rwe")->debug("Received {} bytes from endpoint: {}:{}", receivedBytes, currentRemoteEndpoint.address().to_string(), currentRemoteEndpoint.port());
+        LOG_DEBUG << "Received " << receivedBytes << " bytes from endpoint: " << currentRemoteEndpoint.address().to_string() << ":" << currentRemoteEndpoint.port();
 
         if (receivedBytes == receiveBuffer.size())
         {
-            spdlog::get("rwe")->warn("Received {} bytes, which filled the entire message buffer!!", receivedBytes);
+            LOG_WARN << "Received " << receivedBytes << " bytes, which filled the entire message buffer!!";
         }
 
         if (receivedBytes < 4)
         {
-            spdlog::get("rwe")->error("Received message is too short, ignoring", receivedBytes);
+            LOG_ERROR << "Received message is too short (" << receivedBytes << " bytes), ignoring";
             return;
         }
 
@@ -252,7 +252,7 @@ namespace rwe
         if (endpointIt == endpoints.end())
         {
             // message was from some unknown address, ignore it
-            spdlog::get("rwe")->debug("Unknown address, ignoring");
+            LOG_DEBUG << "Unknown address, ignoring";
             return;
         }
 
@@ -260,7 +260,7 @@ namespace rwe
         auto computedCrc = computeCrc(receiveBuffer.data(), receivedBytes - 4);
         if (receivedCrc != computedCrc)
         {
-            spdlog::get("rwe")->error("Message CRC incorrect, ignoring");
+            LOG_ERROR << "Message CRC incorrect, ignoring";
             return;
         }
 
@@ -269,7 +269,7 @@ namespace rwe
         if (!outerMessage.has_game_update())
         {
             // message wasn't a game update, ignore it
-            spdlog::get("rwe")->debug("Not game update, ignoring");
+            LOG_DEBUG << "Not game update, ignoring";
             return;
         }
 
@@ -277,23 +277,19 @@ namespace rwe
 
         const auto& message = outerMessage.game_update();
 
-        spdlog::get("rwe")->debug("Packet received with ID {}", message.packet_id());
+        LOG_DEBUG << "Packet received with ID " << message.packet_id();
         if (message.player_id() != endpoint.playerId.value)
         {
-            spdlog::get("rwe")->error("Player {} endpoint sent wrong player ID: {}", endpoint.playerId.value, message.player_id());
+            LOG_ERROR << "Player " << endpoint.playerId.value << " endpoint sent wrong player ID: " << message.player_id();
             return;
         }
 
-        spdlog::get("rwe")->debug("Received ack to {0} and {1} commands starting at {2}", message.next_command_set_to_receive(), message.command_set_size(), message.next_command_set_to_send());
+        LOG_DEBUG << "Received ack to " << message.next_command_set_to_receive() << " and " << message.command_set_size() << " commands starting at " << message.next_command_set_to_send();
 
         SequenceNumber newNextCommandToSend(message.next_command_set_to_receive());
         if (newNextCommandToSend.value > endpoint.nextCommandToSend.value + endpoint.sendBuffer.size())
         {
-            spdlog::get("rwe")->error(
-                "Remote acked up to {0}, but we are at {1} and command buffer contains {2} elements",
-                newNextCommandToSend.value,
-                endpoint.nextCommandToSend.value,
-                endpoint.sendBuffer.size());
+            LOG_ERROR << "Remote acked up to " << newNextCommandToSend.value << ", but we are at " << endpoint.nextCommandToSend.value << " and command buffer contains " << endpoint.sendBuffer.size() << " elements";
         }
         while (newNextCommandToSend > endpoint.nextCommandToSend && !endpoint.sendBuffer.empty())
         {
@@ -313,19 +309,19 @@ namespace rwe
             roundTripTime = roundTripTime > ackDelay ? roundTripTime - ackDelay : std::chrono::milliseconds(0);
             auto rttMillis = std::chrono::duration_cast<std::chrono::milliseconds>(roundTripTime).count();
             endpoint.averageRoundTripTime = ema(rttMillis, endpoint.averageRoundTripTime, 0.1f);
-            spdlog::get("rwe")->debug("Average RTT: {0}ms", endpoint.averageRoundTripTime);
+            LOG_DEBUG << "Average RTT: " << endpoint.averageRoundTripTime << "ms";
         }
 
         auto extraFrames = static_cast<unsigned int>((endpoint.averageRoundTripTime / 2.0f) * SimTicksPerSecond / 1000.0f);
         endpoint.lastKnownSceneTime = std::make_pair(SceneTime(message.current_scene_time() + extraFrames), receiveTime);
-        spdlog::get("rwe")->debug("Estimated peer scene time: {0}", endpoint.lastKnownSceneTime->first.value);
+        LOG_DEBUG << "Estimated peer scene time: " << endpoint.lastKnownSceneTime->first.value;
 
         SequenceNumber firstCommandNumber(message.next_command_set_to_send());
         if (firstCommandNumber > endpoint.nextCommandToReceive)
         {
             // message starts with commands too far in the future, ignore it.
             // FIXME: this should probably be an error as it shouldn't ever happen
-            spdlog::get("rwe")->error("First command number in message was too high! Expecting no more than {0}, received {1}", endpoint.nextCommandToReceive.value, firstCommandNumber.value);
+            LOG_ERROR << "First command number in message was too high! Expecting no more than " << endpoint.nextCommandToReceive.value << ", received " << firstCommandNumber.value;
             return;
         }
 
@@ -347,11 +343,7 @@ namespace rwe
         GameTime newNextHashToSend(message.next_game_hash_to_receive());
         if (newNextHashToSend > endpoint.nextHashToSend + GameTime(endpoint.hashSendBuffer.size()))
         {
-            spdlog::get("rwe")->error(
-                "Remote acked up to {0}, but we are at {1} and hash buffer contains {2} elements",
-                newNextHashToSend.value,
-                endpoint.nextHashToSend.value,
-                endpoint.hashSendBuffer.size());
+            LOG_ERROR << "Remote acked up to " << newNextHashToSend.value << ", but we are at " << endpoint.nextHashToSend.value << " and hash buffer contains " << endpoint.hashSendBuffer.size() << " elements";
         }
         while (newNextHashToSend > endpoint.nextHashToSend && !endpoint.hashSendBuffer.empty())
         {
@@ -364,7 +356,7 @@ namespace rwe
         {
             // message starts with hashes too far in the future, ignore it.
             // FIXME: this should probably be an error as it shouldn't ever happen
-            spdlog::get("rwe")->error("First game hash time in message was too high! Expecting no more than {0}, received {1}", endpoint.nextHashToReceive.value, firstGameHashTime.value);
+            LOG_ERROR << "First game hash time in message was too high! Expecting no more than " << endpoint.nextHashToReceive.value << ", received " << firstGameHashTime.value;
             return;
         }
 

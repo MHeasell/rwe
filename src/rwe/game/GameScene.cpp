@@ -14,7 +14,7 @@
 #include <rwe/ui/UiStagedButton.h>
 #include <rwe/util/Index.h>
 #include <rwe/util/match.h>
-#include <spdlog/spdlog.h>
+#include <rwe/util/SimpleLogger.h>
 
 namespace rwe
 {
@@ -1983,7 +1983,7 @@ namespace rwe
 
         auto bufferedCommandCount = playerCommandService->bufferedCommandCount(localPlayerId);
 
-        spdlog::get("rwe")->debug("Buffer levels (real/target) {0}/{1}", bufferedCommandCount, targetCommandBufferSize);
+        LOG_DEBUG << "Buffer levels (real/target) " << bufferedCommandCount << "/" << targetCommandBufferSize;
 
         // If we have too many commands buffered,
         // defer submitting commands this frame
@@ -2335,7 +2335,7 @@ namespace rwe
         auto playerCommands = playerCommandService->tryPopCommands();
         if (!playerCommands)
         {
-            spdlog::get("rwe")->error("Blocked waiting for player commands");
+            LOG_ERROR << "Blocked waiting for player commands";
             return;
         }
 

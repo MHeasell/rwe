@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <rwe/network_util.h>
 #include <rwe/util/Index.h>
-#include <spdlog/spdlog.h>
+#include <rwe/util/SimpleLogger.h>
 
 namespace rwe
 {
@@ -59,7 +59,7 @@ namespace rwe
     {
         try
         {
-            spdlog::get("rwe")->debug("Opening listen socket on port {}", port);
+            LOG_DEBUG << "Opening listen socket on port " << port;
             auto endpoint = boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v6(), std::stoi(port));
             socket.open(endpoint.protocol());
             socket.bind(endpoint);
@@ -72,7 +72,7 @@ namespace rwe
         }
         catch (const std::exception& e)
         {
-            spdlog::get("rwe")->error("Network thread died with error: {0}", e.what());
+            LOG_ERROR << "Network thread died with error: " << e.what();
         }
     }
 
@@ -80,25 +80,25 @@ namespace rwe
     {
         if (error)
         {
-            spdlog::get("rwe")->error("Received network error from {0} port {1}: {2}", currentRemoteEndpoint.address().to_string(), currentRemoteEndpoint.port(), error.message());
+            LOG_ERROR << "Received network error from " << currentRemoteEndpoint.address().to_string() << " port " << currentRemoteEndpoint.port() << ": " << error.message();
             return;
         }
 
         std::scoped_lock<std::mutex> lock(mutex);
-        spdlog::get("rwe")->debug("Received network message from {0} {1}, size {2}", currentRemoteEndpoint.address().to_string(), currentRemoteEndpoint.port(), bytesTransferred);
+        LOG_DEBUG << "Received network message from " << currentRemoteEndpoint.address().to_string() << " " << currentRemoteEndpoint.port() << ", size " << bytesTransferred;
         auto it = std::find_if(remoteEndpoints.begin(), remoteEndpoints.end(), [this](const auto& p) { return p.endpoint == currentRemoteEndpoint; });
         if (it == remoteEndpoints.end())
         {
             // message from some unknown address, ignore
-            spdlog::get("rwe")->debug("Sender was unknown, aborting");
+            LOG_DEBUG << "Sender was unknown, aborting";
             return;
         }
 
-        spdlog::get("rwe")->debug("Sender was recognised");
+        LOG_DEBUG << "Sender was recognised";
 
         if (bytesTransferred < 4)
         {
-            spdlog::get("rwe")->error("Received message is too short, ignoring");
+            LOG_ERROR << "Received message is too short, ignoring";
             return;
         }
 
@@ -106,7 +106,7 @@ namespace rwe
         auto computedCrc = computeCrc(receiveBuffer.data(), bytesTransferred - 4);
         if (receivedCrc != computedCrc)
         {
-            spdlog::get("rwe")->error("Message CRC incorrect, ignoring");
+            LOG_ERROR << "Message CRC incorrect, ignoring";
             return;
         }
 
@@ -115,7 +115,7 @@ namespace rwe
 
         if (!message.has_loading_status())
         {
-            spdlog::get("rwe")->debug("Sender is already in game!");
+            LOG_DEBUG << "Sender is already in game!";
             it->status = Status::Ready;
             return;
         }
@@ -123,11 +123,11 @@ namespace rwe
         switch (message.loading_status().status())
         {
             case proto::LoadingStatusMessage_Status_Loading:
-                spdlog::get("rwe")->debug("Sender is loading");
+                LOG_DEBUG << "Sender is loading";
                 it->status = Status::Loading;
                 break;
             case proto::LoadingStatusMessage_Status_Ready:
-                spdlog::get("rwe")->debug("Sender is ready");
+                LOG_DEBUG << "Sender is ready";
                 it->status = Status::Ready;
                 break;
             default:
@@ -138,7 +138,7 @@ namespace rwe
     void LoadingNetworkService::notifyStatus()
     {
         std::scoped_lock<std::mutex> lock(mutex);
-        spdlog::get("rwe")->debug("Notifying peers about loading status");
+        LOG_DEBUG << "Notifying peers about loading status";
 
         proto::NetworkMessage outerMessage;
 
@@ -147,11 +147,11 @@ namespace rwe
             switch (loadingStatus)
             {
                 case Status::Loading:
-                    spdlog::get("rwe")->debug("we are loading");
+                    LOG_DEBUG << "we are loading";
                     innerMessage.set_status(proto::LoadingStatusMessage_Status_Loading);
                     break;
                 case Status::Ready:
-                    spdlog::get("rwe")->debug("we are ready");
+                    LOG_DEBUG << "we are ready";
                     innerMessage.set_status(proto::LoadingStatusMessage_Status_Ready);
                     break;
                 default:
@@ -174,7 +174,7 @@ namespace rwe
 
         for (const auto& p : remoteEndpoints)
         {
-            spdlog::get("rwe")->debug("Sending notification to {0} {1}, size {2}", p.endpoint.address().to_string(), p.endpoint.port(), outerMessage.ByteSizeLong());
+            LOG_DEBUG << "Sending notification to " << p.endpoint.address().to_string() << " " << p.endpoint.port() << ", size " << outerMessage.ByteSizeLong();
             socket.send_to(boost::asio::buffer(sendBuffer.data(), messageSize + 4), p.endpoint);
         }
     }
@@ -186,7 +186,7 @@ namespace rwe
         notifyTimer.async_wait([this](const boost::system::error_code& error) {
             if (error)
             {
-                spdlog::get("rwe")->error("Received error from network notify timer: {0}", error.message());
+                LOG_ERROR << "Received error from network notify timer: " << error.message();
                 return;
             }
             notifyStatusLoop();

@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.11)
 
+# Generate compile_commands.json for clangd-based editor integration
+# (VS Code, Zed, etc.). The .clangd file in the repo root points
+# editors to look for it in the build/ directory.
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Type of build" FORCE)
     message(STATUS "No build type specified, using default: ${CMAKE_BUILD_TYPE}")
@@ -74,7 +79,7 @@ endfunction()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
 if(NOT MSVC)
-    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_STANDARD 20)
 endif()
 
 find_package(OpenGL REQUIRED)
@@ -625,8 +630,7 @@ endif()
 add_library(librwe STATIC ${SOURCE_FILES} ${PROTO_SOURCE_FILES} ${PROTO_HEADER_FILES})
 set_target_properties(librwe PROPERTIES PREFIX "")
 if(MSVC)
-    target_compile_options(librwe PUBLIC "/std:c++17" "/EHsc")
-    add_definitions(-D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS)
+    target_compile_options(librwe PUBLIC "/std:c++20" "/EHsc")
 else()
     target_compile_options(librwe PUBLIC "-Wall" "-Wextra")
 endif()
@@ -642,7 +646,6 @@ if(WIN32)
 endif()
 
 target_include_directories(librwe PUBLIC "libs/utfcpp/source")
-target_include_directories(librwe PUBLIC "libs/spdlog/include")
 
 target_link_libraries(librwe OpenGL::GL)
 
@@ -856,6 +859,7 @@ set(TEST_FILES
     src/rwe/sim/util.test.cpp
     src/rwe/util/OpaqueArgs.test.cpp
     src/rwe/util/Result.test.cpp
+    src/rwe/util/SimpleLogger.test.cpp
     src/rwe/util/rwe_string.test.cpp
     )
 
