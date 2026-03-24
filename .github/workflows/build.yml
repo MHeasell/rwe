@@ -95,10 +95,6 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
-      - name: install python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.10'
       - name: install node.js
         uses: actions/setup-node@v6
         with:

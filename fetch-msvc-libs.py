@@ -49,7 +49,7 @@ if __name__ == "__main__":
     os.chdir("libs")
 
     sha256hash = binascii.unhexlify(sha256hash_hex)
-    bundle_url = "https://rwe.michaelheasell.com/bundles/" + bundle_name
+    bundle_url = "https://github.com/MHeasell/rwe/releases/download/msvc-libs-v6/" + bundle_name
 
     log("Deleting old files...")
     try:
