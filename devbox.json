@@ -3,15 +3,20 @@
   "packages": [
     "cmake",
     "protobuf",
-    "SDL2",
-    "SDL2_image",
-    "SDL2_mixer",
     "glew",
     "libpng",
     "zlib",
     "pkg-config",
     "git",
-    "libX11.dev"
+    "libX11.dev",
+    "libxext",
+    "libXi",
+    "libXfixes",
+    "libxrandr",
+    "libXScrnSaver",
+    "libXcursor",
+    "libXtst",
+    "libxcb"
   ],
   "shell": {
     "init_hook": [

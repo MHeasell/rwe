@@ -1,48 +1,6 @@
 {
   "lockfile_version": "1",
   "packages": {
-    "SDL2": {
-      "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#SDL2",
-      "source": "nixpkg",
-      "systems": {
-        "x86_64-darwin": {
-          "outputs": [
-            {
-              "path": "/nix/store/b6c8nbfs0awmdblgjaajsrvwd0m47r3p-sdl2-compat-2.32.62",
-              "default": true
-            }
-          ]
-        }
-      }
-    },
-    "SDL2_image": {
-      "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#SDL2_image",
-      "source": "nixpkg",
-      "systems": {
-        "x86_64-darwin": {
-          "outputs": [
-            {
-              "path": "/nix/store/9kkyzjl728ijx8bvy95vvj0b0c2c8zp6-SDL2_image-2.8.8",
-              "default": true
-            }
-          ]
-        }
-      }
-    },
-    "SDL2_mixer": {
-      "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#SDL2_mixer",
-      "source": "nixpkg",
-      "systems": {
-        "x86_64-darwin": {
-          "outputs": [
-            {
-              "path": "/nix/store/n0ij8v60ck36rni9gfia25cgn0sjf4ia-SDL2_mixer-2.8.1",
-              "default": true
-            }
-          ]
-        }
-      }
-    },
     "cmake": {
       "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#cmake",
       "source": "nixpkg",
@@ -84,6 +42,26 @@
       "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#libX11.dev",
       "source": "nixpkg"
     },
+    "libXScrnSaver": {
+      "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#libXScrnSaver",
+      "source": "nixpkg"
+    },
+    "libXcursor": {
+      "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#libXcursor",
+      "source": "nixpkg"
+    },
+    "libXfixes": {
+      "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#libXfixes",
+      "source": "nixpkg"
+    },
+    "libXi": {
+      "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#libXi",
+      "source": "nixpkg"
+    },
+    "libXtst": {
+      "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#libXtst",
+      "source": "nixpkg"
+    },
     "libpng": {
       "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#libpng",
       "source": "nixpkg",
@@ -102,6 +80,18 @@
           ]
         }
       }
+    },
+    "libxcb": {
+      "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#libxcb",
+      "source": "nixpkg"
+    },
+    "libxext": {
+      "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#libxext",
+      "source": "nixpkg"
+    },
+    "libxrandr": {
+      "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#libxrandr",
+      "source": "nixpkg"
     },
     "pkg-config": {
       "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#pkg-config",
