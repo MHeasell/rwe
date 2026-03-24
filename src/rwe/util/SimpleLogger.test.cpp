@@ -1,5 +1,6 @@
 #include <catch2/catch.hpp>
 #include <cstdio>
+#include <filesystem>
 #include <fstream>
 #include <rwe/util/SimpleLogger.h>
 #include <string>
@@ -39,7 +40,7 @@ namespace rwe
 
     TEST_CASE("SimpleLogger")
     {
-        const std::string path = "/tmp/rwe_test_logger.log";
+        const std::string path = (std::filesystem::temp_directory_path() / "rwe_test_logger.log").string();
 
         SECTION("writes log lines via macros")
         {
