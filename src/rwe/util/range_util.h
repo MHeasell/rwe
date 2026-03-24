@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/range/adaptors.hpp>
+#include <ranges>
 
 namespace rwe
 {
@@ -8,8 +8,8 @@ namespace rwe
     auto choose(Range r, Chooser c)
     {
         return r
-            | boost::adaptors::transformed(c)
-            | boost::adaptors::filtered([](const auto& e) { return e.has_value(); })
-            | boost::adaptors::transformed([](const auto& e) { return *e; });
+            | std::views::transform(c)
+            | std::views::filter([](const auto& e) { return e.has_value(); })
+            | std::views::transform([](const auto& e) { return *e; });
     }
 }
