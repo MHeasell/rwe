@@ -123,11 +123,19 @@ jobs:
         working-directory: launcher
         run: npm run package
       - run: python3 fetch-msvc-libs.py
+      - name: install sccache
+        run: choco install sccache -y
+      - name: restore sccache
+        uses: actions/cache@v5
+        with:
+          path: ~\AppData\Local\Mozilla\sccache
+          key: sccache-${{ runner.os }}-msvc-${{ matrix.configuration }}-${{ github.sha }}
+          restore-keys: sccache-${{ runner.os }}-msvc-${{ matrix.configuration }}-
       - name: build rwe
         run: |
           mkdir build
           cd build
-          cmake -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ..
+          cmake -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache ..
           cmake --build . --config ${{ matrix.configuration }} --parallel 4
           cd ..
       - name: test rwe
