@@ -157,16 +157,15 @@ curl -fsSL https://get.jetify.com/devbox | bash # installs devbox (one-time)
 # From the rwe repo base dir:
 devbox shell  # Enters the dev environment - uses devbox.json to pull in dependencies. May take a while the first time.
 mkdir build && cd build
-cmake .. -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+cmake .. -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=Debug
 make -j$(nproc 2>/dev/null || sysctl -n hw.ncpu)  # -j isn't necessary, but builds with multiple threads and will reduce build time
 ./rwe_test # run tests, of course
 # run the game- this should work for MacOS, tho in Linux the devbox/nix build may have a quirk that gives you OpenGL related errors on launch
 ./rwe
-# If you see "Could not get EGL display" or other OpenGL related errors on launch, try this instead of `./rwe` 
+# If you see "Could not get EGL display" or other OpenGL related errors on launch, try this instead of `./rwe`
 # This script just runs rwe with LD_LIBRARY_PATH set to a good guess of which dirs your video drivers exist in.
 ./run.sh
 ```
-```-DCMAKE_EXPORT_COMPILE_COMMANDS=1``` is optional. It generates `compile_commands.json` which some VS Code plugins like clangd can read in order to automatically configure themselves for the project, to give the linter/tools like go-to-definition the same view of the code the compiler has.
 
 
 #### Ubuntu
@@ -209,10 +208,9 @@ Now build the code:
     mkdir build
     cd build
     export CC=gcc-7 CXX=g++-7
-    cmake .. -G 'Unix Makefiles' -DCMAKE_EXPORT_COMPILE_COMMANDS=1 
+    cmake .. -G 'Unix Makefiles'
     make
 
-The -DCMAKE_EXPORT_COMPILE_COMMANDS=1 is optional. It generates compile_commands.json which some VS Code plugins like clangd can read in order to automatically configure themselves for the project.
 Note if LLVM/clang is installed, export CC=clang CXX=clang++ should also work.
 
 Finally, launch RWE from the top-level project directory:
