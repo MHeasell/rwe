@@ -21,7 +21,7 @@ namespace rwe
         throw std::logic_error("Unknown profile");
     }
 
-    SDL_GLprofile getSdlProfileMask(OpenGlProfile profile)
+    SDL_GLProfile getSdlProfileMask(OpenGlProfile profile)
     {
         switch (profile)
         {

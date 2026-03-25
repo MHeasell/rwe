@@ -1,6 +1,7 @@
 #pragma once
 
-#include <SDL_mixer.h>
+#if 0 // TODO: SDL3_mixer migration
+#include <SDL3_mixer/SDL_mixer.h>
 #include <functional>
 #include <memory>
 #include <rwe/sdl/SdlMixerException.h>
@@ -38,7 +39,7 @@ namespace rwe
             void operator()(Mix_Chunk* chunk) { Mix_FreeChunk(chunk); }
         };
 
-        std::unique_ptr<Mix_Chunk, MixChunkDeleter> loadWavRw(SDL_RWops* src)
+        std::unique_ptr<Mix_Chunk, MixChunkDeleter> loadWavRw(SDL_IOStream* src)
         {
             return std::unique_ptr<Mix_Chunk, MixChunkDeleter>(Mix_LoadWAV_RW(src, 0));
         };
@@ -86,3 +87,23 @@ namespace rwe
         }
     };
 }
+#else
+#include <functional>
+#include <memory>
+
+namespace rwe
+{
+    class SdlMixerContext
+    {
+    private:
+        SdlMixerContext() = default;
+        SdlMixerContext(const SdlMixerContext&) = delete;
+        ~SdlMixerContext() = default;
+
+        friend class SdlContextManager;
+
+    public:
+        void allocateChannels(int /*numChans*/) {}
+    };
+}
+#endif

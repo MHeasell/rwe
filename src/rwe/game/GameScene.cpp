@@ -1198,47 +1198,47 @@ namespace rwe
         ImGui::End();
     }
 
-    void GameScene::onKeyDown(const SDL_Keysym& keysym)
+    void GameScene::onKeyDown(const SDL_KeyboardEvent& keysym)
     {
-        currentPanel->keyDown(KeyEvent(keysym.sym));
+        currentPanel->keyDown(KeyEvent(keysym.key));
 
-        if (keysym.sym == SDLK_UP)
+        if (keysym.key == SDLK_UP)
         {
             up = true;
         }
-        else if (keysym.sym == SDLK_DOWN)
+        else if (keysym.key == SDLK_DOWN)
         {
             down = true;
         }
-        else if (keysym.sym == SDLK_LEFT)
+        else if (keysym.key == SDLK_LEFT)
         {
             left = true;
         }
-        else if (keysym.sym == SDLK_RIGHT)
+        else if (keysym.key == SDLK_RIGHT)
         {
             right = true;
         }
-        else if (keysym.sym == SDLK_LCTRL)
+        else if (keysym.key == SDLK_LCTRL)
         {
             leftCtrlDown = true;
         }
-        else if (keysym.sym == SDLK_RCTRL)
+        else if (keysym.key == SDLK_RCTRL)
         {
             rightCtrlDown = true;
         }
-        else if (keysym.sym == SDLK_LSHIFT)
+        else if (keysym.key == SDLK_LSHIFT)
         {
             leftShiftDown = true;
         }
-        else if (keysym.sym == SDLK_RSHIFT)
+        else if (keysym.key == SDLK_RSHIFT)
         {
             rightShiftDown = true;
         }
-        else if (keysym.sym == SDLK_ESCAPE)
+        else if (keysym.key == SDLK_ESCAPE)
         {
             handleEscapeDown();
         }
-        else if (keysym.sym == SDLK_F10)
+        else if (keysym.key == SDLK_F10)
         {
             showDebugWindow = true;
         }
@@ -1246,11 +1246,11 @@ namespace rwe
         {
             healthBarsVisible = !healthBarsVisible;
         }
-        else if (keysym.sym == SDLK_t)
+        else if (keysym.key == SDLK_T)
         {
             startTrack();
         }
-        else if (keysym.sym == SDLK_c)
+        else if (keysym.key == SDLK_C)
         {
             if (isCtrlDown())
             {
@@ -1281,39 +1281,39 @@ namespace rwe
         }
     }
 
-    void GameScene::onKeyUp(const SDL_Keysym& keysym)
+    void GameScene::onKeyUp(const SDL_KeyboardEvent& keysym)
     {
-        currentPanel->keyUp(KeyEvent(keysym.sym));
+        currentPanel->keyUp(KeyEvent(keysym.key));
 
-        if (keysym.sym == SDLK_UP)
+        if (keysym.key == SDLK_UP)
         {
             up = false;
         }
-        else if (keysym.sym == SDLK_DOWN)
+        else if (keysym.key == SDLK_DOWN)
         {
             down = false;
         }
-        else if (keysym.sym == SDLK_LEFT)
+        else if (keysym.key == SDLK_LEFT)
         {
             left = false;
         }
-        else if (keysym.sym == SDLK_RIGHT)
+        else if (keysym.key == SDLK_RIGHT)
         {
             right = false;
         }
-        else if (keysym.sym == SDLK_LCTRL)
+        else if (keysym.key == SDLK_LCTRL)
         {
             leftCtrlDown = false;
         }
-        else if (keysym.sym == SDLK_RCTRL)
+        else if (keysym.key == SDLK_RCTRL)
         {
             rightCtrlDown = false;
         }
-        else if (keysym.sym == SDLK_LSHIFT)
+        else if (keysym.key == SDLK_LSHIFT)
         {
             leftShiftDown = false;
         }
-        else if (keysym.sym == SDLK_RSHIFT)
+        else if (keysym.key == SDLK_RSHIFT)
         {
             rightShiftDown = false;
         }
@@ -2445,10 +2445,10 @@ namespace rwe
 
     Point GameScene::getMousePosition() const
     {
-        int x;
-        int y;
-        sceneContext.sdl->getMouseState(&x, &y);
-        return Point(x, y);
+        float fx;
+        float fy;
+        sceneContext.sdl->getMouseState(&fx, &fy);
+        return Point(static_cast<int>(fx), static_cast<int>(fy));
     }
 
     std::optional<UnitId> GameScene::getFirstCollidingUnit(const Ray3f& ray) const

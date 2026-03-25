@@ -1,12 +1,12 @@
 #include "ImGuiContext.h"
-#include <SDL_events.h>
+#include <SDL3/SDL_events.h>
 
 namespace rwe
 {
     ImGuiContext::~ImGuiContext()
     {
         ImGui_ImplOpenGL3_Shutdown();
-        ImGui_ImplSDL2_Shutdown();
+        ImGui_ImplSDL3_Shutdown();
         ImGui::DestroyContext();
     }
 
@@ -14,7 +14,7 @@ namespace rwe
     {
         if (io.WantCaptureKeyboard)
         {
-            if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP || event.type == SDL_TEXTINPUT)
+            if (event.type == SDL_EVENT_KEY_DOWN || event.type == SDL_EVENT_KEY_UP || event.type == SDL_EVENT_TEXT_INPUT)
             {
                 return true;
             }
@@ -22,7 +22,7 @@ namespace rwe
 
         if (io.WantCaptureMouse)
         {
-            if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP || event.type == SDL_MOUSEMOTION || event.type == SDL_MOUSEWHEEL)
+            if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN || event.type == SDL_EVENT_MOUSE_BUTTON_UP || event.type == SDL_EVENT_MOUSE_MOTION || event.type == SDL_EVENT_MOUSE_WHEEL)
             {
                 return true;
             }
@@ -35,7 +35,7 @@ namespace rwe
     {
         if (wantsEvent(*io, event))
         {
-            ImGui_ImplSDL2_ProcessEvent(&event);
+            ImGui_ImplSDL3_ProcessEvent(&event);
             return true;
         }
         return false;
@@ -49,14 +49,14 @@ namespace rwe
         io->IniFilename = this->iniPath.data();
         io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         ImGui::StyleColorsDark();
-        ImGui_ImplSDL2_InitForOpenGL(window, glContext);
-        ImGui_ImplOpenGL3_Init("#version 130");
+        ImGui_ImplSDL3_InitForOpenGL(window, glContext);
+        ImGui_ImplOpenGL3_Init("#version 150");
     }
 
     void ImGuiContext::newFrame(SDL_Window* window)
     {
         ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplSDL2_NewFrame();
+        ImGui_ImplSDL3_NewFrame();
         ImGui::NewFrame();
     }
 

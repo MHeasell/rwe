@@ -50,13 +50,13 @@ namespace rwe
     {
         switch (event.type)
         {
-            case SDL_KEYDOWN:
-                currentScene.onKeyDown(event.key.keysym);
+            case SDL_EVENT_KEY_DOWN:
+                currentScene.onKeyDown(event.key);
                 break;
-            case SDL_KEYUP:
-                currentScene.onKeyUp(event.key.keysym);
+            case SDL_EVENT_KEY_UP:
+                currentScene.onKeyUp(event.key);
                 break;
-            case SDL_MOUSEBUTTONDOWN:
+            case SDL_EVENT_MOUSE_BUTTON_DOWN:
             {
                 auto button = convertSdlMouseButton(event.button.button);
                 if (!button)
@@ -68,7 +68,7 @@ namespace rwe
                 currentScene.onMouseDown(e);
                 break;
             }
-            case SDL_MOUSEBUTTONUP:
+            case SDL_EVENT_MOUSE_BUTTON_UP:
             {
                 auto button = convertSdlMouseButton(event.button.button);
                 if (!button)
@@ -80,13 +80,13 @@ namespace rwe
                 currentScene.onMouseUp(e);
                 break;
             }
-            case SDL_MOUSEMOTION:
+            case SDL_EVENT_MOUSE_MOTION:
             {
                 MouseMoveEvent e(event.motion.x, event.motion.y);
                 currentScene.onMouseMove(e);
                 break;
             }
-            case SDL_MOUSEWHEEL:
+            case SDL_EVENT_MOUSE_WHEEL:
             {
                 MouseWheelEvent e(event.wheel.x, event.wheel.y);
                 currentScene.onMouseWheel(e);
@@ -120,24 +120,21 @@ namespace rwe
                     continue;
                 }
 
-                if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F11)
+                if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_F11)
                 {
                     showDebugWindow = true;
                     continue;
                 }
 
-                if (event.type == SDL_QUIT)
+                if (event.type == SDL_EVENT_QUIT)
                 {
                     return;
                 }
 
-                if (event.type == SDL_WINDOWEVENT)
+                if (event.type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED && event.window.windowID == sdl->getWindowId(window))
                 {
-                    if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED && event.window.windowID == sdl->getWindowId(window))
-                    {
-                        viewport->setDimensions(event.window.data1, event.window.data2);
-                        continue;
-                    }
+                    viewport->setDimensions(event.window.data1, event.window.data2);
+                    continue;
                 }
 
                 dispatchToScene(event, *currentScene);
@@ -165,7 +162,7 @@ namespace rwe
 
             if (!imGuiContext->io->WantCaptureMouse)
             {
-                sdl->showCursor(SDL_FALSE);
+                sdl->hideCursor();
                 cursorService->render(uiRenderService);
             }
 
@@ -201,12 +198,12 @@ namespace rwe
         ImGui::Separator();
         if (ImGui::Button("Grab Mouse"))
         {
-            sdl->setWindowGrab(window, SDL_TRUE);
+            sdl->setWindowGrab(window, true);
         }
         ImGui::SameLine();
         if (ImGui::Button("Ungrab Mouse"))
         {
-            sdl->setWindowGrab(window, SDL_FALSE);
+            sdl->setWindowGrab(window, false);
         }
         ImGui::Separator();
         if (ImGui::Button("Show Demo Window"))

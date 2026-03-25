@@ -1,8 +1,8 @@
 #include "AudioService.h"
-#include <cassert>
 
 namespace rwe
 {
+#if 0 // TODO: SDL3_mixer migration
     AudioService::AudioService(
         SdlContext* sdlContext,
         SdlMixerContext* sdlMixerContext,
@@ -83,6 +83,53 @@ namespace rwe
     {
         sdlMixerContext->volume(channel, volume);
     }
+#else
+    AudioService::AudioService(
+        SdlContext* sdlContext,
+        SdlMixerContext* sdlMixerContext,
+        AbstractVirtualFileSystem* fileSystem)
+        : sdlContext(sdlContext),
+          sdlMixerContext(sdlMixerContext),
+          fileSystem(fileSystem)
+    {
+    }
+
+    AudioService::LoopToken AudioService::loopSound(const SoundHandle& /*sound*/)
+    {
+        return LoopToken();
+    }
+
+    int AudioService::playSound(const SoundHandle& /*sound*/)
+    {
+        return -1;
+    }
+
+    std::optional<AudioService::SoundHandle> AudioService::loadSound(const std::string& /*soundName*/)
+    {
+        return std::nullopt;
+    }
+
+    void AudioService::reserveChannels(unsigned int /*count*/)
+    {
+    }
+
+    void AudioService::haltChannel(int /*channel*/)
+    {
+    }
+
+    void AudioService::playSoundIfFree(const AudioService::SoundHandle& /*sound*/, unsigned int /*channel*/)
+    {
+    }
+
+    Observable<int>& AudioService::getChannelFinished()
+    {
+        return channelFinished;
+    }
+
+    void AudioService::setVolume(int /*channel*/, int /*volume*/)
+    {
+    }
+#endif
 
     AudioService::LoopToken::LoopToken(AudioService* audioService, int channel, const AudioService::SoundHandle& sound)
         : audioService(audioService), channel(channel), sound(sound)

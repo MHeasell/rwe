@@ -1,4 +1,4 @@
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <algorithm>
 #include <rwe/util/SpanStream.h>
 #include <filesystem>
@@ -174,24 +174,26 @@ std::optional<std::string> getMinimap(rwe::CompositeVirtualFileSystem& vfs, cons
 
 std::optional<std::vector<std::pair<int, int>>> getVideoModes()
 {
-    if (SDL_Init(SDL_INIT_VIDEO))
+    if (!SDL_Init(SDL_INIT_VIDEO))
     {
         return std::nullopt;
     }
     std::vector<std::pair<int, int>> modeList;
-    auto displayModes = SDL_GetNumDisplayModes(0);
-    for (int i = 0; i < displayModes; ++i)
+    auto primaryDisplay = SDL_GetPrimaryDisplay();
+    int count = 0;
+    auto** modes = SDL_GetFullscreenDisplayModes(primaryDisplay, &count);
+    if (modes)
     {
-        SDL_DisplayMode mode;
-        if (SDL_GetDisplayMode(0, i, &mode) != 0)
+        for (int i = 0; i < count; ++i)
         {
-            continue;
+            const auto* mode = modes[i];
+            if (mode->format != SDL_PIXELFORMAT_XRGB8888 || mode->refresh_rate != 60.0f)
+            {
+                continue;
+            }
+            modeList.emplace_back(mode->w, mode->h);
         }
-        if (mode.format != SDL_PIXELFORMAT_RGB888 || mode.refresh_rate != 60)
-        {
-            continue;
-        }
-        modeList.emplace_back(mode.w, mode.h);
+        SDL_free(modes);
     }
     SDL_Quit();
     return modeList;

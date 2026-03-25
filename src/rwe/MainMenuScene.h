@@ -55,7 +55,7 @@ namespace rwe
 
         void onMouseWheel(MouseWheelEvent event) override;
 
-        void onKeyDown(const SDL_Keysym& keysym) override;
+        void onKeyDown(const SDL_KeyboardEvent& keysym) override;
 
         void update(int millisecondsElapsed) override;
 

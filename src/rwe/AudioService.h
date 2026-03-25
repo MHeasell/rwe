@@ -13,8 +13,13 @@ namespace rwe
     class AudioService
     {
     public:
+#if 0 // TODO: SDL3_mixer migration
         using Sound = Mix_Chunk;
         using SoundHandle = std::shared_ptr<Sound>;
+#else
+        struct Sound {};
+        using SoundHandle = std::shared_ptr<Sound>;
+#endif
 
         class LoopToken
         {
@@ -40,7 +45,6 @@ namespace rwe
         AbstractVirtualFileSystem* fileSystem;
         std::unordered_map<std::string, std::shared_ptr<Sound>> soundBank;
         Subject<int> channelFinished;
-        std::function<void(int)> channelFinishedCallback = std::bind(&Subject<int>::next, &channelFinished, std::placeholders::_1);
 
     public:
         AudioService(SdlContext* sdlContext, SdlMixerContext* sdlMixerContext, AbstractVirtualFileSystem* fileSystem);

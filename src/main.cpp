@@ -85,19 +85,19 @@ namespace rwe
                  << requiredVersion.version.minorVersion << ", "
                  << getOpenGlProfileName(requiredVersion.profile) << " profile";
 
-        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, requiredVersion.version.majorVersion) != 0)
+        if (!sdlContext->glSetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, requiredVersion.version.majorVersion))
         {
             return Err(SDL_GetError());
         }
-        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, requiredVersion.version.minorVersion) != 0)
+        if (!sdlContext->glSetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, requiredVersion.version.minorVersion))
         {
             return Err(SDL_GetError());
         }
-        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, getSdlProfileMask(requiredVersion.profile)) != 0)
+        if (!sdlContext->glSetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, getSdlProfileMask(requiredVersion.profile)))
         {
             return Err(SDL_GetError());
         }
-        if (sdlContext->glSetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG) != 0)
+        if (!sdlContext->glSetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG))
         {
             return Err(SDL_GetError());
         }
@@ -135,15 +135,13 @@ namespace rwe
         auto sdlContext = sdlManager.getSdlContext();
 
         // require a stencil buffer of some kind
-        if (sdlContext->glSetAttribute(SDL_GL_STENCIL_SIZE, 1) != 0)
+        if (!sdlContext->glSetAttribute(SDL_GL_STENCIL_SIZE, 1))
         {
             throw std::runtime_error(SDL_GetError());
         }
 
         auto window = sdlContext->createWindow(
             "RWE",
-            SDL_WINDOWPOS_CENTERED,
-            SDL_WINDOWPOS_CENTERED,
             desiredWindowWidth,
             desiredWindowHeight,
             SDL_WINDOW_OPENGL | (fullscreen ? SDL_WINDOW_FULLSCREEN : 0));
@@ -154,25 +152,19 @@ namespace rwe
 
         if (fullscreen)
         {
-            SDL_DisplayMode desiredMode;
-            desiredMode.w = desiredWindowWidth;
-            desiredMode.h = desiredWindowHeight;
-            desiredMode.refresh_rate = 0;
-            desiredMode.format = 0;
-            desiredMode.driverdata = 0;
             SDL_DisplayMode targetMode;
-            auto displayIndex = sdlContext->getWindowDisplayIndex(window.get());
-            if (displayIndex < 0)
+            auto displayID = sdlContext->getWindowDisplayIndex(window.get());
+            if (displayID == 0)
             {
                 throw std::runtime_error(SDL_GetError());
             }
 
-            if (sdlContext->getClosestDisplayMode(displayIndex, &desiredMode, &targetMode) == nullptr)
+            if (!sdlContext->getClosestDisplayMode(displayID, desiredWindowWidth, desiredWindowHeight, 0.0f, &targetMode))
             {
                 throw std::runtime_error(SDL_GetError());
             }
 
-            if (sdlContext->setWindowDisplayMode(window.get(), &targetMode) != 0)
+            if (!sdlContext->setWindowDisplayMode(window.get(), &targetMode))
             {
                 throw std::runtime_error(SDL_GetError());
             }
@@ -182,7 +174,7 @@ namespace rwe
         // Prevent the mouse from leaving the window.
         // We rely on nudging the edges of the screen to pan the camera,
         // so this is necessary for the game to work.
-        sdlContext->setWindowGrab(window.get(), SDL_TRUE);
+        sdlContext->setWindowGrab(window.get(), true);
 
         int windowWidth;
         int windowHeight;
@@ -293,7 +285,7 @@ namespace rwe
         cursors[*CursorType::Green] = textureService.getGafEntry("anims/CURSORS.GAF", "cursorgrn");
         CursorService cursor(sdlContext, &timeService, cursors);
 
-        sdlContext->showCursor(SDL_DISABLE);
+        sdlContext->hideCursor();
 
         SceneManager sceneManager(sdlContext, window.get(), &graphics, &timeService, &imGuiContext, &cursor, &globalConfig, UiRenderService(&graphics, &shaders, &viewport), &viewport);
 

@@ -332,9 +332,9 @@ namespace rwe
 
         void render() override;
 
-        void onKeyDown(const SDL_Keysym& keysym) override;
+        void onKeyDown(const SDL_KeyboardEvent& keysym) override;
 
-        void onKeyUp(const SDL_Keysym& keysym) override;
+        void onKeyUp(const SDL_KeyboardEvent& keysym) override;
 
         void onMouseDown(MouseButtonEvent event) override;
 

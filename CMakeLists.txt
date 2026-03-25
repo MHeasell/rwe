@@ -158,7 +158,7 @@ file(GLOB IMGUI_SOURCE_FILES
     )
 
 set(IMGUI_IMPL_FILES
-    ${PROJECT_SOURCE_DIR}/libs/imgui/backends/imgui_impl_sdl2.cpp
+    ${PROJECT_SOURCE_DIR}/libs/imgui/backends/imgui_impl_sdl3.cpp
     ${PROJECT_SOURCE_DIR}/libs/imgui/backends/imgui_impl_opengl3.cpp
     )
 
@@ -440,8 +440,6 @@ set(SOURCE_FILES
     src/rwe/sdl/SdlContextManager.cpp
     src/rwe/sdl/SdlContextManager.h
     src/rwe/sdl/SdlException.h
-    src/rwe/sdl/SdlImageContext.h
-    src/rwe/sdl/SdlImageException.h
     src/rwe/sdl/SdlMixerContext.h
     src/rwe/sdl/SdlMixerException.h
     src/rwe/sim/Energy.cpp

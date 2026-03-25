@@ -1,7 +1,7 @@
 #pragma once
 
 #include <GL/glew.h>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <memory>
 #include <rwe/ColorPalette.h>
 #include <rwe/Mesh.h>

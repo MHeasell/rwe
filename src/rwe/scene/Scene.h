@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <rwe/events.h>
 
 namespace rwe
@@ -14,9 +14,9 @@ namespace rwe
 
         virtual void render() {}
 
-        virtual void onKeyDown(const SDL_Keysym& /*key*/) {}
+        virtual void onKeyDown(const SDL_KeyboardEvent& /*key*/) {}
 
-        virtual void onKeyUp(const SDL_Keysym& /*key*/) {}
+        virtual void onKeyUp(const SDL_KeyboardEvent& /*key*/) {}
 
         virtual void onMouseDown(MouseButtonEvent /*event*/) {}
 

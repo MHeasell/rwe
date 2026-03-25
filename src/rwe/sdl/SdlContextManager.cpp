@@ -17,9 +17,4 @@ namespace rwe
         return &sdlMixerContext;
     }
 
-    const SdlImageContext* SdlContextManager::getSdlImageContext() const
-    {
-        return &sdlImageContext;
-    }
-
 }

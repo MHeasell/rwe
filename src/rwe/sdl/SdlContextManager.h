@@ -1,7 +1,6 @@
 #pragma once
 
 #include <rwe/sdl/SdlContext.h>
-#include <rwe/sdl/SdlImageContext.h>
 #include <rwe/sdl/SdlMixerContext.h>
 
 namespace rwe
@@ -22,11 +21,9 @@ namespace rwe
         const rwe::SdlContext* getSdlContext() const;
         rwe::SdlContext* getSdlContext();
         rwe::SdlMixerContext* getSdlMixerContext();
-        const SdlImageContext* getSdlImageContext() const;
 
     private:
         rwe::SdlContext sdlContext;
         rwe::SdlMixerContext sdlMixerContext;
-        SdlImageContext sdlImageContext;
     };
 }

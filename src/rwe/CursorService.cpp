@@ -31,10 +31,12 @@ namespace rwe
 
     void CursorService::render(UiRenderService& renderer) const
     {
-        int x;
-        int y;
+        float fx;
+        float fy;
 
-        sdlContext->getMouseState(&x, &y);
+        sdlContext->getMouseState(&fx, &fy);
+        int x = static_cast<int>(fx);
+        int y = static_cast<int>(fy);
 
         auto timeInMillis = timeService->getTicks();
         const auto& frames = currentCursor->sprites;

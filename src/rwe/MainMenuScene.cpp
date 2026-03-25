@@ -155,9 +155,9 @@ namespace rwe
         topPanel().mouseWheel(event);
     }
 
-    void MainMenuScene::onKeyDown(const SDL_Keysym& keysym)
+    void MainMenuScene::onKeyDown(const SDL_KeyboardEvent& keysym)
     {
-        topPanel().keyDown(KeyEvent(keysym.sym));
+        topPanel().keyDown(KeyEvent(keysym.key));
     }
 
     void MainMenuScene::goToMainMenu()
