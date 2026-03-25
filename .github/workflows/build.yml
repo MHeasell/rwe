@@ -39,12 +39,16 @@ jobs:
           g++-14
           clang-18
           ccache
-          libsdl2-dev
-          libsdl2-image-dev
-          libsdl2-mixer-dev
           libglew-dev
           zlib1g-dev
           libpng-dev
+          libasound2-dev
+          libpulse-dev
+          libpipewire-0.3-dev
+          libwayland-dev
+          wayland-protocols
+          libxkbcommon-dev
+          libdecor-0-dev
       - name: restore ccache
         uses: actions/cache@v5
         with:
@@ -198,15 +202,9 @@ jobs:
             make
             unzip
             mingw-w64-x86_64-toolchain
-            mingw-w64-x86_64-SDL2
-            mingw-w64-x86_64-SDL2_image
-            mingw-w64-x86_64-SDL2_mixer
             mingw-w64-x86_64-glew
-            mingw-w64-x86_64-smpeg2
-            mingw-w64-x86_64-libmodplug
             mingw-w64-x86_64-zlib
             mingw-w64-x86_64-libpng
-            mingw-w64-x86_64-readline
             mingw-w64-x86_64-ccache
       - name: restore ccache
         uses: actions/cache@v5
