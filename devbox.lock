@@ -1,6 +1,10 @@
 {
   "lockfile_version": "1",
   "packages": {
+    "alsa-lib": {
+      "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#alsa-lib",
+      "source": "nixpkg"
+    },
     "cmake": {
       "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#cmake",
       "source": "nixpkg",
@@ -12,6 +16,54 @@
               "default": true
             }
           ]
+        }
+      }
+    },
+    "coccinelle@latest": {
+      "last_modified": "2026-03-21T07:29:51Z",
+      "resolved": "github:NixOS/nixpkgs/09061f748ee21f68a089cd5d91ec1859cd93d0be#coccinelle",
+      "source": "devbox-search",
+      "version": "1.3.0",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/7q083y67w82v535a8mhrg6lpvwzf6ykr-coccinelle-1.3.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/7q083y67w82v535a8mhrg6lpvwzf6ykr-coccinelle-1.3.0"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/234l2555h53914ypxf16z7s1jjxb80l3-coccinelle-1.3.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/234l2555h53914ypxf16z7s1jjxb80l3-coccinelle-1.3.0"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/yvgc02g1ivr3nbbincm8j8apbgmic9zl-coccinelle-1.3.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/yvgc02g1ivr3nbbincm8j8apbgmic9zl-coccinelle-1.3.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/gw7w5wvp7nlf1xj32a7qx6lcibpamagx-coccinelle-1.3.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/gw7w5wvp7nlf1xj32a7qx6lcibpamagx-coccinelle-1.3.0"
         }
       }
     },
@@ -62,6 +114,10 @@
       "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#libXtst",
       "source": "nixpkg"
     },
+    "libdecor": {
+      "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#libdecor",
+      "source": "nixpkg"
+    },
     "libpng": {
       "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#libpng",
       "source": "nixpkg",
@@ -89,8 +145,16 @@
       "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#libxext",
       "source": "nixpkg"
     },
+    "libxkbcommon": {
+      "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#libxkbcommon",
+      "source": "nixpkg"
+    },
     "libxrandr": {
       "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#libxrandr",
+      "source": "nixpkg"
+    },
+    "pipewire": {
+      "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#pipewire",
       "source": "nixpkg"
     },
     "pkg-config": {
@@ -125,6 +189,18 @@
           ]
         }
       }
+    },
+    "pulseaudio": {
+      "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#pulseaudio",
+      "source": "nixpkg"
+    },
+    "wayland": {
+      "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#wayland",
+      "source": "nixpkg"
+    },
+    "wayland-protocols": {
+      "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#wayland-protocols",
+      "source": "nixpkg"
     },
     "zlib": {
       "resolved": "github:NixOS/nixpkgs/724cf38d99ba81fbb4a347081db93e2e3a9bc2ae?narHash=sha256-MpAKyXfJRDTgRU33Hja%2BG%2B3h9ywLAJJNRq4Pjbb4dQs%3D#zlib",

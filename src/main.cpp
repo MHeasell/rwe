@@ -128,10 +128,6 @@ namespace rwe
         LOG_INFO << "Initializing SDL";
         SdlContextManager sdlManager;
 
-        // Set a reasonable number of audio channels
-        // so that we always hear unit sounds.
-        sdlManager.getSdlMixerContext()->allocateChannels(256);
-
         auto sdlContext = sdlManager.getSdlContext();
 
         // require a stencil buffer of some kind
@@ -261,6 +257,8 @@ namespace rwe
         TextureService textureService(&graphics, &vfs, &*palette);
 
         AudioService audioService(sdlContext, sdlManager.getSdlMixerContext(), &vfs);
+        // Allocate a pool of tracks for sound playback
+        audioService.allocateTracks(256);
 
         // load sound definitions
         LOG_INFO << "Loading global sound definitions";

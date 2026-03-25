@@ -16,7 +16,14 @@
     "libXScrnSaver",
     "libXcursor",
     "libXtst",
-    "libxcb"
+    "libxcb",
+    "alsa-lib",
+    "pipewire",
+    "pulseaudio",
+    "wayland",
+    "wayland-protocols",
+    "libxkbcommon",
+    "libdecor"
   ],
   "shell": {
     "init_hook": [

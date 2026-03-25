@@ -29,7 +29,7 @@ namespace rwe
     private:
         SdlContext()
         {
-            if (!SDL_Init(SDL_INIT_VIDEO)) // TODO: re-add SDL_INIT_AUDIO after SDL3_mixer migration
+            if (!SDL_Init(SDL_INIT_VIDEO))
             {
                 throw rwe::SDLException(SDL_GetError());
             }
