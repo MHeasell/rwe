@@ -56,7 +56,11 @@ add_subdirectory("libs/sdl3")
 
 set(SDL3MIXER_VENDORED ON CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+# SDL3_mixer's CMakeLists sets CMAKE_POSITION_INDEPENDENT_CODE ON in the cache
+# via option(), which leaks into all targets. We don't need PIC for our static
+# libraries or executables, so force it off after SDL3_mixer is configured.
 add_subdirectory("libs/sdl3_mixer")
+set(CMAKE_POSITION_INDEPENDENT_CODE OFF CACHE BOOL "" FORCE)
 
 function(find_windows_dll var dll)
     if(WIN32)
@@ -772,9 +776,6 @@ add_executable(rwe_test ${TEST_FILES})
 target_link_libraries(rwe_test Catch2::Catch2WithMain)
 target_link_libraries(rwe_test rapidcheck_catch)
 target_link_libraries(rwe_test librwe)
-# Don't reuse librwe's PCH for rwe_test: librwe is a static library (-fPIC)
-# but rwe_test is an executable (-fPIE), and clang's PCH encodes this setting.
-set_target_properties(rwe_test PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_precompile_headers(rwe_test REUSE_FROM librwe)
 add_test(NAME rwe_test COMMAND rwe_test)
 
