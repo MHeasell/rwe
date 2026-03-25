@@ -51,6 +51,7 @@ add_subdirectory("libs/json")
 set(SDL_STATIC ON CACHE BOOL "" FORCE)
 set(SDL_SHARED OFF CACHE BOOL "" FORCE)
 set(SDL_TEST_LIBRARY OFF CACHE BOOL "" FORCE)
+set(SDL_OPENGLES OFF CACHE BOOL "" FORCE)
 add_subdirectory("libs/sdl3")
 
 set(SDL3MIXER_VENDORED ON CACHE BOOL "" FORCE)
@@ -771,6 +772,9 @@ add_executable(rwe_test ${TEST_FILES})
 target_link_libraries(rwe_test Catch2::Catch2WithMain)
 target_link_libraries(rwe_test rapidcheck_catch)
 target_link_libraries(rwe_test librwe)
+# Don't reuse librwe's PCH for rwe_test: librwe is a static library (-fPIC)
+# but rwe_test is an executable (-fPIE), and clang's PCH encodes this setting.
+set_target_properties(rwe_test PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_precompile_headers(rwe_test REUSE_FROM librwe)
 add_test(NAME rwe_test COMMAND rwe_test)
 
