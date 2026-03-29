@@ -546,6 +546,8 @@ namespace rwe
 
         sim->events.push_back(FireWeaponEvent{weapon->weaponType, fireInfo->burstsFired, firingPoint});
 
+        sim->addResourceDelta(id, -weaponDefinition.energyPerShot, Metal(0));
+
         // If we just started the burst, set the reload timer
         if (fireInfo->burstsFired == 0)
         {

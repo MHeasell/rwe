@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <rwe/sim/Energy.h>
 #include <rwe/sim/GameTime.h>
 #include <rwe/sim/ProjectilePhysicsType.h>
 #include <rwe/sim/SimAngle.h>
@@ -48,5 +49,7 @@ namespace rwe
 
         /** If true, projectile does not explode when hitting the ground but instead continues travelling. */
         bool groundBounce;
+
+        Energy energyPerShot;
     };
 }

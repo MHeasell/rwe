@@ -159,6 +159,8 @@ namespace rwe
         weaponDefinition.burstInterval = SimScalar(tdf.burstRate);
         weaponDefinition.sprayAngle = SimAngle(tdf.sprayAngle);
 
+        weaponDefinition.energyPerShot = Energy(tdf.energyPerShot);
+
         if (tdf.tracks)
         {
             weaponDefinition.physicsType = ProjectilePhysicsTypeTracking{SimScalar(tdf.turnRate)};
